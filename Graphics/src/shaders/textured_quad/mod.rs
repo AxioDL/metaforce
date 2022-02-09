@@ -7,11 +7,9 @@ use crate::{
     get_app,
     gpu::GraphicsConfig,
     shaders::{
-        bind_pipeline,
-        ffi::{CameraFilterType, TextureRef, ZTest},
-        get_combined_matrix, pipeline_ref, push_draw_command, push_uniform, push_verts,
-        texture::create_sampler,
-        BuiltBuffers, PipelineCreateCommand, PipelineHolder, PipelineRef, ShaderDrawCommand, STATE,
+        bind_pipeline, cxxbridge::ffi, get_combined_matrix, pipeline_ref, push_draw_command,
+        push_uniform, push_verts, texture::create_sampler, BuiltBuffers, PipelineCreateCommand,
+        PipelineHolder, PipelineRef, ShaderDrawCommand, STATE,
     },
     util::{align, Vec2, Vec3},
     zeus::{CColor, CMatrix4f, CRectangle, CVector2f, CVector3f, CVector4f},
@@ -22,13 +20,13 @@ pub(crate) struct DrawData {
     pipeline: PipelineRef,
     vert_range: Range<u64>,
     uniform_range: Range<u64>,
-    texture: TextureRef,
+    texture: ffi::TextureRef,
 }
 
 #[derive(Hash)]
 pub(crate) struct PipelineConfig {
-    filter_type: CameraFilterType,
-    z_comparison: ZTest,
+    filter_type: ffi::CameraFilterType,
+    z_comparison: ffi::ZTest,
     z_test: bool,
 }
 pub(crate) const INITIAL_PIPELINES: &[PipelineCreateCommand] = &[
@@ -134,7 +132,7 @@ pub(crate) fn construct_pipeline(
     config: &PipelineConfig,
 ) -> PipelineHolder {
     let (blend_component, alpha_write) = match config.filter_type {
-        CameraFilterType::Multiply => (
+        ffi::CameraFilterType::Multiply => (
             wgpu::BlendComponent {
                 src_factor: wgpu::BlendFactor::Zero,
                 dst_factor: wgpu::BlendFactor::Src,
@@ -142,7 +140,7 @@ pub(crate) fn construct_pipeline(
             },
             true,
         ),
-        CameraFilterType::Add => (
+        ffi::CameraFilterType::Add => (
             wgpu::BlendComponent {
                 src_factor: wgpu::BlendFactor::SrcAlpha,
                 dst_factor: wgpu::BlendFactor::One,
@@ -150,7 +148,7 @@ pub(crate) fn construct_pipeline(
             },
             false,
         ),
-        CameraFilterType::Subtract => (
+        ffi::CameraFilterType::Subtract => (
             wgpu::BlendComponent {
                 src_factor: wgpu::BlendFactor::SrcAlpha,
                 dst_factor: wgpu::BlendFactor::One,
@@ -158,7 +156,7 @@ pub(crate) fn construct_pipeline(
             },
             false,
         ),
-        CameraFilterType::Blend => (
+        ffi::CameraFilterType::Blend => (
             wgpu::BlendComponent {
                 src_factor: wgpu::BlendFactor::SrcAlpha,
                 dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
@@ -166,7 +164,7 @@ pub(crate) fn construct_pipeline(
             },
             false,
         ),
-        CameraFilterType::InvDstMultiply => (
+        ffi::CameraFilterType::InvDstMultiply => (
             wgpu::BlendComponent {
                 src_factor: wgpu::BlendFactor::Zero,
                 dst_factor: wgpu::BlendFactor::OneMinusSrc,
@@ -197,15 +195,15 @@ pub(crate) fn construct_pipeline(
                 format: graphics.depth_format,
                 depth_write_enabled: config.z_test,
                 depth_compare: match config.z_comparison {
-                    ZTest::Never => wgpu::CompareFunction::Never,
-                    ZTest::Less => wgpu::CompareFunction::Less,
-                    ZTest::Equal => wgpu::CompareFunction::Equal,
-                    ZTest::LEqual => wgpu::CompareFunction::LessEqual,
-                    ZTest::Greater => wgpu::CompareFunction::Greater,
-                    ZTest::NEqual => wgpu::CompareFunction::NotEqual,
-                    ZTest::GEqual => wgpu::CompareFunction::GreaterEqual,
-                    ZTest::Always => wgpu::CompareFunction::Always,
-                    _=>todo!(),
+                    ffi::ZTest::Never => wgpu::CompareFunction::Never,
+                    ffi::ZTest::Less => wgpu::CompareFunction::Less,
+                    ffi::ZTest::Equal => wgpu::CompareFunction::Equal,
+                    ffi::ZTest::LEqual => wgpu::CompareFunction::LessEqual,
+                    ffi::ZTest::Greater => wgpu::CompareFunction::Greater,
+                    ffi::ZTest::NEqual => wgpu::CompareFunction::NotEqual,
+                    ffi::ZTest::GEqual => wgpu::CompareFunction::GreaterEqual,
+                    ffi::ZTest::Always => wgpu::CompareFunction::Always,
+                    _ => todo!(),
                 },
                 stencil: Default::default(),
                 bias: Default::default(),
@@ -251,17 +249,20 @@ struct Vert {
 }
 
 pub(crate) fn queue_textured_quad(
-    filter_type: CameraFilterType,
-    texture: TextureRef,
-    z_comparison: ZTest,
+    filter_type: ffi::CameraFilterType,
+    texture: ffi::TextureRef,
+    z_comparison: ffi::ZTest,
     z_test: bool,
     color: CColor,
     uv_scale: f32,
     rect: CRectangle,
     z: f32,
 ) {
-    let pipeline =
-        pipeline_ref(&PipelineCreateCommand::TexturedQuad(PipelineConfig { filter_type, z_comparison, z_test }));
+    let pipeline = pipeline_ref(&PipelineCreateCommand::TexturedQuad(PipelineConfig {
+        filter_type,
+        z_comparison,
+        z_test,
+    }));
     let vert_range = push_verts(&[
         Vert { pos: Vec3::new(0.0, 0.0, z), uv: Vec2::new(0.0, 0.0) },
         Vert { pos: Vec3::new(0.0, 1.0, z), uv: Vec2::new(0.0, uv_scale) },
@@ -283,9 +284,9 @@ pub(crate) fn queue_textured_quad(
 }
 
 pub(crate) fn queue_textured_quad_verts(
-    filter_type: CameraFilterType,
-    texture: TextureRef,
-    z_comparison: ZTest,
+    filter_type: ffi::CameraFilterType,
+    texture: ffi::TextureRef,
+    z_comparison: ffi::ZTest,
     z_test: bool,
     color: CColor,
     pos: &[CVector3f],
@@ -296,8 +297,11 @@ pub(crate) fn queue_textured_quad_verts(
         panic!("Invalid pos/uv sizes: {}/{}", pos.len(), uvs.len());
     }
 
-    let pipeline =
-        pipeline_ref(&PipelineCreateCommand::TexturedQuad(PipelineConfig { filter_type, z_comparison, z_test }));
+    let pipeline = pipeline_ref(&PipelineCreateCommand::TexturedQuad(PipelineConfig {
+        filter_type,
+        z_comparison,
+        z_test,
+    }));
     let vert_range = push_verts(
         &pos.iter()
             .zip(uvs)
@@ -310,7 +314,7 @@ pub(crate) fn queue_textured_quad_verts(
 }
 
 fn push_textured_quad(
-    texture: TextureRef,
+    texture: ffi::TextureRef,
     pipeline: PipelineRef,
     vert_range: Range<u64>,
     uniform_range: Range<u64>,

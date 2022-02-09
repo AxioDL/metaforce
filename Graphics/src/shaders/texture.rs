@@ -10,7 +10,7 @@ use wgpu::{util::DeviceExt, ImageDataLayout};
 use crate::{
     get_app,
     shaders::{
-        ffi::{TextureFormat, TextureRef},
+        cxxbridge::ffi::{TextureFormat, TextureRef},
         STATE,
     },
 };

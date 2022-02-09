@@ -81,13 +81,13 @@ impl From<Vec2<i16>> for Vec2<f32> {
 #[inline(always)]
 pub(crate) fn align<
     T: Copy
-    + std::ops::Sub<Output = T>
-    + std::ops::Add<Output = T>
-    + std::ops::Not<Output = T>
-    + std::ops::BitAnd<Output = T>
-    + num_traits::One
-    + num_traits::Zero
-    + std::cmp::PartialEq,
+        + std::ops::Sub<Output = T>
+        + std::ops::Add<Output = T>
+        + std::ops::Not<Output = T>
+        + std::ops::BitAnd<Output = T>
+        + num_traits::One
+        + num_traits::Zero
+        + std::cmp::PartialEq,
 >(
     n: T,
     a: T,

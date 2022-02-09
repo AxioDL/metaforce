@@ -31,24 +31,24 @@ fn main() {
     let cxx_flag = "-std=c++17";
     #[cfg(all(unix, not(any(target_os = "macos", target_os = "ios"))))]
     let cxx_flag = "-std=gnu++17";
-    cxx_build::bridge("src/lib.rs")
+    cxx_build::bridge("src/cxxbridge.rs")
         .include("include")
         .include(zeus_include.clone())
         .flag(cxx_flag)
         .compile("aurora");
-    println!("cargo:rerun-if-changed=src/lib.rs");
-    cxx_build::bridge("src/shaders/mod.rs")
+    println!("cargo:rerun-if-changed=src/cxxbridge.rs");
+    cxx_build::bridge("src/shaders/cxxbridge.rs")
         .include("include")
         .include(zeus_include.clone())
         .flag(cxx_flag)
         .compile("aurora_shaders");
-    println!("cargo:rerun-if-changed=src/shaders/mod.rs");
-    cxx_build::bridge("src/imgui.rs")
+    println!("cargo:rerun-if-changed=src/shaders/cxxbridge.rs");
+    cxx_build::bridge("src/imgui/cxxbridge.rs")
         .include("include")
         .include(zeus_include.clone())
         .include(imgui_include.clone())
         .include(imgui_engine_include.clone())
         .flag(cxx_flag)
         .compile("aurora_imgui");
-    println!("cargo:rerun-if-changed=src/imgui.rs");
+    println!("cargo:rerun-if-changed=src/imgui/cxxbridge.rs");
 }

@@ -11,14 +11,12 @@ use crate::{
     get_app,
     gpu::GraphicsConfig,
     shaders::{
-        bind_pipeline,
-        ffi::{CameraFilterType, TextureRef, ZTest},
-        pipeline_ref, push_draw_command, push_uniform, push_verts,
-        texture::create_sampler,
-        BuiltBuffers, PipelineCreateCommand, PipelineHolder, PipelineRef, ShaderDrawCommand, STATE,
+        bind_pipeline, cxxbridge::ffi, pipeline_ref, push_draw_command, push_uniform, push_verts,
+        texture::create_sampler, BuiltBuffers, PipelineCreateCommand, PipelineHolder, PipelineRef,
+        ShaderDrawCommand, STATE,
     },
     util::{align, Vec2, Vec3},
-    zeus::{CColor, CMatrix4f, CRectangle, CVector4f},
+    zeus::{CColor, CMatrix4f},
 };
 
 #[derive(Debug, Clone)]
@@ -216,9 +214,9 @@ struct Vert {
 }
 
 pub(crate) fn queue_movie_player(
-    tex_y: TextureRef,
-    tex_u: TextureRef,
-    tex_v: TextureRef,
+    tex_y: ffi::TextureRef,
+    tex_u: ffi::TextureRef,
+    tex_v: ffi::TextureRef,
     color: CColor,
     h_pad: f32,
     v_pad: f32,

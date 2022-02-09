@@ -40,6 +40,7 @@ pub(crate) fn construct_state(
     device: &wgpu::Device,
     _queue: &wgpu::Queue,
     buffers: &BuiltBuffers,
+    graphics_config: &GraphicsConfig,
 ) -> State {
     let shader = device.create_shader_module(&include_wgsl!("shader.wgsl"));
     let uniform_size = wgpu::BufferSize::new(std::mem::size_of::<Uniform>() as u64);

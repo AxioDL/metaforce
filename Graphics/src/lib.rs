@@ -3,8 +3,12 @@
 #![allow(unused_variables)]
 #![allow(unused_unsafe)]
 
-use std::{collections::HashMap, time::Instant};
+use std::{
+    collections::{BTreeMap, HashMap},
+    time::Instant,
+};
 
+use cxxbridge::ffi;
 use sdl2::{
     controller::{Axis, Button, GameController},
     event::Event as SDLEvent,
@@ -17,220 +21,29 @@ use winit::{
 };
 
 use crate::{
-    ffi::{SpecialKey, WindowSize},
     gpu::{create_depth_texture, create_render_texture, initialize_gpu, DeviceHolder},
     imgui::{initialize_imgui, ImGuiState},
+    sdl::{
+        get_controller_player_index, initialize_sdl, poll_sdl_events, remap_controller_layout,
+        set_controller_player_index, SdlState,
+    },
     shaders::render_into_pass,
 };
 
+mod cxxbridge;
 mod gpu;
 mod imgui;
 mod imgui_backend;
+mod sdl;
 mod shaders;
 mod util;
 mod zeus;
-
-#[cxx::bridge(namespace = "aurora")]
-mod ffi {
-    unsafe extern "C++" {
-        include!("aurora.hpp");
-        pub(crate) type AppDelegate;
-    }
-
-    unsafe extern "C++" {
-        include!("lib.hpp");
-        pub(crate) fn App_onAppLaunched(cb: Pin<&mut AppDelegate>);
-        pub(crate) fn App_onAppIdle(cb: Pin<&mut AppDelegate>, dt: f32) -> bool;
-        pub(crate) fn App_onAppDraw(cb: Pin<&mut AppDelegate>);
-        pub(crate) fn App_onAppPostDraw(cb: Pin<&mut AppDelegate>);
-        pub(crate) fn App_onAppWindowResized(cb: Pin<&mut AppDelegate>, size: &WindowSize);
-        pub(crate) fn App_onAppWindowMoved(cb: Pin<&mut AppDelegate>, x: i32, y: i32);
-        pub(crate) fn App_onAppExiting(cb: Pin<&mut AppDelegate>);
-        // Input
-        pub(crate) fn App_onCharKeyDown(cb: Pin<&mut AppDelegate>, code: u8, is_repeat: bool);
-        pub(crate) fn App_onCharKeyUp(cb: Pin<&mut AppDelegate>, code: u8);
-        pub(crate) fn App_onSpecialKeyDown(
-            cb: Pin<&mut AppDelegate>,
-            key: SpecialKey,
-            is_repeat: bool,
-        );
-        pub(crate) fn App_onSpecialKeyUp(cb: Pin<&mut AppDelegate>, key: SpecialKey);
-        // Controller
-        pub(crate) fn App_onControllerButton(
-            cb: Pin<&mut AppDelegate>,
-            idx: u32,
-            button: ControllerButton,
-            pressed: bool,
-        );
-        pub(crate) fn App_onControllerAxis(
-            cb: Pin<&mut AppDelegate>,
-            idx: u32,
-            axis: ControllerAxis,
-            value: i16,
-        );
-    }
-
-    pub struct Window {
-        pub(crate) inner: Box<WindowContext>,
-    }
-
-    pub struct WindowSize {
-        pub width: u32,
-        pub height: u32,
-    }
-
-    #[derive(Debug)]
-    pub enum Backend {
-        Invalid,
-        Vulkan,
-        Metal,
-        D3D12,
-        D3D11,
-        OpenGL,
-        WebGPU,
-    }
-
-    pub enum ElementState {
-        Pressed,
-        Released,
-    }
-
-    pub enum MouseButton {
-        Left,
-        Right,
-        Middle,
-        Other,
-    }
-
-    pub enum SpecialKey {
-        None = 0,
-        F1 = 1,
-        F2 = 2,
-        F3 = 3,
-        F4 = 4,
-        F5 = 5,
-        F6 = 6,
-        F7 = 7,
-        F8 = 8,
-        F9 = 9,
-        F10 = 10,
-        F11 = 11,
-        F12 = 12,
-        Esc = 13,
-        Enter = 14,
-        Backspace = 15,
-        Insert = 16,
-        Delete = 17,
-        Home = 18,
-        End = 19,
-        PgUp = 20,
-        PgDown = 21,
-        Left = 22,
-        Right = 23,
-        Up = 24,
-        Down = 25,
-        Tab = 26,
-    }
-
-    pub struct KeyboardInput {
-        pub scancode: u32,
-        pub state: ElementState,
-        // pub
-    }
-
-    pub enum ControllerButton {
-        A,
-        B,
-        X,
-        Y,
-        Back,
-        Guide,
-        Start,
-        LeftStick,
-        RightStick,
-        LeftShoulder,
-        RightShoulder,
-        DPadUp,
-        DPadDown,
-        DPadLeft,
-        DPadRight,
-        Other,
-        MAX,
-    }
-    pub enum ControllerAxis {
-        LeftX,
-        LeftY,
-        RightX,
-        RightY,
-        TriggerLeft,
-        TriggerRight,
-        MAX,
-    }
-    pub struct Icon {
-        pub data: Vec<u8>,
-        pub width: u32,
-        pub height: u32,
-    }
-
-    extern "Rust" {
-        type WindowContext;
-        type App;
-        fn app_run(mut delegate: UniquePtr<AppDelegate>, icon: Icon);
-        fn get_args() -> Vec<String>;
-        fn get_window_size() -> WindowSize;
-        fn set_window_title(title: &CxxString);
-        fn get_dxt_compression_supported() -> bool;
-        fn get_backend() -> Backend;
-        fn get_backend_string() -> &'static str;
-        fn set_fullscreen(v: bool);
-        fn get_controller_player_index(which: u32) -> i32;
-        fn set_controller_player_index(which: u32, index: i32);
-    }
-}
-impl From<Button> for ffi::ControllerButton {
-    fn from(button: Button) -> Self {
-        match button {
-            Button::A => ffi::ControllerButton::A,
-            Button::B => ffi::ControllerButton::B,
-            Button::X => ffi::ControllerButton::X,
-            Button::Y => ffi::ControllerButton::Y,
-            Button::Back => ffi::ControllerButton::Back,
-            Button::Guide => ffi::ControllerButton::Guide,
-            Button::Start => ffi::ControllerButton::Start,
-            Button::LeftStick => ffi::ControllerButton::LeftStick,
-            Button::RightStick => ffi::ControllerButton::RightStick,
-            Button::LeftShoulder => ffi::ControllerButton::LeftShoulder,
-            Button::RightShoulder => ffi::ControllerButton::RightShoulder,
-            Button::DPadUp => ffi::ControllerButton::DPadUp,
-            Button::DPadDown => ffi::ControllerButton::DPadDown,
-            Button::DPadLeft => ffi::ControllerButton::DPadLeft,
-            Button::DPadRight => ffi::ControllerButton::DPadRight,
-            _ => ffi::ControllerButton::Other,
-        }
-    }
-}
-impl From<Axis> for ffi::ControllerAxis {
-    fn from(axis: Axis) -> Self {
-        match axis {
-            Axis::LeftX => ffi::ControllerAxis::LeftX,
-            Axis::LeftY => ffi::ControllerAxis::LeftY,
-            Axis::RightX => ffi::ControllerAxis::RightX,
-            Axis::RightY => ffi::ControllerAxis::RightY,
-            Axis::TriggerLeft => ffi::ControllerAxis::TriggerLeft,
-            Axis::TriggerRight => ffi::ControllerAxis::TriggerRight,
-        }
-    }
-}
 
 pub struct App {
     window: ffi::Window,
     gpu: DeviceHolder,
     imgui: ImGuiState,
-    // SDL
-    sdl: Sdl,
-    sdl_events: sdl2::EventPump,
-    sdl_controller_sys: GameControllerSubsystem,
-    sdl_open_controllers: HashMap<u32, GameController>,
+    sdl: SdlState,
 }
 
 pub struct WindowContext {
@@ -246,29 +59,21 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>, icon: ffi::Icon) {
     env_logger::init();
     log::info!("Running app");
     let event_loop = winit::event_loop::EventLoop::new();
-    let window_icon = winit::window::Icon::from_rgba(icon.data, icon.width, icon.height).expect("Failed to load icon");
+    let window_icon = winit::window::Icon::from_rgba(icon.data, icon.width, icon.height)
+        .expect("Failed to load icon");
     let window = winit::window::WindowBuilder::new()
         .with_inner_size(winit::dpi::LogicalSize::new(1280, 720))
         .with_window_icon(Some(window_icon))
         .build(&event_loop)
         .unwrap();
-    let sdl = sdl2::init().unwrap();
-    let sdl_events = sdl.event_pump().unwrap();
-    let controller = sdl.game_controller().unwrap();
+    let sdl = initialize_sdl();
     let gpu = initialize_gpu(&window);
     let imgui = initialize_imgui(&window, &gpu);
     let mut special_keys_pressed: [bool; 512] = [false; 512];
     shaders::construct_state(gpu.device.clone(), gpu.queue.clone(), &gpu.config);
-    let app = App {
-        window: ffi::Window { inner: Box::new(WindowContext { window }) },
-        gpu,
-        imgui,
-        sdl,
-        sdl_events,
-        sdl_controller_sys: controller,
-        sdl_open_controllers: Default::default(),
-    };
-    let window_size = WindowSize {
+    let app =
+        App { window: ffi::Window { inner: Box::new(WindowContext { window }) }, gpu, imgui, sdl };
+    let window_size = ffi::WindowSize {
         width: app.gpu.surface_config.width,
         height: app.gpu.surface_config.height,
     };
@@ -290,56 +95,9 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>, icon: ffi::Icon) {
         let gpu = &mut app.gpu;
 
         // SDL event loop
-        for event in app.sdl_events.poll_iter() {
-            // log::info!("SDL event: {:?}", event);
-            match event {
-                SDLEvent::ControllerDeviceAdded { which, .. } => {
-                    match app.sdl_controller_sys.open(which) {
-                        Ok(controller) => {
-                            log::info!("Opened SDL controller \"{}\"", controller.name());
-                            app.sdl_open_controllers.insert(which, controller);
-                        }
-                        Err(err) => {
-                            log::warn!("Failed to open SDL controller {} ({:?})", which, err);
-                        }
-                    }
-                    // TODO app connected event
-                }
-                SDLEvent::ControllerDeviceRemoved { which, .. } => {
-                    app.sdl_open_controllers.remove(&which);
-                    // TODO app disconnected event
-                }
-                SDLEvent::ControllerButtonDown { which, button, .. } => unsafe {
-                    ffi::App_onControllerButton(
-                        delegate.as_mut().unwrap_unchecked(),
-                        which,
-                        button.into(),
-                        true,
-                    );
-                },
-                SDLEvent::ControllerButtonUp { which, button, .. } => unsafe {
-                    ffi::App_onControllerButton(
-                        delegate.as_mut().unwrap_unchecked(),
-                        which,
-                        button.into(),
-                        false,
-                    );
-                },
-                SDLEvent::ControllerAxisMotion { which, axis, value, .. } => unsafe {
-                    ffi::App_onControllerAxis(
-                        delegate.as_mut().unwrap_unchecked(),
-                        which,
-                        axis.into(),
-                        value,
-                    );
-                },
-                // SDL overrides exit signals
-                SDLEvent::Quit { .. } => {
-                    *control_flow = ControlFlow::Exit;
-                    return;
-                }
-                _ => {}
-            }
+        if !poll_sdl_events(&mut app.sdl, &mut delegate) {
+            *control_flow = ControlFlow::Exit;
+            return;
         }
 
         // winit event loop
@@ -361,7 +119,7 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>, icon: ffi::Icon) {
                     &app.gpu.surface_config,
                     &app.gpu.config,
                 );
-                let window_size = WindowSize {
+                let window_size = ffi::WindowSize {
                     width: app.gpu.surface_config.width,
                     height: app.gpu.surface_config.height,
                 };
@@ -382,35 +140,35 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>, icon: ffi::Icon) {
             } => {
                 // TODO: Handle normal keys, this will require a refactor in game runtime code
                 let special_key = match key {
-                    VirtualKeyCode::F1 => SpecialKey::F1,
-                    VirtualKeyCode::F2 => SpecialKey::F2,
-                    VirtualKeyCode::F3 => SpecialKey::F3,
-                    VirtualKeyCode::F4 => SpecialKey::F4,
-                    VirtualKeyCode::F5 => SpecialKey::F5,
-                    VirtualKeyCode::F6 => SpecialKey::F6,
-                    VirtualKeyCode::F7 => SpecialKey::F7,
-                    VirtualKeyCode::F8 => SpecialKey::F8,
-                    VirtualKeyCode::F9 => SpecialKey::F9,
-                    VirtualKeyCode::F10 => SpecialKey::F10,
-                    VirtualKeyCode::F11 => SpecialKey::F11,
-                    VirtualKeyCode::F12 => SpecialKey::F12,
-                    VirtualKeyCode::Escape => SpecialKey::Esc,
-                    VirtualKeyCode::Return => SpecialKey::Enter,
-                    VirtualKeyCode::Back => SpecialKey::Backspace,
-                    VirtualKeyCode::Insert => SpecialKey::Insert,
-                    VirtualKeyCode::Delete => SpecialKey::Delete,
-                    VirtualKeyCode::Home => SpecialKey::Home,
-                    VirtualKeyCode::PageUp => SpecialKey::PgUp,
-                    VirtualKeyCode::PageDown => SpecialKey::PgDown,
-                    VirtualKeyCode::Left => SpecialKey::Left,
-                    VirtualKeyCode::Right => SpecialKey::Right,
-                    VirtualKeyCode::Up => SpecialKey::Up,
-                    VirtualKeyCode::Down => SpecialKey::Down,
-                    VirtualKeyCode::Tab => SpecialKey::Tab,
-                    _ => SpecialKey::None,
+                    VirtualKeyCode::F1 => ffi::SpecialKey::F1,
+                    VirtualKeyCode::F2 => ffi::SpecialKey::F2,
+                    VirtualKeyCode::F3 => ffi::SpecialKey::F3,
+                    VirtualKeyCode::F4 => ffi::SpecialKey::F4,
+                    VirtualKeyCode::F5 => ffi::SpecialKey::F5,
+                    VirtualKeyCode::F6 => ffi::SpecialKey::F6,
+                    VirtualKeyCode::F7 => ffi::SpecialKey::F7,
+                    VirtualKeyCode::F8 => ffi::SpecialKey::F8,
+                    VirtualKeyCode::F9 => ffi::SpecialKey::F9,
+                    VirtualKeyCode::F10 => ffi::SpecialKey::F10,
+                    VirtualKeyCode::F11 => ffi::SpecialKey::F11,
+                    VirtualKeyCode::F12 => ffi::SpecialKey::F12,
+                    VirtualKeyCode::Escape => ffi::SpecialKey::Esc,
+                    VirtualKeyCode::Return => ffi::SpecialKey::Enter,
+                    VirtualKeyCode::Back => ffi::SpecialKey::Backspace,
+                    VirtualKeyCode::Insert => ffi::SpecialKey::Insert,
+                    VirtualKeyCode::Delete => ffi::SpecialKey::Delete,
+                    VirtualKeyCode::Home => ffi::SpecialKey::Home,
+                    VirtualKeyCode::PageUp => ffi::SpecialKey::PgUp,
+                    VirtualKeyCode::PageDown => ffi::SpecialKey::PgDown,
+                    VirtualKeyCode::Left => ffi::SpecialKey::Left,
+                    VirtualKeyCode::Right => ffi::SpecialKey::Right,
+                    VirtualKeyCode::Up => ffi::SpecialKey::Up,
+                    VirtualKeyCode::Down => ffi::SpecialKey::Down,
+                    VirtualKeyCode::Tab => ffi::SpecialKey::Tab,
+                    _ => ffi::SpecialKey::None,
                 };
 
-                if special_key != SpecialKey::None {
+                if special_key != ffi::SpecialKey::None {
                     let pressed = state == ElementState::Pressed;
                     let repeat = special_keys_pressed[key as usize] == pressed;
                     special_keys_pressed[key as usize] = pressed;
@@ -595,26 +353,4 @@ fn set_fullscreen(v: bool) {
     } else {
         None
     });
-}
-
-fn get_controller_player_index(which: u32) -> i32 {
-    let mut result: i32 = -1;
-    for (key, value) in &get_app().sdl_open_controllers {
-        if value.instance_id() == which {
-            result = value.player_index();
-            break;
-        }
-    }
-
-    result as i32
-}
-
-fn set_controller_player_index(which: u32, index: i32) {
-
-    for (key, value) in &get_app().sdl_open_controllers {
-        if value.instance_id() == which {
-            value.set_player_index(index);
-            break;
-        }
-    }
 }

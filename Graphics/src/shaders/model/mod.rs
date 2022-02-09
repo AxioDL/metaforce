@@ -1,6 +1,6 @@
 use std::hash::Hash;
 
-use crate::shaders::ffi::MaterialInfo;
+use crate::shaders::cxxbridge::ffi;
 
 struct MaterialShaderData {
     shader_type: u32,      // 5 values (incl. Invalid)
@@ -37,5 +37,5 @@ struct ModelPipelineConfig {
     render_alpha_update: bool,
 }
 
-pub(crate) fn add_material_set(materials: Vec<MaterialInfo>) -> u32 { return u32::MAX; }
+pub(crate) fn add_material_set(materials: Vec<ffi::MaterialInfo>) -> u32 { return u32::MAX; }
 pub(crate) fn add_model(verts: &[u8], indices: &[u8]) -> u32 { return u32::MAX; }
