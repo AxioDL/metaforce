@@ -25,8 +25,8 @@ add_custom_command(
     COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/aurora/src/cxxbridge.rs.h ${CMAKE_CURRENT_BINARY_DIR}/aurora.h
     COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/aurora/src/shaders/cxxbridge.rs.cc ${AURORA_SHADERS_CXX}
     COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/aurora/src/shaders/cxxbridge.rs.h ${CMAKE_CURRENT_BINARY_DIR}/aurora_shaders.h
-    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/aurora/src/cxxbridge.rs.cc ${AURORA_IMGUI_CXX}
-    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/aurora/src/cxxbridge.rs.h ${CMAKE_CURRENT_BINARY_DIR}/aurora_imgui.h
+    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/aurora/src/imgui/cxxbridge.rs.cc ${AURORA_IMGUI_CXX}
+    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/aurora/src/imgui/cxxbridge.rs.h ${CMAKE_CURRENT_BINARY_DIR}/aurora_imgui.h
     DEPENDS src/cxxbridge.rs
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
