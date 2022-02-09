@@ -923,22 +923,22 @@ void ImGuiConsole::ShowInputViewer() {
 
     // left stick
     {
-      dl->AddCircleFilled(leftStickCenter, leftStickRadius, stickGray, 8);
       float x = input.ALeftX();
       float y = -input.ALeftY();
-      dl->AddCircleFilled(leftStickCenter + (zeus::CVector2f{x, y} * leftStickRadius), leftStickRadius / 3, red);
+      dl->AddCircleFilled(leftStickCenter, leftStickRadius, stickGray, 8);
       dl->AddLine(leftStickCenter, leftStickCenter + zeus::CVector2f(x * leftStickRadius, y * leftStickRadius),
                   IM_COL32(255, 244, 0, 255), 1.5f);
+      dl->AddCircleFilled(leftStickCenter + (zeus::CVector2f{x, y} * leftStickRadius), leftStickRadius / 3, red);
     }
 
     // right stick
     {
-      dl->AddCircleFilled(rightStickCenter, rightStickRadius, stickGray, 8);
       float x = input.ARightX();
       float y = -input.ARightY();
-      dl->AddCircleFilled(rightStickCenter + (zeus::CVector2f{x, y} * rightStickRadius), rightStickRadius / 3, red);
+      dl->AddCircleFilled(rightStickCenter, rightStickRadius, stickGray, 8);
       dl->AddLine(rightStickCenter, rightStickCenter + zeus::CVector2f(x * rightStickRadius, y * rightStickRadius),
                   IM_COL32(255, 244, 0, 255), 1.5f);
+      dl->AddCircleFilled(rightStickCenter + (zeus::CVector2f{x, y} * rightStickRadius), rightStickRadius / 3, red);
     }
 
     // dpad
@@ -999,14 +999,14 @@ void ImGuiConsole::ShowInputViewer() {
       float halfTriggerWidth = triggerWidth / 2;
       zeus::CVector2f lStart = lCenter - zeus::CVector2f(halfTriggerWidth, 0);
       zeus::CVector2f lEnd = lCenter + zeus::CVector2f(halfTriggerWidth, triggerHeight);
-      float lValue = triggerWidth * input.ALTrigger();
+      float lValue = triggerWidth * std::min(1.f, input.ALTrigger());
 
       dl->AddRectFilled(lStart, lStart + zeus::CVector2f(lValue, triggerHeight), input.DL() ? red : stickGray);
       dl->AddRectFilled(lStart + zeus::CVector2f(lValue, 0), lEnd, darkGray);
 
       zeus::CVector2f rStart = rCenter - zeus::CVector2f(halfTriggerWidth, 0);
       zeus::CVector2f rEnd = rCenter + zeus::CVector2f(halfTriggerWidth, triggerHeight);
-      float rValue = triggerWidth * input.ARTrigger();
+      float rValue = triggerWidth * std::min(1.f, input.ARTrigger());
 
       dl->AddRectFilled(rEnd - zeus::CVector2f(rValue, triggerHeight), rEnd, input.DR() ? red : stickGray);
       dl->AddRectFilled(rStart, rEnd - zeus::CVector2f(rValue, 0), darkGray);
