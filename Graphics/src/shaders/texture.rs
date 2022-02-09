@@ -9,10 +9,7 @@ use wgpu::{util::DeviceExt, ImageDataLayout};
 
 use crate::{
     get_app,
-    shaders::{
-        cxxbridge::ffi::{TextureFormat, TextureRef},
-        STATE,
-    },
+    shaders::{cxxbridge::ffi, STATE},
 };
 
 pub(crate) struct TextureWithView {
@@ -37,20 +34,20 @@ pub(crate) fn create_static_texture_2d(
     width: u32,
     height: u32,
     mips: u32,
-    format: TextureFormat,
+    format: ffi::TextureFormat,
     data: &[u8],
     label: &str,
-) -> TextureRef {
+) -> ffi::TextureRef {
     let gpu = &get_app().gpu;
     let extent = wgpu::Extent3d { width, height, depth_or_array_layers: 1 };
     let wgpu_format = match format {
-        TextureFormat::RGBA8 => wgpu::TextureFormat::Rgba8Unorm,
-        TextureFormat::R8 => wgpu::TextureFormat::R8Unorm,
-        TextureFormat::R32Float => wgpu::TextureFormat::R32Float,
-        TextureFormat::DXT1 => wgpu::TextureFormat::Bc1RgbaUnorm,
-        TextureFormat::DXT3 => wgpu::TextureFormat::Bc3RgbaUnorm,
-        TextureFormat::DXT5 => wgpu::TextureFormat::Bc5RgUnorm,
-        TextureFormat::BPTC => wgpu::TextureFormat::Bc7RgbaUnorm,
+        ffi::TextureFormat::RGBA8 => wgpu::TextureFormat::Rgba8Unorm,
+        ffi::TextureFormat::R8 => wgpu::TextureFormat::R8Unorm,
+        ffi::TextureFormat::R32Float => wgpu::TextureFormat::R32Float,
+        ffi::TextureFormat::DXT1 => wgpu::TextureFormat::Bc1RgbaUnorm,
+        ffi::TextureFormat::DXT3 => wgpu::TextureFormat::Bc3RgbaUnorm,
+        ffi::TextureFormat::DXT5 => wgpu::TextureFormat::Bc5RgUnorm,
+        ffi::TextureFormat::BPTC => wgpu::TextureFormat::Bc7RgbaUnorm,
         _ => todo!(),
     };
     let texture = gpu.device.create_texture_with_data(
@@ -84,26 +81,26 @@ pub(crate) fn create_static_texture_2d(
             state.textures.insert(id, TextureWithView::new(texture, wgpu_format, extent));
         }
     }
-    TextureRef { id, render: false }
+    ffi::TextureRef { id, render: false }
 }
 
 pub(crate) fn create_dynamic_texture_2d(
     width: u32,
     height: u32,
     mips: u32,
-    format: TextureFormat,
+    format: ffi::TextureFormat,
     label: &str,
-) -> TextureRef {
+) -> ffi::TextureRef {
     let gpu = &get_app().gpu;
     let extent = wgpu::Extent3d { width, height, depth_or_array_layers: 1 };
     let wgpu_format = match format {
-        TextureFormat::RGBA8 => wgpu::TextureFormat::Rgba8Unorm,
-        TextureFormat::R8 => wgpu::TextureFormat::R8Unorm,
-        TextureFormat::R32Float => wgpu::TextureFormat::R32Float,
-        TextureFormat::DXT1 => wgpu::TextureFormat::Bc1RgbaUnorm,
-        TextureFormat::DXT3 => wgpu::TextureFormat::Bc3RgbaUnorm,
-        TextureFormat::DXT5 => wgpu::TextureFormat::Bc5RgUnorm,
-        TextureFormat::BPTC => wgpu::TextureFormat::Bc7RgbaUnorm,
+        ffi::TextureFormat::RGBA8 => wgpu::TextureFormat::Rgba8Unorm,
+        ffi::TextureFormat::R8 => wgpu::TextureFormat::R8Unorm,
+        ffi::TextureFormat::R32Float => wgpu::TextureFormat::R32Float,
+        ffi::TextureFormat::DXT1 => wgpu::TextureFormat::Bc1RgbaUnorm,
+        ffi::TextureFormat::DXT3 => wgpu::TextureFormat::Bc3RgbaUnorm,
+        ffi::TextureFormat::DXT5 => wgpu::TextureFormat::Bc5RgUnorm,
+        ffi::TextureFormat::BPTC => wgpu::TextureFormat::Bc7RgbaUnorm,
         _ => todo!(),
     };
     let texture = gpu.device.create_texture(&wgpu::TextureDescriptor {
@@ -132,7 +129,7 @@ pub(crate) fn create_dynamic_texture_2d(
             state.textures.insert(id, TextureWithView::new(texture, wgpu_format, extent));
         }
     }
-    TextureRef { id, render: false }
+    ffi::TextureRef { id, render: false }
 }
 
 pub(crate) fn create_render_texture(
@@ -142,7 +139,7 @@ pub(crate) fn create_render_texture(
     color_bind_count: u32,
     depth_bind_count: u32,
     label: &str,
-) -> TextureRef {
+) -> ffi::TextureRef {
     let gpu = &get_app().gpu;
     let color_texture = if color_bind_count > 0 {
         let extent = wgpu::Extent3d { width, height, depth_or_array_layers: color_bind_count };
@@ -222,10 +219,10 @@ pub(crate) fn create_render_texture(
             state.render_textures.insert(id, RenderTexture { color_texture, depth_texture });
         }
     }
-    TextureRef { id, render: true }
+    ffi::TextureRef { id, render: true }
 }
 
-pub(crate) fn write_texture(handle: TextureRef, data: &[u8]) {
+pub(crate) fn write_texture(handle: ffi::TextureRef, data: &[u8]) {
     if handle.render {
         panic!("Can't write to render texture");
     }
@@ -256,7 +253,7 @@ pub(crate) fn write_texture(handle: TextureRef, data: &[u8]) {
     }
 }
 
-pub(crate) fn drop_texture(handle: TextureRef) {
+pub(crate) fn drop_texture(handle: ffi::TextureRef) {
     let state = unsafe { STATE.as_mut().unwrap_unchecked() };
     if handle.render {
         state.render_textures.remove(&handle.id).expect("Render texture already dropped");
