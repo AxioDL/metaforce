@@ -10,6 +10,8 @@
 #include "ImGuiEngine.hpp"
 #include "magic_enum.hpp"
 
+#include <cstdarg>
+
 #include <zeus/CEulerAngles.hpp>
 
 namespace ImGui {
@@ -866,6 +868,15 @@ void ImGuiConsole::ShowDebugOverlay() {
   }
   ImGui::End();
 }
+void TextCenter(const std::string& text) {
+  float font_size = ImGui::GetFontSize() * text.size() / 2;
+  ImGui::SameLine(
+      ImGui::GetWindowSize().x / 2 -
+      font_size + (font_size / 2)
+  );
+
+  ImGui::TextUnformatted(text.c_str());
+}
 
 void ImGuiConsole::ShowInputViewer() {
   if (!m_showInput || g_InputGenerator == nullptr) {
@@ -874,6 +885,10 @@ void ImGuiConsole::ShowInputViewer() {
   auto input = g_InputGenerator->GetLastInput();
   if (input.x4_controllerIdx != 0) {
     return;
+  }
+  if (m_whichController != input.m_which) {
+    m_controllerName = static_cast<std::string>(aurora::get_controller_name(input.m_which));
+    m_whichController = input.m_which;
   }
   // Code -stolen- borrowed from Practice Mod
   ImGuiIO& io = ImGui::GetIO();
@@ -886,10 +901,14 @@ void ImGuiConsole::ShowInputViewer() {
   }
   ImGui::SetNextWindowBgAlpha(0.65f);
   if (ImGui::Begin("Input Overlay", nullptr, windowFlags)) {
+    float scale = ImGui::GetIO().DisplayFramebufferScale.x;
+    if (!m_controllerName.empty()) {
+      TextCenter(m_controllerName);
+      ImGui::Separator();
+    }
     ImDrawList* dl = ImGui::GetWindowDrawList();
     zeus::CVector2f p = ImGui::GetCursorScreenPos();
 
-    float scale = ImGui::GetIO().DisplayFramebufferScale.x;
     float leftStickRadius = 30 * scale;
     p = p + zeus::CVector2f{20, 20} * scale; // Pad p so we don't clip outside our rect
     zeus::CVector2f leftStickCenter = p + zeus::CVector2f(30, 45) * scale;

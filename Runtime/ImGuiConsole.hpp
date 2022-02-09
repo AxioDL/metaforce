@@ -96,6 +96,8 @@ private:
   double m_lastRoomTime = 0.f;
   double m_currentRoomStart = 0.f;
   float m_menuHintTime = 5.f;
+  std::string m_controllerName;
+  u32 m_whichController = -1;
 
   void ShowAppMainMenuBar(bool canInspect);
   void ShowMenuGame();

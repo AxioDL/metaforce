@@ -14,33 +14,61 @@ void CInputGenerator::Update(float dt, CArchitectureQueue& queue) {
   const CFinalInput& kbInput = getFinalInput(0, dt);
   queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, kbInput));
 
-/* Dolphin controllers next */
-//  for (int i = 0; i < 4; ++i) {
-//    bool connected;
-//    EStatusChange change = m_dolphinCb.getStatusChange(i, connected);
-//    if (change != EStatusChange::NoChange)
-//      queue.Push(MakeMsg::CreateControllerStatus(EArchMsgTarget::Game, i, connected));
-//    if (connected) {
-//      CFinalInput input = m_dolphinCb.getFinalInput(i, dt, m_leftDiv, m_rightDiv);
-//      if (i == 0) /* Merge KB input with first controller */
-//      {
-//        input |= kbInput;
-//        kbUsed = true;
-//      }
-//      m_lastUpdate = input;
-//      queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, input));
-//    }
-//  }
+  /* Dolphin controllers next */
+  //  for (int i = 0; i < 4; ++i) {
+  //    bool connected;
+  //    EStatusChange change = m_dolphinCb.getStatusChange(i, connected);
+  //    if (change != EStatusChange::NoChange)
+  //      queue.Push(MakeMsg::CreateControllerStatus(EArchMsgTarget::Game, i, connected));
+  //    if (connected) {
+  //      CFinalInput input = m_dolphinCb.getFinalInput(i, dt, m_leftDiv, m_rightDiv);
+  //      if (i == 0) /* Merge KB input with first controller */
+  //      {
+  //        input |= kbInput;
+  //        kbUsed = true;
+  //      }
+  //      m_lastUpdate = input;
+  //      queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, input));
+  //    }
+  //  }
 
-//  /* Send straight keyboard input if no first controller present */
-//  if (!kbUsed) {
-//    m_lastUpdate = kbInput;
-//  }
+  //  /* Send straight keyboard input if no first controller present */
+  //  if (!kbUsed) {
+  //    m_lastUpdate = kbInput;
+  //  }
+}
+
+void CInputGenerator::controllerAdded(uint32_t which) noexcept {
+  s32 player = aurora::get_controller_player_index(which);
+  if (player < 0) {
+    player = 0;
+    aurora::set_controller_player_index(which, 0);
+  }
+
+  m_state[player] = SAuroraControllerState(which, aurora::is_controller_gamecube(which));
+}
+
+void CInputGenerator::controllerRemoved(uint32_t which) noexcept {
+  auto* it =
+      std::find_if(m_state.begin(), m_state.end(), [&which](const auto& s) { return s.m_which == which; });
+  if (it == m_state.end()) {
+    return;
+  }
+
+  (*it) = SAuroraControllerState();
+}
+
+void CInputGenerator::controllerButton(uint32_t which, aurora::ControllerButton button, bool pressed) noexcept {
+  s32 player = aurora::get_controller_player_index(which);
+  if (player < 0) {
+    return;
+  }
+  m_state[player].m_btns.set(size_t(button), pressed);
 }
 
 void CInputGenerator::controllerAxis(uint32_t which, aurora::ControllerAxis axis, int16_t value) noexcept {
-  s32 idx = aurora::get_controller_player_index(which);
-  if (idx < 0) {
+  s32 player = aurora::get_controller_player_index(which);
+  if (player < 0) {
     return;
   }
 
@@ -62,7 +90,7 @@ void CInputGenerator::controllerAxis(uint32_t which, aurora::ControllerAxis axis
     break;
   }
 
-  m_state[idx].m_axes[size_t(axis)] = value;
+  m_state[player].m_axes[size_t(axis)] = value;
 }
 
 const CFinalInput& CInputGenerator::getFinalInput(unsigned int idx, float dt) {

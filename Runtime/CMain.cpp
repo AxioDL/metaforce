@@ -271,6 +271,9 @@ private:
   using delta_clock = std::chrono::high_resolution_clock;
   std::chrono::time_point<delta_clock> m_prevFrameTime;
 
+  std::vector<u32> m_defferredControllers; // used to capture controllers added before CInputGenerator
+                                           // is built, i.e during initialization
+
 public:
   Application(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr, hecl::CVarCommons& cvarCmns)
   : m_fileMgr(fileMgr), m_cvarManager(cvarMgr), m_cvarCommons(cvarCmns), m_imGuiConsole(cvarMgr, cvarCmns) {}
@@ -314,6 +317,15 @@ public:
   }
 
   bool onAppIdle(float realDt) noexcept override {
+    if (auto* input = g_InputGenerator) {
+      if (!m_defferredControllers.empty()) {
+        for (const auto which : m_defferredControllers) {
+          input->controllerAdded(which);
+        }
+        m_defferredControllers.clear();
+      }
+    }
+
     if (!m_projectInitialized && !m_deferredProject.empty()) {
       if (CDvdFile::Initialize(m_deferredProject)) {
         m_projectInitialized = true;
@@ -426,6 +438,20 @@ public:
   void onControllerAxis(uint32_t idx, aurora::ControllerAxis axis, int16_t value) noexcept override {
     if (auto* input = g_InputGenerator) {
       input->controllerAxis(idx, axis, value);
+    }
+  }
+
+  void onControllerAdded(uint32_t which) noexcept override {
+    if (auto* input = g_InputGenerator) {
+      input->controllerAdded(which);
+    } else {
+      m_defferredControllers.emplace_back(which);
+    }
+  }
+
+  void onControllerRemoved(uint32_t which) noexcept override {
+    if (auto* input = g_InputGenerator) {
+      input->controllerRemoved(which);
     }
   }
 

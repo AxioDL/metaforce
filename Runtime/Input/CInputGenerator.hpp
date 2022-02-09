@@ -25,7 +25,7 @@ class CInputGenerator /*: public boo::DeviceFinder*/ {
   float m_leftDiv;
   float m_rightDiv;
   CKeyboardMouseControllerData m_data;
-  SAuroraControllerState m_state[4];
+  std::array<SAuroraControllerState, 4> m_state;
 
   CFinalInput m_lastUpdate;
   const CFinalInput& getFinalInput(unsigned idx, float dt);
@@ -43,14 +43,14 @@ public:
 //    }
 //  }
 
-  void controllerButton(uint32_t idx, aurora::ControllerButton button, bool pressed) noexcept {
-    s32 player = aurora::get_controller_player_index(idx);
-    if (player < 0) {
-      return;
-    }
-    m_state[player].m_btns.set(size_t(button), pressed);
-  }
-  void controllerAxis(uint32_t idx, aurora::ControllerAxis axis, int16_t value) noexcept;
+  void controllerAdded(uint32_t which) noexcept;
+
+  void controllerRemoved(uint32_t which) noexcept;
+
+  void controllerButton(uint32_t which, aurora::ControllerButton button, bool pressed) noexcept;
+
+  void controllerAxis(uint32_t which, aurora::ControllerAxis axis, int16_t value) noexcept;
+
 
   /* Keyboard and mouse events are delivered on the main game
    * thread as part of the app's main event loop. The OS is responsible

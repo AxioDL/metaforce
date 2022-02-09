@@ -36,8 +36,10 @@ struct AppDelegate {
   virtual void onSpecialKeyUp(SpecialKey key) noexcept = 0;
 
   // Controller
-  virtual void onControllerButton(uint32_t idx, ControllerButton button, bool pressed) noexcept = 0;
-  virtual void onControllerAxis(uint32_t idx, ControllerAxis axis, int16_t value) noexcept = 0;
+  virtual void onControllerAdded(uint32_t which) noexcept = 0;
+  virtual void onControllerRemoved(uint32_t which) noexcept = 0;
+  virtual void onControllerButton(uint32_t which, ControllerButton button, bool pressed) noexcept = 0;
+  virtual void onControllerAxis(uint32_t which, ControllerAxis axis, int16_t value) noexcept = 0;
 
 //  virtual void resized([[maybe_unused]] const WindowSize& rect, [[maybe_unused]] bool sync) noexcept {}
 //  virtual void mouseDown([[maybe_unused]] const SWindowCoord& coord, [[maybe_unused]] EMouseButton button,

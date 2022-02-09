@@ -12,14 +12,19 @@
 namespace metaforce {
 
 struct SAuroraControllerState {
+  u32 m_which = -1;
+  bool m_isGamecube = false;
   std::array<int16_t, size_t(aurora::ControllerAxis::MAX)> m_axes{};
   std::bitset<size_t(aurora::ControllerButton::MAX)> m_btns{};
+
+  SAuroraControllerState() = default;
+  SAuroraControllerState(uint32_t which, bool isGamecube) : m_which(which), m_isGamecube(isGamecube) {}
   void clamp();
 };
 
 struct CFinalInput {
   float x0_dt = 0.0f;
-  u32 x4_controllerIdx = 0;
+  u32 x4_controllerIdx = -1;
   float x8_anaLeftX = 0.0f;
   float xc_anaLeftY = 0.0f;
   float x10_anaRightX = 0.0f;

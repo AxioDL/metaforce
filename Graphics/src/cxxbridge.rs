@@ -3,7 +3,12 @@ use sdl2::controller::{Axis, Button};
 use crate::{
     app_run, get_args, get_backend, get_backend_string, get_dxt_compression_supported,
     get_window_size,
-    sdl::{get_controller_player_index, set_controller_player_index},
+    sdl::{
+        get_controller_player_index,
+        set_controller_player_index,
+        is_controller_gamecube,
+        get_controller_name
+    },
     set_fullscreen, set_window_title, App, WindowContext,
 };
 
@@ -33,6 +38,8 @@ pub(crate) mod ffi {
         );
         pub(crate) fn App_onSpecialKeyUp(cb: Pin<&mut AppDelegate>, key: SpecialKey);
         // Controller
+        pub(crate) fn App_onControllerAdded(cb: Pin<&mut AppDelegate>, which: u32);
+        pub(crate) fn App_onControllerRemoved(cb: Pin<&mut AppDelegate>, which: u32);
         pub(crate) fn App_onControllerButton(
             cb: Pin<&mut AppDelegate>,
             idx: u32,
@@ -162,6 +169,8 @@ pub(crate) mod ffi {
         fn set_fullscreen(v: bool);
         fn get_controller_player_index(which: u32) -> i32;
         fn set_controller_player_index(which: u32, index: i32);
+        fn is_controller_gamecube(which: u32) -> bool;
+        fn get_controller_name(which: u32) -> String;
     }
 }
 impl From<Button> for ffi::ControllerButton {

@@ -15,6 +15,8 @@ void App_onCharKeyUp(AppDelegate& cb, uint8_t code) noexcept;
 void App_onSpecialKeyDown(AppDelegate& cb, SpecialKey key, bool isRepeat) noexcept;
 void App_onSpecialKeyUp(AppDelegate& cb, SpecialKey key) noexcept;
 // Controller
-void App_onControllerButton(AppDelegate& cb, uint32_t idx, ControllerButton button, bool pressed) noexcept;
-void App_onControllerAxis(AppDelegate& cb, uint32_t idx, ControllerAxis axis, int16_t value) noexcept;
+void App_onControllerAdded(AppDelegate& cb, uint32_t which) noexcept;
+void App_onControllerRemoved(AppDelegate& cb, uint32_t which) noexcept;
+void App_onControllerButton(AppDelegate& cb, uint32_t which, ControllerButton button, bool pressed) noexcept;
+void App_onControllerAxis(AppDelegate& cb, uint32_t which, ControllerAxis axis, int16_t value) noexcept;
 } // namespace aurora

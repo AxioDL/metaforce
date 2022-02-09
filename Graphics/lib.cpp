@@ -28,10 +28,16 @@ void App_onSpecialKeyUp(AppDelegate& cb, SpecialKey key) noexcept {
 }
 
 // Controller
-void App_onControllerButton(AppDelegate& cb, uint32_t idx, ControllerButton button, bool pressed) noexcept {
-  cb.onControllerButton(idx, button, pressed);
+void App_onControllerAdded(AppDelegate& cb, uint32_t which) noexcept {
+  cb.onControllerAdded(which);
 }
-void App_onControllerAxis(AppDelegate& cb, uint32_t idx, ControllerAxis axis, int16_t value) noexcept {
-  cb.onControllerAxis(idx, axis, value);
+void App_onControllerRemoved(AppDelegate& cb, uint32_t which) noexcept {
+  cb.onControllerRemoved(which);
+}
+void App_onControllerButton(AppDelegate& cb, uint32_t which, ControllerButton button, bool pressed) noexcept {
+  cb.onControllerButton(which, button, pressed);
+}
+void App_onControllerAxis(AppDelegate& cb, uint32_t which, ControllerAxis axis, int16_t value) noexcept {
+  cb.onControllerAxis(which, axis, value);
 }
 } // namespace aurora

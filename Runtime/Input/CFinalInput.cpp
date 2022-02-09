@@ -94,19 +94,22 @@ CFinalInput::CFinalInput(int cIdx, float dt, const SAuroraControllerState& data,
 , x2e_b28_PDPRight(DDPRight() && !prevInput.DDPRight())
 , x2e_b29_PDPDown(DDPDown() && !prevInput.DDPDown())
 , x2e_b30_PDPLeft(DDPLeft() && !prevInput.DDPLeft())
-, x2e_b31_PStart(DStart() && !prevInput.DStart()) {
-  if (x2c_b29_L) {
-    x18_anaLeftTrigger = 150.f * 0.007f;
-  }
-  if (x2c_b30_R) {
-    x1c_anaRightTrigger = 150.f * 0.007f;
-  }
+, x2e_b31_PStart(DStart() && !prevInput.DStart())
+, m_which(data.m_which){
+  if (!data.m_isGamecube) {
+    if (x2c_b29_L && x18_anaLeftTrigger <= 0.f) {
+      x18_anaLeftTrigger = 150.f * 0.007f;
+    }
+    if (x2c_b30_R && x1c_anaRightTrigger <= 0.f) {
+      x1c_anaRightTrigger = 150.f * 0.007f;
+    }
 
-  if (x18_anaLeftTrigger > (150.f * 0.007f) && !x2c_b29_L) {
-    x2c_b29_L = true;
-  }
-  if (x1c_anaRightTrigger > (150.f * 0.007f) && !x2c_b30_R) {
-    x2c_b30_R = true;
+    if (x18_anaLeftTrigger >= (150.f * 0.007f) && !x2c_b29_L) {
+      x2c_b29_L = true;
+    }
+    if (x1c_anaRightTrigger >= (150.f * 0.007f) && !x2c_b30_R) {
+      x2c_b30_R = true;
+    }
   }
 }
 
@@ -208,6 +211,7 @@ CFinalInput& CFinalInput::operator|=(const CFinalInput& other) {
     m_PSpecialKeys = other.m_PSpecialKeys;
     m_PMouseButtons = other.m_PMouseButtons;
   }
+  m_which = other.m_which;
   return *this;
 }
 

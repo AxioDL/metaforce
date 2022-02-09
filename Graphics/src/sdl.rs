@@ -38,17 +38,18 @@ pub(crate) fn poll_sdl_events(
                                 .add_mapping(new_mapping.as_str())
                                 .expect("Failed to overwrite mapping");
                         }
-                        state.open_controllers.insert(controller.instance_id(), controller);
+                        let instance_id: u32 = controller.instance_id();
+                        state.open_controllers.insert(instance_id, controller);
+                        unsafe { ffi::App_onControllerAdded(delegate.as_mut().unwrap_unchecked(), instance_id); }
                     }
                     Err(err) => {
                         log::warn!("Failed to open SDL controller {} ({:?})", which, err);
                     }
                 }
-                // TODO app connected event
             }
             Event::ControllerDeviceRemoved { which, .. } => {
+                unsafe { ffi::App_onControllerRemoved(delegate.as_mut().unwrap_unchecked(), which); }
                 state.open_controllers.remove(&which);
-                // TODO app disconnected event
             }
             Event::ControllerButtonDown { which, button, .. } => unsafe {
                 ffi::App_onControllerButton(
@@ -134,4 +135,16 @@ pub(crate) fn set_controller_player_index(which: u32, index: i32) {
     if let Some(c) = get_app().sdl.open_controllers.get(&which) {
         c.set_player_index(index);
     }
+}
+
+pub(crate) fn is_controller_gamecube(which: u32) -> bool {
+    get_app().sdl.open_controllers.get(&which)
+        .map_or(false, |c| c.name()
+            .to_lowercase()
+            .eq("nintendo gamecube controller"))
+
+}
+
+pub(crate) fn get_controller_name(which: u32) -> String {
+    get_app().sdl.open_controllers.get(&which).map_or(String::from(""), |c| c.name())
 }
