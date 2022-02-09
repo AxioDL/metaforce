@@ -83,6 +83,7 @@ struct CFinalInput {
 
   float m_leftMul = 1.f;
   float m_rightMul = 1.f;
+  u32 m_which = -1;
 
   CFinalInput();
 //  CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput, float leftDiv,
