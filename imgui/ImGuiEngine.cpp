@@ -10,6 +10,10 @@
 #define STBI_ONLY_PNG
 #include "stb_image.h"
 
+#ifdef IMGUI_ENABLE_FREETYPE
+#include "misc/freetype/imgui_freetype.h"
+#endif
+
 extern "C" const uint8_t NOTO_MONO_FONT[];
 extern "C" const size_t NOTO_MONO_FONT_SZ;
 extern "C" const size_t NOTO_MONO_FONT_DECOMPRESSED_SZ;
@@ -33,13 +37,22 @@ void ImGuiEngine_Initialize(float scale) {
   fontConfig.FontData = fontData;
   fontConfig.FontDataSize = int(NOTO_MONO_FONT_DECOMPRESSED_SZ);
   fontConfig.SizePixels = std::floor(14.f * scale);
+#ifdef IMGUI_ENABLE_FREETYPE
+  fontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_LightHinting;
+#endif
   snprintf(static_cast<char*>(fontConfig.Name), sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
            static_cast<int>(fontConfig.SizePixels));
   ImGuiEngine::fontNormal = io.Fonts->AddFont(&fontConfig);
   fontConfig.FontDataOwnedByAtlas = false; // first one took ownership
   fontConfig.SizePixels = std::floor(24.f * scale);
+#ifdef IMGUI_ENABLE_FREETYPE
+  fontConfig.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_Bold;
+  snprintf(static_cast<char*>(fontConfig.Name), sizeof(fontConfig.Name), "Noto Mono Bold, %dpx",
+           static_cast<int>(fontConfig.SizePixels));
+#else
   snprintf(static_cast<char*>(fontConfig.Name), sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
            static_cast<int>(fontConfig.SizePixels));
+#endif
   ImGuiEngine::fontLarge = io.Fonts->AddFont(&fontConfig);
 
   ImGui::GetStyle().ScaleAllSizes(scale);

@@ -32,7 +32,7 @@ void ImGuiStringViewText(std::string_view text) {
 
 void ImGuiTextCenter(std::string_view text) {
   ImGui::NewLine();
-  float fontSize = ImGui::GetFontSize() * float(text.size()) / 2;
+  float fontSize = ImGui::CalcTextSize(text.data(), text.data() + text.size()).x;
   ImGui::SameLine(ImGui::GetWindowSize().x / 2 - fontSize + fontSize / 2);
   ImGuiStringViewText(text);
 }

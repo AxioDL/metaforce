@@ -19,6 +19,14 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 endif()
 target_link_libraries(imgui PRIVATE boo hecl-light RetroDataSpec aurora)
 
+# Optional, replaces stb_freetype if available
+find_package(Freetype)
+if (FREETYPE_FOUND)
+  target_sources(imgui PRIVATE ../extern/imgui/misc/freetype/imgui_freetype.cpp)
+  target_compile_definitions(imgui PUBLIC IMGUI_ENABLE_FREETYPE)
+  target_link_libraries(imgui PRIVATE Freetype::Freetype)
+endif ()
+
 bintoc_compress(NotoMono.cpp NotoMono-Regular.ttf NOTO_MONO_FONT)
 bintoc(MetaforceIcon.cpp ../Runtime/platforms/freedesktop/256x256/apps/metaforce.png METAFORCE_ICON)
 
