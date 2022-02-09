@@ -627,7 +627,7 @@ void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) 
       ImGui::PopStyleColor();
       ImGui::Dummy(padding);
     }
-    ImGuiTextCenter("2015-2021");
+    ImGuiTextCenter("2015-2022");
     ImGui::BeginGroup();
     ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 200));
     ImGuiStringViewText("Development & Research");

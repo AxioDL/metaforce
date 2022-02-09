@@ -4,12 +4,7 @@
 #include "misc/cpp/imgui_stdlib.h"
 #include <memory>
 
-//#include <boo/IWindow.hpp>
-//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
 namespace metaforce {
-constexpr inline int TranslateBooSpecialKey(boo::ESpecialKey key) { return 256 + static_cast<int>(key); }
-
 class ImGuiEngine {
 public:
   static ImFont* fontNormal;

@@ -23,7 +23,7 @@ target_link_libraries(imgui PRIVATE boo hecl-light RetroDataSpec aurora)
 find_package(Freetype)
 if (FREETYPE_FOUND)
   target_sources(imgui PRIVATE ../extern/imgui/misc/freetype/imgui_freetype.cpp)
-  target_compile_definitions(imgui PUBLIC IMGUI_ENABLE_FREETYPE)
+  target_compile_definitions(imgui PRIVATE IMGUI_ENABLE_FREETYPE)
   target_link_libraries(imgui PRIVATE Freetype::Freetype)
 endif ()
 

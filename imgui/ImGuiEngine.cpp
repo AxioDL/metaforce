@@ -36,15 +36,13 @@ void ImGuiEngine_Initialize(float scale) {
   ImFontConfig fontConfig{};
   fontConfig.FontData = fontData;
   fontConfig.FontDataSize = int(NOTO_MONO_FONT_DECOMPRESSED_SZ);
-  fontConfig.SizePixels = std::floor(14.f * scale);
-#ifdef IMGUI_ENABLE_FREETYPE
-  fontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_LightHinting;
-#endif
+  fontConfig.SizePixels = std::floor(15.f * scale);
   snprintf(static_cast<char*>(fontConfig.Name), sizeof(fontConfig.Name), "Noto Mono Regular, %dpx",
            static_cast<int>(fontConfig.SizePixels));
   ImGuiEngine::fontNormal = io.Fonts->AddFont(&fontConfig);
+
   fontConfig.FontDataOwnedByAtlas = false; // first one took ownership
-  fontConfig.SizePixels = std::floor(24.f * scale);
+  fontConfig.SizePixels = std::floor(26.f * scale);
 #ifdef IMGUI_ENABLE_FREETYPE
   fontConfig.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_Bold;
   snprintf(static_cast<char*>(fontConfig.Name), sizeof(fontConfig.Name), "Noto Mono Bold, %dpx",
