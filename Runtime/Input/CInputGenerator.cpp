@@ -48,30 +48,31 @@ void CInputGenerator::controllerAxis(uint32_t which, aurora::ControllerAxis axis
   case aurora::ControllerAxis::LeftY:
   case aurora::ControllerAxis::RightY:
     /* Value is inverted compared to what we expect on the Y axis */
-    value = -value;
+    value = int16_t(-(value + 1));
     [[fallthrough]];
   case aurora::ControllerAxis::LeftX:
   case aurora::ControllerAxis::RightX:
-    value /= 256;
-    if (value < -127)
-      value = -127;
-    else if (value > 127)
-      value = 127;
+    value /= int16_t(256);
     break;
   case aurora::ControllerAxis::TriggerLeft:
   case aurora::ControllerAxis::TriggerRight:
-    printf("Axis before clamp %i", value);
-    value /= 128;
-    if (value < 0)
-      value = 0;
-    printf(" after clamp %i\n", value);
+    value /= int16_t(128);
     break;
   default:
     break;
   }
 
-
   m_state[idx].m_axes[size_t(axis)] = value;
+}
+
+const CFinalInput& CInputGenerator::getFinalInput(unsigned int idx, float dt) {
+  auto input = CFinalInput(idx, dt, m_data, m_lastUpdate);
+  // Merge controller input with kb/m input
+  auto state = m_state[idx];
+  state.clamp();
+  input |= CFinalInput(idx, dt, state, m_lastUpdate, m_leftDiv, m_rightDiv);
+  m_lastUpdate = input;
+  return m_lastUpdate;
 }
 
 } // namespace metaforce

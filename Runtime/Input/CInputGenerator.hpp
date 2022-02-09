@@ -28,13 +28,7 @@ class CInputGenerator /*: public boo::DeviceFinder*/ {
   SAuroraControllerState m_state[4];
 
   CFinalInput m_lastUpdate;
-  const CFinalInput& getFinalInput(unsigned idx, float dt) {
-    auto input = CFinalInput(idx, dt, m_data, m_lastUpdate);
-    // Merge controller input with kb/m input
-    input |= CFinalInput(idx, dt, m_state[idx], m_lastUpdate, m_leftDiv, m_rightDiv);
-    m_lastUpdate = input;
-    return m_lastUpdate;
-  }
+  const CFinalInput& getFinalInput(unsigned idx, float dt);
 
   bool m_firstFrame = true;
 
