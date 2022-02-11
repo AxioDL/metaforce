@@ -197,7 +197,7 @@ void CScriptSpiderBallWaypoint::GetClosestPointAlongWaypoints(CStateManager& mgr
   closestPoint = lastPoint;
   if (wp->PreviousWaypoint(mgr, ECheckActiveWaypoint::Check) != kInvalidUniqueId) {
     wp = static_cast<const CScriptSpiderBallWaypoint*>(
-        mgr.GetObjectById(wp->PreviousWaypoint(mgr, ECheckActiveWaypoint::SkipCheck)));
+        mgr.GetObjectById(wp->PreviousWaypoint(mgr, ECheckActiveWaypoint::Check)));
     deltaBetweenPoints = lastPoint - wp->GetTranslation();
     interpDeltaBetweenPoints = deltaBetweenPoints;
   }
