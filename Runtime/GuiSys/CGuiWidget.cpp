@@ -1,5 +1,9 @@
+#include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
+
+#include <aurora.h>
+#include <aurora_shaders.h>
 
 #include <logvisor/logvisor.hpp>
 
@@ -111,7 +115,7 @@ void CGuiWidget::Update(float dt) {
     sib->Update(dt);
 }
 
-void CGuiWidget::Draw(const CGuiWidgetDrawParms&) {}
+void CGuiWidget::Draw(const CGuiWidgetDrawParms& parms) {}
 void CGuiWidget::ProcessUserInput(const CFinalInput& input) {}
 void CGuiWidget::Touch() {}
 

@@ -17,13 +17,13 @@ constexpr std::array<zeus::CVector3f, 4> NormalPoints{{
     {1.f, 0.f, 0.f},
     {0.f, 0.f, 0.f},
 }};
-
 bool testProjectedLine(const zeus::CVector2f& a, const zeus::CVector2f& b, const zeus::CVector2f& point) {
   const zeus::CVector2f normal = (b - a).perpendicularVector().normalized();
   return point.dot(normal) >= a.dot(normal);
 }
 } // Anonymous namespace
 
+bool CGuiTextPane::sDrawPaneRects = true;
 CGuiTextPane::CGuiTextPane(const CGuiWidgetParms& parms, CSimplePool* sp, const zeus::CVector2f& dim,
                            const zeus::CVector3f& vec, CAssetId fontId, const CGuiTextProperties& props,
                            const zeus::CColor& fontCol, const zeus::CColor& outlineCol, s32 extentX, s32 extentY)
@@ -46,6 +46,10 @@ void CGuiTextPane::SetDimensions(const zeus::CVector2f& dim, bool initVBO) {
 void CGuiTextPane::ScaleDimensions(const zeus::CVector3f& scale) {}
 
 void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) {
+  if (sDrawPaneRects) {
+    CGuiPane::Draw({0.2f * parms.x0_alphaMod, parms.x4_cameraOffset});
+  }
+
   if (!GetIsVisible()) {
     return;
   }
@@ -53,19 +57,19 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) {
 
   zeus::CVector2f dims = GetDimensions();
 
-  if (xd4_textSupport.x34_extentX) {
+  if (xd4_textSupport.x34_extentX != 0) {
     dims.x() /= float(xd4_textSupport.x34_extentX);
   } else {
     dims.x() = 0.f;
   }
 
-  if (xd4_textSupport.x38_extentY) {
+  if (xd4_textSupport.x38_extentY != 0) {
     dims.y() /= float(xd4_textSupport.x38_extentY);
   } else {
     dims.y() = 0.f;
   }
 
-  const zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front().m_pos + xc8_scaleCenter) *
+  const zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front() + xc8_scaleCenter) *
                                  zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
   CGraphics::SetModelMatrix(x34_worldXF * local);
 
@@ -98,7 +102,7 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) {
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
                                 ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
         xd4_textSupport.Render();
-        xd4_textSupport.SetGeometryColor(geomCol * zeus::CColor(geomCol.a, geomCol.a, geomCol.a, 1.f));
+        xd4_textSupport.SetGeometryColor(geomCol * zeus::CColor(geomCol.a(), geomCol.a(), geomCol.a(), 1.f));
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One,
                                 ERglBlendFactor::One, ERglLogicOp::Clear);
         xd4_textSupport.Render();
@@ -111,7 +115,7 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) {
 
 bool CGuiTextPane::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const {
   const zeus::CVector2f dims = GetDimensions();
-  const zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front().m_pos + xc8_scaleCenter) *
+  const zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front() + xc8_scaleCenter) *
                                  zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
   const zeus::CMatrix4f mvp = vp * (x34_worldXF * local).toMatrix4f();
 

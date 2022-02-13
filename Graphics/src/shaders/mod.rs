@@ -25,6 +25,7 @@ mod model;
 mod movie_player;
 mod texture;
 mod textured_quad;
+mod colored_quad;
 
 #[derive(Debug, Copy, Clone)]
 enum ColoredStripMode {
@@ -33,6 +34,7 @@ enum ColoredStripMode {
     FullAdditive,
     Subtractive,
 }
+
 #[derive(Debug, Copy, Clone)]
 struct ColoredStripVert {
     position: CVector3f,
@@ -46,6 +48,7 @@ enum Command {
     SetScissor(u32, u32, u32, u32),
     Draw(ShaderDrawCommand),
 }
+
 #[derive(Debug, Clone)]
 enum ShaderDrawCommand {
     Aabb(aabb::DrawData),
@@ -53,21 +56,17 @@ enum ShaderDrawCommand {
         amount: f32,
         clear_depth: bool,
     },
-    ColoredQuadFilter {
-        filter_type: ffi::CameraFilterType,
-        color: CColor,
-        rect: CRectangle,
-    },
+    ColoredQuad(colored_quad::DrawData),
     ColoredStripFilter {
         mode: ColoredStripMode,
         verts: Vec<ColoredStripVert>,
         color: CColor,
     },
-    Decal {/* TODO */},
-    ElementGen {/* TODO */},
-    EnergyBar {/* TODO */},
-    EnvFx {/* TODO */},
-    FluidPlane {/* TODO */},
+    Decal { /* TODO */ },
+    ElementGen { /* TODO */ },
+    EnergyBar { /* TODO */ },
+    EnvFx { /* TODO */ },
+    FluidPlane { /* TODO */ },
     FogVolumeFilter {
         two_way: bool,
         color: CColor,
@@ -76,8 +75,8 @@ enum ShaderDrawCommand {
         pass: u8,
         verts: Vec<CVector3f>,
     },
-    LineRenderer {/* TODO */},
-    MapSurface {/* TODO */},
+    LineRenderer { /* TODO */ },
+    MapSurface { /* TODO */ },
     Model {
         pipeline_id: u32,
         material_id: u32,
@@ -88,13 +87,13 @@ enum ShaderDrawCommand {
         model_flags: u32,
     },
     MoviePlayer(movie_player::DrawData),
-    NES {/* TODO */},
-    ParticleSwoosh {/* TODO */},
-    PhazonSuitFilter {/* TODO */},
-    RadarPaint {/* TODO */},
-    RandomStaticFilter {/* TODO */},
-    ScanLinesFilter {/* TODO */},
-    TextSupport {/* TODO */},
+    NES { /* TODO */ },
+    ParticleSwoosh { /* TODO */ },
+    PhazonSuitFilter { /* TODO */ },
+    RadarPaint { /* TODO */ },
+    RandomStaticFilter { /* TODO */ },
+    ScanLinesFilter { /* TODO */ },
+    TextSupport { /* TODO */ },
     TexturedQuad(textured_quad::DrawData),
     ThermalCold,
     ThermalHot,
@@ -123,9 +122,11 @@ struct RenderState {
     render_textures: HashMap<u32, RenderTexture>,
     // Shader states
     aabb: aabb::State,
+    colored_quad: colored_quad::State,
     textured_quad: textured_quad::State,
     movie_player: movie_player::State,
 }
+
 pub(crate) fn construct_state(
     device: Arc<wgpu::Device>,
     queue: Arc<wgpu::Queue>,
@@ -147,6 +148,7 @@ pub(crate) fn construct_state(
         }),
     };
     let aabb = aabb::construct_state(&device, &queue, &buffers, graphics_config);
+    let colored_quad = colored_quad::construct_state(&device, &queue, &buffers, graphics_config);
     let textured_quad = textured_quad::construct_state(&device, &queue, &buffers, graphics_config);
     let movie_player = movie_player::construct_state(&device, &queue, &buffers, graphics_config);
     let mut state = RenderState {
@@ -162,6 +164,7 @@ pub(crate) fn construct_state(
         textures: Default::default(),
         render_textures: Default::default(),
         aabb,
+        colored_quad,
         textured_quad,
         movie_player,
     };
@@ -268,18 +271,22 @@ struct PipelineRef {
 
 pub(crate) enum PipelineCreateCommand {
     Aabb(aabb::PipelineConfig),
+    ColoredQuad(colored_quad::PipelineConfig),
     TexturedQuad(textured_quad::PipelineConfig),
     MoviePlayer(movie_player::PipelineConfig),
 }
+
 #[inline(always)]
 fn hash_with_seed<T: Hash>(value: &T, seed: u64) -> u64 {
     let mut state = Xxh3Hash64::with_seed(seed);
     value.hash(&mut state);
     state.finish()
 }
+
 fn construct_pipeline(state: &mut RenderState, cmd: &PipelineCreateCommand) -> u64 {
     let id = match cmd {
         PipelineCreateCommand::Aabb(ref config) => hash_with_seed(config, 0xAABB),
+        PipelineCreateCommand::ColoredQuad(ref config) => hash_with_seed(config, 0xC013B),
         PipelineCreateCommand::TexturedQuad(ref config) => hash_with_seed(config, 0xEEAD),
         PipelineCreateCommand::MoviePlayer(ref config) => hash_with_seed(config, 0xFAAE),
     };
@@ -289,6 +296,12 @@ fn construct_pipeline(state: &mut RenderState, cmd: &PipelineCreateCommand) -> u
                 state.device.as_ref(),
                 &state.graphics_config,
                 &state.aabb,
+                config,
+            ),
+            PipelineCreateCommand::ColoredQuad(ref config) => colored_quad::construct_pipeline(
+                state.device.as_ref(),
+                &state.graphics_config,
+                &state.colored_quad,
                 config,
             ),
             PipelineCreateCommand::TexturedQuad(ref config) => textured_quad::construct_pipeline(
@@ -356,6 +369,9 @@ pub(crate) fn render_into_pass(pass: &mut wgpu::RenderPass) {
                 ShaderDrawCommand::Aabb(data) => {
                     aabb::draw_aabb(data, &state.aabb, pass, &state.buffers);
                 }
+                ShaderDrawCommand::ColoredQuad(data) => {
+                    colored_quad::draw_colored_quad(data, &state.colored_quad, pass, &state.buffers);
+                }
                 ShaderDrawCommand::TexturedQuad(data) => {
                     textured_quad::draw_textured_quad(
                         data,
@@ -385,22 +401,29 @@ fn update_model_view(mv: CMatrix4f, mv_inv: CMatrix4f) {
     global_buffers.global_current.mv_inv = mv_inv;
     global_buffers.global_dirty = true;
 }
+
 fn update_projection(proj: CMatrix4f) {
     let global_buffers = unsafe { &mut GLOBAL_BUFFERS };
     global_buffers.global_current.proj = proj;
     global_buffers.global_dirty = true;
 }
+
 fn update_fog_state(state: ffi::FogState) {
     let global_buffers = unsafe { &mut GLOBAL_BUFFERS };
     global_buffers.global_current.fog = state;
     global_buffers.global_dirty = true;
 }
 
+fn get_projection_matrix() -> CMatrix4f {
+    let global_buffers = unsafe { &GLOBAL_BUFFERS };
+    global_buffers.global_current.proj
+}
+
 fn get_combined_matrix() -> CMatrix4f {
     let global_buffers = unsafe { &GLOBAL_BUFFERS };
     CMatrix4f::from(
-        cgmath::Matrix4::from(global_buffers.global_current.mv)
-            * cgmath::Matrix4::from(global_buffers.global_current.proj),
+        cgmath::Matrix4::from(global_buffers.global_current.proj)
+            * cgmath::Matrix4::from(global_buffers.global_current.mv),
     )
 }
 
@@ -417,10 +440,12 @@ fn push_draw_command(cmd: ShaderDrawCommand) {
     let state = unsafe { STATE.as_mut().unwrap_unchecked() };
     state.commands.push_back(Command::Draw(cmd));
 }
+
 fn set_viewport(rect: CRectangle, znear: f32, zfar: f32) {
     let state = unsafe { STATE.as_mut().unwrap_unchecked() };
     state.commands.push_back(Command::SetViewport(rect, znear, zfar));
 }
+
 fn set_scissor(x: u32, y: u32, w: u32, h: u32) {
     let state = unsafe { STATE.as_mut().unwrap_unchecked() };
     state.commands.push_back(Command::SetScissor(x, y, w, h));
@@ -429,6 +454,7 @@ fn set_scissor(x: u32, y: u32, w: u32, h: u32) {
 fn resolve_color(rect: ffi::ClipRect, bind: u32, clear_depth: bool) {
     // TODO
 }
+
 fn resolve_depth(rect: ffi::ClipRect, bind: u32) {
     // TODO
 }

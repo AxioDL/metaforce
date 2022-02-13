@@ -224,17 +224,17 @@ CGameArchitectureSupport::~CGameArchitectureSupport() {
   CStreamAudioManager::Shutdown();
 }
 
-void CGameArchitectureSupport::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat) {
+void CGameArchitectureSupport::charKeyDown(uint8_t charCode, aurora::ModifierKey mods, bool isRepeat) {
   x30_inputGenerator.charKeyDown(charCode, mods, isRepeat);
 //  m_parent.m_console->handleCharCode(charCode, mods, isRepeat);
 }
 
-void CGameArchitectureSupport::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat) {
+void CGameArchitectureSupport::specialKeyDown(aurora::SpecialKey key, aurora::ModifierKey mods, bool isRepeat) {
   x30_inputGenerator.specialKeyDown(key, mods, isRepeat);
 //  m_parent.m_console->handleSpecialKeyDown(key, mods, isRepeat);
 }
 
-void CGameArchitectureSupport::specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods) {
+void CGameArchitectureSupport::specialKeyUp(aurora::SpecialKey key, aurora::ModifierKey mods) {
   x30_inputGenerator.specialKeyUp(key, mods);
 //  m_parent.m_console->handleSpecialKeyUp(key, mods);
 }

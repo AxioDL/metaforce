@@ -2,6 +2,7 @@
 #![allow(unused_imports)]
 #![allow(unused_variables)]
 #![allow(unused_unsafe)]
+#![allow(non_upper_case_globals)]
 
 use std::time::Instant;
 
@@ -58,7 +59,6 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>, icon: ffi::Icon) {
     let sdl = initialize_sdl();
     let gpu = initialize_gpu(&window);
     let imgui = initialize_imgui(&window, &gpu);
-    let mut special_keys_pressed: [bool; 512] = [false; 512];
     shaders::construct_state(gpu.device.clone(), gpu.queue.clone(), &gpu.config);
     let app =
         App { window: ffi::Window { inner: Box::new(WindowContext { window }) }, gpu, imgui, sdl };
@@ -119,65 +119,6 @@ fn app_run(mut delegate: cxx::UniquePtr<ffi::AppDelegate>, icon: ffi::Icon) {
             Event::WindowEvent { event: WindowEvent::Moved(loc), .. } => unsafe {
                 ffi::App_onAppWindowMoved(delegate.as_mut().unwrap_unchecked(), loc.x, loc.y);
             },
-            Event::WindowEvent {
-                event:
-                    WindowEvent::KeyboardInput {
-                        input: KeyboardInput { scancode, virtual_keycode: Some(key), state, .. },
-                        ..
-                    },
-                ..
-            } => {
-                // TODO: Handle normal keys, this will require a refactor in game runtime code
-                let special_key = match key {
-                    VirtualKeyCode::F1 => ffi::SpecialKey::F1,
-                    VirtualKeyCode::F2 => ffi::SpecialKey::F2,
-                    VirtualKeyCode::F3 => ffi::SpecialKey::F3,
-                    VirtualKeyCode::F4 => ffi::SpecialKey::F4,
-                    VirtualKeyCode::F5 => ffi::SpecialKey::F5,
-                    VirtualKeyCode::F6 => ffi::SpecialKey::F6,
-                    VirtualKeyCode::F7 => ffi::SpecialKey::F7,
-                    VirtualKeyCode::F8 => ffi::SpecialKey::F8,
-                    VirtualKeyCode::F9 => ffi::SpecialKey::F9,
-                    VirtualKeyCode::F10 => ffi::SpecialKey::F10,
-                    VirtualKeyCode::F11 => ffi::SpecialKey::F11,
-                    VirtualKeyCode::F12 => ffi::SpecialKey::F12,
-                    VirtualKeyCode::Escape => ffi::SpecialKey::Esc,
-                    VirtualKeyCode::Return => ffi::SpecialKey::Enter,
-                    VirtualKeyCode::Back => ffi::SpecialKey::Backspace,
-                    VirtualKeyCode::Insert => ffi::SpecialKey::Insert,
-                    VirtualKeyCode::Delete => ffi::SpecialKey::Delete,
-                    VirtualKeyCode::Home => ffi::SpecialKey::Home,
-                    VirtualKeyCode::PageUp => ffi::SpecialKey::PgUp,
-                    VirtualKeyCode::PageDown => ffi::SpecialKey::PgDown,
-                    VirtualKeyCode::Left => ffi::SpecialKey::Left,
-                    VirtualKeyCode::Right => ffi::SpecialKey::Right,
-                    VirtualKeyCode::Up => ffi::SpecialKey::Up,
-                    VirtualKeyCode::Down => ffi::SpecialKey::Down,
-                    VirtualKeyCode::Tab => ffi::SpecialKey::Tab,
-                    _ => ffi::SpecialKey::None,
-                };
-
-                if special_key != ffi::SpecialKey::None {
-                    let pressed = state == ElementState::Pressed;
-                    let repeat = special_keys_pressed[key as usize] == pressed;
-                    special_keys_pressed[key as usize] = pressed;
-
-                    unsafe {
-                        if pressed {
-                            ffi::App_onSpecialKeyDown(
-                                delegate.as_mut().unwrap_unchecked(),
-                                special_key,
-                                repeat,
-                            );
-                        } else {
-                            ffi::App_onSpecialKeyUp(
-                                delegate.as_mut().unwrap_unchecked(),
-                                special_key,
-                            );
-                        }
-                    }
-                }
-            }
             Event::MainEventsCleared => {
                 log::trace!("Requesting redraw");
                 window_ctx.window.request_redraw();

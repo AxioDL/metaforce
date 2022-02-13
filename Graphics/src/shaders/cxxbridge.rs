@@ -10,6 +10,7 @@ use crate::shaders::{
         write_texture,
     },
     textured_quad::{queue_textured_quad, queue_textured_quad_verts},
+    colored_quad::{queue_colored_quad, queue_colored_quad_verts},
     update_fog_state, update_model_view, update_projection,
 };
 
@@ -187,6 +188,21 @@ pub(crate) mod ffi {
             z_test: bool,
             color: CColor,
             uv_scale: f32,
+            rect: CRectangle,
+            z: f32,
+        );
+        fn queue_colored_quad_verts(
+            filter_type: CameraFilterType,
+            z_comparison: ZTest,
+            z_test: bool,
+            color: CColor,
+            pos: &[CVector3f],
+        );
+        fn queue_colored_quad(
+            filter_type: CameraFilterType,
+            z_comparison: ZTest,
+            z_test: bool,
+            color: CColor,
             rect: CRectangle,
             z: f32,
         );

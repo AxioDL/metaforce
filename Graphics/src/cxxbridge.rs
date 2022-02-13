@@ -1,15 +1,15 @@
 use sdl2::controller::{Axis, Button};
 
 use crate::{
-    app_run, get_args, get_backend, get_backend_string, get_dxt_compression_supported,
+    App, app_run, get_args, get_backend, get_backend_string,
+    get_dxt_compression_supported,
     get_window_size,
     sdl::{
+        get_controller_name,
         get_controller_player_index,
-        set_controller_player_index,
         is_controller_gamecube,
-        get_controller_name
-    },
-    set_fullscreen, set_window_title, App, WindowContext,
+        set_controller_player_index,
+    }, set_fullscreen, set_window_title, WindowContext,
 };
 
 #[cxx::bridge(namespace = "aurora")]
@@ -29,14 +29,27 @@ pub(crate) mod ffi {
         pub(crate) fn App_onAppWindowMoved(cb: Pin<&mut AppDelegate>, x: i32, y: i32);
         pub(crate) fn App_onAppExiting(cb: Pin<&mut AppDelegate>);
         // Input
-        pub(crate) fn App_onCharKeyDown(cb: Pin<&mut AppDelegate>, code: u8, is_repeat: bool);
-        pub(crate) fn App_onCharKeyUp(cb: Pin<&mut AppDelegate>, code: u8);
+        pub(crate) fn App_onCharKeyDown(cb: Pin<&mut AppDelegate>,
+                                        code: u8,
+                                        mods: u16,
+                                        is_repeat: bool,
+        );
+        pub(crate) fn App_onCharKeyUp(
+            cb: Pin<&mut AppDelegate>,
+            code: u8,
+            mods: u16,
+        );
         pub(crate) fn App_onSpecialKeyDown(
             cb: Pin<&mut AppDelegate>,
             key: SpecialKey,
+            keymod: u16,
             is_repeat: bool,
         );
-        pub(crate) fn App_onSpecialKeyUp(cb: Pin<&mut AppDelegate>, key: SpecialKey);
+        pub(crate) fn App_onSpecialKeyUp(
+            cb: Pin<&mut AppDelegate>,
+            key: SpecialKey,
+            mods: u16,
+        );
         // Controller
         pub(crate) fn App_onControllerAdded(cb: Pin<&mut AppDelegate>, which: u32);
         pub(crate) fn App_onControllerRemoved(cb: Pin<&mut AppDelegate>, which: u32);
@@ -100,26 +113,70 @@ pub(crate) mod ffi {
         F10 = 10,
         F11 = 11,
         F12 = 12,
-        Esc = 13,
-        Enter = 14,
-        Backspace = 15,
-        Insert = 16,
-        Delete = 17,
-        Home = 18,
-        End = 19,
-        PgUp = 20,
-        PgDown = 21,
-        Left = 22,
-        Right = 23,
-        Up = 24,
-        Down = 25,
-        Tab = 26,
-    }
-
-    pub struct KeyboardInput {
-        pub scancode: u32,
-        pub state: ElementState,
-        // pub
+        F13 = 13,
+        F14 = 14,
+        F15 = 15,
+        F16 = 16,
+        F17 = 17,
+        F18 = 18,
+        F19 = 19,
+        F20 = 20,
+        F21 = 21,
+        F22 = 22,
+        F23 = 23,
+        F24 = 24,
+        Esc = 25,
+        Enter = 26,
+        Backspace = 27,
+        Insert = 28,
+        Delete = 29,
+        Home = 30,
+        End = 31,
+        PgUp = 32,
+        PgDown = 33,
+        Left = 34,
+        Right = 35,
+        Up = 36,
+        Down = 37,
+        Tab = 38,
+        PrintScreen = 39,
+        ScrollLock = 40,
+        Pause = 41,
+        NumLockClear = 42,
+        KpDivide = 43,
+        KpMultiply = 44,
+        KpMinus = 45,
+        KpPlus = 46,
+        KpEnter = 47,
+        KpNum0 = 48,
+        KpNum1 = 49,
+        KpNum2 = 51,
+        KpNum3 = 52,
+        KpNum4 = 53,
+        KpNum5 = 54,
+        KpNum6 = 55,
+        KpNum7 = 56,
+        KpNum8 = 57,
+        KpNum9 = 58,
+        KpPercent = 59,
+        KpPeriod = 60,
+        KpComma = 61,
+        KpEquals = 62,
+        Application = 63,
+        Power = 64,
+        Execute = 65,
+        Help = 66,
+        Menu = 67,
+        Select = 68,
+        Stop = 69,
+        Again = 70,
+        Undo = 71,
+        Cut = 72,
+        Paste = 73,
+        Find = 74,
+        VolumeUp = 75,
+        VolumeDown = 76,
+        MAX,
     }
 
     pub enum ControllerButton {

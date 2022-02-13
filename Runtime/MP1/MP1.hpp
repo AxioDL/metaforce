@@ -157,13 +157,13 @@ public:
   void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll) {
     x30_inputGenerator.scroll(coord, scroll);
   }
-  void charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat);
-  void charKeyUp(unsigned long charCode, boo::EModifierKey mods) { x30_inputGenerator.charKeyUp(charCode, mods); }
-  void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat);
+  void charKeyDown(uint8_t  charCode, aurora::ModifierKey mods, bool isRepeat);
+  void charKeyUp(uint8_t charCode, aurora::ModifierKey mods) { x30_inputGenerator.charKeyUp(charCode, mods); }
+  void specialKeyDown(aurora::SpecialKey key, aurora::ModifierKey mods, bool isRepeat);
 
-  void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods);
-  void modKeyDown(boo::EModifierKey mod, bool isRepeat) { x30_inputGenerator.modKeyDown(mod, isRepeat); }
-  void modKeyUp(boo::EModifierKey mod) { x30_inputGenerator.modKeyUp(mod); }
+  void specialKeyUp(aurora::SpecialKey key, aurora::ModifierKey mods);
+  void modKeyDown(aurora::ModifierKey mod, bool isRepeat) { x30_inputGenerator.modKeyDown(mod, isRepeat); }
+  void modKeyUp(aurora::ModifierKey mod) { x30_inputGenerator.modKeyUp(mod); }
 
   void PreloadAudio();
   bool LoadAudio();

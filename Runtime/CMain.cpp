@@ -3,7 +3,6 @@
 #include <numeric>
 #include <iostream>
 
-#include "boo/boo.hpp"
 #include "logvisor/logvisor.hpp"
 
 #include "ImGuiEngine.hpp"
@@ -144,7 +143,7 @@ static std::string CPUFeatureString(const zeus::CPUInfo& cpuInf) {
 #endif
   return features;
 }
-
+#if 0
 struct WindowCallback : boo::IWindowCallback {
   friend struct Application;
 
@@ -246,28 +245,27 @@ private:
 
   void destroyed() override { m_windowInvalid = true; }
 };
+#endif
 
 struct Application : aurora::AppDelegate {
 private:
-  WindowCallback m_windowCallback;
   hecl::Runtime::FileStoreManager& m_fileMgr;
   hecl::CVarManager& m_cvarManager;
   hecl::CVarCommons& m_cvarCommons;
   ImGuiConsole m_imGuiConsole;
   std::string m_errorString;
 
-//  boo::ObjToken<boo::ITextureR> m_renderTex;
   std::string m_deferredProject;
   bool m_projectInitialized = false;
-//  std::unique_ptr<hecl::Database::Project> m_proj;
   std::optional<amuse::BooBackendVoiceAllocator> m_amuseAllocWrapper;
   std::unique_ptr<boo::IAudioVoiceEngine> m_voiceEngine;
-//  std::unique_ptr<hecl::PipelineConverterBase> m_pipelineConv;
 
   Limiter m_limiter{};
   bool m_noShaderWarmup = false;
 
   bool m_firstFrame = true;
+  bool m_fullscreenToggleRequested = false;
+  bool m_quitRequested = false;
   using delta_clock = std::chrono::high_resolution_clock;
   std::chrono::time_point<delta_clock> m_prevFrameTime;
 
@@ -361,9 +359,9 @@ public:
     OPTICK_FRAME("MainThread");
 
     // Check if fullscreen has been toggled, if so set the fullscreen cvar accordingly
-    if (m_windowCallback.m_fullscreenToggleRequested) {
+    if (m_fullscreenToggleRequested) {
       m_cvarCommons.m_fullscreen->fromBoolean(!m_cvarCommons.getFullscreen());
-      m_windowCallback.m_fullscreenToggleRequested = false;
+      m_fullscreenToggleRequested = false;
     }
 
     // Check if the user has modified the fullscreen CVar, if so set fullscreen state accordingly
@@ -397,6 +395,14 @@ public:
       m_imGuiConsole.ShowAboutWindow(false, m_errorString);
     }
 
+
+    if (m_quitRequested) {
+      if (g_mainMP1) {
+        g_mainMP1->Quit();
+      } else {
+        return false;
+      }
+    }
     return true;
   }
 
@@ -469,48 +475,48 @@ public:
     CDvdFile::Shutdown();
   }
 
-  void onCharKeyDown(uint8_t code, bool isRepeat) noexcept override {
+  void onCharKeyDown(uint8_t code, aurora::ModifierKey mods, bool isRepeat) noexcept override {
     Log.report(logvisor::Info, FMT_STRING("DEBUG CHAR KEYS: '{}', isRepeat {}"), static_cast<char>(code), isRepeat);
     //    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->charKeyDown(code, boo::EModifierKey::None, isRepeat);
+        as->charKeyDown(code, mods, isRepeat);
       }
     }
     //    }
   }
 
-  void onCharKeyUp(uint8_t code) noexcept override {
+  void onCharKeyUp(uint8_t code, aurora::ModifierKey mods) noexcept override {
     Log.report(logvisor::Info, FMT_STRING("DEBUG CHAR KEYS: '{}'"), static_cast<char>(code));
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->charKeyUp(code, boo::EModifierKey::None);
+        as->charKeyUp(code, mods);
       }
     }
   }
 
-  void onSpecialKeyDown(aurora::SpecialKey key, bool isRepeat) noexcept override {
+  void onSpecialKeyDown(aurora::SpecialKey key, aurora::ModifierKey mods, bool isRepeat) noexcept override {
     Log.report(logvisor::Info, FMT_STRING("DEBUG KEYS: SpecialKey {}, isRepeat {}"), key, isRepeat);
     /* TODO: Temporarily convert the aurora enum to boo's until we refactor everything */
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->specialKeyDown(boo::ESpecialKey(key), boo::EModifierKey::None, isRepeat);
+        as->specialKeyDown(key, mods, isRepeat);
       }
     }
-    //    if (True(mods & boo::EModifierKey::Alt)) {
-    //      if (key == boo::ESpecialKey::Enter) {
-    //        m_fullscreenToggleRequested = true;
-    //      } else if (key == boo::ESpecialKey::F4) {
-    //        m_windowInvalid = true;
-    //      }
-    //    }
+    if (True(mods & (aurora::ModifierKey::LeftAlt | aurora::ModifierKey::RightAlt))) {
+      if (key == aurora::SpecialKey::Enter) {
+        m_fullscreenToggleRequested = true;
+      } else if (key == aurora::SpecialKey::F4) {
+        m_quitRequested = true;
+      }
+    }
   }
 
-  void onSpecialKeyUp(aurora::SpecialKey key) noexcept override {
+  void onSpecialKeyUp(aurora::SpecialKey key, aurora::ModifierKey mods) noexcept override {
     /* TODO: Temporarily convert the aurora enum to boo's until we refactor everything */
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->specialKeyUp(boo::ESpecialKey(key), boo::EModifierKey::None);
+        as->specialKeyUp(key, mods);
       }
     }
   }

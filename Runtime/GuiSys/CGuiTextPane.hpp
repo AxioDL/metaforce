@@ -9,6 +9,7 @@
 namespace metaforce {
 
 class CGuiTextPane : public CGuiPane {
+  static bool sDrawPaneRects;
   CGuiTextSupport xd4_textSupport;
 
 public:

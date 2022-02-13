@@ -1,4 +1,9 @@
 #include "Runtime/GuiSys/CGuiPane.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
+
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <aurora_shaders.h>
 
 namespace metaforce {
 
@@ -7,32 +12,45 @@ CGuiPane::CGuiPane(const CGuiWidgetParms& parms, const zeus::CVector2f& dim, con
   CGuiPane::InitializeBuffers();
 }
 
+void CGuiPane::Draw(const CGuiWidgetDrawParms& parms) {
+  CGraphics::SetModelMatrix(x34_worldXF * zeus::CTransform::Translate(xc8_scaleCenter));
+  if (GetIsVisible()) {
+    auto col = xa8_color2;
+    col.a() = parms.x0_alphaMod * xa8_color2.a();
+
+    aurora::shaders::queue_colored_quad_verts(aurora::shaders::CameraFilterType::Blend, aurora::shaders::ZTest::Always,
+                                              false, col, {xc0_verts.data(), xc0_verts.size()});
+  }
+  CGuiWidget::Draw(parms);
+}
 void CGuiPane::ScaleDimensions(const zeus::CVector3f& scale) {
   InitializeBuffers();
-
-  for (TexShaderVert& v : xc0_verts) {
-    v.m_pos -= xc8_scaleCenter;
-    v.m_pos *= scale;
-    v.m_pos += xc8_scaleCenter;
+  for (auto& vert : xc0_verts) {
+    vert -= xc8_scaleCenter;
+    vert *= scale;
+    vert += xc8_scaleCenter;
   }
 }
 
-void CGuiPane::SetDimensions(const zeus::CVector2f& dim, bool initVBO) {
+void CGuiPane::SetDimensions(const zeus::CVector2f& dim, bool initBuffers) {
   xb8_dim = dim;
-  if (initVBO)
+  if (initBuffers)
     InitializeBuffers();
 }
 
 zeus::CVector2f CGuiPane::GetDimensions() const { return xb8_dim; }
 
 void CGuiPane::InitializeBuffers() {
-  if (xc0_verts.size() < 4)
-    xc0_verts.resize(4);
+#if 0
+  if (xc0_verts == nullptr) {
+    xc0_verts = new float[3 * 4];
+  }
+#endif
+  xc0_verts[0].assign(-xb8_dim.x() * 0.5f, 0.f, xb8_dim.y() * 0.5f);
+  xc0_verts[1].assign(-xb8_dim.x() * 0.5f, 0.f, -xb8_dim.y() * 0.5f);
+  xc0_verts[2].assign(xb8_dim.x() * 0.5f, 0.f, xb8_dim.y() * 0.5f);
+  xc0_verts[3].assign(xb8_dim.x() * 0.5f, 0.f, -xb8_dim.y() * 0.5f);
 
-  xc0_verts[0].m_pos.assign(-xb8_dim.x() * 0.5f, 0.f, xb8_dim.y() * 0.5f);
-  xc0_verts[1].m_pos.assign(-xb8_dim.x() * 0.5f, 0.f, -xb8_dim.y() * 0.5f);
-  xc0_verts[2].m_pos.assign(xb8_dim.x() * 0.5f, 0.f, xb8_dim.y() * 0.5f);
-  xc0_verts[3].m_pos.assign(xb8_dim.x() * 0.5f, 0.f, -xb8_dim.y() * 0.5f);
 }
 
 void CGuiPane::WriteData(COutputStream& out, bool flag) const {}
