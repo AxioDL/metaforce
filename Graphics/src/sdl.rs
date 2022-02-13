@@ -1,3 +1,5 @@
+use std::collections::{BTreeMap, HashMap};
+
 use bitflags::bitflags;
 use sdl2::{
     controller::{Axis, GameController},
