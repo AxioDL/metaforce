@@ -111,8 +111,8 @@ void CTexture::BuildI4FromGCN(CInputStream& in, std::string_view label) {
     }
   }
 
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
-                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::RGBA8,
+                                             {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
 void CTexture::BuildI8FromGCN(CInputStream& in, std::string_view label) {
@@ -151,8 +151,8 @@ void CTexture::BuildI8FromGCN(CInputStream& in, std::string_view label) {
     }
   }
 
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
-                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::RGBA8,
+                                             {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
 void CTexture::BuildIA4FromGCN(CInputStream& in, std::string_view label) {
@@ -192,8 +192,8 @@ void CTexture::BuildIA4FromGCN(CInputStream& in, std::string_view label) {
     }
   }
 
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
-                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::RGBA8,
+                                             {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
 void CTexture::BuildIA8FromGCN(CInputStream& in, std::string_view label) {
@@ -233,8 +233,8 @@ void CTexture::BuildIA8FromGCN(CInputStream& in, std::string_view label) {
     }
   }
 
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
-                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::RGBA8,
+                                             {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
 static std::vector<RGBA8> DecodePalette(int numEntries, CInputStream& in) {
@@ -312,8 +312,8 @@ void CTexture::BuildC4FromGCN(CInputStream& in, std::string_view label) {
     }
   }
 
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
-                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::RGBA8,
+                                             {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
 void CTexture::BuildC8FromGCN(CInputStream& in, std::string_view label) {
@@ -350,8 +350,8 @@ void CTexture::BuildC8FromGCN(CInputStream& in, std::string_view label) {
     }
   }
 
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
-                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::RGBA8,
+                                             {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
 void CTexture::BuildC14X2FromGCN(CInputStream& in, std::string_view label) {
@@ -393,8 +393,8 @@ void CTexture::BuildRGB565FromGCN(CInputStream& in, std::string_view label) {
     }
   }
 
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
-                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::RGBA8,
+                                             {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
 void CTexture::BuildRGB5A3FromGCN(CInputStream& in, std::string_view label) {
@@ -439,8 +439,8 @@ void CTexture::BuildRGB5A3FromGCN(CInputStream& in, std::string_view label) {
     }
   }
 
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
-                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::RGBA8,
+                                             {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
 void CTexture::BuildRGBA8FromGCN(CInputStream& in, std::string_view label) {
@@ -484,8 +484,8 @@ void CTexture::BuildRGBA8FromGCN(CInputStream& in, std::string_view label) {
     }
   }
 
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
-                                        {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::RGBA8,
+                                             {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
 void CTexture::BuildDXT1FromGCN(CInputStream& in, std::string_view label) {
@@ -532,8 +532,8 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in, std::string_view label) {
     }
   }
 
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::DXT1,
-                                        {reinterpret_cast<const uint8_t*>(buf.get()), blockCount * 8}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::DXT1,
+                                             {reinterpret_cast<const uint8_t*>(buf.get()), blockCount * 8}, label);
 }
 
 void CTexture::BuildRGBA8(const void* data, size_t length, std::string_view label) {
@@ -542,8 +542,8 @@ void CTexture::BuildRGBA8(const void* data, size_t length, std::string_view labe
   if (expectedSize > length)
     Log.report(logvisor::Fatal, FMT_STRING("insufficient TXTR length ({}/{})"), length, expectedSize);
 
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
-                                        {reinterpret_cast<const uint8_t*>(data), expectedSize}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::RGBA8,
+                                             {reinterpret_cast<const uint8_t*>(data), expectedSize}, label);
 }
 
 void CTexture::BuildC8(const void* data, size_t length, std::string_view label) {
@@ -554,10 +554,10 @@ void CTexture::BuildC8(const void* data, size_t length, std::string_view label) 
   uint32_t nentries = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
   const u8* paletteTexels = reinterpret_cast<const u8*>(data) + 4;
   const u8* texels = reinterpret_cast<const u8*>(data) + 4 + nentries * 4;
-  m_paletteTex = aurora::new_static_texture_2d(nentries, 1, 1, aurora::shaders::TextureFormat::RGBA8,
-                                               {paletteTexels, nentries * 4}, label);
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::R8, {texels, texelCount},
-                                        label);
+  m_paletteTex = aurora::gfx::new_static_texture_2d(nentries, 1, 1, aurora::gfx::TextureFormat::RGBA8,
+                                                    {paletteTexels, nentries * 4}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::R8, {texels, texelCount},
+                                             label);
 }
 
 void CTexture::BuildC8Font(const void* data, EFontType ftype, std::string_view label) {
@@ -660,13 +660,13 @@ void CTexture::BuildC8Font(const void* data, EFontType ftype, std::string_view l
 }
 
 void CTexture::BuildDXT1(const void* data, size_t length, std::string_view label) {
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::DXT1,
-                                        {reinterpret_cast<const uint8_t*>(data), length}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::DXT1,
+                                             {reinterpret_cast<const uint8_t*>(data), length}, label);
 }
 
 void CTexture::BuildDXT3(const void* data, size_t length, std::string_view label) {
-  m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::DXT3,
-                                        {reinterpret_cast<const uint8_t*>(data), length}, label);
+  m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::DXT3,
+                                             {reinterpret_cast<const uint8_t*>(data), length}, label);
 }
 
 static std::string_view TextureFormatString(ETexelFormat format) {
@@ -754,14 +754,14 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTex
     BuildRGBA8FromGCN(r, label);
     break;
   case ETexelFormat::CMPR:
-    if (aurora::get_dxt_compression_supported()) {
+    if (aurora::gfx::get_dxt_compression_supported()) {
       BuildDXT1FromGCN(r, label);
     } else {
       Log.report(logvisor::Error, FMT_STRING("BC/DXT1 compression is not supported on your GPU, unable to load {}"),
                  label);
       x0_fmt = ETexelFormat::RGBA8PC;
       x8_mips = 1;
-      std::unique_ptr<u8[]> data= std::make_unique<u8[]>(x4_w * x6_h * 4);
+      std::unique_ptr<u8[]> data = std::make_unique<u8[]>(x4_w * x6_h * 4);
       /* Build a fake texture to use */
       for (u32 i = 0; i < (x4_w * x6_h) * 4; i += 4) {
         data[i + 0] = 0xFF;
@@ -769,8 +769,9 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTex
         data[i + 2] = 0xFF;
         data[i + 3] = 0xFF;
       }
-      m_tex = aurora::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::shaders::TextureFormat::RGBA8,
-                                            {reinterpret_cast<const uint8_t*>(data.get()), (x4_w * x6_h * 4ul)}, label);
+      m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::RGBA8,
+                                                 {reinterpret_cast<const uint8_t*>(data.get()), (x4_w * x6_h * 4ul)},
+                                                 label);
     }
     break;
   case ETexelFormat::RGBA8PC:
@@ -880,7 +881,7 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
   return ret;
 }
 
-const std::shared_ptr<aurora::TextureHandle>& CTexture::GetFontTexture(EFontType tp) {
+const std::shared_ptr<aurora::gfx::TextureHandle>& CTexture::GetFontTexture(EFontType tp) {
   if (m_ftype != tp && x0_fmt == ETexelFormat::C8PC) {
     m_ftype = tp;
     BuildC8Font(m_otex.get() + 12, m_ftype, "Font (TODO)"sv);

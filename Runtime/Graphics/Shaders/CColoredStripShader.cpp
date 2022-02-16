@@ -61,7 +61,7 @@ void CColoredStripShader::Shutdown() {
 //                                        stages.data(), nullptr, nullptr, texs.size(), texs.data(), nullptr, nullptr);
 //}
 
-CColoredStripShader::CColoredStripShader(size_t maxVerts, Mode mode, std::shared_ptr<aurora::TextureHandle> tex) {
+CColoredStripShader::CColoredStripShader(size_t maxVerts, Mode mode, std::shared_ptr<aurora::gfx::TextureHandle> tex) {
 //  CGraphics::CommitResources([this, maxVerts, mode, tex](boo::IGraphicsDataFactory::Context& ctx) {
 //    BuildResources(ctx, maxVerts, mode, tex);
 //    return true;

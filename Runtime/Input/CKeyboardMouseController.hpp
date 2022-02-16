@@ -1,8 +1,9 @@
 #pragma once
 
 #include <array>
+
+#include <aurora/aurora.hpp>
 #include <boo/IWindow.hpp>
-#include "aurora.h"
 
 namespace metaforce {
 

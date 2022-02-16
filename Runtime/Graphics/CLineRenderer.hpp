@@ -35,7 +35,7 @@ public:
 
   struct SDrawUniform {
     zeus::CColor moduColor;
-    CGraphics::CFogState fog;
+    CFogState fog;
   };
 
 private:
@@ -72,7 +72,7 @@ public:
 //  hecl::UniformBufferPool<SDrawUniform>::Token m_uniformBuf;
 //  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_shaderBind;
 
-  CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const std::shared_ptr<aurora::TextureHandle>& texture, bool additive,
+  CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const std::shared_ptr<aurora::gfx::TextureHandle>& texture, bool additive,
                 bool zTest = false, bool zGEqual = false);
   CLineRenderer(CLineRenderer&&) = default;
 

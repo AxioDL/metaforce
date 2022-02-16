@@ -1,4 +1,5 @@
 #include "Runtime/Graphics/CPVSVisOctree.hpp"
+#include "IOStreams.hpp"
 
 #include <array>
 

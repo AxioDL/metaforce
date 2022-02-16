@@ -1,6 +1,7 @@
 #include "Runtime/Collision/CAreaOctTree.hpp"
 
 #include "Runtime/Collision/CMaterialFilter.hpp"
+#include "IOStreams.hpp"
 
 #include <array>
 #include <cfloat>

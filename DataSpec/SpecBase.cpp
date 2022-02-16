@@ -482,7 +482,7 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
 
     auto& [positionOut, sizeOut, compressedOut] = fileIndex.emplace_back();
 
-    if (tag.type == FOURCC('MLVL')) {
+    if (tag.type.toUint32() == FOURCC('MLVL')) {
       auto search = mlvlData.find(tag.id);
       if (search == mlvlData.end())
         Log.report(logvisor::Fatal, FMT_STRING("Unable to find MLVL {}"), tag.id);
@@ -635,7 +635,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
       std::unordered_set<metaforce::SObjectTag> addedTags;
       addedTags.reserve(buildList.size());
       for (auto& tag : buildList) {
-        if ((i == 0 && tag.type == FOURCC('CMDL')) || (i == 1 && tag.type != FOURCC('CMDL'))) {
+        if ((i == 0 && tag.type.toUint32() == FOURCC('CMDL')) || (i == 1 && tag.type.toUint32() != FOURCC('CMDL'))) {
           if (addedTags.find(tag) != addedTags.end())
             continue;
           addedTags.insert(tag);
@@ -820,7 +820,7 @@ FourCC SpecBase::getResourceTypeById(metaforce::CAssetId id) const {
     return {};
 
   std::unique_lock lk(m_backgroundIndexMutex);
-  metaforce::SObjectTag searchTag = {FourCC(), id};
+  metaforce::SObjectTag searchTag = {metaforce::FourCC(), id};
   auto search = m_tagToPath.find(searchTag);
   if (search == m_tagToPath.end()) {
     if (m_backgroundRunning) {
@@ -838,7 +838,7 @@ FourCC SpecBase::getResourceTypeById(metaforce::CAssetId id) const {
       return {};
   }
 
-  return search->first.type;
+  return search->first.type.toUint32();
 }
 
 void SpecBase::enumerateResources(const std::function<bool(const metaforce::SObjectTag&)>& lambda) const {
@@ -1121,7 +1121,7 @@ void SpecBase::backgroundIndexProc() {
           const athena::io::YAMLNode& node = *child.second;
           if (node.m_seqChildren.size() >= 2) {
             unsigned long id = strtoul(child.first.c_str(), nullptr, 16);
-            hecl::FourCC type(node.m_seqChildren[0]->m_scalarString.c_str());
+            metaforce::FourCC type(node.m_seqChildren[0]->m_scalarString.c_str());
             metaforce::SObjectTag pathTag(type, id);
             for (auto I = node.m_seqChildren.begin() + 1, E = node.m_seqChildren.end(); I != E; ++I) {
               hecl::ProjectPath path(m_project.getProjectWorkingPath(), (*I)->m_scalarString);
@@ -1150,7 +1150,7 @@ void SpecBase::backgroundIndexProc() {
           m_catalogTagToNames.reserve(nameReader.getRootNode()->m_mapChildren.size());
           for (const auto& child : nameReader.getRootNode()->m_mapChildren) {
             unsigned long id = strtoul(child.second->m_scalarString.c_str(), nullptr, 16);
-            auto search = m_tagToPath.find(metaforce::SObjectTag(FourCC(), uint32_t(id)));
+            auto search = m_tagToPath.find(metaforce::SObjectTag(metaforce::FourCC(), uint32_t(id)));
             if (search != m_tagToPath.cend()) {
               std::string chLower = child.first;
               std::transform(chLower.cbegin(), chLower.cend(), chLower.begin(), tolower);

@@ -436,9 +436,9 @@ void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* 
       for (size_t i = 0; i < planes.size(); ++i) {
         DrawFogSlices(planes.data(), planes.size(), i, xfAABB.center(), longestAxis, fvs);
       }
-      aurora::shaders::queue_fog_volume_plane(fvs.m_verts, 0);
+      aurora::gfx::queue_fog_volume_plane(fvs.m_verts, 0);
     } else {
-      aurora::shaders::queue_fog_volume_plane({}, pass);
+      aurora::gfx::queue_fog_volume_plane({}, pass);
     }
   } else {
     CModelFlags flags;
@@ -568,9 +568,9 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
 
   CGraphics::ResolveSpareDepth(rect, 1);
 
-  aurora::shaders::queue_fog_volume_filter(color, true);
+  aurora::gfx::queue_fog_volume_filter(color, true);
   if (camInModel)
-    aurora::shaders::queue_fog_volume_filter(color, false);
+    aurora::gfx::queue_fog_volume_filter(color, false);
 
   // CGraphics::SetScissor(g_Viewport.x0_left, g_Viewport.x4_top, g_Viewport.x8_width, g_Viewport.xc_height);
 }
@@ -589,7 +589,7 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
 //    }
 //  }
 //  x1b8_fogVolumeRamp =
-//      aurora::new_static_texture_2d(FOGVOL_RAMP_RES, FOGVOL_RAMP_RES, 1, aurora::shaders::TextureFormat::R32Float,
+//      aurora::new_static_texture_2d(FOGVOL_RAMP_RES, FOGVOL_RAMP_RES, 1, aurora::gfx::TextureFormat::R32Float,
 //                                    {data[0].data(), FOGVOL_RAMP_RES * FOGVOL_RAMP_RES * 2});
 //}
 //
@@ -603,7 +603,7 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
 //    }
 //  }
 //  x220_sphereRamp =
-//      aurora::new_static_texture_2d(SPHERE_RAMP_RES, SPHERE_RAMP_RES, 1, aurora::shaders::TextureFormat::R8,
+//      aurora::new_static_texture_2d(SPHERE_RAMP_RES, SPHERE_RAMP_RES, 1, aurora::gfx::TextureFormat::R8,
 //                                    {data[0].data(), SPHERE_RAMP_RES * SPHERE_RAMP_RES});
 //}
 //
@@ -644,7 +644,7 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
 //  m_scanLinesOddVBO = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), sizeof(zeus::CVector3f), verts.size());
 //}
 
-std::shared_ptr<aurora::TextureHandle> CBooRenderer::GetColorTexture(const zeus::CColor& color) {
+std::shared_ptr<aurora::gfx::TextureHandle> CBooRenderer::GetColorTexture(const zeus::CColor& color) {
   const auto search = m_colorTextures.find(color);
   if (search != m_colorTextures.end()) {
     return search->second;
@@ -652,8 +652,7 @@ std::shared_ptr<aurora::TextureHandle> CBooRenderer::GetColorTexture(const zeus:
 
   std::array<u8, 4> pixel{};
   color.toRGBA8(pixel[0], pixel[1], pixel[2], pixel[3]);
-  auto tex = aurora::new_static_texture_2d(1, 1, 1, aurora::shaders::TextureFormat::RGBA8, {pixel.data(), pixel.size()},
-                                           "Color Texture"sv);
+  auto tex = aurora::gfx::new_static_texture_2d(1, 1, 1, aurora::gfx::TextureFormat::RGBA8, pixel, "Color Texture"sv);
   m_colorTextures.emplace(color, tex);
   return tex;
 }
@@ -681,20 +680,20 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
   m_staticEntropy = store.GetObj("RandomStaticEntropy");
 
   constexpr std::array<u8, 4> clearPixel{0, 0, 0, 0};
-  m_clearTexture = aurora::new_static_texture_2d(1, 1, 1, aurora::shaders::TextureFormat::RGBA8,
-                                                 {clearPixel.data(), clearPixel.size()}, "Clear Texture"sv);
+  m_clearTexture =
+      aurora::gfx::new_static_texture_2d(1, 1, 1, aurora::gfx::TextureFormat::RGBA8, clearPixel, "Clear Texture"sv);
   constexpr std::array<u8, 4> blackPixel{0, 0, 0, 255};
-  m_blackTexture = aurora::new_static_texture_2d(1, 1, 1, aurora::shaders::TextureFormat::RGBA8,
-                                                 {blackPixel.data(), blackPixel.size()}, "Black Texture"sv);
+  m_blackTexture =
+      aurora::gfx::new_static_texture_2d(1, 1, 1, aurora::gfx::TextureFormat::RGBA8, blackPixel, "Black Texture"sv);
   constexpr std::array<u8, 4> whitePixel{255, 255, 255, 255};
-  m_whiteTexture = aurora::new_static_texture_2d(1, 1, 1, aurora::shaders::TextureFormat::RGBA8,
-                                                 {whitePixel.data(), whitePixel.size()}, "White Texture"sv);
+  m_whiteTexture =
+      aurora::gfx::new_static_texture_2d(1, 1, 1, aurora::gfx::TextureFormat::RGBA8, whitePixel, "White Texture"sv);
 
-//  GenerateFogVolumeRampTex();
+  //  GenerateFogVolumeRampTex();
 //  GenerateSphereRampTex();
-  m_ballShadowId = aurora::new_render_texture(m_ballShadowIdW, m_ballShadowIdH, 1, 0, "Ball Shadow");
+  m_ballShadowId = aurora::gfx::new_render_texture(m_ballShadowIdW, m_ballShadowIdH, 1, 0, "Ball Shadow");
 //  m_ballShadowId = ctx.newRenderTexture(m_ballShadowIdW, m_ballShadowIdH, boo::TextureClampMode::Repeat, 1, 0);
-  x14c_reflectionTex = aurora::new_render_texture(256, 256, 1, 0, "Reflection");
+  x14c_reflectionTex = aurora::gfx::new_render_texture(256, 256, 1, 0, "Reflection");
 //  x14c_reflectionTex = ctx.newRenderTexture(256, 256, boo::TextureClampMode::ClampToBlack, 1, 0);
 //  GenerateScanLinesVBO();
 //  LoadThermoPalette();

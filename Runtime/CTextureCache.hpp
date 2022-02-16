@@ -1,6 +1,10 @@
 #pragma once
+
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
+
+#include <map>
+
 namespace metaforce {
 class CPaletteInfo {
   u32 m_format;

@@ -169,9 +169,8 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp) {
   for (u32 i = 0; i < count; ++i) {
     DataSpec::DNAFourCC type;
     type.read(in);
-    std::shared_ptr<CGuiWidget> widget = CGuiSys::CreateWidgetInGame(type, in, this, sp);
-    type = widget->GetWidgetTypeID();
-    switch (type.toUint32()) {
+    std::shared_ptr<CGuiWidget> widget = CGuiSys::CreateWidgetInGame(type.toUint32(), in, this, sp);
+    switch (widget->GetWidgetTypeID().toUint32()) {
     case SBIG('CAMR'):
     case SBIG('LITE'):
     case SBIG('BGND'):

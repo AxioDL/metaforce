@@ -73,10 +73,10 @@ void CSplashScreen::Draw() {
   rect.position.x() = 0.5f - rect.size.x() / 2.f;
   rect.position.y() = 0.5f - rect.size.y() / 2.f;
 
-  aurora::shaders::queue_textured_quad(
-      aurora::shaders::CameraFilterType::Blend,
+  aurora::gfx::queue_textured_quad(
+      aurora::gfx::CameraFilterType::Blend,
       m_texture->GetTexture()->ref,
-      aurora::shaders::ZTest::Always,
+      aurora::gfx::ZTest::Always,
       false,
       color,
       1.f,

@@ -2045,8 +2045,8 @@ void CFrontEndUI::Draw() {
                                   x38_pressStart->GetHeight() / 480.f * vPad);
       zeus::CColor color = zeus::skWhite;
       color.a() = x64_pressStartAlpha;
-      aurora::shaders::queue_textured_quad(aurora::shaders::CameraFilterType::Add, x38_pressStart->GetTexture()->ref,
-                                           aurora::shaders::ZTest::Always, false, color, 1.f, rect, 0.f);
+      aurora::gfx::queue_textured_quad(aurora::gfx::CameraFilterType::Add, x38_pressStart->GetTexture()->ref,
+                                       aurora::gfx::ZTest::Always, false, color, 1.f, rect, 0.f);
     }
 
     if (xc0_attractCount > 0) {
@@ -2058,8 +2058,8 @@ void CFrontEndUI::Draw() {
         zeus::CColor color = zeus::skBlack;
         color.a() = 1.f - x58_fadeBlackTimer;
         zeus::CRectangle rect(0, 0, 1, 1);
-        aurora::shaders::queue_colored_quad(aurora::shaders::CameraFilterType::Blend, aurora::shaders::ZTest::Always,
-                                            false, color, rect, 0.f);
+        aurora::gfx::queue_colored_quad(aurora::gfx::CameraFilterType::Blend, aurora::gfx::ZTest::Always, false, color,
+                                        rect, 0.f);
       }
     }
 
@@ -2070,15 +2070,15 @@ void CFrontEndUI::Draw() {
         zeus::CColor color = zeus::skBlack;
         color.a() = zeus::clamp(0.f, 1.f - x58_fadeBlackTimer, 1.f);
         zeus::CRectangle rect(0, 0, 1, 1);
-        aurora::shaders::queue_colored_quad(aurora::shaders::CameraFilterType::Blend, aurora::shaders::ZTest::Always,
-                                            false, color, rect, 0.f);
+        aurora::gfx::queue_colored_quad(aurora::gfx::CameraFilterType::Blend, aurora::gfx::ZTest::Always, false, color,
+                                        rect, 0.f);
       } else if (x50_curScreen == EScreen::Title && x54_nextScreen == EScreen::Title) {
         /* From black with 30-sec skip to title */
         zeus::CColor color = zeus::skBlack;
         color.a() = 1.f - zeus::clamp(0.f, 30.f - x58_fadeBlackTimer, 1.f);
         zeus::CRectangle rect(0, 0, 1, 1);
-        aurora::shaders::queue_colored_quad(aurora::shaders::CameraFilterType::Blend, aurora::shaders::ZTest::Always,
-                                            false, color, rect, 0.f);
+        aurora::gfx::queue_colored_quad(aurora::gfx::CameraFilterType::Blend, aurora::gfx::ZTest::Always, false, color,
+                                        rect, 0.f);
       }
     }
 

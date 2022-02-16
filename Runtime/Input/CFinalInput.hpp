@@ -5,10 +5,6 @@
 #include "Runtime/Input/CKeyboardMouseController.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-#include "aurora.h"
-
-//#include <boo/inputdev/DolphinSmashAdapter.hpp>
-
 namespace metaforce {
 
 struct SAuroraControllerState {

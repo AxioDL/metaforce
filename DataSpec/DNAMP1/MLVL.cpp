@@ -321,10 +321,10 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
           metaforce::SObjectTag tag = g_curSpec->buildTagFromPath(path.first);
           if (tag.id.IsValid()) {
             if (path.second)
-              areaOut.lazyDeps.emplace_back(tag.id.Value(), tag.type);
+              areaOut.lazyDeps.emplace_back(tag.id.Value(), tag.type.toUint32());
             else
               areaOut.lazyDeps.emplace_back(0, FOURCC('NONE'));
-            areaOut.deps.emplace_back(tag.id.Value(), tag.type);
+            areaOut.deps.emplace_back(tag.id.Value(), tag.type.toUint32());
           }
         }
       }
@@ -350,17 +350,17 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         metaforce::SObjectTag tag = g_curSpec->buildTagFromPath(path.first);
         if (tag.id.IsValid()) {
           if (path.second)
-            areaOut.lazyDeps.emplace_back(tag.id.Value(), tag.type);
+            areaOut.lazyDeps.emplace_back(tag.id.Value(), tag.type.toUint32());
           else
             areaOut.lazyDeps.emplace_back(0, FOURCC('NONE'));
-          areaOut.deps.emplace_back(tag.id.Value(), tag.type);
+          areaOut.deps.emplace_back(tag.id.Value(), tag.type.toUint32());
         }
       }
 
       hecl::ProjectPath pathPath = GetPathBeginsWith(areaDEnum, area.path, "!path");
       metaforce::SObjectTag pathTag = g_curSpec->buildTagFromPath(pathPath);
       if (pathTag.id.IsValid()) {
-        areaOut.deps.emplace_back(pathTag.id.Value(), pathTag.type);
+        areaOut.deps.emplace_back(pathTag.id.Value(), pathTag.type.toUint32());
         areaOut.lazyDeps.emplace_back(0, FOURCC('NONE'));
       }
     }

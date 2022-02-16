@@ -60,3 +60,6 @@
 [submodule "extern/SDL"]
 	path = extern/SDL
 	url = https://github.com/libsdl-org/SDL.git
+[submodule "extern/dawn"]
+	path = extern/dawn
+	url = https://github.com/encounter/dawn-cmake.git

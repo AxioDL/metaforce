@@ -178,11 +178,11 @@ void CTexturedQuadFilterAlpha::Shutdown() {
 //  }
 //}
 
-CTexturedQuadFilter::CTexturedQuadFilter(const std::shared_ptr<aurora::TextureHandle>& tex) : m_booTex(tex) {
+CTexturedQuadFilter::CTexturedQuadFilter(const std::shared_ptr<aurora::gfx::TextureHandle>& tex) : m_booTex(tex) {
   m_flipRect = true; // TODO?
 }
 
-CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const std::shared_ptr<aurora::TextureHandle>& tex, ERglEnum ztest)
+CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const std::shared_ptr<aurora::gfx::TextureHandle>& tex, ERglEnum ztest)
 : m_booTex(tex), m_zTest(ztest) {
   m_flipRect = true; // TODO?
 //  tex->setClampMode(boo::TextureClampMode::ClampToEdge);
@@ -322,7 +322,7 @@ void CTexturedQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& col
   }
 }
 
-CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, const std::shared_ptr<aurora::TextureHandle>& tex)
+CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, const std::shared_ptr<aurora::gfx::TextureHandle>& tex)
 : CTexturedQuadFilter(tex) {
 //  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
 //    m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 4);

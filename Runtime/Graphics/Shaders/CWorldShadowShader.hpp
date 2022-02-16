@@ -13,7 +13,7 @@
 namespace metaforce {
 
 class CWorldShadowShader {
-  std::shared_ptr<aurora::TextureHandle> m_tex;
+  std::shared_ptr<aurora::gfx::TextureHandle> m_tex;
   std::optional<CTexturedQuadFilter> m_prevQuad;
   u32 m_w, m_h;
 
@@ -40,7 +40,7 @@ public:
   u32 GetWidth() const { return m_w; }
   u32 GetHeight() const { return m_h; }
 
-  const std::shared_ptr<aurora::TextureHandle>& GetTexture() const { return m_tex; }
+  const std::shared_ptr<aurora::gfx::TextureHandle>& GetTexture() const { return m_tex; }
 };
 
 } // namespace metaforce

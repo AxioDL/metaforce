@@ -54,11 +54,11 @@ void CStringTable::LoadStringTable(CInputStream& in) {
 
   u32* off = reinterpret_cast<u32*>(x4_data.get());
   for (u32 i = 0; i < x0_stringCount; ++i, ++off)
-    *off = hecl::SBig(*off);
+    *off = SBig(*off);
 
   for (u32 i = x0_stringCount * 4; i < dataLen; i += 2) {
     u16* chr = reinterpret_cast<u16*>(x4_data.get() + i);
-    *chr = hecl::SBig(*chr);
+    *chr = SBig(*chr);
   }
 }
 

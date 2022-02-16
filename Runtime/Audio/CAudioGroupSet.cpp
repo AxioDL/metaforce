@@ -8,7 +8,7 @@ amuse::AudioGroupData CAudioGroupSet::LoadData() {
   const auto readU32 = [](const u8* ptr) {
     uint32_t value;
     std::memcpy(&value, ptr, sizeof(value));
-    return hecl::SBig(value);
+    return SBig(value);
   };
 
   athena::io::MemoryReader r(m_buffer.get(), INT32_MAX);

@@ -35,8 +35,8 @@ void CSpaceWarpFilter::GenerateWarpRampTex() {
       data[y][x][0] = data[y][x][1] = data[y][x][2];
     }
   }
-  m_warpTex = aurora::new_static_texture_2d(
-      WARP_RAMP_RES + 1, WARP_RAMP_RES + 1, 1, aurora::shaders::TextureFormat::R8,
+  m_warpTex = aurora::gfx::new_static_texture_2d(
+      WARP_RAMP_RES + 1, WARP_RAMP_RES + 1, 1, aurora::gfx::TextureFormat::R8,
       {reinterpret_cast<const uint8_t*>(data.data()), (WARP_RAMP_RES + 1) * (WARP_RAMP_RES + 1) * 4}, "Warp Ramp");
 }
 

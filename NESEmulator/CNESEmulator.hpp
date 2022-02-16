@@ -35,7 +35,7 @@ private:
     zeus::CColor m_color;
   };
 
-  std::shared_ptr<aurora::TextureHandle> m_texture;
+  std::shared_ptr<aurora::gfx::TextureHandle> m_texture;
 //  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
 //  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
 //  boo::ObjToken<boo::IShaderDataBinding> m_shadBind;

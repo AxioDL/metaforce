@@ -198,7 +198,7 @@ CFluidPlaneShader::CFluidPlaneShader(EFluidType type, const TLockedToken<CTextur
                                      const TLockedToken<CTexture>& patternTex2, const TLockedToken<CTexture>& colorTex,
                                      const TLockedToken<CTexture>& bumpMap, const TLockedToken<CTexture>& envMap,
                                      const TLockedToken<CTexture>& envBumpMap, const TLockedToken<CTexture>& lightmap,
-                                     const std::shared_ptr<aurora::TextureHandle>& rippleMap, bool doubleLightmapBlend,
+                                     const std::shared_ptr<aurora::gfx::TextureHandle>& rippleMap, bool doubleLightmapBlend,
                                      bool additive, u32 maxVertCount)
 : m_patternTex1(patternTex1)
 , m_patternTex2(patternTex2)

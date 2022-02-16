@@ -15,7 +15,7 @@ class CXRayBlurFilter {
     std::array<zeus::CMatrix4f, 8> m_uv;
   };
   TLockedToken<CTexture> m_paletteTex;
-  std::shared_ptr<aurora::TextureHandle> m_booTex;
+  std::shared_ptr<aurora::gfx::TextureHandle> m_booTex;
 //  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
 //  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
 //  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;

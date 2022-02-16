@@ -186,16 +186,16 @@ public:
   [[nodiscard]] u32 GetCompressedBlend() {
     const u32* ptr = reinterpret_cast<const u32*>(x0_data[(GetTextureCount() * 4) + 16]);
     if (IsFlagSet(EStateFlags::KonstEnabled)) {
-      ptr += hecl::SBig(*ptr) + 1;
+      ptr += SBig(*ptr) + 1;
     }
 
-    return hecl::SBig(*ptr);
+    return SBig(*ptr);
   }
-  [[nodiscard]] EStateFlags GetFlags() const { return EStateFlags(hecl::SBig(*reinterpret_cast<const u32*>(x0_data))); }
+  [[nodiscard]] EStateFlags GetFlags() const { return EStateFlags(SBig(*reinterpret_cast<const u32*>(x0_data))); }
   [[nodiscard]] bool IsFlagSet(EStateFlags flag) const { return True(GetFlags() & flag); }
   [[nodiscard]] u32 GetUsedTextureSlots() const { return static_cast<u32>(GetFlags()) >> 16; }
-  [[nodiscard]] u32 GetTextureCount() const { return hecl::SBig(*reinterpret_cast<const u32*>(&x0_data[4])); }
-  [[nodiscard]] u32 GetVertexDesc() const { return hecl::SBig(*reinterpret_cast<const u32*>(&x0_data[(GetTextureCount() * 4) + 8])); }
+  [[nodiscard]] u32 GetTextureCount() const { return SBig(*reinterpret_cast<const u32*>(&x0_data[4])); }
+  [[nodiscard]] u32 GetVertexDesc() const { return SBig(*reinterpret_cast<const u32*>(&x0_data[(GetTextureCount() * 4) + 8])); }
 };
 #pragma endregion
 

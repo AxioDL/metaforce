@@ -19,9 +19,7 @@
  * (used by MSVC to definitively link DataSpecs) */
 #include "DataSpecRegistry.hpp"
 
-#include "Graphics/include/aurora.hpp"
-#include "aurora.h"
-#include "aurora_shaders.h"
+#include <aurora/aurora.hpp>
 
 using namespace std::literals;
 
@@ -521,6 +519,14 @@ public:
     }
   }
 
+  void onImGuiInit(float scale) noexcept override {
+    ImGuiEngine_Initialize(scale);
+  }
+
+  void onImGuiAddTextures() noexcept override {
+    ImGuiEngine_AddTextures();
+  }
+
   [[nodiscard]] std::string getGraphicsApi() const { return m_cvarCommons.getGraphicsApi(); }
 
   [[nodiscard]] uint32_t getSamples() const { return m_cvarCommons.getSamples(); }
@@ -577,8 +583,6 @@ static bool IsClientLoggingEnabled(int argc, char** argv) {
 }
 
 #if !WINDOWS_STORE
-extern "C" void cxxbridge1$rust_vec$u8$set_len(rust::Vec<u8>* ptr, std::size_t len) noexcept;
-
 int main(int argc, char** argv) {
   //TODO: This seems to fix a lot of weird issues with rounding
   // but breaks animations, need to research why this is the case
@@ -622,17 +626,13 @@ int main(int argc, char** argv) {
   hecl::SetCpuCountOverride(argc, argv);
 
   auto app = std::make_unique<metaforce::Application>(fileMgr, cvarMgr, cvarCmns);
-  auto data = aurora::Icon{};
-  {
-    auto icon = metaforce::GetIcon();
-    data.data.reserve(icon.size);
-    std::memcpy(data.data.data(), icon.data.get(), icon.size);
-    // terrible hack: https://github.com/dtolnay/cxx/issues/990
-    cxxbridge1$rust_vec$u8$set_len(&data.data, icon.size);
-    data.width = icon.width;
-    data.height = icon.height;
-  }
-  aurora::app_run(std::move(app), data);
+  auto icon = metaforce::GetIcon();
+  auto data = aurora::Icon{
+      .data = std::move(icon.data),
+      .width = icon.width,
+      .height = icon.height,
+  };
+  aurora::app_run(std::move(app), std::move(data));
   return 0;
 }
 #endif

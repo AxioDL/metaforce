@@ -3,7 +3,8 @@
 #include <map>
 #include <vector>
 
-#include "Runtime/RetroTypes.hpp"
+#include "RetroTypes.hpp"
+#include "IOStreams.hpp"
 
 namespace metaforce {
 class CWorldSaveGameInfo;

@@ -63,7 +63,7 @@ private:
     CMapSurfaceShader m_surface;
     CLineRenderer m_outline;
     explicit DoorSurface()
-    : m_surface(aurora::ArrayRef{skDoorVerts}, aurora::ArrayRef{skDoorIndices})
+    : m_surface(skDoorVerts, skDoorIndices)
     , m_outline(CLineRenderer::EPrimitiveMode::LineLoop, 5, nullptr, false, false, true) {}
   };
   std::optional<DoorSurface> m_doorSurface;

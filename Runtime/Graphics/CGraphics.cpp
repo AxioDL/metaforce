@@ -11,7 +11,7 @@
 namespace metaforce {
 
 CGraphics::CProjectionState CGraphics::g_Proj;
-CGraphics::CFogState CGraphics::g_Fog;
+CFogState CGraphics::g_Fog;
 std::array<zeus::CColor, 3> CGraphics::g_ColorRegs{};
 float CGraphics::g_ProjAspect = 1.f;
 u32 CGraphics::g_NumLightsActive = 0;
@@ -156,7 +156,7 @@ void CGraphics::SetViewMatrix() {
   g_GXModelViewInvXpose.origin.zeroOut();
   g_GXModelViewInvXpose.basis.transpose();
   /* Load normal matrix */
-  aurora::shaders::update_model_view(g_GXModelView.toMatrix4f(), g_GXModelViewInvXpose.toMatrix4f());
+  aurora::gfx::update_model_view(g_GXModelView.toMatrix4f(), g_GXModelViewInvXpose.toMatrix4f());
 }
 
 void CGraphics::SetModelMatrix(const zeus::CTransform& xf) {
@@ -323,7 +323,7 @@ void CGraphics::FlushProjection() {
   } else {
     // Convert and load ortho
   }
-  aurora::shaders::update_projection(GetPerspectiveProjectionMatrix(true));
+  aurora::gfx::update_projection(GetPerspectiveProjectionMatrix(true));
 }
 
 zeus::CVector2i CGraphics::ProjectPoint(const zeus::CVector3f& point) {
@@ -423,17 +423,17 @@ void CGraphics::SetViewport(int leftOff, int bottomOff, int width, int height) {
   CachedVP.position[1] = bottomOff;
   CachedVP.size[0] = width;
   CachedVP.size[1] = height;
-  aurora::shaders::set_viewport(CachedVP, g_CachedDepthRange[0], g_CachedDepthRange[1]);
+  aurora::gfx::set_viewport(CachedVP, g_CachedDepthRange[0], g_CachedDepthRange[1]);
 }
 
 void CGraphics::SetScissor(int leftOff, int bottomOff, int width, int height) {
-  aurora::shaders::set_scissor(leftOff, bottomOff, width, height);
+  aurora::gfx::set_scissor(leftOff, bottomOff, width, height);
 }
 
 void CGraphics::SetDepthRange(float znear, float zfar) {
   g_CachedDepthRange[0] = znear;
   g_CachedDepthRange[1] = zfar;
-  aurora::shaders::set_viewport(CachedVP, g_CachedDepthRange[0], g_CachedDepthRange[1]);
+  aurora::gfx::set_viewport(CachedVP, g_CachedDepthRange[0], g_CachedDepthRange[1]);
 }
 
 CTimeProvider* CGraphics::g_ExternalTimeProvider = nullptr;

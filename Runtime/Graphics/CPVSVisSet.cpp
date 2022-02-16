@@ -54,7 +54,7 @@ void CPVSVisSet::SetTestPoint(const CPVSVisOctree& octree, const zeus::CVector3f
     if (nextNodeRel) {
       /* Skip node data */
       if (!(curNode & 0x60)) {
-        octCur += hecl::SBig(reinterpret_cast<const u16*>(octCur)[nextNodeRel - 1]);
+        octCur += SBig(reinterpret_cast<const u16*>(octCur)[nextNodeRel - 1]);
       } else if (curNode & 0x20) {
         octCur += *(octCur + nextNodeRel - 1);
       } else {

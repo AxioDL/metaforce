@@ -101,20 +101,20 @@ class CBooRenderer final : public IRenderer {
   // boo::ITextureS* xe4_blackTex = nullptr;
   bool xee_24_ : 1 = true;
 
-  std::shared_ptr<aurora::TextureHandle> m_clearTexture;
-  std::shared_ptr<aurora::TextureHandle> m_blackTexture;
-  std::shared_ptr<aurora::TextureHandle> m_whiteTexture;
-  std::unordered_map<zeus::CColor, std::shared_ptr<aurora::TextureHandle>> m_colorTextures;
+  std::shared_ptr<aurora::gfx::TextureHandle> m_clearTexture;
+  std::shared_ptr<aurora::gfx::TextureHandle> m_blackTexture;
+  std::shared_ptr<aurora::gfx::TextureHandle> m_whiteTexture;
+  std::unordered_map<zeus::CColor, std::shared_ptr<aurora::gfx::TextureHandle>> m_colorTextures;
 
-  std::shared_ptr<aurora::TextureHandle> x14c_reflectionTex;
+  std::shared_ptr<aurora::gfx::TextureHandle> x14c_reflectionTex;
   // boo::ITextureS* x150_mirrorRamp = nullptr;
-//  std::shared_ptr<aurora::TextureHandle> x1b8_fogVolumeRamp;
-  std::shared_ptr<aurora::TextureHandle> x220_sphereRamp;
+//  std::shared_ptr<aurora::gfx::TextureHandle> x1b8_fogVolumeRamp;
+  std::shared_ptr<aurora::gfx::TextureHandle> x220_sphereRamp;
 //  TLockedToken<CTexture> m_thermoPaletteTex;
-//  std::shared_ptr<aurora::TextureHandle> x288_thermoPalette;
+//  std::shared_ptr<aurora::gfx::TextureHandle> x288_thermoPalette;
 //  TLockedToken<CTexture> m_ballFadeTex;
-  std::shared_ptr<aurora::TextureHandle> m_ballFade;
-  std::shared_ptr<aurora::TextureHandle> m_ballShadowId;
+  std::shared_ptr<aurora::gfx::TextureHandle> m_ballFade;
+  std::shared_ptr<aurora::gfx::TextureHandle> m_ballShadowId;
 //  boo::ObjToken<boo::IGraphicsBufferS> m_scanLinesEvenVBO;
 //  boo::ObjToken<boo::IGraphicsBufferS> m_scanLinesOddVBO;
   int m_ballShadowIdW = 64;
@@ -269,11 +269,11 @@ public:
 //  const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesEvenVBO() const { return m_scanLinesEvenVBO; }
 //  const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesOddVBO() const { return m_scanLinesOddVBO; }
 
-  const std::shared_ptr<aurora::TextureHandle>& GetClearTexture() const { return m_clearTexture; }
-  const std::shared_ptr<aurora::TextureHandle>& GetBlackTexture() const { return m_blackTexture; }
-  const std::shared_ptr<aurora::TextureHandle>& GetWhiteTexture() const { return m_whiteTexture; }
+  const std::shared_ptr<aurora::gfx::TextureHandle>& GetClearTexture() const { return m_clearTexture; }
+  const std::shared_ptr<aurora::gfx::TextureHandle>& GetBlackTexture() const { return m_blackTexture; }
+  const std::shared_ptr<aurora::gfx::TextureHandle>& GetWhiteTexture() const { return m_whiteTexture; }
 
-  std::shared_ptr<aurora::TextureHandle> GetColorTexture(const zeus::CColor& color);
+  std::shared_ptr<aurora::gfx::TextureHandle> GetColorTexture(const zeus::CColor& color);
 
   static void BindMainDrawTarget() {
 //    CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture);

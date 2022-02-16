@@ -9,6 +9,7 @@
 #include "DataSpec/DNAMP2/CSKR.hpp"
 #include "DataSpec/DNAMP3/CMDLMaterials.hpp"
 #include "DataSpec/DNAMP3/CSKR.hpp"
+#include "IOStreams.hpp"
 
 #include <fmt/format.h>
 #include <hecl/Blender/Connection.hpp>

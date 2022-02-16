@@ -3,8 +3,6 @@
 
 #include "Runtime/Graphics/CGraphics.hpp"
 
-#include <aurora_shaders.h>
-
 namespace metaforce {
 
 CGuiPane::CGuiPane(const CGuiWidgetParms& parms, const zeus::CVector2f& dim, const zeus::CVector3f& scaleCenter)
@@ -18,8 +16,8 @@ void CGuiPane::Draw(const CGuiWidgetDrawParms& parms) {
     auto col = xa8_color2;
     col.a() = parms.x0_alphaMod * xa8_color2.a();
 
-    aurora::shaders::queue_colored_quad_verts(aurora::shaders::CameraFilterType::Blend, aurora::shaders::ZTest::Always,
-                                              false, col, {xc0_verts.data(), xc0_verts.size()});
+    aurora::gfx::queue_colored_quad_verts(aurora::gfx::CameraFilterType::Blend, aurora::gfx::ZTest::Always, false, col,
+                                          xc0_verts);
   }
   CGuiWidget::Draw(parms);
 }
@@ -50,7 +48,6 @@ void CGuiPane::InitializeBuffers() {
   xc0_verts[1].assign(-xb8_dim.x() * 0.5f, 0.f, -xb8_dim.y() * 0.5f);
   xc0_verts[2].assign(xb8_dim.x() * 0.5f, 0.f, xb8_dim.y() * 0.5f);
   xc0_verts[3].assign(xb8_dim.x() * 0.5f, 0.f, -xb8_dim.y() * 0.5f);
-
 }
 
 void CGuiPane::WriteData(COutputStream& out, bool flag) const {}

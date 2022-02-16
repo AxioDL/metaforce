@@ -20,76 +20,9 @@
 #include <zeus/CVector2i.hpp>
 #include <zeus/CVector2f.hpp>
 
-#include "aurora.h"
-#include "aurora_shaders.h"
+#include <aurora/gfx.hpp>
 
 using frame_clock = std::chrono::high_resolution_clock;
-
-namespace aurora {
-using TextureRef = aurora::shaders::TextureRef;
-template <typename T>
-struct RustDrop {};
-template <>
-struct RustDrop<TextureRef> {
-  TextureRef ref;
-  explicit RustDrop(TextureRef ref) : ref(ref) {}
-  ~RustDrop() { aurora::shaders::drop_texture(ref); }
-  RustDrop(const RustDrop&) = delete;
-  RustDrop& operator=(const RustDrop&) = delete;
-};
-using TextureHandle = RustDrop<TextureRef>;
-
-inline std::shared_ptr<TextureHandle> new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mips,
-                                                            aurora::shaders::TextureFormat format,
-                                                            rust::Slice<const uint8_t> data,
-                                                            std::string_view label) {
-  rust::Str rlabel{label.data(), label.size()};
-  auto ref = aurora::shaders::create_static_texture_2d(width, height, mips, format, data, rlabel);
-  return std::make_shared<TextureHandle>(ref);
-}
-inline std::shared_ptr<TextureHandle> new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t mips,
-                                                            aurora::shaders::TextureFormat format,
-                                                            std::string_view label) {
-  rust::Str rlabel{label.data(), label.size()};
-  auto ref = aurora::shaders::create_dynamic_texture_2d(width, height, mips, format, rlabel);
-  return std::make_shared<TextureHandle>(ref);
-}
-inline std::shared_ptr<TextureHandle> new_render_texture(uint32_t width, uint32_t height,
-                                                         uint32_t color_bind_count, uint32_t depth_bind_count,
-                                                         std::string_view label) {
-  rust::Str rlabel{label.data(), label.size()};
-  auto ref = aurora::shaders::create_render_texture(width, height, color_bind_count, depth_bind_count, rlabel);
-  return std::make_shared<TextureHandle>(ref);
-}
-
-template <typename T>
-class ArrayRef {
-public:
-  using value_type = std::remove_cvref_t<T>;
-  using pointer = value_type*;
-  using const_pointer = const value_type*;
-  using reference = value_type&;
-  using const_reference = const value_type&;
-  using iterator = const_pointer;
-  using const_iterator = const_pointer;
-  using size_type = std::size_t;
-  using difference_type = std::ptrdiff_t;
-
-  ArrayRef() = default;
-  explicit ArrayRef(T& one) : data(&one), length(1) {}
-  ArrayRef(T* data, size_t length) : data(data), length(length) {}
-  ArrayRef(T* begin, T* end) : data(begin), length(end - begin) {}
-  template <size_t N>
-  constexpr explicit ArrayRef(T (&arr)[N]) : data(arr), length(N) {}
-  template <size_t N>
-  constexpr explicit ArrayRef(std::array<T, N> arr) : data(arr.data()), length(arr.size()) {}
-  explicit ArrayRef(std::vector<T> vec) : data(vec.data()), length(vec.size()) {}
-
-private:
-  T* data = nullptr;
-  size_t length = 0;
-};
-} // namespace aurora
 
 namespace metaforce {
 extern hecl::CVar* g_disableLighting;
@@ -160,8 +93,6 @@ enum class ERglAlphaFunc {
 
 enum class ERglAlphaOp { And = 0, Or = 1, Xor = 2, XNor = 3 };
 
-using ERglFogMode = aurora::shaders::FogMode;
-
 struct SViewport {
   u32 x0_left;
   u32 x4_top;
@@ -200,7 +131,7 @@ struct SClipScreenRect {
   , x20_uvYMin(uvYMin)
   , x24_uvYMax(uvYMax) {}
 
-  SClipScreenRect(const aurora::shaders::ClipRect& rect) {
+  SClipScreenRect(const aurora::gfx::ClipRect& rect) {
     x4_left = rect.x;
     x8_top = rect.y;
     xc_width = rect.width;
@@ -297,15 +228,6 @@ public:
     float x14_near;
     float x18_far;
   };
-
-  using CFogState = aurora::shaders::FogState;
-  //  struct CFogState {
-  //    zeus::CColor m_color;
-  //    float m_A = 0.f;
-  //    float m_B = 0.5f;
-  //    float m_C = 0.f;
-  //    ERglFogMode m_mode;
-  //  };
 
   static CProjectionState g_Proj;
   static zeus::CVector2f g_CachedDepthRange;
@@ -435,12 +357,12 @@ public:
 //    g_BooMainCommandQueue->setShaderDataBinding(binding);
 //  }
   static void ResolveSpareTexture(const SClipScreenRect& rect, int bindIdx = 0, bool clearDepth = false) {
-    aurora::shaders::resolve_color({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx, clearDepth);
+    aurora::gfx::resolve_color({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx, clearDepth);
 //    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
 //    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, true, false, clearDepth);
   }
   static void ResolveSpareDepth(const SClipScreenRect& rect, int bindIdx = 0) {
-    aurora::shaders::resolve_depth({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx);
+    aurora::gfx::resolve_depth({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx);
 //    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
 //    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, false, true);
   }

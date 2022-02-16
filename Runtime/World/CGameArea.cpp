@@ -1020,7 +1020,7 @@ void CGameArea::PostConstructArea() {
     athena::io::MemoryReader r(x12c_postConstructed->x10c8_sclyBuf, x12c_postConstructed->x10d0_sclySize);
     hecl::DNAFourCC magic;
     magic.read(r);
-    if (magic == FOURCC('SCLY')) {
+    if (magic == hecl::FOURCC('SCLY')) {
       r.readUint32Big();
       u32 layerCount = r.readUint32Big();
       x12c_postConstructed->x110c_layerPtrs.resize(layerCount);

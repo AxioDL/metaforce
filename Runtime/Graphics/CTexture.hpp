@@ -33,8 +33,8 @@ private:
   u16 x6_h;
   u32 x8_mips;
 //  boo::ObjToken<boo::ITexture> m_booTex;
-  std::shared_ptr<aurora::TextureHandle> m_tex;
-  std::shared_ptr<aurora::TextureHandle> m_paletteTex;
+  std::shared_ptr<aurora::gfx::TextureHandle> m_tex;
+  std::shared_ptr<aurora::gfx::TextureHandle> m_paletteTex;
   std::unique_ptr<u8[]> m_otex;
   EFontType m_ftype = EFontType::None;
   const CTextureInfo* m_textureInfo;
@@ -70,11 +70,11 @@ public:
   u16 GetHeight() const { return x6_h; }
   u32 GetNumMips() const { return x8_mips; }
   void Load(int slot, EClampMode clamp) const;
-  const std::shared_ptr<aurora::TextureHandle>& GetTexture() const { return m_tex; }
+  const std::shared_ptr<aurora::gfx::TextureHandle>& GetTexture() const { return m_tex; }
 //  const boo::ObjToken<boo::ITexture>& GetBooTexture() const { return m_booTex; }
-  const std::shared_ptr<aurora::TextureHandle>& GetPaletteTexture() const { return m_paletteTex; }
+  const std::shared_ptr<aurora::gfx::TextureHandle>& GetPaletteTexture() const { return m_paletteTex; }
   std::unique_ptr<u8[]> BuildMemoryCardTex(u32& sizeOut, ETexelFormat& fmtOut, std::unique_ptr<u8[]>& paletteOut) const;
-  const std::shared_ptr<aurora::TextureHandle>& GetFontTexture(EFontType tp);
+  const std::shared_ptr<aurora::gfx::TextureHandle>& GetFontTexture(EFontType tp);
 
   const CTextureInfo* GetTextureInfo() const { return m_textureInfo; }
 };

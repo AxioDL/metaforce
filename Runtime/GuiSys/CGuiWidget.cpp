@@ -2,9 +2,6 @@
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 
-#include <aurora.h>
-#include <aurora_shaders.h>
-
 #include <logvisor/logvisor.hpp>
 
 namespace metaforce {

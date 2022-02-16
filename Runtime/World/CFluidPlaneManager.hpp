@@ -46,7 +46,7 @@ public:
   static std::array<std::array<u8, 64>, 64> RippleValues;
   static std::array<u8, 64> RippleMins;
   static std::array<u8, 64> RippleMaxs;
-  static std::shared_ptr<aurora::TextureHandle> RippleMapTex;
+  static std::shared_ptr<aurora::gfx::TextureHandle> RippleMapTex;
 
   CFluidPlaneManager();
   void StartFrame(bool);

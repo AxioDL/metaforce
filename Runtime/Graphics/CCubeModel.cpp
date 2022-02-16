@@ -17,7 +17,7 @@ static u8* MemoryFromPartData(u8*& dataCur, const u32*& secSizeCur) {
   if (*secSizeCur != 0) {
     ret = dataCur;
   }
-  dataCur += hecl::SBig(*secSizeCur);
+  dataCur += SBig(*secSizeCur);
   ++secSizeCur;
   return ret;
 }
@@ -28,17 +28,17 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
 , x34_next(sThisFrameList)
 , x38_lastFrame(CGraphics::GetFrameCounter() - 2) {
   u8* data = x0_data.get();
-  u32 flags = hecl::SBig(*reinterpret_cast<u32*>(data + 8));
+  u32 flags = SBig(*reinterpret_cast<u32*>(data + 8));
   u32 sectionSizeStart = 0x2c;
-  if (hecl::SBig(*reinterpret_cast<u32*>(data + 4)) == 1) {
+  if (SBig(*reinterpret_cast<u32*>(data + 4)) == 1) {
     sectionSizeStart = 0x28;
   }
   const u32* secSizeCur = reinterpret_cast<u32*>(data + sectionSizeStart);
   s32 numMatSets = 1;
-  if (hecl::SBig(*reinterpret_cast<u32*>(data + 4)) > 1) {
-    numMatSets = hecl::SBig(*reinterpret_cast<s32*>(data + 0x28));
+  if (SBig(*reinterpret_cast<u32*>(data + 4)) > 1) {
+    numMatSets = SBig(*reinterpret_cast<s32*>(data + 0x28));
   }
-  u8* dataCur = data + ROUND_UP_32(sectionSizeStart + hecl::SBig(*reinterpret_cast<s32*>(data + 0x24)) * 4);
+  u8* dataCur = data + ROUND_UP_32(sectionSizeStart + SBig(*reinterpret_cast<s32*>(data + 0x24)) * 4);
   x18_matSets.reserve(numMatSets);
   for (s32 i = 0; i < numMatSets; ++i) {
     x18_matSets.emplace_back(static_cast<u8*>(MemoryFromPartData(dataCur, secSizeCur)));
@@ -48,54 +48,54 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
   }
 
   /* Metaforce note: Due to padding in zeus types we need to convert these and store locally */
-  u32 numVertices = hecl::SBig(*secSizeCur) / (sizeof(float) * 3);
+  u32 numVertices = SBig(*secSizeCur) / (sizeof(float) * 3);
   const u8* positions = MemoryFromPartData(dataCur, secSizeCur);
   for (u32 i = 0; i < numVertices; ++i) {
     const auto* pos = reinterpret_cast<const float*>(positions + (i * (sizeof(float) * 3)));
-    m_positions.emplace_back(hecl::SBig(pos[0]), hecl::SBig(pos[1]), hecl::SBig(pos[2]));
+    m_positions.emplace_back(SBig(pos[0]), SBig(pos[1]), SBig(pos[2]));
   }
-  u32 numNormals = hecl::SBig(*secSizeCur);
+  u32 numNormals = SBig(*secSizeCur);
   numNormals /= ((flags & 2) == 0 ? sizeof(float) : sizeof(s16)) * 3;
   const u8* normals = MemoryFromPartData(dataCur, secSizeCur);
 
   for (u32 i = 0; i < numNormals; ++i) {
     if ((flags & 2) == 0) {
       const auto* norm = reinterpret_cast<const float*>(normals + (i * (sizeof(float) * 3)));
-      m_normals.emplace_back(hecl::SBig(norm[0]), hecl::SBig(norm[1]), hecl::SBig(norm[2]));
+      m_normals.emplace_back(SBig(norm[0]), SBig(norm[1]), SBig(norm[2]));
     } else {
       const auto* norm = reinterpret_cast<const s16*>(normals + (i * (sizeof(s16) * 3)));
-      m_normals.emplace_back(hecl::SBig(norm[0]) / 32767.f, hecl::SBig(norm[1]) / 32767.f,
-                             hecl::SBig(norm[2]) / 32767.f);
+      m_normals.emplace_back(SBig(norm[0]) / 32767.f, SBig(norm[1]) / 32767.f,
+                             SBig(norm[2]) / 32767.f);
     }
   }
-  u32 numColors = hecl::SBig(*secSizeCur) / (sizeof(int));
+  u32 numColors = SBig(*secSizeCur) / (sizeof(int));
   const u8* vtxColors = MemoryFromPartData(dataCur, secSizeCur);
 
   for (u32 i = 0; i < numColors; ++i) {
-    const u32 col = hecl::SBig(*reinterpret_cast<const u32*>(vtxColors + (i * (sizeof(u32)))));
+    const u32 col = SBig(*reinterpret_cast<const u32*>(vtxColors + (i * (sizeof(u32)))));
     m_colors.emplace_back(zeus::CColor(zeus::Comp32(col)));
   }
 
-  u32 numFloatUVs = hecl::SBig(*reinterpret_cast<const u32*>(secSizeCur)) / (sizeof(float) * 2);
+  u32 numFloatUVs = SBig(*reinterpret_cast<const u32*>(secSizeCur)) / (sizeof(float) * 2);
   const u8* floatUVs = MemoryFromPartData(dataCur, secSizeCur);
 
   for (u32 i = 0; i < numFloatUVs; ++i) {
     const auto* norm = reinterpret_cast<const float*>(floatUVs + (i * (sizeof(float) * 2)));
-    m_floatUVs.emplace_back(hecl::SBig(norm[0]), hecl::SBig(norm[1]));
+    m_floatUVs.emplace_back(SBig(norm[0]), SBig(norm[1]));
   }
 
   if ((flags & 4) != 0) {
-    u32 numShortUVs = hecl::SBig(*reinterpret_cast<const u32*>(secSizeCur)) / (sizeof(s16) * 2);
+    u32 numShortUVs = SBig(*reinterpret_cast<const u32*>(secSizeCur)) / (sizeof(s16) * 2);
     const u8* shortUVs = MemoryFromPartData(dataCur, secSizeCur);
 
     for (u32 i = 0; i < numShortUVs; ++i) {
       const auto* norm = reinterpret_cast<const s16*>(shortUVs + (i * (sizeof(s16) * 2)));
-      m_shortUVs.emplace_back(std::array{hecl::SBig(norm[0]), hecl::SBig(norm[1])});
+      m_shortUVs.emplace_back(std::array{SBig(norm[0]), SBig(norm[1])});
     }
   }
 
   const u8* surfaceInfo = MemoryFromPartData(dataCur, secSizeCur);
-  u32 surfaceCount = hecl::SBig(*reinterpret_cast<const u32*>(surfaceInfo));
+  u32 surfaceCount = SBig(*reinterpret_cast<const u32*>(surfaceInfo));
   x8_surfaces.reserve(surfaceCount);
 
   for (u32 i = 0; i < surfaceCount; ++i) {
@@ -108,8 +108,8 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
 
   const float* bounds = reinterpret_cast<float*>(data + 12);
   zeus::CAABox aabox = zeus::skNullBox;
-  aabox.min = {hecl::SBig(bounds[0]), hecl::SBig(bounds[1]), hecl::SBig(bounds[2])};
-  aabox.max = {hecl::SBig(bounds[3]), hecl::SBig(bounds[4]), hecl::SBig(bounds[5])};
+  aabox.min = {SBig(bounds[0]), SBig(bounds[1]), SBig(bounds[2])};
+  aabox.max = {SBig(bounds[3]), SBig(bounds[4]), SBig(bounds[5])};
 
   /* This constructor has been changed from the original to take into account platform differences */
   x28_modelInst =
@@ -222,10 +222,10 @@ CCubeMaterial CCubeModel::GetMaterialByIndex(u32 idx) {
   const u8* matData = x0_modelInstance.GetMaterialPointer();
   matData += (x1c_textures->size() + 1) * 4;
   if (idx != 0) {
-    materialOffset = hecl::SBig(*reinterpret_cast<const u32*>(matData + (idx * 4)));
+    materialOffset = SBig(*reinterpret_cast<const u32*>(matData + (idx * 4)));
   }
 
-  u32 materialCount = hecl::SBig(*reinterpret_cast<const u32*>(matData));
+  u32 materialCount = SBig(*reinterpret_cast<const u32*>(matData));
   return CCubeMaterial(matData + materialOffset + (materialCount * 4) + 4);
 }
 
@@ -238,10 +238,10 @@ void CCubeModel::UnlockTextures() {
 void CCubeModel::MakeTexturesFromMats(const u8* ptr, std::vector<TCachedToken<CTexture>>& textures, IObjectStore* store,
                                       bool b1) {
   const u32* curId = reinterpret_cast<const u32*>(ptr + 4);
-  u32 textureCount = hecl::SBig(*reinterpret_cast<const u32*>(ptr));
+  u32 textureCount = SBig(*reinterpret_cast<const u32*>(ptr));
   textures.reserve(textureCount);
   for (u32 i = 0; i < textureCount; ++i) {
-    textures.emplace_back(store->GetObj({FOURCC('TXTR'), hecl::SBig(curId[i])}));
+    textures.emplace_back(store->GetObj({FOURCC('TXTR'), SBig(curId[i])}));
 
     if (!b1 && textures.back().IsNull()) {
       textures.back().GetObj();

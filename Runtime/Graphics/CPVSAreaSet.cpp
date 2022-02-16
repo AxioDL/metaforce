@@ -1,4 +1,5 @@
 #include "Runtime/Graphics/CPVSAreaSet.hpp"
+#include "IOStreams.hpp"
 
 namespace metaforce {
 

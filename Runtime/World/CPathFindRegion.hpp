@@ -2,7 +2,8 @@
 
 #include <vector>
 
-#include "Runtime/RetroTypes.hpp"
+#include "RetroTypes.hpp"
+#include "IOStreams.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>

@@ -1016,7 +1016,7 @@ struct SpecMP1 : SpecBase {
     w.writeUint32Big(1);
     DNAMP1::PAK::NameEntry nameEnt;
     hecl::ProjectPath parentDir = worldPath.getParentPath();
-    nameEnt.type = worldTag.type;
+    nameEnt.type = worldTag.type.toUint32();
     nameEnt.id = worldTag.id.Value();
     nameEnt.nameLen = atUint32(parentDir.getLastComponent().size());
     nameEnt.name = parentDir.getLastComponent();
@@ -1024,19 +1024,19 @@ struct SpecMP1 : SpecBase {
 
     std::unordered_set<metaforce::CAssetId> addedTags;
     for (auto& area : mlvl.areas) {
-      metaforce::SObjectTag areaTag(FOURCC('MREA'), area.areaMREAId.toUint64());
+      metaforce::SObjectTag areaTag(metaforce::FOURCC('MREA'), area.areaMREAId.toUint64());
 
       bool dupeRes = false;
       if (hecl::ProjectPath areaDir = pathFromTag(areaTag).getParentPath())
         dupeRes = hecl::ProjectPath(areaDir, "!duperes").isFile();
 
-      metaforce::SObjectTag nameTag(FOURCC('STRG'), area.areaNameId.toUint64());
+      metaforce::SObjectTag nameTag(metaforce::FOURCC('STRG'), area.areaNameId.toUint64());
       if (nameTag)
         listOut.push_back(nameTag);
       for (const auto& dep : area.deps) {
         metaforce::CAssetId newId = dep.id.toUint64();
         if (dupeRes || addedTags.find(newId) == addedTags.end()) {
-          listOut.emplace_back(dep.type, newId);
+          listOut.emplace_back(dep.type.toUint32(), newId);
           addedTags.insert(newId);
         }
       }
@@ -1069,18 +1069,18 @@ struct SpecMP1 : SpecBase {
       area.depLayers = std::move(strippedDepLayers);
     }
 
-    metaforce::SObjectTag nameTag(FOURCC('STRG'), mlvl.worldNameId.toUint64());
+    metaforce::SObjectTag nameTag(metaforce::FOURCC('STRG'), mlvl.worldNameId.toUint64());
     if (nameTag)
       listOut.push_back(nameTag);
 
-    metaforce::SObjectTag savwTag(FOURCC('SAVW'), mlvl.saveWorldId.toUint64());
+    metaforce::SObjectTag savwTag(metaforce::FOURCC('SAVW'), mlvl.saveWorldId.toUint64());
     if (savwTag) {
       if (hecl::ProjectPath savwPath = pathFromTag(savwTag))
         m_project.cookPath(savwPath, {}, false, true);
       listOut.push_back(savwTag);
     }
 
-    metaforce::SObjectTag mapTag(FOURCC('MAPW'), mlvl.worldMap.toUint64());
+    metaforce::SObjectTag mapTag(metaforce::FOURCC('MAPW'), mlvl.worldMap.toUint64());
     if (mapTag) {
       if (hecl::ProjectPath mapPath = pathFromTag(mapTag)) {
         m_project.cookPath(mapPath, {}, false, true);
@@ -1096,14 +1096,14 @@ struct SpecMP1 : SpecBase {
           for (atUint32 i = 0; i < mapaCount; ++i) {
             UniqueID32 id;
             id.read(r);
-            listOut.emplace_back(FOURCC('MAPA'), id.toUint64());
+            listOut.emplace_back(metaforce::FOURCC('MAPA'), id.toUint64());
           }
         }
       }
       listOut.push_back(mapTag);
     }
 
-    metaforce::SObjectTag skyboxTag(FOURCC('CMDL'), mlvl.worldSkyboxId.toUint64());
+    metaforce::SObjectTag skyboxTag(metaforce::FOURCC('CMDL'), mlvl.worldSkyboxId.toUint64());
     if (skyboxTag) {
       listOut.push_back(skyboxTag);
       hecl::ProjectPath skyboxPath = pathFromTag(skyboxTag);
@@ -1126,7 +1126,7 @@ struct SpecMP1 : SpecBase {
     for (const auto& item : listOut) {
       DNAMP1::PAK::Entry ent;
       ent.compressed = 0;
-      ent.type = item.type;
+      ent.type = item.type.toUint32();
       ent.id = item.id.Value();
       ent.size = 0;
       ent.offset = 0;
@@ -1153,7 +1153,7 @@ struct SpecMP1 : SpecBase {
     w.writeUint32Big(atUint32(nameList.size()));
     for (const auto& item : nameList) {
       DNAMP1::PAK::NameEntry nameEnt;
-      nameEnt.type = item.first.type;
+      nameEnt.type = item.first.type.toUint32();
       nameEnt.id = item.first.id.Value();
       nameEnt.nameLen = atUint32(item.second.size());
       nameEnt.name = item.second;
@@ -1165,7 +1165,7 @@ struct SpecMP1 : SpecBase {
     for (const auto& item : list) {
       DNAMP1::PAK::Entry ent;
       ent.compressed = 0;
-      ent.type = item.type;
+      ent.type = item.type.toUint32();
       ent.id = item.id.Value();
       ent.size = 0;
       ent.offset = 0;
@@ -1182,7 +1182,7 @@ struct SpecMP1 : SpecBase {
       const metaforce::SObjectTag& tag = *it++;
       DNAMP1::PAK::Entry ent;
       ent.compressed = atUint32(std::get<2>(item));
-      ent.type = tag.type;
+      ent.type = tag.type.toUint32();
       ent.id = tag.id.Value();
       ent.size = atUint32(std::get<1>(item));
       ent.offset = atUint32(std::get<0>(item));

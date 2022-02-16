@@ -83,21 +83,18 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
 
   bool zTest = xac_drawFlags == EGuiModelDrawFlags::Shadeless || xac_drawFlags == EGuiModelDrawFlags::Opaque;
   if (noBlur) {
-    aurora::shaders::queue_textured_quad_verts(
-        aurora::shaders::CameraFilterType(filter), tex.GetTexture()->ref, aurora::shaders::ZTest::LEqual, zTest, useColor,
-        {xe0_coords.data(), xe0_coords.size()}, {realUseUvs.data(), xe0_coords.size()}, 0);
+    aurora::gfx::queue_textured_quad_verts(aurora::gfx::CameraFilterType(filter), tex.GetTexture()->ref,
+                                           aurora::gfx::ZTest::LEqual, zTest, useColor, xe0_coords, realUseUvs, 0);
     // quad.drawVerts(useColor, verts);
   } else if ((x14c_deResFactor == 0.f && alpha == 1.f) || tex.GetNumMips() == 1) {
-    aurora::shaders::queue_textured_quad_verts(
-        aurora::shaders::CameraFilterType(filter), tex.GetTexture()->ref, aurora::shaders::ZTest::LEqual, zTest,
-        useColor, {xe0_coords.data(), xe0_coords.size()}, {realUseUvs.data(), xe0_coords.size()}, 0);
+    aurora::gfx::queue_textured_quad_verts(aurora::gfx::CameraFilterType(filter), tex.GetTexture()->ref,
+                                           aurora::gfx::ZTest::LEqual, zTest, useColor, xe0_coords, realUseUvs, 0);
   } else {
     const float tmp = (1.f - x14c_deResFactor) * alpha;
     const float tmp3 = 1.f - tmp * tmp * tmp;
     const float mip = tmp3 * static_cast<float>(tex.GetNumMips() - 1);
-    aurora::shaders::queue_textured_quad_verts(
-        aurora::shaders::CameraFilterType(filter), tex.GetTexture()->ref, aurora::shaders::ZTest::LEqual, zTest,
-        useColor, {xe0_coords.data(), xe0_coords.size()}, {realUseUvs.data(), xe0_coords.size()}, mip);
+    aurora::gfx::queue_textured_quad_verts(aurora::gfx::CameraFilterType(filter), tex.GetTexture()->ref,
+                                           aurora::gfx::ZTest::LEqual, zTest, useColor, xe0_coords, realUseUvs, mip);
   }
 }
 

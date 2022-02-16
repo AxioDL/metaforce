@@ -73,7 +73,7 @@ public:
     std::array<zeus::CColor, 3> colorRegs;
     zeus::CColor mulColor;
     zeus::CColor addColor;
-    CGraphics::CFogState fog;
+    CFogState fog;
 
     void ActivateLights(const std::vector<CLight>& lts);
   };
@@ -94,7 +94,7 @@ public:
 
   struct OneTextureUniform {
     zeus::CColor addColor;
-    CGraphics::CFogState fog;
+    CFogState fog;
   };
 
   static void Initialize();

@@ -485,7 +485,9 @@ target_link_libraries(hecl-full PRIVATE zeus nod)
 target_link_libraries(hecl-light PRIVATE zeus nod)
 
 add_subdirectory(extern/SDL EXCLUDE_FROM_ALL)
-target_compile_options(SDL2-static PRIVATE -Wno-implicit-fallthrough)
+if (NOT MSVC)
+  target_compile_options(SDL2-static PRIVATE -Wno-implicit-fallthrough)
+endif ()
 
 if(NOT TARGET atdna)
   # Import native atdna if cross-compiling
@@ -507,7 +509,7 @@ add_subdirectory(extern/jbus EXCLUDE_FROM_ALL)
 set(JBUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/jbus/include)
 
 add_subdirectory(NESEmulator EXCLUDE_FROM_ALL)
-add_subdirectory(Graphics)
+add_subdirectory(aurora)
 add_subdirectory(Runtime)
 add_subdirectory(mpcksum EXCLUDE_FROM_ALL)
 add_subdirectory(gbalink EXCLUDE_FROM_ALL)

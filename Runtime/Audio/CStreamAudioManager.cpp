@@ -810,12 +810,12 @@ std::array<CDSPStreamManager, 4> CDSPStreamManager::g_Streams{};
 
 SDSPStreamInfo::SDSPStreamInfo(const CDSPStreamManager& stream) {
   x0_fileName = stream.x60_fileName.c_str();
-  x4_sampleRate = hecl::SBig(stream.x0_header.x8_sample_rate);
-  xc_adpcmBytes = (hecl::SBig(stream.x0_header.x4_num_nibbles) / 2) & 0x7FFFFFE0;
+  x4_sampleRate = SBig(stream.x0_header.x8_sample_rate);
+  xc_adpcmBytes = (SBig(stream.x0_header.x4_num_nibbles) / 2) & 0x7FFFFFE0;
 
   if (stream.x0_header.xc_loop_flag) {
-    u32 loopStartNibble = hecl::SBig(stream.x0_header.x10_loop_start_nibble);
-    u32 loopEndNibble = hecl::SBig(stream.x0_header.x14_loop_end_nibble);
+    u32 loopStartNibble = SBig(stream.x0_header.x10_loop_start_nibble);
+    u32 loopEndNibble = SBig(stream.x0_header.x14_loop_end_nibble);
     x10_loopFlag = true;
     x14_loopStartByte = (loopStartNibble / 2) & 0x7FFFFFE0;
     x18_loopEndByte = std::min((loopEndNibble / 2) & 0x7FFFFFE0, xc_adpcmBytes);
@@ -826,8 +826,8 @@ SDSPStreamInfo::SDSPStreamInfo(const CDSPStreamManager& stream) {
   }
 
   for (int i = 0; i < 8; ++i) {
-    x1c_coef[i][0] = hecl::SBig(stream.x0_header.x1c_coef[i][0]);
-    x1c_coef[i][1] = hecl::SBig(stream.x0_header.x1c_coef[i][1]);
+    x1c_coef[i][0] = SBig(stream.x0_header.x1c_coef[i][0]);
+    x1c_coef[i][1] = SBig(stream.x0_header.x1c_coef[i][1]);
   }
 }
 

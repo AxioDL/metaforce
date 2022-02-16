@@ -12,8 +12,8 @@
 
 namespace metaforce {
 
-CPlasmaProjectile::RenderObjects::RenderObjects(std::shared_ptr<aurora::TextureHandle> tex,
-                                                std::shared_ptr<aurora::TextureHandle> glowTex)
+CPlasmaProjectile::RenderObjects::RenderObjects(std::shared_ptr<aurora::gfx::TextureHandle> tex,
+                                                std::shared_ptr<aurora::gfx::TextureHandle> glowTex)
 : m_beamStrip1(8, CColoredStripShader::Mode::Additive, {})
 , m_beamStrip2( 10, CColoredStripShader::Mode::FullAdditive, tex)
 , m_beamStrip3( 18, CColoredStripShader::Mode::FullAdditive, tex)

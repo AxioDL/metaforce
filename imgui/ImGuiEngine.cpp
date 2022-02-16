@@ -1,6 +1,6 @@
 #include "ImGuiEngine.hpp"
 
-#include "aurora_imgui.h"
+#include <aurora/imgui.hpp>
 
 #include "athena/Compression.hpp"
 
@@ -69,9 +69,9 @@ Icon GetIcon() {
   };
 }
 
-void ImGuiEngine_AddTextures(ImGuiState& state, const DeviceHolder& gpu) {
+void ImGuiEngine_AddTextures() {
   auto icon = GetIcon();
   ImGuiEngine::metaforceIcon =
-      ImGuiEngine_AddTexture(state, gpu, icon.width, icon.height, {icon.data.get(), icon.size});
+      aurora::imgui::add_texture(icon.width, icon.height, {icon.data.get(), icon.size});
 }
 } // namespace metaforce

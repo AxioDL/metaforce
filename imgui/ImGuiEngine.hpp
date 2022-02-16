@@ -14,10 +14,7 @@ public:
 
 // Called from Rust
 void ImGuiEngine_Initialize(float scale);
-
-struct ImGuiState;
-struct DeviceHolder;
-void ImGuiEngine_AddTextures(ImGuiState& state, const DeviceHolder& gpu);
+void ImGuiEngine_AddTextures();
 
 struct Icon {
   std::unique_ptr<uint8_t[]> data;
