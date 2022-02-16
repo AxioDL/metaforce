@@ -632,7 +632,7 @@ int main(int argc, char** argv) {
       .width = icon.width,
       .height = icon.height,
   };
-  aurora::app_run(std::move(app), std::move(data));
+  aurora::app_run(std::move(app), std::move(data), argc, argv);
   return 0;
 }
 #endif

@@ -15,8 +15,9 @@
 #include <magic_enum.hpp>
 
 namespace aurora {
+// TODO: Move global state to a class/struct?
 static logvisor::Module Log("aurora");
-
+static std::unique_ptr<AppDelegate> g_AppDelegate;
 // SDL
 static SDL_Window* g_Window;
 
@@ -28,6 +29,7 @@ static wgpu::BackendType backendType = wgpu::BackendType::Metal;
 #else
 static wgpu::BackendType backendType = wgpu::BackendType::OpenGL;
 #endif
+static std::vector<std::string> g_Args;
 static wgpu::SwapChain g_SwapChain;
 static DawnSwapChainImplementation g_SwapChainImpl;
 static wgpu::Queue g_Queue;
@@ -53,7 +55,112 @@ static bool poll_events() noexcept {
   SDL_Event event;
   while (SDL_PollEvent(&event) != 0) {
     switch (event.type) {
+    case SDL_WINDOWEVENT: {
+      switch (event.window.event) {
+      case SDL_WINDOWEVENT_SHOWN: {
+        break;
+      }
+      case SDL_WINDOWEVENT_HIDDEN: {
+        break;
+      }
+      case SDL_WINDOWEVENT_EXPOSED: {
+        /* TODO: ImGui code? */
+        /* TODO: Frame Time */
+        // g_AppDelegate->onAppIdle(1/60.f);
+        /* TODO: Render Texture */
+        // g_AppDelegate->onAppDraw();
+        /* TODO: ImGui present code? */
+        /* TODO: Present */
+        // g_AppDelegate->onAppPostDraw();
+        break;
+      }
+      case SDL_WINDOWEVENT_MOVED: {
+        g_AppDelegate->onAppWindowMoved(event.window.data1, event.window.data2);
+        break;
+      }
+      case SDL_WINDOWEVENT_RESIZED: {
+        g_AppDelegate->onAppWindowResized(
+            {static_cast<uint32_t>(event.window.data1), static_cast<uint32_t>(event.window.data2)});
+        break;
+      }
+      case SDL_WINDOWEVENT_SIZE_CHANGED: {
+        // TODO: handle size changed event
+        break;
+      }
+      case SDL_WINDOWEVENT_MINIMIZED: {
+        // TODO: handle minimized event
+        break;
+      }
+      case SDL_WINDOWEVENT_MAXIMIZED: {
+        // TODO: handle maximized event
+        break;
+      }
+      case SDL_WINDOWEVENT_RESTORED: {
+        // TODO: handle restored event
+        break;
+      }
+      case SDL_WINDOWEVENT_ENTER: {
+        // TODO: handle enter event (mouse focus)
+        break;
+      }
+      case SDL_WINDOWEVENT_LEAVE: {
+        // TODO: handle leave event (mouse focus)
+        break;
+      }
+      case SDL_WINDOWEVENT_FOCUS_GAINED: {
+        // TODO: handle focus gained event
+        break;
+      }
+      case SDL_WINDOWEVENT_FOCUS_LOST: {
+        // TODO: handle focus lost event
+        break;
+      }
+      case SDL_WINDOWEVENT_CLOSE: {
+        // TODO: handle window close event
+        break;
+      }
+      case SDL_WINDOWEVENT_TAKE_FOCUS: {
+        // TODO: handle take focus event
+        break;
+      }
+      case SDL_WINDOWEVENT_HIT_TEST: {
+        // TODO: handle hit test?
+        break;
+      }
+      case SDL_WINDOWEVENT_DISPLAY_CHANGED: {
+        // TODO: handle display chaaged event
+        break;
+      }
+      }
+      /* TODO: More window events */
+      break;
+    }
+    case SDL_CONTROLLERDEVICEADDED: {
+      break;
+    }
+    case SDL_CONTROLLERDEVICEREMOVED: {
+      break;
+    }
+    case SDL_CONTROLLERBUTTONDOWN: {
+      break;
+    }
+    case SDL_CONTROLLERBUTTONUP: {
+      break;
+    }
+    case SDL_CONTROLLERAXISMOTION: {
+      break;
+    }
+    case SDL_KEYDOWN: {
+      break;
+    }
+    case SDL_KEYUP: {
+      break;
+    }
+    case SDL_TEXTINPUT: {
+      break;
+    }
     case SDL_QUIT:
+      g_AppDelegate->onAppExiting();
       Log.report(logvisor::Info, FMT_STRING("Received quit request"));
       return false;
     }
@@ -68,7 +175,13 @@ static bool poll_events() noexcept {
   return true;
 }
 
-void app_run(std::unique_ptr<AppDelegate> app, Icon icon) noexcept {
+void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv) noexcept {
+  g_AppDelegate = std::move(app);
+  /* Lets gather arguments skipping the program filename */
+  for (size_t i = 1; i < argc; ++i) {
+    g_Args.emplace_back(argv[i]);
+  }
+
   Log.report(logvisor::Info, FMT_STRING("Creating Dawn instance"));
   auto instance = std::make_unique<dawn::native::Instance>();
   instance->DiscoverDefaultAdapters();
@@ -95,7 +208,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon) noexcept {
     Log.report(logvisor::Fatal, FMT_STRING("Error initializing SDL: {}"), SDL_GetError());
   }
 
-  Uint32 flags = SDL_WINDOW_SHOWN;
+  Uint32 flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
   switch (adapterProperties.backendType) {
 #ifdef AURORA_ENABLE_VULKAN
   case wgpu::BackendType::Vulkan:
@@ -167,6 +280,8 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon) noexcept {
     g_SwapChain.Configure(g_SwapChainFormat, wgpu::TextureUsage::RenderAttachment, width, height);
   }
 
+  g_AppDelegate->onAppLaunched();
+  g_AppDelegate->onAppWindowResized(get_window_size());
   while (poll_events()) {}
 
   g_SwapChain.Release();
@@ -176,22 +291,43 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon) noexcept {
   SDL_Quit();
 }
 
-std::vector<std::string> get_args() noexcept {
-  return {}; // TODO
-}
+std::vector<std::string> get_args() noexcept { return g_Args; }
 WindowSize get_window_size() noexcept {
-  return {}; // TODO
+  int width, height;
+  SDL_GetWindowSize(g_Window, &width, &height);
+  return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 }
 void set_window_title(zstring_view title) noexcept { SDL_SetWindowTitle(g_Window, title.c_str()); }
 Backend get_backend() noexcept {
-  return Backend::Vulkan; // TODO
+  switch (backendType) {
+  case wgpu::BackendType::WebGPU:
+    return Backend::WebGPU;
+  case wgpu::BackendType::D3D11:
+    return Backend::D3D11;
+  case wgpu::BackendType::D3D12:
+    return Backend::D3D12;
+  case wgpu::BackendType::Metal:
+    return Backend::Metal;
+  case wgpu::BackendType::Vulkan:
+    return Backend::Vulkan;
+  case wgpu::BackendType::OpenGL:
+  case wgpu::BackendType::OpenGLES:
+    return Backend::OpenGL;
+  default:
+    return Backend::Invalid;
+  }
 }
-std::string_view get_backend_string() noexcept {
-  return {}; // TODO
-}
+std::string_view get_backend_string() noexcept { return magic_enum::enum_name(get_backend()); }
 void set_fullscreen(bool fullscreen) noexcept {
-  // TODO
+  auto flags = SDL_GetWindowFlags(g_Window);
+  if (fullscreen) {
+    flags |= SDL_WINDOW_FULLSCREEN;
+  } else {
+    flags &= ~SDL_WINDOW_FULLSCREEN;
+  }
+  SDL_SetWindowFullscreen(g_Window, flags);
 }
+
 int32_t get_controller_player_index(uint32_t which) noexcept {
   return -1; // TODO
 }
