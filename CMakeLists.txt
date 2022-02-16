@@ -484,11 +484,6 @@ target_include_directories(hecl-light PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(hecl-full PRIVATE zeus nod)
 target_link_libraries(hecl-light PRIVATE zeus nod)
 
-add_subdirectory(extern/SDL EXCLUDE_FROM_ALL)
-if (NOT MSVC)
-  target_compile_options(SDL2-static PRIVATE -Wno-implicit-fallthrough)
-endif ()
-
 if(NOT TARGET atdna)
   # Import native atdna if cross-compiling
   find_package(atdna REQUIRED)

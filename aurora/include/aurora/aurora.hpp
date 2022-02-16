@@ -1,5 +1,7 @@
 #pragma once
 
+#include "common.hpp"
+
 #include <array>
 #include <cinttypes>
 #include <type_traits>
@@ -220,7 +222,7 @@ struct AppDelegate {
 void app_run(std::unique_ptr<AppDelegate> app, Icon icon) noexcept;
 [[nodiscard]] std::vector<std::string> get_args() noexcept;
 [[nodiscard]] WindowSize get_window_size() noexcept;
-void set_window_title(std::string_view title) noexcept;
+void set_window_title(zstring_view title) noexcept;
 [[nodiscard]] Backend get_backend() noexcept;
 [[nodiscard]] std::string_view get_backend_string() noexcept;
 void set_fullscreen(bool fullscreen) noexcept;

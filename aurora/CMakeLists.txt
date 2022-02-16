@@ -1,3 +1,8 @@
+add_subdirectory(../extern/SDL SDL2 EXCLUDE_FROM_ALL)
+if (NOT MSVC)
+  target_compile_options(SDL2-static PRIVATE -Wno-implicit-fallthrough)
+endif ()
+
 add_subdirectory(../extern/dawn dawn EXCLUDE_FROM_ALL)
 if (NOT MSVC)
   target_compile_options(SPIRV-Tools-static PRIVATE -Wno-implicit-fallthrough)
@@ -7,4 +12,5 @@ endif ()
 add_library(aurora STATIC lib/aurora.cpp lib/imgui.cpp lib/gfx/common.cpp)
 target_include_directories(aurora PUBLIC include ../Runtime)
 target_include_directories(aurora PRIVATE ../imgui ../extern/imgui)
-target_link_libraries(aurora PRIVATE webgpu_dawn zeus logvisor) # TODO remove logvisor from rstl.hpp
+target_link_libraries(aurora PRIVATE dawn_native dawncpp webgpu_dawn zeus logvisor SDL2-static)
+target_compile_definitions(aurora PRIVATE AURORA_ENABLE_VULKAN AURORA_ENABLE_OPENGL)
