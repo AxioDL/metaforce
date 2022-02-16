@@ -169,6 +169,9 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon) noexcept {
 
   while (poll_events()) {}
 
+  g_SwapChain.Release();
+  g_Queue.Release();
+  g_Device.Release();
   SDL_DestroyWindow(g_Window);
   SDL_Quit();
 }
