@@ -1,40 +1,51 @@
-#include <SDL.h>
 #include <aurora/aurora.hpp>
-#include <logvisor/logvisor.hpp>
-#include <memory>
+
+#include <SDL.h>
 #include <dawn/native/DawnNative.h>
-#ifdef AURORA_ENABLE_VULKAN
+#include <dawn/webgpu_cpp.h>
+#include <logvisor/logvisor.hpp>
+#include <magic_enum.hpp>
+
+#ifdef DAWN_ENABLE_BACKEND_VULKAN
 #include <SDL_vulkan.h>
 #include <dawn/native/VulkanBackend.h>
 #endif
-#ifdef AURORA_ENABLE_OPENGL
+#ifdef DAWN_ENABLE_BACKEND_OPENGL
 #include <SDL_opengl.h>
 #include <dawn/native/OpenGLBackend.h>
 #endif
-#include <dawn/webgpu_cpp.h>
-#include <magic_enum.hpp>
+#ifdef DAWN_ENABLE_BACKEND_METAL
+#include <SDL_metal.h>
+#include <dawn/native/MetalBackend.h>
+#endif
+
+#include "dawn/BackendBinding.hpp"
 
 namespace aurora {
 // TODO: Move global state to a class/struct?
 static logvisor::Module Log("aurora");
+
 static std::unique_ptr<AppDelegate> g_AppDelegate;
+static std::vector<std::string> g_Args;
+
 // SDL
 static SDL_Window* g_Window;
 
 // Dawn / WebGPU
-#ifdef AURORA_ENABLE_VULKAN
-static wgpu::BackendType backendType = wgpu::BackendType::Vulkan;
-#elif AURORA_ENABLE_METAL
-static wgpu::BackendType backendType = wgpu::BackendType::Metal;
+#ifdef DAWN_ENABLE_BACKEND_VULKAN
+static wgpu::BackendType preferredBackendType = wgpu::BackendType::Vulkan;
+#elif DAWN_ENABLE_BACKEND_METAL
+static wgpu::BackendType preferredBackendType = wgpu::BackendType::Metal;
 #else
-static wgpu::BackendType backendType = wgpu::BackendType::OpenGL;
+static wgpu::BackendType preferredBackendType = wgpu::BackendType::OpenGL;
 #endif
-static std::vector<std::string> g_Args;
-static wgpu::SwapChain g_SwapChain;
-static DawnSwapChainImplementation g_SwapChainImpl;
-static wgpu::Queue g_Queue;
+static std::unique_ptr<dawn::native::Instance> g_Instance;
+static dawn::native::Adapter g_Adapter;
+static wgpu::AdapterProperties g_AdapterProperties;
 static wgpu::Device g_Device;
-static wgpu::TextureFormat g_SwapChainFormat;
+static wgpu::Queue g_Queue;
+static wgpu::SwapChain g_SwapChain;
+static std::unique_ptr<utils::BackendBinding> g_BackendBinding;
 
 static void set_window_icon(Icon icon) noexcept {
   SDL_Surface* iconSurface = SDL_CreateRGBSurfaceFrom(icon.data.get(), icon.width, icon.height, 32, 4 * icon.width,
@@ -182,45 +193,23 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
     g_Args.emplace_back(argv[i]);
   }
 
-  Log.report(logvisor::Info, FMT_STRING("Creating Dawn instance"));
-  auto instance = std::make_unique<dawn::native::Instance>();
-  instance->DiscoverDefaultAdapters();
-
-  dawn::native::Adapter backendAdapter;
-  {
-    std::vector<dawn::native::Adapter> adapters = instance->GetAdapters();
-    auto adapterIt = std::find_if(adapters.begin(), adapters.end(), [](const dawn::native::Adapter adapter) -> bool {
-      wgpu::AdapterProperties properties;
-      adapter.GetProperties(&properties);
-      return properties.backendType == backendType;
-    });
-    if (adapterIt == adapters.end()) {
-      Log.report(logvisor::Fatal, FMT_STRING("Failed to find usable graphics backend"));
-    }
-    backendAdapter = *adapterIt;
-  }
-  wgpu::AdapterProperties adapterProperties;
-  backendAdapter.GetProperties(&adapterProperties);
-  const auto backendName = magic_enum::enum_name(adapterProperties.backendType);
-  Log.report(logvisor::Info, FMT_STRING("Using {} graphics backend"), backendName);
-
   if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
     Log.report(logvisor::Fatal, FMT_STRING("Error initializing SDL: {}"), SDL_GetError());
   }
 
-  Uint32 flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
-  switch (adapterProperties.backendType) {
-#ifdef AURORA_ENABLE_VULKAN
+  Uint32 flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
+  switch (preferredBackendType) {
+#ifdef DAWN_ENABLE_BACKEND_VULKAN
   case wgpu::BackendType::Vulkan:
     flags |= SDL_WINDOW_VULKAN;
     break;
 #endif
-#ifdef AURORA_ENABLE_METAL
+#ifdef DAWN_ENABLE_BACKEND_METAL
   case wgpu::BackendType::Metal:
     flags |= SDL_WINDOW_METAL;
     break;
 #endif
-#ifdef AURORA_ENABLE_OPENGL
+#ifdef DAWN_ENABLE_BACKEND_OPENGL
   case wgpu::BackendType::OpenGL:
     flags |= SDL_WINDOW_OPENGL;
     break;
@@ -234,59 +223,74 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   }
   set_window_icon(std::move(icon));
 
-  g_Device = wgpu::Device::Acquire(backendAdapter.CreateDevice());
-  switch (adapterProperties.backendType) {
-#ifdef AURORA_ENABLE_VULKAN
-  case wgpu::BackendType::Vulkan: {
-    VkSurfaceKHR surface = VK_NULL_HANDLE;
-    if (SDL_Vulkan_CreateSurface(g_Window, dawn::native::vulkan::GetInstance(g_Device.Get()), &surface) != SDL_TRUE) {
-      Log.report(logvisor::Fatal, FMT_STRING("Failed to create Vulkan surface: {}"), SDL_GetError());
+  Log.report(logvisor::Info, FMT_STRING("Creating Dawn instance"));
+  g_Instance = std::make_unique<dawn::native::Instance>();
+  utils::DiscoverAdapter(g_Instance.get(), g_Window, preferredBackendType);
+
+  {
+    std::vector<dawn::native::Adapter> adapters = g_Instance->GetAdapters();
+    auto adapterIt = std::find_if(adapters.begin(), adapters.end(), [](const dawn::native::Adapter adapter) -> bool {
+      wgpu::AdapterProperties properties;
+      adapter.GetProperties(&properties);
+      return properties.backendType == preferredBackendType;
+    });
+    if (adapterIt == adapters.end()) {
+      Log.report(logvisor::Fatal, FMT_STRING("Failed to find usable graphics backend"));
     }
-    g_SwapChainImpl = dawn::native::vulkan::CreateNativeSwapChainImpl(g_Device.Get(), surface);
-    g_SwapChainFormat =
-        static_cast<wgpu::TextureFormat>(dawn::native::vulkan::GetNativeSwapChainPreferredFormat(&g_SwapChainImpl));
-    break;
+    g_Adapter = *adapterIt;
   }
-#endif
-#ifdef AURORA_ENABLE_METAL
-  case wgpu::BackendType::Metal: {
-    // TODO
-    g_SwapChainFormat = WGPUTextureFormat_BGRA8Unorm;
-    break;
-  }
-#endif
-#ifdef AURORA_ENABLE_OPENGL
-  case wgpu::BackendType::OpenGL: {
-    g_SwapChainImpl = dawn::native::opengl::CreateNativeSwapChainImpl(
-        g_Device.Get(), [](void* userdata) { SDL_GL_SwapWindow(static_cast<SDL_Window*>(userdata)); }, g_Window);
-    g_SwapChainFormat =
-        static_cast<wgpu::TextureFormat>(dawn::native::opengl::GetNativeSwapChainPreferredFormat(&g_SwapChainImpl));
-    break;
-  }
-#endif
-  default:
+  g_Adapter.GetProperties(&g_AdapterProperties);
+  const auto backendName = magic_enum::enum_name(g_AdapterProperties.backendType);
+  Log.report(logvisor::Info, FMT_STRING("Using {} graphics backend"), backendName);
+
+  g_Device = wgpu::Device::Acquire(g_Adapter.CreateDevice());
+  g_BackendBinding = std::unique_ptr<utils::BackendBinding>(
+      utils::CreateBinding(g_AdapterProperties.backendType, g_Window, g_Device.Get()));
+  if (!g_BackendBinding) {
     Log.report(logvisor::Fatal, FMT_STRING("Unsupported backend {}"), backendName);
   }
 
   g_Queue = g_Device.GetQueue();
   {
     wgpu::SwapChainDescriptor descriptor{};
-    descriptor.implementation = reinterpret_cast<uint64_t>(&g_SwapChainImpl);
+    descriptor.implementation = g_BackendBinding->GetSwapChainImplementation();
     g_SwapChain = g_Device.CreateSwapChain(nullptr, &descriptor);
   }
   {
-    int width, height;
-    SDL_GetWindowSize(g_Window, &width, &height);
-    g_SwapChain.Configure(g_SwapChainFormat, wgpu::TextureUsage::RenderAttachment, width, height);
+    auto size = get_window_size();
+    auto format = static_cast<wgpu::TextureFormat>(g_BackendBinding->GetPreferredSwapChainTextureFormat());
+    g_SwapChain.Configure(format, wgpu::TextureUsage::RenderAttachment, size.width, size.height);
   }
 
   g_AppDelegate->onAppLaunched();
   g_AppDelegate->onAppWindowResized(get_window_size());
-  while (poll_events()) {}
+  while (poll_events()) {
+    auto encoder = g_Device.CreateCommandEncoder();
+    {
+      std::array<wgpu::RenderPassColorAttachment, 1> attachments{wgpu::RenderPassColorAttachment{
+          .view = g_SwapChain.GetCurrentTextureView(),
+          .loadOp = wgpu::LoadOp::Clear,
+          .storeOp = wgpu::StoreOp::Store,
+          .clearColor = {0.5f, 0.5f, 0.5f, 1.f},
+      }};
+      auto renderPassDescriptor = wgpu::RenderPassDescriptor{
+          .label = "Render Pass",
+          .colorAttachmentCount = attachments.size(),
+          .colorAttachments = attachments.data(),
+      };
+      auto pass = encoder.BeginRenderPass(&renderPassDescriptor);
+      pass.End();
+    }
+    const auto buffer = encoder.Finish();
+    g_Queue.Submit(1, &buffer);
+    g_SwapChain.Present();
+  }
 
-  g_SwapChain.Release();
-  g_Queue.Release();
-  g_Device.Release();
+  wgpuSwapChainRelease(g_SwapChain.Release());
+  wgpuQueueRelease(g_Queue.Release());
+  g_BackendBinding.reset();
+  wgpuDeviceRelease(g_Device.Release());
+  g_Instance.reset();
   SDL_DestroyWindow(g_Window);
   SDL_Quit();
 }
@@ -299,7 +303,7 @@ WindowSize get_window_size() noexcept {
 }
 void set_window_title(zstring_view title) noexcept { SDL_SetWindowTitle(g_Window, title.c_str()); }
 Backend get_backend() noexcept {
-  switch (backendType) {
+  switch (g_AdapterProperties.backendType) {
   case wgpu::BackendType::WebGPU:
     return Backend::WebGPU;
   case wgpu::BackendType::D3D11:
@@ -311,13 +315,14 @@ Backend get_backend() noexcept {
   case wgpu::BackendType::Vulkan:
     return Backend::Vulkan;
   case wgpu::BackendType::OpenGL:
-  case wgpu::BackendType::OpenGLES:
     return Backend::OpenGL;
+  case wgpu::BackendType::OpenGLES:
+    return Backend::OpenGLES;
   default:
     return Backend::Invalid;
   }
 }
-std::string_view get_backend_string() noexcept { return magic_enum::enum_name(get_backend()); }
+std::string_view get_backend_string() noexcept { return magic_enum::enum_name(g_AdapterProperties.backendType); }
 void set_fullscreen(bool fullscreen) noexcept {
   auto flags = SDL_GetWindowFlags(g_Window);
   if (fullscreen) {

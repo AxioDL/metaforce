@@ -9,8 +9,23 @@ if (NOT MSVC)
   target_compile_options(SPIRV-Tools-opt PRIVATE -Wno-implicit-fallthrough)
 endif ()
 
-add_library(aurora STATIC lib/aurora.cpp lib/imgui.cpp lib/gfx/common.cpp)
+add_library(aurora STATIC
+    lib/aurora.cpp
+    lib/imgui.cpp
+    lib/dawn/BackendBinding.cpp
+    lib/gfx/common.cpp
+    )
 target_include_directories(aurora PUBLIC include ../Runtime)
 target_include_directories(aurora PRIVATE ../imgui ../extern/imgui)
 target_link_libraries(aurora PRIVATE dawn_native dawncpp webgpu_dawn zeus logvisor SDL2-static)
-target_compile_definitions(aurora PRIVATE AURORA_ENABLE_VULKAN AURORA_ENABLE_OPENGL)
+if (APPLE)
+  target_compile_definitions(aurora PRIVATE DAWN_ENABLE_BACKEND_METAL)
+  target_sources(aurora PRIVATE lib/dawn/MetalBinding.mm)
+  set_source_files_properties(lib/dawn/MetalBinding.mm PROPERTIES COMPILE_FLAGS -fobjc-arc)
+else ()
+  target_compile_definitions(aurora PRIVATE
+      DAWN_ENABLE_BACKEND_VULKAN
+      DAWN_ENABLE_BACKEND_OPENGL
+      DAWN_ENABLE_BACKEND_DESKTOP_GL)
+  target_sources(aurora PRIVATE lib/dawn/OpenGLBinding.cpp lib/dawn/VulkanBinding.cpp)
+endif ()

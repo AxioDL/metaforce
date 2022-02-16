@@ -182,6 +182,7 @@ enum class Backend : uint8_t {
   D3D12,
   D3D11,
   OpenGL,
+  OpenGLES,
   WebGPU,
 };
 
