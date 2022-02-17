@@ -21,6 +21,10 @@
 
 #include "dawn/BackendBinding.hpp"
 
+// imgui
+#include <backends/imgui_impl_sdl.h>
+#include <backends/imgui_impl_wgpu.h>
+
 namespace aurora {
 // TODO: Move global state to a class/struct?
 static logvisor::Module Log("aurora");
@@ -42,8 +46,8 @@ static wgpu::BackendType preferredBackendType = wgpu::BackendType::OpenGL;
 static std::unique_ptr<dawn::native::Instance> g_Instance;
 static dawn::native::Adapter g_Adapter;
 static wgpu::AdapterProperties g_AdapterProperties;
-static wgpu::Device g_Device;
-static wgpu::Queue g_Queue;
+wgpu::Device g_Device;
+wgpu::Queue g_Queue;
 static wgpu::SwapChain g_SwapChain;
 static std::unique_ptr<utils::BackendBinding> g_BackendBinding;
 
@@ -65,6 +69,8 @@ static void set_window_icon(Icon icon) noexcept {
 static bool poll_events() noexcept {
   SDL_Event event;
   while (SDL_PollEvent(&event) != 0) {
+    ImGui_ImplSDL2_ProcessEvent(&event);
+
     switch (event.type) {
     case SDL_WINDOWEVENT: {
       switch (event.window.event) {
@@ -75,14 +81,6 @@ static bool poll_events() noexcept {
         break;
       }
       case SDL_WINDOWEVENT_EXPOSED: {
-        /* TODO: ImGui code? */
-        /* TODO: Frame Time */
-        // g_AppDelegate->onAppIdle(1/60.f);
-        /* TODO: Render Texture */
-        // g_AppDelegate->onAppDraw();
-        /* TODO: ImGui present code? */
-        /* TODO: Present */
-        // g_AppDelegate->onAppPostDraw();
         break;
       }
       case SDL_WINDOWEVENT_MOVED: {
@@ -90,6 +88,8 @@ static bool poll_events() noexcept {
         break;
       }
       case SDL_WINDOWEVENT_RESIZED: {
+        auto format = static_cast<wgpu::TextureFormat>(g_BackendBinding->GetPreferredSwapChainTextureFormat());
+        g_SwapChain.Configure(format, wgpu::TextureUsage::RenderAttachment, event.window.data1, event.window.data2);
         g_AppDelegate->onAppWindowResized(
             {static_cast<uint32_t>(event.window.data1), static_cast<uint32_t>(event.window.data2)});
         break;
@@ -162,12 +162,21 @@ static bool poll_events() noexcept {
       break;
     }
     case SDL_KEYDOWN: {
+      if (!ImGui::GetIO().WantCaptureKeyboard) {
+        // TODO
+      }
       break;
     }
     case SDL_KEYUP: {
+      if (!ImGui::GetIO().WantCaptureKeyboard) {
+        // TODO
+      }
       break;
     }
     case SDL_TEXTINPUT: {
+      if (!ImGui::GetIO().WantCaptureKeyboard) {
+        // TODO
+      }
       break;
     }
     case SDL_QUIT:
@@ -176,12 +185,12 @@ static bool poll_events() noexcept {
       return false;
     }
     // TODO why doesn't this work?
-    const auto typedEvent = magic_enum::enum_cast<SDL_EventType>(event.type);
-    if (typedEvent) {
-      Log.report(logvisor::Info, FMT_STRING("Received SDL event: {}"), magic_enum::enum_name(typedEvent.value()));
-    } else {
-      Log.report(logvisor::Info, FMT_STRING("Received SDL event: {}"), event.type);
-    }
+//    const auto typedEvent = magic_enum::enum_cast<SDL_EventType>(event.type);
+//    if (typedEvent) {
+//      Log.report(logvisor::Info, FMT_STRING("Received SDL event: {}"), magic_enum::enum_name(typedEvent.value()));
+//    } else {
+//      Log.report(logvisor::Info, FMT_STRING("Received SDL event: {}"), event.type);
+//    }
   }
   return true;
 }
@@ -262,16 +271,40 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
     g_SwapChain.Configure(format, wgpu::TextureUsage::RenderAttachment, size.width, size.height);
   }
 
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO();
+  io.IniFilename = nullptr;
+  g_AppDelegate->onImGuiInit(1.f); // TODO scale
+  ImGui_ImplSDL2_InitForMetal(g_Window);
+  ImGui_ImplWGPU_Init(g_Device.Get(), 1, g_BackendBinding->GetPreferredSwapChainTextureFormat());
+  g_AppDelegate->onImGuiAddTextures();
+
   g_AppDelegate->onAppLaunched();
   g_AppDelegate->onAppWindowResized(get_window_size());
+
+  bool showDemo = true;
   while (poll_events()) {
+    ImGui_ImplWGPU_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+
+    g_AppDelegate->onAppIdle(ImGui::GetIO().DeltaTime);
+
+    const wgpu::TextureView view = g_SwapChain.GetCurrentTextureView();
+    g_AppDelegate->onAppDraw();
+    if (showDemo) {
+      ImGui::ShowDemoWindow(&showDemo);
+    }
+    ImGui::Render();
+
     auto encoder = g_Device.CreateCommandEncoder();
     {
       std::array<wgpu::RenderPassColorAttachment, 1> attachments{wgpu::RenderPassColorAttachment{
-          .view = g_SwapChain.GetCurrentTextureView(),
+          .view = view,
           .loadOp = wgpu::LoadOp::Clear,
           .storeOp = wgpu::StoreOp::Store,
-          .clearColor = {0.5f, 0.5f, 0.5f, 1.f},
+          .clearColor = {0.f, 0.f, 0.f, 0.f},
       }};
       auto renderPassDescriptor = wgpu::RenderPassDescriptor{
           .label = "Render Pass",
@@ -279,12 +312,17 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
           .colorAttachments = attachments.data(),
       };
       auto pass = encoder.BeginRenderPass(&renderPassDescriptor);
+      ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), pass.Get());
       pass.End();
     }
     const auto buffer = encoder.Finish();
     g_Queue.Submit(1, &buffer);
     g_SwapChain.Present();
+
+    g_AppDelegate->onAppPostDraw();
   }
+
+  g_AppDelegate->onAppExiting();
 
   wgpuSwapChainRelease(g_SwapChain.Release());
   wgpuQueueRelease(g_Queue.Release());

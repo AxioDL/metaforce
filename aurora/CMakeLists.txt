@@ -14,7 +14,10 @@ add_library(aurora STATIC
     lib/imgui.cpp
     lib/dawn/BackendBinding.cpp
     lib/gfx/common.cpp
+    ../extern/imgui/backends/imgui_impl_sdl.cpp
+    ../extern/imgui/backends/imgui_impl_wgpu.cpp
     )
+target_compile_definitions(aurora PRIVATE IMGUI_USER_CONFIG="imconfig_user.h") # IMGUI_USE_WCHAR32
 target_include_directories(aurora PUBLIC include ../Runtime)
 target_include_directories(aurora PRIVATE ../imgui ../extern/imgui)
 target_link_libraries(aurora PRIVATE dawn_native dawncpp webgpu_dawn zeus logvisor SDL2-static)

@@ -4,9 +4,6 @@
 
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 
-// To match imgui-sys
-#define ImTextureID size_t
-
 #define IM_VEC2_CLASS_EXTRA                                                                                            \
   ImVec2(const zeus::CVector2f& v) {                                                                                   \
     x = v.x();                                                                                                         \

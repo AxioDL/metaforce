@@ -5,14 +5,14 @@ add_library(imgui
         ../extern/imgui/imgui_tables.cpp
         ../extern/imgui/imgui_widgets.cpp
         ../extern/imgui/misc/cpp/imgui_stdlib.cpp
-        ../imgui-sys/third-party/cimgui.cpp
+#        ../imgui-sys/third-party/cimgui.cpp
         ImGuiEngine.cpp
         ImGuiEngine.hpp
         NotoMono.cpp
         MetaforceIcon.cpp
         )
 target_include_directories(imgui PUBLIC ${CMAKE_SOURCE_DIR}/extern/imgui ${CMAKE_CURRENT_SOURCE_DIR})
-target_compile_definitions(imgui PUBLIC IMGUI_USER_CONFIG="imconfig_user.h" IMGUI_USE_WCHAR32)
+target_compile_definitions(imgui PUBLIC IMGUI_USER_CONFIG="imconfig_user.h") # IMGUI_USE_WCHAR32
 if (CMAKE_COMPILER_IS_GNUCXX)
     # currently explicitly ignored for clang in imgui code, but not gcc (yet)
     target_compile_options(imgui PRIVATE -Wno-deprecated-enum-enum-conversion)
