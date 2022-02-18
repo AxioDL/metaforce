@@ -472,7 +472,7 @@ function(shaderc out)
 endfunction()
 
 include(hecl/ApplicationTools.cmake)
-#add_subdirectory(Shaders)
+add_subdirectory(extern/xxhash EXCLUDE_FROM_ALL)
 add_subdirectory(imgui)
 add_subdirectory(extern/libSquish EXCLUDE_FROM_ALL)
 add_subdirectory(extern/libpng EXCLUDE_FROM_ALL)

@@ -373,8 +373,8 @@ void CMoviePlayer::DrawFrame() {
 
   /* draw appropriate field */
   CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
-  aurora::gfx::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0]->ref, tex.U->ref, tex.V->ref,
-                                  zeus::skWhite, m_hpad, m_vpad);
+  aurora::gfx::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0], tex.U, tex.V, zeus::skWhite, m_hpad,
+                                  m_vpad);
 
   /* ensure second field is being displayed by VI to signal advance
    * (faked in metaforce with continuous xor) */
@@ -495,18 +495,18 @@ void CMoviePlayer::DecodeFromRead(const void* data) {
           memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2),
                  x6c_videoInfo.width);
         }
-        aurora::gfx::write_texture(tex.Y[0]->ref, {buffer.get(), planeSizeHalf});
+        aurora::gfx::write_texture(tex.Y[0], {buffer.get(), planeSizeHalf});
         for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
           memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2 + 1),
                  x6c_videoInfo.width);
         }
-        aurora::gfx::write_texture(tex.Y[1]->ref, {buffer.get(), planeSizeHalf});
+        aurora::gfx::write_texture(tex.Y[1], {buffer.get(), planeSizeHalf});
       } else {
         /* Direct planar load */
-        aurora::gfx::write_texture(tex.Y[0]->ref, {m_yuvBuf.get(), planeSize});
+        aurora::gfx::write_texture(tex.Y[0], {m_yuvBuf.get(), planeSize});
       }
-      aurora::gfx::write_texture(tex.U->ref, {m_yuvBuf.get() + planeSize, planeSizeQuarter});
-      aurora::gfx::write_texture(tex.V->ref, {m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter});
+      aurora::gfx::write_texture(tex.U, {m_yuvBuf.get() + planeSize, planeSizeQuarter});
+      aurora::gfx::write_texture(tex.V, {m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter});
 
       break;
     }

@@ -72,9 +72,9 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 CCompoundTargetReticle::SScanReticuleRenderer::SScanReticuleRenderer() {
 //  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
     for (size_t i = 0; i < m_lineRenderers.size(); ++i) {
-      m_lineRenderers[i].emplace(CLineRenderer::EPrimitiveMode::Lines, 8, nullptr, true, true);
+      m_lineRenderers[i].emplace(CLineRenderer::EPrimitiveMode::Lines, 8, aurora::gfx::TextureHandle{}, true, true);
       for (auto& stripRenderer : m_stripRenderers[i]) {
-        stripRenderer.emplace(CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true, true);
+        stripRenderer.emplace(CLineRenderer::EPrimitiveMode::LineStrip, 4, aurora::gfx::TextureHandle{}, true, true);
       }
     }
 //    return true;

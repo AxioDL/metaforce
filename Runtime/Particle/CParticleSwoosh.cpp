@@ -67,7 +67,7 @@ CParticleSwoosh::CParticleSwoosh(const TToken<CSwooshDescription>& desc, int len
     if (x1c_desc->x44_29_WIRE) {
       const int maxVerts = x1b4_LENG * (x1b0_SPLN + 1) * x1b8_SIDE * 12;
       m_lineRenderer.reset(
-          new CLineRenderer(CLineRenderer::EPrimitiveMode::Lines, maxVerts * 2, nullptr, x1d0_25_AALP));
+          new CLineRenderer(CLineRenderer::EPrimitiveMode::Lines, maxVerts * 2, {}, x1d0_25_AALP));
     } else {
       const auto maxVerts = size_t(x1b4_LENG * (x1b0_SPLN + 1) * x1b8_SIDE * 4);
       m_cachedVerts.reserve(maxVerts);

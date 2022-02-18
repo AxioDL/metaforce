@@ -2,6 +2,8 @@
 
 #include <SDL.h>
 #include <dawn/native/DawnNative.h>
+// TODO HACK: dawn doesn't expose device toggles
+#include "../extern/dawn/src/dawn/native/Toggles.h"
 #include <dawn/webgpu_cpp.h>
 #include <logvisor/logvisor.hpp>
 #include <magic_enum.hpp>
@@ -24,6 +26,14 @@
 // imgui
 #include <backends/imgui_impl_sdl.h>
 #include <backends/imgui_impl_wgpu.h>
+
+// TODO HACK: dawn doesn't expose device toggles
+namespace dawn::native {
+class DeviceBase {
+public:
+  void SetToggle(Toggle toggle, bool isEnabled);
+};
+} // namespace dawn::native
 
 namespace aurora {
 // TODO: Move global state to a class/struct?
@@ -184,13 +194,7 @@ static bool poll_events() noexcept {
       Log.report(logvisor::Info, FMT_STRING("Received quit request"));
       return false;
     }
-    // TODO why doesn't this work?
-//    const auto typedEvent = magic_enum::enum_cast<SDL_EventType>(event.type);
-//    if (typedEvent) {
-//      Log.report(logvisor::Info, FMT_STRING("Received SDL event: {}"), magic_enum::enum_name(typedEvent.value()));
-//    } else {
-//      Log.report(logvisor::Info, FMT_STRING("Received SDL event: {}"), event.type);
-//    }
+    // Log.report(logvisor::Info, FMT_STRING("Received SDL event: {}"), event.type);
   }
   return true;
 }
@@ -252,7 +256,20 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   const auto backendName = magic_enum::enum_name(g_AdapterProperties.backendType);
   Log.report(logvisor::Info, FMT_STRING("Using {} graphics backend"), backendName);
 
-  g_Device = wgpu::Device::Acquire(g_Adapter.CreateDevice());
+  {
+    const std::array<wgpu::FeatureName, 1> requiredFeatures{
+        wgpu::FeatureName::TextureCompressionBC,
+    };
+    const auto deviceDescriptor = wgpu::DeviceDescriptor{
+        .requiredFeaturesCount = requiredFeatures.size(),
+        .requiredFeatures = requiredFeatures.data(),
+    };
+    g_Device = wgpu::Device::Acquire(g_Adapter.CreateDevice(&deviceDescriptor));
+    // TODO HACK: dawn doesn't expose device toggles
+    static_cast<dawn::native::DeviceBase*>(static_cast<void*>(g_Device.Get()))
+        ->SetToggle(dawn::native::Toggle::UseUserDefinedLabelsInBackend, true);
+  }
+
   g_BackendBinding = std::unique_ptr<utils::BackendBinding>(
       utils::CreateBinding(g_AdapterProperties.backendType, g_Window, g_Device.Get()));
   if (!g_BackendBinding) {
@@ -268,6 +285,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   {
     auto size = get_window_size();
     auto format = static_cast<wgpu::TextureFormat>(g_BackendBinding->GetPreferredSwapChainTextureFormat());
+    Log.report(logvisor::Info, FMT_STRING("Using swapchain format {}"), magic_enum::enum_name(format));
     g_SwapChain.Configure(format, wgpu::TextureUsage::RenderAttachment, size.width, size.height);
   }
 
@@ -283,7 +301,6 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   g_AppDelegate->onAppLaunched();
   g_AppDelegate->onAppWindowResized(get_window_size());
 
-  bool showDemo = true;
   while (poll_events()) {
     ImGui_ImplWGPU_NewFrame();
     ImGui_ImplSDL2_NewFrame();
@@ -293,9 +310,6 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
 
     const wgpu::TextureView view = g_SwapChain.GetCurrentTextureView();
     g_AppDelegate->onAppDraw();
-    if (showDemo) {
-      ImGui::ShowDemoWindow(&showDemo);
-    }
     ImGui::Render();
 
     auto encoder = g_Device.CreateCommandEncoder();

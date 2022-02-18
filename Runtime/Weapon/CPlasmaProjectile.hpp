@@ -91,8 +91,7 @@ private:
     CColoredStripShader m_beamStrip3Sub;
     CColoredStripShader m_beamStrip4Sub;
     CColoredStripShader m_motionBlurStrip;
-    RenderObjects(std::shared_ptr<aurora::gfx::TextureHandle> tex,
-                  std::shared_ptr<aurora::gfx::TextureHandle> glowTex);
+    RenderObjects(aurora::gfx::TextureHandle tex, aurora::gfx::TextureHandle glowTex);
   };
   std::optional<RenderObjects> m_renderObjs;
 

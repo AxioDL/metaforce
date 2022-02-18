@@ -69,9 +69,9 @@ private:
   };
 
   struct CTHPTextureSet {
-    std::shared_ptr<aurora::gfx::TextureHandle> Y[2];
-    std::shared_ptr<aurora::gfx::TextureHandle> U;
-    std::shared_ptr<aurora::gfx::TextureHandle> V;
+    std::array<aurora::gfx::TextureHandle, 2> Y;
+    aurora::gfx::TextureHandle U;
+    aurora::gfx::TextureHandle V;
     u32 playedSamples = 0;
     u32 audioSamples = 0;
     std::unique_ptr<s16[]> audioBuf;

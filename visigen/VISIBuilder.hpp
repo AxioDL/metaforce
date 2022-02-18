@@ -2,7 +2,7 @@
 
 #include "VISIRenderer.hpp"
 #include "zeus/CAABox.hpp"
-#include "xxhash/xxhash.h"
+#include "xxhash.h"
 #include "athena/MemoryWriter.hpp"
 #include <unordered_map>
 

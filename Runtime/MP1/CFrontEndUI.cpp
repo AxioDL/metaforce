@@ -2045,7 +2045,7 @@ void CFrontEndUI::Draw() {
                                   x38_pressStart->GetHeight() / 480.f * vPad);
       zeus::CColor color = zeus::skWhite;
       color.a() = x64_pressStartAlpha;
-      aurora::gfx::queue_textured_quad(aurora::gfx::CameraFilterType::Add, x38_pressStart->GetTexture()->ref,
+      aurora::gfx::queue_textured_quad(aurora::gfx::CameraFilterType::Add, x38_pressStart->GetTexture(),
                                        aurora::gfx::ZTest::Always, false, color, 1.f, rect, 0.f);
     }
 

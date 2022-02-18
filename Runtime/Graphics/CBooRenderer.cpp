@@ -644,7 +644,7 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
 //  m_scanLinesOddVBO = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), sizeof(zeus::CVector3f), verts.size());
 //}
 
-std::shared_ptr<aurora::gfx::TextureHandle> CBooRenderer::GetColorTexture(const zeus::CColor& color) {
+aurora::gfx::TextureHandle CBooRenderer::GetColorTexture(const zeus::CColor& color) {
   const auto search = m_colorTextures.find(color);
   if (search != m_colorTextures.end()) {
     return search->second;
@@ -652,7 +652,7 @@ std::shared_ptr<aurora::gfx::TextureHandle> CBooRenderer::GetColorTexture(const 
 
   std::array<u8, 4> pixel{};
   color.toRGBA8(pixel[0], pixel[1], pixel[2], pixel[3]);
-  auto tex = aurora::gfx::new_static_texture_2d(1, 1, 1, aurora::gfx::TextureFormat::RGBA8, pixel, "Color Texture"sv);
+  auto tex = aurora::gfx::new_static_texture_2d(1, 1, 1, aurora::gfx::TextureFormat::RGBA8, pixel, "Color Texture");
   m_colorTextures.emplace(color, tex);
   return tex;
 }
@@ -681,13 +681,13 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
 
   constexpr std::array<u8, 4> clearPixel{0, 0, 0, 0};
   m_clearTexture =
-      aurora::gfx::new_static_texture_2d(1, 1, 1, aurora::gfx::TextureFormat::RGBA8, clearPixel, "Clear Texture"sv);
+      aurora::gfx::new_static_texture_2d(1, 1, 1, aurora::gfx::TextureFormat::RGBA8, clearPixel, "Clear Texture");
   constexpr std::array<u8, 4> blackPixel{0, 0, 0, 255};
   m_blackTexture =
-      aurora::gfx::new_static_texture_2d(1, 1, 1, aurora::gfx::TextureFormat::RGBA8, blackPixel, "Black Texture"sv);
+      aurora::gfx::new_static_texture_2d(1, 1, 1, aurora::gfx::TextureFormat::RGBA8, blackPixel, "Black Texture");
   constexpr std::array<u8, 4> whitePixel{255, 255, 255, 255};
   m_whiteTexture =
-      aurora::gfx::new_static_texture_2d(1, 1, 1, aurora::gfx::TextureFormat::RGBA8, whitePixel, "White Texture"sv);
+      aurora::gfx::new_static_texture_2d(1, 1, 1, aurora::gfx::TextureFormat::RGBA8, whitePixel, "White Texture");
 
   //  GenerateFogVolumeRampTex();
 //  GenerateSphereRampTex();

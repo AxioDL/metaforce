@@ -178,11 +178,11 @@ void CTexturedQuadFilterAlpha::Shutdown() {
 //  }
 //}
 
-CTexturedQuadFilter::CTexturedQuadFilter(const std::shared_ptr<aurora::gfx::TextureHandle>& tex) : m_booTex(tex) {
+CTexturedQuadFilter::CTexturedQuadFilter(const aurora::gfx::TextureHandle& tex) : m_booTex(tex) {
   m_flipRect = true; // TODO?
 }
 
-CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const std::shared_ptr<aurora::gfx::TextureHandle>& tex, ERglEnum ztest)
+CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const aurora::gfx::TextureHandle& tex, ERglEnum ztest)
 : m_booTex(tex), m_zTest(ztest) {
   m_flipRect = true; // TODO?
 //  tex->setClampMode(boo::TextureClampMode::ClampToEdge);
@@ -201,7 +201,7 @@ CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const std::shared_ptr
 }
 
 CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ERglEnum ztest)
-: CTexturedQuadFilter(type, (tex ? tex->GetTexture() : nullptr), ztest) {
+: CTexturedQuadFilter(type, (tex ? tex->GetTexture() : aurora::gfx::TextureHandle{}), ztest) {
   m_flipRect = true; // TODO?
   m_tex = tex;
 }
@@ -322,7 +322,7 @@ void CTexturedQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& col
   }
 }
 
-CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, const std::shared_ptr<aurora::gfx::TextureHandle>& tex)
+CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, const aurora::gfx::TextureHandle& tex)
 : CTexturedQuadFilter(tex) {
 //  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
 //    m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 4);
@@ -339,7 +339,7 @@ CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, const std::
 }
 
 CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, TLockedToken<CTexture> tex)
-: CTexturedQuadFilterAlpha(type, (tex ? tex->GetTexture() : nullptr)) {
+: CTexturedQuadFilterAlpha(type, (tex ? tex->GetTexture() : aurora::gfx::TextureHandle{})) {
   m_tex = tex;
 }
 

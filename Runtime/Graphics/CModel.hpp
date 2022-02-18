@@ -239,16 +239,16 @@ public:
   static void EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf, zeus::CMatrix4f* mtxsOut,
                                        float& alphaOut);
 
-  static inline std::shared_ptr<aurora::gfx::TextureHandle> g_shadowMap;
+  static inline aurora::gfx::TextureHandle g_shadowMap;
   static inline zeus::CTransform g_shadowTexXf;
-  static void EnableShadowMaps(const std::shared_ptr<aurora::gfx::TextureHandle>& map, const zeus::CTransform& texXf);
+  static void EnableShadowMaps(const aurora::gfx::TextureHandle& map, const zeus::CTransform& texXf);
   static void DisableShadowMaps();
 
-  static inline std::shared_ptr<aurora::gfx::TextureHandle> g_disintegrateTexture;
-  static void SetDisintegrateTexture(const std::shared_ptr<aurora::gfx::TextureHandle>& map) { g_disintegrateTexture = map; }
+  static inline aurora::gfx::TextureHandle g_disintegrateTexture;
+  static void SetDisintegrateTexture(const aurora::gfx::TextureHandle& map) { g_disintegrateTexture = map; }
 
-  static inline std::shared_ptr<aurora::gfx::TextureHandle> g_reflectionCube;
-  static void SetReflectionCube(const std::shared_ptr<aurora::gfx::TextureHandle>& map) { g_reflectionCube = map; }
+  static inline aurora::gfx::TextureHandle g_reflectionCube;
+  static void SetReflectionCube(const aurora::gfx::TextureHandle& map) { g_reflectionCube = map; }
 
   static void SetDummyTextures(bool b) { g_DummyTextures = b; }
   static void SetRenderModelBlack(bool b) { g_RenderModelBlack = b; }

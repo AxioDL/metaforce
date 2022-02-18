@@ -12,17 +12,16 @@
 
 namespace metaforce {
 
-CPlasmaProjectile::RenderObjects::RenderObjects(std::shared_ptr<aurora::gfx::TextureHandle> tex,
-                                                std::shared_ptr<aurora::gfx::TextureHandle> glowTex)
+CPlasmaProjectile::RenderObjects::RenderObjects(aurora::gfx::TextureHandle tex, aurora::gfx::TextureHandle glowTex)
 : m_beamStrip1(8, CColoredStripShader::Mode::Additive, {})
-, m_beamStrip2( 10, CColoredStripShader::Mode::FullAdditive, tex)
-, m_beamStrip3( 18, CColoredStripShader::Mode::FullAdditive, tex)
-, m_beamStrip4( 14, CColoredStripShader::Mode::Additive, glowTex)
-, m_beamStrip1Sub( 8, CColoredStripShader::Mode::Subtractive, {})
-, m_beamStrip2Sub( 10, CColoredStripShader::Mode::Subtractive, tex)
-, m_beamStrip3Sub( 18, CColoredStripShader::Mode::Subtractive, tex)
-, m_beamStrip4Sub( 14, CColoredStripShader::Mode::Subtractive, glowTex)
-, m_motionBlurStrip( 16, CColoredStripShader::Mode::Alpha, {}) {}
+, m_beamStrip2(10, CColoredStripShader::Mode::FullAdditive, tex)
+, m_beamStrip3(18, CColoredStripShader::Mode::FullAdditive, tex)
+, m_beamStrip4(14, CColoredStripShader::Mode::Additive, glowTex)
+, m_beamStrip1Sub(8, CColoredStripShader::Mode::Subtractive, {})
+, m_beamStrip2Sub(10, CColoredStripShader::Mode::Subtractive, tex)
+, m_beamStrip3Sub(18, CColoredStripShader::Mode::Subtractive, tex)
+, m_beamStrip4Sub(14, CColoredStripShader::Mode::Subtractive, glowTex)
+, m_motionBlurStrip(16, CColoredStripShader::Mode::Alpha, {}) {}
 
 CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                                      const CBeamInfo& bInfo, const zeus::CTransform& xf, EMaterialTypes matType,

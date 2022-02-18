@@ -3,6 +3,7 @@
 #include "common.hpp"
 
 #include <cstdint>
+#include <utility>
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
@@ -39,16 +40,13 @@ struct CFogState {
 } // namespace metaforce
 
 namespace aurora::gfx {
-struct TextureRef {
-  uint32_t id;
-  bool render;
-};
+struct TextureRef;
 struct TextureHandle {
-  TextureRef ref;
-  explicit TextureHandle(TextureRef ref) : ref(ref) {}
-  ~TextureHandle() noexcept;
-  TextureHandle(const TextureHandle&) = delete;
-  TextureHandle& operator=(const TextureHandle&) = delete;
+  std::shared_ptr<TextureRef> ref;
+  TextureHandle() = default;
+  TextureHandle(std::shared_ptr<TextureRef>&& ref) : ref(std::move(ref)) {}
+  operator bool() const { return ref.operator bool(); }
+  void reset() { ref.reset(); }
 };
 enum class TextureFormat : uint8_t {
   RGBA8,
@@ -106,24 +104,23 @@ void add_model(/* TODO */) noexcept;
 void queue_aabb(const zeus::CAABox& aabb, const zeus::CColor& color, bool z_only) noexcept;
 void queue_fog_volume_plane(const ArrayRef<zeus::CVector4f>& verts, uint8_t pass);
 void queue_fog_volume_filter(const zeus::CColor& color, bool two_way) noexcept;
-void queue_textured_quad_verts(CameraFilterType filter_type, TextureRef texture, ZTest z_comparison, bool z_test,
-                               const zeus::CColor& color, const ArrayRef<zeus::CVector3f>& pos,
+void queue_textured_quad_verts(CameraFilterType filter_type, const TextureHandle& texture, ZTest z_comparison,
+                               bool z_test, const zeus::CColor& color, const ArrayRef<zeus::CVector3f>& pos,
                                const ArrayRef<zeus::CVector2f>& uvs, float lod) noexcept;
-void queue_textured_quad(CameraFilterType filter_type, TextureRef texture, ZTest z_comparison, bool z_test,
+void queue_textured_quad(CameraFilterType filter_type, const TextureHandle& texture, ZTest z_comparison, bool z_test,
                          const zeus::CColor& color, float uv_scale, const zeus::CRectangle& rect, float z) noexcept;
 void queue_colored_quad_verts(CameraFilterType filter_type, ZTest z_comparison, bool z_test, const zeus::CColor& color,
                               const ArrayRef<zeus::CVector3f>& pos) noexcept;
 void queue_colored_quad(CameraFilterType filter_type, ZTest z_comparison, bool z_test, const zeus::CColor& color,
                         const zeus::CRectangle& rect, float z) noexcept;
-void queue_movie_player(TextureRef tex_y, TextureRef tex_u, TextureRef tex_v, const zeus::CColor& color, float h_pad,
-                        float v_pad) noexcept;
+void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v,
+                        const zeus::CColor& color, float h_pad, float v_pad) noexcept;
 
-std::shared_ptr<TextureHandle> new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mips,
-                                                     TextureFormat format, ArrayRef<uint8_t> data,
-                                                     std::string_view label) noexcept;
-std::shared_ptr<TextureHandle> new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t mips,
-                                                      TextureFormat format, std::string_view label) noexcept;
-std::shared_ptr<TextureHandle> new_render_texture(uint32_t width, uint32_t height, uint32_t color_bind_count,
-                                                  uint32_t depth_bind_count, std::string_view label) noexcept;
-void write_texture(TextureRef ref, ArrayRef<uint8_t> data) noexcept;
+TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mips, TextureFormat format,
+                                    ArrayRef<uint8_t> data, zstring_view label) noexcept;
+TextureHandle new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t mips, TextureFormat format,
+                                     zstring_view label) noexcept;
+TextureHandle new_render_texture(uint32_t width, uint32_t height, uint32_t color_bind_count, uint32_t depth_bind_count,
+                                 zstring_view label) noexcept;
+void write_texture(const TextureHandle& handle, ArrayRef<uint8_t> data) noexcept;
 } // namespace aurora::gfx

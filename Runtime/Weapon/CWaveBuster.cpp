@@ -25,8 +25,8 @@ CWaveBuster::CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType typ
 , x360_busterSwoosh2(g_SimplePool->GetObj("BusterSwoosh2"))
 , x36c_busterSparks(g_SimplePool->GetObj("BusterSparks"))
 , x378_busterLight(g_SimplePool->GetObj("BusterLight"))
-, m_lineRenderer1(CLineRenderer::EPrimitiveMode::LineStrip, 36 * 6, nullptr, true)
-, m_lineRenderer2(CLineRenderer::EPrimitiveMode::LineStrip, 36 * 6, nullptr, true) {
+, m_lineRenderer1(CLineRenderer::EPrimitiveMode::LineStrip, 36 * 6, {}, true)
+, m_lineRenderer2(CLineRenderer::EPrimitiveMode::LineStrip, 36 * 6, {}, true) {
   x354_busterSwoosh1.GetObj();
   x360_busterSwoosh2.GetObj();
   x36c_busterSparks.GetObj();
@@ -302,7 +302,7 @@ CRayCastResult CWaveBuster::SeekDamageTarget(TUniqueId& uid, const zeus::CVector
     uid = physId;
     return physRes;
   }
-  
+
   if (actRes.IsValid() && ApplyDamageToTarget(physId, actRes, physRes, res, mgr, dt)) {
     uid = actId;
     return actRes;

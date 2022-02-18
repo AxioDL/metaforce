@@ -64,7 +64,7 @@ private:
     CLineRenderer m_outline;
     explicit DoorSurface()
     : m_surface(skDoorVerts, skDoorIndices)
-    , m_outline(CLineRenderer::EPrimitiveMode::LineLoop, 5, nullptr, false, false, true) {}
+    , m_outline(CLineRenderer::EPrimitiveMode::LineLoop, 5, {}, false, false, true) {}
   };
   std::optional<DoorSurface> m_doorSurface;
   std::optional<CTexturedQuadFilter> m_texQuadFilter;

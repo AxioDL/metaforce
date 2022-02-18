@@ -209,7 +209,7 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
 
   if (x26c_31_LINE) {
     CUVElement* texr = desc->x54_x40_TEXR.get();
-    std::shared_ptr<aurora::gfx::TextureHandle> tex;
+    aurora::gfx::TextureHandle tex;
     if (texr)
       tex = texr->GetValueTexture(0).GetObj()->GetTexture();
     int maxVerts = x90_MAXP;

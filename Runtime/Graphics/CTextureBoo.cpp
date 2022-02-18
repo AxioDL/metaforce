@@ -75,7 +75,7 @@ size_t CTexture::ComputeMippedBlockCountDXT1() const {
   return ret;
 }
 
-void CTexture::BuildI4FromGCN(CInputStream& in, std::string_view label) {
+void CTexture::BuildI4FromGCN(CInputStream& in, aurora::zstring_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -115,7 +115,7 @@ void CTexture::BuildI4FromGCN(CInputStream& in, std::string_view label) {
                                              {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildI8FromGCN(CInputStream& in, std::string_view label) {
+void CTexture::BuildI8FromGCN(CInputStream& in, aurora::zstring_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -155,7 +155,7 @@ void CTexture::BuildI8FromGCN(CInputStream& in, std::string_view label) {
                                              {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildIA4FromGCN(CInputStream& in, std::string_view label) {
+void CTexture::BuildIA4FromGCN(CInputStream& in, aurora::zstring_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -196,7 +196,7 @@ void CTexture::BuildIA4FromGCN(CInputStream& in, std::string_view label) {
                                              {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildIA8FromGCN(CInputStream& in, std::string_view label) {
+void CTexture::BuildIA8FromGCN(CInputStream& in, aurora::zstring_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -278,7 +278,7 @@ static std::vector<RGBA8> DecodePalette(int numEntries, CInputStream& in) {
   return ret;
 }
 
-void CTexture::BuildC4FromGCN(CInputStream& in, std::string_view label) {
+void CTexture::BuildC4FromGCN(CInputStream& in, aurora::zstring_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
   std::vector<RGBA8> palette = DecodePalette(16, in);
@@ -316,7 +316,7 @@ void CTexture::BuildC4FromGCN(CInputStream& in, std::string_view label) {
                                              {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildC8FromGCN(CInputStream& in, std::string_view label) {
+void CTexture::BuildC8FromGCN(CInputStream& in, aurora::zstring_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
   std::vector<RGBA8> palette = DecodePalette(256, in);
@@ -354,11 +354,11 @@ void CTexture::BuildC8FromGCN(CInputStream& in, std::string_view label) {
                                              {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildC14X2FromGCN(CInputStream& in, std::string_view label) {
+void CTexture::BuildC14X2FromGCN(CInputStream& in, aurora::zstring_view label) {
   Log.report(logvisor::Fatal, FMT_STRING("C14X2 not implemented"));
 }
 
-void CTexture::BuildRGB565FromGCN(CInputStream& in, std::string_view label) {
+void CTexture::BuildRGB565FromGCN(CInputStream& in, aurora::zstring_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -397,7 +397,7 @@ void CTexture::BuildRGB565FromGCN(CInputStream& in, std::string_view label) {
                                              {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildRGB5A3FromGCN(CInputStream& in, std::string_view label) {
+void CTexture::BuildRGB5A3FromGCN(CInputStream& in, aurora::zstring_view label) {
   size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -443,7 +443,7 @@ void CTexture::BuildRGB5A3FromGCN(CInputStream& in, std::string_view label) {
                                              {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildRGBA8FromGCN(CInputStream& in, std::string_view label) {
+void CTexture::BuildRGBA8FromGCN(CInputStream& in, aurora::zstring_view label) {
   const size_t texelCount = ComputeMippedTexelCount();
   std::unique_ptr<RGBA8[]> buf(new RGBA8[texelCount]);
 
@@ -488,7 +488,7 @@ void CTexture::BuildRGBA8FromGCN(CInputStream& in, std::string_view label) {
                                              {reinterpret_cast<const uint8_t*>(buf.get()), texelCount * 4}, label);
 }
 
-void CTexture::BuildDXT1FromGCN(CInputStream& in, std::string_view label) {
+void CTexture::BuildDXT1FromGCN(CInputStream& in, aurora::zstring_view label) {
   const size_t blockCount = ComputeMippedBlockCountDXT1();
   std::unique_ptr<DXT1Block[]> buf(new DXT1Block[blockCount]);
 
@@ -536,7 +536,7 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in, std::string_view label) {
                                              {reinterpret_cast<const uint8_t*>(buf.get()), blockCount * 8}, label);
 }
 
-void CTexture::BuildRGBA8(const void* data, size_t length, std::string_view label) {
+void CTexture::BuildRGBA8(const void* data, size_t length, aurora::zstring_view label) {
   size_t texelCount = ComputeMippedTexelCount();
   size_t expectedSize = texelCount * 4;
   if (expectedSize > length)
@@ -546,7 +546,7 @@ void CTexture::BuildRGBA8(const void* data, size_t length, std::string_view labe
                                              {reinterpret_cast<const uint8_t*>(data), expectedSize}, label);
 }
 
-void CTexture::BuildC8(const void* data, size_t length, std::string_view label) {
+void CTexture::BuildC8(const void* data, size_t length, aurora::zstring_view label) {
   size_t texelCount = ComputeMippedTexelCount();
   if (texelCount > length)
     Log.report(logvisor::Fatal, FMT_STRING("insufficient TXTR length ({}/{})"), length, texelCount);
@@ -560,7 +560,7 @@ void CTexture::BuildC8(const void* data, size_t length, std::string_view label) 
                                              label);
 }
 
-void CTexture::BuildC8Font(const void* data, EFontType ftype, std::string_view label) {
+void CTexture::BuildC8Font(const void* data, EFontType ftype, aurora::zstring_view label) {
   size_t texelCount = ComputeMippedTexelCount();
 
   size_t layerCount = 1;
@@ -659,12 +659,12 @@ void CTexture::BuildC8Font(const void* data, EFontType ftype, std::string_view l
   //  } BooTrace);
 }
 
-void CTexture::BuildDXT1(const void* data, size_t length, std::string_view label) {
+void CTexture::BuildDXT1(const void* data, size_t length, aurora::zstring_view label) {
   m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::DXT1,
                                              {reinterpret_cast<const uint8_t*>(data), length}, label);
 }
 
-void CTexture::BuildDXT3(const void* data, size_t length, std::string_view label) {
+void CTexture::BuildDXT3(const void* data, size_t length, aurora::zstring_view label) {
   m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::DXT3,
                                              {reinterpret_cast<const uint8_t*>(data), length}, label);
 }
@@ -881,10 +881,10 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
   return ret;
 }
 
-const std::shared_ptr<aurora::gfx::TextureHandle>& CTexture::GetFontTexture(EFontType tp) {
+const aurora::gfx::TextureHandle& CTexture::GetFontTexture(EFontType tp) {
   if (m_ftype != tp && x0_fmt == ETexelFormat::C8PC) {
     m_ftype = tp;
-    BuildC8Font(m_otex.get() + 12, m_ftype, "Font (TODO)"sv);
+    BuildC8Font(m_otex.get() + 12, m_ftype, "Font (TODO)");
   }
   return m_tex;
 }

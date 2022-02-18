@@ -44,7 +44,7 @@ extern "C" int rep_closefrom(int lower);
 #include "FourCC.hpp"
 #include "athena/Global.hpp"
 #include "logvisor/logvisor.hpp"
-#include "xxhash/xxhash.h"
+#include "xxhash.h"
 
 
 #if defined(__has_feature)

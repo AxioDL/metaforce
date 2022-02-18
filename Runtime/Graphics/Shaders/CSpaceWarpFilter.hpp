@@ -17,7 +17,7 @@ class CSpaceWarpFilter {
     zeus::CVector3f m_strength;
   };
   std::array<std::array<std::array<u8, 4>, 8>, 4> m_shiftTexture{};
-  std::shared_ptr<aurora::gfx::TextureHandle> m_warpTex;
+  aurora::gfx::TextureHandle m_warpTex;
 //  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
 //  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
 //  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;

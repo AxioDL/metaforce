@@ -1,0 +1,6 @@
+add_library(xxhash xxhash.c)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64")
+  target_sources(xxhash PRIVATE xxh_x86dispatch.c)
+endif ()
+target_include_directories(xxhash PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(xxhash INTERFACE XXH_STATIC_LINKING_ONLY)

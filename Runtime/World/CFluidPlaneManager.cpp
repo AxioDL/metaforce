@@ -81,7 +81,7 @@ static bool g_RippleMapSetup = false;
 std::array<std::array<u8, 64>, 64> CFluidPlaneManager::RippleValues{};
 std::array<u8, 64> CFluidPlaneManager::RippleMins{};
 std::array<u8, 64> CFluidPlaneManager::RippleMaxs{};
-std::shared_ptr<aurora::gfx::TextureHandle> CFluidPlaneManager::RippleMapTex;
+aurora::gfx::TextureHandle CFluidPlaneManager::RippleMapTex;
 
 void CFluidPlaneManager::SetupRippleMap() {
   if (g_RippleMapSetup) {

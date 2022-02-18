@@ -135,11 +135,11 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
   }
 }
 
-void CBooModel::EnableShadowMaps(const std::shared_ptr<aurora::gfx::TextureHandle>& map, const zeus::CTransform& texXf) {
+void CBooModel::EnableShadowMaps(const aurora::gfx::TextureHandle& map, const zeus::CTransform& texXf) {
   g_shadowMap = map;
   g_shadowTexXf = texXf;
 }
-void CBooModel::DisableShadowMaps() { g_shadowMap = nullptr; }
+void CBooModel::DisableShadowMaps() { g_shadowMap.reset(); }
 
 CBooModel::~CBooModel() {
   if (m_prev)

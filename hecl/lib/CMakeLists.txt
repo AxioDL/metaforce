@@ -68,7 +68,7 @@ add_library(hecl-full
         ${FIND_BLENDER_SOURCES})
 target_include_directories(hecl-full PUBLIC ../include)
 target_link_libraries(hecl-full PUBLIC ${HECL_APPLICATION_REPS_TARGETS_LIST}
-        hecl-blender-addon boo athena-core logvisor)
+        hecl-blender-addon boo athena-core logvisor xxhash)
 target_atdna(hecl-full atdna_HMDLMeta_full.cpp ../include/hecl/HMDLMeta.hpp)
 target_atdna(hecl-full atdna_CVar_full.cpp ../include/hecl/CVar.hpp)
 target_atdna(hecl-full atdna_SDNARead_full.cpp ../include/hecl/Blender/SDNARead.hpp)
@@ -80,7 +80,7 @@ add_library(hecl-light
         ${PLAT_SRCS}
         ${FIND_BLENDER_SOURCES})
 target_include_directories(hecl-light PUBLIC ../include)
-target_link_libraries(hecl-light PUBLIC ${HECL_APPLICATION_REPS_TARGETS_LIST} boo athena-core logvisor aurora)
+target_link_libraries(hecl-light PUBLIC ${HECL_APPLICATION_REPS_TARGETS_LIST} boo athena-core logvisor aurora xxhash)
 if (WIN32)
   # For FindBlender
   target_link_libraries(hecl-light PUBLIC Version)

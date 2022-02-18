@@ -71,7 +71,7 @@ void CRainSplashGenerator::Draw(const zeus::CTransform& xf) {
 }
 
 CRainSplashGenerator::SSplashLine::SSplashLine()
-: m_renderer(CLineRenderer::EPrimitiveMode::LineStrip, 3, nullptr, false) {}
+: m_renderer(CLineRenderer::EPrimitiveMode::LineStrip, 3, {}, false) {}
 
 CRainSplashGenerator::SRainSplash::SRainSplash() {
   for (size_t i = 0; i < x0_lines.capacity(); ++i) {
