@@ -15,7 +15,7 @@ private:
   float x4_speed;
 
 public:
-  explicit SGrenadeVelocityInfo(CInputStream& in) : x0_mass(in.readFloatBig()), x4_speed(in.readFloatBig()) {}
+  explicit SGrenadeVelocityInfo(CInputStream& in) : x0_mass(in.ReadFloat()), x4_speed(in.ReadFloat()) {}
 
   [[nodiscard]] float GetMass() const { return x0_mass; }
   [[nodiscard]] float GetSpeed() const { return x4_speed; }

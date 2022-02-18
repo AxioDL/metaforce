@@ -15,8 +15,8 @@ public:
   CHUDMemoParms(float dispTime, bool clearMemoWindow, bool fadeOutOnly, bool hintMemo)
   : x0_dispTime(dispTime), x4_clearMemoWindow(clearMemoWindow), x5_fadeOutOnly(fadeOutOnly), x6_hintMemo(hintMemo) {}
   explicit CHUDMemoParms(CInputStream& in) {
-    x0_dispTime = in.readFloatBig();
-    x4_clearMemoWindow = in.readBool();
+    x0_dispTime = in.ReadFloat();
+    x4_clearMemoWindow = in.ReadBool();
   }
 
   float GetDisplayTime() const { return x0_dispTime; }

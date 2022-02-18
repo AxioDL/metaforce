@@ -12,20 +12,27 @@ logvisor::Module Log("metaforce::CStateMachine");
 
 CStateMachine::CStateMachine(CInputStream& in) {
   CAiTrigger* lastTrig = nullptr;
-  u32 stateCount = in.readUint32Big();
+  u32 stateCount = in.ReadLong();
 
   x0_states.reserve(stateCount);
 
   for (u32 i = 0; i < stateCount; ++i) {
-    std::string name = in.readString(31, false);
+    std::string name;
+    while (name.size() < 31) {
+      const auto chr = in.ReadChar();
+      name += chr;
+      if (chr == '\0') {
+        break;
+      }
+    }
     CAiStateFunc func = CAi::GetStateFunc(name);
     x0_states.emplace_back(func, name.c_str());
   }
 
-  x10_triggers.reserve(in.readUint32Big());
+  x10_triggers.reserve(in.ReadLong());
 
   for (u32 i = 0; i < stateCount; ++i) {
-    x0_states[i].SetNumTriggers(in.readUint32Big());
+    x0_states[i].SetNumTriggers(in.ReadLong());
     if (x0_states[i].GetNumTriggers() == 0)
       continue;
     CAiTrigger* firstTrig = x10_triggers.data() + x10_triggers.size();
@@ -33,13 +40,21 @@ CStateMachine::CStateMachine(CInputStream& in) {
     x10_triggers.resize(x10_triggers.size() + x0_states[i].GetNumTriggers());
 
     for (s32 j = 0; j < x0_states[i].GetNumTriggers(); ++j) {
-      const u32 triggerCount = in.readUint32Big();
+      const u32 triggerCount = in.ReadLong();
       const u32 lastTriggerIdx = triggerCount - 1;
       for (u32 k = 0; k < triggerCount; ++k) {
-        std::string name = in.readString(31, false);
+        std::string name;
+        while (name.size() < 31) {
+          const auto chr = in.ReadChar();
+          name += chr;
+          if (chr == '\0') {
+            break;
+          }
+        }
+
         const bool isNot = name.front() == '!';
         const CAiTriggerFunc func = CAi::GetTriggerFunc(isNot ? name.c_str() + 1 : name.c_str());
-        const float arg = in.readFloatBig();
+        const float arg = in.ReadFloat();
         CAiTrigger* newTrig;
         if (k < lastTriggerIdx) {
           newTrig = &x10_triggers.emplace_back();
@@ -47,7 +62,7 @@ CStateMachine::CStateMachine(CInputStream& in) {
           newTrig = &firstTrig[j];
         }
         if (k == 0)
-          newTrig->Setup(func, isNot, arg, &x0_states[in.readUint32Big()]);
+          newTrig->Setup(func, isNot, arg, &x0_states[in.ReadLong()]);
         else
           newTrig->Setup(func, isNot, arg, lastTrig);
         lastTrig = newTrig;

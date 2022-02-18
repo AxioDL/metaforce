@@ -452,7 +452,7 @@ void CMain::EnsureWorldPaksReady() {}
 void CMain::EnsureWorldPakReady(CAssetId mlvl) { /* TODO: Schedule resource list load for World Pak containing mlvl */
 }
 
-void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx) {
+void CMain::StreamNewGameState(CInputStream& r, u32 idx) {
   bool fusionBackup = g_GameState->SystemOptions().GetPlayerFusionSuitActive();
   x128_globalObjects->x134_gameState = std::make_unique<CGameState>(r, idx);
   g_GameState = x128_globalObjects->x134_gameState.get();
@@ -466,7 +466,7 @@ void CMain::RefreshGameState() {
   u64 cardSerial = g_GameState->GetCardSerial();
   std::vector<u8> saveData = g_GameState->BackupBuf();
   CGameOptions gameOpts = g_GameState->GameOptions();
-  CBitStreamReader r(saveData.data(), saveData.size());
+  CMemoryInStream r(saveData.data(), saveData.size(), CMemoryInStream::EOwnerShip::NotOwned);
   x128_globalObjects->StreamInGameState(r, g_GameState->GetFileIdx());
   g_GameState->SetPersistentOptions(sysOpts);
   g_GameState->SetGameOptions(gameOpts);
@@ -558,6 +558,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
   m_cvarCommons = std::make_unique<hecl::CVarCommons>(*m_cvarMgr);
 
   bool loadedVersion = false;
+#if 0
   if (CDvdFile::FileExists("version.yaml")) {
     CDvdFile file("version.yaml");
     if (file) {
@@ -570,7 +571,9 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
         MainLog.report(logvisor::Level::Info, FMT_STRING("Loaded version info"));
       }
     }
-  } else if (CDvdFile::FileExists("default.dol")) {
+  } else
+#endif
+  if (CDvdFile::FileExists("default.dol")) {
     CDvdFile file("default.dol");
     if (file) {
       std::unique_ptr<u8[]> buf = std::make_unique<u8[]>(file.Length());

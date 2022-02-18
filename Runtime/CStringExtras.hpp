@@ -5,7 +5,7 @@
 #include <string>
 
 namespace metaforce {
-
+class CInputStream;
 class CStringExtras {
 public:
   // Checks if the provided views into string data can be considered equal or not based on
@@ -35,6 +35,8 @@ public:
     }
     return s;
   }
+
+  static std::string ReadString(CInputStream& in);
 };
 
 } // namespace metaforce

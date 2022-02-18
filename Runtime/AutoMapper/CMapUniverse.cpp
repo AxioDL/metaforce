@@ -6,25 +6,25 @@
 
 namespace metaforce {
 
-CMapUniverse::CMapUniverse(CInputStream& in, u32 version) : x0_hexagonId(in.readUint32Big()) {
+CMapUniverse::CMapUniverse(CInputStream& in, u32 version) : x0_hexagonId(in.Get<CAssetId>()) {
   x4_hexagonToken = g_SimplePool->GetObj({FOURCC('MAPA'), x0_hexagonId});
-  u32 count = in.readUint32Big();
+  u32 count = in.ReadLong();
   x10_worldDatas.reserve(count);
   for (u32 i = 0; i < count; ++i)
     x10_worldDatas.emplace_back(in, version);
 }
 
 CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
-: x0_label(in.readString()), x10_worldAssetId(in.readUint32Big()) {
-  x14_transform.read34RowMajor(in);
-  const u32 worldCount = in.readUint32Big();
+: x0_label(in.Get<std::string>()), x10_worldAssetId(in.ReadLong()) {
+  x14_transform  = in.Get<zeus::CTransform>();
+  const u32 worldCount = in.ReadLong();
   x44_hexagonXfs.reserve(worldCount);
   for (u32 i = 0; i < worldCount; ++i) {
-    x44_hexagonXfs.emplace_back().read34RowMajor(in);
+    x44_hexagonXfs.emplace_back() = in.Get<zeus::CTransform>();
   }
 
   if (version != 0)
-    x54_surfColorSelected.readRGBABig(in);
+    x54_surfColorSelected = in.Get<zeus::CColor>();
   else
     x54_surfColorSelected.fromRGBA32(255 | (u32(x10_worldAssetId.Value()) & 0xFFFFFF00));
 
@@ -115,8 +115,8 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
 }
 
 CFactoryFnReturn FMapUniverseFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer&, CObjectReference*) {
-  in.readUint32Big();
-  u32 version = in.readUint32Big();
+  in.ReadLong();
+  u32 version = in.ReadLong();
 
   return TToken<CMapUniverse>::GetIObjObjectFor(std::make_unique<CMapUniverse>(in, version));
 }

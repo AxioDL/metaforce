@@ -4,7 +4,7 @@
 
 namespace metaforce {
 CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, CAssetId resId) : x0_scannableObjectId(resId) {
-  const u32 version = in.readUint32Big();
+  const u32 version = in.ReadLong();
   Load(in, version);
 
   for (auto& bucket : x14_buckets) {
@@ -33,18 +33,18 @@ CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, CAssetId resId) : x
 }
 
 void CScannableObjectInfo::Load(CInputStream& in, u32 version) {
-  in.readUint32Big();
-  in.readUint32Big();
-  x4_stringId = in.readUint32Big();
+  in.ReadLong();
+  in.ReadLong();
+  x4_stringId = in.ReadLong();
   if (version < 4) {
-    x8_totalDownloadTime = in.readFloatBig();
+    x8_totalDownloadTime = in.ReadFloat();
   } else {
-    const u32 scanSpeed = in.readUint32Big();
+    const u32 scanSpeed = in.ReadLong();
     x8_totalDownloadTime = g_tweakGui->GetScanSpeed(scanSpeed);
   }
-  xc_category = in.readUint32Big();
+  xc_category = in.ReadLong();
   if (version > 4) {
-    x10_important = in.readBool();
+    x10_important = in.ReadBool();
   }
 
   for (size_t i = 0; i < x14_buckets.capacity(); i++) {
@@ -53,15 +53,15 @@ void CScannableObjectInfo::Load(CInputStream& in, u32 version) {
 }
 
 CScannableObjectInfo::SBucket::SBucket(CInputStream& in, u32 version) {
-  x0_texture = in.readUint32Big();
-  x4_appearanceRange = in.readFloatBig();
-  x8_imagePos = in.readUint32Big();
+  x0_texture = in.ReadLong();
+  x4_appearanceRange = in.ReadFloat();
+  x8_imagePos = in.ReadLong();
   if (version > 1) {
-    xc_size.x = in.readUint32Big();
-    xc_size.y = in.readUint32Big();
-    x14_interval = in.readFloatBig();
+    xc_size.x = in.ReadLong();
+    xc_size.y = in.ReadLong();
+    x14_interval = in.ReadFloat();
     if (version >= 3)
-      x18_fadeDuration = in.readFloatBig();
+      x18_fadeDuration = in.ReadFloat();
   }
 }
 

@@ -24,18 +24,17 @@ CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
 }
 
 CGuiWidget::CGuiWidgetParms CGuiWidget::ReadWidgetHeader(CGuiFrame* frame, CInputStream& in) {
-  std::string name = in.readString(-1);
+  std::string name = in.Get<std::string>();
   s16 selfId = frame->GetWidgetIdDB().AddWidget(name);
-  std::string parent = in.readString(-1);
+  std::string parent = in.Get<std::string>();
   s16 parentId = frame->GetWidgetIdDB().AddWidget(parent);
 
-  bool useAnimController = in.readBool();
-  bool defaultVis = in.readBool();
-  bool defaultActive = in.readBool();
-  bool cullFaces = in.readBool();
-  zeus::CColor color;
-  color.readRGBABig(in);
-  EGuiModelDrawFlags df = EGuiModelDrawFlags(in.readUint32Big());
+  bool useAnimController = in.ReadBool();
+  bool defaultVis = in.ReadBool();
+  bool defaultActive = in.ReadBool();
+  bool cullFaces = in.ReadBool();
+  zeus::CColor color = in.Get<zeus::CColor>();
+  EGuiModelDrawFlags df = EGuiModelDrawFlags(in.ReadLong());
 
   return CGuiWidget::CGuiWidgetParms(frame, useAnimController, selfId, parentId, defaultVis, defaultActive, cullFaces,
                                      color, df, true, false, std::move(name));
@@ -52,17 +51,17 @@ void CGuiWidget::Initialize() {}
 
 void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWidgetParms& parms) {
   CGuiWidget* parent = frame->FindWidget(parms.x8_parentId);
-  bool isWorker = in.readBool();
+  bool isWorker = in.ReadBool();
   if (isWorker)
-    xb4_workerId = in.readInt16Big();
-  zeus::CVector3f trans = zeus::CVector3f::ReadBig(in);
-  zeus::CMatrix3f orient = zeus::CMatrix3f::ReadBig(in);
+    xb4_workerId = in.ReadInt16();
+  zeus::CVector3f trans = in.Get<zeus::CVector3f>();
+  zeus::CMatrix3f orient = in.Get<zeus::CMatrix3f>();
   x74_transform = zeus::CTransform(orient, trans);
   m_initTransform = x74_transform;
   ReapplyXform();
-  (void)zeus::CVector3f::ReadBig(in); // Unused
-  in.readUint32Big();
-  in.readUint16Big();
+  in.Get<zeus::CVector3f>(); // Unused
+  in.ReadLong();
+  in.ReadShort();
   if (isWorker) {
     if (!parent->AddWorkerWidget(this)) {
       Log.report(logvisor::Warning,

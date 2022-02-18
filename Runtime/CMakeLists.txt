@@ -73,6 +73,11 @@ set(RUNTIME_SOURCES_B
         ITweak.hpp
         IMain.hpp
         CStopwatch.hpp
+        CMemoryStreamOut.hpp CMemoryStreamOut.cpp
+        CInputStream.hpp CInputStream.cpp
+        COutputStream.hpp COutputStream.cpp
+        CMemoryInStream.hpp
+        CZipInputStream.hpp CZipInputStream.cpp
         CGameAllocator.hpp CGameAllocator.cpp
         CMemoryCardSys.hpp CMemoryCardSys.cpp
         CScannableObjectInfo.hpp CScannableObjectInfo.cpp
@@ -109,7 +114,7 @@ set(RUNTIME_SOURCES_B
         CToken.hpp CToken.cpp
         CFactoryMgr.hpp CFactoryMgr.cpp
         CPakFile.hpp CPakFile.cpp
-        CStringExtras.hpp
+        CStringExtras.hpp CStringExtras.cpp
         IOStreams.hpp IOStreams.cpp
         CMainFlowBase.hpp CMainFlowBase.cpp
         CMFGameBase.hpp
@@ -125,6 +130,7 @@ set(RUNTIME_SOURCES_B
 
 function(add_runtime_common_library name)
     add_library(${name} ${ARGN})
+    target_compile_definitions(${name} PUBLIC "-DMETAFORCE_TARGET_BYTE_ORDER=__BYTE_ORDER__")
     if (COMMAND add_sanitizers)
         add_sanitizers(${name})
     endif ()
@@ -209,6 +215,7 @@ add_executable(metaforce CMain.cpp ${PLAT_SRCS} ImGuiConsole.hpp ImGuiConsole.cp
 # target_atdna(metaforce atdna_ImGuiPlayerLoadouts.cpp ImGuiPlayerLoadouts.hpp)
 # RUNTIME_LIBRARIES repeated here for link ordering
 target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS})
+target_compile_definitions(metaforce PUBLIC "-DMETAFORCE_TARGET_BYTE_ORDER=__BYTE_ORDER__")
 
 if (COMMAND add_sanitizers)
     add_sanitizers(metaforce)

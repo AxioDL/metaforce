@@ -11,7 +11,7 @@ namespace metaforce {
 constexpr CCollisionPrimitive::Type sType(CCollidableOBBTreeGroup::SetStaticTableIndex, "CCollidableOBBTreeGroup");
 
 CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(CInputStream& in) {
-  const u32 treeCount = in.readUint32Big();
+  const u32 treeCount = in.ReadLong();
   x0_trees.reserve(treeCount);
 
   for (u32 i = 0; i < treeCount; i++) {

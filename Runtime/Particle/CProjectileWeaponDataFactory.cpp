@@ -158,7 +158,7 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
       desc->x29_FC60 = CPF::GetBool(in);
       break;
     default: {
-      Log.report(logvisor::Fatal, FMT_STRING("Unknown WPSM class {} @{}"), clsId, in.position());
+      Log.report(logvisor::Fatal, FMT_STRING("Unknown WPSM class {} @{}"), clsId, in.GetReadPosition());
       return false;
     }
     }

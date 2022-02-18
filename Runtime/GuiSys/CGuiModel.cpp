@@ -123,9 +123,9 @@ bool CGuiModel::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& 
 std::shared_ptr<CGuiWidget> CGuiModel::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
   CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
 
-  CAssetId model = in.readUint32Big();
-  in.readUint32Big();
-  u32 lightMask = in.readUint32Big();
+  CAssetId model = in.Get<CAssetId>();
+  in.ReadLong();
+  u32 lightMask = in.ReadLong();
 
   std::shared_ptr<CGuiWidget> ret = std::make_shared<CGuiModel>(parms, sp, model, lightMask, true);
   ret->ParseBaseInfo(frame, in, parms);

@@ -45,10 +45,10 @@ constexpr std::array<SSphereJointInfo, 5> skSphereJointList{{
 }};
 
 CFlaahgraData::CFlaahgraData(CInputStream& in)
-: x0_(in.readFloatBig())
-, x4_(in.readFloatBig())
-, x8_(in.readFloatBig())
-, xc_faintDuration(in.readFloatBig())
+: x0_(in.ReadFloat())
+, x4_(in.ReadFloat())
+, x8_(in.ReadFloat())
+, xc_faintDuration(in.ReadFloat())
 , x10_(in)
 , x78_(in)
 , x7c_(in)
@@ -57,9 +57,9 @@ CFlaahgraData::CFlaahgraData(CInputStream& in)
 , xb8_plantsParticleGenDescId(in)
 , xbc_(in)
 , xd8_(ScriptLoader::LoadActorParameters(in))
-, x140_(in.readFloatBig())
-, x144_(in.readFloatBig())
-, x148_(in.readFloatBig())
+, x140_(in.ReadFloat())
+, x144_(in.ReadFloat())
+, x148_(in.ReadFloat())
 , x14c_animationParameters(ScriptLoader::LoadAnimationParameters(in))
 , x158_(in) {}
 

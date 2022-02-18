@@ -92,7 +92,7 @@ void CTexture::BuildI4FromGCN(CInputStream& in, aurora::zstring_view label) {
         for (int y = 0; y < std::min(h, 8); ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           std::array<u8, 4> source;
-          in.readBytesToBuf(source.data(), std::min(size_t(w) / 4, source.size()));
+          in.Get(source.data(), std::min(size_t(w) / 4, source.size()));
           for (size_t x = 0; x < std::min(w, 8); ++x) {
             target[x].r = Convert4To8(source[x / 2] >> ((x & 1) ? 0 : 4) & 0xf);
             target[x].g = target[x].r;
@@ -132,7 +132,7 @@ void CTexture::BuildI8FromGCN(CInputStream& in, aurora::zstring_view label) {
         for (int y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           std::array<u8, 8> source;
-          in.readBytesToBuf(source.data(), source.size());
+          in.Get(source.data(), source.size());
           for (size_t x = 0; x < source.size(); ++x) {
             target[x].r = source[x];
             target[x].g = source[x];
@@ -172,7 +172,7 @@ void CTexture::BuildIA4FromGCN(CInputStream& in, aurora::zstring_view label) {
         for (int y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           std::array<u8, 8> source;
-          in.readBytesToBuf(source.data(), source.size());
+          in.Get(source.data(), source.size());
           for (size_t x = 0; x < source.size(); ++x) {
             const u8 intensity = Convert4To8(source[x] >> 4 & 0xf);
             target[x].r = intensity;
@@ -213,7 +213,7 @@ void CTexture::BuildIA8FromGCN(CInputStream& in, aurora::zstring_view label) {
         for (int y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           std::array<u16, 4> source;
-          in.readBytesToBuf(source.data(), sizeof(source));
+          in.Get(reinterpret_cast<u8*>(source.data()), sizeof(source));
           for (size_t x = 0; x < source.size(); ++x) {
             const u8 intensity = source[x] >> 8;
             target[x].r = intensity;
@@ -243,27 +243,27 @@ static std::vector<RGBA8> DecodePalette(int numEntries, CInputStream& in) {
 
   enum class EPaletteType { IA8, RGB565, RGB5A3 };
 
-  EPaletteType format = EPaletteType(in.readUint32Big());
-  in.readUint32Big();
+  EPaletteType format = EPaletteType(in.ReadLong());
+  in.ReadLong();
   switch (format) {
   case EPaletteType::IA8: {
     for (int e = 0; e < numEntries; ++e) {
-      u8 intensity = in.readUByte();
-      u8 alpha = in.readUByte();
+      u8 intensity = in.ReadUint8();
+      u8 alpha = in.ReadUint8();
       ret.push_back({intensity, intensity, intensity, alpha});
     }
     break;
   }
   case EPaletteType::RGB565: {
     for (int e = 0; e < numEntries; ++e) {
-      u16 texel = in.readUint16Big();
+      u16 texel = in.ReadShort();
       ret.push_back({Convert5To8(texel >> 11 & 0x1f), Convert6To8(texel >> 5 & 0x3f), Convert5To8(texel & 0x1f), 0xff});
     }
     break;
   }
   case EPaletteType::RGB5A3: {
     for (int e = 0; e < numEntries; ++e) {
-      u16 texel = in.readUint16Big();
+      u16 texel = in.ReadShort();
       if (texel & 0x8000) {
         ret.push_back(
             {Convert5To8(texel >> 10 & 0x1f), Convert5To8(texel >> 5 & 0x1f), Convert5To8(texel & 0x1f), 0xff});
@@ -296,7 +296,7 @@ void CTexture::BuildC4FromGCN(CInputStream& in, aurora::zstring_view label) {
         for (int y = 0; y < 8; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           std::array<u8, 4> source;
-          in.readBytesToBuf(source.data(), source.size());
+          in.Get(source.data(), source.size());
           for (size_t x = 0; x < 8; ++x) {
             target[x] = palette[source[x / 2] >> ((x & 1) ? 0 : 4) & 0xf];
           }
@@ -334,7 +334,7 @@ void CTexture::BuildC8FromGCN(CInputStream& in, aurora::zstring_view label) {
         for (int y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           std::array<u8, 8> source;
-          in.readBytesToBuf(source.data(), source.size());
+          in.Get(source.data(), source.size());
           for (size_t x = 0; x < source.size(); ++x) {
             target[x] = palette[source[x]];
           }
@@ -375,7 +375,7 @@ void CTexture::BuildRGB565FromGCN(CInputStream& in, aurora::zstring_view label) 
         for (int y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           for (size_t x = 0; x < 4; ++x) {
-            const u16 texel = in.readUint16Big();
+            const u16 texel = in.ReadShort();
             target[x].r = Convert5To8(texel >> 11 & 0x1f);
             target[x].g = Convert6To8(texel >> 5 & 0x3f);
             target[x].b = Convert5To8(texel & 0x1f);
@@ -414,7 +414,7 @@ void CTexture::BuildRGB5A3FromGCN(CInputStream& in, aurora::zstring_view label) 
         for (int y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           for (size_t x = 0; x < 4; ++x) {
-            const u16 texel = in.readUint16Big();
+            const u16 texel = in.ReadShort();
             if ((texel & 0x8000) != 0) {
               target[x].r = Convert5To8(texel >> 10 & 0x1f);
               target[x].g = Convert5To8(texel >> 5 & 0x1f);
@@ -461,7 +461,7 @@ void CTexture::BuildRGBA8FromGCN(CInputStream& in, aurora::zstring_view label) {
           for (int y = 0; y < 4; ++y) {
             RGBA8* target = targetMip + (baseY + y) * w + baseX;
             std::array<u8, 8> source;
-            in.readBytesToBuf(source.data(), source.size());
+            in.Get(source.data(), source.size());
             for (size_t x = 0; x < 4; ++x) {
               if (c != 0) {
                 target[x].g = source[x * 2];
@@ -505,7 +505,7 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in, aurora::zstring_view label) {
         for (int y = 0; y < 2; ++y) {
           DXT1Block* target = targetMip + (baseY + y) * w + baseX;
           std::array<DXT1Block, 2> source;
-          in.readBytesToBuf(source.data(), sizeof(source));
+          in.Get(reinterpret_cast<u8*>(source.data()), sizeof(source));
           for (size_t x = 0; x < source.size(); ++x) {
             target[x].color1 = hecl::SBig(source[x].color1);
             target[x].color2 = hecl::SBig(source[x].color2);
@@ -715,11 +715,11 @@ CTexture::CTexture(ETexelFormat fmt, s16 w, s16 h, s32 mips) : x0_fmt(fmt), x4_w
 CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTextureInfo* inf, CAssetId id)
 : m_textureInfo(inf) {
   std::unique_ptr<u8[]> owned = std::move(in);
-  athena::io::MemoryReader r(owned.get(), length);
-  x0_fmt = ETexelFormat(r.readUint32Big());
-  x4_w = r.readUint16Big();
-  x6_h = r.readUint16Big();
-  x8_mips = r.readUint32Big();
+  CMemoryInStream r(owned.get(), length, CMemoryInStream::EOwnerShip::NotOwned);
+  x0_fmt = ETexelFormat(r.ReadLong());
+  x4_w = r.ReadShort();
+  x6_h = r.ReadShort();
+  x8_mips = r.ReadLong();
 
   auto label = fmt::format(FMT_STRING("TXTR {:08X} ({})"), id.Value(), TextureFormatString(x0_fmt));
   switch (x0_fmt) {

@@ -20,12 +20,9 @@
 
 using namespace std::literals;
 
-namespace athena::io {
-class IStreamReader;
-class IStreamWriter;
-} // namespace athena::io
-
 namespace metaforce {
+class CInputStream;
+class COutputStream;
 using kUniqueIdType = u16;
 static constexpr int kMaxEntities = 1024;
 constexpr kUniqueIdType kUniqueIdSize = sizeof(u16);
@@ -194,9 +191,6 @@ public:
 };
 #define FOURCC(chars) FourCC(SBIG(chars))
 
-using CInputStream = athena::io::IStreamReader;
-using COutputStream = athena::io::IStreamWriter;
-
 class CAssetId {
   u64 id = UINT64_MAX;
 
@@ -226,14 +220,8 @@ struct SObjectTag {
   [[nodiscard]] constexpr bool operator<(const SObjectTag& other) const noexcept { return id < other.id; }
   constexpr SObjectTag() noexcept = default;
   constexpr SObjectTag(FourCC tp, CAssetId rid) noexcept : type(tp), id(rid) {}
-  explicit SObjectTag(CInputStream& in) {
-    in.readBytesToBuf(&type, 4);
-    id = CAssetId(in);
-  }
-  void readMLVL(CInputStream& in) {
-    id = CAssetId(in);
-    in.readBytesToBuf(&type, 4);
-  }
+  explicit SObjectTag(CInputStream& in);
+  void ReadMLVL(CInputStream& in);
 };
 
 struct TEditorId {

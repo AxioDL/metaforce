@@ -8,7 +8,7 @@
 namespace metaforce {
 
 std::shared_ptr<IMetaTrans> CMetaTransFactory::CreateMetaTrans(CInputStream& in) {
-  EMetaTransType type = EMetaTransType(in.readUint32Big());
+  EMetaTransType type = EMetaTransType(in.ReadLong());
 
   switch (type) {
   case EMetaTransType::MetaAnim:

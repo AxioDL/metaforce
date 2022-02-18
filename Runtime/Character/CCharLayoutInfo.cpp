@@ -32,30 +32,30 @@ CSegId CCharLayoutInfo::GetSegIdFromString(std::string_view name) const {
 
 void CCharLayoutNode::Bone::read(CInputStream& in) {
   x0_parentId = CSegId(in);
-  x4_origin.readBig(in);
+  x4_origin = in.Get<zeus::CVector3f>();
 
-  const u32 chCount = in.readUint32Big();
+  const u32 chCount = in.ReadLong();
   x10_children.reserve(chCount);
   for (u32 i = 0; i < chCount; ++i) {
     x10_children.emplace_back(in);
   }
 }
 
-CCharLayoutNode::CCharLayoutNode(CInputStream& in) : x0_boneMap(in.readUint32Big()) {
+CCharLayoutNode::CCharLayoutNode(CInputStream& in) : x0_boneMap(in.ReadLong()) {
   const u32 cap = x0_boneMap.GetCapacity();
 
   for (u32 i = 0; i < cap; ++i) {
-    const u32 thisId = in.readUint32Big();
+    const u32 thisId = in.ReadLong();
     Bone& bone = x0_boneMap[thisId];
     bone.read(in);
   }
 }
 
 CCharLayoutInfo::CCharLayoutInfo(CInputStream& in) : x0_node(std::make_shared<CCharLayoutNode>(in)), x8_segIdList(in) {
-  const atUint32 mapCount = in.readUint32Big();
+  const atUint32 mapCount = in.ReadLong();
 
   for (atUint32 i = 0; i < mapCount; ++i) {
-    std::string key = in.readString();
+    std::string key = in.Get<std::string>();
     x18_segIdMap.emplace(std::move(key), in);
   }
 }

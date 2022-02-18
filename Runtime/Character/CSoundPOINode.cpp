@@ -11,7 +11,7 @@ CSoundPOINode::CSoundPOINode()
 , x40_maxDist(0.f) {}
 
 CSoundPOINode::CSoundPOINode(CInputStream& in)
-: CPOINode(in), x38_sfxId(in.readUint32Big()), x3c_falloff(in.readFloatBig()), x40_maxDist(in.readFloatBig()) {}
+: CPOINode(in), x38_sfxId(in.ReadLong()), x3c_falloff(in.ReadFloat()), x40_maxDist(in.ReadFloat()) {}
 
 CSoundPOINode::CSoundPOINode(std::string_view name, EPOIType a, const CCharAnimTime& time, u32 b, bool c, float d,
                              u32 e, u32 f, u32 sfxId, float falloff, float maxDist)

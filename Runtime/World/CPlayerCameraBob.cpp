@@ -206,22 +206,19 @@ zeus::CTransform CPlayerCameraBob::CalculateCameraBobTransformation() const {
 }
 
 void CPlayerCameraBob::ReadTweaks(CInputStream& in) {
-  if (in.hasError())
-    return;
-
-  kCameraBobExtentX = in.readFloatBig();
-  kCameraBobExtentY = in.readFloatBig();
-  kCameraBobPeriod = in.readFloatBig();
-  kOrbitBobScale = in.readFloatBig();
-  kMaxOrbitBobScale = in.readFloatBig();
-  kSlowSpeedPeriodScale = in.readFloatBig();
-  kTargetMagnitudeTrackingRate = in.readFloatBig();
-  kLandingBobSpringConstant = in.readFloatBig();
-  kViewWanderRadius = in.readFloatBig();
-  kViewWanderSpeedMin = in.readFloatBig();
-  kViewWanderSpeedMax = in.readFloatBig();
-  kViewWanderRollVariation = in.readFloatBig();
-  kGunBobMagnitude = in.readFloatBig();
-  kHelmetBobMagnitude = in.readFloatBig();
+  kCameraBobExtentX = in.ReadFloat();
+  kCameraBobExtentY = in.ReadFloat();
+  kCameraBobPeriod = in.ReadFloat();
+  kOrbitBobScale = in.ReadFloat();
+  kMaxOrbitBobScale = in.ReadFloat();
+  kSlowSpeedPeriodScale = in.ReadFloat();
+  kTargetMagnitudeTrackingRate = in.ReadFloat();
+  kLandingBobSpringConstant = in.ReadFloat();
+  kViewWanderRadius = in.ReadFloat();
+  kViewWanderSpeedMin = in.ReadFloat();
+  kViewWanderSpeedMax = in.ReadFloat();
+  kViewWanderRollVariation = in.ReadFloat();
+  kGunBobMagnitude = in.ReadFloat();
+  kHelmetBobMagnitude = in.ReadFloat();
 }
 } // namespace metaforce

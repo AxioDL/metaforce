@@ -60,6 +60,7 @@ class CCameraShakeData {
 public:
   static const CCameraShakeData skChargedShotCameraShakeData;
 
+  constexpr CCameraShakeData() = default;
   constexpr CCameraShakeData(float duration, float sfxDist, u32 flags, const zeus::CVector3f& sfxPos,
                              const CCameraShakerComponent& shaker1, const CCameraShakerComponent& shaker2,
                              const CCameraShakerComponent& shaker3) noexcept

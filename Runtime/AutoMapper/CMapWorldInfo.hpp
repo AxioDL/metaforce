@@ -19,8 +19,8 @@ class CMapWorldInfo {
 
 public:
   CMapWorldInfo() = default;
-  explicit CMapWorldInfo(CBitStreamReader& reader, const CWorldSaveGameInfo& saveWorld, CAssetId mlvlId);
-  void PutTo(CBitStreamWriter& writer, const CWorldSaveGameInfo& savw, CAssetId mlvlId) const;
+  explicit CMapWorldInfo(CInputStream& reader, const CWorldSaveGameInfo& saveWorld, CAssetId mlvlId);
+  void PutTo(COutputStream& writer, const CWorldSaveGameInfo& savw, CAssetId mlvlId) const;
   bool IsMapped(TAreaId aid) const;
   void SetIsMapped(TAreaId aid, bool mapped);
   void SetDoorVisited(TEditorId eid, bool val);

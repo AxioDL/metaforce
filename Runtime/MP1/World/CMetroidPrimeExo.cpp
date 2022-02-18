@@ -144,29 +144,29 @@ std::array<std::array<pas::ELocomotionType, 3>, 14> skSomeValues2{{
 }};
 } // namespace
 SPrimeStruct2B::SPrimeStruct2B(CInputStream& in)
-: x0_propertyCount(in.readUint32Big())
-, x4_particle1(in.readUint32Big())
-, x8_particle2(in.readUint32Big())
-, xc_particle3(in.readUint32Big())
+: x0_propertyCount(in.ReadLong())
+, x4_particle1(in.ReadLong())
+, x8_particle2(in.ReadLong())
+, xc_particle3(in.ReadLong())
 , x10_dInfo(in)
-, x2c_(in.readFloatBig())
-, x30_(in.readFloatBig())
-, x34_texture(in.readUint32Big())
-, x38_(CSfxManager::TranslateSFXID(u16(in.readUint32Big())))
-, x3a_(CSfxManager::TranslateSFXID(u16(in.readUint32Big()))) {}
+, x2c_(in.ReadFloat())
+, x30_(in.ReadFloat())
+, x34_texture(in.ReadLong())
+, x38_(CSfxManager::TranslateSFXID(u16(in.ReadLong())))
+, x3a_(CSfxManager::TranslateSFXID(u16(in.ReadLong()))) {}
 
 SPrimeStruct4::SPrimeStruct4(CInputStream& in)
 : x0_beamInfo(in)
-, x44_(in.readUint32Big())
+, x44_(in.ReadLong())
 , x48_dInfo1(in)
 , x64_struct5(CPlasmaProjectile::LoadPlayerEffectResources(in))
-, x88_(in.readFloatBig())
+, x88_(in.ReadFloat())
 , x8c_dInfo2(in) {}
 
 SPrimeStruct6::SPrimeStruct6(CInputStream& in)
-: x0_propertyCount(in.readUint32Big()), x4_damageVulnerability(in), x6c_color(zeus::CColor::ReadRGBABig(in)) {
-  x70_[0] = in.readUint32Big();
-  x70_[1] = in.readUint32Big();
+: x0_propertyCount(in.ReadLong()), x4_damageVulnerability(in), x6c_color(in.Get<zeus::CColor>()) {
+  x70_[0] = in.ReadLong();
+  x70_[1] = in.ReadLong();
 }
 
 static CPatternedInfo LoadPatternedInfo(CInputStream& in) {
@@ -185,12 +185,15 @@ static CCameraShakerComponent BuildCameraShakerComponent(CameraShakeData::Camera
 }
 
 static CCameraShakeData LoadCameraShakeData(CInputStream& in) {
+#if 0
   CameraShakeData shakeData;
   shakeData.read(in);
   return CCameraShakeData(shakeData.duration, shakeData.sfxDist, u32(shakeData.useSfx), zeus::skZero3f,
                           BuildCameraShakerComponent(shakeData.shakerComponents[0]),
                           BuildCameraShakerComponent(shakeData.shakerComponents[1]),
                           BuildCameraShakerComponent(shakeData.shakerComponents[2]));
+#endif
+  return {};
 }
 
 static rstl::reserved_vector<SPrimeStruct4, 4> LoadPrimeStruct4s(CInputStream& in) {
@@ -209,35 +212,35 @@ static rstl::reserved_vector<SPrimeStruct6, 4> LoadPrimeStruct6s(CInputStream& i
 }
 
 SPrimeExoParameters::SPrimeExoParameters(CInputStream& in)
-: x0_propertyCount(in.readUint32Big())
+: x0_propertyCount(in.ReadLong())
 , x4_patternedInfo(LoadPatternedInfo(in))
 , x13c_actorParms(ScriptLoader::LoadActorParameters(in))
-, x1a4_(in.readUint32Big())
+, x1a4_(in.ReadLong())
 , x1a8_(LoadCameraShakeData(in))
 , x27c_(LoadCameraShakeData(in))
 , x350_(LoadCameraShakeData(in))
 , x424_(in)
-, x460_particle1(in.readUint32Big())
+, x460_particle1(in.ReadLong())
 , x464_(LoadPrimeStruct4s(in))
-, x708_wpsc1(in.readUint32Big())
+, x708_wpsc1(in.ReadLong())
 , x70c_dInfo1(in)
 , x728_shakeData1(LoadCameraShakeData(in))
-, x7fc_wpsc2(in.readUint32Big())
+, x7fc_wpsc2(in.ReadLong())
 , x800_dInfo2(in)
 , x81c_shakeData2(LoadCameraShakeData(in))
 , x8f0_(in)
 , x92c_(in)
 , x948_(LoadCameraShakeData(in))
-, xa1c_particle2(in.readUint32Big())
-, xa20_swoosh(in.readUint32Big())
-, xa24_particle3(in.readUint32Big())
-, xa28_particle4(in.readUint32Big())
+, xa1c_particle2(in.ReadLong())
+, xa20_swoosh(in.ReadLong())
+, xa24_particle3(in.ReadLong())
+, xa28_particle4(in.ReadLong())
 , xa2c_(LoadPrimeStruct6s(in)) {}
 
 SPrimeExoRoomParameters::SPrimeExoRoomParameters(CInputStream& in) {
-  u32 propCount = std::min(u32(14), in.readUint32Big());
+  u32 propCount = std::min(14, in.ReadLong());
   for (u32 i = 0; i < propCount; ++i) {
-    x0_.push_back(in.readFloatBig());
+    x0_.push_back(in.ReadFloat());
   }
 }
 

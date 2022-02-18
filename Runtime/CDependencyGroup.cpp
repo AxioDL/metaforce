@@ -5,7 +5,7 @@ namespace metaforce {
 CDependencyGroup::CDependencyGroup(CInputStream& in) { ReadFromStream(in); }
 
 void CDependencyGroup::ReadFromStream(CInputStream& in) {
-  u32 depCount = in.readUint32Big();
+  u32 depCount = in.ReadLong();
   x0_objectTags.reserve(depCount);
   for (u32 i = 0; i < depCount; i++)
     x0_objectTags.emplace_back(in);

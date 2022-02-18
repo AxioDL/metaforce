@@ -4,24 +4,24 @@
 
 namespace metaforce {
 
-CAnimPOIData::CAnimPOIData(CInputStream& in) : x0_version(in.readUint32Big()) {
-  u32 boolCount = in.readUint32Big();
+CAnimPOIData::CAnimPOIData(CInputStream& in) : x0_version(in.ReadLong()) {
+  u32 boolCount = in.ReadLong();
   x4_boolNodes.reserve(boolCount);
   for (u32 i = 0; i < boolCount; ++i)
     x4_boolNodes.emplace_back(in);
 
-  u32 int32Count = in.readUint32Big();
+  u32 int32Count = in.ReadLong();
   x14_int32Nodes.reserve(int32Count);
   for (u32 i = 0; i < int32Count; ++i)
     x14_int32Nodes.emplace_back(in);
 
-  u32 particleCount = in.readUint32Big();
+  u32 particleCount = in.ReadLong();
   x24_particleNodes.reserve(particleCount);
   for (u32 i = 0; i < particleCount; ++i)
     x24_particleNodes.emplace_back(in);
 
   if (x0_version >= 2) {
-    u32 soundCount = in.readUint32Big();
+    u32 soundCount = in.ReadLong();
     x34_soundNodes.reserve(soundCount);
     for (u32 i = 0; i < soundCount; ++i)
       x34_soundNodes.emplace_back(in);

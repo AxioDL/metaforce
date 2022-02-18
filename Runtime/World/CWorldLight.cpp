@@ -1,20 +1,21 @@
 #include "Runtime/World/CWorldLight.hpp"
+#include "Runtime/IOStreams.hpp"
 
 #include <cfloat>
 
 namespace metaforce {
 CWorldLight::CWorldLight(CInputStream& in)
-: x0_type(EWorldLightType(in.readUint32Big()))
-, x4_color(zeus::CVector3f::ReadBig(in))
-, x10_position(zeus::CVector3f::ReadBig(in))
-, x1c_direction(zeus::CVector3f::ReadBig(in))
-, x28_q(in.readFloatBig())
-, x2c_cutoffAngle(in.readFloatBig())
-, x30_(in.readFloatBig())
-, x34_castShadows(in.readBool())
-, x38_(in.readFloatBig())
-, x3c_falloff(EFalloffType(in.readUint32Big()))
-, x40_(in.readFloatBig()) {}
+: x0_type(EWorldLightType(in.ReadLong()))
+, x4_color(in.Get<zeus::CVector3f>())
+, x10_position(in.Get<zeus::CVector3f>())
+, x1c_direction(in.Get<zeus::CVector3f>())
+, x28_q(in.ReadFloat())
+, x2c_cutoffAngle(in.ReadFloat())
+, x30_(in.ReadFloat())
+, x34_castShadows(in.ReadBool())
+, x38_(in.ReadFloat())
+, x3c_falloff(EFalloffType(in.ReadLong()))
+, x40_(in.ReadFloat()) {}
 
 std::tuple<float, float, float> CalculateLightFalloff(EFalloffType falloff, float q) {
   float constant = 0.f;

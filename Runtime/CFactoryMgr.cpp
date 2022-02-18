@@ -42,10 +42,12 @@ CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, std::u
   const auto memFactoryIter = m_memFactories.find(tag.type);
   if (memFactoryIter != m_memFactories.cend()) {
     if (compressed) {
-      std::unique_ptr<CInputStream> compRead = std::make_unique<athena::io::MemoryReader>(localBuf.get(), size);
-      const u32 decompLen = compRead->readUint32Big();
+      std::unique_ptr<CInputStream> compRead =
+          std::make_unique<CMemoryInStream>(localBuf.get(), size, CMemoryInStream::EOwnerShip::NotOwned);
+      const u32 decompLen = compRead->ReadLong();
       CZipInputStream r(std::move(compRead));
-      std::unique_ptr<u8[]> decompBuf = r.readUBytes(decompLen);
+      std::unique_ptr<u8[]> decompBuf(new u8[decompLen]);
+      r.Get(decompBuf.get(), decompLen);
       return memFactoryIter->second(tag, std::move(decompBuf), decompLen, paramXfer, selfRef);
     } else {
       return memFactoryIter->second(tag, std::move(localBuf), size, paramXfer, selfRef);
@@ -57,12 +59,14 @@ CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, std::u
     }
 
     if (compressed) {
-      std::unique_ptr<CInputStream> compRead = std::make_unique<athena::io::MemoryReader>(localBuf.get(), size);
-      compRead->readUint32Big();
+      std::unique_ptr<CInputStream> compRead =
+          std::make_unique<CMemoryInStream>(localBuf.get(), size, CMemoryInStream::EOwnerShip::NotOwned);
+
+      compRead->ReadLong();
       CZipInputStream r(std::move(compRead));
       return factoryIter->second(tag, r, paramXfer, selfRef);
     } else {
-      CMemoryInStream r(localBuf.get(), size);
+      CMemoryInStream r(localBuf.get(), size, CMemoryInStream::EOwnerShip::NotOwned);
       return factoryIter->second(tag, r, paramXfer, selfRef);
     }
   }

@@ -13,10 +13,10 @@ namespace metaforce {
 
 SCameraShakePoint SCameraShakePoint::LoadCameraShakePoint(CInputStream& in) {
   u32 useEnvelope = ScriptLoader::LoadParameterFlags(in);
-  float attackTime = in.readFloatBig();
-  float sustainTime = in.readFloatBig();
-  float duration = in.readFloatBig();
-  float magnitude = in.readFloatBig();
+  float attackTime = in.ReadFloat();
+  float sustainTime = in.ReadFloat();
+  float duration = in.ReadFloat();
+  float magnitude = in.ReadFloat();
   return {useEnvelope != 0, attackTime, sustainTime, duration, magnitude};
 }
 
@@ -28,15 +28,15 @@ CCameraShakerComponent CCameraShakerComponent::LoadNewCameraShakerComponent(CInp
 }
 
 CCameraShakeData::CCameraShakeData(CInputStream& in) {
-  in.readUint32Big();
-  in.readFloatBig();
-  in.readFloatBig();
-  in.readFloatBig();
-  in.readFloatBig();
-  in.readFloatBig();
-  in.readFloatBig();
-  in.readFloatBig();
-  in.readBool();
+  in.ReadLong();
+  in.ReadFloat();
+  in.ReadFloat();
+  in.ReadFloat();
+  in.ReadFloat();
+  in.ReadFloat();
+  in.ReadFloat();
+  in.ReadFloat();
+  in.ReadBool();
   BuildProjectileCameraShake(0.5f, 0.75f);
 }
 
@@ -100,13 +100,13 @@ float CCameraShakeData::GetMaxFMComponent() const {
 }
 
 CCameraShakeData CCameraShakeData::LoadCameraShakeData(CInputStream& in) {
-  const float xMag = in.readFloatBig();
-  in.readFloatBig();
-  const float yMag = in.readFloatBig();
-  in.readFloatBig();
-  const float zMag = in.readFloatBig();
-  in.readFloatBig();
-  const float duration = in.readFloatBig();
+  const float xMag = in.ReadFloat();
+  in.ReadFloat();
+  const float yMag = in.ReadFloat();
+  in.ReadFloat();
+  const float zMag = in.ReadFloat();
+  in.ReadFloat();
+  const float duration = in.ReadFloat();
 
   const SCameraShakePoint xAM(false, 0.f, 0.f, duration, 2.f * xMag);
   const SCameraShakePoint yAM(false, 0.f, 0.f, duration, 2.f * yMag);

@@ -538,14 +538,13 @@ CAreaOctTree::CAreaOctTree(const zeus::CAABox& aabb, Node::ETreeType treeType, c
 }
 
 std::unique_ptr<CAreaOctTree> CAreaOctTree::MakeFromMemory(const u8* buf, unsigned int size) {
-  athena::io::MemoryReader r(buf + 8, size - 8);
-  r.readUint32Big();
-  r.readUint32Big();
-  zeus::CAABox aabb;
-  aabb.readBoundingBoxBig(r);
-  Node::ETreeType nodeType = Node::ETreeType(r.readUint32Big());
-  u32 treeSize = r.readUint32Big();
-  const u8* cur = reinterpret_cast<const u8*>(buf) + 8 + r.position();
+  CMemoryInStream r(buf + 8, size - 8, CMemoryInStream::EOwnerShip::NotOwned);
+  r.ReadLong();
+  r.ReadLong();
+  zeus::CAABox aabb = r.Get<zeus::CAABox>();
+  Node::ETreeType nodeType = Node::ETreeType(r.ReadLong());
+  u32 treeSize = r.ReadLong();
+  const u8* cur = reinterpret_cast<const u8*>(buf) + 8 + r.GetReadPosition();
 
   const u8* treeBuf = cur;
   cur += treeSize;

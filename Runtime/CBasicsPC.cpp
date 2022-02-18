@@ -136,4 +136,63 @@ OSCalendarTime CBasics::ToCalendarTime(std::chrono::system_clock::time_point tim
   return ret;
 }
 
+u16 CBasics::SwapBytes(u16 v) {
+  Swap2Bytes(reinterpret_cast<u8*>(&v));
+  return v;
+}
+u32 CBasics::SwapBytes(u32 v) {
+  Swap4Bytes(reinterpret_cast<u8*>(&v));
+  return v;
+}
+
+u64 CBasics::SwapBytes(u64 v) {
+  Swap8Bytes(reinterpret_cast<u8*>(&v));
+  return v;
+}
+float CBasics::SwapBytes(float v) {
+  Swap4Bytes(reinterpret_cast<u8*>(&v));
+  return v;
+}
+double CBasics::SwapBytes(double v) {
+  Swap8Bytes(reinterpret_cast<u8*>(&v));
+  return v;
+}
+
+void CBasics::Swap2Bytes(u8* v) {
+  u16* val = reinterpret_cast<u16*>(v);
+#if __GNUC__
+  *val = __builtin_bswap16(*val);
+#elif _WIN32
+  *val = _byteswap_ushort(*val);
+#else
+  *val = (*val << 8) | ((*val >> 8) & 0xFF);
+#endif
+}
+
+void CBasics::Swap4Bytes(u8* v) {
+  u32* val = reinterpret_cast<u32*>(v);
+#if __GNUC__
+  *val = __builtin_bswap32(*val);
+#elif _WIN32
+  *val = _byteswap_ulong(*val);
+#else
+  *val = ((*val & 0x0000FFFF) << 16) | ((*val & 0xFFFF0000) >> 16) | ((*val & 0x00FF00FF) << 8) |
+         ((*val & 0xFF00FF00) >> 8);
+#endif
+}
+
+void CBasics::Swap8Bytes(u8* v) {
+  u64* val = reinterpret_cast<u64*>(v);
+#if __GNUC__
+  *val = __builtin_bswap64(*val);
+#elif _WIN32
+  *val = _byteswap_uint64(val);
+#else
+  *val = ((val & 0xFF00000000000000ULL) >> 56) | ((val & 0x00FF000000000000ULL) >> 40) |
+         ((val & 0x0000FF0000000000ULL) >> 24) | ((val & 0x000000FF00000000ULL) >> 8) |
+         ((val & 0x00000000FF000000ULL) << 8) | ((val & 0x0000000000FF0000ULL) << 24) |
+         ((val & 0x000000000000FF00ULL) << 40) | ((val & 0x00000000000000FFULL) << 56);
+#endif
+}
+
 } // namespace metaforce

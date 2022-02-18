@@ -9,8 +9,9 @@
 #include "DataSpec/DNAMP2/CSKR.hpp"
 #include "DataSpec/DNAMP3/CMDLMaterials.hpp"
 #include "DataSpec/DNAMP3/CSKR.hpp"
-#include "IOStreams.hpp"
 
+#include <athena/MemoryReader.hpp>
+#include <athena/MemoryWriter.hpp>
 #include <fmt/format.h>
 #include <hecl/Blender/Connection.hpp>
 #include <zeus/CAABox.hpp>

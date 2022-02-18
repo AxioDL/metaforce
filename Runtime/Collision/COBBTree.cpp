@@ -41,16 +41,16 @@ constexpr std::array<u16, 36> DefaultSurfaceIndices{
 };
 
 /* This is exactly what retro did >.< */
-u32 verify_deaf_babe(CInputStream& in) { return in.readUint32Big(); }
+u32 verify_deaf_babe(CInputStream& in) { return in.ReadLong(); }
 
 /* This is exactly what retro did >.< */
-u32 verify_version(CInputStream& in) { return in.readUint32Big(); }
+u32 verify_version(CInputStream& in) { return in.ReadLong(); }
 } // Anonymous namespace
 
 COBBTree::COBBTree(CInputStream& in)
 : x0_magic(verify_deaf_babe(in))
 , x4_version(verify_version(in))
-, x8_memsize(in.readUint32())
+, x8_memsize(in.ReadLong())
 , x18_indexData(in)
 , x88_root(std::make_unique<CNode>(in)) {}
 
@@ -158,38 +158,38 @@ zeus::CAABox COBBTree::CalculateAABox(const zeus::CTransform& xf) const {
 }
 
 COBBTree::SIndexData::SIndexData(CInputStream& in) {
-  u32 count = in.readUint32Big();
+  u32 count = in.ReadLong();
   x0_materials.reserve(count);
   for (u32 i = 0; i < count; i++) {
-    x0_materials.emplace_back(in.readUint32Big());
+    x0_materials.emplace_back(in.ReadLong());
   }
 
-  count = in.readUint32Big();
+  count = in.ReadLong();
   for (u32 i = 0; i < count; i++) {
-    x10_vertMaterials.emplace_back(in.readUByte());
+    x10_vertMaterials.emplace_back(in.ReadUint8());
   }
-  count = in.readUint32Big();
+  count = in.ReadLong();
   for (u32 i = 0; i < count; i++) {
-    x20_edgeMaterials.emplace_back(in.readUByte());
+    x20_edgeMaterials.emplace_back(in.ReadUint8());
   }
-  count = in.readUint32Big();
+  count = in.ReadLong();
   for (u32 i = 0; i < count; i++) {
-    x30_surfaceMaterials.emplace_back(in.readUByte());
+    x30_surfaceMaterials.emplace_back(in.ReadUint8());
   }
 
-  count = in.readUint32Big();
+  count = in.ReadLong();
   for (u32 i = 0; i < count; i++) {
     x40_edges.emplace_back(in);
   }
 
-  count = in.readUint32Big();
+  count = in.ReadLong();
   for (u32 i = 0; i < count; i++) {
-    x50_surfaceIndices.emplace_back(in.readUint16Big());
+    x50_surfaceIndices.emplace_back(in.ReadShort());
   }
 
-  count = in.readUint32Big();
+  count = in.ReadLong();
   for (u32 i = 0; i < count; i++) {
-    x60_vertices.emplace_back(zeus::CVector3f::ReadBig(in));
+    x60_vertices.emplace_back(in.Get<zeus::CVector3f>());
   }
 }
 
@@ -202,8 +202,8 @@ COBBTree::CNode::CNode(const zeus::CTransform& xf, const zeus::CVector3f& point,
 , x48_leaf(std::move(leaf)) {}
 
 COBBTree::CNode::CNode(CInputStream& in) {
-  x0_obb = zeus::COBBox::ReadBig(in);
-  x3c_isLeaf = in.readBool();
+  x0_obb = in.Get<zeus::COBBox>();
+  x3c_isLeaf = in.ReadBool();
   if (x3c_isLeaf)
     x48_leaf = std::make_unique<CLeafData>(in);
   else {
@@ -236,9 +236,9 @@ size_t COBBTree::CLeafData::GetMemoryUsage() const {
 }
 
 COBBTree::CLeafData::CLeafData(CInputStream& in) {
-  const u32 edgeCount = in.readUint32Big();
+  const u32 edgeCount = in.ReadLong();
   for (u32 i = 0; i < edgeCount; i++) {
-    x0_surface.emplace_back(in.readUint16Big());
+    x0_surface.emplace_back(in.ReadShort());
   }
 }
 

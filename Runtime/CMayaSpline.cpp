@@ -1,6 +1,6 @@
-#include "CMayaSpline.hpp"
+#include "Runtime/CMayaSpline.hpp"
 
-namespace rstl {} // namespace rstl
+#include "Runtime/CInputStream.hpp"
 
 namespace metaforce {
 void ValidateTangent(zeus::CVector2f& tangent) {
@@ -21,19 +21,19 @@ void ValidateTangent(zeus::CVector2f& tangent) {
 }
 
 CMayaSplineKnot::CMayaSplineKnot(CInputStream& in) {
-  x0_time = in.readFloatBig();
-  x4_amplitude = in.readFloatBig();
-  x8_ = in.readByte();
-  x9_ = in.readByte();
+  x0_time = in.ReadFloat();
+  x4_amplitude = in.ReadFloat();
+  x8_ = in.ReadInt8();
+  x9_ = in.ReadInt8();
   if (x8_ == 5) {
-    float x = in.readFloatBig();
-    float y = in.readFloatBig();
+    float x = in.ReadFloat();
+    float y = in.ReadFloat();
     xc_cachedTangentA = {x, y};
   }
 
   if (x9_ == 5) {
-    float x = in.readFloatBig();
-    float y = in.readFloatBig();
+    float x = in.ReadFloat();
+    float y = in.ReadFloat();
     x14_cachedTangentB = {x, y};
   }
 }
@@ -166,17 +166,16 @@ void CMayaSplineKnot::CalculateTangents(CMayaSplineKnot* prev, CMayaSplineKnot* 
   ValidateTangent(x14_cachedTangentB);
 }
 
-CMayaSpline::CMayaSpline(CInputStream& in, s32 count) {
-  x0_preInfinity = in.readByte();
-  x4_postInfinity = in.readByte();
-  u32 knotCount = in.readUint32Big();
+CMayaSpline::CMayaSpline(CInputStream& in, s32 count) : x0_preInfinity(in.ReadInt8()), x4_postInfinity(in.ReadInt8()) {
+
+  u32 knotCount = in.ReadLong();
   x8_knots.reserve(knotCount);
   for (size_t i = 0; i < knotCount; ++i) {
     x8_knots.emplace_back(in);
   }
-  x18_clampMode = in.readByte();
-  x1c_minAmplitudeTime = in.readFloatBig();
-  x20_maxAmplitudeTime = in.readFloatBig();
+  x18_clampMode = in.ReadInt8();
+  x1c_minAmplitudeTime = in.ReadFloat();
+  x20_maxAmplitudeTime = in.ReadFloat();
 }
 
 float CMayaSpline::GetMinTime() const { return x8_knots.empty() ? 0.f : x8_knots[0].GetTime(); }

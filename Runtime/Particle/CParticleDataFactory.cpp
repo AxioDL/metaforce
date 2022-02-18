@@ -11,20 +11,20 @@
 namespace metaforce {
 static logvisor::Module Log("metaforce::CParticleDataFactory");
 
-float CParticleDataFactory::GetReal(CInputStream& in) { return in.readFloatBig(); }
+float CParticleDataFactory::GetReal(CInputStream& in) { return in.ReadFloat(); }
 
-s32 CParticleDataFactory::GetInt(CInputStream& in) { return in.readInt32Big(); }
+s32 CParticleDataFactory::GetInt(CInputStream& in) { return in.ReadInt32(); }
 
 bool CParticleDataFactory::GetBool(CInputStream& in) {
   FourCC cid = GetClassID(in);
   if (cid != FOURCC('CNST'))
     Log.report(logvisor::Fatal, FMT_STRING("bool element does not begin with CNST"));
-  return in.readBool();
+  return in.ReadBool();
 }
 
 FourCC CParticleDataFactory::GetClassID(CInputStream& in) {
   u32 val = 0;
-  in.readBytesToBuf(&val, 4);
+  in.Get(reinterpret_cast<u8*>(&val), 4);
   return val;
 }
 
@@ -32,7 +32,7 @@ SParticleModel CParticleDataFactory::GetModel(CInputStream& in, CSimplePool* res
   FourCC clsId = GetClassID(in);
   if (clsId == SBIG('NONE'))
     return {};
-  CAssetId id = in.readUint32Big();
+  CAssetId id = in.Get<CAssetId>();
   if (!id.IsValid())
     return {};
   return {resPool->GetObj({FOURCC('CMDL'), id}), true};
@@ -50,7 +50,7 @@ SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(CInputStream& in
   FourCC clsId = GetClassID(in);
   if (clsId == SBIG('NONE'))
     return {};
-  CAssetId id = in.readUint32Big();
+  CAssetId id = in.Get<CAssetId>();
   if (!id.IsValid())
     return {};
   return GetChildGeneratorDesc(id, resPool, tracker);
@@ -60,7 +60,7 @@ SSwooshGeneratorDesc CParticleDataFactory::GetSwooshGeneratorDesc(CInputStream& 
   FourCC clsId = GetClassID(in);
   if (clsId == SBIG('NONE'))
     return {};
-  CAssetId id = in.readUint32Big();
+  CAssetId id = in.Get<CAssetId>();
   if (!id.IsValid())
     return {};
   return {resPool->GetObj({FOURCC('SWHC'), id}), true};
@@ -70,7 +70,7 @@ SElectricGeneratorDesc CParticleDataFactory::GetElectricGeneratorDesc(CInputStre
   FourCC clsId = GetClassID(in);
   if (clsId == SBIG('NONE'))
     return {};
-  CAssetId id = in.readUint32Big();
+  CAssetId id = in.Get<CAssetId>();
   if (!id.IsValid())
     return {};
   return {resPool->GetObj({FOURCC('ELSC'), id}), true};
@@ -83,7 +83,7 @@ std::unique_ptr<CUVElement> CParticleDataFactory::GetTextureElement(CInputStream
     FourCC subId = GetClassID(in);
     if (subId == SBIG('NONE'))
       return nullptr;
-    CAssetId id = in.readUint32Big();
+    CAssetId id = in.Get<CAssetId>();
     TToken<CTexture> txtr = resPool->GetObj({FOURCC('TXTR'), id});
     return std::make_unique<CUVEConstant>(std::move(txtr));
   }
@@ -92,7 +92,7 @@ std::unique_ptr<CUVElement> CParticleDataFactory::GetTextureElement(CInputStream
     if (subId == SBIG('NONE')) {
       return nullptr;
     }
-    const CAssetId id = in.readUint32Big();
+    const CAssetId id = in.Get<CAssetId>();
     auto a = GetIntElement(in);
     auto b = GetIntElement(in);
     auto c = GetIntElement(in);
@@ -980,13 +980,13 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
       fillDesc->xec_xd8_SELC = GetElectricGeneratorDesc(in, resPool);
       break;
     default: {
-      Log.report(logvisor::Fatal, FMT_STRING("Unknown GPSM class {} @{}"), clsId, in.position());
+      Log.report(logvisor::Fatal, FMT_STRING("Unknown GPSM class {} @{}"), clsId, in.GetReadPosition());
       return false;
     }
     }
     clsId = GetClassID(in);
   }
-
+#if 0
   /* Now for our custom additions, if available */
   if (!in.atEnd() && (in.position() + 4) < in.length()) {
     clsId = GetClassID(in);
@@ -1004,6 +1004,8 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
       clsId = GetClassID(in);
     }
   }
+#endif
+
   return true;
 }
 

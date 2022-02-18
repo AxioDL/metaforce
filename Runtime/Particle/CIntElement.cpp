@@ -12,17 +12,17 @@
 namespace metaforce {
 
 CIEKeyframeEmitter::CIEKeyframeEmitter(CInputStream& in) {
-  x4_percent = in.readUint32Big();
-  x8_unk1 = in.readUint32Big();
-  xc_loop = in.readBool();
-  xd_unk2 = in.readBool();
-  x10_loopEnd = in.readUint32Big();
-  x14_loopStart = in.readUint32Big();
+  x4_percent = in.ReadLong();
+  x8_unk1 = in.ReadLong();
+  xc_loop = in.ReadBool();
+  xd_unk2 = in.ReadBool();
+  x10_loopEnd = in.ReadLong();
+  x14_loopStart = in.ReadLong();
 
-  u32 count = in.readUint32Big();
+  u32 count = in.ReadLong();
   x18_keys.reserve(count);
   for (u32 i = 0; i < count; ++i)
-    x18_keys.push_back(in.readInt32Big());
+    x18_keys.push_back(in.ReadInt32());
 }
 
 bool CIEKeyframeEmitter::GetValue([[maybe_unused]] int frame, int& valOut) const {

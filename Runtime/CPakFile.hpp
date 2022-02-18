@@ -57,7 +57,7 @@ private:
   std::vector<SResInfo> x74_resList;
   mutable s32 x84_currentSeek = -1;
   CAssetId m_mlvlId;
-  void LoadResourceTable(athena::io::MemoryReader& r);
+  void LoadResourceTable(CInputStream& r);
   void DataLoad();
   void InitialHeaderLoad();
   void Warmup();

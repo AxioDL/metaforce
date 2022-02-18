@@ -1,74 +1,41 @@
 #pragma once
 
-#include <memory>
+#include "Runtime/CMemoryInStream.hpp"
+#include "Runtime/CMemoryStreamOut.hpp"
+#include "Runtime/CZipInputStream.hpp"
 
-#include "Runtime/GCNTypes.hpp"
-
-#include <athena/IStreamReader.hpp>
-#include <athena/IStreamWriter.hpp>
-#include <athena/MemoryReader.hpp>
-#include <athena/MemoryWriter.hpp>
-#ifdef URDE_ZIP_INPUT_STREAM
-#include <zlib.h>
-#endif
-
+namespace zeus {
+class CVector2f;
+class CVector3f;
+class CVector4f;
+class CTransform;
+class CMatrix3f;
+class CMatrix4f;
+class CAABox;
+class COBBox;
+class CQuaternion;
+class CColor;
+}
 namespace metaforce {
-using CInputStream = athena::io::IStreamReader;
-using COutputStream = athena::io::IStreamWriter;
-
-struct CBitStreamReader : athena::io::MemoryReader {
-  u32 x1c_val = 0;
-  u32 x20_bitOffset = 0;
-
-public:
-  static constexpr u32 GetBitCount(u32 maxVal) {
-    u32 ret = 0;
-    while (maxVal != 0) {
-      maxVal /= 2;
-      ret++;
-    }
-
-    return ret;
-  }
-
-  CBitStreamReader(const void* data, atUint64 length) : MemoryReader(data, length) {}
-
-  s32 ReadEncoded(u32 key);
-};
-
-class CBitStreamWriter : public athena::io::MemoryWriter {
-  u32 x14_val = 0;
-  u32 x18_bitOffset = 0x20;
-
-public:
-  static constexpr u32 GetBitCount(u32 maxVal) { return CBitStreamReader::GetBitCount(maxVal); }
-
-  explicit CBitStreamWriter(atUint8* data = nullptr, atUint64 length = 0x10) : MemoryWriter(data, length) {}
-
-  void WriteEncoded(u32 val, u32 bitCount);
-
-  void Flush();
-
-  ~CBitStreamWriter() override { Flush(); }
-};
-
-using CMemoryInStream = athena::io::MemoryReader;
-using CMemoryOutStream = athena::io::MemoryWriter;
-
-#ifdef URDE_ZIP_INPUT_STREAM
-class CZipInputStream : public CInputStream {
-  std::unique_ptr<u8[]> x24_compBuf;
-  std::unique_ptr<CInputStream> x28_strm;
-  z_stream x30_zstrm = {};
-
-public:
-  explicit CZipInputStream(std::unique_ptr<CInputStream>&& strm);
-  ~CZipInputStream() override;
-  atUint64 readUBytesToBuf(void* buf, atUint64 len) override;
-  void seek(atInt64, athena::SeekOrigin) override {}
-  atUint64 position() const override { return 0; }
-  atUint64 length() const override { return 0; }
-};
-#endif
-
-} // namespace metaforce
+// Custom helpers for input/output
+template <>
+zeus::CVector2f cinput_stream_helper(CInputStream& in);
+template <>
+zeus::CVector3f cinput_stream_helper(CInputStream& in);
+template <>
+zeus::CVector4f cinput_stream_helper(CInputStream& in);
+template <>
+zeus::CQuaternion cinput_stream_helper(CInputStream& in);
+template <>
+zeus::CAABox cinput_stream_helper(CInputStream& in);
+template <>
+zeus::COBBox cinput_stream_helper(CInputStream& in);
+template <>
+zeus::CColor cinput_stream_helper(CInputStream& in);
+template <>
+zeus::CTransform cinput_stream_helper(CInputStream& in);
+template <>
+zeus::CMatrix3f cinput_stream_helper(CInputStream& in);
+template <>
+zeus::CMatrix4f cinput_stream_helper(CInputStream& in);
+}

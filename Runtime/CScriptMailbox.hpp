@@ -29,13 +29,13 @@ class CScriptMailbox {
 
 public:
   CScriptMailbox() = default;
-  CScriptMailbox(CBitStreamReader& in, const CWorldSaveGameInfo& saveWorld);
+  CScriptMailbox(CInputStream& in, const CWorldSaveGameInfo& saveWorld);
 
   bool HasMsg(TEditorId id) const;
   void AddMsg(TEditorId id);
   void RemoveMsg(TEditorId id);
   void SendMsgs(TAreaId areaId, CStateManager& stateMgr);
-  void PutTo(CBitStreamWriter& out, const CWorldSaveGameInfo& saveWorld);
+  void PutTo(COutputStream& out, const CWorldSaveGameInfo& saveWorld);
 };
 
 } // namespace metaforce

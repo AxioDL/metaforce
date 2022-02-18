@@ -7,12 +7,12 @@ namespace metaforce {
 
 CMetaAnimRandom::RandomData CMetaAnimRandom::CreateRandomData(CInputStream& in) {
   CMetaAnimRandom::RandomData ret;
-  u32 randCount = in.readUint32Big();
+  u32 randCount = in.ReadLong();
   ret.reserve(randCount);
 
   for (u32 i = 0; i < randCount; ++i) {
     std::shared_ptr<IMetaAnim> metaAnim = CMetaAnimFactory::CreateMetaAnim(in);
-    ret.emplace_back(std::move(metaAnim), in.readUint32Big());
+    ret.emplace_back(std::move(metaAnim), in.ReadLong());
   }
 
   return ret;

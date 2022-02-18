@@ -24,7 +24,7 @@ class CScriptLayerManager {
 
 public:
   CScriptLayerManager() = default;
-  CScriptLayerManager(CBitStreamReader& reader, const CWorldSaveGameInfo& saveWorld);
+  CScriptLayerManager(CInputStream& reader, const CWorldSaveGameInfo& saveWorld);
 
   bool IsLayerActive(int areaIdx, int layerIdx) const { return ((x0_areaLayers[areaIdx].m_layerBits >> layerIdx) & 1); }
 
@@ -40,7 +40,7 @@ public:
   u32 GetAreaLayerCount(int areaIdx) const { return x0_areaLayers[areaIdx].m_layerCount; }
   u32 GetAreaCount() const { return x0_areaLayers.size(); }
 
-  void PutTo(CBitStreamWriter& writer) const;
+  void PutTo(COutputStream& writer) const;
 };
 
 class CWorldState {
@@ -53,7 +53,7 @@ class CWorldState {
 
 public:
   explicit CWorldState(CAssetId id);
-  CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CWorldSaveGameInfo& saveWorld);
+  CWorldState(CInputStream& reader, CAssetId mlvlId, const CWorldSaveGameInfo& saveWorld);
   CAssetId GetWorldAssetId() const { return x0_mlvlId; }
   void SetAreaId(TAreaId aid) { x4_areaId = aid; }
   TAreaId GetCurrentAreaId() const { return x4_areaId; }
@@ -62,7 +62,7 @@ public:
   const std::shared_ptr<CScriptMailbox>& Mailbox() const { return x8_mailbox; }
   const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return xc_mapWorldInfo; }
   const std::shared_ptr<CScriptLayerManager>& GetLayerState() const { return x14_layerState; }
-  void PutTo(CBitStreamWriter& writer, const CWorldSaveGameInfo& savw) const;
+  void PutTo(COutputStream& writer, const CWorldSaveGameInfo& savw) const;
 };
 
 class CGameState {
@@ -86,7 +86,7 @@ class CGameState {
 
 public:
   CGameState();
-  CGameState(CBitStreamReader& stream, u32 saveIdx);
+  CGameState(CInputStream& stream, u32 saveIdx);
   void SetCurrentWorldId(CAssetId id);
   std::shared_ptr<CPlayerState> GetPlayerState() const { return x98_playerState; }
   std::shared_ptr<CWorldTransManager> GetWorldTransitionManager() const { return x9c_transManager; }
@@ -100,7 +100,7 @@ public:
   CAssetId CurrentWorldAssetId() const { return x84_mlvlId; }
   void SetHardMode(bool v) { x228_24_hardMode = v; }
   bool GetHardMode() const { return x228_24_hardMode; }
-  void ReadPersistentOptions(CBitStreamReader& r);
+  void ReadPersistentOptions(CInputStream& r);
   void SetPersistentOptions(const CPersistentOptions& opts) { xa8_systemOptions = opts; }
   void ImportPersistentOptions(const CPersistentOptions& opts);
   void ExportPersistentOptions(CPersistentOptions& opts) const;
@@ -111,7 +111,7 @@ public:
   void SetFileIdx(u32 idx) { x20c_saveFileIdx = idx; }
   void SetCardSerial(u64 serial) { x210_cardSerial = serial; }
   u64 GetCardSerial() const { return x210_cardSerial; }
-  void PutTo(CBitStreamWriter& writer);
+  void PutTo(COutputStream& writer);
   float GetHardModeDamageMultiplier() const;
   float GetHardModeWeaponMultiplier() const;
   void InitializeMemoryWorlds();

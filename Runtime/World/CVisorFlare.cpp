@@ -10,14 +10,14 @@
 namespace metaforce {
 
 std::optional<CVisorFlare::CFlareDef> CVisorFlare::LoadFlareDef(CInputStream& in) {
-  u32 propCount = in.readUint32Big();
+  u32 propCount = in.ReadLong();
   if (propCount != 4)
     return std::nullopt;
 
-  CAssetId txtrId = in.readUint32Big();
-  float f1 = in.readFloatBig();
-  float f2 = in.readFloatBig();
-  zeus::CColor color = zeus::CColor::ReadRGBABig(in);
+  CAssetId txtrId = in.Get<CAssetId>();
+  float f1 = in.ReadFloat();
+  float f2 = in.ReadFloat();
+  zeus::CColor color = in.Get<zeus::CColor>();
   if (!txtrId.IsValid())
     return std::nullopt;
 

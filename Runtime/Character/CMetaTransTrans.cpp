@@ -5,10 +5,10 @@
 namespace metaforce {
 
 CMetaTransTrans::CMetaTransTrans(CInputStream& in) {
-  x4_transDur = CCharAnimTime(in);
-  xc_ = in.readBool();
-  xd_runA = in.readBool();
-  x10_flags = in.readUint32Big();
+  x4_transDur = in.Get<CCharAnimTime>();
+  xc_ = in.ReadBool();
+  xd_runA = in.ReadBool();
+  x10_flags = in.ReadLong();
 }
 
 std::shared_ptr<CAnimTreeNode> CMetaTransTrans::VGetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,

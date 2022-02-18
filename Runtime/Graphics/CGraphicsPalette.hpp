@@ -23,9 +23,9 @@ class CGraphicsPalette {
 public:
   explicit CGraphicsPalette(EPaletteFormat fmt, int count)
   : x0_fmt(fmt), x8_entryCount(count), xc_entries(new u16[count]) {}
-  explicit CGraphicsPalette(CInputStream& in) : x0_fmt(EPaletteFormat(in.readUint32Big())) {
-    u16 w = in.readUint16Big();
-    u16 h = in.readUint16Big();
+  explicit CGraphicsPalette(CInputStream& in) : x0_fmt(EPaletteFormat(in.ReadLong())) {
+    u16 w = in.ReadShort();
+    u16 h = in.ReadShort();
     x8_entryCount = w * h;
 
     /* GX Tlut init here */

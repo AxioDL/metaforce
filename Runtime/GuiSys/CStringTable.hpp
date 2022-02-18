@@ -10,7 +10,7 @@ class CStringTable {
   static FourCC mCurrentLanguage;
   u32 x0_stringCount = 0;
   std::unique_ptr<u8[]> x4_data;
-  u32 m_bufLen;
+  u32 m_bufLen = 0;
 
 public:
   explicit CStringTable(CInputStream& in);

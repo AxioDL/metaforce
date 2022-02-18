@@ -40,6 +40,14 @@ public:
 
   static OSCalendarTime ToCalendarTime(OSTime time) { return ToCalendarTime(FromWiiTime(time)); }
   static OSCalendarTime ToCalendarTime(std::chrono::system_clock::time_point time);
+  static u16 SwapBytes(u16 v);
+  static u32 SwapBytes(u32 v);
+  static u64 SwapBytes(u64 v);
+  static float SwapBytes(float v);
+  static double SwapBytes(double s);
+  static void Swap2Bytes(u8* v);
+  static void Swap4Bytes(u8* v);
+  static void Swap8Bytes(u8* v);
 };
 
 } // namespace metaforce

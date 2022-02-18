@@ -108,7 +108,7 @@ public:
     g_GameState = x134_gameState.get();
   }
 
-  void StreamInGameState(CBitStreamReader& stream, u32 saveIdx) {
+  void StreamInGameState(CInputStream& stream, u32 saveIdx) {
     x134_gameState = std::make_unique<CGameState>(stream, saveIdx);
     g_GameState = x134_gameState.get();
   }
@@ -268,7 +268,7 @@ public:
   void AddWorldPaks();
   void AddOverridePaks();
   void ResetGameState();
-  void StreamNewGameState(CBitStreamReader&, u32 idx);
+  void StreamNewGameState(CInputStream&, u32 idx);
   void RefreshGameState();
   void CheckTweakManagerDebugOptions() {}
   void SetMFGameBuilt(bool b) { x160_25_mfGameBuilt = b; }

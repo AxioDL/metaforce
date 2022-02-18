@@ -215,12 +215,12 @@ void CMemoryCardSys::CCardFileInfo::BuildCardBuffer() {
   u32 bannerSz = CalculateBannerDataSize();
   x104_cardBuffer.resize((bannerSz + xf4_saveBuffer.size() + 8191) & ~8191);
 
-  CMemoryOutStream w(x104_cardBuffer.data(), x104_cardBuffer.size());
-  w.writeUint32Big(0);
+  CMemoryStreamOut w(x104_cardBuffer.data(), x104_cardBuffer.size(), CMemoryStreamOut::EOwnerShip::NotOwned);
+  w.WriteLong(0);
   char comment[64];
   std::memset(comment, 0, std::size(comment));
   std::strncpy(comment, x28_comment.data(), std::size(comment) - 1);
-  w.writeBytes(comment, 64);
+  w.Write(reinterpret_cast<const u8*>(comment), 64);
   WriteBannerData(w);
   WriteIconData(w);
   memmove(x104_cardBuffer.data() + bannerSz, xf4_saveBuffer.data(), xf4_saveBuffer.size());
@@ -230,7 +230,7 @@ void CMemoryCardSys::CCardFileInfo::BuildCardBuffer() {
   xf4_saveBuffer.clear();
 }
 
-void CMemoryCardSys::CCardFileInfo::WriteBannerData(CMemoryOutStream& out) const {
+void CMemoryCardSys::CCardFileInfo::WriteBannerData(COutputStream& out) const {
   if (x3c_bannerTex.IsValid()) {
     const TLockedToken<CTexture>& tex = *x40_bannerTok;
     u32 bufSz;
@@ -239,16 +239,16 @@ void CMemoryCardSys::CCardFileInfo::WriteBannerData(CMemoryOutStream& out) const
     std::unique_ptr<u8[]> texels = tex->BuildMemoryCardTex(bufSz, fmt, palette);
 
     if (fmt == ETexelFormat::RGB5A3)
-      out.writeBytes(texels.get(), 6144);
+      out.Write(texels.get(), 6144);
     else
-      out.writeBytes(texels.get(), 3072);
+      out.Write(texels.get(), 3072);
 
     if (fmt == ETexelFormat::C8)
-      out.writeBytes(palette.get(), 512);
+      out.Write(palette.get(), 512);
   }
 }
 
-void CMemoryCardSys::CCardFileInfo::WriteIconData(CMemoryOutStream& out) const {
+void CMemoryCardSys::CCardFileInfo::WriteIconData(COutputStream& out) const {
   std::unique_ptr<u8[]> palette;
   for (const Icon& icon : x50_iconToks) {
     u32 bufSz;
@@ -256,12 +256,12 @@ void CMemoryCardSys::CCardFileInfo::WriteIconData(CMemoryOutStream& out) const {
     std::unique_ptr<u8[]> texels = icon.x8_tex->BuildMemoryCardTex(bufSz, fmt, palette);
 
     if (fmt == ETexelFormat::RGB5A3)
-      out.writeBytes(texels.get(), 2048);
+      out.Write(texels.get(), 2048);
     else
-      out.writeBytes(texels.get(), 1024);
+      out.Write(texels.get(), 1024);
   }
   if (palette)
-    out.writeBytes(palette.get(), 512);
+    out.Write(palette.get(), 512);
 }
 
 ECardResult CMemoryCardSys::CCardFileInfo::PumpCardTransfer() {

@@ -164,8 +164,8 @@ public:
   CStaticInterference& GetStaticInterference() { return x188_staticIntf; }
   const std::vector<std::pair<CAssetId, float>>& GetScanTimes() const { return x170_scanTimes; }
   CPlayerState();
-  explicit CPlayerState(CBitStreamReader& stream);
-  void PutTo(CBitStreamWriter& stream);
+  explicit CPlayerState(CInputStream& stream);
+  void PutTo(COutputStream& stream);
   static u32 GetPowerUpMaxValue(EItemType type);
   static EItemType ItemNameToType(std::string_view name);
   static std::string_view ItemTypeToName(EItemType type);

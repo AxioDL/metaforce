@@ -158,10 +158,10 @@ CGuiWidget* CGuiSliderGroup::GetWorkerWidget(int id) const {
 std::shared_ptr<CGuiWidget> CGuiSliderGroup::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
   CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
 
-  float min = in.readFloatBig();
-  float max = in.readFloatBig();
-  float cur = in.readFloatBig();
-  float increment = in.readFloatBig();
+  float min = in.ReadFloat();
+  float max = in.ReadFloat();
+  float cur = in.ReadFloat();
+  float increment = in.ReadFloat();
 
   std::shared_ptr<CGuiWidget> ret = std::make_shared<CGuiSliderGroup>(parms, min, max, cur, increment);
   ret->ParseBaseInfo(frame, in, parms);

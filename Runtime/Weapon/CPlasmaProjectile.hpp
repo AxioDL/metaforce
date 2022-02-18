@@ -24,7 +24,7 @@ public:
     : rstl::reserved_vector<CAssetId, 8>({a, b, c, d, e, f, g, h}) {}
   };
   static PlayerEffectResources LoadPlayerEffectResources(CInputStream& in) {
-    u32 propCount = in.readUint32();
+    u32 propCount = in.ReadLong();
     CAssetId a{in};
     CAssetId b{in};
     CAssetId c{in};

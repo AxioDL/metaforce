@@ -21,12 +21,12 @@ class CDamageInfo {
 public:
   constexpr CDamageInfo() = default;
   explicit CDamageInfo(CInputStream& in) {
-    in.readUint32Big();
-    x0_weaponMode = CWeaponMode(EWeaponType(in.readUint32Big()));
-    x8_damage = in.readFloatBig();
+    in.ReadLong();
+    x0_weaponMode = CWeaponMode(EWeaponType(in.ReadLong()));
+    x8_damage = in.ReadFloat();
     xc_radiusDamage = x8_damage;
-    x10_radius = in.readFloatBig();
-    x14_knockback = in.readFloatBig();
+    x10_radius = in.ReadFloat();
+    x14_knockback = in.ReadFloat();
   }
   constexpr CDamageInfo(const CWeaponMode& mode, float damage, float radius, float knockback)
   : x0_weaponMode(mode), x8_damage(damage), xc_radiusDamage(damage), x10_radius(radius), x14_knockback(knockback) {}

@@ -49,7 +49,7 @@ struct CWorldLayers {
   };
   std::vector<Area> m_areas;
   std::vector<std::string> m_names;
-  static std::optional<CWorldLayers> ReadWorldLayers(athena::io::MemoryReader& r, int version, CAssetId mlvlId);
+  static std::optional<CWorldLayers> ReadWorldLayers(CInputStream& r, int version, CAssetId mlvlId);
 };
 
 class CDummyWorld : public IWorld {
@@ -112,7 +112,7 @@ public:
     s16 GetMessage() const { return x8_msg; }
     bool GetActive() const { return xa_active; }
 
-    static std::vector<CWorld::CRelay> ReadMemoryRelays(athena::io::MemoryReader& r);
+    static std::vector<CWorld::CRelay> ReadMemoryRelays(CInputStream& r);
   };
 
   struct CSoundGroupData {

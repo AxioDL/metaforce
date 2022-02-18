@@ -38,15 +38,15 @@ struct TeamAiRoleSorter {
 };
 
 CTeamAiData::CTeamAiData(CInputStream& in, s32 propCount)
-: x0_aiCount(in.readUint32Big())
-, x4_meleeCount(in.readUint32Big())
-, x8_rangedCount(in.readUint32Big())
-, xc_unknownCount(in.readUint32Big())
-, x10_maxMeleeAttackerCount(in.readUint32Big())
-, x14_maxRangedAttackerCount(in.readUint32Big())
-, x18_positionMode(in.readUint32Big())
-, x1c_meleeTimeInterval(propCount > 8 ? in.readFloatBig() : 0.f)
-, x20_rangedTimeInterval(propCount > 8 ? in.readFloatBig() : 0.f) {}
+: x0_aiCount(in.ReadLong())
+, x4_meleeCount(in.ReadLong())
+, x8_rangedCount(in.ReadLong())
+, xc_unknownCount(in.ReadLong())
+, x10_maxMeleeAttackerCount(in.ReadLong())
+, x14_maxRangedAttackerCount(in.ReadLong())
+, x18_positionMode(in.ReadLong())
+, x1c_meleeTimeInterval(propCount > 8 ? in.ReadFloat() : 0.f)
+, x20_rangedTimeInterval(propCount > 8 ? in.ReadFloat() : 0.f) {}
 
 CTeamAiMgr::CTeamAiMgr(TUniqueId uid, std::string_view name, const CEntityInfo& info, const CTeamAiData& data)
 : CEntity(uid, info, true, name), x34_data(data) {

@@ -61,46 +61,46 @@ TAreaId CDummyWorld::IGetAreaId(CAssetId id) const {
 }
 
 CWorld::CRelay::CRelay(CInputStream& in) {
-  x0_relay = in.readUint32Big();
-  x4_target = in.readUint32Big();
-  x8_msg = in.readUint16Big();
-  xa_active = in.readBool();
+  x0_relay = in.ReadLong();
+  x4_target = in.ReadLong();
+  x8_msg = in.ReadShort();
+  xa_active = in.ReadBool();
 }
 
-std::vector<CWorld::CRelay> CWorld::CRelay::ReadMemoryRelays(athena::io::MemoryReader& r) {
+std::vector<CWorld::CRelay> CWorld::CRelay::ReadMemoryRelays(CInputStream& r) {
   std::vector<CWorld::CRelay> ret;
-  u32 count = r.readUint32Big();
+  u32 count = r.ReadLong();
   ret.reserve(count);
   for (u32 i = 0; i < count; ++i)
     ret.emplace_back(r);
   return ret;
 }
 
-std::optional<CWorldLayers> CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r, int version, CAssetId mlvlId) {
+std::optional<CWorldLayers> CWorldLayers::ReadWorldLayers(CInputStream& r, int version, CAssetId mlvlId) {
   if (version <= 14) {
     return std::nullopt;
   }
 
   CWorldLayers ret;
 
-  u32 areaCount = r.readUint32Big();
+  u32 areaCount = r.ReadLong();
   ret.m_areas.reserve(areaCount);
   for (u32 i = 0; i < areaCount; ++i) {
     auto& area = ret.m_areas.emplace_back();
-    area.m_layerCount = r.readUint32Big();
-    area.m_layerBits = r.readUint64Big();
+    area.m_layerCount = r.ReadLong();
+    area.m_layerBits = r.ReadLongLong();
   }
 
-  const u32 nameCount = r.readUint32Big();
+  const u32 nameCount = r.ReadLong();
   ret.m_names.reserve(nameCount);
   for (u32 i = 0; i < nameCount; ++i) {
-    auto name = r.readString();
+    auto name = r.Get<std::string>();
     ret.m_names.emplace_back(name);
   }
 
-  areaCount = r.readUint32Big();
+  areaCount = r.ReadLong();
   for (u32 i = 0; i < areaCount; ++i) {
-    ret.m_areas[i].m_startNameIdx = r.readUint32Big();
+    ret.m_areas[i].m_startNameIdx = r.ReadLong();
   }
 
   CWorldState& wldState = g_GameState->StateForWorld(mlvlId);
@@ -114,42 +114,42 @@ bool CDummyWorld::ICheckWorldComplete() {
   case Phase::Loading: {
     if (!x30_loadToken->IsComplete())
       return false;
-    athena::io::MemoryReader r(x34_loadBuf.get(), x38_bufSz);
-    r.readUint32Big();
-    int version = r.readUint32Big();
-    x10_strgId = r.readUint32Big();
+    CMemoryInStream r(x34_loadBuf.get(), x38_bufSz, CMemoryInStream::EOwnerShip::NotOwned);
+    r.ReadLong();
+    int version = r.ReadLong();
+    x10_strgId = r.ReadLong();
 
     if (version >= 15)
-      x14_savwId = r.readUint32Big();
+      x14_savwId = r.ReadLong();
     if (version >= 12)
-      r.readUint32Big();
+      r.ReadLong();
     if (version >= 17)
       CWorld::CRelay::ReadMemoryRelays(r);
 
-    u32 areaCount = r.readUint32Big();
-    r.readUint32Big();
+    u32 areaCount = r.ReadLong();
+    r.ReadLong();
 
     x18_areas.reserve(areaCount);
     for (u32 i = 0; i < areaCount; ++i)
       x18_areas.emplace_back(r, i, version);
 
-    x28_mapWorldId = r.readUint32Big();
+    x28_mapWorldId = r.ReadLong();
     if (x4_loadMap)
       x2c_mapWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('MAPW'), x28_mapWorldId});
 
-    r.readByte();
-    r.readUint32Big();
+    r.ReadInt8();
+    r.ReadLong();
 
     if (version > 10) {
-      u32 audioGroupCount = r.readUint32Big();
+      u32 audioGroupCount = r.ReadLong();
       for (u32 i = 0; i < audioGroupCount; ++i) {
-        r.readUint32Big();
-        r.readUint32Big();
+        r.ReadLong();
+        r.ReadLong();
       }
     }
 
     if (version > 12)
-      r.readString();
+      r.Get<std::string>();
 
     m_worldLayers = CWorldLayers::ReadWorldLayers(r, version, xc_mlvlId);
 
@@ -303,23 +303,23 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
   case Phase::Loading: {
     if (!x3c_loadToken->IsComplete())
       return false;
-    athena::io::MemoryReader r(x40_loadBuf.get(), x44_bufSz);
-    r.readUint32Big();
-    int version = r.readUint32Big();
-    xc_strgId = r.readUint32Big();
+    CMemoryInStream r(x40_loadBuf.get(), x44_bufSz, CMemoryInStream::EOwnerShip::NotOwned);
+    r.ReadLong();
+    int version = r.ReadLong();
+    xc_strgId = r.ReadLong();
 
     if (version >= 15)
-      x10_savwId = r.readUint32Big();
+      x10_savwId = r.ReadLong();
     if (version >= 12) {
-      CAssetId skyboxId = r.readUint32Big();
+      CAssetId skyboxId = r.ReadLong();
       if (skyboxId.IsValid() && mgr)
         x94_skyboxWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), skyboxId});
     }
     if (version >= 17)
       x2c_relays = CWorld::CRelay::ReadMemoryRelays(r);
 
-    u32 areaCount = r.readUint32Big();
-    r.readUint32Big();
+    u32 areaCount = r.ReadLong();
+    r.ReadLong();
 
     x18_areas.reserve(areaCount);
     for (u32 i = 0; i < areaCount; ++i) {
@@ -336,7 +336,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
     for (std::unique_ptr<CGameArea>& area : x18_areas)
       MoveToChain(area.get(), EChain::Deallocated);
 
-    x24_mapwId = r.readUint32Big();
+    x24_mapwId = r.ReadLong();
     x28_mapWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('MAPW'), x24_mapwId});
 
     if (mgr) {
@@ -346,17 +346,17 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
     }
 
     if (version > 10) {
-      u32 audioGroupCount = r.readUint32Big();
+      u32 audioGroupCount = r.ReadLong();
       x74_soundGroupData.reserve(audioGroupCount);
       for (u32 i = 0; i < audioGroupCount; ++i) {
-        int grpId = r.readUint32Big();
-        CAssetId agscId = r.readUint32Big();
+        int grpId = r.ReadLong();
+        CAssetId agscId = r.ReadLong();
         x74_soundGroupData.emplace_back(grpId, agscId);
       }
     }
 
     if (version > 12) {
-      x84_defAudioTrack = r.readString();
+      x84_defAudioTrack = r.Get<std::string>();
       std::string trackKey = fmt::format(FMT_STRING("WorldDefault: {}"), x8_mlvlId);
       if (g_TweakManager->HasTweakValue(trackKey))
         x84_defAudioTrack = g_TweakManager->GetTweakValue(trackKey)->GetAudio().GetFileName();

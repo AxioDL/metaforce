@@ -15,7 +15,7 @@ class CModel;
 struct SSkinWeighting {
   CSegId x0_id;
   float x4_weight;
-  explicit SSkinWeighting(CInputStream& in) : x0_id(in), x4_weight(in.readFloatBig()) {}
+  explicit SSkinWeighting(CInputStream& in) : x0_id(in), x4_weight(in.ReadFloat()) {}
 };
 
 class CVirtualBone {

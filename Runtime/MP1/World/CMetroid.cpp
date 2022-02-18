@@ -61,17 +61,17 @@ constexpr std::array skJointNameList = {
 CMetroidData::CMetroidData(CInputStream& in)
 : x0_frozenVulnerability(in)
 , x68_energyDrainVulnerability(in)
-, xd0_energyDrainPerSec(in.readFloatBig())
-, xd4_maxEnergyDrainAllowed(in.readFloatBig())
-, xd8_telegraphAttackTime(in.readFloatBig())
-, xdc_stage2GrowthScale(in.readFloatBig())
-, xe0_stage2GrowthEnergy(in.readFloatBig())
-, xe4_explosionGrowthEnergy(in.readFloatBig()) {
+, xd0_energyDrainPerSec(in.ReadFloat())
+, xd4_maxEnergyDrainAllowed(in.ReadFloat())
+, xd8_telegraphAttackTime(in.ReadFloat())
+, xdc_stage2GrowthScale(in.ReadFloat())
+, xe0_stage2GrowthEnergy(in.ReadFloat())
+, xe4_explosionGrowthEnergy(in.ReadFloat()) {
   xe8_animParms1 = ScriptLoader::LoadAnimationParameters(in);
   xf8_animParms2 = ScriptLoader::LoadAnimationParameters(in);
   x108_animParms3 = ScriptLoader::LoadAnimationParameters(in);
   x118_animParms4 = ScriptLoader::LoadAnimationParameters(in);
-  x128_24_startsInWall = in.readBool();
+  x128_24_startsInWall = in.ReadBool();
 }
 
 CMetroid::CMetroid(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,

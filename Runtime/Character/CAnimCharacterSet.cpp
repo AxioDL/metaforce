@@ -5,7 +5,7 @@
 namespace metaforce {
 
 CAnimCharacterSet::CAnimCharacterSet(CInputStream& in)
-: x0_version(in.readUint16Big()), x4_characterSet(in), x1c_animationSet(in) {}
+: x0_version(in.ReadShort()), x4_characterSet(in), x1c_animationSet(in) {}
 
 CFactoryFnReturn FAnimCharacterSet(const SObjectTag&, CInputStream& in, const CVParamTransfer&,
                                    CObjectReference* selfRef) {

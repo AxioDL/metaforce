@@ -200,7 +200,7 @@ void CScriptMazeNode::LoadMazeSeeds() {
   const std::unique_ptr<u8[]> buf = g_ResFactory->LoadResourceSync(*tag);
   CMemoryInStream in(buf.get(), resSize);
   for (auto& seed : sMazeSeeds) {
-    seed = in.readInt32Big();
+    seed = in.ReadInt32();
   }
 }
 

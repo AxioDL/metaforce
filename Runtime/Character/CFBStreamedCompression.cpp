@@ -23,8 +23,8 @@ void WriteValue(u8* data, T value) {
 } // Anonymous namespace
 
 CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& objStore, bool pc) : m_pc(pc) {
-  x0_scratchSize = in.readUint32Big();
-  x4_evnt = in.readUint32Big();
+  x0_scratchSize = in.ReadLong();
+  x4_evnt = in.ReadLong();
 
   xc_rotsAndOffs = GetRotationsAndOffsets(x0_scratchSize / 4 + 1, in);
 
@@ -86,78 +86,78 @@ std::unique_ptr<u32[]> CFBStreamedCompression::GetRotationsAndOffsets(u32 words,
   std::memcpy(ret.get(), &head, sizeof(head));
 
   u32* bitmapOut = &ret[9];
-  const u32 bitmapBitCount = in.readUint32Big();
+  const u32 bitmapBitCount = in.ReadLong();
   bitmapOut[0] = bitmapBitCount;
   const u32 bitmapWordCount = (bitmapBitCount + 31) / 32;
   for (u32 i = 0; i < bitmapWordCount; ++i) {
-    bitmapOut[i + 1] = in.readUint32Big();
+    bitmapOut[i + 1] = in.ReadLong();
   }
 
-  in.readUint32Big();
+  in.ReadLong();
   u8* chans = reinterpret_cast<u8*>(bitmapOut + bitmapWordCount + 1);
   u8* bs = ReadBoneChannelDescriptors(chans, in);
   const u32 bsWords = ComputeBitstreamWords(chans);
 
   u32* bsPtr = reinterpret_cast<u32*>(bs);
   for (u32 w = 0; w < bsWords; ++w)
-    bsPtr[w] = in.readUint32Big();
+    bsPtr[w] = in.ReadLong();
 
   return ret;
 }
 
 u8* CFBStreamedCompression::ReadBoneChannelDescriptors(u8* out, CInputStream& in) const {
-  const u32 boneChanCount = in.readUint32Big();
+  const u32 boneChanCount = in.ReadLong();
   WriteValue(out, boneChanCount);
   out += 4;
 
   if (m_pc) {
     for (u32 b = 0; b < boneChanCount; ++b) {
-      WriteValue(out, in.readUint32Big());
+      WriteValue(out, in.ReadLong());
       out += 4;
 
-      WriteValue(out, in.readUint32Big());
+      WriteValue(out, in.ReadLong());
       out += 4;
 
       for (int i = 0; i < 3; ++i) {
-        WriteValue(out, in.readUint32Big());
+        WriteValue(out, in.ReadLong());
         out += 4;
       }
 
-      const u32 tCount = in.readUint32Big();
+      const u32 tCount = in.ReadLong();
       WriteValue(out, tCount);
       out += 4;
 
       if (tCount != 0) {
         for (int i = 0; i < 3; ++i) {
-          WriteValue(out, in.readUint32Big());
+          WriteValue(out, in.ReadLong());
           out += 4;
         }
       }
     }
   } else {
     for (u32 b = 0; b < boneChanCount; ++b) {
-      WriteValue(out, in.readUint32Big());
+      WriteValue(out, in.ReadLong());
       out += 4;
 
-      WriteValue(out, in.readUint16Big());
+      WriteValue(out, in.ReadShort());
       out += 2;
 
       for (int i = 0; i < 3; ++i) {
-        WriteValue(out, in.readInt16Big());
+        WriteValue(out, in.ReadShort());
         out += 2;
-        WriteValue(out, in.readUByte());
+        WriteValue(out, in.ReadUint8());
         out += 1;
       }
 
-      const u16 tCount = in.readUint16Big();
+      const u16 tCount = in.ReadShort();
       WriteValue(out, tCount);
       out += 2;
 
       if (tCount != 0) {
         for (int i = 0; i < 3; ++i) {
-          WriteValue(out, in.readInt16Big());
+          WriteValue(out, in.ReadShort());
           out += 2;
-          WriteValue(out, in.readUByte());
+          WriteValue(out, in.ReadUint8());
           out += 1;
         }
       }

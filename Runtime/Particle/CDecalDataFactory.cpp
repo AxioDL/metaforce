@@ -82,7 +82,7 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
       desc->x5c_25_DMOO = CPF::GetBool(in);
       break;
     default: {
-      Log.report(logvisor::Fatal, FMT_STRING("Unknown DPSC class {} @{}"), clsId, in.position());
+      Log.report(logvisor::Fatal, FMT_STRING("Unknown DPSC class {} @{}"), clsId, in.GetReadPosition());
       return false;
     }
     }
