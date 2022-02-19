@@ -19,6 +19,11 @@ namespace ImGui {
 void ClearIniSettings();
 } // namespace ImGui
 
+namespace aurora::gfx {
+extern std::atomic_uint32_t queuedPipelines;
+extern std::atomic_uint32_t createdPipelines;
+} // namespace aurora::gfx
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
@@ -707,7 +712,7 @@ void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) 
 
 void ImGuiConsole::ShowDebugOverlay() {
   if (!m_frameCounter && !m_frameRate && !m_inGameTime && !m_roomTimer && !m_playerInfo && !m_areaInfo &&
-      !m_worldInfo && !m_randomStats && !m_resourceStats) {
+      !m_worldInfo && !m_randomStats && !m_resourceStats && !m_pipelineInfo) {
     return;
   }
   ImGuiIO& io = ImGui::GetIO();
@@ -864,16 +869,22 @@ void ImGuiConsole::ShowDebugOverlay() {
 
       ImGuiStringViewText(fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects()));
     }
+    if (m_pipelineInfo) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      hasPrevious = true;
+
+      ImGuiStringViewText(fmt::format(FMT_STRING("Queued pipelines: {}\n"), aurora::gfx::queuedPipelines));
+      ImGuiStringViewText(fmt::format(FMT_STRING("Done pipelines:   {}\n"), aurora::gfx::createdPipelines));
+    }
     ShowCornerContextMenu(m_debugOverlayCorner, m_inputOverlayCorner);
   }
   ImGui::End();
 }
 void TextCenter(const std::string& text) {
   float font_size = ImGui::GetFontSize() * text.size() / 2;
-  ImGui::SameLine(
-      ImGui::GetWindowSize().x / 2 -
-      font_size + (font_size / 2)
-  );
+  ImGui::SameLine(ImGui::GetWindowSize().x / 2 - font_size + (font_size / 2));
 
   ImGui::TextUnformatted(text.c_str());
 }

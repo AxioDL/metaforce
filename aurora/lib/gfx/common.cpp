@@ -61,11 +61,13 @@ metaforce::CFogState g_fogState;
 using NewPipelineCallback = std::function<wgpu::RenderPipeline()>;
 static std::mutex g_pipelineMutex;
 static std::thread g_pipelineThread;
-static bool g_pipelineThreadEnd = false;
+static std::atomic_bool g_pipelineThreadEnd;
 static std::condition_variable g_pipelineCv;
 static std::unordered_map<PipelineRef, wgpu::RenderPipeline> g_pipelines;
 static std::deque<std::pair<PipelineRef, NewPipelineCallback>> g_queuedPipelines;
 static std::unordered_map<BindGroupRef, wgpu::BindGroup> g_cachedBindGroups;
+std::atomic_uint32_t queuedPipelines;
+std::atomic_uint32_t createdPipelines;
 
 static ByteBuffer g_verts;
 static ByteBuffer g_uniforms;
@@ -83,7 +85,7 @@ static PipelineRef find_pipeline(PipelineCreateCommand command, NewPipelineCallb
   const auto hash = xxh3_hash(command);
   bool found = false;
   {
-    std::lock_guard guard{g_pipelineMutex};
+    std::scoped_lock guard{g_pipelineMutex};
     found = g_pipelines.find(hash) != g_pipelines.end();
     if (!found) {
       const auto ref =
@@ -92,13 +94,13 @@ static PipelineRef find_pipeline(PipelineCreateCommand command, NewPipelineCallb
         found = true;
       }
     }
-  }
-  if (!found) {
-    {
-      std::lock_guard guard{g_pipelineMutex};
+    if (!found) {
       g_queuedPipelines.emplace_back(std::pair{hash, std::move(cb)});
     }
+  }
+  if (!found) {
     g_pipelineCv.notify_one();
+    queuedPipelines++;
   }
   return hash;
 }
@@ -183,8 +185,9 @@ static void pipeline_worker() {
       cb = std::move(g_queuedPipelines.front());
     }
     auto result = cb.second();
+//    std::this_thread::sleep_for(std::chrono::milliseconds{1500});
     {
-      std::lock_guard lock{g_pipelineMutex};
+      std::scoped_lock lock{g_pipelineMutex};
       if (g_pipelines.contains(cb.first)) {
         Log.report(logvisor::Fatal, FMT_STRING("Duplicate pipeline {}"), cb.first);
         unreachable();
@@ -193,6 +196,8 @@ static void pipeline_worker() {
       g_queuedPipelines.pop_front();
       hasMore = !g_queuedPipelines.empty();
     }
+    createdPipelines++;
+    queuedPipelines--;
   }
 }
 
