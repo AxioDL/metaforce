@@ -129,6 +129,7 @@ void initialize(SDL_Window* window) {
     });
     if (adapterIt == adapters.end()) {
       Log.report(logvisor::Fatal, FMT_STRING("Failed to find usable graphics backend"));
+      unreachable();
     }
     g_Adapter = *adapterIt;
   }
@@ -157,6 +158,7 @@ void initialize(SDL_Window* window) {
       std::unique_ptr<utils::BackendBinding>(utils::CreateBinding(g_backendType, window, g_device.Get()));
   if (!g_BackendBinding) {
     Log.report(logvisor::Fatal, FMT_STRING("Unsupported backend {}"), backendName);
+    unreachable();
   }
 
   auto swapChainFormat = static_cast<wgpu::TextureFormat>(g_BackendBinding->GetPreferredSwapChainTextureFormat());

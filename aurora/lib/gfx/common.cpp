@@ -3,7 +3,10 @@
 #include "../gpu.hpp"
 #include "movie_player/shader.hpp"
 
+#include <condition_variable>
+#include <deque>
 #include <logvisor/logvisor.hpp>
+#include <thread>
 #include <unordered_map>
 
 namespace aurora::gfx {
@@ -55,9 +58,13 @@ zeus::CMatrix4f g_mvInv;
 zeus::CMatrix4f g_proj;
 metaforce::CFogState g_fogState;
 
+using NewPipelineCallback = std::function<wgpu::RenderPipeline()>;
 static std::mutex g_pipelineMutex;
-static std::unordered_map<uint64_t, wgpu::RenderPipeline> g_pipelines;
-static std::vector<PipelineCreateCommand> g_queuedPipelines;
+static std::thread g_pipelineThread;
+static bool g_pipelineThreadEnd = false;
+static std::condition_variable g_pipelineCv;
+static std::unordered_map<PipelineRef, wgpu::RenderPipeline> g_pipelines;
+static std::deque<std::pair<PipelineRef, NewPipelineCallback>> g_queuedPipelines;
 static std::unordered_map<BindGroupRef, wgpu::BindGroup> g_cachedBindGroups;
 
 static ByteBuffer g_verts;
@@ -72,22 +79,26 @@ static PipelineRef g_currentPipeline;
 
 static std::vector<Command> g_commands;
 
-using NewPipelineCallback = std::function<wgpu::RenderPipeline()>;
-static PipelineRef find_pipeline(PipelineCreateCommand command, NewPipelineCallback cb) {
+static PipelineRef find_pipeline(PipelineCreateCommand command, NewPipelineCallback&& cb) {
   const auto hash = xxh3_hash(command);
-  bool found;
+  bool found = false;
   {
     std::lock_guard guard{g_pipelineMutex};
-    const auto ref = g_pipelines.find(hash);
-    found = ref != g_pipelines.end();
+    found = g_pipelines.find(hash) != g_pipelines.end();
+    if (!found) {
+      const auto ref =
+          std::find_if(g_queuedPipelines.begin(), g_queuedPipelines.end(), [=](auto v) { return v.first == hash; });
+      if (ref != g_queuedPipelines.end()) {
+        found = true;
+      }
+    }
   }
   if (!found) {
-    // TODO another thread
-    wgpu::RenderPipeline pipeline = cb();
     {
       std::lock_guard guard{g_pipelineMutex};
-      g_pipelines[hash] = std::move(pipeline);
+      g_queuedPipelines.emplace_back(std::pair{hash, std::move(cb)});
     }
+    g_pipelineCv.notify_one();
   }
   return hash;
 }
@@ -157,7 +168,37 @@ PipelineRef pipeline_ref(movie_player::PipelineConfig config) {
                        [=]() { return create_pipeline(g_state.moviePlayer, config); });
 }
 
-void construct_state() {
+static void pipeline_worker() {
+  bool hasMore = false;
+  while (true) {
+    std::pair<PipelineRef, NewPipelineCallback> cb;
+    {
+      std::unique_lock lock{g_pipelineMutex};
+      if (!hasMore) {
+        g_pipelineCv.wait(lock, [] { return !g_queuedPipelines.empty() || g_pipelineThreadEnd; });
+      }
+      if (g_pipelineThreadEnd) {
+        break;
+      }
+      cb = std::move(g_queuedPipelines.front());
+    }
+    auto result = cb.second();
+    {
+      std::lock_guard lock{g_pipelineMutex};
+      if (g_pipelines.contains(cb.first)) {
+        Log.report(logvisor::Fatal, FMT_STRING("Duplicate pipeline {}"), cb.first);
+        unreachable();
+      }
+      g_pipelines[cb.first] = result;
+      g_queuedPipelines.pop_front();
+      hasMore = !g_queuedPipelines.empty();
+    }
+  }
+}
+
+void initialize() {
+  g_pipelineThread = std::thread(pipeline_worker);
+
   {
     const auto uniformDescriptor = wgpu::BufferDescriptor{
         .label = "Shared Uniform Buffer",
@@ -184,6 +225,12 @@ void construct_state() {
   }
 
   g_state.moviePlayer = movie_player::construct_state();
+}
+
+void shutdown() {
+  g_pipelineThreadEnd = true;
+  g_pipelineCv.notify_all();
+  g_pipelineThread.join();
 }
 
 void render(const wgpu::RenderPassEncoder& pass) {
@@ -272,6 +319,7 @@ BindGroupRef bind_group_ref(const wgpu::BindGroupDescriptor& descriptor) {
 const wgpu::BindGroup& find_bind_group(BindGroupRef id) {
   if (!g_cachedBindGroups.contains(id)) {
     Log.report(logvisor::Fatal, FMT_STRING("get_bind_group: failed to locate {}"), id);
+    unreachable();
   }
   return g_cachedBindGroups[id];
 }

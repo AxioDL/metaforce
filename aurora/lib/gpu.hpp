@@ -4,6 +4,14 @@
 #include <cstdint>
 #include <dawn/webgpu_cpp.h>
 
+#ifdef __GNUC__
+[[noreturn]] inline __attribute__((always_inline)) void unreachable() { __builtin_unreachable(); }
+#elif defined(_MSC_VER)
+[[noreturn]] __forceinline void unreachable() { __assume(false); }
+#else
+#error Unknown compiler
+#endif
+
 struct SDL_Window;
 
 namespace aurora::gpu {

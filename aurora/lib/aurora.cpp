@@ -37,6 +37,7 @@ static void set_window_icon(Icon icon) noexcept {
   );
   if (iconSurface == nullptr) {
     Log.report(logvisor::Fatal, FMT_STRING("Failed to create icon surface: {}"), SDL_GetError());
+    unreachable();
   }
   SDL_SetWindowIcon(g_Window, iconSurface);
   SDL_FreeSurface(iconSurface);
@@ -173,6 +174,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
 
   if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
     Log.report(logvisor::Fatal, FMT_STRING("Error initializing SDL: {}"), SDL_GetError());
+    unreachable();
   }
 
   Uint32 flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
@@ -198,11 +200,12 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   g_Window = SDL_CreateWindow("Metaforce", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, flags);
   if (g_Window == nullptr) {
     Log.report(logvisor::Fatal, FMT_STRING("Error creating window: {}"), SDL_GetError());
+    unreachable();
   }
   set_window_icon(std::move(icon));
 
   gpu::initialize(g_Window);
-  gfx::construct_state();
+  gfx::initialize();
 
   imgui::create_context();
   g_AppDelegate->onImGuiInit(1.f); // TODO scale
@@ -282,6 +285,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   g_AppDelegate->onAppExiting();
 
   imgui::shutdown();
+  gfx::shutdown();
   gpu::shutdown();
   SDL_DestroyWindow(g_Window);
   SDL_Quit();

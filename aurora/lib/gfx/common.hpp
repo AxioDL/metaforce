@@ -126,7 +126,8 @@ enum class ShaderType {
   MoviePlayer,
 };
 
-void construct_state();
+void initialize();
+void shutdown();
 
 void render(const wgpu::RenderPassEncoder& pass);
 

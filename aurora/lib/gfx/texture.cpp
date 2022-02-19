@@ -2,6 +2,7 @@
 
 #include "../gpu.hpp"
 
+#include <logvisor/logvisor.hpp>
 #include <magic_enum.hpp>
 
 namespace aurora::gfx {
@@ -45,7 +46,7 @@ static TextureFormatInfo format_info(wgpu::TextureFormat format) {
     return {4, 4, 8, true};
   default:
     Log.report(logvisor::Fatal, FMT_STRING("format_info: unimplemented format {}"), magic_enum::enum_name(format));
-    return {0, 0, 0, false};
+    unreachable();
   }
 }
 static wgpu::Extent3D physical_size(wgpu::Extent3D size, TextureFormatInfo info) {
@@ -74,7 +75,7 @@ TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mi
     if (offset + dataSize > data.size()) {
       Log.report(logvisor::Fatal, FMT_STRING("new_static_texture_2d[{}]: expected at least {} bytes, got {}"), label,
                  offset + dataSize, data.size());
-      return {};
+      unreachable();
     }
     const auto dstView = wgpu::ImageCopyTexture{
         .texture = ref.texture,
@@ -133,7 +134,7 @@ void write_texture(const TextureHandle& handle, ArrayRef<uint8_t> data) noexcept
   };
   if (ref.size.depthOrArrayLayers != 1) {
     Log.report(logvisor::Fatal, FMT_STRING("write_texture: unsupported depth {}"), ref.size.depthOrArrayLayers);
-    return;
+    unreachable();
   }
   const auto info = format_info(ref.format);
   const auto physicalSize = physical_size(ref.size, info);
@@ -143,7 +144,7 @@ void write_texture(const TextureHandle& handle, ArrayRef<uint8_t> data) noexcept
   const uint32_t dataSize = bytesPerRow * heightBlocks * ref.size.depthOrArrayLayers;
   if (dataSize > data.size()) {
     Log.report(logvisor::Fatal, FMT_STRING("write_texture: expected at least {} bytes, got {}"), dataSize, data.size());
-    return;
+    unreachable();
   }
   const auto dataLayout = wgpu::TextureDataLayout{
       .bytesPerRow = bytesPerRow,
