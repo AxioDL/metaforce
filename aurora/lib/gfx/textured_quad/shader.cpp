@@ -2,6 +2,7 @@
 
 #include "../../gpu.hpp"
 
+#include <logvisor/logvisor.hpp>
 #include <magic_enum.hpp>
 
 namespace aurora::gfx::textured_quad {
