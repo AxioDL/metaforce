@@ -20,6 +20,7 @@ add_library(aurora STATIC
     lib/gfx/common.cpp
     lib/gfx/texture.cpp
     lib/gfx/movie_player/shader.cpp
+    lib/gfx/textured_quad/shader.cpp
     # TODO move to imgui? or move imgui impl to here?
     ../extern/imgui/backends/imgui_impl_sdl.cpp
     ../extern/imgui/backends/imgui_impl_wgpu.cpp

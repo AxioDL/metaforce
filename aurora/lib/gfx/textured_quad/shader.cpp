@@ -2,7 +2,11 @@
 
 #include "../../gpu.hpp"
 
-namespace aurora::gfx::movie_player {
+#include <magic_enum.hpp>
+
+namespace aurora::gfx::textured_quad {
+static logvisor::Module Log("aurora::gfx::textured_quad");
+
 using gpu::g_device;
 using gpu::g_graphicsConfig;
 using gpu::utils::make_vertex_attributes;
@@ -15,17 +19,14 @@ State construct_state() {
 struct Uniform {
     xf: mat4x4<f32>;
     color: vec4<f32>;
+    lod: f32;
 };
 @group(0) @binding(0)
 var<uniform> ubuf: Uniform;
 @group(0) @binding(1)
-var tex_sampler: sampler;
+var texture_sampler: sampler;
 @group(1) @binding(0)
-var tex_y: texture_2d<f32>;
-@group(1) @binding(1)
-var tex_u: texture_2d<f32>;
-@group(1) @binding(2)
-var tex_v: texture_2d<f32>;
+var texture: texture_2d<f32>;
 
 struct VertexOutput {
     @builtin(position) pos: vec4<f32>;
@@ -42,22 +43,12 @@ fn vs_main(@location(0) in_pos: vec3<f32>, @location(1) in_uv: vec2<f32>) -> Ver
 
 @stage(fragment)
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    var yuv = vec3<f32>(
-        1.1643 * (textureSample(tex_y, tex_sampler, in.uv).x - 0.0625),
-        textureSample(tex_u, tex_sampler, in.uv).x - 0.5,
-        textureSample(tex_v, tex_sampler, in.uv).x - 0.5
-    );
-    return ubuf.color * vec4<f32>(
-        yuv.x + 1.5958 * yuv.z,
-        yuv.x - 0.39173 * yuv.y - 0.8129 * yuv.z,
-        yuv.x + 2.017 * yuv.y,
-        1.0
-    );
+    return ubuf.color * textureSampleBias(texture, texture_sampler, in.uv, ubuf.lod);
 }
 )""";
   const auto shaderDescriptor = wgpu::ShaderModuleDescriptor{
       .nextInChain = &wgslDescriptor,
-      .label = "Movie Player Shader",
+      .label = "Textured Quad Shader",
   };
   auto shader = g_device.CreateShaderModule(&shaderDescriptor);
 
@@ -87,7 +78,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
       },
   };
   const auto uniformLayoutDescriptor = wgpu::BindGroupLayoutDescriptor{
-      .label = "Movie Player Uniform Bind Group Layout",
+      .label = "Textured Quad Uniform Bind Group Layout",
       .entryCount = uniformLayoutEntries.size(),
       .entries = uniformLayoutEntries.data(),
   };
@@ -116,7 +107,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
       },
   };
   const auto uniformBindGroupDescriptor = wgpu::BindGroupDescriptor{
-      .label = "Movie Player Uniform Bind Group",
+      .label = "Textured Quad Uniform Bind Group",
       .layout = uniformLayout,
       .entryCount = uniformBindGroupEntries.size(),
       .entries = uniformBindGroupEntries.data(),
@@ -133,19 +124,9 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
           .visibility = wgpu::ShaderStage::Fragment,
           .texture = textureBinding,
       },
-      wgpu::BindGroupLayoutEntry{
-          .binding = 1,
-          .visibility = wgpu::ShaderStage::Fragment,
-          .texture = textureBinding,
-      },
-      wgpu::BindGroupLayoutEntry{
-          .binding = 2,
-          .visibility = wgpu::ShaderStage::Fragment,
-          .texture = textureBinding,
-      },
   };
   const auto textureLayoutDescriptor = wgpu::BindGroupLayoutDescriptor{
-      .label = "Movie Player Texture Bind Group Layout",
+      .label = "Textured Quad Texture Bind Group Layout",
       .entryCount = textureLayoutEntries.size(),
       .entries = textureLayoutEntries.data(),
   };
@@ -156,7 +137,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
       textureLayout,
   };
   const auto pipelineLayoutDescriptor = wgpu::PipelineLayoutDescriptor{
-      .label = "Movie Player Pipeline Layout",
+      .label = "Textured Quad Pipeline Layout",
       .bindGroupLayoutCount = bindGroupLayouts.size(),
       .bindGroupLayouts = bindGroupLayouts.data(),
   };
@@ -176,22 +157,97 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
   const auto attributes =
       make_vertex_attributes(std::array{wgpu::VertexFormat::Float32x3, wgpu::VertexFormat::Float32x2});
   const std::array vertexBuffers{make_vertex_buffer_layout(sizeof(Vert), attributes)};
+
+  wgpu::CompareFunction depthCompare;
+  switch (config.zComparison) {
+  case ZTest::Never:
+    depthCompare = wgpu::CompareFunction::Never;
+    break;
+  case ZTest::Less:
+    depthCompare = wgpu::CompareFunction::Less;
+    break;
+  case ZTest::Equal:
+    depthCompare = wgpu::CompareFunction::Equal;
+    break;
+  case ZTest::LEqual:
+    depthCompare = wgpu::CompareFunction::LessEqual;
+    break;
+  case ZTest::Greater:
+    depthCompare = wgpu::CompareFunction::Greater;
+    break;
+  case ZTest::NEqual:
+    depthCompare = wgpu::CompareFunction::NotEqual;
+    break;
+  case ZTest::GEqual:
+    depthCompare = wgpu::CompareFunction::GreaterEqual;
+    break;
+  case ZTest::Always:
+    depthCompare = wgpu::CompareFunction::Always;
+    break;
+  }
   const auto depthStencil = wgpu::DepthStencilState{
       .format = g_graphicsConfig.depthFormat,
+      .depthWriteEnabled = config.zTest,
+      .depthCompare = depthCompare,
   };
-  const auto blendComponent = wgpu::BlendComponent{
-      .srcFactor = wgpu::BlendFactor::SrcAlpha,
-      .dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha,
-  };
+
+  bool alphaWrite = false;
+  wgpu::BlendComponent blendComponent;
+  switch (config.filterType) {
+  case CameraFilterType::Multiply:
+    blendComponent = wgpu::BlendComponent{
+        .srcFactor = wgpu::BlendFactor::Zero,
+        .dstFactor = wgpu::BlendFactor::Src,
+    };
+    alphaWrite = true;
+    break;
+  case CameraFilterType::Add:
+    blendComponent = wgpu::BlendComponent{
+        .srcFactor = wgpu::BlendFactor::SrcAlpha,
+        .dstFactor = wgpu::BlendFactor::One,
+    };
+    alphaWrite = false;
+    break;
+  case CameraFilterType::Subtract:
+    blendComponent = wgpu::BlendComponent{
+        .operation = wgpu::BlendOperation::Subtract,
+        .srcFactor = wgpu::BlendFactor::SrcAlpha,
+        .dstFactor = wgpu::BlendFactor::One,
+    };
+    alphaWrite = false;
+    break;
+  case CameraFilterType::Blend:
+    blendComponent = wgpu::BlendComponent{
+        .srcFactor = wgpu::BlendFactor::SrcAlpha,
+        .dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha,
+    };
+    alphaWrite = false;
+    break;
+  case CameraFilterType::InvDstMultiply:
+    blendComponent = wgpu::BlendComponent{
+        .srcFactor = wgpu::BlendFactor::Zero,
+        .dstFactor = wgpu::BlendFactor::OneMinusSrc,
+    };
+    alphaWrite = true;
+    break;
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("unimplemented filter type {}"), magic_enum::enum_name(config.filterType));
+    unreachable();
+  }
+
   const auto blendState = wgpu::BlendState{
       .color = blendComponent,
       .alpha = blendComponent,
   };
+  auto writeMask = wgpu::ColorWriteMask::Red | wgpu::ColorWriteMask::Green | wgpu::ColorWriteMask::Blue;
+  if (alphaWrite) {
+    writeMask = writeMask | wgpu::ColorWriteMask::Alpha;
+  }
   const std::array colorTargets{
       wgpu::ColorTargetState{
           .format = g_graphicsConfig.colorFormat,
           .blend = &blendState,
-          .writeMask = wgpu::ColorWriteMask::Red | wgpu::ColorWriteMask::Green | wgpu::ColorWriteMask::Blue,
+          .writeMask = writeMask,
       },
   };
   const auto fragmentState = wgpu::FragmentState{
@@ -200,8 +256,9 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
       .targetCount = colorTargets.size(),
       .targets = colorTargets.data(),
   };
+
   const auto pipelineDescriptor = wgpu::RenderPipelineDescriptor{
-      .label = "Movie Player Pipeline",
+      .label = "Textured Quad Pipeline",
       .layout = state.pipelineLayout,
       .vertex = make_vertex_state(state.shader, vertexBuffers),
       .primitive =
@@ -218,40 +275,44 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
   return g_device.CreateRenderPipeline(&pipelineDescriptor);
 }
 
-DrawData make_draw_data(const State& state, const TextureHandle& tex_y, const TextureHandle& tex_u,
-                        const TextureHandle& tex_v, const zeus::CColor& color, float h_pad, float v_pad) {
-  auto pipeline = pipeline_ref(PipelineConfig{});
+DrawData make_draw_data(const State& state, CameraFilterType filter_type, const TextureHandle& texture,
+                        ZTest z_comparison, bool z_test, const zeus::CColor& color, float uv_scale,
+                        const zeus::CRectangle& rect, float z) {
+  auto pipeline = pipeline_ref(PipelineConfig{
+      .filterType = filter_type,
+      .zComparison = z_comparison,
+      .zTest = z_test,
+  });
 
   const std::array verts{
-      Vert{{-h_pad, v_pad, 0.f}, {0.0, 0.0}},
-      Vert{{-h_pad, -v_pad, 0.f}, {0.0, 1.0}},
-      Vert{{h_pad, v_pad, 0.f}, {1.0, 0.0}},
-      Vert{{h_pad, -v_pad, 0.f}, {1.0, 1.0}},
+      Vert{{0.f, 0.f, z}, {0.0, 0.0}},
+      Vert{{0.f, 1.f, z}, {0.0, uv_scale}},
+      Vert{{1.f, 0.f, z}, {uv_scale, 0.0}},
+      Vert{{1.f, 1.f, z}, {uv_scale, uv_scale}},
   };
   const auto vertRange = push_verts(ArrayRef{verts});
 
   const auto uniform = Uniform{
-      .xf = Mat4x4_Identity,
+      .xf =
+          Mat4x4<float>{
+              Vec4<float>{rect.size.x() * 2.f, 0.f, 0.f, 0.f},
+              Vec4<float>{0.f, rect.size.y() * 2.f, 0.f, 0.f},
+              Vec4<float>{0.f, 0.f, 1.f, 0.f},
+              Vec4<float>{rect.position.x() * 2.f - 1.f, rect.position.y() * 2.f - 1.f, 0.f, 1.f},
+          },
       .color = color,
+      .lod = 0.f,
   };
   const auto uniformRange = push_uniform(uniform);
 
   const std::array entries{
       wgpu::BindGroupEntry{
           .binding = 0,
-          .textureView = tex_y.ref->view,
-      },
-      wgpu::BindGroupEntry{
-          .binding = 1,
-          .textureView = tex_u.ref->view,
-      },
-      wgpu::BindGroupEntry{
-          .binding = 2,
-          .textureView = tex_v.ref->view,
+          .textureView = texture.ref->view,
       },
   };
   const auto textureBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
-      .label = "Movie Player Texture Bind Group",
+      .label = "Textured Quad Texture Bind Group",
       .layout = state.textureLayout,
       .entryCount = entries.size(),
       .entries = entries.data(),
@@ -276,4 +337,4 @@ void render(const State& state, const DrawData& data, const wgpu::RenderPassEnco
   pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.first, data.vertRange.second);
   pass.Draw(4);
 }
-} // namespace aurora::gfx::movie_player
+} // namespace aurora::gfx::textured_quad

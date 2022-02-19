@@ -1,6 +1,7 @@
 #include "common.hpp"
 
 #include "../gpu.hpp"
+#include "textured_quad//shader.hpp"
 #include "movie_player/shader.hpp"
 
 #include <condition_variable>
@@ -17,17 +18,20 @@ using gpu::g_queue;
 
 struct ShaderState {
   movie_player::State moviePlayer;
+  textured_quad::State texturedQuad;
 };
 struct ShaderDrawCommand {
   ShaderType type;
   union {
     movie_player::DrawData moviePlayer;
+    textured_quad::DrawData texturedQuad;
   };
 };
 struct PipelineCreateCommand {
   ShaderType type;
   union {
     movie_player::PipelineConfig moviePlayer;
+    textured_quad::PipelineConfig texturedQuad;
   };
 };
 enum class CommandType {
@@ -135,12 +139,15 @@ void add_model(/* TODO */) noexcept {}
 void queue_aabb(const zeus::CAABox& aabb, const zeus::CColor& color, bool z_only) noexcept {
   // TODO
 }
+
 void queue_fog_volume_plane(const ArrayRef<zeus::CVector4f>& verts, uint8_t pass) {
   // TODO
 }
+
 void queue_fog_volume_filter(const zeus::CColor& color, bool two_way) noexcept {
   // TODO
 }
+
 void queue_textured_quad_verts(CameraFilterType filter_type, const TextureHandle& texture, ZTest z_comparison,
                                bool z_test, const zeus::CColor& color, const ArrayRef<zeus::CVector3f>& pos,
                                const ArrayRef<zeus::CVector2f>& uvs, float lod) noexcept {
@@ -148,8 +155,16 @@ void queue_textured_quad_verts(CameraFilterType filter_type, const TextureHandle
 }
 void queue_textured_quad(CameraFilterType filter_type, const TextureHandle& texture, ZTest z_comparison, bool z_test,
                          const zeus::CColor& color, float uv_scale, const zeus::CRectangle& rect, float z) noexcept {
-  // TODO
+  auto data = textured_quad::make_draw_data(g_state.texturedQuad, filter_type, texture, z_comparison, z_test, color,
+                                            uv_scale, rect, z);
+  push_draw_command({.type = ShaderType::TexturedQuad, .texturedQuad = data});
 }
+template <>
+PipelineRef pipeline_ref(textured_quad::PipelineConfig config) {
+  return find_pipeline({.type = ShaderType::TexturedQuad, .texturedQuad = config},
+                       [=]() { return create_pipeline(g_state.texturedQuad, config); });
+}
+
 void queue_colored_quad_verts(CameraFilterType filter_type, ZTest z_comparison, bool z_test, const zeus::CColor& color,
                               const ArrayRef<zeus::CVector3f>& pos) noexcept {
   // TODO
@@ -185,7 +200,7 @@ static void pipeline_worker() {
       cb = std::move(g_queuedPipelines.front());
     }
     auto result = cb.second();
-//    std::this_thread::sleep_for(std::chrono::milliseconds{1500});
+    // std::this_thread::sleep_for(std::chrono::milliseconds{1500});
     {
       std::scoped_lock lock{g_pipelineMutex};
       if (g_pipelines.contains(cb.first)) {
@@ -230,6 +245,7 @@ void initialize() {
   }
 
   g_state.moviePlayer = movie_player::construct_state();
+  g_state.texturedQuad = textured_quad::construct_state();
 }
 
 void shutdown() {
@@ -240,12 +256,18 @@ void shutdown() {
 
 void render(const wgpu::RenderPassEncoder& pass) {
   {
-    g_queue.WriteBuffer(g_vertexBuffer, 0, g_verts.data(), g_verts.size());
-    g_queue.WriteBuffer(g_uniformBuffer, 0, g_uniforms.data(), g_uniforms.size());
-    g_queue.WriteBuffer(g_indexBuffer, 0, g_indices.data(), g_indices.size());
-    g_verts.clear();
-    g_uniforms.clear();
-    g_indices.clear();
+    if (g_verts.size() > 0) {
+      g_queue.WriteBuffer(g_vertexBuffer, 0, g_verts.data(), g_verts.size());
+      g_verts.clear();
+    }
+    if (g_uniforms.size() > 0) {
+      g_queue.WriteBuffer(g_uniformBuffer, 0, g_uniforms.data(), g_uniforms.size());
+      g_uniforms.clear();
+    }
+    if (g_indices.size() > 0) {
+      g_queue.WriteBuffer(g_indexBuffer, 0, g_indices.data(), g_indices.size());
+      g_indices.clear();
+    }
   }
 
   g_currentPipeline = UINT64_MAX;
@@ -268,7 +290,7 @@ void render(const wgpu::RenderPassEncoder& pass) {
         // TODO
         break;
       case ShaderType::TexturedQuad:
-        // TODO
+        textured_quad::render(g_state.texturedQuad, draw.texturedQuad, pass);
         break;
       case ShaderType::MoviePlayer:
         movie_player::render(g_state.moviePlayer, draw.moviePlayer, pass);
@@ -290,6 +312,7 @@ bool bind_pipeline(PipelineRef ref, const wgpu::RenderPassEncoder& pass) {
     return false;
   }
   pass.SetPipeline(g_pipelines[ref]);
+  g_currentPipeline = ref;
   return true;
 }
 

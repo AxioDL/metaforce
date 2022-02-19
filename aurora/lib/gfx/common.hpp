@@ -42,23 +42,11 @@ public:
     memcpy(m_data + m_length, data, size);
     m_length += size;
   }
+
   void append_zeroes(size_t size) {
     resize(m_length + size);
     memset(m_data + m_length, 0, size);
     m_length += size;
-  }
-
-  void resize(size_t size) {
-    if (size == 0) {
-      clear();
-    } else if (m_data == nullptr) {
-      m_data = static_cast<uint8_t*>(malloc(size));
-    } else if (size > m_capacity) {
-      m_data = static_cast<uint8_t*>(realloc(m_data, size));
-    } else {
-      return;
-    }
-    m_capacity = size;
   }
 
   void clear() {
@@ -74,18 +62,37 @@ private:
   uint8_t* m_data = nullptr;
   size_t m_length = 0;
   size_t m_capacity = 0;
+
+  void resize(size_t size) {
+    if (size == 0) {
+      clear();
+    } else if (m_data == nullptr) {
+      m_data = static_cast<uint8_t*>(malloc(size));
+    } else if (size > m_capacity) {
+      m_data = static_cast<uint8_t*>(realloc(m_data, size));
+    } else {
+      return;
+    }
+    m_capacity = size;
+  }
 };
 
 template <typename T>
 struct Vec2 {
   T x{};
   T y{};
+
+  constexpr Vec2(T x, T y) : x(x), y(y) {}
+  constexpr Vec2(const zeus::CVector2f& vec) : x(vec.x()), y(vec.y()) {}
 };
 template <typename T>
 struct Vec3 {
   T x{};
   T y{};
   T z{};
+
+  constexpr Vec3(T x, T y, T z) : x(x), y(y), z(z) {}
+  constexpr Vec3(const zeus::CVector3f& vec) : x(vec.x()), y(vec.y()), z(vec.z()) {}
 };
 template <typename T>
 struct Vec4 {
@@ -93,6 +100,27 @@ struct Vec4 {
   T y{};
   T z{};
   T w{};
+
+  constexpr Vec4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}
+  constexpr Vec4(const zeus::CVector4f& vec) : x(vec.x()), y(vec.y()), z(vec.z()), w(vec.w()) {}
+  constexpr Vec4(const zeus::CColor& color) : x(color.r()), y(color.g()), z(color.b()), w(color.a()) {}
+};
+template <typename T>
+struct Mat4x4 {
+  Vec4<T> m0{};
+  Vec4<T> m1{};
+  Vec4<T> m2{};
+  Vec4<T> m3{};
+
+  constexpr Mat4x4(const Vec4<T>& m0, const Vec4<T>& m1, const Vec4<T>& m2, const Vec4<T>& m3)
+  : m0(m0), m1(m1), m2(m2), m3(m3) {}
+  constexpr Mat4x4(const zeus::CMatrix4f& m) : m0(m[0]), m1(m[1]), m2(m[2]), m3(m[3]) {}
+};
+constexpr Mat4x4<float> Mat4x4_Identity{
+    Vec4<float>{1.f, 0.f, 0.f, 0.f},
+    Vec4<float>{0.f, 1.f, 0.f, 0.f},
+    Vec4<float>{0.f, 0.f, 1.f, 0.f},
+    Vec4<float>{0.f, 0.f, 0.f, 1.f},
 };
 } // namespace aurora
 
