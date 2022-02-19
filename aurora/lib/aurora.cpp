@@ -1,7 +1,7 @@
 #include <aurora/aurora.hpp>
-
 #include "gfx/common.hpp"
 #include "gpu.hpp"
+#include "input.hpp"
 #include "imgui.hpp"
 
 #include <SDL.h>
@@ -123,18 +123,27 @@ static bool poll_events() noexcept {
       break;
     }
     case SDL_CONTROLLERDEVICEADDED: {
+      auto instance = input::add_controller(event.cdevice.which);
+      if (instance != -1) {
+        g_AppDelegate->onControllerAdded(instance);
+      }
       break;
     }
     case SDL_CONTROLLERDEVICEREMOVED: {
+      input::remove_controller(event.cdevice.which);
       break;
     }
+    case SDL_CONTROLLERBUTTONUP:
     case SDL_CONTROLLERBUTTONDOWN: {
-      break;
-    }
-    case SDL_CONTROLLERBUTTONUP: {
+      g_AppDelegate->onControllerButton(
+          event.cbutton.which, input::translate_button(static_cast<SDL_GameControllerButton>(event.cbutton.button)),
+          event.cbutton.state == SDL_PRESSED);
       break;
     }
     case SDL_CONTROLLERAXISMOTION: {
+      g_AppDelegate->onControllerAxis(event.caxis.which,
+                                      input::translate_axis(static_cast<SDL_GameControllerAxis>(event.caxis.axis)),
+                                      event.caxis.value);
       break;
     }
     case SDL_KEYDOWN: {
@@ -335,18 +344,16 @@ void set_fullscreen(bool fullscreen) noexcept {
 }
 
 int32_t get_controller_player_index(uint32_t which) noexcept {
-  return -1; // TODO
+  return input::player_index(which); // TODO
 }
 
-void set_controller_player_index(uint32_t which, int32_t index) noexcept {
-  // TODO
-}
+void set_controller_player_index(uint32_t which, int32_t index) noexcept { input::set_player_index(which, index); }
 
 bool is_controller_gamecube(uint32_t which) noexcept {
-  return true; // TODO
+  return input::is_gamecube(which); // TODO
 }
 
-std::string get_controller_name(uint32_t which) noexcept {
-  return ""; // TODO
+std::string get_controller_name(uint32_t instance) noexcept {
+  return input::name(instance); // TODO
 }
 } // namespace aurora
