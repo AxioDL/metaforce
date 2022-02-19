@@ -7,7 +7,7 @@
 #include "Runtime/IMain.hpp"
 #include "Runtime/MP1/CTweaks.hpp"
 #include "Runtime/MP1/CPlayMovie.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/CBasics.hpp"
 #include "Runtime/CMemoryCardSys.hpp"
 #include "Runtime/CResFactory.hpp"

@@ -117,10 +117,10 @@ bool CDummyWorld::ICheckWorldComplete() {
     CMemoryInStream r(x34_loadBuf.get(), x38_bufSz, CMemoryInStream::EOwnerShip::NotOwned);
     r.ReadLong();
     int version = r.ReadLong();
-    x10_strgId = r.ReadLong();
+    x10_strgId = r.Get<CAssetId>();
 
     if (version >= 15)
-      x14_savwId = r.ReadLong();
+      x14_savwId = r.Get<CAssetId>();
     if (version >= 12)
       r.ReadLong();
     if (version >= 17)
@@ -133,7 +133,7 @@ bool CDummyWorld::ICheckWorldComplete() {
     for (u32 i = 0; i < areaCount; ++i)
       x18_areas.emplace_back(r, i, version);
 
-    x28_mapWorldId = r.ReadLong();
+    x28_mapWorldId = r.Get<CAssetId>();
     if (x4_loadMap)
       x2c_mapWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('MAPW'), x28_mapWorldId});
 
@@ -306,12 +306,12 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
     CMemoryInStream r(x40_loadBuf.get(), x44_bufSz, CMemoryInStream::EOwnerShip::NotOwned);
     r.ReadLong();
     int version = r.ReadLong();
-    xc_strgId = r.ReadLong();
+    xc_strgId = r.Get<CAssetId>();
 
     if (version >= 15)
-      x10_savwId = r.ReadLong();
+      x10_savwId = r.Get<CAssetId>();
     if (version >= 12) {
-      CAssetId skyboxId = r.ReadLong();
+      CAssetId skyboxId = r.Get<CAssetId>();
       if (skyboxId.IsValid() && mgr)
         x94_skyboxWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), skyboxId});
     }
@@ -336,7 +336,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
     for (std::unique_ptr<CGameArea>& area : x18_areas)
       MoveToChain(area.get(), EChain::Deallocated);
 
-    x24_mapwId = r.ReadLong();
+    x24_mapwId = r.Get<CAssetId>();
     x28_mapWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('MAPW'), x24_mapwId});
 
     if (mgr) {
@@ -350,7 +350,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
       x74_soundGroupData.reserve(audioGroupCount);
       for (u32 i = 0; i < audioGroupCount; ++i) {
         int grpId = r.ReadLong();
-        CAssetId agscId = r.ReadLong();
+        CAssetId agscId = r.Get<CAssetId>();
         x74_soundGroupData.emplace_back(grpId, agscId);
       }
     }
@@ -543,7 +543,7 @@ void CWorld::CycleLoadPauseState() {
   }
 }
 
-bool CWorld::ICheckWorldComplete() { return CheckWorldComplete(nullptr, kInvalidAreaId, -1); }
+bool CWorld::ICheckWorldComplete() { return CheckWorldComplete(nullptr, kInvalidAreaId, {}); }
 
 std::string CWorld::IGetDefaultAudioTrack() const { return x84_defAudioTrack; }
 

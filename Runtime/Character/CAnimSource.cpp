@@ -108,7 +108,7 @@ CAnimSource::CAnimSource(CInputStream& in, IObjectStore& store)
 , x20_rotationChannels(ReadIndexTable(in))
 , x30_translationChannels(ReadIndexTable(in))
 , x40_data(RotationAndOffsetStorage::CRotationAndOffsetVectors(in), x10_frameCount)
-, x54_evntId(in.ReadLong()) {
+, x54_evntId(in) {
   if (x54_evntId.IsValid()) {
     x58_evntData = store.GetObj({SBIG('EVNT'), x54_evntId});
     x58_evntData.GetObj();

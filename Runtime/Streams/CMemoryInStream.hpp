@@ -1,5 +1,5 @@
 #pragma once
-#include "../../metaforce/Runtime/CInputStream.hpp"
+#include "CInputStream.hpp"
 
 namespace metaforce {
 class CMemoryInStream final : public CInputStream {

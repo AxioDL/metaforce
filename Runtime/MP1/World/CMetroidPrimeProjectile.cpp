@@ -7,12 +7,12 @@ namespace metaforce::MP1 {
 
 SPrimeProjectileInfo::SPrimeProjectileInfo(CInputStream& in)
 : x0_propertyCount(in.ReadLong())
-, x4_particle(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), in.ReadLong()}))
+, x4_particle(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), CAssetId(in)}))
 , xc_dInfo(in)
 , x28_(in.ReadFloat())
 , x2c_(in.ReadFloat())
 , x30_(in.ReadFloat())
-, x34_texture(in.ReadLong()) {
+, x34_texture(in) {
   x38_24_ = in.ReadBool();
   x38_25_ = in.ReadBool();
   x38_26_ = in.ReadBool();

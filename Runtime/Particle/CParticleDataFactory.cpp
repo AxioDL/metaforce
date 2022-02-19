@@ -706,7 +706,7 @@ std::unique_ptr<CIntElement> CParticleDataFactory::GetIntElement(CInputStream& i
 std::unique_ptr<CGenDescription> CParticleDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
   std::vector<CAssetId> tracker;
   tracker.reserve(8);
-  return CreateGeneratorDescription(in, tracker, 0, resPool);
+  return CreateGeneratorDescription(in, tracker, {}, resPool);
 }
 
 std::unique_ptr<CGenDescription> CParticleDataFactory::CreateGeneratorDescription(CInputStream& in,

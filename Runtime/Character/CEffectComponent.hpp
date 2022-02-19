@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Character/CParticleData.hpp"
 

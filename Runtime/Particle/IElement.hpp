@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "Runtime/GCNTypes.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 
 #include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>

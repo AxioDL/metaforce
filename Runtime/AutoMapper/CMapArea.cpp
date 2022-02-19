@@ -97,7 +97,7 @@ void CMapArea::PostConstruct() {
     float z;
     std::memcpy(&z, tmp + 8, sizeof(float));
 
-    m_verts.emplace_back(hecl::SBig(x), hecl::SBig(y), hecl::SBig(z));
+    m_verts.emplace_back(CBasics::SwapBytes(x), CBasics::SwapBytes(y), CBasics::SwapBytes(z));
     tmp += 12;
   }
 

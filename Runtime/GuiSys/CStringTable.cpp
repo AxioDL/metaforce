@@ -1,7 +1,7 @@
 #include "Runtime/GuiSys/CStringTable.hpp"
 
 #include "Runtime/CBasics.hpp"
-#include "Runtime/CInputStream.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 #include "Runtime/CToken.hpp"
 
 #include <array>

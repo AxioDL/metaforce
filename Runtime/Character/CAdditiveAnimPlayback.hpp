@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "Runtime/RetroTypes.hpp"
-#include "Runtime/CInputStream.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 
 namespace metaforce {
 class CAdditiveAnimationInfo;

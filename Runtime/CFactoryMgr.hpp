@@ -3,7 +3,7 @@
 #include <unordered_map>
 
 #include "Runtime/IFactory.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {

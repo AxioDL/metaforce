@@ -1,5 +1,5 @@
 #include "Runtime/RetroTypes.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/IMain.hpp"
 
@@ -9,19 +9,19 @@ namespace metaforce {
 logvisor::Module Log("metaforce::RetroTypes::CAssetId");
 
 SObjectTag::SObjectTag(CInputStream& in) {
-  in.Get(reinterpret_cast<u8*>(&type), 4);
+  in.ReadBytes(reinterpret_cast<u8*>(&type), 4);
   id = in.Get<CAssetId>();
 }
 
 void SObjectTag::ReadMLVL(CInputStream& in) {
   id = in.Get<CAssetId>();
-  in.Get(reinterpret_cast<u8*>(&type), 4);
+  in.ReadBytes(reinterpret_cast<u8*>(&type), 4);
 }
 
 CAssetId::CAssetId(CInputStream& in) {
   if (g_Main != nullptr) {
     if (g_Main->GetExpectedIdSize() == sizeof(u32)) {
-      Assign(in.ReadLong());
+      Assign(u32(in.ReadLong()));
     } else if (g_Main->GetExpectedIdSize() == sizeof(u64)) {
       Assign(in.ReadLongLong());
     } else {
@@ -32,7 +32,7 @@ CAssetId::CAssetId(CInputStream& in) {
   }
 }
 
-void CAssetId::PutTo(COutputStream& out) {
+void CAssetId::PutTo(COutputStream& out) const {
   if (g_Main != nullptr) {
     if (g_Main->GetExpectedIdSize() == sizeof(u32)) {
       out.Put(u32(id));

@@ -1,5 +1,5 @@
 #include "Runtime/Collision/CCollisionEdge.hpp"
-#include "Runtime/CInputStream.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 
 namespace metaforce {
 CCollisionEdge::CCollisionEdge(CInputStream& in) {

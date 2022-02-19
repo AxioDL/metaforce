@@ -7,7 +7,7 @@
 #include "Runtime/CMemoryCardSys.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Camera/CCameraManager.hpp"
 #include "Runtime/Camera/CFirstPersonCamera.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path

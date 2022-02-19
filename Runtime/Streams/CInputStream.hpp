@@ -7,7 +7,7 @@ class CInputStream {
   u32 x4_blockOffset = 0;
   u32 x8_blockLen = 0;
   u32 xc_len = 0;
-  const u8* x10_ptr = nullptr;
+  u8* x10_ptr = nullptr;
   bool x14_owned = false;
   u32 x18_readPosition = 0;
   u32 x1c_bitWord = 0;
@@ -46,7 +46,7 @@ public:
   double ReadDouble();
 
   void Get(u8* dest, u32 len);
-  template <typename T>
+  template <class T>
   T Get() {
     return cinput_stream_helper<T>(*this);
   }
@@ -54,7 +54,7 @@ public:
   static u32 GetBitCount(u32 val);
 };
 
-template <typename T>
+template <class T>
 T cinput_stream_helper(CInputStream& in) {
   return T(in);
 }

@@ -1,5 +1,5 @@
 #include "Runtime/CStringExtras.hpp"
-#include "Runtime/CInputStream.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 
 namespace metaforce {
 std::string CStringExtras::ReadString(CInputStream& in) {

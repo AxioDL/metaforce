@@ -4,8 +4,6 @@
 
 namespace DataSpec {
 
-struct ITweakPlayerControl : ITweak {
-  virtual atUint32 GetMapping(atUint32) const = 0;
-};
+struct ITweakPlayerControl : ITweak {};
 
 } // namespace DataSpec

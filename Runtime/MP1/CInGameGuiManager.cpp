@@ -631,7 +631,7 @@ void CInGameGuiManager::PauseGame(CStateManager& stateMgr, EInGameGuiState state
 }
 
 void CInGameGuiManager::StartFadeIn() {
-  xf8_camFilter.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, zeus::skBlack, -1);
+  xf8_camFilter.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, zeus::skBlack, {});
   xf8_camFilter.DisableFilter(0.5f);
 }
 

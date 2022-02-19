@@ -129,7 +129,7 @@
 namespace metaforce {
 static logvisor::Module Log("metaforce::ScriptLoader");
 
-constexpr SObjectTag MorphballDoorANCS = {FOURCC('ANCS'), 0x1F9DA858};
+constexpr SObjectTag MorphballDoorANCS = {FOURCC('ANCS'), 0x1F9DA858u};
 
 constexpr int skElitePiratePropCount = 41;
 
@@ -221,10 +221,10 @@ CActorParameters ScriptLoader::LoadActorParameters(CInputStream& in) {
     if (propCount > 5)
       sParams = LoadScannableParameters(in);
 
-    CAssetId xrayModel = in.ReadLong();
-    CAssetId xraySkin = in.ReadLong();
-    CAssetId infraModel = in.ReadLong();
-    CAssetId infraSkin = in.ReadLong();
+    CAssetId xrayModel = in.Get<CAssetId>();
+    CAssetId xraySkin = in.Get<CAssetId>();
+    CAssetId infraModel = in.Get<CAssetId>();
+    CAssetId infraSkin = in.Get<CAssetId>();
 
     bool globalTimeProvider = true;
     if (propCount > 7)
@@ -290,7 +290,7 @@ CVisorParameters ScriptLoader::LoadVisorParameters(CInputStream& in) {
 CScannableParameters ScriptLoader::LoadScannableParameters(CInputStream& in) {
   u32 propCount = in.ReadLong();
   if (propCount == 1)
-    return CScannableParameters(in.ReadLong());
+    return CScannableParameters(in.Get<CAssetId>());
   return CScannableParameters();
 }
 
@@ -334,7 +334,7 @@ CLightParameters ScriptLoader::LoadLightParameters(CInputStream& in) {
 }
 
 CAnimationParameters ScriptLoader::LoadAnimationParameters(CInputStream& in) {
-  CAssetId ancs = in.ReadLong();
+  CAssetId ancs = in.Get<CAssetId>();
   s32 charIdx = in.ReadLong();
   u32 defaultAnim = in.ReadLong();
   return CAnimationParameters(ancs, charIdx, defaultAnim);
@@ -398,7 +398,7 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
 
   CDamageVulnerability dVuln(in);
 
-  CAssetId staticId = in.ReadLong();
+  CAssetId staticId = in.Get<CAssetId>();
   CAnimationParameters aParms = LoadAnimationParameters(in);
 
   CActorParameters actParms = LoadActorParameters(in);
@@ -623,7 +623,7 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int pr
 
   float speed = in.ReadFloat();
   bool active = in.ReadBool();
-  CAssetId dclnId = in.ReadLong();
+  CAssetId dclnId = in.Get<CAssetId>();
 
   CHealthInfo hInfo(in);
 
@@ -896,7 +896,7 @@ CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int prop
   float possibility = in.ReadFloat();
   float lifeTime = in.ReadFloat();
   float fadeInTime = in.ReadFloat();
-  CAssetId staticModel = in.ReadLong();
+  CAssetId staticModel = in.Get<CAssetId>();
   CAnimationParameters animParms = LoadAnimationParameters(in);
   CActorParameters actorParms = LoadActorParameters(in);
   bool active = in.ReadBool();
@@ -983,7 +983,7 @@ CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in, int prop
   float unused = in.ReadFloat();
   CDamageVulnerability tailVuln(in);
   CDamageVulnerability platingVuln(in);
-  CAssetId tailModel = in.ReadLong();
+  CAssetId tailModel = in.Get<CAssetId>();
   MP1::CBeetle::EEntranceType entranceType = MP1::CBeetle::EEntranceType(in.ReadLong());
   float initialAttackDelay = in.ReadFloat();
   float retreatTime = in.ReadFloat();
@@ -1015,7 +1015,7 @@ CEntity* ScriptLoader::LoadHUDMemo(CStateManager& mgr, CInputStream& in, int pro
   if (propCount == 6) {
     displayType = CScriptHUDMemo::EDisplayType(in.ReadLong());
   }
-  const CAssetId message = in.ReadLong();
+  const CAssetId message = in.Get<CAssetId>();
   const bool active = in.ReadBool();
 
   return new CScriptHUDMemo(mgr.AllocateUniqueId(), name, info, hParms, displayType, message, active);
@@ -1105,9 +1105,9 @@ CEntity* ScriptLoader::LoadDamageableTrigger(CStateManager& mgr, CInputStream& i
   CDamageVulnerability dVuln(in);
   u32 triggerFlags = in.ReadLong();
   triggerFlags = TransformDamagableTriggerFlags(mgr, info.GetAreaId(), triggerFlags);
-  CAssetId patternTex1 = in.ReadLong();
-  CAssetId patternTex2 = in.ReadLong();
-  CAssetId colorTex = in.ReadLong();
+  CAssetId patternTex1 = in.Get<CAssetId>();
+  CAssetId patternTex2 = in.Get<CAssetId>();
+  CAssetId colorTex = in.Get<CAssetId>();
   CScriptDamageableTrigger::ECanOrbit canOrbit = CScriptDamageableTrigger::ECanOrbit(in.ReadBool());
   bool active = in.ReadBool();
   CVisorParameters vParms = LoadVisorParameters(in);
@@ -1128,9 +1128,9 @@ CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in, int prop
   const float duration = in.ReadFloat();
   const auto scaleType = CScriptDebris::EScaleType(in.ReadLong());
   const bool randomAngImpulse = in.ReadBool();
-  const CAssetId model = in.ReadLong();
+  const CAssetId model = in.Get<CAssetId>();
   const CActorParameters aParams = LoadActorParameters(in);
-  const CAssetId particleId = in.ReadLong();
+  const CAssetId particleId = in.Get<CAssetId>();
   const zeus::CVector3f particleScale =  in.Get<zeus::CVector3f>();
   const bool b1 = in.ReadBool();
   const bool active = in.ReadBool();
@@ -1190,12 +1190,12 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
                                ETriggerFlags::DetectProjectiles6 | ETriggerFlags::DetectProjectiles7;
   bool thermalCold = in.ReadBool();
   bool displaySurface = in.ReadBool();
-  CAssetId patternMap1 = in.ReadLong();
-  CAssetId patternMap2 = in.ReadLong();
-  CAssetId colorMap = in.ReadLong();
-  CAssetId bumpMap = in.ReadLong();
-  CAssetId _envMap = in.ReadLong();
-  CAssetId _envBumpMap = in.ReadLong();
+  CAssetId patternMap1 = in.Get<CAssetId>();
+  CAssetId patternMap2 = in.Get<CAssetId>();
+  CAssetId colorMap = in.Get<CAssetId>();
+  CAssetId bumpMap = in.Get<CAssetId>();
+  CAssetId _envMap = in.Get<CAssetId>();
+  CAssetId _envBumpMap = in.Get<CAssetId>();
   zeus::CVector3f _bumpLightDir  =in.Get<zeus::CVector3f>();
 
   zeus::CVector3f bumpLightDir = _bumpLightDir;
@@ -1221,11 +1221,11 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
   float turbAmplitudeMin = in.ReadFloat();
   zeus::CColor splashColor = in.Get<zeus::CColor>();
   zeus::CColor insideFogColor = in.Get<zeus::CColor>();
-  CAssetId splashParticle1 = in.ReadLong();
-  CAssetId splashParticle2 = in.ReadLong();
-  CAssetId splashParticle3 = in.ReadLong();
-  CAssetId visorRunoffParticle = in.ReadLong();
-  CAssetId unmorphVisorRunoffParticle = in.ReadLong();
+  CAssetId splashParticle1 = in.Get<CAssetId>();
+  CAssetId splashParticle2 = in.Get<CAssetId>();
+  CAssetId splashParticle3 = in.Get<CAssetId>();
+  CAssetId visorRunoffParticle = in.Get<CAssetId>();
+  CAssetId unmorphVisorRunoffParticle = in.Get<CAssetId>();
   u32 visorRunoffSfx = in.ReadLong();
   u32 unmorphVisorRunoffSfx = in.ReadLong();
   u32 splashSfx1 = in.ReadLong();
@@ -1242,7 +1242,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
   float fogMagnitude = in.ReadFloat();
   float fogSpeed = in.ReadFloat();
   zeus::CColor fogColor = in.Get<zeus::CColor>();
-  CAssetId lightmap = in.ReadLong();
+  CAssetId lightmap = in.Get<CAssetId>();
   float unitsPerLightmapTexel = in.ReadFloat();
   float alphaInTime = in.ReadFloat();
   float alphaOutTime = in.ReadFloat();
@@ -1301,9 +1301,9 @@ CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in, int pro
   CActorParameters actorParms = LoadActorParameters(in);
   CPatterned::EColliderType collider = CPatterned::EColliderType(in.ReadBool());
   CDamageInfo damageInfo1(in);
-  CAssetId projectileWeapon = in.ReadLong();
+  CAssetId projectileWeapon = in.Get<CAssetId>();
   CDamageInfo projectileDamage(in);
-  CAssetId projectileVisorParticle = in.ReadLong();
+  CAssetId projectileVisorParticle = in.Get<CAssetId>();
   u32 projectileVisorSfx = in.ReadLong();
 
   const CAnimationParameters& aParms = pInfo.GetAnimationParameters();
@@ -2115,23 +2115,23 @@ CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, 
 
   zeus::CVector3f localOffset =  in.Get<zeus::CVector3f>();
 
-  CAssetId model = in.ReadLong();
+  CAssetId model = in.Get<CAssetId>();
 
   CActorParameters aParam = LoadActorParameters(in);
 
-  CAssetId particle1 = in.ReadLong();
+  CAssetId particle1 = in.Get<CAssetId>();
   zeus::CVector3f particle1Scale =  in.Get<zeus::CVector3f>();
   bool particle1GlobalTranslation = in.ReadBool();
   bool deferDeleteTillParticle1Done = in.ReadBool();
   CScriptDebris::EOrientationType particle1Or = CScriptDebris::EOrientationType(in.ReadLong());
 
-  CAssetId particle2 = in.ReadLong();
+  CAssetId particle2 = in.Get<CAssetId>();
   zeus::CVector3f particle2Scale =  in.Get<zeus::CVector3f>();
   bool particle2GlobalTranslation = in.ReadBool();
   bool deferDeleteTillParticle2Done = in.ReadBool();
   CScriptDebris::EOrientationType particle2Or = CScriptDebris::EOrientationType(in.ReadLong());
 
-  CAssetId particle3 = in.ReadLong();
+  CAssetId particle3 = in.Get<CAssetId>();
   /*zeus::CVector3f particle3Scale =*/(void) in.Get<zeus::CVector3f>(); /* Not actually used, go figure */
   CScriptDebris::EOrientationType particle3Or = CScriptDebris::EOrientationType(in.ReadLong());
 
@@ -2346,7 +2346,7 @@ CEntity* ScriptLoader::LoadAreaAttributes(CStateManager& mgr, CInputStream& in, 
   float thermalHeat = in.ReadFloat();
   float xrayFogDistance = in.ReadFloat();
   float worldLightingLevel = in.ReadFloat();
-  CAssetId skybox = in.ReadLong();
+  CAssetId skybox = in.Get<CAssetId>();
   EPhazonType phazonType = EPhazonType(in.ReadLong());
 
   return new CScriptAreaAttributes(mgr.AllocateUniqueId(), info, showSkybox, fxType, envFxDensity, thermalHeat,
@@ -2382,13 +2382,13 @@ CEntity* ScriptLoader::LoadFishCloud(CStateManager& mgr, CInputStream& in, int p
   zeus::CColor color = in.Get<zeus::CColor>();
   bool killable = in.ReadBool();
   float weaponKillRadius = in.ReadFloat();
-  CAssetId part1 = in.ReadLong();
+  CAssetId part1 = in.Get<CAssetId>();
   u32 partCount1 = in.ReadLong();
-  CAssetId part2 = in.ReadLong();
+  CAssetId part2 = in.Get<CAssetId>();
   u32 partCount2 = in.ReadLong();
-  CAssetId part3 = in.ReadLong();
+  CAssetId part3 = in.Get<CAssetId>();
   u32 partCount3 = in.ReadLong();
-  CAssetId part4 = in.ReadLong();
+  CAssetId part4 = in.Get<CAssetId>();
   u32 partCount4 = in.ReadLong();
   u32 deathSfx = in.ReadLong();
   bool repelFromThreats = in.ReadBool();
@@ -2458,17 +2458,17 @@ CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in,
 
   std::string name = mgr.HashInstanceName(in);
   bool active = in.ReadBool();
-  CAssetId worldId = in.ReadLong();
-  CAssetId areaId = in.ReadLong();
+  CAssetId worldId = in.Get<CAssetId>();
+  CAssetId areaId = in.Get<CAssetId>();
 
   if (propCount == 4)
     return new CScriptWorldTeleporter(mgr.AllocateUniqueId(), name, info, active, worldId, areaId);
 
   CAnimationParameters animParms = LoadAnimationParameters(in);
   zeus::CVector3f playerScale =  in.Get<zeus::CVector3f>();
-  CAssetId platformModel = in.ReadLong();
+  CAssetId platformModel = in.Get<CAssetId>();
   zeus::CVector3f platformScale =  in.Get<zeus::CVector3f>();
-  CAssetId backgroundModel = in.ReadLong();
+  CAssetId backgroundModel = in.Get<CAssetId>();
   zeus::CVector3f backgroundScale =  in.Get<zeus::CVector3f>();
   bool upElevator = in.ReadBool();
 
@@ -2476,8 +2476,8 @@ CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in,
   u8 volume = (propCount < 13 ? u8(127) : u8(in.ReadLong()));
   u8 panning = (propCount < 14 ? u8(64) : u8(in.ReadLong()));
   bool showText = (propCount < 15 ? false : in.ReadBool());
-  CAssetId fontId = (propCount < 16 ? CAssetId() : in.ReadLong());
-  CAssetId stringId = (propCount < 17 ? CAssetId() : in.ReadLong());
+  CAssetId fontId = (propCount < 16 ? CAssetId() : in.Get<CAssetId>());
+  CAssetId stringId = (propCount < 17 ? CAssetId() : in.Get<CAssetId>());
   bool fadeWhite = (propCount < 18 ? false : in.ReadBool());
   float charFadeInTime = (propCount < 19 ? 0.1f : in.ReadFloat());
   float charsPerSecond = (propCount < 20 ? 16.f : in.ReadFloat());
@@ -3170,7 +3170,7 @@ CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in
   CDamageVulnerability dVuln(in);
   CAnimationParameters animParams(in);
   CActorParameters actParams = LoadActorParameters(in);
-  CAssetId flameFxId = in.ReadLong();
+  CAssetId flameFxId = in.Get<CAssetId>();
   CDamageInfo dInfo(in);
   bool active = in.ReadBool();
 
@@ -3257,8 +3257,8 @@ CEntity* ScriptLoader::LoadGeemer(CStateManager& mgr, CInputStream& in, int prop
                             actHead.x10_transform, std::move(mData), pInfo, EBodyType::WallWalker, 0.f, advanceWpRadius,
                             f2, alignAngVel, f4, 0.2f, 0.4f, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f, forwardMoveWeight, 0.f, 0.f,
                             playerObstructionMinDist, haltDelay, false, CWallWalker::EWalkerType::Geemer,
-                            CDamageVulnerability::NormalVulnerabilty(), CDamageInfo(), haltSfx, getUpSfx, crouchSfx, -1,
-                            -1, 0.f, actParms);
+                            CDamageVulnerability::NormalVulnerabilty(), CDamageInfo(), haltSfx, getUpSfx, crouchSfx, {},
+                            {}, 0.f, actParms);
 }
 
 CEntity* ScriptLoader::LoadSpindleCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -3458,8 +3458,8 @@ CEntity* ScriptLoader::LoadIceZoomer(CStateManager& mgr, CInputStream& in, int p
   float f4 = in.ReadFloat();
   float playerObstructionMinDist = in.ReadFloat();
   float moveFowardWeight = in.ReadFloat();
-  CAssetId modelRes(in.ReadLong());
-  CAssetId skinRes(in.ReadLong());
+  CAssetId modelRes(in.Get<CAssetId>());
+  CAssetId skinRes(in.Get<CAssetId>());
   CDamageVulnerability dVuln(in);
   float iceZoomerJointHP = in.ReadFloat();
 

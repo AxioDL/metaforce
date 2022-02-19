@@ -280,7 +280,7 @@ CMapWorld::CMapWorld(CInputStream& in) {
   x0_areas.reserve(areaCount);
   x20_traversed.resize(areaCount);
   for (u32 i = 0; i < areaCount; ++i) {
-    CAssetId mapaId = in.ReadLong();
+    CAssetId mapaId = in.Get<CAssetId>();
     x0_areas.emplace_back(mapaId, EMapAreaList::Unloaded, x0_areas.empty() ? nullptr : &x0_areas.back());
   }
   x10_listHeads[2] = &x0_areas.back();

@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Runtime/CStaticInterference.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/World/CHealthInfo.hpp"

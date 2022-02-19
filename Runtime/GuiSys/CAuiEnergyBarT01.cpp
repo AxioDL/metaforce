@@ -142,7 +142,7 @@ void CAuiEnergyBarT01::SetMaxEnergy(float maxEnergy) {
 
 std::shared_ptr<CGuiWidget> CAuiEnergyBarT01::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
   CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
-  CAssetId tex = in.ReadLong();
+  CAssetId tex = in.Get<CAssetId>();
   std::shared_ptr<CGuiWidget> ret = std::make_shared<CAuiEnergyBarT01>(parms, sp, tex);
   ret->ParseBaseInfo(frame, in, parms);
   return ret;

@@ -5,7 +5,7 @@
 #include <string>
 
 #include "Runtime/GCNTypes.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/GuiSys/CGuiObject.hpp"
 
 #include <boo/IWindow.hpp>

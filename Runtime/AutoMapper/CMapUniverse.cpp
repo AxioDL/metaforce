@@ -15,7 +15,7 @@ CMapUniverse::CMapUniverse(CInputStream& in, u32 version) : x0_hexagonId(in.Get<
 }
 
 CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
-: x0_label(in.Get<std::string>()), x10_worldAssetId(in.ReadLong()) {
+: x0_label(in.Get<std::string>()), x10_worldAssetId(in) {
   x14_transform  = in.Get<zeus::CTransform>();
   const u32 worldCount = in.ReadLong();
   x44_hexagonXfs.reserve(worldCount);

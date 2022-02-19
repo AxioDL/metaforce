@@ -212,7 +212,7 @@ void CLogBookScreen::UpdateBodyText() {
 void CLogBookScreen::UpdateBodyImagesAndText() {
   const CScannableObjectInfo* scan = x1f0_curViewScans[x1c_rightSel].first.GetObj();
   for (CAuiImagePane* pane : xf0_imagePanes) {
-    pane->SetTextureID0(-1, g_SimplePool);
+    pane->SetTextureID0({}, g_SimplePool);
     pane->SetAnimationParms(zeus::skZero2f, 0.f, 0.f);
   }
 

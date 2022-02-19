@@ -196,13 +196,14 @@ class CAssetId {
 
 public:
   constexpr CAssetId() noexcept = default;
+  constexpr CAssetId(u32 v) noexcept { Assign(u32(v)); }
   constexpr CAssetId(u64 v) noexcept { Assign(v); }
   explicit CAssetId(CInputStream& in);
   [[nodiscard]] constexpr bool IsValid() const noexcept { return id != UINT64_MAX; }
   [[nodiscard]] constexpr u64 Value() const noexcept { return id; }
   constexpr void Assign(u64 v) noexcept { id = (v == UINT32_MAX ? UINT64_MAX : (v == 0 ? UINT64_MAX : v)); }
   constexpr void Reset() noexcept { id = UINT64_MAX; }
-  void PutTo(COutputStream& out);
+  void PutTo(COutputStream& out) const;
   [[nodiscard]] constexpr bool operator==(CAssetId other) const noexcept { return id == other.id; }
   [[nodiscard]] constexpr bool operator!=(CAssetId other) const noexcept { return !operator==(other); }
   [[nodiscard]] constexpr bool operator<(CAssetId other) const noexcept { return id < other.id; }

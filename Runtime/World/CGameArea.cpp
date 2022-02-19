@@ -29,19 +29,19 @@ CAreaRenderOctTree::CAreaRenderOctTree(const u8* buf) : x0_buf(buf) {
   x30_bitmaps = reinterpret_cast<const u32*>(x0_buf + 64);
   u32 wc = x14_bitmapWordCount * x8_bitmapCount;
   for (u32 i = 0; i < wc; ++i)
-    const_cast<u32*>(x30_bitmaps)[i] = hecl::SBig(x30_bitmaps[i]);
+    const_cast<u32*>(x30_bitmaps)[i] = CBasics::SwapBytes(x30_bitmaps[i]);
 
   x34_indirectionTable = x30_bitmaps + wc;
   x38_entries = reinterpret_cast<const u8*>(x34_indirectionTable + x10_nodeCount);
   for (u32 i = 0; i < x10_nodeCount; ++i) {
-    const_cast<u32*>(x34_indirectionTable)[i] = hecl::SBig(x34_indirectionTable[i]);
+    const_cast<u32*>(x34_indirectionTable)[i] = CBasics::SwapBytes(x34_indirectionTable[i]);
     Node* n = reinterpret_cast<Node*>(const_cast<u8*>(x38_entries) + x34_indirectionTable[i]);
-    n->x0_bitmapIdx = hecl::SBig(n->x0_bitmapIdx);
-    n->x2_flags = hecl::SBig(n->x2_flags);
+    n->x0_bitmapIdx = CBasics::SwapBytes(n->x0_bitmapIdx);
+    n->x2_flags = CBasics::SwapBytes(n->x2_flags);
     if (n->x2_flags) {
       u32 childCount = n->GetChildCount();
       for (u32 c = 0; c < childCount; ++c)
-        n->x4_children[c] = hecl::SBig(n->x4_children[c]);
+        n->x4_children[c] = CBasics::SwapBytes(n->x4_children[c]);
     }
   }
 }
@@ -300,10 +300,10 @@ std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& 
 }
 
 CDummyGameArea::CDummyGameArea(CInputStream& in, int idx, int mlvlVersion) {
-  x8_nameSTRG = in.ReadLong();
+  x8_nameSTRG = in.Get<CAssetId>();
   x14_transform = in.Get<zeus::CTransform>();
   zeus::CAABox aabb = in.Get<zeus::CAABox>();
-  xc_mrea = in.ReadLong();
+  xc_mrea = in.Get<CAssetId>();
   if (mlvlVersion > 15) {
     x10_areaId = in.ReadLong();
   } else {
@@ -349,12 +349,12 @@ CAssetId CDummyGameArea::IGetStringTableAssetId() const { return x8_nameSTRG; }
 const zeus::CTransform& CDummyGameArea::IGetTM() const { return x14_transform; }
 
 CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(idx) {
-  x8_nameSTRG = in.ReadLong();
+  x8_nameSTRG = in.Get<CAssetId>();
   xc_transform = in.Get<zeus::CTransform>();
   x3c_invTransform = xc_transform.inverse();
   x6c_aabb = in.Get<zeus::CAABox>();
 
-  x84_mrea = in.ReadLong();
+  x84_mrea = in.Get<CAssetId>();
   if (mlvlVersion > 15)
     x88_areaId = in.ReadLong();
   else
@@ -717,7 +717,7 @@ bool CGameArea::StartStreamingMainArea() {
     u32 totalSz = 0;
     u32 secCount = GetNumPartSizes();
     for (u32 i = 0; i < secCount; ++i)
-      totalSz += hecl::SBig(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
+      totalSz += CBasics::SwapBytes(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
 
     AllocNewAreaData(x128_mreaDataOffset, totalSz);
 
@@ -727,7 +727,7 @@ bool CGameArea::StartStreamingMainArea() {
 
     u32 curOff = 0;
     for (u32 i = 0; i < secCount; ++i) {
-      u32 size = hecl::SBig(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
+      u32 size = CBasics::SwapBytes(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
       m_resolvedBufs.emplace_back(x110_mreaSecBufs[2].first.get() + curOff, size);
       curOff += size;
     }
@@ -753,7 +753,7 @@ void CGameArea::ReloadAllUnloadedTextures() {}
 u32 CGameArea::GetNumPartSizes() const {
   u32 value{};
   std::memcpy(&value, x110_mreaSecBufs[0].first.get() + 60, sizeof(u32));
-  return hecl::SBig(value);
+  return CBasics::SwapBytes(value);
 }
 
 void CGameArea::AllocNewAreaData(int offset, int size) {
@@ -926,7 +926,7 @@ void CGameArea::PostConstructArea() {
   /* Models */
   x12c_postConstructed->x4c_insts.resize(header.modelCount);
   for (u32 i = 0; i < header.modelCount; ++i) {
-    u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>((secIt + 4)->first));
+    u32 surfCount = CBasics::SwapBytes(*reinterpret_cast<const u32*>((secIt + 4)->first));
     secIt += 5 + surfCount;
     sec += 5 + surfCount;
   }
@@ -998,7 +998,7 @@ void CGameArea::PostConstructArea() {
   /* Pathfinding section */
   if (header.version > 9) {
     CMemoryInStream r(secIt->first, secIt->second, CMemoryInStream::EOwnerShip::NotOwned);
-    CAssetId pathId = r.ReadLong();
+    CAssetId pathId = r.Get<CAssetId>();
     x12c_postConstructed->x10ac_pathToken = g_SimplePool->GetObj(SObjectTag{FOURCC('PATH'), pathId});
     x12c_postConstructed->x10bc_pathArea = x12c_postConstructed->x10ac_pathToken.GetObj();
     x12c_postConstructed->x10bc_pathArea->SetTransform(xc_transform);
@@ -1081,7 +1081,7 @@ void CGameArea::FillInStaticGeometry(bool textures) {
     //    ibo = ctx.newStaticBuffer(boo::BufferUse::Index, secIt->first, 4, inst.m_hmdlMeta.indexCount);
     ++secIt;
 
-    const u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(secIt->first));
+    const u32 surfCount = CBasics::SwapBytes(*reinterpret_cast<const u32*>(secIt->first));
     inst.m_surfaces.reserve(surfCount);
     //    inst.m_shaders.reserve(surfCount);
     ++secIt;

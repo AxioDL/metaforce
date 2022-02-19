@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 
 #undef min
 #undef max

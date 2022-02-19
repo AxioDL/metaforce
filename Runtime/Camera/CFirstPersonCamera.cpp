@@ -16,7 +16,7 @@ CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf
               nearz, farz, aspect, watchedObj, false, 0)
 , x188_orbitCameraSpeed(orbitCameraSpeed)
 , x190_gunFollowXf(xf) {
-  DataSpec::DNAMP1::tw_FieldOfView->addListener([this](hecl::CVar* cv) { _fovListener(cv); });
+  MP1::tw_FieldOfView->addListener([this](hecl::CVar* cv) { _fovListener(cv); });
 }
 
 void CFirstPersonCamera::Accept(IVisitor& visitor) { visitor.Visit(this); }

@@ -384,19 +384,19 @@ void CGameOptions::SetControls(int controls) {
 }
 
 constexpr std::array<std::pair<CAssetId, CAssetId>, 5> CStickToDPadRemap{{
-    {0x2A13C23E, 0xF13452F8},
-    {0xA91A7703, 0xC042EC91},
-    {0x12A12131, 0x5F556002},
-    {0xA9798329, 0xB306E26F},
-    {0xCD7B1ACA, 0x8ADA8184},
+    {0x2A13C23Eu, 0xF13452F8u},
+    {0xA91A7703u, 0xC042EC91u},
+    {0x12A12131u, 0x5F556002u},
+    {0xA9798329u, 0xB306E26Fu},
+    {0xCD7B1ACAu, 0x8ADA8184u},
 }};
 
 constexpr std::array<std::pair<CAssetId, CAssetId>, 5> CStickOutlineToDPadRemap{{
-    {0x1A29C0E6, 0xF13452F8},
-    {0x5D9F9796, 0xC042EC91},
-    {0x951546A8, 0x5F556002},
-    {0x7946C4C5, 0xB306E26F},
-    {0x409AA72E, 0x8ADA8184},
+    {0x1A29C0E6u, 0xF13452F8u},
+    {0x5D9F9796u, 0xC042EC91u},
+    {0x951546A8u, 0x5F556002u},
+    {0x7946C4C5u, 0xB306E26Fu},
+    {0x409AA72Eu, 0x8ADA8184u},
 }};
 
 void CGameOptions::ResetControllerAssets(int controls) {

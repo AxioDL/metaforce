@@ -1,5 +1,5 @@
 #include "Runtime/Character/CCharacterInfo.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 
 namespace metaforce {
 
@@ -47,9 +47,9 @@ static std::vector<std::pair<s32, std::pair<std::string, std::string>>> MakeAnim
 CCharacterInfo::CCharacterInfo(CInputStream& in)
 : x0_tableCount(in.ReadShort())
 , x4_name(in.Get<std::string>())
-, x14_cmdl(in.ReadLong())
-, x18_cskr(in.ReadLong())
-, x1c_cinf(in.ReadLong())
+, x14_cmdl(in)
+, x18_cskr(in)
+, x1c_cinf(in)
 , x20_animInfo(MakeAnimInfoVector(in))
 , x30_pasDatabase(in)
 , x44_partRes(in, x0_tableCount)
@@ -80,8 +80,8 @@ CCharacterInfo::CCharacterInfo(CInputStream& in)
   }
 
   if (x0_tableCount > 3) {
-    xa8_cmdlOverlay = in.ReadLong();
-    xac_cskrOverlay = in.ReadLong();
+    xa8_cmdlOverlay = in.Get<CAssetId>();
+    xac_cskrOverlay = in.Get<CAssetId>();
   }
 
   if (x0_tableCount > 4) {

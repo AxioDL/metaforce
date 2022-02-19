@@ -1,10 +1,11 @@
-#include "DataSpec/DNAMP1/Tweaks/CTweakAutoMapper.hpp"
+#include "Runtime/MP1/Tweaks/CTweakAutoMapper.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 
 #include <hecl/CVar.hpp>
 #include <hecl/CVarManager.hpp>
 
 #define PREFIX(v) std::string_view("tweak.automap." #v)
-namespace DataSpec::DNAMP1 {
+namespace metaforce::MP1 {
 namespace {
 constexpr std::string_view skShowOneMiniMapArea = PREFIX(ShowOneMiniMapArea);
 constexpr std::string_view skScaleMoveSpeedWithCamDist = PREFIX(ScaleMoveSpeedWithCamDist);
@@ -48,6 +49,73 @@ hecl::CVar* tw_mapSurfaceNormColorLinear = nullptr;
 hecl::CVar* tw_mapSurfaceNormColorConstant = nullptr;
 } // namespace
 
+CTweakAutoMapper::CTweakAutoMapper(CInputStream& in) {
+  x4_24_showOneMiniMapArea = in.ReadBool();
+  x4_25_ = in.ReadBool();
+  x4_26_scaleMoveSpeedWithCamDist = in.ReadBool();
+  x8_camDist = in.ReadFloat();
+  xc_minCamDist = in.ReadFloat();
+  x10_maxCamDist = in.ReadFloat();
+  x14_minCamRotateX = in.ReadFloat();
+  x18_maxCamRotateX = in.ReadFloat();
+  x1c_camAngle = in.ReadFloat();
+  x20_ = in.ReadFloat();
+  x24_automapperWidgetColor = in.Get<zeus::CColor>();
+  x28_miniCamDist = in.ReadFloat();
+  x2c_miniCamXAngle = in.ReadFloat();
+  x30_miniCamAngle = in.ReadFloat();
+  x34_ = in.ReadFloat();
+  x38_automapperWidgetMiniColor = in.Get<zeus::CColor>();
+  x3c_surfColorVisited = in.Get<zeus::CColor>();
+  x40_outlineColorVisited = in.Get<zeus::CColor>();
+  x44_surfColorUnvisited = in.Get<zeus::CColor>();
+  x48_outlineColorUnvisited = in.Get<zeus::CColor>();
+  x4c_surfaceSelectColorVisited = in.Get<zeus::CColor>();
+  x50_outlineSelectColorVisited = in.Get<zeus::CColor>();
+  x54_mapSurfaceNormColorLinear = in.ReadFloat();
+  x58_mapSurfaceNormColorConstant = in.ReadFloat();
+  x5c_ = in.ReadFloat();
+  x64_openMapScreenTime = in.ReadFloat();
+  x68_closeMapScreenTime = in.ReadFloat();
+  x6c_hintPanTime = in.ReadFloat();
+  x70_zoomUnitsPerFrame = in.ReadFloat();
+  x74_rotateDegPerFrame = in.ReadFloat();
+  x78_baseMapScreenCameraMoveSpeed = in.ReadFloat();
+  x7c_surfaceSelectColorUnvisited = in.Get<zeus::CColor>();
+  x80_outlineSelectColorUnvisited = in.Get<zeus::CColor>();
+  x84_miniAlphaSurfaceVisited = in.ReadFloat();
+  x88_alphaSurfaceVisited = in.ReadFloat();
+  x8c_miniAlphaOutlineVisited = in.ReadFloat();
+  x90_alphaOutlineVisited = in.ReadFloat();
+  x94_miniAlphaSurfaceUnvisited = in.ReadFloat();
+  x98_alphaSurfaceUnvisited = in.ReadFloat();
+  x9c_miniAlphaOutlineUnvisited = in.ReadFloat();
+  xa0_alphaOutlineUnvisited = in.ReadFloat();
+  xa4_doorCenter = in.Get<zeus::CVector3f>();
+  xb0_ = in.ReadFloat();
+  xb4_ = in.ReadFloat();
+  xb8_miniMapViewportWidth = in.ReadFloat();
+  xbc_miniMapViewportHeight = in.ReadFloat();
+  xc0_miniMapCamDistScale = in.ReadFloat();
+  xc4_mapPlaneScaleX = in.ReadFloat();
+  xc8_mapPlaneScaleZ = in.ReadFloat();
+  xcc_ = in.ReadBool();
+  xd0_universeCamDist = in.ReadFloat();
+  xd4_minUniverseCamDist = in.ReadFloat();
+  xd8_maxUniverseCamDist = in.ReadFloat();
+  xdc_switchToFromUniverseTime = in.ReadFloat();
+  xe0_camPanUnitsPerFrame = in.ReadFloat();
+  xe4_automapperScaleX = in.ReadFloat();
+  xe8_automapperScaleZ = in.ReadFloat();
+  xec_camVerticalOffset = in.ReadFloat();
+  xf0_miniMapSamusModColor = in.Get<zeus::CColor>();
+  xf4_areaFlashPulseColor = in.Get<zeus::CColor>();
+  xf8_ = in.Get<zeus::CColor>();
+  xfc_ = in.Get<zeus::CColor>();
+  read_reserved_vector(x100_doorColors, in);
+  x118_doorBorderColor = in.Get<zeus::CColor>();
+  x11c_openDoorColor = in.Get<zeus::CColor>();
+}
 void CTweakAutoMapper::_tweakListener(hecl::CVar* cv) {
   if (cv == tw_showOneMiniMapArea) {
     x4_24_showOneMiniMapArea = cv->toBoolean();
@@ -174,4 +242,4 @@ void CTweakAutoMapper::initCVars(hecl::CVarManager* mgr) {
                                                    hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
                                                        hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
 }
-} // namespace DataSpec::DNAMP1
+} // namespace metaforce::MP1

@@ -56,12 +56,12 @@ struct AT_SPECIALIZE_PARMS(true, false) CTweakTargeting final : public ITweakTar
   Value<float> xf0_outerBeamSquaresScale;
   DNAColor xf4_outerBeamSquareColor;
   Value<atUint32> xf8_outerBeamSquareAngleCount;
-  struct UnkVec : BigDNA {
+  struct SSquareAngles : BigDNA {
     AT_DECL_DNA
     Value<atUint32> count;
-    Vector<float, AT_DNA_COUNT(count)> floats;
+    Vector<float, AT_DNA_COUNT(count)> angles;
   };
-  Vector<UnkVec, AT_DNA_COUNT(xf8_outerBeamSquareAngleCount)> xf8_outerBeamSquareAngles;
+  Vector<SSquareAngles, AT_DNA_COUNT(xf8_outerBeamSquareAngleCount)> xf8_outerBeamSquareAngles;
   Value<atUint32> x108_chargeGaugeAngleCount;
   Vector<float, AT_DNA_COUNT(x108_chargeGaugeAngleCount)> x108_chargeGaugeAngles;
   Value<float> x118_chargeGaugeScale;
@@ -243,7 +243,7 @@ struct AT_SPECIALIZE_PARMS(true, false) CTweakTargeting final : public ITweakTar
   const zeus::CColor& GetInnerBeamColorIce() const override { return xdc_innerBeamColorIce; }
   const zeus::CColor& GetInnerBeamColorWave() const override { return xe0_innerBeamColorWave; }
   const zeus::CColor& GetInnerBeamColorPlasma() const override { return xe4_innerBeamColorPlasma; }
-  const float* GetOuterBeamSquareAngles(int i) const override { return xf8_outerBeamSquareAngles[i].floats.data(); }
+  const float* GetOuterBeamSquareAngles(int i) const override { return xf8_outerBeamSquareAngles[i].angles.data(); }
   float GetChargeGaugeAngle(int i) const override { return x108_chargeGaugeAngles[i]; }
   float GetChargeGaugeScale() const override { return x118_chargeGaugeScale; }
   const zeus::CColor& GetChargeGaugeNonFullColor() const override { return x11c_chargeGaugeNonFullColor; }

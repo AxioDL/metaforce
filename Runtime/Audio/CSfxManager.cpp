@@ -1,5 +1,5 @@
 #include "Runtime/Audio/CSfxManager.hpp"
-#include "Runtime/CInputStream.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 
 #include "Runtime/CSimplePool.hpp"
 

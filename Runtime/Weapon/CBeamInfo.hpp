@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include <zeus/CColor.hpp>
 
@@ -34,10 +34,10 @@ public:
   explicit CBeamInfo(CInputStream& in)
   : x0_(in.ReadLong())
   , x4_beamAttributes(in.ReadLong())
-  , x8_contactFxId(in.ReadLong())
-  , xc_pulseFxId(in.ReadLong())
-  , x10_textureId(in.ReadLong())
-  , x14_glowTextureId(in.ReadLong())
+  , x8_contactFxId(in)
+  , xc_pulseFxId(in)
+  , x10_textureId(in)
+  , x14_glowTextureId(in)
   , x18_length(in.ReadFloat())
   , x1c_radius(in.ReadFloat())
   , x20_expansionSpeed(in.ReadFloat())

@@ -67,7 +67,7 @@ constexpr std::array<FEMovie, 8> FEMovies{{
     {"Video/08_GBA_fileselect.thp", false},
 }};
 
-constexpr SObjectTag g_DefaultWorldTag = {FOURCC('MLVL'), 0x158efe17};
+constexpr SObjectTag g_DefaultWorldTag = {FOURCC('MLVL'), 0x158efe17u};
 
 constexpr std::array<float, 3> AudioFadeTimeA{
     0.44f,

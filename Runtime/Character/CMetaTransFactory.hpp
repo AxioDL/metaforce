@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Character/IMetaTrans.hpp"
 
 namespace metaforce {

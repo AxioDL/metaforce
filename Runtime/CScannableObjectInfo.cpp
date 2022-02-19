@@ -35,7 +35,7 @@ CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, CAssetId resId) : x
 void CScannableObjectInfo::Load(CInputStream& in, u32 version) {
   in.ReadLong();
   in.ReadLong();
-  x4_stringId = in.ReadLong();
+  x4_stringId = in.Get<CAssetId>();
   if (version < 4) {
     x8_totalDownloadTime = in.ReadFloat();
   } else {
@@ -53,7 +53,7 @@ void CScannableObjectInfo::Load(CInputStream& in, u32 version) {
 }
 
 CScannableObjectInfo::SBucket::SBucket(CInputStream& in, u32 version) {
-  x0_texture = in.ReadLong();
+  x0_texture = in.Get<CAssetId>();
   x4_appearanceRange = in.ReadFloat();
   x8_imagePos = in.ReadLong();
   if (version > 1) {

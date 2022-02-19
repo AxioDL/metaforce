@@ -23,7 +23,7 @@ struct CModelFlags;
 struct SAdvancementDeltas;
 
 class CStaticRes {
-  CAssetId x0_cmdlId = 0;
+  CAssetId x0_cmdlId;
   zeus::CVector3f x4_scale;
 
 public:

@@ -89,8 +89,9 @@ void CPFOpenList::Clear() {
 void CPFOpenList::Push(CPFRegion* reg) {
   x0_bitSet.Add(reg->GetIndex());
   CPFRegion* other = x40_region.Data()->GetOpenMore();
-  while (other != &x40_region && reg->Data()->GetCost() > other->Data()->GetCost())
+  while (other != &x40_region && reg->Data()->GetCost() > other->Data()->GetCost()) {
     other = other->Data()->GetOpenMore();
+  }
   other->Data()->GetOpenLess()->Data()->SetOpenMore(reg);
   reg->Data()->SetOpenLess(other->Data()->GetOpenLess());
   other->Data()->SetOpenLess(reg);

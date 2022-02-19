@@ -70,14 +70,29 @@ set(RUNTIME_SOURCES_B
         ${PARTICLE_SOURCES}
         ${WORLD_SOURCES}
         ${WEAPON_SOURCES}
-        ITweak.hpp
+        Tweaks/ITweak.hpp
+        Tweaks/ITweakAutoMapper.hpp
+        Tweaks/ITweakBall.hpp
+        Tweaks/ITweakGame.hpp
+        Tweaks/ITweakGui.hpp
+        Tweaks/ITweakGuiColors.hpp
+        Tweaks/ITweakGunRes.hpp
+        Tweaks/ITweakParticle.hpp
+        Tweaks/ITweakPlayer.hpp
+        Tweaks/ITweakPlayerControl.hpp
+        Tweaks/ITweakPlayerGun.hpp Tweaks/ITweakPlayerGun.cpp
+        Tweaks/ITweakPlayerRes.hpp
+        Tweaks/ITweakSlideShow.hpp
+        Tweaks/ITweakTargeting.hpp
         IMain.hpp
         CStopwatch.hpp
-        CMemoryStreamOut.hpp CMemoryStreamOut.cpp
-        CInputStream.hpp CInputStream.cpp
-        COutputStream.hpp COutputStream.cpp
-        CMemoryInStream.hpp
-        CZipInputStream.hpp CZipInputStream.cpp
+        Streams/IOStreams.hpp Streams/IOStreams.cpp
+        Streams/CMemoryStreamOut.hpp Streams/CMemoryStreamOut.cpp
+        Streams/CInputStream.hpp Streams/CInputStream.cpp
+        Streams/COutputStream.hpp Streams/COutputStream.cpp
+        Streams/CMemoryInStream.hpp
+        Streams/CZipInputStream.hpp Streams/CZipInputStream.cpp
+        Streams/ContainerReaders.hpp
         CGameAllocator.hpp CGameAllocator.cpp
         CMemoryCardSys.hpp CMemoryCardSys.cpp
         CScannableObjectInfo.hpp CScannableObjectInfo.cpp
@@ -115,7 +130,6 @@ set(RUNTIME_SOURCES_B
         CFactoryMgr.hpp CFactoryMgr.cpp
         CPakFile.hpp CPakFile.cpp
         CStringExtras.hpp CStringExtras.cpp
-        IOStreams.hpp IOStreams.cpp
         CMainFlowBase.hpp CMainFlowBase.cpp
         CMFGameBase.hpp
         CInGameTweakManagerBase.hpp

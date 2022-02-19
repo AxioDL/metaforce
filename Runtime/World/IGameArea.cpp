@@ -1,5 +1,5 @@
 #include "Runtime/World/IGameArea.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 
 namespace metaforce {
 IGameArea::Dock::Dock(metaforce::CInputStream& in, const zeus::CTransform& xf) {

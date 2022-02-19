@@ -1,5 +1,7 @@
-#include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
+#include "Runtime/MP1/Tweaks/CTweakGame.hpp"
 #include "Runtime/Camera/CCameraManager.hpp"
+
+#include "Runtime/Streams/CInputStream.hpp"
 
 #include <hecl/CVar.hpp>
 #include <hecl/CVarManager.hpp>
@@ -34,7 +36,35 @@
     (value) = tmp;                                                                                                     \
   }
 
-namespace DataSpec::DNAMP1 {
+namespace metaforce::MP1 {
+
+CTweakGame::CTweakGame(CInputStream& in) {
+  x4_worldPrefix = in.Get<std::string>();
+  x14_defaultRoom = in.Get<std::string>();
+  x24_fov = in.ReadFloat();
+  x28_unknown1 = in.ReadBool();
+  x29_unknown2 = in.ReadBool();
+  x2a_unknown3 = in.ReadBool();
+  x2b_splashScreensDisabled = in.ReadBool();
+  x2c_unknown5 = in.ReadFloat();
+  x30_pressStartDelay = in.ReadFloat();
+  x34_wavecapIntensityNormal = in.ReadFloat();
+  x38_wavecapIntensityPoison = in.ReadFloat();
+  x3c_wavecapIntensityLava = in.ReadFloat();
+  x40_rippleIntensityNormal = in.ReadFloat();
+  x44_rippleIntensityPoison = in.ReadFloat();
+  x48_rippleIntensityLava = in.ReadFloat();
+  x4c_fluidEnvBumpScale = in.ReadFloat();
+  x50_waterFogDistanceBase = in.ReadFloat();
+  x54_waterFogDistanceRange = in.ReadFloat();
+  x58_gravityWaterFogDistanceBase = in.ReadFloat();
+  x5c_gravityWaterFogDistanceRange = in.ReadFloat();
+  x60_hardmodeDamageMult = in.ReadFloat();
+  x64_hardmodeWeaponMult = in.ReadFloat();
+#ifdef NDEBUG
+  x2b_splashScreensDisabled = false;
+#endif
+}
 
 DEFINE_CVAR_GLOBAL(WorldPrefix);
 DEFINE_CVAR_GLOBAL(FieldOfView);
@@ -94,4 +124,4 @@ void CTweakGame::initCVars(hecl::CVarManager* mgr) {
   CREATE_CVAR(HardModeDamageMult, "", x60_hardmodeDamageMult, skDefaultFlags);
   CREATE_CVAR(HardModeWeaponMult, "", x64_hardmodeWeaponMult, skDefaultFlags);
 }
-} // namespace DataSpec::DNAMP1
+} // namespace metaforce::MP1

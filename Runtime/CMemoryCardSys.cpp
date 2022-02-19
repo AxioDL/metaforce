@@ -225,7 +225,7 @@ void CMemoryCardSys::CCardFileInfo::BuildCardBuffer() {
   WriteIconData(w);
   memmove(x104_cardBuffer.data() + bannerSz, xf4_saveBuffer.data(), xf4_saveBuffer.size());
   reinterpret_cast<u32&>(*x104_cardBuffer.data()) =
-      hecl::SBig(CCRC32::Calculate(x104_cardBuffer.data() + 4, x104_cardBuffer.size() - 4));
+      CBasics::SwapBytes(CCRC32::Calculate(x104_cardBuffer.data() + 4, x104_cardBuffer.size() - 4));
 
   xf4_saveBuffer.clear();
 }

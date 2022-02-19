@@ -37,8 +37,8 @@ CHudEnergyInterface::CHudEnergyInterface(CGuiFrame& selHud, float tankEnergy, in
   x2c_energybart01_energybar->SetCoordFunc(CoordFuncs[size_t(hudType)]);
   x2c_energybart01_energybar->SetTesselation(Tesselations[size_t(hudType)]);
 
-  ITweakGuiColors::VisorEnergyBarColors barColors = g_tweakGuiColors->GetVisorEnergyBarColors(int(hudType));
-  ITweakGuiColors::VisorEnergyInitColors initColors = g_tweakGuiColors->GetVisorEnergyInitColors(int(hudType));
+  ITweakGuiColors::SVisorEnergyBarColors barColors = g_tweakGuiColors->GetVisorEnergyBarColors(int(hudType));
+  ITweakGuiColors::SVisorEnergyInitColors initColors = g_tweakGuiColors->GetVisorEnergyInitColors(int(hudType));
 
   x20_textpane_energydigits->TextSupport().SetFontColor(initColors.digitsFont);
   x20_textpane_energydigits->TextSupport().SetOutlineColor(initColors.digitsOutline);
@@ -100,7 +100,7 @@ void CHudEnergyInterface::Update(float dt, float energyLowPulse) {
     x20_textpane_energydigits->TextSupport().SetText(string);
   }
 
-  ITweakGuiColors::VisorEnergyBarColors barColors = g_tweakGuiColors->GetVisorEnergyBarColors(int(x0_hudType));
+  ITweakGuiColors::SVisorEnergyBarColors barColors = g_tweakGuiColors->GetVisorEnergyBarColors(int(x0_hudType));
   zeus::CColor emptyColor = x1c_27_energyLow ? g_tweakGuiColors->GetEnergyBarEmptyLowEnergy() : barColors.empty;
   zeus::CColor filledColor = x1c_27_energyLow ? g_tweakGuiColors->GetEnergyBarFilledLowEnergy() : barColors.filled;
   zeus::CColor shadowColor = x1c_27_energyLow ? g_tweakGuiColors->GetEnergyBarShadowLowEnergy() : barColors.shadow;

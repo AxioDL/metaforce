@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "Runtime/CGameHintInfo.hpp"
-#include "Runtime/CMemoryStreamOut.hpp"
+#include "Runtime/Streams/CMemoryStreamOut.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/CWorldSaveGameInfo.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"

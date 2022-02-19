@@ -29,7 +29,7 @@ std::shared_ptr<CGuiWidget> CAuiImagePane::Create(CGuiFrame* frame, CInputStream
   for (u32 i = 0; i < uvCount; ++i)
     uvs.push_back(in.Get<zeus::CVector2f>());
   std::shared_ptr<CGuiWidget> ret =
-      std::make_shared<CAuiImagePane>(parms, sp, -1, -1, std::move(coords), std::move(uvs), true);
+      std::make_shared<CAuiImagePane>(parms, sp, CAssetId(), CAssetId(), std::move(coords), std::move(uvs), true);
   ret->ParseBaseInfo(frame, in, parms);
   return ret;
 }

@@ -17,7 +17,7 @@ CGameHintInfo::CGameHint::CGameHint(CInputStream& in, s32 version)
 : x0_name(in.Get<std::string>())
 , x10_immediateTime(in.ReadFloat())
 , x14_normalTime(in.ReadFloat())
-, x18_stringId(in.ReadLong())
+, x18_stringId(in.Get<CAssetId>())
 , x1c_textTime(3.f * float(version <= 0 ? 1 : in.ReadLong())) {
   u32 locationCount = in.ReadLong();
   x20_locations.reserve(locationCount);
@@ -26,10 +26,10 @@ CGameHintInfo::CGameHint::CGameHint(CInputStream& in, s32 version)
 }
 
 CGameHintInfo::SHintLocation::SHintLocation(CInputStream& in, s32)
-: x0_mlvlId(in.ReadLong())
-, x4_mreaId(in.ReadLong())
+: x0_mlvlId(in.Get<CAssetId>())
+, x4_mreaId(in.Get<CAssetId>())
 , x8_areaId(in.ReadLong())
-, xc_stringId(in.ReadLong()) {}
+, xc_stringId(in.Get<CAssetId>()) {}
 
 int CGameHintInfo::FindHintIndex(std::string_view str) {
   const std::vector<CGameHint>& gameHints = g_MemoryCardSys->GetHints();

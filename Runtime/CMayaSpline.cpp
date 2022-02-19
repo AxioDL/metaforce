@@ -1,6 +1,6 @@
 #include "Runtime/CMayaSpline.hpp"
 
-#include "Runtime/CInputStream.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 
 namespace metaforce {
 void ValidateTangent(zeus::CVector2f& tangent) {

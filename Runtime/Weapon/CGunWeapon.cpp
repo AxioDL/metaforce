@@ -565,11 +565,11 @@ CDamageInfo CGunWeapon::GetDamageInfo(CStateManager& mgr, EChargeState chargeSta
     return GetShotDamageInfo(wInfo.x4_normal, mgr);
   } else {
     SShotParam param = wInfo.x20_charged;
-    param.damage *= chargeFactor;
-    param.radiusDamage *= chargeFactor;
-    param.radius *= chargeFactor;
-    param.knockback *= chargeFactor;
-    param.noImmunity = false;
+    param.x8_damage *= chargeFactor;
+    param.xc_radiusDamage *= chargeFactor;
+    param.x10_radius *= chargeFactor;
+    param.x14_knockback *= chargeFactor;
+    param.x18_24_noImmunity = false;
     return GetShotDamageInfo(param, mgr);
   }
 }

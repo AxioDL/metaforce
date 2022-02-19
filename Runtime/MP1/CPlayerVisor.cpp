@@ -479,7 +479,7 @@ void CPlayerVisor::UpdateCurrentVisor(float transFactor) {
   case CPlayerState::EPlayerVisor::Scan: {
     zeus::CColor dimColor =
         zeus::CColor::lerp(g_tweakGuiColors->GetScanVisorHudLightMultiply(), zeus::skWhite, 1.f - transFactor);
-    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, -1);
+    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, CAssetId());
     break;
   }
   default:
@@ -501,7 +501,7 @@ void CPlayerVisor::FinishTransitionIn() {
   case CPlayerState::EPlayerVisor::Scan: {
     zeus::CColor dimColor = zeus::CColor::lerp(g_tweakGuiColors->GetScanVisorScreenDimColor(),
                                                g_tweakGuiColors->GetScanVisorHudLightMultiply(), x2c_scanDimInterp);
-    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, -1);
+    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, {});
     if (!x5c_visorLoopSfx)
       x5c_visorLoopSfx =
           CSfxManager::SfxStart(SFXui_visor_scan_lp, x24_visorSfxVol, 0.f, false, 0x7f, true, kInvalidAreaId);
@@ -527,7 +527,7 @@ void CPlayerVisor::BeginTransitionIn(const CStateManager&) {
     break;
   case CPlayerState::EPlayerVisor::Scan:
     CSfxManager::SfxStart(SFXui_into_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
-    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, zeus::skWhite, -1);
+    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, zeus::skWhite, {});
     break;
   case CPlayerState::EPlayerVisor::Thermal:
     CSfxManager::SfxStart(SFXui_into_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
@@ -618,7 +618,7 @@ void CPlayerVisor::Update(float dt, const CStateManager& mgr) {
     } else if (curVisor == CPlayerState::EPlayerVisor::Scan) {
       zeus::CColor dimColor = zeus::CColor::lerp(g_tweakGuiColors->GetScanVisorScreenDimColor(),
                                                  g_tweakGuiColors->GetScanVisorHudLightMultiply(), x2c_scanDimInterp);
-      x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, -1);
+      x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, {});
     }
   }
 

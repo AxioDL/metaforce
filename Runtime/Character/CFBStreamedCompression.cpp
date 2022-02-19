@@ -24,7 +24,7 @@ void WriteValue(u8* data, T value) {
 
 CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& objStore, bool pc) : m_pc(pc) {
   x0_scratchSize = in.ReadLong();
-  x4_evnt = in.ReadLong();
+  x4_evnt = in.Get<CAssetId>();
 
   xc_rotsAndOffs = GetRotationsAndOffsets(x0_scratchSize / 4 + 1, in);
 

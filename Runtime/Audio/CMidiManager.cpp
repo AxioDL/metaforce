@@ -1,6 +1,6 @@
 #include "Runtime/Audio/CMidiManager.hpp"
 
-#include "Runtime/CInputStream.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 
 namespace metaforce {
 
@@ -40,7 +40,7 @@ CMidiManager::CMidiData::CMidiData(CInputStream& in) {
   in.ReadLong();
   x0_setupId = in.ReadLong();
   x2_groupId = in.ReadLong();
-  x4_agscId = in.ReadLong();
+  x4_agscId = in.Get<CAssetId>();
   u32 length = in.ReadLong();
   x8_arrData.reset(new u8[length]);
   in.ReadBytes(reinterpret_cast<char*>(x8_arrData.get()), length);

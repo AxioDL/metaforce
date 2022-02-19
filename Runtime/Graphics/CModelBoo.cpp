@@ -1,5 +1,6 @@
 #include "Runtime/Graphics/CModel.hpp"
 
+#include "Runtime/CBasics.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Character/CSkinRules.hpp"
@@ -13,7 +14,6 @@
 
 #include <hecl/CVarManager.hpp>
 #include <hecl/HMDLMeta.hpp>
-#include <hecl/Runtime.hpp>
 #include <logvisor/logvisor.hpp>
 #include <utility>
 
@@ -1118,7 +1118,7 @@ static const u8* MemoryFromPartData(const u8*& dataCur, const u32*& secSizeCur) 
   else
     ret = nullptr;
 
-  dataCur += hecl::SBig(*secSizeCur);
+  dataCur += CBasics::SwapBytes(*secSizeCur);
   ++secSizeCur;
   return ret;
 }
@@ -1160,20 +1160,20 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
   x38_lastFrame = CGraphics::GetFrameCounter() - 2;
   std::unique_ptr<u8[]> data = std::move(in);
 
-  u32 version = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x4));
-  m_flags = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x8));
+  u32 version = CBasics::SwapBytes(*reinterpret_cast<u32*>(data.get() + 0x4));
+  m_flags = CBasics::SwapBytes(*reinterpret_cast<u32*>(data.get() + 0x8));
   if (version != 0x10002) {
     Log.report(logvisor::Error, FMT_STRING("invalid CMDL for loading with boo"));
     return;
   }
 
-  u32 secCount = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x24));
-  u32 matSetCount = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x28));
+  u32 secCount = CBasics::SwapBytes(*reinterpret_cast<u32*>(data.get() + 0x24));
+  u32 matSetCount = CBasics::SwapBytes(*reinterpret_cast<u32*>(data.get() + 0x28));
   x18_matSets.reserve(matSetCount);
   const u8* dataCur = data.get() + ROUND_UP_32(0x2c + secCount * 4);
   const u32* secSizeCur = reinterpret_cast<const u32*>(data.get() + 0x2c);
   for (u32 i = 0; i < matSetCount; ++i) {
-    const u32 matSetSz = hecl::SBig(*secSizeCur);
+    const u32 matSetSz = CBasics::SwapBytes(*secSizeCur);
     const u8* sec = MemoryFromPartData(dataCur, secSizeCur);
     SShader& shader = x18_matSets.emplace_back(i);
     athena::io::MemoryReader r(sec, matSetSz);
@@ -1182,7 +1182,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
   }
 
   {
-    u32 hmdlSz = hecl::SBig(*secSizeCur);
+    u32 hmdlSz = CBasics::SwapBytes(*secSizeCur);
     const u8* hmdlMetadata = MemoryFromPartData(dataCur, secSizeCur);
     athena::io::MemoryReader r(hmdlMetadata, hmdlSz);
     m_hmdlMeta.read(r);
@@ -1218,10 +1218,10 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
 //    return true;
 //  } BooTrace);
 
-  const u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(surfInfo));
+  const u32 surfCount = CBasics::SwapBytes(*reinterpret_cast<const u32*>(surfInfo));
   x8_surfaces.reserve(surfCount);
   for (u32 i = 0; i < surfCount; ++i) {
-    const u32 surfSz = hecl::SBig(*secSizeCur);
+    const u32 surfSz = CBasics::SwapBytes(*secSizeCur);
     const u8* sec = MemoryFromPartData(dataCur, secSizeCur);
     CBooSurface& surf = x8_surfaces.emplace_back();
     surf.selfIdx = i;
@@ -1230,8 +1230,8 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
   }
 
   const float* aabbPtr = reinterpret_cast<const float*>(data.get() + 0xc);
-  m_aabb = zeus::CAABox(hecl::SBig(aabbPtr[0]), hecl::SBig(aabbPtr[1]), hecl::SBig(aabbPtr[2]), hecl::SBig(aabbPtr[3]),
-                        hecl::SBig(aabbPtr[4]), hecl::SBig(aabbPtr[5]));
+  m_aabb = zeus::CAABox(CBasics::SwapBytes(aabbPtr[0]), CBasics::SwapBytes(aabbPtr[1]), CBasics::SwapBytes(aabbPtr[2]), CBasics::SwapBytes(aabbPtr[3]),
+                        CBasics::SwapBytes(aabbPtr[4]), CBasics::SwapBytes(aabbPtr[5]));
   x28_modelInst = MakeNewInstance(0, false);
 }
 

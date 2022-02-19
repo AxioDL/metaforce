@@ -36,7 +36,7 @@ void CPakFile::LoadResourceTable(CInputStream& r) {
     u32 flags = r.ReadLong();
     FourCC fcc;
     r.ReadBytes(reinterpret_cast<u8*>(&fcc), 4);
-    CAssetId id = r.ReadLong();
+    CAssetId id = r.Get<CAssetId>();
     u32 size = r.ReadLong();
     u32 offset = r.ReadLong();
     if (fcc == FOURCC('MLVL'))

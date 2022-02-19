@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Runtime/CFactoryMgr.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Collision/COBBTree.hpp"
 #include "Runtime/Collision/CCollisionPrimitive.hpp"
 

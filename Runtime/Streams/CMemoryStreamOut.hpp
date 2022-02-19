@@ -1,5 +1,5 @@
 #pragma once
-#include "Runtime/COutputStream.hpp"
+#include "COutputStream.hpp"
 
 namespace metaforce {
 class CMemoryStreamOut final : public COutputStream {

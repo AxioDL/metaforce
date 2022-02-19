@@ -14,7 +14,7 @@ static u32 min_containing_bytes(u32 v) {
 
 CInputStream::CInputStream(s32 len) : xc_len(len), x10_ptr(new u8[len]), x14_owned(true) {}
 CInputStream::CInputStream(const void* ptr, u32 len, bool owned)
-: x8_blockLen(len), xc_len(len), x10_ptr(reinterpret_cast<const u8*>(ptr)), x14_owned(owned) {}
+: x8_blockLen(len), xc_len(len), x10_ptr(reinterpret_cast<u8*>(const_cast<void*>(ptr))), x14_owned(owned) {}
 
 CInputStream::~CInputStream() {
   if (x14_owned) {
@@ -23,7 +23,7 @@ CInputStream::~CInputStream() {
 }
 
 bool CInputStream::InternalReadNext() {
-  x8_blockLen = Read(const_cast<u8*>(x10_ptr), xc_len);
+  x8_blockLen = Read(x10_ptr, xc_len);
   x4_blockOffset = 0;
   return x8_blockLen != 0;
 }

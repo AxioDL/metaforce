@@ -38,8 +38,8 @@ CAnimationSet::CAnimationSet(CInputStream& in) : x0_tableCount(in.ReadShort()) {
     u32 animResourcesCount = in.ReadLong();
     x50_animRes.reserve(animResourcesCount);
     for (u32 i = 0; i < animResourcesCount; ++i) {
-      CAssetId anim = in.ReadLong();
-      CAssetId evnt = in.ReadLong();
+      CAssetId anim = in.Get<CAssetId>();
+      CAssetId evnt = in.Get<CAssetId>();
       x50_animRes.emplace_back(anim, evnt);
     }
   }

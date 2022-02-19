@@ -1604,7 +1604,7 @@ CAssetId CAutoMapper::GetAreaHintDescriptionString(CAssetId mreaId) {
       }
     }
   }
-  return -1;
+  return {};
 }
 
 void CAutoMapper::OnNewInGameGuiState(EInGameGuiState state, CStateManager& mgr) {

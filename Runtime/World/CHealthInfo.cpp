@@ -1,6 +1,6 @@
 #include "Runtime/World/CHealthInfo.hpp"
 
-#include "Runtime/CInputStream.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 namespace metaforce {
 
 CHealthInfo::CHealthInfo(CInputStream& in) {

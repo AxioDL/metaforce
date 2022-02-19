@@ -56,7 +56,7 @@ void CPowerBomb::Think(float dt, CStateManager& mgr) {
   CWeapon::Think(dt, mgr);
   if (x158_24_canStartFilter) {
     if (x15c_curTime > 1.f && !x158_25_filterEnabled) {
-      mgr.GetCameraFilterPass(6).SetFilter(EFilterType::Add, EFilterShape::Fullscreen, 1.5f, kFadeColor, -1);
+      mgr.GetCameraFilterPass(6).SetFilter(EFilterType::Add, EFilterShape::Fullscreen, 1.5f, kFadeColor, {});
       x158_25_filterEnabled = true;
     }
 

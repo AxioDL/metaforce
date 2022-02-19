@@ -4,11 +4,8 @@
 #include "Runtime/Weapon/CWeaponMgr.hpp"
 #include "Runtime/Weapon/CWeaponMode.hpp"
 
-namespace DataSpec {
-struct SShotParam;
-}
-
 namespace metaforce {
+struct SShotParam;
 class CDamageVulnerability;
 class CDamageInfo {
   CWeaponMode x0_weaponMode;
@@ -38,8 +35,8 @@ public:
   constexpr CDamageInfo& operator=(CDamageInfo&&) = default;
 
   CDamageInfo(const CDamageInfo&, float);
-  explicit CDamageInfo(const DataSpec::SShotParam& other);
-  CDamageInfo& operator=(const DataSpec::SShotParam& other);
+  explicit CDamageInfo(const SShotParam& other);
+  CDamageInfo& operator=(const SShotParam& other);
 
   const CWeaponMode& GetWeaponMode() const { return x0_weaponMode; }
   void SetWeaponMode(const CWeaponMode& mode) { x0_weaponMode = mode; }

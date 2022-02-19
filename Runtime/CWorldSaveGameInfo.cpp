@@ -46,7 +46,7 @@ CWorldSaveGameInfo::CWorldSaveGameInfo(CInputStream& in) {
   x44_scans.reserve(scanCount);
   for (u32 i = 0; i < scanCount; ++i) {
     SScanState& st = x44_scans.emplace_back();
-    st.x0_id = in.ReadLong();
+    st.x0_id = in.Get<CAssetId>();
     st.x4_category = EScanCategory(in.ReadLong());
   }
 }

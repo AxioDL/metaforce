@@ -1,7 +1,8 @@
-#include "Runtime/IOStreams.hpp"
-#include <zeus/zeus.hpp>
+#include "Runtime/Streams/IOStreams.hpp"
+#include "zeus/zeus.hpp"
 
 namespace metaforce {
+// Input
 template <>
 zeus::CVector2f cinput_stream_helper(CInputStream& in) {
   zeus::CVector2f ret;
@@ -92,5 +93,18 @@ zeus::CMatrix4f cinput_stream_helper(CInputStream& in) {
   ret.m[2] = in.Get<zeus::CVector4f>();
   ret.m[3] = in.Get<zeus::CVector4f>();
   return ret.transposed();
+}
+
+template<typename T, size_t N>
+rstl::reserved_vector<T,N> cinput_stream_helper(CInputStream& in) {
+  return rstl::reserved_vector<T,N>(in);
+}
+
+// Output
+template<>
+void coutput_stream_helper(const zeus::CVector3f& v, COutputStream& out) {
+  out.Put(v.x());
+  out.Put(v.y());
+  out.Put(v.z());
 }
 } // namespace metaforce

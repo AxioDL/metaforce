@@ -193,7 +193,7 @@ class CSamusHud {
   int FindEmptyHudLightSlot(const CLight& light) const;
   zeus::CColor GetVisorHudLightColor(const zeus::CColor& color, const CStateManager& mgr) const;
   void UpdateHudDynamicLights(float dt, const CStateManager& mgr);
-  void UpdateHudDamage(float dt, const CStateManager& mgr, DataSpec::ITweakGui::EHelmetVisMode helmetVis);
+  void UpdateHudDamage(float dt, const CStateManager& mgr, Tweaks::ITweakGui::EHelmetVisMode helmetVis);
   void UpdateStaticSfx(CSfxHandle& handle, float& cycleTimer, u16 sfxId, float dt, float oldStaticInterp,
                        float staticThreshold);
   void UpdateStaticInterference(float dt, const CStateManager& mgr);

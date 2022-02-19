@@ -2,11 +2,12 @@
 
 #include <array>
 
+#include "Runtime/CBasics.hpp"
 #include "Runtime/CSimplePool.hpp"
-#include "Runtime/CToken.hpp"
-#include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/CTextureCache.hpp"
+#include "Runtime/CToken.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
 
 namespace metaforce {
 namespace {
@@ -507,8 +508,8 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in, aurora::zstring_view label) {
           std::array<DXT1Block, 2> source;
           in.Get(reinterpret_cast<u8*>(source.data()), sizeof(source));
           for (size_t x = 0; x < source.size(); ++x) {
-            target[x].color1 = hecl::SBig(source[x].color1);
-            target[x].color2 = hecl::SBig(source[x].color2);
+            target[x].color1 = CBasics::SwapBytes(source[x].color1);
+            target[x].color2 = CBasics::SwapBytes(source[x].color2);
             for (size_t i = 0; i < 4; ++i) {
               std::array<u8, 4> ind;
               const u8 packed = source[x].lines[i];
@@ -551,7 +552,7 @@ void CTexture::BuildC8(const void* data, size_t length, aurora::zstring_view lab
   if (texelCount > length)
     Log.report(logvisor::Fatal, FMT_STRING("insufficient TXTR length ({}/{})"), length, texelCount);
 
-  uint32_t nentries = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
+  uint32_t nentries = CBasics::SwapBytes(*reinterpret_cast<const uint32_t*>(data));
   const u8* paletteTexels = reinterpret_cast<const u8*>(data) + 4;
   const u8* texels = reinterpret_cast<const u8*>(data) + 4 + nentries * 4;
   m_paletteTex = aurora::gfx::new_static_texture_2d(nentries, 1, 1, aurora::gfx::TextureFormat::RGBA8,
@@ -581,7 +582,7 @@ void CTexture::BuildC8Font(const void* data, EFontType ftype, aurora::zstring_vi
     break;
   }
 
-  const uint32_t nentries = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
+  const uint32_t nentries = CBasics::SwapBytes(*reinterpret_cast<const uint32_t*>(data));
   const u8* texels = reinterpret_cast<const u8*>(data) + 4 + nentries * 4;
   auto buf = std::make_unique<RGBA8[]>(texelCount * layerCount);
 
@@ -823,9 +824,9 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
           const RGBA8* source = sourceMip + (x6_h - (baseY + y) - 1) * w + baseX;
           for (int x = 0; x < 4; ++x) {
             if (source[x].a == 0xff) {
-              *texel++ = hecl::SBig(u16((source[x].r >> 3 << 10) | (source[x].g >> 3 << 5) | (source[x].b >> 3)));
+              *texel++ = CBasics::SwapBytes(u16((source[x].r >> 3 << 10) | (source[x].g >> 3 << 5) | (source[x].b >> 3)));
             } else {
-              *texel++ = hecl::SBig(u16((source[x].r >> 4 << 8) | (source[x].g >> 4 << 4) | (source[x].b >> 4) |
+              *texel++ = CBasics::SwapBytes(u16((source[x].r >> 4 << 8) | (source[x].g >> 4 << 4) | (source[x].b >> 4) |
                                         (source[x].a >> 5 << 12)));
             }
           }
@@ -843,7 +844,7 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
     int w = x4_w;
     int h = x6_h;
     const u8* data = m_otex.get() + 12;
-    u32 nentries = hecl::SBig(*reinterpret_cast<const u32*>(data));
+    u32 nentries = CBasics::SwapBytes(*reinterpret_cast<const u32*>(data));
     const RGBA8* paletteTexels = reinterpret_cast<const RGBA8*>(data + 4);
     const u8* sourceMip = data + 4 + nentries * 4;
 
@@ -854,9 +855,9 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
       } else {
         const RGBA8& colorIn = paletteTexels[i];
         if (colorIn.a == 0xff) {
-          color = hecl::SBig(u16((colorIn.r >> 3 << 10) | (colorIn.g >> 3 << 5) | (colorIn.b >> 3) | 0x8000));
+          color = CBasics::SwapBytes(u16((colorIn.r >> 3 << 10) | (colorIn.g >> 3 << 5) | (colorIn.b >> 3) | 0x8000));
         } else {
-          color = hecl::SBig(
+          color = CBasics::SwapBytes(
               u16((colorIn.r >> 4 << 8) | (colorIn.g >> 4 << 4) | (colorIn.b >> 4) | (colorIn.a >> 5 << 12)));
         }
       }

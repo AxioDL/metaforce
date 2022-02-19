@@ -43,7 +43,7 @@ ECardResult CMemoryCardDriver::SFileInfo::FileRead() {
   if (x24_saveFileData.empty()) {
     return ECardResult::CRC_MISMATCH;
   }
-  u32 existingCrc = hecl::SBig(*reinterpret_cast<u32*>(x24_saveFileData.data()));
+  u32 existingCrc = CBasics::SwapBytes(*reinterpret_cast<u32*>(x24_saveFileData.data()));
   u32 newCrc = CCRC32::Calculate(x24_saveFileData.data() + 4, x24_saveFileData.size() - 4);
   if (existingCrc == newCrc) {
     u32 saveDataOff;

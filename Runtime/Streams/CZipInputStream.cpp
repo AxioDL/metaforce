@@ -14,21 +14,14 @@ CZipInputStream::CZipInputStream(std::unique_ptr<CInputStream>&& strm)
 CZipInputStream::~CZipInputStream() { inflateEnd(x30_zstrm.get()); }
 
 u32 CZipInputStream::Read(void* buf, u32 len) {
-  x30_zstrm->next_out = static_cast<Bytef*>(buf);
+  x30_zstrm->next_out = static_cast<Bytef *>(buf);
   x30_zstrm->avail_out = len;
-  x30_zstrm->total_out = 0;
-  while (x30_zstrm->avail_out != 0) {
-    if (x30_zstrm->avail_in == 0) {
-      u32 readSz = x28_strm->ReadBytes(x24_compBuf.get(), 4096);
-      x30_zstrm->avail_in = readSz;
-      x30_zstrm->next_in = x24_compBuf.get();
-    }
-    int inflateRet = inflate(x30_zstrm.get(), Z_NO_FLUSH);
-    if (inflateRet != Z_OK) {
-      break;
-    }
+  if (x30_zstrm->avail_in == 0) {
+    x30_zstrm->avail_in = x28_strm->ReadBytes(x24_compBuf.get(),4096);
+    x30_zstrm->next_in = x24_compBuf.get();
   }
-  return x30_zstrm->total_out;
+  inflate(x30_zstrm.get(), Z_NO_FLUSH);
+  return len - x30_zstrm->avail_out;
 }
 
 } // namespace metaforce

@@ -483,7 +483,7 @@ float CAnimData::GetAnimationDuration(int animIn) const {
   std::set<CPrimitive> prims;
   anim->GetUniquePrimitives(prims);
 
-  SObjectTag tag{FOURCC('ANIM'), 0};
+  SObjectTag tag{FOURCC('ANIM'), {}};
   float durAccum = 0.f;
   for (const CPrimitive& prim : prims) {
     tag.id = prim.GetAnimResId();
@@ -586,7 +586,7 @@ void CAnimData::PrimitiveSetToTokenVector(const std::set<CPrimitive>& primSet, s
                                           bool preLock) {
   tokensOut.reserve(primSet.size());
 
-  SObjectTag tag{FOURCC('ANIM'), 0};
+  SObjectTag tag{FOURCC('ANIM'), {}};
   for (const CPrimitive& prim : primSet) {
     tag.id = prim.GetAnimResId();
     tokensOut.push_back(g_SimplePool->GetObj(tag));
@@ -817,7 +817,7 @@ float CAnimData::GetAverageVelocity(int animIn) const {
   std::set<CPrimitive> prims;
   anim->GetUniquePrimitives(prims);
 
-  SObjectTag tag{FOURCC('ANIM'), 0};
+  SObjectTag tag{FOURCC('ANIM'), {}};
   float velAccum = 0.f;
   float durAccum = 0.f;
   for (const CPrimitive& prim : prims) {

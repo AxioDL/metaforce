@@ -5,7 +5,7 @@
 #include <optional>
 #include <vector>
 
-#include "DataSpec/DNACommon/Tweaks/ITweakGui.hpp"
+#include "Runtime/Tweaks/ITweakGui.hpp"
 
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CRandom16.hpp"
@@ -43,8 +43,8 @@ class CSamusHud;
 
 class CInGameGuiManager {
 public:
-  using EHelmetVisMode = DataSpec::ITweakGui::EHelmetVisMode;
-  using EHudVisMode = DataSpec::ITweakGui::EHudVisMode;
+  using EHelmetVisMode = Tweaks::ITweakGui::EHelmetVisMode;
+  using EHudVisMode = Tweaks::ITweakGui::EHudVisMode;
 
 private:
   enum class ELoadPhase { LoadDepsGroup = 0, PreLoadDeps, LoadDeps, Done };

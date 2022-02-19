@@ -4,7 +4,7 @@
 #include "Runtime/CWorldSaveGameInfo.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/MP1/MP1.hpp"
 
 #include <zeus/Math.hpp>
@@ -122,7 +122,7 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data) {
   ret.xc_health = playerState.GetHealthInfo().GetHP();
 
   u32 itemPercent;
-  if (origMLVL == 0x158EFE17)
+  if (origMLVL == 0x158EFE17u)
     itemPercent = 0;
   else
     itemPercent = playerState.CalculateItemCollectionRate() * 100 / playerState.GetPickupTotal();
