@@ -1,8 +1,15 @@
 #include "common.hpp"
 
+#include "../gpu.hpp"
+
 #include <magic_enum.hpp>
 
 namespace aurora::gfx {
+static logvisor::Module Log("aurora::gfx");
+
+using gpu::g_device;
+using gpu::g_queue;
+
 static wgpu::TextureFormat to_wgpu(TextureFormat format) {
   switch (format) {
   case TextureFormat::RGBA8:
@@ -77,7 +84,7 @@ TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mi
         .bytesPerRow = bytesPerRow,
         .rowsPerImage = heightBlocks,
     };
-    g_Queue.WriteTexture(&dstView, data.data() + offset, dataSize, &dataLayout, &physicalSize);
+    g_queue.WriteTexture(&dstView, data.data() + offset, dataSize, &dataLayout, &physicalSize);
     offset += dataSize;
   }
   if (offset < data.size()) {
@@ -108,7 +115,7 @@ TextureHandle new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t m
       .dimension = wgpu::TextureViewDimension::e2D,
       .mipLevelCount = mips,
   };
-  auto texture = g_Device.CreateTexture(&textureDescriptor);
+  auto texture = g_device.CreateTexture(&textureDescriptor);
   auto textureView = texture.CreateView(&textureViewDescriptor);
   return {std::make_shared<TextureRef>(std::move(texture), std::move(textureView), size, wgpuFormat)};
 }
@@ -142,6 +149,6 @@ void write_texture(const TextureHandle& handle, ArrayRef<uint8_t> data) noexcept
       .bytesPerRow = bytesPerRow,
       .rowsPerImage = heightBlocks,
   };
-  g_Queue.WriteTexture(&dstView, data.data(), dataSize, &dataLayout, &ref.size);
+  g_queue.WriteTexture(&dstView, data.data(), dataSize, &dataLayout, &ref.size);
 }
 } // namespace aurora::gfx

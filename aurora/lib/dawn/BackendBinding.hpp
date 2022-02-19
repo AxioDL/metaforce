@@ -5,7 +5,7 @@
 
 struct SDL_Window;
 
-namespace aurora::utils {
+namespace aurora::gpu::utils {
 
 class BackendBinding {
 public:
@@ -24,4 +24,4 @@ protected:
 void DiscoverAdapter(dawn::native::Instance* instance, SDL_Window* window, wgpu::BackendType type);
 BackendBinding* CreateBinding(wgpu::BackendType type, SDL_Window* window, WGPUDevice device);
 
-} // namespace aurora::utils
+} // namespace aurora::gpu::utils

@@ -5,7 +5,7 @@
 #include <dawn/native/OpenGLBackend.h>
 #endif
 
-namespace aurora::utils {
+namespace aurora::gpu::utils {
 
 #if defined(DAWN_ENABLE_BACKEND_D3D12)
 BackendBinding* CreateD3D12Binding(SDL_Window* window, WGPUDevice device);
@@ -76,4 +76,4 @@ BackendBinding* CreateBinding(wgpu::BackendType type, SDL_Window* window, WGPUDe
   }
 }
 
-} // namespace aurora::utils
+} // namespace aurora::gpu::utils

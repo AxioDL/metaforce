@@ -1166,18 +1166,18 @@ void ImGuiConsole::PreUpdate() {
     g_StateManager->SetActiveRandomToDefault();
   }
 
-  if (ImGui::IsKeyReleased(int(KeyCode::Grave))) {
+  if (ImGui::IsKeyReleased(ImGuiKey_GraveAccent)) {
     m_isVisible ^= 1;
   }
   if (m_stepFrame) {
     g_Main->SetPaused(true);
     m_stepFrame = false;
   }
-  if (m_paused && !m_stepFrame && ImGui::IsKeyPressed(int(KeyCode::F6))) {
+  if (m_paused && !m_stepFrame && ImGui::IsKeyPressed(ImGuiKey_F6)) {
     g_Main->SetPaused(false);
     m_stepFrame = true;
   }
-  if (ImGui::IsKeyReleased(int(KeyCode::F5))) {
+  if (ImGui::IsKeyReleased(ImGuiKey_F5)) {
     m_paused ^= 1;
     g_Main->SetPaused(m_paused);
   }

@@ -24,7 +24,7 @@ template <typename T> DawnSwapChainImplementation CreateSwapChainImplementation(
   return impl;
 }
 
-namespace aurora::utils {
+namespace aurora::gpu::utils {
 class SwapChainImplMTL {
 public:
   using WSIContext = DawnWSIContextMetal;
@@ -105,4 +105,4 @@ private:
 };
 
 BackendBinding *CreateMetalBinding(SDL_Window *window, WGPUDevice device) { return new MetalBinding(window, device); }
-} // namespace aurora::utils
+} // namespace aurora::gpu::utils

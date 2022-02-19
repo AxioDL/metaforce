@@ -4,6 +4,9 @@ if (NOT MSVC)
 endif ()
 
 add_subdirectory(../extern/dawn dawn EXCLUDE_FROM_ALL)
+target_compile_definitions(dawn_native PRIVATE
+    DAWN_ENABLE_VULKAN_VALIDATION_LAYERS
+    DAWN_VK_DATA_DIR="vulkandata")
 if (NOT MSVC)
   target_compile_options(SPIRV-Tools-static PRIVATE -Wno-implicit-fallthrough)
   target_compile_options(SPIRV-Tools-opt PRIVATE -Wno-implicit-fallthrough)
@@ -11,6 +14,7 @@ endif ()
 
 add_library(aurora STATIC
     lib/aurora.cpp
+    lib/gpu.cpp
     lib/imgui.cpp
     lib/dawn/BackendBinding.cpp
     lib/gfx/common.cpp

@@ -1,5 +1,7 @@
 #include "Runtime/World/CPathFindArea.hpp"
 
+#include <logvisor/logvisor.hpp>
+
 #include "Runtime/CToken.hpp"
 #include "Runtime/IVParamObj.hpp"
 

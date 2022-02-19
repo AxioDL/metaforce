@@ -1,65 +1,31 @@
 #include <aurora/aurora.hpp>
 
+#include "gfx/common.hpp"
+#include "gpu.hpp"
+#include "imgui.hpp"
+
 #include <SDL.h>
-#include <dawn/native/DawnNative.h>
-// TODO HACK: dawn doesn't expose device toggles
-#include "../extern/dawn/src/dawn/native/Toggles.h"
-#include <dawn/webgpu_cpp.h>
+#include <imgui.h>
 #include <logvisor/logvisor.hpp>
 #include <magic_enum.hpp>
 
-#ifdef DAWN_ENABLE_BACKEND_VULKAN
-#include <SDL_vulkan.h>
-#include <dawn/native/VulkanBackend.h>
-#endif
-#ifdef DAWN_ENABLE_BACKEND_OPENGL
-#include <SDL_opengl.h>
-#include <dawn/native/OpenGLBackend.h>
-#endif
-#ifdef DAWN_ENABLE_BACKEND_METAL
-#include <SDL_metal.h>
-#include <dawn/native/MetalBackend.h>
-#endif
-
-#include "dawn/BackendBinding.hpp"
-
-// imgui
-#include <backends/imgui_impl_sdl.h>
-#include <backends/imgui_impl_wgpu.h>
-
-// TODO HACK: dawn doesn't expose device toggles
-namespace dawn::native {
-class DeviceBase {
-public:
-  void SetToggle(Toggle toggle, bool isEnabled);
-};
-} // namespace dawn::native
-
 namespace aurora {
-// TODO: Move global state to a class/struct?
 static logvisor::Module Log("aurora");
 
+// TODO: Move global state to a class/struct?
 static std::unique_ptr<AppDelegate> g_AppDelegate;
 static std::vector<std::string> g_Args;
 
 // SDL
 static SDL_Window* g_Window;
 
-// Dawn / WebGPU
-#ifdef DAWN_ENABLE_BACKEND_VULKAN
-static wgpu::BackendType preferredBackendType = wgpu::BackendType::Vulkan;
-#elif DAWN_ENABLE_BACKEND_METAL
-static wgpu::BackendType preferredBackendType = wgpu::BackendType::Metal;
-#else
-static wgpu::BackendType preferredBackendType = wgpu::BackendType::OpenGL;
-#endif
-static std::unique_ptr<dawn::native::Instance> g_Instance;
-static dawn::native::Adapter g_Adapter;
-static wgpu::AdapterProperties g_AdapterProperties;
-wgpu::Device g_Device;
-wgpu::Queue g_Queue;
-static wgpu::SwapChain g_SwapChain;
-static std::unique_ptr<utils::BackendBinding> g_BackendBinding;
+// GPU
+using gpu::g_depthBuffer;
+using gpu::g_device;
+using gpu::g_frameBuffer;
+using gpu::g_frameBufferResolved;
+using gpu::g_queue;
+using gpu::g_swapChain;
 
 static void set_window_icon(Icon icon) noexcept {
   SDL_Surface* iconSurface = SDL_CreateRGBSurfaceFrom(icon.data.get(), icon.width, icon.height, 32, 4 * icon.width,
@@ -79,7 +45,7 @@ static void set_window_icon(Icon icon) noexcept {
 static bool poll_events() noexcept {
   SDL_Event event;
   while (SDL_PollEvent(&event) != 0) {
-    ImGui_ImplSDL2_ProcessEvent(&event);
+    imgui::process_event(event);
 
     switch (event.type) {
     case SDL_WINDOWEVENT: {
@@ -98,8 +64,7 @@ static bool poll_events() noexcept {
         break;
       }
       case SDL_WINDOWEVENT_RESIZED: {
-        auto format = static_cast<wgpu::TextureFormat>(g_BackendBinding->GetPreferredSwapChainTextureFormat());
-        g_SwapChain.Configure(format, wgpu::TextureUsage::RenderAttachment, event.window.data1, event.window.data2);
+        gpu::resize_swapchain(event.window.data1, event.window.data2);
         g_AppDelegate->onAppWindowResized(
             {static_cast<uint32_t>(event.window.data1), static_cast<uint32_t>(event.window.data2)});
         break;
@@ -211,7 +176,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   }
 
   Uint32 flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
-  switch (preferredBackendType) {
+  switch (gpu::preferredBackendType) {
 #ifdef DAWN_ENABLE_BACKEND_VULKAN
   case wgpu::BackendType::Vulkan:
     flags |= SDL_WINDOW_VULKAN;
@@ -236,126 +201,104 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   }
   set_window_icon(std::move(icon));
 
-  Log.report(logvisor::Info, FMT_STRING("Creating Dawn instance"));
-  g_Instance = std::make_unique<dawn::native::Instance>();
-  utils::DiscoverAdapter(g_Instance.get(), g_Window, preferredBackendType);
+  gpu::initialize(g_Window);
+  gfx::construct_state();
 
-  {
-    std::vector<dawn::native::Adapter> adapters = g_Instance->GetAdapters();
-    auto adapterIt = std::find_if(adapters.begin(), adapters.end(), [](const dawn::native::Adapter adapter) -> bool {
-      wgpu::AdapterProperties properties;
-      adapter.GetProperties(&properties);
-      return properties.backendType == preferredBackendType;
-    });
-    if (adapterIt == adapters.end()) {
-      Log.report(logvisor::Fatal, FMT_STRING("Failed to find usable graphics backend"));
-    }
-    g_Adapter = *adapterIt;
-  }
-  g_Adapter.GetProperties(&g_AdapterProperties);
-  const auto backendName = magic_enum::enum_name(g_AdapterProperties.backendType);
-  Log.report(logvisor::Info, FMT_STRING("Using {} graphics backend"), backendName);
-
-  {
-    const std::array<wgpu::FeatureName, 1> requiredFeatures{
-        wgpu::FeatureName::TextureCompressionBC,
-    };
-    const auto deviceDescriptor = wgpu::DeviceDescriptor{
-        .requiredFeaturesCount = requiredFeatures.size(),
-        .requiredFeatures = requiredFeatures.data(),
-    };
-    g_Device = wgpu::Device::Acquire(g_Adapter.CreateDevice(&deviceDescriptor));
-    // TODO HACK: dawn doesn't expose device toggles
-    static_cast<dawn::native::DeviceBase*>(static_cast<void*>(g_Device.Get()))
-        ->SetToggle(dawn::native::Toggle::UseUserDefinedLabelsInBackend, true);
-  }
-
-  g_BackendBinding = std::unique_ptr<utils::BackendBinding>(
-      utils::CreateBinding(g_AdapterProperties.backendType, g_Window, g_Device.Get()));
-  if (!g_BackendBinding) {
-    Log.report(logvisor::Fatal, FMT_STRING("Unsupported backend {}"), backendName);
-  }
-
-  g_Queue = g_Device.GetQueue();
-  {
-    wgpu::SwapChainDescriptor descriptor{};
-    descriptor.implementation = g_BackendBinding->GetSwapChainImplementation();
-    g_SwapChain = g_Device.CreateSwapChain(nullptr, &descriptor);
-  }
-  {
-    auto size = get_window_size();
-    auto format = static_cast<wgpu::TextureFormat>(g_BackendBinding->GetPreferredSwapChainTextureFormat());
-    Log.report(logvisor::Info, FMT_STRING("Using swapchain format {}"), magic_enum::enum_name(format));
-    g_SwapChain.Configure(format, wgpu::TextureUsage::RenderAttachment, size.width, size.height);
-  }
-
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-  ImGuiIO& io = ImGui::GetIO();
-  io.IniFilename = nullptr;
+  imgui::create_context();
   g_AppDelegate->onImGuiInit(1.f); // TODO scale
-  ImGui_ImplSDL2_InitForMetal(g_Window);
-  ImGui_ImplWGPU_Init(g_Device.Get(), 1, g_BackendBinding->GetPreferredSwapChainTextureFormat());
+  imgui::initialize(g_Window);
   g_AppDelegate->onImGuiAddTextures();
 
   g_AppDelegate->onAppLaunched();
   g_AppDelegate->onAppWindowResized(get_window_size());
 
   while (poll_events()) {
-    ImGui_ImplWGPU_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
-    ImGui::NewFrame();
+    imgui::new_frame();
+    if (!g_AppDelegate->onAppIdle(ImGui::GetIO().DeltaTime)) {
+      break;
+    }
 
-    g_AppDelegate->onAppIdle(ImGui::GetIO().DeltaTime);
-
-    const wgpu::TextureView view = g_SwapChain.GetCurrentTextureView();
+    const wgpu::TextureView view = g_swapChain.GetCurrentTextureView();
     g_AppDelegate->onAppDraw();
-    ImGui::Render();
 
-    auto encoder = g_Device.CreateCommandEncoder();
+    const auto encoderDescriptor = wgpu::CommandEncoderDescriptor{
+        .label = "Redraw encoder",
+    };
+    auto encoder = g_device.CreateCommandEncoder(&encoderDescriptor);
     {
-      std::array<wgpu::RenderPassColorAttachment, 1> attachments{wgpu::RenderPassColorAttachment{
-          .view = view,
-          .loadOp = wgpu::LoadOp::Clear,
-          .storeOp = wgpu::StoreOp::Store,
-          .clearColor = {0.f, 0.f, 0.f, 0.f},
-      }};
+      const std::array attachments{
+          wgpu::RenderPassColorAttachment{
+              .view = view,
+              // .resolveTarget = g_frameBufferResolved.view,
+              .loadOp = wgpu::LoadOp::Clear,
+              .storeOp = wgpu::StoreOp::Store,
+              .clearColor = {0.f, 0.f, 0.f, 0.f},
+          },
+      };
+      const auto depthStencilAttachment = wgpu::RenderPassDepthStencilAttachment{
+          .view = g_depthBuffer.view,
+          .depthLoadOp = wgpu::LoadOp::Clear,
+          .depthStoreOp = wgpu::StoreOp::Discard,
+          .clearDepth = 1.f,
+          .stencilLoadOp = wgpu::LoadOp::Clear,
+          .stencilStoreOp = wgpu::StoreOp::Discard,
+      };
       auto renderPassDescriptor = wgpu::RenderPassDescriptor{
-          .label = "Render Pass",
+          .label = "Main render pass",
+          .colorAttachmentCount = attachments.size(),
+          .colorAttachments = attachments.data(),
+          .depthStencilAttachment = &depthStencilAttachment,
+      };
+      auto pass = encoder.BeginRenderPass(&renderPassDescriptor);
+      gfx::render(pass);
+      pass.End();
+    }
+    {
+      const std::array attachments{
+          wgpu::RenderPassColorAttachment{
+              .view = view,
+              .loadOp = wgpu::LoadOp::Load,
+              .storeOp = wgpu::StoreOp::Store,
+          },
+      };
+      auto renderPassDescriptor = wgpu::RenderPassDescriptor{
+          .label = "ImGui render pass",
           .colorAttachmentCount = attachments.size(),
           .colorAttachments = attachments.data(),
       };
       auto pass = encoder.BeginRenderPass(&renderPassDescriptor);
-      ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), pass.Get());
+      imgui::render(pass);
       pass.End();
     }
     const auto buffer = encoder.Finish();
-    g_Queue.Submit(1, &buffer);
-    g_SwapChain.Present();
+    g_queue.Submit(1, &buffer);
+    g_swapChain.Present();
 
     g_AppDelegate->onAppPostDraw();
+
+    ImGui::EndFrame();
   }
 
   g_AppDelegate->onAppExiting();
 
-  wgpuSwapChainRelease(g_SwapChain.Release());
-  wgpuQueueRelease(g_Queue.Release());
-  g_BackendBinding.reset();
-  wgpuDeviceRelease(g_Device.Release());
-  g_Instance.reset();
+  imgui::shutdown();
+  gpu::shutdown();
   SDL_DestroyWindow(g_Window);
   SDL_Quit();
 }
 
 std::vector<std::string> get_args() noexcept { return g_Args; }
+
 WindowSize get_window_size() noexcept {
   int width, height;
   SDL_GetWindowSize(g_Window, &width, &height);
   return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 }
+
 void set_window_title(zstring_view title) noexcept { SDL_SetWindowTitle(g_Window, title.c_str()); }
+
 Backend get_backend() noexcept {
-  switch (g_AdapterProperties.backendType) {
+  switch (gpu::g_backendType) {
   case wgpu::BackendType::WebGPU:
     return Backend::WebGPU;
   case wgpu::BackendType::D3D11:
@@ -374,7 +317,9 @@ Backend get_backend() noexcept {
     return Backend::Invalid;
   }
 }
-std::string_view get_backend_string() noexcept { return magic_enum::enum_name(g_AdapterProperties.backendType); }
+
+std::string_view get_backend_string() noexcept { return magic_enum::enum_name(gpu::g_backendType); }
+
 void set_fullscreen(bool fullscreen) noexcept {
   auto flags = SDL_GetWindowFlags(g_Window);
   if (fullscreen) {
@@ -388,12 +333,15 @@ void set_fullscreen(bool fullscreen) noexcept {
 int32_t get_controller_player_index(uint32_t which) noexcept {
   return -1; // TODO
 }
+
 void set_controller_player_index(uint32_t which, int32_t index) noexcept {
   // TODO
 }
+
 bool is_controller_gamecube(uint32_t which) noexcept {
   return true; // TODO
 }
+
 std::string get_controller_name(uint32_t which) noexcept {
   return ""; // TODO
 }
