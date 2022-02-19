@@ -31,30 +31,29 @@ bool CInputStream::InternalReadNext() {
 bool CInputStream::GrabAnotherBlock() { return InternalReadNext(); }
 
 void CInputStream::Get(u8* dest, u32 len) {
+  u32 readLen = 0;
   x20_bitOffset = 0;
-  u32 offset = 0;
   while (len != 0) {
     u32 blockLen = x8_blockLen - x4_blockOffset;
     if (len < blockLen) {
       blockLen = len;
     }
 
-    if (blockLen == 0) {
-      if (len <= 256) {
-        GrabAnotherBlock();
-      } else {
-        u32 readLen = Read(dest + offset, len);
-        len -= readLen;
-        offset += readLen;
-      }
-    } else {
-      memcpy(dest + offset, x10_ptr + x4_blockOffset, blockLen);
+    if (blockLen != 0) {
+      memcpy(dest + readLen, x10_ptr + x4_blockOffset, blockLen);
       len -= blockLen;
+      readLen += blockLen;
       x4_blockOffset += blockLen;
+    } else if (len > 256) {
+      u32 tmp = Read(dest + readLen, len);
+      len -= tmp;
+      readLen += tmp;
+    } else {
+      GrabAnotherBlock();
     }
   }
 
-  x18_readPosition += offset;
+  x18_readPosition += readLen;
 }
 
 u32 CInputStream::ReadBytes(void* dest, u32 len) {
@@ -66,31 +65,26 @@ u32 CInputStream::ReadBytes(void* dest, u32 len) {
     GrabAnotherBlock();
   }
 
-  u32 curReadLen = 0;
   u32 curLen = len;
+  u32 curReadLen = 0;
 
-  do {
-    while (true) {
-      if (len <= curReadLen) {
-        x18_readPosition += curReadLen;
-        return curReadLen;
-      }
-
-      u32 readCount = x8_blockLen - x4_blockOffset;
-      if (readCount == 0) {
-        break;
-      }
-
-      if (curLen < readCount) {
-        readCount = curLen;
-      }
-
-      memcpy(reinterpret_cast<u8*>(dest) + curReadLen, x10_ptr + x4_blockOffset, readCount);
-      curReadLen += readCount;
-      curLen -= readCount;
+  while (curReadLen < len) {
+    if ((x8_blockLen - x4_blockOffset) == 0 && !InternalReadNext()) {
+      break;
     }
-  } while (InternalReadNext());
 
+    u32 readCount = x8_blockLen - x4_blockOffset;
+    if (curLen < (x8_blockLen - x4_blockOffset)) {
+      readCount = curLen;
+    }
+
+    memcpy(reinterpret_cast<u8*>(dest) + curReadLen, x10_ptr + x4_blockOffset, readCount);
+    curReadLen += readCount;
+    curLen -= readCount;
+    x4_blockOffset += readCount;
+  }
+
+  x18_readPosition += curReadLen;
   return curReadLen;
 }
 

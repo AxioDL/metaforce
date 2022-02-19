@@ -599,9 +599,9 @@ void CEnvFxManager::Cleanup() {
 void CEnvFxManager::Initialize() {
   const SObjectTag* tag = g_ResFactory->GetResourceIdByName("DUMB_SnowForces");
   std::unique_ptr<u8[]> data = g_ResFactory->LoadResourceSync(*tag);
-  athena::io::MemoryReader r(data.get(), 2048);
+  CMemoryInStream r(data.get(), 2048, CMemoryInStream::EOwnerShip::NotOwned);
   for (int i = 0; i < 256; ++i)
-    g_SnowForces.push_back(r.readVec2fBig());
+    g_SnowForces.push_back(r.Get<zeus::CVector2f>());
 }
 
 } // namespace metaforce

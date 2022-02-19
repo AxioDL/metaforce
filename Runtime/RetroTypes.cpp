@@ -9,13 +9,13 @@ namespace metaforce {
 logvisor::Module Log("metaforce::RetroTypes::CAssetId");
 
 SObjectTag::SObjectTag(CInputStream& in) {
-  in.ReadBytes(reinterpret_cast<char*>(&type), 4);
+  in.Get(reinterpret_cast<u8*>(&type), 4);
   id = in.Get<CAssetId>();
 }
 
 void SObjectTag::ReadMLVL(CInputStream& in) {
   id = in.Get<CAssetId>();
-  in.ReadBytes(reinterpret_cast<char*>(&type), 4);
+  in.Get(reinterpret_cast<u8*>(&type), 4);
 }
 
 CAssetId::CAssetId(CInputStream& in) {
