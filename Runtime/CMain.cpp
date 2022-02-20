@@ -393,7 +393,6 @@ public:
       m_imGuiConsole.ShowAboutWindow(false, m_errorString);
     }
 
-
     if (m_quitRequested) {
       if (g_mainMP1) {
         g_mainMP1->Quit();
@@ -474,7 +473,6 @@ public:
   }
 
   void onCharKeyDown(uint8_t code, aurora::ModifierKey mods, bool isRepeat) noexcept override {
-    Log.report(logvisor::Info, FMT_STRING("DEBUG CHAR KEYS: '{}', isRepeat {}"), static_cast<char>(code), isRepeat);
     //    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
@@ -485,7 +483,6 @@ public:
   }
 
   void onCharKeyUp(uint8_t code, aurora::ModifierKey mods) noexcept override {
-    Log.report(logvisor::Info, FMT_STRING("DEBUG CHAR KEYS: '{}'"), static_cast<char>(code));
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
         as->charKeyUp(code, mods);
@@ -494,8 +491,6 @@ public:
   }
 
   void onSpecialKeyDown(aurora::SpecialKey key, aurora::ModifierKey mods, bool isRepeat) noexcept override {
-    Log.report(logvisor::Info, FMT_STRING("DEBUG KEYS: SpecialKey {}, isRepeat {}"), key, isRepeat);
-    /* TODO: Temporarily convert the aurora enum to boo's until we refactor everything */
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
         as->specialKeyDown(key, mods, isRepeat);
@@ -511,7 +506,6 @@ public:
   }
 
   void onSpecialKeyUp(aurora::SpecialKey key, aurora::ModifierKey mods) noexcept override {
-    /* TODO: Temporarily convert the aurora enum to boo's until we refactor everything */
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
         as->specialKeyUp(key, mods);
@@ -519,13 +513,17 @@ public:
     }
   }
 
-  void onImGuiInit(float scale) noexcept override {
-    ImGuiEngine_Initialize(scale);
-  }
+  void onTextInput(const std::string& text) noexcept override {}
 
-  void onImGuiAddTextures() noexcept override {
-    ImGuiEngine_AddTextures();
-  }
+  void onModifierKeyDown(aurora::ModifierKey mods, bool isRepeat) noexcept override {}
+  void onModifierKeyUp(aurora::ModifierKey mods) noexcept override {}
+
+  void onMouseMove(int32_t x, int32_t y, int32_t xrel, int32_t yrel, aurora::MouseButton state) noexcept override {}
+  void onMouseButtonDown(int32_t x, int32_t y, aurora::MouseButton button, int32_t clicks) noexcept override {}
+  void onMouseButtonUp(int32_t x, int32_t y, aurora::MouseButton button) noexcept override {}
+  void onImGuiInit(float scale) noexcept override { ImGuiEngine_Initialize(scale); }
+
+  void onImGuiAddTextures() noexcept override { ImGuiEngine_AddTextures(); }
 
   [[nodiscard]] std::string getGraphicsApi() const { return m_cvarCommons.getGraphicsApi(); }
 
@@ -584,10 +582,10 @@ static bool IsClientLoggingEnabled(int argc, char** argv) {
 
 #if !WINDOWS_STORE
 int main(int argc, char** argv) {
-  //TODO: This seems to fix a lot of weird issues with rounding
-  // but breaks animations, need to research why this is the case
-  // for now it's disabled
-  //fesetround(FE_TOWARDZERO);
+  // TODO: This seems to fix a lot of weird issues with rounding
+  //  but breaks animations, need to research why this is the case
+  //  for now it's disabled
+  // fesetround(FE_TOWARDZERO);
   if (argc > 1 && !hecl::StrCmp(argv[1], "--dlpackage")) {
     fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;

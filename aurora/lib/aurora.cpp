@@ -64,14 +64,11 @@ static bool poll_events() noexcept {
         g_AppDelegate->onAppWindowMoved(event.window.data1, event.window.data2);
         break;
       }
+      case SDL_WINDOWEVENT_SIZE_CHANGED:
       case SDL_WINDOWEVENT_RESIZED: {
         gpu::resize_swapchain(event.window.data1, event.window.data2);
         g_AppDelegate->onAppWindowResized(
             {static_cast<uint32_t>(event.window.data1), static_cast<uint32_t>(event.window.data2)});
-        break;
-      }
-      case SDL_WINDOWEVENT_SIZE_CHANGED: {
-        // TODO: handle size changed event
         break;
       }
       case SDL_WINDOWEVENT_MINIMIZED: {
@@ -136,31 +133,77 @@ static bool poll_events() noexcept {
     case SDL_CONTROLLERBUTTONUP:
     case SDL_CONTROLLERBUTTONDOWN: {
       g_AppDelegate->onControllerButton(
-          event.cbutton.which, input::translate_button(static_cast<SDL_GameControllerButton>(event.cbutton.button)),
+          event.cbutton.which,
+          input::translate_controller_button(static_cast<SDL_GameControllerButton>(event.cbutton.button)),
           event.cbutton.state == SDL_PRESSED);
       break;
     }
     case SDL_CONTROLLERAXISMOTION: {
-      g_AppDelegate->onControllerAxis(event.caxis.which,
-                                      input::translate_axis(static_cast<SDL_GameControllerAxis>(event.caxis.axis)),
-                                      event.caxis.value);
+      g_AppDelegate->onControllerAxis(
+          event.caxis.which, input::translate_controller_axis(static_cast<SDL_GameControllerAxis>(event.caxis.axis)),
+          event.caxis.value);
       break;
     }
     case SDL_KEYDOWN: {
       if (!ImGui::GetIO().WantCaptureKeyboard) {
-        // TODO
+        SpecialKey specialKey{};
+        ModifierKey modifierKey{};
+        char chr = input::translate_key(event.key.keysym, specialKey, modifierKey);
+        if (chr != 0) {
+          modifierKey = input::translate_modifiers(event.key.keysym.mod);
+          g_AppDelegate->onCharKeyDown(chr, modifierKey, event.key.repeat != 0u);
+        } else if (specialKey != SpecialKey::None) {
+          modifierKey = input::translate_modifiers(event.key.keysym.mod);
+          g_AppDelegate->onSpecialKeyDown(specialKey, modifierKey, event.key.repeat != 0u);
+        } else if (modifierKey != ModifierKey::None) {
+          g_AppDelegate->onModifierKeyDown(modifierKey, event.key.repeat != 0u);
+        }
       }
       break;
     }
     case SDL_KEYUP: {
       if (!ImGui::GetIO().WantCaptureKeyboard) {
-        // TODO
+        SpecialKey specialKey{};
+        ModifierKey modifierKey{};
+        char chr = input::translate_key(event.key.keysym, specialKey, modifierKey);
+        if (chr != 0) {
+          modifierKey = input::translate_modifiers(event.key.keysym.mod);
+          g_AppDelegate->onCharKeyUp(chr, modifierKey);
+        } else if (specialKey != SpecialKey::None) {
+          modifierKey = input::translate_modifiers(event.key.keysym.mod);
+          g_AppDelegate->onSpecialKeyUp(specialKey, modifierKey);
+        } else if (modifierKey != ModifierKey::None) {
+          g_AppDelegate->onModifierKeyUp(modifierKey);
+        }
       }
       break;
     }
     case SDL_TEXTINPUT: {
       if (!ImGui::GetIO().WantCaptureKeyboard) {
-        // TODO
+        std::string str;
+        str.assign(&event.text.text[0], SDL_TEXTINPUTEVENT_TEXT_SIZE);
+        g_AppDelegate->onTextInput(str);
+      }
+      break;
+    }
+    case SDL_MOUSEBUTTONDOWN: {
+      if (!ImGui::GetIO().WantCaptureMouse) {
+        g_AppDelegate->onMouseButtonDown(event.button.x, event.button.y,
+                                         input::translate_mouse_button(event.button.button), event.button.clicks);
+      }
+      break;
+    }
+    case SDL_MOUSEBUTTONUP: {
+      if (!ImGui::GetIO().WantCaptureMouse) {
+        g_AppDelegate->onMouseButtonUp(event.button.x, event.button.y,
+                                       input::translate_mouse_button(event.button.button));
+      }
+      break;
+    }
+    case SDL_MOUSEMOTION: {
+      if (!ImGui::GetIO().WantCaptureMouse) {
+        g_AppDelegate->onMouseMove(event.motion.x, event.motion.y, event.motion.xrel, event.motion.yrel,
+                                   input::translate_mouse_button_state(event.motion.state));
       }
       break;
     }
@@ -334,13 +377,7 @@ Backend get_backend() noexcept {
 std::string_view get_backend_string() noexcept { return magic_enum::enum_name(gpu::g_backendType); }
 
 void set_fullscreen(bool fullscreen) noexcept {
-  auto flags = SDL_GetWindowFlags(g_Window);
-  if (fullscreen) {
-    flags |= SDL_WINDOW_FULLSCREEN;
-  } else {
-    flags &= ~SDL_WINDOW_FULLSCREEN;
-  }
-  SDL_SetWindowFullscreen(g_Window, flags);
+  SDL_SetWindowFullscreen(g_Window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
 
 int32_t get_controller_player_index(uint32_t which) noexcept {
@@ -354,6 +391,6 @@ bool is_controller_gamecube(uint32_t which) noexcept {
 }
 
 std::string get_controller_name(uint32_t instance) noexcept {
-  return input::name(instance); // TODO
+  return input::controller_name(instance); // TODO
 }
 } // namespace aurora

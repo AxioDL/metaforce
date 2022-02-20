@@ -175,6 +175,16 @@ struct WindowSize {
   uint32_t width;
   uint32_t height;
 };
+enum class MouseButton {
+  None = 0,
+  Primary = 1 << 0,
+  Middle = 1 << 1,
+  Secondary = 1 << 2,
+  Aux1 = 1 << 3,
+  Aux2 = 1 << 4,
+};
+ENABLE_BITWISE_ENUM(MouseButton);
+
 enum class Backend : uint8_t {
   Invalid,
   Vulkan,
@@ -212,6 +222,12 @@ struct AppDelegate {
   virtual void onCharKeyUp(uint8_t charCode, ModifierKey mods) noexcept = 0;
   virtual void onSpecialKeyDown(SpecialKey key, ModifierKey mods, bool isRepeat) noexcept = 0;
   virtual void onSpecialKeyUp(SpecialKey key, ModifierKey mods) noexcept = 0;
+  virtual void onModifierKeyDown(ModifierKey mods, bool isRepeat) noexcept = 0;
+  virtual void onModifierKeyUp(ModifierKey mods) noexcept = 0;
+  virtual void onTextInput(const std::string& input) noexcept = 0;
+  virtual void onMouseMove(int32_t x, int32_t y, int32_t xrel, int32_t yrel, MouseButton state) noexcept = 0;
+  virtual void onMouseButtonDown(int32_t x, int32_t y, MouseButton button, int32_t clicks) noexcept = 0;
+  virtual void onMouseButtonUp(int32_t x, int32_t y, MouseButton button) noexcept = 0;
 
   // Controller
   virtual void onControllerAdded(uint32_t which) noexcept = 0;
