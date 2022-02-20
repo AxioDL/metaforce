@@ -271,7 +271,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   }
 
   imgui::create_context();
-  g_AppDelegate->onImGuiInit(1.f); // TODO scale
+  g_AppDelegate->onImGuiInit(g_AppDpi);
   imgui::initialize(g_Window);
   g_AppDelegate->onImGuiAddTextures();
 
