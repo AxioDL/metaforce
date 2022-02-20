@@ -76,18 +76,24 @@ ControllerButton translate_button(SDL_GameControllerButton btn) {
     return ControllerButton::Back;
   case SDL_CONTROLLER_BUTTON_GUIDE:
     return ControllerButton::Guide;
+  case SDL_CONTROLLER_BUTTON_START:
+    return ControllerButton::Start;
   case SDL_CONTROLLER_BUTTON_LEFTSTICK:
     return ControllerButton::LeftStick;
   case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
     return ControllerButton::RightStick;
   case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
     return ControllerButton::LeftShoulder;
+  case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
+    return ControllerButton::RightShoulder;
   case SDL_CONTROLLER_BUTTON_DPAD_UP:
     return ControllerButton::DPadUp;
   case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
     return ControllerButton::DPadDown;
   case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
     return ControllerButton::DPadRight;
+  case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+    return ControllerButton::DPadLeft;
   default:
     return ControllerButton::Other;
   }
