@@ -1,7 +1,8 @@
 #include "common.hpp"
 
 #include "../gpu.hpp"
-#include "textured_quad//shader.hpp"
+#include "colored_quad/shader.hpp"
+#include "textured_quad/shader.hpp"
 #include "movie_player/shader.hpp"
 
 #include <condition_variable>
@@ -18,12 +19,14 @@ using gpu::g_queue;
 
 struct ShaderState {
   movie_player::State moviePlayer;
+  colored_quad::State coloredQuad;
   textured_quad::State texturedQuad;
 };
 struct ShaderDrawCommand {
   ShaderType type;
   union {
     movie_player::DrawData moviePlayer;
+    colored_quad::DrawData coloredQuad;
     textured_quad::DrawData texturedQuad;
   };
 };
@@ -31,6 +34,7 @@ struct PipelineCreateCommand {
   ShaderType type;
   union {
     movie_player::PipelineConfig moviePlayer;
+    colored_quad::PipelineConfig coloredQuad;
     textured_quad::PipelineConfig texturedQuad;
   };
 };
@@ -148,15 +152,18 @@ void queue_fog_volume_filter(const zeus::CColor& color, bool two_way) noexcept {
   // TODO
 }
 
-void queue_textured_quad_verts(CameraFilterType filter_type, const TextureHandle& texture, ZTest z_comparison,
+void queue_textured_quad_verts(CameraFilterType filter_type, const TextureHandle& texture, ZComp z_comparison,
                                bool z_test, const zeus::CColor& color, const ArrayRef<zeus::CVector3f>& pos,
                                const ArrayRef<zeus::CVector2f>& uvs, float lod) noexcept {
-  // TODO
+  auto data = textured_quad::make_draw_data_verts(g_state.texturedQuad, filter_type, texture, z_comparison, z_test,
+                                                  color, pos, uvs, lod);
+  push_draw_command({.type = ShaderType::TexturedQuad, .texturedQuad = data});
 }
-void queue_textured_quad(CameraFilterType filter_type, const TextureHandle& texture, ZTest z_comparison, bool z_test,
-                         const zeus::CColor& color, float uv_scale, const zeus::CRectangle& rect, float z) noexcept {
+void queue_textured_quad(CameraFilterType filter_type, const TextureHandle& texture, ZComp z_comparison, bool z_test,
+                         const zeus::CColor& color, float uv_scale, const zeus::CRectangle& rect, float z,
+                         float lod) noexcept {
   auto data = textured_quad::make_draw_data(g_state.texturedQuad, filter_type, texture, z_comparison, z_test, color,
-                                            uv_scale, rect, z);
+                                            uv_scale, rect, z, lod);
   push_draw_command({.type = ShaderType::TexturedQuad, .texturedQuad = data});
 }
 template <>
@@ -165,13 +172,21 @@ PipelineRef pipeline_ref(textured_quad::PipelineConfig config) {
                        [=]() { return create_pipeline(g_state.texturedQuad, config); });
 }
 
-void queue_colored_quad_verts(CameraFilterType filter_type, ZTest z_comparison, bool z_test, const zeus::CColor& color,
+void queue_colored_quad_verts(CameraFilterType filter_type, ZComp z_comparison, bool z_test, const zeus::CColor& color,
                               const ArrayRef<zeus::CVector3f>& pos) noexcept {
-  // TODO
+  auto data = colored_quad::make_draw_data_verts(g_state.coloredQuad, filter_type, z_comparison, z_test, color, pos);
+  push_draw_command({.type = ShaderType::ColoredQuad, .coloredQuad = data});
 }
-void queue_colored_quad(CameraFilterType filter_type, ZTest z_comparison, bool z_test, const zeus::CColor& color,
+void queue_colored_quad(CameraFilterType filter_type, ZComp z_comparison, bool z_test, const zeus::CColor& color,
                         const zeus::CRectangle& rect, float z) noexcept {
-  // TODO
+  auto data = colored_quad::make_draw_data(g_state.coloredQuad, filter_type, z_comparison, z_test, color, rect, z);
+  push_draw_command({.type = ShaderType::ColoredQuad, .coloredQuad = data});
+}
+
+template <>
+PipelineRef pipeline_ref(colored_quad::PipelineConfig config) {
+  return find_pipeline({.type = ShaderType::ColoredQuad, .coloredQuad = config},
+                       [=]() { return create_pipeline(g_state.coloredQuad, config); });
 }
 
 void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v,
@@ -245,6 +260,7 @@ void initialize() {
   }
 
   g_state.moviePlayer = movie_player::construct_state();
+  g_state.coloredQuad = colored_quad::construct_state();
   g_state.texturedQuad = textured_quad::construct_state();
 }
 
@@ -288,6 +304,9 @@ void render(const wgpu::RenderPassEncoder& pass) {
       switch (draw.type) {
       case ShaderType::Aabb:
         // TODO
+        break;
+      case ShaderType::ColoredQuad:
+        colored_quad::render(g_state.coloredQuad, draw.coloredQuad, pass);
         break;
       case ShaderType::TexturedQuad:
         textured_quad::render(g_state.texturedQuad, draw.texturedQuad, pass);

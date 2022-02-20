@@ -76,7 +76,7 @@ enum class CameraFilterType : uint8_t {
   NoColor,
   InvDstMultiply,
 };
-enum class ZTest : uint8_t {
+enum class ZComp : uint8_t {
   Never,
   Less,
   Equal,
@@ -104,14 +104,14 @@ void add_model(/* TODO */) noexcept;
 void queue_aabb(const zeus::CAABox& aabb, const zeus::CColor& color, bool z_only) noexcept;
 void queue_fog_volume_plane(const ArrayRef<zeus::CVector4f>& verts, uint8_t pass);
 void queue_fog_volume_filter(const zeus::CColor& color, bool two_way) noexcept;
-void queue_textured_quad_verts(CameraFilterType filter_type, const TextureHandle& texture, ZTest z_comparison,
+void queue_textured_quad_verts(CameraFilterType filter_type, const TextureHandle& texture, ZComp z_comparison,
                                bool z_test, const zeus::CColor& color, const ArrayRef<zeus::CVector3f>& pos,
                                const ArrayRef<zeus::CVector2f>& uvs, float lod) noexcept;
-void queue_textured_quad(CameraFilterType filter_type, const TextureHandle& texture, ZTest z_comparison, bool z_test,
-                         const zeus::CColor& color, float uv_scale, const zeus::CRectangle& rect, float z) noexcept;
-void queue_colored_quad_verts(CameraFilterType filter_type, ZTest z_comparison, bool z_test, const zeus::CColor& color,
+void queue_textured_quad(CameraFilterType filter_type, const TextureHandle& texture, ZComp z_comparison, bool z_test,
+                         const zeus::CColor& color, float uv_scale, const zeus::CRectangle& rect, float z, float lod = 0) noexcept;
+void queue_colored_quad_verts(CameraFilterType filter_type, ZComp z_comparison, bool z_test, const zeus::CColor& color,
                               const ArrayRef<zeus::CVector3f>& pos) noexcept;
-void queue_colored_quad(CameraFilterType filter_type, ZTest z_comparison, bool z_test, const zeus::CColor& color,
+void queue_colored_quad(CameraFilterType filter_type, ZComp z_comparison, bool z_test, const zeus::CColor& color,
                         const zeus::CRectangle& rect, float z) noexcept;
 void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v,
                         const zeus::CColor& color, float h_pad, float v_pad) noexcept;

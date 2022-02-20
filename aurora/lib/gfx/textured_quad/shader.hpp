@@ -10,7 +10,7 @@ struct DrawData {
 
 struct PipelineConfig {
   CameraFilterType filterType;
-  ZTest zComparison;
+  ZComp zComparison;
   bool zTest;
 };
 static const std::array INITIAL_PIPELINES{
@@ -40,7 +40,10 @@ static_assert(sizeof(Uniform) == 84);
 State construct_state();
 wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] PipelineConfig config);
 DrawData make_draw_data(const State& state, CameraFilterType filter_type, const TextureHandle& texture,
-                        ZTest z_comparison, bool z_test, const zeus::CColor& color, float uv_scale,
-                        const zeus::CRectangle& rect, float z);
+                        ZComp z_comparison, bool z_test, const zeus::CColor& color, float uv_scale,
+                        const zeus::CRectangle& rect, float z, float lod);
+DrawData make_draw_data_verts(const State& state, CameraFilterType filter_type, const TextureHandle& texture,
+                        ZComp z_comparison, bool z_test, const zeus::CColor& color,
+                        const ArrayRef<zeus::CVector3f>& pos, const ArrayRef<zeus::CVector2f>& uvs, float lod);
 void render(const State& state, const DrawData& data, const wgpu::RenderPassEncoder& pass);
 } // namespace aurora::gfx::textured_quad

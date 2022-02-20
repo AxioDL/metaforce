@@ -54,10 +54,24 @@ void ImGuiEngine_Initialize(float scale) {
   ImGuiEngine::fontLarge = io.Fonts->AddFont(&fontConfig);
 
   auto& style = ImGui::GetStyle();
+  style.WindowPadding = ImVec2(15, 15);
+  style.WindowRounding = 5.0f;
+  style.FrameBorderSize = 1.f;
+  style.FramePadding = ImVec2(5, 5);
   style.FrameRounding = 4.0f;
-  style.GrabRounding = 4.0f;
+  style.ItemSpacing = ImVec2(12, 8);
+  style.ItemInnerSpacing = ImVec2(8, 6);
+  style.IndentSpacing = 25.0f;
+  style.ScrollbarSize = 15.0f;
+  style.ScrollbarRounding = 9.0f;
+  style.GrabMinSize = 5.0f;
+  style.GrabRounding = 3.0f;
+  style.PopupBorderSize = 1.f;
+  style.PopupRounding = 7.0;
+  style.TabBorderSize = 1.f;
+  style.TabRounding = 3.f;
 
-  auto colors = style.Colors;
+  auto* colors = style.Colors;
   colors[ImGuiCol_Text] = ImVec4(0.95f, 0.96f, 0.98f, 1.00f);
   colors[ImGuiCol_TextDisabled] = ImVec4(0.36f, 0.42f, 0.47f, 1.00f);
   colors[ImGuiCol_WindowBg] = ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
@@ -125,7 +139,6 @@ Icon GetIcon() {
 
 void ImGuiEngine_AddTextures() {
   auto icon = GetIcon();
-  ImGuiEngine::metaforceIcon =
-      aurora::imgui::add_texture(icon.width, icon.height, {icon.data.get(), icon.size});
+  ImGuiEngine::metaforceIcon = aurora::imgui::add_texture(icon.width, icon.height, {icon.data.get(), icon.size});
 }
 } // namespace metaforce

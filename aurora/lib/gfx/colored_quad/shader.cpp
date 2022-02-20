@@ -5,8 +5,8 @@
 #include <logvisor/logvisor.hpp>
 #include <magic_enum.hpp>
 
-namespace aurora::gfx::textured_quad {
-static logvisor::Module Log("aurora::gfx::textured_quad");
+namespace aurora::gfx::colored_quad {
+static logvisor::Module Log("aurora::gfx::colored_quad");
 
 using gpu::g_device;
 using gpu::g_graphicsConfig;
@@ -20,36 +20,31 @@ State construct_state() {
 struct Uniform {
     xf: mat4x4<f32>;
     color: vec4<f32>;
-    lod: f32;
 };
 @group(0) @binding(0)
 var<uniform> ubuf: Uniform;
-@group(0) @binding(1)
-var texture_sampler: sampler;
-@group(1) @binding(0)
-var texture: texture_2d<f32>;
 
 struct VertexOutput {
     @builtin(position) pos: vec4<f32>;
-    @location(0) uv: vec2<f32>;
+    //@builtin(normal) norm: vec4<f32>;
 };
 
 @stage(vertex)
-fn vs_main(@location(0) in_pos: vec3<f32>, @location(1) in_uv: vec2<f32>) -> VertexOutput {
+fn vs_main(@location(0) in_pos: vec3<f32>) -> VertexOutput {//, @location(1) in_norm: vec3<f32>) -> VertexOutput {
     var out: VertexOutput;
     out.pos = ubuf.xf * vec4<f32>(in_pos, 1.0);
-    out.uv = in_uv;
+    //out.norm = in_norm;
     return out;
 }
 
 @stage(fragment)
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    return ubuf.color * textureSampleBias(texture, texture_sampler, in.uv, ubuf.lod);
+    return ubuf.color;
 }
 )""";
   const auto shaderDescriptor = wgpu::ShaderModuleDescriptor{
       .nextInChain = &wgslDescriptor,
-      .label = "Textured Quad Shader",
+      .label = "Colored Quad Shader",
   };
   auto shader = g_device.CreateShaderModule(&shaderDescriptor);
 
@@ -69,32 +64,14 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
                   .minBindingSize = uniform_size,
               },
       },
-      wgpu::BindGroupLayoutEntry{
-          .binding = 1,
-          .visibility = wgpu::ShaderStage::Fragment,
-          .sampler =
-              wgpu::SamplerBindingLayout{
-                  .type = wgpu::SamplerBindingType::Filtering,
-              },
-      },
   };
+
   const auto uniformLayoutDescriptor = wgpu::BindGroupLayoutDescriptor{
-      .label = "Textured Quad Uniform Bind Group Layout",
+      .label = "Colored Quad Uniform Bind Group Layout",
       .entryCount = uniformLayoutEntries.size(),
       .entries = uniformLayoutEntries.data(),
   };
   auto uniformLayout = g_device.CreateBindGroupLayout(&uniformLayoutDescriptor);
-
-  const auto samplerDescriptor = wgpu::SamplerDescriptor{
-      .addressModeU = wgpu::AddressMode::Repeat,
-      .addressModeV = wgpu::AddressMode::Repeat,
-      .addressModeW = wgpu::AddressMode::Repeat,
-      .magFilter = wgpu::FilterMode::Linear,
-      .minFilter = wgpu::FilterMode::Linear,
-      .mipmapFilter = wgpu::FilterMode::Linear,
-      .maxAnisotropy = g_graphicsConfig.textureAnistropy,
-  };
-  auto sampler = g_device.CreateSampler(&samplerDescriptor);
 
   const std::array uniformBindGroupEntries{
       wgpu::BindGroupEntry{
@@ -102,43 +79,22 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
           .buffer = g_uniformBuffer,
           .size = uniform_size,
       },
-      wgpu::BindGroupEntry{
-          .binding = 1,
-          .sampler = sampler,
-      },
   };
+
   const auto uniformBindGroupDescriptor = wgpu::BindGroupDescriptor{
-      .label = "Textured Quad Uniform Bind Group",
+      .label = "Colored Quad Uniform Bind Group",
       .layout = uniformLayout,
       .entryCount = uniformBindGroupEntries.size(),
       .entries = uniformBindGroupEntries.data(),
   };
   auto uniformBindGroup = g_device.CreateBindGroup(&uniformBindGroupDescriptor);
 
-  const auto textureBinding = wgpu::TextureBindingLayout{
-      .sampleType = wgpu::TextureSampleType::Float,
-      .viewDimension = wgpu::TextureViewDimension::e2D,
-  };
-  const std::array textureLayoutEntries{
-      wgpu::BindGroupLayoutEntry{
-          .binding = 0,
-          .visibility = wgpu::ShaderStage::Fragment,
-          .texture = textureBinding,
-      },
-  };
-  const auto textureLayoutDescriptor = wgpu::BindGroupLayoutDescriptor{
-      .label = "Textured Quad Texture Bind Group Layout",
-      .entryCount = textureLayoutEntries.size(),
-      .entries = textureLayoutEntries.data(),
-  };
-  auto textureLayout = g_device.CreateBindGroupLayout(&textureLayoutDescriptor);
-
   const std::array bindGroupLayouts{
       uniformLayout,
-      textureLayout,
   };
+
   const auto pipelineLayoutDescriptor = wgpu::PipelineLayoutDescriptor{
-      .label = "Textured Quad Pipeline Layout",
+      .label = "Colored Quad Pipeline Layout",
       .bindGroupLayoutCount = bindGroupLayouts.size(),
       .bindGroupLayouts = bindGroupLayouts.data(),
   };
@@ -148,18 +104,15 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
       .shader = shader,
       .uniformLayout = uniformLayout,
       .uniformBindGroup = uniformBindGroup,
-      .textureLayout = textureLayout,
-      .sampler = sampler,
       .pipelineLayout = pipelineLayout,
   };
 }
 
 wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] PipelineConfig config) {
-  const auto attributes =
-      make_vertex_attributes(std::array{wgpu::VertexFormat::Float32x3, wgpu::VertexFormat::Float32x2});
+  const auto attributes = make_vertex_attributes(std::array{wgpu::VertexFormat::Float32x3});
   const std::array vertexBuffers{make_vertex_buffer_layout(sizeof(Vert), attributes)};
 
-  wgpu::CompareFunction depthCompare;
+  wgpu::CompareFunction depthCompare{};
   switch (config.zComparison) {
   case ZComp::Never:
     depthCompare = wgpu::CompareFunction::Never;
@@ -193,7 +146,7 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
   };
 
   bool alphaWrite = false;
-  wgpu::BlendComponent blendComponent;
+  wgpu::BlendComponent blendComponent{};
   switch (config.filterType) {
   case CameraFilterType::Multiply:
     blendComponent = wgpu::BlendComponent{
@@ -259,7 +212,7 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
   };
 
   const auto pipelineDescriptor = wgpu::RenderPipelineDescriptor{
-      .label = "Textured Quad Pipeline",
+      .label = "Colored Quad Pipeline",
       .layout = state.pipelineLayout,
       .vertex = make_vertex_state(state.shader, vertexBuffers),
       .primitive =
@@ -273,12 +226,12 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
           },
       .fragment = &fragmentState,
   };
+
   return g_device.CreateRenderPipeline(&pipelineDescriptor);
 }
 
-DrawData make_draw_data(const State& state, CameraFilterType filter_type, const TextureHandle& texture,
-                        ZComp z_comparison, bool z_test, const zeus::CColor& color, float uv_scale,
-                        const zeus::CRectangle& rect, float z, float lod) {
+DrawData make_draw_data(const State& state, CameraFilterType filter_type, ZComp z_comparison, bool z_test,
+                        const zeus::CColor& color, const zeus::CRectangle& rect, float z) {
   auto pipeline = pipeline_ref(PipelineConfig{
       .filterType = filter_type,
       .zComparison = z_comparison,
@@ -286,10 +239,10 @@ DrawData make_draw_data(const State& state, CameraFilterType filter_type, const 
   });
 
   const std::array verts{
-      Vert{{0.f, 0.f, z}, {0.0, 0.0}},
-      Vert{{0.f, 1.f, z}, {0.0, uv_scale}},
-      Vert{{1.f, 0.f, z}, {uv_scale, 0.0}},
-      Vert{{1.f, 1.f, z}, {uv_scale, uv_scale}},
+      Vert{{0.f, 0.f, z}},
+      Vert{{0.f, 1.f, z}},
+      Vert{{1.f, 0.f, z}},
+      Vert{{1.f, 1.f, z}},
   };
   const auto vertRange = push_verts(ArrayRef{verts});
 
@@ -302,75 +255,44 @@ DrawData make_draw_data(const State& state, CameraFilterType filter_type, const 
               Vec4<float>{rect.position.x() * 2.f - 1.f, rect.position.y() * 2.f - 1.f, 0.f, 1.f},
           },
       .color = color,
-      .lod = lod,
   };
   const auto uniformRange = push_uniform(uniform);
-
-  const std::array entries{
-      wgpu::BindGroupEntry{
-          .binding = 0,
-          .textureView = texture.ref->view,
-      },
-  };
-  const auto textureBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
-      .label = "Textured Quad Texture Bind Group",
-      .layout = state.textureLayout,
-      .entryCount = entries.size(),
-      .entries = entries.data(),
-  });
 
   return {
       .pipeline = pipeline,
       .vertRange = vertRange,
       .uniformRange = uniformRange,
-      .textureBindGroup = textureBindGroup,
   };
 }
 
-DrawData make_draw_data_verts(const State& state, CameraFilterType filter_type, const TextureHandle& texture,
-                        ZComp z_comparison, bool z_test, const zeus::CColor& color,
-                        const ArrayRef<zeus::CVector3f>& pos, const ArrayRef<zeus::CVector2f>& uvs, float lod) {
+DrawData make_draw_data_verts(const State& state, CameraFilterType filter_type, ZComp z_comparison, bool z_test,
+                              const zeus::CColor& color, const ArrayRef<zeus::CVector3f>& pos) {
   auto pipeline = pipeline_ref(PipelineConfig{
       .filterType = filter_type,
       .zComparison = z_comparison,
       .zTest = z_test,
   });
 
-  assert(pos.size() == 4 && uvs.size() == 4 && "Invalid pos/uv sizes!");
+  assert(pos.size() == 4 && "Invalid pos size!");
 
   const std::array verts{
-      Vert{pos[0], uvs[0]},
-      Vert{pos[1], uvs[1]},
-      Vert{pos[2], uvs[2]},
-      Vert{pos[3], uvs[3]},
+      Vert{pos[0]},
+      Vert{pos[1]},
+      Vert{pos[2]},
+      Vert{pos[3]},
   };
   const auto vertRange = push_verts(ArrayRef{verts});
 
   const auto uniform = Uniform{
       .xf = get_combined_matrix(),
       .color = color,
-      .lod = lod,
   };
   const auto uniformRange = push_uniform(uniform);
-
-  const std::array entries{
-      wgpu::BindGroupEntry{
-          .binding = 0,
-          .textureView = texture.ref->view,
-      },
-  };
-  const auto textureBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
-      .label = "Textured Quad Texture Bind Group",
-      .layout = state.textureLayout,
-      .entryCount = entries.size(),
-      .entries = entries.data(),
-  });
 
   return {
       .pipeline = pipeline,
       .vertRange = vertRange,
       .uniformRange = uniformRange,
-      .textureBindGroup = textureBindGroup,
   };
 }
 
@@ -381,8 +303,7 @@ void render(const State& state, const DrawData& data, const wgpu::RenderPassEnco
 
   const std::array offsets{data.uniformRange.first};
   pass.SetBindGroup(0, state.uniformBindGroup, offsets.size(), offsets.data());
-  pass.SetBindGroup(1, find_bind_group(data.textureBindGroup));
   pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.first, data.vertRange.second);
   pass.Draw(4);
 }
-} // namespace aurora::gfx::textured_quad
+} // namespace aurora::gfx::colored_quad

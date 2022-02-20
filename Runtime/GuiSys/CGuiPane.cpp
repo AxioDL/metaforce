@@ -16,7 +16,7 @@ void CGuiPane::Draw(const CGuiWidgetDrawParms& parms) {
     auto col = xa8_color2;
     col.a() = parms.x0_alphaMod * xa8_color2.a();
 
-    aurora::gfx::queue_colored_quad_verts(aurora::gfx::CameraFilterType::Blend, aurora::gfx::ZTest::Always, false, col,
+    aurora::gfx::queue_colored_quad_verts(aurora::gfx::CameraFilterType::Blend, aurora::gfx::ZComp::Always, false, col,
                                           xc0_verts);
   }
   CGuiWidget::Draw(parms);

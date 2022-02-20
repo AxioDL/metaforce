@@ -15,6 +15,7 @@ static logvisor::Module Log("aurora");
 // TODO: Move global state to a class/struct?
 static std::unique_ptr<AppDelegate> g_AppDelegate;
 static std::vector<std::string> g_Args;
+static float g_AppDpi = 1.f;
 
 // SDL
 static SDL_Window* g_Window;
@@ -112,11 +113,17 @@ static bool poll_events() noexcept {
         break;
       }
       case SDL_WINDOWEVENT_DISPLAY_CHANGED: {
-        // TODO: handle display chaaged event
+        printf("DISPLAY_CHANGED!\n");
+        float scale = 1.0f;
+        if (SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(g_Window), nullptr, &scale, nullptr) == 0) {
+          scale /= 96.0f;
+          if (g_AppDpi != scale) {
+            g_AppDelegate->onAppDisplayScaleChanged(scale);
+          }
+        }
         break;
       }
       }
-      /* TODO: More window events */
       break;
     }
     case SDL_CONTROLLERDEVICEADDED: {
@@ -258,6 +265,10 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
 
   gpu::initialize(g_Window);
   gfx::initialize();
+  g_AppDpi = 1.0f;
+  if (SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(g_Window), nullptr, &g_AppDpi, nullptr) == 0) {
+    g_AppDpi /= 96.0f;
+  }
 
   imgui::create_context();
   g_AppDelegate->onImGuiInit(1.f); // TODO scale
@@ -381,16 +392,16 @@ void set_fullscreen(bool fullscreen) noexcept {
 }
 
 int32_t get_controller_player_index(uint32_t which) noexcept {
-  return input::player_index(which); // TODO
+  return input::player_index(which);
 }
 
 void set_controller_player_index(uint32_t which, int32_t index) noexcept { input::set_player_index(which, index); }
 
 bool is_controller_gamecube(uint32_t which) noexcept {
-  return input::is_gamecube(which); // TODO
+  return input::is_gamecube(which);
 }
 
 std::string get_controller_name(uint32_t instance) noexcept {
-  return input::controller_name(instance); // TODO
+  return input::controller_name(instance);
 }
 } // namespace aurora

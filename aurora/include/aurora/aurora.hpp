@@ -211,6 +211,7 @@ struct AppDelegate {
   virtual void onAppPostDraw() noexcept = 0;
   virtual void onAppWindowResized(const WindowSize& size) noexcept = 0;
   virtual void onAppWindowMoved(int32_t x, int32_t y) noexcept = 0;
+  virtual void onAppDisplayScaleChanged(float scale) noexcept = 0;
   virtual void onAppExiting() noexcept = 0;
 
   // ImGui

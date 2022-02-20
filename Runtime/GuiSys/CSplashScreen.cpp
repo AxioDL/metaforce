@@ -76,7 +76,7 @@ void CSplashScreen::Draw() {
   aurora::gfx::queue_textured_quad(
       aurora::gfx::CameraFilterType::Blend,
       m_texture->GetTexture(),
-      aurora::gfx::ZTest::Always,
+      aurora::gfx::ZComp::Always,
       false,
       color,
       1.f,

@@ -432,6 +432,8 @@ public:
     // TODO: implement this
   }
 
+  void onAppDisplayScaleChanged(float scale) noexcept override { ImGuiEngine_Initialize(scale); }
+
   void onControllerButton(uint32_t idx, aurora::ControllerButton button, bool pressed) noexcept override {
     if (auto* input = g_InputGenerator) {
       input->controllerButton(idx, button, pressed);
