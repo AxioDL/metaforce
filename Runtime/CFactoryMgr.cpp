@@ -21,16 +21,16 @@ constexpr std::array TypeTable{
 
 CFactoryFnReturn CFactoryMgr::MakeObject(const SObjectTag& tag, metaforce::CInputStream& in,
                                          const CVParamTransfer& paramXfer, CObjectReference* selfRef) {
-  auto search = m_factories.find(tag.type);
-  if (search == m_factories.end())
+  auto search = x10_factories.find(tag.type);
+  if (search == x10_factories.end())
     return {};
 
   return search->second(tag, in, paramXfer, selfRef);
 }
 
 bool CFactoryMgr::CanMakeMemory(const metaforce::SObjectTag& tag) const {
-  auto search = m_memFactories.find(tag.type);
-  return search != m_memFactories.cend();
+  auto search = x24_memFactories.find(tag.type);
+  return search != x24_memFactories.cend();
 }
 
 CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, std::unique_ptr<u8[]>&& buf, int size,
@@ -39,8 +39,8 @@ CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, std::u
   OPTICK_EVENT();
   std::unique_ptr<u8[]> localBuf = std::move(buf);
 
-  const auto memFactoryIter = m_memFactories.find(tag.type);
-  if (memFactoryIter != m_memFactories.cend()) {
+  const auto memFactoryIter = x24_memFactories.find(tag.type);
+  if (memFactoryIter != x24_memFactories.cend()) {
     if (compressed) {
       std::unique_ptr<CInputStream> compRead =
           std::make_unique<CMemoryInStream>(localBuf.get(), size, CMemoryInStream::EOwnerShip::NotOwned);
@@ -53,8 +53,8 @@ CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, std::u
       return memFactoryIter->second(tag, std::move(localBuf), size, paramXfer, selfRef);
     }
   } else {
-    const auto factoryIter = m_factories.find(tag.type);
-    if (factoryIter == m_factories.end()) {
+    const auto factoryIter = x10_factories.find(tag.type);
+    if (factoryIter == x10_factories.end()) {
       return {};
     }
 

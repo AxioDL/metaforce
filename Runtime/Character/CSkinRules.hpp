@@ -32,8 +32,8 @@ public:
 
 class CSkinRules {
   std::vector<CVirtualBone> x0_bones;
-  u32 x10_vertexCount;
-  u32 x14_normalCount;
+  u32 x10_vertexCount = 0;
+  u32 x14_normalCount = 0;
 
 public:
   explicit CSkinRules(CInputStream& in);

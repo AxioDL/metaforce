@@ -7,8 +7,8 @@
 namespace metaforce {
 
 static u32 ReadCount(CInputStream& in) {
-  u32 result = in.ReadLong();
-  if (result == UINT32_MAX) {
+  s32 result = in.ReadLong();
+  if (result == -1) {
     return in.ReadLong();
   }
   u8 junk[784];
