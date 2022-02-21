@@ -22,6 +22,8 @@
 #include "Runtime/World/CWorld.hpp"
 #include "Runtime/World/ScriptLoader.hpp"
 
+#include "Runtime/Streams/IOStreams.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce::MP1 {
@@ -174,26 +176,59 @@ static CPatternedInfo LoadPatternedInfo(CInputStream& in) {
   return CPatternedInfo(in, pcount.second);
 }
 
-using CameraShakeData = DataSpec::DNAMP1::MetroidPrimeStage1::MassivePrimeStruct::CameraShakeData;
+struct SExoCameraShakePoint {
+  float x0_attackTime{};
+  float x4_sustainTime{};
+  float x8_duration{};
+  float xc_magnitude{};
+  SExoCameraShakePoint() = default;
+  SExoCameraShakePoint(CInputStream& in)
+  : x0_attackTime(in.ReadFloat())
+  , x4_sustainTime(in.ReadFloat())
+  , x8_duration(in.ReadFloat())
+  , xc_magnitude(in.ReadFloat()) {}
+};
 
-static SCameraShakePoint BuildCameraShakePoint(CameraShakeData::CameraShakerComponent::CameraShakePoint& sp) {
-  return SCameraShakePoint(false, sp.attackTime, sp.sustainTime, sp.duration, sp.magnitude);
+struct SExoCameraShakerComponent {
+  bool x0_useModulation{};
+  SExoCameraShakePoint x4_am{};
+  SExoCameraShakePoint x14_fm{};
+  SExoCameraShakerComponent() = default;
+  explicit SExoCameraShakerComponent(CInputStream& in)
+  : x0_useModulation(in.ReadBool()), x4_am(in.Get<SExoCameraShakePoint>()), x14_fm(in.Get<SExoCameraShakePoint>()) {}
+};
+
+struct SExoCameraShakeData {
+  bool x0_useSfx{};
+  float x4_duration{};
+  float x8_sfxDist{};
+  std::array<SExoCameraShakerComponent, 3> xc_components{};
+  SExoCameraShakeData() = default;
+  explicit SExoCameraShakeData(CInputStream& in)
+  : x0_useSfx(in.ReadBool()), x4_duration(in.ReadFloat()), x8_sfxDist(in.ReadFloat()) {
+    for (auto& component : xc_components) {
+      component = in.Get<SExoCameraShakerComponent>();
+    }
+  }
+};
+
+static SCameraShakePoint BuildCameraShakePoint(SExoCameraShakePoint& sp) {
+  return {false, sp.x0_attackTime, sp.x4_sustainTime, sp.x8_duration, sp.xc_magnitude};
 }
 
-static CCameraShakerComponent BuildCameraShakerComponent(CameraShakeData::CameraShakerComponent& comp) {
-  return CCameraShakerComponent(comp.useModulation, BuildCameraShakePoint(comp.am), BuildCameraShakePoint(comp.fm));
+static CCameraShakerComponent BuildCameraShakerComponent(SExoCameraShakerComponent& comp) {
+  return {comp.x0_useModulation, BuildCameraShakePoint(comp.x4_am), BuildCameraShakePoint(comp.x14_fm)};
 }
 
 static CCameraShakeData LoadCameraShakeData(CInputStream& in) {
-#if 0
-  CameraShakeData shakeData;
-  shakeData.read(in);
-  return CCameraShakeData(shakeData.duration, shakeData.sfxDist, u32(shakeData.useSfx), zeus::skZero3f,
-                          BuildCameraShakerComponent(shakeData.shakerComponents[0]),
-                          BuildCameraShakerComponent(shakeData.shakerComponents[1]),
-                          BuildCameraShakerComponent(shakeData.shakerComponents[2]));
-#endif
-  return {};
+  auto shakeData = in.Get<SExoCameraShakeData>();
+  return {shakeData.x4_duration,
+          shakeData.x8_sfxDist,
+          u32(shakeData.x0_useSfx),
+          zeus::skZero3f,
+          BuildCameraShakerComponent(shakeData.xc_components[0]),
+          BuildCameraShakerComponent(shakeData.xc_components[1]),
+          BuildCameraShakerComponent(shakeData.xc_components[2])};
 }
 
 static rstl::reserved_vector<SPrimeStruct4, 4> LoadPrimeStruct4s(CInputStream& in) {
@@ -206,8 +241,9 @@ static rstl::reserved_vector<SPrimeStruct4, 4> LoadPrimeStruct4s(CInputStream& i
 
 static rstl::reserved_vector<SPrimeStruct6, 4> LoadPrimeStruct6s(CInputStream& in) {
   rstl::reserved_vector<SPrimeStruct6, 4> ret;
-  for (int i = 0; i < 4; ++i)
+  for (int i = 0; i < 4; ++i) {
     ret.emplace_back(in);
+  }
   return ret;
 }
 
@@ -1492,7 +1528,8 @@ TUniqueId CMetroidPrimeExo::GetNextAttackWaypoint(CStateManager& mgr, bool b1) {
   return lastUid;
 }
 
-TUniqueId CMetroidPrimeExo::GetWaypointForBehavior(CStateManager& mgr, EScriptObjectState state, EScriptObjectMessage msg) {
+TUniqueId CMetroidPrimeExo::GetWaypointForBehavior(CStateManager& mgr, EScriptObjectState state,
+                                                   EScriptObjectMessage msg) {
   if (TCastToConstPtr<CMetroidPrimeRelay> relay = mgr.GetObjectById(x568_relayId)) {
     rstl::reserved_vector<TUniqueId, 8> uids;
     for (const auto& conn : relay->GetConnectionList()) {
