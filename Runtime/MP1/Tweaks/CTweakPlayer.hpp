@@ -2,10 +2,6 @@
 
 #include "Runtime/Tweaks/ITweakPlayer.hpp"
 
-namespace hecl {
-class CVar;
-}
-
 namespace metaforce::MP1 {
 
 struct CTweakPlayer final : Tweaks::ITweakPlayer {
@@ -310,8 +306,8 @@ struct CTweakPlayer final : Tweaks::ITweakPlayer {
   CTweakPlayer(CInputStream& in);
   void PutTo(COutputStream& out);
   void FixupValues();
-  void initCVars(hecl::CVarManager* mgr) override;
-  void _tweakListener(hecl::CVar* cv);
+  void initCVars(CVarManager* mgr) override;
+  void _tweakListener(CVar* cv);
 };
 
 } // namespace DataSpec::DNAMP1

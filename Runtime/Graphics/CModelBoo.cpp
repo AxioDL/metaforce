@@ -12,7 +12,7 @@
 
 #include <array>
 
-#include <hecl/CVarManager.hpp>
+#include "ConsoleVariables/CVarManager.hpp"
 #include <hecl/HMDLMeta.hpp>
 #include <logvisor/logvisor.hpp>
 #include <utility>
@@ -554,7 +554,7 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
 
   /* Ensure cubemap extension shaders fall back to non-cubemap equivalents if necessary */
   EExtendedShader intermediateExtended = flags.m_extendedShader;
-  if (!hecl::com_cubemaps->toBoolean() || g_Renderer->IsThermalVisorHotPass() || g_Renderer->IsThermalVisorActive()) {
+  if (!com_cubemaps->toBoolean() || g_Renderer->IsThermalVisorHotPass() || g_Renderer->IsThermalVisorActive()) {
     if (intermediateExtended == EExtendedShader::LightingCubeReflection)
       intermediateExtended = EExtendedShader::Lighting;
     else if (intermediateExtended == EExtendedShader::LightingCubeReflectionWorldShadow)

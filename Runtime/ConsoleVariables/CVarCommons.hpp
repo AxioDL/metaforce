@@ -4,12 +4,12 @@
 #include <cstdint>
 #include <string>
 
-#include "hecl/CVarManager.hpp"
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 
 #undef min
 #undef max
 
-namespace hecl {
+namespace metaforce {
 
 using namespace std::literals;
 

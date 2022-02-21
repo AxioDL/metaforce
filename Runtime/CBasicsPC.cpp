@@ -1,21 +1,26 @@
 #ifndef _WIN32
-#include <unistd.h>
 #include <sys/time.h>
+#include <unistd.h>
 #if __APPLE__
 #include <mach/mach_time.h>
 #endif
-#else
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
 #endif
 
-#include <cstdio>
+#include <algorithm>
 #include <cstdarg>
+#include <cstdio>
+#include <cstring>
 #include <ctime>
+#ifdef WIN32
+#include <windows.h>
+#ifndef _WIN32_IE
+#define _WIN32_IE 0x0400
+#endif
+#include <shlobj.h>
+#endif
 
 #include "Runtime/CBasics.hpp"
+#include <logvisor/logvisor.hpp>
 
 #if __APPLE__
 static u64 MachToDolphinNum;
@@ -25,7 +30,7 @@ static LARGE_INTEGER PerfFrequency;
 #endif
 
 namespace metaforce {
-
+static logvisor::Module LogModule("metaforce::CBasics");
 void CBasics::Initialize() {
 #if __APPLE__
   mach_timebase_info_data_t timebase;
@@ -192,6 +197,134 @@ void CBasics::Swap8Bytes(u8* v) {
          ((val & 0x0000FF0000000000ULL) >> 24) | ((val & 0x000000FF00000000ULL) >> 8) |
          ((val & 0x00000000FF000000ULL) << 8) | ((val & 0x0000000000FF0000ULL) << 24) |
          ((val & 0x000000000000FF00ULL) << 40) | ((val & 0x00000000000000FFULL) << 56);
+#endif
+}
+
+int CBasics::Stat(const char* path, Sstat* statOut) {
+#if _WIN32
+  size_t pos;
+  const nowide::wstackstring wpath(path);
+  const wchar_t* wpathP = wpath.get();
+  for (pos = 0; pos < 3 && wpathP[pos] != L'\0'; ++pos) {}
+  if (pos == 2 && wpathP[1] == L':') {
+    wchar_t fixPath[4] = {wpathP[0], L':', L'/', L'\0'};
+    return _wstat64(fixPath, statOut);
+  }
+  return _wstat64(wpath.get(), statOut);
+#else
+  return stat(path, statOut);
+#endif
+}
+
+/* recursive mkdir */
+int CBasics::RecursiveMakeDir(const char* dir) {
+#if _WIN32
+  char tmp[1024];
+
+  /* copy path */
+  std::strncpy(tmp, dir, std::size(tmp));
+  const size_t len = std::strlen(tmp);
+  if (len >= std::size(tmp)) {
+    return -1;
+  }
+
+  /* remove trailing slash */
+  if (tmp[len - 1] == '/' || tmp[len - 1] == '\\') {
+    tmp[len - 1] = 0;
+  }
+
+  /* recursive mkdir */
+  char* p = nullptr;
+  Sstat sb;
+  for (p = tmp + 1; *p; p++) {
+    if (*p == '/' || *p == '\\') {
+      *p = 0;
+      /* test path */
+      if (Stat(tmp, &sb) != 0) {
+        /* path does not exist - create directory */
+        const nowide::wstackstring wtmp(tmp);
+        if (!CreateDirectoryW(wtmp.get(), nullptr)) {
+          return -1;
+        }
+      } else if (!S_ISDIR(sb.st_mode)) {
+        /* not a directory */
+        return -1;
+      }
+      *p = '/';
+    }
+  }
+  /* test path */
+  if (Stat(tmp, &sb) != 0) {
+    /* path does not exist - create directory */
+    const nowide::wstackstring wtmp(tmp);
+    if (!CreateDirectoryW(wtmp.get(), nullptr)) {
+      return -1;
+    }
+  } else if (!S_ISDIR(sb.st_mode)) {
+    /* not a directory */
+    return -1;
+  }
+  return 0;
+#else
+  char tmp[1024];
+
+  /* copy path */
+  std::memset(tmp, 0, std::size(tmp));
+  std::strncpy(tmp, dir, std::size(tmp) - 1);
+  const size_t len = std::strlen(tmp);
+  if (len >= std::size(tmp)) {
+    return -1;
+  }
+
+  /* remove trailing slash */
+  if (tmp[len - 1] == '/') {
+    tmp[len - 1] = 0;
+  }
+
+  /* recursive mkdir */
+  char* p = nullptr;
+  Sstat sb;
+  for (p = tmp + 1; *p; p++) {
+    if (*p == '/') {
+      *p = 0;
+      /* test path */
+      if (Stat(tmp, &sb) != 0) {
+        /* path does not exist - create directory */
+        if (mkdir(tmp, 0755) < 0) {
+          return -1;
+        }
+      } else if (!S_ISDIR(sb.st_mode)) {
+        /* not a directory */
+        return -1;
+      }
+      *p = '/';
+    }
+  }
+  /* test path */
+  if (Stat(tmp, &sb) != 0) {
+    /* path does not exist - create directory */
+    if (mkdir(tmp, 0755) < 0) {
+      return -1;
+    }
+  } else if (!S_ISDIR(sb.st_mode)) {
+    /* not a directory */
+    return -1;
+  }
+  return 0;
+#endif
+}
+
+void CBasics::MakeDir(const char* dir) {
+#if _WIN32
+  HRESULT err;
+  const nowide::wstackstring wdir(dir);
+  if (!CreateDirectoryW(wdir.get(), NULL))
+    if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
+      LogModule.report(logvisor::Fatal, FMT_STRING("MakeDir({})"), dir);
+#else
+  if (mkdir(dir, 0755))
+    if (errno != EEXIST)
+      LogModule.report(logvisor::Fatal, FMT_STRING("MakeDir({}): {}"), dir, strerror(errno));
 #endif
 }
 

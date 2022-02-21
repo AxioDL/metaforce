@@ -20,7 +20,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-#include <hecl/CVarManager.hpp>
+#include "ConsoleVariables/CVarManager.hpp"
 
 namespace metaforce {
 
@@ -969,7 +969,7 @@ void CScriptSpecialFunction::ThinkPlayerInArea(float dt, CStateManager& mgr) {
 }
 
 bool CScriptSpecialFunction::ShouldSkipCinematic(CStateManager& stateMgr) const {
-  if (hecl::com_developer->toBoolean()) {
+  if (com_developer->toBoolean()) {
     return true;
   }
   return g_GameState->SystemOptions().GetCinematicState(stateMgr.GetWorld()->IGetWorldAssetId(), GetEditorId());

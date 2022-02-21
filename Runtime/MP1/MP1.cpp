@@ -551,11 +551,11 @@ void CMain::HandleDiscordErrored(int errorCode, const char* message) {
   DiscordLog.report(logvisor::Error, FMT_STRING("Discord Error: {}"), message);
 }
 
-void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarMgr,
+void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr,
                  boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) {
   InitializeDiscord();
   m_cvarMgr = cvarMgr;
-  m_cvarCommons = std::make_unique<hecl::CVarCommons>(*m_cvarMgr);
+  m_cvarCommons = std::make_unique<CVarCommons>(*m_cvarMgr);
 
   bool loadedVersion = false;
 #if 0
@@ -582,10 +582,10 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
           static_cast<char*>(memmem(buf.get(), readLen, "MetroidBuildInfo", 16)) + 19;
       if (buildInfo != nullptr) {
         // TODO
-        m_version = DataSpec::MetaforceVersionInfo{
+        m_version = MetaforceVersionInfo{
             .version = std::string(buildInfo),
-            .region = DataSpec::ERegion::NTSC_U,
-            .game = DataSpec::EGame::MetroidPrime1,
+            .region = ERegion::NTSC_U,
+            .game = EGame::MetroidPrime1,
             .isTrilogy = false,
         };
         loadedVersion = true;

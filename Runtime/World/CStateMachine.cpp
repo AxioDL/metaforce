@@ -3,7 +3,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CAi.hpp"
 
-#include <hecl/CVarManager.hpp>
+#include "ConsoleVariables/CVarManager.hpp"
 
 namespace metaforce {
 namespace {

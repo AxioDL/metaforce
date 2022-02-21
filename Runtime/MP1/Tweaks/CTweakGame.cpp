@@ -3,19 +3,19 @@
 
 #include "Runtime/Streams/CInputStream.hpp"
 
-#include <hecl/CVar.hpp>
-#include <hecl/CVarManager.hpp>
+#include "ConsoleVariables/CVar.hpp"
+#include "ConsoleVariables/CVarManager.hpp"
 
 #define DEFINE_CVAR_GLOBAL(name)                                                                                       \
   constexpr std::string_view sk##name = std::string_view("tweak.game." #name);                                         \
-  hecl::CVar* tw_##name = nullptr;
+  CVar* tw_##name = nullptr;
 
 #define CREATE_CVAR(name, help, value, flags)                                                                          \
   tw_##name = mgr->findOrMakeCVar(sk##name, help, value, flags);                                                       \
   if (tw_##name->wasDeserialized()) {                                                                                  \
     tw_##name->toValue(value);                                                                                         \
   }                                                                                                                    \
-  tw_##name->addListener([this](hecl::CVar* cv) { _tweakListener(cv); });
+  tw_##name->addListener([this](CVar* cv) { _tweakListener(cv); });
 
 #define CREATE_CVAR_BITFIELD(name, help, value, flags)                                                                 \
   {                                                                                                                    \
@@ -84,7 +84,7 @@ DEFINE_CVAR_GLOBAL(GravityWaterFogDistanceRange);
 DEFINE_CVAR_GLOBAL(HardModeDamageMult);
 DEFINE_CVAR_GLOBAL(HardModeWeaponMult);
 
-void CTweakGame::_tweakListener(hecl::CVar* cv) {
+void CTweakGame::_tweakListener(CVar* cv) {
   UPDATE_CVAR(WorldPrefix, cv, x4_worldPrefix);
   UPDATE_CVAR(FieldOfView, cv, x24_fov);
   UPDATE_CVAR(SplashScreensDisabled, cv, x2b_splashScreensDisabled);
@@ -104,8 +104,8 @@ void CTweakGame::_tweakListener(hecl::CVar* cv) {
   UPDATE_CVAR(HardModeWeaponMult, cv, x64_hardmodeWeaponMult);
 }
 
-void CTweakGame::initCVars(hecl::CVarManager* mgr) {
-  constexpr hecl::CVar::EFlags skDefaultFlags = hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive;
+void CTweakGame::initCVars(CVarManager* mgr) {
+  constexpr CVar::EFlags skDefaultFlags = CVar::EFlags::Game | CVar::EFlags::Archive;
   CREATE_CVAR(WorldPrefix, "", x4_worldPrefix, skDefaultFlags);
   CREATE_CVAR(FieldOfView, "", x24_fov, skDefaultFlags);
   CREATE_CVAR(SplashScreensDisabled, "", x2b_splashScreensDisabled, skDefaultFlags);

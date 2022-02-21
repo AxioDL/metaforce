@@ -47,19 +47,19 @@
 #include "Runtime/World/CSnakeWeedSwarm.hpp"
 #include "Runtime/World/CWallCrawlerSwarm.hpp"
 #include "Runtime/World/CWorld.hpp"
-#include "TCastTo.hpp" // Generated file, do not modify include path
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 
-#include <hecl/CVarManager.hpp>
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include <zeus/CMRay.hpp>
 
 namespace metaforce {
 namespace {
-hecl::CVar* debugToolDrawAiPath = nullptr;
-hecl::CVar* debugToolDrawLighting = nullptr;
-hecl::CVar* debugToolDrawCollisionActors = nullptr;
-hecl::CVar* debugToolDrawMazePath = nullptr;
-hecl::CVar* debugToolDrawPlatformCollision = nullptr;
-hecl::CVar* sm_logScripting = nullptr;
+CVar* debugToolDrawAiPath = nullptr;
+CVar* debugToolDrawLighting = nullptr;
+CVar* debugToolDrawCollisionActors = nullptr;
+CVar* debugToolDrawMazePath = nullptr;
+CVar* debugToolDrawPlatformCollision = nullptr;
+CVar* sm_logScripting = nullptr;
 } // namespace
 logvisor::Module LogModule("metaforce::CStateManager");
 CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& mailbox, const std::weak_ptr<CMapWorldInfo>& mwInfo,
@@ -217,9 +217,9 @@ CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& mailbox, const
   g_StateManager = this;
 
   if (sm_logScripting == nullptr) {
-    sm_logScripting = hecl::CVarManager::instance()->findOrMakeCVar(
+    sm_logScripting = CVarManager::instance()->findOrMakeCVar(
         "stateManager.logScripting"sv, "Prints object communication to the console", false,
-        hecl::CVar::EFlags::ReadOnly | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::Game);
+        CVar::EFlags::ReadOnly | CVar::EFlags::Archive | CVar::EFlags::Game);
   }
   m_logScriptingReference.emplace(&m_logScripting, sm_logScripting);
 }
@@ -545,18 +545,18 @@ void CStateManager::BuildDynamicLightListForWorld() {
   }
 }
 void CStateManager::DrawDebugStuff() const {
-  if (hecl::com_developer != nullptr && !hecl::com_developer->toBoolean()) {
+  if (com_developer != nullptr && !com_developer->toBoolean()) {
     return;
   }
 
   // FIXME: Add proper globals for CVars
   if (debugToolDrawAiPath == nullptr || debugToolDrawCollisionActors == nullptr || debugToolDrawLighting == nullptr ||
       debugToolDrawMazePath == nullptr || debugToolDrawPlatformCollision == nullptr) {
-    debugToolDrawAiPath = hecl::CVarManager::instance()->findCVar("debugTool.drawAiPath");
-    debugToolDrawMazePath = hecl::CVarManager::instance()->findCVar("debugTool.drawMazePath");
-    debugToolDrawCollisionActors = hecl::CVarManager::instance()->findCVar("debugTool.drawCollisionActors");
-    debugToolDrawLighting = hecl::CVarManager::instance()->findCVar("debugTool.drawLighting");
-    debugToolDrawPlatformCollision = hecl::CVarManager::instance()->findCVar("debugTool.drawPlatformCollision");
+    debugToolDrawAiPath = CVarManager::instance()->findCVar("debugTool.drawAiPath");
+    debugToolDrawMazePath = CVarManager::instance()->findCVar("debugTool.drawMazePath");
+    debugToolDrawCollisionActors = CVarManager::instance()->findCVar("debugTool.drawCollisionActors");
+    debugToolDrawLighting = CVarManager::instance()->findCVar("debugTool.drawLighting");
+    debugToolDrawPlatformCollision = CVarManager::instance()->findCVar("debugTool.drawPlatformCollision");
     return;
   }
 

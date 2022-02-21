@@ -25,7 +25,7 @@ namespace metaforce::MP1 {
 
 static logvisor::Module Log("MP1::CTweaks");
 
-void CTweaks::RegisterTweaks(hecl::CVarManager* cvarMgr) {
+void CTweaks::RegisterTweaks(CVarManager* cvarMgr) {
   std::optional<CMemoryInStream> strm;
   const SObjectTag* tag;
 
@@ -121,7 +121,7 @@ void CTweaks::RegisterTweaks(hecl::CVarManager* cvarMgr) {
   g_tweakSlideShow->initCVars(cvarMgr);
 }
 
-void CTweaks::RegisterResourceTweaks(hecl::CVarManager* cvarMgr) {
+void CTweaks::RegisterResourceTweaks(CVarManager* cvarMgr) {
   std::optional<CMemoryInStream> strm;
 
   const SObjectTag* tag = g_ResFactory->GetResourceIdByName("GunRes");

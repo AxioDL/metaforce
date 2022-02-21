@@ -4,19 +4,19 @@
 
 #include "zeus/Math.hpp"
 
-#include <hecl/CVar.hpp>
-#include <hecl/CVarManager.hpp>
+#include "Runtime/ConsoleVariables/CVar.hpp"
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 
 #define DEFINE_CVAR_GLOBAL(name)                                                                                       \
   constexpr std::string_view sk##name = std::string_view("tweak.player." #name);                                       \
-  hecl::CVar* tw_##name = nullptr;
+  CVar* tw_##name = nullptr;
 
 #define CREATE_CVAR(name, help, value, flags)                                                                          \
   tw_##name = mgr->findOrMakeCVar(sk##name, help, value, flags);                                                       \
   if (tw_##name->wasDeserialized()) {                                                                                  \
     tw_##name->toValue(value);                                                                                         \
   }                                                                                                                    \
-  tw_##name->addListener([this](hecl::CVar* cv) { _tweakListener(cv); });
+  tw_##name->addListener([this](CVar* cv) { _tweakListener(cv); });
 
 #define CREATE_CVAR_BITFIELD(name, help, value, flags)                                                                 \
   {                                                                                                                    \
@@ -39,8 +39,7 @@
 
 namespace metaforce::MP1 {
 namespace {
-static constexpr hecl::CVar::EFlags skDefaultFlags =
-    hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Cheat | hecl::CVar::EFlags::Archive;
+static constexpr CVar::EFlags skDefaultFlags = CVar::EFlags::Game | CVar::EFlags::Cheat | CVar::EFlags::Archive;
 DEFINE_CVAR_GLOBAL(MaxTranslationAccelerationNormal);
 DEFINE_CVAR_GLOBAL(MaxTranslationAccelerationAir);
 DEFINE_CVAR_GLOBAL(MaxTranslationAccelerationIce);
@@ -1169,7 +1168,7 @@ void CTweakPlayer::FixupValues() {
   x29c_fallCameraPitchDownAngle = zeus::degToRad(x29c_fallCameraPitchDownAngle);
 }
 
-void CTweakPlayer::_tweakListener(hecl::CVar* cv) {
+void CTweakPlayer::_tweakListener(CVar* cv) {
   UPDATE_CVAR(MaxTranslationAccelerationNormal, cv, x4_maxTranslationalAcceleration[0]);
   UPDATE_CVAR(MaxTranslationAccelerationAir, cv, x4_maxTranslationalAcceleration[1]);
   UPDATE_CVAR(MaxTranslationAccelerationIce, cv, x4_maxTranslationalAcceleration[2]);
@@ -1386,7 +1385,7 @@ void CTweakPlayer::_tweakListener(hecl::CVar* cv) {
   UPDATE_CVAR(PhazonDamageReduction, cv, x308_phazonDamageReduction);
 }
 
-void CTweakPlayer::initCVars(hecl::CVarManager* mgr) {
+void CTweakPlayer::initCVars(CVarManager* mgr) {
   CREATE_CVAR(MaxTranslationAccelerationNormal,
               "Max translation acceleration allowed to the player under normal circumstances",
               x4_maxTranslationalAcceleration[0], skDefaultFlags);
@@ -1664,4 +1663,4 @@ void CTweakPlayer::initCVars(hecl::CVarManager* mgr) {
   CREATE_CVAR(GravityDamageReduction, "", x304_gravityDamageReduction, skDefaultFlags);
   CREATE_CVAR(PhazonDamageReduction, "", x308_phazonDamageReduction, skDefaultFlags);
 }
-} // namespace DataSpec::DNAMP1
+} // namespace metaforce::MP1

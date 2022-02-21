@@ -10,7 +10,7 @@ namespace metaforce {
 class CInputStream;
 namespace MP1 {
 
-#define DEFINE_CVAR_GLOBAL(name) extern hecl::CVar* tw_##name;
+#define DEFINE_CVAR_GLOBAL(name) extern CVar* tw_##name;
 
 DEFINE_CVAR_GLOBAL(WorldPrefix);
 DEFINE_CVAR_GLOBAL(FieldOfView);
@@ -77,10 +77,10 @@ struct CTweakGame final : Tweaks::ITweakGame {
   CTweakGame() = default;
   CTweakGame(CInputStream& in);
 
-  void initCVars(hecl::CVarManager* mgr) override;
+  void initCVars(CVarManager* mgr) override;
 
 private:
-  void _tweakListener(hecl::CVar* cv);
+  void _tweakListener(CVar* cv);
 };
 } // namespace MP1
 } // namespace metaforce

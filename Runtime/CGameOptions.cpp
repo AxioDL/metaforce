@@ -14,7 +14,7 @@
 #include "Runtime/Graphics/CMoviePlayer.hpp"
 #include "Runtime/Input/CFinalInput.hpp"
 
-#include <hecl/CVarManager.hpp>
+#include "ConsoleVariables/CVarManager.hpp"
 
 namespace metaforce {
 

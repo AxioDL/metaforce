@@ -3,13 +3,13 @@
 #include <set>
 #include <string_view>
 
-#include "RetroTypes.hpp"
+#include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CEntity.hpp"
 #include "Runtime/ImGuiPlayerLoadouts.hpp"
 
-#include "hecl/CVarCommons.hpp"
-#include "hecl/CVarManager.hpp"
+#include "Runtime/ConsoleVariables/CVarCommons.hpp"
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 
 #include <zeus/CEulerAngles.hpp>
 
@@ -39,7 +39,7 @@ public:
   static std::array<ImGuiEntityEntry, kMaxEntities> entities;
   static ImGuiPlayerLoadouts loadouts;
 
-  ImGuiConsole(hecl::CVarManager& cvarMgr, hecl::CVarCommons& cvarCommons)
+  ImGuiConsole(CVarManager& cvarMgr, CVarCommons& cvarCommons)
   : m_cvarMgr(cvarMgr), m_cvarCommons(cvarCommons) {}
   void PreUpdate();
   void PostUpdate();
@@ -50,8 +50,8 @@ public:
   static void EndEntityRow(const ImGuiEntityEntry& entry);
 
 private:
-  hecl::CVarManager& m_cvarMgr;
-  hecl::CVarCommons& m_cvarCommons;
+  CVarManager& m_cvarMgr;
+  CVarCommons& m_cvarCommons;
 
   bool m_showInspectWindow = false;
   bool m_showDemoWindow = false;

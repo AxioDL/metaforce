@@ -16,7 +16,7 @@ CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf
               nearz, farz, aspect, watchedObj, false, 0)
 , x188_orbitCameraSpeed(orbitCameraSpeed)
 , x190_gunFollowXf(xf) {
-  MP1::tw_FieldOfView->addListener([this](hecl::CVar* cv) { _fovListener(cv); });
+  MP1::tw_FieldOfView->addListener([this](CVar* cv) { _fovListener(cv); });
 }
 
 void CFirstPersonCamera::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -328,7 +328,7 @@ void CFirstPersonCamera::UpdateElevation(CStateManager& mgr) {
   }
 }
 
-void CFirstPersonCamera::_fovListener(hecl::CVar* cv) {
+void CFirstPersonCamera::_fovListener(CVar* cv) {
   x15c_currentFov = x180_perspInterpStartFov = x184_perspInterpEndFov = cv->toReal();
   x170_24_perspDirty = true;
 }

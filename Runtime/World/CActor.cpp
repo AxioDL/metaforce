@@ -16,7 +16,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-#include <hecl/CVarManager.hpp>
+#include "ConsoleVariables/CVarManager.hpp"
 
 namespace metaforce {
 static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, const CActorParameters& params) {

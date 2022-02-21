@@ -1,16 +1,13 @@
-#include "hecl/CVarManager.hpp"
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 
+#include "Runtime/ConsoleVariables/FileStoreManager.hpp"
+
+#include <logvisor/logvisor.hpp>
 #include <algorithm>
 #include <memory>
 #include <regex>
 
-#include "hecl/hecl.hpp"
-#include "hecl/Runtime.hpp"
-
-#include <athena/FileWriter.hpp>
-#include <athena/Utility.hpp>
-
-namespace hecl {
+namespace metaforce {
 
 CVar* com_developer = nullptr;
 CVar* com_configfile = nullptr;
@@ -21,7 +18,7 @@ static const std::regex cmdLineRegex(R"(\+([\w\.]+)([=])?([\/\\\s\w\.\-]+)?)");
 CVarManager* CVarManager::m_instance = nullptr;
 
 static logvisor::Module CVarLog("CVarManager");
-CVarManager::CVarManager(hecl::Runtime::FileStoreManager& store, bool useBinary)
+CVarManager::CVarManager(FileStoreManager& store, bool useBinary)
 : m_store(store), m_useBinary(useBinary) {
   m_instance = this;
   com_configfile =
@@ -108,16 +105,16 @@ void CVarManager::deserialize(CVar* cvar) {
   if (!cvar->isArchive() && !cvar->isInternalArchivable()) {
     return;
   }
-
+#if 0 // TODO: Reimplement this
   /* We were either unable to find a deferred value or got an invalid value */
   std::string filename =
       std::string(m_store.getStoreRoot()) + '/' + com_configfile->toLiteral();
-  hecl::Sstat st;
+  CBascis::Sstat st;
 
   if (m_useBinary) {
     CVarContainer container;
     filename += ".bin";
-    if (hecl::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
+    if (CBascis::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
       return;
     athena::io::FileReader reader(filename);
     if (reader.isOpen())
@@ -139,7 +136,7 @@ void CVarManager::deserialize(CVar* cvar) {
     }
   } else {
     filename += ".yaml";
-    if (hecl::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
+    if (Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
       return;
     athena::io::FileReader reader(filename);
     if (reader.isOpen()) {
@@ -161,9 +158,11 @@ void CVarManager::deserialize(CVar* cvar) {
       }
     }
   }
+#endif
 }
 
 void CVarManager::serialize() {
+#if 0 // TODO: reimplement this
   std::string filename =
       std::string(m_store.getStoreRoot()) + '/' + com_configfile->toLiteral();
 
@@ -202,6 +201,7 @@ void CVarManager::serialize() {
     if (w.isOpen())
       docWriter.finish(&w);
   }
+#endif
 }
 
 CVarManager* CVarManager::instance() { return m_instance; }

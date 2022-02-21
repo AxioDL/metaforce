@@ -1,22 +1,30 @@
 #pragma once
 
 #include "Runtime/RetroTypes.hpp"
-
-#include "DataSpec/DNACommon/MetaforceVersionInfo.hpp"
 #include "Runtime/CMainFlowBase.hpp"
+#include "Runtime/ConsoleVariables/FileStoreManager.hpp"
+
 #include <amuse/amuse.hpp>
 #include <boo/audiodev/IAudioVoiceEngine.hpp>
 #include <boo/boo.hpp>
-#include <hecl/Runtime.hpp>
-
-namespace hecl {
-class Console;
-class CVarManager;
-} // namespace hecl
 
 namespace metaforce {
-using ERegion = DataSpec::ERegion;
-using EGame = DataSpec::EGame;
+class Console;
+class CVarManager;
+enum class ERegion { Invalid = -1, NTSC_U = 'E', PAL = 'P', NTSC_J = 'J' };
+enum class EGame {
+  Invalid = 0,
+  MetroidPrime1,
+  MetroidPrime2,
+  MetroidPrime3,
+};
+
+struct MetaforceVersionInfo {
+  std::string version;
+  ERegion region;
+  EGame game;
+  bool isTrilogy;
+};
 
 class CStopwatch;
 enum class EGameplayResult { None, Win, Lose, Playing };
@@ -24,7 +32,7 @@ enum class EGameplayResult { None, Win, Lose, Playing };
 class IMain {
 public:
   virtual ~IMain() = default;
-  virtual void Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarMgr,
+  virtual void Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr,
                     boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) = 0;
   virtual void Draw() = 0;
   virtual bool Proc(float dt) = 0;

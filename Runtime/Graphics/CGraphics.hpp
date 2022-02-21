@@ -12,7 +12,7 @@
 //#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
 //#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
-#include <hecl/CVar.hpp>
+#include "ConsoleVariables/CVar.hpp"
 #include <hecl/Runtime.hpp>
 
 #include <zeus/CColor.hpp>
@@ -25,7 +25,7 @@
 using frame_clock = std::chrono::high_resolution_clock;
 
 namespace metaforce {
-extern hecl::CVar* g_disableLighting;
+extern CVar* g_disableLighting;
 class CLight;
 class CTimeProvider;
 

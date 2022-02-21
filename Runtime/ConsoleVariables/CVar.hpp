@@ -1,16 +1,48 @@
 #pragma once
 
+#include "Runtime/GCNTypes.hpp"
+#include "zeus/zeus.hpp"
+
 #include <functional>
 #include <string>
 #include <vector>
+#ifndef ENABLE_BITWISE_ENUM
+#define ENABLE_BITWISE_ENUM(type)                                                                                      \
+  constexpr type operator|(type a, type b) noexcept {                                                                  \
+    using T = std::underlying_type_t<type>;                                                                            \
+    return type(static_cast<T>(a) | static_cast<T>(b));                                                                \
+  }                                                                                                                    \
+  constexpr type operator&(type a, type b) noexcept {                                                                  \
+    using T = std::underlying_type_t<type>;                                                                            \
+    return type(static_cast<T>(a) & static_cast<T>(b));                                                                \
+  }                                                                                                                    \
+  constexpr type& operator|=(type& a, type b) noexcept {                                                               \
+    using T = std::underlying_type_t<type>;                                                                            \
+    a = type(static_cast<T>(a) | static_cast<T>(b));                                                                   \
+    return a;                                                                                                          \
+  }                                                                                                                    \
+  constexpr type& operator&=(type& a, type b) noexcept {                                                               \
+    using T = std::underlying_type_t<type>;                                                                            \
+    a = type(static_cast<T>(a) & static_cast<T>(b));                                                                   \
+    return a;                                                                                                          \
+  }                                                                                                                    \
+  constexpr type operator~(type key) noexcept {                                                                        \
+    using T = std::underlying_type_t<type>;                                                                            \
+    return type(~static_cast<T>(key));                                                                                 \
+  }                                                                                                                    \
+  constexpr bool True(type key) noexcept {                                                                             \
+    using T = std::underlying_type_t<type>;                                                                            \
+    return static_cast<T>(key) != 0;                                                                                   \
+  }                                                                                                                    \
+  constexpr bool False(type key) noexcept {                                                                            \
+    using T = std::underlying_type_t<type>;                                                                            \
+    return static_cast<T>(key) == 0;                                                                                   \
+  }
+#endif
 
-#include <athena/DNAYaml.hpp>
-#include <athena/Global.hpp>
-#include <athena/Types.hpp>
-
-namespace hecl {
-namespace DNACVAR {
-enum class EType : atUint8 { Boolean, Signed, Unsigned, Real, Literal, Vec2f, Vec2d, Vec3f, Vec3d, Vec4f, Vec4d };
+namespace metaforce {
+namespace StoreCVar {
+enum class EType : uint32_t { Boolean, Signed, Unsigned, Real, Literal, Vec2f, Vec2d, Vec3f, Vec3d, Vec4f, Vec4d };
 enum class EFlags {
   None = 0,
   System = (1 << 0),
@@ -30,41 +62,37 @@ enum class EFlags {
 };
 ENABLE_BITWISE_ENUM(EFlags)
 
-class CVar : public athena::io::DNA<athena::Endian::Big> {
+class CVar {
 public:
-  AT_DECL_DNA
-  String<-1> m_name;
-  String<-1> m_value;
+  std::string m_name;
+  std::string m_value;
 };
 
-struct CVarContainer : public athena::io::DNA<athena::Endian::Big> {
-  AT_DECL_DNA
-  Value<atUint32> magic = 'CVAR';
-  Value<atUint32> cvarCount;
-  Vector<CVar, AT_DNA_COUNT(cvarCount)> cvars;
+struct CVarContainer {
+  u32 magic = 'CVAR';
+  std::vector<CVar> cvars;
 };
 
-} // namespace DNACVAR
+} // namespace StoreCVar
 
 class CVarManager;
 class ICVarValueReference;
-class CVar : protected DNACVAR::CVar {
+class CVar : protected StoreCVar::CVar {
   friend class CVarManager;
-  Delete _d;
 
 public:
   typedef std::function<void(CVar*)> ListenerFunc;
 
-  using EType = DNACVAR::EType;
-  using EFlags = DNACVAR::EFlags;
+  using EType = StoreCVar::EType;
+  using EFlags = StoreCVar::EFlags;
 
   CVar(std::string_view name, std::string_view value, std::string_view help, EFlags flags);
-  CVar(std::string_view name, const atVec2f& value, std::string_view help, EFlags flags);
-  CVar(std::string_view name, const atVec2d& value, std::string_view help, EFlags flags);
-  CVar(std::string_view name, const atVec3f& value, std::string_view help, EFlags flags);
-  CVar(std::string_view name, const atVec3d& value, std::string_view help, EFlags flags);
-  CVar(std::string_view name, const atVec4f& value, std::string_view help, EFlags flags);
-  CVar(std::string_view name, const atVec4d& value, std::string_view help, EFlags flags);
+  CVar(std::string_view name, const zeus::CVector2f& value, std::string_view help, EFlags flags);
+  CVar(std::string_view name, const zeus::CVector2d& value, std::string_view help, EFlags flags);
+  CVar(std::string_view name, const zeus::CVector3f& value, std::string_view help, EFlags flags);
+  CVar(std::string_view name, const zeus::CVector3d& value, std::string_view help, EFlags flags);
+  CVar(std::string_view name, const zeus::CVector4f& value, std::string_view help, EFlags flags);
+  CVar(std::string_view name, const zeus::CVector4d& value, std::string_view help, EFlags flags);
   CVar(std::string_view name, double value, std::string_view help, EFlags flags);
   CVar(std::string_view name, bool value, std::string_view help, EFlags flags);
   CVar(std::string_view name, int32_t value, std::string_view help, EFlags flags);
@@ -78,12 +106,12 @@ public:
 
   template <typename T>
   inline bool toValue(T& value) const;
-  atVec2f toVec2f(bool* isValid = nullptr) const;
-  atVec2d toVec2d(bool* isValid = nullptr) const;
-  atVec3f toVec3f(bool* isValid = nullptr) const;
-  atVec3d toVec3d(bool* isValid = nullptr) const;
-  atVec4f toVec4f(bool* isValid = nullptr) const;
-  atVec4d toVec4d(bool* isValid = nullptr) const;
+  zeus::CVector2f toVec2f(bool* isValid = nullptr) const;
+  zeus::CVector2d toVec2d(bool* isValid = nullptr) const;
+  zeus::CVector3f toVec3f(bool* isValid = nullptr) const;
+  zeus::CVector3d toVec3d(bool* isValid = nullptr) const;
+  zeus::CVector4f toVec4f(bool* isValid = nullptr) const;
+  zeus::CVector4d toVec4d(bool* isValid = nullptr) const;
   double toReal(bool* isValid = nullptr) const;
   bool toBoolean(bool* isValid = nullptr) const;
   int32_t toSigned(bool* isValid = nullptr) const;
@@ -94,12 +122,12 @@ public:
   inline bool fromValue(T value) {
     return false;
   }
-  bool fromVec2f(const atVec2f& val);
-  bool fromVec2d(const atVec2d& val);
-  bool fromVec3f(const atVec3f& val);
-  bool fromVec3d(const atVec3d& val);
-  bool fromVec4f(const atVec4f& val);
-  bool fromVec4d(const atVec4d& val);
+  bool fromVec2f(const zeus::CVector2f& val);
+  bool fromVec2d(const zeus::CVector2d& val);
+  bool fromVec3f(const zeus::CVector3f& val);
+  bool fromVec3d(const zeus::CVector3d& val);
+  bool fromVec4f(const zeus::CVector4f& val);
+  bool fromVec4d(const zeus::CVector4d& val);
   bool fromReal(double val);
   bool fromBoolean(bool val);
   bool fromInteger(int32_t val);
@@ -177,37 +205,37 @@ private:
 };
 
 template <>
-inline bool CVar::toValue(atVec2f& value) const {
+inline bool CVar::toValue(zeus::CVector2f& value) const {
   bool isValid = false;
   value = toVec2f(&isValid);
   return isValid;
 }
 template <>
-inline bool CVar::toValue(atVec2d& value) const {
+inline bool CVar::toValue(zeus::CVector2d& value) const {
   bool isValid = false;
   value = toVec2d(&isValid);
   return isValid;
 }
 template <>
-inline bool CVar::toValue(atVec3f& value) const {
+inline bool CVar::toValue(zeus::CVector3f& value) const {
   bool isValid = false;
   value = toVec3f(&isValid);
   return isValid;
 }
 template <>
-inline bool CVar::toValue(atVec3d& value) const {
+inline bool CVar::toValue(zeus::CVector3d& value) const {
   bool isValid = false;
   value = toVec3d(&isValid);
   return isValid;
 }
 template <>
-inline bool CVar::toValue(atVec4f& value) const {
+inline bool CVar::toValue(zeus::CVector4f& value) const {
   bool isValid = false;
   value = toVec4f(&isValid);
   return isValid;
 }
 template <>
-inline bool CVar::toValue(atVec4d& value) const {
+inline bool CVar::toValue(zeus::CVector4d& value) const {
   bool isValid = false;
   value = toVec4d(&isValid);
   return isValid;
@@ -250,27 +278,27 @@ inline bool CVar::toValue(std::string& value) const {
 }
 
 template <>
-inline bool CVar::fromValue(const atVec2f& val) {
+inline bool CVar::fromValue(const zeus::CVector2f& val) {
   return fromVec2f(val);
 }
 template <>
-inline bool CVar::fromValue(const atVec2d& val) {
+inline bool CVar::fromValue(const zeus::CVector2d& val) {
   return fromVec2d(val);
 }
 template <>
-inline bool CVar::fromValue(const atVec3f& val) {
+inline bool CVar::fromValue(const zeus::CVector3f& val) {
   return fromVec3f(val);
 }
 template <>
-inline bool CVar::fromValue(const atVec3d& val) {
+inline bool CVar::fromValue(const zeus::CVector3d& val) {
   return fromVec3d(val);
 }
 template <>
-inline bool CVar::fromValue(const atVec4f& val) {
+inline bool CVar::fromValue(const zeus::CVector4f& val) {
   return fromVec4f(val);
 }
 template <>
-inline bool CVar::fromValue(const atVec4d& val) {
+inline bool CVar::fromValue(const zeus::CVector4d& val) {
   return fromVec4d(val);
 }
 template <>
@@ -350,4 +378,4 @@ public:
     }
   }
 };
-} // namespace hecl
+} // namespace metaforce

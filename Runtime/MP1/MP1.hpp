@@ -36,9 +36,9 @@
 #include "Runtime/CArchitectureQueue.hpp"
 #include "Runtime/CTimeProvider.hpp"
 #include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
-#include "DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
-#include "DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
-#include "hecl/CVarCommons.hpp"
+#include "Runtime/MP1/Tweaks/CTweakPlayer.hpp"
+#include "Runtime/MP1/Tweaks/CTweakGame.hpp"
+#include "Runtime/ConsoleVariables/CVarCommons.hpp"
 
 struct DiscordUser;
 
@@ -243,9 +243,9 @@ private:
   std::unique_ptr<CGameArchitectureSupport> x164_archSupport;
 
 //  boo::IWindow* m_mainWindow = nullptr;
-  hecl::CVarManager* m_cvarMgr = nullptr;
-  std::unique_ptr<hecl::CVarCommons> m_cvarCommons;
-//  std::unique_ptr<hecl::Console> m_console;
+  CVarManager* m_cvarMgr = nullptr;
+  std::unique_ptr<CVarCommons> m_cvarCommons;
+//  std::unique_ptr<Console> m_console;
   // Warmup state
   std::vector<SObjectTag> m_warmupTags;
   std::vector<SObjectTag>::iterator m_warmupIt;
@@ -253,7 +253,7 @@ private:
   bool m_loadedPersistentResources = false;
   bool m_doQuit = false;
   bool m_paused = false;
-  DataSpec::MetaforceVersionInfo m_version;
+  MetaforceVersionInfo m_version;
 
   void InitializeSubsystems();
   static void InitializeDiscord();
@@ -279,7 +279,7 @@ public:
 
   // int RsMain(int argc, char** argv, boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator&
   // backend);
-  void Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarManager,
+  void Init(const FileStoreManager& storeMgr, CVarManager* cvarManager,
             boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) override;
   void WarmupShaders() override;
   bool Proc(float dt) override;

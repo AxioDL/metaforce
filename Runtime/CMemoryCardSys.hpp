@@ -69,7 +69,7 @@ class CMemoryCardSys {
 
 public:
   static void _ResetCVar(kabufuda::ECardSlot slot);
-  static void _ResolveDolphinCardPath(const hecl::CVar* cv, kabufuda::ECardSlot slot);
+  static void _ResolveDolphinCardPath(const CVar* cv, kabufuda::ECardSlot slot);
   static std::string ResolveDolphinCardPath(kabufuda::ECardSlot slot);
   static bool CreateDolphinCard(kabufuda::ECardSlot slot);
   static std::string _GetDolphinCardPath(kabufuda::ECardSlot slot);

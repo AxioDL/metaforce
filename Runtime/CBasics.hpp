@@ -1,8 +1,16 @@
 #pragma once
 
+#include <chrono>
 #include <cstdint>
 #include <cstdlib>
-#include <chrono>
+#ifndef _WIN32
+#include <sys/stat.h>
+#else
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#endif
 
 #include "Runtime/GCNTypes.hpp"
 
@@ -26,6 +34,12 @@ struct OSCalendarTime {
 
 class CBasics {
 public:
+#if _WIN32
+  using Sstat = struct ::_stat64;
+#else
+  using Sstat = struct stat;
+#endif
+
   static void Initialize();
 
   static const u64 SECONDS_TO_2000;
@@ -48,6 +62,9 @@ public:
   static void Swap2Bytes(u8* v);
   static void Swap4Bytes(u8* v);
   static void Swap8Bytes(u8* v);
+  static int RecursiveMakeDir(const char* dir);
+  static void MakeDir(const char* dir);
+  static int Stat(const char* path, Sstat* statOut);
 };
 
 } // namespace metaforce

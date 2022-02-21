@@ -4,17 +4,13 @@
 
 #include "Runtime/rstl.hpp"
 
-namespace hecl {
-class CVar;
-}
-
 namespace metaforce::MP1 {
 struct CTweakAutoMapper final : public Tweaks::ITweakAutoMapper {
-  bool x4_24_showOneMiniMapArea;// : 1;
-  bool x4_25_;// : 1;
-  bool x4_26_scaleMoveSpeedWithCamDist;// : 1;
-  float x8_camDist ;
-  float xc_minCamDist ;
+  bool x4_24_showOneMiniMapArea;        // : 1;
+  bool x4_25_;                          // : 1;
+  bool x4_26_scaleMoveSpeedWithCamDist; // : 1;
+  float x8_camDist;
+  float xc_minCamDist;
   float x10_maxCamDist;
   float x14_minCamRotateX;
   float x18_maxCamRotateX;
@@ -135,9 +131,9 @@ struct CTweakAutoMapper final : public Tweaks::ITweakAutoMapper {
   const zeus::CColor& GetAreaFlashPulseColor() const override { return xf4_areaFlashPulseColor; }
   const zeus::CColor& GetDoorColor(int idx) const override { return x100_doorColors[idx]; }
   const zeus::CColor& GetOpenDoorColor() const override { return x11c_openDoorColor; }
-  void initCVars(hecl::CVarManager*) override;
+  void initCVars(CVarManager*) override;
 
 private:
-  void _tweakListener(hecl::CVar* cv);
+  void _tweakListener(CVar* cv);
 };
-} // namespace DataSpec::DNAMP1
+} // namespace metaforce::MP1

@@ -1,8 +1,8 @@
-#include "hecl/Runtime.hpp"
+#include "Runtime/ConsoleVariables/FileStoreManager.hpp"
 
-#include "hecl/hecl.hpp"
+#include "Runtime/CBasics.hpp"
 
-#include <logvisor/logvisor.hpp>
+#include "logvisor/logvisor.hpp"
 
 #if _WIN32
 #include <ShlObj.h>
@@ -12,7 +12,7 @@
 using namespace Windows::Storage;
 #endif
 
-namespace hecl::Runtime {
+namespace metaforce {
 static logvisor::Module Log("FileStoreManager");
 
 FileStoreManager::FileStoreManager(std::string_view domain) : m_domain(domain) {
@@ -29,11 +29,11 @@ FileStoreManager::FileStoreManager(std::string_view domain) : m_domain(domain) {
 #endif
   path += "/.heclrun";
 
-  hecl::MakeDir(path.c_str());
+  CBasics::MakeDir(path.c_str());
   path += '/';
   path += domain.data();
 
-  hecl::MakeDir(path.c_str());
+  CBasics::MakeDir(path.c_str());
   m_storeRoot = path;
 #else
   const char* xdg_data_home = getenv("XDG_DATA_HOME");
@@ -51,7 +51,7 @@ FileStoreManager::FileStoreManager(std::string_view domain) : m_domain(domain) {
   }
   path += "/hecl/";
   path += domain.data();
-  if (RecursiveMakeDir(path.c_str()) != 0)
+  if (CBasics::RecursiveMakeDir(path.c_str()) != 0)
     Log.report(logvisor::Fatal, FMT_STRING("unable to mkdir at {}"), path);
   m_storeRoot = path;
 #endif

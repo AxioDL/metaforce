@@ -5,18 +5,16 @@
 #include <unordered_map>
 #include <vector>
 
-#include "hecl/CVar.hpp"
+#include "Runtime/ConsoleVariables/CVar.hpp"
 
-namespace hecl {
-namespace Runtime {
+namespace metaforce {
 class FileStoreManager;
-}
 extern CVar* com_developer;
 extern CVar* com_configfile;
 extern CVar* com_enableCheats;
 extern CVar* com_cubemaps;
 class CVarManager final {
-  using CVarContainer = DNACVAR::CVarContainer;
+  using CVarContainer = StoreCVar::CVarContainer;
   template <typename T>
   CVar* _newCVar(std::string_view name, std::string_view help, const T& value, CVar::EFlags flags) {
     if (CVar* ret = registerCVar(std::make_unique<CVar>(name, value, help, flags))) {
@@ -26,7 +24,7 @@ class CVarManager final {
     return nullptr;
   }
 
-  hecl::Runtime::FileStoreManager& m_store;
+  FileStoreManager& m_store;
   bool m_useBinary;
   static CVarManager* m_instance;
 
@@ -35,26 +33,26 @@ public:
   CVarManager(const CVarManager&) = delete;
   CVarManager& operator=(const CVarManager&) = delete;
   CVarManager& operator=(const CVarManager&&) = delete;
-  CVarManager(hecl::Runtime::FileStoreManager& store, bool useBinary = false);
+  CVarManager(FileStoreManager& store, bool useBinary = false);
   ~CVarManager();
 
-  CVar* newCVar(std::string_view name, std::string_view help, const atVec2f& value, CVar::EFlags flags) {
-    return _newCVar<atVec2f>(name, help, value, flags);
+  CVar* newCVar(std::string_view name, std::string_view help, const  zeus::CVector2f& value, CVar::EFlags flags) {
+    return _newCVar<const zeus::CVector2f>(name, help, value, flags);
   }
-  CVar* newCVar(std::string_view name, std::string_view help, const atVec2d& value, CVar::EFlags flags) {
-    return _newCVar<atVec2d>(name, help, value, flags);
+  CVar* newCVar(std::string_view name, std::string_view help, const  zeus::CVector2d& value, CVar::EFlags flags) {
+    return _newCVar<const zeus::CVector2d>(name, help, value, flags);
   }
-  CVar* newCVar(std::string_view name, std::string_view help, const atVec3f& value, CVar::EFlags flags) {
-    return _newCVar<atVec3f>(name, help, value, flags);
+  CVar* newCVar(std::string_view name, std::string_view help, const  zeus::CVector3f& value, CVar::EFlags flags) {
+    return _newCVar<const zeus::CVector3f>(name, help, value, flags);
   }
-  CVar* newCVar(std::string_view name, std::string_view help, const atVec3d& value, CVar::EFlags flags) {
-    return _newCVar<atVec3d>(name, help, value, flags);
+  CVar* newCVar(std::string_view name, std::string_view help, const  zeus::CVector3d& value, CVar::EFlags flags) {
+    return _newCVar<const zeus::CVector3d>(name, help, value, flags);
   }
-  CVar* newCVar(std::string_view name, std::string_view help, const atVec4f& value, CVar::EFlags flags) {
-    return _newCVar<atVec4f>(name, help, value, flags);
+  CVar* newCVar(std::string_view name, std::string_view help, const  zeus::CVector4f& value, CVar::EFlags flags) {
+    return _newCVar<const zeus::CVector4f>(name, help, value, flags);
   }
-  CVar* newCVar(std::string_view name, std::string_view help, const atVec4d& value, CVar::EFlags flags) {
-    return _newCVar<atVec4d>(name, help, value, flags);
+  CVar* newCVar(std::string_view name, std::string_view help, const  zeus::CVector4d& value, CVar::EFlags flags) {
+    return _newCVar<const zeus::CVector4d>(name, help, value, flags);
   }
   CVar* newCVar(std::string_view name, std::string_view help, std::string_view value, CVar::EFlags flags) {
     return _newCVar<std::string_view>(name, help, value, flags);

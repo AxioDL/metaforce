@@ -1,8 +1,8 @@
 #include "Runtime/MP1/Tweaks/CTweakAutoMapper.hpp"
 #include "Runtime/Streams/IOStreams.hpp"
 
-#include <hecl/CVar.hpp>
-#include <hecl/CVarManager.hpp>
+#include "Runtime/ConsoleVariables/CVar.hpp"
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 
 #define PREFIX(v) std::string_view("tweak.automap." #v)
 namespace metaforce::MP1 {
@@ -27,26 +27,26 @@ constexpr std::string_view skSelectedVisitedSurfaceColor = PREFIX(SelectedVisite
 constexpr std::string_view skSelectedVisitedOutlineColor = PREFIX(SelectedVisitedOutlineColor);
 constexpr std::string_view skMapSurfaceNormalColorLinear = PREFIX(MapSurfaceNormalColorLinear);
 constexpr std::string_view skMapSurfaceNormalColorConstant = PREFIX(MapSurfaceNormalColorConstant);
-hecl::CVar* tw_showOneMiniMapArea = nullptr;
-hecl::CVar* tw_scaleMoveSpeedWithCamDist = nullptr;
-hecl::CVar* tw_camDist = nullptr;
-hecl::CVar* tw_minCamDist = nullptr;
-hecl::CVar* tw_maxCamDist = nullptr;
-hecl::CVar* tw_minCamRotX = nullptr;
-hecl::CVar* tw_maxCamRotX = nullptr;
-hecl::CVar* tw_camAngle = nullptr;
-hecl::CVar* tw_widgetColor = nullptr;
-hecl::CVar* tw_miniCamDist = nullptr;
-hecl::CVar* tw_miniCamXAngle = nullptr;
-hecl::CVar* tw_miniCamAngle = nullptr;
-hecl::CVar* tw_visitedsurfaceColor = nullptr;
-hecl::CVar* tw_visitedOutlineColor = nullptr;
-hecl::CVar* tw_unvisitedSurfaceColor = nullptr;
-hecl::CVar* tw_unvisitedOutlineColor = nullptr;
-hecl::CVar* tw_selectedVisitedSurfaceColor = nullptr;
-hecl::CVar* tw_selectedVisitedOutlineColor = nullptr;
-hecl::CVar* tw_mapSurfaceNormColorLinear = nullptr;
-hecl::CVar* tw_mapSurfaceNormColorConstant = nullptr;
+CVar* tw_showOneMiniMapArea = nullptr;
+CVar* tw_scaleMoveSpeedWithCamDist = nullptr;
+CVar* tw_camDist = nullptr;
+CVar* tw_minCamDist = nullptr;
+CVar* tw_maxCamDist = nullptr;
+CVar* tw_minCamRotX = nullptr;
+CVar* tw_maxCamRotX = nullptr;
+CVar* tw_camAngle = nullptr;
+CVar* tw_widgetColor = nullptr;
+CVar* tw_miniCamDist = nullptr;
+CVar* tw_miniCamXAngle = nullptr;
+CVar* tw_miniCamAngle = nullptr;
+CVar* tw_visitedsurfaceColor = nullptr;
+CVar* tw_visitedOutlineColor = nullptr;
+CVar* tw_unvisitedSurfaceColor = nullptr;
+CVar* tw_unvisitedOutlineColor = nullptr;
+CVar* tw_selectedVisitedSurfaceColor = nullptr;
+CVar* tw_selectedVisitedOutlineColor = nullptr;
+CVar* tw_mapSurfaceNormColorLinear = nullptr;
+CVar* tw_mapSurfaceNormColorConstant = nullptr;
 } // namespace
 
 CTweakAutoMapper::CTweakAutoMapper(CInputStream& in) {
@@ -116,7 +116,7 @@ CTweakAutoMapper::CTweakAutoMapper(CInputStream& in) {
   x118_doorBorderColor = in.Get<zeus::CColor>();
   x11c_openDoorColor = in.Get<zeus::CColor>();
 }
-void CTweakAutoMapper::_tweakListener(hecl::CVar* cv) {
+void CTweakAutoMapper::_tweakListener(CVar* cv) {
   if (cv == tw_showOneMiniMapArea) {
     x4_24_showOneMiniMapArea = cv->toBoolean();
   } else if (cv == tw_scaleMoveSpeedWithCamDist) {
@@ -160,86 +160,84 @@ void CTweakAutoMapper::_tweakListener(hecl::CVar* cv) {
   }
 }
 
-void CTweakAutoMapper::initCVars(hecl::CVarManager* mgr) {
-  auto assignBool = [this, mgr](std::string_view name, std::string_view desc, bool& v, hecl::CVar::EFlags flags) {
-    hecl::CVar* cv = mgr->findOrMakeCVar(name, desc, v, flags);
+void CTweakAutoMapper::initCVars(CVarManager* mgr) {
+  auto assignBool = [this, mgr](std::string_view name, std::string_view desc, bool& v, CVar::EFlags flags) {
+    CVar* cv = mgr->findOrMakeCVar(name, desc, v, flags);
     // Check if the CVar was deserialized, this avoid an unnecessary conversion
     if (cv->wasDeserialized())
       v = cv->toBoolean();
-    cv->addListener([this](hecl::CVar* cv) { _tweakListener(cv); });
+    cv->addListener([this](CVar* cv) { _tweakListener(cv); });
     return cv;
   };
 
-  auto assignRealValue = [this, mgr](std::string_view name, std::string_view desc, float& v, hecl::CVar::EFlags flags) {
-    hecl::CVar* cv = mgr->findOrMakeCVar(name, desc, v, flags);
+  auto assignRealValue = [this, mgr](std::string_view name, std::string_view desc, float& v, CVar::EFlags flags) {
+    CVar* cv = mgr->findOrMakeCVar(name, desc, v, flags);
     // Check if the CVar was deserialized, this avoid an unnecessary conversion
     if (cv->wasDeserialized())
       v = cv->toReal();
-    cv->addListener([this](hecl::CVar* cv) { _tweakListener(cv); });
+    cv->addListener([this](CVar* cv) { _tweakListener(cv); });
     return cv;
   };
 
   auto assignColorValue = [this, mgr](std::string_view name, std::string_view desc, zeus::CColor& v,
-                                      hecl::CVar::EFlags flags) {
-    atVec4f vec{v.mSimd};
-    hecl::CVar* cv = mgr->findOrMakeCVar(name, desc, vec, flags | hecl::CVar::EFlags::Color);
+                                      CVar::EFlags flags) {
+    zeus::CVector4f vec = v;
+    CVar* cv = mgr->findOrMakeCVar(name, desc, vec, flags | CVar::EFlags::Color);
     // Check if the CVar was deserialized, this avoid an unnecessary conversion
     if (cv->wasDeserialized())
       v = zeus::CColor(cv->toVec4f());
-    cv->addListener([this](hecl::CVar* cv) { _tweakListener(cv); });
+    cv->addListener([this](CVar* cv) { _tweakListener(cv); });
     return cv;
   };
 
   tw_showOneMiniMapArea = assignBool(skShowOneMiniMapArea, "", x4_24_showOneMiniMapArea,
-                                     hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_scaleMoveSpeedWithCamDist =
-      assignBool(skScaleMoveSpeedWithCamDist, "", x4_26_scaleMoveSpeedWithCamDist,
-                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_camDist = assignRealValue(skCamDist, "", x8_camDist,
-                               hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+                                     CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
+  tw_scaleMoveSpeedWithCamDist = assignBool(skScaleMoveSpeedWithCamDist, "", x4_26_scaleMoveSpeedWithCamDist,
+                                            CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
+  tw_camDist =
+      assignRealValue(skCamDist, "", x8_camDist, CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
   tw_minCamDist = assignRealValue(skMinCameraDist, "", xc_minCamDist,
-                                  hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_maxCamDist = assignRealValue(skMaxCamDist, "", x10_maxCamDist,
-                                  hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+                                  CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
+  tw_maxCamDist =
+      assignRealValue(skMaxCamDist, "", x10_maxCamDist, CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
   tw_minCamRotX = assignRealValue(skMinCamRotX, "", x14_minCamRotateX,
-                                  hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+                                  CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
   tw_maxCamRotX = assignRealValue(skMaxCamRotX, "", x18_maxCamRotateX,
-                                  hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_camAngle = assignRealValue(skCamAngle, "", x1c_camAngle,
-                                hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+                                  CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
+  tw_camAngle =
+      assignRealValue(skCamAngle, "", x1c_camAngle, CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
   tw_widgetColor = assignColorValue(skWidgetColor, "", x24_automapperWidgetColor,
-                                    hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+                                    CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
   tw_miniCamDist = assignRealValue(skMiniCamDist, "", x28_miniCamDist,
-                                   hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+                                   CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
   tw_miniCamXAngle = assignRealValue(skMiniCamXAngle, "", x2c_miniCamXAngle,
-                                     hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+                                     CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
   tw_miniCamAngle = assignRealValue(skMiniCamAngle, "", x30_miniCamAngle,
-                                    hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+                                    CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
   tw_widgetColor = assignColorValue(skWidgetColor, "", x38_automapperWidgetMiniColor,
-                                    hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_visitedsurfaceColor = assignColorValue(skVisitedSurfaceColor, "", x3c_surfColorVisited,
-                                            hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
-                                                hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_visitedOutlineColor = assignColorValue(skVisitedOutlineColor, "", x40_outlineColorVisited,
-                                            hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
-                                                hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_unvisitedSurfaceColor = assignColorValue(skUnvisitedSurfaceColor, "", x44_surfColorUnvisited,
-                                              hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
-                                                  hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_unvisitedOutlineColor =
-      assignColorValue(skUnvisitedOutlineColor, "", x48_outlineColorUnvisited,
-                       hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_selectedVisitedSurfaceColor = assignColorValue(skSelectedVisitedSurfaceColor, "", x4c_surfaceSelectColorVisited,
-                                                    hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
-                                                        hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_selectedVisitedOutlineColor = assignColorValue(skSelectedVisitedOutlineColor, "", x50_outlineSelectColorVisited,
-                                                    hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
-                                                        hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_mapSurfaceNormColorLinear = assignRealValue(skMapSurfaceNormalColorLinear, "", x54_mapSurfaceNormColorLinear,
-                                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
-                                                     hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
-  tw_mapSurfaceNormColorConstant = assignRealValue(skMapSurfaceNormalColorConstant, "", x58_mapSurfaceNormColorConstant,
-                                                   hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Color |
-                                                       hecl::CVar::EFlags::Gui | hecl::CVar::EFlags::Archive);
+                                    CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
+  tw_visitedsurfaceColor =
+      assignColorValue(skVisitedSurfaceColor, "", x3c_surfColorVisited,
+                       CVar::EFlags::Game | CVar::EFlags::Color | CVar::EFlags::Gui | CVar::EFlags::Archive);
+  tw_visitedOutlineColor =
+      assignColorValue(skVisitedOutlineColor, "", x40_outlineColorVisited,
+                       CVar::EFlags::Game | CVar::EFlags::Color | CVar::EFlags::Gui | CVar::EFlags::Archive);
+  tw_unvisitedSurfaceColor =
+      assignColorValue(skUnvisitedSurfaceColor, "", x44_surfColorUnvisited,
+                       CVar::EFlags::Game | CVar::EFlags::Color | CVar::EFlags::Gui | CVar::EFlags::Archive);
+  tw_unvisitedOutlineColor = assignColorValue(skUnvisitedOutlineColor, "", x48_outlineColorUnvisited,
+                                              CVar::EFlags::Game | CVar::EFlags::Gui | CVar::EFlags::Archive);
+  tw_selectedVisitedSurfaceColor =
+      assignColorValue(skSelectedVisitedSurfaceColor, "", x4c_surfaceSelectColorVisited,
+                       CVar::EFlags::Game | CVar::EFlags::Color | CVar::EFlags::Gui | CVar::EFlags::Archive);
+  tw_selectedVisitedOutlineColor =
+      assignColorValue(skSelectedVisitedOutlineColor, "", x50_outlineSelectColorVisited,
+                       CVar::EFlags::Game | CVar::EFlags::Color | CVar::EFlags::Gui | CVar::EFlags::Archive);
+  tw_mapSurfaceNormColorLinear =
+      assignRealValue(skMapSurfaceNormalColorLinear, "", x54_mapSurfaceNormColorLinear,
+                      CVar::EFlags::Game | CVar::EFlags::Color | CVar::EFlags::Gui | CVar::EFlags::Archive);
+  tw_mapSurfaceNormColorConstant =
+      assignRealValue(skMapSurfaceNormalColorConstant, "", x58_mapSurfaceNormColorConstant,
+                      CVar::EFlags::Game | CVar::EFlags::Color | CVar::EFlags::Gui | CVar::EFlags::Archive);
 }
 } // namespace metaforce::MP1

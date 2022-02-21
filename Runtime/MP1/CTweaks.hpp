@@ -2,18 +2,15 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-namespace hecl {
-class CVarManager;
-}
-
 namespace metaforce {
+class CVarManager;
 
 namespace MP1 {
 
 class CTweaks {
 public:
-  void RegisterTweaks(hecl::CVarManager* cvarMgr);
-  void RegisterResourceTweaks(hecl::CVarManager* cvarMgr);
+  void RegisterTweaks(CVarManager* cvarMgr);
+  void RegisterResourceTweaks(CVarManager* cvarMgr);
 };
 
 } // namespace MP1

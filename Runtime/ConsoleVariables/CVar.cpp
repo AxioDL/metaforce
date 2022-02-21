@@ -1,13 +1,10 @@
-﻿#include "hecl/CVar.hpp"
+﻿#include "Runtime/ConsoleVariables/CVar.hpp"
 
 #include <sstream>
 
-#include "hecl/CVarManager.hpp"
-#include "hecl/hecl.hpp"
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 
-#include <athena/Utility.hpp>
-
-namespace hecl {
+namespace metaforce {
 extern CVar* com_developer;
 extern CVar* com_enableCheats;
 
@@ -19,38 +16,38 @@ CVar::CVar(std::string_view name, std::string_view value, std::string_view help,
   init(flags);
 }
 
-CVar::CVar(std::string_view name, const atVec2f& value, std::string_view help, EFlags flags)
+CVar::CVar(std::string_view name, const zeus::CVector2f& value, std::string_view help, EFlags flags)
 : CVar(name, help, EType::Vec2f) {
   fromVec2f(value);
   init(flags);
 }
 
-CVar::CVar(std::string_view name, const atVec2d& value, std::string_view help, EFlags flags)
+CVar::CVar(std::string_view name, const zeus::CVector2d& value, std::string_view help, EFlags flags)
 : CVar(name, help, EType::Vec2d) {
   fromVec2d(value);
 
   init(flags);
 }
 
-CVar::CVar(std::string_view name, const atVec3f& value, std::string_view help, EFlags flags)
+CVar::CVar(std::string_view name, const zeus::CVector3f& value, std::string_view help, EFlags flags)
 : CVar(name, help, EType::Vec3f) {
   fromVec3f(value);
   init(flags, false);
 }
 
-CVar::CVar(std::string_view name, const atVec3d& value, std::string_view help, EFlags flags)
+CVar::CVar(std::string_view name, const zeus::CVector3d& value, std::string_view help, EFlags flags)
 : CVar(name, help, EType::Vec3d) {
   fromVec3d(value);
   init(flags, false);
 }
 
-CVar::CVar(std::string_view name, const atVec4f& value, std::string_view help, EFlags flags)
+CVar::CVar(std::string_view name, const zeus::CVector4f& value, std::string_view help, EFlags flags)
 : CVar(name, help, EType::Vec4f) {
   fromVec4f(value);
   init(flags, false);
 }
 
-CVar::CVar(std::string_view name, const atVec4d& value, std::string_view help, EFlags flags)
+CVar::CVar(std::string_view name, const zeus::CVector4d& value, std::string_view help, EFlags flags)
 : CVar(name, help, EType::Vec4d) {
   fromVec4d(value);
   init(flags, false);
@@ -83,118 +80,100 @@ std::string CVar::help() const {
   return m_help + (m_defaultValue.empty() ? "" : "\ndefault: " + m_defaultValue) + (isReadOnly() ? " [ReadOnly]" : "");
 }
 
-atVec2f CVar::toVec2f(bool* isValid) const {
+zeus::CVector2f CVar::toVec2f(bool* isValid) const {
   if (m_type != EType::Vec2f) {
     if (isValid != nullptr)
       *isValid = false;
 
-    return atVec2f{};
+    return {};
   }
 
   if (isValid != nullptr)
     *isValid = true;
 
-  atVec2f vec{};
-  athena::simd_floats f;
+  std::array<float, 2> f;
   std::sscanf(m_value.c_str(), "%g %g", &f[0], &f[1]);
-  vec.simd.copy_from(f);
-
-  return vec;
+  return {f[0], f[1]};
 }
 
-atVec2d CVar::toVec2d(bool* isValid) const {
+zeus::CVector2d CVar::toVec2d(bool* isValid) const {
   if (m_type != EType::Vec2d) {
     if (isValid != nullptr)
       *isValid = false;
 
-    return atVec2d{};
+    return {};
   }
 
   if (isValid != nullptr)
     *isValid = true;
 
-  atVec2d vec{};
-  athena::simd_doubles f;
+  std::array<double, 2> f;
   std::sscanf(m_value.c_str(), "%lg %lg", &f[0], &f[1]);
-  vec.simd.copy_from(f);
-
-  return vec;
+  return {f[0], f[1]};
 }
 
-atVec3f CVar::toVec3f(bool* isValid) const {
+zeus::CVector3f CVar::toVec3f(bool* isValid) const {
   if (m_type != EType::Vec3f) {
     if (isValid != nullptr)
       *isValid = false;
 
-    return atVec3f{};
+    return {};
   }
 
   if (isValid != nullptr)
     *isValid = true;
 
-  atVec3f vec{};
-  athena::simd_floats f;
+  std::array<float, 3> f;
   std::sscanf(m_value.c_str(), "%g %g %g", &f[0], &f[1], &f[2]);
-  vec.simd.copy_from(f);
-
-  return vec;
+  return {f[0], f[1], f[2]};
 }
 
-atVec3d CVar::toVec3d(bool* isValid) const {
+zeus::CVector3d CVar::toVec3d(bool* isValid) const {
   if (m_type != EType::Vec3d) {
     if (isValid != nullptr)
       *isValid = false;
 
-    return atVec3d{};
+    return {};
   }
 
   if (isValid != nullptr)
     *isValid = true;
 
-  atVec3d vec{};
-  athena::simd_doubles f;
+  std::array<double, 3> f;
   std::sscanf(m_value.c_str(), "%lg %lg %lg", &f[0], &f[1], &f[2]);
-  vec.simd.copy_from(f);
-
-  return vec;
+  return {f[0], f[1], f[2]};
 }
 
-atVec4f CVar::toVec4f(bool* isValid) const {
+zeus::CVector4f CVar::toVec4f(bool* isValid) const {
   if (m_type != EType::Vec4f) {
     if (isValid != nullptr)
       *isValid = false;
 
-    return atVec4f{};
+    return {};
   }
 
   if (isValid != nullptr)
     *isValid = true;
 
-  atVec4f vec{};
-  athena::simd_floats f;
+  std::array<float, 4> f;
   std::sscanf(m_value.c_str(), "%g %g %g %g", &f[0], &f[1], &f[2], &f[3]);
-  vec.simd.copy_from(f);
-
-  return vec;
+  return {f[0], f[1], f[2], f[3]};
 }
 
-atVec4d CVar::toVec4d(bool* isValid) const {
+zeus::CVector4d CVar::toVec4d(bool* isValid) const {
   if (m_type != EType::Vec4d) {
     if (isValid != nullptr)
       *isValid = false;
 
-    return atVec4d{};
+    return {};
   }
 
   if (isValid != nullptr)
     *isValid = true;
 
-  atVec4d vec{};
-  athena::simd_doubles f;
+  std::array<double, 4> f{};
   std::sscanf(m_value.c_str(), "%lg %lg %lg %lg", &f[0], &f[1], &f[2], &f[3]);
-  vec.simd.copy_from(f);
-
-  return vec;
+  return {f[0], f[1], f[2], f[3]};
 }
 
 double CVar::toReal(bool* isValid) const {
@@ -259,62 +238,56 @@ std::string CVar::toLiteral(bool* isValid) const {
   return m_value;
 }
 
-bool CVar::fromVec2f(const atVec2f& val) {
+bool CVar::fromVec2f(const zeus::CVector2f& val) {
   if (!safeToModify(EType::Vec2f))
     return false;
 
-  athena::simd_floats f(val.simd);
-  m_value.assign(fmt::format(FMT_STRING("{} {}"), f[0], f[1]));
+  m_value.assign(fmt::format(FMT_STRING("{} {}"), val.x(), val.y()));
   m_flags |= EFlags::Modified;
   return true;
 }
 
-bool CVar::fromVec2d(const atVec2d& val) {
+bool CVar::fromVec2d(const zeus::CVector2d& val) {
   if (!safeToModify(EType::Vec2d))
     return false;
 
-  athena::simd_doubles f(val.simd);
-  m_value.assign(fmt::format(FMT_STRING("{} {}"), f[0], f[1]));
+  m_value.assign(fmt::format(FMT_STRING("{} {}"), val.x(), val.y()));
   m_flags |= EFlags::Modified;
   return true;
 }
 
-bool CVar::fromVec3f(const atVec3f& val) {
+bool CVar::fromVec3f(const zeus::CVector3f& val) {
   if (!safeToModify(EType::Vec3f))
     return false;
 
-  athena::simd_floats f(val.simd);
-  m_value.assign(fmt::format(FMT_STRING("{} {} {}"), f[0], f[1], f[2]));
+  m_value.assign(fmt::format(FMT_STRING("{} {} {}"), val.x(), val.y(), val.z()));
   m_flags |= EFlags::Modified;
   return true;
 }
 
-bool CVar::fromVec3d(const atVec3d& val) {
+bool CVar::fromVec3d(const zeus::CVector3d& val) {
   if (!safeToModify(EType::Vec3d))
     return false;
 
-  athena::simd_doubles f(val.simd);
-  m_value.assign(fmt::format(FMT_STRING("{} {} {}"), f[0], f[1], f[2]));
+  m_value.assign(fmt::format(FMT_STRING("{} {} {}"), val.x(), val.y(), val.z()));
   m_flags |= EFlags::Modified;
   return true;
 }
 
-bool CVar::fromVec4f(const atVec4f& val) {
+bool CVar::fromVec4f(const zeus::CVector4f& val) {
   if (!safeToModify(EType::Vec4f))
     return false;
 
-  athena::simd_floats f(val.simd);
-  m_value.assign(fmt::format(FMT_STRING("{} {} {} {}"), f[0], f[1], f[2], f[3]));
+  m_value.assign(fmt::format(FMT_STRING("{} {} {} {}"), val.x(), val.y(), val.z(), val.w()));
   m_flags |= EFlags::Modified;
   return true;
 }
 
-bool CVar::fromVec4d(const atVec4d& val) {
+bool CVar::fromVec4d(const zeus::CVector4d& val) {
   if (!safeToModify(EType::Vec4d))
     return false;
 
-  athena::simd_doubles f(val.simd);
-  m_value.assign(fmt::format(FMT_STRING("{} {} {} {}"), f[0], f[1], f[2], f[3]));
+  m_value.assign(fmt::format(FMT_STRING("{} {} {} {}"), val.x(), val.y(), val.z(), val.w()));
   m_flags |= EFlags::Modified;
   return true;
 }

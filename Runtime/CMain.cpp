@@ -8,16 +8,18 @@
 #include "ImGuiEngine.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/MP1/MP1.hpp"
+#include "Runtime/ConsoleVariables/FileStoreManager.hpp"
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 #include "amuse/BooBackend.hpp"
 
 #include "../version.h"
 
-//#include <fenv.h>
-//#pragma STDC FENV_ACCESS ON
-
 /* Static reference to dataspec additions
  * (used by MSVC to definitively link DataSpecs) */
 #include "DataSpecRegistry.hpp"
+
+//#include <fenv.h>
+//#pragma STDC FENV_ACCESS ON
 
 #include <aurora/aurora.hpp>
 
@@ -247,9 +249,9 @@ private:
 
 struct Application : aurora::AppDelegate {
 private:
-  hecl::Runtime::FileStoreManager& m_fileMgr;
-  hecl::CVarManager& m_cvarManager;
-  hecl::CVarCommons& m_cvarCommons;
+  FileStoreManager& m_fileMgr;
+  CVarManager& m_cvarManager;
+  CVarCommons& m_cvarCommons;
   ImGuiConsole m_imGuiConsole;
   std::string m_errorString;
 
@@ -271,7 +273,7 @@ private:
                                            // is built, i.e during initialization
 
 public:
-  Application(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr, hecl::CVarCommons& cvarCmns)
+  Application(FileStoreManager& fileMgr, CVarManager& cvarMgr, CVarCommons& cvarCmns)
   : m_fileMgr(fileMgr), m_cvarManager(cvarMgr), m_cvarCommons(cvarCmns), m_imGuiConsole(cvarMgr, cvarCmns) {}
 
   void onAppLaunched() override {
@@ -300,10 +302,6 @@ public:
 
     for (const auto& str : aurora::get_args()) {
       auto arg = static_cast<std::string>(str);
-      if (arg.starts_with("--verbosity=") || arg.starts_with("-v=")) {
-        hecl::VerbosityLevel = atoi(arg.substr(arg.find_last_of('=') + 1).c_str());
-        hecl::LogModule.report(logvisor::Info, FMT_STRING("Set verbosity level to {}"), hecl::VerbosityLevel);
-      }
     }
 
     const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
@@ -569,16 +567,18 @@ static void SetupBasics(bool logging) {
   atSetExceptionHandler(AthenaExc);
 
 #if SENTRY_ENABLED
-  hecl::Runtime::FileStoreManager fileMgr{"sentry-native-metaforce"};
+  FileStoreManager fileMgr{"sentry-native-metaforce"};
   std::string cacheDir{fileMgr.getStoreRoot()};
   logvisor::RegisterSentry("metaforce", METAFORCE_WC_DESCRIBE, cacheDir.c_str());
 #endif
 }
 
 static bool IsClientLoggingEnabled(int argc, char** argv) {
-  for (int i = 1; i < argc; ++i)
-    if (!hecl::StrNCmp(argv[i], "-l", 2))
+  for (int i = 1; i < argc; ++i) {
+    if (!strncmp(argv[i], "-l", 2)) {
       return true;
+    }
+  }
   return false;
 }
 
@@ -588,15 +588,15 @@ int main(int argc, char** argv) {
   //  but breaks animations, need to research why this is the case
   //  for now it's disabled
   // fesetround(FE_TOWARDZERO);
-  if (argc > 1 && !hecl::StrCmp(argv[1], "--dlpackage")) {
+  if (argc > 1 && !strcmp(argv[1], "--dlpackage")) {
     fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;
   }
 
   SetupBasics(IsClientLoggingEnabled(argc, argv));
-  hecl::Runtime::FileStoreManager fileMgr{"metaforce"};
-  hecl::CVarManager cvarMgr{fileMgr};
-  hecl::CVarCommons cvarCmns{cvarMgr};
+  metaforce::FileStoreManager fileMgr{"metaforce"};
+  metaforce::CVarManager cvarMgr{fileMgr};
+  metaforce::CVarCommons cvarCmns{cvarMgr};
 
   std::vector<std::string> args;
   for (int i = 1; i < argc; ++i)
