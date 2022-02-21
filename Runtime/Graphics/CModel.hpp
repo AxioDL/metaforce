@@ -5,15 +5,15 @@
 #include <unordered_map>
 #include <vector>
 
-#include "DataSpec/DNACommon/CMDL.hpp"
-#include "DataSpec/DNAMP1/CMDLMaterials.hpp"
+//#include "DataSpec/DNACommon/CMDL.hpp"
+//#include "DataSpec/DNAMP1/CMDLMaterials.hpp"
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Graphics/Shaders/CModelShaders.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-#include <hecl/HMDLMeta.hpp>
+//#include <hecl/HMDLMeta.hpp>
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
 
@@ -64,20 +64,21 @@ struct CModelFlags {
 /* metaforce addition: doesn't require hacky stashing of
  * pointers within loaded CMDL buffer */
 struct CBooSurface {
-  DataSpec::DNACMDL::SurfaceHeader_2 m_data;
+//  DataSpec::DNACMDL::SurfaceHeader_2 m_data;
   size_t selfIdx;
   class CBooModel* m_parent = nullptr;
   CBooSurface* m_next = nullptr;
 
   zeus::CAABox GetBounds() const {
-    if (!m_data.aabbSz)
-      return zeus::CAABox(m_data.centroid, m_data.centroid);
-    else
-      return zeus::CAABox(m_data.aabb[0], m_data.aabb[1]);
+//    if (!m_data.aabbSz)
+//      return zeus::CAABox(m_data.centroid, m_data.centroid);
+//    else
+//      return zeus::CAABox(m_data.aabb[0], m_data.aabb[1]);
+    return {};
   }
 };
 
-using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
+//using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
 
 //struct GeometryUniformLayout {
 //  mutable std::vector<boo::ObjToken<boo::IGraphicsBufferD>> m_sharedBuffer;
@@ -103,7 +104,7 @@ using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
 struct SShader {
   std::unordered_map<CAssetId, TCachedToken<CTexture>> x0_textures;
 //  std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
-  MaterialSet m_matSet;
+//  MaterialSet m_matSet;
 //  std::optional<GeometryUniformLayout> m_geomLayout;
   int m_matSetIdx;
   explicit SShader(int idx) : m_matSetIdx(idx) {
@@ -135,7 +136,7 @@ private:
   TToken<CModel> m_modelTok;
   CModel* m_model;
   std::vector<CBooSurface>* x0_surfaces;
-  const MaterialSet* x4_matSet;
+//  const MaterialSet* x4_matSet;
 //  const GeometryUniformLayout* m_geomLayout;
   int m_matSetIdx = -1;
 //  const std::unordered_map<int, CModelShaders::ShaderPipelines>* m_pipelines;
@@ -148,11 +149,11 @@ private:
   u8 x41_mask;
   u32 x44_areaInstanceIdx = UINT32_MAX;
 
-  struct UVAnimationBuffer {
-    static void ProcessAnimation(u8*& bufOut, const MaterialSet::Material::PASS& anim);
-    static void PadOutBuffer(u8*& bufStart, u8*& bufOut);
-    static void Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags, const CBooModel* parent);
-  };
+//  struct UVAnimationBuffer {
+//    static void ProcessAnimation(u8*& bufOut, const MaterialSet::Material::PASS& anim);
+//    static void PadOutBuffer(u8*& bufStart, u8*& bufOut);
+//    static void Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags, const CBooModel* parent);
+//  };
 
   CModelShaders::LightingUniform m_lightingData;
 
@@ -200,8 +201,8 @@ public:
 //            boo::ObjToken<boo::IGraphicsBufferS>  vbo, boo::ObjToken<boo::IGraphicsBufferS>  ibo,
             const zeus::CAABox& aabb, u8 renderMask);
 
-  static void MakeTexturesFromMats(const MaterialSet& matSet,
-                                   std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut, IObjectStore& store);
+//  static void MakeTexturesFromMats(const MaterialSet& matSet,
+//                                   std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut, IObjectStore& store);
   void MakeTexturesFromMats(std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut, IObjectStore& store);
 
   bool IsOpaque() const { return x3c_firstSortedSurface == nullptr; }
@@ -224,7 +225,7 @@ public:
   void LockParent() { m_modelTok.Lock(); }
   void UnlockParent() { m_modelTok.Unlock(); }
 
-  const MaterialSet::Material& GetMaterialByIndex(int idx) const { return x4_matSet->materials.at(idx); }
+//  const MaterialSet::Material& GetMaterialByIndex(int idx) const { return x4_matSet->materials.at(idx); }
 
   void ClearUniformCounter() { m_uniUpdateCount = 0; }
   static void ClearModelUniformCounters();
@@ -275,12 +276,12 @@ class CModel {
 
   /* metaforce addition: boo! */
 //  boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
-  hecl::HMDLMeta m_hmdlMeta;
+//  hecl::HMDLMeta m_hmdlMeta;
   std::unique_ptr<uint8_t[]> m_dynamicVertexData;
 //  boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
 
 public:
-  using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
+//  using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
 
   CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store, CObjectReference* selfRef);
   void DrawSortedParts(const CModelFlags& flags) const;

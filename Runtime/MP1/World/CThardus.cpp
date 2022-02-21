@@ -24,8 +24,8 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-#include <DataSpec/DNAMP1/SFX/IceWorld.h>
-#include <DataSpec/DNAMP1/SFX/Thardus.h>
+#include <Audio/SFX/IceWorld.h>
+#include <Audio/SFX/Thardus.h>
 namespace metaforce::MP1 {
 namespace {
 constexpr std::array<SSphereJointInfo, 7> skDamageableSphereJointInfoList1{{

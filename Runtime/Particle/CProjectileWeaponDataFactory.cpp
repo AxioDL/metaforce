@@ -9,6 +9,8 @@
 #include "Runtime/Particle/CSwooshDescription.hpp"
 #include "Runtime/Particle/CWeaponDescription.hpp"
 
+#include <logvisor/logvisor.hpp>
+
 namespace metaforce {
 static logvisor::Module Log("metaforce::CProjectileWeaponDataFactory");
 

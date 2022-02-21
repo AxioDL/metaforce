@@ -158,9 +158,8 @@ function(add_runtime_common_library name)
     endif ()
 endfunction()
 
-set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-set(RUNTIME_LIBRARIES ${HECL_APPLICATION_REPS_TARGETS_LIST} RetroDataSpec AssetNameMapNull NESEmulator
-        libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore imgui aurora SDL2-static)
+set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+set(RUNTIME_LIBRARIES amuse zeus nod NESEmulator libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore imgui aurora SDL2-static)
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
 target_include_directories(RuntimeCommon PUBLIC ${RUNTIME_INCLUDES})
@@ -240,7 +239,7 @@ if (COMMAND add_sanitizers)
 endif ()
 
 if (NOT WINDOWS_STORE)
-    add_dependencies(metaforce hecl) # visigen
+    #add_dependencies(metaforce hecl) # visigen
 else ()
     set_property(TARGET metaforce PROPERTY VS_WINRT_COMPONENT TRUE)
     # This should match the Package.appxmanifest

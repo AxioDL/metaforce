@@ -4,8 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include "DataSpec/DNACommon/GX.hpp"
-
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CLineRenderer.hpp"

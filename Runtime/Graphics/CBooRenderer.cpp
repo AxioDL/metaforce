@@ -712,11 +712,11 @@ CBooRenderer::~CBooRenderer() { g_Renderer = nullptr; }
 void CBooRenderer::AddWorldSurfaces(CBooModel& model) {
   CBooSurface* surf = model.x3c_firstSortedSurface;
   while (surf) {
-    const MaterialSet::Material& mat = model.GetMaterialByIndex(surf->m_data.matIdx);
+//    const MaterialSet::Material& mat = model.GetMaterialByIndex(surf->m_data.matIdx);
     zeus::CAABox aabb = surf->GetBounds();
     zeus::CVector3f pt = aabb.closestPointAlongVector(xb0_viewPlane.normal());
     Buckets::Insert(pt, aabb, EDrawableType::WorldSurface, surf, xb0_viewPlane,
-                    mat.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Alpha);
+                    /*mat.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Alpha*/ false);
     surf = surf->m_next;
   }
 }

@@ -8,8 +8,6 @@
 #include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/GuiSys/CSaveableState.hpp"
 
-#include <hecl/hecl.hpp>
-
 namespace metaforce {
 class CGuiFrame;
 class CGuiObject;

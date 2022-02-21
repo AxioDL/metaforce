@@ -540,7 +540,7 @@ endif()
 configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_BINARY_DIR}/version.h)
 
 # Packaging logic
-list(APPEND BINARY_TARGETS metaforce hecl) # visigen
+list(APPEND BINARY_TARGETS metaforce) # hecl visigen
 set(DSYM_ONLY_TARGETS "")
 if (TARGET crashpad_handler)
   list(APPEND BINARY_TARGETS crashpad_handler)

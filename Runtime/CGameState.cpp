@@ -23,6 +23,21 @@ union BitsToDouble {
   double doub;
 };
 
+/** Word Bitmap reader/writer */
+void WordBitmap::read(athena::io::IStreamReader& reader, size_t bitCount) {
+  m_bitCount = bitCount;
+  size_t wordCount = (bitCount + 31) / 32;
+  m_words.clear();
+  m_words.reserve(wordCount);
+  for (size_t w = 0; w < wordCount; ++w)
+    m_words.push_back(reader.readUint32Big());
+}
+void WordBitmap::write(athena::io::IStreamWriter& writer) const {
+  for (atUint32 word : m_words)
+    writer.writeUint32Big(word);
+}
+void WordBitmap::binarySize(size_t& __isz) const { __isz += m_words.size() * 4; }
+
 CScriptLayerManager::CScriptLayerManager(CInputStream& reader, const CWorldSaveGameInfo& saveWorld) {
   const u32 bitCount = reader.ReadBits(10);
   x10_saveLayers.reserve(bitCount);

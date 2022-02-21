@@ -14,7 +14,7 @@
 #include "Runtime/World/CScriptWaypoint.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-#include "DataSpec/DNAMP1/SFX/MetroidPrime.h"
+#include "Audio/SFX/MetroidPrime.h"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 

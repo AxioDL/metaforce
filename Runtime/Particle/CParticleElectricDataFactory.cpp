@@ -6,6 +6,8 @@
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
 
+#include <logvisor/logvisor.hpp>
+
 namespace metaforce {
 static logvisor::Module Log("metaforce::CParticleElectricDataFactory");
 

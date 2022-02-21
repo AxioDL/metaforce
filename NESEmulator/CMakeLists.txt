@@ -10,7 +10,7 @@ target_include_directories(NESEmulator PRIVATE
         ${CMAKE_SOURCE_DIR}/extern
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(NESEmulator PRIVATE COL_32BIT=1 COL_TEX_BSWAP=1)
-target_link_libraries(NESEmulator boo hecl-full RuntimeCommon ${HECL_APPLICATION_REPS_TARGETS_LIST})
+target_link_libraries(NESEmulator RuntimeCommon)
 if (NOT MSVC)
     target_compile_options(NESEmulator PRIVATE -Wno-implicit-fallthrough -Wno-format -Wno-pointer-compare
             -Wno-memset-elt-size)

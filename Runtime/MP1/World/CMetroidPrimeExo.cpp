@@ -1,7 +1,5 @@
 #include "Runtime/MP1/World/CMetroidPrimeExo.hpp"
 
-#include "DataSpec/DNAMP1/ScriptObjects/MetroidPrimeStage1.hpp"
-
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"

@@ -2,8 +2,6 @@
 
 #include "Runtime/World/CDamageVulnerability.hpp"
 
-#include "DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
-
 namespace metaforce {
 
 CDamageInfo::CDamageInfo(const SShotParam& other)

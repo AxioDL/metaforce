@@ -7,6 +7,8 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
 
+#include <logvisor/logvisor.hpp>
+
 namespace metaforce {
 static logvisor::Module Log("metaforce::CParticleSwooshDataFactory");
 

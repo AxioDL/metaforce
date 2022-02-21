@@ -9,7 +9,6 @@
 #include <cmath>
 #include <utility>
 
-#include <hecl/hecl.hpp>
 #include <zeus/CVector2i.hpp>
 
 namespace metaforce {

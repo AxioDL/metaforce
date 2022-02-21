@@ -10,8 +10,6 @@
 #include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/World/CScriptAreaAttributes.hpp"
 
-#include "DataSpec/DNAMP1/MREA.hpp"
-
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
@@ -1047,7 +1045,7 @@ void CGameArea::FillInStaticGeometry(bool textures) {
     CMemoryInStream r(secIt->first, secIt->second, CMemoryInStream::EOwnerShip::NotOwned);
     //matSet.m_matSet.read(r);
     if (textures)
-      CBooModel::MakeTexturesFromMats(matSet.m_matSet, matSet.x0_textures, *g_SimplePool);
+//      CBooModel::MakeTexturesFromMats(matSet.m_matSet, matSet.x0_textures, *g_SimplePool);
     //    matSet.InitializeLayout(nullptr);
     ++secIt;
   }
@@ -1058,19 +1056,19 @@ void CGameArea::FillInStaticGeometry(bool textures) {
   /* Models */
   for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts) {
     {
-      DataSpec::DNAMP1::MREA::MeshHeader header;
-      athena::io::MemoryReader r(secIt->first, secIt->second);
-      header.read(r);
-      inst.x0_visorFlags = header.visorFlags.flags;
-      inst.x4_xf = header.xfMtx;
-      inst.x34_aabb = zeus::CAABox(header.aabb[0], header.aabb[1]);
+//      DataSpec::DNAMP1::MREA::MeshHeader header;
+//      athena::io::MemoryReader r(secIt->first, secIt->second);
+//      header.read(r);
+//      inst.x0_visorFlags = header.visorFlags.flags;
+//      inst.x4_xf = header.xfMtx;
+//      inst.x34_aabb = zeus::CAABox(header.aabb[0], header.aabb[1]);
       ++secIt;
     }
 
-    {
-      athena::io::MemoryReader r(secIt->first, secIt->second);
-      inst.m_hmdlMeta.read(r);
-    }
+//    {
+//      athena::io::MemoryReader r(secIt->first, secIt->second);
+//      inst.m_hmdlMeta.read(r);
+//    }
     ++secIt;
 
     //    boo::ObjToken<boo::IGraphicsBufferS> vbo;
@@ -1088,8 +1086,8 @@ void CGameArea::FillInStaticGeometry(bool textures) {
     for (u32 j = 0; j < surfCount; ++j) {
       CBooSurface& surf = inst.m_surfaces.emplace_back();
       surf.selfIdx = j;
-      athena::io::MemoryReader r(secIt->first, secIt->second);
-      surf.m_data.read(r);
+//      athena::io::MemoryReader r(secIt->first, secIt->second);
+//      surf.m_data.read(r);
       ++secIt;
     }
 

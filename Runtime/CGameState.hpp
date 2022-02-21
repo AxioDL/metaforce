@@ -4,8 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include "DataSpec/DNACommon/DNACommon.hpp"
-
 #include "Runtime/CBasics.hpp"
 #include "Runtime/CGameOptions.hpp"
 #include "Runtime/CPlayerState.hpp"
@@ -17,10 +15,73 @@
 namespace metaforce {
 class CSaveWorldMemory;
 
+// TODO: copied from DataSpec, should be reimplemented
+class WordBitmap {
+  std::vector<atUint32> m_words;
+  size_t m_bitCount = 0;
+
+public:
+  void read(athena::io::IStreamReader& reader, size_t bitCount);
+  void write(athena::io::IStreamWriter& writer) const;
+  void reserve(size_t bitCount) { m_words.reserve((bitCount + 31) / 32); }
+  void binarySize(size_t& __isz) const;
+  size_t getBitCount() const { return m_bitCount; }
+  bool getBit(size_t idx) const {
+    size_t wordIdx = idx / 32;
+    if (wordIdx >= m_words.size())
+      return false;
+    size_t wordCur = idx % 32;
+    return (m_words[wordIdx] >> wordCur) & 0x1;
+  }
+  void setBit(size_t idx) {
+    size_t wordIdx = idx / 32;
+    while (wordIdx >= m_words.size())
+      m_words.push_back(0);
+    size_t wordCur = idx % 32;
+    m_words[wordIdx] |= (1 << wordCur);
+    m_bitCount = std::max(m_bitCount, idx + 1);
+  }
+  void unsetBit(size_t idx) {
+    size_t wordIdx = idx / 32;
+    while (wordIdx >= m_words.size())
+      m_words.push_back(0);
+    size_t wordCur = idx % 32;
+    m_words[wordIdx] &= ~(1 << wordCur);
+    m_bitCount = std::max(m_bitCount, idx + 1);
+  }
+  void clear() {
+    m_words.clear();
+    m_bitCount = 0;
+  }
+
+  class Iterator {
+    friend class WordBitmap;
+    const WordBitmap& m_bmp;
+    size_t m_idx = 0;
+    Iterator(const WordBitmap& bmp, size_t idx) : m_bmp(bmp), m_idx(idx) {}
+
+  public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = bool;
+    using difference_type = std::ptrdiff_t;
+    using pointer = bool*;
+    using reference = bool&;
+
+    Iterator& operator++() {
+      ++m_idx;
+      return *this;
+    }
+    bool operator*() const { return m_bmp.getBit(m_idx); }
+    bool operator!=(const Iterator& other) const { return m_idx != other.m_idx; }
+  };
+  Iterator begin() const { return Iterator(*this, 0); }
+  Iterator end() const { return Iterator(*this, m_bitCount); }
+};
+
 class CScriptLayerManager {
   friend class CSaveWorldIntermediate;
   std::vector<CWorldLayers::Area> x0_areaLayers;
-  DataSpec::WordBitmap x10_saveLayers;
+  WordBitmap x10_saveLayers;
 
 public:
   CScriptLayerManager() = default;

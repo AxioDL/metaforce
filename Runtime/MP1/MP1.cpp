@@ -64,11 +64,11 @@
 #include "Runtime/World/CStateMachine.hpp"
 #include "Runtime/World/CScriptMazeNode.hpp"
 
-#include <DataSpec/DNAMP1/SFX/Misc.h>
-#include <DataSpec/DNAMP1/SFX/MiscSamus.h>
-#include <DataSpec/DNAMP1/SFX/UI.h>
-#include <DataSpec/DNAMP1/SFX/Weapons.h>
-#include <DataSpec/DNAMP1/SFX/ZZZ.h>
+#include "Audio/SFX/Misc.h"
+#include "Audio/SFX/MiscSamus.h"
+#include "Audio/SFX/UI.h"
+#include "Audio/SFX/Weapons.h"
+#include "Audio/SFX/ZZZ.h"
 
 #include "Runtime/MP1/CCredits.hpp"
 
@@ -619,11 +619,11 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr,
       const char* areaIdxStr = (*(it + 2)).c_str();
 
       char* endptr = nullptr;
-      m_warpWorldIdx = TAreaId(hecl::StrToUl(worldIdxStr, &endptr, 0));
+      m_warpWorldIdx = TAreaId(strtoul(worldIdxStr, &endptr, 0));
       if (endptr == worldIdxStr) {
         m_warpWorldIdx = 0;
       }
-      m_warpAreaId = TAreaId(hecl::StrToUl(areaIdxStr, &endptr, 0));
+      m_warpAreaId = TAreaId(strtoul(areaIdxStr, &endptr, 0));
       if (endptr == areaIdxStr) {
         m_warpAreaId = 0;
       }
@@ -649,7 +649,7 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr,
             if (*cur == '1')
               m_warpLayerBits |= u64(1) << (cur - layerStr);
         } else if (layerStr[0] == '0' && layerStr[1] == 'x') {
-          m_warpMemoryRelays.emplace_back(TAreaId(hecl::StrToUl(layerStr + 2, nullptr, 16)));
+          m_warpMemoryRelays.emplace_back(TAreaId(strtoul(layerStr + 2, nullptr, 16)));
         }
         ++it;
       }

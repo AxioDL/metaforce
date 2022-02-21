@@ -54,7 +54,7 @@ std::string ImGuiLoadStringTable(CAssetId stringId, int idx) {
   if (!stringTables.contains(stringId)) {
     stringTables[stringId] = g_SimplePool->GetObj(SObjectTag{SBIG('STRG'), stringId});
   }
-  return hecl::Char16ToUTF8(stringTables[stringId].GetObj()->GetString(idx));
+  return CStringExtras::ConvertToUTF8(stringTables[stringId].GetObj()->GetString(idx));
 }
 
 static bool ContainsCaseInsensitive(std::string_view str, std::string_view val) {

@@ -14,10 +14,6 @@
 
 #include "../version.h"
 
-/* Static reference to dataspec additions
- * (used by MSVC to definitively link DataSpecs) */
-#include "DataSpecRegistry.hpp"
-
 //#include <fenv.h>
 //#pragma STDC FENV_ACCESS ON
 
@@ -543,9 +539,6 @@ public:
 
 } // namespace metaforce
 
-static char CwdBuf[1024];
-std::string ExeDir;
-
 static void SetupBasics(bool logging) {
   auto result = zeus::validateCPU();
   if (!result.first) {
@@ -612,18 +605,6 @@ int main(int argc, char** argv) {
     logFilePath = fmt::format(FMT_STRING("{}/{}-{}"), fileMgr.getStoreRoot(), buf, logFile);
     logvisor::RegisterFileLogger(logFilePath.c_str());
   }
-
-  if (char* cwd = hecl::Getcwd(CwdBuf, 1024)) {
-    if (hecl::PathRelative(argv[0]))
-      ExeDir = std::string(cwd) + '/';
-    std::string Argv0(argv[0]);
-    std::string::size_type lastIdx = Argv0.find_last_of("/\\");
-    if (lastIdx != std::string::npos)
-      ExeDir.insert(ExeDir.end(), Argv0.begin(), Argv0.begin() + lastIdx);
-  }
-
-  /* Handle -j argument */
-  hecl::SetCpuCountOverride(argc, argv);
 
   auto app = std::make_unique<metaforce::Application>(fileMgr, cvarMgr, cvarCmns);
   auto icon = metaforce::GetIcon();

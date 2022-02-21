@@ -8,7 +8,7 @@
 #include "Runtime/World/CWorld.hpp"
 #include "Runtime/Graphics/CBooRenderer.hpp"
 
-#include "DataSpec/DNAMP1/SFX/Weapons.h"
+#include "Audio/SFX/Weapons.h"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 

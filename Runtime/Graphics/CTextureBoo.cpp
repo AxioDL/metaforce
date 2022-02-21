@@ -9,6 +9,8 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
+#include <logvisor/logvisor.hpp>
+
 namespace metaforce {
 namespace {
 logvisor::Module Log("metaforce::CTextureBoo");

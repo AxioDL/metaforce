@@ -7,13 +7,13 @@
 
 #include "Runtime/RetroTypes.hpp"
 
-#include "DataSpec/DNACommon/GX.hpp"
+#include "GX.hpp"
 
 //#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
 //#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include "ConsoleVariables/CVar.hpp"
-#include <hecl/Runtime.hpp>
+//#include <hecl/Runtime.hpp>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CTransform.hpp>

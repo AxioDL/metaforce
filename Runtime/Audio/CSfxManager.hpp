@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "DNAMP1/SFX/SFX.h"
+#include "SFX/SFX.h"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Audio/CAudioSys.hpp"
 

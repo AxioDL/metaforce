@@ -167,7 +167,7 @@ void initialize(SDL_Window* window) {
   } else if (swapChainFormat == wgpu::TextureFormat::BGRA8UnormSrgb) {
     swapChainFormat = wgpu::TextureFormat::BGRA8Unorm;
   }
-  Log.report(logvisor::Info, FMT_STRING("Using swapchain swapChainFormat {}"), magic_enum::enum_name(swapChainFormat));
+  Log.report(logvisor::Info, FMT_STRING("Using swapchain format {}"), magic_enum::enum_name(swapChainFormat));
   {
     const auto descriptor = wgpu::SwapChainDescriptor{
         .format = swapChainFormat,
