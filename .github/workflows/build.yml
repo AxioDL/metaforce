@@ -106,7 +106,7 @@ jobs:
           brew upgrade --formula
           brew install ninja graphicsmagick imagemagick freetype
           yarn global add create-dmg
-          pip install markupsafe
+          pip3 install markupsafe==2.0.1
 
           # universal qt5 from macports
           curl -LSfs https://axiodl.com/files/qt-$Qt_VERSION.mpkg -o /tmp/qt-$Qt_VERSION.mpkg
@@ -192,7 +192,7 @@ jobs:
       - name: Install dependencies
         run: |
           choco install ninja vulkan-sdk
-          pip install markupsafe
+          pip install markupsafe==2.0.1
 
           # set up buildcache
           $TempDir = "$env:RUNNER_WORKSPACE\temp"
