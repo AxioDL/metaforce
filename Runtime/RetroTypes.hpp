@@ -9,6 +9,7 @@
 #include "GCNTypes.hpp"
 #include "rstl.hpp"
 
+#include <logvisor/logvisor.hpp>
 #include <zeus/CMatrix3f.hpp>
 #include <zeus/CMatrix4f.hpp>
 #include <zeus/CTransform.hpp>
