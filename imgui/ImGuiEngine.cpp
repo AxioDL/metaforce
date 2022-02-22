@@ -2,7 +2,8 @@
 
 #include <aurora/imgui.hpp>
 
-#include "athena/Compression.hpp"
+#include "Runtime/Streams/CMemoryInStream.hpp"
+#include "Runtime/Streams/CZipInputStream.hpp"
 
 #define STBI_NO_STDIO
 #define STB_IMAGE_STATIC
@@ -30,8 +31,10 @@ void ImGuiEngine_Initialize(float scale) {
   ImGuiIO& io = ImGui::GetIO();
 
   auto* fontData = new uint8_t[NOTO_MONO_FONT_DECOMPRESSED_SZ];
-  athena::io::Compression::decompressZlib(static_cast<const atUint8*>(NOTO_MONO_FONT), atUint32(NOTO_MONO_FONT_SZ),
-                                          fontData, NOTO_MONO_FONT_DECOMPRESSED_SZ);
+  metaforce::CMemoryInStream memStream(static_cast<const u8*>(NOTO_MONO_FONT), NOTO_MONO_FONT_SZ,
+                                       metaforce::CMemoryInStream::EOwnerShip::NotOwned);
+  metaforce::CZipInputStream zipInputStream(std::make_unique<metaforce::CMemoryInStream>(memStream));
+  zipInputStream.Get(fontData, NOTO_MONO_FONT_DECOMPRESSED_SZ);
 
   ImFontConfig fontConfig{};
   fontConfig.FontData = fontData;

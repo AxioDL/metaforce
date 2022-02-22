@@ -5,7 +5,7 @@
 namespace metaforce {
 /* Same as CDamageInfo */
 struct SShotParam {
-  atInt32 x0_weaponType = -1;
+  u32 x0_weaponType = -1;
   bool x4_24_charged : 1;
   bool x4_25_combo : 1;
   bool x4_26_instaKill : 1;
@@ -63,9 +63,9 @@ struct ITweakPlayerGun : ITweak {
   virtual float GetGunExtendDistance() const = 0;
   virtual const zeus::CVector3f& GetGunPosition() const = 0;
   virtual const zeus::CVector3f& GetGrapplingArmPosition() const = 0;
-  virtual float GetRichochetDamage(atUint32) const = 0;
-  virtual const SWeaponInfo& GetBeamInfo(atInt32 beam) const = 0;
-  virtual const SComboShotParam& GetComboShotInfo(atInt32 beam) const = 0;
+  virtual float GetRichochetDamage(u32) const = 0;
+  virtual const SWeaponInfo& GetBeamInfo(s32 beam) const = 0;
+  virtual const SComboShotParam& GetComboShotInfo(s32 beam) const = 0;
   virtual const SShotParam& GetBombInfo() const = 0;
   virtual const SShotParam& GetPowerBombInfo() const = 0;
 };

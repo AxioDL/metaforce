@@ -5,9 +5,9 @@
 namespace metaforce::Tweaks {
 
 struct ITweakGui : ITweak {
-  enum class EHudVisMode : atUint32 { Zero, One, Two, Three };
+  enum class EHudVisMode : u32 { Zero, One, Two, Three };
 
-  enum class EHelmetVisMode : atUint32 { ReducedUpdate, NotVisible, Deco, HelmetDeco, GlowHelmetDeco, HelmetOnly };
+  enum class EHelmetVisMode : u32 { ReducedUpdate, NotVisible, Deco, HelmetDeco, GlowHelmetDeco, HelmetOnly };
 
   virtual float GetMapAlphaInterpolant() const = 0;
   virtual float GetPauseBlurFactor() const = 0;

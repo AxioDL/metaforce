@@ -437,7 +437,7 @@ CPlayerState::EItemType CPlayerState::ItemNameToType(std::string_view name) {
   }};
 
   std::string lowName{name};
-  athena::utility::tolower(lowName);
+  CBasics::ToLower(lowName);
 
   const auto iter = std::find_if(typeNameMap.cbegin(), typeNameMap.cend(),
                                  [&lowName](const auto& entry) { return entry.first == lowName; });

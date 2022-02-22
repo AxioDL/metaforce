@@ -6,7 +6,7 @@
 namespace metaforce::Tweaks {
 
 struct ITweakPlayerControl : ITweak {
-  [[nodiscard]] virtual ControlMapper::EFunctionList GetMapping(atUint32) const = 0;
+  [[nodiscard]] virtual ControlMapper::EFunctionList GetMapping(u32) const = 0;
 };
 
 } // namespace DataSpec

@@ -4,7 +4,7 @@
 
 namespace metaforce::Tweaks {
 struct ITweakTargeting : public ITweak {
-  virtual atUint32 GetTargetRadiusMode() const = 0;
+  virtual u32 GetTargetRadiusMode() const = 0;
   virtual float GetCurrLockOnExitDuration() const = 0;
   virtual float GetCurrLockOnEnterDuration() const = 0;
   virtual float GetCurrLockOnSwitchDuration() const = 0;
@@ -40,7 +40,7 @@ struct ITweakTargeting : public ITweak {
   virtual float GetChargeGaugeAngle(int i) const = 0;
   virtual float GetChargeGaugeScale() const = 0;
   virtual const zeus::CColor& GetChargeGaugeNonFullColor() const = 0;
-  virtual atUint32 GetChargeTickCount() const = 0;
+  virtual u32 GetChargeTickCount() const = 0;
   virtual float GetChargeTickAnglePitch() const = 0;
   virtual float GetLockFireScale() const = 0;
   virtual float GetLockFireDuration() const = 0;

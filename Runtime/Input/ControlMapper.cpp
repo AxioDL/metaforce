@@ -230,7 +230,7 @@ bool ControlMapper::GetPressInput(ECommands cmd, const CFinalInput& input) {
   }
 
   bool ret = false;
-  const auto func = EFunctionList(g_currentPlayerControl->GetMapping(atUint32(cmd)));
+  const auto func = EFunctionList(g_currentPlayerControl->GetMapping(u32(cmd)));
   if (func < EFunctionList::MAX) {
     if (BoolReturnFn fn = skPressFuncs[size_t(func)]) {
       ret = (input.*fn)();
@@ -257,7 +257,7 @@ bool ControlMapper::GetDigitalInput(ECommands cmd, const CFinalInput& input) {
   }
 
   bool ret = false;
-  const auto func = EFunctionList(g_currentPlayerControl->GetMapping(atUint32(cmd)));
+  const auto func = EFunctionList(g_currentPlayerControl->GetMapping(u32(cmd)));
   if (func < EFunctionList::MAX) {
     if (BoolReturnFn fn = skDigitalFuncs[size_t(func)])
       ret = (input.*fn)();
@@ -333,7 +333,7 @@ float ControlMapper::GetAnalogInput(ECommands cmd, const CFinalInput& input) {
   }
 
   float ret = 0.f;
-  const auto func = EFunctionList(g_currentPlayerControl->GetMapping(atUint32(cmd)));
+  const auto func = EFunctionList(g_currentPlayerControl->GetMapping(u32(cmd)));
   if (func < EFunctionList::MAX) {
     if (FloatReturnFn fn = skAnalogFuncs[size_t(func)]) {
       ret = (input.*fn)();

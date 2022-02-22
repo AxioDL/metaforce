@@ -6,40 +6,6 @@
 #include <functional>
 #include <string>
 #include <vector>
-#ifndef ENABLE_BITWISE_ENUM
-#define ENABLE_BITWISE_ENUM(type)                                                                                      \
-  constexpr type operator|(type a, type b) noexcept {                                                                  \
-    using T = std::underlying_type_t<type>;                                                                            \
-    return type(static_cast<T>(a) | static_cast<T>(b));                                                                \
-  }                                                                                                                    \
-  constexpr type operator&(type a, type b) noexcept {                                                                  \
-    using T = std::underlying_type_t<type>;                                                                            \
-    return type(static_cast<T>(a) & static_cast<T>(b));                                                                \
-  }                                                                                                                    \
-  constexpr type& operator|=(type& a, type b) noexcept {                                                               \
-    using T = std::underlying_type_t<type>;                                                                            \
-    a = type(static_cast<T>(a) | static_cast<T>(b));                                                                   \
-    return a;                                                                                                          \
-  }                                                                                                                    \
-  constexpr type& operator&=(type& a, type b) noexcept {                                                               \
-    using T = std::underlying_type_t<type>;                                                                            \
-    a = type(static_cast<T>(a) & static_cast<T>(b));                                                                   \
-    return a;                                                                                                          \
-  }                                                                                                                    \
-  constexpr type operator~(type key) noexcept {                                                                        \
-    using T = std::underlying_type_t<type>;                                                                            \
-    return type(~static_cast<T>(key));                                                                                 \
-  }                                                                                                                    \
-  constexpr bool True(type key) noexcept {                                                                             \
-    using T = std::underlying_type_t<type>;                                                                            \
-    return static_cast<T>(key) != 0;                                                                                   \
-  }                                                                                                                    \
-  constexpr bool False(type key) noexcept {                                                                            \
-    using T = std::underlying_type_t<type>;                                                                            \
-    return static_cast<T>(key) == 0;                                                                                   \
-  }
-#endif
-
 namespace metaforce {
 namespace StoreCVar {
 enum class EType : uint32_t { Boolean, Signed, Unsigned, Real, Literal, Vec2f, Vec2d, Vec3f, Vec3d, Vec4f, Vec4d };

@@ -23,31 +23,16 @@ union BitsToDouble {
   double doub;
 };
 
-/** Word Bitmap reader/writer */
-void WordBitmap::read(athena::io::IStreamReader& reader, size_t bitCount) {
-  m_bitCount = bitCount;
-  size_t wordCount = (bitCount + 31) / 32;
-  m_words.clear();
-  m_words.reserve(wordCount);
-  for (size_t w = 0; w < wordCount; ++w)
-    m_words.push_back(reader.readUint32Big());
-}
-void WordBitmap::write(athena::io::IStreamWriter& writer) const {
-  for (atUint32 word : m_words)
-    writer.writeUint32Big(word);
-}
-void WordBitmap::binarySize(size_t& __isz) const { __isz += m_words.size() * 4; }
-
 CScriptLayerManager::CScriptLayerManager(CInputStream& reader, const CWorldSaveGameInfo& saveWorld) {
   const u32 bitCount = reader.ReadBits(10);
-  x10_saveLayers.reserve(bitCount);
+  x10_saveLayers.Reserve(bitCount);
 
   for (u32 i = 0; i < bitCount; ++i) {
     const bool bit = reader.ReadBits(1) != 0;
     if (bit) {
-      x10_saveLayers.setBit(i);
+      x10_saveLayers.SetBit(i);
     } else {
-      x10_saveLayers.unsetBit(i);
+      x10_saveLayers.UnsetBit(i);
     }
   }
 }
@@ -63,7 +48,7 @@ void CScriptLayerManager::PutTo(COutputStream& writer) const {
   for (size_t i = 0; i < x0_areaLayers.size(); ++i) {
     const u32 count = GetAreaLayerCount(s32(i));
     for (u32 l = 1; l < count; ++l) {
-      writer.WriteBits(IsLayerActive(s32(i), s32(l)), 1);
+      writer.WriteBits(static_cast<u32>(IsLayerActive(s32(i), s32(l))), 1);
     }
   }
 }
@@ -74,19 +59,20 @@ void CScriptLayerManager::InitializeWorldLayers(const std::vector<CWorldLayers::
   }
 
   x0_areaLayers = layers;
-  if (x10_saveLayers.getBitCount() == 0) {
+  if (x10_saveLayers.GetBitCount() == 0) {
     return;
   }
 
   u32 a = 0;
   u32 b = 0;
   for (const CWorldLayers::Area& area : x0_areaLayers) {
-    for (u32 l = 1; l < area.m_layerCount; ++l)
-      SetLayerActive(a, l, x10_saveLayers.getBit(b++));
+    for (u32 l = 1; l < area.m_layerCount; ++l) {
+      SetLayerActive(a, l, x10_saveLayers.GetBit(b++));
+    }
     ++a;
   }
 
-  x10_saveLayers.clear();
+  x10_saveLayers.Clear();
 }
 
 CWorldState::CWorldState(CAssetId id) : x0_mlvlId(id), x4_areaId(0) {
@@ -97,9 +83,7 @@ CWorldState::CWorldState(CAssetId id) : x0_mlvlId(id), x4_areaId(0) {
 }
 
 CWorldState::CWorldState(CInputStream& reader, CAssetId mlvlId, const CWorldSaveGameInfo& saveWorld)
-: x0_mlvlId(mlvlId) {
-  x4_areaId = TAreaId(reader.ReadBits(32));
-  x10_desiredAreaAssetId = u32(reader.ReadBits(32));
+: x0_mlvlId(mlvlId), x4_areaId(TAreaId(reader.ReadBits(32))), x10_desiredAreaAssetId(reader.ReadBits(32)) {
   x8_mailbox = std::make_shared<CScriptMailbox>(reader, saveWorld);
   xc_mapWorldInfo = std::make_shared<CMapWorldInfo>(reader, saveWorld, mlvlId);
   x14_layerState = std::make_shared<CScriptLayerManager>(reader, saveWorld);

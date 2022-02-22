@@ -54,7 +54,7 @@ struct CTweakPlayerGun final : Tweaks::ITweakPlayerGun {
   float GetGunExtendDistance() const override { return x48_gunExtendDistance; }
   const zeus::CVector3f& GetGunPosition() const override { return x4c_gunPosition; }
   const zeus::CVector3f& GetGrapplingArmPosition() const override { return x64_grapplingArmPosition; }
-  float GetRichochetDamage(atUint32 type) const override {
+  float GetRichochetDamage(u32 type) const override {
     switch (type) {
     case 0: // Power
       return x280_ricochetData[0];
@@ -82,14 +82,14 @@ struct CTweakPlayerGun final : Tweaks::ITweakPlayerGun {
     }
   }
 
-  const SWeaponInfo& GetBeamInfo(atInt32 beam) const override {
+  const SWeaponInfo& GetBeamInfo(s32 beam) const override {
     if (beam < 0 || beam >= 5) {
       return xa8_beams[0];
     }
     return xa8_beams[beam];
   }
 
-  const SComboShotParam& GetComboShotInfo(atInt32 beam) const override {
+  const SComboShotParam& GetComboShotInfo(s32 beam) const override {
     if (beam < 0 || beam >= 5) {
       return x1f0_combos[0];
     }

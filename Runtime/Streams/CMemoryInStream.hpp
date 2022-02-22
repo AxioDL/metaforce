@@ -1,5 +1,5 @@
 #pragma once
-#include "CInputStream.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 
 namespace metaforce {
 class CMemoryInStream final : public CInputStream {

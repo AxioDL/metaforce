@@ -70,7 +70,7 @@ zeus::CTransform cinput_stream_helper(CInputStream& in) {
   auto r0 = in.Get<zeus::CVector4f>();
   auto r1 = in.Get<zeus::CVector4f>();
   auto r2 = in.Get<zeus::CVector4f>();
-  ret.basis = zeus::CMatrix3f(r0, r1, r2);
+  ret.basis = zeus::CMatrix3f(r0.toVec3f(), r1.toVec3f(), r2.toVec3f());
   ret.basis.transpose();
   ret.origin = zeus::CVector3f(r0.w(), r1.w(), r2.w());
   return ret;

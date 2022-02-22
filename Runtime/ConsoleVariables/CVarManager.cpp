@@ -1,6 +1,7 @@
 #include "Runtime/ConsoleVariables/CVarManager.hpp"
 
 #include "Runtime/ConsoleVariables/FileStoreManager.hpp"
+#include "Runtime/CBasics.hpp"
 
 #include <logvisor/logvisor.hpp>
 #include <algorithm>
@@ -37,7 +38,7 @@ CVarManager::~CVarManager() {}
 
 CVar* CVarManager::registerCVar(std::unique_ptr<CVar>&& cvar) {
   std::string tmp(cvar->name());
-  athena::utility::tolower(tmp);
+  CBasics::ToLower(tmp);
 
   if (m_cvars.find(tmp) != m_cvars.end()) {
     return nullptr;
@@ -50,7 +51,7 @@ CVar* CVarManager::registerCVar(std::unique_ptr<CVar>&& cvar) {
 
 CVar* CVarManager::findCVar(std::string_view name) {
   std::string lower(name);
-  athena::utility::tolower(lower);
+  CBasics::ToLower(lower);
   auto search = m_cvars.find(lower);
   if (search == m_cvars.end())
     return nullptr;
@@ -85,7 +86,7 @@ void CVarManager::deserialize(CVar* cvar) {
 
   /* First let's check for a deferred value */
   std::string lowName = cvar->name().data();
-  athena::utility::tolower(lowName);
+  CBasics::ToLower(lowName);
   if (const auto iter = m_deferedCVars.find(lowName); iter != m_deferedCVars.end()) {
     std::string val = std::move(iter->second);
     m_deferedCVars.erase(lowName);
@@ -175,7 +176,7 @@ void CVarManager::serialize() {
         container.cvars.push_back(*cvar);
       }
     }
-    container.cvarCount = atUint32(container.cvars.size());
+    container.cvarCount = u32(container.cvars.size());
 
     filename += ".bin";
     athena::io::FileWriter writer(filename);
@@ -233,7 +234,7 @@ bool CVarManager::restartRequired() const {
 void CVarManager::parseCommandLine(const std::vector<std::string>& args) {
   bool oldDeveloper = suppressDeveloper();
   std::string developerName(com_developer->name());
-  athena::utility::tolower(developerName);
+  CBasics::ToLower(developerName);
   for (const std::string& arg : args) {
     if (arg[0] != '+') {
       continue;
@@ -266,13 +267,13 @@ void CVarManager::parseCommandLine(const std::vector<std::string>& args) {
         cv->fromLiteralToType(cvarValue);
       }
       cv->m_wasDeserialized = true;
-      athena::utility::tolower(cvarName);
+      CBasics::ToLower(cvarName);
       if (developerName == cvarName)
         /* Make sure we're not overriding developer mode when we restore */
         oldDeveloper = com_developer->toBoolean();
     } else {
       /* Unable to find an existing CVar, let's defer for the time being 8 */
-      athena::utility::tolower(cvarName);
+      CBasics::ToLower(cvarName);
       m_deferedCVars.insert_or_assign(std::move(cvarName), std::move(cvarValue));
     }
   }

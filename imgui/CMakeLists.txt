@@ -11,7 +11,7 @@ add_library(imgui
         NotoMono.cpp
         MetaforceIcon.cpp
         )
-target_include_directories(imgui PUBLIC ${CMAKE_SOURCE_DIR}/extern/imgui ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(imgui PUBLIC ${CMAKE_SOURCE_DIR}/extern/imgui ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
 target_compile_definitions(imgui PUBLIC IMGUI_USER_CONFIG="imconfig_user.h") # IMGUI_USE_WCHAR32
 if (CMAKE_COMPILER_IS_GNUCXX)
     # currently explicitly ignored for clang in imgui code, but not gcc (yet)

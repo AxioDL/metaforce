@@ -4,54 +4,53 @@
 #include <memory>
 #include <vector>
 
+#include "Runtime/AutoMapper/CMapWorldInfo.hpp"
 #include "Runtime/CBasics.hpp"
 #include "Runtime/CGameOptions.hpp"
 #include "Runtime/CPlayerState.hpp"
 #include "Runtime/CScriptMailbox.hpp"
-#include "Runtime/AutoMapper/CMapWorldInfo.hpp"
 #include "Runtime/World/CWorld.hpp"
 #include "Runtime/World/CWorldTransManager.hpp"
 
 namespace metaforce {
 class CSaveWorldMemory;
 
-// TODO: copied from DataSpec, should be reimplemented
 class WordBitmap {
-  std::vector<atUint32> m_words;
-  size_t m_bitCount = 0;
+  std::vector<u32> x0_words;
+  size_t x10_bitCount = 0;
 
 public:
-  void read(athena::io::IStreamReader& reader, size_t bitCount);
-  void write(athena::io::IStreamWriter& writer) const;
-  void reserve(size_t bitCount) { m_words.reserve((bitCount + 31) / 32); }
-  void binarySize(size_t& __isz) const;
-  size_t getBitCount() const { return m_bitCount; }
-  bool getBit(size_t idx) const {
+  void Reserve(size_t bitCount) { x0_words.reserve((bitCount + 31) / 32); }
+  [[nodiscard]] size_t GetBitCount() const { return x10_bitCount; }
+  [[nodiscard]] bool GetBit(size_t idx) const {
     size_t wordIdx = idx / 32;
-    if (wordIdx >= m_words.size())
+    if (wordIdx >= x0_words.size()) {
       return false;
+    }
     size_t wordCur = idx % 32;
-    return (m_words[wordIdx] >> wordCur) & 0x1;
+    return ((x0_words[wordIdx] >> wordCur) & 0x1) != 0u;
   }
-  void setBit(size_t idx) {
+  void SetBit(size_t idx) {
     size_t wordIdx = idx / 32;
-    while (wordIdx >= m_words.size())
-      m_words.push_back(0);
+    while (wordIdx >= x0_words.size()) {
+      x0_words.push_back(0);
+    }
     size_t wordCur = idx % 32;
-    m_words[wordIdx] |= (1 << wordCur);
-    m_bitCount = std::max(m_bitCount, idx + 1);
+    x0_words[wordIdx] |= (1 << wordCur);
+    x10_bitCount = std::max(x10_bitCount, idx + 1);
   }
-  void unsetBit(size_t idx) {
+  void UnsetBit(size_t idx) {
     size_t wordIdx = idx / 32;
-    while (wordIdx >= m_words.size())
-      m_words.push_back(0);
+    while (wordIdx >= x0_words.size()) {
+      x0_words.push_back(0);
+    }
     size_t wordCur = idx % 32;
-    m_words[wordIdx] &= ~(1 << wordCur);
-    m_bitCount = std::max(m_bitCount, idx + 1);
+    x0_words[wordIdx] &= ~(1 << wordCur);
+    x10_bitCount = std::max(x10_bitCount, idx + 1);
   }
-  void clear() {
-    m_words.clear();
-    m_bitCount = 0;
+  void Clear() {
+    x0_words.clear();
+    x10_bitCount = 0;
   }
 
   class Iterator {
@@ -71,11 +70,11 @@ public:
       ++m_idx;
       return *this;
     }
-    bool operator*() const { return m_bmp.getBit(m_idx); }
+    bool operator*() const { return m_bmp.GetBit(m_idx); }
     bool operator!=(const Iterator& other) const { return m_idx != other.m_idx; }
   };
-  Iterator begin() const { return Iterator(*this, 0); }
-  Iterator end() const { return Iterator(*this, m_bitCount); }
+  [[nodiscard]] Iterator begin() const { return Iterator(*this, 0); }
+  [[nodiscard]] Iterator end() const { return Iterator(*this, x10_bitCount); }
 };
 
 class CScriptLayerManager {
@@ -87,19 +86,22 @@ public:
   CScriptLayerManager() = default;
   CScriptLayerManager(CInputStream& reader, const CWorldSaveGameInfo& saveWorld);
 
-  bool IsLayerActive(int areaIdx, int layerIdx) const { return ((x0_areaLayers[areaIdx].m_layerBits >> layerIdx) & 1); }
+  [[nodiscard]] bool IsLayerActive(int areaIdx, int layerIdx) const {
+    return ((x0_areaLayers[areaIdx].m_layerBits >> layerIdx) & 1) != 0u;
+  }
 
   void SetLayerActive(int areaIdx, int layerIdx, bool active) {
-    if (active)
+    if (active) {
       x0_areaLayers[areaIdx].m_layerBits |= uint64_t(1) << layerIdx;
-    else
+    } else {
       x0_areaLayers[areaIdx].m_layerBits &= ~(uint64_t(1) << layerIdx);
+    }
   }
 
   void InitializeWorldLayers(const std::vector<CWorldLayers::Area>& layers);
 
-  u32 GetAreaLayerCount(int areaIdx) const { return x0_areaLayers[areaIdx].m_layerCount; }
-  u32 GetAreaCount() const { return x0_areaLayers.size(); }
+  [[nodiscard]] u32 GetAreaLayerCount(int areaIdx) const { return x0_areaLayers[areaIdx].m_layerCount; }
+  [[nodiscard]] u32 GetAreaCount() const { return x0_areaLayers.size(); }
 
   void PutTo(COutputStream& writer) const;
 };

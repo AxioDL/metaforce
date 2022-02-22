@@ -31,12 +31,6 @@
 
 using namespace std::literals;
 
-static logvisor::Module AthenaLog("Athena");
-static void AthenaExc(athena::error::Level level, const char* file, const char*, int line, fmt::string_view fmt,
-                      fmt::format_args args) {
-  AthenaLog.vreport(logvisor::Level(level), fmt, args);
-}
-
 class Limiter {
   using delta_clock = std::chrono::high_resolution_clock;
   using duration_t = std::chrono::nanoseconds;
@@ -567,7 +561,6 @@ static void SetupBasics(bool logging) {
   logvisor::RegisterStandardExceptions();
   if (logging)
     logvisor::RegisterConsoleLogger();
-  atSetExceptionHandler(AthenaExc);
 
 #if SENTRY_ENABLED
   FileStoreManager fileMgr{"sentry-native-metaforce"};

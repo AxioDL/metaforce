@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
   if (compress) {
     size_t compressedSz = 0;
     z_stream strm = {.zalloc = Z_NULL, .zfree = Z_NULL, .opaque = Z_NULL};
-    int ret = deflateInit2(&strm, Z_BEST_COMPRESSION, Z_DEFLATED, MAX_WBITS | 16, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY);
+    int ret = deflateInit(&strm, Z_BEST_COMPRESSION);
     if (ret != Z_OK) {
       fprintf(stderr, "zlib initialization failed %d\n", ret);
       return 1;

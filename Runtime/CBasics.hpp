@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
+#include <algorithm>
 #ifndef _WIN32
 #include <sys/stat.h>
 #else
@@ -62,6 +63,7 @@ public:
   static int RecursiveMakeDir(const char* dir);
   static void MakeDir(const char* dir);
   static int Stat(const char* path, Sstat* statOut);
+  static inline void ToLower(std::string& str) { std::transform(str.begin(), str.end(), str.begin(), ::tolower); }
 };
 
 } // namespace metaforce

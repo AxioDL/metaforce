@@ -686,7 +686,7 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr,
   x164_archSupport = std::make_unique<CGameArchitectureSupport>(*this, voiceEngine, backend);
   g_archSupport = x164_archSupport.get();
   x164_archSupport->PreloadAudio();
-  std::srand(static_cast<u32>(std::time(nullptr)));
+  std::srand(static_cast<u32>(CBasics::GetTime()));
   // g_TweakManager->ReadFromMemoryCard("AudioTweaks");
 }
 

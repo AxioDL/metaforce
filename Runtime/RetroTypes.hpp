@@ -88,10 +88,10 @@ constexpr uint64_t SBig(uint64_t val) noexcept { return bswap64(val); }
 constexpr float SBig(float val) noexcept {
   union {
     float f;
-    atInt32 i;
+    u32 i;
   } uval1 = {val};
   union {
-    atInt32 i;
+    u32 i;
     float f;
   } uval2 = {bswap32(uval1.i)};
   return uval2.f;
@@ -99,10 +99,10 @@ constexpr float SBig(float val) noexcept {
 constexpr double SBig(double val) noexcept {
   union {
     double f;
-    atInt64 i;
+    u32 i;
   } uval1 = {val};
   union {
-    atInt64 i;
+    u32 i;
     double f;
   } uval2 = {bswap64(uval1.i)};
   return uval2.f;

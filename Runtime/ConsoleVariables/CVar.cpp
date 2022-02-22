@@ -1,10 +1,63 @@
 ﻿#include "Runtime/ConsoleVariables/CVar.hpp"
+#include "Runtime/CBasics.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 #include <sstream>
 
 #include "Runtime/ConsoleVariables/CVarManager.hpp"
 
 namespace metaforce {
+namespace {
+// TODO: Move these to CBasics?
+inline bool parseBool(std::string_view boolean, bool* valid) {
+  std::string val(boolean);
+  // compare must be case insensitive
+  // This is the cleanest solution since I only need to do it once
+  CBasics::ToLower(val);
+
+  // Check for true first
+  if (val == "true" || val == "1" || val == "yes" || val == "on") {
+    if (valid)
+      *valid = true;
+
+    return true;
+  }
+
+  // Now false
+  if (val == "false" || val == "0" || val == "no" || val == "off") {
+    if (valid)
+      *valid = true;
+
+    return false;
+  }
+
+  // Well that could've gone better
+
+  if (valid)
+    *valid = false;
+
+  return false;
+}
+
+static std::vector<std::string>& split(std::string_view s, char delim, std::vector<std::string>& elems) {
+  std::string tmps(s);
+  std::stringstream ss(tmps);
+  std::string item;
+
+  while (std::getline(ss, item, delim)) {
+    elems.push_back(item);
+  }
+
+  return elems;
+}
+
+std::vector<std::string> split(std::string_view s, char delim) {
+  std::vector<std::string> elems;
+  split(s, delim, elems);
+  return elems;
+}
+}
 extern CVar* com_developer;
 extern CVar* com_enableCheats;
 
@@ -197,7 +250,7 @@ bool CVar::toBoolean(bool* isValid) const {
     return false;
   }
 
-  return athena::utility::parseBool(m_value, isValid);
+  return parseBool(m_value, isValid);
 }
 
 int32_t CVar::toSigned(bool* isValid) const {
@@ -441,12 +494,12 @@ bool isReal(const std::vector<std::string>& v) {
 }
 
 bool CVar::isValidInput(std::string_view input) const {
-  std::vector<std::string> parts = athena::utility::split(input, ' ');
+  std::vector<std::string> parts = split(input, ' ');
   char* p;
   switch (m_type) {
   case EType::Boolean: {
     bool valid = false;
-    athena::utility::parseBool(input, &valid);
+    parseBool(input, &valid);
     return valid;
   }
   case EType::Signed:
