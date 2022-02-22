@@ -441,36 +441,6 @@ set(HECL_DATASPEC_PUSHES
 add_subdirectory(extern/nod EXCLUDE_FROM_ALL)
 add_subdirectory(extern/boo EXCLUDE_FROM_ALL)
 
-include(ExternalProject)
-ExternalProject_Add(shaderc
-    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/hecl/shaderc"
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-    INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install)
-
-function(shaderc out)
-  if(IS_ABSOLUTE ${out})
-    set(theOut ${out})
-  else()
-    set(theOut ${CMAKE_CURRENT_BINARY_DIR}/${out})
-  endif()
-  unset(theInsList)
-  foreach(in ${ARGN})
-    if(IS_ABSOLUTE ${in})
-      list(APPEND theInsList ${in})
-    else()
-      list(APPEND theInsList ${CMAKE_CURRENT_SOURCE_DIR}/${in})
-    endif()
-  endforeach()
-  get_filename_component(outDir ${theOut} DIRECTORY)
-  file(MAKE_DIRECTORY ${outDir})
-  file(RELATIVE_PATH outRel ${CMAKE_BINARY_DIR} ${theOut})
-  ExternalProject_Get_Property(shaderc INSTALL_DIR)
-  add_custom_command(OUTPUT ${theOut}.cpp ${theOut}.hpp
-      COMMAND "${INSTALL_DIR}/bin/shaderc" ARGS -o ${theOut} ${theInsList}
-      DEPENDS ${theInsList} shaderc
-      COMMENT "Compiling shader ${outRel}.shader")
-endfunction()
-
 include(hecl/ApplicationTools.cmake)
 add_subdirectory(extern/xxhash EXCLUDE_FROM_ALL)
 add_subdirectory(imgui)
