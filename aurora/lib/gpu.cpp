@@ -9,6 +9,8 @@
 
 #include "dawn/BackendBinding.hpp"
 
+// TODO this hack doesn't link on Windows?
+#ifndef _WIN32
 // TODO HACK: dawn doesn't expose device toggles
 #include "../extern/dawn/src/dawn/native/Toggles.h"
 namespace dawn::native {
@@ -17,6 +19,7 @@ public:
   void SetToggle(Toggle toggle, bool isEnabled);
 };
 } // namespace dawn::native
+#endif
 
 namespace aurora::gpu {
 static logvisor::Module Log("aurora::gpu");
@@ -148,9 +151,11 @@ void initialize(SDL_Window* window) {
     };
     g_device = wgpu::Device::Acquire(g_Adapter.CreateDevice(&deviceDescriptor));
     g_device.SetUncapturedErrorCallback(&error_callback, nullptr);
+#ifndef _WIN32
     // TODO HACK: dawn doesn't expose device toggles
     static_cast<dawn::native::DeviceBase*>(static_cast<void*>(g_device.Get()))
         ->SetToggle(dawn::native::Toggle::UseUserDefinedLabelsInBackend, true);
+#endif
   }
   g_queue = g_device.GetQueue();
 
@@ -192,6 +197,9 @@ void initialize(SDL_Window* window) {
 }
 
 void shutdown() {
+  g_frameBuffer = {};
+  g_frameBufferResolved = {};
+  g_depthBuffer = {};
   wgpuSwapChainRelease(g_swapChain.Release());
   wgpuQueueRelease(g_queue.Release());
   g_BackendBinding.reset();

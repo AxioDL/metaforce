@@ -6,10 +6,7 @@
 #ifndef _WIN32
 #include <sys/stat.h>
 #else
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
+struct _stat64;
 #endif
 
 #include "Runtime/GCNTypes.hpp"

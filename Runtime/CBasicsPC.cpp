@@ -12,11 +12,21 @@
 #include <cstring>
 #include <ctime>
 #ifdef WIN32
-#include <windows.h>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <Windows.h>
+#include <nowide/stackstring.hpp>
 #ifndef _WIN32_IE
 #define _WIN32_IE 0x0400
 #endif
-#include <shlobj.h>
+#include <ShlObj.h>
+#if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
+#define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
+#endif
 #endif
 
 #include "Runtime/CBasics.hpp"
@@ -191,7 +201,7 @@ void CBasics::Swap8Bytes(u8* v) {
 #if __GNUC__
   *val = __builtin_bswap64(*val);
 #elif _WIN32
-  *val = _byteswap_uint64(val);
+  *val = _byteswap_uint64(*val);
 #else
   *val = ((val & 0xFF00000000000000ULL) >> 56) | ((val & 0x00FF000000000000ULL) >> 40) |
          ((val & 0x0000FF0000000000ULL) >> 24) | ((val & 0x000000FF00000000ULL) >> 8) |

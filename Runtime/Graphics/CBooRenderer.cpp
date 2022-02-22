@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <array>
 
-#include <boo/System.hpp>
 #include <logvisor/logvisor.hpp>
 #include <zeus/CColor.hpp>
 #include <zeus/CUnitVector.hpp>

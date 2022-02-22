@@ -3,6 +3,16 @@
 #include <numeric>
 #include <iostream>
 
+#ifdef WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <Windows.h>
+#endif
+
 #include "logvisor/logvisor.hpp"
 
 #include "ImGuiEngine.hpp"
@@ -156,7 +166,7 @@ private:
     //    m_imguiCallback.resized(rect, sync);
   }
 
-  void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) override {
+  void mouseDown(const boo::SWindowCoord& coord, EMouseButton button, boo::EModifierKey mods) override {
     //    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
     //      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
     //        as->mouseDown(coord, button, mods);
@@ -165,7 +175,7 @@ private:
     //    m_imguiCallback.mouseDown(coord, button, mods);
   }
 
-  void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) override {
+  void mouseUp(const boo::SWindowCoord& coord, EMouseButton button, boo::EModifierKey mods) override {
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
         as->mouseUp(coord, button, mods);
@@ -214,23 +224,23 @@ private:
     //    m_imguiCallback.charKeyUp(charCode, mods);
   }
 
-  void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat) override {
+  void specialKeyDown(aurora::SpecialKey key, boo::EModifierKey mods, bool isRepeat) override {
     //    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
     //      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
     //        as->specialKeyDown(key, mods, isRepeat);
     //      }
     //    }
     //    if (True(mods & boo::EModifierKey::Alt)) {
-    //      if (key == boo::ESpecialKey::Enter) {
+    //      if (key == aurora::SpecialKey::Enter) {
     //        m_fullscreenToggleRequested = true;
-    //      } else if (key == boo::ESpecialKey::F4) {
+    //      } else if (key == aurora::SpecialKey::F4) {
     //        m_windowInvalid = true;
     //      }
     //    }
     //    m_imguiCallback.specialKeyDown(key, mods, isRepeat);
   }
 
-  void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods) override {
+  void specialKeyUp(aurora::SpecialKey key, boo::EModifierKey mods) override {
     //    if (g_mainMP1) {
     //      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
     //        as->specialKeyUp(key, mods);
@@ -272,7 +282,7 @@ public:
   Application(FileStoreManager& fileMgr, CVarManager& cvarMgr, CVarCommons& cvarCmns)
   : m_fileMgr(fileMgr), m_cvarManager(cvarMgr), m_cvarCommons(cvarCmns), m_imGuiConsole(cvarMgr, cvarCmns) {}
 
-  void onAppLaunched() override {
+  void onAppLaunched() noexcept override {
     initialize();
 
     auto backend = static_cast<std::string>(aurora::get_backend_string());

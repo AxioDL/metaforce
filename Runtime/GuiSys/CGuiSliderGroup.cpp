@@ -67,9 +67,9 @@ bool CGuiSliderGroup::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVect
 }
 
 void CGuiSliderGroup::ProcessUserInput(const CFinalInput& input) {
-  if (input.DMouseButton(boo::EMouseButton::Primary) && m_mouseInside)
+  if (input.DMouseButton(EMouseButton::Primary) && m_mouseInside)
     m_mouseDown = true;
-  else if (!input.DMouseButton(boo::EMouseButton::Primary))
+  else if (!input.DMouseButton(EMouseButton::Primary))
     m_mouseDown = false;
   if (input.DLALeft()) {
     StartDecreasing();

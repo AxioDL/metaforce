@@ -2,10 +2,22 @@
 
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/IMain.hpp"
+#include "Runtime/CBasics.hpp"
 
-#include <shlobj.h>
+#include <ShlObj.h>
+#include <SDL_filesystem.h>
 
 namespace metaforce {
+
+static std::optional<std::string> GetPrefPath(const char* app) {
+  char* path = SDL_GetPrefPath(nullptr, app);
+  if (path == nullptr) {
+    return {};
+  }
+  std::string str{path};
+  SDL_free(path);
+  return str;
+}
 
 #if WINDOWS_STORE
 using namespace Windows::Storage;
@@ -53,8 +65,8 @@ std::string CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlot slot) {
 
     path += fmt::format(FMT_STRING("/GC/MemoryCard{}.USA.raw"), slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
 
-    hecl::Sstat theStat;
-    if (hecl::Stat(path.c_str(), &theStat) || !S_ISREG(theStat.st_mode))
+    struct _stat64 theStat{};
+    if (_stat64(path.c_str(), &theStat) || !S_ISREG(theStat.st_mode))
       return {};
 
     return path;
@@ -101,26 +113,33 @@ std::string CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot slot, bool do
 #endif
 
       path += "/GC";
-      if (hecl::RecursiveMakeDir(path.c_str()) < 0)
+      if (CBasics::RecursiveMakeDir(path.c_str()) < 0)
         return {};
 
       path += fmt::format(FMT_STRING("/MemoryCard{}.USA.raw"), slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
-      const auto fp = hecl::FopenUnique(path.c_str(), "wb");
+      const nowide::wstackstring wpath(path);
+      FILE* fp = _wfopen(wpath.get(), L"wb");
       if (fp == nullptr) {
         return {};
       }
+      fclose(fp);
 
       return path;
     } else {
       std::string path = _GetDolphinCardPath(slot);
-      hecl::SanitizePath(path);
       if (path.find('/') == std::string::npos) {
-        path = hecl::GetcwdStr() + "/" + _GetDolphinCardPath(slot);
+        auto prefPath = GetPrefPath("Metaforce");
+        if (!prefPath) {
+          return {};
+        }
+        path = *prefPath + _GetDolphinCardPath(slot);
       }
-      std::string tmpPath = path.substr(0, path.find_last_of("/"));
-      hecl::RecursiveMakeDir(tmpPath.c_str());
-      const auto fp = hecl::FopenUnique(path.c_str(), "wb");
+      std::string tmpPath = path.substr(0, path.find_last_of('/'));
+      CBasics::RecursiveMakeDir(tmpPath.c_str());
+      const nowide::wstackstring wpath(path);
+      FILE* fp = _wfopen(wpath.get(), L"wb");
       if (fp) {
+        fclose(fp);
         return path;
       }
     }

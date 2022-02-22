@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-#include <boo/IWindow.hpp>
+#include "Input/CKeyboardMouseController.hpp"
 
 namespace metaforce {
 struct CFinalInput;
@@ -126,12 +126,12 @@ constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionL
   return ControlMapper::EKBMFunctionList(static_cast<T>(a) + static_cast<T>(b));
 }
 
-constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionList a, boo::ESpecialKey b) {
+constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionList a, aurora::SpecialKey b) {
   using T = std::underlying_type_t<ControlMapper::EKBMFunctionList>;
   return ControlMapper::EKBMFunctionList(static_cast<T>(a) + static_cast<T>(b));
 }
 
-constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionList a, boo::EMouseButton b) {
+constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionList a, EMouseButton b) {
   using T = std::underlying_type_t<ControlMapper::EKBMFunctionList>;
   return ControlMapper::EKBMFunctionList(static_cast<T>(a) + static_cast<T>(b));
 }

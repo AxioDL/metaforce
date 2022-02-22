@@ -10,8 +10,6 @@
 #include "Runtime/GuiSys/CGuiWidgetIdDB.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
-#include <boo/IWindow.hpp>
-
 namespace metaforce {
 class CBooModel;
 class CGuiCamera;
@@ -54,7 +52,7 @@ private:
   std::function<void(CGuiWidget*, CGuiWidget*)> m_mouseOverChangeCb;
   std::function<void(CGuiWidget*, bool)> m_mouseDownCb;
   std::function<void(CGuiWidget*, bool)> m_mouseUpCb;
-  std::function<void(CGuiWidget*, const boo::SScrollDelta&, int, int)> m_mouseScrollCb;
+  std::function<void(CGuiWidget*, const SScrollDelta&, int, int)> m_mouseScrollCb;
 
 public:
   CGuiFrame(CAssetId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp);
@@ -87,7 +85,7 @@ public:
   }
   void SetMouseDownCallback(std::function<void(CGuiWidget*, bool)>&& cb) { m_mouseDownCb = std::move(cb); }
   void SetMouseUpCallback(std::function<void(CGuiWidget*, bool)>&& cb) { m_mouseUpCb = std::move(cb); }
-  void SetMouseScrollCallback(std::function<void(CGuiWidget*, const boo::SScrollDelta&, int, int)>&& cb) {
+  void SetMouseScrollCallback(std::function<void(CGuiWidget*, const SScrollDelta&, int, int)>&& cb) {
     m_mouseScrollCb = std::move(cb);
   }
 

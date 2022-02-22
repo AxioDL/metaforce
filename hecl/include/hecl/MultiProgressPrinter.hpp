@@ -6,13 +6,6 @@
 #include <thread>
 #include <vector>
 
-#if _WIN32
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <Windows.h>
-#endif
-
 namespace hecl {
 
 class MultiProgressPrinter {
@@ -22,7 +15,7 @@ class MultiProgressPrinter {
 
   struct TermInfo {
 #if _WIN32
-    HANDLE console;
+    void* console;
 #endif
     int width;
     bool xtermColor = false;

@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef MP1_USE_BOO
-#define MP1_USE_BOO 0
-#endif
-
 #include "Runtime/IMain.hpp"
 #include "Runtime/MP1/CTweaks.hpp"
 #include "Runtime/MP1/CPlayMovie.hpp"
@@ -114,12 +110,7 @@ public:
   }
 };
 
-#if MP1_USE_BOO
-class CGameArchitectureSupport : public boo::IWindowCallback
-#else
-class CGameArchitectureSupport
-#endif
-{
+class CGameArchitectureSupport {
   friend class CMain;
   CMain& m_parent;
   CArchitectureQueue x4_archQueue;
@@ -133,12 +124,12 @@ class CGameArchitectureSupport
   EAudioLoadStatus x88_audioLoadStatus = EAudioLoadStatus::Uninitialized;
   std::vector<TToken<CAudioGroupSet>> x8c_pendingAudioGroups;
 
-  boo::SWindowRect m_windowRect;
+  aurora::WindowSize m_windowRect;
   bool m_rectIsDirty = false;
 
   void destroyed() { x4_archQueue.Push(MakeMsg::CreateRemoveAllIOWins(EArchMsgTarget::IOWinManager)); }
 
-  void resized(const boo::SWindowRect& rect) {
+  void resized(const aurora::WindowSize& rect) {
     m_windowRect = rect;
     m_rectIsDirty = true;
   }
@@ -147,17 +138,15 @@ public:
   CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend);
   ~CGameArchitectureSupport();
 
-  void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) {
+  void mouseDown(const SWindowCoord& coord, EMouseButton button, EModifierKey mods) {
     x30_inputGenerator.mouseDown(coord, button, mods);
   }
-  void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) {
+  void mouseUp(const SWindowCoord& coord, EMouseButton button, EModifierKey mods) {
     x30_inputGenerator.mouseUp(coord, button, mods);
   }
-  void mouseMove(const boo::SWindowCoord& coord) { x30_inputGenerator.mouseMove(coord); }
-  void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll) {
-    x30_inputGenerator.scroll(coord, scroll);
-  }
-  void charKeyDown(uint8_t  charCode, aurora::ModifierKey mods, bool isRepeat);
+  void mouseMove(const SWindowCoord& coord) { x30_inputGenerator.mouseMove(coord); }
+  void scroll(const SWindowCoord& coord, const SScrollDelta& scroll) { x30_inputGenerator.scroll(coord, scroll); }
+  void charKeyDown(uint8_t charCode, aurora::ModifierKey mods, bool isRepeat);
   void charKeyUp(uint8_t charCode, aurora::ModifierKey mods) { x30_inputGenerator.charKeyUp(charCode, mods); }
   void specialKeyDown(aurora::SpecialKey key, aurora::ModifierKey mods, bool isRepeat);
 
@@ -173,7 +162,7 @@ public:
   void Draw();
 
   bool isRectDirty() const { return m_rectIsDirty; }
-  const boo::SWindowRect& getWindowRect() {
+  const aurora::WindowSize& getWindowRect() {
     m_rectIsDirty = false;
     return m_windowRect;
   }
@@ -181,25 +170,9 @@ public:
   CIOWinManager& GetIOWinManager() { return x58_ioWinManager; }
 };
 
-#if MP1_USE_BOO
-class CMain : public boo::IApplicationCallback,
-              public IMain
-#else
-class CMain : public IMain
-#endif
-{
+class CMain : public IMain {
   friend class CGameArchitectureSupport;
-#if MP1_USE_BOO
-  boo::IWindow* mainWindow;
-  int appMain(boo::IApplication* app);
-  void appQuitting(boo::IApplication*) { xe8_b24_finished = true; }
-  void appFilesOpen(boo::IApplication*, const std::vector<std::string>& paths) {
-    fmt::print(stderr, FMT_STRING("OPENING: "));
-    for (const std::string& path : paths)
-      fprintf(stderr, "%s ", path.c_str());
-    fprintf(stderr, "\n");
-  }
-#endif
+
 private:
   struct BooSetter {
     BooSetter();
@@ -279,8 +252,8 @@ public:
 
   // int RsMain(int argc, char** argv, boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator&
   // backend);
-  void Init(const FileStoreManager& storeMgr, CVarManager* cvarManager,
-            boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) override;
+  void Init(const FileStoreManager& storeMgr, CVarManager* cvarManager, boo::IAudioVoiceEngine* voiceEngine,
+            amuse::IBackendVoiceAllocator& backend) override;
   void WarmupShaders() override;
   bool Proc(float dt) override;
   void Draw() override;

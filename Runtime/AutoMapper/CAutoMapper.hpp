@@ -181,8 +181,8 @@ private:
 
   std::optional<zeus::CVector2f> m_lastMouseCoord;
   zeus::CVector2f m_mouseDelta;
-  boo::SScrollDelta m_lastAccumScroll;
-  boo::SScrollDelta m_mapScroll;
+  SScrollDelta m_lastAccumScroll;
+  SScrollDelta m_mapScroll;
 
   template <class T>
   static void SetResLockState(T& list, bool lock) {

@@ -9,8 +9,6 @@
 #include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
-//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
 namespace metaforce {
 class CVParamTransfer;
 class CTextureInfo;

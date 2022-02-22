@@ -31,7 +31,9 @@ struct TextureWithSampler {
   wgpu::Sampler sampler;
 };
 
-#ifdef DAWN_ENABLE_BACKEND_VULKAN
+#ifdef DAWN_ENABLE_BACKEND_D3D12
+static const wgpu::BackendType preferredBackendType = wgpu::BackendType::D3D12;
+#elif DAWN_ENABLE_BACKEND_VULKAN
 static const wgpu::BackendType preferredBackendType = wgpu::BackendType::Vulkan;
 #elif DAWN_ENABLE_BACKEND_METAL
 static const wgpu::BackendType preferredBackendType = wgpu::BackendType::Metal;

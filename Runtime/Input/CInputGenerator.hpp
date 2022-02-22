@@ -7,8 +7,6 @@
 #include "Runtime/Input/CFinalInput.hpp"
 #include "Runtime/Input/CKeyboardMouseController.hpp"
 
-#include <boo/boo.hpp>
-
 namespace metaforce {
 class CArchitectureQueue;
 
@@ -58,14 +56,14 @@ public:
    * at the start of each frame, invoking these methods. No atomic locking
    * is necessary, only absolute state tracking. */
 
-  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton button, boo::EModifierKey) {
+  void mouseDown(const SWindowCoord&, EMouseButton button, EModifierKey) {
     m_data.m_mouseButtons[size_t(button)] = true;
   }
-  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton button, boo::EModifierKey) {
+  void mouseUp(const SWindowCoord&, EMouseButton button, EModifierKey) {
     m_data.m_mouseButtons[size_t(button)] = false;
   }
-  void mouseMove(const boo::SWindowCoord& coord) { m_data.m_mouseCoord = coord; }
-  void scroll(const boo::SWindowCoord&, const boo::SScrollDelta& scroll) { m_data.m_accumScroll += scroll; }
+  void mouseMove(const SWindowCoord& coord) { m_data.m_mouseCoord = coord; }
+  void scroll(const SWindowCoord&, const SScrollDelta& scroll) { m_data.m_accumScroll += scroll; }
 
   void charKeyDown(uint8_t charCode, aurora::ModifierKey, bool) {
     charCode = tolower(charCode);

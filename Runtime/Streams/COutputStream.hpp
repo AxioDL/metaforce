@@ -6,7 +6,8 @@
 
 namespace metaforce {
 class COutputStream {
-   friend class coutput_stream_helper;
+  template <typename T>
+  friend void coutput_stream_helper(const T& t, COutputStream& out);
   u32 x4_position = 0;
   u32 x8_bufLen = 0;
   u8* xc_ptr = nullptr;
@@ -16,9 +17,9 @@ class COutputStream {
   u8 x1c_scratch[96]{};
 
 protected:
-
   void DoFlush();
   void DoPut(const u8* ptr, u32 len);
+
 public:
   COutputStream(u8* ptr, s32 unk);
   virtual ~COutputStream();
@@ -85,4 +86,4 @@ template <>
 void coutput_stream_helper(const double& t, COutputStream& out);
 template <>
 void coutput_stream_helper(const std::string& t, COutputStream& out);
-}
+} // namespace metaforce

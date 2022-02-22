@@ -6,7 +6,6 @@
 
 #include <amuse/amuse.hpp>
 #include <boo/audiodev/IAudioVoiceEngine.hpp>
-#include <boo/boo.hpp>
 
 namespace metaforce {
 class Console;

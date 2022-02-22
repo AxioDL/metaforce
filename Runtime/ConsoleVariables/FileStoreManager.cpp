@@ -2,7 +2,10 @@
 
 #include "Runtime/CBasics.hpp"
 
-#include "logvisor/logvisor.hpp"
+#include <logvisor/logvisor.hpp>
+#if _WIN32
+#include <nowide/convert.hpp>
+#endif
 
 #if _WIN32
 #include <ShlObj.h>

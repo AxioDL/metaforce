@@ -1,3 +1,6 @@
+if (WIN32)
+  set(SDL_LIBC ON CACHE BOOL "Use the system C library" FORCE)
+endif ()
 add_subdirectory(../extern/SDL SDL2 EXCLUDE_FROM_ALL)
 if (NOT MSVC)
   target_compile_options(SDL2-static PRIVATE -Wno-implicit-fallthrough)
@@ -35,6 +38,11 @@ if (APPLE)
   target_compile_definitions(aurora PRIVATE DAWN_ENABLE_BACKEND_METAL)
   target_sources(aurora PRIVATE lib/dawn/MetalBinding.mm)
   set_source_files_properties(lib/dawn/MetalBinding.mm PROPERTIES COMPILE_FLAGS -fobjc-arc)
+elseif (WIN32)
+  target_compile_definitions(aurora PRIVATE
+      DAWN_ENABLE_BACKEND_D3D12
+      DAWN_ENABLE_BACKEND_VULKAN)
+  target_sources(aurora PRIVATE lib/dawn/D3D12Binding.cpp lib/dawn/VulkanBinding.cpp)
 else ()
   target_compile_definitions(aurora PRIVATE
       DAWN_ENABLE_BACKEND_VULKAN
