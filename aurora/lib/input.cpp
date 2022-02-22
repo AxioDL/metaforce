@@ -1,14 +1,16 @@
 #include "input.hpp"
+#include <SDL_haptic.h>
 
 namespace aurora::input {
 struct GameController {
-  SDL_GameController* m_controller;
+  SDL_GameController* m_controller = nullptr;
   bool m_isGameCube = false;
-  Sint32 m_index;
+  Sint32 m_index = -1;
+  bool m_hasRumble = false;
 };
 std::unordered_map<Uint32, GameController> g_GameControllers;
 
-Sint32 add_controller(Uint32 which) {
+Sint32 add_controller(Sint32 which) noexcept {
   auto* ctrl = SDL_GameControllerOpen(which);
   if (ctrl != nullptr) {
     GameController controller;
@@ -16,7 +18,7 @@ Sint32 add_controller(Uint32 which) {
     controller.m_index = which;
     controller.m_isGameCube =
         SDL_GameControllerGetVendor(ctrl) == 0x057E && SDL_GameControllerGetProduct(ctrl) == 0x0337;
-
+    controller.m_hasRumble = (SDL_GameControllerHasRumble(ctrl) != 0u);
     Sint32 instance = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(ctrl));
     g_GameControllers[instance] = controller;
     return instance;
@@ -25,44 +27,60 @@ Sint32 add_controller(Uint32 which) {
   return -1;
 }
 
-void remove_controller(Uint32 which) {
-  if (g_GameControllers.find(which) != g_GameControllers.end()) {
-    SDL_GameControllerClose(g_GameControllers[which].m_controller);
-    g_GameControllers.erase(which);
+void remove_controller(Uint32 instance) noexcept {
+  if (g_GameControllers.find(instance) != g_GameControllers.end()) {
+    SDL_GameControllerClose(g_GameControllers[instance].m_controller);
+    g_GameControllers.erase(instance);
   }
 }
 
-bool is_gamecube(Uint32 which) {
-  if (g_GameControllers.find(which) != g_GameControllers.end()) {
-    return g_GameControllers[which].m_isGameCube;
+bool is_gamecube(Uint32 instance) noexcept {
+  if (g_GameControllers.find(instance) != g_GameControllers.end()) {
+    return g_GameControllers[instance].m_isGameCube;
   }
   return false;
 }
 
-int32_t player_index(Uint32 which) {
-  if (g_GameControllers.find(which) != g_GameControllers.end()) {
-    return SDL_GameControllerGetPlayerIndex(g_GameControllers[which].m_controller);
+int32_t player_index(Uint32 instance) noexcept {
+  if (g_GameControllers.find(instance) != g_GameControllers.end()) {
+    return SDL_GameControllerGetPlayerIndex(g_GameControllers[instance].m_controller);
   }
   return -1;
 }
 
-void set_player_index(Uint32 which, Sint32 index) {
-  if (g_GameControllers.find(which) != g_GameControllers.end()) {
-    SDL_GameControllerSetPlayerIndex(g_GameControllers[which].m_controller, index);
+void set_player_index(Uint32 instance, Sint32 index) noexcept {
+  if (g_GameControllers.find(instance) != g_GameControllers.end()) {
+    SDL_GameControllerSetPlayerIndex(g_GameControllers[instance].m_controller, index);
   }
 }
 
-std::string controller_name(Uint32 which) {
-  if (g_GameControllers.find(which) != g_GameControllers.end()) {
-    auto* name = SDL_GameControllerName(g_GameControllers[which].m_controller);
-    if (name) {
-      return std::string(name);
+std::string controller_name(Uint32 instance) noexcept {
+  if (g_GameControllers.find(instance) != g_GameControllers.end()) {
+    const auto* name = SDL_GameControllerName(g_GameControllers[instance].m_controller);
+    if (name != nullptr) {
+      return {name};
     }
   }
   return {};
 }
 
-ControllerButton translate_controller_button(SDL_GameControllerButton btn) {
+bool controller_has_rumble(Uint32 instance) noexcept {
+  if (g_GameControllers.find(instance) != g_GameControllers.end()) {
+    return g_GameControllers[instance].m_hasRumble;
+  }
+
+  return false;
+}
+
+void controller_rumble(uint32_t instance, uint16_t low_freq_intensity, uint16_t high_freq_intensity,
+                       uint16_t duration_ms) noexcept {
+
+  if (g_GameControllers.find(instance) != g_GameControllers.end()) {
+    SDL_GameControllerRumble(g_GameControllers[instance].m_controller, low_freq_intensity, high_freq_intensity,
+                             duration_ms);
+  }
+}
+ControllerButton translate_controller_button(SDL_GameControllerButton btn) noexcept {
   switch (btn) {
   case SDL_CONTROLLER_BUTTON_A:
     return ControllerButton::A;
@@ -99,7 +117,7 @@ ControllerButton translate_controller_button(SDL_GameControllerButton btn) {
   }
 }
 
-ControllerAxis translate_controller_axis(SDL_GameControllerAxis axis) {
+ControllerAxis translate_controller_axis(SDL_GameControllerAxis axis) noexcept {
   switch (axis) {
   case SDL_CONTROLLER_AXIS_LEFTX:
     return ControllerAxis::LeftX;
@@ -118,7 +136,7 @@ ControllerAxis translate_controller_axis(SDL_GameControllerAxis axis) {
   }
 }
 
-char translate_key(SDL_Keysym sym, SpecialKey& specialSym, ModifierKey& modifierSym) {
+char translate_key(SDL_Keysym sym, SpecialKey& specialSym, ModifierKey& modifierSym) noexcept {
   specialSym = SpecialKey::None;
   modifierSym = ModifierKey::None;
   if (sym.sym >= SDLK_F1 && sym.sym <= SDLK_F12) {
@@ -171,7 +189,7 @@ char translate_key(SDL_Keysym sym, SpecialKey& specialSym, ModifierKey& modifier
   return 0;
 }
 
-ModifierKey translate_modifiers(Uint16 mods) {
+ModifierKey translate_modifiers(Uint16 mods) noexcept {
   ModifierKey ret = ModifierKey::None;
   if ((mods & SDLK_LSHIFT) != 0) {
     ret |= ModifierKey::LeftShift;
@@ -195,7 +213,7 @@ ModifierKey translate_modifiers(Uint16 mods) {
   return ret;
 }
 
-MouseButton translate_mouse_button(Uint8 button) {
+MouseButton translate_mouse_button(Uint8 button) noexcept {
   if (button == 1) {
     return MouseButton::Primary;
   }
@@ -215,7 +233,7 @@ MouseButton translate_mouse_button(Uint8 button) {
   return MouseButton::None;
 }
 
-MouseButton translate_mouse_button_state(Uint8 state) {
+MouseButton translate_mouse_button_state(Uint8 state) noexcept {
   auto ret = MouseButton::None;
   if ((state & 0x01) != 0) {
     ret |= MouseButton::Primary;

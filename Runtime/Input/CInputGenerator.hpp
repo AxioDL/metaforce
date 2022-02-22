@@ -152,11 +152,11 @@ public:
 //    if (smashAdapter.get() == device)
 //      smashAdapter.reset();
 //  }
-  void SetMotorState(EIOPort port, EMotorState state) {
-    // TODO aurora
-  }
+  void SetMotorState(EIOPort port, EMotorState state);
   void ControlAllMotors(const std::array<EMotorState, 4>& states) {
-    // TODO aurora
+    for (u32 i = 0; i <= size_t(EIOPort::Three); ++i ) {
+      SetMotorState(EIOPort(i), states[i]);
+    }
   }
 
   /* This is where the game thread enters */

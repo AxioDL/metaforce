@@ -45,7 +45,8 @@ void CInputGenerator::controllerAdded(uint32_t which) noexcept {
     aurora::set_controller_player_index(which, 0);
   }
 
-  m_state[player] = SAuroraControllerState(which, aurora::is_controller_gamecube(which));
+  m_state[player] =
+      SAuroraControllerState(which, aurora::is_controller_gamecube(which), aurora::controller_has_rumble(which));
 }
 
 void CInputGenerator::controllerRemoved(uint32_t which) noexcept {
@@ -91,6 +92,18 @@ void CInputGenerator::controllerAxis(uint32_t which, aurora::ControllerAxis axis
   }
 
   m_state[player].m_axes[size_t(axis)] = value;
+}
+
+void CInputGenerator::SetMotorState(EIOPort port, EMotorState state) {
+  if (m_state[size_t(port)].m_hasRumble && m_state[size_t(port)].m_isGamecube) {
+    if (state == EMotorState::Rumble) {
+      aurora::controller_rumble(m_state[size_t(port)].m_which, 1, 1);
+    } else if (state == EMotorState::Stop) {
+      aurora::controller_rumble(m_state[size_t(port)].m_which, 0, 1);
+    } else if (state == EMotorState::StopHard) {
+      aurora::controller_rumble(m_state[size_t(port)].m_which, 0, 0);
+    }
+  } // TODO: Figure out good intensity values for generic controllers with rumble, support HAPTIC?
 }
 
 const CFinalInput& CInputGenerator::getFinalInput(unsigned int idx, float dt) {

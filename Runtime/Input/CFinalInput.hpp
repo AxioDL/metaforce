@@ -10,11 +10,13 @@ namespace metaforce {
 struct SAuroraControllerState {
   u32 m_which = -1;
   bool m_isGamecube = false;
+  bool m_hasRumble = false;
   std::array<int16_t, size_t(aurora::ControllerAxis::MAX)> m_axes{};
   std::bitset<size_t(aurora::ControllerButton::MAX)> m_btns{};
 
   SAuroraControllerState() = default;
-  SAuroraControllerState(uint32_t which, bool isGamecube) : m_which(which), m_isGamecube(isGamecube) {}
+  SAuroraControllerState(uint32_t which, bool isGamecube, bool hasRumble)
+  : m_which(which), m_isGamecube(isGamecube), m_hasRumble(hasRumble) {}
   void clamp();
 };
 
@@ -82,8 +84,9 @@ struct CFinalInput {
   u32 m_which = -1;
 
   CFinalInput();
-//  CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput, float leftDiv,
-//              float rightDiv);
+  //  CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput, float
+  //  leftDiv,
+  //              float rightDiv);
   CFinalInput(int cIdx, float dt, const SAuroraControllerState& data, const CFinalInput& prevInput, float leftDiv,
               float rightDiv);
   CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData& data, const CFinalInput& prevInput);

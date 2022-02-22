@@ -247,5 +247,7 @@ void set_fullscreen(bool fullscreen) noexcept;
 [[nodiscard]] int32_t get_controller_player_index(uint32_t which) noexcept;
 void set_controller_player_index(uint32_t which, int32_t index) noexcept;
 [[nodiscard]] bool is_controller_gamecube(uint32_t which) noexcept;
+[[nodiscard]] bool controller_has_rumble(uint32_t which) noexcept;
+void controller_rumble(uint32_t which, uint16_t low_freq_intensity, uint16_t high_freq_intensity, uint32_t duration_ms = 0) noexcept;
 [[nodiscard]] std::string get_controller_name(uint32_t which) noexcept;
 } // namespace aurora

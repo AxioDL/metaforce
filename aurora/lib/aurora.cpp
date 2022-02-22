@@ -393,17 +393,19 @@ void set_fullscreen(bool fullscreen) noexcept {
   SDL_SetWindowFullscreen(g_Window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
 
-int32_t get_controller_player_index(uint32_t which) noexcept {
-  return input::player_index(which);
+int32_t get_controller_player_index(uint32_t instance) noexcept { return input::player_index(instance); }
+
+void set_controller_player_index(uint32_t instance, int32_t index) noexcept {
+  input::set_player_index(instance, index);
 }
 
-void set_controller_player_index(uint32_t which, int32_t index) noexcept { input::set_player_index(which, index); }
+bool is_controller_gamecube(uint32_t instance) noexcept { return input::is_gamecube(instance); }
 
-bool is_controller_gamecube(uint32_t which) noexcept {
-  return input::is_gamecube(which);
-}
+bool controller_has_rumble(uint32_t instance) noexcept { return input::controller_has_rumble(instance); }
 
-std::string get_controller_name(uint32_t instance) noexcept {
-  return input::controller_name(instance);
+void controller_rumble(uint32_t instance, uint16_t low_freq_intensity, uint16_t high_freq_intensity,
+                       uint32_t duration_ms) noexcept {
+  input::controller_rumble(instance, low_freq_intensity, high_freq_intensity, duration_ms);
 }
+std::string get_controller_name(uint32_t instance) noexcept { return input::controller_name(instance); }
 } // namespace aurora
