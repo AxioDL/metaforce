@@ -215,8 +215,6 @@ static bool poll_events() noexcept {
       break;
     }
     case SDL_QUIT:
-      g_AppDelegate->onAppExiting();
-      Log.report(logvisor::Info, FMT_STRING("Received quit request"));
       return false;
     }
     // Log.report(logvisor::Info, FMT_STRING("Received SDL event: {}"), event.type);
@@ -350,6 +348,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
     ImGui::EndFrame();
   }
 
+  Log.report(logvisor::Info, FMT_STRING("Application exiting"));
   g_AppDelegate->onAppExiting();
 
   imgui::shutdown();

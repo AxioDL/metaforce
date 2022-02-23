@@ -56,7 +56,6 @@ static std::optional<std::string> remap_controller_layout(std::string_view mappi
     newMapping.push_back(':');
     newMapping.append(v);
   }
-  Log.report(logvisor::Info, FMT_STRING("New mapping: {}"), newMapping);
   return newMapping;
 }
 
@@ -64,9 +63,10 @@ Sint32 add_controller(Sint32 which) noexcept {
   auto* ctrl = SDL_GameControllerOpen(which);
   if (ctrl != nullptr) {
     {
-      const char* mapping = SDL_GameControllerMapping(ctrl);
+      char* mapping = SDL_GameControllerMapping(ctrl);
       if (mapping != nullptr) {
         auto newMapping = remap_controller_layout(mapping);
+        SDL_free(mapping);
         if (newMapping) {
           if (SDL_GameControllerAddMapping(newMapping->c_str()) == -1) {
             Log.report(logvisor::Error, FMT_STRING("Failed to update controller mapping: {}"), SDL_GetError());
