@@ -164,11 +164,11 @@ void CGuiFrame::Initialize() {
 }
 
 void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp) {
-  u32 count = in.readUint32Big();
+  u32 count = in.ReadLong();
   x2c_widgets.reserve(count);
   for (u32 i = 0; i < count; ++i) {
-    DataSpec::DNAFourCC type;
-    type.read(in);
+    FourCC type;
+    in.Get(reinterpret_cast<u8*>(&type), 4);
     std::shared_ptr<CGuiWidget> widget = CGuiSys::CreateWidgetInGame(type.toUint32(), in, this, sp);
     switch (widget->GetWidgetTypeID().toUint32()) {
     case SBIG('CAMR'):
@@ -216,7 +216,7 @@ bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDraw
       m_lastMouseOverWidget = hit;
     }
     if (hit && hit->m_lastScroll) {
-      boo::SScrollDelta delta = kbm->m_accumScroll - *hit->m_lastScroll;
+      SScrollDelta delta = kbm->m_accumScroll - *hit->m_lastScroll;
       hit->m_lastScroll.emplace(kbm->m_accumScroll);
       if (!delta.isZero()) {
         hit->m_integerScroll += delta;
@@ -226,7 +226,7 @@ bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDraw
         hit->m_integerScroll.delta[1] -= std::trunc(hit->m_integerScroll.delta[1]);
       }
     }
-    if (!m_inMouseDown && kbm->m_mouseButtons[size_t(boo::EMouseButton::Primary)]) {
+    if (!m_inMouseDown && kbm->m_mouseButtons[size_t(EMouseButton::Primary)]) {
       m_inMouseDown = true;
       m_inCancel = false;
       m_mouseDownWidget = hit;
@@ -234,7 +234,7 @@ bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDraw
         m_mouseDownCb(hit, false);
       if (hit)
         return true;
-    } else if (m_inMouseDown && !kbm->m_mouseButtons[size_t(boo::EMouseButton::Primary)]) {
+    } else if (m_inMouseDown && !kbm->m_mouseButtons[size_t(EMouseButton::Primary)]) {
       m_inMouseDown = false;
       m_inCancel = false;
       if (m_mouseDownWidget == m_lastMouseOverWidget) {
@@ -263,10 +263,10 @@ void CGuiFrame::ResetMouseState() {
 }
 
 std::unique_ptr<CGuiFrame> CGuiFrame::CreateFrame(CAssetId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp) {
-  in.readInt32Big();
-  int a = in.readInt32Big();
-  int b = in.readInt32Big();
-  int c = in.readInt32Big();
+  in.ReadLong();
+  int a = in.ReadLong();
+  int b = in.ReadLong();
+  int c = in.ReadLong();
 
   std::unique_ptr<CGuiFrame> ret = std::make_unique<CGuiFrame>(frmeId, sys, a, b, c, sp);
   ret->LoadWidgetsInGame(in, sp);

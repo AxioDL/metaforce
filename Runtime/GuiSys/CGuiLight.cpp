@@ -50,19 +50,19 @@ void CGuiLight::SetIsVisible(bool vis) {
 std::shared_ptr<CGuiWidget> CGuiLight::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
   CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
 
-  ELightType tp = ELightType(in.readUint32Big());
-  float distC = in.readFloatBig();
-  float distL = in.readFloatBig();
-  float distQ = in.readFloatBig();
-  float angC = in.readFloatBig();
-  float angL = in.readFloatBig();
-  float angQ = in.readFloatBig();
-  u32 lightId = in.readUint32Big();
+  ELightType tp = ELightType(in.ReadLong());
+  float distC = in.ReadFloat();
+  float distL = in.ReadFloat();
+  float distQ = in.ReadFloat();
+  float angC = in.ReadFloat();
+  float angL = in.ReadFloat();
+  float angQ = in.ReadFloat();
+  u32 lightId = in.ReadLong();
 
   std::shared_ptr<CGuiLight> ret = {};
   switch (tp) {
   case ELightType::Spot: {
-    float cutoff = in.readFloatBig();
+    float cutoff = in.ReadFloat();
     CLight lt = CLight::BuildSpot(zeus::skZero3f, zeus::skZero3f, parms.x10_color, cutoff);
     lt.SetAttenuation(distC, distL, distQ);
     lt.SetAngleAttenuation(angC, angL, angQ);

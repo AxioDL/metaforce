@@ -14,7 +14,7 @@
 #include "Runtime/Graphics/CMoviePlayer.hpp"
 #include "Runtime/Input/CFinalInput.hpp"
 
-#include <hecl/CVarManager.hpp>
+#include "ConsoleVariables/CVarManager.hpp"
 
 namespace metaforce {
 
@@ -96,26 +96,26 @@ constexpr std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegist
     {0, nullptr},
 }};
 
-CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
+CPersistentOptions::CPersistentOptions(CInputStream& stream) {
   for (u8& entry : x0_nesState) {
-    entry = stream.ReadEncoded(8);
+    entry = stream.ReadBits(8);
   }
 
   for (bool& entry : x68_) {
-    entry = stream.ReadEncoded(8) != 0;
+    entry = stream.ReadBits(8) != 0;
   }
 
-  xc0_frozenFpsCount = stream.ReadEncoded(2);
-  xc4_frozenBallCount = stream.ReadEncoded(2);
-  xc8_powerBombAmmoCount = stream.ReadEncoded(1);
-  xcc_logScanPercent = stream.ReadEncoded(7);
-  xd0_24_fusionLinked = stream.ReadEncoded(1) != 0;
-  xd0_25_normalModeBeat = stream.ReadEncoded(1) != 0;
-  xd0_26_hardModeBeat = stream.ReadEncoded(1) != 0;
-  xd0_27_fusionBeat = stream.ReadEncoded(1) != 0;
+  xc0_frozenFpsCount = stream.ReadBits(2);
+  xc4_frozenBallCount = stream.ReadBits(2);
+  xc8_powerBombAmmoCount = stream.ReadBits(1);
+  xcc_logScanPercent = stream.ReadBits(7);
+  xd0_24_fusionLinked = stream.ReadBits(1) != 0;
+  xd0_25_normalModeBeat = stream.ReadBits(1) != 0;
+  xd0_26_hardModeBeat = stream.ReadBits(1) != 0;
+  xd0_27_fusionBeat = stream.ReadBits(1) != 0;
   xd0_28_fusionSuitActive = false;
-  xd0_29_allItemsCollected = stream.ReadEncoded(1) != 0;
-  xbc_autoMapperKeyState = stream.ReadEncoded(2);
+  xd0_29_allItemsCollected = stream.ReadBits(1) != 0;
+  xbc_autoMapperKeyState = stream.ReadBits(2);
 
   const auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
   size_t cinematicCount = 0;
@@ -128,7 +128,7 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
   std::vector<bool> cinematicStates;
   cinematicStates.reserve(cinematicCount);
   for (size_t i = 0; i < cinematicCount; ++i) {
-    cinematicStates.push_back(stream.ReadEncoded(1) != 0);
+    cinematicStates.push_back(stream.ReadBits(1) != 0);
   }
 
   for (const auto& world : memWorlds) {
@@ -142,25 +142,25 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
   }
 }
 
-void CPersistentOptions::PutTo(CBitStreamWriter& w) const {
+void CPersistentOptions::PutTo(COutputStream& w) const {
   for (const u8 entry : x0_nesState) {
-    w.WriteEncoded(entry, 8);
+    w.WriteBits(entry, 8);
   }
 
   for (const bool entry : x68_) {
-    w.WriteEncoded(u32(entry), 8);
+    w.WriteBits(u32(entry), 8);
   }
 
-  w.WriteEncoded(xc0_frozenFpsCount, 2);
-  w.WriteEncoded(xc4_frozenBallCount, 2);
-  w.WriteEncoded(xc8_powerBombAmmoCount, 1);
-  w.WriteEncoded(xcc_logScanPercent, 7);
-  w.WriteEncoded(xd0_24_fusionLinked, 1);
-  w.WriteEncoded(xd0_25_normalModeBeat, 1);
-  w.WriteEncoded(xd0_26_hardModeBeat, 1);
-  w.WriteEncoded(xd0_27_fusionBeat, 1);
-  w.WriteEncoded(xd0_29_allItemsCollected, 1);
-  w.WriteEncoded(xbc_autoMapperKeyState, 2);
+  w.WriteBits(xc0_frozenFpsCount, 2);
+  w.WriteBits(xc4_frozenBallCount, 2);
+  w.WriteBits(xc8_powerBombAmmoCount, 1);
+  w.WriteBits(xcc_logScanPercent, 7);
+  w.WriteBits(xd0_24_fusionLinked, 1);
+  w.WriteBits(xd0_25_normalModeBeat, 1);
+  w.WriteBits(xd0_26_hardModeBeat, 1);
+  w.WriteBits(xd0_27_fusionBeat, 1);
+  w.WriteBits(xd0_29_allItemsCollected, 1);
+  w.WriteBits(xbc_autoMapperKeyState, 2);
 
   const auto& memWorlds = g_MemoryCardSys->GetMemoryWorlds();
   for (const auto& world : memWorlds) {
@@ -168,7 +168,7 @@ void CPersistentOptions::PutTo(CBitStreamWriter& w) const {
         g_SimplePool->GetObj(SObjectTag{FOURCC('SAVW'), world.second.GetSaveWorldAssetId()});
 
     for (const auto& cineId : saveWorld->GetCinematics()) {
-      w.WriteEncoded(u32(GetCinematicState(world.first, cineId)), 1);
+      w.WriteBits(u32(GetCinematicState(world.first, cineId)), 1);
     }
   }
 }
@@ -194,26 +194,26 @@ void CPersistentOptions::SetCinematicState(CAssetId mlvlId, TEditorId cineId, bo
     xac_cinematicStates.erase(existing);
 }
 
-CGameOptions::CGameOptions(CBitStreamReader& stream) {
+CGameOptions::CGameOptions(CInputStream& stream) {
   for (u8& entry : x0_)
-    entry = stream.ReadEncoded(8);
+    entry = stream.ReadBits(8);
 
-  x44_soundMode = CAudioSys::ESurroundModes(stream.ReadEncoded(2));
-  x48_screenBrightness = stream.ReadEncoded(4);
+  x44_soundMode = CAudioSys::ESurroundModes(stream.ReadBits(2));
+  x48_screenBrightness = stream.ReadBits(4);
 
-  x4c_screenXOffset = stream.ReadEncoded(6) - 30;
-  x50_screenYOffset = stream.ReadEncoded(6) - 30;
-  x54_screenStretch = stream.ReadEncoded(5) - 10;
-  x58_sfxVol = stream.ReadEncoded(7);
-  x5c_musicVol = stream.ReadEncoded(7);
-  x60_hudAlpha = stream.ReadEncoded(8);
-  x64_helmetAlpha = stream.ReadEncoded(8);
+  x4c_screenXOffset = stream.ReadBits(6) - 30;
+  x50_screenYOffset = stream.ReadBits(6) - 30;
+  x54_screenStretch = stream.ReadBits(5) - 10;
+  x58_sfxVol = stream.ReadBits(7);
+  x5c_musicVol = stream.ReadBits(7);
+  x60_hudAlpha = stream.ReadBits(8);
+  x64_helmetAlpha = stream.ReadBits(8);
 
-  x68_24_hudLag = stream.ReadEncoded(1) != 0;
-  x68_28_hintSystem = stream.ReadEncoded(1) != 0;
-  x68_25_invertY = stream.ReadEncoded(1) != 0;
-  x68_26_rumble = stream.ReadEncoded(1) != 0;
-  x68_27_swapBeamsControls = stream.ReadEncoded(1) != 0;
+  x68_24_hudLag = stream.ReadBits(1) != 0;
+  x68_28_hintSystem = stream.ReadBits(1) != 0;
+  x68_25_invertY = stream.ReadBits(1) != 0;
+  x68_26_rumble = stream.ReadBits(1) != 0;
+  x68_27_swapBeamsControls = stream.ReadBits(1) != 0;
 }
 
 void CGameOptions::ResetToDefaults() {
@@ -235,26 +235,26 @@ void CGameOptions::ResetToDefaults() {
   EnsureSettings();
 }
 
-void CGameOptions::PutTo(CBitStreamWriter& writer) const {
+void CGameOptions::PutTo(COutputStream& writer) const {
   for (const u8 entry : x0_)
-    writer.WriteEncoded(entry, 8);
+    writer.WriteBits(entry, 8);
 
-  writer.WriteEncoded(u32(x44_soundMode), 2);
-  writer.WriteEncoded(x48_screenBrightness, 4);
+  writer.WriteBits(u32(x44_soundMode), 2);
+  writer.WriteBits(x48_screenBrightness, 4);
 
-  writer.WriteEncoded(x4c_screenXOffset + 30, 6);
-  writer.WriteEncoded(x50_screenYOffset + 30, 6);
-  writer.WriteEncoded(x54_screenStretch + 10, 5);
-  writer.WriteEncoded(x58_sfxVol, 7);
-  writer.WriteEncoded(x5c_musicVol, 7);
-  writer.WriteEncoded(x60_hudAlpha, 8);
-  writer.WriteEncoded(x64_helmetAlpha, 8);
+  writer.WriteBits(x4c_screenXOffset + 30, 6);
+  writer.WriteBits(x50_screenYOffset + 30, 6);
+  writer.WriteBits(x54_screenStretch + 10, 5);
+  writer.WriteBits(x58_sfxVol, 7);
+  writer.WriteBits(x5c_musicVol, 7);
+  writer.WriteBits(x60_hudAlpha, 8);
+  writer.WriteBits(x64_helmetAlpha, 8);
 
-  writer.WriteEncoded(x68_24_hudLag, 1);
-  writer.WriteEncoded(x68_28_hintSystem, 1);
-  writer.WriteEncoded(x68_25_invertY, 1);
-  writer.WriteEncoded(x68_26_rumble, 1);
-  writer.WriteEncoded(x68_27_swapBeamsControls, 1);
+  writer.WriteBits(x68_24_hudLag, 1);
+  writer.WriteBits(x68_28_hintSystem, 1);
+  writer.WriteBits(x68_25_invertY, 1);
+  writer.WriteBits(x68_26_rumble, 1);
+  writer.WriteBits(x68_27_swapBeamsControls, 1);
 }
 
 CGameOptions::CGameOptions()
@@ -384,19 +384,19 @@ void CGameOptions::SetControls(int controls) {
 }
 
 constexpr std::array<std::pair<CAssetId, CAssetId>, 5> CStickToDPadRemap{{
-    {0x2A13C23E, 0xF13452F8},
-    {0xA91A7703, 0xC042EC91},
-    {0x12A12131, 0x5F556002},
-    {0xA9798329, 0xB306E26F},
-    {0xCD7B1ACA, 0x8ADA8184},
+    {0x2A13C23Eu, 0xF13452F8u},
+    {0xA91A7703u, 0xC042EC91u},
+    {0x12A12131u, 0x5F556002u},
+    {0xA9798329u, 0xB306E26Fu},
+    {0xCD7B1ACAu, 0x8ADA8184u},
 }};
 
 constexpr std::array<std::pair<CAssetId, CAssetId>, 5> CStickOutlineToDPadRemap{{
-    {0x1A29C0E6, 0xF13452F8},
-    {0x5D9F9796, 0xC042EC91},
-    {0x951546A8, 0x5F556002},
-    {0x7946C4C5, 0xB306E26F},
-    {0x409AA72E, 0x8ADA8184},
+    {0x1A29C0E6u, 0xF13452F8u},
+    {0x5D9F9796u, 0xC042EC91u},
+    {0x951546A8u, 0x5F556002u},
+    {0x7946C4C5u, 0xB306E26Fu},
+    {0x409AA72Eu, 0x8ADA8184u},
 }};
 
 void CGameOptions::ResetControllerAssets(int controls) {
@@ -446,7 +446,7 @@ void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category, in
   if (options.second[option].option != EGameOption::RestoreDefaults)
     return;
 
-  if (!forceRestore && !input.PA() && !input.PSpecialKey(boo::ESpecialKey::Enter))
+  if (!forceRestore && !input.PA() && !input.PSpecialKey(aurora::SpecialKey::Enter))
     return;
 
   if (frontend) {
@@ -579,14 +579,14 @@ int CGameOptions::GetOption(EGameOption option) {
   return 0;
 }
 
-CHintOptions::CHintOptions(CBitStreamReader& stream) {
+CHintOptions::CHintOptions(CInputStream& stream) {
   const auto& hints = g_MemoryCardSys->GetHints();
   x0_hintStates.reserve(hints.size());
 
   u32 hintIdx = 0;
   for ([[maybe_unused]] const auto& hint : hints) {
-    const auto state = EHintState(stream.ReadEncoded(2));
-    const s32 timeBits = stream.ReadEncoded(32);
+    const auto state = EHintState(stream.ReadBits(2));
+    const s32 timeBits = stream.ReadBits(32);
     float time;
     std::memcpy(&time, &timeBits, sizeof(s32));
     if (state == EHintState::Zero) {
@@ -602,14 +602,14 @@ CHintOptions::CHintOptions(CBitStreamReader& stream) {
   }
 }
 
-void CHintOptions::PutTo(CBitStreamWriter& writer) const {
+void CHintOptions::PutTo(COutputStream& writer) const {
   for (const SHintState& hint : x0_hintStates) {
-    writer.WriteEncoded(u32(hint.x0_state), 2);
+    writer.WriteBits(u32(hint.x0_state), 2);
 
     u32 timeBits;
     std::memcpy(&timeBits, &hint.x4_time, sizeof(timeBits));
 
-    writer.WriteEncoded(timeBits, 32);
+    writer.WriteBits(timeBits, 32);
   }
 }
 

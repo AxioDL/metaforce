@@ -46,7 +46,8 @@ jobs:
           sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
           sudo apt-get -y install ninja-build clang lld libcurl4-openssl-dev intel-oneapi-ipp-devel \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
-            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev qt5-default libfreetype-dev
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev qt5-default libfreetype-dev \
+            libxinerama-dev libxcursor-dev python3-markupsafe
 
           yarn global add @sentry/cli
           echo "$(yarn global bin)" >> $GITHUB_PATH
@@ -105,6 +106,7 @@ jobs:
           brew upgrade --formula
           brew install ninja graphicsmagick imagemagick freetype
           yarn global add create-dmg
+          pip3 install markupsafe==2.0.1
 
           # universal qt5 from macports
           curl -LSfs https://axiodl.com/files/qt-$Qt_VERSION.mpkg -o /tmp/qt-$Qt_VERSION.mpkg
@@ -158,9 +160,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Disabled due to memory constraints
-#          - name: MSVC
-#            preset: msvc
+          - name: MSVC
+            preset: msvc
           - name: Clang
             preset: clang
 
@@ -191,6 +192,7 @@ jobs:
       - name: Install dependencies
         run: |
           choco install ninja vulkan-sdk
+          pip install markupsafe==2.0.1
 
           # set up buildcache
           $TempDir = "$env:RUNNER_WORKSPACE\temp"

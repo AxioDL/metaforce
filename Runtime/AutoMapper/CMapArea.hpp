@@ -9,8 +9,6 @@
 #include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 

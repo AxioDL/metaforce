@@ -1,5 +1,7 @@
 #include "Runtime/Audio/CMidiManager.hpp"
 
+#include "Runtime/Streams/CInputStream.hpp"
+
 namespace metaforce {
 
 std::unordered_set<CMidiHandle> CMidiManager::m_MidiWrappers = {};
@@ -35,13 +37,13 @@ CMidiHandle CMidiManager::Play(const CMidiData& data, float fadeTime, bool stopE
 }
 
 CMidiManager::CMidiData::CMidiData(CInputStream& in) {
-  in.readUint32Big();
-  x0_setupId = in.readUint32Big();
-  x2_groupId = in.readUint32Big();
-  x4_agscId = in.readUint32Big();
-  u32 length = in.readUint32Big();
+  in.ReadLong();
+  x0_setupId = in.ReadLong();
+  x2_groupId = in.ReadLong();
+  x4_agscId = in.Get<CAssetId>();
+  u32 length = in.ReadLong();
   x8_arrData.reset(new u8[length]);
-  in.readUBytesToBuf(x8_arrData.get(), length);
+  in.ReadBytes(reinterpret_cast<char*>(x8_arrData.get()), length);
 }
 
 CFactoryFnReturn FMidiDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& parms,

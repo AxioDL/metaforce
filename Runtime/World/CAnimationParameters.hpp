@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Runtime/RetroTypes.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 
 namespace metaforce {
 
@@ -14,7 +15,7 @@ public:
   CAnimationParameters(CAssetId ancs, u32 charIdx, u32 defaultAnim)
   : x0_ancs(ancs), x4_charIdx(charIdx), x8_defaultAnim(defaultAnim) {}
   explicit CAnimationParameters(CInputStream& in)
-  : x0_ancs(in.readUint32Big()), x4_charIdx(in.readUint32Big()), x8_defaultAnim(in.readUint32Big()) {}
+  : x0_ancs(in.Get<CAssetId>()), x4_charIdx(in.ReadLong()), x8_defaultAnim(in.ReadLong()) {}
 
   CAssetId GetACSFile() const { return x0_ancs; }
   u32 GetCharacter() const { return x4_charIdx; }

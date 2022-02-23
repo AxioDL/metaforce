@@ -7,16 +7,21 @@
 namespace metaforce {
 
 static u32 ReadCount(CInputStream& in) {
-  u32 result = in.readUint32Big();
-  if (result == UINT32_MAX) {
-    return in.readUint32Big();
+  s32 result = in.ReadLong();
+  if (result == -1) {
+    return in.ReadLong();
   }
-  in.seek(s64(result) * 3);
+  u8 junk[784];
+  for (u32 i = 0; i < (result * 3); ++i) {
+    u32 iVar2 = ((result * 3) - i);
+    iVar2 = 192 < iVar2 ? 192 : iVar2;
+    in.Get(junk, iVar2 * 4);
+  }
   return result;
 }
 
 CSkinRules::CSkinRules(CInputStream& in) {
-  u32 weightCount = in.readUint32Big();
+  u32 weightCount = in.ReadLong();
   x0_bones.reserve(weightCount);
   for (int i = 0; i < weightCount; ++i) {
     x0_bones.emplace_back(in);
@@ -51,7 +56,7 @@ CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, cons
 
 auto StreamInSkinWeighting(CInputStream& in) {
   rstl::reserved_vector<SSkinWeighting, 3> weights;
-  u32 weightCount = in.readUint32Big();
+  u32 weightCount = in.ReadLong();
   for (int i = 0; i < std::min(3u, weightCount); ++i) {
     weights.emplace_back(in);
   }
@@ -62,5 +67,5 @@ auto StreamInSkinWeighting(CInputStream& in) {
 }
 
 CVirtualBone::CVirtualBone(CInputStream& in)
-: x0_weights(StreamInSkinWeighting(in)), x1c_vertexCount(in.readUint32Big()) {}
+: x0_weights(StreamInSkinWeighting(in)), x1c_vertexCount(in.ReadLong()) {}
 } // namespace metaforce

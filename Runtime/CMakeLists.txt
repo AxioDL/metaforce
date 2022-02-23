@@ -70,9 +70,33 @@ set(RUNTIME_SOURCES_B
         ${PARTICLE_SOURCES}
         ${WORLD_SOURCES}
         ${WEAPON_SOURCES}
-        ITweak.hpp
+        ConsoleVariables/FileStoreManager.hpp ConsoleVariables/FileStoreManager.cpp
+        ConsoleVariables/CVar.hpp ConsoleVariables/CVar.cpp
+        ConsoleVariables/CVarManager.hpp ConsoleVariables/CVarManager.cpp
+        ConsoleVariables/CVarCommons.hpp ConsoleVariables/CVarCommons.cpp
+        Tweaks/ITweak.hpp
+        Tweaks/ITweakAutoMapper.hpp
+        Tweaks/ITweakBall.hpp
+        Tweaks/ITweakGame.hpp
+        Tweaks/ITweakGui.hpp
+        Tweaks/ITweakGuiColors.hpp
+        Tweaks/ITweakGunRes.hpp
+        Tweaks/ITweakParticle.hpp
+        Tweaks/ITweakPlayer.hpp
+        Tweaks/ITweakPlayerControl.hpp
+        Tweaks/ITweakPlayerGun.hpp Tweaks/ITweakPlayerGun.cpp
+        Tweaks/ITweakPlayerRes.hpp
+        Tweaks/ITweakSlideShow.hpp
+        Tweaks/ITweakTargeting.hpp
         IMain.hpp
         CStopwatch.hpp
+        Streams/IOStreams.hpp Streams/IOStreams.cpp
+        Streams/CMemoryStreamOut.hpp Streams/CMemoryStreamOut.cpp
+        Streams/CInputStream.hpp Streams/CInputStream.cpp
+        Streams/COutputStream.hpp Streams/COutputStream.cpp
+        Streams/CMemoryInStream.hpp
+        Streams/CZipInputStream.hpp Streams/CZipInputStream.cpp
+        Streams/ContainerReaders.hpp
         CGameAllocator.hpp CGameAllocator.cpp
         CMemoryCardSys.hpp CMemoryCardSys.cpp
         CScannableObjectInfo.hpp CScannableObjectInfo.cpp
@@ -109,8 +133,7 @@ set(RUNTIME_SOURCES_B
         CToken.hpp CToken.cpp
         CFactoryMgr.hpp CFactoryMgr.cpp
         CPakFile.hpp CPakFile.cpp
-        CStringExtras.hpp
-        IOStreams.hpp IOStreams.cpp
+        CStringExtras.hpp CStringExtras.cpp
         CMainFlowBase.hpp CMainFlowBase.cpp
         CMFGameBase.hpp
         CInGameTweakManagerBase.hpp
@@ -125,6 +148,7 @@ set(RUNTIME_SOURCES_B
 
 function(add_runtime_common_library name)
     add_library(${name} ${ARGN})
+    target_compile_definitions(${name} PUBLIC "-DMETAFORCE_TARGET_BYTE_ORDER=__BYTE_ORDER__")
     if (COMMAND add_sanitizers)
         add_sanitizers(${name})
     endif ()
@@ -134,9 +158,8 @@ function(add_runtime_common_library name)
     endif ()
 endfunction()
 
-set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-set(RUNTIME_LIBRARIES ${HECL_APPLICATION_REPS_TARGETS_LIST} RetroDataSpec AssetNameMapNull NESEmulator
-        libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore imgui aurora SDL2-static)
+set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+set(RUNTIME_LIBRARIES amuse zeus nod NESEmulator libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore imgui aurora SDL2-static)
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
 target_include_directories(RuntimeCommon PUBLIC ${RUNTIME_INCLUDES})
@@ -209,13 +232,14 @@ add_executable(metaforce CMain.cpp ${PLAT_SRCS} ImGuiConsole.hpp ImGuiConsole.cp
 # target_atdna(metaforce atdna_ImGuiPlayerLoadouts.cpp ImGuiPlayerLoadouts.hpp)
 # RUNTIME_LIBRARIES repeated here for link ordering
 target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS})
+target_compile_definitions(metaforce PUBLIC "-DMETAFORCE_TARGET_BYTE_ORDER=__BYTE_ORDER__")
 
 if (COMMAND add_sanitizers)
     add_sanitizers(metaforce)
 endif ()
 
 if (NOT WINDOWS_STORE)
-    add_dependencies(metaforce hecl) # visigen
+    #add_dependencies(metaforce hecl) # visigen
 else ()
     set_property(TARGET metaforce PROPERTY VS_WINRT_COMPONENT TRUE)
     # This should match the Package.appxmanifest

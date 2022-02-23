@@ -3,11 +3,23 @@
 #include <numeric>
 #include <iostream>
 
+#ifdef WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <Windows.h>
+#endif
+
 #include "logvisor/logvisor.hpp"
 
 #include "ImGuiEngine.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/MP1/MP1.hpp"
+#include "Runtime/ConsoleVariables/FileStoreManager.hpp"
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 #include "amuse/BooBackend.hpp"
 
 #include "../version.h"
@@ -15,19 +27,9 @@
 //#include <fenv.h>
 //#pragma STDC FENV_ACCESS ON
 
-/* Static reference to dataspec additions
- * (used by MSVC to definitively link DataSpecs) */
-#include "DataSpecRegistry.hpp"
-
 #include <aurora/aurora.hpp>
 
 using namespace std::literals;
-
-static logvisor::Module AthenaLog("Athena");
-static void AthenaExc(athena::error::Level level, const char* file, const char*, int line, fmt::string_view fmt,
-                      fmt::format_args args) {
-  AthenaLog.vreport(logvisor::Level(level), fmt, args);
-}
 
 class Limiter {
   using delta_clock = std::chrono::high_resolution_clock;
@@ -158,7 +160,7 @@ private:
     //    m_imguiCallback.resized(rect, sync);
   }
 
-  void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) override {
+  void mouseDown(const boo::SWindowCoord& coord, EMouseButton button, boo::EModifierKey mods) override {
     //    if (!ImGuiWindowCallback::m_mouseCaptured && g_mainMP1) {
     //      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
     //        as->mouseDown(coord, button, mods);
@@ -167,7 +169,7 @@ private:
     //    m_imguiCallback.mouseDown(coord, button, mods);
   }
 
-  void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) override {
+  void mouseUp(const boo::SWindowCoord& coord, EMouseButton button, boo::EModifierKey mods) override {
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
         as->mouseUp(coord, button, mods);
@@ -216,23 +218,23 @@ private:
     //    m_imguiCallback.charKeyUp(charCode, mods);
   }
 
-  void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat) override {
+  void specialKeyDown(aurora::SpecialKey key, boo::EModifierKey mods, bool isRepeat) override {
     //    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
     //      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
     //        as->specialKeyDown(key, mods, isRepeat);
     //      }
     //    }
     //    if (True(mods & boo::EModifierKey::Alt)) {
-    //      if (key == boo::ESpecialKey::Enter) {
+    //      if (key == aurora::SpecialKey::Enter) {
     //        m_fullscreenToggleRequested = true;
-    //      } else if (key == boo::ESpecialKey::F4) {
+    //      } else if (key == aurora::SpecialKey::F4) {
     //        m_windowInvalid = true;
     //      }
     //    }
     //    m_imguiCallback.specialKeyDown(key, mods, isRepeat);
   }
 
-  void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods) override {
+  void specialKeyUp(aurora::SpecialKey key, boo::EModifierKey mods) override {
     //    if (g_mainMP1) {
     //      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
     //        as->specialKeyUp(key, mods);
@@ -247,9 +249,9 @@ private:
 
 struct Application : aurora::AppDelegate {
 private:
-  hecl::Runtime::FileStoreManager& m_fileMgr;
-  hecl::CVarManager& m_cvarManager;
-  hecl::CVarCommons& m_cvarCommons;
+  FileStoreManager& m_fileMgr;
+  CVarManager& m_cvarManager;
+  CVarCommons& m_cvarCommons;
   ImGuiConsole m_imGuiConsole;
   std::string m_errorString;
 
@@ -271,10 +273,10 @@ private:
                                            // is built, i.e during initialization
 
 public:
-  Application(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr, hecl::CVarCommons& cvarCmns)
+  Application(FileStoreManager& fileMgr, CVarManager& cvarMgr, CVarCommons& cvarCmns)
   : m_fileMgr(fileMgr), m_cvarManager(cvarMgr), m_cvarCommons(cvarCmns), m_imGuiConsole(cvarMgr, cvarCmns) {}
 
-  void onAppLaunched() override {
+  void onAppLaunched() noexcept override {
     initialize();
 
     auto backend = static_cast<std::string>(aurora::get_backend_string());
@@ -300,10 +302,6 @@ public:
 
     for (const auto& str : aurora::get_args()) {
       auto arg = static_cast<std::string>(str);
-      if (arg.starts_with("--verbosity=") || arg.starts_with("-v=")) {
-        hecl::VerbosityLevel = atoi(arg.substr(arg.find_last_of('=') + 1).c_str());
-        hecl::LogModule.report(logvisor::Info, FMT_STRING("Set verbosity level to {}"), hecl::VerbosityLevel);
-      }
     }
 
     const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
@@ -545,9 +543,6 @@ public:
 
 } // namespace metaforce
 
-static char CwdBuf[1024];
-std::string ExeDir;
-
 static void SetupBasics(bool logging) {
   auto result = zeus::validateCPU();
   if (!result.first) {
@@ -566,19 +561,20 @@ static void SetupBasics(bool logging) {
   logvisor::RegisterStandardExceptions();
   if (logging)
     logvisor::RegisterConsoleLogger();
-  atSetExceptionHandler(AthenaExc);
 
 #if SENTRY_ENABLED
-  hecl::Runtime::FileStoreManager fileMgr{"sentry-native-metaforce"};
+  FileStoreManager fileMgr{"sentry-native-metaforce"};
   std::string cacheDir{fileMgr.getStoreRoot()};
   logvisor::RegisterSentry("metaforce", METAFORCE_WC_DESCRIBE, cacheDir.c_str());
 #endif
 }
 
 static bool IsClientLoggingEnabled(int argc, char** argv) {
-  for (int i = 1; i < argc; ++i)
-    if (!hecl::StrNCmp(argv[i], "-l", 2))
+  for (int i = 1; i < argc; ++i) {
+    if (!strncmp(argv[i], "-l", 2)) {
       return true;
+    }
+  }
   return false;
 }
 
@@ -588,15 +584,15 @@ int main(int argc, char** argv) {
   //  but breaks animations, need to research why this is the case
   //  for now it's disabled
   // fesetround(FE_TOWARDZERO);
-  if (argc > 1 && !hecl::StrCmp(argv[1], "--dlpackage")) {
+  if (argc > 1 && !strcmp(argv[1], "--dlpackage")) {
     fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
     return 100;
   }
 
   SetupBasics(IsClientLoggingEnabled(argc, argv));
-  hecl::Runtime::FileStoreManager fileMgr{"metaforce"};
-  hecl::CVarManager cvarMgr{fileMgr};
-  hecl::CVarCommons cvarCmns{cvarMgr};
+  metaforce::FileStoreManager fileMgr{"metaforce"};
+  metaforce::CVarManager cvarMgr{fileMgr};
+  metaforce::CVarCommons cvarCmns{cvarMgr};
 
   std::vector<std::string> args;
   for (int i = 1; i < argc; ++i)
@@ -612,18 +608,6 @@ int main(int argc, char** argv) {
     logFilePath = fmt::format(FMT_STRING("{}/{}-{}"), fileMgr.getStoreRoot(), buf, logFile);
     logvisor::RegisterFileLogger(logFilePath.c_str());
   }
-
-  if (char* cwd = hecl::Getcwd(CwdBuf, 1024)) {
-    if (hecl::PathRelative(argv[0]))
-      ExeDir = std::string(cwd) + '/';
-    std::string Argv0(argv[0]);
-    std::string::size_type lastIdx = Argv0.find_last_of("/\\");
-    if (lastIdx != std::string::npos)
-      ExeDir.insert(ExeDir.end(), Argv0.begin(), Argv0.begin() + lastIdx);
-  }
-
-  /* Handle -j argument */
-  hecl::SetCpuCountOverride(argc, argv);
 
   auto app = std::make_unique<metaforce::Application>(fileMgr, cvarMgr, cvarCmns);
   auto icon = metaforce::GetIcon();

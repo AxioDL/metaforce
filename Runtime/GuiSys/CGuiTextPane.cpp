@@ -135,20 +135,18 @@ bool CGuiTextPane::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2
 
 std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
   const CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
-  const zeus::CVector2f dim = zeus::CVector2f::ReadBig(in);
-  const zeus::CVector3f vec = zeus::CVector3f::ReadBig(in);
-  const u32 fontId = in.readUint32Big();
-  const bool wordWrap = in.readBool();
-  const bool horizontal = in.readBool();
-  const auto justification = EJustification(in.readUint32Big());
-  const auto vJustification = EVerticalJustification(in.readUint32Big());
+  const zeus::CVector2f dim = in.Get<zeus::CVector2f>();
+  const zeus::CVector3f vec = in.Get<zeus::CVector3f>();
+  const CAssetId fontId = in.Get<CAssetId>();
+  const bool wordWrap = in.ReadBool();
+  const bool horizontal = in.ReadBool();
+  const auto justification = EJustification(in.ReadLong());
+  const auto vJustification = EVerticalJustification(in.ReadLong());
   const CGuiTextProperties props(wordWrap, horizontal, justification, vJustification);
-  zeus::CColor fontCol;
-  fontCol.readRGBABig(in);
-  zeus::CColor outlineCol;
-  outlineCol.readRGBABig(in);
-  const int extentX = static_cast<int>(in.readFloatBig());
-  const int extentY = static_cast<int>(in.readFloatBig());
+  const zeus::CColor fontCol = in.Get<zeus::CColor>();
+  const zeus::CColor outlineCol = in.Get<zeus::CColor>();
+  const int extentX = static_cast<int>(in.ReadFloat());
+  const int extentY = static_cast<int>(in.ReadFloat());
   auto ret = std::make_shared<CGuiTextPane>(parms, sp, dim, vec, fontId, props, fontCol, outlineCol, extentX, extentY);
   ret->ParseBaseInfo(frame, in, parms);
   ret->InitializeBuffers();

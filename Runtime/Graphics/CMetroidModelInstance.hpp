@@ -8,7 +8,7 @@
 
 #include "Shaders/CModelShaders.hpp"
 
-#include <hecl/HMDLMeta.hpp>
+//#include <hecl/HMDLMeta.hpp>
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CTransform.hpp>
@@ -26,7 +26,7 @@ class CMetroidModelInstance {
   zeus::CAABox x34_aabb;
   std::vector<CBooSurface> m_surfaces;
   std::unique_ptr<CBooModel> m_instance;
-  hecl::HMDLMeta m_hmdlMeta;
+//  hecl::HMDLMeta m_hmdlMeta;
 //  std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
 
 public:
@@ -38,7 +38,7 @@ public:
     x34_aabb = {};
     m_surfaces.clear();
     m_instance.reset();
-    m_hmdlMeta = {};
+//    m_hmdlMeta = {};
 //    m_shaders.clear();
   }
 };

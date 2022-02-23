@@ -6,6 +6,8 @@
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
 
+#include <logvisor/logvisor.hpp>
+
 namespace metaforce {
 static logvisor::Module Log("metaforce::CParticleElectricDataFactory");
 
@@ -104,7 +106,7 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInput
       desc->x70_ZERY = CPF::GetBool(in);
       break;
     default: {
-      Log.report(logvisor::Fatal, FMT_STRING("Unknown ELSM class {} @{}"), clsId, in.position());
+      Log.report(logvisor::Fatal, FMT_STRING("Unknown ELSM class {} @{}"), clsId, in.GetReadPosition());
       return false;
     }
     }

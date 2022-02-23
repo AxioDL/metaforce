@@ -2,10 +2,10 @@
 
 namespace metaforce {
 
-CCharacterSet::CCharacterSet(CInputStream& in) : x0_version(in.readUint16Big()) {
-  u32 charCount = in.readUint32Big();
+CCharacterSet::CCharacterSet(CInputStream& in) : x0_version(in.ReadShort()) {
+  u32 charCount = in.ReadLong();
   for (u32 i = 0; i < charCount; ++i) {
-    u32 id = in.readUint32Big();
+    u32 id = in.ReadLong();
     x4_characters.emplace(id, in);
   }
 }

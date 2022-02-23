@@ -441,36 +441,6 @@ set(HECL_DATASPEC_PUSHES
 add_subdirectory(extern/nod EXCLUDE_FROM_ALL)
 add_subdirectory(extern/boo EXCLUDE_FROM_ALL)
 
-include(ExternalProject)
-ExternalProject_Add(shaderc
-    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/hecl/shaderc"
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-    INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install)
-
-function(shaderc out)
-  if(IS_ABSOLUTE ${out})
-    set(theOut ${out})
-  else()
-    set(theOut ${CMAKE_CURRENT_BINARY_DIR}/${out})
-  endif()
-  unset(theInsList)
-  foreach(in ${ARGN})
-    if(IS_ABSOLUTE ${in})
-      list(APPEND theInsList ${in})
-    else()
-      list(APPEND theInsList ${CMAKE_CURRENT_SOURCE_DIR}/${in})
-    endif()
-  endforeach()
-  get_filename_component(outDir ${theOut} DIRECTORY)
-  file(MAKE_DIRECTORY ${outDir})
-  file(RELATIVE_PATH outRel ${CMAKE_BINARY_DIR} ${theOut})
-  ExternalProject_Get_Property(shaderc INSTALL_DIR)
-  add_custom_command(OUTPUT ${theOut}.cpp ${theOut}.hpp
-      COMMAND "${INSTALL_DIR}/bin/shaderc" ARGS -o ${theOut} ${theInsList}
-      DEPENDS ${theInsList} shaderc
-      COMMENT "Compiling shader ${outRel}.shader")
-endfunction()
-
 include(hecl/ApplicationTools.cmake)
 add_subdirectory(extern/xxhash EXCLUDE_FROM_ALL)
 add_subdirectory(imgui)
@@ -497,7 +467,7 @@ if (NOT CMAKE_CROSSCOMPILING)
   add_subdirectory(assetnameparser EXCLUDE_FROM_ALL)
 endif ()
 add_compile_definitions(URDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
-add_subdirectory(DataSpec)
+add_subdirectory(DataSpec EXCLUDE_FROM_ALL)
 add_subdirectory(extern/kabufuda EXCLUDE_FROM_ALL)
 
 add_subdirectory(extern/jbus EXCLUDE_FROM_ALL)
@@ -508,9 +478,6 @@ add_subdirectory(aurora)
 add_subdirectory(Runtime)
 add_subdirectory(mpcksum EXCLUDE_FROM_ALL)
 add_subdirectory(gbalink EXCLUDE_FROM_ALL)
-#add_subdirectory(visigen)
-
-#add_dependencies(hecl visigen)
 
 if (NOT WINDOWS_STORE AND NOT NX)
   if (APPLE AND EXISTS /opt/local/libexec/qt5)
@@ -528,10 +495,10 @@ if (NOT WINDOWS_STORE AND NOT NX)
   find_package(Qt5Widgets QUIET PATHS ${QT_HOMEBREW_PATH})
   if (Qt6Widgets_FOUND)
     message(STATUS "Qt6 found, metaforce-gui will be built")
-    add_subdirectory(metaforce-gui)
+    add_subdirectory(metaforce-gui EXCLUDE_FROM_ALL)
   elseif(Qt5Widgets_FOUND)
     message(STATUS "Qt5 found, metaforce-gui will be built")
-    add_subdirectory(metaforce-gui)
+    add_subdirectory(metaforce-gui EXCLUDE_FROM_ALL)
   else()
     message(STATUS "Qt5-6 not found, metaforce-gui will not be built")
   endif()
@@ -540,25 +507,25 @@ endif()
 configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_BINARY_DIR}/version.h)
 
 # Packaging logic
-list(APPEND BINARY_TARGETS metaforce hecl) # visigen
+list(APPEND BINARY_TARGETS metaforce) # hecl visigen
 set(DSYM_ONLY_TARGETS "")
 if (TARGET crashpad_handler)
   list(APPEND BINARY_TARGETS crashpad_handler)
 endif ()
 set(BIN_PREFIX "${CMAKE_INSTALL_PREFIX}")
-if (TARGET metaforce-gui)
-  if (APPLE)
-    # app bundle already has all needed binaries
-    install(TARGETS metaforce-gui DESTINATION ${BIN_PREFIX})
-    list(APPEND DSYM_ONLY_TARGETS metaforce-gui)
-    # we have to rename here, cmake is inflexible about bundle naming
-    install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND rm -fr Metaforce.app)")
-    install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND mv metaforce-gui.app Metaforce.app)")
-    set(BIN_PREFIX "${BIN_PREFIX}/Metaforce.app/Contents/MacOS")
-  else()
-    list(APPEND BINARY_TARGETS metaforce-gui)
-  endif ()
-endif ()
+#if (TARGET metaforce-gui)
+#  if (APPLE)
+#    # app bundle already has all needed binaries
+#    install(TARGETS metaforce-gui DESTINATION ${BIN_PREFIX})
+#    list(APPEND DSYM_ONLY_TARGETS metaforce-gui)
+#    # we have to rename here, cmake is inflexible about bundle naming
+#    install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND rm -fr Metaforce.app)")
+#    install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND mv metaforce-gui.app Metaforce.app)")
+#    set(BIN_PREFIX "${BIN_PREFIX}/Metaforce.app/Contents/MacOS")
+#  else()
+#    list(APPEND BINARY_TARGETS metaforce-gui)
+#  endif ()
+#endif ()
 install(TARGETS ${BINARY_TARGETS} DESTINATION ${BIN_PREFIX})
 if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
   foreach (target IN LISTS BINARY_TARGETS DSYM_ONLY_TARGETS)

@@ -100,7 +100,7 @@ void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape, float
 
 template <class S>
 void CCameraFilterPass<S>::DisableFilter(float time) {
-  SetFilter(EFilterType::Passthru, x8_shape, time, zeus::skWhite, -1);
+  SetFilter(EFilterType::Passthru, x8_shape, time, zeus::skWhite, {});
 }
 
 template <class S>

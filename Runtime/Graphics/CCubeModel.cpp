@@ -253,16 +253,16 @@ void CCubeModel::MakeTexturesFromMats(const u8* ptr, std::vector<TCachedToken<CT
 
 #pragma region CCubeSurface
 CCubeSurface::CCubeSurface(u8* ptr) : x0_data(ptr) {
-  CMemoryInStream mem(ptr, 10000); // Oversized so we can read everything in
-  x0_center.readBig(mem);
-  xc_materialIndex = mem.readUint32Big();
-  x10_displayListSize = mem.readUint32Big();
-  x14_parent = reinterpret_cast<CCubeModel*>(mem.readUint32Big());
-  x18_nextSurface = reinterpret_cast<CCubeSurface*>(mem.readUint32Big());
-  x1c_extraSize = mem.readUint32Big();
-  x20_normal.readBig(mem);
+  CMemoryInStream mem(ptr, 10000, CMemoryInStream::EOwnerShip::NotOwned); // Oversized so we can read everything in
+  x0_center = mem.Get<zeus::CVector3f>();
+  xc_materialIndex = mem.ReadLong();
+  x10_displayListSize = mem.ReadLong();
+  x14_parent = reinterpret_cast<CCubeModel*>(mem.ReadLong());
+  x18_nextSurface = reinterpret_cast<CCubeSurface*>(mem.ReadLong());
+  x1c_extraSize = mem.ReadLong();
+  x20_normal = mem.Get<zeus::CVector3f>();
   if (x1c_extraSize > 0) {
-    x2c_bounds = zeus::CAABox::ReadBoundingBoxBig(mem);
+    x2c_bounds = mem.Get<zeus::CAABox>();
   }
 }
 

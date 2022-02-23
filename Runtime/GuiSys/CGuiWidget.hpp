@@ -5,10 +5,9 @@
 #include <string>
 
 #include "Runtime/GCNTypes.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/GuiSys/CGuiObject.hpp"
-
-#include <boo/IWindow.hpp>
+#include "Runtime/Input/CKeyboardMouseController.hpp"
 
 #include <zeus/CColor.hpp>
 #include <zeus/CTransform.hpp>
@@ -84,8 +83,8 @@ protected:
   bool xb7_25_ : 1 = true;
   bool m_mouseActive : 1 = false;
 
-  std::optional<boo::SScrollDelta> m_lastScroll;
-  boo::SScrollDelta m_integerScroll;
+  std::optional<SScrollDelta> m_lastScroll;
+  SScrollDelta m_integerScroll;
 
   std::string m_name;
 

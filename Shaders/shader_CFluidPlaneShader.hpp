@@ -1,7 +1,7 @@
 #pragma once
 //#include "hecl/PipelineBase.hpp"
-#include "athena/Global.hpp"
-#include "hecl/hecl.hpp"
+//#include "athena/Global.hpp"
+//#include "hecl/hecl.hpp"
 
 #ifndef URDE_MAX_LIGHTS
 #define URDE_MAX_LIGHTS 8

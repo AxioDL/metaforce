@@ -5,10 +5,8 @@
 #include <unordered_set>
 #include <vector>
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/GuiSys/CSaveableState.hpp"
-
-#include <hecl/hecl.hpp>
 
 namespace metaforce {
 class CGuiFrame;

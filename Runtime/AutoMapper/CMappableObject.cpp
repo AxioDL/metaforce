@@ -15,12 +15,12 @@ std::array<u16, 24> CMappableObject::skDoorIndices{
 };
 
 CMappableObject::CMappableObject(const void* buf) {
-  athena::io::MemoryReader r(buf, 64);
-  x0_type = EMappableObjectType(r.readUint32Big());
-  x4_visibilityMode = EVisMode(r.readUint32Big());
-  x8_objId = r.readUint32Big();
-  xc_ = r.readUint32Big();
-  x10_transform.read34RowMajor(r);
+  CMemoryInStream r(buf, 64);
+  x0_type = EMappableObjectType(r.ReadLong());
+  x4_visibilityMode = EVisMode(r.ReadLong());
+  x8_objId = r.ReadLong();
+  xc_ = r.ReadLong();
+  x10_transform = r.Get<zeus::CTransform>();
 }
 
 zeus::CTransform CMappableObject::AdjustTransformForType() const {

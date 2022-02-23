@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Character/CEffectComponent.hpp"
 #include "Runtime/Character/CPASDatabase.hpp"
@@ -41,8 +41,8 @@ private:
   std::vector<std::pair<std::string, zeus::CAABox>> x88_aabbs;
   std::vector<std::pair<std::string, std::vector<CEffectComponent>>> x98_effects;
 
-  CAssetId xa8_cmdlOverlay = 0;
-  CAssetId xac_cskrOverlay = 0;
+  CAssetId xa8_cmdlOverlay;
+  CAssetId xac_cskrOverlay;
 
   std::vector<s32> xb0_animIdxs;
 

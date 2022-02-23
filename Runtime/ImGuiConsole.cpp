@@ -54,7 +54,7 @@ std::string ImGuiLoadStringTable(CAssetId stringId, int idx) {
   if (!stringTables.contains(stringId)) {
     stringTables[stringId] = g_SimplePool->GetObj(SObjectTag{SBIG('STRG'), stringId});
   }
-  return hecl::Char16ToUTF8(stringTables[stringId].GetObj()->GetString(idx));
+  return CStringExtras::ConvertToUTF8(stringTables[stringId].GetObj()->GetString(idx));
 }
 
 static bool ContainsCaseInsensitive(std::string_view str, std::string_view val) {
@@ -379,14 +379,14 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
     }
     ImGui::SameLine();
     ImGui::InputText("Filter", &m_cvarFiltersText);
-    auto cvars = m_cvarMgr.cvars(hecl::CVar::EFlags::Any & ~hecl::CVar::EFlags::Hidden);
+    auto cvars = m_cvarMgr.cvars(CVar::EFlags::Any & ~CVar::EFlags::Hidden);
     if (ImGui::Button("Reset to defaults")) {
       for (auto* cv : cvars) {
         if (cv->name() == "developer" || cv->name() == "cheats") {
           // don't reset developer or cheats to default
           continue;
         }
-        hecl::CVarUnlocker l(cv);
+        CVarUnlocker l(cv);
         cv->fromLiteralToType(cv->defaultValue());
       }
     }
@@ -405,7 +405,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
       bool hasSortSpec = sortSpecs != nullptr &&
                          // no multi-sort
                          sortSpecs->SpecsCount == 1;
-      std::vector<hecl::CVar*> sortedList;
+      std::vector<CVar*> sortedList;
       sortedList.reserve(cvars.size());
 
       for (auto* cvar : cvars) {
@@ -422,12 +422,12 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
       if (hasSortSpec) {
         const auto& spec = sortSpecs->Specs[0];
         if (spec.ColumnUserID == 'name') {
-          std::sort(sortedList.begin(), sortedList.end(), [&](hecl::CVar* a, hecl::CVar* b) {
+          std::sort(sortedList.begin(), sortedList.end(), [&](CVar* a, CVar* b) {
             int compare = a->name().compare(b->name());
             return spec.SortDirection == ImGuiSortDirection_Ascending ? compare < 0 : compare > 0;
           });
         } else if (spec.ColumnUserID == 'val') {
-          std::sort(sortedList.begin(), sortedList.end(), [&](hecl::CVar* a, hecl::CVar* b) {
+          std::sort(sortedList.begin(), sortedList.end(), [&](CVar* a, CVar* b) {
             int compare = a->value().compare(b->value());
             return spec.SortDirection == ImGuiSortDirection_Ascending ? compare < 0 : compare > 0;
           });
@@ -447,35 +447,35 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
           // Value
           if (ImGui::TableNextColumn()) {
             switch (cv->type()) {
-            case hecl::CVar::EType::Boolean: {
+            case CVar::EType::Boolean: {
               bool b = cv->toBoolean();
               if (ImGui::Checkbox("", &b)) {
                 cv->fromBoolean(b);
               }
               break;
             }
-            case hecl::CVar::EType::Real: {
+            case CVar::EType::Real: {
               float f = cv->toReal();
               if (ImGui::DragFloat("", &f)) {
                 cv->fromReal(f);
               }
               break;
             }
-            case hecl::CVar::EType::Signed: {
+            case CVar::EType::Signed: {
               std::array<s32, 1> i{cv->toSigned()};
               if (ImGui::DragScalar("", ImGuiDataType_S32, i.data(), i.size())) {
                 cv->fromInteger(i[0]);
               }
               break;
             }
-            case hecl::CVar::EType::Unsigned: {
+            case CVar::EType::Unsigned: {
               std::array<u32, 1> i{cv->toUnsigned()};
               if (ImGui::DragScalar("", ImGuiDataType_U32, i.data(), i.size())) {
                 cv->fromInteger(i[0]);
               }
               break;
             }
-            case hecl::CVar::EType::Literal: {
+            case CVar::EType::Literal: {
               char buf[4096];
               strcpy(buf, cv->value().c_str());
               if (ImGui::InputText("", buf, 4096, ImGuiInputTextFlags_EnterReturnsTrue)) {
@@ -483,102 +483,102 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
               }
               break;
             }
-            case hecl::CVar::EType::Vec2f: {
+            case CVar::EType::Vec2f: {
               auto vec = cv->toVec2f();
-              std::array<float, 2> scalars = {vec.simd[0], vec.simd[1]};
+              std::array<float, 2> scalars = {vec.x(), vec.y()};
               if (ImGui::DragScalarN("", ImGuiDataType_Float, scalars.data(), scalars.size(), 0.1f)) {
-                vec.simd[0] = scalars[0];
-                vec.simd[1] = scalars[1];
+                vec.x() = scalars[0];
+                vec.y() = scalars[1];
                 cv->fromVec2f(vec);
               }
               break;
             }
-            case hecl::CVar::EType::Vec2d: {
+            case CVar::EType::Vec2d: {
               auto vec = cv->toVec2d();
-              std::array<double, 2> scalars = {vec.simd[0], vec.simd[1]};
+              std::array<double, 2> scalars = {vec.x(), vec.y()};
               if (ImGui::DragScalarN("", ImGuiDataType_Double, scalars.data(), scalars.size(), 0.1f)) {
-                vec.simd[0] = scalars[0];
-                vec.simd[1] = scalars[1];
+                vec.x() = scalars[0];
+                vec.y() = scalars[1];
                 cv->fromVec2d(vec);
               }
               break;
             }
-            case hecl::CVar::EType::Vec3f: {
+            case CVar::EType::Vec3f: {
               auto vec = cv->toVec3f();
-              std::array<float, 3> scalars = {vec.simd[0], vec.simd[1]};
+              std::array<float, 3> scalars = {vec.x(), vec.y(), vec.z()};
               if (cv->isColor()) {
                 if (ImGui::ColorEdit3("", scalars.data())) {
-                  vec.simd[0] = scalars[0];
-                  vec.simd[1] = scalars[1];
-                  vec.simd[2] = scalars[2];
+                  vec.x() = scalars[0];
+                  vec.y() = scalars[1];
+                  vec.z() = scalars[2];
                   cv->fromVec3f(vec);
                 }
               } else if (ImGui::DragScalarN("", ImGuiDataType_Float, scalars.data(), scalars.size(), 0.1f)) {
-                vec.simd[0] = scalars[0];
-                vec.simd[1] = scalars[1];
-                vec.simd[2] = scalars[2];
+                vec.x() = scalars[0];
+                vec.y() = scalars[1];
+                vec.z() = scalars[2];
                 cv->fromVec3f(vec);
               }
               break;
             }
-            case hecl::CVar::EType::Vec3d: {
+            case CVar::EType::Vec3d: {
               auto vec = cv->toVec3d();
-              std::array<double, 3> scalars = {vec.simd[0], vec.simd[1], vec.simd[2]};
+              std::array<double, 3> scalars = {vec.x(), vec.y(), vec.z()};
               if (cv->isColor()) {
                 std::array<float, 3> color{static_cast<float>(scalars[0]), static_cast<float>(scalars[1]),
                                            static_cast<float>(scalars[2])};
                 if (ImGui::ColorEdit3("", color.data())) {
-                  vec.simd[0] = color[0];
-                  vec.simd[1] = color[1];
-                  vec.simd[2] = color[2];
+                  vec.x() = scalars[0];
+                  vec.y() = scalars[1];
+                  vec.z() = scalars[2];
                   cv->fromVec3d(vec);
                 }
               } else if (ImGui::DragScalarN("", ImGuiDataType_Double, scalars.data(), scalars.size(), 0.1f)) {
-                vec.simd[0] = scalars[0];
-                vec.simd[1] = scalars[1];
-                vec.simd[2] = scalars[2];
+                vec.x() = scalars[0];
+                vec.y() = scalars[1];
+                vec.z() = scalars[2];
                 cv->fromVec3d(vec);
               }
               break;
             }
-            case hecl::CVar::EType::Vec4f: {
+            case CVar::EType::Vec4f: {
               auto vec = cv->toVec4f();
-              std::array<float, 4> scalars = {vec.simd[0], vec.simd[1], vec.simd[2], vec.simd[3]};
+              std::array<float, 4> scalars = {vec.x(), vec.y(), vec.z(), vec.w()};
               if (cv->isColor()) {
                 if (ImGui::ColorEdit4("", scalars.data())) {
-                  vec.simd[0] = scalars[0];
-                  vec.simd[1] = scalars[1];
-                  vec.simd[2] = scalars[2];
-                  vec.simd[3] = scalars[3];
+                  vec.x() = scalars[0];
+                  vec.y() = scalars[1];
+                  vec.z() = scalars[2];
+                  vec.w() = scalars[2];
                   cv->fromVec4f(vec);
                 }
               } else if (ImGui::DragScalarN("", ImGuiDataType_Float, scalars.data(), scalars.size(), 0.1f)) {
-                vec.simd[0] = scalars[0];
-                vec.simd[1] = scalars[1];
-                vec.simd[2] = scalars[2];
-                vec.simd[3] = scalars[3];
+                vec.x() = scalars[0];
+                vec.y() = scalars[1];
+                vec.z() = scalars[2];
+                vec.w() = scalars[2];
                 cv->fromVec4f(vec);
               }
               break;
             }
-            case hecl::CVar::EType::Vec4d: {
+            case CVar::EType::Vec4d: {
               auto vec = cv->toVec4d();
-              std::array<double, 4> scalars = {vec.simd[0], vec.simd[1], vec.simd[2], vec.simd[3]};
+              std::array<double, 4> scalars = {vec.x(), vec.y(), vec.z(), vec.w()};
               if (cv->isColor()) {
                 std::array<float, 4> color{static_cast<float>(scalars[0]), static_cast<float>(scalars[1]),
                                            static_cast<float>(scalars[2]), static_cast<float>(scalars[3])};
                 if (ImGui::ColorEdit4("", color.data())) {
-                  vec.simd[0] = color[0];
-                  vec.simd[1] = color[1];
-                  vec.simd[2] = color[2];
-                  vec.simd[3] = color[3];
+                  vec.x() = scalars[0];
+                  vec.y() = scalars[1];
+                  vec.z() = scalars[2];
+                  vec.w() = scalars[2];
                   cv->fromVec4d(vec);
                 }
               } else if (ImGui::DragScalarN("", ImGuiDataType_Double, scalars.data(), scalars.size(), 0.1f)) {
-                vec.simd[0] = scalars[0];
-                vec.simd[1] = scalars[1];
-                vec.simd[2] = scalars[2];
-                vec.simd[3] = scalars[3];
+                vec.x() = scalars[0];
+                vec.y() = scalars[1];
+                vec.z() = scalars[2];
+                vec.w() = scalars[2];
                 cv->fromVec4d(vec);
               }
               break;
@@ -1156,21 +1156,19 @@ void ImGuiConsole::PreUpdate() {
   OPTICK_EVENT();
   if (!m_isInitialized) {
     m_isInitialized = true;
-    m_cvarCommons.m_debugOverlayShowFrameCounter->addListener(
-        [this](hecl::CVar* c) { m_frameCounter = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayShowFramerate->addListener([this](hecl::CVar* c) { m_frameRate = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayShowInGameTime->addListener([this](hecl::CVar* c) { m_inGameTime = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayShowRoomTimer->addListener([this](hecl::CVar* c) { m_roomTimer = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayPlayerInfo->addListener([this](hecl::CVar* c) { m_playerInfo = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayWorldInfo->addListener([this](hecl::CVar* c) { m_worldInfo = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayAreaInfo->addListener([this](hecl::CVar* c) { m_areaInfo = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayLayerInfo->addListener([this](hecl::CVar* c) { m_layerInfo = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayShowRandomStats->addListener([this](hecl::CVar* c) { m_randomStats = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayShowResourceStats->addListener(
-        [this](hecl::CVar* c) { m_resourceStats = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayShowInput->addListener([this](hecl::CVar* c) { m_showInput = c->toBoolean(); });
-    m_cvarMgr.findCVar("developer")->addListener([this](hecl::CVar* c) { m_developer = c->toBoolean(); });
-    m_cvarMgr.findCVar("cheats")->addListener([this](hecl::CVar* c) { m_cheats = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowFrameCounter->addListener([this](CVar* c) { m_frameCounter = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowFramerate->addListener([this](CVar* c) { m_frameRate = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowInGameTime->addListener([this](CVar* c) { m_inGameTime = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowRoomTimer->addListener([this](CVar* c) { m_roomTimer = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayPlayerInfo->addListener([this](CVar* c) { m_playerInfo = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayWorldInfo->addListener([this](CVar* c) { m_worldInfo = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayAreaInfo->addListener([this](CVar* c) { m_areaInfo = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayLayerInfo->addListener([this](CVar* c) { m_layerInfo = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowRandomStats->addListener([this](CVar* c) { m_randomStats = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowResourceStats->addListener([this](CVar* c) { m_resourceStats = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowInput->addListener([this](CVar* c) { m_showInput = c->toBoolean(); });
+    m_cvarMgr.findCVar("developer")->addListener([this](CVar* c) { m_developer = c->toBoolean(); });
+    m_cvarMgr.findCVar("cheats")->addListener([this](CVar* c) { m_cheats = c->toBoolean(); });
   }
   // We ned to make sure we have a valid CRandom16 at all times, so lets do that here
   if (g_StateManager != nullptr && g_StateManager->GetActiveRandom() == nullptr) {

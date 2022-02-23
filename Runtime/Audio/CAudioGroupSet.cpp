@@ -11,11 +11,11 @@ amuse::AudioGroupData CAudioGroupSet::LoadData() {
     return SBig(value);
   };
 
-  athena::io::MemoryReader r(m_buffer.get(), INT32_MAX);
-  x10_baseName = r.readString();
-  x20_name = r.readString();
+  CMemoryInStream r(m_buffer.get(), INT32_MAX, CMemoryInStream::EOwnerShip::NotOwned);
+  x10_baseName = r.Get<std::string>();
+  x20_name = r.Get<std::string>();
 
-  u8* buf = m_buffer.get() + r.position();
+  u8* buf = m_buffer.get() + r.GetReadPosition();
   const uint32_t poolLen = readU32(buf);
   unsigned char* pool = buf + 4;
   buf += poolLen + 4;

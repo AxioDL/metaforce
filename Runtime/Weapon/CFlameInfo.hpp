@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Runtime/Weapon/CGameProjectile.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 
 namespace metaforce {
 class CFlameInfo {

@@ -14,9 +14,9 @@
 namespace metaforce {
 
 CPASAnimState::CPASAnimState(CInputStream& in) {
-  x0_id = static_cast<pas::EAnimationState>(in.readUint32Big());
-  u32 parmCount = in.readUint32Big();
-  u32 animCount = in.readUint32Big();
+  x0_id = static_cast<pas::EAnimationState>(in.ReadLong());
+  u32 parmCount = in.ReadLong();
+  u32 animCount = in.ReadLong();
 
   x4_parms.reserve(parmCount);
   x14_anims.reserve(animCount);
@@ -26,25 +26,25 @@ CPASAnimState::CPASAnimState(CInputStream& in) {
     x4_parms.emplace_back(in);
 
   for (u32 i = 0; i < animCount; ++i) {
-    s32 id = in.readUint32Big();
+    s32 id = in.ReadLong();
     rstl::reserved_vector<CPASAnimParm::UParmValue, 8> parms;
     for (const CPASParmInfo& parm : x4_parms) {
       CPASAnimParm::UParmValue val = {};
       switch (parm.GetParameterType()) {
       case CPASAnimParm::EParmType::Int32:
-        val.m_int = in.readInt32Big();
+        val.m_int = in.ReadInt32();
         break;
       case CPASAnimParm::EParmType::UInt32:
-        val.m_uint = in.readUint32Big();
+        val.m_uint = in.ReadLong();
         break;
       case CPASAnimParm::EParmType::Float:
-        val.m_float = in.readFloatBig();
+        val.m_float = in.ReadFloat();
         break;
       case CPASAnimParm::EParmType::Bool:
-        val.m_bool = in.readBool();
+        val.m_bool = in.ReadBool();
         break;
       case CPASAnimParm::EParmType::Enum:
-        val.m_int = in.readInt32Big();
+        val.m_int = in.ReadInt32();
         break;
       default:
         break;

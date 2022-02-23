@@ -1,4 +1,5 @@
 #include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 
 #include "Runtime/CSimplePool.hpp"
 
@@ -19,10 +20,10 @@ static amuse::EffectDelay* s_DelayState = nullptr;
 CFactoryFnReturn FAudioTranslationTableFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                                CObjectReference* selfRef) {
   std::unique_ptr<std::vector<u16>> obj = std::make_unique<std::vector<u16>>();
-  u32 count = in.readUint32Big();
+  u32 count = in.ReadLong();
   obj->reserve(count);
   for (u32 i = 0; i < count; ++i)
-    obj->push_back(in.readUint16Big());
+    obj->push_back(in.ReadShort());
   return TToken<std::vector<u16>>::GetIObjObjectFor(std::move(obj));
 }
 

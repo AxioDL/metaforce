@@ -26,7 +26,7 @@ void CAnimFormatUnion::SubConstruct(u8* storage, EAnimFormat fmt, CInputStream& 
 }
 
 CAnimFormatUnion::CAnimFormatUnion(CInputStream& in, IObjectStore& store) {
-  x0_format = EAnimFormat(in.readUint32Big());
+  x0_format = EAnimFormat(in.ReadLong());
   SubConstruct(x4_storage, x0_format, in, store);
 }
 

@@ -8,12 +8,12 @@
 
 namespace metaforce {
 
-CScriptMailbox::CScriptMailbox(CBitStreamReader& in, const CWorldSaveGameInfo& saveWorld) {
+CScriptMailbox::CScriptMailbox(CInputStream& in, const CWorldSaveGameInfo& saveWorld) {
   const u32 relayCount = saveWorld.GetRelayCount();
   if (saveWorld.GetRelayCount()) {
     std::vector<bool> relayStates(saveWorld.GetRelayCount());
     for (u32 i = 0; i < relayCount; ++i) {
-      relayStates[i] = in.ReadEncoded(1);
+      relayStates[i] = in.ReadBits(1);
     }
 
     for (u32 i = 0; i < relayCount; ++i) {
@@ -79,7 +79,7 @@ void CScriptMailbox::SendMsgs(TAreaId areaId, CStateManager& stateMgr) {
   }
 }
 
-void CScriptMailbox::PutTo(CBitStreamWriter& out, const CWorldSaveGameInfo& saveWorld) {
+void CScriptMailbox::PutTo(COutputStream& out, const CWorldSaveGameInfo& saveWorld) {
   const u32 relayCount = saveWorld.GetRelayCount();
   std::vector<bool> relays(relayCount);
 
@@ -91,7 +91,7 @@ void CScriptMailbox::PutTo(CBitStreamWriter& out, const CWorldSaveGameInfo& save
   }
 
   for (u32 i = 0; i < relayCount; ++i) {
-    out.WriteEncoded(u32(relays[i]), 1);
+    out.WriteBits(u32(relays[i]), 1);
   }
 }
 

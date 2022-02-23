@@ -3,11 +3,11 @@
 
 namespace metaforce {
 CTextureCache::CTextureCache(CInputStream& in) {
-  u32 textureCount = in.readUint32Big();
+  u32 textureCount = in.ReadLong();
   for (u32 i = 0; i < textureCount; ++i) {
     CAssetId uid(in);
     if (m_textureInfo.find(uid) == m_textureInfo.end())
-      m_textureInfo.emplace(uid, CTextureInfo(in));
+      m_textureInfo.emplace(uid, in.Get<CTextureInfo>());
   }
 }
 

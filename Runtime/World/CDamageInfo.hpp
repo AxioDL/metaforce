@@ -4,11 +4,8 @@
 #include "Runtime/Weapon/CWeaponMgr.hpp"
 #include "Runtime/Weapon/CWeaponMode.hpp"
 
-namespace DataSpec {
-struct SShotParam;
-}
-
 namespace metaforce {
+struct SShotParam;
 class CDamageVulnerability;
 class CDamageInfo {
   CWeaponMode x0_weaponMode;
@@ -21,12 +18,12 @@ class CDamageInfo {
 public:
   constexpr CDamageInfo() = default;
   explicit CDamageInfo(CInputStream& in) {
-    in.readUint32Big();
-    x0_weaponMode = CWeaponMode(EWeaponType(in.readUint32Big()));
-    x8_damage = in.readFloatBig();
+    in.ReadLong();
+    x0_weaponMode = CWeaponMode(EWeaponType(in.ReadLong()));
+    x8_damage = in.ReadFloat();
     xc_radiusDamage = x8_damage;
-    x10_radius = in.readFloatBig();
-    x14_knockback = in.readFloatBig();
+    x10_radius = in.ReadFloat();
+    x14_knockback = in.ReadFloat();
   }
   constexpr CDamageInfo(const CWeaponMode& mode, float damage, float radius, float knockback)
   : x0_weaponMode(mode), x8_damage(damage), xc_radiusDamage(damage), x10_radius(radius), x14_knockback(knockback) {}
@@ -38,8 +35,8 @@ public:
   constexpr CDamageInfo& operator=(CDamageInfo&&) = default;
 
   CDamageInfo(const CDamageInfo&, float);
-  explicit CDamageInfo(const DataSpec::SShotParam& other);
-  CDamageInfo& operator=(const DataSpec::SShotParam& other);
+  explicit CDamageInfo(const SShotParam& other);
+  CDamageInfo& operator=(const SShotParam& other);
 
   const CWeaponMode& GetWeaponMode() const { return x0_weaponMode; }
   void SetWeaponMode(const CWeaponMode& mode) { x0_weaponMode = mode; }

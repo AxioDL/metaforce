@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include <zeus/CColor.hpp>
 
@@ -32,23 +32,23 @@ class CBeamInfo {
 
 public:
   explicit CBeamInfo(CInputStream& in)
-  : x0_(in.readUint32Big())
-  , x4_beamAttributes(in.readUint32Big())
-  , x8_contactFxId(in.readUint32Big())
-  , xc_pulseFxId(in.readUint32Big())
-  , x10_textureId(in.readUint32Big())
-  , x14_glowTextureId(in.readUint32Big())
-  , x18_length(in.readFloatBig())
-  , x1c_radius(in.readFloatBig())
-  , x20_expansionSpeed(in.readFloatBig())
-  , x24_lifeTime(in.readFloatBig())
-  , x28_pulseSpeed(in.readFloatBig())
-  , x2c_shutdownTime(in.readFloatBig())
-  , x30_contactFxScale(in.readFloatBig())
-  , x34_pulseFxScale(in.readFloatBig())
-  , x38_travelSpeed(in.readFloatBig())
-  , x3c_innerColor(zeus::CColor::ReadRGBABig(in))
-  , x40_outerColor(zeus::CColor::ReadRGBABig(in)) {}
+  : x0_(in.ReadLong())
+  , x4_beamAttributes(in.ReadLong())
+  , x8_contactFxId(in)
+  , xc_pulseFxId(in)
+  , x10_textureId(in)
+  , x14_glowTextureId(in)
+  , x18_length(in.ReadFloat())
+  , x1c_radius(in.ReadFloat())
+  , x20_expansionSpeed(in.ReadFloat())
+  , x24_lifeTime(in.ReadFloat())
+  , x28_pulseSpeed(in.ReadFloat())
+  , x2c_shutdownTime(in.ReadFloat())
+  , x30_contactFxScale(in.ReadFloat())
+  , x34_pulseFxScale(in.ReadFloat())
+  , x38_travelSpeed(in.ReadFloat())
+  , x3c_innerColor(in.Get<zeus::CColor>())
+  , x40_outerColor(in.Get<zeus::CColor>()) {}
 
   CBeamInfo(s32 beamAttributes, CAssetId contactFxId, CAssetId pulseFxId, CAssetId textureId, CAssetId glowTextureId,
             s32 length, float radius, float expansionSpeed, float lifeTime, float pulseSpeed, float shutdownTime,

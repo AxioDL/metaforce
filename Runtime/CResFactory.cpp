@@ -65,7 +65,7 @@ void CResFactory::BuildAsync(const SObjectTag& tag, const CVParamTransfer& xfer,
   if (search == m_loadMap.end()) {
     SLoadingData data(tag, target, xfer, x4_loader.GetResourceCompression(tag), selfRef);
     data.x14_resSize = x4_loader.ResourceSize(tag);
-    if (data.x14_resSize) {
+    if (data.x14_resSize != 0) {
       data.x10_loadBuffer = std::unique_ptr<u8[]>(new u8[data.x14_resSize]);
       data.x8_dvdReq = x4_loader.LoadResourceAsync(tag, data.x10_loadBuffer.get());
       AddToLoadList(std::move(data));
@@ -107,9 +107,9 @@ void CResFactory::CancelBuild(const SObjectTag& tag) {
 
 void CResFactory::LoadPersistentResources(CSimplePool& sp) {
   const auto& paks = x4_loader.GetPaks();
-  for (auto it = paks.begin(); it != paks.end(); ++it) {
-    if (!(*it)->IsWorldPak()) {
-      for (const CAssetId& id : (*it)->GetDepList()) {
+  for (const auto & pak : paks) {
+    if (!pak->IsWorldPak()) {
+      for (const CAssetId& id : pak->GetDepList()) {
         SObjectTag tag(GetResourceTypeById(id), id);
         m_nonWorldTokens.push_back(sp.GetObj(tag));
         m_nonWorldTokens.back().Lock();

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Character/CSegId.hpp"
 
 namespace metaforce {

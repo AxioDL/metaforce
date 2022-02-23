@@ -169,7 +169,7 @@ void CPauseScreenBase::InitializeFrameGlue() {
   x194_tablegroup_triple->SetMenuSelectionChangeCallback({});
 
   x8_frame.SetMouseUpCallback([this](CGuiWidget* widget, bool cancel) { OnWidgetMouseUp(widget, cancel); });
-  x8_frame.SetMouseScrollCallback([this](CGuiWidget* widget, const boo::SScrollDelta& delta, int accumX, int accumY) {
+  x8_frame.SetMouseScrollCallback([this](CGuiWidget* widget, const SScrollDelta& delta, int accumX, int accumY) {
     OnWidgetScroll(widget, delta, accumX, accumY);
   });
 }
@@ -493,7 +493,7 @@ void CPauseScreenBase::OnWidgetMouseUp(CGuiWidget* widget, bool cancel) {
   }
 }
 
-void CPauseScreenBase::OnWidgetScroll(CGuiWidget* widget, const boo::SScrollDelta& delta, int accumX, int accumY) {
+void CPauseScreenBase::OnWidgetScroll(CGuiWidget* widget, const SScrollDelta& delta, int accumX, int accumY) {
   if (!widget || accumY == 0)
     return;
   if (widget->GetParent() == x84_tablegroup_rightlog) {

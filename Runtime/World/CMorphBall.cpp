@@ -17,13 +17,13 @@
 #include "Runtime/World/CScriptSpiderBallWaypoint.hpp"
 #include "Runtime/World/CScriptWater.hpp"
 #include "Runtime/World/CWorld.hpp"
-#include <hecl/CVar.hpp>
-#include <hecl/CVarManager.hpp>
+#include "Runtime/ConsoleVariables/CVar.hpp"
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
 namespace {
-hecl::CVar* mb_spooderBall = nullptr;
+CVar* mb_spooderBall = nullptr;
 bool mb_spooderBallCached = false;
 float kSpiderBallCollisionRadius;
 
@@ -287,11 +287,11 @@ CMorphBall::CMorphBall(CPlayer& player, float radius)
   LoadAnimationTokens("SamusBallANCS");
   InitializeWakeEffects();
   if (mb_spooderBall == nullptr) {
-    mb_spooderBall = hecl::CVarManager::instance()->findOrMakeCVar(
+    mb_spooderBall = CVarManager::instance()->findOrMakeCVar(
         "morphball.enableSpooderBall",
         "Enables the ability to spiderball everywhere after touch a spiderball track with spiderball enabled", false,
-        hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Cheat);
-    mb_spooderBall->addListener([](hecl::CVar* cv) { mb_spooderBallCached = cv->toBoolean(); });
+        CVar::EFlags::Game | CVar::EFlags::Cheat);
+    mb_spooderBall->addListener([](CVar* cv) { mb_spooderBallCached = cv->toBoolean(); });
   }
 }
 

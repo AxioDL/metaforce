@@ -865,7 +865,7 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr) {
   }
 }
 
-void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr, DataSpec::ITweakGui::EHelmetVisMode helmetVis) {
+void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr, Tweaks::ITweakGui::EHelmetVisMode helmetVis) {
   CPlayer& player = mgr.GetPlayer();
   if (player.WasDamaged() && mgr.GetGameState() == CStateManager::EGameState::Running)
     x3e8_damageTIme += dt;
@@ -1008,7 +1008,7 @@ void CSamusHud::UpdateStaticInterference(float dt, const CStateManager& mgr) {
   if (x510_staticInterp > 0.f) {
     zeus::CColor color = zeus::skWhite;
     color.a() = x510_staticInterp;
-    x51c_camFilter2.SetFilter(EFilterType::Blend, EFilterShape::RandomStatic, 0.f, color, -1);
+    x51c_camFilter2.SetFilter(EFilterType::Blend, EFilterShape::RandomStatic, 0.f, color, {});
   } else {
     x51c_camFilter2.DisableFilter(0.f);
   }
@@ -1191,7 +1191,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr, CInGameGuiManager::EH
 
   UpdateStaticInterference(dt, mgr);
 
-  if (helmetVis != DataSpec::ITweakGui::EHelmetVisMode::ReducedUpdate) {
+  if (helmetVis != Tweaks::ITweakGui::EHelmetVisMode::ReducedUpdate) {
     if (x2bc_nextState != EHudState::None) {
       UpdateEnergy(dt, mgr, false);
       UpdateFreeLook(dt, mgr);

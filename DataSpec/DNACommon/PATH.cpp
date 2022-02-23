@@ -2,6 +2,7 @@
 #include "hecl/Blender/Connection.hpp"
 #include "zeus/CAABox.hpp"
 #include "DataSpec/DNACommon/AROTBuilder.hpp"
+#include <athena/MemoryReader.hpp>
 
 namespace DataSpec::DNAPATH {
 

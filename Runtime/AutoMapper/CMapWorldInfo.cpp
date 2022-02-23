@@ -5,52 +5,52 @@
 
 namespace metaforce {
 
-CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CWorldSaveGameInfo& savw, CAssetId mlvlId) {
+CMapWorldInfo::CMapWorldInfo(CInputStream& reader, const CWorldSaveGameInfo& savw, CAssetId mlvlId) {
   const CSaveWorldMemory& worldMem = g_MemoryCardSys->GetSaveWorldMemory(mlvlId);
 
   x4_visitedAreas.reserve((worldMem.GetAreaCount() + 31) / 32);
   for (u32 i = 0; i < worldMem.GetAreaCount(); ++i) {
-    const bool visited = reader.ReadEncoded(1) != 0;
+    const bool visited = reader.ReadBits(1) != 0;
     SetAreaVisited(i, visited);
   }
 
   x18_mappedAreas.reserve((worldMem.GetAreaCount() + 31) / 32);
   for (u32 i = 0; i < worldMem.GetAreaCount(); ++i) {
-    const bool mapped = reader.ReadEncoded(1) != 0;
+    const bool mapped = reader.ReadBits(1) != 0;
     SetIsMapped(i, mapped);
   }
 
   for (const auto& doorId : savw.GetDoors()) {
-    SetDoorVisited(doorId, reader.ReadEncoded(1) != 0);
+    SetDoorVisited(doorId, reader.ReadBits(1) != 0);
   }
 
-  x38_mapStationUsed = reader.ReadEncoded(1) != 0;
+  x38_mapStationUsed = reader.ReadBits(1) != 0;
 }
 
-void CMapWorldInfo::PutTo(CBitStreamWriter& writer, const CWorldSaveGameInfo& savw, CAssetId mlvlId) const {
+void CMapWorldInfo::PutTo(COutputStream& writer, const CWorldSaveGameInfo& savw, CAssetId mlvlId) const {
   const CSaveWorldMemory& worldMem = g_MemoryCardSys->GetSaveWorldMemory(mlvlId);
 
   for (u32 i = 0; i < worldMem.GetAreaCount(); ++i) {
     if (i < x0_visitedAreasAllocated) {
-      writer.WriteEncoded(u32(IsAreaVisited(i)), 1);
+      writer.WriteBits(u32(IsAreaVisited(i)), 1);
     } else {
-      writer.WriteEncoded(0, 1);
+      writer.WriteBits(0, 1);
     }
   }
 
   for (u32 i = 0; i < worldMem.GetAreaCount(); ++i) {
     if (i < x14_mappedAreasAllocated) {
-      writer.WriteEncoded(u32(IsMapped(i)), 1);
+      writer.WriteBits(u32(IsMapped(i)), 1);
     } else {
-      writer.WriteEncoded(0, 1);
+      writer.WriteBits(0, 1);
     }
   }
 
   for (const auto& doorId : savw.GetDoors()) {
-    writer.WriteEncoded(u32(IsDoorVisited(doorId)), 1);
+    writer.WriteBits(u32(IsDoorVisited(doorId)), 1);
   }
 
-  writer.WriteEncoded(u32(x38_mapStationUsed), 1);
+  writer.WriteBits(u32(x38_mapStationUsed), 1);
 }
 
 void CMapWorldInfo::SetDoorVisited(TEditorId eid, bool visited) { x28_visitedDoors[eid] = visited; }

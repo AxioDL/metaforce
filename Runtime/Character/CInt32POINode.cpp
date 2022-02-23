@@ -11,7 +11,7 @@ CInt32POINode::CInt32POINode(std::string_view name, EPOIType type, const CCharAn
 : CPOINode(name, type, time, index, unique, weight, charIndex, flags), x38_val(val), x3c_locatorName(locator) {}
 
 CInt32POINode::CInt32POINode(CInputStream& in)
-: CPOINode(in), x38_val(in.readUint32Big()), x3c_locatorName(in.readString()) {}
+: CPOINode(in), x38_val(in.ReadLong()), x3c_locatorName(in.Get<std::string>()) {}
 
 CInt32POINode CInt32POINode::CopyNodeMinusStartTime(const CInt32POINode& node, const CCharAnimTime& startTime) {
   CInt32POINode ret = node;

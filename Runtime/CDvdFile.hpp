@@ -11,7 +11,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-#include <athena/FileReader.hpp>
+//#include <athena/FileReader.hpp>
 #include <nod/nod.hpp>
 #include <nod/DiscBase.hpp>
 

@@ -15,7 +15,7 @@ class CModel;
 struct SSkinWeighting {
   CSegId x0_id;
   float x4_weight;
-  explicit SSkinWeighting(CInputStream& in) : x0_id(in), x4_weight(in.readFloatBig()) {}
+  explicit SSkinWeighting(CInputStream& in) : x0_id(in), x4_weight(in.ReadFloat()) {}
 };
 
 class CVirtualBone {
@@ -32,8 +32,8 @@ public:
 
 class CSkinRules {
   std::vector<CVirtualBone> x0_bones;
-  u32 x10_vertexCount;
-  u32 x14_normalCount;
+  u32 x10_vertexCount = 0;
+  u32 x14_normalCount = 0;
 
 public:
   explicit CSkinRules(CInputStream& in);

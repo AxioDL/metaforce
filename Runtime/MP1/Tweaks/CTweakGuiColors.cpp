@@ -1,0 +1,132 @@
+#include "Runtime/MP1/Tweaks/CTweakGuiColors.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
+
+
+namespace metaforce::MP1 {
+
+CTweakGuiColors::SPerVisorColors::SPerVisorColors(CInputStream& in) {
+  x0_energyBarFilled = in.Get<zeus::CColor>();
+  x4_energyBarEmpty = in.Get<zeus::CColor>();
+  x8_energyBarShadow = in.Get<zeus::CColor>();
+  xc_energyTankFilled = in.Get<zeus::CColor>();
+  x10_energyTankEmpty = in.Get<zeus::CColor>();
+  x14_energyDigitsFont = in.Get<zeus::CColor>();
+  x18_energyDigitsOutline = in.Get<zeus::CColor>();
+}
+
+CTweakGuiColors::CTweakGuiColors(CInputStream& in) {
+   x4_pauseBlurFilterColor = in.Get<zeus::CColor>();
+   x8_radarStuffColor = in.Get<zeus::CColor>();
+   xc_radarPlayerPaintColor = in.Get<zeus::CColor>();
+   x10_radarEnemyPaintColor = in.Get<zeus::CColor>();
+   x14_hudMessageFill = in.Get<zeus::CColor>();
+   x18_hudMessageOutline = in.Get<zeus::CColor>();
+   x1c_hudFrameColor = in.Get<zeus::CColor>();
+   x20_ = in.Get<zeus::CColor>();
+   x24_ = in.Get<zeus::CColor>();
+   x28_missileIconColorActive = in.Get<zeus::CColor>();
+   x2c_visorBeamMenuItemActive = in.Get<zeus::CColor>();
+   x30_visorBeamMenuColorInactive = in.Get<zeus::CColor>();
+   x34_energyBarFilledLowEnergy = in.Get<zeus::CColor>();
+   x38_energyBarShadowLowEnergy = in.Get<zeus::CColor>();
+   x3c_energyBarEmptyLowEnergy = in.Get<zeus::CColor>();
+   x40_hudDamageLightColor = in.Get<zeus::CColor>();
+   x44_ = in.Get<zeus::CColor>();
+   x48_ = in.Get<zeus::CColor>();
+   x4c_visorMenuTextFont = in.Get<zeus::CColor>();
+   x50_visorMenuTextOutline = in.Get<zeus::CColor>();
+   x54_beamMenuTextFont = in.Get<zeus::CColor>();
+   x58_beamMenuTextOutline = in.Get<zeus::CColor>();
+   x5c_energyWarningFont = in.Get<zeus::CColor>();
+   x60_threatWarningFont = in.Get<zeus::CColor>();
+   x64_missileWarningFont = in.Get<zeus::CColor>();
+   x68_threatBarFilled = in.Get<zeus::CColor>();
+   x6c_threatBarShadow = in.Get<zeus::CColor>();
+   x70_threatBarEmpty = in.Get<zeus::CColor>();
+   x74_missileBarFilled = in.Get<zeus::CColor>();
+   x78_missileBarShadow = in.Get<zeus::CColor>();
+   x7c_missileBarEmpty = in.Get<zeus::CColor>();
+   x80_threatIconColor = in.Get<zeus::CColor>();
+   x84_ = in.Get<zeus::CColor>();
+   x88_tickDecoColor = in.Get<zeus::CColor>();
+   x8c_helmetLightColor = in.Get<zeus::CColor>();
+   x90_threatIconSafeColor = in.Get<zeus::CColor>();
+   x94_missileIconColorInactive = in.Get<zeus::CColor>();
+   x98_missileIconColorChargedCanAlt = in.Get<zeus::CColor>();
+   x9c_missileIconColorChargedNoAlt = in.Get<zeus::CColor>();
+   xa0_missileIconColorDepleteAlt = in.Get<zeus::CColor>();
+   xa4_ = in.Get<zeus::CColor>();
+   xa8_ = in.Get<zeus::CColor>();
+   xac_ = in.Get<zeus::CColor>();
+   xb0_visorBeamMenuLozColor = in.Get<zeus::CColor>();
+   xb4_energyWarningOutline = in.Get<zeus::CColor>();
+   xb8_threatWarningOutline = in.Get<zeus::CColor>();
+   xbc_missileWarningOutline = in.Get<zeus::CColor>();
+   xc0_ = in.Get<zeus::CColor>();
+   xc4_damageAmbientColor = in.Get<zeus::CColor>();
+   xc8_scanFrameInactiveColor = in.Get<zeus::CColor>();
+   xcc_scanFrameActiveColor = in.Get<zeus::CColor>();
+   xd0_scanFrameImpulseColor = in.Get<zeus::CColor>();
+   xd4_scanVisorHudLightMultiply = in.Get<zeus::CColor>();
+   xd8_scanVisorScreenDimColor = in.Get<zeus::CColor>();
+   xdc_thermalVisorHudLightMultiply = in.Get<zeus::CColor>();
+   xe0_energyDrainFilterColor = in.Get<zeus::CColor>();
+   xe4_damageAmbientPulseColor = in.Get<zeus::CColor>();
+   xe8_energyBarFlashColor = in.Get<zeus::CColor>();
+   xec_ = in.Get<zeus::CColor>();
+   xf0_ = in.Get<zeus::CColor>();
+   xf4_ = in.Get<zeus::CColor>();
+   xf8_ = in.Get<zeus::CColor>();
+   xfc_ = in.Get<zeus::CColor>();
+   x100_xrayEnergyDecoColor = in.Get<zeus::CColor>();
+   x104_ = in.Get<zeus::CColor>();
+   x108_ = in.Get<zeus::CColor>();
+   x10c_ = in.Get<zeus::CColor>();
+   x110_ = in.Get<zeus::CColor>();
+   x114_ = in.Get<zeus::CColor>();
+   x118_ = in.Get<zeus::CColor>();
+   x11c_ = in.Get<zeus::CColor>();
+   x120_ = in.Get<zeus::CColor>();
+   x124_ = in.Get<zeus::CColor>();
+   x128_ = in.Get<zeus::CColor>();
+   x12c_ = in.Get<zeus::CColor>();
+   x130_ = in.Get<zeus::CColor>();
+   x134_ = in.Get<zeus::CColor>();
+   x138_scanDataDotColor = in.Get<zeus::CColor>();
+   x13c_powerBombDigitAvailableFont = in.Get<zeus::CColor>();
+   x140_powerBombDigitAvailableOutline = in.Get<zeus::CColor>();
+   x144_ = in.Get<zeus::CColor>();
+   x148_ballBombFilled = in.Get<zeus::CColor>();
+   x14c_ballBombEmpty = in.Get<zeus::CColor>();
+   x150_powerBombIconAvailable = in.Get<zeus::CColor>();
+   x154_ = in.Get<zeus::CColor>();
+   x158_ballEnergyDeco = in.Get<zeus::CColor>();
+   x15c_ballBombDeco = in.Get<zeus::CColor>();
+   x160_powerBombDigitDepletedFont = in.Get<zeus::CColor>();
+   x164_powerBombDigitDepletedOutline = in.Get<zeus::CColor>();
+   x168_powerBombIconUnavailable = in.Get<zeus::CColor>();
+   x16c_ = in.Get<zeus::CColor>();
+   x170_ = in.Get<zeus::CColor>();
+   x174_scanDisplayImagePaneColor = in.Get<zeus::CColor>();
+   x178_ = in.Get<zeus::CColor>();
+   x17c_threatIconWarningColor = in.Get<zeus::CColor>();
+   x180_hudCounterFill = in.Get<zeus::CColor>();
+   x184_hudCounterOutline = in.Get<zeus::CColor>();
+   x188_scanIconCriticalColor = in.Get<zeus::CColor>();
+   x18c_scanIconCriticalDimColor = in.Get<zeus::CColor>();
+   x190_scanIconNoncriticalColor = in.Get<zeus::CColor>();
+   x194_scanIconNoncriticalDimColor = in.Get<zeus::CColor>();
+   x198_scanReticuleColor = in.Get<zeus::CColor>();
+   x19c_threatDigitsFont = in.Get<zeus::CColor>();
+   x1a0_threatDigitsOutline = in.Get<zeus::CColor>();
+   x1a4_missileDigitsFont = in.Get<zeus::CColor>();
+   x1a8_missileDigitsOutline = in.Get<zeus::CColor>();
+   x1ac_thermalDecoColor = in.Get<zeus::CColor>();
+   x1b0_thermalOutlinesColor = in.Get<zeus::CColor>();
+   x1b4_ = in.Get<zeus::CColor>();
+   x1b8_thermalLockColor = in.Get<zeus::CColor>();
+   x1bc_pauseItemAmber = in.Get<zeus::CColor>();
+   x1c0_pauseItemBlue = in.Get<zeus::CColor>();
+   read_reserved_vector(x1c4_perVisorColors, in);
+}
+}

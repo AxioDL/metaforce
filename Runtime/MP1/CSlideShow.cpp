@@ -30,7 +30,7 @@ CSlideShow::CSlideShow() : CIOWin("SlideShow"), x130_(g_tweakSlideShow->GetX54()
 
   xf8_stickTextures.reserve(18);
   x108_buttonTextures.reserve(8);
-  SObjectTag txtrTag(FOURCC('TXTR'), 0);
+  SObjectTag txtrTag(FOURCC('TXTR'), CAssetId());
   for (const auto& lStickId : g_tweakPlayerRes->x24_lStick) {
     txtrTag.id = lStickId;
     xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));

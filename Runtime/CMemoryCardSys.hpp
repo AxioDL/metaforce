@@ -6,11 +6,12 @@
 #include <vector>
 
 #include "Runtime/CGameHintInfo.hpp"
-#include "Runtime/CWorldSaveGameInfo.hpp"
+#include "Runtime/Streams/CMemoryStreamOut.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/rstl.hpp"
+#include "Runtime/CWorldSaveGameInfo.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
 #include "Runtime/World/CWorld.hpp"
+#include "Runtime/rstl.hpp"
 
 #include <kabufuda/Card.hpp>
 
@@ -68,7 +69,7 @@ class CMemoryCardSys {
 
 public:
   static void _ResetCVar(kabufuda::ECardSlot slot);
-  static void _ResolveDolphinCardPath(const hecl::CVar* cv, kabufuda::ECardSlot slot);
+  static void _ResolveDolphinCardPath(const CVar* cv, kabufuda::ECardSlot slot);
   static std::string ResolveDolphinCardPath(kabufuda::ECardSlot slot);
   static bool CreateDolphinCard(kabufuda::ECardSlot slot);
   static std::string _GetDolphinCardPath(kabufuda::ECardSlot slot);
@@ -137,13 +138,13 @@ public:
     void LockBannerToken(CAssetId bannerTxtr, CSimplePool& sp);
     void LockIconToken(CAssetId iconTxtr, kabufuda::EAnimationSpeed speed, CSimplePool& sp);
 
-    kabufuda::ECardSlot GetCardPort() const { return m_handle.slot; }
-    int GetFileNo() const { return m_handle.getFileNo(); }
-    u32 CalculateBannerDataSize() const;
-    u32 CalculateTotalDataSize() const;
+    [[nodiscard]] kabufuda::ECardSlot GetCardPort() const { return m_handle.slot; }
+    [[nodiscard]] int GetFileNo() const { return m_handle.getFileNo(); }
+    [[nodiscard]] u32 CalculateBannerDataSize() const;
+    [[nodiscard]] u32 CalculateTotalDataSize() const;
     void BuildCardBuffer();
-    void WriteBannerData(CMemoryOutStream& out) const;
-    void WriteIconData(CMemoryOutStream& out) const;
+    void WriteBannerData(COutputStream& out) const;
+    void WriteIconData(COutputStream& out) const;
     void SetComment(const std::string& c) { x28_comment = c; }
     ECardResult PumpCardTransfer();
     ECardResult GetStatus(CardStat& stat) const;
@@ -151,9 +152,9 @@ public:
     ECardResult WriteFile();
     ECardResult CloseFile();
 
-    CMemoryOutStream BeginMemoryOut(u32 sz) {
+    CMemoryStreamOut BeginMemoryOut(u32 sz) {
       xf4_saveBuffer.resize(sz);
-      return CMemoryOutStream(xf4_saveBuffer.data(), sz);
+      return CMemoryStreamOut(xf4_saveBuffer.data(), sz, CMemoryStreamOut::EOwnerShip::NotOwned, sz);
     }
   };
 

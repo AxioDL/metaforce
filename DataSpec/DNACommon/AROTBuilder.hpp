@@ -4,7 +4,7 @@
 #include "DeafBabe.hpp"
 #include "zeus/CAABox.hpp"
 #include "CMDL.hpp"
-#include "IOStreams.hpp"
+#include <athena/MemoryWriter.hpp>
 #include <set>
 
 namespace DataSpec {

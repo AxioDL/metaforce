@@ -64,16 +64,39 @@
 #include "Runtime/World/CStateMachine.hpp"
 #include "Runtime/World/CScriptMazeNode.hpp"
 
-#include <DataSpec/DNAMP1/SFX/Misc.h>
-#include <DataSpec/DNAMP1/SFX/MiscSamus.h>
-#include <DataSpec/DNAMP1/SFX/UI.h>
-#include <DataSpec/DNAMP1/SFX/Weapons.h>
-#include <DataSpec/DNAMP1/SFX/ZZZ.h>
+#include "Audio/SFX/Misc.h"
+#include "Audio/SFX/MiscSamus.h"
+#include "Audio/SFX/UI.h"
+#include "Audio/SFX/Weapons.h"
+#include "Audio/SFX/ZZZ.h"
 
 #include "Runtime/MP1/CCredits.hpp"
 
 #ifdef ENABLE_DISCORD
 #include <discord_rpc.h>
+#endif
+
+#if _WIN32
+inline void* memmem(const void* haystack, size_t hlen, const void* needle, size_t nlen) {
+  int needle_first;
+  const uint8_t* p = static_cast<const uint8_t*>(haystack);
+  size_t plen = hlen;
+
+  if (!nlen)
+    return NULL;
+
+  needle_first = *(unsigned char*)needle;
+
+  while (plen >= nlen && (p = static_cast<const uint8_t*>(memchr(p, needle_first, plen - nlen + 1)))) {
+    if (!memcmp(p, needle, nlen))
+      return (void*)p;
+
+    p++;
+    plen = hlen - (p - static_cast<const uint8_t*>(haystack));
+  }
+
+  return NULL;
+}
 #endif
 
 namespace metaforce::MP1 {
@@ -452,7 +475,7 @@ void CMain::EnsureWorldPaksReady() {}
 void CMain::EnsureWorldPakReady(CAssetId mlvl) { /* TODO: Schedule resource list load for World Pak containing mlvl */
 }
 
-void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx) {
+void CMain::StreamNewGameState(CInputStream& r, u32 idx) {
   bool fusionBackup = g_GameState->SystemOptions().GetPlayerFusionSuitActive();
   x128_globalObjects->x134_gameState = std::make_unique<CGameState>(r, idx);
   g_GameState = x128_globalObjects->x134_gameState.get();
@@ -466,7 +489,7 @@ void CMain::RefreshGameState() {
   u64 cardSerial = g_GameState->GetCardSerial();
   std::vector<u8> saveData = g_GameState->BackupBuf();
   CGameOptions gameOpts = g_GameState->GameOptions();
-  CBitStreamReader r(saveData.data(), saveData.size());
+  CMemoryInStream r(saveData.data(), saveData.size(), CMemoryInStream::EOwnerShip::NotOwned);
   x128_globalObjects->StreamInGameState(r, g_GameState->GetFileIdx());
   g_GameState->SetPersistentOptions(sysOpts);
   g_GameState->SetGameOptions(gameOpts);
@@ -551,13 +574,14 @@ void CMain::HandleDiscordErrored(int errorCode, const char* message) {
   DiscordLog.report(logvisor::Error, FMT_STRING("Discord Error: {}"), message);
 }
 
-void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarMgr,
+void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr,
                  boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) {
   InitializeDiscord();
   m_cvarMgr = cvarMgr;
-  m_cvarCommons = std::make_unique<hecl::CVarCommons>(*m_cvarMgr);
+  m_cvarCommons = std::make_unique<CVarCommons>(*m_cvarMgr);
 
   bool loadedVersion = false;
+#if 0
   if (CDvdFile::FileExists("version.yaml")) {
     CDvdFile file("version.yaml");
     if (file) {
@@ -570,7 +594,9 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
         MainLog.report(logvisor::Level::Info, FMT_STRING("Loaded version info"));
       }
     }
-  } else if (CDvdFile::FileExists("default.dol")) {
+  } else
+#endif
+  if (CDvdFile::FileExists("default.dol")) {
     CDvdFile file("default.dol");
     if (file) {
       std::unique_ptr<u8[]> buf = std::make_unique<u8[]>(file.Length());
@@ -579,10 +605,10 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
           static_cast<char*>(memmem(buf.get(), readLen, "MetroidBuildInfo", 16)) + 19;
       if (buildInfo != nullptr) {
         // TODO
-        m_version = DataSpec::MetaforceVersionInfo{
+        m_version = MetaforceVersionInfo{
             .version = std::string(buildInfo),
-            .region = DataSpec::ERegion::NTSC_U,
-            .game = DataSpec::EGame::MetroidPrime1,
+            .region = ERegion::NTSC_U,
+            .game = EGame::MetroidPrime1,
             .isTrilogy = false,
         };
         loadedVersion = true;
@@ -616,11 +642,11 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       const char* areaIdxStr = (*(it + 2)).c_str();
 
       char* endptr = nullptr;
-      m_warpWorldIdx = TAreaId(hecl::StrToUl(worldIdxStr, &endptr, 0));
+      m_warpWorldIdx = TAreaId(strtoul(worldIdxStr, &endptr, 0));
       if (endptr == worldIdxStr) {
         m_warpWorldIdx = 0;
       }
-      m_warpAreaId = TAreaId(hecl::StrToUl(areaIdxStr, &endptr, 0));
+      m_warpAreaId = TAreaId(strtoul(areaIdxStr, &endptr, 0));
       if (endptr == areaIdxStr) {
         m_warpAreaId = 0;
       }
@@ -646,7 +672,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
             if (*cur == '1')
               m_warpLayerBits |= u64(1) << (cur - layerStr);
         } else if (layerStr[0] == '0' && layerStr[1] == 'x') {
-          m_warpMemoryRelays.emplace_back(TAreaId(hecl::StrToUl(layerStr + 2, nullptr, 16)));
+          m_warpMemoryRelays.emplace_back(TAreaId(strtoul(layerStr + 2, nullptr, 16)));
         }
         ++it;
       }
@@ -660,7 +686,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
   x164_archSupport = std::make_unique<CGameArchitectureSupport>(*this, voiceEngine, backend);
   g_archSupport = x164_archSupport.get();
   x164_archSupport->PreloadAudio();
-  std::srand(static_cast<u32>(std::time(nullptr)));
+  std::srand(static_cast<u32>(CBasics::GetTime()));
   // g_TweakManager->ReadFromMemoryCard("AudioTweaks");
 }
 

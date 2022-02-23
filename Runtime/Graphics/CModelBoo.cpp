@@ -1,5 +1,6 @@
 #include "Runtime/Graphics/CModel.hpp"
 
+#include "Runtime/CBasics.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Character/CSkinRules.hpp"
@@ -11,9 +12,8 @@
 
 #include <array>
 
-#include <hecl/CVarManager.hpp>
-#include <hecl/HMDLMeta.hpp>
-#include <hecl/Runtime.hpp>
+#include "ConsoleVariables/CVarManager.hpp"
+//#include <hecl/HMDLMeta.hpp>
 #include <logvisor/logvisor.hpp>
 #include <utility>
 
@@ -78,10 +78,10 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
   zeus::CVector3f surfPos;
   float surfSize = 0.f;
   if (surf) {
-    zeus::CVector3f surfCenter(surf->m_data.centroid);
-    zeus::CVector3f surfNormal(surf->m_data.reflectionNormal);
-    float dotDelta = surfNormal.dot(modelToPlayerLocal) - surfCenter.dot(surfNormal);
-    surfPos = modelToPlayerLocal - surfNormal * dotDelta;
+//    zeus::CVector3f surfCenter(surf->m_data.centroid);
+//    zeus::CVector3f surfNormal(surf->m_data.reflectionNormal);
+//    float dotDelta = surfNormal.dot(modelToPlayerLocal) - surfCenter.dot(surfNormal);
+//    surfPos = modelToPlayerLocal - surfNormal * dotDelta;
   } else {
     surfPos = model.x20_aabb.center();
     surfSize =
@@ -156,7 +156,7 @@ CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurf
 : m_modelTok(token)
 , m_model(parent)
 , x0_surfaces(surfaces)
-, x4_matSet(&shader.m_matSet)
+//, x4_matSet(&shader.m_matSet)
 //, m_geomLayout(&*shader.m_geomLayout)
 , m_matSetIdx(shader.m_matSetIdx)
 //, m_pipelines(&shader.m_shaders)
@@ -178,15 +178,15 @@ CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurf
     surf.m_parent = this;
 
   for (auto it = x0_surfaces->rbegin(); it != x0_surfaces->rend(); ++it) {
-    u32 matId = it->m_data.matIdx;
-    const MaterialSet::Material& matData = GetMaterialByIndex(matId);
-    if (matData.flags.depthSorting()) {
-      it->m_next = x3c_firstSortedSurface;
-      x3c_firstSortedSurface = &*it;
-    } else {
-      it->m_next = x38_firstUnsortedSurface;
-      x38_firstUnsortedSurface = &*it;
-    }
+//    u32 matId = it->m_data.matIdx;
+//    const MaterialSet::Material& matData = GetMaterialByIndex(matId);
+//    if (matData.flags.depthSorting()) {
+//      it->m_next = x3c_firstSortedSurface;
+//      x3c_firstSortedSurface = &*it;
+//    } else {
+//      it->m_next = x38_firstUnsortedSurface;
+//      x38_firstUnsortedSurface = &*it;
+//    }
   }
 
 //  m_instances.reserve(numInsts);
@@ -405,21 +405,21 @@ CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurf
 //  return &newInst;
 //}
 
-void CBooModel::MakeTexturesFromMats(const MaterialSet& matSet,
-                                     std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut,
-                                     IObjectStore& store) {
-  for (const auto& mat : matSet.materials) {
-    for (const auto& chunk : mat.chunks) {
-      if (const auto* const pass = chunk.get_if<MaterialSet::Material::PASS>()) {
-        toksOut.emplace(std::make_pair(pass->texId.toUint32(), store.GetObj({SBIG('TXTR'), pass->texId.toUint32()})));
-      }
-    }
-  }
-}
+//void CBooModel::MakeTexturesFromMats(const MaterialSet& matSet,
+//                                     std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut,
+//                                     IObjectStore& store) {
+//  for (const auto& mat : matSet.materials) {
+//    for (const auto& chunk : mat.chunks) {
+//      if (const auto* const pass = chunk.get_if<MaterialSet::Material::PASS>()) {
+//        toksOut.emplace(std::make_pair(pass->texId.toUint32(), store.GetObj({SBIG('TXTR'), pass->texId.toUint32()})));
+//      }
+//    }
+//  }
+//}
 
 void CBooModel::MakeTexturesFromMats(std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut,
                                      IObjectStore& store) {
-  MakeTexturesFromMats(*x4_matSet, toksOut, store);
+//  MakeTexturesFromMats(*x4_matSet, toksOut, store);
 }
 
 void CBooModel::ActivateLights(const std::vector<CLight>& lights) { m_lightingData.ActivateLights(lights); }
@@ -439,7 +439,7 @@ void CBooModel::RemapMaterialData(SShader& shader) {
   // TODO what is this checking?
 //  if (!shader.m_geomLayout)
 //    return;
-  x4_matSet = &shader.m_matSet;
+//  x4_matSet = &shader.m_matSet;
   x1c_textures = shader.x0_textures;
   x40_24_texturesLoaded = false;
 }
@@ -549,74 +549,74 @@ void CBooModel::DrawSurfaces(const CModelFlags& flags) const {
   }
 }
 
-static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, const CModelFlags& flags) {
-  bool noZWrite = flags.m_noZWrite || !data.flags.depthWrite();
-
-  /* Ensure cubemap extension shaders fall back to non-cubemap equivalents if necessary */
-  EExtendedShader intermediateExtended = flags.m_extendedShader;
-  if (!hecl::com_cubemaps->toBoolean() || g_Renderer->IsThermalVisorHotPass() || g_Renderer->IsThermalVisorActive()) {
-    if (intermediateExtended == EExtendedShader::LightingCubeReflection)
-      intermediateExtended = EExtendedShader::Lighting;
-    else if (intermediateExtended == EExtendedShader::LightingCubeReflectionWorldShadow)
-      intermediateExtended = EExtendedShader::WorldShadow;
-  }
-
-  EExtendedShader extended = EExtendedShader::Flat;
-  if (intermediateExtended == EExtendedShader::Lighting) {
-    /* Transform lighting into thermal if the thermal visor is active */
-    if (g_Renderer->IsThermalVisorHotPass())
-      return flags.m_noZTest ? EExtendedShader::LightingAlphaWriteNoZTestNoZWrite
-                             : (noZWrite ? EExtendedShader::ThermalStaticNoZWrite : EExtendedShader::ThermalStatic);
-    else if (g_Renderer->IsThermalVisorActive())
-      return EExtendedShader::ThermalCold;
-    if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Opaque) {
-      /* Override shader if originally opaque (typical for FRME models) */
-      if (flags.x0_blendMode > 6) {
-        if (flags.m_depthGreater)
-          extended = EExtendedShader::ForcedAdditiveNoZWriteDepthGreater;
-        else
-          extended =
-              flags.m_noCull
-                  ? (noZWrite ? EExtendedShader::ForcedAdditiveNoCullNoZWrite : EExtendedShader::ForcedAdditiveNoCull)
-                  : (noZWrite ? EExtendedShader::ForcedAdditiveNoZWrite : EExtendedShader::ForcedAdditive);
-      } else if (flags.x0_blendMode > 4) {
-        extended = flags.m_noCull
-                       ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
-                       : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::ForcedAlpha);
-      } else {
-        extended = flags.m_noCull
-                       ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
-                       : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::Lighting);
-      }
-    } else if (flags.m_noCull && noZWrite) {
-      /* Substitute no-cull,no-zwrite pipeline if available */
-      if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Additive)
-        extended = EExtendedShader::ForcedAdditiveNoCullNoZWrite;
-      else
-        extended = EExtendedShader::ForcedAlphaNoCullNoZWrite;
-    } else if (flags.m_noCull) {
-      /* Substitute no-cull pipeline if available */
-      if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Additive)
-        extended = EExtendedShader::ForcedAdditiveNoCull;
-      else
-        extended = EExtendedShader::ForcedAlphaNoCull;
-    } else if (noZWrite) {
-      /* Substitute no-zwrite pipeline if available */
-      if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Additive)
-        extended = EExtendedShader::ForcedAdditiveNoZWrite;
-      else
-        extended = EExtendedShader::ForcedAlphaNoZWrite;
-    } else {
-      extended = EExtendedShader::Lighting;
-    }
-  } else if (intermediateExtended == EExtendedShader::ThermalModel) {
-    extended = flags.m_noZTest ? EExtendedShader::ThermalModelNoZTestNoZWrite : EExtendedShader::ThermalModel;
-  } else if (intermediateExtended < EExtendedShader::MAX) {
-    extended = intermediateExtended;
-  }
-
-  return extended;
-}
+//static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, const CModelFlags& flags) {
+//  bool noZWrite = flags.m_noZWrite || !data.flags.depthWrite();
+//
+//  /* Ensure cubemap extension shaders fall back to non-cubemap equivalents if necessary */
+//  EExtendedShader intermediateExtended = flags.m_extendedShader;
+//  if (!com_cubemaps->toBoolean() || g_Renderer->IsThermalVisorHotPass() || g_Renderer->IsThermalVisorActive()) {
+//    if (intermediateExtended == EExtendedShader::LightingCubeReflection)
+//      intermediateExtended = EExtendedShader::Lighting;
+//    else if (intermediateExtended == EExtendedShader::LightingCubeReflectionWorldShadow)
+//      intermediateExtended = EExtendedShader::WorldShadow;
+//  }
+//
+//  EExtendedShader extended = EExtendedShader::Flat;
+//  if (intermediateExtended == EExtendedShader::Lighting) {
+//    /* Transform lighting into thermal if the thermal visor is active */
+//    if (g_Renderer->IsThermalVisorHotPass())
+//      return flags.m_noZTest ? EExtendedShader::LightingAlphaWriteNoZTestNoZWrite
+//                             : (noZWrite ? EExtendedShader::ThermalStaticNoZWrite : EExtendedShader::ThermalStatic);
+//    else if (g_Renderer->IsThermalVisorActive())
+//      return EExtendedShader::ThermalCold;
+//    if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Opaque) {
+//      /* Override shader if originally opaque (typical for FRME models) */
+//      if (flags.x0_blendMode > 6) {
+//        if (flags.m_depthGreater)
+//          extended = EExtendedShader::ForcedAdditiveNoZWriteDepthGreater;
+//        else
+//          extended =
+//              flags.m_noCull
+//                  ? (noZWrite ? EExtendedShader::ForcedAdditiveNoCullNoZWrite : EExtendedShader::ForcedAdditiveNoCull)
+//                  : (noZWrite ? EExtendedShader::ForcedAdditiveNoZWrite : EExtendedShader::ForcedAdditive);
+//      } else if (flags.x0_blendMode > 4) {
+//        extended = flags.m_noCull
+//                       ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
+//                       : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::ForcedAlpha);
+//      } else {
+//        extended = flags.m_noCull
+//                       ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
+//                       : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::Lighting);
+//      }
+//    } else if (flags.m_noCull && noZWrite) {
+//      /* Substitute no-cull,no-zwrite pipeline if available */
+//      if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Additive)
+//        extended = EExtendedShader::ForcedAdditiveNoCullNoZWrite;
+//      else
+//        extended = EExtendedShader::ForcedAlphaNoCullNoZWrite;
+//    } else if (flags.m_noCull) {
+//      /* Substitute no-cull pipeline if available */
+//      if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Additive)
+//        extended = EExtendedShader::ForcedAdditiveNoCull;
+//      else
+//        extended = EExtendedShader::ForcedAlphaNoCull;
+//    } else if (noZWrite) {
+//      /* Substitute no-zwrite pipeline if available */
+//      if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Additive)
+//        extended = EExtendedShader::ForcedAdditiveNoZWrite;
+//      else
+//        extended = EExtendedShader::ForcedAlphaNoZWrite;
+//    } else {
+//      extended = EExtendedShader::Lighting;
+//    }
+//  } else if (intermediateExtended == EExtendedShader::ThermalModel) {
+//    extended = flags.m_noZTest ? EExtendedShader::ThermalModelNoZTestNoZWrite : EExtendedShader::ThermalModel;
+//  } else if (intermediateExtended < EExtendedShader::MAX) {
+//    extended = intermediateExtended;
+//  }
+//
+//  return extended;
+//}
 
 void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const {
 //  if (m_uniUpdateCount == 0 || m_uniUpdateCount > m_instances.size())
@@ -660,194 +660,194 @@ void CBooModel::WarmupDrawSurface(const CBooSurface& surf) const {
 //  }
 }
 
-void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const MaterialSet::Material::PASS& anim) {
-  using UVAnimType = MaterialSet::Material::BlendMaterial::UVAnimType;
-  if (anim.uvAnimType == UVAnimType::Invalid)
-    return;
-  zeus::CMatrix4f& texMtxOut = reinterpret_cast<zeus::CMatrix4f&>(*bufOut);
-  zeus::CMatrix4f& postMtxOut = reinterpret_cast<zeus::CMatrix4f&>(*(bufOut + sizeof(zeus::CMatrix4f)));
-  texMtxOut = zeus::CMatrix4f();
-  postMtxOut = zeus::CMatrix4f();
-  switch (anim.uvAnimType) {
-  case UVAnimType::MvInvNoTranslation: {
-    texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-    texMtxOut[3].w() = 1.f;
-    postMtxOut[0].x() = 0.5f;
-    postMtxOut[1].y() = 0.5f;
-    postMtxOut[3].x() = 0.5f;
-    postMtxOut[3].y() = 0.5f;
-    break;
-  }
-  case UVAnimType::MvInv: {
-    texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-    texMtxOut[3] = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix.origin;
-    texMtxOut[3].w() = 1.f;
-    postMtxOut[0].x() = 0.5f;
-    postMtxOut[1].y() = 0.5f;
-    postMtxOut[3].x() = 0.5f;
-    postMtxOut[3].y() = 0.5f;
-    break;
-  }
-  case UVAnimType::Scroll: {
-    texMtxOut[3].x() = CGraphics::GetSecondsMod900() * anim.uvAnimParms[2] + anim.uvAnimParms[0];
-    texMtxOut[3].y() = CGraphics::GetSecondsMod900() * anim.uvAnimParms[3] + anim.uvAnimParms[1];
-    break;
-  }
-  case UVAnimType::Rotation: {
-    float angle = CGraphics::GetSecondsMod900() * anim.uvAnimParms[1] + anim.uvAnimParms[0];
-    float acos = std::cos(angle);
-    float asin = std::sin(angle);
-    texMtxOut[0].x() = acos;
-    texMtxOut[0].y() = asin;
-    texMtxOut[1].x() = -asin;
-    texMtxOut[1].y() = acos;
-    texMtxOut[3].x() = (1.0f - (acos - asin)) * 0.5f;
-    texMtxOut[3].y() = (1.0f - (asin + acos)) * 0.5f;
-    break;
-  }
-  case UVAnimType::HStrip: {
-    float value = anim.uvAnimParms[0] * anim.uvAnimParms[2] * (anim.uvAnimParms[3] + CGraphics::GetSecondsMod900());
-    texMtxOut[3].x() = std::trunc(anim.uvAnimParms[1] * fmod(value, 1.0f)) * anim.uvAnimParms[2];
-    break;
-  }
-  case UVAnimType::VStrip: {
-    float value = anim.uvAnimParms[0] * anim.uvAnimParms[2] * (anim.uvAnimParms[3] + CGraphics::GetSecondsMod900());
-    texMtxOut[3].y() = std::trunc(anim.uvAnimParms[1] * fmod(value, 1.0f)) * anim.uvAnimParms[2];
-    break;
-  }
-  case UVAnimType::Model: {
-    texMtxOut = CGraphics::g_GXModelMatrix.toMatrix4f();
-    texMtxOut[3] = zeus::CVector4f(0.f, 0.f, 0.f, 1.f);
-    postMtxOut[0].x() = 0.5f;
-    postMtxOut[1].y() = 0.f;
-    postMtxOut[2].y() = 0.5f;
-    postMtxOut[3].x() = CGraphics::g_GXModelMatrix.origin.x() * 0.05f;
-    postMtxOut[3].y() = CGraphics::g_GXModelMatrix.origin.y() * 0.05f;
-    break;
-  }
-  case UVAnimType::CylinderEnvironment: {
-    texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-
-    const zeus::CVector3f& viewOrigin = CGraphics::g_ViewMatrix.origin;
-    float xy = (viewOrigin.x() + viewOrigin.y()) * 0.025f * anim.uvAnimParms[1];
-    xy = (xy - std::trunc(xy));
-    float z = (viewOrigin.z()) * 0.05f * anim.uvAnimParms[1];
-    z = (z - std::trunc(z));
-
-    float halfA = anim.uvAnimParms[0] * 0.5f;
-
-    postMtxOut =
-        zeus::CTransform(zeus::CMatrix3f(halfA, 0.0, 0.0, 0.0, 0.0, halfA, 0.0, 0.0, 0.0), zeus::CVector3f(xy, z, 1.0))
-            .toMatrix4f();
-    break;
-  }
-  default:
-    break;
-  }
-  bufOut += sizeof(zeus::CMatrix4f) * 2;
-}
-
-void CBooModel::UVAnimationBuffer::PadOutBuffer(u8*& bufStart, u8*& bufOut) {
-  bufOut = bufStart + ROUND_UP_256(bufOut - bufStart);
-}
-
-void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags,
-                                          const CBooModel* parent) {
-  u8* start = bufOut;
-
-  if (flags.m_extendedShader == EExtendedShader::MorphBallShadow) {
-    /* Special matrices for MorphBall shadow rendering */
-    zeus::CMatrix4f texMtx = (zeus::CTransform::Scale(1.f / (flags.mbShadowBox.max - flags.mbShadowBox.min)) *
-                              zeus::CTransform::Translate(-flags.mbShadowBox.min) * CGraphics::g_GXModelMatrix)
-                                 .toMatrix4f();
-    for (const MaterialSet::Material& mat : matSet->materials) {
-      (void)mat;
-      std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
-      mtxs[0][0] = texMtx;
-      mtxs[0][1] = MBShadowPost0;
-      mtxs[1][0] = texMtx;
-      mtxs[1][1] = MBShadowPost1;
-      bufOut += sizeof(zeus::CMatrix4f) * 2 * 8;
-      PadOutBuffer(start, bufOut);
-    }
-    return;
-  } else if (flags.m_extendedShader == EExtendedShader::Disintegrate) {
-    assert(parent != nullptr && "Parent CBooModel not set");
-    zeus::CTransform xf = zeus::CTransform::RotateX(-zeus::degToRad(45.f));
-    zeus::CAABox aabb = parent->GetAABB().getTransformedAABox(xf);
-    xf = zeus::CTransform::Scale(5.f / (aabb.max - aabb.min)) * zeus::CTransform::Translate(-aabb.min) * xf;
-    zeus::CMatrix4f texMtx = xf.toMatrix4f();
-    zeus::CMatrix4f post0 = DisintegratePost;
-    post0[3].x() = flags.addColor.a();
-    post0[3].y() = 6.f * -(1.f - flags.addColor.a()) + 1.f;
-    zeus::CMatrix4f post1 = DisintegratePost;
-    post1[3].x() = -0.85f * flags.addColor.a() - 0.15f;
-    post1[3].y() = float(post0[3].y());
-    /* Special matrices for disintegration rendering */
-    for (const MaterialSet::Material& mat : matSet->materials) {
-      (void)mat;
-      std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
-      mtxs[0][0] = texMtx;
-      mtxs[0][1] = post0;
-      mtxs[1][0] = texMtx;
-      mtxs[1][1] = post1;
-      bufOut += sizeof(zeus::CMatrix4f) * 2 * 8;
-      PadOutBuffer(start, bufOut);
-    }
-    return;
-  }
-
-  std::optional<std::array<zeus::CMatrix4f, 2>> specialMtxOut;
-  if (flags.m_extendedShader == EExtendedShader::ThermalModel ||
-      flags.m_extendedShader == EExtendedShader::ThermalModelNoZTestNoZWrite ||
-      flags.m_extendedShader == EExtendedShader::ThermalStatic ||
-      flags.m_extendedShader == EExtendedShader::ThermalStaticNoZWrite) {
-    /* Special Mode0 matrix for exclusive Thermal Visor use */
-    specialMtxOut.emplace();
-
-    zeus::CMatrix4f& texMtxOut = (*specialMtxOut)[0];
-    texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-    texMtxOut[3].zeroOut();
-    texMtxOut[3].w() = 1.f;
-
-    zeus::CMatrix4f& postMtxOut = (*specialMtxOut)[1];
-    postMtxOut[0].x() = 0.5f;
-    postMtxOut[1].y() = 0.5f;
-    postMtxOut[3].x() = 0.5f;
-    postMtxOut[3].y() = 0.5f;
-  } else if (flags.m_extendedShader == EExtendedShader::WorldShadow ||
-             flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) {
-    /* Special matrix for mapping world shadow */
-    specialMtxOut.emplace();
-
-    zeus::CMatrix4f mat = g_shadowTexXf.toMatrix4f();
-    zeus::CMatrix4f& texMtxOut = (*specialMtxOut)[0];
-    texMtxOut[0][0] = float(mat[0][0]);
-    texMtxOut[1][0] = float(mat[1][0]);
-    texMtxOut[2][0] = float(mat[2][0]);
-    texMtxOut[3][0] = float(mat[3][0]);
-    texMtxOut[0][1] = float(mat[0][2]);
-    texMtxOut[1][1] = float(mat[1][2]);
-    texMtxOut[2][1] = float(mat[2][2]);
-    texMtxOut[3][1] = float(mat[3][2]);
-  }
-
-  for (const MaterialSet::Material& mat : matSet->materials) {
-    if (specialMtxOut) {
-      std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
-      mtxs[7][0] = (*specialMtxOut)[0];
-      mtxs[7][1] = (*specialMtxOut)[1];
-    }
-    u8* bufOrig = bufOut;
-    for (const auto& chunk : mat.chunks) {
-      if (const auto* const pass = chunk.get_if<MaterialSet::Material::PASS>()) {
-        ProcessAnimation(bufOut, *pass);
-      }
-    }
-    bufOut = bufOrig + sizeof(zeus::CMatrix4f) * 2 * 8;
-    PadOutBuffer(start, bufOut);
-  }
-}
+//void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const MaterialSet::Material::PASS& anim) {
+//  using UVAnimType = MaterialSet::Material::BlendMaterial::UVAnimType;
+//  if (anim.uvAnimType == UVAnimType::Invalid)
+//    return;
+//  zeus::CMatrix4f& texMtxOut = reinterpret_cast<zeus::CMatrix4f&>(*bufOut);
+//  zeus::CMatrix4f& postMtxOut = reinterpret_cast<zeus::CMatrix4f&>(*(bufOut + sizeof(zeus::CMatrix4f)));
+//  texMtxOut = zeus::CMatrix4f();
+//  postMtxOut = zeus::CMatrix4f();
+//  switch (anim.uvAnimType) {
+//  case UVAnimType::MvInvNoTranslation: {
+//    texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+//    texMtxOut[3].w() = 1.f;
+//    postMtxOut[0].x() = 0.5f;
+//    postMtxOut[1].y() = 0.5f;
+//    postMtxOut[3].x() = 0.5f;
+//    postMtxOut[3].y() = 0.5f;
+//    break;
+//  }
+//  case UVAnimType::MvInv: {
+//    texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+//    texMtxOut[3] = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix.origin;
+//    texMtxOut[3].w() = 1.f;
+//    postMtxOut[0].x() = 0.5f;
+//    postMtxOut[1].y() = 0.5f;
+//    postMtxOut[3].x() = 0.5f;
+//    postMtxOut[3].y() = 0.5f;
+//    break;
+//  }
+//  case UVAnimType::Scroll: {
+//    texMtxOut[3].x() = CGraphics::GetSecondsMod900() * anim.uvAnimParms[2] + anim.uvAnimParms[0];
+//    texMtxOut[3].y() = CGraphics::GetSecondsMod900() * anim.uvAnimParms[3] + anim.uvAnimParms[1];
+//    break;
+//  }
+//  case UVAnimType::Rotation: {
+//    float angle = CGraphics::GetSecondsMod900() * anim.uvAnimParms[1] + anim.uvAnimParms[0];
+//    float acos = std::cos(angle);
+//    float asin = std::sin(angle);
+//    texMtxOut[0].x() = acos;
+//    texMtxOut[0].y() = asin;
+//    texMtxOut[1].x() = -asin;
+//    texMtxOut[1].y() = acos;
+//    texMtxOut[3].x() = (1.0f - (acos - asin)) * 0.5f;
+//    texMtxOut[3].y() = (1.0f - (asin + acos)) * 0.5f;
+//    break;
+//  }
+//  case UVAnimType::HStrip: {
+//    float value = anim.uvAnimParms[0] * anim.uvAnimParms[2] * (anim.uvAnimParms[3] + CGraphics::GetSecondsMod900());
+//    texMtxOut[3].x() = std::trunc(anim.uvAnimParms[1] * fmod(value, 1.0f)) * anim.uvAnimParms[2];
+//    break;
+//  }
+//  case UVAnimType::VStrip: {
+//    float value = anim.uvAnimParms[0] * anim.uvAnimParms[2] * (anim.uvAnimParms[3] + CGraphics::GetSecondsMod900());
+//    texMtxOut[3].y() = std::trunc(anim.uvAnimParms[1] * fmod(value, 1.0f)) * anim.uvAnimParms[2];
+//    break;
+//  }
+//  case UVAnimType::Model: {
+//    texMtxOut = CGraphics::g_GXModelMatrix.toMatrix4f();
+//    texMtxOut[3] = zeus::CVector4f(0.f, 0.f, 0.f, 1.f);
+//    postMtxOut[0].x() = 0.5f;
+//    postMtxOut[1].y() = 0.f;
+//    postMtxOut[2].y() = 0.5f;
+//    postMtxOut[3].x() = CGraphics::g_GXModelMatrix.origin.x() * 0.05f;
+//    postMtxOut[3].y() = CGraphics::g_GXModelMatrix.origin.y() * 0.05f;
+//    break;
+//  }
+//  case UVAnimType::CylinderEnvironment: {
+//    texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+//
+//    const zeus::CVector3f& viewOrigin = CGraphics::g_ViewMatrix.origin;
+//    float xy = (viewOrigin.x() + viewOrigin.y()) * 0.025f * anim.uvAnimParms[1];
+//    xy = (xy - std::trunc(xy));
+//    float z = (viewOrigin.z()) * 0.05f * anim.uvAnimParms[1];
+//    z = (z - std::trunc(z));
+//
+//    float halfA = anim.uvAnimParms[0] * 0.5f;
+//
+//    postMtxOut =
+//        zeus::CTransform(zeus::CMatrix3f(halfA, 0.0, 0.0, 0.0, 0.0, halfA, 0.0, 0.0, 0.0), zeus::CVector3f(xy, z, 1.0))
+//            .toMatrix4f();
+//    break;
+//  }
+//  default:
+//    break;
+//  }
+//  bufOut += sizeof(zeus::CMatrix4f) * 2;
+//}
+//
+//void CBooModel::UVAnimationBuffer::PadOutBuffer(u8*& bufStart, u8*& bufOut) {
+//  bufOut = bufStart + ROUND_UP_256(bufOut - bufStart);
+//}
+//
+//void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags,
+//                                          const CBooModel* parent) {
+//  u8* start = bufOut;
+//
+//  if (flags.m_extendedShader == EExtendedShader::MorphBallShadow) {
+//    /* Special matrices for MorphBall shadow rendering */
+//    zeus::CMatrix4f texMtx = (zeus::CTransform::Scale(1.f / (flags.mbShadowBox.max - flags.mbShadowBox.min)) *
+//                              zeus::CTransform::Translate(-flags.mbShadowBox.min) * CGraphics::g_GXModelMatrix)
+//                                 .toMatrix4f();
+//    for (const MaterialSet::Material& mat : matSet->materials) {
+//      (void)mat;
+//      std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
+//      mtxs[0][0] = texMtx;
+//      mtxs[0][1] = MBShadowPost0;
+//      mtxs[1][0] = texMtx;
+//      mtxs[1][1] = MBShadowPost1;
+//      bufOut += sizeof(zeus::CMatrix4f) * 2 * 8;
+//      PadOutBuffer(start, bufOut);
+//    }
+//    return;
+//  } else if (flags.m_extendedShader == EExtendedShader::Disintegrate) {
+//    assert(parent != nullptr && "Parent CBooModel not set");
+//    zeus::CTransform xf = zeus::CTransform::RotateX(-zeus::degToRad(45.f));
+//    zeus::CAABox aabb = parent->GetAABB().getTransformedAABox(xf);
+//    xf = zeus::CTransform::Scale(5.f / (aabb.max - aabb.min)) * zeus::CTransform::Translate(-aabb.min) * xf;
+//    zeus::CMatrix4f texMtx = xf.toMatrix4f();
+//    zeus::CMatrix4f post0 = DisintegratePost;
+//    post0[3].x() = flags.addColor.a();
+//    post0[3].y() = 6.f * -(1.f - flags.addColor.a()) + 1.f;
+//    zeus::CMatrix4f post1 = DisintegratePost;
+//    post1[3].x() = -0.85f * flags.addColor.a() - 0.15f;
+//    post1[3].y() = float(post0[3].y());
+//    /* Special matrices for disintegration rendering */
+//    for (const MaterialSet::Material& mat : matSet->materials) {
+//      (void)mat;
+//      std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
+//      mtxs[0][0] = texMtx;
+//      mtxs[0][1] = post0;
+//      mtxs[1][0] = texMtx;
+//      mtxs[1][1] = post1;
+//      bufOut += sizeof(zeus::CMatrix4f) * 2 * 8;
+//      PadOutBuffer(start, bufOut);
+//    }
+//    return;
+//  }
+//
+//  std::optional<std::array<zeus::CMatrix4f, 2>> specialMtxOut;
+//  if (flags.m_extendedShader == EExtendedShader::ThermalModel ||
+//      flags.m_extendedShader == EExtendedShader::ThermalModelNoZTestNoZWrite ||
+//      flags.m_extendedShader == EExtendedShader::ThermalStatic ||
+//      flags.m_extendedShader == EExtendedShader::ThermalStaticNoZWrite) {
+//    /* Special Mode0 matrix for exclusive Thermal Visor use */
+//    specialMtxOut.emplace();
+//
+//    zeus::CMatrix4f& texMtxOut = (*specialMtxOut)[0];
+//    texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+//    texMtxOut[3].zeroOut();
+//    texMtxOut[3].w() = 1.f;
+//
+//    zeus::CMatrix4f& postMtxOut = (*specialMtxOut)[1];
+//    postMtxOut[0].x() = 0.5f;
+//    postMtxOut[1].y() = 0.5f;
+//    postMtxOut[3].x() = 0.5f;
+//    postMtxOut[3].y() = 0.5f;
+//  } else if (flags.m_extendedShader == EExtendedShader::WorldShadow ||
+//             flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) {
+//    /* Special matrix for mapping world shadow */
+//    specialMtxOut.emplace();
+//
+//    zeus::CMatrix4f mat = g_shadowTexXf.toMatrix4f();
+//    zeus::CMatrix4f& texMtxOut = (*specialMtxOut)[0];
+//    texMtxOut[0][0] = float(mat[0][0]);
+//    texMtxOut[1][0] = float(mat[1][0]);
+//    texMtxOut[2][0] = float(mat[2][0]);
+//    texMtxOut[3][0] = float(mat[3][0]);
+//    texMtxOut[0][1] = float(mat[0][2]);
+//    texMtxOut[1][1] = float(mat[1][2]);
+//    texMtxOut[2][1] = float(mat[2][2]);
+//    texMtxOut[3][1] = float(mat[3][2]);
+//  }
+//
+//  for (const MaterialSet::Material& mat : matSet->materials) {
+//    if (specialMtxOut) {
+//      std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
+//      mtxs[7][0] = (*specialMtxOut)[0];
+//      mtxs[7][1] = (*specialMtxOut)[1];
+//    }
+//    u8* bufOrig = bufOut;
+//    for (const auto& chunk : mat.chunks) {
+//      if (const auto* const pass = chunk.get_if<MaterialSet::Material::PASS>()) {
+//        ProcessAnimation(bufOut, *pass);
+//      }
+//    }
+//    bufOut = bufOrig + sizeof(zeus::CMatrix4f) * 2 * 8;
+//    PadOutBuffer(start, bufOut);
+//  }
+//}
 
 //void GeometryUniformLayout::Update(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose,
 //                                   const MaterialSet* matSet, const boo::ObjToken<boo::IGraphicsBufferD>& buf,
@@ -1118,7 +1118,7 @@ static const u8* MemoryFromPartData(const u8*& dataCur, const u32*& secSizeCur) 
   else
     ret = nullptr;
 
-  dataCur += hecl::SBig(*secSizeCur);
+  dataCur += CBasics::SwapBytes(*secSizeCur);
   ++secSizeCur;
   return ret;
 }
@@ -1160,32 +1160,32 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
   x38_lastFrame = CGraphics::GetFrameCounter() - 2;
   std::unique_ptr<u8[]> data = std::move(in);
 
-  u32 version = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x4));
-  m_flags = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x8));
+  u32 version = CBasics::SwapBytes(*reinterpret_cast<u32*>(data.get() + 0x4));
+  m_flags = CBasics::SwapBytes(*reinterpret_cast<u32*>(data.get() + 0x8));
   if (version != 0x10002) {
     Log.report(logvisor::Error, FMT_STRING("invalid CMDL for loading with boo"));
     return;
   }
 
-  u32 secCount = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x24));
-  u32 matSetCount = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x28));
+  u32 secCount = CBasics::SwapBytes(*reinterpret_cast<u32*>(data.get() + 0x24));
+  u32 matSetCount = CBasics::SwapBytes(*reinterpret_cast<u32*>(data.get() + 0x28));
   x18_matSets.reserve(matSetCount);
   const u8* dataCur = data.get() + ROUND_UP_32(0x2c + secCount * 4);
   const u32* secSizeCur = reinterpret_cast<const u32*>(data.get() + 0x2c);
   for (u32 i = 0; i < matSetCount; ++i) {
-    const u32 matSetSz = hecl::SBig(*secSizeCur);
+    const u32 matSetSz = CBasics::SwapBytes(*secSizeCur);
     const u8* sec = MemoryFromPartData(dataCur, secSizeCur);
     SShader& shader = x18_matSets.emplace_back(i);
-    athena::io::MemoryReader r(sec, matSetSz);
-    shader.m_matSet.read(r);
-    CBooModel::MakeTexturesFromMats(shader.m_matSet, shader.x0_textures, *store);
+//    athena::io::MemoryReader r(sec, matSetSz);
+//    shader.m_matSet.read(r);
+//    CBooModel::MakeTexturesFromMats(shader.m_matSet, shader.x0_textures, *store);
   }
 
   {
-    u32 hmdlSz = hecl::SBig(*secSizeCur);
+    u32 hmdlSz = CBasics::SwapBytes(*secSizeCur);
     const u8* hmdlMetadata = MemoryFromPartData(dataCur, secSizeCur);
-    athena::io::MemoryReader r(hmdlMetadata, hmdlSz);
-    m_hmdlMeta.read(r);
+//    athena::io::MemoryReader r(hmdlMetadata, hmdlSz);
+//    m_hmdlMeta.read(r);
   }
 
   const u8* vboData = MemoryFromPartData(dataCur, secSizeCur);
@@ -1218,20 +1218,20 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
 //    return true;
 //  } BooTrace);
 
-  const u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(surfInfo));
+  const u32 surfCount = CBasics::SwapBytes(*reinterpret_cast<const u32*>(surfInfo));
   x8_surfaces.reserve(surfCount);
   for (u32 i = 0; i < surfCount; ++i) {
-    const u32 surfSz = hecl::SBig(*secSizeCur);
+    const u32 surfSz = CBasics::SwapBytes(*secSizeCur);
     const u8* sec = MemoryFromPartData(dataCur, secSizeCur);
     CBooSurface& surf = x8_surfaces.emplace_back();
     surf.selfIdx = i;
-    athena::io::MemoryReader r(sec, surfSz);
-    surf.m_data.read(r);
+//    athena::io::MemoryReader r(sec, surfSz);
+//    surf.m_data.read(r);
   }
 
   const float* aabbPtr = reinterpret_cast<const float*>(data.get() + 0xc);
-  m_aabb = zeus::CAABox(hecl::SBig(aabbPtr[0]), hecl::SBig(aabbPtr[1]), hecl::SBig(aabbPtr[2]), hecl::SBig(aabbPtr[3]),
-                        hecl::SBig(aabbPtr[4]), hecl::SBig(aabbPtr[5]));
+  m_aabb = zeus::CAABox(CBasics::SwapBytes(aabbPtr[0]), CBasics::SwapBytes(aabbPtr[1]), CBasics::SwapBytes(aabbPtr[2]), CBasics::SwapBytes(aabbPtr[3]),
+                        CBasics::SwapBytes(aabbPtr[4]), CBasics::SwapBytes(aabbPtr[5]));
   x28_modelInst = MakeNewInstance(0, false);
 }
 
@@ -1270,14 +1270,20 @@ bool CModel::IsLoaded(int shaderIdx) const {
   return x28_modelInst->TryLockTextures();
 }
 
-size_t CModel::GetPoolVertexOffset(size_t idx) const { return m_hmdlMeta.vertStride * idx; }
+size_t CModel::GetPoolVertexOffset(size_t idx) const {
+//  return m_hmdlMeta.vertStride * idx;
+    return 0;
+}
 
 zeus::CVector3f CModel::GetPoolVertex(size_t idx) const {
   const auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolVertexOffset(idx));
   return {floats};
 }
 
-size_t CModel::GetPoolNormalOffset(size_t idx) const { return m_hmdlMeta.vertStride * idx + 12; }
+size_t CModel::GetPoolNormalOffset(size_t idx) const {
+//  return m_hmdlMeta.vertStride * idx + 12;
+  return 0;
+}
 
 zeus::CVector3f CModel::GetPoolNormal(size_t idx) const {
   const auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolNormalOffset(idx));

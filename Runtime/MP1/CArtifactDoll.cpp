@@ -31,18 +31,18 @@ constexpr std::array ArtifactPieceModels{
 };
 
 constexpr std::array<CAssetId, 12> ArtifactHeadScans{
-    0x32C9DDCE, // Truth
-    0xB45DAF60, // Strength
-    0x7F017CC5, // Elder
-    0x62044C7D, // Wild
-    0xA9589FD8, // Lifegiver
-    0x2FCCED76, // Warrior
-    0xE4903ED3, // Chozo
-    0x15C68C06, // Nature
-    0xDE9A5FA3, // Sun
-    0xFBBE9D9A, // World
-    0x30E24E3F, // Spirit
-    0xB6763C91  // Newborn
+    0x32C9DDCEu, // Truth
+    0xB45DAF60u, // Strength
+    0x7F017CC5u, // Elder
+    0x62044C7Du, // Wild
+    0xA9589FD8u, // Lifegiver
+    0x2FCCED76u, // Warrior
+    0xE4903ED3u, // Chozo
+    0x15C68C06u, // Nature
+    0xDE9A5FA3u, // Sun
+    0xFBBE9D9Au, // World
+    0x30E24E3Fu, // Spirit
+    0xB6763C91u  // Newborn
 };
 
 constexpr zeus::CColor ArtifactPreColor{0.4f, 0.68f, 0.88f, 0.8f};
@@ -70,7 +70,7 @@ int CArtifactDoll::GetArtifactHeadScanIndex(CAssetId scanId) {
 
 CAssetId CArtifactDoll::GetArtifactHeadScanFromItemType(CPlayerState::EItemType item) {
   if (item < CPlayerState::EItemType::Truth || item > CPlayerState::EItemType::Newborn) {
-    return -1;
+    return {};
   }
 
   return ArtifactHeadScans[size_t(item) - 29];

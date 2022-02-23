@@ -21,15 +21,15 @@ CPOINode::CPOINode(std::string_view name, EPOIType type, const CCharAnimTime& ti
 , x34_flags(f) {}
 
 CPOINode::CPOINode(CInputStream& in)
-: x4_(in.readUint16Big())
-, x8_name(in.readString())
-, x18_type(EPOIType(in.readUint16Big()))
+: x4_(in.ReadShort())
+, x8_name(in.Get<std::string>())
+, x18_type(EPOIType(in.ReadShort()))
 , x1c_time(in)
-, x24_index(in.readInt32Big())
-, x28_unique(in.readBool())
-, x2c_weight(in.readFloatBig())
-, x30_charIdx(in.readInt32Big())
-, x34_flags(in.readInt32Big()) {}
+, x24_index(in.ReadInt32())
+, x28_unique(in.ReadBool())
+, x2c_weight(in.ReadFloat())
+, x30_charIdx(in.ReadInt32())
+, x34_flags(in.ReadInt32()) {}
 
 bool CPOINode::operator>(const CPOINode& other) const { return x1c_time > other.x1c_time; }
 

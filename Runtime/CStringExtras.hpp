@@ -5,9 +5,15 @@
 #include <string>
 
 namespace metaforce {
-
+class CInputStream;
 class CStringExtras {
 public:
+  static std::string ConvertToANSI(std::u16string_view sv);
+  static std::u16string ConvertToUNICODE(std::string_view sv);
+  // Metaforce addition: UTF-8/16 compatible versions of the above
+  static std::string ConvertToUTF8(std::u16string_view sv);
+  static std::u16string ConvertToUTF16(std::string_view sv);
+
   // Checks if the provided views into string data can be considered equal or not based on
   // whether or not all their characters are equal to one another in a character insensitive manner.
   //
@@ -35,6 +41,8 @@ public:
     }
     return s;
   }
+
+  static std::string ReadString(CInputStream& in);
 };
 
 } // namespace metaforce

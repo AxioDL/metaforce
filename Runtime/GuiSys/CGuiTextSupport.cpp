@@ -10,6 +10,7 @@
 #include "Runtime/GuiSys/CRasterFont.hpp"
 #include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
 #include "Runtime/GuiSys/CTextParser.hpp"
+#include "Runtime/CStringExtras.hpp"
 
 namespace metaforce {
 
@@ -271,7 +272,9 @@ void CGuiTextSupport::SetText(std::u16string_view str, bool multipage) {
   x304_pageCounter = 0;
 }
 
-void CGuiTextSupport::SetText(std::string_view str, bool multipage) { SetText(hecl::UTF8ToChar16(str), multipage); }
+void CGuiTextSupport::SetText(std::string_view str, bool multipage) {
+  SetText(CStringExtras::ConvertToUNICODE(str), multipage);
+}
 
 bool CGuiTextSupport::_GetIsTextSupportFinishedLoading() {
   for (CToken& tok : x2bc_assets) {

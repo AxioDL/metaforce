@@ -9,6 +9,7 @@
 #include "GCNTypes.hpp"
 #include "rstl.hpp"
 
+#include <logvisor/logvisor.hpp>
 #include <zeus/CMatrix3f.hpp>
 #include <zeus/CMatrix4f.hpp>
 #include <zeus/CTransform.hpp>
@@ -20,12 +21,9 @@
 
 using namespace std::literals;
 
-namespace athena::io {
-class IStreamReader;
-class IStreamWriter;
-} // namespace athena::io
-
 namespace metaforce {
+class CInputStream;
+class COutputStream;
 using kUniqueIdType = u16;
 static constexpr int kMaxEntities = 1024;
 constexpr kUniqueIdType kUniqueIdSize = sizeof(u16);
@@ -90,10 +88,10 @@ constexpr uint64_t SBig(uint64_t val) noexcept { return bswap64(val); }
 constexpr float SBig(float val) noexcept {
   union {
     float f;
-    atInt32 i;
+    u32 i;
   } uval1 = {val};
   union {
-    atInt32 i;
+    u32 i;
     float f;
   } uval2 = {bswap32(uval1.i)};
   return uval2.f;
@@ -101,10 +99,10 @@ constexpr float SBig(float val) noexcept {
 constexpr double SBig(double val) noexcept {
   union {
     double f;
-    atInt64 i;
+    u32 i;
   } uval1 = {val};
   union {
-    atInt64 i;
+    u32 i;
     double f;
   } uval2 = {bswap64(uval1.i)};
   return uval2.f;
@@ -194,21 +192,19 @@ public:
 };
 #define FOURCC(chars) FourCC(SBIG(chars))
 
-using CInputStream = athena::io::IStreamReader;
-using COutputStream = athena::io::IStreamWriter;
-
 class CAssetId {
   u64 id = UINT64_MAX;
 
 public:
   constexpr CAssetId() noexcept = default;
+  constexpr CAssetId(u32 v) noexcept { Assign(u32(v)); }
   constexpr CAssetId(u64 v) noexcept { Assign(v); }
   explicit CAssetId(CInputStream& in);
   [[nodiscard]] constexpr bool IsValid() const noexcept { return id != UINT64_MAX; }
   [[nodiscard]] constexpr u64 Value() const noexcept { return id; }
   constexpr void Assign(u64 v) noexcept { id = (v == UINT32_MAX ? UINT64_MAX : (v == 0 ? UINT64_MAX : v)); }
   constexpr void Reset() noexcept { id = UINT64_MAX; }
-  void PutTo(COutputStream& out);
+  void PutTo(COutputStream& out) const;
   [[nodiscard]] constexpr bool operator==(CAssetId other) const noexcept { return id == other.id; }
   [[nodiscard]] constexpr bool operator!=(CAssetId other) const noexcept { return !operator==(other); }
   [[nodiscard]] constexpr bool operator<(CAssetId other) const noexcept { return id < other.id; }
@@ -226,14 +222,8 @@ struct SObjectTag {
   [[nodiscard]] constexpr bool operator<(const SObjectTag& other) const noexcept { return id < other.id; }
   constexpr SObjectTag() noexcept = default;
   constexpr SObjectTag(FourCC tp, CAssetId rid) noexcept : type(tp), id(rid) {}
-  explicit SObjectTag(CInputStream& in) {
-    in.readBytesToBuf(&type, 4);
-    id = CAssetId(in);
-  }
-  void readMLVL(CInputStream& in) {
-    id = CAssetId(in);
-    in.readBytesToBuf(&type, 4);
-  }
+  explicit SObjectTag(CInputStream& in);
+  void ReadMLVL(CInputStream& in);
 };
 
 struct TEditorId {

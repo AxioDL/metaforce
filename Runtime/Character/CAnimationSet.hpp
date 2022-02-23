@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Character/CAdditiveAnimPlayback.hpp"
 #include "Runtime/Character/CAnimation.hpp"

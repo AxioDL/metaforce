@@ -2,12 +2,6 @@
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 
-namespace hecl {
-class CVarManager;
-}
 namespace DataSpec {
-struct ITweak : BigDNA {
-
-  virtual void initCVars(hecl::CVarManager*) {}
-};
+struct ITweak : BigDNA {};
 } // namespace DataSpec

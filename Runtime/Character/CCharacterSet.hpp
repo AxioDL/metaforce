@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/Character/CCharacterInfo.hpp"
 

@@ -2,8 +2,6 @@
 
 #include <vector>
 
-#include "DNACommon/SAVWCommon.hpp"
-
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/RetroTypes.hpp"
 
@@ -11,7 +9,8 @@ namespace metaforce {
 
 class CWorldSaveGameInfo {
 public:
-  using EScanCategory = DataSpec::SAVWCommon::EScanCategory;
+  enum class EScanCategory { None, Data, Lore, Creature, Research, Artifact };
+
   struct SScanState {
     CAssetId x0_id;
     EScanCategory x4_category;

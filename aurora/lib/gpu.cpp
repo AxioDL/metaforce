@@ -8,15 +8,7 @@
 #include <memory>
 
 #include "dawn/BackendBinding.hpp"
-
-// TODO HACK: dawn doesn't expose device toggles
-#include "../extern/dawn/src/dawn/native/Toggles.h"
-namespace dawn::native {
-class DeviceBase {
-public:
-  void SetToggle(Toggle toggle, bool isEnabled);
-};
-} // namespace dawn::native
+#include "dawn/Hacks.hpp"
 
 namespace aurora::gpu {
 static logvisor::Module Log("aurora::gpu");
@@ -148,9 +140,7 @@ void initialize(SDL_Window* window) {
     };
     g_device = wgpu::Device::Acquire(g_Adapter.CreateDevice(&deviceDescriptor));
     g_device.SetUncapturedErrorCallback(&error_callback, nullptr);
-    // TODO HACK: dawn doesn't expose device toggles
-    static_cast<dawn::native::DeviceBase*>(static_cast<void*>(g_device.Get()))
-        ->SetToggle(dawn::native::Toggle::UseUserDefinedLabelsInBackend, true);
+    hacks::apply_toggles(g_device.Get());
   }
   g_queue = g_device.GetQueue();
 
@@ -167,7 +157,7 @@ void initialize(SDL_Window* window) {
   } else if (swapChainFormat == wgpu::TextureFormat::BGRA8UnormSrgb) {
     swapChainFormat = wgpu::TextureFormat::BGRA8Unorm;
   }
-  Log.report(logvisor::Info, FMT_STRING("Using swapchain swapChainFormat {}"), magic_enum::enum_name(swapChainFormat));
+  Log.report(logvisor::Info, FMT_STRING("Using swapchain format {}"), magic_enum::enum_name(swapChainFormat));
   {
     const auto descriptor = wgpu::SwapChainDescriptor{
         .format = swapChainFormat,
@@ -192,6 +182,9 @@ void initialize(SDL_Window* window) {
 }
 
 void shutdown() {
+  g_frameBuffer = {};
+  g_frameBufferResolved = {};
+  g_depthBuffer = {};
   wgpuSwapChainRelease(g_swapChain.Release());
   wgpuQueueRelease(g_queue.Release());
   g_BackendBinding.reset();

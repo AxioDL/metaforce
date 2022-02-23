@@ -66,7 +66,7 @@ class CPersistentOptions {
 
 public:
   CPersistentOptions() = default;
-  explicit CPersistentOptions(CBitStreamReader& stream);
+  explicit CPersistentOptions(CInputStream& stream);
 
   bool GetCinematicState(CAssetId mlvlId, TEditorId cineId) const;
   void SetCinematicState(CAssetId mlvlId, TEditorId cineId, bool state);
@@ -93,7 +93,7 @@ public:
   bool GetShowPowerBombAmmoMessage() const { return xc8_powerBombAmmoCount != 1; }
   void IncrementPowerBombAmmoCount() { xc8_powerBombAmmoCount = std::min<u32>(1, xc8_powerBombAmmoCount + 1); }
 
-  void PutTo(CBitStreamWriter& w) const;
+  void PutTo(COutputStream& w) const;
 
   u8* GetNESState() { return x0_nesState.data(); }
   const u8* GetNESState() const { return x0_nesState.data(); }
@@ -122,11 +122,11 @@ class CGameOptions {
 
 public:
   CGameOptions();
-  explicit CGameOptions(CBitStreamReader& stream);
+  explicit CGameOptions(CInputStream& stream);
   void ResetToDefaults();
   void InitSoundMode();
   void EnsureSettings();
-  void PutTo(CBitStreamWriter& writer) const;
+  void PutTo(COutputStream& writer) const;
 
   float TuneScreenBrightness() const;
   void SetScreenBrightness(s32 value, bool apply);
@@ -189,8 +189,8 @@ private:
 
 public:
   CHintOptions() = default;
-  explicit CHintOptions(CBitStreamReader& stream);
-  void PutTo(CBitStreamWriter& writer) const;
+  explicit CHintOptions(CInputStream& stream);
+  void PutTo(COutputStream& writer) const;
   void SetNextHintTime();
   void InitializeMemoryState();
   const SHintState* GetCurrentDisplayedHint() const;

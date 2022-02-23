@@ -4,50 +4,50 @@
 
 namespace metaforce {
 CWorldSaveGameInfo::CWorldSaveGameInfo(CInputStream& in) {
-  in.readUint32Big();
-  const u32 version = in.readUint32Big();
+  in.ReadLong();
+  const u32 version = in.ReadLong();
   if (version > 1) {
-    x0_areaCount = in.readUint32Big();
+    x0_areaCount = in.ReadLong();
   }
 
   if (version > 2) {
-    const u32 cinematicCount = in.readUint32Big();
+    const u32 cinematicCount = in.ReadLong();
     x4_cinematics.reserve(cinematicCount);
     for (u32 i = 0; i < cinematicCount; ++i) {
-      x4_cinematics.emplace_back(in.readUint32Big());
+      x4_cinematics.emplace_back(in.ReadLong());
     }
 
-    const u32 relayCount = in.readUint32Big();
+    const u32 relayCount = in.ReadLong();
     x14_relays.reserve(relayCount);
     for (u32 i = 0; i < relayCount; ++i) {
-      x14_relays.emplace_back(in.readUint32Big());
+      x14_relays.emplace_back(in.ReadLong());
     }
   }
 
-  const u32 layerCount = in.readUint32Big();
+  const u32 layerCount = in.ReadLong();
   x24_layers.reserve(layerCount);
   for (u32 i = 0; i < layerCount; ++i) {
     SLayerState& st = x24_layers.emplace_back();
-    st.x0_area = in.readUint32Big();
-    st.x4_layer = in.readUint32Big();
+    st.x0_area = in.ReadLong();
+    st.x4_layer = in.ReadLong();
   }
 
-  const u32 doorCount = in.readUint32Big();
+  const u32 doorCount = in.ReadLong();
   x34_doors.reserve(doorCount);
   for (u32 i = 0; i < doorCount; ++i) {
-    x34_doors.emplace_back(in.readUint32Big());
+    x34_doors.emplace_back(in.ReadLong());
   }
 
   if (version <= 0) {
     return;
   }
 
-  const u32 scanCount = in.readUint32Big();
+  const u32 scanCount = in.ReadLong();
   x44_scans.reserve(scanCount);
   for (u32 i = 0; i < scanCount; ++i) {
     SScanState& st = x44_scans.emplace_back();
-    st.x0_id = in.readUint32Big();
-    st.x4_category = EScanCategory(in.readUint32Big());
+    st.x0_id = in.Get<CAssetId>();
+    st.x4_category = EScanCategory(in.ReadLong());
   }
 }
 

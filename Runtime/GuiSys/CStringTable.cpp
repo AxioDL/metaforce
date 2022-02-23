@@ -1,8 +1,10 @@
 #include "Runtime/GuiSys/CStringTable.hpp"
 
-#include <array>
-
+#include "Runtime/CBasics.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 #include "Runtime/CToken.hpp"
+
+#include <array>
 
 namespace metaforce {
 namespace {
@@ -16,14 +18,15 @@ FourCC CStringTable::mCurrentLanguage = languages[0];
 CStringTable::CStringTable(CInputStream& in) { LoadStringTable(in); }
 
 void CStringTable::LoadStringTable(CInputStream& in) {
-  in.readUint32Big();
-  in.readUint32Big();
-  u32 langCount = in.readUint32Big();
-  x0_stringCount = in.readUint32Big();
+  in.ReadLong();
+  in.ReadLong();
+  u32 langCount = in.ReadLong();
+  x0_stringCount = in.ReadLong();
   std::vector<std::pair<FourCC, u32>> langOffsets;
   for (u32 i = 0; i < langCount; ++i) {
-    FourCC fcc(in.readUint32());
-    u32 off = in.readUint32Big();
+    FourCC fcc;
+    in.Get(reinterpret_cast<u8*>(&fcc), 4);
+    u32 off = in.ReadLong();
     langOffsets.emplace_back(fcc, off);
   }
 
@@ -45,21 +48,26 @@ void CStringTable::LoadStringTable(CInputStream& in) {
   if (offset == UINT32_MAX)
     offset = langOffsets[0].second;
 
-  in.seek(offset);
+  for (u32 i = 0; i < offset; ++i) {
+    in.ReadChar();
+  }
 
-  u32 dataLen = in.readUint32Big();
+  u32 dataLen = in.ReadLong();
   m_bufLen = dataLen;
   x4_data.reset(new u8[dataLen]);
-  in.readUBytesToBuf(x4_data.get(), dataLen);
+  in.Get(x4_data.get(), dataLen);
 
+#if METAFORCE_TARGET_BYTE_ORDER == __ORDER_LITTLE_ENDIAN__
   u32* off = reinterpret_cast<u32*>(x4_data.get());
-  for (u32 i = 0; i < x0_stringCount; ++i, ++off)
-    *off = SBig(*off);
+  for (u32 i = 0; i < x0_stringCount; ++i, ++off) {
+    *off = CBasics::SwapBytes(*off);
+  }
 
   for (u32 i = x0_stringCount * 4; i < dataLen; i += 2) {
     u16* chr = reinterpret_cast<u16*>(x4_data.get() + i);
-    *chr = SBig(*chr);
+    *chr = CBasics::SwapBytes(*chr);
   }
+#endif
 }
 
 const char16_t* CStringTable::GetString(s32 str) const {

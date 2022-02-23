@@ -17,7 +17,7 @@
 #include "Runtime/World/CTeamAiMgr.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-#include "DataSpec/DNAMP1/SFX/Drones.h"
+#include "Audio/SFX/Drones.h"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 

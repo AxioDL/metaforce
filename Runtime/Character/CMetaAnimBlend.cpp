@@ -8,8 +8,8 @@ namespace metaforce {
 CMetaAnimBlend::CMetaAnimBlend(CInputStream& in) {
   x4_animA = CMetaAnimFactory::CreateMetaAnim(in);
   x8_animB = CMetaAnimFactory::CreateMetaAnim(in);
-  xc_blend = in.readFloatBig();
-  x10_ = in.readBool();
+  xc_blend = in.ReadFloat();
+  x10_ = in.ReadBool();
 }
 
 void CMetaAnimBlend::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const {

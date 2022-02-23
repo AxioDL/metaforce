@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Runtime/CToken.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {

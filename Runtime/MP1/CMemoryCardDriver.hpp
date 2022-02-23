@@ -90,10 +90,10 @@ private:
     u32 x0_version = 0;
     std::array<bool, 3> x4_savePresent{};
 
-    void DoPut(CMemoryOutStream& out) const {
-      out.writeUint32Big(x0_version);
+    void DoPut(CMemoryStreamOut& out) const {
+      out.WriteLong(x0_version);
       for (const bool savePresent : x4_savePresent) {
-        out.writeBool(savePresent);
+        out.Put(savePresent);
       }
     }
   };
@@ -106,7 +106,7 @@ private:
     explicit SGameFileSlot(CMemoryInStream& in);
     void InitializeFromGameState();
     void LoadGameState(u32 idx);
-    void DoPut(CMemoryOutStream& w) const { w.writeBytes(x0_saveBuffer.data(), x0_saveBuffer.size()); }
+    void DoPut(CMemoryStreamOut& w) const { w.Put(x0_saveBuffer.data(), x0_saveBuffer.size()); }
   };
 
   enum class EFileState { Unknown, NoFile, File, BadFile };

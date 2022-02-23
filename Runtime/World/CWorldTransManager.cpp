@@ -16,7 +16,7 @@
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
 
-#include <hecl/CVarManager.hpp>
+#include "ConsoleVariables/CVarManager.hpp"
 
 namespace metaforce {
 

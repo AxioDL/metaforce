@@ -6,7 +6,7 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/GCNTypes.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 
 #include <zeus/CVector2i.hpp>

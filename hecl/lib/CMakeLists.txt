@@ -7,8 +7,6 @@ macro(hecl_add_list rel_path a_list)
 endmacro(hecl_add_list)
 
 add_subdirectory(Blender)
-add_subdirectory(Runtime)
-
 if(WIN32)
 list(APPEND PLAT_SRCS ../include/hecl/winsupport.hpp)
 endif()
@@ -18,10 +16,6 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "R
 endif()
 
 set(HECL_HEADERS
-    ../include/hecl/CVar.hpp
-    ../include/hecl/CVarManager.hpp
-#    ../include/hecl/Console.hpp
-    ../include/hecl/CVarCommons.hpp
     ../include/hecl/hecl.hpp
     ../include/hecl/MultiProgressPrinter.hpp
     ../include/hecl/FourCC.hpp
@@ -46,9 +40,6 @@ set(COMMON_SOURCES
     Project.cpp
     ProjectPath.cpp
     HumanizeNumber.cpp
-    CVar.cpp
-    CVarCommons.cpp
-    CVarManager.cpp
 #    Console.cpp
     ClientProcess.cpp
     SteamFinder.cpp
@@ -60,7 +51,6 @@ endif()
 
 add_library(hecl-full
         ${FRONTEND_SOURCES}
-        ${RUNTIME_SOURCES}
         ${BLENDER_SOURCES}
         ${COMMON_SOURCES}
         ${HECL_HEADERS}
@@ -70,7 +60,6 @@ target_include_directories(hecl-full PUBLIC ../include)
 target_link_libraries(hecl-full PUBLIC ${HECL_APPLICATION_REPS_TARGETS_LIST}
         hecl-blender-addon boo athena-core logvisor xxhash)
 target_atdna(hecl-full atdna_HMDLMeta_full.cpp ../include/hecl/HMDLMeta.hpp)
-target_atdna(hecl-full atdna_CVar_full.cpp ../include/hecl/CVar.hpp)
 target_atdna(hecl-full atdna_SDNARead_full.cpp ../include/hecl/Blender/SDNARead.hpp)
 
 add_library(hecl-light
@@ -86,7 +75,6 @@ if (WIN32)
   target_link_libraries(hecl-light PUBLIC Version)
 endif ()
 target_atdna(hecl-light atdna_HMDLMeta_light.cpp ../include/hecl/HMDLMeta.hpp)
-target_atdna(hecl-light atdna_CVar_light.cpp ../include/hecl/CVar.hpp)
 
 if(COMMAND add_sanitizers)
   add_sanitizers(hecl-full)

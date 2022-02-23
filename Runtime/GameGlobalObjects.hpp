@@ -3,35 +3,37 @@
 #define USE_DOWNCAST_TWEAKS 1
 
 #if USE_DOWNCAST_TWEAKS
-#include "../DataSpec/DNAMP1/Tweaks/CTweakGame.hpp"
-#include "../DataSpec/DNAMP1/Tweaks/CTweakPlayer.hpp"
-#include "../DataSpec/DNAMP1/Tweaks/CTweakPlayerControl.hpp"
-#include "../DataSpec/DNAMP1/Tweaks/CTweakPlayerGun.hpp"
-#include "../DataSpec/DNAMP1/Tweaks/CTweakGunRes.hpp"
-#include "../DataSpec/DNAMP1/Tweaks/CTweakPlayerRes.hpp"
-#include "../DataSpec/DNAMP1/Tweaks/CTweakGui.hpp"
-#include "../DataSpec/DNAMP1/Tweaks/CTweakSlideShow.hpp"
-#include "../DataSpec/DNAMP1/Tweaks/CTweakGui.hpp"
-#include "../DataSpec/DNAMP1/Tweaks/CTweakTargeting.hpp"
-#include "../DataSpec/DNAMP1/Tweaks/CTweakAutoMapper.hpp"
-#include "../DataSpec/DNAMP1/Tweaks/CTweakParticle.hpp"
-#include "../DataSpec/DNAMP1/Tweaks/CTweakBall.hpp"
-#include "../DataSpec/DNAMP1/Tweaks/CTweakGuiColors.hpp"
+#include "Runtime/MP1/Tweaks/CTweakAutoMapper.hpp"
+#include "Runtime/MP1/Tweaks/CTweakBall.hpp"
+#include "Runtime/MP1/Tweaks/CTweakGame.hpp"
+#include "Runtime/MP1/Tweaks/CTweakGui.hpp"
+#include "Runtime/MP1/Tweaks/CTweakGui.hpp"
+#include "Runtime/MP1/Tweaks/CTweakGuiColors.hpp"
+#include "Runtime/MP1/Tweaks/CTweakGunRes.hpp"
+#include "Runtime/MP1/Tweaks/CTweakParticle.hpp"
+#include "Runtime/MP1/Tweaks/CTweakPlayer.hpp"
+#include "Runtime/MP1/Tweaks/CTweakPlayerControl.hpp"
+#include "Runtime/MP1/Tweaks/CTweakPlayerGun.hpp"
+#include "Runtime/MP1/Tweaks/CTweakPlayerRes.hpp"
+#include "Runtime/MP1/Tweaks/CTweakSlideShow.hpp"
+#include "Runtime/MP1/Tweaks/CTweakTargeting.hpp"
+#include "Runtime/MP1/Tweaks/CTweakGuiColors.hpp"
+#include "Runtime/MP1/Tweaks/CTweakTargeting.hpp"
 #else
-#include "../DataSpec/DNACommon/Tweaks/ITweakGame.hpp"
-#include "../DataSpec/DNACommon/Tweaks/ITweakPlayer.hpp"
-#include "../DataSpec/DNACommon/Tweaks/ITweakPlayerControl.hpp"
-#include "../DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
-#include "../DataSpec/DNACommon/Tweaks/ITweakGunRes.hpp"
-#include "../DataSpec/DNACommon/Tweaks/ITweakPlayerRes.hpp"
-#include "../DataSpec/DNACommon/Tweaks/ITweakGui.hpp"
-#include "../DataSpec/DNACommon/Tweaks/ITweakSlideShow.hpp"
-#include "../DataSpec/DNACommon/Tweaks/ITweakGui.hpp"
-#include "../DataSpec/DNACommon/Tweaks/ITweakTargeting.hpp"
-#include "../DataSpec/DNACommon/Tweaks/ITweakAutoMapper.hpp"
-#include "../DataSpec/DNACommon/Tweaks/ITweakParticle.hpp"
-#include "../DataSpec/DNACommon/Tweaks/ITweakBall.hpp"
-#include "../DataSpec/DNACommon/Tweaks/ITweakGuiColors.hpp"
+#include "Runtime/Tweaks/ITweakAutoMapper.hpp"
+#include "Runtime/Tweaks/ITweakBall.hpp"
+#include "Runtime/Tweaks/ITweakGame.hpp"
+#include "Runtime/Tweaks/ITweakGui.hpp"
+#include "Runtime/Tweaks/ITweakGui.hpp"
+#include "Runtime/Tweaks/ITweakGuiColors.hpp"
+#include "Runtime/Tweaks/ITweakGunRes.hpp"
+#include "Runtime/Tweaks/ITweakParticle.hpp"
+#include "Runtime/Tweaks/ITweakPlayer.hpp"
+#include "Runtime/Tweaks/ITweakPlayerControl.hpp"
+#include "Runtime/Tweaks/ITweakPlayerGun.hpp"
+#include "Runtime/Tweaks/ITweakPlayerRes.hpp"
+#include "Runtime/Tweaks/ITweakSlideShow.hpp"
+#include "Runtime/Tweaks/ITweakTargeting.hpp"
 #endif
 
 #include "Runtime/CTextureCache.hpp"
@@ -55,32 +57,34 @@ extern class CInputGenerator* g_InputGenerator;
 extern class CStateManager* g_StateManager;
 
 #if USE_DOWNCAST_TWEAKS
-using ITweakGame = DataSpec::DNAMP1::CTweakGame;
-using ITweakPlayer = DataSpec::DNAMP1::CTweakPlayer;
-using ITweakPlayerControl = DataSpec::DNAMP1::CTweakPlayerControl;
-using ITweakPlayerGun = DataSpec::DNAMP1::CTweakPlayerGun;
-using ITweakGunRes = DataSpec::DNAMP1::CTweakGunRes;
-using ITweakAutoMapper = DataSpec::DNAMP1::CTweakAutoMapper;
-using ITweakGui = DataSpec::DNAMP1::CTweakGui;
-using ITweakSlideShow = DataSpec::DNAMP1::CTweakSlideShow;
-using ITweakParticle = DataSpec::DNAMP1::CTweakParticle;
-using ITweakBall = DataSpec::DNAMP1::CTweakBall;
-using ITweakGuiColors = DataSpec::DNAMP1::CTweakGuiColors;
+using ITweakGame = metaforce::MP1::CTweakGame;
+using ITweakPlayer = metaforce::MP1::CTweakPlayer;
+using ITweakPlayerControl = metaforce::MP1::CTweakPlayerControl;
+using ITweakPlayerGun = metaforce::MP1::CTweakPlayerGun;
+using ITweakGunRes = metaforce::MP1::CTweakGunRes;
+using ITweakAutoMapper = metaforce::MP1::CTweakAutoMapper;
+using ITweakGui = metaforce::MP1::CTweakGui;
+using ITweakSlideShow = metaforce::MP1::CTweakSlideShow;
+using ITweakParticle = metaforce::MP1::CTweakParticle;
+using ITweakBall = metaforce::MP1::CTweakBall;
+using ITweakGuiColors = metaforce::MP1::CTweakGuiColors;
+using ITweakPlayerRes = metaforce::MP1::CTweakPlayerRes;
+using ITweakTargeting = metaforce::MP1::CTweakTargeting;
 #else
-using ITweakGame = DataSpec::ITweakGame;
-using ITweakPlayer = DataSpec::ITweakPlayer;
-using ITweakPlayerControl = DataSpec::ITweakPlayerControl;
-using ITweakPlayerGun = DataSpec::ITweakPlayerGun;
-using ITweakGunRes = DataSpec::ITweakGunRes;
-using ITweakAutoMapper = DataSpec::ITweakAutoMapper;
-using ITweakGui = DataSpec::ITweakGui;
-using ITweakSlideShow = DataSpec::ITweakSlideShow;
-using ITweakParticle = DataSpec::ITweakParticle;
-using ITweakBall = DataSpec::ITweakBall;
-using ITweakGuiColors = DataSpec::ITweakGuiColors;
+using ITweakGame = metaforce::Tweaks::ITweakGame;
+using ITweakPlayer = metaforce::Tweaks::ITweakPlayer;
+using ITweakPlayerControl = metaforce::Tweaks::ITweakPlayerControl;
+using ITweakPlayerGun = metaforce::Tweaks::ITweakPlayerGun;
+using ITweakGunRes = metaforce::Tweaks::ITweakGunRes;
+using ITweakAutoMapper = metaforce::Tweaks::ITweakAutoMapper;
+using ITweakGui = metaforce::Tweaks::ITweakGui;
+using ITweakSlideShow = metaforce::Tweaks::ITweakSlideShow;
+using ITweakParticle = metaforce::Tweaks::ITweakParticle;
+using ITweakBall = metaforce::Tweaks::ITweakBall;
+using ITweakGuiColors = metaforce::Tweaks::ITweakGuiColors;
+using ITweakPlayerRes = metaforce::Tweaks::ITweakPlayerRes;
+using ITweakTargeting = metaforce::Tweaks::ITweakTargeting;
 #endif
-using ITweakPlayerRes = DataSpec::ITweakPlayerRes;
-using ITweakTargeting = DataSpec::ITweakTargeting;
 
 extern ITweakGame* g_tweakGame;
 extern ITweakPlayer* g_tweakPlayer;

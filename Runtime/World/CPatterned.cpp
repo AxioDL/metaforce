@@ -19,14 +19,14 @@
 #include "Runtime/World/CScriptWaypoint.hpp"
 #include "Runtime/World/CStateMachine.hpp"
 
-#include <hecl/CVarManager.hpp>
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 #include <cmath>
 
 namespace metaforce {
 namespace {
-hecl::CVar* cv_disableAi = nullptr;
+CVar* cv_disableAi = nullptr;
 } // namespace
 
 constexpr CMaterialList skPatternedGroundMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid,
@@ -1830,8 +1830,8 @@ bool CPatterned::ApplyBoneTracking() const {
 
 void CPatterned::Initialize() {
   if (cv_disableAi == nullptr) {
-    cv_disableAi = hecl::CVarManager::instance()->findOrMakeCVar("disableAi"sv, "Disables AI state machines", false,
-                                                                 hecl::CVar::EFlags::Cheat | hecl::CVar::EFlags::Game);
+    cv_disableAi = CVarManager::instance()->findOrMakeCVar("disableAi"sv, "Disables AI state machines", false,
+                                                           CVar::EFlags::Cheat | CVar::EFlags::Game);
   }
 }
 

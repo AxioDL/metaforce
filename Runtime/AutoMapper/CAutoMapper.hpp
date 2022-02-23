@@ -108,11 +108,11 @@ public:
 
     SAutoMapperHintStep(PanToArea, TAreaId areaId) : x0_type(Type::PanToArea), x4_areaId(areaId) {}
     SAutoMapperHintStep(PanToWorld, CAssetId worldId) : x0_type(Type::PanToWorld), x4_worldId(worldId) {}
-    SAutoMapperHintStep(SwitchToUniverse) : x0_type(Type::SwitchToUniverse), x4_worldId(0) {}
+    SAutoMapperHintStep(SwitchToUniverse) : x0_type(Type::SwitchToUniverse), x4_worldId(CAssetId()) {}
     SAutoMapperHintStep(SwitchToWorld, CAssetId worldId) : x0_type(Type::SwitchToWorld), x4_worldId(worldId) {}
     SAutoMapperHintStep(ShowBeacon, float val) : x0_type(Type::ShowBeacon), x4_float(val) {}
-    SAutoMapperHintStep(ZoomIn) : x0_type(Type::ZoomIn), x4_worldId(0) {}
-    SAutoMapperHintStep(ZoomOut) : x0_type(Type::ZoomOut), x4_worldId(0) {}
+    SAutoMapperHintStep(ZoomIn) : x0_type(Type::ZoomIn), x4_worldId(CAssetId()) {}
+    SAutoMapperHintStep(ZoomOut) : x0_type(Type::ZoomOut), x4_worldId(CAssetId()) {}
   };
 
   struct SAutoMapperHintLocation {
@@ -181,8 +181,8 @@ private:
 
   std::optional<zeus::CVector2f> m_lastMouseCoord;
   zeus::CVector2f m_mouseDelta;
-  boo::SScrollDelta m_lastAccumScroll;
-  boo::SScrollDelta m_mapScroll;
+  SScrollDelta m_lastAccumScroll;
+  SScrollDelta m_mapScroll;
 
   template <class T>
   static void SetResLockState(T& list, bool lock) {

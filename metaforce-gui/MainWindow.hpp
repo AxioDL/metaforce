@@ -12,7 +12,7 @@
 #include "Common.hpp"
 #include "DownloadManager.hpp"
 
-#include <hecl/CVarCommons.hpp>
+#include "ConsoleVariables/CVarCommons.hpp"
 #include <hecl/Runtime.hpp>
 
 class QPushButton;

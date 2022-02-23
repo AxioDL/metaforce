@@ -54,8 +54,8 @@ void CGuiPane::WriteData(COutputStream& out, bool flag) const {}
 
 std::shared_ptr<CGuiWidget> CGuiPane::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
   CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
-  zeus::CVector2f dim = zeus::CVector2f::ReadBig(in);
-  zeus::CVector3f scaleCenter = zeus::CVector3f::ReadBig(in);
+  zeus::CVector2f dim = in.Get<zeus::CVector2f>();
+  zeus::CVector3f scaleCenter = in.Get<zeus::CVector3f>();
   std::shared_ptr<CGuiWidget> ret = std::make_shared<CGuiPane>(parms, dim, scaleCenter);
   ret->ParseBaseInfo(frame, in, parms);
   return ret;

@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "Runtime/CFactoryMgr.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Character/CSegId.hpp"
 #include "Runtime/Character/CSegIdList.hpp"
 #include "Runtime/Character/TSegIdMap.hpp"

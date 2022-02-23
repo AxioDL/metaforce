@@ -10,61 +10,61 @@
 namespace metaforce {
 CRasterFont::CRasterFont(metaforce::CInputStream& in, metaforce::IObjectStore& store) {
   u32 magic = 0;
-  in.readBytesToBuf(&magic, 4);
+  in.Get(reinterpret_cast<u8*>(&magic), 4);
   if (magic != SBIG('FONT'))
     return;
 
-  u32 version = in.readUint32Big();
-  x4_monoWidth = in.readUint32Big();
-  x8_monoHeight = in.readUint32Big();
+  u32 version = in.ReadLong();
+  x4_monoWidth = in.ReadLong();
+  x8_monoHeight = in.ReadLong();
 
   if (version >= 1)
-    x8c_baseline = in.readUint32Big();
+    x8c_baseline = in.ReadLong();
   else
     x8c_baseline = x8_monoHeight;
 
   if (version >= 2)
-    x90_lineMargin = in.readUint32Big();
+    x90_lineMargin = in.ReadLong();
 
-  bool tmp1 = in.readBool();
-  bool tmp2 = in.readBool();
+  bool tmp1 = in.ReadBool();
+  bool tmp2 = in.ReadBool();
 
-  u32 tmp3 = in.readUint32Big();
-  u32 tmp4 = in.readUint32Big();
-  std::string name = in.readString();
-  u32 txtrId = (version == 5 ? in.readUint64Big() : in.readUint32Big());
+  u32 tmp3 = in.ReadLong();
+  u32 tmp4 = in.ReadLong();
+  std::string name = in.Get<std::string>();
+  u32 txtrId = (version == 5 ? in.ReadLongLong() : in.ReadLong());
   x30_fontInfo = CFontInfo(tmp1, tmp2, tmp3, tmp4, name.c_str());
   x80_texture = store.GetObj({FOURCC('TXTR'), txtrId});
-  x2c_mode = CTexture::EFontType(in.readUint32Big());
+  x2c_mode = CTexture::EFontType(in.ReadLong());
 
-  u32 glyphCount = in.readUint32Big();
+  u32 glyphCount = in.ReadLong();
   xc_glyphs.reserve(glyphCount);
 
   for (u32 i = 0; i < glyphCount; ++i) {
-    char16_t chr = in.readUint16Big();
-    float startU = in.readFloatBig();
-    float startV = in.readFloatBig();
-    float endU = in.readFloatBig();
-    float endV = in.readFloatBig();
+    char16_t chr = in.ReadShort();
+    float startU = in.ReadFloat();
+    float startV = in.ReadFloat();
+    float endU = in.ReadFloat();
+    float endV = in.ReadFloat();
     s32 layer = 0;
     s32 a, b, c, cellWidth, cellHeight, baseline, kernStart;
     if (version < 4) {
-      a = in.readInt32Big();
-      b = in.readInt32Big();
-      c = in.readInt32Big();
-      cellWidth = in.readInt32Big();
-      cellHeight = in.readInt32Big();
-      baseline = in.readInt32Big();
-      kernStart = in.readInt32Big();
+      a = in.ReadInt32();
+      b = in.ReadInt32();
+      c = in.ReadInt32();
+      cellWidth = in.ReadInt32();
+      cellHeight = in.ReadInt32();
+      baseline = in.ReadInt32();
+      kernStart = in.ReadInt32();
     } else {
-      layer = in.readByte();
-      a = in.readByte();
-      b = in.readByte();
-      c = in.readByte();
-      cellWidth = in.readByte();
-      cellHeight = in.readByte();
-      baseline = in.readByte();
-      kernStart = in.readInt16Big();
+      layer = in.ReadInt8();
+      a = in.ReadInt8();
+      b = in.ReadInt8();
+      c = in.ReadInt8();
+      cellWidth = in.ReadInt8();
+      cellHeight = in.ReadInt8();
+      baseline = in.ReadInt8();
+      kernStart = in.ReadInt16();
     }
     xc_glyphs.emplace_back(
         chr, CGlyph(a, b, c, startU, startV, endU, endV, cellWidth, cellHeight, baseline, kernStart, layer));
@@ -72,13 +72,13 @@ CRasterFont::CRasterFont(metaforce::CInputStream& in, metaforce::IObjectStore& s
 
   std::sort(xc_glyphs.begin(), xc_glyphs.end(), [=](auto& a, auto& b) -> bool { return a.first < b.first; });
 
-  u32 kernCount = in.readUint32Big();
+  u32 kernCount = in.ReadLong();
   x1c_kerning.reserve(kernCount);
 
   for (u32 i = 0; i < kernCount; ++i) {
-    char16_t first = in.readUint16Big();
-    char16_t second = in.readUint16Big();
-    s32 howMuch = in.readInt32Big();
+    char16_t first = in.ReadShort();
+    char16_t second = in.ReadShort();
+    s32 howMuch = in.ReadInt32();
     x1c_kerning.emplace_back(first, second, howMuch);
   }
 

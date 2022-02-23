@@ -4,43 +4,106 @@
 #include <memory>
 #include <vector>
 
-#include "DataSpec/DNACommon/DNACommon.hpp"
-
+#include "Runtime/AutoMapper/CMapWorldInfo.hpp"
 #include "Runtime/CBasics.hpp"
 #include "Runtime/CGameOptions.hpp"
 #include "Runtime/CPlayerState.hpp"
 #include "Runtime/CScriptMailbox.hpp"
-#include "Runtime/AutoMapper/CMapWorldInfo.hpp"
 #include "Runtime/World/CWorld.hpp"
 #include "Runtime/World/CWorldTransManager.hpp"
 
 namespace metaforce {
 class CSaveWorldMemory;
 
+class WordBitmap {
+  std::vector<u32> x0_words;
+  size_t x10_bitCount = 0;
+
+public:
+  void Reserve(size_t bitCount) { x0_words.reserve((bitCount + 31) / 32); }
+  [[nodiscard]] size_t GetBitCount() const { return x10_bitCount; }
+  [[nodiscard]] bool GetBit(size_t idx) const {
+    size_t wordIdx = idx / 32;
+    if (wordIdx >= x0_words.size()) {
+      return false;
+    }
+    size_t wordCur = idx % 32;
+    return ((x0_words[wordIdx] >> wordCur) & 0x1) != 0u;
+  }
+  void SetBit(size_t idx) {
+    size_t wordIdx = idx / 32;
+    while (wordIdx >= x0_words.size()) {
+      x0_words.push_back(0);
+    }
+    size_t wordCur = idx % 32;
+    x0_words[wordIdx] |= (1 << wordCur);
+    x10_bitCount = std::max(x10_bitCount, idx + 1);
+  }
+  void UnsetBit(size_t idx) {
+    size_t wordIdx = idx / 32;
+    while (wordIdx >= x0_words.size()) {
+      x0_words.push_back(0);
+    }
+    size_t wordCur = idx % 32;
+    x0_words[wordIdx] &= ~(1 << wordCur);
+    x10_bitCount = std::max(x10_bitCount, idx + 1);
+  }
+  void Clear() {
+    x0_words.clear();
+    x10_bitCount = 0;
+  }
+
+  class Iterator {
+    friend class WordBitmap;
+    const WordBitmap& m_bmp;
+    size_t m_idx = 0;
+    Iterator(const WordBitmap& bmp, size_t idx) : m_bmp(bmp), m_idx(idx) {}
+
+  public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = bool;
+    using difference_type = std::ptrdiff_t;
+    using pointer = bool*;
+    using reference = bool&;
+
+    Iterator& operator++() {
+      ++m_idx;
+      return *this;
+    }
+    bool operator*() const { return m_bmp.GetBit(m_idx); }
+    bool operator!=(const Iterator& other) const { return m_idx != other.m_idx; }
+  };
+  [[nodiscard]] Iterator begin() const { return Iterator(*this, 0); }
+  [[nodiscard]] Iterator end() const { return Iterator(*this, x10_bitCount); }
+};
+
 class CScriptLayerManager {
   friend class CSaveWorldIntermediate;
   std::vector<CWorldLayers::Area> x0_areaLayers;
-  DataSpec::WordBitmap x10_saveLayers;
+  WordBitmap x10_saveLayers;
 
 public:
   CScriptLayerManager() = default;
-  CScriptLayerManager(CBitStreamReader& reader, const CWorldSaveGameInfo& saveWorld);
+  CScriptLayerManager(CInputStream& reader, const CWorldSaveGameInfo& saveWorld);
 
-  bool IsLayerActive(int areaIdx, int layerIdx) const { return ((x0_areaLayers[areaIdx].m_layerBits >> layerIdx) & 1); }
+  [[nodiscard]] bool IsLayerActive(int areaIdx, int layerIdx) const {
+    return ((x0_areaLayers[areaIdx].m_layerBits >> layerIdx) & 1) != 0u;
+  }
 
   void SetLayerActive(int areaIdx, int layerIdx, bool active) {
-    if (active)
+    if (active) {
       x0_areaLayers[areaIdx].m_layerBits |= uint64_t(1) << layerIdx;
-    else
+    } else {
       x0_areaLayers[areaIdx].m_layerBits &= ~(uint64_t(1) << layerIdx);
+    }
   }
 
   void InitializeWorldLayers(const std::vector<CWorldLayers::Area>& layers);
 
-  u32 GetAreaLayerCount(int areaIdx) const { return x0_areaLayers[areaIdx].m_layerCount; }
-  u32 GetAreaCount() const { return x0_areaLayers.size(); }
+  [[nodiscard]] u32 GetAreaLayerCount(int areaIdx) const { return x0_areaLayers[areaIdx].m_layerCount; }
+  [[nodiscard]] u32 GetAreaCount() const { return x0_areaLayers.size(); }
 
-  void PutTo(CBitStreamWriter& writer) const;
+  void PutTo(COutputStream& writer) const;
 };
 
 class CWorldState {
@@ -53,7 +116,7 @@ class CWorldState {
 
 public:
   explicit CWorldState(CAssetId id);
-  CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CWorldSaveGameInfo& saveWorld);
+  CWorldState(CInputStream& reader, CAssetId mlvlId, const CWorldSaveGameInfo& saveWorld);
   CAssetId GetWorldAssetId() const { return x0_mlvlId; }
   void SetAreaId(TAreaId aid) { x4_areaId = aid; }
   TAreaId GetCurrentAreaId() const { return x4_areaId; }
@@ -62,7 +125,7 @@ public:
   const std::shared_ptr<CScriptMailbox>& Mailbox() const { return x8_mailbox; }
   const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return xc_mapWorldInfo; }
   const std::shared_ptr<CScriptLayerManager>& GetLayerState() const { return x14_layerState; }
-  void PutTo(CBitStreamWriter& writer, const CWorldSaveGameInfo& savw) const;
+  void PutTo(COutputStream& writer, const CWorldSaveGameInfo& savw) const;
 };
 
 class CGameState {
@@ -86,7 +149,7 @@ class CGameState {
 
 public:
   CGameState();
-  CGameState(CBitStreamReader& stream, u32 saveIdx);
+  CGameState(CInputStream& stream, u32 saveIdx);
   void SetCurrentWorldId(CAssetId id);
   std::shared_ptr<CPlayerState> GetPlayerState() const { return x98_playerState; }
   std::shared_ptr<CWorldTransManager> GetWorldTransitionManager() const { return x9c_transManager; }
@@ -100,7 +163,7 @@ public:
   CAssetId CurrentWorldAssetId() const { return x84_mlvlId; }
   void SetHardMode(bool v) { x228_24_hardMode = v; }
   bool GetHardMode() const { return x228_24_hardMode; }
-  void ReadPersistentOptions(CBitStreamReader& r);
+  void ReadPersistentOptions(CInputStream& r);
   void SetPersistentOptions(const CPersistentOptions& opts) { xa8_systemOptions = opts; }
   void ImportPersistentOptions(const CPersistentOptions& opts);
   void ExportPersistentOptions(CPersistentOptions& opts) const;
@@ -111,7 +174,7 @@ public:
   void SetFileIdx(u32 idx) { x20c_saveFileIdx = idx; }
   void SetCardSerial(u64 serial) { x210_cardSerial = serial; }
   u64 GetCardSerial() const { return x210_cardSerial; }
-  void PutTo(CBitStreamWriter& writer);
+  void PutTo(COutputStream& writer);
   float GetHardModeDamageMultiplier() const;
   float GetHardModeWeaponMultiplier() const;
   void InitializeMemoryWorlds();

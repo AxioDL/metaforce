@@ -2,7 +2,9 @@
 
 #include "Runtime/CArchitectureMessage.hpp"
 #include "Runtime/CArchitectureQueue.hpp"
-#include "imgui/magic_enum.hpp"
+
+#include <magic_enum.hpp>
+
 namespace metaforce {
 
 void CInputGenerator::Update(float dt, CArchitectureQueue& queue) {
@@ -50,8 +52,7 @@ void CInputGenerator::controllerAdded(uint32_t which) noexcept {
 }
 
 void CInputGenerator::controllerRemoved(uint32_t which) noexcept {
-  auto* it =
-      std::find_if(m_state.begin(), m_state.end(), [&which](const auto& s) { return s.m_which == which; });
+  auto it = std::find_if(m_state.begin(), m_state.end(), [&which](const auto& s) { return s.m_which == which; });
   if (it == m_state.end()) {
     return;
   }

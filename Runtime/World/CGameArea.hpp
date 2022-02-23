@@ -15,7 +15,6 @@
 #include "Runtime/World/CWorldLight.hpp"
 #include "Runtime/World/IGameArea.hpp"
 #include "Runtime/Character/CModelData.hpp"
-#include <hecl/ClientProcess.hpp>
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>

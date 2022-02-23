@@ -1,5 +1,5 @@
 #include "Runtime/Graphics/CPVSVisOctree.hpp"
-#include "IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 
 #include <array>
 
@@ -7,11 +7,11 @@ namespace metaforce {
 
 CPVSVisOctree CPVSVisOctree::MakePVSVisOctree(const u8* data) {
   CMemoryInStream r(data, 68);
-  const zeus::CAABox aabb = zeus::CAABox::ReadBoundingBoxBig(r);
-  const u32 numObjects = r.readUint32Big();
-  const u32 numLights = r.readUint32Big();
-  r.readUint32Big();
-  return CPVSVisOctree(aabb, numObjects, numLights, data + r.position());
+  const zeus::CAABox aabb = r.Get<zeus::CAABox>();
+  const u32 numObjects = r.ReadLong();
+  const u32 numLights = r.ReadLong();
+  r.ReadLong();
+  return CPVSVisOctree(aabb, numObjects, numLights, data + r.GetReadPosition());
 }
 
 CPVSVisOctree::CPVSVisOctree(const zeus::CAABox& aabb, u32 numObjects, u32 numLights, const u8* c)

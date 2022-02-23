@@ -3,7 +3,7 @@
 #include "Runtime/CStopwatch.hpp"
 #include "Runtime/Graphics/CLight.hpp"
 
-#include <hecl/Backend.hpp>
+//#include <hecl/Backend.hpp>
 //#include <hecl/Pipeline.hpp>
 
 namespace metaforce {
@@ -59,26 +59,26 @@ void CModelShaders::LightingUniform::ActivateLights(const std::vector<CLight>& l
   }
 }
 
-using TexCoordSource = hecl::Backend::TexCoordSource;
-
-constexpr std::array<hecl::Backend::TextureInfo, 1> ThermalTextures{{
-    {TexCoordSource::Normal, 7, true},
-}};
-
-constexpr std::array<hecl::Backend::TextureInfo, 3> BallFadeTextures{{
-    {TexCoordSource::Position, 0, false}, // ID tex
-    {TexCoordSource::Position, 0, false}, // Sphere ramp
-    {TexCoordSource::Position, 1, false}, // TXTR_BallFade
-}};
-
-constexpr std::array<hecl::Backend::TextureInfo, 1> WorldShadowTextures{{
-    {TexCoordSource::Position, 7, false}, // Shadow tex
-}};
-
-constexpr std::array<hecl::Backend::TextureInfo, 2> DisintegrateTextures{{
-    {TexCoordSource::Position, 0, false}, // Ashy tex
-    {TexCoordSource::Position, 1, false}, // Ashy tex
-}};
+//using TexCoordSource = hecl::Backend::TexCoordSource;
+//
+//constexpr std::array<hecl::Backend::TextureInfo, 1> ThermalTextures{{
+//    {TexCoordSource::Normal, 7, true},
+//}};
+//
+//constexpr std::array<hecl::Backend::TextureInfo, 3> BallFadeTextures{{
+//    {TexCoordSource::Position, 0, false}, // ID tex
+//    {TexCoordSource::Position, 0, false}, // Sphere ramp
+//    {TexCoordSource::Position, 1, false}, // TXTR_BallFade
+//}};
+//
+//constexpr std::array<hecl::Backend::TextureInfo, 1> WorldShadowTextures{{
+//    {TexCoordSource::Position, 7, false}, // Shadow tex
+//}};
+//
+//constexpr std::array<hecl::Backend::TextureInfo, 2> DisintegrateTextures{{
+//    {TexCoordSource::Position, 0, false}, // Ashy tex
+//    {TexCoordSource::Position, 1, false}, // Ashy tex
+//}};
 
 //static std::array<hecl::Backend::ExtensionSlot, size_t(EExtendedShader::MAX)> g_ExtensionSlots{{
 //    /* Default solid shading */

@@ -6,10 +6,8 @@
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/IObj.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
-
-//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 namespace metaforce {
 class CVParamTransfer;

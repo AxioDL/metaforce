@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "Runtime/RetroTypes.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 
 namespace metaforce {
 class CAdditiveAnimationInfo;
@@ -16,8 +17,8 @@ class CAdditiveAnimationInfo {
 
 public:
   void read(CInputStream& in) {
-    x0_fadeInDur = in.readFloatBig();
-    x4_fadeOutDur = in.readFloatBig();
+    x0_fadeInDur = in.ReadFloat();
+    x4_fadeOutDur = in.ReadFloat();
   }
   CAdditiveAnimationInfo() = default;
   explicit CAdditiveAnimationInfo(CInputStream& in) { read(in); }

@@ -3,7 +3,7 @@
 #include <memory>
 #include <utility>
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Character/CMetaTransFactory.hpp"
 
 namespace metaforce {

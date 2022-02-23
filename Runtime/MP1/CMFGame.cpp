@@ -125,7 +125,7 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
       if (input.ControllerIdx() == 0) {
         const CEntity* cam = x14_stateManager->GetCameraManager()->GetCurrentCamera(*x14_stateManager);
         TCastToConstPtr<CCinematicCamera> cineCam = cam;
-        if (input.PStart() || input.PSpecialKey(boo::ESpecialKey::Esc)) {
+        if (input.PStart() || input.PSpecialKey(aurora::SpecialKey::Esc)) {
           if (cineCam && x14_stateManager->GetSkipCinematicSpecialFunction() != kInvalidUniqueId) {
             CMidiManager::StopAll();
             x28_skippedCineCam = cineCam->GetUniqueId();
@@ -273,10 +273,10 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
     break;
   }
 
-  if (g_GameState->CurrentWorldAssetId() == 0x158EFE17 && g_GameState->CurrentWorldState().GetCurrentAreaId() == 0) {
+  if (g_GameState->CurrentWorldAssetId() == 0x158EFE17u && g_GameState->CurrentWorldState().GetCurrentAreaId() == 0) {
     const SObjectTag* strgTag = g_ResFactory->GetResourceIdByName("STRG_IntroLevelLoad");
     if (strgTag)
-      g_GameState->GetWorldTransitionManager()->EnableTransition(-1, strgTag->id, 0, false, 0.1f, 16.f, 1.f);
+      g_GameState->GetWorldTransitionManager()->EnableTransition({}, strgTag->id, 0, false, 0.1f, 16.f, 1.f);
   }
 }
 

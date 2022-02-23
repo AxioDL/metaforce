@@ -100,7 +100,7 @@ bool CCollisionResponseData::CheckAndAddDecalToResponse(FourCC clsId, CInputStre
         return true;
       }
 
-      const CAssetId id{u64(in.readUint32Big())};
+      const CAssetId id = in.Get<CAssetId>();
       if (!id.IsValid()) {
         return true;
       }

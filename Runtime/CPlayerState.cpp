@@ -7,7 +7,7 @@
 #include "Runtime/CMemoryCardSys.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Camera/CCameraManager.hpp"
 #include "Runtime/Camera/CFirstPersonCamera.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
@@ -76,63 +76,63 @@ constexpr std::array<float, 5> ComboAmmoPeriods{
 
 CPlayerState::CPlayerState() { x24_powerups.resize(41); }
 
-CPlayerState::CPlayerState(CBitStreamReader& stream) {
-  x4_enabledItems = u32(stream.ReadEncoded(32));
+CPlayerState::CPlayerState(CInputStream& stream) {
+  x4_enabledItems = u32(stream.ReadBits(32));
 
-  const u32 integralHP = u32(stream.ReadEncoded(32));
+  const u32 integralHP = u32(stream.ReadBits(32));
   float realHP;
   std::memcpy(&realHP, &integralHP, sizeof(float));
 
   xc_health.SetHP(realHP);
-  x8_currentBeam = EBeamId(stream.ReadEncoded(CBitStreamReader::GetBitCount(5)));
-  x20_currentSuit = EPlayerSuit(stream.ReadEncoded(CBitStreamReader::GetBitCount(4)));
+  x8_currentBeam = EBeamId(stream.ReadBits(CInputStream::GetBitCount(5)));
+  x20_currentSuit = EPlayerSuit(stream.ReadBits(CInputStream::GetBitCount(4)));
   x24_powerups.resize(41);
   for (size_t i = 0; i < x24_powerups.size(); ++i) {
     if (PowerUpMaxValues[i] == 0) {
       continue;
     }
 
-    const u32 a = u32(stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i])));
-    const u32 b = u32(stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i])));
+    const u32 a = u32(stream.ReadBits(CInputStream::GetBitCount(PowerUpMaxValues[i])));
+    const u32 b = u32(stream.ReadBits(CInputStream::GetBitCount(PowerUpMaxValues[i])));
     x24_powerups[i] = CPowerUp(a, b);
   }
 
   const auto& scanStates = g_MemoryCardSys->GetScanStates();
   x170_scanTimes.reserve(scanStates.size());
   for (const auto& state : scanStates) {
-    float time = stream.ReadEncoded(1) ? 1.f : 0.f;
+    float time = stream.ReadBits(1) ? 1.f : 0.f;
     x170_scanTimes.emplace_back(state.first, time);
   }
 
-  x180_scanCompletionRate.first = u32(stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100u)));
-  x180_scanCompletionRate.second = u32(stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100u)));
+  x180_scanCompletionRate.first = u32(stream.ReadBits(CInputStream::GetBitCount(0x100u)));
+  x180_scanCompletionRate.second = u32(stream.ReadBits(CInputStream::GetBitCount(0x100u)));
 }
 
-void CPlayerState::PutTo(CBitStreamWriter& stream) {
-  stream.WriteEncoded(x4_enabledItems, 32);
+void CPlayerState::PutTo(COutputStream& stream) {
+  stream.WriteBits(x4_enabledItems, 32);
 
   const float realHP = xc_health.GetHP();
   u32 integralHP;
   std::memcpy(&integralHP, &realHP, sizeof(u32));
 
-  stream.WriteEncoded(integralHP, 32);
-  stream.WriteEncoded(u32(x8_currentBeam), CBitStreamWriter::GetBitCount(5));
-  stream.WriteEncoded(u32(x20_currentSuit), CBitStreamWriter::GetBitCount(4));
+  stream.WriteBits(integralHP, 32);
+  stream.WriteBits(u32(x8_currentBeam), COutputStream::GetBitCount(5));
+  stream.WriteBits(u32(x20_currentSuit), COutputStream::GetBitCount(4));
   for (size_t i = 0; i < x24_powerups.size(); ++i) {
     const CPowerUp& pup = x24_powerups[i];
-    stream.WriteEncoded(pup.x0_amount, CBitStreamWriter::GetBitCount(PowerUpMaxValues[i]));
-    stream.WriteEncoded(pup.x4_capacity, CBitStreamWriter::GetBitCount(PowerUpMaxValues[i]));
+    stream.WriteBits(pup.x0_amount, COutputStream::GetBitCount(PowerUpMaxValues[i]));
+    stream.WriteBits(pup.x4_capacity, COutputStream::GetBitCount(PowerUpMaxValues[i]));
   }
 
   for (const auto& scanTime : x170_scanTimes) {
     if (scanTime.second >= 1.f)
-      stream.WriteEncoded(true, 1);
+      stream.WriteBits(true, 1);
     else
-      stream.WriteEncoded(false, 1);
+      stream.WriteBits(false, 1);
   }
 
-  stream.WriteEncoded(x180_scanCompletionRate.first, CBitStreamWriter::GetBitCount(0x100));
-  stream.WriteEncoded(x180_scanCompletionRate.second, CBitStreamWriter::GetBitCount(0x100));
+  stream.WriteBits(x180_scanCompletionRate.first, COutputStream::GetBitCount(0x100));
+  stream.WriteBits(x180_scanCompletionRate.second, COutputStream::GetBitCount(0x100));
 }
 
 u32 CPlayerState::GetMissileCostForAltAttack() const { return costs[size_t(x8_currentBeam)]; }
@@ -437,7 +437,7 @@ CPlayerState::EItemType CPlayerState::ItemNameToType(std::string_view name) {
   }};
 
   std::string lowName{name};
-  athena::utility::tolower(lowName);
+  CBasics::ToLower(lowName);
 
   const auto iter = std::find_if(typeNameMap.cbegin(), typeNameMap.cend(),
                                  [&lowName](const auto& entry) { return entry.first == lowName; });

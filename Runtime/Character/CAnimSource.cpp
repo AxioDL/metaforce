@@ -51,16 +51,16 @@ std::unique_ptr<float[]> RotationAndOffsetStorage::GetRotationsAndOffsets(const 
 }
 
 RotationAndOffsetStorage::CRotationAndOffsetVectors::CRotationAndOffsetVectors(CInputStream& in) {
-  const u32 quatCount = in.readUint32Big();
+  const u32 quatCount = in.ReadLong();
   x0_rotations.reserve(quatCount);
   for (u32 i = 0; i < quatCount; ++i) {
-    x0_rotations.emplace_back().readBig(in);
+    x0_rotations.emplace_back() = in.Get<zeus::CQuaternion>();
   }
 
-  const u32 vecCount = in.readUint32Big();
+  const u32 vecCount = in.ReadLong();
   x10_offsets.reserve(vecCount);
   for (u32 i = 0; i < vecCount; ++i) {
-    x10_offsets.emplace_back().readBig(in);
+    x10_offsets.emplace_back() = in.Get<zeus::CVector3f>();
   }
 }
 
@@ -75,10 +75,10 @@ RotationAndOffsetStorage::RotationAndOffsetStorage(const CRotationAndOffsetVecto
 
 static std::vector<u8> ReadIndexTable(CInputStream& in) {
   std::vector<u8> ret;
-  u32 count = in.readUint32Big();
+  u32 count = in.ReadLong();
   ret.reserve(count);
   for (u32 i = 0; i < count; ++i)
-    ret.push_back(in.readUByte());
+    ret.push_back(in.ReadUint8());
   return ret;
 }
 
@@ -103,12 +103,12 @@ void CAnimSource::CalcAverageVelocity() {
 CAnimSource::CAnimSource(CInputStream& in, IObjectStore& store)
 : x0_duration(in)
 , x8_interval(in)
-, x10_frameCount(in.readUint32Big())
+, x10_frameCount(in.ReadLong())
 , x1c_rootBone(in)
 , x20_rotationChannels(ReadIndexTable(in))
 , x30_translationChannels(ReadIndexTable(in))
 , x40_data(RotationAndOffsetStorage::CRotationAndOffsetVectors(in), x10_frameCount)
-, x54_evntId(in.readUint32Big()) {
+, x54_evntId(in) {
   if (x54_evntId.IsValid()) {
     x58_evntData = store.GetObj({SBIG('EVNT'), x54_evntId});
     x58_evntData.GetObj();

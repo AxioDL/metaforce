@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Character/CCharAnimTime.hpp"
 
 namespace metaforce {

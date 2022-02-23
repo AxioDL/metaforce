@@ -9,11 +9,6 @@
 #include "Runtime/GuiSys/CFontImageDef.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
-//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-//
-//#include <hecl/UniformBufferPool.hpp>
-//#include <hecl/VertexBufferPool.hpp>
-
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
 #include <zeus/CVector2f.hpp>

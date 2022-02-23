@@ -268,6 +268,14 @@ void shutdown() {
   g_pipelineThreadEnd = true;
   g_pipelineCv.notify_all();
   g_pipelineThread.join();
+
+  g_cachedBindGroups.clear();
+  g_pipelines.clear();
+  g_vertexBuffer = {};
+  g_uniformBuffer = {};
+  g_indexBuffer = {};
+
+  g_state = {};
 }
 
 void render(const wgpu::RenderPassEncoder& pass) {

@@ -52,6 +52,8 @@
 #include "hecl/Blender/Connection.hpp"
 #include "hecl/Blender/SDNARead.hpp"
 #include "nod/nod.hpp"
+#include <athena/MemoryReader.hpp>
+#include <athena/MemoryWriter.hpp>
 
 namespace DataSpec {
 

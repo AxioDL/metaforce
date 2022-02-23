@@ -5,8 +5,6 @@
 #include "Runtime/World/CMorphBall.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-#include "DNAMP1/Tweaks/CTweakPlayer.hpp"
-
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {

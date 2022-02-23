@@ -47,19 +47,19 @@
 #include "Runtime/World/CSnakeWeedSwarm.hpp"
 #include "Runtime/World/CWallCrawlerSwarm.hpp"
 #include "Runtime/World/CWorld.hpp"
-#include "TCastTo.hpp" // Generated file, do not modify include path
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 
-#include <hecl/CVarManager.hpp>
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include <zeus/CMRay.hpp>
 
 namespace metaforce {
 namespace {
-hecl::CVar* debugToolDrawAiPath = nullptr;
-hecl::CVar* debugToolDrawLighting = nullptr;
-hecl::CVar* debugToolDrawCollisionActors = nullptr;
-hecl::CVar* debugToolDrawMazePath = nullptr;
-hecl::CVar* debugToolDrawPlatformCollision = nullptr;
-hecl::CVar* sm_logScripting = nullptr;
+CVar* debugToolDrawAiPath = nullptr;
+CVar* debugToolDrawLighting = nullptr;
+CVar* debugToolDrawCollisionActors = nullptr;
+CVar* debugToolDrawMazePath = nullptr;
+CVar* debugToolDrawPlatformCollision = nullptr;
+CVar* sm_logScripting = nullptr;
 } // namespace
 logvisor::Module LogModule("metaforce::CStateManager");
 CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& mailbox, const std::weak_ptr<CMapWorldInfo>& mwInfo,
@@ -217,9 +217,9 @@ CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& mailbox, const
   g_StateManager = this;
 
   if (sm_logScripting == nullptr) {
-    sm_logScripting = hecl::CVarManager::instance()->findOrMakeCVar(
+    sm_logScripting = CVarManager::instance()->findOrMakeCVar(
         "stateManager.logScripting"sv, "Prints object communication to the console", false,
-        hecl::CVar::EFlags::ReadOnly | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::Game);
+        CVar::EFlags::ReadOnly | CVar::EFlags::Archive | CVar::EFlags::Game);
   }
   m_logScriptingReference.emplace(&m_logScripting, sm_logScripting);
 }
@@ -439,7 +439,7 @@ void CStateManager::SetupParticleHook(const CActor& actor) const {
 
 void CStateManager::MurderScriptInstanceNames() { xb40_uniqueInstanceNames.clear(); }
 
-std::string CStateManager::HashInstanceName(CInputStream& in) { return in.readString(); }
+std::string CStateManager::HashInstanceName(CInputStream& in) { return in.Get<std::string>(); }
 
 void CStateManager::SetActorAreaId(CActor& actor, TAreaId aid) {
   const TAreaId actorAid = actor.GetAreaIdAlways();
@@ -545,18 +545,18 @@ void CStateManager::BuildDynamicLightListForWorld() {
   }
 }
 void CStateManager::DrawDebugStuff() const {
-  if (hecl::com_developer != nullptr && !hecl::com_developer->toBoolean()) {
+  if (com_developer != nullptr && !com_developer->toBoolean()) {
     return;
   }
 
   // FIXME: Add proper globals for CVars
   if (debugToolDrawAiPath == nullptr || debugToolDrawCollisionActors == nullptr || debugToolDrawLighting == nullptr ||
       debugToolDrawMazePath == nullptr || debugToolDrawPlatformCollision == nullptr) {
-    debugToolDrawAiPath = hecl::CVarManager::instance()->findCVar("debugTool.drawAiPath");
-    debugToolDrawMazePath = hecl::CVarManager::instance()->findCVar("debugTool.drawMazePath");
-    debugToolDrawCollisionActors = hecl::CVarManager::instance()->findCVar("debugTool.drawCollisionActors");
-    debugToolDrawLighting = hecl::CVarManager::instance()->findCVar("debugTool.drawLighting");
-    debugToolDrawPlatformCollision = hecl::CVarManager::instance()->findCVar("debugTool.drawPlatformCollision");
+    debugToolDrawAiPath = CVarManager::instance()->findCVar("debugTool.drawAiPath");
+    debugToolDrawMazePath = CVarManager::instance()->findCVar("debugTool.drawMazePath");
+    debugToolDrawCollisionActors = CVarManager::instance()->findCVar("debugTool.drawCollisionActors");
+    debugToolDrawLighting = CVarManager::instance()->findCVar("debugTool.drawLighting");
+    debugToolDrawPlatformCollision = CVarManager::instance()->findCVar("debugTool.drawPlatformCollision");
     return;
   }
 
@@ -985,90 +985,90 @@ void CStateManager::DrawWorld() {
 }
 
 void CStateManager::DrawActorCubeFaces(CActor& actor, int& cubeInst) const {
-//  if (!actor.m_reflectionCube ||
-//      (!TCastToPtr<CPlayer>(actor) && (!actor.GetActive() || !actor.IsDrawEnabled() || actor.xe4_30_outOfFrustum)))
-//    return;
-//
-//  const TAreaId visAreaId = actor.GetAreaIdAlways();
-//  const SViewport backupVp = g_Viewport;
-//
-//  int areaCount = 0;
-//  std::array<const CGameArea*, 10> areaArr;
-//  for (const CGameArea& area : *x850_world) {
-//    if (areaCount == 10) {
-//      break;
-//    }
-//    auto occState = CGameArea::EOcclusionState::Occluded;
-//    if (area.IsPostConstructed()) {
-//      occState = area.GetOcclusionState();
-//    }
-//    if (occState == CGameArea::EOcclusionState::Visible) {
-//      areaArr[areaCount++] = &area;
-//    }
-//  }
-//
-//  for (int f = 0; f < 6; ++f) {
-//    SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CStateManager::DrawActorCubeFaces [{}] {} {} {}"), f,
-//                                            actor.GetUniqueId(), actor.GetEditorId(), actor.GetName())
-//                                    .c_str(),
-//                                zeus::skOrange);
-//    CGraphics::g_BooMainCommandQueue->setRenderTarget(actor.m_reflectionCube, f);
-//    SetupViewForCubeFaceDraw(actor.GetRenderBounds().center(), f);
-//    CGraphics::g_BooMainCommandQueue->clearTarget();
-//
-//    std::sort(areaArr.begin(), areaArr.begin() + areaCount, [visAreaId](const CGameArea* a, const CGameArea* b) {
-//      if (a->x4_selfIdx == b->x4_selfIdx) {
-//        return false;
-//      }
-//      if (visAreaId == a->x4_selfIdx) {
-//        return false;
-//      }
-//      if (visAreaId == b->x4_selfIdx) {
-//        return true;
-//      }
-//      return CGraphics::g_ViewPoint.dot(a->GetAABB().center()) > CGraphics::g_ViewPoint.dot(b->GetAABB().center());
-//    });
-//
-//    int pvsCount = 0;
-//    std::array<CPVSVisSet, 10> pvsArr;
-//    for (auto area = areaArr.cbegin(); area != areaArr.cbegin() + areaCount; ++area) {
-//      const CGameArea* areaPtr = *area;
-//      CPVSVisSet& pvsSet = pvsArr[pvsCount++];
-//      pvsSet.Reset(EPVSVisSetState::OutOfBounds);
-//      GetVisSetForArea(areaPtr->x4_selfIdx, visAreaId, pvsSet);
-//    }
-//
-//    for (int i = areaCount - 1; i >= 0; --i) {
-//      const CGameArea& area = *areaArr[i];
-//      SetupFogForArea(area);
-//      g_Renderer->EnablePVS(pvsArr[i], area.x4_selfIdx);
-//      g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
-//      g_Renderer->UpdateAreaUniforms(area.x4_selfIdx, EWorldShadowMode::None, true, cubeInst * 6 + f);
-//      g_Renderer->DrawUnsortedGeometry(area.x4_selfIdx, 0x2, 0x0);
-//    }
-//
-//    if (!SetupFogForDraw()) {
-//      g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
-//    }
-//
-//    x850_world->DrawSky(zeus::CTransform::Translate(CGraphics::g_ViewPoint));
-//
-//    for (int i = 0; i < areaCount; ++i) {
-//      const CGameArea& area = *areaArr[i];
-//      CPVSVisSet& pvs = pvsArr[i];
-//      SetupFogForArea(area);
-//      g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
-//      g_Renderer->EnablePVS(pvs, area.x4_selfIdx);
-//      g_Renderer->DrawSortedGeometry(area.x4_selfIdx, 0x2, 0x0);
-//    }
-//  }
-//
-//  CGraphics::g_BooMainCommandQueue->generateMipmaps(actor.m_reflectionCube);
-//
-//  CBooRenderer::BindMainDrawTarget();
-//  g_Renderer->SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
-//
-//  ++cubeInst;
+  //  if (!actor.m_reflectionCube ||
+  //      (!TCastToPtr<CPlayer>(actor) && (!actor.GetActive() || !actor.IsDrawEnabled() || actor.xe4_30_outOfFrustum)))
+  //    return;
+  //
+  //  const TAreaId visAreaId = actor.GetAreaIdAlways();
+  //  const SViewport backupVp = g_Viewport;
+  //
+  //  int areaCount = 0;
+  //  std::array<const CGameArea*, 10> areaArr;
+  //  for (const CGameArea& area : *x850_world) {
+  //    if (areaCount == 10) {
+  //      break;
+  //    }
+  //    auto occState = CGameArea::EOcclusionState::Occluded;
+  //    if (area.IsPostConstructed()) {
+  //      occState = area.GetOcclusionState();
+  //    }
+  //    if (occState == CGameArea::EOcclusionState::Visible) {
+  //      areaArr[areaCount++] = &area;
+  //    }
+  //  }
+  //
+  //  for (int f = 0; f < 6; ++f) {
+  //    SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CStateManager::DrawActorCubeFaces [{}] {} {} {}"), f,
+  //                                            actor.GetUniqueId(), actor.GetEditorId(), actor.GetName())
+  //                                    .c_str(),
+  //                                zeus::skOrange);
+  //    CGraphics::g_BooMainCommandQueue->setRenderTarget(actor.m_reflectionCube, f);
+  //    SetupViewForCubeFaceDraw(actor.GetRenderBounds().center(), f);
+  //    CGraphics::g_BooMainCommandQueue->clearTarget();
+  //
+  //    std::sort(areaArr.begin(), areaArr.begin() + areaCount, [visAreaId](const CGameArea* a, const CGameArea* b) {
+  //      if (a->x4_selfIdx == b->x4_selfIdx) {
+  //        return false;
+  //      }
+  //      if (visAreaId == a->x4_selfIdx) {
+  //        return false;
+  //      }
+  //      if (visAreaId == b->x4_selfIdx) {
+  //        return true;
+  //      }
+  //      return CGraphics::g_ViewPoint.dot(a->GetAABB().center()) > CGraphics::g_ViewPoint.dot(b->GetAABB().center());
+  //    });
+  //
+  //    int pvsCount = 0;
+  //    std::array<CPVSVisSet, 10> pvsArr;
+  //    for (auto area = areaArr.cbegin(); area != areaArr.cbegin() + areaCount; ++area) {
+  //      const CGameArea* areaPtr = *area;
+  //      CPVSVisSet& pvsSet = pvsArr[pvsCount++];
+  //      pvsSet.Reset(EPVSVisSetState::OutOfBounds);
+  //      GetVisSetForArea(areaPtr->x4_selfIdx, visAreaId, pvsSet);
+  //    }
+  //
+  //    for (int i = areaCount - 1; i >= 0; --i) {
+  //      const CGameArea& area = *areaArr[i];
+  //      SetupFogForArea(area);
+  //      g_Renderer->EnablePVS(pvsArr[i], area.x4_selfIdx);
+  //      g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
+  //      g_Renderer->UpdateAreaUniforms(area.x4_selfIdx, EWorldShadowMode::None, true, cubeInst * 6 + f);
+  //      g_Renderer->DrawUnsortedGeometry(area.x4_selfIdx, 0x2, 0x0);
+  //    }
+  //
+  //    if (!SetupFogForDraw()) {
+  //      g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
+  //    }
+  //
+  //    x850_world->DrawSky(zeus::CTransform::Translate(CGraphics::g_ViewPoint));
+  //
+  //    for (int i = 0; i < areaCount; ++i) {
+  //      const CGameArea& area = *areaArr[i];
+  //      CPVSVisSet& pvs = pvsArr[i];
+  //      SetupFogForArea(area);
+  //      g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
+  //      g_Renderer->EnablePVS(pvs, area.x4_selfIdx);
+  //      g_Renderer->DrawSortedGeometry(area.x4_selfIdx, 0x2, 0x0);
+  //    }
+  //  }
+  //
+  //  CGraphics::g_BooMainCommandQueue->generateMipmaps(actor.m_reflectionCube);
+  //
+  //  CBooRenderer::BindMainDrawTarget();
+  //  g_Renderer->SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
+  //
+  //  ++cubeInst;
 }
 
 void CStateManager::DrawWorldCubeFaces() const {
@@ -1470,14 +1470,14 @@ CStateManager::GetIdListForScript(TEditorId id) const {
 }
 
 void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector<TEditorId>& idsOut) {
-  in.readUByte();
+  in.ReadUint8();
 
-  const u32 objCount = in.readUint32Big();
+  const u32 objCount = in.ReadLong();
   idsOut.reserve(idsOut.size() + objCount);
   for (u32 i = 0; i < objCount; ++i) {
-    const auto objType = static_cast<EScriptObjectType>(in.readUByte());
-    const u32 objSize = in.readUint32Big();
-    const u32 pos = static_cast<u32>(in.position());
+    const auto objType = static_cast<EScriptObjectType>(in.ReadUint8());
+    const u32 objSize = in.ReadLong();
+    const u32 pos = static_cast<u32>(in.GetReadPosition());
     const auto id = LoadScriptObject(aid, objType, objSize, in);
     if (id.first == kInvalidEditorId) {
       continue;
@@ -1502,15 +1502,15 @@ void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector
 std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, EScriptObjectType type, u32 length,
                                                                 CInputStream& in) {
   OPTICK_EVENT();
-  const TEditorId id = in.readUint32Big();
-  const u32 connCount = in.readUint32Big();
+  const TEditorId id = in.ReadLong();
+  const u32 connCount = in.ReadLong();
   length -= 8;
   std::vector<SConnection> conns;
   conns.reserve(connCount);
   for (u32 i = 0; i < connCount; ++i) {
-    const auto state = EScriptObjectState(in.readUint32Big());
-    const auto msg = EScriptObjectMessage(in.readUint32Big());
-    const TEditorId target = in.readUint32Big();
+    const auto state = EScriptObjectState(in.ReadLong());
+    const auto msg = EScriptObjectMessage(in.ReadLong());
+    const TEditorId target = in.ReadLong();
     // Metaforce Addition
     if (m_incomingConnections.find(target) == m_incomingConnections.cend()) {
       m_incomingConnections.emplace(target, std::set<SConnection>());
@@ -1521,9 +1521,9 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
     length -= 12;
     conns.push_back(SConnection{state, msg, target});
   }
-  const u32 propCount = in.readUint32Big();
+  const u32 propCount = in.ReadLong();
   length -= 4;
-  const auto startPos = in.position();
+  const auto startPos = in.GetReadPosition();
 
   bool error = false;
   FScriptLoader loader = {};
@@ -1545,7 +1545,7 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
     error = true;
   }
 
-  const u32 readAmt = in.position() - startPos;
+  const u32 readAmt = in.GetReadPosition() - startPos;
   if (readAmt > length) {
     LogModule.report(logvisor::Fatal, FMT_STRING("Script object overread while reading {}"),
                      ScriptObjectTypeToStr(type));
@@ -1553,13 +1553,17 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
 
   const u32 leftover = length - readAmt;
   for (u32 i = 0; i < leftover; ++i) {
-    in.readByte();
+    in.ReadChar();
   }
 
   if (error || ent == nullptr) {
-    in.seek(startPos, athena::SeekOrigin::Begin);
+    while (in.GetReadPosition() != startPos) {
+      in.ReadChar();
+    }
     const std::string name = HashInstanceName(in);
-    in.seek(startPos + length, athena::SeekOrigin::Begin);
+    while (in.GetReadPosition() != startPos + length) {
+      in.ReadChar();
+    }
     LogModule.report(logvisor::Error, FMT_STRING("Script load error while loading {}, name: {}"),
                      ScriptObjectTypeToStr(type), name);
     return {kInvalidEditorId, kInvalidUniqueId};

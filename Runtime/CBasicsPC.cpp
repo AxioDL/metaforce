@@ -1,21 +1,36 @@
 #ifndef _WIN32
-#include <unistd.h>
 #include <sys/time.h>
+#include <unistd.h>
 #if __APPLE__
 #include <mach/mach_time.h>
 #endif
-#else
+#endif
+
+#include <algorithm>
+#include <cstdarg>
+#include <cstdio>
+#include <cstring>
+#include <ctime>
+#ifdef WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#include <windows.h>
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <Windows.h>
+#include <nowide/stackstring.hpp>
+#ifndef _WIN32_IE
+#define _WIN32_IE 0x0400
+#endif
+#include <ShlObj.h>
+#if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
+#define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
+#endif
 #endif
 
-#include <cstdio>
-#include <cstdarg>
-#include <ctime>
-
 #include "Runtime/CBasics.hpp"
+#include <logvisor/logvisor.hpp>
 
 #if __APPLE__
 static u64 MachToDolphinNum;
@@ -25,7 +40,7 @@ static LARGE_INTEGER PerfFrequency;
 #endif
 
 namespace metaforce {
-
+static logvisor::Module LogModule("metaforce::CBasics");
 void CBasics::Initialize() {
 #if __APPLE__
   mach_timebase_info_data_t timebase;
@@ -134,6 +149,193 @@ OSCalendarTime CBasics::ToCalendarTime(std::chrono::system_clock::time_point tim
   ret.x24_usec = div.rem;
 
   return ret;
+}
+
+u16 CBasics::SwapBytes(u16 v) {
+  Swap2Bytes(reinterpret_cast<u8*>(&v));
+  return v;
+}
+u32 CBasics::SwapBytes(u32 v) {
+  Swap4Bytes(reinterpret_cast<u8*>(&v));
+  return v;
+}
+
+u64 CBasics::SwapBytes(u64 v) {
+  Swap8Bytes(reinterpret_cast<u8*>(&v));
+  return v;
+}
+float CBasics::SwapBytes(float v) {
+  Swap4Bytes(reinterpret_cast<u8*>(&v));
+  return v;
+}
+double CBasics::SwapBytes(double v) {
+  Swap8Bytes(reinterpret_cast<u8*>(&v));
+  return v;
+}
+
+void CBasics::Swap2Bytes(u8* v) {
+  u16* val = reinterpret_cast<u16*>(v);
+#if __GNUC__
+  *val = __builtin_bswap16(*val);
+#elif _WIN32
+  *val = _byteswap_ushort(*val);
+#else
+  *val = (*val << 8) | ((*val >> 8) & 0xFF);
+#endif
+}
+
+void CBasics::Swap4Bytes(u8* v) {
+  u32* val = reinterpret_cast<u32*>(v);
+#if __GNUC__
+  *val = __builtin_bswap32(*val);
+#elif _WIN32
+  *val = _byteswap_ulong(*val);
+#else
+  *val = ((*val & 0x0000FFFF) << 16) | ((*val & 0xFFFF0000) >> 16) | ((*val & 0x00FF00FF) << 8) |
+         ((*val & 0xFF00FF00) >> 8);
+#endif
+}
+
+void CBasics::Swap8Bytes(u8* v) {
+  u64* val = reinterpret_cast<u64*>(v);
+#if __GNUC__
+  *val = __builtin_bswap64(*val);
+#elif _WIN32
+  *val = _byteswap_uint64(*val);
+#else
+  *val = ((val & 0xFF00000000000000ULL) >> 56) | ((val & 0x00FF000000000000ULL) >> 40) |
+         ((val & 0x0000FF0000000000ULL) >> 24) | ((val & 0x000000FF00000000ULL) >> 8) |
+         ((val & 0x00000000FF000000ULL) << 8) | ((val & 0x0000000000FF0000ULL) << 24) |
+         ((val & 0x000000000000FF00ULL) << 40) | ((val & 0x00000000000000FFULL) << 56);
+#endif
+}
+
+int CBasics::Stat(const char* path, Sstat* statOut) {
+#if _WIN32
+  size_t pos;
+  const nowide::wstackstring wpath(path);
+  const wchar_t* wpathP = wpath.get();
+  for (pos = 0; pos < 3 && wpathP[pos] != L'\0'; ++pos) {}
+  if (pos == 2 && wpathP[1] == L':') {
+    wchar_t fixPath[4] = {wpathP[0], L':', L'/', L'\0'};
+    return _wstat64(fixPath, statOut);
+  }
+  return _wstat64(wpath.get(), statOut);
+#else
+  return stat(path, statOut);
+#endif
+}
+
+/* recursive mkdir */
+int CBasics::RecursiveMakeDir(const char* dir) {
+#if _WIN32
+  char tmp[1024];
+
+  /* copy path */
+  std::strncpy(tmp, dir, std::size(tmp));
+  const size_t len = std::strlen(tmp);
+  if (len >= std::size(tmp)) {
+    return -1;
+  }
+
+  /* remove trailing slash */
+  if (tmp[len - 1] == '/' || tmp[len - 1] == '\\') {
+    tmp[len - 1] = 0;
+  }
+
+  /* recursive mkdir */
+  char* p = nullptr;
+  Sstat sb;
+  for (p = tmp + 1; *p; p++) {
+    if (*p == '/' || *p == '\\') {
+      *p = 0;
+      /* test path */
+      if (Stat(tmp, &sb) != 0) {
+        /* path does not exist - create directory */
+        const nowide::wstackstring wtmp(tmp);
+        if (!CreateDirectoryW(wtmp.get(), nullptr)) {
+          return -1;
+        }
+      } else if (!S_ISDIR(sb.st_mode)) {
+        /* not a directory */
+        return -1;
+      }
+      *p = '/';
+    }
+  }
+  /* test path */
+  if (Stat(tmp, &sb) != 0) {
+    /* path does not exist - create directory */
+    const nowide::wstackstring wtmp(tmp);
+    if (!CreateDirectoryW(wtmp.get(), nullptr)) {
+      return -1;
+    }
+  } else if (!S_ISDIR(sb.st_mode)) {
+    /* not a directory */
+    return -1;
+  }
+  return 0;
+#else
+  char tmp[1024];
+
+  /* copy path */
+  std::memset(tmp, 0, std::size(tmp));
+  std::strncpy(tmp, dir, std::size(tmp) - 1);
+  const size_t len = std::strlen(tmp);
+  if (len >= std::size(tmp)) {
+    return -1;
+  }
+
+  /* remove trailing slash */
+  if (tmp[len - 1] == '/') {
+    tmp[len - 1] = 0;
+  }
+
+  /* recursive mkdir */
+  char* p = nullptr;
+  Sstat sb;
+  for (p = tmp + 1; *p; p++) {
+    if (*p == '/') {
+      *p = 0;
+      /* test path */
+      if (Stat(tmp, &sb) != 0) {
+        /* path does not exist - create directory */
+        if (mkdir(tmp, 0755) < 0) {
+          return -1;
+        }
+      } else if (!S_ISDIR(sb.st_mode)) {
+        /* not a directory */
+        return -1;
+      }
+      *p = '/';
+    }
+  }
+  /* test path */
+  if (Stat(tmp, &sb) != 0) {
+    /* path does not exist - create directory */
+    if (mkdir(tmp, 0755) < 0) {
+      return -1;
+    }
+  } else if (!S_ISDIR(sb.st_mode)) {
+    /* not a directory */
+    return -1;
+  }
+  return 0;
+#endif
+}
+
+void CBasics::MakeDir(const char* dir) {
+#if _WIN32
+  HRESULT err;
+  const nowide::wstackstring wdir(dir);
+  if (!CreateDirectoryW(wdir.get(), NULL))
+    if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
+      LogModule.report(logvisor::Fatal, FMT_STRING("MakeDir({})"), dir);
+#else
+  if (mkdir(dir, 0755))
+    if (errno != EEXIST)
+      LogModule.report(logvisor::Fatal, FMT_STRING("MakeDir({}): {}"), dir, strerror(errno));
+#endif
 }
 
 } // namespace metaforce

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {
@@ -11,7 +11,7 @@ class CSegId {
 public:
   constexpr CSegId() noexcept = default;
   constexpr CSegId(u8 id) noexcept : x0_segId(id) {}
-  explicit CSegId(CInputStream& in) : x0_segId(in.readUint32Big()) {}
+  explicit CSegId(CInputStream& in) : x0_segId(in.ReadLong()) {}
   constexpr CSegId& operator++() noexcept {
     ++x0_segId;
     return *this;

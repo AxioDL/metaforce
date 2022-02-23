@@ -60,10 +60,9 @@ set(DNAMP1_SOURCES
         FRME.cpp
         SCAN.cpp
         DeafBabe.cpp
-        Tweaks/CTweakAutoMapper.cpp
         Tweaks/CTweakPlayer.cpp
         Tweaks/CTweakTargeting.cpp
         Tweaks/CTweakBall.cpp
-        Tweaks/CTweakGame.cpp)
+        )
 
 dataspec_add_list(DNAMP1 DNAMP1_SOURCES)
