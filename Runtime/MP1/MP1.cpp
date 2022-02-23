@@ -584,37 +584,40 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
   m_cvarMgr = cvarMgr;
   m_cvarCommons = std::make_unique<CVarCommons>(*m_cvarMgr);
 
-  const auto discInfo = CDvdFile::DiscInfo();
-  if (discInfo.gameId[4] != '0' || discInfo.gameId[5] != '1') {
-    Log.report(logvisor::Fatal, FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
-  }
-  if (strncmp(discInfo.gameId.data(), "GM8", 3) == 0 || strncmp(discInfo.gameId.data(), "R3I", 3) == 0) {
-    m_version.game = EGame::MetroidPrime1;
-  } else if (strncmp(discInfo.gameId.data(), "G2M", 3) == 0 || strncmp(discInfo.gameId.data(), "R32", 3) == 0) {
-    m_version.game = EGame::MetroidPrime2;
-  } else if (strncmp(discInfo.gameId.data(), "R3M", 3) == 0) {
-    m_version.game = EGame::MetroidPrime3;
-  } else if (strncmp(discInfo.gameId.data(), "RM3", 3) == 0) {
-    m_version.game = EGame::MetroidPrimeTrilogy;
-  } else {
-    Log.report(logvisor::Fatal, FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
-  }
-  switch (discInfo.gameId[3]) {
-  case 'E':
-    if (m_version.game == EGame::MetroidPrime1 && discInfo.version == 48) {
-      m_version.region = ERegion::KOR;
-    } else {
-      m_version.region = ERegion::USA;
+  {
+    const auto discInfo = CDvdFile::DiscInfo();
+    if (discInfo.gameId[4] != '0' || discInfo.gameId[5] != '1') {
+      Log.report(logvisor::Fatal, FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
     }
-    break;
-  case 'J':
-    m_version.region = ERegion::JPN;
-    break;
-  case 'P':
-    m_version.region = ERegion::PAL;
-    break;
-  default:
-    Log.report(logvisor::Fatal, FMT_STRING("Unknown region {}"), discInfo.gameId[3]);
+    if (strncmp(discInfo.gameId.data(), "GM8", 3) == 0 || strncmp(discInfo.gameId.data(), "R3I", 3) == 0) {
+      m_version.game = EGame::MetroidPrime1;
+    } else if (strncmp(discInfo.gameId.data(), "G2M", 3) == 0 || strncmp(discInfo.gameId.data(), "R32", 3) == 0) {
+      m_version.game = EGame::MetroidPrime2;
+    } else if (strncmp(discInfo.gameId.data(), "R3M", 3) == 0) {
+      m_version.game = EGame::MetroidPrime3;
+    } else if (strncmp(discInfo.gameId.data(), "RM3", 3) == 0) {
+      m_version.game = EGame::MetroidPrimeTrilogy;
+    } else {
+      Log.report(logvisor::Fatal, FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
+    }
+    switch (discInfo.gameId[3]) {
+    case 'E':
+      if (m_version.game == EGame::MetroidPrime1 && discInfo.version == 48) {
+        m_version.region = ERegion::KOR;
+      } else {
+        m_version.region = ERegion::USA;
+      }
+      break;
+    case 'J':
+      m_version.region = ERegion::JPN;
+      break;
+    case 'P':
+      m_version.region = ERegion::PAL;
+      break;
+    default:
+      Log.report(logvisor::Fatal, FMT_STRING("Unknown region {}"), discInfo.gameId[3]);
+    }
+    m_version.gameTitle = std::move(discInfo.gameTitle);
   }
 
   if (m_version.game != EGame::MetroidPrime1 && m_version.game != EGame::MetroidPrimeTrilogy) {
@@ -642,8 +645,8 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
   x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
   AddWorldPaks();
 
-  MainLog.report(logvisor::Level::Info, FMT_STRING("Loading data from {} version {} from region {}"),
-                 magic_enum::enum_name(GetGame()), GetVersionString(), magic_enum::enum_name(GetRegion()));
+  MainLog.report(logvisor::Level::Info, FMT_STRING("Loading data from {} {} ({})"),
+                 GetGameTitle(), magic_enum::enum_name(GetRegion()), GetVersionString());
 
   auto args = aurora::get_args();
   for (auto it = args.begin(); it != args.end(); ++it) {

@@ -23,6 +23,7 @@ struct MetaforceVersionInfo {
   std::string version;
   ERegion region;
   EGame game;
+  std::string gameTitle;
 };
 
 class CStopwatch;
@@ -47,6 +48,7 @@ public:
   virtual bool IsUSA() const = 0;
   virtual bool IsKorean() const = 0;
   virtual bool IsTrilogy() const = 0;
+  virtual std::string GetGameTitle() const = 0;
   virtual std::string_view GetVersionString() const = 0;
   virtual void Quit() = 0;
   virtual bool IsPaused() const = 0;

@@ -293,6 +293,7 @@ public:
   bool IsTrilogy() const override { return m_version.game == EGame::MetroidPrimeTrilogy; }
   ERegion GetRegion() const override { return m_version.region; }
   EGame GetGame() const override { return m_version.game; }
+  std::string GetGameTitle() const override { return m_version.gameTitle; }
   std::string_view GetVersionString() const override { return m_version.version; }
   void Quit() override { m_doQuit = true; }
   bool IsPaused() const override { return m_paused; }
