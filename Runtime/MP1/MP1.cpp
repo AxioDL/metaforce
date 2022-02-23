@@ -635,11 +635,11 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
   }
 
   {
-    std::string_view dolFile = "default.dol"sv;
+    auto dolFile = "default.dol"sv;
     if (m_version.game == EGame::MetroidPrimeTrilogy) {
-      dolFile = "rs5mp1_p.dol";
+      dolFile = "rs5mp1_p.dol"sv;
     } else if (m_version.platform == EPlatform::Wii) {
-      dolFile = "rs5mp1jpn_p.dol";
+      dolFile = "rs5mp1jpn_p.dol"sv;
     }
     CDvdFile file(dolFile);
     if (!file) {
@@ -653,7 +653,6 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
     }
     m_version.version = buildInfo;
   }
-
   MainLog.report(logvisor::Level::Info, FMT_STRING("Loading data from {} {} ({})"), GetGameTitle(),
                  magic_enum::enum_name(GetRegion()), GetVersionString());
 

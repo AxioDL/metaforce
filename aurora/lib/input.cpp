@@ -1,7 +1,12 @@
 #include "input.hpp"
 #include <SDL_haptic.h>
 
+#include <absl/container/btree_map.h>
+#include <absl/strings/str_split.h>
+
 namespace aurora::input {
+static logvisor::Module Log("aurora::input");
+
 struct GameController {
   SDL_GameController* m_controller = nullptr;
   bool m_isGameCube = false;
@@ -10,9 +15,68 @@ struct GameController {
 };
 std::unordered_map<Uint32, GameController> g_GameControllers;
 
+static std::optional<std::string> remap_controller_layout(absl::string_view mapping) {
+  std::string newMapping;
+  newMapping.reserve(mapping.size());
+  absl::btree_map<absl::string_view, absl::string_view> entries;
+  for (size_t idx = 0; const auto value : absl::StrSplit(mapping, ',')) {
+    if (idx < 2) {
+      if (idx > 0) {
+        newMapping.push_back(',');
+      }
+      newMapping.append(value);
+    } else {
+      const auto split = absl::StrSplit(value, absl::MaxSplits(':', 2));
+      auto iter = split.begin();
+      entries.emplace(*iter++, *iter);
+    }
+    idx++;
+  }
+  if (entries.contains("rightshoulder"sv) && !entries.contains("leftshoulder"sv)) {
+    Log.report(logvisor::Info, FMT_STRING("Remapping GameCube controller layout"));
+    // TODO trigger buttons may differ per platform
+    entries.insert_or_assign("leftshoulder"sv, "b11"sv);
+    auto zButton = entries["rightshoulder"sv];
+    entries.insert_or_assign("rightshoulder"sv, "b10"sv);
+    entries.insert_or_assign("back"sv, zButton);
+  } else if (entries.contains("leftshoulder"sv) && entries.contains("rightshoulder"sv) && entries.contains("back"sv)) {
+    Log.report(logvisor::Info, FMT_STRING("Controller has standard layout"));
+    auto a = entries["a"sv];
+    entries.insert_or_assign("a"sv, entries["b"sv]);
+    entries.insert_or_assign("b"sv, a);
+    auto x = entries["x"sv];
+    entries.insert_or_assign("x"sv, entries["y"sv]);
+    entries.insert_or_assign("y"sv, x);
+  } else {
+    Log.report(logvisor::Error, FMT_STRING("Controller has unsupported layout: {}"), mapping);
+    return {};
+  }
+  for (const auto [k, v] : entries) {
+    newMapping.push_back(',');
+    newMapping.append(k);
+    newMapping.push_back(':');
+    newMapping.append(v);
+  }
+  Log.report(logvisor::Info, FMT_STRING("New mapping: {}"), newMapping);
+  return newMapping;
+}
+
 Sint32 add_controller(Sint32 which) noexcept {
   auto* ctrl = SDL_GameControllerOpen(which);
   if (ctrl != nullptr) {
+    {
+      const char* mapping = SDL_GameControllerMapping(ctrl);
+      if (mapping != nullptr) {
+        auto newMapping = remap_controller_layout(mapping);
+        if (newMapping) {
+          if (SDL_GameControllerAddMapping(newMapping->c_str()) == -1) {
+            Log.report(logvisor::Error, FMT_STRING("Failed to update controller mapping: {}"), SDL_GetError());
+          }
+        }
+      } else {
+        Log.report(logvisor::Error, FMT_STRING("Failed to retrieve mapping for controller"));
+      }
+    }
     GameController controller;
     controller.m_controller = ctrl;
     controller.m_index = which;
