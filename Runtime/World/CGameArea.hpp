@@ -364,7 +364,6 @@ public:
 
   CGameArea* GetNext() const { return x130_next; }
 
-  static void WarmupShaders(const SObjectTag& mreaTag);
   void DebugDraw();
   void DebugDrawLight(const CLight& light);
 };

@@ -261,7 +261,6 @@ private:
   std::unique_ptr<boo::IAudioVoiceEngine> m_voiceEngine;
 
   Limiter m_limiter{};
-  bool m_noShaderWarmup = false;
 
   bool m_firstFrame = true;
   bool m_fullscreenToggleRequested = false;
@@ -290,8 +289,6 @@ public:
       auto arg = static_cast<std::string>(str);
       if (m_deferredProject.empty() && !arg.starts_with('-') && !arg.starts_with('+'))
         m_deferredProject = arg;
-      if (arg == "--no-shader-warmup")
-        m_noShaderWarmup = true;
       else if (arg == "--no-sound")
         m_voiceEngine->setVolume(0.f);
     }
@@ -368,9 +365,6 @@ public:
     if (!g_mainMP1 && m_projectInitialized) {
       g_mainMP1.emplace(nullptr, nullptr);
       g_mainMP1->Init(m_fileMgr, &m_cvarManager, m_voiceEngine.get(), *m_amuseAllocWrapper);
-      if (!m_noShaderWarmup) {
-        g_mainMP1->WarmupShaders();
-      }
     }
 
     float dt = 1 / 60.f;

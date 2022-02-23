@@ -304,9 +304,6 @@ public:
 //  void ApplyVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf,
 //                        const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const;
 //  void RestoreVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf) const;
-
-  void _WarmupShaders();
-  static void WarmupShaders(const SObjectTag& cmdlTag);
 };
 
 CFactoryFnReturn FPCModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,

@@ -45,7 +45,6 @@ public:
   virtual EClientFlowStates GetFlowState() const = 0;
   virtual void SetFlowState(EClientFlowStates) = 0;
   virtual size_t GetExpectedIdSize() const = 0;
-  virtual void WarmupShaders() = 0;
   virtual EGame GetGame() const = 0;
   virtual ERegion GetRegion() const = 0;
   virtual bool IsPAL() const = 0;

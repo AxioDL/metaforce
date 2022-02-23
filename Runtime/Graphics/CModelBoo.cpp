@@ -1313,34 +1313,6 @@ zeus::CVector3f CModel::GetPoolNormal(size_t idx) const {
 //  vertBuf->unmap();
 //}
 
-void CModel::_WarmupShaders() {
-//  CBooModel::SetDummyTextures(true);
-//  CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp.get(), zeus::CTransform());
-//  CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
-//  zeus::CTransform backupViewPoint = CGraphics::g_ViewMatrix;
-//  zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;
-//  CGraphics::SetModelMatrix(zeus::CTransform::Translate(-m_aabb.center()));
-//  CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(0.f, -2048.f, 0.f));
-//  CGraphics::SetOrtho(-2048.f, 2048.f, 2048.f, -2048.f, 0.f, 4096.f);
-//  CModelFlags defaultFlags;
-//  for (SShader& shader : x18_matSets) {
-//    GetInstance().RemapMaterialData(shader);
-//    GetInstance().UpdateUniformData(defaultFlags, nullptr, nullptr);
-//    GetInstance().WarmupDrawSurfaces();
-//  }
-//  CGraphics::SetProjectionState(backupProj);
-//  CGraphics::SetViewPointMatrix(backupViewPoint);
-//  CGraphics::SetModelMatrix(backupModel);
-//  CBooModel::DisableShadowMaps();
-//  CBooModel::SetDummyTextures(false);
-}
-
-void CModel::WarmupShaders(const SObjectTag& cmdlTag) {
-  TToken<CModel> model = g_SimplePool->GetObj(cmdlTag);
-  CModel* modelObj = model.GetObj();
-  modelObj->_WarmupShaders();
-}
-
 CFactoryFnReturn FPCModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
                                const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef) {
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();

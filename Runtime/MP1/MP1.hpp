@@ -215,14 +215,7 @@ private:
   bool x161_24_gameFrameDrawn : 1 = false;
   std::unique_ptr<CGameArchitectureSupport> x164_archSupport;
 
-//  boo::IWindow* m_mainWindow = nullptr;
   CVarManager* m_cvarMgr = nullptr;
-  std::unique_ptr<CVarCommons> m_cvarCommons;
-//  std::unique_ptr<Console> m_console;
-  // Warmup state
-  std::vector<SObjectTag> m_warmupTags;
-  std::vector<SObjectTag>::iterator m_warmupIt;
-  bool m_needsWarmupClear = false;
   bool m_loadedPersistentResources = false;
   bool m_doQuit = false;
   bool m_paused = false;
@@ -254,7 +247,6 @@ public:
   // backend);
   void Init(const FileStoreManager& storeMgr, CVarManager* cvarManager, boo::IAudioVoiceEngine* voiceEngine,
             amuse::IBackendVoiceAllocator& backend) override;
-  void WarmupShaders() override;
   bool Proc(float dt) override;
   void Draw() override;
   void Shutdown() override;

@@ -582,7 +582,6 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
                  amuse::IBackendVoiceAllocator& backend) {
   InitializeDiscord();
   m_cvarMgr = cvarMgr;
-  m_cvarCommons = std::make_unique<CVarCommons>(*m_cvarMgr);
 
   {
     const auto discInfo = CDvdFile::DiscInfo();
@@ -723,46 +722,8 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
   // g_TweakManager->ReadFromMemoryCard("AudioTweaks");
 }
 
-static logvisor::Module WarmupLog("ShaderWarmup");
-
-void CMain::WarmupShaders() {
-  if (!m_warmupTags.empty())
-    return;
-
-  m_needsWarmupClear = true;
-  size_t modelCount = 0;
-  g_ResFactory->EnumerateResources([&](const SObjectTag& tag) {
-    if (tag.type == FOURCC('CMDL') || tag.type == FOURCC('MREA')) {
-      ++modelCount;
-    }
-    return true;
-  });
-  m_warmupTags.reserve(modelCount);
-
-  std::unordered_set<SObjectTag> addedTags;
-  addedTags.reserve(modelCount);
-
-  g_ResFactory->EnumerateResources([&](const SObjectTag& tag) {
-    if (tag.type == FOURCC('CMDL') || tag.type == FOURCC('MREA')) {
-      if (addedTags.find(tag) != addedTags.end()) {
-        return true;
-      }
-      addedTags.insert(tag);
-      m_warmupTags.push_back(tag);
-    }
-    return true;
-  });
-
-  m_warmupIt = m_warmupTags.begin();
-
-  WarmupLog.report(logvisor::Info, FMT_STRING("Began warmup of {} objects"), m_warmupTags.size());
-}
-
 bool CMain::Proc(float dt) {
   CRandom16::ResetNumNextCalls();
-  // Warmup cycle overrides update
-  if (m_warmupTags.size())
-    return false;
   if (!m_loadedPersistentResources) {
     x128_globalObjects->m_gameResFactory->LoadPersistentResources(*g_SimplePool);
     m_loadedPersistentResources = true;
@@ -794,37 +755,7 @@ bool CMain::Proc(float dt) {
 }
 
 void CMain::Draw() {
-  // Warmup cycle overrides draw
-  if (m_warmupTags.size()) {
-    if (m_needsWarmupClear) {
-//      CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
-      m_needsWarmupClear = false;
-    }
-    auto startTime = std::chrono::steady_clock::now();
-    while (m_warmupIt != m_warmupTags.end()) {
-      WarmupLog.report(logvisor::Info, FMT_STRING("[{} / {}] Warming {}"), int(m_warmupIt - m_warmupTags.begin() + 1),
-                       int(m_warmupTags.size()), *m_warmupIt);
-
-      if (m_warmupIt->type == FOURCC('CMDL'))
-        CModel::WarmupShaders(*m_warmupIt);
-      else if (m_warmupIt->type == FOURCC('MREA'))
-        CGameArea::WarmupShaders(*m_warmupIt);
-      ++m_warmupIt;
-
-      // Approximately 3/4 frame of warmups
-      auto curTime = std::chrono::steady_clock::now();
-      if (std::chrono::duration_cast<std::chrono::milliseconds>(curTime - startTime).count() > 12)
-        break;
-    }
-    if (m_warmupIt == m_warmupTags.end()) {
-      m_warmupTags = std::vector<SObjectTag>();
-      WarmupLog.report(logvisor::Info, FMT_STRING("Finished warmup"));
-    }
-    return;
-  }
-
   x164_archSupport->Draw();
-//  m_console->draw(CGraphics::g_BooMainCommandQueue);
 }
 
 void CMain::ShutdownSubsystems() {
@@ -839,7 +770,6 @@ void CMain::ShutdownSubsystems() {
 }
 
 void CMain::Shutdown() {
-//  m_console->unregisterCommand("Give");
   x128_globalObjects->m_gameResFactory->UnloadPersistentResources();
   x164_archSupport.reset();
   ShutdownSubsystems();
