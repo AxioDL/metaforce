@@ -39,6 +39,7 @@ class CDvdFile {
   static std::mutex m_WaitMutex;
   static std::atomic_bool m_WorkerRun;
   static std::vector<std::shared_ptr<IDvdRequest>> m_RequestQueue;
+  static std::string m_rootDirectory;
   static void WorkerProc();
 
   std::string x18_path;
@@ -52,6 +53,7 @@ class CDvdFile {
 public:
   static bool Initialize(const std::string_view& path);
   static SDiscInfo DiscInfo();
+  static void SetRootDirectory(const std::string_view& rootDir);
   static void Shutdown();
 
   CDvdFile(std::string_view path);

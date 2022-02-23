@@ -589,14 +589,24 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
     if (discInfo.gameId[4] != '0' || discInfo.gameId[5] != '1') {
       Log.report(logvisor::Fatal, FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
     }
-    if (strncmp(discInfo.gameId.data(), "GM8", 3) == 0 || strncmp(discInfo.gameId.data(), "R3I", 3) == 0) {
+    if (strncmp(discInfo.gameId.data(), "GM8", 3) == 0) {
       m_version.game = EGame::MetroidPrime1;
-    } else if (strncmp(discInfo.gameId.data(), "G2M", 3) == 0 || strncmp(discInfo.gameId.data(), "R32", 3) == 0) {
+      m_version.platform = EPlatform::GameCube;
+    } else if (strncmp(discInfo.gameId.data(), "R3I", 3) == 0) {
+      m_version.game = EGame::MetroidPrime1;
+      m_version.platform = EPlatform::Wii;
+    } else if (strncmp(discInfo.gameId.data(), "G2M", 3) == 0) {
       m_version.game = EGame::MetroidPrime2;
-    } else if (strncmp(discInfo.gameId.data(), "R3M", 3) == 0) {
-      m_version.game = EGame::MetroidPrime3;
+      m_version.platform = EPlatform::GameCube;
+    } else if (strncmp(discInfo.gameId.data(), "R32", 3) == 0) {
+      m_version.game = EGame::MetroidPrime2;
+      m_version.platform = EPlatform::Wii;
     } else if (strncmp(discInfo.gameId.data(), "RM3", 3) == 0) {
+      m_version.game = EGame::MetroidPrime3;
+      m_version.platform = EPlatform::Wii;
+    } else if (strncmp(discInfo.gameId.data(), "R3M", 3) == 0) {
       m_version.game = EGame::MetroidPrimeTrilogy;
+      m_version.platform = EPlatform::Wii;
     } else {
       Log.report(logvisor::Fatal, FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
     }
@@ -625,9 +635,15 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
   }
 
   {
-    CDvdFile file("default.dol");
+    std::string_view dolFile = "default.dol"sv;
+    if (m_version.game == EGame::MetroidPrimeTrilogy) {
+      dolFile = "rs5mp1_p.dol";
+    } else if (m_version.platform == EPlatform::Wii) {
+      dolFile = "rs5mp1jpn_p.dol";
+    }
+    CDvdFile file(dolFile);
     if (!file) {
-      Log.report(logvisor::Fatal, FMT_STRING("Failed to open default.dol"));
+      Log.report(logvisor::Fatal, FMT_STRING("Failed to open {}"), dolFile);
     }
     std::unique_ptr<u8[]> buf = std::make_unique<u8[]>(file.Length());
     u32 readLen = file.SyncRead(buf.get(), file.Length());
@@ -638,15 +654,20 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
     m_version.version = buildInfo;
   }
 
+  MainLog.report(logvisor::Level::Info, FMT_STRING("Loading data from {} {} ({})"), GetGameTitle(),
+                 magic_enum::enum_name(GetRegion()), GetVersionString());
+
+  if (m_version.game == EGame::MetroidPrimeTrilogy) {
+    CDvdFile::SetRootDirectory("MP1");
+  } else if (m_version.platform == EPlatform::Wii) {
+    CDvdFile::SetRootDirectory("MP1JPN");
+  }
   InitializeSubsystems();
   AddOverridePaks();
   x128_globalObjects->PostInitialize();
   x70_tweaks.RegisterTweaks(m_cvarMgr);
   x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
   AddWorldPaks();
-
-  MainLog.report(logvisor::Level::Info, FMT_STRING("Loading data from {} {} ({})"),
-                 GetGameTitle(), magic_enum::enum_name(GetRegion()), GetVersionString());
 
   auto args = aurora::get_args();
   for (auto it = args.begin(); it != args.end(); ++it) {

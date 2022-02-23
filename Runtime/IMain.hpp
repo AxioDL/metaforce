@@ -18,11 +18,16 @@ enum class EGame {
   MetroidPrime3,
   MetroidPrimeTrilogy,
 };
+enum class EPlatform {
+  GameCube,
+  Wii,
+};
 
 struct MetaforceVersionInfo {
   std::string version;
   ERegion region;
   EGame game;
+  EPlatform platform;
   std::string gameTitle;
 };
 

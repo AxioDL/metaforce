@@ -94,6 +94,7 @@ std::condition_variable CDvdFile::m_WorkerCV;
 std::mutex CDvdFile::m_WaitMutex;
 std::atomic_bool CDvdFile::m_WorkerRun = {false};
 std::vector<std::shared_ptr<IDvdRequest>> CDvdFile::m_RequestQueue;
+std::string CDvdFile::m_rootDirectory;
 
 CDvdFile::CDvdFile(std::string_view path) : x18_path(path) {
   auto* node = ResolvePath(path);
@@ -169,6 +170,13 @@ nod::Node* CDvdFile::ResolvePath(std::string_view path) {
   if (path.starts_with('/')) {
     path.remove_prefix(1);
   }
+  std::string prefixedPath;
+  if (!m_rootDirectory.empty()) {
+    prefixedPath = m_rootDirectory;
+    prefixedPath += '/';
+    prefixedPath += path;
+    path = prefixedPath;
+  }
   auto* node = &m_DvdRoot->getDataPartition()->getFSTRoot();
   while (node != nullptr && !path.empty()) {
     std::string component;
@@ -231,5 +239,7 @@ SDiscInfo CDvdFile::DiscInfo() {
   out.gameTitle = header.m_gameTitle;
   return out;
 }
+
+void CDvdFile::SetRootDirectory(const std::string_view& rootDir) { m_rootDirectory = rootDir; }
 
 } // namespace metaforce
