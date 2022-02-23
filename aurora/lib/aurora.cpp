@@ -230,13 +230,16 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   for (size_t i = 1; i < argc; ++i) {
     g_Args.emplace_back(argv[i]);
   }
-#if !defined(_WIN32) && !defined(__APPLE__)
-  SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
-#endif
+
   if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
     Log.report(logvisor::Fatal, FMT_STRING("Error initializing SDL: {}"), SDL_GetError());
     unreachable();
   }
+
+#if !defined(_WIN32) && !defined(__APPLE__)
+  SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
+#endif
+  SDL_SetHint(SDL_HINT_JOYSTICK_GAMECUBE_RUMBLE_BRAKE, "1");
 
   Uint32 flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
   switch (gpu::preferredBackendType) {
