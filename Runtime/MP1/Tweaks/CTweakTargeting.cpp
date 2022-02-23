@@ -2,7 +2,7 @@
 #include "Runtime/Streams/IOStreams.hpp"
 
 namespace metaforce::MP1 {
-CTweakTargeting::CTweakTargeting(CInputStream& in, bool hasNewFields) {
+CTweakTargeting::CTweakTargeting(CInputStream& in) {
   x4_targetRadiusMode = in.ReadLong();
   x8_currLockOnExitDuration = in.ReadFloat();
   xc_currLockOnEnterDuration = in.ReadFloat();
@@ -126,11 +126,6 @@ CTweakTargeting::CTweakTargeting(CInputStream& in, bool hasNewFields) {
   x21c_scanTargetClampMin = in.ReadFloat();
   x220_scanTargetClampMax = in.ReadFloat();
   x224_angularLagSpeed = in.ReadFloat();
-
-  if (hasNewFields) {
-    x218_ = in.ReadFloat();
-    x21c_ = in.ReadFloat();
-  }
 
   x124_chargeTickAnglePitch = -zeus::degToRad(x124_chargeTickAnglePitch);
   x140_lockDaggerAngle0 = zeus::degToRad(x140_lockDaggerAngle0);

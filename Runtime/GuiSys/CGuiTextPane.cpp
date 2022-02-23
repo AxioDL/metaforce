@@ -26,7 +26,8 @@ bool testProjectedLine(const zeus::CVector2f& a, const zeus::CVector2f& b, const
 bool CGuiTextPane::sDrawPaneRects = true;
 CGuiTextPane::CGuiTextPane(const CGuiWidgetParms& parms, CSimplePool* sp, const zeus::CVector2f& dim,
                            const zeus::CVector3f& vec, CAssetId fontId, const CGuiTextProperties& props,
-                           const zeus::CColor& fontCol, const zeus::CColor& outlineCol, s32 extentX, s32 extentY)
+                           const zeus::CColor& fontCol, const zeus::CColor& outlineCol, s32 extentX, s32 extentY,
+                           CAssetId jpFontId, s32 jpExtentX, s32 jpExtentY)
 : CGuiPane(parms, dim, vec)
 , xd4_textSupport(fontId, props, fontCol, outlineCol, zeus::skWhite, extentX, extentY, sp, xac_drawFlags) {}
 
@@ -133,7 +134,7 @@ bool CGuiTextPane::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2
   return j == 3 && testProjectedLine(projPoints[3], projPoints[0], point);
 }
 
-std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
+std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp, u32 version) {
   const CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
   const zeus::CVector2f dim = in.Get<zeus::CVector2f>();
   const zeus::CVector3f vec = in.Get<zeus::CVector3f>();
@@ -147,7 +148,16 @@ std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream&
   const zeus::CColor outlineCol = in.Get<zeus::CColor>();
   const int extentX = static_cast<int>(in.ReadFloat());
   const int extentY = static_cast<int>(in.ReadFloat());
-  auto ret = std::make_shared<CGuiTextPane>(parms, sp, dim, vec, fontId, props, fontCol, outlineCol, extentX, extentY);
+  int jpExtentX = extentX;
+  int jpExtentY = extentY;
+  CAssetId jpFontId = fontId;
+  if (version != 0) {
+    jpFontId = in.Get<CAssetId>();
+    jpExtentX = in.ReadLong();
+    jpExtentY = in.ReadLong();
+  }
+  auto ret = std::make_shared<CGuiTextPane>(parms, sp, dim, vec, fontId, props, fontCol, outlineCol, extentX, extentY,
+                                            jpFontId, jpExtentY, jpExtentY);
   ret->ParseBaseInfo(frame, in, parms);
   ret->InitializeBuffers();
   ret->TextSupport().SetText(u"");

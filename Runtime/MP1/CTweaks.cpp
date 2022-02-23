@@ -68,7 +68,7 @@ void CTweaks::RegisterTweaks(CVarManager* cvarMgr) {
   u8* Args = g_ResFactory->LoadResourceSync(*tag).release();
   u32 size = g_ResFactory->ResourceSize(*tag);
   strm.emplace(Args, size, CMemoryInStream::EOwnerShip::Owned);
-  g_tweakTargeting = new MP1::CTweakTargeting(*strm, g_Main->IsTrilogy() || g_Main->IsPAL() || g_Main->IsJapanese());
+  g_tweakTargeting = new MP1::CTweakTargeting(*strm);
   g_tweakTargeting->initCVars(cvarMgr);
   /* Game */
   tag = g_ResFactory->GetResourceIdByName("Game");

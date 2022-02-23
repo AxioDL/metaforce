@@ -125,9 +125,6 @@ struct CTweakTargeting final : public Tweaks::ITweakTargeting {
   float x220_scanTargetClampMax{};
   float x224_angularLagSpeed{};
 
-  // RS5
-  float x218_{};
-  float x21c_{};
   bool x224_ = true;
   bool x225_ = false;
   bool x226_ = true;
@@ -189,7 +186,7 @@ struct CTweakTargeting final : public Tweaks::ITweakTargeting {
   zeus::CColor x380_ = static_cast<zeus::Comp32>(0xff6b60ff);
 
   CTweakTargeting() = default;
-  CTweakTargeting(CInputStream& r, bool hasNewFields);
+  CTweakTargeting(CInputStream& r);
   u32 GetTargetRadiusMode() const override { return x4_targetRadiusMode; }
   float GetCurrLockOnExitDuration() const override { return x8_currLockOnExitDuration; }
   float GetCurrLockOnEnterDuration() const override { return xc_currLockOnEnterDuration; }

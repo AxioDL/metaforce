@@ -713,9 +713,11 @@ void CFrontEndUI::SNewFileSelectFrame::StartTextAnimating(CGuiTextPane* text, st
 }
 
 CFrontEndUI::SFusionBonusFrame::SFusionBonusFrame(CFrontEndUITouchBar& touchBar) : m_touchBar(touchBar) {
-  x4_gbaSupport = std::make_unique<CGBASupport>();
-  xc_gbaScreen = g_SimplePool->GetObj("FRME_GBAScreen");
-  x18_gbaLink = g_SimplePool->GetObj("FRME_GBALink");
+  if (!g_Main->IsTrilogy()) {
+    x4_gbaSupport = std::make_unique<CGBASupport>();
+    xc_gbaScreen = g_SimplePool->GetObj("FRME_GBAScreen");
+    x18_gbaLink = g_SimplePool->GetObj("FRME_GBALink");
+  }
 }
 
 void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SetUIText(EUIType tp) {
@@ -1871,19 +1873,20 @@ void CFrontEndUI::SetCurrentMovie(EMenuMovie movie) {
   }
 
   StopAttractMovie();
+  if (!g_Main->IsTrilogy()) {
+    if (xb8_curMovie != EMenuMovie::Stopped) {
+      xcc_curMoviePtr->SetPlayMode(CMoviePlayer::EPlayMode::Stopped);
+      xcc_curMoviePtr->Rewind();
+    }
 
-  if (xb8_curMovie != EMenuMovie::Stopped) {
-    xcc_curMoviePtr->SetPlayMode(CMoviePlayer::EPlayMode::Stopped);
-    xcc_curMoviePtr->Rewind();
-  }
+    xb8_curMovie = movie;
 
-  xb8_curMovie = movie;
-
-  if (xb8_curMovie != EMenuMovie::Stopped) {
-    xcc_curMoviePtr = x70_menuMovies[size_t(xb8_curMovie)].get();
-    xcc_curMoviePtr->SetPlayMode(CMoviePlayer::EPlayMode::Playing);
-  } else {
-    xcc_curMoviePtr = nullptr;
+    if (xb8_curMovie != EMenuMovie::Stopped) {
+      xcc_curMoviePtr = x70_menuMovies[size_t(xb8_curMovie)].get();
+      xcc_curMoviePtr->SetPlayMode(CMoviePlayer::EPlayMode::Playing);
+    } else {
+      xcc_curMoviePtr = nullptr;
+    }
   }
 }
 
@@ -1908,15 +1911,15 @@ void CFrontEndUI::StartStateTransition(EScreen screen) {
     if (screen != EScreen::FileSelect)
       break;
     SetCurrentMovie(EMenuMovie::StartFileSelectA);
-    SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
+    SetFadeBlackTimer(!g_Main->IsTrilogy() ? xcc_curMoviePtr->GetTotalSeconds() : 5);
     break;
   case EScreen::FileSelect:
     if (screen == EScreen::ToPlayGame) {
       SetCurrentMovie(EMenuMovie::FileSelectPlayGameA);
-      SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
+      SetFadeBlackTimer(!g_Main->IsTrilogy() ? xcc_curMoviePtr->GetTotalSeconds() : 5);
     } else if (screen == EScreen::FusionBonus) {
       SetCurrentMovie(EMenuMovie::FileSelectGBA);
-      SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
+      SetFadeBlackTimer(!g_Main->IsTrilogy() ? xcc_curMoviePtr->GetTotalSeconds() : 5);
       CSfxManager::SfxStart(SFXfnt_tofusion_L, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
       CSfxManager::SfxStart(SFXfnt_tofusion_R, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
@@ -1924,10 +1927,10 @@ void CFrontEndUI::StartStateTransition(EScreen screen) {
   case EScreen::FusionBonus:
     if (screen == EScreen::ToPlayGame) {
       SetCurrentMovie(EMenuMovie::GBAFileSelectB);
-      SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
+      SetFadeBlackTimer(!g_Main->IsTrilogy() ? xcc_curMoviePtr->GetTotalSeconds() : 5);
     } else if (screen == EScreen::FileSelect) {
       SetCurrentMovie(EMenuMovie::GBAFileSelectA);
-      SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
+      SetFadeBlackTimer(!g_Main->IsTrilogy() ? xcc_curMoviePtr->GetTotalSeconds() : 5);
       CSfxManager::SfxStart(SFXfnt_fromfusion_L, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
       CSfxManager::SfxStart(SFXfnt_fromfusion_R, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
@@ -1940,7 +1943,7 @@ void CFrontEndUI::StartStateTransition(EScreen screen) {
   case EScreen::OpenCredits:
   case EScreen::Title:
     SetCurrentMovie(EMenuMovie::FirstStart);
-    SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
+    SetFadeBlackTimer(!g_Main->IsTrilogy() ? xcc_curMoviePtr->GetTotalSeconds() : 5);
     break;
   case EScreen::AttractMovie:
     StartAttractMovie();
@@ -2136,6 +2139,9 @@ bool CFrontEndUI::PumpMovieLoad() {
   if (xd1_moviesLoaded) {
     return true;
   }
+  if (g_Main->IsTrilogy()) {
+    return true;
+  }
 
   for (size_t i = 0; i < x70_menuMovies.size(); ++i) {
     if (x70_menuMovies[i] != nullptr) {
@@ -2156,8 +2162,10 @@ bool CFrontEndUI::PumpMovieLoad() {
       }
     }
 
-    x70_menuMovies[i] = std::make_unique<CMoviePlayer>(path.c_str(), 0.05f, movie.loop, false);
-    x70_menuMovies[i]->SetPlayMode(CMoviePlayer::EPlayMode::Stopped);
+    if (CDvdFile::FileExists(path)) {
+      x70_menuMovies[i] = std::make_unique<CMoviePlayer>(path.c_str(), 0.05f, movie.loop, false);
+      x70_menuMovies[i]->SetPlayMode(CMoviePlayer::EPlayMode::Stopped);
+    }
     return false;
   }
 
@@ -2348,7 +2356,9 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
     /* Poll loading DGRP resources */
     if (PumpLoad()) {
       xe0_frontendCardFrme = std::make_unique<SNewFileSelectFrame>(xdc_saveUI.get(), x1c_rndB, *m_touchBar);
-      xe4_fusionBonusFrme = std::make_unique<SFusionBonusFrame>(*m_touchBar);
+      if (!g_Main->IsTrilogy()) {
+        xe4_fusionBonusFrme = std::make_unique<SFusionBonusFrame>(*m_touchBar);
+      }
       xe8_frontendNoCardFrme = std::make_unique<SFrontEndFrame>(x1c_rndB, *m_touchBar);
       x38_pressStart.GetObj();
       CAudioSys::AddAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
@@ -2361,9 +2371,12 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
     [[fallthrough]];
 
   case EPhase::LoadFrames:
+    if (!g_Main->IsTrilogy() && !xe4_fusionBonusFrme->PumpLoad()) {
+      return EMessageReturn::Exit;
+    }
     /* Poll loading music and FRME resources */
     if (!xd4_audio1->IsReady() || !xd8_audio2->IsReady() || !xe0_frontendCardFrme->PumpLoad() ||
-        !xe4_fusionBonusFrme->PumpLoad() || !xe8_frontendNoCardFrme->PumpLoad() || !xdc_saveUI->PumpLoad())
+        !xe8_frontendNoCardFrme->PumpLoad() || !xdc_saveUI->PumpLoad())
       return EMessageReturn::Exit;
     xf4_curAudio = xd4_audio1.get();
     xf4_curAudio->StartMixing();
@@ -2377,8 +2390,12 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
       /* Prime first frame of movies */
       UpdateMovies(dt);
 
-      moviesReady = std::all_of(x70_menuMovies.cbegin(), x70_menuMovies.cend(),
-                                [](const auto& movie) { return movie->GetIsFullyCached(); });
+      if (!g_Main->IsTrilogy()) {
+        moviesReady = std::all_of(x70_menuMovies.cbegin(), x70_menuMovies.cend(),
+                                  [](const auto& movie) { return movie->GetIsFullyCached(); });
+      } else {
+        moviesReady = true;
+      }
     } else {
       moviesReady = false;
     }
@@ -2487,15 +2504,23 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
 
     if (x50_curScreen == EScreen::Title && x54_nextScreen == EScreen::FileSelect) {
       /* Fade out title music */
-      x68_musicVol =
-          1.f - zeus::clamp(0.f, (xcc_curMoviePtr->GetPlayedSeconds() - AudioFadeTimeA[x18_rndA]) / 2.5f, 1.f);
+      if (!g_Main->IsTrilogy()) {
+        x68_musicVol =
+            1.f - zeus::clamp(0.f, (xcc_curMoviePtr->GetPlayedSeconds() - AudioFadeTimeA[x18_rndA]) / 2.5f, 1.f);
+      } else {
+        x68_musicVol -= dt;
+      }
     } else if (x54_nextScreen == EScreen::ToPlayGame) {
       /* Fade out menu music */
-      float delay = AudioFadeTimeB[x1c_rndB];
-      x68_musicVol =
-          1.f -
-          zeus::clamp(0.f, (xcc_curMoviePtr->GetPlayedSeconds() - delay) / (xcc_curMoviePtr->GetTotalSeconds() - delay),
-                      1.f);
+      if (!g_Main->IsTrilogy()) {
+        float delay = AudioFadeTimeB[x1c_rndB];
+        x68_musicVol =
+            1.f -
+            zeus::clamp(
+                0.f, (xcc_curMoviePtr->GetPlayedSeconds() - delay) / (xcc_curMoviePtr->GetTotalSeconds() - delay), 1.f);
+      } else {
+        x68_musicVol -= dt;
+      }
     } else {
       /* Full music volume */
       x68_musicVol = 1.f;

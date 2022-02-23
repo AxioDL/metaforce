@@ -163,13 +163,13 @@ void CGuiFrame::Initialize() {
   xc_headWidget->DispatchInitialize();
 }
 
-void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp) {
+void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp, u32 version) {
   u32 count = in.ReadLong();
   x2c_widgets.reserve(count);
   for (u32 i = 0; i < count; ++i) {
     FourCC type;
     in.Get(reinterpret_cast<u8*>(&type), 4);
-    std::shared_ptr<CGuiWidget> widget = CGuiSys::CreateWidgetInGame(type.toUint32(), in, this, sp);
+    std::shared_ptr<CGuiWidget> widget = CGuiSys::CreateWidgetInGame(type.toUint32(), in, this, sp, version);
     switch (widget->GetWidgetTypeID().toUint32()) {
     case SBIG('CAMR'):
     case SBIG('LITE'):
@@ -263,13 +263,13 @@ void CGuiFrame::ResetMouseState() {
 }
 
 std::unique_ptr<CGuiFrame> CGuiFrame::CreateFrame(CAssetId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp) {
-  in.ReadLong();
+  u32 version = in.ReadLong();
   int a = in.ReadLong();
   int b = in.ReadLong();
   int c = in.ReadLong();
 
   std::unique_ptr<CGuiFrame> ret = std::make_unique<CGuiFrame>(frmeId, sys, a, b, c, sp);
-  ret->LoadWidgetsInGame(in, sp);
+  ret->LoadWidgetsInGame(in, sp, version);
   return ret;
 }
 

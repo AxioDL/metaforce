@@ -25,7 +25,7 @@ CTextExecuteBuffer* g_TextExecuteBuf = nullptr;
 CTextParser* g_TextParser = nullptr;
 
 std::shared_ptr<CGuiWidget> CGuiSys::CreateWidgetInGame(FourCC type, CInputStream& in, CGuiFrame* frame,
-                                                        CSimplePool* sp) {
+                                                        CSimplePool* sp, u32 version) {
   switch (type.toUint32()) {
   case SBIG('BWIG'):
     return CGuiWidget::Create(frame, in, sp);
@@ -50,7 +50,7 @@ std::shared_ptr<CGuiWidget> CGuiSys::CreateWidgetInGame(FourCC type, CInputStrea
   case SBIG('SLGP'):
     return CGuiSliderGroup::Create(frame, in, sp);
   case SBIG('TXPN'):
-    return CGuiTextPane::Create(frame, in, sp);
+    return CGuiTextPane::Create(frame, in, sp, version);
   case SBIG('ENRG'):
     return CAuiEnergyBarT01::Create(frame, in, sp);
   default:

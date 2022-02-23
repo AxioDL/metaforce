@@ -94,7 +94,7 @@ public:
   void Draw(const CGuiWidgetDrawParms& parms) const;
   CGuiWidget* BestCursorHit(const zeus::CVector2f& point, const CGuiWidgetDrawParms& parms) const;
   void Initialize();
-  void LoadWidgetsInGame(CInputStream& in, CSimplePool* sp);
+  void LoadWidgetsInGame(CInputStream& in, CSimplePool* sp, u32 version);
   void ProcessUserInput(const CFinalInput& input) const;
   bool ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDrawParms& parms);
   void ResetMouseState();
