@@ -464,8 +464,6 @@ public:
       g_mainMP1->Shutdown();
     }
     g_mainMP1.reset();
-    //    m_renderTex.reset();
-    //    m_pipelineConv.reset();
     m_cvarManager.serialize();
     m_voiceEngine.reset();
     m_amuseAllocWrapper.reset();
@@ -473,13 +471,11 @@ public:
   }
 
   void onCharKeyDown(uint8_t code, aurora::ModifierKey mods, bool isRepeat) noexcept override {
-    //    if (!ImGuiWindowCallback::m_keyboardCaptured && g_mainMP1) {
     if (g_mainMP1) {
       if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
         as->charKeyDown(code, mods, isRepeat);
       }
     }
-    //    }
   }
 
   void onCharKeyUp(uint8_t code, aurora::ModifierKey mods) noexcept override {

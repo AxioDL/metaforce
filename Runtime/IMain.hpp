@@ -10,19 +10,19 @@
 namespace metaforce {
 class Console;
 class CVarManager;
-enum class ERegion { Invalid = -1, NTSC_U = 'E', PAL = 'P', NTSC_J = 'J' };
+enum class ERegion { USA, JPN, PAL, KOR };
 enum class EGame {
   Invalid = 0,
   MetroidPrime1,
   MetroidPrime2,
   MetroidPrime3,
+  MetroidPrimeTrilogy,
 };
 
 struct MetaforceVersionInfo {
   std::string version;
   ERegion region;
   EGame game;
-  bool isTrilogy;
 };
 
 class CStopwatch;
@@ -45,6 +45,7 @@ public:
   virtual bool IsPAL() const = 0;
   virtual bool IsJapanese() const = 0;
   virtual bool IsUSA() const = 0;
+  virtual bool IsKorean() const = 0;
   virtual bool IsTrilogy() const = 0;
   virtual std::string_view GetVersionString() const = 0;
   virtual void Quit() = 0;

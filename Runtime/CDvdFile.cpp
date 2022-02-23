@@ -220,4 +220,16 @@ void CDvdFile::Shutdown() {
   m_RequestQueue.clear();
 }
 
+SDiscInfo CDvdFile::DiscInfo() {
+  SDiscInfo out{};
+  if (!m_DvdRoot) {
+    return out;
+  }
+  const auto& header = m_DvdRoot->getHeader();
+  std::memcpy(out.gameId.data(), header.m_gameID, sizeof(header.m_gameID));
+  out.version = header.m_discVersion;
+  out.gameTitle = header.m_gameTitle;
+  return out;
+}
+
 } // namespace metaforce

@@ -22,6 +22,12 @@ enum class ESeekOrigin { Begin = 0, Cur = 1, End = 2 };
 struct DVDFileInfo;
 class IDvdRequest;
 
+struct SDiscInfo {
+  std::array<char, 6> gameId;
+  uint8_t version;
+  std::string gameTitle;
+};
+
 class CDvdFile {
   friend class CResLoader;
   friend class CFileDvdRequest;
@@ -45,6 +51,7 @@ class CDvdFile {
 
 public:
   static bool Initialize(const std::string_view& path);
+  static SDiscInfo DiscInfo();
   static void Shutdown();
 
   CDvdFile(std::string_view path);

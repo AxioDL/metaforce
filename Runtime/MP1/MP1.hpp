@@ -287,9 +287,10 @@ public:
 
   size_t GetExpectedIdSize() const override { return sizeof(u32); }
   bool IsPAL() const override { return m_version.region == ERegion::PAL; }
-  bool IsJapanese() const override { return m_version.region == ERegion::NTSC_J; }
-  bool IsUSA() const override { return m_version.region == ERegion::NTSC_U; }
-  bool IsTrilogy() const override { return m_version.isTrilogy; }
+  bool IsJapanese() const override { return m_version.region == ERegion::JPN; }
+  bool IsUSA() const override { return m_version.region == ERegion::USA; }
+  bool IsKorean() const override { return m_version.region == ERegion::KOR; }
+  bool IsTrilogy() const override { return m_version.game == EGame::MetroidPrimeTrilogy; }
   ERegion GetRegion() const override { return m_version.region; }
   EGame GetGame() const override { return m_version.game; }
   std::string_view GetVersionString() const override { return m_version.version; }

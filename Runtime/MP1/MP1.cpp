@@ -72,6 +72,8 @@
 
 #include "Runtime/MP1/CCredits.hpp"
 
+#include <magic_enum.hpp>
+
 #ifdef ENABLE_DISCORD
 #include <discord_rpc.h>
 #endif
@@ -100,6 +102,8 @@ inline void* memmem(const void* haystack, size_t hlen, const void* needle, size_
 #endif
 
 namespace metaforce::MP1 {
+static logvisor::Module Log{"MP1"};
+
 namespace {
 struct AudioGroupInfo {
   const char* name;
@@ -574,47 +578,61 @@ void CMain::HandleDiscordErrored(int errorCode, const char* message) {
   DiscordLog.report(logvisor::Error, FMT_STRING("Discord Error: {}"), message);
 }
 
-void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr,
-                 boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) {
+void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IAudioVoiceEngine* voiceEngine,
+                 amuse::IBackendVoiceAllocator& backend) {
   InitializeDiscord();
   m_cvarMgr = cvarMgr;
   m_cvarCommons = std::make_unique<CVarCommons>(*m_cvarMgr);
 
-  bool loadedVersion = false;
-#if 0
-  if (CDvdFile::FileExists("version.yaml")) {
-    CDvdFile file("version.yaml");
-    if (file) {
-      std::unique_ptr<u8[]> buf = std::make_unique<u8[]>(file.Length());
-      u32 readLen = file.SyncRead(buf.get(), file.Length());
-      if (readLen == file.Length()) {
-        CMemoryInStream memoryInStream(buf.get(), file.Length());
-        athena::io::FromYAMLStream(m_version, memoryInStream);
-        loadedVersion = true;
-        MainLog.report(logvisor::Level::Info, FMT_STRING("Loaded version info"));
-      }
+  const auto discInfo = CDvdFile::DiscInfo();
+  if (discInfo.gameId[4] != '0' || discInfo.gameId[5] != '1') {
+    Log.report(logvisor::Fatal, FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
+  }
+  if (strncmp(discInfo.gameId.data(), "GM8", 3) == 0 || strncmp(discInfo.gameId.data(), "R3I", 3) == 0) {
+    m_version.game = EGame::MetroidPrime1;
+  } else if (strncmp(discInfo.gameId.data(), "G2M", 3) == 0 || strncmp(discInfo.gameId.data(), "R32", 3) == 0) {
+    m_version.game = EGame::MetroidPrime2;
+  } else if (strncmp(discInfo.gameId.data(), "R3M", 3) == 0) {
+    m_version.game = EGame::MetroidPrime3;
+  } else if (strncmp(discInfo.gameId.data(), "RM3", 3) == 0) {
+    m_version.game = EGame::MetroidPrimeTrilogy;
+  } else {
+    Log.report(logvisor::Fatal, FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
+  }
+  switch (discInfo.gameId[3]) {
+  case 'E':
+    if (m_version.game == EGame::MetroidPrime1 && discInfo.version == 48) {
+      m_version.region = ERegion::KOR;
+    } else {
+      m_version.region = ERegion::USA;
     }
-  } else
-#endif
-  if (CDvdFile::FileExists("default.dol")) {
+    break;
+  case 'J':
+    m_version.region = ERegion::JPN;
+    break;
+  case 'P':
+    m_version.region = ERegion::PAL;
+    break;
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("Unknown region {}"), discInfo.gameId[3]);
+  }
+
+  if (m_version.game != EGame::MetroidPrime1 && m_version.game != EGame::MetroidPrimeTrilogy) {
+    Log.report(logvisor::Fatal, FMT_STRING("Unsupported game {}"), magic_enum::enum_name(m_version.game));
+  }
+
+  {
     CDvdFile file("default.dol");
-    if (file) {
-      std::unique_ptr<u8[]> buf = std::make_unique<u8[]>(file.Length());
-      u32 readLen = file.SyncRead(buf.get(), file.Length());
-      const char* buildInfo =
-          static_cast<char*>(memmem(buf.get(), readLen, "MetroidBuildInfo", 16)) + 19;
-      if (buildInfo != nullptr) {
-        // TODO
-        m_version = MetaforceVersionInfo{
-            .version = std::string(buildInfo),
-            .region = ERegion::NTSC_U,
-            .game = EGame::MetroidPrime1,
-            .isTrilogy = false,
-        };
-        loadedVersion = true;
-        MainLog.report(logvisor::Level::Info, FMT_STRING("Loaded version info"));
-      }
+    if (!file) {
+      Log.report(logvisor::Fatal, FMT_STRING("Failed to open default.dol"));
     }
+    std::unique_ptr<u8[]> buf = std::make_unique<u8[]>(file.Length());
+    u32 readLen = file.SyncRead(buf.get(), file.Length());
+    const char* buildInfo = static_cast<char*>(memmem(buf.get(), readLen, "MetroidBuildInfo", 16)) + 19;
+    if (buildInfo == nullptr) {
+      Log.report(logvisor::Fatal, FMT_STRING("Failed to locate MetroidBuildInfo"));
+    }
+    m_version.version = buildInfo;
   }
 
   InitializeSubsystems();
@@ -624,16 +642,8 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr,
   x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
   AddWorldPaks();
 
-  if (loadedVersion) {
-    if (GetGame() != EGame::MetroidPrime1) {
-      MainLog.report(logvisor::Level::Fatal,
-                     FMT_STRING("Attempted to initialize URDE in MP1 mode with non-MP1 data!!!!"));
-    }
-    MainLog.report(logvisor::Level::Info, FMT_STRING("Loading data from Metroid Prime version {} from region {}{}"),
-                   GetVersionString(), GetRegion(), IsTrilogy() ? " from trilogy" : "");
-  } else {
-    MainLog.report(logvisor::Level::Fatal, FMT_STRING("Unable to load version info"));
-  }
+  MainLog.report(logvisor::Level::Info, FMT_STRING("Loading data from {} version {} from region {}"),
+                 magic_enum::enum_name(GetGame()), GetVersionString(), magic_enum::enum_name(GetRegion()));
 
   auto args = aurora::get_args();
   for (auto it = args.begin(); it != args.end(); ++it) {
