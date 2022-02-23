@@ -653,7 +653,7 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
           x18b4_linVelDamp = 0.4f;
           x18b8_angVelDamp = 0.2f;
           float viewControlMag = viewSurfaceForces.dot(x189c_spiderInterpBetweenPoints.normalized());
-          if (continueTrackForce && x1920_spiderForcesReset) {
+          if (continueTrackForce && !x1920_spiderForcesReset) {
             viewControlMag = x1918_spiderViewControlMag;
           } else {
             x1918_spiderViewControlMag = viewControlMag;
