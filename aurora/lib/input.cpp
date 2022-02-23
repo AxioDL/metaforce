@@ -15,10 +15,10 @@ struct GameController {
 };
 std::unordered_map<Uint32, GameController> g_GameControllers;
 
-static std::optional<std::string> remap_controller_layout(absl::string_view mapping) {
+static std::optional<std::string> remap_controller_layout(std::string_view mapping) {
   std::string newMapping;
   newMapping.reserve(mapping.size());
-  absl::btree_map<absl::string_view, absl::string_view> entries;
+  absl::btree_map<std::string_view, std::string_view> entries;
   for (size_t idx = 0; const auto value : absl::StrSplit(mapping, ',')) {
     if (idx < 2) {
       if (idx > 0) {
@@ -34,11 +34,10 @@ static std::optional<std::string> remap_controller_layout(absl::string_view mapp
   }
   if (entries.contains("rightshoulder"sv) && !entries.contains("leftshoulder"sv)) {
     Log.report(logvisor::Info, FMT_STRING("Remapping GameCube controller layout"));
+    entries.insert_or_assign("back"sv, entries["rightshoulder"sv]);
     // TODO trigger buttons may differ per platform
     entries.insert_or_assign("leftshoulder"sv, "b11"sv);
-    auto zButton = entries["rightshoulder"sv];
     entries.insert_or_assign("rightshoulder"sv, "b10"sv);
-    entries.insert_or_assign("back"sv, zButton);
   } else if (entries.contains("leftshoulder"sv) && entries.contains("rightshoulder"sv) && entries.contains("back"sv)) {
     Log.report(logvisor::Info, FMT_STRING("Controller has standard layout"));
     auto a = entries["a"sv];
