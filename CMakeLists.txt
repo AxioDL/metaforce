@@ -113,9 +113,6 @@ endif()
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force shared libs off" FORCE)
 set(BUILD_STATIC_LIBS ON CACHE BOOL "Force static libs on" FORCE)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/extern/sanitizers-cmake/cmake")
-find_package(Sanitizers)
-
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64)
   set(METAFORCE_VECTOR_ISA "sse41" CACHE STRING "Vector ISA to build for (sse2, sse3, sse41, avx, avx2)")
 endif ()
@@ -344,71 +341,15 @@ if(USE_LD_GOLD)
   endif()
 endif()
 
-# Add discord-rpc here
-if(NOT GEKKO AND NOT NX)
-  set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/discord-rpc)
-  if (NOT CMAKE_INSTALL_LIBDIR)
-    set(CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/fake-prefix)
-  endif()
-  add_subdirectory(extern/discord-rpc/src EXCLUDE_FROM_ALL)
-  target_include_directories(discord-rpc PRIVATE extern/rapidjson/include PUBLIC extern/discord-rpc/include)
-  if (APPLE)
-    # remove their nasty hack
-    get_target_property(DISCORD_LINK_LIBRARIES discord-rpc INTERFACE_LINK_LIBRARIES)
-    list(REMOVE_ITEM DISCORD_LINK_LIBRARIES "-framework AppKit, -mmacosx-version-min=10.10")
-    set_target_properties(discord-rpc PROPERTIES INTERFACE_LINK_LIBRARIES "${DISCORD_LINK_LIBRARIES}")
-  endif ()
-  if (UNIX)
-    # remove another nasty hack
-    get_target_property(DISCORD_COMPILE_OPTIONS discord-rpc COMPILE_OPTIONS)
-    list(REMOVE_ITEM DISCORD_COMPILE_OPTIONS "-g")
-    set_target_properties(discord-rpc PROPERTIES COMPILE_OPTIONS "${DISCORD_COMPILE_OPTIONS}")
-  endif ()
-endif()
-
 if (NOT WIN32)
   find_package(ZLIB REQUIRED)
   set(ZLIB_LIBRARIES ZLIB::ZLIB CACHE STRING "zlib libraries" FORCE)
 endif()
 
-option(BUILD_ATHENA "Build Athena libraries from source" ON)
-if (WIN32 OR APPLE)
-  # Default to binary atdna on Windows & macOS
-  option(BUILD_ATDNA "Build atdna utility from source (requires LLVM)" OFF)
-else ()
-  option(BUILD_ATDNA "Build atdna utility from source (requires LLVM)" ON)
-endif ()
+# TODO migrate bintoc
+include(hecl/ApplicationTools.cmake)
 
-if (NOT BUILD_ATDNA)
-  set(ATHENA_BASE_URL "https://github.com/libAthena/athena/releases/download/latest")
-  if (WIN32)
-    set(ATHENA_EXT 7z)
-  else()
-    set(ATHENA_EXT tar.gz)
-  endif()
-  include(FetchContent)
-  FetchContent_Declare(athena-host
-      URL "${ATHENA_BASE_URL}/athena-${PLATFORM_NAME}-${ATHENA_HOST_ARCH}.${ATHENA_EXT}")
-  message(STATUS "Fetching atdna host binary")
-  FetchContent_Populate(athena-host)
-  include(${athena-host_SOURCE_DIR}/lib/cmake/atdna/atdnaConfig.cmake)
-endif ()
-
-if (BUILD_ATHENA OR BUILD_ATDNA)
-  add_subdirectory(extern/athena EXCLUDE_FROM_ALL)
-else()
-  if (ATHENA_ARCH STREQUAL ATHENA_HOST_ARCH)
-    set(athena_SOURCE_DIR "${athena-host_SOURCE_DIR}")
-  else()
-    FetchContent_Declare(athena
-        URL "${ATHENA_BASE_URL}/athena-${PLATFORM_NAME}-${ATHENA_ARCH}.tar.gz")
-    FetchContent_Populate(athena)
-  endif()
-  include(${athena_SOURCE_DIR}/lib/cmake/athena/AthenaConfig.cmake)
-  include(${athena_SOURCE_DIR}/lib/cmake/lzokay/lzokayConfig.cmake)
-  add_library(lzokay ALIAS lzokay::lzokay)
-  include(extern/athena/atdna/atdnaHelpers.cmake)
-endif()
+add_subdirectory(extern)
 
 set(DATA_SPEC_LIBS RetroDataSpec AssetNameMap)
 set(HECL_DATASPEC_DECLS
@@ -438,17 +379,8 @@ set(HECL_DATASPEC_PUSHES
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3ORIG);")
 
-add_subdirectory(extern/nod EXCLUDE_FROM_ALL)
-add_subdirectory(extern/boo EXCLUDE_FROM_ALL)
-
-include(hecl/ApplicationTools.cmake)
-add_subdirectory(extern/xxhash EXCLUDE_FROM_ALL)
 add_subdirectory(imgui)
-add_subdirectory(extern/libSquish EXCLUDE_FROM_ALL)
-add_subdirectory(extern/libpng EXCLUDE_FROM_ALL)
-add_subdirectory(extern/libjpeg-turbo EXCLUDE_FROM_ALL)
 add_subdirectory(hecl EXCLUDE_FROM_ALL)
-add_subdirectory(extern/zeus EXCLUDE_FROM_ALL)
 target_include_directories(hecl-full PRIVATE ${CMAKE_SOURCE_DIR})
 target_include_directories(hecl-light PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(hecl-full PRIVATE zeus nod)
@@ -462,16 +394,11 @@ if(NOT TARGET atdna)
   endif()
 endif()
 
-add_subdirectory(extern/amuse EXCLUDE_FROM_ALL)
 if (NOT CMAKE_CROSSCOMPILING)
   add_subdirectory(assetnameparser EXCLUDE_FROM_ALL)
 endif ()
 add_compile_definitions(URDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
 add_subdirectory(DataSpec EXCLUDE_FROM_ALL)
-add_subdirectory(extern/kabufuda EXCLUDE_FROM_ALL)
-
-add_subdirectory(extern/jbus EXCLUDE_FROM_ALL)
-set(JBUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/jbus/include)
 
 add_subdirectory(NESEmulator EXCLUDE_FROM_ALL)
 add_subdirectory(aurora)

@@ -39,15 +39,6 @@ add_subdirectory(MP1)
 add_subdirectory(MP2)
 add_subdirectory(MP3)
 
-#if (APPLE)
-#    set_source_files_properties(MP1/CFrontEndUITouchBarMac.mm
-#            MP1/CSaveGameScreenTouchBarMac.mm
-#            CGameOptionsTouchBarMac.mm
-#            PROPERTIES COMPILE_FLAGS -fobjc-arc)
-#    bintoc(startButton.cpp Resources/startButton@2x.png START_BUTTON_2X)
-#    list(APPEND PLAT_SRCS startButton.cpp CGameOptionsTouchBarMac.mm)
-#endif ()
-
 set(CAST_TO_SOURCES
         MkCastTo.py
         TCastTo.hpp TCastTo.cpp)
@@ -228,10 +219,14 @@ elseif (UNIX)
     set(PLAT_LIBS rt)
 endif ()
 
-add_executable(metaforce CMain.cpp ${PLAT_SRCS} ImGuiConsole.hpp ImGuiConsole.cpp ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp ../Graphics/lib.cpp) # ImGuiPlayerLoadouts.hpp
-# target_atdna(metaforce atdna_ImGuiPlayerLoadouts.cpp ImGuiPlayerLoadouts.hpp)
+add_executable(metaforce CMain.cpp ${PLAT_SRCS}
+    ImGuiConsole.hpp ImGuiConsole.cpp
+    ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp)
 # RUNTIME_LIBRARIES repeated here for link ordering
 target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS})
+if (TARGET nativefiledialog)
+    target_link_libraries(metaforce PRIVATE nativefiledialog)
+endif()
 target_compile_definitions(metaforce PUBLIC "-DMETAFORCE_TARGET_BYTE_ORDER=__BYTE_ORDER__")
 
 if (COMMAND add_sanitizers)

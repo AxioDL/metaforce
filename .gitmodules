@@ -63,3 +63,6 @@
 [submodule "extern/dawn"]
 	path = extern/dawn
 	url = https://github.com/encounter/dawn-cmake.git
+[submodule "extern/nativefiledialog"]
+	path = extern/nativefiledialog
+	url = https://github.com/mlabbe/nativefiledialog.git

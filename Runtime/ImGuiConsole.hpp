@@ -39,12 +39,12 @@ public:
   static std::array<ImGuiEntityEntry, kMaxEntities> entities;
   static ImGuiPlayerLoadouts loadouts;
 
-  ImGuiConsole(CVarManager& cvarMgr, CVarCommons& cvarCommons)
-  : m_cvarMgr(cvarMgr), m_cvarCommons(cvarCommons) {}
+  ImGuiConsole(CVarManager& cvarMgr, CVarCommons& cvarCommons) : m_cvarMgr(cvarMgr), m_cvarCommons(cvarCommons) {}
   void PreUpdate();
   void PostUpdate();
   void Shutdown();
-  void ShowAboutWindow(bool canClose, std::string_view errorString = ""sv);
+  std::optional<std::string> ShowAboutWindow(bool canClose, std::string_view errorString = ""sv,
+                                             bool preLaunch = false);
 
   static void BeginEntityRow(const ImGuiEntityEntry& entry);
   static void EndEntityRow(const ImGuiEntityEntry& entry);

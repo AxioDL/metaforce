@@ -4,11 +4,14 @@
 #include "MP1/MP1.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/World/CPlayer.hpp"
 #include "Runtime/ImGuiEntitySupport.hpp"
+#include "Runtime/World/CPlayer.hpp"
 
 #include "ImGuiEngine.hpp"
 #include "magic_enum.hpp"
+#ifdef NATIVEFILEDIALOG_SUPPORTED
+#include "nfd.h"
+#endif
 
 #include <cstdarg>
 
@@ -27,6 +30,7 @@ extern std::atomic_uint32_t createdPipelines;
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
+static logvisor::Module Log{"Console"};
 
 std::array<ImGuiEntityEntry, kMaxEntities> ImGuiConsole::entities;
 std::set<TUniqueId> ImGuiConsole::inspectingEntities;
@@ -42,6 +46,14 @@ void ImGuiTextCenter(std::string_view text) {
   float fontSize = ImGui::CalcTextSize(text.data(), text.data() + text.size()).x;
   ImGui::SameLine(ImGui::GetWindowSize().x / 2 - fontSize + fontSize / 2);
   ImGuiStringViewText(text);
+}
+
+bool ImGuiButtonCenter(std::string_view text) {
+  ImGui::NewLine();
+  float fontSize = ImGui::CalcTextSize(text.data(), text.data() + text.size()).x;
+  fontSize += ImGui::GetStyle().FramePadding.x;
+  ImGui::SameLine(ImGui::GetWindowSize().x / 2 - fontSize + fontSize / 2);
+  return ImGui::Button(text.data());
 }
 
 static std::unordered_map<CAssetId, std::unique_ptr<CDummyWorld>> dummyWorlds;
@@ -601,7 +613,9 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
   ImGui::End();
 }
 
-void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) {
+std::optional<std::string> ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString, bool preLaunch) {
+  std::optional<std::string> result{};
+
   // Center window
   ImVec2 center = ImGui::GetMainViewport()->GetCenter();
   ImGui::SetNextWindowPos(center, canClose ? ImGuiCond_Appearing : ImGuiCond_Always, ImVec2(0.5f, 0.5f));
@@ -628,6 +642,21 @@ void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) 
     ImGuiTextCenter(METAFORCE_WC_DESCRIBE);
     const ImVec2& padding = ImGui::GetStyle().WindowPadding;
     ImGui::Dummy(padding);
+    if (preLaunch) {
+#ifdef NATIVEFILEDIALOG_SUPPORTED
+      if (ImGuiButtonCenter("Select Game Disc")) {
+        nfdchar_t* outPath = nullptr;
+        nfdresult_t nfdResult = NFD_OpenDialog(nullptr, nullptr, &outPath);
+        if (nfdResult == NFD_OKAY) {
+          result = outPath;
+          free(outPath);
+        } else if (nfdResult != NFD_CANCEL) {
+          Log.report(logvisor::Error, FMT_STRING("nativefiledialog error: {}"), NFD_GetError());
+        }
+      }
+      ImGui::Dummy(padding);
+#endif
+    }
     if (!errorString.empty()) {
       ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{0.77f, 0.12f, 0.23f, 1.f});
       ImGuiTextCenter(errorString);
@@ -708,6 +737,7 @@ void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) 
   }
   ImGui::End();
   ImGui::PopStyleColor(2);
+  return result;
 }
 
 void ImGuiConsole::ShowDebugOverlay() {

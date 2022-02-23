@@ -269,8 +269,8 @@ private:
   using delta_clock = std::chrono::high_resolution_clock;
   std::chrono::time_point<delta_clock> m_prevFrameTime;
 
-  std::vector<u32> m_defferredControllers; // used to capture controllers added before CInputGenerator
-                                           // is built, i.e during initialization
+  std::vector<u32> m_deferredControllers; // used to capture controllers added before CInputGenerator
+                                          // is built, i.e during initialization
 
 public:
   Application(FileStoreManager& fileMgr, CVarManager& cvarMgr, CVarCommons& cvarCmns)
@@ -312,11 +312,11 @@ public:
 
   bool onAppIdle(float realDt) noexcept override {
     if (auto* input = g_InputGenerator) {
-      if (!m_defferredControllers.empty()) {
-        for (const auto which : m_defferredControllers) {
+      if (!m_deferredControllers.empty()) {
+        for (const auto which : m_deferredControllers) {
           input->controllerAdded(which);
         }
-        m_defferredControllers.clear();
+        m_deferredControllers.clear();
       }
     }
 
@@ -324,13 +324,10 @@ public:
       if (CDvdFile::Initialize(m_deferredProject)) {
         m_projectInitialized = true;
       } else {
-        Log.report(logvisor::Error, FMT_STRING("Project doesn't exist at '{}'"), m_deferredProject);
-        m_errorString = fmt::format(FMT_STRING("Project not found at '{}'"), m_deferredProject);
+        Log.report(logvisor::Error, FMT_STRING("Failed to open disc image '{}'"), m_deferredProject);
+        m_errorString = fmt::format(FMT_STRING("Failed to open disc image '{}'"), m_deferredProject);
         m_deferredProject.clear();
       }
-    }
-    if (!m_projectInitialized && m_errorString.empty()) {
-      m_errorString = "Project directory not specified"s;
     }
 
     const auto targetFrameTime = getTargetFrameTime();
@@ -388,7 +385,10 @@ public:
       }
       m_imGuiConsole.PostUpdate();
     } else {
-      m_imGuiConsole.ShowAboutWindow(false, m_errorString);
+      auto result = m_imGuiConsole.ShowAboutWindow(false, m_errorString, true);
+      if (result) {
+        m_deferredProject = std::move(*result);
+      }
     }
 
     if (m_quitRequested) {
@@ -448,7 +448,7 @@ public:
     if (auto* input = g_InputGenerator) {
       input->controllerAdded(which);
     } else {
-      m_defferredControllers.emplace_back(which);
+      m_deferredControllers.emplace_back(which);
     }
   }
 
