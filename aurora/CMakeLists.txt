@@ -3,7 +3,7 @@ if (WIN32)
 endif ()
 add_subdirectory(../extern/SDL SDL2 EXCLUDE_FROM_ALL)
 if (NOT MSVC)
-  target_compile_options(SDL2-static PRIVATE -Wno-implicit-fallthrough)
+  target_compile_options(SDL2-static PRIVATE -Wno-implicit-fallthrough -Wno-shadow)
 endif ()
 
 add_subdirectory(../extern/dawn dawn EXCLUDE_FROM_ALL)
