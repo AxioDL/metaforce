@@ -1,7 +1,7 @@
 #include "CMemoryCardSys.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/IMain.hpp"
-
+#include <Runtime/CBasics.hpp>
 #include <SDL_filesystem.h>
 
 namespace metaforce {
@@ -25,8 +25,8 @@ std::string CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlot slot) {
     auto path = *dolphinPath;
     path += fmt::format(FMT_STRING("GC/MemoryCard{:c}.USA.raw"), slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
 
-    struct stat64 theStat {};
-    if (stat64(path.c_str(), &theStat) != 0 || !S_ISREG(theStat.st_mode)) {
+    CBasics::Sstat theStat{};
+    if (CBasics::Stat(path.c_str(), &theStat) != 0 || !S_ISREG(theStat.st_mode)) {
       /* legacy case for older dolphin versions */
       const char* home = getenv("HOME");
       if (home == nullptr || home[0] != '/') {
@@ -34,9 +34,14 @@ std::string CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlot slot) {
       }
 
       path = home;
+#ifndef __APPLE__
       path += fmt::format(FMT_STRING("/.dolphin-emu/GC/MemoryCard{:c}.USA.raw"),
                           slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
-      if (stat64(path.c_str(), &theStat) != 0 || !S_ISREG(theStat.st_mode)) {
+#else
+      path += fmt::format(FMT_STRING("/Library/Application Support/Dolphin/GC/MemoryCard{:c}.USA.raw"),
+                          slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
+#endif
+      if (CBasics::Stat(path.c_str(), &theStat) != 0 || !S_ISREG(theStat.st_mode)) {
         return {};
       }
     }
