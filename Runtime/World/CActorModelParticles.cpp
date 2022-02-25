@@ -7,7 +7,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"

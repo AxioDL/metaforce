@@ -4,8 +4,8 @@
 #include <vector>
 
 #include "Runtime/CToken.hpp"
-#include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
@@ -31,20 +31,19 @@ public:
   using TReflectionCallback = std::function<void(void*, const zeus::CVector3f&)>;
 
   enum class EDrawableSorting { SortedCallback, UnsortedCallback };
-  enum class EDebugOption { Zero, One };
+  enum class EDebugOption { Invalid = -1, PVSMode, PVSState, FogDisabled };
   enum class EPrimitiveType {};
 
   virtual ~IRenderer() = default;
   virtual void AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry, const CAreaRenderOctTree* octTree,
-                                 int areaIdx, const SShader* shaderSet) = 0;
+                                 int areaIdx) = 0;
   virtual void EnablePVS(const CPVSVisSet& set, u32 areaIdx) = 0;
   virtual void DisablePVS() = 0;
   virtual void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) = 0;
-  virtual void DrawAreaGeometry(int areaIdx, int mask, int targetMask) = 0;
   virtual void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender = false) = 0;
   virtual void DrawSortedGeometry(int areaIdx, int mask, int targetMask) = 0;
   virtual void DrawStaticGeometry(int areaIdx, int mask, int targetMask) = 0;
-  virtual void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) = 0;
+  virtual void DrawAreaGeometry(int areaIdx, int mask, int targetMask) = 0;
   virtual void PostRenderFogs() = 0;
   virtual void SetModelMatrix(const zeus::CTransform& xf) = 0;
   virtual void AddParticleGen(CParticleGen& gen) = 0;
@@ -59,36 +58,39 @@ public:
   virtual std::pair<zeus::CVector2f, zeus::CVector2f> SetViewportOrtho(bool centered, float znear, float zfar) = 0;
   virtual void SetClippingPlanes(const zeus::CFrustum& frustum) = 0;
   virtual void SetViewport(int left, int bottom, int width, int height) = 0;
-  // virtual void SetDepthReadWrite(bool, bool)=0;
-  // virtual void SetBlendMode_AdditiveAlpha()=0;
-  // virtual void SetBlendMode_AlphaBlended()=0;
-  // virtual void SetBlendMode_NoColorWrite()=0;
-  // virtual void SetBlendMode_ColorMultiply()=0;
-  // virtual void SetBlendMode_InvertDst()=0;
-  // virtual void SetBlendMode_InvertSrc()=0;
-  // virtual void SetBlendMode_Replace()=0;
-  // virtual void SetBlendMode_AdditiveDestColor()=0;
+  virtual void SetDepthReadWrite(bool, bool) = 0;
+  virtual void SetBlendMode_AdditiveAlpha() = 0;
+  virtual void SetBlendMode_AlphaBlended() = 0;
+  virtual void SetBlendMode_NoColorWrite() = 0;
+  virtual void SetBlendMode_ColorMultiply() = 0;
+  virtual void SetBlendMode_InvertDst() = 0;
+  virtual void SetBlendMode_InvertSrc() = 0;
+  virtual void SetBlendMode_Replace() = 0;
+  virtual void SetBlendMode_AdditiveDestColor() = 0;
   virtual void SetDebugOption(EDebugOption, int) = 0;
   virtual void BeginScene() = 0;
   virtual void EndScene() = 0;
-  // virtual void BeginPrimitive(EPrimitiveType, int)=0;
-  // virtual void BeginLines(int)=0;
-  // virtual void BeginLineStrip(int)=0;
-  // virtual void BeginTriangles(int)=0;
-  // virtual void BeginTriangleStrip(int)=0;
-  // virtual void BeginTriangleFan(int)=0;
-  // virtual void PrimVertex(const zeus::CVector3f&)=0;
-  // virtual void PrimNormal(const zeus::CVector3f&)=0;
-  // virtual void PrimColor(float, float, float, float)=0;
-  // virtual void PrimColor(const zeus::CColor&)=0;
-  // virtual void EndPrimitive()=0;
+  virtual void BeginPrimitive(EPrimitiveType, int) = 0;
+  virtual void BeginLines(int) = 0;
+  virtual void BeginLineStrip(int) = 0;
+  virtual void BeginTriangles(int) = 0;
+  virtual void BeginTriangleStrip(int) = 0;
+  virtual void BeginTriangleFan(int) = 0;
+  virtual void PrimVertex(const zeus::CVector3f&) = 0;
+  virtual void PrimNormal(const zeus::CVector3f&) = 0;
+  virtual void PrimColor(float, float, float, float) = 0;
+  virtual void PrimColor(const zeus::CColor&) = 0;
+  virtual void EndPrimitive() = 0;
   virtual void SetAmbientColor(const zeus::CColor& color) = 0;
   virtual void DrawString(const char* string, int, int) = 0;
   virtual u32 GetFPS() = 0;
   virtual void CacheReflection(TReflectionCallback cb, void* ctx, bool clearAfter) = 0;
   virtual void DrawSpaceWarp(const zeus::CVector3f& pt, float strength) = 0;
-  virtual void DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol) = 0;
-  virtual void DrawXRayOutline(const zeus::CAABox& aabb) = 0;
+  virtual void DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,
+                                TVectorRef positions, TVectorRef normals, CModelFlags flags) = 0;
+  virtual void DrawModelDisintegrate(const CModel& model, const CTexture& tex, const zeus::CColor& color,
+                                     TVectorRef positions, TVectorRef normals) = 0;
+  virtual void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) = 0;
   virtual void SetWireframeFlags(int flags) = 0;
   virtual void SetWorldFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) = 0;
   virtual void RenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const TLockedToken<CModel>* model,
@@ -99,8 +101,8 @@ public:
   virtual void DoThermalBlendHot() = 0;
   virtual u32 GetStaticWorldDataSize() = 0;
   virtual void SetGXRegister1Color(const zeus::CColor& color) = 0;
-  virtual void SetWorldLightMultiplyColor(const zeus::CColor& color) = 0;
   virtual void SetWorldLightFadeLevel(float level) = 0;
+  virtual void SetWorldLightMultiplyColor(const zeus::CColor& color) = 0;
   virtual void PrepareDynamicLights(const std::vector<CLight>& lights) = 0;
 };
 

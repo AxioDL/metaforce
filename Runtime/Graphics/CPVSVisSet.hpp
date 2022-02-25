@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Runtime/RetroTypes.hpp"
+
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {

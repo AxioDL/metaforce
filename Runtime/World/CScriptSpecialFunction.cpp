@@ -11,7 +11,7 @@
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/Camera/CCameraManager.hpp"
 #include "Runtime/Character/CModelData.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CPlayer.hpp"

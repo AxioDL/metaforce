@@ -1,57 +1,43 @@
 #pragma once
 
 #include <memory>
-#include <optional>
-#include <unordered_map>
 #include <vector>
 
-//#include "DataSpec/DNACommon/CMDL.hpp"
-//#include "DataSpec/DNAMP1/CMDLMaterials.hpp"
-#include "Runtime/CFactoryMgr.hpp"
-#include "Runtime/CToken.hpp"
-#include "Runtime/Graphics/CTexture.hpp"
-#include "Runtime/Graphics/Shaders/CModelShaders.hpp"
-#include "Runtime/RetroTypes.hpp"
-
-//#include <hecl/HMDLMeta.hpp>
-#include <zeus/CAABox.hpp>
-#include <zeus/CColor.hpp>
+#include "CToken.hpp"
+#include "GCNTypes.hpp"
+#include "Graphics/CTexture.hpp"
+#include "IObjectStore.hpp"
+#include "Graphics/CCubeModel.hpp"
 
 namespace metaforce {
-class CLight;
-class CModel;
-class CPoseAsTransforms;
-class CSkinRules;
-class IObjectStore;
+class CCubeSurface;
+class CCubeMaterial;
 
 struct CModelFlags {
-  u8 x0_blendMode = 0; /* 2: add color, >6: additive, >4: blend, else opaque */
+  /**
+   * 2: add color
+   * >6: additive
+   * >4: blend
+   * else opaque
+   */
+  u8 x0_blendMode = 0;
   u8 x1_matSetIdx = 0;
-  EExtendedShader m_extendedShader = EExtendedShader::Lighting;
-  bool m_noCull = false;
-  bool m_noZTest = false;
-  bool m_noZWrite = false;
-  bool m_depthGreater = false;
-  u16 x2_flags = 0;      /* Flags */
-  zeus::CColor x4_color; /* Set into kcolor slot specified by material */
-  zeus::CColor addColor = zeus::skClear;
-  zeus::CAABox mbShadowBox;
+  /**
+   * 0x1: depth equal
+   * 0x2: depth update
+   * 0x4: render without texture lock
+   * 0x8: depth greater
+   * 0x10: depth non-inclusive
+   */
+  u16 x2_flags = 0;
+  /**
+   * Set into kcolor slot specified by material
+   */
+  zeus::CColor x4_color;
 
   constexpr CModelFlags() = default;
   constexpr CModelFlags(u8 blendMode, u8 shadIdx, u16 flags, const zeus::CColor& col)
-  : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), x2_flags(flags), x4_color(col) {
-    /* Blend mode will override this if the surface's original material is opaque */
-    m_noZWrite = (x2_flags & 0x2) == 0;
-    m_depthGreater = (x2_flags & 0x8) != 0;
-  }
-
-  /* Flags
-      0x1: depth lequal
-      0x2: depth update
-      0x4: render without texture lock
-      0x8: depth greater
-      0x10: depth non-inclusive
-   */
+  : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), x2_flags(flags), x4_color(col) {}
 
   bool operator==(const CModelFlags& other) const {
     return x0_blendMode == other.x0_blendMode && x1_matSetIdx == other.x1_matSetIdx && x2_flags == other.x2_flags &&
@@ -61,252 +47,68 @@ struct CModelFlags {
   bool operator!=(const CModelFlags& other) const { return !operator==(other); }
 };
 
-/* metaforce addition: doesn't require hacky stashing of
- * pointers within loaded CMDL buffer */
-struct CBooSurface {
-//  DataSpec::DNACMDL::SurfaceHeader_2 m_data;
-  size_t selfIdx;
-  class CBooModel* m_parent = nullptr;
-  CBooSurface* m_next = nullptr;
-
-  zeus::CAABox GetBounds() const {
-//    if (!m_data.aabbSz)
-//      return zeus::CAABox(m_data.centroid, m_data.centroid);
-//    else
-//      return zeus::CAABox(m_data.aabb[0], m_data.aabb[1]);
-    return {};
-  }
-};
-
-//using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
-
-//struct GeometryUniformLayout {
-//  mutable std::vector<boo::ObjToken<boo::IGraphicsBufferD>> m_sharedBuffer;
-//  size_t m_geomBufferSize = 0;
-//  size_t m_skinBankCount = 0;
-//  size_t m_weightVecCount = 0;
-//
-//  std::vector<size_t> m_skinOffs;
-//  std::vector<size_t> m_skinSizes;
-//
-//  std::vector<size_t> m_uvOffs;
-//  std::vector<size_t> m_uvSizes;
-//
-//  GeometryUniformLayout(const CModel* model, const MaterialSet* matSet);
-//  void Update(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose,
-//              const MaterialSet* matSet, const boo::ObjToken<boo::IGraphicsBufferD>& buf,
-//              const CBooModel* parent) const;
-//
-//  void ReserveSharedBuffers(boo::IGraphicsDataFactory::Context& ctx, int size);
-//  boo::ObjToken<boo::IGraphicsBufferD> GetSharedBuffer(int idx) const;
-//};
-
-struct SShader {
-  std::unordered_map<CAssetId, TCachedToken<CTexture>> x0_textures;
-//  std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
-//  MaterialSet m_matSet;
-//  std::optional<GeometryUniformLayout> m_geomLayout;
-  int m_matSetIdx;
-  explicit SShader(int idx) : m_matSetIdx(idx) {
-    x0_textures.clear();
-//    m_shaders.clear();
-  }
-//  void InitializeLayout(const CModel* model) { m_geomLayout.emplace(model, &m_matSet); }
-  void UnlockTextures();
-//  CModelShaders::ShaderPipelines BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat);
-//  void BuildShaders(const hecl::HMDLMeta& meta, std::unordered_map<int, CModelShaders::ShaderPipelines>& shaders);
-//  void BuildShaders(const hecl::HMDLMeta& meta) { BuildShaders(meta, m_shaders); }
-};
-
-class CBooModel {
-  friend class CBooRenderer;
-  friend class CGameArea;
-  friend class CMetroidModelInstance;
-  friend class CModel;
-  friend class CSkinnedModel;
-  friend struct GeometryUniformLayout;
-
+class CModel {
 public:
-  enum class ESurfaceSelection { UnsortedOnly, SortedOnly, All };
+  struct SShader {
+    std::vector<TCachedToken<CTexture>> x0_textures;
+    u8* x10_data;
+
+    explicit SShader(u8* data) : x10_data(data) {}
+
+    void UnlockTextures();
+  };
 
 private:
-  CBooModel* m_next = nullptr;
-  CBooModel* m_prev = nullptr;
-  size_t m_uniUpdateCount = 0;
-  TToken<CModel> m_modelTok;
-  CModel* m_model;
-  std::vector<CBooSurface>* x0_surfaces;
-//  const MaterialSet* x4_matSet;
-//  const GeometryUniformLayout* m_geomLayout;
-  int m_matSetIdx = -1;
-//  const std::unordered_map<int, CModelShaders::ShaderPipelines>* m_pipelines;
-  std::unordered_map<CAssetId, TCachedToken<CTexture>> x1c_textures;
-  zeus::CAABox x20_aabb;
-  CBooSurface* x38_firstUnsortedSurface = nullptr;
-  CBooSurface* x3c_firstSortedSurface = nullptr;
-  bool x40_24_texturesLoaded : 1 = false;
-  bool x40_25_modelVisible : 1 = false;
-  u8 x41_mask;
-  u32 x44_areaInstanceIdx = UINT32_MAX;
+  static u32 sTotalMemory;
+  static u32 sFrameCounter;
+  static bool sIsTextureTimeoutEnabled;
+  static CModel* sThisFrameList;
+  static CModel* sOneFrameList;
+  static CModel* sTwoFrameList;
 
-//  struct UVAnimationBuffer {
-//    static void ProcessAnimation(u8*& bufOut, const MaterialSet::Material::PASS& anim);
-//    static void PadOutBuffer(u8*& bufStart, u8*& bufOut);
-//    static void Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags, const CBooModel* parent);
-//  };
-
-  CModelShaders::LightingUniform m_lightingData;
-
-  /* metaforce addition: boo! */
-//  size_t m_uniformDataSize = 0;
-//  struct ModelInstance {
-//    boo::ObjToken<boo::IGraphicsBufferD> m_geomUniformBuffer;
-//    boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuffer;
-//    std::vector<std::vector<boo::ObjToken<boo::IShaderDataBinding>>> m_shaderDataBindings;
-//    boo::ObjToken<boo::IGraphicsBufferD> m_dynamicVbo;
-//
-//    boo::ObjToken<boo::IGraphicsBuffer> GetBooVBO(const CBooModel& model, boo::IGraphicsDataFactory::Context& ctx);
-//  };
-//  std::vector<ModelInstance> m_instances;
-//  ModelInstance m_ballShadowInstance;
-
-//  boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
-//  boo::ObjToken<boo::IGraphicsBufferS> m_staticIbo;
-//
-//  boo::ObjToken<boo::ITexture> m_lastDrawnShadowMap;
-//  boo::ObjToken<boo::ITexture> m_lastDrawnOneTexture;
-//  boo::ObjToken<boo::ITextureCubeR> m_lastDrawnReflectionCube;
-
-//  ModelInstance* PushNewModelInstance(int sharedLayoutBuf = -1, boo::IGraphicsDataFactory::Context* ctx = nullptr);
-  void DrawAlphaSurfaces(const CModelFlags& flags) const;
-  void DrawNormalSurfaces(const CModelFlags& flags) const;
-  void DrawSurfaces(const CModelFlags& flags) const;
-  void DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const;
-  void WarmupDrawSurfaces() const;
-  void WarmupDrawSurface(const CBooSurface& surf) const;
-
-  static inline zeus::CVector3f g_PlayerPosition;
-  static inline float g_ModSeconds = 0.0f;
-  static inline float g_TransformedTime = 0.0f;
-  static inline float g_TransformedTime2 = 0.0f;
-  static inline CBooModel* g_LastModelCached = nullptr;
-
-  static inline bool g_DummyTextures = false;
-  static inline bool g_RenderModelBlack = false;
-
-public:
-  ~CBooModel();
-  CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
-            // TODO
-//            boo::ObjToken<boo::IGraphicsBufferS>  vbo, boo::ObjToken<boo::IGraphicsBufferS>  ibo,
-            const zeus::CAABox& aabb, u8 renderMask);
-
-//  static void MakeTexturesFromMats(const MaterialSet& matSet,
-//                                   std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut, IObjectStore& store);
-  void MakeTexturesFromMats(std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut, IObjectStore& store);
-
-  bool IsOpaque() const { return x3c_firstSortedSurface == nullptr; }
-  void ActivateLights(const std::vector<CLight>& lights);
-  void SetAmbientColor(const zeus::CColor& color) { m_lightingData.ambient = color; }
-  void DisableAllLights();
-  void RemapMaterialData(SShader& shader);
-  bool TryLockTextures();
-  void UnlockTextures();
-  void SyncLoadTextures();
-  void Touch(int shaderIdx);
-  void VerifyCurrentShader(int shaderIdx);
-//  boo::ObjToken<boo::IGraphicsBufferD> UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
-//                                                         const CPoseAsTransforms* pose, int sharedLayoutBuf = -1);
-  void DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
-  void DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
-  void Draw(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose);
-  void DrawFlat(ESurfaceSelection sel, EExtendedShader extendedIdx) const;
-
-  void LockParent() { m_modelTok.Lock(); }
-  void UnlockParent() { m_modelTok.Unlock(); }
-
-//  const MaterialSet::Material& GetMaterialByIndex(int idx) const { return x4_matSet->materials.at(idx); }
-
-  void ClearUniformCounter() { m_uniUpdateCount = 0; }
-  static void ClearModelUniformCounters();
-
-  static inline bool g_DrawingOccluders = false;
-  static void SetDrawingOccluders(bool occ) { g_DrawingOccluders = occ; }
-
-  static void SetNewPlayerPositionAndTime(const zeus::CVector3f& pos);
-
-  static inline zeus::CVector3f g_ReflectViewPos;
-  static void KillCachedViewDepState();
-  static void EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf, zeus::CMatrix4f* mtxsOut,
-                                       float& alphaOut);
-
-  static inline aurora::gfx::TextureHandle g_shadowMap;
-  static inline zeus::CTransform g_shadowTexXf;
-  static void EnableShadowMaps(const aurora::gfx::TextureHandle& map, const zeus::CTransform& texXf);
-  static void DisableShadowMaps();
-
-  static inline aurora::gfx::TextureHandle g_disintegrateTexture;
-  static void SetDisintegrateTexture(const aurora::gfx::TextureHandle& map) { g_disintegrateTexture = map; }
-
-  static inline aurora::gfx::TextureHandle g_reflectionCube;
-  static void SetReflectionCube(const aurora::gfx::TextureHandle& map) { g_reflectionCube = map; }
-
-  static void SetDummyTextures(bool b) { g_DummyTextures = b; }
-  static void SetRenderModelBlack(bool b) { g_RenderModelBlack = b; }
-
-  static void Shutdown();
-
-  const zeus::CAABox& GetAABB() const { return x20_aabb; }
-};
-
-class CModel {
-  friend class CBooModel;
-  friend struct GeometryUniformLayout;
-  // std::unique_ptr<u8[]> x0_data;
-  // u32 x4_dataLen;
-  TToken<CModel> m_selfToken; /* DO NOT LOCK! */
-  zeus::CAABox m_aabb;
-  u32 m_flags;
-  std::vector<CBooSurface> x8_surfaces;
+  std::unique_ptr<u8[]> x0_data;
+  u32 x4_dataLen;
+  std::vector<CCubeSurface> x8_surfaces; // was rstl::vector<void*>
   std::vector<SShader> x18_matSets;
-  std::unique_ptr<CBooModel> x28_modelInst;
-  // CModel* x30_next = nullptr;
-  // CModel* x34_prev = nullptr;
-  int x38_lastFrame;
+  std::unique_ptr<CCubeModel> x28_modelInst = nullptr;
+  u16 x2c_currentMatIdx = 0;
+  u16 x2e_lastFrame = 0; // Last frame that the model switched materials
+  CModel* x30_prev = nullptr;
+  CModel* x34_next;
+  u32 x38_lastFrame;
 
-  /* metaforce addition: boo! */
-//  boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
-//  hecl::HMDLMeta m_hmdlMeta;
-  std::unique_ptr<uint8_t[]> m_dynamicVertexData;
-//  boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
+  /* Resident copies of maintained data */
+  std::vector<zeus::CVector3f> m_positions;
+  std::vector<zeus::CVector3f> m_normals;
+  std::vector<zeus::CColor> m_colors;
+  std::vector<zeus::CVector2f> m_floatUVs;
+  std::vector<zeus::CVector2f> m_shortUVs;
 
 public:
-//  using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
+  CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store);
 
-  CModel(std::unique_ptr<u8[]>&& in, u32 dataLen, IObjectStore* store, CObjectReference* selfRef);
-  void DrawSortedParts(const CModelFlags& flags) const;
-  void DrawUnsortedParts(const CModelFlags& flags) const;
-  void Draw(const CModelFlags& flags) const;
-  bool IsLoaded(int shaderIdx) const;
-  void Touch(int shaderIdx) { x28_modelInst->Touch(shaderIdx); }
+  void UpdateLastFrame();
+  void MoveToThisFrameList();
+  void RemoveFromList();
+  void VerifyCurrentShader(u32 matIdx);
+  void Touch(u32 matIdx);
+  void Draw(CModelFlags flags) const;
+  void Draw(TVectorRef positions, TVectorRef normals, CModelFlags flags);
+  void DrawSortedParts(CModelFlags flags);
+  void DrawUnsortedParts(CModelFlags flags);
+  bool IsLoaded(u32 matIdx);
 
-  const zeus::CAABox& GetAABB() const { return m_aabb; }
-  CBooModel& GetInstance() { return *x28_modelInst; }
-  const CBooModel& GetInstance() const { return *x28_modelInst; }
-  std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, bool lockParent = true);
-  void UpdateLastFrame() const { const_cast<CModel&>(*this).x38_lastFrame = CGraphics::GetFrameCounter(); }
+  TVectorRef GetPositions() const;
+  TVectorRef GetNormals() const;
   u32 GetNumMaterialSets() const { return x18_matSets.size(); }
+  bool IsOpaque() const { return x28_modelInst->x3c_firstSortedSurf == nullptr; }
+  const zeus::CAABox& GetAABB() const { return x28_modelInst->x20_worldAABB; }
 
-  size_t GetPoolVertexOffset(size_t idx) const;
-  zeus::CVector3f GetPoolVertex(size_t idx) const;
-  size_t GetPoolNormalOffset(size_t idx) const;
-  zeus::CVector3f GetPoolNormal(size_t idx) const;
-//  void ApplyVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf,
-//                        const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const;
-//  void RestoreVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf) const;
+  static void FrameDone();
+  static void EnableTextureTimeout();
+  static void DisableTextureTimeout();
 };
 
-CFactoryFnReturn FPCModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
+CFactoryFnReturn FModelFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
                                const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef);
-
 } // namespace metaforce

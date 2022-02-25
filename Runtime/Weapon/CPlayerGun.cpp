@@ -3,7 +3,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/Character/CPrimitive.hpp"
 #include "Runtime/Camera/CGameCamera.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Input/ControlMapper.hpp"
 #include "Runtime/MP1/CSamusHud.hpp"
 #include "Runtime/MP1/World/CMetroid.hpp"
@@ -2155,7 +2155,8 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
   CGraphics::CProjectionState projState = CGraphics::GetProjectionState();
   CModelFlags useFlags = flags;
   if (x0_lights.HasShadowLight()) {
-    useFlags.m_extendedShader = EExtendedShader::LightingCubeReflectionWorldShadow;
+    // TODO
+    // useFlags.m_extendedShader = EExtendedShader::LightingCubeReflectionWorldShadow;
   }
   CModelFlags beamFlags = useFlags;
   if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal) {

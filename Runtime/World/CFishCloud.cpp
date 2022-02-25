@@ -3,7 +3,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 #include "Runtime/Graphics/CVertexMorphEffect.hpp"
 #include "Runtime/Weapon/CWeapon.hpp"
@@ -569,9 +569,10 @@ void CFishCloud::RenderBoid(int idx, const CBoid& boid, u32& drawMask, bool ther
   const u32 modelIndex = idx & 0x3;
   CModelData& mData = *x1b0_models[modelIndex];
   CSkinnedModel& model = mData.PickAnimatedModel(CModelData::EWhichModel::Normal);
-  if (!model.GetModelInst()->TryLockTextures()) {
-    return;
-  }
+  // TODO this whole function
+  // if (!model.GetModel()->TryLockTextures()) {
+  //  return;
+  // }
 
   const u32 thisDrawMask = 1u << modelIndex;
   if ((drawMask & thisDrawMask) != 0) {
@@ -579,7 +580,7 @@ void CFishCloud::RenderBoid(int idx, const CBoid& boid, u32& drawMask, bool ther
     mData.GetAnimationData()->BuildPose();
   }
 
-  model.GetModelInst()->SetAmbientColor(zeus::skWhite);
+  // model.GetModelInst()->SetAmbientColor(zeus::skWhite);
   CGraphics::SetModelMatrix(zeus::lookAt(boid.x0_pos, boid.x0_pos + boid.xc_vel));
   if (thermalHot) {
     constexpr CModelFlags thermFlags(0, 0, 3, zeus::skWhite);

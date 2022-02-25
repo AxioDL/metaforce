@@ -1,21 +1,20 @@
 #include "Runtime/MP1/CCredits.hpp"
+
 #include "Runtime/CArchitectureMessage.hpp"
 #include "Runtime/CArchitectureQueue.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CMoviePlayer.hpp"
-#include "Runtime/GuiSys/CRasterFont.hpp"
-#include "Runtime/GuiSys/CStringTable.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
 #include "Runtime/Input/CFinalInput.hpp"
 #include "Runtime/MP1/CPlayMovie.hpp"
-#include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/CSimplePool.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
 
 namespace metaforce::MP1 {
-namespace {
-logvisor::Module Log("CCredits");
-}
+static logvisor::Module Log("CCredits");
+
 CCredits::CCredits()
 : CIOWin("Credits")
 , x18_creditsTable(g_SimplePool->GetObj(g_tweakGui->GetCreditsTable()))
@@ -199,6 +198,7 @@ CIOWin::EMessageReturn CCredits::ProcessUserInput(const CFinalInput& input) {
   }
   return EMessageReturn::Exit;
 }
+
 void CCredits::DrawVideo() {
   /* Correct movie aspect ratio */
   float hPad, vPad;
@@ -247,9 +247,10 @@ void CCredits::DrawText() {
 }
 
 void CCredits::DrawText(CGuiTextSupport& text, const zeus::CVector3f& translation) {
-  // auto region = g_Renderer->SetViewportOrtho(false, -4096, 4096);
-  zeus::CTransform xf = zeus::CTransform::Translate(translation);
-  g_Renderer->SetModelMatrix(xf);
+  CGraphics::SetCullMode(ERglCullMode::None);
+  g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
+  g_Renderer->SetModelMatrix(zeus::CTransform::Translate(translation));
+  g_Renderer->SetDepthReadWrite(false, false);
   text.Render();
 }
 

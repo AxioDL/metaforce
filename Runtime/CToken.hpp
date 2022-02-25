@@ -159,7 +159,7 @@ public:
     return *this;
   }
 
-  bool IsNull() { return m_obj == nullptr; }
+  bool IsNull() const { return m_obj == nullptr; }
 };
 
 template <class T>

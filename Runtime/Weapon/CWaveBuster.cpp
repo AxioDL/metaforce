@@ -6,7 +6,7 @@
 #include "Runtime/Input/CRumbleManager.hpp"
 #include "Runtime/World/CGameLight.hpp"
 #include "Runtime/World/CWorld.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 
 #include "Audio/SFX/Weapons.h"
 

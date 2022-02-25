@@ -121,7 +121,7 @@ public:
   void GrappleBeamDisconnected();
   void GrappleBeamConnected();
   void RenderGrappleBeam(const CStateManager& mgr, const zeus::CVector3f& pos);
-  void TouchModel(const CStateManager& mgr) const;
+  void TouchModel(const CStateManager& mgr);
   void Update(float grappleSwingT, float dt, CStateManager& mgr);
   void PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos);
   void Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags,

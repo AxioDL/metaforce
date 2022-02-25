@@ -258,7 +258,7 @@ std::shared_ptr<CAnimationManager> CAnimData::GetAnimationManager() { return x10
 
 void CAnimData::SetPhase(float ph) { x1f8_animRoot->VSetPhase(ph); }
 
-void CAnimData::Touch(const CSkinnedModel& model, int shadIdx) const { model.GetModelInst()->Touch(shadIdx); }
+void CAnimData::Touch(CSkinnedModel& model, int shadIdx) const { model.GetModel()->Touch(shadIdx); }
 
 SAdvancementDeltas CAnimData::GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const {
   return x1f8_animRoot->VGetAdvancementResults(a, b).x8_deltas;
@@ -559,7 +559,10 @@ void CAnimData::SetupRender(CSkinnedModel& model, const CModelFlags& drawFlags,
   PoseSkinnedModel(model, x224_pose, drawFlags, morphEffect, morphMagnitudes);
 }
 
-void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) { model.Draw(flags); }
+void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) {
+  // TODO: some GX light stuff?
+  model.Draw(flags);
+}
 
 void CAnimData::PreRender() {
   if (!x220_31_poseCached) {
@@ -795,11 +798,11 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
 }
 
 void CAnimData::SetXRayModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules) {
-  xf4_xrayModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo(), 0);
+  xf4_xrayModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo());
 }
 
 void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules) {
-  xf8_infraModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo(), 0);
+  xf8_infraModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo());
 }
 
 void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
@@ -882,7 +885,9 @@ zeus::CAABox CAnimData::GetBoundingBox() const {
 
 void CAnimData::SubstituteModelData(const TCachedToken<CSkinnedModel>& model) {
   xd8_modelData = model;
-  x108_aabb = xd8_modelData->GetModel()->GetAABB();
+  // TODO
+  // xd8_modelData.CalculateDefault();
+  // x108_aabb = xd8_modelData->GetBounds();
 }
 
 void CAnimData::SetParticleCEXTValue(std::string_view name, int idx, float value) {

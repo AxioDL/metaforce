@@ -7,7 +7,7 @@
 #include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Weapon/CEnergyProjectile.hpp"

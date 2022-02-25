@@ -4,7 +4,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Camera/CGameCamera.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/GuiSys/CCompoundTargetReticle.hpp"
 #include "Runtime/GuiSys/CTargetingManager.hpp"
@@ -395,7 +395,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   CModelFlags flags(5, 0, 0,
                     frameColor + g_tweakGuiColors->GetScanFrameImpulseColor() *
                                      zeus::CColor(x550_scanFrameColorImpulseInterp, x550_scanFrameColorImpulseInterp));
-  flags.m_noCull = true;
+  // TODO flags.m_noCull = true;
 
   const zeus::CTransform verticalFlip = zeus::CTransform::Scale(1.f, 1.f, -1.f);
   const zeus::CTransform horizontalFlip = zeus::CTransform::Scale(-1.f, 1.f, 1.f);

@@ -199,7 +199,6 @@ public:
     u32 x8_collisionSize = 0;
     std::optional<CAreaRenderOctTree> xc_octTree;
     std::vector<CMetroidModelInstance> x4c_insts;
-    SShader m_materialSet{0};
     // std::unique_ptr<from unknown, pointless MREA section> x5c_;
     std::vector<CWorldLight> x60_lightsA;
     std::vector<CLight> x70_gfxLightsA;
@@ -220,7 +219,7 @@ public:
     std::unique_ptr<CAreaFog> x10c4_areaFog;
     const u8* x10c8_sclyBuf = nullptr;
     u32 x10d0_sclySize = 0;
-    u32 x10d4_ = 0;
+    const u8* x10d4_firstMatPtr = nullptr;
     const CScriptAreaAttributes* x10d8_areaAttributes = nullptr;
     EOcclusionState x10dc_occlusionState = EOcclusionState::Occluded;
     u32 x10e0_ = 0;
@@ -253,7 +252,7 @@ public:
 
 private:
   std::vector<std::pair<std::unique_ptr<u8[]>, int>> x110_mreaSecBufs;
-  std::vector<std::pair<const u8*, int>> m_resolvedBufs;
+  std::vector<std::pair<const u8*, u32>> m_resolvedBufs;
   u32 x124_secCount = 0;
   u32 x128_mreaDataOffset = 0;
   std::unique_ptr<CPostConstructed> x12c_postConstructed;
@@ -273,7 +272,6 @@ private:
 
 public:
   explicit CGameArea(CInputStream& in, int idx, int mlvlVersion);
-  explicit CGameArea(CAssetId mreaId); // Warmup constructor
   ~CGameArea();
 
   bool IsFinishedOccluding() const;
@@ -325,7 +323,7 @@ public:
   void LoadScriptObjects(CStateManager& mgr);
   std::pair<const u8*, u32> GetLayerScriptBuffer(int layer) const;
   void PostConstructArea();
-  void FillInStaticGeometry(bool textures = true);
+  void FillInStaticGeometry();
   void VerifyTokenList(CStateManager& stateMgr);
   void ClearTokenList();
   u32 GetPreConstructedSize() const;

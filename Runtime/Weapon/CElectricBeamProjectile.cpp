@@ -3,7 +3,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Particle/CParticleElectric.hpp"

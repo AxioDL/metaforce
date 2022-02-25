@@ -1,7 +1,7 @@
 #pragma once
-
-#include "Runtime/rstl.hpp"
 #include "Runtime/Streams/CInputStream.hpp"
+#include "Runtime/rstl.hpp"
+
 namespace metaforce {
 template <class T, size_t N>
 void read_reserved_vector(rstl::reserved_vector<T, N>& v, CInputStream& in) {

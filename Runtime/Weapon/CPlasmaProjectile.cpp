@@ -3,7 +3,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/World/CGameLight.hpp"
 #include "Runtime/World/CHUDBillboardEffect.hpp"
 #include "Runtime/World/CPlayer.hpp"

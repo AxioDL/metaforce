@@ -6,7 +6,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Collision/CInternalRayCastStructure.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CHUDBillboardEffect.hpp"
@@ -406,7 +406,7 @@ void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) {
     m_lineRenderer.AddVertex(pos0, zeus::skWhite, 1.f, {0.f, uvy0});
     m_lineRenderer.AddVertex(pos1, zeus::skClear, 1.f, {0.f, uvy1});
   }
-  m_lineRenderer.Render(g_Renderer->IsThermalVisorHotPass(), zeus::CColor(1.f, 0.15f));
+  m_lineRenderer.Render(false, zeus::CColor(1.f, 0.15f)); // g_Renderer->IsThermalVisorHotPass()
 }
 
 void CEnvFxManagerGrid::RenderUnderwaterParticles(const zeus::CTransform& camXf) {

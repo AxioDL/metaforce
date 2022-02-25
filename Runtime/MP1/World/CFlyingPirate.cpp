@@ -4,7 +4,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/MP1/World/CSpacePirate.hpp"
 #include "Runtime/Weapon/CEnergyProjectile.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"

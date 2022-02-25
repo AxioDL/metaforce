@@ -2,7 +2,8 @@
 
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 
 namespace metaforce::MP1 {
 
@@ -32,7 +33,7 @@ void CGameCubeDoll::Draw(float alpha) {
 
   g_Renderer->SetPerspective(55.f, g_Viewport.x8_width, g_Viewport.xc_height, 0.2f, 4096.f);
   CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(0.f, -2.f, 0.f));
-  x18_actorLights->ActivateLights(x0_model->GetInstance());
+  x18_actorLights->ActivateLights();
   CGraphics::SetModelMatrix(zeus::CTransform::RotateZ(zeus::degToRad(360.f * CGraphics::GetSecondsMod900() * -0.25f)) *
                             zeus::CTransform::Scale(0.2f));
   CModelFlags flags(5, 0, 3, zeus::CColor(1.f, alpha * x1c_fader));

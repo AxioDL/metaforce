@@ -6,7 +6,7 @@
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CScriptEffect.hpp"
@@ -124,7 +124,7 @@ COmegaPirate::COmegaPirate(TUniqueId uid, std::string_view name, const CEntityIn
                            CAssetId skeletonLayoutInfoId)
 : CElitePirate(uid, name, info, xf, std::move(mData), pInfo, actParms, data)
 , x9d0_initialScale(GetModelData()->GetScale())
-, x9f0_skeletonModel(*g_SimplePool, skeletonModelId, skeletonSkinRulesId, skeletonLayoutInfoId, 0)
+, x9f0_skeletonModel(*g_SimplePool, skeletonModelId, skeletonSkinRulesId, skeletonLayoutInfoId)
 , xb70_thermalSpot(g_SimplePool->GetObj("Thermal_Spot_2"sv)) {
   x9a4_scriptWaypointPlatforms.reserve(3);
   x9b8_scriptEffects.reserve(24);

@@ -25,10 +25,10 @@ CFactoryFnReturn CCharacterFactory::CDummyFactory::Build(const SObjectTag& tag, 
   switch (tag.type.toUint32() & 0x1) {
   case 0:
     return TToken<CSkinnedModel>::GetIObjObjectFor(std::make_unique<CSkinnedModel>(
-        *g_SimplePool, charInfo.GetModelId(), charInfo.GetSkinRulesId(), charInfo.GetCharLayoutInfoId(), 0));
+        *g_SimplePool, charInfo.GetModelId(), charInfo.GetSkinRulesId(), charInfo.GetCharLayoutInfoId()));
   case 1:
     return TToken<CSkinnedModel>::GetIObjObjectFor(std::make_unique<CMorphableSkinnedModel>(
-        *g_SimplePool, charInfo.GetIceModelId(), charInfo.GetIceSkinRulesId(), charInfo.GetCharLayoutInfoId(), 0));
+        *g_SimplePool, charInfo.GetIceModelId(), charInfo.GetIceSkinRulesId(), charInfo.GetCharLayoutInfoId()));
   default:
     break;
   }

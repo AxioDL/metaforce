@@ -2,7 +2,7 @@
 
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Character/CActorLights.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/Shaders/CElementGenShaders.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
@@ -1077,12 +1077,12 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
     } else {
       CModel* model = desc->x5c_x48_PMDL.m_token.GetObj();
       if (actorLights)
-        actorLights->ActivateLights(model->GetInstance());
+        actorLights->ActivateLights();
       if (g_subtractBlend) {
         model->Draw({5, 0, 1, zeus::CColor(1.f, 0.5f)});
       } else if (desc->x44_31_x31_25_PMAB) {
         CModelFlags flags{7, 0, 1, col};
-        flags.m_extendedShader = EExtendedShader::ForcedAdditiveNoZWrite;
+        // flags.m_extendedShader = EExtendedShader::ForcedAdditiveNoZWrite;
         model->Draw(flags);
       } else if (1.f == col.a()) {
         model->Draw({0, 0, 3, zeus::skWhite});
@@ -1215,7 +1215,7 @@ void CElementGen::RenderLines() {
     }
   }
 
-  m_lineRenderer->Render(g_Renderer->IsThermalVisorHotPass(), moduColor);
+  // m_lineRenderer->Render(g_Renderer->IsThermalVisorHotPass(), moduColor);
 }
 
 void CElementGen::RenderParticles() {

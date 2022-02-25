@@ -2,7 +2,7 @@
 
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/Shaders/CDecalShaders.hpp"
 #include "Runtime/Particle/CDecal.hpp"
 #include "Runtime/Particle/CDecalDescription.hpp"

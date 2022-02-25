@@ -4,7 +4,7 @@
 
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 
 //#include <hecl/Pipeline.hpp>
 

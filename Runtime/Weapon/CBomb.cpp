@@ -1,7 +1,7 @@
 #include "Runtime/Weapon/CBomb.hpp"
 
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/World/CGameLight.hpp"
 #include "Runtime/World/CMorphBall.hpp"

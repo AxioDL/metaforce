@@ -30,6 +30,55 @@ enum class ERglFogMode : uint32_t {
   OrthoRevExp2 = 0x0F
 };
 
+enum class ERglCullMode { None = 0, Front = 1, Back = 2, All = 3 };
+
+enum class ERglBlendMode { None = 0, Blend = 1, Logic = 2, Subtract = 3 };
+
+enum class ERglBlendFactor {
+  Zero = 0,
+  One = 1,
+  SrcColor = 2,
+  InvSrcColor = 3,
+  SrcAlpha = 4,
+  InvSrcAlpha = 5,
+  DstAlpha = 6,
+  InvDstAlpha = 7
+};
+
+enum class ERglLogicOp {
+  Clear = 0,
+  And = 1,
+  RevAnd = 2,
+  Copy = 3,
+  InvAnd = 4,
+  NoOp = 5,
+  Xor = 6,
+  Or = 7,
+  Nor = 8,
+  Equiv = 9,
+  Inv = 10,
+  RevOr = 11,
+  InvCopy = 12,
+  InvOr = 13,
+  NAnd = 14,
+  Set = 15
+};
+
+enum class ERglAlphaFunc {
+  Never = 0,
+  Less = 1,
+  Equal = 2,
+  LEqual = 3,
+  Greater = 4,
+  NEqual = 5,
+  GEqual = 6,
+  Always = 7
+};
+
+enum class ERglAlphaOp { And = 0, Or = 1, Xor = 2, XNor = 3 };
+
+enum class ERglEnum { Never = 0, Less = 1, Equal = 2, LEqual = 3, Greater = 4, NEqual = 5, GEqual = 6, Always = 7 };
+
 struct CFogState {
   zeus::CColor m_color;
   float m_A = 0.f;
@@ -89,6 +138,12 @@ enum class ZComp : uint8_t {
 
 [[nodiscard]] bool get_dxt_compression_supported() noexcept;
 
+// GX state
+void set_cull_mode(metaforce::ERglCullMode mode) noexcept;
+void set_blend_mode(metaforce::ERglBlendMode mode, metaforce::ERglBlendFactor src, metaforce::ERglBlendFactor dst,
+                    metaforce::ERglLogicOp op) noexcept;
+void set_depth_mode(bool test, metaforce::ERglEnum func, bool update);
+
 void update_model_view(const zeus::CMatrix4f& mv, const zeus::CMatrix4f& mv_inv) noexcept;
 void update_projection(const zeus::CMatrix4f& proj) noexcept;
 void update_fog_state(const metaforce::CFogState& state) noexcept;
@@ -108,7 +163,8 @@ void queue_textured_quad_verts(CameraFilterType filter_type, const TextureHandle
                                bool z_test, const zeus::CColor& color, const ArrayRef<zeus::CVector3f>& pos,
                                const ArrayRef<zeus::CVector2f>& uvs, float lod) noexcept;
 void queue_textured_quad(CameraFilterType filter_type, const TextureHandle& texture, ZComp z_comparison, bool z_test,
-                         const zeus::CColor& color, float uv_scale, const zeus::CRectangle& rect, float z, float lod = 0) noexcept;
+                         const zeus::CColor& color, float uv_scale, const zeus::CRectangle& rect, float z,
+                         float lod = 0) noexcept;
 void queue_colored_quad_verts(CameraFilterType filter_type, ZComp z_comparison, bool z_test, const zeus::CColor& color,
                               const ArrayRef<zeus::CVector3f>& pos) noexcept;
 void queue_colored_quad(CameraFilterType filter_type, ZComp z_comparison, bool z_test, const zeus::CColor& color,

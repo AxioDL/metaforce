@@ -3,7 +3,7 @@
 #include <array>
 
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
 //#include <boo/graphicsdev/IGraphicsDataFactory.hpp>

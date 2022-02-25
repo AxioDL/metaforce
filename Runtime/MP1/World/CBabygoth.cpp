@@ -84,7 +84,7 @@ CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& in
   TLockedToken<CSkinRules> skin = g_SimplePool->GetObj({SBIG('CSKR'), babyData.x13c_noShellSkin});
   xa08_noShellModel =
       CToken(TObjOwnerDerivedFromIObj<CSkinnedModel>::GetNewDerivedObject(std::make_unique<CSkinnedModel>(
-          model, skin, x64_modelData->GetAnimationData()->GetModelData()->GetLayoutInfo(), 1)));
+          model, skin, x64_modelData->GetAnimationData()->GetModelData()->GetLayoutInfo())));
   xa14_crackOneParticle = g_SimplePool->GetObj({SBIG('PART'), babyData.x14c_crackOneParticle});
   xa20_crackTwoParticle = g_SimplePool->GetObj({SBIG('PART'), babyData.x150_crackTwoParticle});
   xa2c_destroyShellParticle = g_SimplePool->GetObj({SBIG('PART'), babyData.x154_destroyShellParticle});

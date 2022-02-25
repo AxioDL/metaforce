@@ -44,7 +44,7 @@ void CGuiFrame::SortDrawOrder() {
             });
 }
 
-void CGuiFrame::EnableLights(u32 lights, CBooModel& model) const {
+void CGuiFrame::EnableLights(u32 lights) const {
   std::vector<CLight> lightsOut;
   lightsOut.reserve(m_indexedLights.size() + 1);
   CGraphics::DisableAllLights();
@@ -80,7 +80,7 @@ void CGuiFrame::EnableLights(u32 lights, CBooModel& model) const {
     lightsOut.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, ambColor));
   }
 
-  model.ActivateLights(lightsOut);
+  // TODO model.ActivateLights(lightsOut);
 }
 
 void CGuiFrame::DisableLights() const { CGraphics::DisableAllLights(); }

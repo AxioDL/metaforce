@@ -8,6 +8,7 @@ public:
     NotOwned,
     Owned,
   };
+
 private:
   u8* x7c_ptr = nullptr;
   u32 x80_len = 0;

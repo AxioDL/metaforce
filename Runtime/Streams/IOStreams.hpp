@@ -18,6 +18,7 @@ class COBBox;
 class CQuaternion;
 class CColor;
 } // namespace zeus
+
 namespace metaforce {
 // Custom helpers for input/output
 template <>
@@ -43,5 +44,4 @@ zeus::CMatrix4f cinput_stream_helper(CInputStream& in);
 
 template <>
 void coutput_stream_helper(const zeus::CVector3f& v, COutputStream& out);
-
 } // namespace metaforce

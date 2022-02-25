@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
@@ -108,7 +108,7 @@ void CParticleElectric::DrawLineStrip(const std::vector<zeus::CVector3f>& verts,
   for (const zeus::CVector3f& vert : verts) {
     renderer.AddVertex(vert, useColor, width);
   }
-  renderer.Render(g_Renderer->IsThermalVisorHotPass());
+  renderer.Render(); // g_Renderer->IsThermalVisorHotPass()
 }
 
 void CParticleElectric::RenderLines() {

@@ -71,7 +71,7 @@ CParasite::CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, c
     TLockedToken<CModel> skin = g_SimplePool->GetObj({FOURCC('CSKR'), skinRes});
     x624_extraModel =
         CToken(TObjOwnerDerivedFromIObj<CSkinnedModel>::GetNewDerivedObject(std::make_unique<CSkinnedModel>(
-            model, skin, x64_modelData->GetAnimationData()->GetModelData()->GetLayoutInfo(), 1)));
+            model, skin, x64_modelData->GetAnimationData()->GetModelData()->GetLayoutInfo())));
     break;
   }
   default:

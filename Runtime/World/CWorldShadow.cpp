@@ -1,7 +1,7 @@
 #include "Runtime/World/CWorldShadow.hpp"
 
 #include "Runtime/CStateManager.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/World/CWorld.hpp"
 
 namespace metaforce {
@@ -15,7 +15,7 @@ void CWorldShadow::EnableModelProjectedShadow(const zeus::CTransform& pos, s32 l
   texTransform = posXf.inverse() * texTransform;
   texTransform = (texTransform * zeus::CTransform::Scale(float(M_SQRT2) * x64_objHalfExtent * f1)).inverse();
   texTransform = zeus::CTransform::Translate(0.5f, 0.f, 0.5f) * texTransform;
-  CBooModel::EnableShadowMaps(m_shader.GetTexture(), texTransform);
+  // TODO CCubeModel::EnableShadowMaps(m_shader.GetTexture(), texTransform);
 
 #if CWORLDSHADOW_FEEDBACK
   if (!m_feedback)
@@ -26,7 +26,7 @@ void CWorldShadow::EnableModelProjectedShadow(const zeus::CTransform& pos, s32 l
 #endif
 }
 
-void CWorldShadow::DisableModelProjectedShadow() { CBooModel::DisableShadowMaps(); }
+void CWorldShadow::DisableModelProjectedShadow() { CCubeModel::DisableShadowMaps(); }
 
 void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid, s32 lightIdx,
                                            const zeus::CAABox& aabb, bool motionBlur, bool lighten) {
@@ -78,11 +78,11 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
         m_shader.drawBase(extent);
 
         CGraphics::SetModelMatrix(zeus::CTransform());
-        CBooModel::SetDrawingOccluders(true);
+        CCubeModel::SetDrawingOccluders(true);
         g_Renderer->PrepareDynamicLights({});
-        g_Renderer->UpdateAreaUniforms(aid, EWorldShadowMode::WorldOnActorShadow);
+        // g_Renderer->UpdateAreaUniforms(aid, EWorldShadowMode::WorldOnActorShadow);
         g_Renderer->DrawUnsortedGeometry(aid, 0, 0, true);
-        CBooModel::SetDrawingOccluders(false);
+        CCubeModel::SetDrawingOccluders(false);
 
         if (lighten) {
           CGraphics::SetModelMatrix(x34_model);
@@ -101,7 +101,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
         x88_blurReset = false;
 
         m_shader.resolveTexture();
-        CBooRenderer::BindMainDrawTarget();
+        // CBooRenderer::BindMainDrawTarget();
 
         g_Renderer->SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
         CGraphics::SetDepthRange(backupDepthRange[0], backupDepthRange[1]);

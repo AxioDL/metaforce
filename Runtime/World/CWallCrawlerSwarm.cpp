@@ -10,7 +10,7 @@
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Collision/CMaterialList.hpp"
 #include "Runtime/Collision/CMetroidAreaCollider.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 #include "Runtime/Graphics/CVertexMorphEffect.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
@@ -1021,12 +1021,13 @@ void CWallCrawlerSwarm::HardwareLight(const CStateManager& mgr, const zeus::CAAB
   lights.SetFindShadowLight(false);
   lights.BuildAreaLightList(mgr, *mgr.GetWorld()->GetAreaAlways(x4_areaId), aabb);
   lights.BuildDynamicLightList(mgr, aabb);
-  for (const auto& m : x4b0_modelDatas) {
-    lights.ActivateLights(*m->PickAnimatedModel(x4dc_whichModel).GetModelInst());
-    if (const auto iceModel = m->GetAnimationData()->GetIceModel()) {
-      lights.ActivateLights(*iceModel->GetModelInst());
-    }
-  }
+  // TODO
+//  for (const auto& m : x4b0_modelDatas) {
+//    lights.ActivateLights(*m->PickAnimatedModel(x4dc_whichModel).GetModelInst());
+//    if (const auto iceModel = m->GetAnimationData()->GetIceModel()) {
+//      lights.ActivateLights(*iceModel->GetModelInst());
+//    }
+//  }
 }
 
 void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool thermalHot, const CModelFlags& flags) const {
@@ -1041,9 +1042,10 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
 
   CModelData& mData = *x4b0_modelDatas[modelIndex];
   CSkinnedModel& model = mData.PickAnimatedModel(x4dc_whichModel);
-  if (!model.GetModelInst()->TryLockTextures()) {
-    return;
-  }
+  // TODO
+//  if (!model.GetModelInst()->TryLockTextures()) {
+//    return;
+//  }
 
   const u32 thisDrawMask = 1u << modelIndex;
   if (drawMask & thisDrawMask) {
@@ -1051,16 +1053,16 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
     mData.GetAnimationData()->BuildPose();
   }
 
-  model.GetModelInst()->SetAmbientColor(boid->x40_ambientLighting);
+  // model.GetModelInst()->SetAmbientColor(boid->x40_ambientLighting);
   CGraphics::SetModelMatrix(boid->GetTransform());
   if (boid->x48_timeToDie > 0.f && !thermalHot) {
     constexpr CModelFlags useFlags(0, 0, 3, zeus::skWhite);
     mData.GetAnimationData()->Render(model, useFlags, std::nullopt, nullptr);
     if (auto iceModel = mData.GetAnimationData()->GetIceModel()) {
-      if (!iceModel->GetModelInst()->TryLockTextures()) {
-        return;
-      }
-      iceModel->GetModelInst()->SetAmbientColor(zeus::skWhite);
+//      if (!iceModel->GetModelInst()->TryLockTextures()) {
+//        return;
+//      }
+//      iceModel->GetModelInst()->SetAmbientColor(zeus::skWhite);
       const float alpha = 1.f - boid->x48_timeToDie;
       const zeus::CColor color(1.f, alpha > 0.f ? boid->x48_timeToDie : 1.f);
       const CModelFlags iceFlags(5, 0, 3, color);

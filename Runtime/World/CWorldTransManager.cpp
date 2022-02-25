@@ -11,7 +11,7 @@
 #include "Runtime/Character/CCharacterFactory.hpp"
 #include "Runtime/Character/CSkinRules.hpp"
 #include "Runtime/Character/IAnimReader.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
@@ -173,7 +173,7 @@ void CWorldTransManager::Update(float dt) {
 
 void CWorldTransManager::DrawPlatformModels(CActorLights* lights) {
   CModelFlags flags = {};
-  flags.m_extendedShader = EExtendedShader::Lighting;
+  // TODO flags.m_extendedShader = EExtendedShader::Lighting;
 
   if (!x4_modelData->x100_bgModelData[0].IsNull()) {
     zeus::CTransform xf0 = zeus::CTransform::Translate(0.f, 0.f, -(2.f * x1c_bgHeight - x18_bgOffset));
@@ -198,7 +198,7 @@ void CWorldTransManager::DrawAllModels(CActorLights* lights) {
 
   if (!x4_modelData->x1c_samusModelData.IsNull()) {
     CModelFlags flags = {};
-    flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+    // TODO flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
 
     x4_modelData->x1c_samusModelData.GetAnimationData()->PreRender();
     x4_modelData->x1c_samusModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform(), lights, flags);

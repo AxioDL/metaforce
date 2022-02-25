@@ -19,6 +19,8 @@ struct SSkinWeighting {
 };
 
 class CVirtualBone {
+  friend class CSkinnedModel;
+
   rstl::reserved_vector<SSkinWeighting, 3> x0_weights;
   u32 x1c_vertexCount;
   zeus::CTransform x20_xf;
@@ -31,6 +33,8 @@ public:
 };
 
 class CSkinRules {
+  friend class CSkinnedModel;
+
   std::vector<CVirtualBone> x0_bones;
   u32 x10_vertexCount = 0;
   u32 x14_normalCount = 0;
@@ -38,17 +42,17 @@ class CSkinRules {
 public:
   explicit CSkinRules(CInputStream& in);
 
-//  void GetBankTransforms(std::vector<const zeus::CTransform*>& out, const CPoseAsTransforms& pose,
-//                         int skinBankIdx) const {
-//    // FIXME: This is definitely not proper behavior, this is here to fix the phazon suit crashing
-//    if (x0_skinBanks.size() <= skinBankIdx) {
-//      return;
-//    }
-//    x0_skinBanks[skinBankIdx].GetBankTransforms(out, pose);
-//  }
+  //  void GetBankTransforms(std::vector<const zeus::CTransform*>& out, const CPoseAsTransforms& pose,
+  //                         int skinBankIdx) const {
+  //    // FIXME: This is definitely not proper behavior, this is here to fix the phazon suit crashing
+  //    if (x0_skinBanks.size() <= skinBankIdx) {
+  //      return;
+  //    }
+  //    x0_skinBanks[skinBankIdx].GetBankTransforms(out, pose);
+  //  }
 
-//  void TransformVerticesCPU(std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vnOut,
-//                            const CPoseAsTransforms& pose, const CModel& model) const;
+  //  void TransformVerticesCPU(std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vnOut,
+  //                            const CPoseAsTransforms& pose, const CModel& model) const;
 };
 
 CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params,

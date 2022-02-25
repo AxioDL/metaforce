@@ -5,7 +5,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Camera/CGameCamera.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/GuiSys/CGuiCamera.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"

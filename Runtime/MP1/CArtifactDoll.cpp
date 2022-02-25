@@ -7,7 +7,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
 #include <zeus/CColor.hpp>
@@ -125,13 +125,13 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
     }
 
     CModelFlags flags(7, 0, 3, zeus::CColor(1.f, 0.f));
-    flags.m_extendedShader = EExtendedShader::SolidColorFrontfaceCullLEqualAlphaOnly;
-    x20_actorLights->ActivateLights(model->GetInstance());
+    // flags.m_extendedShader = EExtendedShader::SolidColorFrontfaceCullLEqualAlphaOnly;
+    // x20_actorLights->ActivateLights(model->GetInstance());
     model->Draw(flags);
 
     flags.x4_color = color;
     flags.x4_color.a() *= alpha;
-    flags.m_extendedShader = EExtendedShader::ForcedAdditive;
+    // flags.m_extendedShader = EExtendedShader::ForcedAdditive;
     model->Draw(flags);
   }
 }

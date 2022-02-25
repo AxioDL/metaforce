@@ -1,15 +1,17 @@
 set(GRAPHICS_SOURCES
         IRenderer.hpp
         IWeaponRenderer.hpp IWeaponRenderer.cpp
+        CCubeMaterial.cpp CCubeMaterial.hpp
         CCubeModel.cpp CCubeModel.hpp
-        CBooRenderer.hpp CBooRenderer.cpp
+        CCubeRenderer.cpp CCubeRenderer.hpp
+        CCubeSurface.cpp CCubeSurface.hpp
         CDrawable.hpp
         CDrawablePlaneObject.hpp
         CLineRenderer.hpp CLineRenderer.cpp
-        CMetroidModelInstance.hpp
+        CMetroidModelInstance.cpp CMetroidModelInstance.hpp
         CLight.hpp CLight.cpp
         CTexture.hpp CTextureBoo.cpp
-        CModel.hpp CModelBoo.cpp
+        CModel.cpp CModel.hpp
         CSkinnedModel.hpp CSkinnedModel.cpp
         CVertexMorphEffect.hpp CVertexMorphEffect.cpp
         CMoviePlayer.hpp CMoviePlayer.cpp

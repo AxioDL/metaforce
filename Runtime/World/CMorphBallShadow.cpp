@@ -2,7 +2,7 @@
 
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CWorld.hpp"
@@ -35,8 +35,8 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
   GatherAreas(mgr);
 
   SViewport backupVp = g_Viewport;
-  g_Renderer->BindBallShadowIdTarget();
-//  CGraphics::g_BooMainCommandQueue->clearTarget();
+  // g_Renderer->BindBallShadowIdTarget();
+  // CGraphics::g_BooMainCommandQueue->clearTarget();
 
   zeus::CTransform backupViewMtx = CGraphics::g_ViewMatrix;
   CGraphics::CProjectionState backupProjection = CGraphics::g_Proj;
@@ -61,21 +61,21 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
     if (alphaVal > 255)
       break;
 
-    const CActor* actor = static_cast<const CActor*>(mgr.GetObjectById(id));
+    CActor* actor = static_cast<CActor*>(mgr.ObjectById(id));
     if (!actor || !actor->CanDrawStatic())
       continue;
 
     x0_actors.push_back(actor);
 
-    const CModelData* modelData = actor->GetModelData();
+    auto* modelData = actor->GetModelData();
     zeus::CTransform modelXf = actor->GetTransform() * zeus::CTransform::Scale(modelData->GetScale());
     CGraphics::SetModelMatrix(modelXf);
 
     CModelFlags flags(0, 0, 3, zeus::CColor{1.f, 1.f, 1.f, alphaVal / 255.f});
-    flags.m_extendedShader = EExtendedShader::SolidColor; // Do solid color draw
-    CBooModel& model = *modelData->PickStaticModel(CModelData::EWhichModel::Normal);
+    // flags.m_extendedShader = EExtendedShader::SolidColor; // Do solid color draw
+    auto& model = *modelData->PickStaticModel(CModelData::EWhichModel::Normal);
     model.VerifyCurrentShader(flags.x1_matSetIdx);
-    model.DrawNormal(flags, nullptr, nullptr);
+    model.DrawUnsortedParts(flags);
     alphaVal += 4;
   }
 
@@ -84,9 +84,9 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
   g_Renderer->FindOverlappingWorldModels(x30_worldModelBits, aabb);
   alphaVal = g_Renderer->DrawOverlappingWorldModelIDs(alphaVal, x30_worldModelBits, aabb);
 
-  g_Renderer->ResolveBallShadowIdTarget();
+  // g_Renderer->ResolveBallShadowIdTarget();
 
-  g_Renderer->BindMainDrawTarget();
+  // g_Renderer->BindMainDrawTarget();
   CGraphics::SetViewPointMatrix(backupViewMtx);
   CGraphics::SetProjectionState(backupProjection);
   g_Renderer->SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
@@ -118,19 +118,19 @@ void CMorphBallShadow::Render(const CStateManager& mgr, float alpha) {
 
   CModelFlags flags;
   flags.x4_color.a() = alpha;
-  flags.m_extendedShader = EExtendedShader::MorphBallShadow;
-  flags.mbShadowBox = xb8_shadowVolume;
+  // flags.m_extendedShader = EExtendedShader::MorphBallShadow;
+  // flags.mbShadowBox = xb8_shadowVolume;
 
   int alphaVal = 4;
-  for (const CActor* actor : x0_actors) {
-    const CModelData* modelData = actor->GetModelData();
+  for (auto* actor : x0_actors) {
+    auto* modelData = actor->GetModelData();
     zeus::CTransform modelXf = actor->GetTransform() * zeus::CTransform::Scale(modelData->GetScale());
     CGraphics::SetModelMatrix(modelXf);
 
     flags.x4_color.r() = alphaVal / 255.f;
-    CBooModel& model = *modelData->PickStaticModel(CModelData::EWhichModel::Normal);
+    auto& model = *modelData->PickStaticModel(CModelData::EWhichModel::Normal);
     model.VerifyCurrentShader(flags.x1_matSetIdx);
-    model.DrawNormal(flags, nullptr, nullptr);
+    model.DrawUnsortedParts(flags);
     alphaVal += 4;
   }
 

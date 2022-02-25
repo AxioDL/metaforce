@@ -3,7 +3,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 #include "Runtime/Graphics/CVertexMorphEffect.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
@@ -150,7 +150,7 @@ void CSnakeWeedSwarm::AddToRenderer(const zeus::CFrustum& frustum, CStateManager
 
   if (x90_actorLights) {
     for (const auto& modelData : x1b0_modelData) {
-      x90_actorLights->ActivateLights(*modelData->PickAnimatedModel(x1c4_which).GetModelInst());
+      x90_actorLights->ActivateLights();
     }
   } else {
     CGraphics::DisableAllLights();

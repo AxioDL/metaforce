@@ -25,6 +25,7 @@ class CGunMotion {
 
 public:
   CGunMotion(CAssetId ancsId, const zeus::CVector3f& scale);
+  CModelData& GetModelData() { return x0_modelData; }
   const CModelData& GetModelData() const { return x0_modelData; }
   bool PlayPasAnim(SamusGun::EAnimationState state, CStateManager& mgr, float angle, bool bigStrike);
   void ReturnToDefault(CStateManager& mgr, bool setState);

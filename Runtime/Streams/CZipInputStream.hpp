@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <zlib.h>
+
 namespace metaforce {
 class CZipInputStream : public CInputStream {
   std::unique_ptr<u8[]> x24_compBuf;
@@ -17,5 +18,4 @@ public:
 
   u32 Read(void* ptr, u32 len) override;
 };
-
 } // namespace metaforce

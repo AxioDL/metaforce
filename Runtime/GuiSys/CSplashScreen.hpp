@@ -19,7 +19,7 @@ private:
   // EProgressivePhase x20_progressivePhase = EProgressivePhase::Before;
   // bool x24_progressiveSelection = true;
   bool x25_textureLoaded = false;
-  TLockedToken<CTexture> m_texture;
+  TLockedToken<CTexture> x28_texture;
 
 public:
   explicit CSplashScreen(ESplashScreen);

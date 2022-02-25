@@ -130,7 +130,7 @@ void CGrenadeLauncher::PreRender(CStateManager& mgr, const zeus::CFrustum& frust
   if (x3f4_damageAddColor.a() == 1.f) {
     xb4_drawFlags = CModelFlags{2, 0, 3, zeus::skWhite};
     // Original code redundantly sets a() = 1.f
-    xb4_drawFlags.addColor = x3f4_damageAddColor;
+    // TODO xb4_drawFlags.addColor = x3f4_damageAddColor;
   } else {
     xb4_drawFlags = CModelFlags{5, 0, 3, x3f4_damageAddColor};
   }

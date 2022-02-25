@@ -17,7 +17,7 @@
 #include "Runtime/CSortedLists.hpp"
 #include "Runtime/CTimeProvider.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CLight.hpp"
 #include "Runtime/Input/ControlMapper.hpp"
 #include "Runtime/Input/CRumbleManager.hpp"
@@ -658,7 +658,7 @@ zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const {
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
   const zeus::CTransform camXf = x870_cameraManager->GetCurrentCameraTransform(*this);
   g_Renderer->SetWorldViewpoint(camXf);
-  CBooModel::SetNewPlayerPositionAndTime(x84c_player->GetTranslation());
+  CCubeModel::SetNewPlayerPositionAndTime(x84c_player->GetTranslation(), CStopwatch::GetGlobalTimerObj());
   const int vpWidth = static_cast<int>(xf2c_viewportScale.x() * vp.x8_width);
   const int vpHeight = static_cast<int>(xf2c_viewportScale.y() * vp.xc_height);
   const int vpLeft = static_cast<int>((vp.x8_width - vpWidth) / 2 + vp.x0_left);
@@ -677,7 +677,7 @@ zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const {
   // g_Renderer->PrimColor(zeus::skWhite);
   CGraphics::SetModelMatrix(zeus::CTransform());
   x87c_fluidPlaneManager->StartFrame(false);
-  g_Renderer->SetDebugOption(IRenderer::EDebugOption::One, 1);
+  g_Renderer->SetDebugOption(IRenderer::EDebugOption::PVSState, int(EPVSVisSetState::NodeFound));
   return frustum;
 }
 
@@ -685,7 +685,7 @@ zeus::CFrustum CStateManager::SetupViewForCubeFaceDraw(const zeus::CVector3f& po
   const zeus::CTransform mainCamXf = x870_cameraManager->GetCurrentCameraTransform(*this);
   const zeus::CTransform camXf = zeus::CTransform(mainCamXf.basis * CGraphics::skCubeBasisMats[face], pos);
   g_Renderer->SetWorldViewpoint(camXf);
-  CBooModel::SetNewPlayerPositionAndTime(x84c_player->GetTranslation());
+  CCubeModel::SetNewPlayerPositionAndTime(x84c_player->GetTranslation(), CStopwatch::GetGlobalTimerObj());
   constexpr float width = CUBEMAP_RES;
   g_Renderer->SetViewport(0, 0, width, width);
   CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
@@ -790,7 +790,6 @@ void CStateManager::DrawWorld() {
     SetupFogForArea(area);
     g_Renderer->EnablePVS(pvsArr[i], area.x4_selfIdx);
     g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
-    g_Renderer->UpdateAreaUniforms(area.x4_selfIdx);
     g_Renderer->DrawUnsortedGeometry(area.x4_selfIdx, mask, targetMask);
   }
 

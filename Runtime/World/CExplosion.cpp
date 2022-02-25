@@ -2,7 +2,7 @@
 
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/World/CGameLight.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
@@ -104,9 +104,9 @@ void CExplosion::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr
 void CExplosion::Render(CStateManager& mgr) {
   if (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot && xf4_24_renderThermalHot) {
     CElementGen::SetSubtractBlend(true);
-    CBooModel::SetRenderModelBlack(true);
+    CCubeModel::SetRenderModelBlack(true);
     xe8_particleGen->Render();
-    CBooModel::SetRenderModelBlack(false);
+    CCubeModel::SetRenderModelBlack(false);
     CElementGen::SetSubtractBlend(false);
     return;
   }

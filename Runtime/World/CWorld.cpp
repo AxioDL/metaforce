@@ -10,7 +10,7 @@
 #include "Runtime/IMain.hpp"
 #include "Runtime/Audio/CAudioGroupSet.hpp"
 #include "Runtime/Audio/CStreamAudioManager.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/World/CScriptAreaAttributes.hpp"
 #include "Runtime/World/CScriptRoomAcoustics.hpp"
 
@@ -398,7 +398,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
       if (!skybox)
         return false;
 
-      skybox->GetInstance().Touch(0);
+      skybox->Touch(0);
       if (!skybox->IsLoaded(0))
         return false;
 
@@ -674,7 +674,7 @@ void CWorld::DrawSky(const zeus::CTransform& xf) const {
   CGraphics::SetDepthRange(DEPTH_SKY, DEPTH_FAR);
 
   CModelFlags flags(0, 0, 1, zeus::skWhite);
-  flags.m_noZWrite = true;
+  // flags.m_noZWrite = true;
   model->Draw(flags);
 
   CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
@@ -701,7 +701,7 @@ void CWorld::AddGlobalSound(const CSfxHandle& hnd) {
   xc8_globalSfxHandles.push_back(hnd);
 }
 
-bool CWorld::AreSkyNeedsMet() const {
+bool CWorld::AreSkyNeedsMet() {
   if (!x70_26_skyboxActive)
     return true;
   if (xb4_skyboxOverride && xb4_skyboxOverride.value()->IsLoaded(0))

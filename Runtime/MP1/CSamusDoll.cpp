@@ -2,12 +2,11 @@
 
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CSimplePool.hpp"
-#include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Collision/CollisionUtil.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/World/CMorphBall.hpp"
 
-#include <algorithm>
 #include <array>
 #include <cfloat>
 #include <cmath>
@@ -348,18 +347,20 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
 
     {
       CGraphics::SetModelMatrix(gunXf);
-      x1f4_invBeam->GetInstance().ActivateLights(x23c_lights);
+      // TODO
+      // CGraphics::LoadLight(ERglLight::Zero, x248_);
+      // old: x1f4_invBeam->GetInstance().ActivateLights(x23c_lights);
       CModelFlags flags = {};
 
-      flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
+      // flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
       flags.x4_color = zeus::skWhite;
       x1f4_invBeam->Draw(flags);
 
-      flags.m_extendedShader = EExtendedShader::ForcedAlpha;
+      // flags.m_extendedShader = EExtendedShader::ForcedAlpha;
       flags.x4_color = zeus::CColor(1.f, alpha);
       x1f4_invBeam->Draw(flags);
 
-      flags.m_extendedShader = EExtendedShader::ForcedAdditive;
+      // flags.m_extendedShader = EExtendedShader::ForcedAdditive;
       flags.x4_color = zeus::CColor(1.f, alpha * itemPulse * x5c_beamPulseFactor);
       x1f4_invBeam->Draw(flags);
     }
@@ -371,14 +372,14 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
       float alphaBlend = (visorT < 0.25f) ? 1.f - 2.f * visorT : (visorT < 0.5f) ? 2.f * (visorT - 0.25f) + 0.5f : 1.f;
       float addBlend = (visorT > 0.75f) ? 1.f - 4.f * (visorT - 0.75f) : (visorT > 0.5f) ? 4.f * (visorT - 0.5f) : 0.f;
 
-      x200_invVisor->GetInstance().ActivateLights(x23c_lights);
+      // x200_invVisor->GetInstance().ActivateLights(x23c_lights);
       CModelFlags flags = {};
-      flags.m_extendedShader = EExtendedShader::Lighting;
+      // flags.m_extendedShader = EExtendedShader::Lighting;
       flags.x4_color =
           zeus::CColor::lerp(zeus::CColor(1.f, alpha), zeus::CColor(alphaBlend, alpha), x68_visorPulseFactor);
       x200_invVisor->Draw(flags);
 
-      flags.m_extendedShader = EExtendedShader::ForcedAdditive;
+      // flags.m_extendedShader = EExtendedShader::ForcedAdditive;
       flags.x4_color = zeus::CColor(1.f, alpha * addBlend * x68_visorPulseFactor);
       x200_invVisor->Draw(flags);
     }
@@ -386,25 +387,25 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
     if (x270_25_hasGrappleBeam) {
       CGraphics::SetModelMatrix(grappleXf);
 
-      x20c_invGrappleBeam->GetInstance().ActivateLights(x23c_lights);
+      // x20c_invGrappleBeam->GetInstance().ActivateLights(x23c_lights);
       CModelFlags flags = {};
-      flags.m_extendedShader = EExtendedShader::ForcedAlpha;
+      // flags.m_extendedShader = EExtendedShader::ForcedAlpha;
       flags.x4_color = zeus::CColor(1.f, alpha);
       x20c_invGrappleBeam->Draw(flags);
 
-      flags.m_extendedShader = EExtendedShader::ForcedAdditive;
+      // flags.m_extendedShader = EExtendedShader::ForcedAdditive;
       flags.x4_color = zeus::CColor(1.f, alpha * itemPulse * x60_grapplePulseFactor);
       x20c_invGrappleBeam->Draw(flags);
     } else if (x44_suit >= CPlayerState::EPlayerSuit::FusionPower) {
       CGraphics::SetModelMatrix(grappleXf);
 
-      x218_invFins->GetInstance().ActivateLights(x23c_lights);
+      // x218_invFins->GetInstance().ActivateLights(x23c_lights);
       CModelFlags flags = {};
-      flags.m_extendedShader = EExtendedShader::ForcedAlpha;
+      // flags.m_extendedShader = EExtendedShader::ForcedAlpha;
       flags.x4_color = zeus::CColor(1.f, alpha);
       x218_invFins->Draw(flags);
 
-      flags.m_extendedShader = EExtendedShader::ForcedAdditive;
+      // flags.m_extendedShader = EExtendedShader::ForcedAdditive;
       flags.x4_color = zeus::CColor(1.f, alpha * suitPulse);
       x218_invFins->Draw(flags);
     }
@@ -421,16 +422,16 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
       if (ballAlpha > 0.f) {
         CModelFlags flags = {};
         flags.x1_matSetIdx = x1e0_ballMatIdx;
-        flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
+        // flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
         flags.x4_color = zeus::skWhite;
         x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
-        flags.m_extendedShader = EExtendedShader::ForcedAlpha;
+        // flags.m_extendedShader = EExtendedShader::ForcedAlpha;
         flags.x4_color = zeus::skWhite;
         flags.x4_color.a() = alpha * ballAlpha;
         x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
-        flags.m_extendedShader = EExtendedShader::ForcedAdditive;
+        // flags.m_extendedShader = EExtendedShader::ForcedAdditive;
         flags.x4_color = zeus::skWhite;
         flags.x4_color.a() = x6c_ballPulseFactor * alpha * ballAlpha * itemPulse;
         x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
@@ -455,7 +456,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
         spinAlpha *= 0.5f;
         if (spinAlpha > 0.f) {
           CModelFlags flags = {};
-          flags.m_extendedShader = EExtendedShader::ForcedAdditive;
+          // flags.m_extendedShader = EExtendedShader::ForcedAdditive;
           flags.x1_matSetIdx = x1e0_ballMatIdx;
           flags.x4_color = zeus::CColor(1.f, spinAlpha * alpha);
           x184_ballModelData->Render(
@@ -468,18 +469,18 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
         CGraphics::SetModelMatrix(x10_ballXf);
         CModelFlags flags = {};
         flags.x1_matSetIdx = x1e4_glassMatIdx;
-        x1d4_spiderBallGlass->GetInstance().ActivateLights(x23c_lights);
+        // x1d4_spiderBallGlass->GetInstance().ActivateLights(x23c_lights);
 
-        flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
+        // flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
         flags.x4_color = zeus::skWhite;
         x1d4_spiderBallGlass->Draw(flags);
 
-        flags.m_extendedShader = EExtendedShader::ForcedAlpha;
+        // flags.m_extendedShader = EExtendedShader::ForcedAlpha;
         flags.x4_color = zeus::skWhite;
         flags.x4_color.a() = alpha;
         x1d4_spiderBallGlass->Draw(flags);
 
-        flags.m_extendedShader = EExtendedShader::ForcedAdditive;
+        // flags.m_extendedShader = EExtendedShader::ForcedAdditive;
         flags.x4_color = zeus::skWhite;
         flags.x4_color.a() = x6c_ballPulseFactor * alpha * itemPulse;
         x1d4_spiderBallGlass->Draw(flags);
@@ -497,16 +498,16 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
   } else {
     CModelFlags flags = {};
     flags.x1_matSetIdx = x1e0_ballMatIdx;
-    flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
+    // flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
     flags.x4_color = zeus::skWhite;
     x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
-    flags.m_extendedShader = EExtendedShader::ForcedAlpha;
+    // flags.m_extendedShader = EExtendedShader::ForcedAlpha;
     flags.x4_color = zeus::skWhite;
     flags.x4_color.a() = alpha;
     x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
-    flags.m_extendedShader = EExtendedShader::ForcedAdditive;
+    // flags.m_extendedShader = EExtendedShader::ForcedAdditive;
     flags.x4_color = zeus::skWhite;
     flags.x4_color.a() = x6c_ballPulseFactor * alpha * itemPulse;
     x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
@@ -549,18 +550,18 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
       CGraphics::SetModelMatrix(x10_ballXf);
       CModelFlags spiderBallGlassFlags = {};
       spiderBallGlassFlags.x1_matSetIdx = x1e4_glassMatIdx;
-      x1d4_spiderBallGlass->GetInstance().ActivateLights(x23c_lights);
+      // x1d4_spiderBallGlass->GetInstance().ActivateLights(x23c_lights);
 
-      spiderBallGlassFlags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
+      // spiderBallGlassFlags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
       spiderBallGlassFlags.x4_color = zeus::skWhite;
       x1d4_spiderBallGlass->Draw(spiderBallGlassFlags);
 
-      spiderBallGlassFlags.m_extendedShader = EExtendedShader::ForcedAlpha;
+      // spiderBallGlassFlags.m_extendedShader = EExtendedShader::ForcedAlpha;
       spiderBallGlassFlags.x4_color = zeus::skWhite;
       spiderBallGlassFlags.x4_color.a() = alpha;
       x1d4_spiderBallGlass->Draw(spiderBallGlassFlags);
 
-      spiderBallGlassFlags.m_extendedShader = EExtendedShader::ForcedAdditive;
+      // spiderBallGlassFlags.m_extendedShader = EExtendedShader::ForcedAdditive;
       spiderBallGlassFlags.x4_color = zeus::skWhite;
       spiderBallGlassFlags.x4_color.a() = x6c_ballPulseFactor * alpha * itemPulse;
       x1d4_spiderBallGlass->Draw(spiderBallGlassFlags);

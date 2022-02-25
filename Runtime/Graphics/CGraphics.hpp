@@ -40,55 +40,6 @@ enum class ERglLightBits : u8 {
 };
 ENABLE_BITWISE_ENUM(ERglLightBits)
 
-enum class ERglEnum { Never = 0, Less = 1, Equal = 2, LEqual = 3, Greater = 4, NEqual = 5, GEqual = 6, Always = 7 };
-
-enum class ERglBlendMode { None = 0, Blend = 1, Logic = 2, Subtract = 3 };
-
-enum class ERglBlendFactor {
-  Zero = 0,
-  One = 1,
-  SrcColor = 2,
-  InvSrcColor = 3,
-  SrcAlpha = 4,
-  InvSrcAlpha = 5,
-  DstAlpha = 6,
-  InvDstAlpha = 7
-};
-
-enum class ERglLogicOp {
-  Clear = 0,
-  And = 1,
-  RevAnd = 2,
-  Copy = 3,
-  InvAnd = 4,
-  NoOp = 5,
-  Xor = 6,
-  Or = 7,
-  Nor = 8,
-  Equiv = 9,
-  Inv = 10,
-  RevOr = 11,
-  InvCopy = 12,
-  InvOr = 13,
-  NAnd = 14,
-  Set = 15
-};
-
-enum class ERglCullMode { None = 0, Front = 1, Back = 2, All = 3 };
-
-enum class ERglAlphaFunc {
-  Never = 0,
-  Less = 1,
-  Equal = 2,
-  LEqual = 3,
-  Greater = 4,
-  NEqual = 5,
-  GEqual = 6,
-  Always = 7
-};
-
-enum class ERglAlphaOp { And = 0, Or = 1, Xor = 2, XNor = 3 };
-
 struct SViewport {
   u32 x0_left;
   u32 x4_top;
@@ -246,6 +197,9 @@ public:
   static zeus::CTransform g_CameraMatrix;
   static SClipScreenRect g_CroppedViewport;
   static bool g_IsGXModelMatrixIdentity;
+
+  static ERglEnum g_depthFunc;
+  static ERglCullMode g_cullMode;
 
   static void DisableAllLights();
   static void LoadLight(ERglLight light, const CLight& info);

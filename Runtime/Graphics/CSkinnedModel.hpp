@@ -18,33 +18,35 @@ class CPoseAsTransforms;
 class CVertexMorphEffect;
 class IObjectStore;
 
+// Lambda instead of userdata pointer
+using FCustomDraw = std::function<void(TVectorRef positions, TVectorRef normals)>;
+
 class CSkinnedModel {
-  friend class CBooModel;
-  std::unique_ptr<CBooModel> m_modelInst;
   TLockedToken<CModel> x4_model;
   TLockedToken<CSkinRules> x10_skinRules;
   TLockedToken<CCharLayoutInfo> x1c_layoutInfo;
-  std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>> m_vertWorkspace;
-  bool m_modifiedVBO = false;
+  std::vector<zeus::CVector3f> x24_vertWorkspace;   // was rstl::auto_ptr<float[]>
+  std::vector<zeus::CVector3f> x2c_normalWorkspace; // was rstl::auto_ptr<float[]>
+  bool x34_owned = true;
+  bool x35_disableWorkspaces = false;
 
 public:
-  enum class EDataOwnership { Zero, One };
-  CSkinnedModel(TLockedToken<CModel> model, TLockedToken<CSkinRules> skinRules,
-                TLockedToken<CCharLayoutInfo> layoutInfo, int shaderIdx);
-  CSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo, int shaderIdx);
-  std::unique_ptr<CSkinnedModel> Clone(int shaderIdx = 0) const {
-    return std::make_unique<CSkinnedModel>(x4_model, x10_skinRules, x1c_layoutInfo, shaderIdx);
-  }
+  enum class EDataOwnership { Unowned, Owned };
+  CSkinnedModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules,
+                const TLockedToken<CCharLayoutInfo>& layoutInfo /*, EDataOwnership ownership*/);
+  CSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo);
 
+  TLockedToken<CModel>& GetModel() { return x4_model; }
   const TLockedToken<CModel>& GetModel() const { return x4_model; }
-  const std::unique_ptr<CBooModel>& GetModelInst() const { return m_modelInst; }
   const TLockedToken<CSkinRules>& GetSkinRules() const { return x10_skinRules; }
   void SetLayoutInfo(const TLockedToken<CCharLayoutInfo>& inf) { x1c_layoutInfo = inf; }
   const TLockedToken<CCharLayoutInfo>& GetLayoutInfo() const { return x1c_layoutInfo; }
 
   void Calculate(const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
                  const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
-  void Draw(const CModelFlags& drawFlags) const;
+  void Draw(TVectorRef verts, TVectorRef normals, const CModelFlags& drawFlags);
+  void Draw(const CModelFlags& drawFlags);
+  void DoDrawCallback(const FCustomDraw& func) const;
 
   using FPointGenerator = void (*)(void* item, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
   static void SetPointGeneratorFunc(void* ctx, FPointGenerator func) {
@@ -60,7 +62,7 @@ class CMorphableSkinnedModel : public CSkinnedModel {
   std::unique_ptr<float[]> x40_morphMagnitudes;
 
 public:
-  CMorphableSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo, int shaderIdx);
+  CMorphableSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo);
   const float* GetMorphMagnitudes() const { return x40_morphMagnitudes.get(); }
 };
 

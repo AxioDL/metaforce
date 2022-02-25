@@ -1,5 +1,7 @@
 #pragma once
 #include "Runtime/GCNTypes.hpp"
+
+#include <array>
 #include <string>
 
 namespace metaforce {
@@ -46,7 +48,7 @@ public:
   double ReadDouble();
 
   void Get(u8* dest, u32 len);
-  template <class T>
+  template <typename T>
   T Get() {
     return cinput_stream_helper<T>(*this);
   }

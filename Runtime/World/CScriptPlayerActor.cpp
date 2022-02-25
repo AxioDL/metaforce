@@ -5,7 +5,7 @@
 #include "Runtime/Camera/CGameCamera.hpp"
 #include "Runtime/Character/CAssetFactory.hpp"
 #include "Runtime/Character/CCharacterFactory.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/MP1/MP1.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CLightParameters.hpp"
@@ -386,7 +386,7 @@ void CScriptPlayerActor::PreRender(CStateManager& mgr, const zeus::CFrustum& fru
   if (x2e8_suitRes.GetCharacterNodeId() == 3) {
     g_Renderer->AllocatePhazonSuitMaskTexture();
   }
-  xb4_drawFlags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+  // TODO xb4_drawFlags.m_extendedShader = EExtendedShader::LightingCubeReflection;
   CScriptActor::PreRender(mgr, frustum);
 }
 
@@ -398,14 +398,14 @@ void CScriptPlayerActor::AddToRenderer(const zeus::CFrustum& frustum, CStateMana
 }
 
 void CScriptPlayerActor::Render(CStateManager& mgr) {
-  CBooModel::SetReflectionCube(m_reflectionCube);
+  // CBooModel::SetReflectionCube(m_reflectionCube);
 
   const bool phazonSuit = x2e8_suitRes.GetCharacterNodeId() == 3;
   if (phazonSuit) {
     // Draw into alpha buffer
     CModelFlags flags = xb4_drawFlags;
     flags.x4_color = zeus::skWhite;
-    flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
+    // flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
     CModelData::EWhichModel which = CModelData::GetRenderingModel(mgr);
     x64_modelData->Render(which, x34_transform, x90_actorLights.get(), flags);
   }
@@ -415,9 +415,9 @@ void CScriptPlayerActor::Render(CStateManager& mgr) {
   if (x314_beamModelData && !x314_beamModelData->IsNull() && x64_modelData && !x64_modelData->IsNull()) {
     zeus::CTransform modelXf = GetTransform() * x64_modelData->GetScaledLocatorTransform("GUN_LCTR");
     CModelFlags flags(5, 0, 3, zeus::skWhite);
-    flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
+    // flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
     x314_beamModelData->Render(mgr, modelXf, x90_actorLights.get(), flags);
-    flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+    // flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
     flags.x4_color = zeus::CColor{1.f, xb4_drawFlags.x4_color.a()};
     x314_beamModelData->Render(mgr, modelXf, x90_actorLights.get(), flags);
   }

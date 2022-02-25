@@ -5,42 +5,42 @@
 #include <vector>
 
 #include "Runtime/RetroTypes.hpp"
-
-#include "Shaders/CModelShaders.hpp"
-
-//#include <hecl/HMDLMeta.hpp>
+#include "Graphics/CCubeModel.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CTransform.hpp>
 
 namespace metaforce {
-class CBooModel;
-struct CBooSurface;
+class CCubeSurface;
 
 class CMetroidModelInstance {
-  friend class CBooRenderer;
-  friend class CGameArea;
-
-  int x0_visorFlags;
-  zeus::CTransform x4_xf;
-  zeus::CAABox x34_aabb;
-  std::vector<CBooSurface> m_surfaces;
-  std::unique_ptr<CBooModel> m_instance;
-//  hecl::HMDLMeta m_hmdlMeta;
-//  std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
+  u32 x0_visorFlags = 0;
+  zeus::CTransform x4_worldXf;
+  zeus::CAABox x34_worldAABB;
+  const u8* x4c_materialData = nullptr;
+  std::vector<CCubeSurface> x50_surfaces;           // was rstl::vector<void*>*
+  std::vector<zeus::CVector3f> x60_positions;       // was void*
+  std::vector<zeus::CVector3f> x64_normals;         // was void*
+  std::vector<zeus::CColor> x68_colors;             // was void*
+  std::vector<zeus::CVector2f> x6c_texCoords;       // was void*
+  std::vector<zeus::CVector2f> x70_packedTexCoords; // was void*
 
 public:
   CMetroidModelInstance() = default;
-  CMetroidModelInstance(CMetroidModelInstance&&) = default;
-  void Clear() {
-    x0_visorFlags = 0;
-    x4_xf = {};
-    x34_aabb = {};
-    m_surfaces.clear();
-    m_instance.reset();
-//    m_hmdlMeta = {};
-//    m_shaders.clear();
-  }
+  CMetroidModelInstance(std::pair<const u8*, u32> modelHeader, const u8* materialData,
+                        std::pair<const u8*, u32> positions, std::pair<const u8*, u32> normals,
+                        std::pair<const u8*, u32> colors, std::pair<const u8*, u32> texCoords,
+                        std::pair<const u8*, u32> packedTexCoords, std::vector<CCubeSurface>&& surfaces);
+
+  [[nodiscard]] u32 GetFlags() const { return x0_visorFlags; }
+  [[nodiscard]] const zeus::CAABox& GetBoundingBox() const { return x34_worldAABB; }
+  [[nodiscard]] const std::vector<CCubeSurface>* GetSurfaces() const { return &x50_surfaces; }
+  [[nodiscard]] const u8* GetMaterialPointer() const { return x4c_materialData; }
+  [[nodiscard]] TVectorRef GetVertexPointer() const { return &x60_positions; }
+  [[nodiscard]] TVectorRef GetNormalPointer() const { return &x64_normals; }
+  [[nodiscard]] const std::vector<zeus::CColor>* GetColorPointer() const { return &x68_colors; }
+  [[nodiscard]] const std::vector<zeus::CVector2f>* GetTCPointer() const { return &x6c_texCoords; }
+  [[nodiscard]] const std::vector<zeus::CVector2f>* GetPackedTCPointer() const { return &x70_packedTexCoords; }
 };
 
 } // namespace metaforce

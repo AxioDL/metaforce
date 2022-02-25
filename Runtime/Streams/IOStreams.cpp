@@ -46,7 +46,6 @@ zeus::CAABox cinput_stream_helper(CInputStream& in) {
   return ret;
 }
 
-
 template <>
 zeus::COBBox cinput_stream_helper(CInputStream& in) {
   zeus::COBBox ret;
@@ -95,13 +94,13 @@ zeus::CMatrix4f cinput_stream_helper(CInputStream& in) {
   return ret.transposed();
 }
 
-template<typename T, size_t N>
-rstl::reserved_vector<T,N> cinput_stream_helper(CInputStream& in) {
-  return rstl::reserved_vector<T,N>(in);
+template <typename T, size_t N>
+rstl::reserved_vector<T, N> cinput_stream_helper(CInputStream& in) {
+  return rstl::reserved_vector<T, N>(in);
 }
 
 // Output
-template<>
+template <>
 void coutput_stream_helper(const zeus::CVector3f& v, COutputStream& out) {
   out.Put(v.x());
   out.Put(v.y());

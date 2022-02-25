@@ -8,7 +8,7 @@
 namespace metaforce {
 static u32 min_containing_bytes(u32 v) {
   v = 32 - v;
-  v = (v >> 3) - ((s32) - (v & 7) >> 31);
+  v = (v >> 3) - (static_cast<s32>(-(v & 7)) >> 31);
   return v;
 }
 

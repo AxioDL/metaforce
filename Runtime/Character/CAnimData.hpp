@@ -170,7 +170,7 @@ public:
   const CCharacterInfo& GetCharacterInfo() const { return xc_charInfo; }
   const CCharLayoutInfo& GetCharLayoutInfo() const { return *xcc_layoutData.GetObj(); }
   void SetPhase(float ph);
-  void Touch(const CSkinnedModel& model, int shaderIdx) const;
+  void Touch(CSkinnedModel& model, int shaderIdx) const;
   SAdvancementDeltas GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
   CCharAnimTime GetTimeOfUserEvent(EUserEventType type, const CCharAnimTime& time) const;
   void MultiplyPlaybackRate(float mul);

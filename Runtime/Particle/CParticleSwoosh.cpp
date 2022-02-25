@@ -1,7 +1,7 @@
 #include "Runtime/Particle/CParticleSwoosh.hpp"
 
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CParticleGlobals.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
 
@@ -479,7 +479,7 @@ void CParticleSwoosh::RenderNSidedSpline() {
   }
 
   if (x1bc_prim == GX::LINES) {
-    m_lineRenderer->Render(g_Renderer->IsThermalVisorHotPass());
+    // m_lineRenderer->Render(g_Renderer->IsThermalVisorHotPass());
   }
 }
 

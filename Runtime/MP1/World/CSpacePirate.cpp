@@ -6,7 +6,7 @@
 #include "Runtime/Character/CCharLayoutInfo.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/MP1/World/CMetroid.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"

@@ -155,6 +155,7 @@ u16 CBasics::SwapBytes(u16 v) {
   Swap2Bytes(reinterpret_cast<u8*>(&v));
   return v;
 }
+
 u32 CBasics::SwapBytes(u32 v) {
   Swap4Bytes(reinterpret_cast<u8*>(&v));
   return v;
@@ -164,10 +165,27 @@ u64 CBasics::SwapBytes(u64 v) {
   Swap8Bytes(reinterpret_cast<u8*>(&v));
   return v;
 }
+
+s16 CBasics::SwapBytes(s16 v) {
+  Swap2Bytes(reinterpret_cast<u8*>(&v));
+  return v;
+}
+
+s32 CBasics::SwapBytes(s32 v) {
+  Swap4Bytes(reinterpret_cast<u8*>(&v));
+  return v;
+}
+
+s64 CBasics::SwapBytes(s64 v) {
+  Swap8Bytes(reinterpret_cast<u8*>(&v));
+  return v;
+}
+
 float CBasics::SwapBytes(float v) {
   Swap4Bytes(reinterpret_cast<u8*>(&v));
   return v;
 }
+
 double CBasics::SwapBytes(double v) {
   Swap8Bytes(reinterpret_cast<u8*>(&v));
   return v;

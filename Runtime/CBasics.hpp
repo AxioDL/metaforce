@@ -55,6 +55,9 @@ public:
   static u16 SwapBytes(u16 v);
   static u32 SwapBytes(u32 v);
   static u64 SwapBytes(u64 v);
+  static s16 SwapBytes(s16 v);
+  static s32 SwapBytes(s32 v);
+  static s64 SwapBytes(s64 v);
   static float SwapBytes(float v);
   static double SwapBytes(double s);
   static void Swap2Bytes(u8* v);

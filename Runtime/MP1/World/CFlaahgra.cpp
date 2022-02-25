@@ -7,7 +7,7 @@
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/MP1/World/CFlaahgraProjectile.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/World/CActorParameters.hpp"

@@ -4,7 +4,7 @@
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/CSimplePool.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Graphics/CCubeRenderer.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 

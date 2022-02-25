@@ -9,7 +9,7 @@
 #include "Runtime/Character/CActorLights.hpp"
 #include "Runtime/Character/IAnimReader.hpp"
 #include "Runtime/Collision/CMaterialList.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CWorld.hpp"
@@ -193,7 +193,7 @@ void CActor::AddToRenderer(const zeus::CFrustum& planes, CStateManager& mgr) {
       mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::Thermal && xe5_24_shadowEnabled &&
       x94_simpleShadow->Valid() && planes.aabbFrustumTest(x94_simpleShadow->GetBounds())) {
     g_Renderer->AddDrawable(x94_simpleShadow.get(), x94_simpleShadow->GetTransform().origin,
-                            x94_simpleShadow->GetBounds(), 1, CBooRenderer::EDrawableSorting::SortedCallback);
+                            x94_simpleShadow->GetBounds(), 1, CCubeRenderer::EDrawableSorting::SortedCallback);
   }
 }
 
@@ -246,7 +246,7 @@ void CActor::RenderInternal(const CStateManager& mgr) const {
           1.f);
       CModelFlags flags(2, xb4_drawFlags.x1_matSetIdx, xb4_drawFlags.x2_flags, color);
       if (m_debugSelected || m_debugHovered) {
-        flags.addColor += m_debugAddColor;
+        // TODO flags.addColor += m_debugAddColor;
       }
       x64_modelData->Render(mgr, x34_transform, x90_actorLights.get(), flags);
       return;
@@ -254,7 +254,7 @@ void CActor::RenderInternal(const CStateManager& mgr) const {
   }
   CModelFlags flags = xb4_drawFlags;
   if (m_debugSelected || m_debugHovered) {
-    flags.addColor += m_debugAddColor;
+    // TODO flags.addColor += m_debugAddColor;
   }
   x64_modelData->Render(which, x34_transform, x90_actorLights.get(), flags);
 }

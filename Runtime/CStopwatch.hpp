@@ -7,6 +7,8 @@ namespace metaforce {
 class CStopwatch {
   std::chrono::steady_clock::time_point m_start;
 
+  static CStopwatch g_globalTimer;
+
 public:
   CStopwatch() : m_start(std::chrono::steady_clock::now()) {}
   double report(const char* name) const {
@@ -27,5 +29,7 @@ public:
     m_start = now;
     return t;
   }
+
+  static CStopwatch& GetGlobalTimerObj() { return g_globalTimer; }
 };
 } // namespace metaforce

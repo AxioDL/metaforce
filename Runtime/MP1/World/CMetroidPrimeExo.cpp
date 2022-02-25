@@ -5,7 +5,7 @@
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/MP1/World/CEnergyBall.hpp"
 #include "Runtime/MP1/World/CIceAttackProjectile.hpp"
 #include "Runtime/MP1/World/CMetroidPrimeRelay.hpp"

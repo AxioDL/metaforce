@@ -11,7 +11,6 @@
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
 namespace metaforce {
-class CBooModel;
 class CGuiCamera;
 class CGuiLight;
 class CGuiSys;
@@ -70,7 +69,7 @@ public:
   void SetHeadWidget(std::shared_ptr<CGuiHeadWidget>&& hwig) { xc_headWidget = std::move(hwig); }
   CGuiHeadWidget* GetHeadWidget() const { return xc_headWidget.get(); }
   void SortDrawOrder();
-  void EnableLights(u32 lights, CBooModel& model) const;
+  void EnableLights(u32 lights) const;
   void DisableLights() const;
   void RemoveLight(CGuiLight* light);
   void AddLight(CGuiLight* light);

@@ -18,7 +18,7 @@
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Particle/CParticleGlobals.hpp"
 #include "Runtime/World/CScriptTrigger.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 
 namespace metaforce {
 namespace {

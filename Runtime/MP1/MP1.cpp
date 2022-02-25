@@ -2,30 +2,6 @@
 
 #include <array>
 
-#include "NESEmulator/CNESShader.hpp"
-
-#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
-#include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
-#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
-#include "Runtime/Graphics/Shaders/CColoredStripShader.hpp"
-#include "Runtime/Graphics/Shaders/CEnergyBarShader.hpp"
-#include "Runtime/Graphics/Shaders/CEnvFxShaders.hpp"
-#include "Runtime/Graphics/Shaders/CFluidPlaneShader.hpp"
-#include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
-#include "Runtime/Graphics/Shaders/CModelShaders.hpp"
-#include "Runtime/Graphics/Shaders/CParticleSwooshShaders.hpp"
-#include "Runtime/Graphics/Shaders/CPhazonSuitFilter.hpp"
-#include "Runtime/Graphics/Shaders/CRadarPaintShader.hpp"
-#include "Runtime/Graphics/Shaders/CRandomStaticFilter.hpp"
-#include "Runtime/Graphics/Shaders/CScanLinesFilter.hpp"
-#include "Runtime/Graphics/Shaders/CSpaceWarpFilter.hpp"
-#include "Runtime/Graphics/Shaders/CTextSupportShader.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
-#include "Runtime/Graphics/Shaders/CThermalColdFilter.hpp"
-#include "Runtime/Graphics/Shaders/CThermalHotFilter.hpp"
-#include "Runtime/Graphics/Shaders/CWorldShadowShader.hpp"
-#include "Runtime/Graphics/Shaders/CXRayBlurFilter.hpp"
-
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CGameHintInfo.hpp"
 #include "Runtime/CWorldSaveGameInfo.hpp"
@@ -63,12 +39,6 @@
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CStateMachine.hpp"
 #include "Runtime/World/CScriptMazeNode.hpp"
-
-#include "Audio/SFX/Misc.h"
-#include "Audio/SFX/MiscSamus.h"
-#include "Audio/SFX/UI.h"
-#include "Audio/SFX/Weapons.h"
-#include "Audio/SFX/ZZZ.h"
 
 #include "Runtime/MP1/CCredits.hpp"
 
@@ -127,7 +97,6 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
 , x44_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero) {
   auto* m = static_cast<CMain*>(g_Main);
 
-//  x30_inputGenerator.startScanning();
   g_InputGenerator = &x30_inputGenerator;
 
   CAudioSys::SysSetVolume(0x7f);
@@ -253,52 +222,20 @@ CGameArchitectureSupport::~CGameArchitectureSupport() {
 
 void CGameArchitectureSupport::charKeyDown(uint8_t charCode, aurora::ModifierKey mods, bool isRepeat) {
   x30_inputGenerator.charKeyDown(charCode, mods, isRepeat);
-//  m_parent.m_console->handleCharCode(charCode, mods, isRepeat);
 }
 
 void CGameArchitectureSupport::specialKeyDown(aurora::SpecialKey key, aurora::ModifierKey mods, bool isRepeat) {
   x30_inputGenerator.specialKeyDown(key, mods, isRepeat);
-//  m_parent.m_console->handleSpecialKeyDown(key, mods, isRepeat);
 }
 
 void CGameArchitectureSupport::specialKeyUp(aurora::SpecialKey key, aurora::ModifierKey mods) {
   x30_inputGenerator.specialKeyUp(key, mods);
-//  m_parent.m_console->handleSpecialKeyUp(key, mods);
 }
 
 CMain::CMain(IFactory* resFactory, CSimplePool* resStore)
-: m_booSetter()
-, xe4_gameplayResult(EGameplayResult::Playing)
+: xe4_gameplayResult(EGameplayResult::Playing)
 , x128_globalObjects(std::make_unique<CGameGlobalObjects>(resFactory, resStore)) {
   g_Main = this;
-}
-
-CMain::BooSetter::BooSetter() {
-//  CGraphics::InitializeBoo();
-  CParticleSwooshShaders::Initialize();
-  CThermalColdFilter::Initialize();
-  CThermalHotFilter::Initialize();
-  CSpaceWarpFilter::Initialize();
-  CCameraBlurFilter::Initialize();
-  CXRayBlurFilter::Initialize();
-//  CFogVolumePlaneShader::Initialize();
-  CFogVolumeFilter::Initialize();
-  CEnergyBarShader::Initialize();
-  CRadarPaintShader::Initialize();
-  CMapSurfaceShader::Initialize();
-  CPhazonSuitFilter::Initialize();
-  CAABoxShader::Initialize();
-  CWorldShadowShader::Initialize();
-  CColoredQuadFilter::Initialize();
-  CColoredStripShader::Initialize();
-  CTexturedQuadFilter::Initialize();
-  CTexturedQuadFilterAlpha::Initialize();
-  CTextSupportShader::Initialize();
-  CScanLinesFilter::Initialize();
-  CRandomStaticFilter::Initialize();
-  CEnvFxShaders::Initialize();
-  CNESShader::Initialize();
-  CMoviePlayer::Initialize();
 }
 
 void CMain::RegisterResourceTweaks() {}
@@ -324,7 +261,7 @@ void CGameGlobalObjects::AddPaksAndFactories() {
     fmgr->AddFactory(FOURCC('PART'), FFactoryFunc(FParticleFactory));
     fmgr->AddFactory(FOURCC('FRME'), FFactoryFunc(RGuiFrameFactoryInGame));
     fmgr->AddFactory(FOURCC('FONT'), FFactoryFunc(FRasterFontFactory));
-    fmgr->AddFactory(FOURCC('CMDL'), FMemFactoryFunc(FPCModelFactory));
+    fmgr->AddFactory(FOURCC('CMDL'), FMemFactoryFunc(FModelFactory));
     fmgr->AddFactory(FOURCC('CINF'), FFactoryFunc(FCharLayoutInfo));
     fmgr->AddFactory(FOURCC('CSKR'), FFactoryFunc(FSkinRulesFactory));
     fmgr->AddFactory(FOURCC('ANCS'), FFactoryFunc(FAnimCharacterSet));
@@ -436,14 +373,11 @@ void CMain::ResetGameState() {
 
 void CMain::InitializeSubsystems() {
   CBasics::Initialize();
-  CModelShaders::Initialize();
-  CLineRenderer::Initialize();
   CElementGen::Initialize();
   CAnimData::InitializeCache();
   CDecalManager::Initialize();
   CGBASupport::Initialize();
   CPatterned::Initialize();
-//  CGraphics::g_BooFactory->waitUntilShadersReady();
 }
 
 void CMain::MemoryCardInitializePump() {
@@ -760,12 +694,10 @@ void CMain::Draw() {
 
 void CMain::ShutdownSubsystems() {
   CMoviePlayer::Shutdown();
-  CLineRenderer::Shutdown();
   CDecalManager::Shutdown();
   CElementGen::Shutdown();
   CAnimData::FreeCache();
   CMemoryCardSys::Shutdown();
-  CModelShaders::Shutdown();
   CMappableObject::Shutdown();
 }
 
@@ -773,32 +705,7 @@ void CMain::Shutdown() {
   x128_globalObjects->m_gameResFactory->UnloadPersistentResources();
   x164_archSupport.reset();
   ShutdownSubsystems();
-  CParticleSwooshShaders::Shutdown();
-  CThermalColdFilter::Shutdown();
-  CThermalHotFilter::Shutdown();
-  CSpaceWarpFilter::Shutdown();
-  CCameraBlurFilter::Shutdown();
-  CXRayBlurFilter::Shutdown();
-//  CFogVolumePlaneShader::Shutdown();
-  CFogVolumeFilter::Shutdown();
-  CEnergyBarShader::Shutdown();
-  CRadarPaintShader::Shutdown();
-  CMapSurfaceShader::Shutdown();
-  CPhazonSuitFilter::Shutdown();
-  CAABoxShader::Shutdown();
-  CWorldShadowShader::Shutdown();
-  CColoredQuadFilter::Shutdown();
-  CColoredStripShader::Shutdown();
-  CTexturedQuadFilter::Shutdown();
-  CTexturedQuadFilterAlpha::Shutdown();
-  CTextSupportShader::Shutdown();
-  CScanLinesFilter::Shutdown();
-  CRandomStaticFilter::Shutdown();
-  CEnvFxShaders::Shutdown();
-  CFluidPlaneShader::Shutdown();
-  CFluidPlaneManager::RippleMapTex.reset();
-  CNESShader::Shutdown();
-  CBooModel::Shutdown();
+//  CBooModel::Shutdown();
 //  CGraphics::ShutdownBoo();
   ShutdownDiscord();
 }

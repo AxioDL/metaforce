@@ -9,7 +9,7 @@
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/AutoMapper/CAutoMapper.hpp"
 #include "Runtime/Camera/CFirstPersonCamera.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/GuiSys/CGuiCamera.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/GuiSys/CGuiModel.hpp"

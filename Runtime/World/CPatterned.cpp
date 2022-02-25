@@ -1670,7 +1670,7 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
       col2.a() = float(alpha) / 255.f;
       xb4_drawFlags = CModelFlags(2, 0, 3, zeus::skWhite);
       /* Make color additive */
-      xb4_drawFlags.addColor = col2;
+      // TODO xb4_drawFlags.addColor = col2;
     } else {
       xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
     }

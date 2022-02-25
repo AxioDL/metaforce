@@ -1,7 +1,7 @@
 #include "Runtime/Weapon/CProjectileWeapon.hpp"
 
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CParticleGlobals.hpp"
 
@@ -226,9 +226,10 @@ void CProjectileWeapon::Render() {
       zeus::CTransform::Translate(x44_localXf * x8c_projOffset + x80_localOffset + xa4_localOffset2) *
       zeus::CTransform::Scale(x98_scale) * x44_localXf);
 
-  std::vector<CLight> useLights;
-  useLights.push_back(CLight::BuildLocalAmbient({}, xc8_ambientLightColor));
-  (**x108_model).GetInstance().ActivateLights(useLights);
+  // TODO
+//  std::vector<CLight> useLights;
+//  useLights.push_back(CLight::BuildLocalAmbient({}, xc8_ambientLightColor));
+//  (**x108_model).GetInstance().ActivateLights(useLights);
   constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
   (*x108_model)->Draw(flags);
 }

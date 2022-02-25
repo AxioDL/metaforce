@@ -2,7 +2,7 @@
 
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/World/CWorld.hpp"
 
 namespace metaforce {
@@ -30,7 +30,7 @@ void CRainSplashGenerator::SSplashLine::Draw(float alpha, float dt, const zeus::
       vt += delta;
       m_renderer.AddVertex(vec, zeus::CColor(1.f, vertAlpha), 1);
     }
-    m_renderer.Render(g_Renderer->IsThermalVisorHotPass());
+    // m_renderer.Render(g_Renderer->IsThermalVisorHotPass());
   }
 }
 

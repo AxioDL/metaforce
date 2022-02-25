@@ -1,7 +1,7 @@
 #include "Runtime/MP1/World/CBurrower.hpp"
 
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/World/CGameArea.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"

@@ -1,6 +1,6 @@
 #include "Runtime/Graphics/Shaders/CSpaceWarpFilter.hpp"
 
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
 //#include <hecl/Pipeline.hpp>

@@ -17,7 +17,7 @@
 #include "Runtime/Character/CAnimData.hpp"
 #include "Runtime/Particle/CDecalManager.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Audio/CAudioSys.hpp"
 #include "Runtime/Input/CInputGenerator.hpp"
 #include "Runtime/GuiSys/CGuiSys.hpp"
@@ -71,7 +71,7 @@ class CGameGlobalObjects {
   }
   void AddPaksAndFactories();
   static IRenderer* AllocateRenderer(IObjectStore& store, IFactory& resFactory) {
-    g_Renderer = new CBooRenderer(store, resFactory);
+    g_Renderer = new CCubeRenderer(store, resFactory);
     return g_Renderer;
   }
 
@@ -174,10 +174,6 @@ class CMain : public IMain {
   friend class CGameArchitectureSupport;
 
 private:
-  struct BooSetter {
-    BooSetter();
-  } m_booSetter;
-
   // COsContext x0_osContext;
   // CMemorySys x6c_memSys;
   CTweaks x70_tweaks;

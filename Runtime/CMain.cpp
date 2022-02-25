@@ -411,7 +411,6 @@ public:
     if (m_voiceEngine) {
       m_voiceEngine->pumpAndMixVoices();
     }
-    CBooModel::ClearModelUniformCounters();
     CGraphics::TickRenderTimings();
     ++logvisor::FrameIndex;
   }
