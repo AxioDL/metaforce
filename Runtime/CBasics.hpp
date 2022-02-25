@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <algorithm>
+#include <string>
 #ifndef _WIN32
 #include <sys/stat.h>
 #else
