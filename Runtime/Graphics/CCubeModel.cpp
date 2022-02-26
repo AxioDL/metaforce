@@ -4,8 +4,22 @@
 #include "Graphics/CCubeMaterial.hpp"
 #include "Graphics/CCubeSurface.hpp"
 #include "Graphics/CGraphics.hpp"
+#include "Graphics/CModel.hpp"
 
 namespace metaforce {
+bool CCubeModel::sRenderModelBlack = false;
+bool CCubeModel::sRenderModelShadow = false;
+bool CCubeModel::sUsingPackedLightmaps = false;
+const CTexture* CCubeModel::sShadowTexture = nullptr;
+
+static bool sDrawingOccluders = false;
+static bool sDrawingWireframe = false;
+
+static zeus::CTransform sTextureProjectionTransform;
+static u8 sChannel0DisableLightMask = 0;
+static u8 sChannel1EnableLightMask = 0;
+
+static zeus::CVector3f sPlayerPosition;
 
 CCubeModel::CCubeModel(std::vector<CCubeSurface>* surfaces, std::vector<TCachedToken<CTexture>>* textures,
                        u8* materialData, std::vector<zeus::CVector3f>* positions, std::vector<zeus::CColor>* colors,
@@ -24,7 +38,8 @@ CCubeModel::CCubeModel(std::vector<CCubeSurface>* surfaces, std::vector<TCachedT
 
   for (u32 i = x0_modelInstance.Surfaces()->size(); i > 0; --i) {
     auto& surf = (*x0_modelInstance.Surfaces())[i - 1];
-    if (!GetMaterialByIndex(surf.GetMaterialIndex()).IsFlagSet(EStateFlags::DepthSorting)) {
+    const auto matFlags = GetMaterialByIndex(surf.GetMaterialIndex()).GetFlags();
+    if (!matFlags.IsSet(CCubeMaterialFlagBits::fDepthSorting)) {
       surf.SetNextSurface(x38_firstUnsortedSurf);
       x38_firstUnsortedSurf = &surf;
     } else {
@@ -94,6 +109,198 @@ void CCubeModel::MakeTexturesFromMats(const u8* ptr, std::vector<TCachedToken<CT
     if (!b1 && textures.back().IsNull()) {
       textures.back().GetObj();
     }
+  }
+}
+
+void CCubeModel::Draw(const CModelFlags& flags) {
+  CCubeMaterial::KillCachedViewDepState();
+  SetArraysCurrent();
+  DrawSurfaces(flags);
+}
+
+void CCubeModel::Draw(TVectorRef positions, TVectorRef normals, const CModelFlags& flags) {
+  CCubeMaterial::KillCachedViewDepState();
+  SetSkinningArraysCurrent(positions, normals);
+  DrawSurfaces(flags);
+}
+
+void CCubeModel::DrawAlpha(const CModelFlags& flags) {
+  CCubeMaterial::KillCachedViewDepState();
+  SetArraysCurrent();
+  DrawAlphaSurfaces(flags);
+}
+
+void CCubeModel::DrawAlphaSurfaces(const CModelFlags& flags) {
+  if (sDrawingWireframe) {
+    const auto* surface = x3c_firstSortedSurf;
+    while (surface != nullptr) {
+      DrawSurfaceWireframe(*surface);
+      surface = surface->GetNextSurface();
+    }
+  } else if (TryLockTextures()) {
+    const auto* surface = x3c_firstSortedSurf;
+    while (surface != nullptr) {
+      DrawSurface(*surface, flags);
+      surface = surface->GetNextSurface();
+    }
+  }
+}
+
+void CCubeModel::DrawFlat(TVectorRef positions, TVectorRef normals, ESurfaceSelection surfaces) {
+  if (positions == nullptr) {
+    SetArraysCurrent();
+  } else {
+    SetSkinningArraysCurrent(positions, normals);
+  }
+  if (surfaces != ESurfaceSelection::Sorted) {
+    const auto* surface = x38_firstUnsortedSurf;
+    while (surface != nullptr) {
+      const auto mat = GetMaterialByIndex(surface->GetMaterialIndex());
+      // TODO draw
+    }
+  }
+  if (surfaces != ESurfaceSelection::Unsorted) {
+    const auto* surface = x3c_firstSortedSurf;
+    while (surface != nullptr) {
+      const auto mat = GetMaterialByIndex(surface->GetMaterialIndex());
+      // TODO draw
+    }
+  }
+}
+
+void CCubeModel::DrawNormal(TVectorRef positions, TVectorRef normals, ESurfaceSelection surfaces) {
+  // TODO bunch of CGX stuff, what is it doing?
+  DrawFlat(positions, normals, surfaces);
+}
+
+void CCubeModel::DrawNormal(const CModelFlags& flags) {
+  CCubeMaterial::KillCachedViewDepState();
+  SetArraysCurrent();
+  DrawNormalSurfaces(flags);
+}
+
+void CCubeModel::DrawNormalSurfaces(const CModelFlags& flags) {
+  if (sDrawingWireframe) {
+    const auto* surface = x38_firstUnsortedSurf;
+    while (surface != nullptr) {
+      DrawSurfaceWireframe(*surface);
+      surface = surface->GetNextSurface();
+    }
+  } else if (TryLockTextures()) {
+    const auto* surface = x38_firstUnsortedSurf;
+    while (surface != nullptr) {
+      DrawSurface(*surface, flags);
+      surface = surface->GetNextSurface();
+    }
+  }
+}
+
+void CCubeModel::DrawSurface(const CCubeSurface& surface, const CModelFlags& flags) {
+  auto mat = GetMaterialByIndex(surface.GetMaterialIndex());
+  if (!mat.GetFlags().IsSet(CCubeMaterialFlagBits::fShadowOccluderMesh) || sDrawingOccluders) {
+    mat.SetCurrent(flags, surface, *this);
+    // TODO draw
+  }
+}
+
+void CCubeModel::DrawSurfaces(const CModelFlags& flags) {
+  if (sDrawingWireframe) {
+    const auto* surface = x38_firstUnsortedSurf;
+    while (surface != nullptr) {
+      DrawSurfaceWireframe(*surface);
+      surface = surface->GetNextSurface();
+    }
+    surface = x3c_firstSortedSurf;
+    while (surface != nullptr) {
+      DrawSurfaceWireframe(*surface);
+      surface = surface->GetNextSurface();
+    }
+  } else if (TryLockTextures()) {
+    const auto* surface = x38_firstUnsortedSurf;
+    while (surface != nullptr) {
+      DrawSurface(*surface, flags);
+      surface = surface->GetNextSurface();
+    }
+    surface = x3c_firstSortedSurf;
+    while (surface != nullptr) {
+      DrawSurface(*surface, flags);
+      surface = surface->GetNextSurface();
+    }
+  }
+}
+
+void CCubeModel::DrawSurfaceWireframe(const CCubeSurface& surface) {
+  auto mat = GetMaterialByIndex(surface.GetMaterialIndex());
+  // TODO convert vertices to line strips and draw
+}
+
+void CCubeModel::EnableShadowMaps(const CTexture& shadowTex, const zeus::CTransform& textureProjXf, u8 chan0DisableMask,
+                                  u8 chan1EnableLightMask) {
+  sRenderModelShadow = true;
+  sShadowTexture = &shadowTex;
+  sTextureProjectionTransform = textureProjXf;
+  sChannel0DisableLightMask = chan0DisableMask;
+  sChannel1EnableLightMask = chan1EnableLightMask;
+}
+
+void CCubeModel::DisableShadowMaps() { sRenderModelShadow = false; }
+
+void CCubeModel::SetArraysCurrent() {
+  if (x0_modelInstance.GetVertexPointer() != nullptr) {
+    // TODO set vertices active
+  }
+  if (x0_modelInstance.GetNormalPointer() != nullptr) {
+    // TODO set normals active
+  }
+  SetStaticArraysCurrent();
+}
+
+void CCubeModel::SetDrawingOccluders(bool v) { sDrawingOccluders = v; }
+
+void CCubeModel::SetModelWireframe(bool v) { sDrawingWireframe = v; }
+
+void CCubeModel::SetNewPlayerPositionAndTime(const zeus::CVector3f& pos, const CStopwatch& time) {
+  sPlayerPosition = pos;
+  CCubeMaterial::KillCachedViewDepState();
+  // TODO time
+}
+
+void CCubeModel::SetRenderModelBlack(bool v) {
+  sRenderModelBlack = v;
+  // TODO another value is set here, but always 0?
+}
+
+void CCubeModel::SetSkinningArraysCurrent(TVectorRef positions, TVectorRef normals) {
+  // TODO activate vertices, normals & colors
+  SetStaticArraysCurrent();
+}
+
+void CCubeModel::SetStaticArraysCurrent() {
+  // TODO activate colors
+  const auto* packedTexCoords = x0_modelInstance.GetPackedTCPointer();
+  const auto* texCoords = x0_modelInstance.GetTCPointer();
+  if (packedTexCoords == nullptr) {
+    sUsingPackedLightmaps = false;
+  }
+  if (sUsingPackedLightmaps) {
+    // TODO activate packed TCs for texture 0
+  } else if (texCoords != nullptr) {
+    // TODO activate TCs for texture 0
+  }
+  if (texCoords != nullptr) {
+    for (int i = 1; i < 8; ++i) {
+      // TODO activate TCs for textures 1-7
+    }
+  }
+  CCubeMaterial::KillCachedViewDepState();
+}
+
+void CCubeModel::SetUsingPackedLightmaps(bool v) {
+  sUsingPackedLightmaps = v;
+  if (v) {
+    // TODO activate packed TCs for texture 0
+  } else {
+    // TODO activate TCs for texture 0
   }
 }
 

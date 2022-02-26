@@ -142,7 +142,10 @@ enum class ZComp : uint8_t {
 void set_cull_mode(metaforce::ERglCullMode mode) noexcept;
 void set_blend_mode(metaforce::ERglBlendMode mode, metaforce::ERglBlendFactor src, metaforce::ERglBlendFactor dst,
                     metaforce::ERglLogicOp op) noexcept;
-void set_depth_mode(bool test, metaforce::ERglEnum func, bool update);
+void set_depth_mode(metaforce::ERglEnum func, bool update);
+
+// Model state
+void set_alpha_discard(bool v);
 
 void update_model_view(const zeus::CMatrix4f& mv, const zeus::CMatrix4f& mv_inv) noexcept;
 void update_projection(const zeus::CMatrix4f& proj) noexcept;

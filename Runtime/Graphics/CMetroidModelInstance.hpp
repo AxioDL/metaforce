@@ -4,8 +4,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Runtime/RetroTypes.hpp"
 #include "Graphics/CCubeModel.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CTransform.hpp>

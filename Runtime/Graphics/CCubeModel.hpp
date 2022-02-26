@@ -17,6 +17,7 @@ struct CModelFlags;
 enum class ESurfaceSelection {
   Unsorted,
   Sorted,
+  All,
 };
 
 // These parameters were originally float*
@@ -81,36 +82,41 @@ public:
   bool TryLockTextures();
   void UnlockTextures();
   void RemapMaterialData(u8* data, std::vector<TCachedToken<CTexture>>& textures);
-  void Draw(CModelFlags flags);
-  void DrawAlpha(CModelFlags flags);
+  void Draw(const CModelFlags& flags);
+  void DrawAlpha(const CModelFlags& flags);
   void DrawFlat(TVectorRef positions, TVectorRef normals, ESurfaceSelection surfaces);
   void DrawNormal(TVectorRef positions, TVectorRef normals, ESurfaceSelection surfaces);
-  void DrawNormal(CModelFlags flags);
-  void DrawSurface(const CCubeSurface& surface, CModelFlags flags);
+  void DrawNormal(const CModelFlags& flags);
+  void DrawSurface(const CCubeSurface& surface, const CModelFlags& flags);
   void DrawSurfaceWireframe(const CCubeSurface& surface);
   void SetArraysCurrent();
+  void SetUsingPackedLightmaps(bool v);
 
-  TVectorRef GetPositions() const { return x0_modelInstance.GetVertexPointer(); }
-  TVectorRef GetNormals() const { return x0_modelInstance.GetNormalPointer(); }
+  [[nodiscard]] TVectorRef GetPositions() const { return x0_modelInstance.GetVertexPointer(); }
+  [[nodiscard]] TVectorRef GetNormals() const { return x0_modelInstance.GetNormalPointer(); }
+  [[nodiscard]] TCachedToken<CTexture>& GetTexture(u32 idx) const { return x1c_textures->at(idx); }
 
-  static void EnableShadowMaps(CTexture shadowTex, zeus::CTransform textureProjXf, u8 chan0DisableMask,
+  static void EnableShadowMaps(const CTexture& shadowTex, const zeus::CTransform& textureProjXf, u8 chan0DisableMask,
                                u8 chan1EnableLightMask);
   static void DisableShadowMaps();
   static void MakeTexturesFromMats(const u8* ptr, std::vector<TCachedToken<CTexture>>& texture, IObjectStore* store,
                                    bool b1);
-  static void KillCachedViewDepState();
   static void SetDrawingOccluders(bool v);
-  static void SetModelWireframe();
+  static void SetModelWireframe(bool v);
   static void SetNewPlayerPositionAndTime(const zeus::CVector3f& pos, const CStopwatch& time);
   static void SetRenderModelBlack(bool v);
 
+  static bool sRenderModelBlack;
+  static bool sUsingPackedLightmaps;
+  static bool sRenderModelShadow;
+  static const CTexture* sShadowTexture;
+
 private:
-  void Draw(TVectorRef positions, TVectorRef normals, CModelFlags flags);
-  void DrawAlphaSurfaces(CModelFlags flags);
-  void DrawNormalSurfaces(CModelFlags flags);
-  void DrawSurfaces(CModelFlags flags);
+  void Draw(TVectorRef positions, TVectorRef normals, const CModelFlags& flags);
+  void DrawAlphaSurfaces(const CModelFlags& flags);
+  void DrawNormalSurfaces(const CModelFlags& flags);
+  void DrawSurfaces(const CModelFlags& flags);
   void SetSkinningArraysCurrent(TVectorRef positions, TVectorRef normals);
   void SetStaticArraysCurrent();
-  void SetUsingPackedLightmaps(bool v);
 };
 } // namespace metaforce

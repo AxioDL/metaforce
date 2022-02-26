@@ -206,5 +206,11 @@ public:
   int DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb);
   void DrawOverlappingWorldModelShadows(int alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb,
                                         float alpha);
+
+  // Getters
+  [[nodiscard]] bool IsInAreaDraw() const { return x318_30_inAreaDraw; }
+  [[nodiscard]] bool IsReflectionDirty() const { return x318_24_refectionDirty; }
+  void SetReflectionDirty(bool v) { x318_24_refectionDirty = v; }
+  [[nodiscard]] bool IsThermalVisorActive() const { return x318_29_thermalVisor; }
 };
 } // namespace metaforce

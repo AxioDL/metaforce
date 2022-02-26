@@ -5,9 +5,9 @@
 
 #include "CToken.hpp"
 #include "GCNTypes.hpp"
+#include "Graphics/CCubeModel.hpp"
 #include "Graphics/CTexture.hpp"
 #include "IObjectStore.hpp"
-#include "Graphics/CCubeModel.hpp"
 
 namespace metaforce {
 class CCubeSurface;

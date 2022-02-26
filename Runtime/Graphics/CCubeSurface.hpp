@@ -27,8 +27,13 @@ class CCubeSurface {
 
 public:
   explicit CCubeSurface(const u8* ptr, u32 len); // Metaforce addition for extracting surface data
+
   // bool IsValid() const;
+  [[nodiscard]] CCubeModel* GetParent() { return x14_parent; }
+  [[nodiscard]] const CCubeModel* GetParent() const { return x14_parent; }
   void SetParent(CCubeModel* parent) { x14_parent = parent; }
+  [[nodiscard]] CCubeSurface* GetNextSurface() { return x18_nextSurface; }
+  [[nodiscard]] const CCubeSurface* GetNextSurface() const { return x18_nextSurface; }
   void SetNextSurface(CCubeSurface* next) { x18_nextSurface = next; }
   [[nodiscard]] u32 GetMaterialIndex() const { return xc_materialIndex; }
   [[nodiscard]] u32 GetDisplayListSize() const { return x10_displayListSize & 0x7fffffff; }
