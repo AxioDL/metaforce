@@ -174,6 +174,11 @@ struct Icon {
 struct WindowSize {
   uint32_t width;
   uint32_t height;
+  uint32_t fb_width;
+  uint32_t fb_height;
+  float scale;
+
+  bool operator<=>(const WindowSize& rhs) const = default;
 };
 enum class MouseButton {
   None = 0,

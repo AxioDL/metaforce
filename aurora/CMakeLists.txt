@@ -27,9 +27,6 @@ add_library(aurora STATIC
     lib/gfx/movie_player/shader.cpp
     lib/gfx/textured_quad/shader.cpp
     lib/gfx/colored_quad/shader.cpp
-    # TODO move to imgui? or move imgui impl to here?
-    ../extern/imgui/backends/imgui_impl_sdl.cpp
-    ../extern/imgui/backends/imgui_impl_wgpu.cpp
     )
 target_compile_definitions(aurora PRIVATE IMGUI_USER_CONFIG="imconfig_user.h") # IMGUI_USE_WCHAR32
 target_include_directories(aurora PUBLIC include ../Runtime)
