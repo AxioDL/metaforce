@@ -12,7 +12,7 @@
 #include "Runtime/World/CLightParameters.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
 #include "Runtime/MP1/World/CThardus.hpp"

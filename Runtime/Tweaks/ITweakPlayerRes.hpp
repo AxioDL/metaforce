@@ -3,7 +3,7 @@
 #include <array>
 
 #include "Runtime/Tweaks/ITweak.hpp"
-#include "Runtime/IFactory.hpp"
+#include "Runtime/Factory/IFactory.hpp"
 #include "Runtime/CPlayerState.hpp"
 
 namespace metaforce::Tweaks {

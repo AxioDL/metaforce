@@ -9,7 +9,7 @@
 #include "Runtime/World/CScriptWater.hpp"
 #include "Runtime/World/CScriptWaypoint.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
 

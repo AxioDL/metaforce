@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "Runtime/IFactory.hpp"
+#include "Runtime/Factory/IFactory.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {

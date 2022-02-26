@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Factory/CFactoryMgr.hpp"
 
 namespace metaforce {
 class CDependencyGroup {

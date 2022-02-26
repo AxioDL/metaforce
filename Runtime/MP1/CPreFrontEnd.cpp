@@ -1,6 +1,6 @@
 #include "Runtime/MP1/CPreFrontEnd.hpp"
 
-#include "Runtime/CResLoader.hpp"
+#include "Runtime/Factory/CResLoader.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
 #include "Runtime/MP1/MP1.hpp"

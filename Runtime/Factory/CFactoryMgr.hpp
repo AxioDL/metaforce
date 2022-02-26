@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-#include "Runtime/IFactory.hpp"
+#include "IFactory.hpp"
 #include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 

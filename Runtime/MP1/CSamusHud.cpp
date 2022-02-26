@@ -1,6 +1,6 @@
 #include "Runtime/MP1/CSamusHud.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Camera/CFirstPersonCamera.hpp"
 #include "Runtime/GuiSys/CGuiCamera.hpp"

@@ -1,7 +1,7 @@
 #include "Runtime/World/CWorldTransManager.hpp"
 
 #include "Runtime/CGameState.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/Camera/CCameraManager.hpp"

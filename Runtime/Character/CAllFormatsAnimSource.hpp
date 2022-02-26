@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Factory/CFactoryMgr.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Character/CAnimSource.hpp"
 #include "Runtime/Character/CFBStreamedCompression.hpp"

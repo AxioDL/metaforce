@@ -3,7 +3,7 @@
 #include <string_view>
 #include <vector>
 
-#include "Runtime/IFactory.hpp"
+#include "Runtime/Factory/IFactory.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {

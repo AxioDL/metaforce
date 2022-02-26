@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Factory/CFactoryMgr.hpp"
 #include "Runtime/Character/CSkinBank.hpp"
 #include "Runtime/RetroTypes.hpp"
 

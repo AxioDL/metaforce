@@ -6,7 +6,7 @@
 
 #include "Runtime/CDvdFile.hpp"
 #include "Runtime/CDvdRequest.hpp"
-#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Factory/CFactoryMgr.hpp"
 #include "Runtime/CStringExtras.hpp"
 #include "Runtime/RetroTypes.hpp"
 

@@ -3,9 +3,9 @@
 #include <memory>
 #include <string>
 
-#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Factory/CFactoryMgr.hpp"
 #include "Runtime/GCNTypes.hpp"
-#include "Runtime/IObj.hpp"
+#include "Runtime/Factory/IObj.hpp"
 #include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 

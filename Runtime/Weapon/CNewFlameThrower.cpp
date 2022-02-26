@@ -1,6 +1,6 @@
 #include "Runtime/Weapon/CNewFlameThrower.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Collision/CCollisionInfoList.hpp"
 #include "Runtime/GameGlobalObjects.hpp"

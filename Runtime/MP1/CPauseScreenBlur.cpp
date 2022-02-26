@@ -1,6 +1,6 @@
 #include "Runtime/MP1/CPauseScreenBlur.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 

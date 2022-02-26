@@ -1,6 +1,6 @@
 #include "CCubeModel.hpp"
 
-#include "CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Graphics/CCubeMaterial.hpp"
 #include "Graphics/CCubeSurface.hpp"
 #include "Graphics/CGraphics.hpp"

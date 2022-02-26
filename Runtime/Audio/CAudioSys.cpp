@@ -3,7 +3,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/Audio/CAudioGroupSet.hpp"
 
 namespace metaforce {

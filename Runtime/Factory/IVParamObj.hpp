@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include "Runtime/IObj.hpp"
+#include "IObj.hpp"
 
 namespace metaforce {
 

@@ -1,6 +1,6 @@
 #include "Runtime/MP1/CGameCubeDoll.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"

@@ -1,6 +1,6 @@
 #include "Runtime/Weapon/CProjectileInfo.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Character/CSteeringBehaviors.hpp"
 #include "Runtime/Weapon/CProjectileWeapon.hpp"

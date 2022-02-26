@@ -12,7 +12,7 @@
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CDvdFile.hpp"
 #include "Runtime/CGameState.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Audio/CAudioGroupSet.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"

@@ -1,6 +1,6 @@
 #include "Runtime/Weapon/CPlayerGun.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/Character/CPrimitive.hpp"
 #include "Runtime/Camera/CGameCamera.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"

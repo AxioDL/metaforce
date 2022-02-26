@@ -1,6 +1,6 @@
 #include "CSplashScreen.hpp"
 #include "Graphics/CGraphics.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "CArchitectureQueue.hpp"
 #include "CArchitectureMessage.hpp"
 

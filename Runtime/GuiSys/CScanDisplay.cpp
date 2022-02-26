@@ -1,6 +1,6 @@
 #include "Runtime/GuiSys/CScanDisplay.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"

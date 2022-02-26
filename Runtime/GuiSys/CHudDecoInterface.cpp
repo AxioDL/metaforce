@@ -1,6 +1,6 @@
 #include "Runtime/GuiSys/CHudDecoInterface.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/GuiSys/CAuiEnergyBarT01.hpp"
 #include "Runtime/GuiSys/CGuiCamera.hpp"

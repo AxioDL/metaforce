@@ -1,7 +1,7 @@
 #include "Runtime/Graphics/CModel.hpp"
 
 #include "Runtime/CBasics.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Character/CSkinRules.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"

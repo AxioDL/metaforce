@@ -7,7 +7,7 @@
 
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CGameState.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Audio/CStreamAudioManager.hpp"
 #include "Runtime/Camera/CBallCamera.hpp"

@@ -1,7 +1,7 @@
 #include "Runtime/Character/CCharacterFactory.hpp"
 
 #include "Runtime/CRandom16.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Character/CAdditiveAnimPlayback.hpp"
 #include "Runtime/Character/CAnimCharacterSet.hpp"

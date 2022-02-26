@@ -3,10 +3,10 @@
 #include <memory>
 #include <vector>
 
-#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Factory/CFactoryMgr.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/Streams/IOStreams.hpp"
-#include "Runtime/IObj.hpp"
+#include "Runtime/Factory/IObj.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 

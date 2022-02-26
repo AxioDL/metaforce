@@ -1,6 +1,6 @@
 #include "Runtime/MP1/CPauseScreen.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/GuiSys/CGuiSys.hpp"

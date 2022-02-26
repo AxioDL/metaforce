@@ -1,6 +1,6 @@
 #include "Runtime/Character/CAllFormatsAnimSource.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/Character/CAnimSourceReader.hpp"
 #include "Runtime/Character/CFBStreamedAnimReader.hpp"
 

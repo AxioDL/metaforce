@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Factory/CFactoryMgr.hpp"
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/Character/CBoolPOINode.hpp"
 #include "Runtime/Character/CInt32POINode.hpp"

@@ -4,8 +4,8 @@
 #include <memory>
 #include <vector>
 
-#include "Runtime/IFactory.hpp"
-#include "Runtime/IObj.hpp"
+#include "Runtime/Factory/IFactory.hpp"
+#include "Runtime/Factory/IObj.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/World/CPathFindRegion.hpp"
 

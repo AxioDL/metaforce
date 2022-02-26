@@ -1,7 +1,7 @@
 #include "Runtime/MP1/World/CBouncyGrenade.hpp"
 
 #include "Runtime/CPlayerState.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"

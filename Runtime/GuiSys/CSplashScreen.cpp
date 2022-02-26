@@ -2,7 +2,7 @@
 
 #include "CArchitectureMessage.hpp"
 #include "CArchitectureQueue.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Graphics/CCubeRenderer.hpp"
 

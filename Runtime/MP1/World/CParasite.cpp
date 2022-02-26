@@ -1,6 +1,6 @@
 #include "Runtime/MP1/World/CParasite.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Character/CModelData.hpp"

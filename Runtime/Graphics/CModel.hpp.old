@@ -7,7 +7,7 @@
 
 //#include "DataSpec/DNACommon/CMDL.hpp"
 //#include "DataSpec/DNAMP1/CMDLMaterials.hpp"
-#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Factory/CFactoryMgr.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Graphics/Shaders/CModelShaders.hpp"

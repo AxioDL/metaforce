@@ -3,7 +3,7 @@
 #include "NESEmulator/CNESEmulator.hpp"
 
 #include "Runtime/CArchitectureQueue.hpp"
-#include "Runtime/CResFactory.hpp"
+#include "Runtime/Factory/CResFactory.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Character/CCharLayoutInfo.hpp"
 #include "Runtime/MP1/CCredits.hpp"

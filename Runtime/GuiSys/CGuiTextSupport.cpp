@@ -2,7 +2,7 @@
 
 #include <fmt/xchar.h>
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CGraphicsPalette.hpp"
 #include "Runtime/GuiSys/CFontImageDef.hpp"

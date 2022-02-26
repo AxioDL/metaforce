@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Runtime/CToken.hpp"
-#include "Runtime/IFactory.hpp"
+#include "Runtime/Factory/IFactory.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
 

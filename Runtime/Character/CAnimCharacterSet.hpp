@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Factory/CFactoryMgr.hpp"
 #include "Runtime/Character/CAnimationSet.hpp"
 #include "Runtime/Character/CCharacterSet.hpp"
 

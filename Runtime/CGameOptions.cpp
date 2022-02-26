@@ -6,7 +6,7 @@
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CMemoryCardSys.hpp"
 #include "Runtime/CWorldSaveGameInfo.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"

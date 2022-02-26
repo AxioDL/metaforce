@@ -1,7 +1,7 @@
 #include "Runtime/AutoMapper/CMappableObject.hpp"
 
 #include "Runtime/AutoMapper/CMapWorldInfo.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/GameGlobalObjects.hpp"

@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
 namespace metaforce {

@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Runtime/AutoMapper/CMappableObject.hpp"
-#include "Runtime/CResFactory.hpp"
+#include "Runtime/Factory/CResFactory.hpp"
 #include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
 #include "Runtime/RetroTypes.hpp"

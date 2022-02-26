@@ -1,6 +1,6 @@
-#include "Runtime/CResFactory.hpp"
+#include "CResFactory.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "CSimplePool.hpp"
 #include "Runtime/CStopwatch.hpp"
 #include "optick.h"
 

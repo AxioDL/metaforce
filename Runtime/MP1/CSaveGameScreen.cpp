@@ -2,7 +2,7 @@
 
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/CMemoryCardSys.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/GuiSys/CGuiTableGroup.hpp"

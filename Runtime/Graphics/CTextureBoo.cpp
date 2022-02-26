@@ -3,7 +3,7 @@
 #include <array>
 
 #include "Runtime/CBasics.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CTextureCache.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/GameGlobalObjects.hpp"

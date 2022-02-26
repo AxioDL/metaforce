@@ -1,6 +1,6 @@
 #include "Runtime/GuiSys/CAuiImagePane.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"

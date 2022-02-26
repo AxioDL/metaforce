@@ -7,7 +7,7 @@
 #include "CToken.hpp"
 #include "GCNTypes.hpp"
 #include "Graphics/CTexture.hpp"
-#include "IObjectStore.hpp"
+#include "Runtime/Factory/IObjectStore.hpp"
 
 namespace metaforce {
 class CCubeSurface;

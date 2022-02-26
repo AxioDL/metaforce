@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Factory/CFactoryMgr.hpp"
 #include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Character/CSegId.hpp"
 #include "Runtime/Character/CSegIdList.hpp"

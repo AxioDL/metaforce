@@ -5,8 +5,8 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/Streams/IOStreams.hpp"
-#include "Runtime/IObj.hpp"
-#include "Runtime/IObjFactory.hpp"
+#include "Runtime/Factory/IObj.hpp"
+#include "Runtime/Factory/IObjFactory.hpp"
 #include "Runtime/World/CAiFuncMap.hpp"
 
 namespace metaforce {

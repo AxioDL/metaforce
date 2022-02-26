@@ -1,4 +1,4 @@
-#include "Runtime/CFactoryMgr.hpp"
+#include "CFactoryMgr.hpp"
 
 #include <algorithm>
 #include <array>
@@ -7,7 +7,7 @@
 #include "optick.h"
 
 #include "Runtime/CStopwatch.hpp"
-#include "Runtime/IObj.hpp"
+#include "IObj.hpp"
 
 namespace metaforce {
 constexpr std::array TypeTable{

@@ -5,10 +5,10 @@
 #include <utility>
 #include <vector>
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/IFactory.hpp"
-#include "Runtime/IObjFactory.hpp"
+#include "Runtime/Factory/IFactory.hpp"
+#include "Runtime/Factory/IObjFactory.hpp"
 #include "Runtime/Character/CAnimationSet.hpp"
 
 namespace metaforce {

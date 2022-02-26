@@ -3,10 +3,10 @@
 #include <optional>
 #include <vector>
 
-#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Factory/CFactoryMgr.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/Streams/IOStreams.hpp"
-#include "Runtime/IObj.hpp"
+#include "Runtime/Factory/IObj.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Collision/CMaterialList.hpp"
 #include "Runtime/Particle/CDecalDescription.hpp"

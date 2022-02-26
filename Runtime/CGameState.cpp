@@ -2,7 +2,7 @@
 
 #include "Runtime/CMemoryCardSys.hpp"
 #include "Runtime/CWorldSaveGameInfo.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/MP1/MP1.hpp"

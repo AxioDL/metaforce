@@ -3,7 +3,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Graphics/CCubeRenderer.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path

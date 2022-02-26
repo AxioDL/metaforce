@@ -1,7 +1,7 @@
 #include "Runtime/AutoMapper/CAutoMapper.hpp"
 
 #include "Runtime/CInGameTweakManagerBase.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/AutoMapper/CMapArea.hpp"
 #include "Runtime/AutoMapper/CMapUniverse.hpp"

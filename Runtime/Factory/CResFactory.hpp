@@ -5,10 +5,10 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Runtime/CResLoader.hpp"
+#include "CResLoader.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/IFactory.hpp"
-#include "Runtime/IVParamObj.hpp"
+#include "IFactory.hpp"
+#include "IVParamObj.hpp"
 
 namespace metaforce {
 class IDvdRequest;

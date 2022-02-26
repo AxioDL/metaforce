@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/GuiSys/CDrawStringOptions.hpp"
 #include "Runtime/GuiSys/CTextRenderBuffer.hpp"

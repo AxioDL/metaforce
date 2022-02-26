@@ -3,8 +3,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Runtime/IObjectStore.hpp"
-#include "Runtime/IVParamObj.hpp"
+#include "Runtime/Factory/IObjectStore.hpp"
+#include "Runtime/Factory/IVParamObj.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {

@@ -1,7 +1,7 @@
 #include "Runtime/MP1/CSamusDoll.hpp"
 
 #include "Runtime/CDependencyGroup.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/Collision/CollisionUtil.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"

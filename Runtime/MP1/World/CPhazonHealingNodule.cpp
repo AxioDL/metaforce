@@ -1,6 +1,6 @@
 #include "Runtime/MP1/World/CPhazonHealingNodule.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"

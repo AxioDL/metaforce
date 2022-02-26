@@ -1,6 +1,6 @@
 #include "Runtime/AutoMapper/CMapUniverse.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CGameState.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 

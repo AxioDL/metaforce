@@ -101,28 +101,28 @@ set(RUNTIME_SOURCES_B
         CScriptMailbox.hpp CScriptMailbox.cpp
         CPlayerState.hpp CPlayerState.cpp
         CRandom16.hpp CRandom16.cpp
-        CResFactory.hpp CResFactory.cpp
-        CResLoader.hpp CResLoader.cpp
+        Factory/CResFactory.hpp Factory/CResFactory.cpp
+        Factory/CResLoader.hpp Factory/CResLoader.cpp
         CDvdRequest.hpp
         CDvdFile.hpp CDvdFile.cpp
-        IObjectStore.hpp
-        CSimplePool.hpp CSimplePool.cpp
+        Factory/IObjectStore.hpp
+        Factory/CSimplePool.hpp Factory/CSimplePool.cpp
         CGameOptions.hpp CGameOptions.cpp
         CGameOptionsTouchBar.hpp CGameOptionsTouchBar.cpp
         CStaticInterference.hpp CStaticInterference.cpp
         CCRC32.hpp CCRC32.cpp
-        IFactory.hpp
-        IObjFactory.hpp
+        Factory/IFactory.hpp
+        Factory/IObjFactory.hpp
         CObjectList.hpp CObjectList.cpp
         GameObjectLists.hpp GameObjectLists.cpp
         CSortedLists.hpp CSortedLists.cpp
         CArchitectureMessage.hpp
         CArchitectureQueue.hpp
-        IObj.hpp
-        IVParamObj.hpp
+        Factory/IObj.hpp
+        Factory/IVParamObj.hpp
         CTimeProvider.hpp CTimeProvider.cpp
         CToken.hpp CToken.cpp
-        CFactoryMgr.hpp CFactoryMgr.cpp
+        Factory/CFactoryMgr.hpp Factory/CFactoryMgr.cpp
         CPakFile.hpp CPakFile.cpp
         CStringExtras.hpp CStringExtras.cpp
         CMainFlowBase.hpp CMainFlowBase.cpp

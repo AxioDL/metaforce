@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Factory/CFactoryMgr.hpp"
 #include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Collision/COBBTree.hpp"
 #include "Runtime/Collision/CCollisionPrimitive.hpp"

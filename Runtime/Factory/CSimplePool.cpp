@@ -1,7 +1,7 @@
-#include "Runtime/CSimplePool.hpp"
+#include "CSimplePool.hpp"
 
 #include "Runtime/CToken.hpp"
-#include "Runtime/IVParamObj.hpp"
+#include "Runtime/Factory/IVParamObj.hpp"
 
 #include <cassert>
 

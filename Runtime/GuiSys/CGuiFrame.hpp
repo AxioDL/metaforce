@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-#include "Runtime/IObj.hpp"
+#include "Runtime/Factory/IObj.hpp"
 #include "Runtime/GuiSys/CGuiHeadWidget.hpp"
 #include "Runtime/GuiSys/CGuiWidgetIdDB.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"

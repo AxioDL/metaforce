@@ -2,7 +2,7 @@
 
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/Collision/CGameCollision.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/MP1/World/CDroneLaser.hpp"

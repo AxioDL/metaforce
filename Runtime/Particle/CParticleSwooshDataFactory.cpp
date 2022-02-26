@@ -1,7 +1,7 @@
 #include "Runtime/Particle/CParticleSwooshDataFactory.hpp"
 
 #include "Runtime/CRandom16.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"

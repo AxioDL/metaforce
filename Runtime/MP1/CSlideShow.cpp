@@ -4,7 +4,7 @@
 
 #include "Runtime/CArchitectureMessage.hpp"
 #include "Runtime/CGameState.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 
 namespace metaforce {

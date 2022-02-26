@@ -2,7 +2,7 @@
 
 #include "Runtime/CCRC32.hpp"
 #include "Runtime/CGameState.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"

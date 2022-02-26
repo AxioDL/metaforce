@@ -2,9 +2,9 @@
 
 #include <memory>
 
-#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Factory/CFactoryMgr.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/IObj.hpp"
+#include "Runtime/Factory/IObj.hpp"
 #include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Particle/CDecalDescription.hpp"

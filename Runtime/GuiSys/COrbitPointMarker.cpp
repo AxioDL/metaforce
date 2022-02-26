@@ -1,6 +1,6 @@
 #include "Runtime/GuiSys/COrbitPointMarker.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Camera/CGameCamera.hpp"

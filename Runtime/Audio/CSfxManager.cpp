@@ -1,7 +1,7 @@
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/Streams/CInputStream.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 
 namespace metaforce {
 static TLockedToken<std::vector<u16>> mpSfxTranslationTableTok;

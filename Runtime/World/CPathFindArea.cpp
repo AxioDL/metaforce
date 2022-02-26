@@ -3,7 +3,7 @@
 #include <logvisor/logvisor.hpp>
 
 #include "Runtime/CToken.hpp"
-#include "Runtime/IVParamObj.hpp"
+#include "Runtime/Factory/IVParamObj.hpp"
 
 namespace metaforce {
 

@@ -1,4 +1,4 @@
-#include "Runtime/CResLoader.hpp"
+#include "CResLoader.hpp"
 
 #include "Runtime/CPakFile.hpp"
 

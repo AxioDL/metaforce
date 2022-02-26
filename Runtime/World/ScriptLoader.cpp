@@ -3,7 +3,7 @@
 #include "Runtime/Camera/CCinematicCamera.hpp"
 #include "Runtime/Camera/CPathCamera.hpp"
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/MP1/World/CActorContraption.hpp"

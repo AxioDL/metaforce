@@ -5,7 +5,7 @@
 
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CInGameTweakManagerBase.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/IMain.hpp"
 #include "Runtime/Audio/CAudioGroupSet.hpp"

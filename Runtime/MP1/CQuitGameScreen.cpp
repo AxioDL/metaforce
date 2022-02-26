@@ -3,7 +3,7 @@
 #include <array>
 
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Input/CFinalInput.hpp"

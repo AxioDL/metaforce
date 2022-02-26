@@ -3,10 +3,10 @@
 #include <functional>
 #include <memory>
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/IFactory.hpp"
-#include "Runtime/IObj.hpp"
+#include "Runtime/Factory/IFactory.hpp"
+#include "Runtime/Factory/IObj.hpp"
 
 namespace metaforce {
 class CCharacterFactory;

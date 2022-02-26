@@ -1,6 +1,6 @@
 #include "Runtime/GuiSys/CAuiEnergyBarT01.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GuiSys/CGuiSys.hpp"
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 

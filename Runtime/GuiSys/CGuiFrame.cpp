@@ -1,6 +1,6 @@
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/GuiSys/CGuiCamera.hpp"

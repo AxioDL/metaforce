@@ -1,7 +1,7 @@
 #include "Runtime/Particle/CDecalDataFactory.hpp"
 
 #include "Runtime/CRandom16.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CParticleDataFactory.hpp"
 

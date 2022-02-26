@@ -2,7 +2,7 @@
 
 #include "Runtime/Character/CPASAnimParm.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"

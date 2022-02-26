@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Factory/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CWorld.hpp"

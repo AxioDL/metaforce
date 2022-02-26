@@ -2,10 +2,10 @@
 
 #include <memory>
 
-#include "Runtime/IFactory.hpp"
-#include "Runtime/IObj.hpp"
-#include "Runtime/IObjectStore.hpp"
-#include "Runtime/IVParamObj.hpp"
+#include "Runtime/Factory/IFactory.hpp"
+#include "Runtime/Factory/IObj.hpp"
+#include "Runtime/Factory/IObjectStore.hpp"
+#include "Runtime/Factory/IVParamObj.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {
