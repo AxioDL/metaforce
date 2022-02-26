@@ -352,14 +352,12 @@ WindowSize get_window_size() noexcept {
   int width, height, fb_w, fb_h;
   SDL_GetWindowSize(g_window, &width, &height);
   SDL_GL_GetDrawableSize(g_window, &fb_w, &fb_h);
-  float scale = fb_w / width;
-
+  float scale = static_cast<float>(fb_w) / static_cast<float>(width);
 #ifndef __APPLE__
   if (SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(g_window), nullptr, &scale, nullptr) == 0) {
     scale /= 96.f;
   }
 #endif
-
   return {
       .width = static_cast<uint32_t>(width),
       .height = static_cast<uint32_t>(height),

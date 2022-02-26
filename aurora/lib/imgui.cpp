@@ -25,8 +25,10 @@ void create_context() noexcept {
 
 void initialize(SDL_Window* window) noexcept {
   ImGui_ImplSDL2_Init(window, nullptr);
+#ifdef __APPLE__
   // Disable MouseCanUseGlobalState for scaling purposes
   ImGui_ImplSDL2_GetBackendData()->MouseCanUseGlobalState = false;
+#endif
   ImGui_ImplWGPU_Init(g_device.Get(), 1, static_cast<WGPUTextureFormat>(gpu::g_graphicsConfig.colorFormat));
 }
 
@@ -37,21 +39,16 @@ void shutdown() noexcept {
 }
 
 void process_event(const SDL_Event& event) noexcept {
-  auto newEvent = event;
-  if (newEvent.type == SDL_MOUSEMOTION) {
-    auto& io = ImGui::GetIO();
-    float mouseX = newEvent.motion.x;
-    float mouseY = newEvent.motion.y;
 #ifdef __APPLE__
-    mouseX *= g_scale;
-    mouseY *= g_scale;
-#endif
+  if (event.type == SDL_MOUSEMOTION) {
+    auto& io = ImGui::GetIO();
     // Scale up mouse coordinates
-    io.AddMousePosEvent(mouseX, mouseY);
-
+    io.AddMousePosEvent(static_cast<float>(event.motion.x) * g_scale,
+                        static_cast<float>(event.motion.y) * g_scale);
     return;
   }
-  ImGui_ImplSDL2_ProcessEvent(&newEvent);
+#endif
+  ImGui_ImplSDL2_ProcessEvent(&event);
 }
 
 void new_frame(const WindowSize& size) noexcept {
