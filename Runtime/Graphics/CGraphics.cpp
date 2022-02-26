@@ -9,7 +9,6 @@
 #include <zeus/Math.hpp>
 
 namespace metaforce {
-
 CGraphics::CProjectionState CGraphics::g_Proj;
 CFogState CGraphics::g_Fog;
 std::array<zeus::CColor, 3> CGraphics::g_ColorRegs{};
@@ -37,6 +36,8 @@ u32 CGraphics::g_FrameCounter = 0;
 u32 CGraphics::g_Framerate = 0;
 u32 CGraphics::g_FramesPast = 0;
 frame_clock::time_point CGraphics::g_FrameStartTime = frame_clock::now();
+ERglEnum CGraphics::g_depthFunc = ERglEnum::Never;
+ERglCullMode CGraphics::g_cullMode = ERglCullMode::None;
 // bool CGraphics::g_commitAsLazy = false;
 
 const std::array<zeus::CMatrix3f, 6> CGraphics::skCubeBasisMats{{
@@ -100,9 +101,9 @@ void CGraphics::SetFog(ERglFogMode mode, float startz, float endz, const zeus::C
   }
 }
 
-void CGraphics::SetDepthWriteMode(bool test, ERglEnum comp, bool write) {
+void CGraphics::SetDepthWriteMode(bool compare_enable, ERglEnum comp, bool update_enable) {
   g_depthFunc = comp;
-  aurora::gfx::set_depth_mode(test, comp, write);
+  aurora::gfx::set_depth_mode(compare_enable, comp, update_enable);
 }
 
 void CGraphics::SetBlendMode(ERglBlendMode mode, ERglBlendFactor src, ERglBlendFactor dst, ERglLogicOp op) {

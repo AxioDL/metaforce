@@ -249,6 +249,10 @@ void CModel::Touch(u32 matIdx) {
   }
 }
 
+void CModel::Draw(CModelFlags flags) const {}
+
+void CModel::Draw(TVectorRef positions, TVectorRef normals, CModelFlags flags) {}
+
 void CModel::DrawSortedParts(CModelFlags flags) {
   if ((flags.x2_flags & 0x20) != 0) {
     x28_modelInst->DrawNormal(nullptr, nullptr, ESurfaceSelection::Sorted);

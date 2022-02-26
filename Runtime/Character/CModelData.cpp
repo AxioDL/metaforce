@@ -442,5 +442,8 @@ void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf,
   //    model.Draw(flags, nullptr, nullptr);
   //  }
 }
+void CModelData::ThermalDraw(const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags) {
+
+}
 
 } // namespace metaforce

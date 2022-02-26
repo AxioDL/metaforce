@@ -30,6 +30,9 @@
 #endif
 
 #include "Runtime/CBasics.hpp"
+
+#include "Runtime/CStopwatch.hpp"
+
 #include <logvisor/logvisor.hpp>
 
 #if __APPLE__
@@ -42,6 +45,7 @@ static LARGE_INTEGER PerfFrequency;
 namespace metaforce {
 static logvisor::Module LogModule("metaforce::CBasics");
 void CBasics::Initialize() {
+  CStopwatch::InitGlobalTimer();
 #if __APPLE__
   mach_timebase_info_data_t timebase;
   mach_timebase_info(&timebase);

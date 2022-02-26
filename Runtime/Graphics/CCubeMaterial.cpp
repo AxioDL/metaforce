@@ -269,7 +269,7 @@ void CCubeMaterial::HandleDepth(u16 modelFlags, CCubeMaterialFlags matFlags) {
     func = (modelFlags & 0x10) != 0 ? ERglEnum::Less : ERglEnum::LEqual;
   }
   bool depthWrite = (modelFlags & 0x2) != 0 && matFlags & CCubeMaterialFlagBits::fDepthWrite;
-  aurora::gfx::set_depth_mode(func, depthWrite);
+  aurora::gfx::set_depth_mode(true, func, depthWrite);
 }
 
 void CCubeMaterial::ResetCachedMaterials() {

@@ -31,5 +31,4 @@ public:
   void RenderIdBuffer(const zeus::CAABox& aabb, const CStateManager& mgr, CPlayer& player);
   void Render(const CStateManager& mgr, float alpha);
 };
-
 } // namespace metaforce

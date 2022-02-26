@@ -117,6 +117,15 @@ static void push_draw_command(ShaderDrawCommand data) { g_commands.push_back({Co
 
 bool get_dxt_compression_supported() noexcept { return g_device.HasFeature(wgpu::FeatureName::TextureCompressionBC); }
 
+// GX state
+void set_cull_mode(metaforce::ERglCullMode mode) noexcept {}
+void set_blend_mode(metaforce::ERglBlendMode mode, metaforce::ERglBlendFactor src, metaforce::ERglBlendFactor dst,
+                    metaforce::ERglLogicOp op) noexcept {}
+void set_depth_mode(bool compare_enable, metaforce::ERglEnum func, bool update_enable) {}
+
+// Model state
+void set_alpha_discard(bool v) {}
+
 void update_model_view(const zeus::CMatrix4f& mv, const zeus::CMatrix4f& mv_inv) noexcept {
   g_mv = mv;
   g_mvInv = mv_inv;

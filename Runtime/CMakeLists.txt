@@ -80,7 +80,7 @@ set(RUNTIME_SOURCES_B
         Tweaks/ITweakSlideShow.hpp
         Tweaks/ITweakTargeting.hpp
         IMain.hpp
-        CStopwatch.hpp
+        CStopwatch.hpp CStopwatch.cpp
         Streams/IOStreams.hpp Streams/IOStreams.cpp
         Streams/CMemoryStreamOut.hpp Streams/CMemoryStreamOut.cpp
         Streams/CInputStream.hpp Streams/CInputStream.cpp

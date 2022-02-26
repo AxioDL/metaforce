@@ -142,7 +142,7 @@ enum class ZComp : uint8_t {
 void set_cull_mode(metaforce::ERglCullMode mode) noexcept;
 void set_blend_mode(metaforce::ERglBlendMode mode, metaforce::ERglBlendFactor src, metaforce::ERglBlendFactor dst,
                     metaforce::ERglLogicOp op) noexcept;
-void set_depth_mode(metaforce::ERglEnum func, bool update);
+void set_depth_mode(bool compare_enable, metaforce::ERglEnum func, bool update_enable);
 
 // Model state
 void set_alpha_discard(bool v);

@@ -1,9 +1,10 @@
-#include "CCubeRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CDrawable.hpp"
-#include "Graphics/CDrawablePlaneObject.hpp"
-#include "Graphics/CLight.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CDrawable.hpp"
+#include "Runtime/Graphics/CDrawablePlaneObject.hpp"
+#include "Runtime/Graphics/CLight.hpp"
+#include "Runtime/Graphics/CModel.hpp"
 
 namespace metaforce {
 static logvisor::Module Log("CCubeRenderer");
@@ -177,4 +178,92 @@ CCubeRenderer::CCubeRenderer(IObjectStore& store, IFactory& resFac) : x8_factory
   Buckets::Init();
   // GX draw sync
 }
+
+CCubeRenderer::~CCubeRenderer() {
+  g_Renderer = nullptr;
+}
+
+void CCubeRenderer::GenerateReflectionTex() {}
+void CCubeRenderer::GenerateFogVolumeRampTex() {}
+void CCubeRenderer::GenerateSphereRampTex() {}
+void CCubeRenderer::LoadThermoPalette() {}
+void CCubeRenderer::ReallyDrawPhazonSuitIndirectEffect(const zeus::CColor& vertColor, const CTexture& maskTex,
+                                                       const CTexture& indTex, const zeus::CColor& modColor,
+                                                       float scale, float offX, float offY) {}
+void CCubeRenderer::ReallyDrawPhazonSuitEffect(const zeus::CColor& modColor, const CTexture& maskTex) {}
+void CCubeRenderer::DoPhazonSuitIndirectAlphaBlur(float blurRadius, float f2, const TLockedToken<CTexture>& indTex) {}
+void CCubeRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry,
+                                      const CAreaRenderOctTree* octTree, int areaIdx) {}
+void CCubeRenderer::EnablePVS(const CPVSVisSet& set, u32 areaIdx) {}
+void CCubeRenderer::DisablePVS() {}
+void CCubeRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) {}
+void CCubeRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender) {}
+void CCubeRenderer::DrawSortedGeometry(int areaIdx, int mask, int targetMask) {}
+void CCubeRenderer::DrawStaticGeometry(int areaIdx, int mask, int targetMask) {}
+void CCubeRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask) {}
+void CCubeRenderer::PostRenderFogs() {}
+void CCubeRenderer::SetModelMatrix(const zeus::CTransform& xf) {}
+void CCubeRenderer::AddParticleGen(CParticleGen& gen) {}
+void CCubeRenderer::AddParticleGen(CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds) {}
+void CCubeRenderer::AddPlaneObject(void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type) {}
+void CCubeRenderer::AddDrawable(void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode,
+                                IRenderer::EDrawableSorting sorting) {}
+void CCubeRenderer::SetDrawableCallback(IRenderer::TDrawableCallback cb, void* ctx) {}
+void CCubeRenderer::SetWorldViewpoint(const zeus::CTransform& xf) {}
+void CCubeRenderer::SetPerspective(float fovy, float aspect, float znear, float zfar) {}
+void CCubeRenderer::SetPerspective(float fovy, float width, float height, float znear, float zfar) {}
+std::pair<zeus::CVector2f, zeus::CVector2f> CCubeRenderer::SetViewportOrtho(bool centered, float znear, float zfar) {
+  return std::pair<zeus::CVector2f, zeus::CVector2f>();
+}
+void CCubeRenderer::SetClippingPlanes(const zeus::CFrustum& frustum) {}
+void CCubeRenderer::SetViewport(int left, int bottom, int width, int height) {}
+void CCubeRenderer::BeginScene() {}
+void CCubeRenderer::EndScene() {}
+void CCubeRenderer::SetDebugOption(IRenderer::EDebugOption, int) {}
+void CCubeRenderer::BeginPrimitive(IRenderer::EPrimitiveType, int) {}
+void CCubeRenderer::BeginLines(int) {}
+void CCubeRenderer::BeginLineStrip(int) {}
+void CCubeRenderer::BeginTriangles(int) {}
+void CCubeRenderer::BeginTriangleStrip(int) {}
+void CCubeRenderer::BeginTriangleFan(int) {}
+void CCubeRenderer::PrimVertex(const zeus::CVector3f&) {}
+void CCubeRenderer::PrimNormal(const zeus::CVector3f&) {}
+void CCubeRenderer::PrimColor(float, float, float, float) {}
+void CCubeRenderer::PrimColor(const zeus::CColor&) {}
+void CCubeRenderer::EndPrimitive() {}
+void CCubeRenderer::SetAmbientColor(const zeus::CColor& color) {}
+void CCubeRenderer::DrawString(const char* string, int, int) {}
+u32 CCubeRenderer::GetFPS() { return 0; }
+void CCubeRenderer::CacheReflection(IRenderer::TReflectionCallback cb, void* ctx, bool clearAfter) {}
+void CCubeRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength) {}
+void CCubeRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,
+                                     TVectorRef positions, TVectorRef normals, CModelFlags flags) {}
+void CCubeRenderer::DrawModelDisintegrate(const CModel& model, const CTexture& tex, const zeus::CColor& color,
+                                          TVectorRef positions, TVectorRef normals) {}
+void CCubeRenderer::DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) {}
+void CCubeRenderer::SetWireframeFlags(int flags) {}
+void CCubeRenderer::SetWorldFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) {}
+void CCubeRenderer::RenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
+                                    const TLockedToken<CModel>* model, const CSkinnedModel* sModel) {}
+void CCubeRenderer::SetThermal(bool thermal, float level, const zeus::CColor& color) {}
+void CCubeRenderer::SetThermalColdScale(float scale) {}
+void CCubeRenderer::DoThermalBlendCold() {}
+void CCubeRenderer::DoThermalBlendHot() {}
+u32 CCubeRenderer::GetStaticWorldDataSize() { return 0; }
+void CCubeRenderer::SetGXRegister1Color(const zeus::CColor& color) {}
+void CCubeRenderer::SetWorldLightFadeLevel(float level) {}
+void CCubeRenderer::SetWorldLightMultiplyColor(const zeus::CColor& color) {}
+void CCubeRenderer::PrepareDynamicLights(const std::vector<CLight>& lights) {}
+void CCubeRenderer::AllocatePhazonSuitMaskTexture() {}
+void CCubeRenderer::DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectMod,
+                                                 const TLockedToken<CTexture>& indTex, const zeus::CColor& indirectMod,
+                                                 float blurRadius, float scale, float offX, float offY) {}
+void CCubeRenderer::DrawXRayOutline(const zeus::CAABox& aabb) {}
+void CCubeRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const {}
+int CCubeRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits,
+                                                const zeus::CAABox& aabb) {
+  return 0;
+}
+void CCubeRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vector<u32>& modelBits,
+                                                     const zeus::CAABox& aabb, float alpha) {}
 } // namespace metaforce
