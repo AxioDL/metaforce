@@ -1,36 +1,36 @@
-[submodule "nod"]
+[submodule "extern/nod"]
 	path = extern/nod
 	url = ../nod.git
 	branch = master
-[submodule "amuse"]
+[submodule "extern/amuse"]
 	path = extern/amuse
 	url = ../amuse.git
 	branch = master
-[submodule "kabufuda"]
+[submodule "extern/kabufuda"]
 	path = extern/kabufuda
 	url = ../kabufuda.git
 	branch = master
-[submodule "jbus"]
+[submodule "extern/jbus"]
 	path = extern/jbus
 	url = ../jbus.git
 	branch = master
-[submodule "assetnameparser/tinyxml2"]
+[submodule "extern/tinyxml2"]
 	path = extern/tinyxml2
 	url = ../tinyxml2.git
 	branch = master
-[submodule "sanitizers-cmake"]
+[submodule "extern/sanitizers-cmake"]
 	path = extern/sanitizers-cmake
 	url = https://github.com/arsenm/sanitizers-cmake.git
 	branch = master
-[submodule "discord-rpc"]
+[submodule "extern/discord-rpc"]
 	path = extern/discord-rpc
 	url = https://github.com/discordapp/discord-rpc.git
 	branch = master
-[submodule "rapidjson"]
+[submodule "extern/rapidjson"]
 	path = extern/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
 	branch = master
-[submodule "NESEmulator/fixNES"]
+[submodule "extern/fixNES"]
 	path = extern/fixNES
 	url = https://github.com/FIX94/fixNES.git
 	branch = master
@@ -50,7 +50,7 @@
 	path = extern/libjpeg-turbo
 	url = ../libjpeg-turbo.git
 	branch = thp
-[submodule "zeus"]
+[submodule "extern/zeus"]
 	path = extern/zeus
 	url = ../zeus.git
 	branch = master

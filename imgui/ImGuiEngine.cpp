@@ -59,6 +59,7 @@ void ImGuiEngine_Initialize(float scale) {
   ImGuiEngine::fontLarge = io.Fonts->AddFont(&fontConfig);
 
   auto& style = ImGui::GetStyle();
+  style = {}; // Reset sizes
   style.WindowPadding = ImVec2(15, 15);
   style.WindowRounding = 5.0f;
   style.FrameBorderSize = 1.f;

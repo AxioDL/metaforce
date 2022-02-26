@@ -12,7 +12,6 @@ public:
   static ImTextureID metaforceIcon;
 };
 
-// Called from Rust
 void ImGuiEngine_Initialize(float scale);
 void ImGuiEngine_AddTextures();
 

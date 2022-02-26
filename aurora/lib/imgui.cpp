@@ -2,14 +2,19 @@
 
 #include "gpu.hpp"
 
+#include <SDL.h>
+#include <aurora/aurora.hpp>
 #include <aurora/imgui.hpp>
-#include <backends/imgui_impl_sdl.h>
-#include <backends/imgui_impl_wgpu.h>
 #include <dawn/webgpu_cpp.h>
+
+#include "../extern/imgui/backends/imgui_impl_sdl.cpp"
+#include "../extern/imgui/backends/imgui_impl_wgpu.cpp"
 
 namespace aurora::imgui {
 using gpu::g_device;
 using gpu::g_queue;
+
+static float g_scale;
 
 void create_context() noexcept {
   IMGUI_CHECKVERSION();
@@ -19,9 +24,11 @@ void create_context() noexcept {
 }
 
 void initialize(SDL_Window* window) noexcept {
-  // this just passes through to ImGui_ImplSDL2_Init (private)
-  // may need to change in the future
-  ImGui_ImplSDL2_InitForMetal(window);
+  ImGui_ImplSDL2_Init(window, nullptr);
+#ifdef __APPLE__
+  // Disable MouseCanUseGlobalState for scaling purposes
+  ImGui_ImplSDL2_GetBackendData()->MouseCanUseGlobalState = false;
+#endif
   ImGui_ImplWGPU_Init(g_device.Get(), 1, static_cast<WGPUTextureFormat>(gpu::g_graphicsConfig.colorFormat));
 }
 
@@ -31,17 +38,36 @@ void shutdown() noexcept {
   ImGui::DestroyContext();
 }
 
-void process_event(const SDL_Event& event) noexcept { ImGui_ImplSDL2_ProcessEvent(&event); }
+void process_event(const SDL_Event& event) noexcept {
+#ifdef __APPLE__
+  if (event.type == SDL_MOUSEMOTION) {
+    auto& io = ImGui::GetIO();
+    // Scale up mouse coordinates
+    io.AddMousePosEvent(static_cast<float>(event.motion.x) * g_scale,
+                        static_cast<float>(event.motion.y) * g_scale);
+    return;
+  }
+#endif
+  ImGui_ImplSDL2_ProcessEvent(&event);
+}
 
-void new_frame() noexcept {
+void new_frame(const WindowSize& size) noexcept {
   ImGui_ImplWGPU_NewFrame();
   ImGui_ImplSDL2_NewFrame();
+
+  // Render at full DPI
+  g_scale = size.scale;
+  ImGui::GetIO().DisplaySize = ImVec2{static_cast<float>(size.fb_width), static_cast<float>(size.fb_height)};
   ImGui::NewFrame();
 }
 
 void render(const wgpu::RenderPassEncoder& pass) noexcept {
   ImGui::Render();
-  ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), pass.Get());
+
+  auto* data = ImGui::GetDrawData();
+  // io.DisplayFramebufferScale is informational; we're rendering at full DPI
+  data->FramebufferScale = {1.f, 1.f};
+  ImGui_ImplWGPU_RenderDrawData(data, pass.Get());
 }
 
 ImTextureID add_texture(uint32_t width, uint32_t height, ArrayRef<uint8_t> data) noexcept {

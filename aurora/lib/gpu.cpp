@@ -1,10 +1,10 @@
 #include "gpu.hpp"
 
+#include <SDL.h>
 #include <dawn/native/DawnNative.h>
 #include <dawn/webgpu_cpp.h>
 #include <logvisor/logvisor.hpp>
 #include <magic_enum.hpp>
-#include <SDL.h>
 #include <memory>
 
 #include "dawn/BackendBinding.hpp"
@@ -168,7 +168,7 @@ void initialize(SDL_Window* window) {
   {
     int width = 0;
     int height = 0;
-    SDL_GetWindowSize(window, &width, &height);
+    SDL_GL_GetDrawableSize(window, &width, &height);
     g_graphicsConfig = GraphicsConfig{
         .width = static_cast<uint32_t>(width),
         .height = static_cast<uint32_t>(height),

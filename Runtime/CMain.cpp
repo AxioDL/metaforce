@@ -416,7 +416,7 @@ public:
   }
 
   void onAppWindowResized(const aurora::WindowSize& size) noexcept override {
-    CGraphics::SetViewportResolution({static_cast<s32>(size.width), static_cast<s32>(size.height)});
+    CGraphics::SetViewportResolution({static_cast<s32>(size.fb_width), static_cast<s32>(size.fb_height)});
   }
 
   void onAppWindowMoved(std::int32_t x, std::int32_t y) noexcept override {

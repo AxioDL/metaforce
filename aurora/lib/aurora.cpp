@@ -15,10 +15,10 @@ static logvisor::Module Log("aurora");
 // TODO: Move global state to a class/struct?
 static std::unique_ptr<AppDelegate> g_AppDelegate;
 static std::vector<std::string> g_Args;
-static float g_AppDpi = 1.f;
 
 // SDL
-static SDL_Window* g_Window;
+static SDL_Window* g_window;
+static WindowSize g_windowSize;
 
 // GPU
 using gpu::g_depthBuffer;
@@ -40,7 +40,7 @@ static void set_window_icon(Icon icon) noexcept {
     Log.report(logvisor::Fatal, FMT_STRING("Failed to create icon surface: {}"), SDL_GetError());
     unreachable();
   }
-  SDL_SetWindowIcon(g_Window, iconSurface);
+  SDL_SetWindowIcon(g_window, iconSurface);
   SDL_FreeSurface(iconSurface);
 }
 
@@ -58,26 +58,26 @@ static bool poll_events() noexcept {
       case SDL_WINDOWEVENT_HIDDEN: {
         break;
       }
-      case SDL_WINDOWEVENT_EXPOSED: {
-        break;
-      }
       case SDL_WINDOWEVENT_MOVED: {
         g_AppDelegate->onAppWindowMoved(event.window.data1, event.window.data2);
         break;
       }
+      case SDL_WINDOWEVENT_EXPOSED:
+      case SDL_WINDOWEVENT_DISPLAY_CHANGED:
+      case SDL_WINDOWEVENT_RESIZED:
       case SDL_WINDOWEVENT_SIZE_CHANGED:
-      case SDL_WINDOWEVENT_RESIZED: {
-        gpu::resize_swapchain(event.window.data1, event.window.data2);
-        g_AppDelegate->onAppWindowResized(
-            {static_cast<uint32_t>(event.window.data1), static_cast<uint32_t>(event.window.data2)});
-        break;
-      }
-      case SDL_WINDOWEVENT_MINIMIZED: {
-        // TODO: handle minimized event
-        break;
-      }
+      case SDL_WINDOWEVENT_MINIMIZED:
       case SDL_WINDOWEVENT_MAXIMIZED: {
-        // TODO: handle maximized event
+        const auto size = get_window_size();
+        if (size == g_windowSize) {
+          break;
+        }
+        if (size.scale != g_windowSize.scale) {
+          g_AppDelegate->onAppDisplayScaleChanged(size.scale);
+        }
+        g_windowSize = size;
+        gpu::resize_swapchain(size.fb_width, size.fb_height);
+        g_AppDelegate->onAppWindowResized(size);
         break;
       }
       case SDL_WINDOWEVENT_RESTORED: {
@@ -110,17 +110,6 @@ static bool poll_events() noexcept {
       }
       case SDL_WINDOWEVENT_HIT_TEST: {
         // TODO: handle hit test?
-        break;
-      }
-      case SDL_WINDOWEVENT_DISPLAY_CHANGED: {
-        printf("DISPLAY_CHANGED!\n");
-        float scale = 1.0f;
-        if (SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(g_Window), nullptr, &scale, nullptr) == 0) {
-          scale /= 96.0f;
-          if (g_AppDpi != scale) {
-            g_AppDelegate->onAppDisplayScaleChanged(scale);
-          }
-        }
         break;
       }
       }
@@ -259,30 +248,29 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   default:
     break;
   }
-  g_Window = SDL_CreateWindow("Metaforce", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, flags);
-  if (g_Window == nullptr) {
+  g_window = SDL_CreateWindow("Metaforce", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, flags);
+  if (g_window == nullptr) {
     Log.report(logvisor::Fatal, FMT_STRING("Error creating window: {}"), SDL_GetError());
     unreachable();
   }
   set_window_icon(std::move(icon));
 
-  gpu::initialize(g_Window);
+  gpu::initialize(g_window);
   gfx::initialize();
-  g_AppDpi = 1.0f;
-  if (SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(g_Window), nullptr, &g_AppDpi, nullptr) == 0) {
-    g_AppDpi /= 96.0f;
-  }
 
   imgui::create_context();
-  g_AppDelegate->onImGuiInit(g_AppDpi);
-  imgui::initialize(g_Window);
+  const auto size = get_window_size();
+  Log.report(logvisor::Info, FMT_STRING("Using framebuffer size {}x{} scale {}"), size.fb_width, size.fb_height,
+             size.scale);
+  g_AppDelegate->onImGuiInit(size.scale);
+  imgui::initialize(g_window);
   g_AppDelegate->onImGuiAddTextures();
 
   g_AppDelegate->onAppLaunched();
-  g_AppDelegate->onAppWindowResized(get_window_size());
+  g_AppDelegate->onAppWindowResized(size);
 
   while (poll_events()) {
-    imgui::new_frame();
+    imgui::new_frame(g_windowSize);
     if (!g_AppDelegate->onAppIdle(ImGui::GetIO().DeltaTime)) {
       break;
     }
@@ -354,19 +342,32 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   imgui::shutdown();
   gfx::shutdown();
   gpu::shutdown();
-  SDL_DestroyWindow(g_Window);
+  SDL_DestroyWindow(g_window);
   SDL_Quit();
 }
 
 std::vector<std::string> get_args() noexcept { return g_Args; }
 
 WindowSize get_window_size() noexcept {
-  int width, height;
-  SDL_GetWindowSize(g_Window, &width, &height);
-  return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+  int width, height, fb_w, fb_h;
+  SDL_GetWindowSize(g_window, &width, &height);
+  SDL_GL_GetDrawableSize(g_window, &fb_w, &fb_h);
+  float scale = static_cast<float>(fb_w) / static_cast<float>(width);
+#ifndef __APPLE__
+  if (SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(g_window), nullptr, &scale, nullptr) == 0) {
+    scale /= 96.f;
+  }
+#endif
+  return {
+      .width = static_cast<uint32_t>(width),
+      .height = static_cast<uint32_t>(height),
+      .fb_width = static_cast<uint32_t>(fb_w),
+      .fb_height = static_cast<uint32_t>(fb_h),
+      .scale = scale,
+  };
 }
 
-void set_window_title(zstring_view title) noexcept { SDL_SetWindowTitle(g_Window, title.c_str()); }
+void set_window_title(zstring_view title) noexcept { SDL_SetWindowTitle(g_window, title.c_str()); }
 
 Backend get_backend() noexcept {
   switch (gpu::g_backendType) {
@@ -392,7 +393,7 @@ Backend get_backend() noexcept {
 std::string_view get_backend_string() noexcept { return magic_enum::enum_name(gpu::g_backendType); }
 
 void set_fullscreen(bool fullscreen) noexcept {
-  SDL_SetWindowFullscreen(g_Window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+  SDL_SetWindowFullscreen(g_window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
 
 int32_t get_controller_player_index(uint32_t instance) noexcept { return input::player_index(instance); }
@@ -409,5 +410,6 @@ void controller_rumble(uint32_t instance, uint16_t low_freq_intensity, uint16_t 
                        uint32_t duration_ms) noexcept {
   input::controller_rumble(instance, low_freq_intensity, high_freq_intensity, duration_ms);
 }
+
 std::string get_controller_name(uint32_t instance) noexcept { return input::controller_name(instance); }
 } // namespace aurora

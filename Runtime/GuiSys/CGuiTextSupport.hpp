@@ -78,6 +78,8 @@ class CGuiTextSupport {
   zeus::CColor x28_outlineColor;
   zeus::CColor x2c_geometryColor;
   bool x30_imageBaseline = false;
+  s32 x30_; // new in PAL/JP
+  s32 x34_; // ""
   s32 x34_extentX;
   s32 x38_extentY;
   float x3c_curTime = 0.f;
