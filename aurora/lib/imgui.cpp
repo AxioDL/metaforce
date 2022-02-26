@@ -40,9 +40,15 @@ void process_event(const SDL_Event& event) noexcept {
   auto newEvent = event;
   if (newEvent.type == SDL_MOUSEMOTION) {
     auto& io = ImGui::GetIO();
+    float mouseX = newEvent.motion.x;
+    float mouseY = newEvent.motion.y;
+#ifdef __APPLE__
+    mouseX *= g_scale;
+    mouseY *= g_scale;
+#endif
     // Scale up mouse coordinates
-    io.AddMousePosEvent(static_cast<float>(newEvent.motion.x) * g_scale,
-                        static_cast<float>(newEvent.motion.y) * g_scale);
+    io.AddMousePosEvent(mouseX, mouseY);
+
     return;
   }
   ImGui_ImplSDL2_ProcessEvent(&newEvent);
