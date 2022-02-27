@@ -181,6 +181,7 @@ public:
   static CProjectionState g_Proj;
   static zeus::CVector2f g_CachedDepthRange;
   static CFogState g_Fog;
+  static SViewport g_Viewport;
   static std::array<zeus::CColor, 3> g_ColorRegs;
   static float g_ProjAspect;
   static u32 g_NumLightsActive;
@@ -199,6 +200,9 @@ public:
   static zeus::CTransform g_CameraMatrix;
   static SClipScreenRect g_CroppedViewport;
   static bool g_IsGXModelMatrixIdentity;
+  static zeus::CColor g_ClearColor;
+  static float g_ClearDepthValue; // Was a 24bit value, we use a float range from [0,1]
+  static bool g_IsBeginSceneClearFb;
 
   static ERglEnum g_depthFunc;
   static ERglCullMode g_cullMode;
@@ -254,6 +258,10 @@ public:
   static u32 GetFrameCounter() { return g_FrameCounter; }
   static u32 GetFPS() { return g_Framerate; }
   static void UpdateFPSCounter();
+  static void SetUseVideoFilter(bool);
+  static void SetClearColor(const zeus::CColor& color);
+  static void SetCopyClear(const zeus::CColor& color, float depth);
+  static void SetIsBeginSceneClearFb(bool clear);
 
   //  static boo::IGraphicsDataFactory::Platform g_BooPlatform;
   //  static const char* g_BooPlatformName;

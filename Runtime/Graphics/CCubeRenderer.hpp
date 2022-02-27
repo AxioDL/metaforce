@@ -65,7 +65,7 @@ private:
   bool xdc_{};
   u32 xe0_pvsAreaIdx = UINT32_MAX;
   CTexture xe4_blackTex{ETexelFormat::RGB565, 4, 4, 1};
-  u32 x14c_ = 0;
+  std::unique_ptr<CTexture> x14c_reflectionTex;
   CTexture x150_reflectionTex{ETexelFormat::IA8, 32, 32, 1};
   CTexture x1b8_fogVolumeRamp{ETexelFormat::I8, 256, 256, 1};
   CTexture x220_sphereRamp{ETexelFormat::I8, 32, 32, 1};
@@ -82,7 +82,7 @@ private:
   zeus::CColor x2fc_tevReg1Color{1.f, 0.f, 1.f, 1.f};
   std::vector<CLight> x300_dynamicLights;
   u32 x310_phazonSuitMaskCountdown = 0;
-  CTexture* x314_phazonSuitMask = nullptr;
+  std::unique_ptr<CTexture> x314_phazonSuitMask;
   bool x318_24_refectionDirty : 1 = false;
   bool x318_25_drawWireframe : 1 = false;
   bool x318_26_requestRGBA6 : 1 = false;
@@ -129,7 +129,7 @@ public:
   void SetPerspective(float fovy, float width, float height, float znear, float zfar) override;
   std::pair<zeus::CVector2f, zeus::CVector2f> SetViewportOrtho(bool centered, float znear, float zfar) override;
   void SetClippingPlanes(const zeus::CFrustum& frustum) override;
-  void SetViewport(int left, int bottom, int width, int height) override;
+  void SetViewport(int left, int right, int width, int height) override;
   void SetDepthReadWrite(bool read, bool write) override {
     CGraphics::SetDepthWriteMode(read, ERglEnum::LEqual, write);
   }

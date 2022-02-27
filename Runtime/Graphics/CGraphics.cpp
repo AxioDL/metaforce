@@ -30,7 +30,11 @@ zeus::CTransform CGraphics::g_GXViewPointMatrix;
 zeus::CTransform CGraphics::g_CameraMatrix;
 SClipScreenRect CGraphics::g_CroppedViewport;
 bool CGraphics::g_IsGXModelMatrixIdentity = true;
-SViewport g_Viewport = {
+zeus::CColor CGraphics::g_ClearColor = zeus::skClear;
+float CGraphics::g_ClearDepthValue = 1.f;
+bool CGraphics::g_IsBeginSceneClearFb = true;
+
+SViewport CGraphics::g_Viewport = {
     0, 0, 640, 480, 640 / 2.f, 480 / 2.f, 0.0f,
 };
 u32 CGraphics::g_FrameCounter = 0;
@@ -121,6 +125,7 @@ void CGraphics::BeginScene() {
 }
 
 void CGraphics::EndScene() {
+  //CGX::SetZMode(true, GX_LEQUAL, true);
   /* Spinwait until g_NumBreakpointsWaiting is 0 */
   /* ++g_NumBreakpointsWaiting; */
   /* GXCopyDisp to g_CurrenFrameBuf with clear enabled */
@@ -484,6 +489,28 @@ void CGraphics::UpdateFPSCounter() {
   }
 }
 
+static bool g_UseVideoFilter = false;
+void CGraphics::SetUseVideoFilter(bool filter) {
+  g_UseVideoFilter = filter;
+  // GXSetCopyFilter(CGraphics::mRenderModeObj.aa, CGraphics::mRenderModeObj.sample_pattern, filter,
+  //                 CGraphics::mRenderModeObj.vfilter);
+}
+
+void CGraphics::SetClearColor(const zeus::CColor& color) {
+  g_ClearColor = color;
+  // GXSetCopyClear(g_ClearColor, g_ClearDepthValue);
+}
+
+void CGraphics::SetCopyClear(const zeus::CColor& color, float depth) {
+  g_ClearColor = color;
+  g_ClearDepthValue = depth; // 1.6777215E7 * depth; Metroid Prime needed this to convert float [0,1] depth into 24 bit
+                             // range, we no longer have this requirement
+  // GXSetCopyClear(g_ClearColor, g_ClearDepthValue);
+}
+
+void CGraphics::SetIsBeginSceneClearFb(bool clear) {
+  g_IsBeginSceneClearFb = clear;
+}
 // boo::IGraphicsDataFactory::Platform CGraphics::g_BooPlatform = boo::IGraphicsDataFactory::Platform::Null;
 // boo::IGraphicsDataFactory* CGraphics::g_BooFactory = nullptr;
 // boo::IGraphicsCommandQueue* CGraphics::g_BooMainCommandQueue = nullptr;
