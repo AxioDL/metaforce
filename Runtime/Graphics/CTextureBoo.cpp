@@ -708,7 +708,7 @@ static std::string_view TextureFormatString(ETexelFormat format) {
 }
 
 u32 CTexture::TexelFormatBitsPerPixel(ETexelFormat fmt) {
-  switch(fmt) {
+  switch (fmt) {
   case ETexelFormat::I4:
   case ETexelFormat::C4:
   case ETexelFormat::CMPR:
@@ -729,18 +729,24 @@ u32 CTexture::TexelFormatBitsPerPixel(ETexelFormat fmt) {
   }
 }
 
+u32 CTexture::sCurrentFrameCount = 0;
+
+void CTexture::InitBitmapBuffers(ETexelFormat fmt, s16 width, s16 height, s32 mips) {}
+void CTexture::InitTextureObjs() {}
 
 CTexture::CTexture(ETexelFormat fmt, s16 w, s16 h, s32 mips)
-: x0_fmt(fmt), x4_w(w), x6_h(h), x8_mips(mips), x9_bitsPerPixel(TexelFormatBitsPerPixel(fmt)) {
-#if 0
-  x64_ = sCurrentFrameCount;
+: x0_fmt(fmt)
+, x4_w(w)
+, x6_h(h)
+, x8_mips(mips)
+, x9_bitsPerPixel(TexelFormatBitsPerPixel(fmt))
+, x64_frameAllocated(sCurrentFrameCount) {
+
   InitBitmapBuffers(fmt, w, h, mips);
   InitTextureObjs();
-#endif
 }
 
-CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTextureInfo* inf, CAssetId id)
-: m_textureInfo(inf) {
+CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTextureInfo* inf, CAssetId id) {
   std::unique_ptr<u8[]> owned = std::move(in);
   CMemoryInStream r(owned.get(), length, CMemoryInStream::EOwnerShip::NotOwned);
   x0_fmt = ETexelFormat(r.ReadLong());
@@ -748,6 +754,7 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTex
   x6_h = r.ReadShort();
   x8_mips = r.ReadLong();
   x9_bitsPerPixel = TexelFormatBitsPerPixel(x0_fmt);
+  m_textureInfo = inf;
 
   auto label = fmt::format(FMT_STRING("TXTR {:08X} ({})"), id.Value(), TextureFormatString(x0_fmt));
   switch (x0_fmt) {
