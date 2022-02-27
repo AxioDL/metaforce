@@ -4,10 +4,7 @@
 #include <utility>
 
 #include <dawn/webgpu_cpp.h>
-#include <xxhash.h>
-#if defined(__x86_64__) || defined(__i386__) || defined(_M_IX86) || defined(_M_X64)
-#include <xxh_x86dispatch.h>
-#endif
+#include <xxhash_impl.h>
 
 #ifndef ALIGN
 #define ALIGN(x, a) (((x) + ((a)-1)) & ~((a)-1))
