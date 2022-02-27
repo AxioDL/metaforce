@@ -47,14 +47,14 @@ void CCameraBlurFilter::draw(float amount, bool clearDepth) {
 
   SCOPED_GRAPHICS_DEBUG_GROUP("CCameraBlurFilter::draw", zeus::skMagenta);
 
-  const SClipScreenRect clipRect(g_Viewport);
+  const SClipScreenRect clipRect(CGraphics::g_Viewport);
   CGraphics::ResolveSpareTexture(clipRect, 0, clearDepth);
   const float aspect = float(CGraphics::g_CroppedViewport.xc_width) / float(CGraphics::g_CroppedViewport.x10_height);
 
-  const float xFac = float(CGraphics::g_CroppedViewport.xc_width) / float(g_Viewport.x8_width);
-  const float yFac = float(CGraphics::g_CroppedViewport.x10_height) / float(g_Viewport.xc_height);
-  const float xBias = float(CGraphics::g_CroppedViewport.x4_left) / float(g_Viewport.x8_width);
-  const float yBias = float(CGraphics::g_CroppedViewport.x8_top) / float(g_Viewport.xc_height);
+  const float xFac = float(CGraphics::GetCroppedViewportWidth()) / float(CGraphics::GetViewportWidth());
+  const float yFac = float(CGraphics::GetCroppedViewportHeight()) / float(CGraphics::GetViewportHeight());
+  const float xBias = float(CGraphics::GetCroppedViewportLeft()) / float(CGraphics::GetViewportWidth());
+  const float yBias = float(CGraphics::GetCroppedViewportTop()) / float(CGraphics::GetViewportHeight());
 
   const std::array<Vert, 4> verts{{
       {{-1.0, -1.0}, {xBias, yBias}},

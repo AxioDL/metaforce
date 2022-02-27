@@ -191,27 +191,27 @@ CModelData MakePlayerAnimRes(CAssetId resId, const zeus::CVector3f& scale) {
 }
 
 uint32_t GetOrbitScreenBoxHalfExtentXScaled(int zone) {
-  return g_tweakPlayer->GetOrbitScreenBoxHalfExtentX(zone) * g_Viewport.x8_width / 640;
+  return g_tweakPlayer->GetOrbitScreenBoxHalfExtentX(zone) * CGraphics::GetViewportWidth() / 640;
 }
 
 uint32_t GetOrbitScreenBoxHalfExtentYScaled(int zone) {
-  return g_tweakPlayer->GetOrbitScreenBoxHalfExtentY(zone) * g_Viewport.xc_height / 448;
+  return g_tweakPlayer->GetOrbitScreenBoxHalfExtentY(zone) * CGraphics::GetViewportHeight() / 448;
 }
 
 uint32_t GetOrbitScreenBoxCenterXScaled(int zone) {
-  return g_tweakPlayer->GetOrbitScreenBoxCenterX(zone) * g_Viewport.x8_width / 640;
+  return g_tweakPlayer->GetOrbitScreenBoxCenterX(zone) * CGraphics::GetViewportWidth() / 640;
 }
 
 uint32_t GetOrbitScreenBoxCenterYScaled(int zone) {
-  return g_tweakPlayer->GetOrbitScreenBoxCenterY(zone) * g_Viewport.xc_height / 448;
+  return g_tweakPlayer->GetOrbitScreenBoxCenterY(zone) * CGraphics::GetViewportHeight() / 448;
 }
 
 uint32_t GetOrbitZoneIdealXScaled(int zone) {
-  return g_tweakPlayer->GetOrbitZoneIdealX(zone) * g_Viewport.x8_width / 640;
+  return g_tweakPlayer->GetOrbitZoneIdealX(zone) * CGraphics::GetViewportWidth() / 640;
 }
 
 uint32_t GetOrbitZoneIdealYScaled(int zone) {
-  return g_tweakPlayer->GetOrbitZoneIdealY(zone) * g_Viewport.xc_height / 448;
+  return g_tweakPlayer->GetOrbitZoneIdealY(zone) * CGraphics::GetViewportHeight() / 448;
 }
 } // Anonymous namespace
 
@@ -4138,8 +4138,8 @@ bool CPlayer::ValidateAimTargetId(TUniqueId uid, CStateManager& mgr) {
 
   if (act->GetMaterialList().HasMaterial(EMaterialTypes::Target) && uid != kInvalidUniqueId &&
       ValidateObjectForMode(uid, mgr)) {
-    const float vpWHalf = g_Viewport.x8_width / 2;
-    const float vpHHalf = g_Viewport.xc_height / 2;
+    const float vpWHalf = CGraphics::GetViewportWidth() / 2;
+    const float vpHHalf = CGraphics::GetViewportHeight() / 2;
     const zeus::CVector3f aimPos = act->GetAimPosition(mgr, 0.f);
     const zeus::CVector3f eyePos = GetEyePosition();
     zeus::CVector3f eyeToAim = aimPos - eyePos;
@@ -4249,8 +4249,8 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const EntityList& list, EPlayerZ
   float minEyeToAimMag = 10000.f;
   float minPosInBoxMagSq = 10000.f;
   TUniqueId bestId = kInvalidUniqueId;
-  const float vpWHalf = g_Viewport.x8_width / 2;
-  const float vpHHalf = g_Viewport.xc_height / 2;
+  const float vpWHalf = CGraphics::GetViewportWidth() / 2;
+  const float vpHHalf = CGraphics::GetViewportHeight() / 2;
   const float boxLeft = (GetOrbitZoneIdealXScaled(int(info)) - vpWHalf) / vpWHalf;
   const float boxTop = (GetOrbitZoneIdealYScaled(int(info)) - vpHHalf) / vpHHalf;
   const CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
@@ -4346,8 +4346,8 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids, EP
   float minEyeToOrbitMag = 10000.f;
   float minPosInBoxMagSq = 10000.f;
   TUniqueId bestId = kInvalidUniqueId;
-  const float vpWidthHalf = g_Viewport.x8_width / 2;
-  const float vpHeightHalf = g_Viewport.xc_height / 2;
+  const float vpWidthHalf = CGraphics::GetViewportWidth() / 2;
+  const float vpHeightHalf = CGraphics::GetViewportHeight() / 2;
   const float boxLeft = (GetOrbitZoneIdealXScaled(int(info)) - vpWidthHalf) / vpWidthHalf;
   const float boxTop = (GetOrbitZoneIdealYScaled(int(info)) - vpHeightHalf) / vpHeightHalf;
 
@@ -4497,8 +4497,8 @@ void CPlayer::FindOrbitableObjects(const EntityList& nearObjects, std::vector<TU
       }
       const zeus::CVector3f orbitPos = act->GetOrbitPosition(mgr);
       zeus::CVector3f screenPos = fpCam->ConvertToScreenSpace(orbitPos);
-      screenPos.x() = g_Viewport.x8_width * screenPos.x() / 2.f + g_Viewport.x8_width / 2.f;
-      screenPos.y() = g_Viewport.xc_height * screenPos.y() / 2.f + g_Viewport.xc_height / 2.f;
+      screenPos.x() = CGraphics::GetViewportWidth() * screenPos.x() / 2.f + CGraphics::GetViewportWidth() / 2.f;
+      screenPos.y() = CGraphics::GetViewportHeight() * screenPos.y() / 2.f + CGraphics::GetViewportHeight() / 2.f;
 
       bool pass = false;
       if (onScreenTest) {

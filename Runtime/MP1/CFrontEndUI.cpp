@@ -1481,7 +1481,7 @@ void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveGameScreen* saveUi) const {
   if (x10_remTime <= 0.f)
     return;
   if (xc_textSupport->GetIsTextSupportFinishedLoading()) {
-    float aspect = g_Viewport.aspect / 1.33f;
+    float aspect = CGraphics::GetViewportAspect() / 1.33f;
     CGraphics::SetOrtho(-320.f * aspect, 320.f * aspect, 240.f, -240.f, -4096.f, 4096.f);
     CGraphics::SetViewPointMatrix(zeus::CTransform());
     CGraphics::SetModelMatrix(zeus::CTransform::Translate(-220.f, 0.f, -200.f));
@@ -2013,15 +2013,15 @@ void CFrontEndUI::Draw() {
 
     /* Correct movie aspect ratio */
     float hPad, vPad;
-    if (g_Viewport.aspect >= 1.78f) {
-      hPad = 1.78f / g_Viewport.aspect;
+    if (CGraphics::GetViewportAspect() >= 1.78f) {
+      hPad = 1.78f / CGraphics::GetViewportAspect();
       vPad = 1.78f / 1.33f;
     } else {
       hPad = 1.f;
-      vPad = g_Viewport.aspect / 1.33f;
+      vPad = CGraphics::GetViewportAspect() / 1.33f;
     }
 
-    if (xcc_curMoviePtr && xcc_curMoviePtr->GetIsFullyCached()) {
+    if ((xcc_curMoviePtr != nullptr) && xcc_curMoviePtr->GetIsFullyCached()) {
       /* Render movie */
       xcc_curMoviePtr->SetFrame(hPad, vPad);
       xcc_curMoviePtr->DrawFrame();

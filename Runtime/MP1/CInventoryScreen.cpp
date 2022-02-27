@@ -165,7 +165,7 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
       zeus::CVector2f mouseCoord = zeus::CVector2f(kbm->m_mouseCoord.norm[0], kbm->m_mouseCoord.norm[1]);
       zeus::CVector2f mouseDelta = mouseCoord - m_lastMouseCoord;
       m_lastMouseCoord = mouseCoord;
-      mouseDelta.x() *= g_Viewport.aspect;
+      mouseDelta.x() *= CGraphics::GetViewportAspect();
       mouseDelta *= 100.f;
       if (kbm->m_mouseButtons[size_t(EMouseButton::Middle)] ||
           kbm->m_mouseButtons[size_t(EMouseButton::Secondary)]) {

@@ -60,7 +60,7 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
                                   g_ResFactory->GetResourceIdByName(g_tweakGui->GetCreditsFont())->id,
                                   CGuiTextProperties(true, true, EJustification::Center, EVerticalJustification::Top),
                                   g_tweakGui->GetCreditsTextFontColor(), g_tweakGui->GetCreditsTextBorderColor(),
-                                  zeus::skWhite, g_Viewport.x8_width - 64, 0, g_SimplePool,
+                                  zeus::skWhite, CGraphics::GetViewportWidth() - 64, 0, g_SimplePool,
                                   CGuiWidget::EGuiModelDrawFlags::Alpha),
                               zeus::CVector2i(0, 0));
         x30_text.back().first->SetText(x18_creditsTable->GetString(i));
@@ -96,12 +96,12 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
       auto bounds = text->GetBounds();
       offset.y = (bounds.second.y - bounds.first.y);
       offset.x = scaleY;
-      text->SetExtentX(g_Viewport.x8_width - 1280);
+      text->SetExtentX(CGraphics::GetViewportWidth() - 1280);
       text->SetExtentY((bounds.second.y - bounds.first.y));
       scaleY += (bounds.second.y - bounds.first.y);
     }
 
-    x4c_ = float(scaleY + g_Viewport.xc_height - 896); // * 0.5f;
+    x4c_ = float(scaleY + CGraphics::GetViewportHeight() - 896); // * 0.5f;
     const float divVal = std::max(g_tweakGui->x310_, g_tweakGui->x30c_);
     x50_ = x4c_ / (g_tweakGui->x308_ - divVal);
     x14_ = 1;
@@ -202,12 +202,12 @@ CIOWin::EMessageReturn CCredits::ProcessUserInput(const CFinalInput& input) {
 void CCredits::DrawVideo() {
   /* Correct movie aspect ratio */
   float hPad, vPad;
-  if (g_Viewport.aspect >= 1.78f) {
-    hPad = 1.78f / g_Viewport.aspect;
+  if (CGraphics::GetViewportAspect() >= 1.78f) {
+    hPad = 1.78f / CGraphics::GetViewportAspect();
     vPad = 1.78f / 1.33f;
   } else {
     hPad = 1.f;
-    vPad = g_Viewport.aspect / 1.33f;
+    vPad = CGraphics::GetViewportAspect() / 1.33f;
   }
 
   if (x28_ && x28_->GetIsFullyCached()) {
@@ -230,7 +230,7 @@ void CCredits::DrawVideo() {
 }
 
 void CCredits::DrawText() {
-  float width = 896.f * g_Viewport.aspect;
+  float width = 896.f * CGraphics::GetViewportAspect();
   CGraphics::SetOrtho(0.f, width, 896.f, 0.f, -4096.f, 4096.f);
   auto region =
       std::make_pair<zeus::CVector2f, zeus::CVector2f>(zeus::CVector2f{0.f, 0.f}, zeus::CVector2f{width, 896.f});

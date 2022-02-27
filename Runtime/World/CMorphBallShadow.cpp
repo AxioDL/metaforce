@@ -34,7 +34,7 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
 
   GatherAreas(mgr);
 
-  SViewport backupVp = g_Viewport;
+  SViewport backupVp = CGraphics::g_Viewport;
   // g_Renderer->BindBallShadowIdTarget();
   // CGraphics::g_BooMainCommandQueue->clearTarget();
 

@@ -238,10 +238,10 @@ void CTexturedQuadFilter::draw(const zeus::CColor& color, float uvScale, const z
 void CTexturedQuadFilter::drawCropped(const zeus::CColor& color, float uvScale) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CTexturedQuadFilter::drawCropped", zeus::skMagenta);
 
-  const float xFac = CGraphics::g_CroppedViewport.xc_width / float(g_Viewport.x8_width);
-  const float yFac = CGraphics::g_CroppedViewport.x10_height / float(g_Viewport.xc_height);
-  const float xBias = CGraphics::g_CroppedViewport.x4_left / float(g_Viewport.x8_width);
-  const float yBias = CGraphics::g_CroppedViewport.x8_top / float(g_Viewport.xc_height);
+  const float xFac = CGraphics::GetCroppedViewportWidth() / float(CGraphics::GetViewportWidth());
+  const float yFac = CGraphics::GetCroppedViewportHeight() / float(CGraphics::GetViewportHeight());
+  const float xBias = CGraphics::GetCroppedViewportLeft() / float(CGraphics::GetViewportWidth());
+  const float yBias = CGraphics::GetCroppedViewportTop() / float(CGraphics::GetViewportHeight());
 
   const std::array<Vert, 4> verts{{
       {{-1.f, -1.f, 0.f}, {xBias * uvScale, yBias * uvScale}},

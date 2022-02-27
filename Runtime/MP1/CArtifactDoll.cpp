@@ -94,7 +94,7 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
   SCOPED_GRAPHICS_DEBUG_GROUP("CArtifactDoll::Draw", zeus::skPurple);
 
   alpha *= x24_fader;
-  g_Renderer->SetPerspective(55.f, g_Viewport.x8_width, g_Viewport.xc_height, 0.2f, 4096.f);
+  g_Renderer->SetPerspective(55.f, CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(), 0.2f, 4096.f);
   CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(0.f, -10.f, 0.f));
 
   float angle = CGraphics::GetSecondsMod900() * 2.f * M_PIF * 0.25f;

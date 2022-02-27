@@ -504,8 +504,8 @@ void CStateManager::DrawReflection(const zeus::CVector3f& reflectPoint) {
   CGraphics::SetViewPointMatrix(look);
   const CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
-  g_Renderer->SetPerspective(cam->GetFov(), g_Viewport.x8_width, g_Viewport.xc_height, cam->GetNearClipDistance(),
-                             cam->GetFarClipDistance());
+  g_Renderer->SetPerspective(cam->GetFov(), CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(),
+                             cam->GetNearClipDistance(), cam->GetFarClipDistance());
 
   x84c_player->RenderReflectedPlayer(*this);
 
@@ -707,18 +707,18 @@ void CStateManager::ResetViewAfterDraw(const SViewport& backupViewport,
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
 
   zeus::CFrustum frustum;
-  frustum.updatePlanes(backupViewMatrix, zeus::SProjPersp(zeus::degToRad(cam->GetFov()), g_Viewport.aspect,
+  frustum.updatePlanes(backupViewMatrix, zeus::SProjPersp(zeus::degToRad(cam->GetFov()), CGraphics::GetViewportAspect(),
                                                           cam->GetNearClipDistance(), cam->GetFarClipDistance()));
   g_Renderer->SetClippingPlanes(frustum);
 
-  g_Renderer->SetPerspective(cam->GetFov(), g_Viewport.x8_width, g_Viewport.xc_height, cam->GetNearClipDistance(),
-                             cam->GetFarClipDistance());
+  g_Renderer->SetPerspective(cam->GetFov(), CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(),
+                             cam->GetNearClipDistance(), cam->GetFarClipDistance());
 }
 
 void CStateManager::DrawWorld() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CStateManager::DrawWorld", zeus::skBlue);
   const CTimeProvider timeProvider(xf14_curTimeMod900);
-  const SViewport backupViewport = g_Viewport;
+  const SViewport backupViewport = CGraphics::g_Viewport;
 
   /* Area camera is in (not necessarily player) */
   const TAreaId visAreaId = GetVisAreaId();
@@ -727,7 +727,7 @@ void CStateManager::DrawWorld() {
 
   DrawWorldCubeFaces();
 
-  const zeus::CFrustum frustum = SetupViewForDraw(g_Viewport);
+  const zeus::CFrustum frustum = SetupViewForDraw(CGraphics::g_Viewport);
   const zeus::CTransform backupViewMatrix = CGraphics::g_ViewMatrix;
 
   int areaCount = 0;
@@ -1196,7 +1196,7 @@ void CStateManager::PreRender() {
   }
 
   SCOPED_GRAPHICS_DEBUG_GROUP("CStateManager::PreRender", zeus::skBlue);
-  const zeus::CFrustum frustum = SetupDrawFrustum(g_Viewport);
+  const zeus::CFrustum frustum = SetupDrawFrustum(CGraphics::g_Viewport);
   x86c_stateManagerContainer->xf370_.clear();
   x86c_stateManagerContainer->xf39c_renderLast.clear();
   xf7c_projectedShadow = nullptr;

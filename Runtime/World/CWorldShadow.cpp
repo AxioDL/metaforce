@@ -63,7 +63,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
         frustum.updatePlanes(x4_view, zeus::SProjPersp(zeus::degToRad(fov), 1.f, 0.1f, distance + x64_objHalfExtent));
         g_Renderer->SetClippingPlanes(frustum);
         g_Renderer->SetPerspective(fov, m_shader.GetWidth(), m_shader.GetHeight(), 0.1f, 1000.f);
-        SViewport backupVp = g_Viewport;
+        SViewport backupVp = CGraphics::g_Viewport;
         zeus::CVector2f backupDepthRange = CGraphics::g_CachedDepthRange;
         m_shader.bindRenderTarget();
         g_Renderer->SetViewport(0, 0, m_shader.GetWidth(), m_shader.GetHeight());

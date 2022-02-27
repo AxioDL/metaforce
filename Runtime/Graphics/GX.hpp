@@ -244,53 +244,39 @@ enum BlendFactor : uint16_t {
   BL_INVDSTALPHA
 };
 
-//struct Color : athena::io::DNA<athena::Endian::Big> {
-//  union {
-//    uint8_t color[4];
-//    uint32_t num = 0;
-//  };
-//  Color() = default;
-//  Color& operator=(const atVec4f& vec) {
-//    athena::simd_floats f(vec.simd);
-//    color[0] = uint8_t(std::min(std::max(f[0] * 255.f, 0.f), 255.f));
-//    color[1] = uint8_t(std::min(std::max(f[1] * 255.f, 0.f), 255.f));
-//    color[2] = uint8_t(std::min(std::max(f[2] * 255.f, 0.f), 255.f));
-//    color[3] = uint8_t(std::min(std::max(f[3] * 255.f, 0.f), 255.f));
-//    return *this;
-//  }
-//  Color& operator=(const atVec3f& vec) {
-//    athena::simd_floats f(vec.simd);
-//    color[0] = uint8_t(std::min(std::max(f[0] * 255.f, 0.f), 255.f));
-//    color[1] = uint8_t(std::min(std::max(f[1] * 255.f, 0.f), 255.f));
-//    color[2] = uint8_t(std::min(std::max(f[2] * 255.f, 0.f), 255.f));
-//    color[3] = 0xff;
-//    return *this;
-//  }
-//  Color& operator=(uint8_t val) {
-//    color[0] = val;
-//    color[1] = val;
-//    color[2] = val;
-//    color[3] = val;
-//    return *this;
-//  }
-//  atVec4f toVec4f() const {
-//    atVec4f out;
-//    athena::simd_floats f;
-//    f[0] = color[0] / 255.f;
-//    f[1] = color[1] / 255.f;
-//    f[2] = color[2] / 255.f;
-//    f[3] = color[3] / 255.f;
-//    out.simd.copy_from(f);
-//    return out;
-//  }
-//  Color(const atVec4f& vec) { *this = vec; }
-//  Color(const atVec3f& vec) { *this = vec; }
-//  Color(uint8_t val) { *this = val; }
-//  bool operator==(const Color& other) const { return num == other.num; }
-//  bool operator!=(const Color& other) const { return num != other.num; }
-//  uint8_t operator[](size_t idx) const { return color[idx]; }
-//  uint8_t& operator[](size_t idx) { return color[idx]; }
-//  AT_DECL_EXPLICIT_DNA
-//};
+struct Color {
+  union {
+    uint8_t color[4];
+    uint32_t num = 0;
+  };
+  Color() = default;
+  Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) {
+    color[0] = r;
+    color[1] = g;
+    color[2] = b;
+    color[3] = a;
+  }
+
+  Color(float r, float g, float b, float a = 1.f) {
+    color[0] = r * 255;
+    color[1] = g * 255;
+    color[2] = b * 255;
+    color[3] = a * 255;
+  }
+
+  Color& operator=(uint8_t val) {
+    color[0] = val;
+    color[1] = val;
+    color[2] = val;
+    color[3] = val;
+    return *this;
+  }
+
+  explicit Color(uint8_t val) { *this = val; }
+  bool operator==(const Color& other) const { return num == other.num; }
+  bool operator!=(const Color& other) const { return num != other.num; }
+  uint8_t operator[](size_t idx) const { return color[idx]; }
+  uint8_t& operator[](size_t idx) { return color[idx]; }
+};
 
 } // namespace GX

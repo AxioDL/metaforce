@@ -289,7 +289,7 @@ void CWorldTransManager::DrawEnabled() {
   else {
     float t = zeus::clamp(0.f, (x0_curTime - x4_modelData->x1d0_dissolveStartTime) / 2.f, 1.f);
     DrawFirstPass(&lights);
-    SClipScreenRect rect(g_Viewport);
+    SClipScreenRect rect(CGraphics::g_Viewport);
     CGraphics::ResolveSpareTexture(rect);
 //    CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
     DrawSecondPass(&lights);
@@ -317,7 +317,7 @@ void CWorldTransManager::DrawDisabled() {
 
 void CWorldTransManager::DrawText() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CWorldTransManager::DrawText", zeus::skPurple);
-  float width = 448.f * g_Viewport.aspect;
+  float width = 448.f * CGraphics::GetViewportAspect();
   CGraphics::SetOrtho(0.f, width, 448.f, 0.f, -4096.f, 4096.f);
   CGraphics::SetViewPointMatrix(zeus::CTransform());
   CGraphics::SetModelMatrix(zeus::CTransform::Translate((width - 640.f) / 2.f, 0.f, 448.f));

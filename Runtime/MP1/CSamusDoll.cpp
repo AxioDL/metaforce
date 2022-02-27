@@ -317,7 +317,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
   float itemPulse = zeus::clamp(0.f, (std::sin(5.f * CGraphics::GetSecondsMod900()) + 1.f) * 0.5f, 1.f) *
                     (1.f - std::fabs(xc4_viewInterp));
 
-  g_Renderer->SetPerspective(55.f, g_Viewport.x8_width, g_Viewport.xc_height, 0.2f, 4096.f);
+  g_Renderer->SetPerspective(55.f, CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(), 0.2f, 4096.f);
 
   CGraphics::SetViewPointMatrix(zeus::CTransform(xb0_userRot, xa4_offset) *
                                 zeus::CTransform::Translate(0.f, xc0_userZoom, 0.f));

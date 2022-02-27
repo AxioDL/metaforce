@@ -65,7 +65,7 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const {
   CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
   g_Renderer->SetViewportOrtho(true, 0.f, 4096.f);
 
-  float vpScale = g_Viewport.xc_height / 448.f;
+  float vpScale = CGraphics::GetViewportHeight() / 448.f;
   CGraphics::SetModelMatrix(zeus::CTransform::Scale(x48_interpWindowDims.x() * 17.f * vpScale, 1.f,
                                                     x48_interpWindowDims.y() * 17.f * vpScale));
 
@@ -75,11 +75,12 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const {
   zeus::CTransform camMtx = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
   CGraphics::SetViewPointMatrix(camMtx);
   zeus::CFrustum frustum;
-  frustum.updatePlanes(camMtx, zeus::CProjection(zeus::SProjPersp(
-                                   cam->GetFov(), g_Viewport.x8_width / float(g_Viewport.xc_height), 1.f, 100.f)));
+  frustum.updatePlanes(
+      camMtx, zeus::CProjection(zeus::SProjPersp(
+                  cam->GetFov(), CGraphics::GetViewportWidth() / float(CGraphics::GetViewportHeight()), 1.f, 100.f)));
   g_Renderer->SetClippingPlanes(frustum);
-  g_Renderer->SetPerspective(cam->GetFov(), g_Viewport.x8_width, g_Viewport.xc_height, cam->GetNearClipDistance(),
-                             cam->GetFarClipDistance());
+  g_Renderer->SetPerspective(cam->GetFov(), CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(),
+                             cam->GetNearClipDistance(), cam->GetFarClipDistance());
 
   for (const SScanTarget& tgt : x13c_scanTargets) {
     if (tgt.x4_timer == 0.f)
@@ -150,8 +151,8 @@ void CPlayerVisor::UpdateScanObjectIndicators(const CStateManager& mgr, float dt
       const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
       zeus::CVector3f orbitPos = act->GetOrbitPosition(mgr);
       orbitPos = cam->ConvertToScreenSpace(orbitPos);
-      orbitPos.x() = orbitPos.x() * g_Viewport.x8_width / 2.f + g_Viewport.x8_width / 2.f;
-      orbitPos.y() = orbitPos.y() * g_Viewport.xc_height / 2.f + g_Viewport.xc_height / 2.f;
+      orbitPos.x() = orbitPos.x() * CGraphics::GetViewportWidth() / 2.f + CGraphics::GetViewportWidth() / 2.f;
+      orbitPos.y() = orbitPos.y() * CGraphics::GetViewportHeight() / 2.f + CGraphics::GetViewportHeight() / 2.f;
       bool inBox = mgr.GetPlayer().WithinOrbitScreenBox(orbitPos, mgr.GetPlayer().GetOrbitZone(),
                                                         mgr.GetPlayer().GetOrbitType());
       if (inBox != tgt.xc_inBox) {
@@ -344,7 +345,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
     t = (x3c_windowInterpTimer > scanSidesStart) ? 1.f : x3c_windowInterpTimer / scanSidesStart;
   }
 
-  const float vpScale = g_Viewport.xc_height / 448.f;
+  const float vpScale = CGraphics::GetViewportHeight() / 448.f;
   float divisor = (transFactor * ((1.f - t) * x58_scanMagInterp + t * g_tweakGui->GetScanWindowScanningAspect()) +
                    (1.f - transFactor));
   divisor = 1.f / divisor;
@@ -354,8 +355,8 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   vpH = zeus::clamp(0.f, vpH, 448.f) * vpScale;
 
   SClipScreenRect rect;
-  rect.x4_left = int((g_Viewport.x8_width - vpW) / 2.f);
-  rect.x8_top = int((g_Viewport.xc_height - vpH) / 2.f);
+  rect.x4_left = int((CGraphics::GetViewportWidth() - vpW) / 2.f);
+  rect.x8_top = int((CGraphics::GetViewportHeight() - vpH) / 2.f);
   rect.xc_width = int(vpW);
   rect.x10_height = int(vpH);
   CGraphics::ResolveSpareTexture(rect);
@@ -368,23 +369,23 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   const zeus::CTransform seventeenScale = zeus::CTransform::Scale(17.f * vpScale, 1.f, 17.f * vpScale);
   CGraphics::SetModelMatrix(seventeenScale * windowScale);
 
-  const float uvX0 = float(rect.x4_left) / float(g_Viewport.x8_width);
-  const float uvX1 = float(rect.x4_left + rect.xc_width) / float(g_Viewport.x8_width);
-  const float uvY0 = float(rect.x8_top) / float(g_Viewport.xc_height);
-  const float uvY1 = float(rect.x8_top + rect.x10_height) / float(g_Viewport.xc_height);
+  const float uvX0 = float(rect.x4_left) / float(CGraphics::GetViewportWidth());
+  const float uvX1 = float(rect.x4_left + rect.xc_width) / float(CGraphics::GetViewportWidth());
+  const float uvY0 = float(rect.x8_top) / float(CGraphics::GetViewportHeight());
+  const float uvY1 = float(rect.x8_top + rect.x10_height) / float(CGraphics::GetViewportHeight());
   std::array<CTexturedQuadFilter::Vert, 4> rttVerts{{
       {{-5.f, 0.f, 4.45f}, {uvX0, uvY0}},
       {{5.f, 0.f, 4.45f}, {uvX1, uvY0}},
       {{-5.f, 0.f, -4.45f}, {uvX0, uvY1}},
       {{5.f, 0.f, -4.45f}, {uvX1, uvY1}},
   }};
-//  if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL) {
-//    rttVerts[0].m_uv.y() = uvY1;
-//    rttVerts[1].m_uv.y() = uvY1;
-//    rttVerts[2].m_uv.y() = uvY0;
-//    rttVerts[3].m_uv.y() = uvY0;
-//  }
-//  x108_newScanPane.drawVerts(zeus::CColor(1.f, transFactor), rttVerts);
+  //  if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL) {
+  //    rttVerts[0].m_uv.y() = uvY1;
+  //    rttVerts[1].m_uv.y() = uvY1;
+  //    rttVerts[2].m_uv.y() = uvY0;
+  //    rttVerts[3].m_uv.y() = uvY0;
+  //  }
+  //  x108_newScanPane.drawVerts(zeus::CColor(1.f, transFactor), rttVerts);
 
   // No cull faces
 

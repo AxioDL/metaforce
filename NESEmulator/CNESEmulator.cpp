@@ -767,7 +767,7 @@ void CNESEmulator::Draw(const zeus::CColor& mulColor, bool filtering) {
   if (!EmulatorInst)
     return;
 
-  float widthFac = NESAspect / g_Viewport.aspect;
+  float widthFac = NESAspect / CGraphics::GetViewportAspect();
 
   Uniform uniform = {zeus::CMatrix4f{}, mulColor};
   uniform.m_matrix[0][0] = widthFac;

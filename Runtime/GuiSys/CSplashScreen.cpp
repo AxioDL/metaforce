@@ -83,7 +83,7 @@ void CSplashScreen::Draw() {
   }
 
   zeus::CRectangle rect;
-  rect.size.x() = width / (480.f * g_Viewport.aspect);
+  rect.size.x() = width / (480.f * CGraphics::GetViewportAspect());
   rect.size.y() = height / 480.f;
   rect.position.x() = 0.5f - rect.size.x() / 2.f;
   rect.position.y() = 0.5f - rect.size.y() / 2.f;

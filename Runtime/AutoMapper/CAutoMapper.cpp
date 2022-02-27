@@ -821,7 +821,7 @@ void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, CStateManager&
       } else {
         m_mouseDelta = mouseCoord - *m_lastMouseCoord;
         m_lastMouseCoord.emplace(mouseCoord);
-        m_mouseDelta.x() *= g_Viewport.aspect;
+        m_mouseDelta.x() *= CGraphics::GetViewportAspect();
         m_mouseDelta *= 100.f;
       }
     }
@@ -902,14 +902,14 @@ std::pair<int, int> CAutoMapper::FindClosestVisibleWorld(const zeus::CVector3f& 
 }
 
 zeus::CVector2i CAutoMapper::GetMiniMapViewportSize() {
-  float scaleX = g_Viewport.x8_width / 640.f;
-  float scaleY = g_Viewport.xc_height / 480.f;
+  float scaleX = CGraphics::GetViewportWidth() / 640.f;
+  float scaleY = CGraphics::GetViewportHeight() / 480.f;
   return {int(scaleX * g_tweakAutoMapper->GetMiniMapViewportWidth()),
           int(scaleY * g_tweakAutoMapper->GetMiniMapViewportHeight())};
 }
 
 zeus::CVector2i CAutoMapper::GetMapScreenViewportSize() {
-  return {int(g_Viewport.x8_width), int(g_Viewport.xc_height)};
+  return {int(CGraphics::GetViewportWidth()), int(CGraphics::GetViewportHeight())};
 }
 
 float CAutoMapper::GetMapAreaMaxDrawDepth(const CStateManager&, TAreaId aid) const {
@@ -1170,7 +1170,7 @@ void CAutoMapper::Update(float dt, CStateManager& mgr) {
   x320_bottomPanePos = std::max(0.f, std::min(x320_bottomPanePos, 1.f));
 
   if (x30c_basewidget_leftPane) {
-    float vpAspectRatio = std::max(1.78f, g_Viewport.aspect);
+    float vpAspectRatio = std::max(1.78f, CGraphics::GetViewportAspect());
     x30c_basewidget_leftPane->SetLocalTransform(
         zeus::CTransform::Translate(x318_leftPanePos * vpAspectRatio * -9.f, 0.f, 0.f) *
         x30c_basewidget_leftPane->GetTransform());

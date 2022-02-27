@@ -26,10 +26,11 @@ void CTargetingManager::Draw(const CStateManager& mgr, bool hideLockon) {
   zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
   CGraphics::SetViewPointMatrix(camXf);
   zeus::CFrustum frustum;
-  frustum.updatePlanes(camXf, zeus::SProjPersp(zeus::degToRad(curCam->GetFov()), g_Viewport.aspect, 1.f, 100.f));
+  frustum.updatePlanes(camXf,
+                       zeus::SProjPersp(zeus::degToRad(curCam->GetFov()), CGraphics::GetViewportAspect(), 1.f, 100.f));
   g_Renderer->SetClippingPlanes(frustum);
-  g_Renderer->SetPerspective(curCam->GetFov(), g_Viewport.x8_width, g_Viewport.xc_height, curCam->GetNearClipDistance(),
-                             curCam->GetFarClipDistance());
+  g_Renderer->SetPerspective(curCam->GetFov(), CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(),
+                             curCam->GetNearClipDistance(), curCam->GetFarClipDistance());
   x0_targetReticule.Draw(mgr, hideLockon);
 }
 

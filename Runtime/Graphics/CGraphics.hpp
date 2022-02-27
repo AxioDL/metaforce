@@ -52,8 +52,6 @@ struct SViewport {
   float aspect;
 };
 
-extern SViewport g_Viewport;
-
 struct SClipScreenRect {
   bool x0_valid = false;
   int x4_left = 0;
@@ -262,6 +260,23 @@ public:
   static void SetClearColor(const zeus::CColor& color);
   static void SetCopyClear(const zeus::CColor& color, float depth);
   static void SetIsBeginSceneClearFb(bool clear);
+  static u32 GetViewportLeft() { return g_Viewport.x0_left; }
+  static u32 GetViewportTop() { return g_Viewport.x4_top; }
+  static u32 GetViewportWidth() { return g_Viewport.x8_width; }
+  static u32 GetViewportHeight() { return g_Viewport.xc_height; }
+  static float GetViewportHalfWidth() { return g_Viewport.x10_halfWidth; }
+  static float GetViewportHalfHeight() { return g_Viewport.x14_halfHeight; }
+  static float GetViewportAspect() { return g_Viewport.aspect; }
+  static bool IsCroppedViewportValid() { return g_CroppedViewport.x0_valid; }
+  static int GetCroppedViewportLeft() { return g_CroppedViewport.x4_left; }
+  static int GetCroppedViewportTop() { return g_CroppedViewport.x8_top; }
+  static int GetCroppedViewportWidth() { return g_CroppedViewport.xc_width; }
+  static int GetCroppedViewportHeight() { return g_CroppedViewport.x10_height; }
+  static float GetCroppedViewportDstWidth() { return g_CroppedViewport.x14_dstWidth; }
+  static float GetCroppedViewportUVXMin() { return g_CroppedViewport.x18_uvXMin; }
+  static float GetCroppedViewportUVXMax() { return g_CroppedViewport.x1c_uvXMax; }
+  static float GetCroppedViewportUVYMin() { return g_CroppedViewport.x20_uvYMin; }
+  static float GetCroppedViewportUVYMax() { return g_CroppedViewport.x24_uvYMax; }
 
   //  static boo::IGraphicsDataFactory::Platform g_BooPlatform;
   //  static const char* g_BooPlatformName;

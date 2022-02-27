@@ -473,15 +473,15 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
 
     // No depth read/write
     // Alpha blend
-    int w =
-        (g_Viewport.x0_left + (x1c4_onScreenTex.x4_origin.x - g_Viewport.x8_width) / 2 + x1c4_onScreenTex.xc_extent.x) -
-        x1c4_onScreenTex.x4_origin.x;
-    int h =
-        (g_Viewport.x4_top + (x1c4_onScreenTex.x4_origin.y - g_Viewport.xc_height) / 2 - x1c4_onScreenTex.xc_extent.y) -
-        x1c4_onScreenTex.x4_origin.y;
-    zeus::CRectangle rect(x1c4_onScreenTex.x4_origin.x / float(g_Viewport.x8_width),
-                          x1c4_onScreenTex.x4_origin.y / float(g_Viewport.xc_height), w / float(g_Viewport.x8_width),
-                          h / float(g_Viewport.xc_height));
+    int w = (CGraphics::GetViewportLeft() + (x1c4_onScreenTex.x4_origin.x - CGraphics::GetViewportWidth()) / 2 +
+             x1c4_onScreenTex.xc_extent.x) -
+            x1c4_onScreenTex.x4_origin.x;
+    int h = (CGraphics::GetViewportTop() + (x1c4_onScreenTex.x4_origin.y - CGraphics::GetViewportHeight()) / 2 -
+             x1c4_onScreenTex.xc_extent.y) -
+            x1c4_onScreenTex.x4_origin.y;
+    zeus::CRectangle rect(x1c4_onScreenTex.x4_origin.x / float(CGraphics::GetViewportWidth()),
+                          x1c4_onScreenTex.x4_origin.y / float(CGraphics::GetViewportHeight()),
+                          w / float(CGraphics::GetViewportWidth()), h / float(CGraphics::GetViewportHeight()));
     m_onScreenQuad->draw(zeus::CColor(1.f, x1d8_onScreenTexAlpha), 1.f, rect);
   }
 
@@ -501,7 +501,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
     x34_samusHud->GetTargetingManager().Draw(stateMgr, true);
     CGraphics::SetDepthRange(DEPTH_SCREEN_ACTORS, DEPTH_GUN);
     bool scanVisor = stateMgr.GetPlayerState()->GetActiveVisor(stateMgr) == CPlayerState::EPlayerVisor::Scan;
-    if (drawVisor && x1f0_enablePlayerVisor) {
+    if (drawVisor && (x1f0_enablePlayerVisor != 0u)) {
       if (stateMgr.GetPlayer().GetCameraState() == CPlayer::EPlayerCameraState::FirstPerson)
         x20_faceplateDecor.Draw(stateMgr);
       CTargetingManager* tgtMgr = nullptr;
@@ -594,11 +594,11 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
       float zT = 1.f - zeus::clamp(0.f, (stateMgr.GetPlayer().GetDeathTime() - zStart) / 0.5f, 1.f);
       float xT = 1.f - zeus::clamp(0.f, (stateMgr.GetPlayer().GetDeathTime() - xStart) / 0.5f, 1.f);
       float colT = 1.f - zeus::clamp(0.f, (stateMgr.GetPlayer().GetDeathTime() - colStart) / 0.5f, 1.f);
-      SClipScreenRect rect(g_Viewport);
+      SClipScreenRect rect(CGraphics::g_Viewport);
       CGraphics::ResolveSpareTexture(rect);
       m_deathBlackout.draw(zeus::skBlack);
-      float z = 0.5f * (zT * zT * zT * zT * zT * (g_Viewport.xc_height - 12.f) + 12.f);
-      float x = 0.5f * (xT * (g_Viewport.x8_width - 12.f) + 12.f);
+      float z = 0.5f * (zT * zT * zT * zT * zT * (CGraphics::GetViewportHeight()- 12.f) + 12.f);
+      float x = 0.5f * (xT * (CGraphics::GetViewportWidth() - 12.f) + 12.f);
 
       const std::array<CTexturedQuadFilter::Vert, 4> verts{{
           {{-x, 0.f, z}, {0.f, 0.f}},
@@ -607,9 +607,9 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
           {{x, 0.f, -z}, {1.f, 1.f}},
       }};
 
-//      if (!m_deathRenderTexQuad)
-//        m_deathRenderTexQuad.emplace(EFilterType::Blend, CGraphics::g_SpareTexture.get());
-//      m_deathRenderTexQuad->drawVerts(zeus::CColor(1.f, colT), verts);
+      //      if (!m_deathRenderTexQuad)
+      //        m_deathRenderTexQuad.emplace(EFilterType::Blend, CGraphics::g_SpareTexture.get());
+      //      m_deathRenderTexQuad->drawVerts(zeus::CColor(1.f, colT), verts);
 
       if (!m_deathDotQuad)
         m_deathDotQuad.emplace(EFilterType::Multiply, x50_deathDot);
