@@ -29,6 +29,7 @@ ImTextureID ImGuiEngine::metaforceIcon;
 void ImGuiEngine_Initialize(float scale) {
   ImGui::GetCurrentContext();
   ImGuiIO& io = ImGui::GetIO();
+  io.Fonts->Clear();
 
   auto* fontData = new uint8_t[NOTO_MONO_FONT_DECOMPRESSED_SZ];
   {

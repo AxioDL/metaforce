@@ -52,11 +52,18 @@ void process_event(const SDL_Event& event) noexcept {
 }
 
 void new_frame(const WindowSize& size) noexcept {
+  if (g_scale != size.scale) {
+    if (g_scale > 0.f) {
+      // TODO wgpu backend bug: doesn't clear bind groups on invalidate
+      g_resources.ImageBindGroups.Clear();
+      ImGui_ImplWGPU_CreateDeviceObjects();
+    }
+    g_scale = size.scale;
+  }
   ImGui_ImplWGPU_NewFrame();
   ImGui_ImplSDL2_NewFrame();
 
   // Render at full DPI
-  g_scale = size.scale;
   ImGui::GetIO().DisplaySize = ImVec2{static_cast<float>(size.fb_width), static_cast<float>(size.fb_height)};
   ImGui::NewFrame();
 }

@@ -73,6 +73,9 @@ static bool poll_events() noexcept {
           break;
         }
         if (size.scale != g_windowSize.scale) {
+          if (g_windowSize.scale > 0.f) {
+            Log.report(logvisor::Info, FMT_STRING("Display scale changed to {}"), size.scale);
+          }
           g_AppDelegate->onAppDisplayScaleChanged(size.scale);
         }
         g_windowSize = size;
