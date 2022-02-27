@@ -5,16 +5,33 @@
 
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/GCNTypes.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/IObj.hpp"
 #include "Runtime/Streams/IOStreams.hpp"
-#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CGraphicsPalette.hpp"
 
 namespace metaforce {
 class CVParamTransfer;
 class CTextureInfo;
 
 class CTexture {
+  class CDumpedBitmapDataReloader {
+    int x0_;
+    u32 x4_;
+    int x8_;
+    u32 xc_;
+    bool x10_;
+    int x14_;
+    void* x18_;
+  };
+
 public:
+  enum class EClampMode {
+    Clamp,
+    Repeat,
+    Mirror,
+  };
+
   enum class EFontType {
     None = -1,
     OneLayer = 0,        /* Fill bit0 */
@@ -29,8 +46,16 @@ private:
   ETexelFormat x0_fmt;
   u16 x4_w;
   u16 x6_h;
-  u32 x8_mips;
-//  boo::ObjToken<boo::ITexture> m_booTex;
+  u8 x8_mips;
+  u8 x9_bitsPerPixel;
+  u32 xc_memoryAllocated;
+  std::unique_ptr<CGraphicsPalette> x10_graphicsPalette;
+  std::unique_ptr<CDumpedBitmapDataReloader> x14_bitmapReloader;
+  u32 x18_gxFormat;
+  u32 x1c_gxCIFormat;
+  /* GXTexObj x20_texObj */
+  EClampMode x40_clampMode;
+
   aurora::gfx::TextureHandle m_tex;
   aurora::gfx::TextureHandle m_paletteTex;
   std::unique_ptr<u8[]> m_otex;
@@ -56,10 +81,11 @@ private:
   void BuildDXT1(const void* data, size_t length, aurora::zstring_view label);
   void BuildDXT3(const void* data, size_t length, aurora::zstring_view label);
 
+  void InitBitmapBuffers(ETexelFormat fmt, s16 width, s16 height, s32 mips);
+
 public:
   CTexture(ETexelFormat, s16, s16, s32);
   CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTextureInfo* inf, CAssetId id);
-  enum class EClampMode { None, One };
   ETexelFormat GetTexelFormat() const { return x0_fmt; }
   ETexelFormat GetMemoryCardTexelFormat() const {
     return x0_fmt == ETexelFormat::C8PC ? ETexelFormat::C8 : ETexelFormat::RGB5A3;
@@ -67,14 +93,17 @@ public:
   u16 GetWidth() const { return x4_w; }
   u16 GetHeight() const { return x6_h; }
   u32 GetNumMips() const { return x8_mips; }
+  u8 GetBitsPerPixel() const { return x9_bitsPerPixel; }
   void Load(int slot, EClampMode clamp) const;
   const aurora::gfx::TextureHandle& GetTexture() const { return m_tex; }
-//  const boo::ObjToken<boo::ITexture>& GetBooTexture() const { return m_booTex; }
+  //  const boo::ObjToken<boo::ITexture>& GetBooTexture() const { return m_booTex; }
   const aurora::gfx::TextureHandle& GetPaletteTexture() const { return m_paletteTex; }
   std::unique_ptr<u8[]> BuildMemoryCardTex(u32& sizeOut, ETexelFormat& fmtOut, std::unique_ptr<u8[]>& paletteOut) const;
   const aurora::gfx::TextureHandle& GetFontTexture(EFontType tp);
 
   const CTextureInfo* GetTextureInfo() const { return m_textureInfo; }
+
+  static u32 TexelFormatBitsPerPixel(ETexelFormat fmt);
 };
 
 CFactoryFnReturn FTextureFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,

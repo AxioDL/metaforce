@@ -15,13 +15,14 @@ set(GRAPHICS_SOURCES
         CSkinnedModel.hpp CSkinnedModel.cpp
         CVertexMorphEffect.hpp CVertexMorphEffect.cpp
         CMoviePlayer.hpp CMoviePlayer.cpp
-        CGraphicsPalette.hpp
+        CGraphicsPalette.hpp CGraphicsPalette.cpp
         CPVSVisSet.hpp CPVSVisSet.cpp
         CPVSVisOctree.hpp CPVSVisOctree.cpp
         CPVSAreaSet.hpp CPVSAreaSet.cpp
         CGraphics.hpp CGraphics.cpp
         CSimpleShadow.hpp CSimpleShadow.cpp
         CRainSplashGenerator.hpp CRainSplashGenerator.cpp
+        CFont.hpp CFont.cpp
         Shaders/CLineRendererShaders.hpp Shaders/CLineRendererShaders.cpp
         Shaders/CTexturedQuadFilter.hpp Shaders/CTexturedQuadFilter.cpp
         Shaders/CColoredQuadFilter.hpp Shaders/CColoredQuadFilter.cpp

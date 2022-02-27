@@ -232,8 +232,11 @@ void CCubeRenderer::PrimColor(float, float, float, float) {}
 void CCubeRenderer::PrimColor(const zeus::CColor&) {}
 void CCubeRenderer::EndPrimitive() {}
 void CCubeRenderer::SetAmbientColor(const zeus::CColor& color) {}
-void CCubeRenderer::DrawString(const char* string, int, int) {}
-u32 CCubeRenderer::GetFPS() { return 0; }
+void CCubeRenderer::DrawString(const char* string, int x, int y) {
+  x10_font.DrawString(string, x, y, zeus::skWhite);
+}
+
+u32 CCubeRenderer::GetFPS() { return CGraphics::GetFPS(); }
 void CCubeRenderer::CacheReflection(IRenderer::TReflectionCallback cb, void* ctx, bool clearAfter) {}
 void CCubeRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength) {}
 void CCubeRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,

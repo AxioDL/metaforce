@@ -1,26 +1,28 @@
 #pragma once
 
 #include <array>
-#include <vector>
 #include <chrono>
+#include <vector>
+
 #include "optick.h"
 
 #include "Runtime/RetroTypes.hpp"
 
-#include "GX.hpp"
+#include "Runtime/Graphics/GX.hpp"
 
-#include "ConsoleVariables/CVar.hpp"
+#include "Runtime/ConsoleVariables/CVar.hpp"
 
 #include <zeus/CColor.hpp>
 #include <zeus/CTransform.hpp>
-#include <zeus/CVector2i.hpp>
 #include <zeus/CVector2f.hpp>
+#include <zeus/CVector2i.hpp>
 
 #include <aurora/gfx.hpp>
 
 using frame_clock = std::chrono::high_resolution_clock;
 
 namespace metaforce {
+class CTexture;
 extern CVar* g_disableLighting;
 class CLight;
 class CTimeProvider;
@@ -212,6 +214,10 @@ public:
   static void SetCullMode(ERglCullMode);
   static void BeginScene();
   static void EndScene();
+  static bool BeginRender2D(const CTexture& tex);
+  static void DoRender2D(const CTexture& tex, s32 x, s32 y, s32 w1, s32 w2, s32 w3, s32 w4, s32 w5,
+                         const zeus::CColor& col);
+  static void EndRender2D(bool v);
   static void SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1);
   static void SetViewPointMatrix(const zeus::CTransform& xf);
   static void SetViewMatrix();
@@ -249,78 +255,78 @@ public:
   static u32 GetFPS() { return g_Framerate; }
   static void UpdateFPSCounter();
 
-//  static boo::IGraphicsDataFactory::Platform g_BooPlatform;
-//  static const char* g_BooPlatformName;
-//  static boo::IGraphicsDataFactory* g_BooFactory;
-//  static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
-//  static boo::ObjToken<boo::ITextureR> g_SpareTexture;
+  //  static boo::IGraphicsDataFactory::Platform g_BooPlatform;
+  //  static const char* g_BooPlatformName;
+  //  static boo::IGraphicsDataFactory* g_BooFactory;
+  //  static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
+  //  static boo::ObjToken<boo::ITextureR> g_SpareTexture;
 
   static const std::array<zeus::CMatrix3f, 6> skCubeBasisMats;
 
-//  static void InitializeBoo(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cc,
-//                            const boo::ObjToken<boo::ITextureR>& spareTex) {
-//    g_BooPlatform = factory->platform();
-//    g_BooPlatformName = factory->platformName();
-//    g_BooFactory = factory;
-//    g_BooMainCommandQueue = cc;
-//    g_SpareTexture = spareTex;
-//  }
-//
-//  static void ShutdownBoo() {
-//    g_BooFactory = nullptr;
-//    g_BooMainCommandQueue = nullptr;
-//    g_SpareTexture.reset();
-//  }
-//
-//  static const char* PlatformName() { return g_BooPlatformName; }
+  //  static void InitializeBoo(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cc,
+  //                            const boo::ObjToken<boo::ITextureR>& spareTex) {
+  //    g_BooPlatform = factory->platform();
+  //    g_BooPlatformName = factory->platformName();
+  //    g_BooFactory = factory;
+  //    g_BooMainCommandQueue = cc;
+  //    g_SpareTexture = spareTex;
+  //  }
+  //
+  //  static void ShutdownBoo() {
+  //    g_BooFactory = nullptr;
+  //    g_BooMainCommandQueue = nullptr;
+  //    g_SpareTexture.reset();
+  //  }
+  //
+  //  static const char* PlatformName() { return g_BooPlatformName; }
 
-//  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs) {
-//    g_BooFactory->commitTransaction(commitFunc __BooTraceArgsUse);
-//  }
+  //  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs) {
+  //    g_BooFactory->commitTransaction(commitFunc __BooTraceArgsUse);
+  //  }
 
-//  static bool g_commitAsLazy;
-//  static void SetCommitResourcesAsLazy(bool newStatus) {
-//    if (newStatus != g_commitAsLazy) {
-//      g_commitAsLazy = newStatus;
-//      if (!newStatus && g_BooFactory) {
-//        g_BooFactory->commitPendingTransaction();
-//      }
-//    }
-//  }
-//
-//  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs) {
-//    CommitResources(commitFunc __BooTraceArgsUse, g_commitAsLazy);
-//  }
-//
-//  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs, bool lazy) {
-//    if (!g_BooFactory) {
-//      return;
-//    }
-//    if (lazy) {
-//      g_BooFactory->lazyCommitTransaction(commitFunc __BooTraceArgsUse);
-//    } else {
-//      g_BooFactory->commitTransaction(commitFunc __BooTraceArgsUse);
-//    }
-//  }
-//
-//  static void SetShaderDataBinding(const boo::ObjToken<boo::IShaderDataBinding>& binding) {
-//    g_BooMainCommandQueue->setShaderDataBinding(binding);
-//  }
+  //  static bool g_commitAsLazy;
+  //  static void SetCommitResourcesAsLazy(bool newStatus) {
+  //    if (newStatus != g_commitAsLazy) {
+  //      g_commitAsLazy = newStatus;
+  //      if (!newStatus && g_BooFactory) {
+  //        g_BooFactory->commitPendingTransaction();
+  //      }
+  //    }
+  //  }
+  //
+  //  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs) {
+  //    CommitResources(commitFunc __BooTraceArgsUse, g_commitAsLazy);
+  //  }
+  //
+  //  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs, bool lazy) {
+  //    if (!g_BooFactory) {
+  //      return;
+  //    }
+  //    if (lazy) {
+  //      g_BooFactory->lazyCommitTransaction(commitFunc __BooTraceArgsUse);
+  //    } else {
+  //      g_BooFactory->commitTransaction(commitFunc __BooTraceArgsUse);
+  //    }
+  //  }
+  //
+  //  static void SetShaderDataBinding(const boo::ObjToken<boo::IShaderDataBinding>& binding) {
+  //    g_BooMainCommandQueue->setShaderDataBinding(binding);
+  //  }
   static void ResolveSpareTexture(const SClipScreenRect& rect, int bindIdx = 0, bool clearDepth = false) {
     aurora::gfx::resolve_color({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx, clearDepth);
-//    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
-//    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, true, false, clearDepth);
+    //    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
+    //    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, true, false, clearDepth);
   }
   static void ResolveSpareDepth(const SClipScreenRect& rect, int bindIdx = 0) {
     aurora::gfx::resolve_depth({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx);
-//    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
-//    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, false, true);
+    //    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
+    //    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, false, true);
   }
-//  static void DrawInstances(size_t start, size_t count, size_t instCount, size_t startInst = 0) {
-//    g_BooMainCommandQueue->drawInstances(start, count, instCount, startInst);
-//  }
-//  static void DrawArray(size_t start, size_t count) { g_BooMainCommandQueue->draw(start, count); }
-//  static void DrawArrayIndexed(size_t start, size_t count) { g_BooMainCommandQueue->drawIndexed(start, count); }
+  //  static void DrawInstances(size_t start, size_t count, size_t instCount, size_t startInst = 0) {
+  //    g_BooMainCommandQueue->drawInstances(start, count, instCount, startInst);
+  //  }
+  //  static void DrawArray(size_t start, size_t count) { g_BooMainCommandQueue->draw(start, count); }
+  //  static void DrawArrayIndexed(size_t start, size_t count) { g_BooMainCommandQueue->drawIndexed(start, count); }
 
   static const CTevCombiners::CTevPass sTevPass805a564c;
   static const CTevCombiners::CTevPass sTevPass805a5698;
@@ -374,7 +380,7 @@ public:
     m_vec.emplace_back(std::forward<_Args>(args)...);
   }
 
-//  void Draw() const { CGraphics::DrawArray(m_start, m_vec.size() - m_start); }
+  //  void Draw() const { CGraphics::DrawArray(m_start, m_vec.size() - m_start); }
 };
 
 #ifdef BOO_GRAPHICS_DEBUG_GROUPS

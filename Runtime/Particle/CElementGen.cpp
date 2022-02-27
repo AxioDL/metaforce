@@ -918,7 +918,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       CParticle& target = x30_particles[0];
       int partFrame = x74_curFrame - target.x28_startFrame;
       cachedTex = texr->GetValueTexture(partFrame).GetObj();
-      cachedTex->Load(0, CTexture::EClampMode::One);
+      cachedTex->Load(0, CTexture::EClampMode::Repeat);
       /* Shade as TEXC * RASC and TEXA * RASA */
       if (moveRedToAlphaBuffer) {
         /* Color = Prev.rgb * Prev.a */
@@ -1043,7 +1043,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       if (!texConst) {
         CTexture* tex = texr->GetValueTexture(x74_curFrame - particle.x28_startFrame).GetObj();
         if (tex != cachedTex) {
-          tex->Load(0, CTexture::EClampMode::One);
+          tex->Load(0, CTexture::EClampMode::Repeat);
           cachedTex = tex;
         }
       }
@@ -1157,7 +1157,7 @@ void CElementGen::RenderLines() {
     CParticle& target = x30_particles[0];
     int partFrame = x74_curFrame - target.x28_startFrame;
     cachedTex = texr->GetValueTexture(partFrame).GetObj();
-    cachedTex->Load(0, CTexture::EClampMode::One);
+    cachedTex->Load(0, CTexture::EClampMode::Repeat);
 
     /* Set TEXC * RASC */
 
@@ -1187,7 +1187,7 @@ void CElementGen::RenderLines() {
     if (!constTexr) {
       CTexture* tex = texr->GetValueTexture(partFrame).GetObj();
       if (tex != cachedTex) {
-        tex->Load(0, CTexture::EClampMode::One);
+        tex->Load(0, CTexture::EClampMode::Repeat);
         cachedTex = tex;
       }
     }
@@ -1264,7 +1264,7 @@ void CElementGen::RenderParticles() {
     CParticle& target = x30_particles[0];
     int partFrame = x74_curFrame - target.x28_startFrame;
     cachedTex = texr->GetValueTexture(partFrame).GetObj();
-    cachedTex->Load(0, CTexture::EClampMode::One);
+    cachedTex->Load(0, CTexture::EClampMode::Repeat);
 
     if (x338_moduColor != zeus::skBlack) {
       /* Add RASC * PREVC pass for MODU color loaded into channel mat-color */
@@ -1678,7 +1678,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
   CParticle& firstParticle = x30_particles[0];
   int partFrame = x74_curFrame - firstParticle.x28_startFrame;
   CTexture* cachedTex = texr->GetValueTexture(partFrame).GetObj();
-  cachedTex->Load(0, CTexture::EClampMode::One);
+  cachedTex->Load(0, CTexture::EClampMode::Repeat);
 
   SUVElementSet uvs = {0.f, 0.f, 1.f, 1.f};
   bool constTexr = texr->HasConstantTexture();
@@ -1687,7 +1687,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
 
   CUVElement* tind = desc->x58_x44_TIND.get();
   CTexture* cachedIndTex = tind->GetValueTexture(partFrame).GetObj();
-  cachedIndTex->Load(2, CTexture::EClampMode::One);
+  cachedIndTex->Load(2, CTexture::EClampMode::Repeat);
 
   SUVElementSet uvsInd = {0.f, 0.f, 1.f, 1.f};
   bool constIndTexr = tind->HasConstantTexture();
@@ -1734,7 +1734,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
     if (!constTexr) {
       CTexture* tex = texr->GetValueTexture(thisPartFrame).GetObj();
       if (tex != cachedTex) {
-        tex->Load(0, CTexture::EClampMode::One);
+        tex->Load(0, CTexture::EClampMode::Repeat);
         cachedTex = tex;
       }
     }
@@ -1742,7 +1742,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
     if (!constIndTexr) {
       CTexture* tex = tind->GetValueTexture(thisPartFrame).GetObj();
       if (tex != cachedIndTex) {
-        tex->Load(2, CTexture::EClampMode::One);
+        tex->Load(2, CTexture::EClampMode::Repeat);
         cachedIndTex = tex;
       }
     }

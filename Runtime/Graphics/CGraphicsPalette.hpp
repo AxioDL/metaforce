@@ -4,6 +4,7 @@
 #include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {
+class CInputStream;
 
 enum class EPaletteFormat {
   IA8 = 0x0,
@@ -12,24 +13,19 @@ enum class EPaletteFormat {
 };
 
 class CGraphicsPalette {
+  static u32 sCurrentFrameCount;
   friend class CTextRenderBuffer;
   EPaletteFormat x0_fmt;
-  u32 x4_;
-  int x8_entryCount;
-  std::unique_ptr<u16[]> xc_entries;
-  /* x10_ GXTlutObj here */
-  bool x1c_ = false;
+  u32 x4_frameLoaded{};
+  u32 x8_entryCount;
+  std::unique_ptr<u8[]> xc_entries;
+  /* GXTlutObj x10_; */
+  bool x1c_locked = false;
 
 public:
-  explicit CGraphicsPalette(EPaletteFormat fmt, int count)
-  : x0_fmt(fmt), x8_entryCount(count), xc_entries(new u16[count]) {}
-  explicit CGraphicsPalette(CInputStream& in) : x0_fmt(EPaletteFormat(in.ReadLong())) {
-    u16 w = in.ReadShort();
-    u16 h = in.ReadShort();
-    x8_entryCount = w * h;
+  explicit CGraphicsPalette(EPaletteFormat fmt, int count);
 
-    /* GX Tlut init here */
-  }
+  explicit CGraphicsPalette(CInputStream& in);
 };
 
 } // namespace metaforce

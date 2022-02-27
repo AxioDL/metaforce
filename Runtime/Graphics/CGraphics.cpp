@@ -3,6 +3,7 @@
 #include "Runtime/CTimeProvider.hpp"
 #include "Runtime/Graphics/CLight.hpp"
 #include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Graphics/Shaders/CTextSupportShader.hpp"
 #include "Runtime/GuiSys/CGuiSys.hpp"
 
@@ -144,6 +145,12 @@ void CGraphics::EndScene() {
 
   UpdateFPSCounter();
 }
+
+bool CGraphics::BeginRender2D(const CTexture& tex) { return false; }
+
+void CGraphics::DoRender2D(const CTexture& tex, s32 x, s32 y, s32 w1, s32 w2, s32 w3, s32 w4, s32 w5,
+                           const zeus::CColor& col) {}
+void CGraphics::EndRender2D(bool v) {}
 
 void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1) {}
 

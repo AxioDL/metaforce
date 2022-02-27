@@ -707,12 +707,36 @@ static std::string_view TextureFormatString(ETexelFormat format) {
   }
 }
 
-CTexture::CTexture(ETexelFormat fmt, s16 w, s16 h, s32 mips) : x0_fmt(fmt), x4_w(w), x6_h(h), x8_mips(mips) {
-  /*
-  x64_ = sMangleMipmaps;
+u32 CTexture::TexelFormatBitsPerPixel(ETexelFormat fmt) {
+  switch(fmt) {
+  case ETexelFormat::I4:
+  case ETexelFormat::C4:
+  case ETexelFormat::CMPR:
+    return 4;
+  case ETexelFormat::I8:
+  case ETexelFormat::IA4:
+  case ETexelFormat::C8:
+    return 8;
+  case ETexelFormat::IA8:
+  case ETexelFormat::C14X2:
+  case ETexelFormat::RGB565:
+  case ETexelFormat::RGB5A3:
+    return 16;
+  case ETexelFormat::RGBA8:
+    return 32;
+  default:
+    return 0;
+  }
+}
+
+
+CTexture::CTexture(ETexelFormat fmt, s16 w, s16 h, s32 mips)
+: x0_fmt(fmt), x4_w(w), x6_h(h), x8_mips(mips), x9_bitsPerPixel(TexelFormatBitsPerPixel(fmt)) {
+#if 0
+  x64_ = sCurrentFrameCount;
   InitBitmapBuffers(fmt, w, h, mips);
   InitTextureObjs();
-  */
+#endif
 }
 
 CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTextureInfo* inf, CAssetId id)
@@ -723,6 +747,7 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTex
   x4_w = r.ReadShort();
   x6_h = r.ReadShort();
   x8_mips = r.ReadLong();
+  x9_bitsPerPixel = TexelFormatBitsPerPixel(x0_fmt);
 
   auto label = fmt::format(FMT_STRING("TXTR {:08X} ({})"), id.Value(), TextureFormatString(x0_fmt));
   switch (x0_fmt) {
@@ -826,10 +851,11 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
           const RGBA8* source = sourceMip + (x6_h - (baseY + y) - 1) * w + baseX;
           for (int x = 0; x < 4; ++x) {
             if (source[x].a == 0xff) {
-              *texel++ = CBasics::SwapBytes(u16((source[x].r >> 3 << 10) | (source[x].g >> 3 << 5) | (source[x].b >> 3)));
+              *texel++ =
+                  CBasics::SwapBytes(u16((source[x].r >> 3 << 10) | (source[x].g >> 3 << 5) | (source[x].b >> 3)));
             } else {
               *texel++ = CBasics::SwapBytes(u16((source[x].r >> 4 << 8) | (source[x].g >> 4 << 4) | (source[x].b >> 4) |
-                                        (source[x].a >> 5 << 12)));
+                                                (source[x].a >> 5 << 12)));
             }
           }
         }

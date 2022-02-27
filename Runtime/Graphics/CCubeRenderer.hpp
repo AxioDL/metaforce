@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Graphics/CCubeModel.hpp"
-#include "Graphics/CPVSVisSet.hpp"
-#include "Graphics/CTexture.hpp"
-#include "IRenderer.hpp"
-#include "CRandom16.hpp"
+#include "Runtime/Graphics/CCubeModel.hpp"
+#include "Runtime/Graphics/CPVSVisSet.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Graphics/IRenderer.hpp"
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/Graphics/CFont.hpp"
 
 #include <list>
 
@@ -51,7 +52,7 @@ class CCubeRenderer final : public IRenderer {
 private:
   IFactory& x8_factory;
   IObjectStore& xc_store;
-  // CFont x10_font{1.f};
+  CFont x10_font{1.f};
   // u32 x18_ = 0;
   std::list<CAreaListItem> x1c_areaListItems;
   // TODO x34...x40

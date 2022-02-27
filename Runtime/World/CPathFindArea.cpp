@@ -48,8 +48,9 @@ u32 CPFAreaOctree::GetChildIndex(const zeus::CVector3f& point) const {
 }
 
 rstl::prereserved_vector<CPFRegion*>* CPFAreaOctree::GetRegionList(const zeus::CVector3f& point) {
-  if (x0_isLeaf)
+  if (x0_isLeaf != 0u) {
     return &x48_regions;
+  }
   return x28_children[GetChildIndex(point)]->GetRegionList(point);
 }
 

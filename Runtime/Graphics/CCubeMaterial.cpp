@@ -54,7 +54,7 @@ void CCubeMaterial::SetCurrent(const CModelFlags& flags, const CCubeSurface& sur
     materialDataCur += 8;
     for (u32 i = 0; i < texCount; ++i) {
       u32 texIdx = SBig(*reinterpret_cast<const u32*>(materialDataCur));
-      sRenderingModel->GetTexture(texIdx)->Load(i, CTexture::EClampMode::One);
+      sRenderingModel->GetTexture(texIdx)->Load(i, CTexture::EClampMode::Repeat);
       materialDataCur += 4;
     }
   }
