@@ -41,7 +41,10 @@ static float SfxVolume = 1.f;
 
 void CMoviePlayer::Initialize() { TjHandle = tjInitDecompress(); }
 
-void CMoviePlayer::Shutdown() { tjDestroy(TjHandle); }
+void CMoviePlayer::Shutdown() {
+  tjDestroy(TjHandle);
+  TjHandle = nullptr;
+}
 
 void CMoviePlayer::THPHeader::swapBig() {
   magic = SBig(magic);

@@ -378,6 +378,8 @@ void CMain::InitializeSubsystems() {
   CDecalManager::Initialize();
   CGBASupport::Initialize();
   CPatterned::Initialize();
+  // Metaforce additions
+  CMoviePlayer::Initialize();
 }
 
 void CMain::MemoryCardInitializePump() {
@@ -693,12 +695,13 @@ void CMain::Draw() {
 }
 
 void CMain::ShutdownSubsystems() {
-  CMoviePlayer::Shutdown();
   CDecalManager::Shutdown();
   CElementGen::Shutdown();
   CAnimData::FreeCache();
   CMemoryCardSys::Shutdown();
   CMappableObject::Shutdown();
+  // Metaforce additions
+  CMoviePlayer::Shutdown();
 }
 
 void CMain::Shutdown() {

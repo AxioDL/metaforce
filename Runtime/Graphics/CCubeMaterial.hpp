@@ -1,5 +1,6 @@
 #pragma once
 
+#include <compare>
 #include <memory>
 #include <vector>
 
@@ -146,7 +147,7 @@ public:
   [[nodiscard]] u32 GetUsedTextureSlots() const { return static_cast<u32>(GetFlags()) >> 16; }
   [[nodiscard]] u32 GetTextureCount() const { return SBig(*reinterpret_cast<const u32*>(x0_data + 4)); }
   [[nodiscard]] u32 GetVertexDesc() const {
-    return SBig(*reinterpret_cast<const u32*>(&x0_data + (GetTextureCount() * 4) + 8));
+    return SBig(*reinterpret_cast<const u32*>(x0_data + (GetTextureCount() * 4) + 8));
   }
 
   static void ResetCachedMaterials();
