@@ -64,7 +64,7 @@ void new_frame(const WindowSize& size) noexcept {
   ImGui_ImplSDL2_NewFrame();
 
   // Render at full DPI
-  ImGui::GetIO().DisplaySize = ImVec2{static_cast<float>(size.fb_width), static_cast<float>(size.fb_height)};
+  ImGui::GetIO().DisplaySize = {static_cast<float>(size.fb_width), static_cast<float>(size.fb_height)};
   ImGui::NewFrame();
 }
 

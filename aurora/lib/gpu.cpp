@@ -128,7 +128,9 @@ void initialize(SDL_Window* window) {
   g_Adapter.GetProperties(&g_AdapterProperties);
   g_backendType = g_AdapterProperties.backendType;
   const auto backendName = magic_enum::enum_name(g_backendType);
-  Log.report(logvisor::Info, FMT_STRING("Using {} graphics backend"), backendName);
+  Log.report(logvisor::Info, FMT_STRING("Graphics adapter information\n  API: {}\n  Device: {} ({})\n  Driver: {}"),
+             backendName, g_AdapterProperties.name, magic_enum::enum_name(g_AdapterProperties.adapterType),
+             g_AdapterProperties.driverDescription);
 
   {
     const std::array<wgpu::FeatureName, 1> requiredFeatures{

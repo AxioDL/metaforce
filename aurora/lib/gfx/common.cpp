@@ -121,7 +121,11 @@ bool get_dxt_compression_supported() noexcept { return g_device.HasFeature(wgpu:
 void set_cull_mode(metaforce::ERglCullMode mode) noexcept {}
 void set_blend_mode(metaforce::ERglBlendMode mode, metaforce::ERglBlendFactor src, metaforce::ERglBlendFactor dst,
                     metaforce::ERglLogicOp op) noexcept {}
-void set_depth_mode(bool compare_enable, metaforce::ERglEnum func, bool update_enable) {}
+void set_depth_mode(bool compare_enable, metaforce::ERglEnum func, bool update_enable) noexcept {}
+void set_gx_reg1_color(const zeus::CColor& color) noexcept {}
+void set_alpha_update(bool enabled) noexcept {}
+void set_dst_alpha(bool enabled, float value) noexcept {}
+void set_clear_color(const zeus::CColor& color) noexcept {}
 
 // Model state
 void set_alpha_discard(bool v) {}

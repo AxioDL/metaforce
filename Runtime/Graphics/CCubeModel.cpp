@@ -157,6 +157,7 @@ void CCubeModel::DrawFlat(TVectorRef positions, TVectorRef normals, ESurfaceSele
     while (surface != nullptr) {
       const auto mat = GetMaterialByIndex(surface->GetMaterialIndex());
       // TODO draw
+      surface = surface->GetNextSurface();
     }
   }
   if (surfaces != ESurfaceSelection::Unsorted) {
@@ -164,6 +165,7 @@ void CCubeModel::DrawFlat(TVectorRef positions, TVectorRef normals, ESurfaceSele
     while (surface != nullptr) {
       const auto mat = GetMaterialByIndex(surface->GetMaterialIndex());
       // TODO draw
+      surface = surface->GetNextSurface();
     }
   }
 }

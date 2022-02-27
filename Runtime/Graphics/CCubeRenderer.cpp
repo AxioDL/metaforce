@@ -203,6 +203,7 @@ void CCubeRenderer::ReallyDrawPhazonSuitEffect(const zeus::CColor& modColor, con
 void CCubeRenderer::DoPhazonSuitIndirectAlphaBlur(float blurRadius, float f2, const TLockedToken<CTexture>& indTex) {}
 void CCubeRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry,
                                       const CAreaRenderOctTree* octTree, int areaIdx) {}
+
 void CCubeRenderer::EnablePVS(const CPVSVisSet& set, u32 areaIdx) {
   if (!xdc_) {
     xc8_pvs.emplace(set);
@@ -213,7 +214,9 @@ void CCubeRenderer::EnablePVS(const CPVSVisSet& set, u32 areaIdx) {
 
   xe0_pvsAreaIdx = areaIdx;
 }
+
 void CCubeRenderer::DisablePVS() { xc8_pvs.reset(); }
+
 void CCubeRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) {}
 void CCubeRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender) {}
 void CCubeRenderer::DrawSortedGeometry(int areaIdx, int mask, int targetMask) {}
@@ -230,9 +233,11 @@ void CCubeRenderer::AddParticleGen(CParticleGen& gen) {
     Buckets::Insert(closestPoint, *bounds, EDrawableType::Particle, reinterpret_cast<void*>(&gen), xb0_viewPlane, 0);
   }
 }
+
 void CCubeRenderer::AddParticleGen(CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds) {
   Buckets::Insert(pos, bounds, EDrawableType::Particle, reinterpret_cast<void*>(&gen), xb0_viewPlane, 0);
 }
+
 void CCubeRenderer::AddPlaneObject(void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type) {
 
   auto closestPoint = aabb.closestPointAlongVector(xb0_viewPlane.normal());
@@ -258,6 +263,7 @@ void CCubeRenderer::AddPlaneObject(void* obj, const zeus::CAABox& aabb, const ze
     Buckets::InsertPlaneObject(closestDist, furthestDist, aabb, invertTest, plane, zOnly, EDrawableType(type + 2), obj);
   }
 }
+
 void CCubeRenderer::AddDrawable(void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode,
                                 IRenderer::EDrawableSorting sorting) {
   if (sorting == EDrawableSorting::UnsortedCallback) {
@@ -266,6 +272,7 @@ void CCubeRenderer::AddDrawable(void* obj, const zeus::CVector3f& pos, const zeu
     Buckets::Insert(pos, aabb, EDrawableType(mode + 2), obj, xb0_viewPlane, 0);
   }
 }
+
 void CCubeRenderer::SetDrawableCallback(IRenderer::TDrawableCallback cb, void* ctx) {
   xa8_drawableCallback = cb;
   xac_drawableCallbackUserData = ctx;
@@ -276,9 +283,11 @@ void CCubeRenderer::SetWorldViewpoint(const zeus::CTransform& xf) {
   auto front = xf.frontVector();
   xb0_viewPlane = zeus::CPlane(front, front.dot(xf.origin));
 }
+
 void CCubeRenderer::SetPerspective(float fovy, float aspect, float znear, float zfar) {
   CGraphics::SetPerspective(fovy, aspect, znear, zfar);
 }
+
 void CCubeRenderer::SetPerspective(float fovy, float width, float height, float znear, float zfar) {
   CGraphics::SetPerspective(fovy, width / height, znear, zfar);
 }
@@ -286,11 +295,14 @@ void CCubeRenderer::SetPerspective(float fovy, float width, float height, float 
 std::pair<zeus::CVector2f, zeus::CVector2f> CCubeRenderer::SetViewportOrtho(bool centered, float znear, float zfar) {
   return std::pair<zeus::CVector2f, zeus::CVector2f>();
 }
+
 void CCubeRenderer::SetClippingPlanes(const zeus::CFrustum& frustum) { x44_frustumPlanes = frustum; }
+
 void CCubeRenderer::SetViewport(int left, int bottom, int width, int height) {
   CGraphics::SetViewport(left, bottom, width, height);
   CGraphics::SetScissor(left, bottom, width, height);
 }
+
 void CCubeRenderer::BeginScene() {
   CGraphics::SetUseVideoFilter(true);
   CGraphics::SetViewport(0, 0, CGraphics::g_Viewport.x8_width, CGraphics::g_Viewport.xc_height);
@@ -314,10 +326,11 @@ void CCubeRenderer::BeginScene() {
   }
 
   // GXSetPixelFmt(x318_26_requestRGBA6, GX_ZC_LINEAR);
-  // GXSetAlphaUpdate(true);
-  // GXSetDstAlpha(true, 0);
+  aurora::gfx::set_alpha_update(true);
+  aurora::gfx::set_dst_alpha(true, 0.f);
   CGraphics::BeginScene();
 }
+
 void CCubeRenderer::EndScene() {
   x318_31_persistRGBA6 = !CGraphics::g_IsBeginSceneClearFb;
   CGraphics::EndScene();
@@ -332,14 +345,9 @@ void CCubeRenderer::EndScene() {
 void CCubeRenderer::SetDebugOption(IRenderer::EDebugOption option, int value) {
   if (option == EDebugOption::PVSState) {
     xc8_pvs->SetState(EPVSVisSetState(value));
-    return;
-  }
-
-  if (option == EDebugOption::PVSMode) {
+  } else if (option == EDebugOption::PVSMode) {
     xc0_pvsMode = EPVSMode(value);
-  }
-
-  if (option == EDebugOption::FogDisabled) {
+  } else if (option == EDebugOption::FogDisabled) {
     x318_28_disableFog = true;
   }
 }
@@ -375,12 +383,16 @@ void CCubeRenderer::SetThermalColdScale(float scale) {}
 void CCubeRenderer::DoThermalBlendCold() {}
 void CCubeRenderer::DoThermalBlendHot() {}
 u32 CCubeRenderer::GetStaticWorldDataSize() { return 0; }
+
 void CCubeRenderer::SetGXRegister1Color(const zeus::CColor& color) {
   CGraphics::g_ColorRegs[1] = color;
-  // GXSetTevColor(GX_TEVREG1, color);
+  aurora::gfx::set_gx_reg1_color(color);
 }
+
 void CCubeRenderer::SetWorldLightFadeLevel(float level) { x2fc_tevReg1Color = zeus::CColor(level, level, level, 1.f); }
+
 void CCubeRenderer::SetWorldLightMultiplyColor(const zeus::CColor& color) { CGraphics::g_ColorRegs[2] = color; }
+
 void CCubeRenderer::PrepareDynamicLights(const std::vector<CLight>& lights) {}
 void CCubeRenderer::AllocatePhazonSuitMaskTexture() {}
 void CCubeRenderer::DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectMod,
