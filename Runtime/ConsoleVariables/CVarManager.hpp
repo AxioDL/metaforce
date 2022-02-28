@@ -108,6 +108,7 @@ private:
 
   std::unordered_map<std::string, std::unique_ptr<CVar>> m_cvars;
   std::unordered_map<std::string, std::string> m_deferedCVars;
+  std::vector<StoreCVar::CVar> loadCVars(const std::string& filename) const;
 };
 
 } // namespace hecl

@@ -88,6 +88,8 @@ set(RUNTIME_SOURCES_B
         Streams/CMemoryInStream.hpp
         Streams/CZipInputStream.hpp Streams/CZipInputStream.cpp
         Streams/ContainerReaders.hpp
+        Streams/CTextInStream.hpp Streams/CTextInStream.cpp
+        Streams/CTextOutStream.hpp Streams/CTextOutStream.cpp
         CGameAllocator.hpp CGameAllocator.cpp
         CMemoryCardSys.hpp CMemoryCardSys.cpp
         CScannableObjectInfo.hpp CScannableObjectInfo.cpp

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cctype>
 #include <string>
+#include <sstream>
 
 namespace metaforce {
 class CInputStream;
@@ -42,7 +43,71 @@ public:
     return s;
   }
 
+  static inline void ToLower(std::string& str) { std::transform(str.begin(), str.end(), str.begin(), ::tolower); }
   static std::string ReadString(CInputStream& in);
+  static inline bool ParseBool(std::string_view boolean, bool* valid) {
+    std::string val(boolean);
+    // compare must be case insensitive
+    // This is the cleanest solution since I only need to do it once
+    ToLower(val);
+
+    // Check for true first
+    if (val == "true" || val == "1" || val == "yes" || val == "on") {
+      if (valid)
+        *valid = true;
+
+      return true;
+    }
+
+    // Now false
+    if (val == "false" || val == "0" || val == "no" || val == "off") {
+      if (valid)
+        *valid = true;
+
+      return false;
+    }
+
+    // Well that could've gone better
+
+    if (valid)
+      *valid = false;
+
+    return false;
+  }
+
+  static inline std::vector<std::string>& Split(std::string_view s, char delim, std::vector<std::string>& elems) {
+    std::string tmps(s);
+    std::stringstream ss(tmps);
+    std::string item;
+
+    while (std::getline(ss, item, delim)) {
+      elems.push_back(item);
+    }
+
+    return elems;
+  }
+
+  static inline std::vector<std::string> Split(std::string_view s, char delim) {
+    std::vector<std::string> elems;
+    Split(s, delim, elems);
+    return elems;
+  }
+
+  static inline std::string LeftTrim(const std::string &s)
+  {
+    size_t start = s.find_first_not_of(" \n\r\t\f\v");
+    return (start == std::string::npos) ? "" : s.substr(start);
+  }
+
+  static inline std::string RightTrim(const std::string &s)
+  {
+    size_t end = s.find_last_not_of(" \n\r\t\f\v");
+    return (end == std::string::npos) ? "" : s.substr(0, end + 1);
+  }
+
+  static inline std::string Trim(const std::string &s) {
+    return RightTrim(LeftTrim(s));
+  }
 };
 
 } // namespace metaforce

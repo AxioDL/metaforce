@@ -17,6 +17,7 @@ void CMemoryStreamOut::Write(const u8* ptr, u32 len) {
 
   if (len != 0) {
     memcpy(x7c_ptr + x84_position, ptr, len);
+    x84_position += len;
   }
 }
 }
