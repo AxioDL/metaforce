@@ -2,6 +2,7 @@
 
 #include "gpu.hpp"
 
+#include "Runtime/ConsoleVariables/FileStoreManager.hpp"
 #include <SDL.h>
 #include <aurora/aurora.hpp>
 #include <aurora/imgui.hpp>
