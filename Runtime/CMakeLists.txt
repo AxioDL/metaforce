@@ -137,6 +137,7 @@ set(RUNTIME_SOURCES_B
         GCNTypes.hpp
         CTextureCache.hpp CTextureCache.cpp
         CMayaSpline.hpp CMayaSpline.cpp
+        ImGuiPlayerLoadouts.hpp ImGuiPlayerLoadouts.cpp
         ${PLAT_SRCS})
 
 function(add_runtime_common_library name)

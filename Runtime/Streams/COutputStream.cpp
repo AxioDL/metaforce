@@ -78,27 +78,27 @@ void COutputStream::Put(const u8* ptr, u32 len) {
 }
 
 void COutputStream::WriteBits(u32 val, u32 bitCount) {
-  const u32 bitOffset = x18_shiftRegisterOffset;
-  if (x18_shiftRegisterOffset < bitCount) {
+  const s32 shiftAmt = x18_shiftRegisterOffset - s32(bitCount);
+  if (shiftAmt < 0) {
     /* OR remaining bits to cached value */
-    const u32 shiftAmt = (bitCount - x18_shiftRegisterOffset);
-    const u32 mask = bitOffset == 32 ? -1 : (1 << bitOffset) - 1;
+    const u32 mask = (1U << x18_shiftRegisterOffset) - 1;
+    x14_shiftRegister |= (val >> u32(-shiftAmt)) & mask;
 
     /* Write out 32-bits */
-    x14_shiftRegister |= (val >> shiftAmt) & mask;
-    x18_shiftRegisterOffset = 0;
     FlushShiftRegister();
 
     /* Cache remaining bits */
-    x14_shiftRegister = (val & (shiftAmt == 32 ? -1 : (1 << shiftAmt) - 1)) << (32 - shiftAmt);
-    x18_shiftRegisterOffset -= shiftAmt;
+    x18_shiftRegisterOffset = 0x20 + shiftAmt;
+    x14_shiftRegister = val << x18_shiftRegisterOffset;
   } else {
     /* OR bits to cached value */
-    const u32 mask = bitOffset == 0x20 ? -1 : (1 << bitOffset) - 1;
-    x14_shiftRegister |= (val & mask) << (bitOffset - bitCount);
+    const u32 mask = bitCount == 32 ? UINT32_MAX : ((1U << bitCount) - 1);
+    x14_shiftRegister |= (val & mask) << u32(shiftAmt);
+
     /* New bit offset */
     x18_shiftRegisterOffset -= bitCount;
   }
+
 }
 
 void COutputStream::WriteChar(u8 c) {
@@ -193,6 +193,14 @@ void coutput_stream_helper(const double& t, COutputStream& out) {
 }
 template <>
 void coutput_stream_helper(const std::string& t, COutputStream& out) {
+  for (size_t i = 0; i < t.size() + 1; ++i) {
+    out.FlushShiftRegister();
+    out.Put(t[i]);
+  }
+}
+
+template <>
+void coutput_stream_helper(const std::string_view& t, COutputStream& out) {
   for (size_t i = 0; i < t.size() + 1; ++i) {
     out.FlushShiftRegister();
     out.Put(t[i]);
