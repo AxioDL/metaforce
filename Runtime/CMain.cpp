@@ -580,7 +580,7 @@ int main(int argc, char** argv) {
   }
 
   SetupBasics(IsClientLoggingEnabled(argc, argv));
-  metaforce::FileStoreManager fileMgr{"metaforce"};
+  metaforce::FileStoreManager fileMgr{"AxioDL", "metaforce"};
   metaforce::CVarManager cvarMgr{fileMgr};
   metaforce::CVarCommons cvarCmns{cvarMgr};
 

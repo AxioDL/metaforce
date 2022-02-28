@@ -13,6 +13,7 @@ void CTextOutStream::WriteString(const char* str, u32 len) {
     } else if (str[i] == '\n' && !wroteCarriageReturn) {
       m_out->WriteChar('\r');
       wroteLineFeed = true;
+      wroteCarriageReturn = true;
     }
     m_out->WriteChar(str[i]);
   }
