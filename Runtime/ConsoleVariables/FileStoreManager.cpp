@@ -23,7 +23,7 @@ FileStoreManager* g_instance = nullptr;
 }
 
 FileStoreManager::FileStoreManager(std::string_view org, std::string_view domain) : m_org(org), m_domain(domain) {
-  if (g_instance == this) {
+  if (g_instance != nullptr) {
     Log.report(logvisor::Fatal, FMT_STRING("Attempting to build another FileStoreManager!!"));
     return;
   }
