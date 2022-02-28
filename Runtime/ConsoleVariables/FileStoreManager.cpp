@@ -17,9 +17,17 @@ using namespace Windows::Storage;
 #endif
 
 namespace metaforce {
+namespace {
 static logvisor::Module Log("FileStoreManager");
+FileStoreManager* g_instance = nullptr;
+}
 
 FileStoreManager::FileStoreManager(std::string_view org, std::string_view domain) : m_org(org), m_domain(domain) {
+  if (g_instance == this) {
+    Log.report(logvisor::Fatal, FMT_STRING("Attempting to build another FileStoreManager!!"));
+    return;
+  }
+
   auto prefPath = SDL_GetPrefPath(org.data(), domain.data());
   if (prefPath == nullptr) {
 #if _WIN32
@@ -64,6 +72,14 @@ FileStoreManager::FileStoreManager(std::string_view org, std::string_view domain
   } else {
     m_storeRoot = std::string(prefPath);
   }
+  g_instance = this;
 }
 
+FileStoreManager* FileStoreManager::instance() {
+  if (g_instance == nullptr) {
+    Log.report(logvisor::Fatal, FMT_STRING("Requested FileStoreManager instance before it's built!"));
+    return nullptr;
+  }
+  return g_instance;
+}
 } // namespace hecl::Runtime

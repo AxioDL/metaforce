@@ -102,6 +102,8 @@ public:
 
   void parseCommandLine(const std::vector<std::string>& args);
 
+  FileStoreManager& fileStoreManager() { return m_store; }
+
 private:
   bool suppressDeveloper();
   void restoreDeveloper(bool oldDeveloper);

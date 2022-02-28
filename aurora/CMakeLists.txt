@@ -29,7 +29,7 @@ add_library(aurora STATIC
     lib/gfx/colored_quad/shader.cpp
     )
 target_compile_definitions(aurora PRIVATE IMGUI_USER_CONFIG="imconfig_user.h") # IMGUI_USE_WCHAR32
-target_include_directories(aurora PUBLIC include ../Runtime)
+target_include_directories(aurora PUBLIC include ../ )
 target_include_directories(aurora PRIVATE ../imgui ../extern/imgui)
 target_include_directories(aurora PRIVATE
     ../extern/dawn/src

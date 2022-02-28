@@ -16,11 +16,16 @@ using gpu::g_queue;
 
 static float g_scale;
 
+static std::string g_imguiSettings{};
+static std::string g_imguiLog{};
 void create_context() noexcept {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
-  io.IniFilename = nullptr;
+  g_imguiSettings = std::string(metaforce::FileStoreManager::instance()->getStoreRoot()) + "/imgui.ini";
+  g_imguiLog = std::string(metaforce::FileStoreManager::instance()->getStoreRoot()) + "/imgui.log";
+  io.IniFilename = g_imguiSettings.c_str();
+  io.LogFilename = g_imguiLog.c_str();
 }
 
 void initialize(SDL_Window* window) noexcept {
