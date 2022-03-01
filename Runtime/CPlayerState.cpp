@@ -4,6 +4,7 @@
 #include <array>
 #include <cstring>
 
+#include "Runtime/CStringExtras.hpp"
 #include "Runtime/CMemoryCardSys.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -437,7 +438,7 @@ CPlayerState::EItemType CPlayerState::ItemNameToType(std::string_view name) {
   }};
 
   std::string lowName{name};
-  CBasics::ToLower(lowName);
+  CStringExtras::ToLower(lowName);
 
   const auto iter = std::find_if(typeNameMap.cbegin(), typeNameMap.cend(),
                                  [&lowName](const auto& entry) { return entry.first == lowName; });

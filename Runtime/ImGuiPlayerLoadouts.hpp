@@ -1,23 +1,27 @@
 #pragma once
 
-#include <athena/DNA.hpp>
-#include <athena/DNAYaml.hpp>
+#include "Runtime/CPlayerState.hpp"
 
 namespace metaforce {
-struct ImGuiPlayerLoadouts : athena::io::DNA<athena::Endian::Big> {
-  AT_DECL_DNA_YAML
-  struct Item : athena::io::DNA<athena::Endian::Big> {
-    AT_DECL_DNA_YAML
-    String<-1> type;
-    Value<u32> amount;
+struct ImGuiPlayerLoadouts {
+  struct Item {
+    CPlayerState::EItemType type = CPlayerState::EItemType::Invalid;
+    u32 amount = 0;
+    Item() = default;
+    explicit Item(CInputStream& in);
+    void PutTo(COutputStream& out) const;
   };
-  struct LoadOut : athena::io::DNA<athena::Endian::Big> {
-    AT_DECL_DNA_YAML
-    String<-1> name;
-    Value<u32> itemCount;
-    Vector<Item, AT_DNA_COUNT(itemCount)> items;
+  struct LoadOut{
+    std::string name;
+    std::vector<Item> items;
+    LoadOut() = default;
+    explicit LoadOut(CInputStream& in);
+    void PutTo(COutputStream& out) const;
   };
-  Value<u32> loadoutCount;
-  Vector<LoadOut, AT_DNA_COUNT(loadoutCount)> loadouts;
+  std::vector<LoadOut> loadouts;
+
+  ImGuiPlayerLoadouts() = default;
+  explicit ImGuiPlayerLoadouts(CInputStream& in);
+  void PutTo(COutputStream& out) const;
 };
 } // namespace metaforce

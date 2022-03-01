@@ -263,7 +263,7 @@ static void RenderEntityColumns(const ImGuiEntityEntry& entry) {
 }
 
 void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
-  float initialWindowSize = 400.f * ImGui::GetIO().DisplayFramebufferScale.x;
+  float initialWindowSize = 400.f * aurora::get_window_size().scale;
   ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize * 1.5f}, ImGuiCond_FirstUseEver);
 
   if (ImGui::Begin("Inspect", isOpen)) {
@@ -383,7 +383,7 @@ bool ImGuiConsole::ShowEntityInfoWindow(TUniqueId uid) {
 
 void ImGuiConsole::ShowConsoleVariablesWindow() {
   // For some reason the window shows up tiny without this
-  float initialWindowSize = 350.f * ImGui::GetIO().DisplayFramebufferScale.x;
+  float initialWindowSize = 350.f * aurora::get_window_size().scale;
   ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize}, ImGuiCond_FirstUseEver);
   if (ImGui::Begin("Console Variables", &m_showConsoleVariablesWindow)) {
     if (ImGui::Button("Clear")) {
@@ -633,7 +633,7 @@ std::optional<std::string> ImGuiConsole::ShowAboutWindow(bool canClose, std::str
     flags |= ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove;
   }
   if (ImGui::Begin("About", open, flags)) {
-    float iconSize = 128.f * ImGui::GetIO().DisplayFramebufferScale.x;
+    float iconSize = 128.f * aurora::get_window_size().scale;
     ImGui::SameLine(ImGui::GetWindowSize().x / 2 - iconSize + (iconSize / 2));
     ImGui::Image(ImGuiEngine::metaforceIcon, ImVec2{iconSize, iconSize});
     ImGui::PushFont(ImGuiEngine::fontLarge);
@@ -942,7 +942,7 @@ void ImGuiConsole::ShowInputViewer() {
   }
   ImGui::SetNextWindowBgAlpha(0.65f);
   if (ImGui::Begin("Input Overlay", nullptr, windowFlags)) {
-    float scale = ImGui::GetIO().DisplayFramebufferScale.x;
+    float scale = aurora::get_window_size().scale;
     if (!m_controllerName.empty()) {
       TextCenter(m_controllerName);
       ImGui::Separator();
@@ -1508,7 +1508,7 @@ void ImGuiConsole::ShowItemsWindow() {
 
 void ImGuiConsole::ShowLayersWindow() {
   // For some reason the window shows up tiny without this
-  float initialWindowSize = 350.f * ImGui::GetIO().DisplayFramebufferScale.x;
+  float initialWindowSize = 350.f * aurora::get_window_size().scale;
   ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize}, ImGuiCond_FirstUseEver);
 
   if (ImGui::Begin("Layers", &m_showLayersWindow)) {

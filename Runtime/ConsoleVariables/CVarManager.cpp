@@ -2,7 +2,11 @@
 
 #include "Runtime/ConsoleVariables/FileStoreManager.hpp"
 #include "Runtime/CBasics.hpp"
-
+#include "Runtime/Streams/CTextInStream.hpp"
+#include "Runtime/Streams/CTextOutStream.hpp"
+#include "Runtime/Streams/CMemoryInStream.hpp"
+#include "Runtime/Streams/CMemoryStreamOut.hpp"
+#include "Runtime/CStringExtras.hpp"
 #include <logvisor/logvisor.hpp>
 #include <algorithm>
 #include <memory>
@@ -19,8 +23,7 @@ static const std::regex cmdLineRegex(R"(\+([\w\.]+)([=])?([\/\\\s\w\.\-]+)?)");
 CVarManager* CVarManager::m_instance = nullptr;
 
 static logvisor::Module CVarLog("CVarManager");
-CVarManager::CVarManager(FileStoreManager& store, bool useBinary)
-: m_store(store), m_useBinary(useBinary) {
+CVarManager::CVarManager(FileStoreManager& store, bool useBinary) : m_store(store), m_useBinary(useBinary) {
   m_instance = this;
   com_configfile =
       newCVar("config", "File to store configuration", std::string("config"),
@@ -38,7 +41,7 @@ CVarManager::~CVarManager() {}
 
 CVar* CVarManager::registerCVar(std::unique_ptr<CVar>&& cvar) {
   std::string tmp(cvar->name());
-  CBasics::ToLower(tmp);
+  CStringExtras::ToLower(tmp);
 
   if (m_cvars.find(tmp) != m_cvars.end()) {
     return nullptr;
@@ -51,7 +54,7 @@ CVar* CVarManager::registerCVar(std::unique_ptr<CVar>&& cvar) {
 
 CVar* CVarManager::findCVar(std::string_view name) {
   std::string lower(name);
-  CBasics::ToLower(lower);
+  CStringExtras::ToLower(lower);
   auto search = m_cvars.find(lower);
   if (search == m_cvars.end())
     return nullptr;
@@ -78,15 +81,14 @@ std::vector<CVar*> CVarManager::cvars(CVar::EFlags filter) const {
 }
 
 void CVarManager::deserialize(CVar* cvar) {
-  /* Make sure we're not trying to deserialize a CVar that is invalid or not exposed, unless it's been specified on the
-   * command line (i.e deferred) */
+  /* Make sure we're not trying to deserialize a CVar that is invalid*/
   if (!cvar) {
     return;
   }
 
   /* First let's check for a deferred value */
   std::string lowName = cvar->name().data();
-  CBasics::ToLower(lowName);
+  CStringExtras::ToLower(lowName);
   if (const auto iter = m_deferedCVars.find(lowName); iter != m_deferedCVars.end()) {
     std::string val = std::move(iter->second);
     m_deferedCVars.erase(lowName);
@@ -106,103 +108,89 @@ void CVarManager::deserialize(CVar* cvar) {
   if (!cvar->isArchive() && !cvar->isInternalArchivable()) {
     return;
   }
-#if 0 // TODO: Reimplement this
   /* We were either unable to find a deferred value or got an invalid value */
-  std::string filename =
-      std::string(m_store.getStoreRoot()) + '/' + com_configfile->toLiteral();
-  CBascis::Sstat st;
-
-  if (m_useBinary) {
-    CVarContainer container;
-    filename += ".bin";
-    if (CBascis::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
-      return;
-    athena::io::FileReader reader(filename);
-    if (reader.isOpen())
-      container.read(reader);
-
-    if (container.cvars.size() > 0) {
-      auto serialized = std::find_if(container.cvars.begin(), container.cvars.end(),
-                                     [&cvar](const DNACVAR::CVar& c) { return c.m_name == cvar->name(); });
-
-      if (serialized != container.cvars.end()) {
-        DNACVAR::CVar& tmp = *serialized;
-
-        if (cvar->m_value != tmp.m_value) {
-          CVarUnlocker lc(cvar);
-          cvar->fromLiteralToType(tmp.m_value);
-          cvar->m_wasDeserialized = true;
-        }
-      }
-    }
-  } else {
-    filename += ".yaml";
-    if (Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
-      return;
-    athena::io::FileReader reader(filename);
-    if (reader.isOpen()) {
-      athena::io::YAMLDocReader docReader;
-      if (docReader.parse(&reader)) {
-        std::unique_ptr<athena::io::YAMLNode> root = docReader.releaseRootNode();
-        auto serialized = std::find_if(root->m_mapChildren.begin(), root->m_mapChildren.end(),
-                                       [&cvar](const auto& c) { return c.first == cvar->name(); });
-
-        if (serialized != root->m_mapChildren.end()) {
-          const std::unique_ptr<athena::io::YAMLNode>& tmp = serialized->second;
-
-          if (cvar->m_value != tmp->m_scalarString) {
-            CVarUnlocker lc(cvar);
-            cvar->fromLiteralToType(tmp->m_scalarString);
-            cvar->m_wasDeserialized = true;
-          }
-        }
-      }
+  std::string filename = std::string(m_store.getStoreRoot()) + '/' + com_configfile->toLiteral() + ".yaml";
+  auto container = loadCVars(filename);
+  auto serialized =
+      std::find_if(container.cbegin(), container.cend(), [&cvar](const auto& c) { return c.m_name == cvar->name(); });
+  if (serialized != container.cend()) {
+    if (cvar->m_value != serialized->m_value) {
+      CVarUnlocker lc(cvar);
+      cvar->fromLiteralToType(serialized->m_value);
+      cvar->m_wasDeserialized = true;
     }
   }
-#endif
 }
 
 void CVarManager::serialize() {
-#if 0 // TODO: reimplement this
-  std::string filename =
-      std::string(m_store.getStoreRoot()) + '/' + com_configfile->toLiteral();
+  std::string filename = std::string(m_store.getStoreRoot()) + '/' + com_configfile->toLiteral() + ".yaml";
 
-  if (m_useBinary) {
-    CVarContainer container;
-    for (const auto& pair : m_cvars) {
-      const auto& cvar = pair.second;
+  /* If we have an existing config load it in, so we can update it */
+  auto container = loadCVars(filename);
 
-      if (cvar->isArchive() || (cvar->isInternalArchivable() && cvar->wasDeserialized() && !cvar->hasDefaultValue())) {
-        container.cvars.push_back(*cvar);
+  u32 minLength = 0;
+  for (const auto& pair : m_cvars) {
+    const auto& cvar = pair.second;
+
+    if (cvar->isArchive() || (cvar->isInternalArchivable() && cvar->wasDeserialized() && !cvar->hasDefaultValue())) {
+      /* Look for an existing CVar in the file... */
+      auto serialized =
+          std::find_if(container.begin(), container.end(), [&cvar](const auto& c) { return c.m_name == cvar->name(); });
+      if (serialized != container.end()) {
+        /* Found it! Update the value */
+        serialized->m_value = cvar->value();
+      } else {
+        /* Store this value as a new CVar in the config */
+        container.emplace_back(StoreCVar::CVar{std::string(cvar->name()), cvar->value()});
       }
+      /* Compute length needed for this cvar */
+      minLength += cvar->name().length() + cvar->value().length() + 2;
     }
-    container.cvarCount = u32(container.cvars.size());
-
-    filename += ".bin";
-    athena::io::FileWriter writer(filename);
-    if (writer.isOpen())
-      container.write(writer);
-  } else {
-    filename += ".yaml";
-
-    athena::io::FileReader r(filename);
-    athena::io::YAMLDocWriter docWriter(r.isOpen() ? &r : nullptr);
-    r.close();
-
-    docWriter.setStyle(athena::io::YAMLNodeStyle::Block);
-    for (const auto& pair : m_cvars) {
-      const auto& cvar = pair.second;
-
-      if (cvar->isArchive() || (cvar->isInternalArchivable() && cvar->wasDeserialized() && !cvar->hasDefaultValue())) {
-        docWriter.writeString(cvar->name().data(), cvar->toLiteral());
-      }
-    }
-
-    athena::io::FileWriter w(filename);
-    if (w.isOpen())
-      docWriter.finish(&w);
   }
-#endif
+
+  // Allocate enough space to write all the strings with some space to spare
+  const auto requiredLen = minLength + (4 * container.size());
+  std::unique_ptr<u8[]> workBuf(new u8[requiredLen]);
+  CMemoryStreamOut memOut(workBuf.get(), requiredLen);
+  CTextOutStream textOut(memOut);
+  for (const auto& cvar : container) {
+    textOut.WriteString(fmt::format(FMT_STRING("{}: {}"), cvar.m_name, cvar.m_value));
+  }
+
+  auto* file = fopen(filename.c_str(), "wbe");
+  if (file != nullptr) {
+    fwrite(workBuf.get(), 1, memOut.GetWritePosition(), file);
+  }
+  fclose(file);
+}
+
+std::vector<StoreCVar::CVar> CVarManager::loadCVars(const std::string& filename) const {
+  std::vector<StoreCVar::CVar> ret;
+  CBasics::Sstat st;
+  if (CBasics::Stat(filename.c_str(), &st) == 0 && S_ISREG(st.st_mode)) {
+
+    auto* file = fopen(filename.c_str(), "rbe");
+    if (file != nullptr) {
+
+      std::unique_ptr<u8[]> inBuf(new u8[st.st_size]);
+      fread(inBuf.get(), 1, st.st_size, file);
+      fclose(file);
+      CMemoryInStream mem(inBuf.get(), st.st_size, CMemoryInStream::EOwnerShip::NotOwned);
+      CTextInStream textIn(mem, st.st_size);
+      while (!textIn.IsEOF()) {
+        auto cvString = textIn.GetNextLine();
+        if (cvString.empty()) {
+          continue;
+        }
+        auto parts = CStringExtras::Split(cvString, ':');
+        if (parts.size() < 2) {
+          continue;
+        }
+        ret.emplace_back(StoreCVar::CVar{CStringExtras::Trim(parts[0]), CStringExtras::Trim(parts[1])});
+      }
+    }
+  }
+  return ret;
 }
 
 CVarManager* CVarManager::instance() { return m_instance; }
@@ -234,7 +222,7 @@ bool CVarManager::restartRequired() const {
 void CVarManager::parseCommandLine(const std::vector<std::string>& args) {
   bool oldDeveloper = suppressDeveloper();
   std::string developerName(com_developer->name());
-  CBasics::ToLower(developerName);
+  CStringExtras::ToLower(developerName);
   for (const std::string& arg : args) {
     if (arg[0] != '+') {
       continue;
@@ -267,13 +255,13 @@ void CVarManager::parseCommandLine(const std::vector<std::string>& args) {
         cv->fromLiteralToType(cvarValue);
       }
       cv->m_wasDeserialized = true;
-      CBasics::ToLower(cvarName);
+      CStringExtras::ToLower(cvarName);
       if (developerName == cvarName)
         /* Make sure we're not overriding developer mode when we restore */
         oldDeveloper = com_developer->toBoolean();
     } else {
       /* Unable to find an existing CVar, let's defer for the time being 8 */
-      CBasics::ToLower(cvarName);
+      CStringExtras::ToLower(cvarName);
       m_deferedCVars.insert_or_assign(std::move(cvarName), std::move(cvarValue));
     }
   }
@@ -303,4 +291,4 @@ void CVarManager::proc() {
   }
 }
 
-} // namespace hecl
+} // namespace metaforce

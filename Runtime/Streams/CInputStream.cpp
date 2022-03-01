@@ -89,32 +89,36 @@ u32 CInputStream::ReadBytes(void* dest, u32 len) {
   return curReadLen;
 }
 
-u32 CInputStream::ReadBits(u32 bitCount) {
-  u32 ret = x20_bitOffset;
-  if (ret < bitCount) {
-    const u32 shiftAmt = bitCount - x20_bitOffset;
-    const u32 mask = ret == 32 ? -1 : (1 << x20_bitOffset) - 1;
 
-    u32 uVar2 = x1c_bitWord;
-    x20_bitOffset = 0;
-    u32 len = min_containing_bytes(shiftAmt);
-    Get(reinterpret_cast<u8*>(&x1c_bitWord), len);
+u32 CInputStream::ReadBits(u32 bitCount) {
+  u32 ret = 0;
+  const s32 shiftAmt = x20_bitOffset - s32(bitCount);
+  if (shiftAmt < 0) {
+    /* OR in remaining bits of cached value */
+    u32 mask = bitCount == 32 ? UINT32_MAX : ((1U << bitCount) - 1);
+    ret |= (x1c_bitWord << u32(-shiftAmt)) & mask;
+    /* Load in exact number of bytes remaining */
+    auto loadDiv = std::div(-shiftAmt, 8);
+    if (loadDiv.rem != 0) {
+      ++loadDiv.quot;
+    }
+    Get(reinterpret_cast<u8*>(&x1c_bitWord) + 4 - loadDiv.quot, loadDiv.quot);
 #if METAFORCE_TARGET_BYTE_ORDER == __ORDER_LITTLE_ENDIAN__
     x1c_bitWord = CBasics::SwapBytes(x1c_bitWord);
 #endif
-
-    const u32 retMask = shiftAmt == 32 ? -1 : (1 << shiftAmt) - 1;
-    const u32 tmpOffset = x20_bitOffset;
-    x20_bitOffset = len * 8;
-    ret = ((mask & uVar2) >> (32 - ret) << shiftAmt) | (retMask & (x1c_bitWord >> (32 - shiftAmt))) << tmpOffset;
-    x20_bitOffset -= shiftAmt;
-    x1c_bitWord <<= shiftAmt;
+    /* New bit offset */
+    x20_bitOffset = loadDiv.quot * 8 + shiftAmt;
+    /* OR in next bits */
+    mask = (1U << u32(-shiftAmt)) - 1;
+    ret |= (x1c_bitWord >> x20_bitOffset) & mask;
   } else {
+    /* OR in bits of cached value */
+    const u32 mask = bitCount == 32 ? UINT32_MAX : ((1U << bitCount) - 1);
+    ret |= (x1c_bitWord >> u32(shiftAmt)) & mask;
+    /* New bit offset */
     x20_bitOffset -= bitCount;
-    ret = bitCount == 32 ? -1 : (1 << bitCount) - 1;
-    ret &= x1c_bitWord >> (32 - bitCount);
-    x1c_bitWord <<= bitCount;
   }
+
   return ret;
 }
 

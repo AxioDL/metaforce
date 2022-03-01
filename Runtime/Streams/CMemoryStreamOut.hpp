@@ -22,5 +22,6 @@ public:
   ~CMemoryStreamOut() override;
 
   void Write(const u8* ptr, u32 len) override;
+  u32 GetWritePosition() const { return x84_position; }
 };
 } // namespace metaforce

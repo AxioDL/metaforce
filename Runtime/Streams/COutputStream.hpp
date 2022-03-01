@@ -86,4 +86,6 @@ template <>
 void coutput_stream_helper(const double& t, COutputStream& out);
 template <>
 void coutput_stream_helper(const std::string& t, COutputStream& out);
+template <>
+void coutput_stream_helper(const std::string_view& t, COutputStream& out);
 } // namespace metaforce
