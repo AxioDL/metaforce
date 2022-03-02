@@ -16,7 +16,7 @@ COutputStream::COutputStream(u8* ptr, s32 len) : x8_bufLen(len) {
 }
 
 COutputStream::~COutputStream() {
-  if (x8_bufLen < 64) {
+  if (x8_bufLen > 64) {
     delete[] xc_ptr;
   }
 }

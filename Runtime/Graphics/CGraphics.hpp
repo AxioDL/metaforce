@@ -95,6 +95,7 @@ struct SClipScreenRect {
 };
 
 enum class ETexelFormat {
+  Invalid = -1,
   I4 = 0,
   I8 = 1,
   IA4 = 2,

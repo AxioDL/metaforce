@@ -621,7 +621,7 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
 
       bool found = false;
       for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks()) {
-        if (*(pak->GetPath().end() - 6) == '0' + m_warpWorldIdx) {
+        if (*(pak->GetPath().end() - 5) == '0' + m_warpWorldIdx) {
           found = true;
           break;
         }

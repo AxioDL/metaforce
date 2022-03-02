@@ -244,6 +244,37 @@ enum BlendFactor : uint16_t {
   BL_INVDSTALPHA
 };
 
+enum TextureFormat : uint32_t {
+  TF_I4 = 0x0,
+  TF_I8 = 0x1,
+  TF_IA4 = 0x2,
+  TF_IA8 = 0x3,
+  TF_RGB565 = 0x4,
+  TF_RGB5A3 = 0x5,
+  TF_RGBA8 = 0x6,
+  TF_C4 = 0x8,
+  TF_C8 = 0x9,
+  TF_C14X2 = 0xa,
+  TF_CMPR = 0xE,
+  TF_Z8 = 0x11,
+  TF_Z16 = 0x13,
+  TF_Z24X8 = 0x16,
+  CTF_R4 = 0x20,
+  CTF_RA4 = 0x22,
+  CTF_RA8 = 0x23,
+  CTF_YUVA8 = 0x26,
+  CTF_A8 = 0x27,
+  CTF_R8 = 0x28,
+  CTF_G8 = 0x29,
+  CTF_B8 = 0x2a,
+  CTF_RG8 = 0x2b,
+  CTF_GB8 = 0x2c,
+  CTF_Z4 = 0x30,
+  CTF_Z8M = 0x39,
+  CTF_Z8L = 0x3a,
+  CTF_Z16L = 0x3c,
+};
+
 struct Color {
   union {
     uint8_t color[4];

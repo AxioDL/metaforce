@@ -6,13 +6,10 @@ CTextInStream::CTextInStream(CInputStream& in, int len) : m_in(&in), m_len(len) 
 
 std::string CTextInStream::GetNextLine() {
   std::string ret;
-  while (true) {
+  while (!IsEOF()) {
     auto chr = m_in->ReadChar();
     ret += chr;
-    if (ret.back() == '\r' || ret.back() == '\n') {
-      if (ret.back() == '\r') {
-        m_in->ReadChar();
-      }
+    if (ret.back() == '\n') {
       break;
     }
   }

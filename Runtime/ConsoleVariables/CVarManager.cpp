@@ -129,10 +129,12 @@ void CVarManager::serialize() {
   auto container = loadCVars(filename);
 
   u32 minLength = 0;
+  bool write = false;
   for (const auto& pair : m_cvars) {
     const auto& cvar = pair.second;
 
     if (cvar->isArchive() || (cvar->isInternalArchivable() && cvar->wasDeserialized() && !cvar->hasDefaultValue())) {
+      write = true;
       /* Look for an existing CVar in the file... */
       auto serialized =
           std::find_if(container.begin(), container.end(), [&cvar](const auto& c) { return c.m_name == cvar->name(); });
@@ -143,23 +145,34 @@ void CVarManager::serialize() {
         /* Store this value as a new CVar in the config */
         container.emplace_back(StoreCVar::CVar{std::string(cvar->name()), cvar->value()});
       }
-      /* Compute length needed for this cvar */
-      minLength += cvar->name().length() + cvar->value().length() + 2;
     }
+  }
+  /* Compute length needed for all cvars */
+  std::for_each(container.cbegin(), container.cend(),
+                [&minLength](const auto& cvar) { minLength += cvar.m_name.length() + cvar.m_value.length() + 2; });
+  /* Only write the CVars if any have been modified */
+  if (!write) {
+    return;
   }
 
   // Allocate enough space to write all the strings with some space to spare
   const auto requiredLen = minLength + (4 * container.size());
   std::unique_ptr<u8[]> workBuf(new u8[requiredLen]);
-  CMemoryStreamOut memOut(workBuf.get(), requiredLen);
+  CMemoryStreamOut memOut(workBuf.get(), requiredLen, CMemoryStreamOut::EOwnerShip::NotOwned, 32);
   CTextOutStream textOut(memOut);
   for (const auto& cvar : container) {
-    textOut.WriteString(fmt::format(FMT_STRING("{}: {}"), cvar.m_name, cvar.m_value));
+    auto str = fmt::format(FMT_STRING("{}: {}"), cvar.m_name, cvar.m_value);
+    textOut.WriteString(str);
   }
 
   auto* file = fopen(filename.c_str(), "wbe");
   if (file != nullptr) {
-    fwrite(workBuf.get(), 1, memOut.GetWritePosition(), file);
+    u32 writeLen = memOut.GetWritePosition();
+    u32 offset = 0;
+    while (offset < writeLen) {
+      offset += fwrite(workBuf.get() + offset, 1, writeLen - offset, file);
+    }
+    fflush(file);
   }
   fclose(file);
 }

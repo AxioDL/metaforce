@@ -704,6 +704,8 @@ static std::string_view TextureFormatString(ETexelFormat format) {
     return "CMPRPC"sv;
   case ETexelFormat::CMPRPCA:
     return "CMPRPCA"sv;
+  default:
+    return "Invalid"sv;
   }
 }
 
