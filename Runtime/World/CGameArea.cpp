@@ -885,23 +885,19 @@ std::pair<const u8*, u32> CGameArea::GetLayerScriptBuffer(int layer) const {
 void CGameArea::PostConstructArea() {
   SMREAHeader header = VerifyHeader();
 
-  auto secIt = m_resolvedBufs.begin() + 2;
-
   /* Materials */
-  ++secIt;
-
-  u32 sec = 3;
+  x12c_postConstructed->x10ec_firstMatSection = 2;
 
   /* Models */
+  auto secIt = m_resolvedBufs.begin() + 3;
   x12c_postConstructed->x4c_insts.resize(header.modelCount);
   for (u32 i = 0; i < header.modelCount; ++i) {
-    u32 surfCount = CBasics::SwapBytes(*reinterpret_cast<const u32*>((secIt + 4)->first));
-    secIt += 5 + surfCount;
-    sec += 5 + surfCount;
+    u32 surfCount = CBasics::SwapBytes(*reinterpret_cast<const u32*>((secIt + 6)->first));
+    secIt += 7 + surfCount;
   }
 
   /* Render octree */
-  if (header.version == 15 && header.arotSecIdx != -1) {
+  if (header.version > 14 && header.arotSecIdx != -1) {
     x12c_postConstructed->xc_octTree.emplace(secIt->first);
     ++secIt;
   }
@@ -912,11 +908,7 @@ void CGameArea::PostConstructArea() {
   ++secIt;
 
   /* Collision section */
-  std::unique_ptr<CAreaOctTree> collision = CAreaOctTree::MakeFromMemory(secIt->first, secIt->second);
-  if (collision) {
-    x12c_postConstructed->x0_collision = std::move(collision);
-    x12c_postConstructed->x8_collisionSize = secIt->second;
-  }
+  x12c_postConstructed->x0_collision = CAreaOctTree::MakeFromMemory(secIt->first, secIt->second);
   ++secIt;
 
   /* Unknown section */
@@ -950,14 +942,16 @@ void CGameArea::PostConstructArea() {
   /* PVS section */
   if (header.version > 7) {
     CMemoryInStream r(secIt->first, secIt->second, CMemoryInStream::EOwnerShip::NotOwned);
-    u32 magic = r.ReadLong();
-    if (magic == 'VISI') {
-      x12c_postConstructed->x10a8_pvsVersion = r.ReadLong();
-      if (x12c_postConstructed->x10a8_pvsVersion == 2) {
-        x12c_postConstructed->x1108_29_pvsHasActors = r.ReadBool();
-        x12c_postConstructed->x1108_30_ = r.ReadBool();
-        x12c_postConstructed->xa0_pvs =
-            std::make_unique<CPVSAreaSet>(secIt->first + r.GetReadPosition(), secIt->second - r.GetReadPosition());
+    if (secIt->second > 0) { // TODO this works around CMemoryInStream inf loop on 0 len
+      u32 magic = r.ReadLong();
+      if (magic == 'VISI') {
+        x12c_postConstructed->x10a8_pvsVersion = r.ReadLong();
+        if (x12c_postConstructed->x10a8_pvsVersion == 2) {
+          x12c_postConstructed->x1108_29_pvsHasActors = r.ReadBool();
+          x12c_postConstructed->x1108_30_ = r.ReadBool();
+          x12c_postConstructed->xa0_pvs =
+              std::make_unique<CPVSAreaSet>(secIt->first + r.GetReadPosition(), secIt->second - r.GetReadPosition());
+        }
       }
     }
 
@@ -978,13 +972,13 @@ void CGameArea::PostConstructArea() {
   x12c_postConstructed->x10c4_areaFog = std::make_unique<CAreaFog>();
 
   /* URDE addition: preemptively fill in area models so shaders may be polled for completion */
-  if (!x12c_postConstructed->x1108_25_modelsConstructed)
-    FillInStaticGeometry();
+//  if (!x12c_postConstructed->x1108_25_modelsConstructed)
+//    FillInStaticGeometry();
 
   xf0_24_postConstructed = true;
 
   /* Resolve layer pointers */
-  if (x12c_postConstructed->x10c8_sclyBuf) {
+  if (x12c_postConstructed->x10c8_sclyBuf != nullptr) {
     CMemoryInStream r(x12c_postConstructed->x10c8_sclyBuf, x12c_postConstructed->x10d0_sclySize,
                       CMemoryInStream::EOwnerShip::NotOwned);
     FourCC magic;
@@ -1005,7 +999,7 @@ void CGameArea::PostConstructArea() {
 }
 
 void CGameArea::FillInStaticGeometry() {
-  u32 start = x12c_postConstructed->x10ec_;
+  u32 start = x12c_postConstructed->x10ec_firstMatSection;
   x12c_postConstructed->x10d4_firstMatPtr = x110_mreaSecBufs[start].first.get();
 
   // Clear the instances without resizing
@@ -1088,10 +1082,9 @@ SMREAHeader CGameArea::VerifyHeader() const {
 
   CMemoryInStream r(x110_mreaSecBufs[0].first.get() + 4, x110_mreaSecBufs[0].second - 4);
   u32 version = r.ReadLong();
-  if ((version & 0x10000) == 0) {
-    Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-URDE MREA"));
+  if ((version & 0x10000) != 0) {
+    Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-retail MREA"));
   }
-  version &= ~0x10000;
 
   SMREAHeader header;
   header.version = (version >= 12 && version <= 15) ? version : 0;

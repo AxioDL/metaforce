@@ -24,6 +24,8 @@
 namespace metaforce {
 class CStateManager;
 class CScriptAreaAttributes;
+
+// Metaforce addition: store byte-swapped data for later use
 struct SMREAHeader {
   u32 version = 0;
   zeus::CTransform xf;
@@ -195,8 +197,7 @@ public:
   };
 
   struct CPostConstructed {
-    std::unique_ptr<CAreaOctTree> x0_collision;
-    u32 x8_collisionSize = 0;
+    std::unique_ptr<CAreaOctTree> x0_collision; // was rstl::optional_object<CAreaOctTree*>
     std::optional<CAreaRenderOctTree> xc_octTree;
     std::vector<CMetroidModelInstance> x4c_insts;
     // std::unique_ptr<from unknown, pointless MREA section> x5c_;
@@ -217,7 +218,7 @@ public:
     CPFArea* x10bc_pathArea = nullptr;
     std::unique_ptr<CAreaObjectList> x10c0_areaObjs;
     std::unique_ptr<CAreaFog> x10c4_areaFog;
-    const u8* x10c8_sclyBuf = nullptr;
+    const u8* x10c8_sclyBuf = nullptr; // was rstl::optional_object<void*>
     u32 x10d0_sclySize = 0;
     const u8* x10d4_firstMatPtr = nullptr;
     const CScriptAreaAttributes* x10d8_areaAttributes = nullptr;
@@ -225,7 +226,7 @@ public:
     u32 x10e0_ = 0;
     float x10e4_occludedTime = 5.f;
     u32 x10e8_ = -1;
-    u32 x10ec_ = 0;
+    u32 x10ec_firstMatSection = 0;
     // std::vector<CAramToken> x10f0_tokens;
     u32 x1100_ = 0;
     u32 x1104_ = 0;
