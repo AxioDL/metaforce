@@ -219,7 +219,14 @@ void CCubeRenderer::DisablePVS() { xc8_pvs.reset(); }
 
 void CCubeRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) {}
 void CCubeRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender) {}
-void CCubeRenderer::DrawSortedGeometry(int areaIdx, int mask, int targetMask) {}
+void CCubeRenderer::DrawSortedGeometry(int areaIdx, int mask, int targetMask) {
+  //SetupRenderState();
+  //TODO: Loop
+  Buckets::Sort();
+  //RenderBucketItems(items);
+  //DrawRenderBucketsDebug();
+  Buckets::Clear();
+}
 void CCubeRenderer::DrawStaticGeometry(int areaIdx, int mask, int targetMask) {}
 void CCubeRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask) {}
 void CCubeRenderer::PostRenderFogs() {}
