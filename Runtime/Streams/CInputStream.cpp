@@ -31,29 +31,27 @@ bool CInputStream::InternalReadNext() {
 bool CInputStream::GrabAnotherBlock() { return InternalReadNext(); }
 
 void CInputStream::Get(u8* dest, u32 len) {
+  s32 readCount = 0;
   x20_bitOffset = 0;
-  u32 readCount = 0;
   while (len != 0) {
-    u32 blockLen = x8_blockLen - x4_blockOffset;
+    s32 blockLen = x8_blockLen - x4_blockOffset;
     if (len < blockLen) {
       blockLen = len;
     }
-    if (blockLen == 0) {
-      if (len <= 256) {
-        GrabAnotherBlock();
-      } else {
-        u32 readLen = Read(dest + readCount, len);
-        len -= readLen;
-        readCount += readLen;
-      }
-    } else {
+
+    if (blockLen != 0) {
       memcpy(dest + readCount, x10_ptr + x4_blockOffset, blockLen);
       len -= blockLen;
       readCount += blockLen;
       x4_blockOffset += blockLen;
-    }
+    } else if (len > 256) {
+      u32 readLen = Read(dest + readCount, len);
+      len -= readLen;
+      readCount += readLen;
+    } else {
+      GrabAnotherBlock();
+    };
   }
-
   x18_readPosition += readCount;
 }
 
@@ -88,7 +86,6 @@ u32 CInputStream::ReadBytes(void* dest, u32 len) {
   x18_readPosition += curReadLen;
   return curReadLen;
 }
-
 
 u32 CInputStream::ReadBits(u32 bitCount) {
   u32 ret = 0;

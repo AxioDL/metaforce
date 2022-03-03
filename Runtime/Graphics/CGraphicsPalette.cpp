@@ -19,4 +19,9 @@ CGraphicsPalette::CGraphicsPalette(CInputStream& in) : x0_fmt(EPaletteFormat(in.
   //DCFlushRange(xc_entries.get(), x8_entryCount * 2);
 }
 
+
+void CGraphicsPalette::Load() {
+  //GXLoadTlut(x10_tlutObj, 0);
+  x4_frameLoaded = sCurrentFrameCount;
+}
 } // namespace metaforce

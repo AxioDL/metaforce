@@ -1,4 +1,7 @@
-#include "DolphinCTexture.hpp"
+#include "Runtime/Graphics/DolphinCTexture.hpp"
+
+#include "Runtime/CToken.hpp"
+#include "zeus/Math.hpp"
 
 u32 GXGetTexBufferSize(u16 width, u16 height, u32 format, bool mipmap, u8 max_lod) {
   s32 shiftX = 0;
@@ -69,6 +72,10 @@ u32 GXGetTexBufferSize(u16 width, u16 height, u32 format, bool mipmap, u8 max_lo
 }
 namespace metaforce::WIP {
 
+namespace {
+static std::array<CTexture*, GX::MAX_TEXMAP> sLoadedTextures{};
+}
+
 CTexture::CTexture(ETexelFormat fmt, s16 w, s16 h, s32 mips)
 : x0_fmt(fmt)
 , x4_w(w)
@@ -90,14 +97,14 @@ CTexture::CTexture(CInputStream& in, EAutoMipmap automip, EBlackKey blackKey) {
   bool hasPalette = (x0_fmt == ETexelFormat::C4 || x0_fmt == ETexelFormat::C8 || x0_fmt == ETexelFormat::C14X2);
   if (hasPalette) {
     x10_graphicsPalette = std::make_unique<CGraphicsPalette>(in);
-    xa_25_hasPalette = true;
+    xa_25_canLoadPalette = true;
   }
   x9_bitsPerPixel = TexelFormatBitsPerPixel(x0_fmt);
   InitBitmapBuffers(x0_fmt, x4_w, x6_h, x8_mips);
   u32 bufLen = 0;
   if (x8_mips > 0) {
     for (u32 i = 0; i < x8_mips; ++i) {
-      u32 curMip = i & 3;
+      u32 curMip = i & 63;
       const u32 width = ROUND_UP_4(x4_w >> curMip);
       const u32 height = ROUND_UP_4(x6_h >> curMip);
       bufLen += (width * height * x9_bitsPerPixel) / 8;
@@ -110,8 +117,9 @@ CTexture::CTexture(CInputStream& in, EAutoMipmap automip, EBlackKey blackKey) {
       len = 256;
     }
 
-    in.Get(x44_aramToken_x4_buff.get() + i, len);
-    //DCFlushRangeNoSync(x44_aramToken_x4_buff.get() + i, ROUND_UP_32(len));
+    auto image_ptr = /*x44_aramToken.GetMRAMSafe() */ x44_aramToken_x4_buff.get();
+    in.Get(image_ptr + i, len);
+    // DCFlushRangeNoSync(x44_aramToken_x4_buff.get() + i, ROUND_UP_32(len));
   }
 
   if (sMangleMips) {
@@ -122,6 +130,83 @@ CTexture::CTexture(CInputStream& in, EAutoMipmap automip, EBlackKey blackKey) {
 
   InitTextureObjs();
 }
+
+void* CTexture::Lock() {
+  xa_24_locked = true;
+  return GetBitMapData(0);
+}
+
+void CTexture::UnLock() {
+  xa_24_locked = false;
+  CountMemory();
+  // DCFlushRange(x44_aramToken.GetMRAMSafe(), ROUND_UP_32(xc_memoryAllocated));
+}
+void CTexture::Load(GX::TexMapID id, CTexture::EClampMode clamp) {
+  if (sLoadedTextures[id] != this || xa_29_canLoadObj) {
+    auto* image_ptr = /*x44_aramToken.GetMRAMSafe() */ x44_aramToken_x4_buff.get();
+    CountMemory();
+    if (HasPalette()) {
+      x10_graphicsPalette->Load();
+      xa_25_canLoadPalette = false;
+    }
+    xa_29_canLoadObj = false;
+    if (x40_clampMode != clamp) {
+      x40_clampMode = !xa_26_isPowerOfTwo ? EClampMode::Clamp : clamp;
+      // GXInitTexObjWrapMode(x20_texObj, static_cast<u32>(x40_clampMode), static_cast<u32>(x40_clampMode));
+    }
+
+    // GXInitObjectData(x20_texObj, image_ptr);
+    // GXLoadObj(x20_texObj, id);
+    sLoadedTextures[id] = this;
+    x64_frameAllocated = sCurrentFrameCount;
+  }
+}
+void CTexture::LoadMipLevel(s32 mip, GX::TexMapID id, CTexture::EClampMode clamp) {
+
+  auto image_ptr = /*x44_aramToken.GetMRAMSafe() */ x44_aramToken_x4_buff.get();
+  u32 width = x4_w;
+  u32 height = x6_h;
+  u32 iVar15 = 0;
+  u32 offset = 0;
+  if (mip > 0) {
+    for (u32 i = 0; i < mip; ++i) {
+      offset += ROUND_UP_32(x9_bitsPerPixel * (ROUND_UP_4(width) * ROUND_UP_4(height)));
+      width /= 2;
+      height /= 2;
+    }
+  }
+
+  // GXTexObj texObj;
+  // GXInitTexObj(&texObj, image_ptr + offset, width, height, x18_gxFormat);
+  // GXInitTexObjLod(&texObj, GX_LINEAR, GX_LINEAR, 0.f, 1.f, 0.f, false, false, GX_ANISO_1);
+  if (HasPalette()) {
+    x10_graphicsPalette->Load();
+    xa_25_canLoadPalette = false;
+  }
+  // GXLoadTexObj(&texObj, mapId);
+  x64_frameAllocated = sCurrentFrameCount;
+  sLoadedTextures[id] = nullptr;
+}
+
+void CTexture::MakeSwappable() {
+  if (!xa_27_noSwap) {
+    return;
+  }
+
+  xa_27_noSwap = false;
+}
+
+const void* CTexture::GetConstBitMapData(s32 mip) const {
+  u32 buffOffset = 0;
+  if (x8_mips > 0) {
+    for (u32 i = 0; i < x8_mips; ++i) {
+      buffOffset += (x9_bitsPerPixel >> 3) * (x4_w >> (i & 0x3f)) * (x6_h >> (i & 0x3f));
+    }
+  }
+  return x44_aramToken_x4_buff.get() + buffOffset; /* x44_aramToken.GetMRAMSafe() + buffOffset*/
+}
+
+void* CTexture::GetBitMapData(s32 mip) const { return const_cast<void*>(GetConstBitMapData(mip)); }
 
 void CTexture::InitBitmapBuffers(ETexelFormat fmt, s16 width, s16 height, s32 mips) {
   switch (fmt) {
@@ -166,13 +251,31 @@ void CTexture::InitBitmapBuffers(ETexelFormat fmt, s16 width, s16 height, s32 mi
                    ? x1c_gxCIFormat
                    : x18_gxFormat;
 
-  /* I have no idea what they're doing with that last argument... */
-  xc_memoryAllocated = GXGetTexBufferSize(width, height, format, mips > 1, static_cast<u8>(mips > 1) & 11);
+  xc_memoryAllocated = GXGetTexBufferSize(width, height, format, mips > 1, mips > 1 ? 11 : 0);
   x44_aramToken_x4_buff.reset(new u8[xc_memoryAllocated]);
   /*x44_aramToken.PostConstruct(buf, xc_memoryAllocated, 1);*/
   CountMemory();
 }
-void CTexture::InitTextureObjs() {}
+void CTexture::InitTextureObjs() {
+  xa_26_isPowerOfTwo = zeus::floorPowerOfTwo(x4_w) == x4_w && zeus::floorPowerOfTwo(x6_h) == x6_h;
+
+  if (!xa_26_isPowerOfTwo) {
+    x40_clampMode = EClampMode::Clamp;
+  }
+
+  CountMemory();
+  if (IsCITexture()) {
+    // GXInitTexObjCI(x20_texObj, x44_aramToken_x4_buff.get(), x4_w, x6_h, x1c_gxCIFormat, u32(x40_clampMode),
+    //                u32(x40_clampMode), x8_mips > 1, 0);
+  } else {
+    // GXInitTexObj(x20_texObj, x44_aramToken_x4_buff.get(), x4_w, x6_h, x1c_gxCIFormat, u32(x40_clampMode),
+    //              u32(x40_clampMode), x8_mips > 1);
+    // GXInitTexObjLOD(x20_texObj, x8_mips > 1 ? GX_LIN_MIP_LIN : GX_LINEAR, 0.f, static_cast<float>(x8_mips) - 1.f,
+    // 0.f,
+    //                 false, false, x8_mips > 1 ? GX_ANISO_4 : GX_ANISO_1);
+  }
+  xa_29_canLoadObj = true;
+}
 
 void CTexture::CountMemory() {
   if (xa_28_counted) {
@@ -181,6 +284,15 @@ void CTexture::CountMemory() {
 
   xa_28_counted = true;
   sTotalAllocatedMemory += xc_memoryAllocated;
+}
+
+void CTexture::UncountMemory() {
+  if (!xa_28_counted) {
+    return;
+  }
+
+  xa_28_counted = false;
+  sTotalAllocatedMemory -= xc_memoryAllocated;
 }
 
 void CTexture::MangleMipmap(u32 mip) {
@@ -209,6 +321,12 @@ u32 CTexture::TexelFormatBitsPerPixel(ETexelFormat fmt) {
   }
 }
 
+bool CTexture::sMangleMips = false;
 u32 CTexture::sCurrentFrameCount = 0;
 u32 CTexture::sTotalAllocatedMemory = 0;
+
+CFactoryFnReturn FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
+                                 CObjectReference* selfRef) {
+  return TToken<CTexture>::GetIObjObjectFor(std::make_unique<CTexture>(in));
+}
 } // namespace metaforce::WIP

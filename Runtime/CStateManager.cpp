@@ -2490,7 +2490,12 @@ void CStateManager::ClearGraveyard() {
   x854_objectGraveyard.clear();
 }
 
-void CStateManager::FrameBegin(s32 frameCount) { x8d4_inputFrameIdx = frameCount; }
+void CStateManager::FrameBegin(s32 frameCount) {
+  x8d4_inputFrameIdx = frameCount;
+  CTexture::SetCurrentFrameCount(frameCount);
+  CGraphicsPalette::SetCurrentFrameCount(frameCount);
+  //SwapOutTexturesToARAM(2, 0x180000);
+}
 
 void CStateManager::InitializeState(CAssetId mlvlId, TAreaId aid, CAssetId mreaId) {
   const bool hadRandom = x900_activeRandom != nullptr;

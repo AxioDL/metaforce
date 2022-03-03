@@ -275,6 +275,17 @@ enum TextureFormat : uint32_t {
   CTF_Z16L = 0x3c,
 };
 
+enum TexMapID {
+  TEXMAP0,
+  TEXMAP2,
+  TEXMAP3,
+  TEXMAP4,
+  TEXMAP5,
+  TEXMAP6,
+  TEXMAP7,
+  MAX_TEXMAP,
+};
+
 struct Color {
   union {
     uint8_t color[4];

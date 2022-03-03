@@ -26,6 +26,9 @@ public:
   explicit CGraphicsPalette(EPaletteFormat fmt, int count);
 
   explicit CGraphicsPalette(CInputStream& in);
+
+  void Load();
+  static void SetCurrentFrameCount(u32 frameCount) { sCurrentFrameCount = frameCount; }
 };
 
 } // namespace metaforce

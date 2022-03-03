@@ -107,6 +107,7 @@ public:
   [[nodiscard]] const CTextureInfo* GetTextureInfo() const { return m_textureInfo; }
 
   static u32 TexelFormatBitsPerPixel(ETexelFormat fmt);
+  static void SetCurrentFrameCount(u32 frameCount) { sCurrentFrameCount = frameCount; }
 };
 
 CFactoryFnReturn FTextureFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
