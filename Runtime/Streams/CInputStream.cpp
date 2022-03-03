@@ -4,8 +4,11 @@
 #endif
 
 #include <cstring>
+#include <logvisor/logvisor.hpp>
 
 namespace metaforce {
+static logvisor::Module Log("metaforce::CInputStream");
+
 static u32 min_containing_bytes(u32 v) {
   v = 32 - v;
   v = (v >> 3) - (static_cast<s32>(-(v & 7)) >> 31);
@@ -46,6 +49,12 @@ void CInputStream::Get(u8* dest, u32 len) {
       x4_blockOffset += blockLen;
     } else if (len > 256) {
       u32 readLen = Read(dest + readCount, len);
+#ifndef NDEBUG
+      if (readLen == 0) {
+        Log.report(logvisor::Fatal, FMT_STRING("Invalid read size!"));
+        break;
+      }
+#endif
       len -= readLen;
       readCount += readLen;
     } else {

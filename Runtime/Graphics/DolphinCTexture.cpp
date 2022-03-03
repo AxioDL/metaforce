@@ -325,6 +325,10 @@ bool CTexture::sMangleMips = false;
 u32 CTexture::sCurrentFrameCount = 0;
 u32 CTexture::sTotalAllocatedMemory = 0;
 
+void CTexture::InvalidateTexMap(GX::TexMapID id) {
+  sLoadedTextures[id] = nullptr;
+}
+
 CFactoryFnReturn FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                  CObjectReference* selfRef) {
   return TToken<CTexture>::GetIObjObjectFor(std::make_unique<CTexture>(in));

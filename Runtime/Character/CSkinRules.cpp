@@ -12,8 +12,9 @@ static u32 ReadCount(CInputStream& in) {
     return in.ReadLong();
   }
   u8 junk[784];
-  for (u32 i = 0; i < (result * 3); ++i) {
-    u32 iVar2 = ((result * 3) - i);
+  u32 iVar2 = 0;
+  for (u32 i = 0; i < (result * 3); i += iVar2) {
+    iVar2 = ((result * 3) - i);
     iVar2 = 192 < iVar2 ? 192 : iVar2;
     in.Get(junk, iVar2 * 4);
   }

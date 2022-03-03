@@ -95,6 +95,7 @@ public:
     return x0_fmt == ETexelFormat::C4 || x0_fmt == ETexelFormat::C8 || x0_fmt == ETexelFormat::C14X2;
   }
 
+  static void InvalidateTexMap(GX::TexMapID id);
   static void SetMangleMips(bool b) { sMangleMips = b; }
   static void SetCurrentFrameCount(u32 frameCount) { sCurrentFrameCount = frameCount; }
 };
