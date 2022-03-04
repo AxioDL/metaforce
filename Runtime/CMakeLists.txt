@@ -61,6 +61,7 @@ set(RUNTIME_SOURCES_B
         ${PARTICLE_SOURCES}
         ${WORLD_SOURCES}
         ${WEAPON_SOURCES}
+        CInfiniteLoopDetector.hpp CInfiniteLoopDetector.cpp
         ConsoleVariables/FileStoreManager.hpp ConsoleVariables/FileStoreManager.cpp
         ConsoleVariables/CVar.hpp ConsoleVariables/CVar.cpp
         ConsoleVariables/CVarManager.hpp ConsoleVariables/CVarManager.cpp

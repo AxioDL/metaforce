@@ -2,6 +2,7 @@
 #include <string_view>
 #include <numeric>
 #include <iostream>
+#include "Runtime/CInfiniteLoopDetector.hpp"
 
 #ifdef WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -308,6 +309,10 @@ public:
   }
 
   bool onAppIdle(float realDt) noexcept override {
+#ifdef NDEBUG
+    /* Ping the watchdog to let it know we're still alive */
+    CInfiniteLoopDetector::UpdateWatchDog(std::chrono::system_clock::now());
+#endif
     if (auto* input = g_InputGenerator) {
       if (!m_deferredControllers.empty()) {
         for (const auto which : m_deferredControllers) {
@@ -605,7 +610,18 @@ int main(int argc, char** argv) {
       .width = icon.width,
       .height = icon.height,
   };
+#ifdef NDEBUG
+  /* Before we start running the app, lets get a thread going to detect any infinite loops */
+  metaforce::CInfiniteLoopDetector infiniteLoopDetector;
+  std::thread infiniteLoopDetectorThread(&metaforce::CInfiniteLoopDetector::run, &infiniteLoopDetector);
+  infiniteLoopDetectorThread.detach();
   aurora::app_run(std::move(app), std::move(data), argc, argv);
+  infiniteLoopDetector.stop();
+#else
+  /* Debuggers can interrupt the loop detector and make it unable to perform its job correctly, so lets not detect
+   * infinite loops in a debug build */
+  aurora::app_run(std::move(app), std::move(data), argc, argv);
+#endif
   return 0;
 }
 #endif

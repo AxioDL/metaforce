@@ -138,9 +138,15 @@ static bool poll_events() noexcept {
       break;
     }
     case SDL_CONTROLLERAXISMOTION: {
-      g_AppDelegate->onControllerAxis(
-          event.caxis.which, input::translate_controller_axis(static_cast<SDL_GameControllerAxis>(event.caxis.axis)),
-          event.caxis.value);
+      if (event.caxis.value > 8000 || event.caxis.value < -8000) {
+        g_AppDelegate->onControllerAxis(
+            event.caxis.which, input::translate_controller_axis(static_cast<SDL_GameControllerAxis>(event.caxis.axis)),
+            event.caxis.value);
+      } else {
+        g_AppDelegate->onControllerAxis(
+            event.caxis.which, input::translate_controller_axis(static_cast<SDL_GameControllerAxis>(event.caxis.axis)),
+            0);
+      }
       break;
     }
     case SDL_KEYDOWN: {
