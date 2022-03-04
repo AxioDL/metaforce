@@ -219,20 +219,21 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
 }
 
 DrawData make_draw_data(const State& state, const TextureHandle& tex_y, const TextureHandle& tex_u,
-                        const TextureHandle& tex_v, const zeus::CColor& color, float h_pad, float v_pad) {
+                        const TextureHandle& tex_v, const zeus::CVector3f& v1, const zeus::CVector3f& v2,
+                        const zeus::CVector3f& v3, const zeus::CVector3f& v4) {
   auto pipeline = pipeline_ref(PipelineConfig{});
 
   const std::array verts{
-      Vert{{-h_pad, v_pad, 0.f}, {0.0, 0.0}},
-      Vert{{-h_pad, -v_pad, 0.f}, {0.0, 1.0}},
-      Vert{{h_pad, v_pad, 0.f}, {1.0, 0.0}},
-      Vert{{h_pad, -v_pad, 0.f}, {1.0, 1.0}},
+      Vert{{v1.x(), v1.z(), v1.y()}, {0.0, 0.0}},
+      Vert{{v2.x(), v2.z(), v2.y()}, {0.0, 1.0}},
+      Vert{{v3.x(), v3.z(), v3.y()}, {1.0, 0.0}},
+      Vert{{v4.x(), v4.z(), v4.y()}, {1.0, 1.0}},
   };
   const auto vertRange = push_verts(ArrayRef{verts});
 
   const auto uniform = Uniform{
       .xf = Mat4x4_Identity,
-      .color = color,
+      .color = zeus::skWhite,
   };
   const auto uniformRange = push_uniform(uniform);
 

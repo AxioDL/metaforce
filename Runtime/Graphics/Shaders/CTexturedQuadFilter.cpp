@@ -201,7 +201,7 @@ CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const aurora::gfx::Te
 }
 
 CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ERglEnum ztest)
-: CTexturedQuadFilter(type, (tex ? tex->GetTexture() : aurora::gfx::TextureHandle{}), ztest) {
+: CTexturedQuadFilter(type, aurora::gfx::TextureHandle{}, ztest) {
   m_flipRect = true; // TODO?
   m_tex = tex;
 }
@@ -339,7 +339,7 @@ CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, const auror
 }
 
 CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, TLockedToken<CTexture> tex)
-: CTexturedQuadFilterAlpha(type, (tex ? tex->GetTexture() : aurora::gfx::TextureHandle{})) {
+: CTexturedQuadFilterAlpha(type, aurora::gfx::TextureHandle{}) {
   m_tex = tex;
 }
 

@@ -115,7 +115,7 @@ public:
       CAssetId x0_id;
       kabufuda::EAnimationSpeed x4_speed;
       TLockedToken<CTexture> x8_tex;
-      Icon(CAssetId id, kabufuda::EAnimationSpeed speed, CSimplePool& sp, const CVParamTransfer& cv);
+      Icon(CAssetId id, kabufuda::EAnimationSpeed speed, CSimplePool& sp);
     };
 
     enum class EStatus { Standby, Transferring, Done };
@@ -130,8 +130,6 @@ public:
     rstl::reserved_vector<Icon, 8> x50_iconToks;
     std::vector<u8> xf4_saveBuffer;
     std::vector<u8> x104_cardBuffer;
-
-    CVParamTransfer m_texParam = {new TObjOwnerParam<u32>(SBIG('OTEX'))};
 
     CCardFileInfo(kabufuda::ECardSlot port, std::string_view name) : m_handle(port), x18_fileName(name) {}
 

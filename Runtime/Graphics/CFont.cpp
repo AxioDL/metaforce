@@ -12,8 +12,8 @@ std::unique_ptr<CTexture> CFont::mpTexture;
 
 CFont::CFont(float scale) : x0_fontSize(16.f * scale), x4_scale(scale) {
   if (sNumInstances == 0) {
-    mpTexture = std::make_unique<CTexture>(ETexelFormat::I8, 256, 256, 1);
-    u8* fontData = new u8[(mpTexture->GetBitsPerPixel() * mpTexture->GetWidth() * mpTexture->GetHeight()) / 8];
+    mpTexture = std::make_unique<CTexture>(ETexelFormat::I8, 256, 256, 1, "Font Texture");
+    u8* fontData = new u8[(mpTexture->GetBitDepth() * mpTexture->GetWidth() * mpTexture->GetHeight()) / 8];
     memcpy(fontData, sSystemFont.data(), sSystemFont.size());
     // u8* textureData = mpTexture->GetBitMapData();
     // LinearToTile8(textureData, fontData);

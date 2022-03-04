@@ -36,6 +36,7 @@ struct alignas(4) Uniform {
 State construct_state();
 wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] PipelineConfig config);
 DrawData make_draw_data(const State& state, const TextureHandle& tex_y, const TextureHandle& tex_u,
-                        const TextureHandle& tex_v, const zeus::CColor& color, float h_pad, float v_pad);
+                        const TextureHandle& tex_v, const zeus::CVector3f& v1, const zeus::CVector3f& v2,
+                        const zeus::CVector3f& v3, const zeus::CVector3f& v4);
 void render(const State& state, const DrawData& data, const wgpu::RenderPassEncoder& pass);
 } // namespace aurora::gfx::movie_player

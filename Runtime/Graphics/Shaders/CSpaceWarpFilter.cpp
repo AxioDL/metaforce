@@ -36,7 +36,7 @@ void CSpaceWarpFilter::GenerateWarpRampTex() {
     }
   }
   m_warpTex = aurora::gfx::new_static_texture_2d(
-      WARP_RAMP_RES + 1, WARP_RAMP_RES + 1, 1, aurora::gfx::TextureFormat::R8,
+      WARP_RAMP_RES + 1, WARP_RAMP_RES + 1, 1, ETexelFormat::RGBA8PC,
       {reinterpret_cast<const uint8_t*>(data.data()), (WARP_RAMP_RES + 1) * (WARP_RAMP_RES + 1) * 4}, "Warp Ramp");
 }
 

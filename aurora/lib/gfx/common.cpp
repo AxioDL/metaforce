@@ -203,8 +203,9 @@ PipelineRef pipeline_ref(colored_quad::PipelineConfig config) {
 }
 
 void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v,
-                        const zeus::CColor& color, float h_pad, float v_pad) noexcept {
-  auto data = movie_player::make_draw_data(g_state.moviePlayer, tex_y, tex_u, tex_v, color, h_pad, v_pad);
+                        const zeus::CVector3f& v1, const zeus::CVector3f& v2, const zeus::CVector3f& v3,
+                        const zeus::CVector3f& v4) noexcept {
+  auto data = movie_player::make_draw_data(g_state.moviePlayer, tex_y, tex_u, tex_v, v1, v2, v3, v4);
   push_draw_command({.type = ShaderType::MoviePlayer, .moviePlayer = data});
 }
 template <>

@@ -64,11 +64,11 @@ private:
   std::optional<CPVSVisSet> xc8_pvs;
   bool xdc_{};
   u32 xe0_pvsAreaIdx = UINT32_MAX;
-  CTexture xe4_blackTex{ETexelFormat::RGB565, 4, 4, 1};
+  CTexture xe4_blackTex{ETexelFormat::RGB565, 4, 4, 1, "Black Texture"};
   std::unique_ptr<CTexture> x14c_reflectionTex;
-  CTexture x150_reflectionTex{ETexelFormat::IA8, 32, 32, 1};
-  CTexture x1b8_fogVolumeRamp{ETexelFormat::I8, 256, 256, 1};
-  CTexture x220_sphereRamp{ETexelFormat::I8, 32, 32, 1};
+  CTexture x150_reflectionTex{ETexelFormat::IA8, 32, 32, 1, "Reflection Texture"};
+  CTexture x1b8_fogVolumeRamp{ETexelFormat::I8, 256, 256, 1, "Fog Volume Ramp Texture"};
+  CTexture x220_sphereRamp{ETexelFormat::I8, 32, 32, 1, "Sphere Ramp Texture"};
   // CGraphicsPalette x288_thermoPalette{1, 16};
   CRandom16 x2a8_thermalRand{20};
   std::list<CFogVolumeListItem> x2ac_fogVolumes;

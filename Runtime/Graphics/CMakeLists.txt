@@ -10,8 +10,8 @@ set(GRAPHICS_SOURCES
         CLineRenderer.hpp CLineRenderer.cpp
         CMetroidModelInstance.cpp CMetroidModelInstance.hpp
         CLight.hpp CLight.cpp
-        DolphinCTexture.hpp DolphinCTexture.cpp
-        CTexture.hpp CTextureBoo.cpp
+        CTevCombiners.cpp CTevCombiners.hpp
+        CTexture.hpp CTexture.cpp
         CModel.cpp CModel.hpp
         CSkinnedModel.hpp CSkinnedModel.cpp
         CVertexMorphEffect.hpp CVertexMorphEffect.cpp

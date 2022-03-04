@@ -511,58 +511,61 @@ void CGraphics::SetCopyClear(const zeus::CColor& color, float depth) {
 
 void CGraphics::SetIsBeginSceneClearFb(bool clear) { g_IsBeginSceneClearFb = clear; }
 
-const CTevCombiners::CTevPass CGraphics::sTevPass805a564c{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA},
-};
+// Stream API
+static EStreamFlags sStreamFlags;
+static zeus::CColor sQueuedColor;
+static zeus::CVector2f sQueuedTexCoord;
+static zeus::CVector3f sQueuedNormal;
 
-const CTevCombiners::CTevPass CGraphics::sTevPass805a5698{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_C0, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_A0, GX::TevAlphaArg::CA_ZERO},
-};
+void CGraphics::SetTevOp(ERglTevStage stage, const CTevCombiners::CTevPass& pass) {
+  CTevCombiners::SetupPass(stage, pass);
+}
 
-const CTevCombiners::CTevPass CGraphics::sTevPass805a5e70{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_C0},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_A0},
-};
+void CGraphics::StreamBegin(GX::Primitive primitive) {
+  sStreamFlags = {};
+  aurora::gfx::stream_begin(primitive);
+}
 
-const CTevCombiners::CTevPass CGraphics::sTevPass805a5ebc{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_TEXA, GX::TevAlphaArg::CA_ZERO},
-};
+void CGraphics::StreamNormal(const zeus::CVector3f& nrm) {
+  sQueuedNormal = nrm;
+  sStreamFlags |= EStreamFlagBits::fHasNormal;
+}
 
-const CTevCombiners::CTevPass CGraphics::sTevPass805a5f08{
-    {GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_TEXA, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA},
-};
+void CGraphics::StreamColor(float r, float g, float b, float a) {
+  sQueuedColor = zeus::CColor{r, g, b, a};
+  sStreamFlags |= EStreamFlagBits::fHasColor;
+}
 
-const CTevCombiners::CTevPass CGraphics::sTevPass805a5f54{
-    {GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_ONE, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_TEXA, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_ZERO},
-};
+void CGraphics::StreamColor(const zeus::CColor& color) {
+  sQueuedColor = color;
+  sStreamFlags |= EStreamFlagBits::fHasColor;
+}
 
-const CTevCombiners::CTevPass CGraphics::sTevPass805a5fa0{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_TEXC},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_TEXA},
-};
+void CGraphics::StreamTexcoord(float x, float y) {
+  sQueuedTexCoord = {x, y};
+  sStreamFlags |= EStreamFlagBits::fHasTexture;
+}
 
-const CTevCombiners::CTevPass CGraphics::sTevPass804bfcc0{
-    {GX::TevColorArg::CC_C0, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA},
-};
+void CGraphics::StreamTexcoord(const zeus::CVector2f& uv) {
+  sQueuedTexCoord = uv;
+  sStreamFlags |= EStreamFlagBits::fHasTexture;
+}
 
-const CTevCombiners::CTevPass CGraphics::sTevPass805a5fec{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_TEXA, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_ZERO},
-};
+void CGraphics::StreamVertex(float xyz) {
+  const zeus::CVector3f pos{xyz, xyz, xyz};
+  aurora::gfx::stream_vertex(sStreamFlags, pos, sQueuedNormal, sQueuedColor, sQueuedTexCoord);
+}
 
-const CTevCombiners::CTevPass CGraphics::sTevPass805a6038{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_KONST, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_ZERO},
-};
+void CGraphics::StreamVertex(float x, float y, float z) {
+  const zeus::CVector3f pos{x, y, z};
+  aurora::gfx::stream_vertex(sStreamFlags, pos, sQueuedNormal, sQueuedColor, sQueuedTexCoord);
+}
 
-const CTevCombiners::CTevPass CGraphics::sTevPass805a6084{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_CPREV, GX::TevColorArg::CC_APREV, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_APREV},
-};
+void CGraphics::StreamVertex(const zeus::CVector3f& pos) {
+  aurora::gfx::stream_vertex(sStreamFlags, pos, sQueuedNormal, sQueuedColor, sQueuedTexCoord);
+}
+
+void CGraphics::StreamEnd() {
+  aurora::gfx::stream_end();
+}
 } // namespace metaforce

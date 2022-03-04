@@ -1,7 +1,9 @@
-#include "Runtime/Graphics/DolphinCTexture.hpp"
+#include "Graphics/CTexture.hpp"
 
-#include "Runtime/CToken.hpp"
-#include "zeus/Math.hpp"
+#include "CToken.hpp"
+
+#include <zeus/Math.hpp>
+#include <magic_enum.hpp>
 
 u32 GXGetTexBufferSize(u16 width, u16 height, u32 format, bool mipmap, u8 max_lod) {
   s32 shiftX = 0;
@@ -70,30 +72,29 @@ u32 GXGetTexBufferSize(u16 width, u16 height, u32 format, bool mipmap, u8 max_lo
 
   return bufLen;
 }
-namespace metaforce::WIP {
 
-namespace {
+namespace metaforce {
 static std::array<CTexture*, GX::MAX_TEXMAP> sLoadedTextures{};
-}
 
-CTexture::CTexture(ETexelFormat fmt, s16 w, s16 h, s32 mips)
+CTexture::CTexture(ETexelFormat fmt, u16 w, u16 h, s32 mips, std::string_view label)
 : x0_fmt(fmt)
 , x4_w(w)
 , x6_h(h)
 , x8_mips(mips)
 , x9_bitsPerPixel(TexelFormatBitsPerPixel(fmt))
-, x64_frameAllocated(sCurrentFrameCount) {
+, x64_frameAllocated(sCurrentFrameCount)
+, m_label(fmt::format(FMT_STRING("{} ({})"), label, magic_enum::enum_name(fmt))) {
   InitBitmapBuffers(fmt, w, h, mips);
-  InitTextureObjs();
+  InitTextureObjs(false);
 }
 
-CTexture::CTexture(CInputStream& in, EAutoMipmap automip, EBlackKey blackKey) {
-  x64_frameAllocated = sCurrentFrameCount;
-  x0_fmt = ETexelFormat(in.ReadLong());
-  x4_w = in.ReadShort();
-  x6_h = in.ReadShort();
-  x8_mips = in.ReadLong();
-
+CTexture::CTexture(CInputStream& in, std::string_view label, EAutoMipmap automip, EBlackKey blackKey)
+: x0_fmt(ETexelFormat(in.ReadLong()))
+, x4_w(in.ReadShort())
+, x6_h(in.ReadShort())
+, x8_mips(in.ReadLong())
+, x64_frameAllocated(sCurrentFrameCount)
+, m_label(fmt::format(FMT_STRING("{} ({})"), label, magic_enum::enum_name(x0_fmt))) {
   bool hasPalette = (x0_fmt == ETexelFormat::C4 || x0_fmt == ETexelFormat::C8 || x0_fmt == ETexelFormat::C14X2);
   if (hasPalette) {
     x10_graphicsPalette = std::make_unique<CGraphicsPalette>(in);
@@ -128,10 +129,10 @@ CTexture::CTexture(CInputStream& in, EAutoMipmap automip, EBlackKey blackKey) {
     }
   }
 
-  InitTextureObjs();
+  InitTextureObjs(true);
 }
 
-void* CTexture::Lock() {
+u8* CTexture::Lock() {
   xa_24_locked = true;
   return GetBitMapData(0);
 }
@@ -141,7 +142,8 @@ void CTexture::UnLock() {
   CountMemory();
   // DCFlushRange(x44_aramToken.GetMRAMSafe(), ROUND_UP_32(xc_memoryAllocated));
 }
-void CTexture::Load(GX::TexMapID id, CTexture::EClampMode clamp) {
+
+void CTexture::Load(GX::TexMapID id, EClampMode clamp) {
   if (sLoadedTextures[id] != this || xa_29_canLoadObj) {
     auto* image_ptr = /*x44_aramToken.GetMRAMSafe() */ x44_aramToken_x4_buff.get();
     CountMemory();
@@ -161,8 +163,8 @@ void CTexture::Load(GX::TexMapID id, CTexture::EClampMode clamp) {
     x64_frameAllocated = sCurrentFrameCount;
   }
 }
-void CTexture::LoadMipLevel(s32 mip, GX::TexMapID id, CTexture::EClampMode clamp) {
 
+void CTexture::LoadMipLevel(s32 mip, GX::TexMapID id, EClampMode clamp) {
   auto image_ptr = /*x44_aramToken.GetMRAMSafe() */ x44_aramToken_x4_buff.get();
   u32 width = x4_w;
   u32 height = x6_h;
@@ -196,7 +198,7 @@ void CTexture::MakeSwappable() {
   xa_27_noSwap = false;
 }
 
-const void* CTexture::GetConstBitMapData(s32 mip) const {
+const u8* CTexture::GetConstBitMapData(s32 mip) const {
   u32 buffOffset = 0;
   if (x8_mips > 0) {
     for (u32 i = 0; i < x8_mips; ++i) {
@@ -206,9 +208,9 @@ const void* CTexture::GetConstBitMapData(s32 mip) const {
   return x44_aramToken_x4_buff.get() + buffOffset; /* x44_aramToken.GetMRAMSafe() + buffOffset*/
 }
 
-void* CTexture::GetBitMapData(s32 mip) const { return const_cast<void*>(GetConstBitMapData(mip)); }
+u8* CTexture::GetBitMapData(s32 mip) const { return const_cast<u8*>(GetConstBitMapData(mip)); }
 
-void CTexture::InitBitmapBuffers(ETexelFormat fmt, s16 width, s16 height, s32 mips) {
+void CTexture::InitBitmapBuffers(ETexelFormat fmt, u16 width, u16 height, s32 mips) {
   switch (fmt) {
   case ETexelFormat::I4:
     x18_gxFormat = GX::TF_I4;
@@ -252,11 +254,12 @@ void CTexture::InitBitmapBuffers(ETexelFormat fmt, s16 width, s16 height, s32 mi
                    : x18_gxFormat;
 
   xc_memoryAllocated = GXGetTexBufferSize(width, height, format, mips > 1, mips > 1 ? 11 : 0);
-  x44_aramToken_x4_buff.reset(new u8[xc_memoryAllocated]);
+  x44_aramToken_x4_buff = std::make_unique<u8[]>(xc_memoryAllocated);
   /*x44_aramToken.PostConstruct(buf, xc_memoryAllocated, 1);*/
   CountMemory();
 }
-void CTexture::InitTextureObjs() {
+
+void CTexture::InitTextureObjs(bool write) {
   xa_26_isPowerOfTwo = zeus::floorPowerOfTwo(x4_w) == x4_w && zeus::floorPowerOfTwo(x6_h) == x6_h;
 
   if (!xa_26_isPowerOfTwo) {
@@ -267,12 +270,17 @@ void CTexture::InitTextureObjs() {
   if (IsCITexture()) {
     // GXInitTexObjCI(x20_texObj, x44_aramToken_x4_buff.get(), x4_w, x6_h, x1c_gxCIFormat, u32(x40_clampMode),
     //                u32(x40_clampMode), x8_mips > 1, 0);
+    // TODO
   } else {
     // GXInitTexObj(x20_texObj, x44_aramToken_x4_buff.get(), x4_w, x6_h, x1c_gxCIFormat, u32(x40_clampMode),
     //              u32(x40_clampMode), x8_mips > 1);
     // GXInitTexObjLOD(x20_texObj, x8_mips > 1 ? GX_LIN_MIP_LIN : GX_LINEAR, 0.f, static_cast<float>(x8_mips) - 1.f,
     // 0.f,
     //                 false, false, x8_mips > 1 ? GX_ANISO_4 : GX_ANISO_1);
+    x20_texObj = aurora::gfx::new_dynamic_texture_2d(x4_w, x6_h, x8_mips, x0_fmt, m_label);
+    if (write) {
+      aurora::gfx::write_texture(x20_texObj, {x44_aramToken_x4_buff.get(), xc_memoryAllocated});
+    }
   }
   xa_29_canLoadObj = true;
 }
@@ -325,12 +333,11 @@ bool CTexture::sMangleMips = false;
 u32 CTexture::sCurrentFrameCount = 0;
 u32 CTexture::sTotalAllocatedMemory = 0;
 
-void CTexture::InvalidateTexMap(GX::TexMapID id) {
-  sLoadedTextures[id] = nullptr;
-}
+void CTexture::InvalidateTexMap(GX::TexMapID id) { sLoadedTextures[id] = nullptr; }
 
 CFactoryFnReturn FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                  CObjectReference* selfRef) {
-  return TToken<CTexture>::GetIObjObjectFor(std::make_unique<CTexture>(in));
+  const auto label = fmt::format("{} {}", tag.type, tag.id);
+  return TToken<CTexture>::GetIObjObjectFor(std::make_unique<CTexture>(in, label));
 }
-} // namespace metaforce::WIP
+} // namespace metaforce

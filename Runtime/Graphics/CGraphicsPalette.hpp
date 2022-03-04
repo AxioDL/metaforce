@@ -1,7 +1,8 @@
 #pragma once
 
+#include "RetroTypes.hpp"
+
 #include <memory>
-#include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {
 class CInputStream;
@@ -24,10 +25,12 @@ class CGraphicsPalette {
 
 public:
   explicit CGraphicsPalette(EPaletteFormat fmt, int count);
-
   explicit CGraphicsPalette(CInputStream& in);
 
   void Load();
+
+  [[nodiscard]] const u8* GetEntries() const { return xc_entries.get(); }
+
   static void SetCurrentFrameCount(u32 frameCount) { sCurrentFrameCount = frameCount; }
 };
 

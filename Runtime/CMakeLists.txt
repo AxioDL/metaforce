@@ -110,7 +110,6 @@ set(RUNTIME_SOURCES_B
         IObjectStore.hpp
         CSimplePool.hpp CSimplePool.cpp
         CGameOptions.hpp CGameOptions.cpp
-        CGameOptionsTouchBar.hpp CGameOptionsTouchBar.cpp
         CStaticInterference.hpp CStaticInterference.cpp
         CCRC32.hpp CCRC32.cpp
         IFactory.hpp

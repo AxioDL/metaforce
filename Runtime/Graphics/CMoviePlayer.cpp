@@ -1,8 +1,10 @@
-#include "Runtime/Graphics/CMoviePlayer.hpp"
+#include "Graphics/CMoviePlayer.hpp"
 
-#include "Runtime/Audio/g721.h"
-#include "Runtime/CDvdRequest.hpp"
-#include "Runtime/Graphics/CGraphics.hpp"
+#include "Audio/g721.h"
+#include "CDvdRequest.hpp"
+#include "Graphics/CGraphics.hpp"
+#include "Graphics/CCubeRenderer.hpp"
+#include "GameGlobalObjects.hpp"
 
 #include <amuse/DSPCodec.hpp>
 #include <turbojpeg.h>
@@ -190,29 +192,28 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
     CTHPTextureSet& set = x80_textures.emplace_back();
     if (deinterlace) {
       /* metaforce addition: this way interlaced THPs don't look horrible */
-      set.Y[0] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1,
-                                                     aurora::gfx::TextureFormat::R8,
-                                                     fmt::format(FMT_STRING("Movie {} Texture Set {} Y[0]"), path, i));
-      set.Y[1] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1,
-                                                     aurora::gfx::TextureFormat::R8,
-                                                     fmt::format(FMT_STRING("Movie {} Texture Set {} Y[1]"), path, i));
-      set.U = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1,
-                                                  aurora::gfx::TextureFormat::R8,
-                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
-      set.V = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1,
-                                                  aurora::gfx::TextureFormat::R8,
-                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
+      set.Y[0] =
+          aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1, ETexelFormat::R8PC,
+                                              fmt::format(FMT_STRING("Movie {} Texture Set {} Y[0]"), path, i));
+      set.Y[1] =
+          aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1, ETexelFormat::R8PC,
+                                              fmt::format(FMT_STRING("Movie {} Texture Set {} Y[1]"), path, i));
+      set.U =
+          aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, ETexelFormat::R8PC,
+                                              fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
+      set.V =
+          aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, ETexelFormat::R8PC,
+                                              fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
     } else {
       /* normal progressive presentation */
-      set.Y[0] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height, 1,
-                                                     aurora::gfx::TextureFormat::R8,
+      set.Y[0] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height, 1, ETexelFormat::R8PC,
                                                      fmt::format(FMT_STRING("Movie {} Texture Set {} Y"), path, i));
-      set.U = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1,
-                                                  aurora::gfx::TextureFormat::R8,
-                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
-      set.V = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1,
-                                                  aurora::gfx::TextureFormat::R8,
-                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
+      set.U =
+          aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, ETexelFormat::R8PC,
+                                              fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
+      set.V =
+          aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, ETexelFormat::R8PC,
+                                              fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
     }
     if (xf4_25_hasAudio)
       set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);
@@ -364,20 +365,37 @@ void CMoviePlayer::Rewind() {
   xe8_curSeconds = 0.f;
 }
 
-void CMoviePlayer::SetFrame(float hpad, float vpad) {
-  m_hpad = hpad;
-  m_vpad = vpad;
+void CMoviePlayer::Draw() {
+  if (GetIsFullyCached()) {
+    g_Renderer->SetDepthReadWrite(false, false);
+    g_Renderer->SetViewportOrtho(false, -4096.f, 4096.f);
+    const auto vpHeight = CGraphics::GetViewportHeight();
+    const auto vpWidth = CGraphics::GetViewportWidth();
+    const auto vpTop = CGraphics::GetViewportTop();
+    const auto vpLeft = CGraphics::GetViewportLeft();
+    const auto [width, height] = GetVideoDimensions();
+    const auto centerX = (width - vpWidth) / 2;
+    const auto centerY = (height - vpHeight) / 2;
+    DrawFrame(vpLeft - centerX, vpLeft + vpWidth + centerX, vpTop - centerY, vpTop + vpHeight + centerY);
+  }
 }
 
-void CMoviePlayer::DrawFrame() {
+void CMoviePlayer::DrawFrame(u32 left, u32 right, u32 top, u32 bottom) {
+  DrawFrame({static_cast<float>(left), 0.f, static_cast<float>(bottom)},
+            {static_cast<float>(right), 0.f, static_cast<float>(bottom)},
+            {static_cast<float>(left), 0.f, static_cast<float>(top)},
+            {static_cast<float>(right), 0.f, static_cast<float>(top)});
+}
+
+void CMoviePlayer::DrawFrame(const zeus::CVector3f& v1, const zeus::CVector3f& v2, const zeus::CVector3f& v3,
+                             const zeus::CVector3f& v4) {
   if (xd0_drawTexSlot == UINT32_MAX)
     return;
   SCOPED_GRAPHICS_DEBUG_GROUP("CMoviePlayer::DrawFrame", zeus::skYellow);
 
   /* draw appropriate field */
   CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
-  aurora::gfx::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0], tex.U, tex.V, zeus::skWhite, m_hpad,
-                                  m_vpad);
+  aurora::gfx::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0], tex.U, tex.V, v1, v2, v3, v4);
 
   /* ensure second field is being displayed by VI to signal advance
    * (faked in metaforce with continuous xor) */

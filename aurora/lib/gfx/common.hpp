@@ -21,18 +21,38 @@ static inline XXH64_hash_t xxh3_hash(const T& input, XXH64_hash_t seed = 0) {
 
 class ByteBuffer {
 public:
-  ByteBuffer() = default;
-  explicit ByteBuffer(size_t capacity) : m_data(static_cast<uint8_t*>(calloc(1, capacity))), m_capacity(capacity) {}
-
-  ~ByteBuffer() {
+  ByteBuffer() noexcept = default;
+  explicit ByteBuffer(size_t size) noexcept
+  : m_data(static_cast<uint8_t*>(calloc(1, size))), m_length(size), m_capacity(size) {}
+  ~ByteBuffer() noexcept {
     if (m_data != nullptr) {
       free(m_data);
     }
   }
+  ByteBuffer(ByteBuffer&& rhs) noexcept : m_data(rhs.m_data), m_length(rhs.m_length), m_capacity(rhs.m_capacity) {
+    rhs.m_data = nullptr;
+    rhs.m_length = 0;
+    rhs.m_capacity = 0;
+  }
+  ByteBuffer& operator=(ByteBuffer&& rhs) noexcept {
+    if (m_data != nullptr) {
+      free(m_data);
+    }
+    m_data = rhs.m_data;
+    m_length = rhs.m_length;
+    m_capacity = rhs.m_capacity;
+    rhs.m_data = nullptr;
+    rhs.m_length = 0;
+    rhs.m_capacity = 0;
+    return *this;
+  }
+  ByteBuffer(ByteBuffer const&) = delete;
+  ByteBuffer& operator=(ByteBuffer const&) = delete;
 
-  uint8_t* data() { return m_data; }
-  const uint8_t* data() const { return m_data; }
-  size_t size() const { return m_length; }
+  [[nodiscard]] uint8_t* data() noexcept { return m_data; }
+  [[nodiscard]] const uint8_t* data() const noexcept { return m_data; }
+  [[nodiscard]] size_t size() const noexcept { return m_length; }
+  [[nodiscard]] bool empty() const noexcept { return m_length == 0; }
 
   void append(const void* data, size_t size) {
     resize(m_length + size);
@@ -136,9 +156,17 @@ struct TextureRef {
   wgpu::TextureView view;
   wgpu::Extent3D size;
   wgpu::TextureFormat format;
+  uint32_t mipCount;
+  metaforce::ETexelFormat gameFormat;
 
-  TextureRef(wgpu::Texture&& texture, wgpu::TextureView&& view, wgpu::Extent3D size, wgpu::TextureFormat format)
-  : texture(std::move(texture)), view(std::move(view)), size(size), format(format) {}
+  TextureRef(wgpu::Texture&& texture, wgpu::TextureView&& view, wgpu::Extent3D size, wgpu::TextureFormat format,
+             uint32_t mipCount, metaforce::ETexelFormat gameFormat = metaforce::ETexelFormat::Invalid)
+  : texture(std::move(texture))
+  , view(std::move(view))
+  , size(size)
+  , format(format)
+  , mipCount(mipCount)
+  , gameFormat(gameFormat) {}
 };
 
 using PipelineRef = uint64_t;

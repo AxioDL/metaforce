@@ -109,10 +109,14 @@ private:
   float m_hpad;
   float m_vpad;
 
-  static u32 THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo);
   void DecodeFromRead(const void* data);
-  void ReadCompleted();
+  void DrawFrame(u32 left, u32 right, u32 top, u32 bottom);
+  void DrawFrame(const zeus::CVector3f& v1, const zeus::CVector3f& v2, const zeus::CVector3f& v3,
+                 const zeus::CVector3f& v4);
   void PostDVDReadRequestIfNeeded();
+  void ReadCompleted();
+
+  static u32 THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo);
 
 public:
   CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bool deinterlace);
@@ -135,8 +139,7 @@ public:
   float GetPlayedSeconds() const { return xdc_frameRem + xe8_curSeconds; }
   float GetTotalSeconds() const { return xe4_totalSeconds; }
   void SetPlayMode(EPlayMode mode) { xe0_playMode = mode; }
-  void SetFrame(float hpad, float vpad);
-  void DrawFrame();
+  void Draw();
   void Update(float dt);
   std::pair<u32, u32> GetVideoDimensions() const { return {x6c_videoInfo.width, x6c_videoInfo.height}; }
 

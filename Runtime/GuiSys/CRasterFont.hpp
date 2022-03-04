@@ -148,7 +148,7 @@ public:
                   const char16_t* str, int len) const;
   const CGlyph* GetGlyph(char16_t chr) const { return InternalGetGlyph(chr); }
   void GetSize(const CDrawStringOptions& opts, int& width, int& height, const char16_t* str, int len) const;
-  const aurora::gfx::TextureHandle& GetTexture() { return x80_texture->GetFontTexture(x2c_mode); }
+  CTexture& GetTexture() { return *x80_texture; }
 
   bool IsFinishedLoading() const;
 };

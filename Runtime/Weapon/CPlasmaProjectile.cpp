@@ -60,7 +60,7 @@ CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, st
   x51c_pulseGen->SetParticleEmission(false);
 
 //  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    m_renderObjs.emplace(x4e8_texture->GetTexture(), x4f4_glowTexture->GetTexture());
+//    m_renderObjs.emplace(x4e8_texture->GetTexture(), x4f4_glowTexture->GetTexture());
 //    return true;
 //  } BooTrace);
 }

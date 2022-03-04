@@ -1410,7 +1410,7 @@ void CThardus::RenderFlare(const CStateManager& mgr, float t) {
   CGraphics::SetModelMatrix(zeus::CTransform());
   CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::One, ERglLogicOp::Clear);
   CGraphics::SetTevOp(0, CGraphics::sTevPass805a5ebc);
-  CGraphics::SetTevOp(1, CGraphics::sTevPass805a564c);
+  CGraphics::SetTevOp(1, CGraphics::skPassThru);
   CGraphics::SetDepthWriteMode(false, ERglEnum::Always, false);
   CGraphics::StreamColor(zeus::CColor(f1, f1));
   CGraphics::StreamBegin(0xa0);

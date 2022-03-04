@@ -1,6 +1,7 @@
 #include "common.hpp"
 
 #include "../gpu.hpp"
+#include "texture_convert.hpp"
 
 #include <logvisor/logvisor.hpp>
 #include <magic_enum.hpp>
@@ -11,24 +12,6 @@ static logvisor::Module Log("aurora::gfx");
 using gpu::g_device;
 using gpu::g_queue;
 
-static wgpu::TextureFormat to_wgpu(TextureFormat format) {
-  switch (format) {
-  case TextureFormat::RGBA8:
-    return wgpu::TextureFormat::RGBA8Unorm;
-  case TextureFormat::R8:
-    return wgpu::TextureFormat::R8Unorm;
-  case TextureFormat::R32Float:
-    return wgpu::TextureFormat::R32Float;
-  case TextureFormat::DXT1:
-    return wgpu::TextureFormat::BC1RGBAUnorm;
-  case TextureFormat::DXT3:
-    return wgpu::TextureFormat::BC3RGBAUnorm;
-  case TextureFormat::DXT5:
-    return wgpu::TextureFormat::BC5RGUnorm;
-  case TextureFormat::BPTC:
-    return wgpu::TextureFormat::BC7RGBAUnorm;
-  }
-}
 struct TextureFormatInfo {
   uint8_t blockWidth;
   uint8_t blockHeight;
@@ -55,10 +38,19 @@ static wgpu::Extent3D physical_size(wgpu::Extent3D size, TextureFormatInfo info)
   return {width, height, size.depthOrArrayLayers};
 }
 
-TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mips, TextureFormat format,
+TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mips, metaforce::ETexelFormat format,
                                     ArrayRef<uint8_t> data, zstring_view label) noexcept {
   auto handle = new_dynamic_texture_2d(width, height, mips, format, label);
   const TextureRef& ref = *handle.ref;
+
+  ByteBuffer buffer;
+  if (ref.gameFormat != metaforce::ETexelFormat::Invalid) {
+    buffer = convert_texture(ref.gameFormat, ref.size.width, ref.size.height, ref.mipCount, data);
+    if (!buffer.empty()) {
+      data = {buffer.data(), buffer.size()};
+    }
+  }
+
   uint32_t offset = 0;
   for (uint32_t mip = 0; mip < mips; ++mip) {
     const auto mipSize = wgpu::Extent3D{
@@ -95,7 +87,7 @@ TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mi
   return handle;
 }
 
-TextureHandle new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t mips, TextureFormat format,
+TextureHandle new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t mips, metaforce::ETexelFormat format,
                                      zstring_view label) noexcept {
   const auto wgpuFormat = to_wgpu(format);
   const auto size = wgpu::Extent3D{
@@ -118,7 +110,7 @@ TextureHandle new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t m
   };
   auto texture = g_device.CreateTexture(&textureDescriptor);
   auto textureView = texture.CreateView(&textureViewDescriptor);
-  return {std::make_shared<TextureRef>(std::move(texture), std::move(textureView), size, wgpuFormat)};
+  return {std::make_shared<TextureRef>(std::move(texture), std::move(textureView), size, wgpuFormat, mips, format)};
 }
 
 TextureHandle new_render_texture(uint32_t width, uint32_t height, uint32_t color_bind_count, uint32_t depth_bind_count,
@@ -129,6 +121,15 @@ TextureHandle new_render_texture(uint32_t width, uint32_t height, uint32_t color
 // TODO accept mip/layer parameters
 void write_texture(const TextureHandle& handle, ArrayRef<uint8_t> data) noexcept {
   const TextureRef& ref = *handle.ref;
+
+  ByteBuffer buffer;
+  if (ref.gameFormat != metaforce::ETexelFormat::Invalid) {
+    buffer = convert_texture(ref.gameFormat, ref.size.width, ref.size.height, ref.mipCount, data);
+    if (!buffer.empty()) {
+      data = {buffer.data(), buffer.size()};
+    }
+  }
+
   const auto dstView = wgpu::ImageCopyTexture{
       .texture = ref.texture,
   };

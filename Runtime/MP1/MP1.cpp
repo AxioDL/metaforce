@@ -257,7 +257,7 @@ void CGameGlobalObjects::AddPaksAndFactories() {
   }
 
   if (CFactoryMgr* fmgr = g_ResFactory->GetFactoryMgr()) {
-    fmgr->AddFactory(FOURCC('TXTR'), FMemFactoryFunc(FTextureFactory));
+    fmgr->AddFactory(FOURCC('TXTR'), FFactoryFunc(FTextureFactory));
     fmgr->AddFactory(FOURCC('PART'), FFactoryFunc(FParticleFactory));
     fmgr->AddFactory(FOURCC('FRME'), FFactoryFunc(RGuiFrameFactoryInGame));
     fmgr->AddFactory(FOURCC('FONT'), FFactoryFunc(FRasterFontFactory));

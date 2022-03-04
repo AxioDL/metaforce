@@ -66,29 +66,42 @@ void CSplashScreen::Draw() {
   CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
   g_Renderer->SetModelMatrix({});
   CGraphics::SetViewPointMatrix({});
-  // CGraphics::SetTevOp(Stage0, ?);
-  // CGraphics::SetTevOp(Stage1, skPassThru);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
   g_Renderer->SetBlendMode_AlphaBlended();
-  const auto& tex = *x28_texture.GetObj();
+  auto& tex = *x28_texture.GetObj();
   const auto width = tex.GetWidth();
   const auto height = tex.GetHeight();
+  tex.Load(GX::TEXMAP0, EClampMode::Clamp);
   if (x14_which == ESplashScreen::Nintendo || x14_which == ESplashScreen::Retro) {
+    const auto x = static_cast<float>(133 - (width - 376) / 2);
+    const auto y = static_cast<float>(170 - (height - 104) / 2);
     CGraphics::SetOrtho(-10.f, 650.f, -5.5f, 484.5f, -1.f, 1.f);
     CGraphics::SetCullMode(ERglCullMode::None);
-    // TODO
+    CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+    CGraphics::StreamColor(color);
+    CGraphics::StreamTexcoord(0.f, 0.f);
+    CGraphics::StreamVertex({x, 0.f, y + static_cast<float>(height)});
+    CGraphics::StreamTexcoord(0.f, 1.f);
+    CGraphics::StreamVertex({x, 0.f, y});
+    CGraphics::StreamTexcoord(1.f, 0.f);
+    CGraphics::StreamVertex({x + static_cast<float>(width), 0.f, y + static_cast<float>(height)});
+    CGraphics::StreamTexcoord(1.f, 1.f);
+    CGraphics::StreamVertex({x + static_cast<float>(width), 0.f, y});
+    CGraphics::StreamEnd();
     CGraphics::SetCullMode(ERglCullMode::Front);
   } else {
     // TODO
     // CGraphics::Render2D();
   }
 
-  zeus::CRectangle rect;
-  rect.size.x() = width / (480.f * CGraphics::GetViewportAspect());
-  rect.size.y() = height / 480.f;
-  rect.position.x() = 0.5f - rect.size.x() / 2.f;
-  rect.position.y() = 0.5f - rect.size.y() / 2.f;
-  aurora::gfx::queue_textured_quad(aurora::gfx::CameraFilterType::Blend, tex.GetTexture(),
-                                   aurora::gfx::ZComp::Always, false, color, 1.f, rect, 0.f);
+//  zeus::CRectangle rect;
+//  rect.size.x() = width / (480.f * CGraphics::GetViewportAspect());
+//  rect.size.y() = height / 480.f;
+//  rect.position.x() = 0.5f - rect.size.x() / 2.f;
+//  rect.position.y() = 0.5f - rect.size.y() / 2.f;
+//  aurora::gfx::queue_textured_quad(aurora::gfx::CameraFilterType::Blend, tex.GetTexture(),
+//                                   aurora::gfx::ZComp::Always, false, color, 1.f, rect, 0.f);
 
   // Progressive scan options omitted
 }

@@ -1,16 +1,13 @@
 #pragma once
 
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/GX.hpp"
+#include "Runtime/Graphics/CTevCombiners.hpp"
+#include "Runtime/ConsoleVariables/CVar.hpp"
+
 #include <array>
 #include <chrono>
 #include <vector>
-
-#include "optick.h"
-
-#include "Runtime/RetroTypes.hpp"
-
-#include "Runtime/Graphics/GX.hpp"
-
-#include "Runtime/ConsoleVariables/CVar.hpp"
 
 #include <zeus/CColor.hpp>
 #include <zeus/CTransform.hpp>
@@ -18,6 +15,7 @@
 #include <zeus/CVector2i.hpp>
 
 #include <aurora/gfx.hpp>
+#include <optick.h>
 
 using frame_clock = std::chrono::high_resolution_clock;
 
@@ -94,25 +92,6 @@ struct SClipScreenRect {
   }
 };
 
-enum class ETexelFormat {
-  Invalid = -1,
-  I4 = 0,
-  I8 = 1,
-  IA4 = 2,
-  IA8 = 3,
-  C4 = 4,
-  C8 = 5,
-  C14X2 = 6,
-  RGB565 = 7,
-  RGB5A3 = 8,
-  RGBA8 = 9,
-  CMPR = 10,
-  RGBA8PC = 16,
-  C8PC = 17,
-  CMPRPC = 18,
-  CMPRPCA = 19,
-};
-
 #define DEPTH_FAR 1.f
 #define DEPTH_SKY 0.999f
 #define DEPTH_TARGET_MANAGER 0.12500012f
@@ -123,47 +102,6 @@ enum class ETexelFormat {
 #define DEPTH_NEAR 0.f
 #define CUBEMAP_RES 256
 #define CUBEMAP_MIPS 6
-
-static s32 sNextUniquePass = 0;
-namespace CTevCombiners {
-struct CTevOp {
-  bool x0_clamp = true;
-  GX::TevOp x4_op = GX::TevOp::TEV_ADD;
-  GX::TevBias x8_bias = GX::TevBias::TB_ZERO;
-  GX::TevScale xc_scale = GX::TevScale::CS_SCALE_1;
-  GX::TevRegID xc_regId = GX::TevRegID::TEVPREV;
-};
-
-struct ColorPass {
-  GX::TevColorArg x0_a;
-  GX::TevColorArg x4_b;
-  GX::TevColorArg x8_c;
-  GX::TevColorArg xc_d;
-};
-struct AlphaPass {
-  GX::TevAlphaArg x0_a;
-  GX::TevAlphaArg x4_b;
-  GX::TevAlphaArg x8_c;
-  GX::TevAlphaArg xc_d;
-};
-
-class CTevPass {
-  u32 x0_id;
-  ColorPass x4_colorPass;
-  AlphaPass x14_alphaPass;
-  CTevOp x24_colorOp;
-  CTevOp x38_alphaOp;
-
-public:
-  CTevPass(const ColorPass& colPass, const AlphaPass& alphaPass, const CTevOp& colorOp = CTevOp(),
-           const CTevOp alphaOp = CTevOp())
-  : x0_id(++sNextUniquePass)
-  , x4_colorPass(colPass)
-  , x14_alphaPass(alphaPass)
-  , x24_colorOp(colorOp)
-  , x38_alphaOp(alphaOp) {}
-};
-}; // namespace CTevCombiners
 
 class CGraphics {
 public:
@@ -352,26 +290,17 @@ public:
   //  static void DrawArray(size_t start, size_t count) { g_BooMainCommandQueue->draw(start, count); }
   //  static void DrawArrayIndexed(size_t start, size_t count) { g_BooMainCommandQueue->drawIndexed(start, count); }
 
-  static const CTevCombiners::CTevPass sTevPass805a564c;
-  static const CTevCombiners::CTevPass sTevPass805a5698;
-
-  static const CTevCombiners::CTevPass sTevPass805a5e70;
-
-  static const CTevCombiners::CTevPass sTevPass805a5ebc;
-
-  static const CTevCombiners::CTevPass sTevPass805a5f08;
-
-  static const CTevCombiners::CTevPass sTevPass805a5f54;
-
-  static const CTevCombiners::CTevPass sTevPass805a5fa0;
-
-  static const CTevCombiners::CTevPass sTevPass804bfcc0;
-
-  static const CTevCombiners::CTevPass sTevPass805a5fec;
-
-  static const CTevCombiners::CTevPass sTevPass805a6038;
-
-  static const CTevCombiners::CTevPass sTevPass805a6084;
+  static void SetTevOp(ERglTevStage stage, const CTevCombiners::CTevPass& pass);
+  static void StreamBegin(GX::Primitive primitive);
+  static void StreamNormal(const zeus::CVector3f& nrm);
+  static void StreamColor(float r, float g, float b, float a);
+  static void StreamColor(const zeus::CColor& color);
+  static void StreamTexcoord(float x, float y);
+  static void StreamTexcoord(const zeus::CVector2f& uv);
+  static void StreamVertex(float xyz);
+  static void StreamVertex(float x, float y, float z);
+  static void StreamVertex(const zeus::CVector3f& pos);
+  static void StreamEnd();
 };
 
 template <class VTX>

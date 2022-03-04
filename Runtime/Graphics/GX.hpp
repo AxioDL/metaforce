@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 
 namespace GX {
 enum AttrType { NONE, DIRECT, INDEX8, INDEX16 };

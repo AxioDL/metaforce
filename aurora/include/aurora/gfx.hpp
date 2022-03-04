@@ -2,6 +2,9 @@
 
 #include "common.hpp"
 
+// TODO make this shared?
+#include "../../../Runtime/Graphics/GX.hpp"
+
 #include <cstdint>
 #include <utility>
 
@@ -79,6 +82,50 @@ enum class ERglAlphaOp { And = 0, Or = 1, Xor = 2, XNor = 3 };
 
 enum class ERglEnum { Never = 0, Less = 1, Equal = 2, LEqual = 3, Greater = 4, NEqual = 5, GEqual = 6, Always = 7 };
 
+enum class ERglTevStage : u32 {
+  Stage0,
+  Stage1,
+  Stage2,
+  Stage3,
+  Stage4,
+  Stage5,
+  Stage6,
+  Stage7,
+  Stage8,
+  Stage9,
+  Stage10,
+  Stage11,
+  Stage12,
+  Stage13,
+  Stage14,
+  Stage15,
+  MAX
+};
+
+enum class ETexelFormat {
+  Invalid = -1,
+  I4 = 0,
+  I8 = 1,
+  IA4 = 2,
+  IA8 = 3,
+  C4 = 4,
+  C8 = 5,
+  C14X2 = 6,
+  RGB565 = 7,
+  RGB5A3 = 8,
+  RGBA8 = 9,
+  CMPR = 10,
+  // Metaforce addition: non-converting formats
+  RGBA8PC = 11,
+  R8PC = 12,
+};
+
+enum class EClampMode {
+  Clamp,
+  Repeat,
+  Mirror,
+};
+
 struct CFogState {
   zeus::CColor m_color;
   float m_A = 0.f;
@@ -86,6 +133,41 @@ struct CFogState {
   float m_C = 0.f;
   ERglFogMode m_mode;
 };
+
+enum class EStreamFlagBits : u8 {
+  fHasNormal = 0x1,
+  fHasColor = 0x2,
+  fHasTexture = 0x3,
+};
+using EStreamFlags = Flags<EStreamFlagBits>;
+
+namespace CTevCombiners {
+struct CTevOp {
+  bool x0_clamp = true;
+  GX::TevOp x4_op = GX::TevOp::TEV_ADD;
+  GX::TevBias x8_bias = GX::TevBias::TB_ZERO;
+  GX::TevScale xc_scale = GX::TevScale::CS_SCALE_1;
+  GX::TevRegID xc_regId = GX::TevRegID::TEVPREV;
+
+  bool operator<=>(const CTevOp&) const = default;
+};
+struct ColorPass {
+  GX::TevColorArg x0_a;
+  GX::TevColorArg x4_b;
+  GX::TevColorArg x8_c;
+  GX::TevColorArg xc_d;
+
+  bool operator<=>(const ColorPass&) const = default;
+};
+struct AlphaPass {
+  GX::TevAlphaArg x0_a;
+  GX::TevAlphaArg x4_b;
+  GX::TevAlphaArg x8_c;
+  GX::TevAlphaArg xc_d;
+
+  bool operator<=>(const AlphaPass&) const = default;
+};
+} // namespace CTevCombiners
 } // namespace metaforce
 
 namespace aurora::gfx {
@@ -138,6 +220,16 @@ enum class ZComp : uint8_t {
 
 [[nodiscard]] bool get_dxt_compression_supported() noexcept;
 
+void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp) noexcept;
+void update_tev_stage(metaforce::ERglTevStage stage, const metaforce::CTevCombiners::ColorPass& colPass,
+                      const metaforce::CTevCombiners::AlphaPass& alphaPass,
+                      const metaforce::CTevCombiners::CTevOp& colorOp,
+                      const metaforce::CTevCombiners::CTevOp& alphaOp) noexcept;
+void stream_begin(GX::Primitive primitive) noexcept;
+void stream_vertex(metaforce::EStreamFlags flags, const zeus::CVector3f& pos, const zeus::CVector3f& nrm,
+                   const zeus::CColor& color, const zeus::CVector2f& uv) noexcept;
+void stream_end() noexcept;
+
 // GX state
 void set_cull_mode(metaforce::ERglCullMode mode) noexcept;
 void set_blend_mode(metaforce::ERglBlendMode mode, metaforce::ERglBlendFactor src, metaforce::ERglBlendFactor dst,
@@ -177,11 +269,12 @@ void queue_colored_quad_verts(CameraFilterType filter_type, ZComp z_comparison, 
 void queue_colored_quad(CameraFilterType filter_type, ZComp z_comparison, bool z_test, const zeus::CColor& color,
                         const zeus::CRectangle& rect, float z) noexcept;
 void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v,
-                        const zeus::CColor& color, float h_pad, float v_pad) noexcept;
+                        const zeus::CVector3f& v1, const zeus::CVector3f& v2, const zeus::CVector3f& v3,
+                        const zeus::CVector3f& v4) noexcept;
 
-TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mips, TextureFormat format,
+TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mips, metaforce::ETexelFormat format,
                                     ArrayRef<uint8_t> data, zstring_view label) noexcept;
-TextureHandle new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t mips, TextureFormat format,
+TextureHandle new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t mips, metaforce::ETexelFormat format,
                                      zstring_view label) noexcept;
 TextureHandle new_render_texture(uint32_t width, uint32_t height, uint32_t color_bind_count, uint32_t depth_bind_count,
                                  zstring_view label) noexcept;

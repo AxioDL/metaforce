@@ -200,20 +200,9 @@ CIOWin::EMessageReturn CCredits::ProcessUserInput(const CFinalInput& input) {
 }
 
 void CCredits::DrawVideo() {
-  /* Correct movie aspect ratio */
-  float hPad, vPad;
-  if (CGraphics::GetViewportAspect() >= 1.78f) {
-    hPad = 1.78f / CGraphics::GetViewportAspect();
-    vPad = 1.78f / 1.33f;
-  } else {
-    hPad = 1.f;
-    vPad = CGraphics::GetViewportAspect() / 1.33f;
-  }
-
-  if (x28_ && x28_->GetIsFullyCached()) {
+  if (x28_) {
     /* Render movie */
-    x28_->SetFrame(hPad, vPad);
-    x28_->DrawFrame();
+    x28_->Draw();
     if (x5c_27_ || x5c_28_) {
       float alpha = x58_ / g_tweakGui->x310_;
       if (x5c_27_) {

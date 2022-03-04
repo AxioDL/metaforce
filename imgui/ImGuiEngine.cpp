@@ -31,12 +31,12 @@ void ImGuiEngine_Initialize(float scale) {
   ImGuiIO& io = ImGui::GetIO();
   io.Fonts->Clear();
 
-  auto* fontData = new uint8_t[NOTO_MONO_FONT_DECOMPRESSED_SZ];
+  auto* fontData = ImGui::MemAlloc(NOTO_MONO_FONT_DECOMPRESSED_SZ);
   {
     auto stream = std::make_unique<metaforce::CMemoryInStream>(
         static_cast<const u8*>(NOTO_MONO_FONT), NOTO_MONO_FONT_SZ, metaforce::CMemoryInStream::EOwnerShip::NotOwned);
     metaforce::CZipInputStream zipInputStream{std::move(stream)};
-    zipInputStream.Get(fontData, NOTO_MONO_FONT_DECOMPRESSED_SZ);
+    zipInputStream.Get(static_cast<uint8_t*>(fontData), NOTO_MONO_FONT_DECOMPRESSED_SZ);
   }
 
   ImFontConfig fontConfig{};

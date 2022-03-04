@@ -19,7 +19,7 @@ void CXRayBlurFilter::Shutdown() {
 //  s_Pipeline.reset();
 }
 
-CXRayBlurFilter::CXRayBlurFilter(TLockedToken<CTexture>& tex) : m_paletteTex(tex), m_booTex(tex->GetPaletteTexture()) {
+CXRayBlurFilter::CXRayBlurFilter(TLockedToken<CTexture>& tex) : m_paletteTex(tex) { // , m_booTex(tex->GetPaletteTexture())
 //  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
 //    struct Vert {
 //      zeus::CVector2f m_pos;

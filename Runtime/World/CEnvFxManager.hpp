@@ -60,7 +60,7 @@ class CEnvFxManagerGrid {
 
 //  hecl::VertexBufferPool<CEnvFxShaders::Instance>::Token m_instBuf;
 //  hecl::UniformBufferPool<CEnvFxShaders::Uniform>::Token m_uniformBuf;
-  CLineRenderer m_lineRenderer;
+//  CLineRenderer m_lineRenderer;
 //
 //  boo::ObjToken<boo::IShaderDataBinding> m_snowBinding;
 //  boo::ObjToken<boo::IShaderDataBinding> m_underwaterBinding;

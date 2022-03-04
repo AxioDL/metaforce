@@ -28,8 +28,9 @@ CEnvFxManagerGrid::CEnvFxManagerGrid(const zeus::CVector2i& position, const zeus
 , x1c_particles(std::move(initialParticles))
 //, m_instBuf(parent.m_instPool.allocateBlock(CGraphics::g_BooFactory, reserve))
 //, m_uniformBuf(parent.m_uniformPool.allocateBlock(CGraphics::g_BooFactory))
-, m_lineRenderer(CLineRenderer::EPrimitiveMode::Lines, reserve * 2, parent.x40_txtrEnvGradient->GetTexture(),
-                 true, true) {
+//, m_lineRenderer(CLineRenderer::EPrimitiveMode::Lines, reserve * 2, parent.x40_txtrEnvGradient->GetTexture(),
+//                 true, true)
+{
   x1c_particles.reserve(reserve);
   CEnvFxShaders::BuildShaderDataBinding(parent, *this);
 }
@@ -394,7 +395,7 @@ void CEnvFxManagerGrid::RenderSnowParticles(const zeus::CTransform& camXf) {
 }
 
 void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) {
-  m_lineRenderer.Reset();
+//  m_lineRenderer.Reset();
   const float zOffset = 2.f * (1.f - std::fabs(camXf.basis[2].dot(zeus::skUp))) + 1.f;
   const zeus::CColor color0(1.f, 10.f / 15.f);
   for (const auto& particle : x1c_particles) {
@@ -403,10 +404,10 @@ void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) {
     pos1.z() += zOffset;
     const float uvy0 = pos0.z() * 10.f + m_uvyOffset;
     const float uvy1 = pos1.z() * 10.f + m_uvyOffset;
-    m_lineRenderer.AddVertex(pos0, zeus::skWhite, 1.f, {0.f, uvy0});
-    m_lineRenderer.AddVertex(pos1, zeus::skClear, 1.f, {0.f, uvy1});
+//    m_lineRenderer.AddVertex(pos0, zeus::skWhite, 1.f, {0.f, uvy0});
+//    m_lineRenderer.AddVertex(pos1, zeus::skClear, 1.f, {0.f, uvy1});
   }
-  m_lineRenderer.Render(false, zeus::CColor(1.f, 0.15f)); // g_Renderer->IsThermalVisorHotPass()
+//  m_lineRenderer.Render(false, zeus::CColor(1.f, 0.15f)); // g_Renderer->IsThermalVisorHotPass()
 }
 
 void CEnvFxManagerGrid::RenderUnderwaterParticles(const zeus::CTransform& camXf) {
