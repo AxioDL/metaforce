@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../common.hpp"
 
 namespace aurora::gfx::colored_quad {

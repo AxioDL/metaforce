@@ -146,6 +146,19 @@ extern zeus::CMatrix4f g_mv;
 extern zeus::CMatrix4f g_mvInv;
 extern zeus::CMatrix4f g_proj;
 extern metaforce::CFogState g_fogState;
+// GX state
+extern metaforce::ERglCullMode g_cullMode;
+extern metaforce::ERglBlendMode g_blendMode;
+extern metaforce::ERglBlendFactor g_blendFacSrc;
+extern metaforce::ERglBlendFactor g_blendFacDst;
+extern metaforce::ERglLogicOp g_blendOp;
+extern bool g_depthCompare;
+extern bool g_depthUpdate;
+extern metaforce::ERglEnum g_depthFunc;
+extern std::array<zeus::CColor, 4> g_colorRegs;
+extern bool g_alphaUpdate;
+extern std::optional<float> g_dstAlpha;
+extern zeus::CColor g_clearColor;
 
 extern wgpu::Buffer g_vertexBuffer;
 extern wgpu::Buffer g_uniformBuffer;
@@ -169,8 +182,10 @@ struct TextureRef {
   , gameFormat(gameFormat) {}
 };
 
-using PipelineRef = uint64_t;
 using BindGroupRef = uint64_t;
+using PipelineRef = uint64_t;
+using SamplerRef = uint64_t;
+using ShaderRef = uint64_t;
 using Range = std::pair<uint32_t, uint32_t>;
 
 enum class ShaderType {
@@ -178,6 +193,7 @@ enum class ShaderType {
   ColoredQuad,
   TexturedQuad,
   MoviePlayer,
+  Stream,
 };
 
 void initialize();
@@ -201,6 +217,11 @@ static inline Range push_uniform(const T& data) {
   return push_uniform(reinterpret_cast<const uint8_t*>(&data), sizeof(T));
 }
 
+template <typename State>
+const State& get_state();
+template <typename DrawData>
+void push_draw_command(DrawData data);
+
 template <typename PipelineConfig>
 PipelineRef pipeline_ref(PipelineConfig config);
 bool bind_pipeline(PipelineRef ref, const wgpu::RenderPassEncoder& pass);
@@ -208,5 +229,9 @@ bool bind_pipeline(PipelineRef ref, const wgpu::RenderPassEncoder& pass);
 BindGroupRef bind_group_ref(const wgpu::BindGroupDescriptor& descriptor);
 const wgpu::BindGroup& find_bind_group(BindGroupRef id);
 
-static inline zeus::CMatrix4f get_combined_matrix() { return g_proj * g_mv; }
+const wgpu::Sampler& sampler_ref(const wgpu::SamplerDescriptor& descriptor);
+
+uint32_t align_uniform(uint32_t value);
+
+static inline Mat4x4<float> get_combined_matrix() { return g_proj * g_mv; }
 } // namespace aurora::gfx

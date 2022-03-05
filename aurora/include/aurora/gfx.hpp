@@ -45,7 +45,9 @@ enum class ERglBlendFactor {
   SrcAlpha = 4,
   InvSrcAlpha = 5,
   DstAlpha = 6,
-  InvDstAlpha = 7
+  InvDstAlpha = 7,
+  DstColor = 8,
+  InvDstColor = 9,
 };
 
 enum class ERglLogicOp {
@@ -137,7 +139,7 @@ struct CFogState {
 enum class EStreamFlagBits : u8 {
   fHasNormal = 0x1,
   fHasColor = 0x2,
-  fHasTexture = 0x3,
+  fHasTexture = 0x4,
 };
 using EStreamFlags = Flags<EStreamFlagBits>;
 
@@ -220,7 +222,9 @@ enum class ZComp : uint8_t {
 
 [[nodiscard]] bool get_dxt_compression_supported() noexcept;
 
-void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp) noexcept;
+void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp, const TextureHandle& tex, float lod) noexcept;
+void unbind_texture(GX::TexMapID id) noexcept;
+void disable_tev_stage(metaforce::ERglTevStage stage) noexcept;
 void update_tev_stage(metaforce::ERglTevStage stage, const metaforce::CTevCombiners::ColorPass& colPass,
                       const metaforce::CTevCombiners::AlphaPass& alphaPass,
                       const metaforce::CTevCombiners::CTevOp& colorOp,

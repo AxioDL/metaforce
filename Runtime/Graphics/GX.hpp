@@ -278,6 +278,7 @@ enum TextureFormat : uint32_t {
 
 enum TexMapID {
   TEXMAP0,
+  TEXMAP1,
   TEXMAP2,
   TEXMAP3,
   TEXMAP4,

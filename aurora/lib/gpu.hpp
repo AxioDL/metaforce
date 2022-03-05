@@ -21,7 +21,7 @@ struct GraphicsConfig {
   wgpu::TextureFormat colorFormat;
   wgpu::TextureFormat depthFormat;
   uint32_t msaaSamples;
-  uint8_t textureAnistropy;
+  uint16_t textureAnistropy;
 };
 struct TextureWithSampler {
   wgpu::Texture texture;
@@ -58,7 +58,7 @@ namespace aurora::gpu::utils {
 template <auto N>
 static consteval std::array<wgpu::VertexAttribute, N>
 make_vertex_attributes(std::array<wgpu::VertexFormat, N> formats) {
-  std::array<wgpu::VertexAttribute, N> attributes{};
+  std::array<wgpu::VertexAttribute, N> attributes;
   uint64_t offset = 0;
   for (uint32_t i = 0; i < N; ++i) {
     auto format = formats[i];

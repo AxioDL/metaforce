@@ -257,7 +257,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   default:
     break;
   }
-  g_window = SDL_CreateWindow("Metaforce", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, flags);
+  g_window = SDL_CreateWindow("Metaforce", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 960, flags);
   if (g_window == nullptr) {
     Log.report(logvisor::Fatal, FMT_STRING("Error creating window: {}"), SDL_GetError());
     unreachable();

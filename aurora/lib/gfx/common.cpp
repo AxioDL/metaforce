@@ -2,8 +2,9 @@
 
 #include "../gpu.hpp"
 #include "colored_quad/shader.hpp"
-#include "textured_quad/shader.hpp"
 #include "movie_player/shader.hpp"
+#include "stream/shader.hpp"
+#include "textured_quad/shader.hpp"
 
 #include <condition_variable>
 #include <deque>
@@ -21,6 +22,7 @@ struct ShaderState {
   movie_player::State moviePlayer;
   colored_quad::State coloredQuad;
   textured_quad::State texturedQuad;
+  stream::State stream;
 };
 struct ShaderDrawCommand {
   ShaderType type;
@@ -28,6 +30,7 @@ struct ShaderDrawCommand {
     movie_player::DrawData moviePlayer;
     colored_quad::DrawData coloredQuad;
     textured_quad::DrawData texturedQuad;
+    stream::DrawData stream;
   };
 };
 struct PipelineCreateCommand {
@@ -36,6 +39,7 @@ struct PipelineCreateCommand {
     movie_player::PipelineConfig moviePlayer;
     colored_quad::PipelineConfig coloredQuad;
     textured_quad::PipelineConfig texturedQuad;
+    stream::PipelineConfig stream;
   };
 };
 enum class CommandType {
@@ -65,6 +69,19 @@ zeus::CMatrix4f g_mv;
 zeus::CMatrix4f g_mvInv;
 zeus::CMatrix4f g_proj;
 metaforce::CFogState g_fogState;
+// GX state
+metaforce::ERglCullMode g_cullMode;
+metaforce::ERglBlendMode g_blendMode;
+metaforce::ERglBlendFactor g_blendFacSrc;
+metaforce::ERglBlendFactor g_blendFacDst;
+metaforce::ERglLogicOp g_blendOp;
+bool g_depthCompare;
+bool g_depthUpdate;
+metaforce::ERglEnum g_depthFunc;
+std::array<zeus::CColor, 4> g_colorRegs;
+bool g_alphaUpdate;
+std::optional<float> g_dstAlpha;
+zeus::CColor g_clearColor;
 
 using NewPipelineCallback = std::function<wgpu::RenderPipeline()>;
 static std::mutex g_pipelineMutex;
@@ -74,6 +91,7 @@ static std::condition_variable g_pipelineCv;
 static std::unordered_map<PipelineRef, wgpu::RenderPipeline> g_pipelines;
 static std::deque<std::pair<PipelineRef, NewPipelineCallback>> g_queuedPipelines;
 static std::unordered_map<BindGroupRef, wgpu::BindGroup> g_cachedBindGroups;
+static std::unordered_map<SamplerRef, wgpu::Sampler> g_cachedSamplers;
 std::atomic_uint32_t queuedPipelines;
 std::atomic_uint32_t createdPipelines;
 
@@ -118,14 +136,29 @@ static void push_draw_command(ShaderDrawCommand data) { g_commands.push_back({Co
 bool get_dxt_compression_supported() noexcept { return g_device.HasFeature(wgpu::FeatureName::TextureCompressionBC); }
 
 // GX state
-void set_cull_mode(metaforce::ERglCullMode mode) noexcept {}
+void set_cull_mode(metaforce::ERglCullMode mode) noexcept { g_cullMode = mode; }
 void set_blend_mode(metaforce::ERglBlendMode mode, metaforce::ERglBlendFactor src, metaforce::ERglBlendFactor dst,
-                    metaforce::ERglLogicOp op) noexcept {}
-void set_depth_mode(bool compare_enable, metaforce::ERglEnum func, bool update_enable) noexcept {}
-void set_gx_reg1_color(const zeus::CColor& color) noexcept {}
-void set_alpha_update(bool enabled) noexcept {}
-void set_dst_alpha(bool enabled, float value) noexcept {}
-void set_clear_color(const zeus::CColor& color) noexcept {}
+                    metaforce::ERglLogicOp op) noexcept {
+  g_blendMode = mode;
+  g_blendFacSrc = src;
+  g_blendFacDst = dst;
+  g_blendOp = op;
+}
+void set_depth_mode(bool compare_enable, metaforce::ERglEnum func, bool update_enable) noexcept {
+  g_depthCompare = compare_enable;
+  g_depthFunc = func;
+  g_depthUpdate = update_enable;
+}
+void set_gx_reg1_color(const zeus::CColor& color) noexcept { g_colorRegs[1] = color; }
+void set_alpha_update(bool enabled) noexcept { g_alphaUpdate = enabled; }
+void set_dst_alpha(bool enabled, float value) noexcept {
+  if (enabled) {
+    g_dstAlpha = value;
+  } else {
+    g_dstAlpha.reset();
+  }
+}
+void set_clear_color(const zeus::CColor& color) noexcept { g_clearColor = color; }
 
 // Model state
 void set_alpha_discard(bool v) {}
@@ -195,7 +228,6 @@ void queue_colored_quad(CameraFilterType filter_type, ZComp z_comparison, bool z
   auto data = colored_quad::make_draw_data(g_state.coloredQuad, filter_type, z_comparison, z_test, color, rect, z);
   push_draw_command({.type = ShaderType::ColoredQuad, .coloredQuad = data});
 }
-
 template <>
 PipelineRef pipeline_ref(colored_quad::PipelineConfig config) {
   return find_pipeline({.type = ShaderType::ColoredQuad, .coloredQuad = config},
@@ -212,6 +244,20 @@ template <>
 PipelineRef pipeline_ref(movie_player::PipelineConfig config) {
   return find_pipeline({.type = ShaderType::MoviePlayer, .moviePlayer = config},
                        [=]() { return create_pipeline(g_state.moviePlayer, config); });
+}
+
+template <>
+const stream::State& get_state() {
+  return g_state.stream;
+}
+template <>
+void push_draw_command(stream::DrawData data) {
+  push_draw_command({.type = ShaderType::Stream, .stream = data});
+}
+template <>
+PipelineRef pipeline_ref(stream::PipelineConfig config) {
+  return find_pipeline({.type = ShaderType::Stream, .stream = config},
+                       [=]() { return create_pipeline(g_state.stream, config); });
 }
 
 static void pipeline_worker() {
@@ -276,6 +322,7 @@ void initialize() {
   g_state.moviePlayer = movie_player::construct_state();
   g_state.coloredQuad = colored_quad::construct_state();
   g_state.texturedQuad = textured_quad::construct_state();
+  g_state.stream = stream::construct_state();
 }
 
 void shutdown() {
@@ -336,6 +383,9 @@ void render(const wgpu::RenderPassEncoder& pass) {
       case ShaderType::MoviePlayer:
         movie_player::render(g_state.moviePlayer, draw.moviePlayer, pass);
         break;
+      case ShaderType::Stream:
+        stream::render(g_state.stream, draw.stream, pass);
+        break;
       }
     } break;
     }
@@ -391,5 +441,20 @@ const wgpu::BindGroup& find_bind_group(BindGroupRef id) {
     unreachable();
   }
   return g_cachedBindGroups[id];
+}
+
+const wgpu::Sampler& sampler_ref(const wgpu::SamplerDescriptor& descriptor) {
+  const auto id = xxh3_hash(descriptor);
+  if (!g_cachedSamplers.contains(id)) {
+    g_cachedSamplers[id] = g_device.CreateSampler(&descriptor);
+  }
+  return g_cachedSamplers[id];
+}
+
+uint32_t align_uniform(uint32_t value) {
+  wgpu::SupportedLimits limits;
+  g_device.GetLimits(&limits); // TODO cache
+  const auto uniform_alignment = limits.limits.minUniformBufferOffsetAlignment;
+  return ALIGN(value, uniform_alignment);
 }
 } // namespace aurora::gfx

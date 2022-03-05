@@ -159,24 +159,25 @@ void CTexture::Load(GX::TexMapID id, EClampMode clamp) {
 
     // GXInitObjectData(x20_texObj, image_ptr);
     // GXLoadObj(x20_texObj, id);
+    aurora::gfx::bind_texture(id, clamp, x20_texObj, 0.f);
     sLoadedTextures[id] = this;
     x64_frameAllocated = sCurrentFrameCount;
   }
 }
 
-void CTexture::LoadMipLevel(s32 mip, GX::TexMapID id, EClampMode clamp) {
-  auto image_ptr = /*x44_aramToken.GetMRAMSafe() */ x44_aramToken_x4_buff.get();
-  u32 width = x4_w;
-  u32 height = x6_h;
-  u32 iVar15 = 0;
-  u32 offset = 0;
-  if (mip > 0) {
-    for (u32 i = 0; i < mip; ++i) {
-      offset += ROUND_UP_32(x9_bitsPerPixel * (ROUND_UP_4(width) * ROUND_UP_4(height)));
-      width /= 2;
-      height /= 2;
-    }
-  }
+void CTexture::LoadMipLevel(float lod, GX::TexMapID id, EClampMode clamp) {
+  // auto image_ptr = /*x44_aramToken.GetMRAMSafe() */ x44_aramToken_x4_buff.get();
+  // u32 width = x4_w;
+  // u32 height = x6_h;
+  // u32 iVar15 = 0;
+  // u32 offset = 0;
+  // if (mip > 0) {
+  //   for (u32 i = 0; i < mip; ++i) {
+  //     offset += ROUND_UP_32(x9_bitsPerPixel * (ROUND_UP_4(width) * ROUND_UP_4(height)));
+  //     width /= 2;
+  //     height /= 2;
+  //   }
+  // }
 
   // GXTexObj texObj;
   // GXInitTexObj(&texObj, image_ptr + offset, width, height, x18_gxFormat);
@@ -186,6 +187,7 @@ void CTexture::LoadMipLevel(s32 mip, GX::TexMapID id, EClampMode clamp) {
     xa_25_canLoadPalette = false;
   }
   // GXLoadTexObj(&texObj, mapId);
+  aurora::gfx::bind_texture(id, clamp, x20_texObj, lod);
   x64_frameAllocated = sCurrentFrameCount;
   sLoadedTextures[id] = nullptr;
 }
@@ -333,7 +335,10 @@ bool CTexture::sMangleMips = false;
 u32 CTexture::sCurrentFrameCount = 0;
 u32 CTexture::sTotalAllocatedMemory = 0;
 
-void CTexture::InvalidateTexMap(GX::TexMapID id) { sLoadedTextures[id] = nullptr; }
+void CTexture::InvalidateTexMap(GX::TexMapID id) {
+  aurora::gfx::unbind_texture(id);
+  sLoadedTextures[id] = nullptr;
+}
 
 CFactoryFnReturn FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                  CObjectReference* selfRef) {

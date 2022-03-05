@@ -150,10 +150,20 @@ void CGraphics::EndScene() {
   UpdateFPSCounter();
 }
 
+void CGraphics::Render2D(const CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::CColor& col) {
+  const auto oldProj = g_Proj;
+  CGraphics::SetOrtho(-g_Viewport.x8_width / 2, g_Viewport.x8_width / 2, g_Viewport.xc_height / 2,
+                      -g_Viewport.xc_height / 2, -1.f, -10.f);
+  // TODO
+  g_Proj = oldProj;
+  FlushProjection();
+}
+
 bool CGraphics::BeginRender2D(const CTexture& tex) { return false; }
 
 void CGraphics::DoRender2D(const CTexture& tex, s32 x, s32 y, s32 w1, s32 w2, s32 w3, s32 w4, s32 w5,
                            const zeus::CColor& col) {}
+
 void CGraphics::EndRender2D(bool v) {}
 
 void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1) {}
@@ -565,7 +575,5 @@ void CGraphics::StreamVertex(const zeus::CVector3f& pos) {
   aurora::gfx::stream_vertex(sStreamFlags, pos, sQueuedNormal, sQueuedColor, sQueuedTexCoord);
 }
 
-void CGraphics::StreamEnd() {
-  aurora::gfx::stream_end();
-}
+void CGraphics::StreamEnd() { aurora::gfx::stream_end(); }
 } // namespace metaforce

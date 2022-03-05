@@ -155,6 +155,7 @@ public:
   static void SetCullMode(ERglCullMode);
   static void BeginScene();
   static void EndScene();
+  static void Render2D(const CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::CColor& col);
   static bool BeginRender2D(const CTexture& tex);
   static void DoRender2D(const CTexture& tex, s32 x, s32 y, s32 w1, s32 w2, s32 w3, s32 w4, s32 w5,
                          const zeus::CColor& col);

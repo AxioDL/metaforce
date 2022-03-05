@@ -4,7 +4,11 @@ namespace metaforce::CTevCombiners {
 u32 CTevPass::sNextUniquePass = 0;
 
 void CTevPass::Execute(ERglTevStage stage) const {
-  aurora::gfx::update_tev_stage(stage, x4_colorPass, x14_alphaPass, x24_colorOp, x38_alphaOp);
+  if (*this == skPassThru) {
+    aurora::gfx::disable_tev_stage(stage);
+  } else {
+    aurora::gfx::update_tev_stage(stage, x4_colorPass, x14_alphaPass, x24_colorOp, x38_alphaOp);
+  }
 }
 
 constexpr u32 maxTevPasses = 2;
