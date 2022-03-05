@@ -202,8 +202,7 @@ constexpr zeus::CMatrix4f PlusOneZ(1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 
 constexpr zeus::CMatrix4f VulkanCorrect(1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 0.f, 0.f, 0.f, 0.5f, 0.5f + FLT_EPSILON,
                                         0.f, 0.f, 0.f, 1.f);
 
-zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect, float znear, float zfar,
-                                                      bool forRenderer) {
+zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect, float znear, float zfar) {
   CProjectionState st;
   float tfov = std::tan(zeus::degToRad(fovy * 0.5f));
   st.x14_near = znear;
@@ -219,34 +218,17 @@ zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect, 
   float tpb = st.xc_top + st.x10_bottom;
   float fpn = st.x18_far + st.x14_near;
   float fmn = st.x18_far - st.x14_near;
-
-  if (!forRenderer) {
-    return zeus::CMatrix4f(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
-                           0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn, 0.f, 0.f, -1.f, 0.f);
-  }
-
-  //  switch (g_BooPlatform) {
-  //  case boo::IGraphicsDataFactory::Platform::OpenGL:
-  //  default: {
-  //    return zeus::CMatrix4f(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * st.x14_near / tmb, tpb / tmb,
-  //    0.f,
-  //                           0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn, 0.f, 0.f, -1.f, 0.f);
-  //  }
-  //  case boo::IGraphicsDataFactory::Platform::D3D11:
-  //  case boo::IGraphicsDataFactory::Platform::Metal: {
-  zeus::CMatrix4f mat2(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f, 0.f,
-                       0.f, st.x18_far / fmn, st.x14_near * st.x18_far / fmn, 0.f, 0.f, -1.f, 0.f);
-  return PlusOneZ * mat2;
-  //  }
-  //  case boo::IGraphicsDataFactory::Platform::Vulkan: {
-  //    zeus::CMatrix4f mat2(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
-  //                         0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn, 0.f, 0.f, -1.f, 0.f);
-  //    return VulkanCorrect * mat2;
-  //  }
-  //  }
+  // clang-format off
+  return {
+      2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f,
+      0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
+      0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn,
+      0.f, 0.f, -1.f, 0.f,
+  };
+  // clang-format on
 }
 
-zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer) {
+zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix() {
   if (g_Proj.x0_persp) {
     float rml = g_Proj.x8_right - g_Proj.x4_left;
     float rpl = g_Proj.x8_right + g_Proj.x4_left;
@@ -254,34 +236,14 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer) {
     float tpb = g_Proj.xc_top + g_Proj.x10_bottom;
     float fpn = g_Proj.x18_far + g_Proj.x14_near;
     float fmn = g_Proj.x18_far - g_Proj.x14_near;
-
-    if (!forRenderer) {
-      return zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * g_Proj.x14_near / tmb,
-                             tpb / tmb, 0.f, 0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn, 0.f,
-                             0.f, -1.f, 0.f);
-    }
-
-    //    switch (g_BooPlatform) {
-    //    case boo::IGraphicsDataFactory::Platform::OpenGL:
-    //    default: {
-    //      return zeus::CMatrix4f(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * g_Proj.x14_near / tmb,
-    //                             tpb / tmb, 0.f, 0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
-    //                             0.f, 0.f, -1.f, 0.f);
-    //    }
-    //    case boo::IGraphicsDataFactory::Platform::D3D11:
-    //    case boo::IGraphicsDataFactory::Platform::Metal: {
-    zeus::CMatrix4f mat2(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * g_Proj.x14_near / tmb, tpb / tmb,
-                         0.f, 0.f, 0.f, g_Proj.x18_far / fmn, g_Proj.x14_near * g_Proj.x18_far / fmn, 0.f, 0.f, -1.f,
-                         0.f);
-    return PlusOneZ * mat2;
-    //    }
-    //    case boo::IGraphicsDataFactory::Platform::Vulkan: {
-    //      zeus::CMatrix4f mat2(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f, 2.f * g_Proj.x14_near / tmb,
-    //                           tpb / tmb, 0.f, 0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
-    //                           0.f, 0.f, -1.f, 0.f);
-    //      return VulkanCorrect * mat2;
-    //    }
-    //    }
+    // clang-format off
+    return {
+        2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f,
+        2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
+        0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
+        0.f, 0.f, -1.f, 0.f,
+    };
+    // clang-format on
   } else {
     float rml = g_Proj.x8_right - g_Proj.x4_left;
     float rpl = g_Proj.x8_right + g_Proj.x4_left;
@@ -289,31 +251,14 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer) {
     float tpb = g_Proj.xc_top + g_Proj.x10_bottom;
     float fpn = g_Proj.x18_far + g_Proj.x14_near;
     float fmn = g_Proj.x18_far - g_Proj.x14_near;
-
-    if (!forRenderer) {
-      return zeus::CMatrix4f(2.f / rml, 0.f, 0.f, -rpl / rml, 0.f, 2.f / tmb, 0.f, -tpb / tmb, 0.f, 0.f, -2.f / fmn,
-                             -fpn / fmn, 0.f, 0.f, 0.f, 1.f);
-    }
-
-    //    switch (g_BooPlatform) {
-    //    case boo::IGraphicsDataFactory::Platform::OpenGL:
-    //    default: {
-    //      return zeus::CMatrix4f(2.f / rml, 0.f, 0.f, -rpl / rml, 0.f, 2.f / tmb, 0.f, -tpb / tmb, 0.f, 0.f, -2.f /
-    //      fmn,
-    //                             -fpn / fmn, 0.f, 0.f, 0.f, 1.f);
-    //    }
-    //    case boo::IGraphicsDataFactory::Platform::D3D11:
-    //    case boo::IGraphicsDataFactory::Platform::Metal: {
-    zeus::CMatrix4f mat2(2.f / rml, 0.f, 0.f, -rpl / rml, 0.f, 2.f / tmb, 0.f, -tpb / tmb, 0.f, 0.f, 1.f / fmn,
-                         g_Proj.x14_near / fmn, 0.f, 0.f, 0.f, 1.f);
-    return PlusOneZ * mat2;
-    //    }
-    //    case boo::IGraphicsDataFactory::Platform::Vulkan: {
-    //      zeus::CMatrix4f mat2(2.f / rml, 0.f, 0.f, -rpl / rml, 0.f, 2.f / tmb, 0.f, -tpb / tmb, 0.f, 0.f, -2.f / fmn,
-    //                           -fpn / fmn, 0.f, 0.f, 0.f, 1.f);
-    //      return VulkanCorrect * mat2;
-    //    }
-    //    }
+    // clang-format off
+    return {
+        2.f / rml, 0.f, 0.f, -rpl / rml,
+        0.f, 2.f / tmb, 0.f, -tpb / tmb,
+        0.f, 0.f, -2.f / fmn, -fpn / fmn,
+        0.f, 0.f, 0.f, 1.f
+    };
+    // clang-format on
   }
 }
 
@@ -357,11 +302,11 @@ void CGraphics::FlushProjection() {
   } else {
     // Convert and load ortho
   }
-  aurora::gfx::update_projection(GetPerspectiveProjectionMatrix(true));
+  aurora::gfx::update_projection(GetPerspectiveProjectionMatrix());
 }
 
 zeus::CVector2i CGraphics::ProjectPoint(const zeus::CVector3f& point) {
-  zeus::CVector3f projPt = GetPerspectiveProjectionMatrix(false).multiplyOneOverW(point);
+  zeus::CVector3f projPt = GetPerspectiveProjectionMatrix().multiplyOneOverW(point);
   return {int(projPt.x() * g_Viewport.x10_halfWidth) + int(g_Viewport.x10_halfWidth),
           int(g_Viewport.xc_height) - (int(projPt.y() * g_Viewport.x14_halfHeight) + int(g_Viewport.x14_halfHeight))};
 }
@@ -424,16 +369,6 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const zeus::CVector3f& p1, const
           maxX2 / float(g_Viewport.x8_width),
           1.f - maxY2 / float(g_Viewport.xc_height),
           1.f - minY2 / float(g_Viewport.xc_height)};
-}
-
-zeus::CVector3f CGraphics::ProjectModelPointToViewportSpace(const zeus::CVector3f& point) {
-  zeus::CVector3f pt = g_GXModelView * point;
-  return GetPerspectiveProjectionMatrix(true).multiplyOneOverW(pt);
-}
-
-zeus::CVector3f CGraphics::ProjectModelPointToViewportSpace(const zeus::CVector3f& point, float& wOut) {
-  zeus::CVector3f pt = g_GXModelView * point;
-  return GetPerspectiveProjectionMatrix(true).multiplyOneOverW(pt, wOut);
 }
 
 void CGraphics::SetViewportResolution(const zeus::CVector2i& res) {

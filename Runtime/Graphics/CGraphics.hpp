@@ -164,9 +164,8 @@ public:
   static void SetViewPointMatrix(const zeus::CTransform& xf);
   static void SetViewMatrix();
   static void SetModelMatrix(const zeus::CTransform& xf);
-  static zeus::CMatrix4f CalculatePerspectiveMatrix(float fovy, float aspect, float znear, float zfar,
-                                                    bool forRenderer);
-  static zeus::CMatrix4f GetPerspectiveProjectionMatrix(bool forRenderer);
+  static zeus::CMatrix4f CalculatePerspectiveMatrix(float fovy, float aspect, float znear, float zfar);
+  static zeus::CMatrix4f GetPerspectiveProjectionMatrix();
   static const CProjectionState& GetProjectionState();
   static void SetProjectionState(const CProjectionState&);
   static void SetPerspective(float fovy, float aspect, float znear, float zfar);
@@ -175,8 +174,6 @@ public:
   static zeus::CVector2i ProjectPoint(const zeus::CVector3f& point);
   static SClipScreenRect ClipScreenRectFromMS(const zeus::CVector3f& p1, const zeus::CVector3f& p2);
   static SClipScreenRect ClipScreenRectFromVS(const zeus::CVector3f& p1, const zeus::CVector3f& p2);
-  static zeus::CVector3f ProjectModelPointToViewportSpace(const zeus::CVector3f& point);
-  static zeus::CVector3f ProjectModelPointToViewportSpace(const zeus::CVector3f& point, float& wOut);
 
   static void SetViewportResolution(const zeus::CVector2i& res);
   static void SetViewport(int leftOff, int bottomOff, int width, int height);

@@ -943,7 +943,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       break;
     }
 
-    SParticleUniforms uniformData = {CGraphics::GetPerspectiveProjectionMatrix(true), {1.f, 1.f, 1.f, 1.f}};
+    SParticleUniforms uniformData = {CGraphics::GetPerspectiveProjectionMatrix(/*true*/), {1.f, 1.f, 1.f, 1.f}};
 
 //    m_uniformBufPmus->load(&uniformData, sizeof(SParticleUniforms));
 //
@@ -1259,7 +1259,7 @@ void CElementGen::RenderParticles() {
   CTexture* cachedTex = nullptr;
 
   SParticleUniforms uniformData = {
-      CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
+      CGraphics::GetPerspectiveProjectionMatrix(/*true*/) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
 
   if (texr) {
     CParticle& target = x30_particles[0];
@@ -1661,7 +1661,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
   CGraphics::SetModelMatrix(systemViewPointMatrix);
 
   SParticleUniforms uniformData = {
-      CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
+      CGraphics::GetPerspectiveProjectionMatrix(/*true*/) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
 //  m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
 
   CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);

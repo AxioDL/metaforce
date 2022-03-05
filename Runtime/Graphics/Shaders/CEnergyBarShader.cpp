@@ -20,7 +20,7 @@ void CEnergyBarShader::Shutdown() {
 }
 
 void CEnergyBarShader::updateModelMatrix() {
-  m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
+  m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(/*true*/) * CGraphics::g_GXModelView.toMatrix4f();
 }
 
 void CEnergyBarShader::draw(const zeus::CColor& color0, const std::vector<Vertex>& verts0, const zeus::CColor& color1,

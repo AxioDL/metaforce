@@ -167,7 +167,12 @@ void update_model_view(const zeus::CMatrix4f& mv, const zeus::CMatrix4f& mv_inv)
   g_mv = mv;
   g_mvInv = mv_inv;
 }
-void update_projection(const zeus::CMatrix4f& proj) noexcept { g_proj = proj; }
+constexpr zeus::CMatrix4f DepthCorrect(
+    1.f, 0.f, 0.f, 0.f,
+    0.f, 1.f, 0.f, 0.f,
+    0.f, 0.f, 0.5f, 0.5f,
+    0.f, 0.f, 0.f, 1.f);
+void update_projection(const zeus::CMatrix4f& proj) noexcept { g_proj = DepthCorrect * proj; }
 void update_fog_state(const metaforce::CFogState& state) noexcept { g_fogState = state; }
 void set_viewport(const zeus::CRectangle& rect, float znear, float zfar) noexcept {
   g_commands.push_back({CommandType::SetViewport, {.setViewport = {rect, znear, zfar}}});

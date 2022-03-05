@@ -44,9 +44,8 @@ void CGameCamera::SetActive(bool active) {
 
 zeus::CMatrix4f CGameCamera::GetPerspectiveMatrix() const {
   if (x170_24_perspDirty) {
-    const_cast<CGameCamera*>(this)->xec_perspectiveMatrix =
-        CGraphics::CalculatePerspectiveMatrix(x15c_currentFov, x168_aspect, x160_znear, x164_zfar, false);
-    const_cast<CGameCamera*>(this)->x170_24_perspDirty = false;
+    xec_perspectiveMatrix = CGraphics::CalculatePerspectiveMatrix(x15c_currentFov, x168_aspect, x160_znear, x164_zfar);
+    x170_24_perspDirty = false;
   }
 
   return xec_perspectiveMatrix;

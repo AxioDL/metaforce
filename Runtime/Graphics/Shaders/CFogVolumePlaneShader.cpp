@@ -35,7 +35,7 @@ namespace metaforce {
 //}
 
 void CFogVolumePlaneShader::addFan(const zeus::CVector3f* verts, int numVerts) {
-  zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(true);
+  zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(/*true*/);
   zeus::CVector4f vert0 = proj * zeus::CVector4f(CGraphics::g_GXModelView * verts[0]);
   if (!m_verts.empty()) {
     m_verts.push_back(m_verts.back());

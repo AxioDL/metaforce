@@ -1006,7 +1006,7 @@ void CParticleSwoosh::Render(const CActorLights*) {
     }
   }
 
-  zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
+  zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(/*true*/) * CGraphics::g_GXModelView.toMatrix4f();
 //  m_uniformBuf->load(&mvp, sizeof(zeus::CMatrix4f));
 //  if (m_cachedVerts.size()) {
 //    m_vertBuf->load(m_cachedVerts.data(), m_cachedVerts.size() * sizeof(CParticleSwooshShaders::Vert));

@@ -88,7 +88,7 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
   CGraphics::SetModelMatrix(modXf);
 
   SParticleUniforms uniformData = {
-      CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
+      CGraphics::GetPerspectiveProjectionMatrix(/*true*/) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
 //  decal.m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
 
   bool redToAlpha = sMoveRedToAlphaBuffer && desc.x18_ADD && desc.x14_TEX;

@@ -31,7 +31,7 @@ CMapSurfaceShader::CMapSurfaceShader(aurora::ArrayRef<zeus::CVector3f> vbo,
 
 void CMapSurfaceShader::draw(const zeus::CColor& color, u32 start, u32 count) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CMapSurfaceShader::draw", zeus::skMagenta);
-  Uniform uniform = {CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(), color};
+  Uniform uniform = {CGraphics::GetPerspectiveProjectionMatrix(/*true*/) * CGraphics::g_GXModelView.toMatrix4f(), color};
 //  m_uniBuf->load(&uniform, sizeof(Uniform));
 //  CGraphics::SetShaderDataBinding(m_dataBind);
 //  CGraphics::DrawArrayIndexed(start, count);

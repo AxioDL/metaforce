@@ -42,7 +42,7 @@ void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CText
 //    } BooTrace);
   }
 
-  zeus::CMatrix4f uniMtx = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
+  zeus::CMatrix4f uniMtx = CGraphics::GetPerspectiveProjectionMatrix(/*true*/) * CGraphics::g_GXModelView.toMatrix4f();
 //  m_uniBuf->load(&uniMtx, sizeof(zeus::CMatrix4f));
 
   size_t mapSz = sizeof(Instance) * instances.size();

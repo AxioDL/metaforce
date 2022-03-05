@@ -263,7 +263,7 @@ void CTexturedQuadFilter::drawVerts(const zeus::CColor& color, std::array<Vert, 
 
 //  m_vbo->load(verts.data(), sizeof(Vert) * verts.size());
 
-  m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
+  m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(/*true*/) * CGraphics::g_GXModelView.toMatrix4f();
   m_uniform.m_color = color;
   m_uniform.m_lod = lod;
 //  m_uniBuf->load(&m_uniform, sizeof(m_uniform));

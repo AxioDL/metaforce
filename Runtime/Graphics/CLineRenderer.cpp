@@ -86,8 +86,8 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
     return;
 
   float adjWidth = width / 480.f;
-  float w;
-  zeus::CVector3f projPt = CGraphics::ProjectModelPointToViewportSpace(position, w);
+  float w = 0.f;
+  zeus::CVector3f projPt = {}; // CGraphics::ProjectModelPointToViewportSpace(position, w);
 
   if (m_mode == EPrimitiveMode::LineLoop) {
     if (m_nextVert == 0) {

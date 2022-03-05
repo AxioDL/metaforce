@@ -376,7 +376,7 @@ static zeus::CColor GetFlakeColor(const zeus::CMatrix4f& mvp, const CEnvFxShader
 void CEnvFxManagerGrid::RenderSnowParticles(const zeus::CTransform& camXf) {
   const zeus::CVector3f xVec = 0.2f * camXf.basis[0];
   const zeus::CVector3f zVec = 0.2f * camXf.basis[2];
-  const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(false) * CGraphics::g_GXModelView.toMatrix4f();
+  const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix() * CGraphics::g_GXModelView.toMatrix4f();
 //  auto* bufOut = m_instBuf.access();
 //  for (const auto& particle : x1c_particles) {
 //    bufOut->positions[0] = particle.toVec3f();
@@ -413,7 +413,7 @@ void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) {
 void CEnvFxManagerGrid::RenderUnderwaterParticles(const zeus::CTransform& camXf) {
   const zeus::CVector3f xVec = 0.5f * camXf.basis[0];
   const zeus::CVector3f zVec = 0.5f * camXf.basis[2];
-  const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(false) * CGraphics::g_GXModelView.toMatrix4f();
+  const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix() * CGraphics::g_GXModelView.toMatrix4f();
 //  auto* bufOut = m_instBuf.access();
 //  for (const auto& particle : x1c_particles) {
 //    bufOut->positions[0] = particle.toVec3f();
@@ -436,7 +436,7 @@ void CEnvFxManagerGrid::Render(const zeus::CTransform& xf, const zeus::CTransfor
   if (!x1c_particles.empty() && x14_block.first) {
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Translate(x4_position.toVec2f() / 256.f));
     parent.m_uniformData.mv = CGraphics::g_GXModelView.toMatrix4f();
-    parent.m_uniformData.proj = CGraphics::GetPerspectiveProjectionMatrix(true);
+    parent.m_uniformData.proj = CGraphics::GetPerspectiveProjectionMatrix(/*true*/);
     switch (fxType) {
     case EEnvFxType::Snow:
     case EEnvFxType::Rain: {
