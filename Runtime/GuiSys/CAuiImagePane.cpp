@@ -51,8 +51,8 @@ void CAuiImagePane::Update(float dt) {
   CGuiWidget::Update(dt);
 }
 
-void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& tex, int frame, float alpha, bool noBlur,
-                                    EFilterType filter) const {
+void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, CTexture& tex, int frame, float alpha,
+                                    bool noBlur) const {
   zeus::CColor useColor = color;
   useColor.a() *= alpha;
 
@@ -75,26 +75,35 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
     useUVs = &x114_uvs;
   }
 
-  std::vector<zeus::CVector2f> realUseUvs;
-  realUseUvs.reserve(4);
-  for (auto v : *useUVs) {
-    realUseUvs.push_back(v + xd0_uvBias0);
-  }
-
-  bool zTest = xac_drawFlags == EGuiModelDrawFlags::Shadeless || xac_drawFlags == EGuiModelDrawFlags::Opaque;
   if (noBlur) {
-//    aurora::gfx::queue_textured_quad_verts(aurora::gfx::CameraFilterType(filter), tex.GetTexture(),
-//                                           aurora::gfx::ZComp::LEqual, zTest, useColor, xe0_coords, realUseUvs, 0);
-    // quad.drawVerts(useColor, verts);
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5fec);
+    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+    tex.Load(GX::TEXMAP0, EClampMode::Repeat);
+    CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+    CGraphics::StreamColor(useColor);
+    for (u32 i = 0; i < 4; ++i) {
+      CGraphics::StreamTexcoord((*useUVs)[i]);
+      CGraphics::StreamVertex(vec[i]);
+    }
+    CGraphics::StreamEnd();
   } else if ((x14c_deResFactor == 0.f && alpha == 1.f) || tex.GetNumberOfMipMaps() == 1) {
-//    aurora::gfx::queue_textured_quad_verts(aurora::gfx::CameraFilterType(filter), tex.GetTexture(),
-//                                           aurora::gfx::ZComp::LEqual, zTest, useColor, xe0_coords, realUseUvs, 0);
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+    tex.LoadMipLevel(0.f, GX::TEXMAP0, EClampMode::Repeat);
+    CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+    CGraphics::StreamColor(useColor);
+    for (u32 i = 0; i < 4; ++i) {
+      CGraphics::StreamTexcoord((*useUVs)[i] + xd0_uvBias0);
+      CGraphics::StreamVertex(vec[i]);
+    }
+    CGraphics::StreamEnd();
   } else {
     const float tmp = (1.f - x14c_deResFactor) * alpha;
     const float tmp3 = 1.f - tmp * tmp * tmp;
     const float mip = tmp3 * static_cast<float>(tex.GetNumberOfMipMaps() - 1);
-//    aurora::gfx::queue_textured_quad_verts(aurora::gfx::CameraFilterType(filter), tex.GetTexture(),
-//                                           aurora::gfx::ZComp::LEqual, zTest, useColor, xe0_coords, realUseUvs, mip);
+    //    aurora::gfx::queue_textured_quad_verts(aurora::gfx::CameraFilterType(filter), tex.GetTexture(),
+    //                                           aurora::gfx::ZComp::LEqual, zTest, useColor, xe0_coords, realUseUvs,
+    //                                           mip);
   }
 }
 
@@ -107,7 +116,9 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) {
   GetIsFinishedLoadingWidgetSpecific();
   zeus::CColor color = xa8_color2;
   color.a() *= params.x0_alphaMod;
-  // SetZUpdate(xac_drawFlags == EGuiModelDrawFlags::Shadeless || xac_drawFlags == EGuiModelDrawFlags::Opaque);
+  CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual,
+                               xac_drawFlags == EGuiModelDrawFlags::Shadeless ||
+                                   xac_drawFlags == EGuiModelDrawFlags::Opaque);
   float blur0 = 1.f;
   float blur1 = 0.f;
   const int frame0 = static_cast<int>(x144_frameTimer);
@@ -123,46 +134,62 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) {
   }
 
   // Alpha blend
-  DoDrawImagePane(color * zeus::CColor(0.f, 0.5f), *xb8_tex0Tok, frame0, 1.f, true, EFilterType::Blend);
+  CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
+                          ERglLogicOp::Clear);
+  DoDrawImagePane(color * zeus::CColor(0.f, 0.5f), *xb8_tex0Tok, frame0, 1.f, true);
 
   if (x150_flashFactor > 0.f) {
     // Additive blend
     zeus::CColor color2 = xa8_color2;
     color2.a() = x150_flashFactor;
-    DoDrawImagePane(color2, *xb8_tex0Tok, frame0, blur0, false, EFilterType::Blend);
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
+    DoDrawImagePane(color2, *xb8_tex0Tok, frame0, blur0, false);
     if (blur1 > 0.f)
-      DoDrawImagePane(color2, *xb8_tex0Tok, frame1, blur1, false, EFilterType::Blend);
+      DoDrawImagePane(color2, *xb8_tex0Tok, frame1, blur1, false);
   }
 
   switch (xac_drawFlags) {
   case EGuiModelDrawFlags::Shadeless:
   case EGuiModelDrawFlags::Opaque:
     // Opaque blend
-    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, EFilterType::Blend);
-    if (blur1 > 0.f)
-      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, EFilterType::Blend);
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
+                            ERglLogicOp::Clear);
+    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false);
+    if (blur1 > 0.f) {
+      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false);
+    }
     break;
   case EGuiModelDrawFlags::Alpha:
     // Alpha blend
-    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, EFilterType::Blend);
-    if (blur1 > 0.f)
-      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, EFilterType::Blend);
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
+                            ERglLogicOp::Clear);
+    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false);
+    if (blur1 > 0.f) {
+      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false);
+    }
     break;
   case EGuiModelDrawFlags::Additive:
     // Additive blend
-    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, EFilterType::Add);
-    if (blur1 > 0.f)
-      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, EFilterType::Add);
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
+    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false);
+    if (blur1 > 0.f) {
+      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false);
+    }
     break;
   case EGuiModelDrawFlags::AlphaAdditiveOverdraw:
     // Alpha blend
-    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, EFilterType::Blend);
-    if (blur1 > 0.f)
-      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, EFilterType::Blend);
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
+                            ERglLogicOp::Clear);
+    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false);
+    if (blur1 > 0.f) {
+      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false);
+    }
     // Full additive blend
-    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false, EFilterType::Add);
-    if (blur1 > 0.f)
-      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false, EFilterType::Add);
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::One, ERglLogicOp::Clear);
+    DoDrawImagePane(color, *xb8_tex0Tok, frame0, blur0, false);
+    if (blur1 > 0.f) {
+      DoDrawImagePane(color, *xb8_tex0Tok, frame1, blur1, false);
+    }
     break;
   default:
     break;

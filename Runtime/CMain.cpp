@@ -610,18 +610,7 @@ int main(int argc, char** argv) {
       .width = icon.width,
       .height = icon.height,
   };
-#ifdef NDEBUG
-  /* Before we start running the app, lets get a thread going to detect any infinite loops */
-  metaforce::CInfiniteLoopDetector infiniteLoopDetector;
-  std::thread infiniteLoopDetectorThread(&metaforce::CInfiniteLoopDetector::run, &infiniteLoopDetector);
-  infiniteLoopDetectorThread.detach();
   aurora::app_run(std::move(app), std::move(data), argc, argv);
-  infiniteLoopDetector.stop();
-#else
-  /* Debuggers can interrupt the loop detector and make it unable to perform its job correctly, so lets not detect
-   * infinite loops in a debug build */
-  aurora::app_run(std::move(app), std::move(data), argc, argv);
-#endif
   return 0;
 }
 #endif

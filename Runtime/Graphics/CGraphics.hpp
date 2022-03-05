@@ -302,6 +302,8 @@ public:
   static void StreamVertex(float x, float y, float z);
   static void StreamVertex(const zeus::CVector3f& pos);
   static void StreamEnd();
+  static void DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
+                            const zeus::CColor& col, s32 numVerts);
 };
 
 template <class VTX>

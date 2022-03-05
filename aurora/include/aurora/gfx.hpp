@@ -149,7 +149,7 @@ struct CTevOp {
   GX::TevOp x4_op = GX::TevOp::TEV_ADD;
   GX::TevBias x8_bias = GX::TevBias::TB_ZERO;
   GX::TevScale xc_scale = GX::TevScale::CS_SCALE_1;
-  GX::TevRegID xc_regId = GX::TevRegID::TEVPREV;
+  GX::TevRegID x10_regId = GX::TevRegID::TEVPREV;
 
   bool operator<=>(const CTevOp&) const = default;
 };

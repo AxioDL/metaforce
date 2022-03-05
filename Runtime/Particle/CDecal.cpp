@@ -18,38 +18,27 @@ CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf
 
   CDecalDescription* d = x0_description.GetObj();
   if (d->x38_DMDL) {
-    if (d->x48_DLFT)
+    if (d->x48_DLFT) {
       d->x48_DLFT->GetValue(0, x54_modelLifetime);
-    else
+    } else {
       x54_modelLifetime = 0x7FFFFF;
+    }
 
-    if (d->x50_DMRT)
+    if (d->x50_DMRT) {
       d->x50_DMRT->GetValue(0, x60_rotation);
+    }
   } else {
     x5c_29_modelInvalid = true;
   }
-
-//  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-//    for (auto& decal : x3c_decalQuads) {
-//      if (decal.m_desc->x14_TEX) {
-//        decal.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SParticleInstanceTex), 1);
-//      } else {
-//        decal.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SParticleInstanceNoTex), 1);
-//      }
-//      decal.m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
-//      CDecalShaders::BuildShaderDataBinding(ctx, decal);
-//    }
-//    return true;
-//  } BooTrace);
 }
 
 bool CDecal::InitQuad(CQuadDecal& quad, const SQuadDescr& desc) {
-  quad.m_desc = &desc;
   if (desc.x14_TEX) {
-    if (desc.x0_LFT)
+    if (desc.x0_LFT) {
       desc.x0_LFT->GetValue(0, quad.x4_lifetime);
-    else
+    } else {
       quad.x4_lifetime = 0x7FFFFF;
+    }
     if (desc.x8_ROT) {
       desc.x8_ROT->GetValue(0, quad.x8_rotation);
       quad.x0_24_invalid = desc.x8_ROT->IsConstant();
@@ -62,8 +51,9 @@ bool CDecal::InitQuad(CQuadDecal& quad, const SQuadDescr& desc) {
       quad.x0_24_invalid = size <= 1.f;
     }
 
-    if (desc.xc_OFF)
+    if (desc.xc_OFF) {
       quad.x0_24_invalid = desc.xc_OFF->IsFastConstant();
+    }
     return false;
   }
 
@@ -79,14 +69,16 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
   zeus::CColor color = zeus::skWhite;
   float size = 1.f;
   zeus::CVector3f offset;
-  if (CColorElement* clr = desc.x10_CLR.get())
+  if (CColorElement* clr = desc.x10_CLR.get()) {
     clr->GetValue(x58_frameIdx, color);
+  }
   if (CRealElement* sze = desc.x4_SZE.get()) {
     sze->GetValue(x58_frameIdx, size);
     size *= 0.5f;
   }
-  if (CRealElement* rot = desc.x8_ROT.get())
+  if (CRealElement* rot = desc.x8_ROT.get()) {
     rot->GetValue(x58_frameIdx, decal.x8_rotation);
+  }
   if (CVectorElement* off = desc.xc_OFF.get()) {
     off->GetValue(x58_frameIdx, offset);
     offset.y() = 0.f;
@@ -235,8 +227,9 @@ void CDecal::RenderMdl() {
 void CDecal::Render() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CDecal::Render", zeus::skYellow);
   CGlobalRandom gr(sDecalRandom);
-  if (x5c_29_modelInvalid && x5c_30_quad2Invalid && x5c_31_quad1Invalid)
+  if (x5c_29_modelInvalid && x5c_30_quad2Invalid && x5c_31_quad1Invalid) {
     return;
+  }
 
   CGraphics::DisableAllLights();
   CParticleGlobals::instance()->SetEmitterTime(x58_frameIdx);

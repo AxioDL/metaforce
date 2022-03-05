@@ -16,14 +16,8 @@ struct CQuadDecal {
   bool x0_24_invalid : 1 = true;
   s32 x4_lifetime = 0;
   float x8_rotation = 0.f;
-  const SQuadDescr* m_desc = nullptr;
   CQuadDecal() = default;
   CQuadDecal(s32 i, float f) : x4_lifetime(i), x8_rotation(f) {}
-
-//  boo::ObjToken<boo::IGraphicsBufferD> m_instBuf;
-//  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
-//  boo::ObjToken<boo::IShaderDataBinding> m_normalDataBind;
-//  boo::ObjToken<boo::IShaderDataBinding> m_redToAlphaDataBind;
 };
 
 class CDecal {

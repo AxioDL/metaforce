@@ -4,7 +4,60 @@
 #include <cstddef>
 
 namespace GX {
-enum AttrType { NONE, DIRECT, INDEX8, INDEX16 };
+enum Attr {
+  VA_PNMTXIDX = 0x0,
+  VA_TEX0MTXIDX = 0x1,
+  VA_TEX1MTXIDX = 0x2,
+  VA_TEX2MTXIDX = 0x3,
+  VA_TEX3MTXIDX = 0x4,
+  VA_TEX4MTXIDX = 0x5,
+  VA_TEX5MTXIDX = 0x6,
+  VA_TEX6MTXIDX = 0x7,
+  VA_TEX7MTXIDX = 0x8,
+  VA_POS = 0x9,
+  VA_NRM = 0xa,
+  VA_CLR0 = 0xb,
+  VA_CLR1 = 0xc,
+  VA_TEX0 = 0xd,
+  VA_TEX1 = 0xe,
+  VA_TEX2 = 0xf,
+  VA_TEX3 = 0x10,
+  VA_TEX4 = 0x11,
+  VA_TEX5 = 0x12,
+  VA_TEX6 = 0x13,
+  VA_TEX7 = 0x14,
+  POS_MTX_ARRAY = 0x15,
+  NRM_MTX_ARRAY = 0x16,
+  TEX_MTX_ARRAY = 0x17,
+  LIGHT_ARRAY = 0x18,
+  VA_NBT = 0x19,
+  VA_MAX_ATTR = 0x1a,
+  VA_NULL = 0xff,
+};
+
+enum AttrType {
+  NONE,
+  DIRECT,
+  INDEX8,
+  INDEX16,
+};
+
+struct VtxDescList {
+  Attr attr;
+  AttrType type;
+};
+
+enum VtxFmt {
+  VTXFMT0 = 0,
+  VTXFMT1,
+  VTXFMT2,
+  VTXFMT3,
+  VTXFMT4,
+  VTXFMT5,
+  VTXFMT6,
+  VTXFMT7,
+  MAX_VTXFMT,
+};
 
 enum TevColorArg {
   CC_CPREV = 0,
@@ -36,7 +89,15 @@ enum TevAlphaArg {
   CA_ZERO = 7,
 };
 
-enum TevKColorSel {
+enum TevKColorID {
+  KCOLOR0 = 0,
+  KCOLOR1,
+  KCOLOR2,
+  KCOLOR3,
+  MAX_KCOLOR,
+};
+
+enum TevKColorSel : uint8_t {
   TEV_KCSEL_8_8 = 0x00,
   TEV_KCSEL_7_8 = 0x01,
   TEV_KCSEL_6_8 = 0x02,
@@ -70,7 +131,8 @@ enum TevKColorSel {
   TEV_KCSEL_K0_A = 0x1C,
   TEV_KCSEL_K1_A = 0x1D,
   TEV_KCSEL_K2_A = 0x1E,
-  TEV_KCSEL_K3_A = 0x1F
+  TEV_KCSEL_K3_A = 0x1F,
+  INVALID_KCSEL = 0xFF
 };
 
 enum TevKAlphaSel {
@@ -103,7 +165,8 @@ enum TevKAlphaSel {
   TEV_KASEL_K0_A = 0x1C,
   TEV_KASEL_K1_A = 0x1D,
   TEV_KASEL_K2_A = 0x1E,
-  TEV_KASEL_K3_A = 0x1F
+  TEV_KASEL_K3_A = 0x1F,
+  INVALID_KASEL = 0xFF
 };
 
 enum TevOp {
@@ -127,7 +190,22 @@ enum TevBias {
   TB_SUBHALF = 2,
 };
 
-enum TevScale { CS_SCALE_1 = 0, CS_SCALE_2 = 1, CS_SCALE_4 = 2, CS_DIVIDE_2 = 3 };
+enum TevScale {
+  CS_SCALE_1 = 0,
+  CS_SCALE_2 = 1,
+  CS_SCALE_4 = 2,
+  CS_DIVIDE_2 = 3,
+};
+
+enum TexOffset {
+  TO_ZERO,
+  TO_SIXTEENTH,
+  TO_EIGHTH,
+  TO_FOURTH,
+  TO_HALF,
+  TO_ONE,
+  MAX_TEXOFFSET,
+};
 
 enum TexGenType {
   TG_MTX3x4 = 0,
@@ -205,11 +283,51 @@ enum PTTexMtx {
   PTIDENTITY = 125
 };
 
-enum TevRegID { TEVPREV = 0, TEVREG0 = 1, TEVREG1 = 2, TEVREG2 = 3, TEVLAZY = 5 };
+enum TexCoordID {
+  TEXCOORD0 = 0x0,
+  TEXCOORD1,
+  TEXCOORD2,
+  TEXCOORD3,
+  TEXCOORD4,
+  TEXCOORD5,
+  TEXCOORD6,
+  TEXCOORD7,
+  MAX_TEXCOORD = 8,
+  TEXCOORD_NULL = 0xff
+};
 
-enum DiffuseFn { DF_NONE = 0, DF_SIGN, DF_CLAMP };
+enum TevSwapSel {
+  TEV_SWAP0 = 0x0,
+  TEV_SWAP1 = 0x1,
+  TEV_SWAP2 = 0x2,
+  TEV_SWAP3 = 0x3,
+  MAX_TEVSWAP = 0x4,
+};
+enum TevColorChan {
+  CH_RED = 0x0,
+  CH_GREEN = 0x1,
+  CH_BLUE = 0x2,
+  CH_ALPHA = 0x3,
+};
+enum TevRegID {
+  TEVPREV = 0,
+  TEVREG0 = 1,
+  TEVREG1 = 2,
+  TEVREG2 = 3,
+  TEVLAZY = 5,
+};
 
-enum AttnFn { AF_SPEC = 0, AF_SPOT = 1, AF_NONE };
+enum DiffuseFn {
+  DF_NONE = 0,
+  DF_SIGN,
+  DF_CLAMP,
+};
+
+enum AttnFn {
+  AF_SPEC = 0,
+  AF_SPOT = 1,
+  AF_NONE,
+};
 
 enum Primitive {
   POINTS = 0xb8,
@@ -222,16 +340,69 @@ enum Primitive {
 };
 
 enum ChannelID {
-  GX_COLOR0,
-  GX_COLOR1,
-  GX_ALPHA0,
-  GX_ALPHA1,
-  GX_COLOR0A0,
-  GX_COLOR1A1,
-  GX_COLOR_ZERO,
-  GX_ALPHA_BUMP,
-  GX_ALPHA_BUMPN,
-  GX_COLOR_NULL = 0xff
+  COLOR0,
+  COLOR1,
+  ALPHA0,
+  ALPHA1,
+  COLOR0A0,
+  COLOR1A1,
+  COLOR_ZERO,
+  ALPHA_BUMP,
+  ALPHA_BUMPN,
+  COLOR_NULL = 0xff
+};
+
+enum BlendMode : uint8_t {
+  BM_NONE,
+  BM_BLEND,
+  BM_LOGIC,
+  BM_SUBTRACT,
+  MAX_BLENDMODE,
+};
+
+enum LogicOp : uint8_t {
+  LO_CLEAR,
+  LO_AND,
+  LO_REVAND,
+  LO_COPY,
+  LO_INVAND,
+  LO_NOOP,
+  LO_XOR,
+  LO_OR,
+  LO_NOR,
+  LO_EQUIV,
+  LO_INV,
+  LO_REVOR,
+  LO_INVCOPY,
+  LO_INVOR,
+  LO_NAND,
+  LO_SET
+};
+
+enum AlphaOp : uint8_t {
+  AOP_AND,
+  AOP_OR,
+  AOP_XOR,
+  AOP_XNOR,
+  MAX_ALPHAOP,
+};
+
+enum ZTexOp {
+  ZT_DISABLE,
+  ZT_ADD,
+  ZT_REPLACE,
+  MAX_ZTEXOP,
+};
+
+enum Compare {
+  NEVER,
+  LESS,
+  EQUAL,
+  LEQUAL,
+  GREATER,
+  NEQUAL,
+  GEQUAL,
+  ALWAYS,
 };
 
 enum BlendFactor : uint16_t {
@@ -288,6 +459,103 @@ enum TexMapID {
   MAX_TEXMAP,
 };
 
+enum TevStageID {
+  TEVSTAGE0,
+  TEVSTAGE1,
+  TEVSTAGE2,
+  TEVSTAGE3,
+  TEVSTAGE4,
+  TEVSTAGE5,
+  TEVSTAGE6,
+  TEVSTAGE7,
+  TEVSTAGE8,
+  TEVSTAGE9,
+  TEVSTAGE10,
+  TEVSTAGE11,
+  TEVSTAGE12,
+  TEVSTAGE13,
+  TEVSTAGE14,
+  TEVSTAGE15,
+  MAX_TEVSTAGE
+};
+
+enum IndTexFormat {
+  ITF_8,
+  ITF_5,
+  ITF_4,
+  ITF_3,
+  MAX_ITFORMAT,
+};
+
+enum IndTexBiasSel {
+  ITB_NONE,
+  ITB_S,
+  ITB_T,
+  ITB_ST,
+  ITB_U,
+  ITB_SU,
+  ITB_TU,
+  ITB_STU,
+  MAX_ITBIAS,
+};
+
+enum IndTexWrap {
+  ITW_OFF,
+  ITW_256,
+  ITW_128,
+  ITW_64,
+  ITW_32,
+  ITW_16,
+  ITW_0,
+  MAX_ITWRAP,
+};
+
+enum IndTexAlphaSel {
+  ITBA_OFF,
+  ITBA_S,
+  ITBA_T,
+  ITBA_U,
+  MAX_ITBALPHA,
+};
+enum IndTexStageID {
+  INDTEXSTAGE0,
+  INDTEXSTAGE1,
+  INDTEXSTAGE2,
+  INDTEXSTAGE3,
+  MAX_INDTEXSTAGE,
+};
+
+enum GXIndTexScale {
+  ITS_1,
+  ITS_2,
+  ITS_4,
+  ITS_8,
+  ITS_16,
+  ITS_32,
+  ITS_64,
+  ITS_128,
+  ITS_256,
+  MAX_ITSCALE,
+};
+
+enum IndTexMtxID {
+  ITM_OFF,
+  ITM_0,
+  ITM_1,
+  ITM_2,
+  ITM_S0 = 5,
+  ITM_S1,
+  ITM_S2,
+  ITM_T0 = 9,
+  ITM_T1,
+  ITM_T2,
+};
+
+enum TexMtxType {
+  MTX3x4 = 0,
+  MTX2x4,
+};
+
 struct Color {
   union {
     uint8_t color[4];
@@ -316,11 +584,43 @@ struct Color {
     return *this;
   }
 
-  explicit Color(uint8_t val) { *this = val; }
+  explicit Color(uint32_t val) { *this = val; }
   bool operator==(const Color& other) const { return num == other.num; }
   bool operator!=(const Color& other) const { return num != other.num; }
   uint8_t operator[](size_t idx) const { return color[idx]; }
   uint8_t& operator[](size_t idx) { return color[idx]; }
+};
+
+enum ColorSrc {
+  SRC_REG = 0,
+  SRC_VTX,
+};
+
+enum LightID {
+  LIGHT0 = 0x001,
+  LIGHT1 = 0x002,
+  LIGHT2 = 0x004,
+  LIGHT3 = 0x008,
+  LIGHT4 = 0x010,
+  LIGHT5 = 0x020,
+  LIGHT6 = 0x040,
+  LIGHT7 = 0x080,
+  MAX_LIGHT = 0x100,
+  LIGHT_NULL = 0x000,
+};
+
+enum FogType {
+  FOG_NONE = 0x00,
+  FOG_PERSP_LIN = 0x02,
+  FOG_PERSP_EXP = 0x04,
+  FOG_PERSP_EXP2 = 0x05,
+  FOG_PERSP_REVEXP = 0x06,
+  FOG_PERSP_REVEXP2 = 0x07,
+  FOG_ORTHO_LIN = 0x0A,
+  FOG_ORTHO_EXP = 0x0C,
+  FOG_ORTHO_EXP2 = 0x0D,
+  FOG_ORTHO_REVEXP = 0x0E,
+  FOG_ORTHO_REVEXP2 = 0x0F,
 };
 
 } // namespace GX

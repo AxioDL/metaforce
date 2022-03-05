@@ -16,8 +16,13 @@ void CGuiPane::Draw(const CGuiWidgetDrawParms& parms) {
     auto col = xa8_color2;
     col.a() = parms.x0_alphaMod * xa8_color2.a();
 
+#if 0
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::skPassThru);
+    CGraphics::DrawPrimitive(GX::Primitive::TRIANGLESTRIP, xc0_verts.data(), skDefaultNormal, col, xc0_verts.size());
+#else
     aurora::gfx::queue_colored_quad_verts(aurora::gfx::CameraFilterType::Blend, aurora::gfx::ZComp::Always, false, col,
                                           xc0_verts);
+#endif
   }
   CGuiWidget::Draw(parms);
 }

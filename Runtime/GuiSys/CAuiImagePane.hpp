@@ -32,8 +32,7 @@ class CAuiImagePane : public CGuiWidget {
   float x148_fadeDuration = 0.f;
   float x14c_deResFactor = 0.f;
   float x150_flashFactor = 0.f;
-  void DoDrawImagePane(const zeus::CColor& color, const CTexture& tex, int frame, float blurAmt, bool noBlur,
-                       EFilterType filter) const;
+  void DoDrawImagePane(const zeus::CColor& color, CTexture& tex, int frame, float blurAmt, bool noBlur) const;
 
 public:
   CAuiImagePane(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId, CAssetId,

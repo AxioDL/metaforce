@@ -11,6 +11,7 @@
 namespace metaforce {
 
 class CGuiPane : public CGuiWidget {
+  static constexpr zeus::CVector3f skDefaultNormal{0.f, -1.f, 0.f};
 protected:
   zeus::CVector2f xb8_dim;
 

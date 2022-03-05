@@ -576,4 +576,15 @@ void CGraphics::StreamVertex(const zeus::CVector3f& pos) {
 }
 
 void CGraphics::StreamEnd() { aurora::gfx::stream_end(); }
+
+void CGraphics::DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
+                              const zeus::CColor& col, s32 numVerts) {
+  StreamBegin(primitive);
+  StreamColor(col);
+  StreamNormal(normal);
+  for (u32 i = 0; i < numVerts; ++i) {
+    StreamVertex(pos[i]);
+  }
+  StreamEnd();
+}
 } // namespace metaforce

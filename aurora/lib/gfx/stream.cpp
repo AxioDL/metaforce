@@ -296,13 +296,13 @@ static ShaderRef generate_shader() {
     {
       std::string op;
       std::string outReg;
-      switch (stage->colorOp.xc_regId) {
+      switch (stage->colorOp.x10_regId) {
       case GX::TevRegID::TEVPREV:
         outReg = "prev";
         break;
       default:
         Log.report(logvisor::Fatal, FMT_STRING("TODO: colorOp outReg {}"),
-                   magic_enum::enum_name(stage->colorOp.xc_regId));
+                   magic_enum::enum_name(stage->colorOp.x10_regId));
       }
       op = fmt::format(FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),
                        color_arg_reg(stage->colorPass.x0_a, idx), color_arg_reg(stage->colorPass.x4_b, idx),
@@ -314,13 +314,13 @@ static ShaderRef generate_shader() {
     {
       std::string op;
       std::string outReg;
-      switch (stage->alphaOp.xc_regId) {
+      switch (stage->alphaOp.x10_regId) {
       case GX::TevRegID::TEVPREV:
         outReg = "prev.a";
         break;
       default:
         Log.report(logvisor::Fatal, FMT_STRING("TODO: alphaOp outReg {}"),
-                   magic_enum::enum_name(stage->alphaOp.xc_regId));
+                   magic_enum::enum_name(stage->alphaOp.x10_regId));
       }
       op = fmt::format(FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),
                        alpha_arg_reg(stage->alphaPass.x0_a, idx), alpha_arg_reg(stage->alphaPass.x4_b, idx),
