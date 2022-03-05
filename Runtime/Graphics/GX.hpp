@@ -525,7 +525,7 @@ enum IndTexStageID {
   MAX_INDTEXSTAGE,
 };
 
-enum GXIndTexScale {
+enum IndTexScale {
   ITS_1,
   ITS_2,
   ITS_4,
