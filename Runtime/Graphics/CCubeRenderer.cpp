@@ -377,7 +377,7 @@ u32 CCubeRenderer::GetFPS() { return CGraphics::GetFPS(); }
 void CCubeRenderer::CacheReflection(IRenderer::TReflectionCallback cb, void* ctx, bool clearAfter) {}
 void CCubeRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength) {}
 void CCubeRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,
-                                     TVectorRef positions, TVectorRef normals, CModelFlags flags) {}
+                                     TVectorRef positions, TVectorRef normals, const CModelFlags& flags) {}
 void CCubeRenderer::DrawModelDisintegrate(const CModel& model, const CTexture& tex, const zeus::CColor& color,
                                           TVectorRef positions, TVectorRef normals) {}
 void CCubeRenderer::DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) {}

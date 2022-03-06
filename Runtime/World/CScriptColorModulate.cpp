@@ -109,83 +109,38 @@ void CScriptColorModulate::Think(float dt, CStateManager& mgr) {
 }
 
 CModelFlags CScriptColorModulate::CalculateFlags(const zeus::CColor& col) const {
-  CModelFlags ret;
   if (x54_28_depthBackwards) {
     if (x48_blendMode == EBlendMode::Alpha) {
-      ret.x0_blendMode = 5;
-      ret.x1_matSetIdx = 0;
-      ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1 | 0x8;
-      ret.x4_color = col;
+      return {5, 0, static_cast<u16>(x54_26_depthCompare << 0 | x54_27_depthUpdate << 1 | 0x8), col};
     } else if (x48_blendMode == EBlendMode::Additive) {
-      ret.x0_blendMode = 7;
-      ret.x1_matSetIdx = 0;
-      ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1 | 0x8;
-      ret.x4_color = col;
+      return {7, 0, static_cast<u16>(x54_26_depthCompare << 0 | x54_27_depthUpdate << 1 | 0x8), col};
     } else if (x48_blendMode == EBlendMode::Additive2) {
-      ret.x0_blendMode = 8;
-      ret.x1_matSetIdx = 0;
-      ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1 | 0x8;
-      ret.x4_color = col;
+      return {8, 0, static_cast<u16>(x54_26_depthCompare << 0 | x54_27_depthUpdate << 1 | 0x8), col};
     } else if (x48_blendMode == EBlendMode::Opaque) {
-      ret.x0_blendMode = 1;
-      ret.x1_matSetIdx = 0;
-      ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1 | 0x8;
-      ret.x4_color = col;
+      return {1, 0, static_cast<u16>(x54_26_depthCompare << 0 | x54_27_depthUpdate << 1 | 0x8), col};
     } else if (x48_blendMode == EBlendMode::OpaqueAdd) {
-      ret.x0_blendMode = 2;
-      ret.x1_matSetIdx = 0;
-      ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1 | 0x8;
-      // ret.addColor = col;
-    } else {
-      ret.x2_flags = 3;
-      ret.x4_color = zeus::skWhite;
+      return {2, 0, static_cast<u16>(x54_26_depthCompare << 0 | x54_27_depthUpdate << 1 | 0x8), col};
     }
-  } else {
-    if (x48_blendMode == EBlendMode::Alpha) {
-      if (col == zeus::skWhite) {
-        ret.x0_blendMode = 0;
-        ret.x1_matSetIdx = 0;
-        ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1;
-        ret.x4_color = zeus::skWhite;
-      } else {
-        ret.x0_blendMode = 5;
-        ret.x1_matSetIdx = 0;
-        ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1;
-        ret.x4_color = col;
-      }
-    } else if (x48_blendMode == EBlendMode::Additive) {
-      ret.x0_blendMode = 7;
-      ret.x1_matSetIdx = 0;
-      ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1;
-      ret.x4_color = col;
-    } else if (x48_blendMode == EBlendMode::Additive2) {
-      ret.x0_blendMode = 8;
-      ret.x1_matSetIdx = 0;
-      ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1;
-      ret.x4_color = col;
-    } else if (x48_blendMode == EBlendMode::Opaque) {
-      if (col == zeus::skWhite) {
-        ret.x0_blendMode = 0;
-        ret.x1_matSetIdx = 0;
-        ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1;
-        ret.x4_color = zeus::skWhite;
-      } else {
-        ret.x0_blendMode = 1;
-        ret.x1_matSetIdx = 0;
-        ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1;
-        ret.x4_color = col;
-      }
-    } else if (x48_blendMode == EBlendMode::OpaqueAdd) {
-      ret.x0_blendMode = 2;
-      ret.x1_matSetIdx = 0;
-      ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1;
-      // ret.addColor = col;
+  } else if (x48_blendMode == EBlendMode::Alpha) {
+    if (col == zeus::skWhite) {
+      return {0, 0, static_cast<u16>(x54_26_depthCompare << 0 | x54_27_depthUpdate << 1), zeus::skWhite};
     } else {
-      ret.x2_flags = 3;
-      ret.x4_color = zeus::skWhite;
+      return {5, 0, static_cast<u16>(x54_26_depthCompare << 0 | x54_27_depthUpdate << 1), col};
     }
+  } else if (x48_blendMode == EBlendMode::Additive) {
+    return {7, 0, static_cast<u16>(x54_26_depthCompare << 0 | x54_27_depthUpdate << 1), col};
+  } else if (x48_blendMode == EBlendMode::Additive2) {
+    return {8, 0, static_cast<u16>(x54_26_depthCompare << 0 | x54_27_depthUpdate << 1), col};
+  } else if (x48_blendMode == EBlendMode::Opaque) {
+    if (col == zeus::skWhite) {
+      return {0, 0, static_cast<u16>(x54_26_depthCompare << 0 | x54_27_depthUpdate << 1), zeus::skWhite};
+    } else {
+      return {1, 0, static_cast<u16>(x54_26_depthCompare << 0 | x54_27_depthUpdate << 1), col};
+    }
+  } else if (x48_blendMode == EBlendMode::OpaqueAdd) {
+    return {2, 0, static_cast<u16>(x54_26_depthCompare << 0 | x54_27_depthUpdate << 1), col};
   }
-  return ret;
+  return {0, 0, 3, zeus::skWhite};
 }
 
 void CScriptColorModulate::SetTargetFlags(CStateManager& stateMgr, const CModelFlags& flags) {

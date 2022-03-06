@@ -67,7 +67,7 @@ class CPlayerVisor {
 
   int FindEmptyInactiveScanTarget() const;
   int FindCachedInactiveScanTarget(TUniqueId uid) const;
-  bool DrawScanObjectIndicators(const CStateManager& mgr) const;
+  bool DrawScanObjectIndicators(const CStateManager& mgr);
   void UpdateScanObjectIndicators(const CStateManager& mgr, float dt);
   void UpdateScanWindow(float dt, const CStateManager& mgr);
   EScanWindowState GetDesiredScanWindowState(const CStateManager& mgr) const;

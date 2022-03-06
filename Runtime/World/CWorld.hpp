@@ -227,7 +227,7 @@ public:
   void Update(float dt);
   void PreRender();
   void TouchSky();
-  void DrawSky(const zeus::CTransform& xf) const;
+  void DrawSky(const zeus::CTransform& xf);
   void StopGlobalSound(u16 id);
   bool HasGlobalSound(u16 id) const;
   void AddGlobalSound(const CSfxHandle& hnd);

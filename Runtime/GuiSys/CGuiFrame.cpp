@@ -45,42 +45,36 @@ void CGuiFrame::SortDrawOrder() {
 }
 
 void CGuiFrame::EnableLights(u32 lights) const {
-  std::vector<CLight> lightsOut;
-  lightsOut.reserve(m_indexedLights.size() + 1);
   CGraphics::DisableAllLights();
 
   zeus::CColor ambColor(zeus::skBlack);
   ERglLight lightId = ERglLight::Zero;
   int idx = 0;
+  int enabledLights = 0;
   for (CGuiLight* light : m_indexedLights) {
-    if (!light || !light->GetIsVisible()) {
+    if (light == nullptr || !light->GetIsVisible()) {
       ++reinterpret_cast<std::underlying_type_t<ERglLight>&>(lightId);
       ++idx;
       continue;
     }
     if ((lights & (1 << idx)) != 0) {
-      // const zeus::CColor& geomCol = light->GetGeometryColor();
-      // if (geomCol.r || geomCol.g || geomCol.b)
-      //{
-      // CGraphics::LoadLight(lightId, light->BuildLight());
-      lightsOut.push_back(light->BuildLight());
-      CGraphics::EnableLight(lightId);
-      //}
+      const zeus::CColor& geomCol = light->GetGeometryColor();
+      if (geomCol.r() != 0.f || geomCol.g() != 0.f || geomCol.b() != 0.f) {
+        CGraphics::LoadLight(lightId, light->BuildLight());
+        CGraphics::EnableLight(lightId);
+      }
       // accumulate ambient color
       ambColor += light->GetAmbientLightColor();
+      ++enabledLights;
     }
     ++reinterpret_cast<std::underlying_type_t<ERglLight>&>(lightId);
     ++idx;
   }
-  if (lightsOut.empty()) {
-    // CGraphics::SetAmbientColor(zeus::skWhite);
-    lightsOut.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, zeus::skWhite));
+  if (enabledLights == 0) {
+    CGraphics::SetAmbientColor(zeus::skWhite);
   } else {
-    // CGraphics::SetAmbientColor(ambColor);
-    lightsOut.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, ambColor));
+    CGraphics::SetAmbientColor(ambColor);
   }
-
-  // TODO model.ActivateLights(lightsOut);
 }
 
 void CGuiFrame::DisableLights() const { CGraphics::DisableAllLights(); }

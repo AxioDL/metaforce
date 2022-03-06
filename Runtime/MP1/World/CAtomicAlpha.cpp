@@ -59,9 +59,7 @@ void CAtomicAlpha::Render(CStateManager& mgr) {
         GetTransform() * GetScaledLocatorTransform(bomb.x0_locatorName) *
         zeus::CTransform::Scale(
             std::min(1.f, std::max(0.f, bomb.x14_scaleTime - x570_bombReappearDelay) / x570_bombReappearDelay));
-    CModelFlags flags;
-    flags.x2_flags = 1 | 2;
-    flags.x4_color = zeus::skWhite;
+    CModelFlags flags{0, 0, 3, zeus::skWhite};
     x690_bombModel.Render(mgr, locatorXf, x90_actorLights.get(), flags);
   }
 }

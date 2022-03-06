@@ -38,9 +38,7 @@ CScriptPickup::CScriptPickup(TUniqueId uid, std::string_view name, const CEntity
   }
 
   if (x278_delayTimer != 0.f) {
-    xb4_drawFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, 1.f, 1.f, 0.f));
-    xb4_drawFlags.x2_flags &= 0xFFFC;
-    xb4_drawFlags.x2_flags |= 1;
+    xb4_drawFlags = CModelFlags(5, 0, 1, zeus::CColor(1.f, 1.f, 1.f, 0.f));
   }
 }
 
@@ -66,9 +64,7 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
 
   if (x268_fadeInTime != 0.f) {
     if (x270_curTime < x268_fadeInTime) {
-      drawFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, x270_curTime / x268_fadeInTime));
-      drawFlags.x2_flags &= 0xFFFC;
-      drawFlags.x2_flags |= 1;
+      drawFlags = CModelFlags(5, 0, 1, zeus::CColor(1.f, x270_curTime / x268_fadeInTime));
     } else {
       x268_fadeInTime = 0.f;
     }
@@ -80,9 +76,7 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
       alpha = (x26c_lifeTime - x270_curTime) * 0.5f;
     }
 
-    drawFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, alpha));
-    drawFlags.x2_flags &= 0xFFFC;
-    drawFlags.x2_flags |= 1;
+    drawFlags = CModelFlags(5, 0, 1, zeus::CColor(1.f, alpha));
   }
 
   xb4_drawFlags = drawFlags;

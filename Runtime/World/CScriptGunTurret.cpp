@@ -539,10 +539,7 @@ void CScriptGunTurret::Render(CStateManager& mgr) {
     if (x4a4_extensionModel && x4f8_extensionT > 0.f) {
       zeus::CTransform xf = GetTransform();
       xf.origin = x4fc_extensionOffset + (x4f4_extensionRange * 0.5f * zeus::skDown);
-      CModelFlags flags;
-      flags.x2_flags = 3;
-      flags.x1_matSetIdx = 0;
-      flags.x4_color = zeus::skWhite;
+      CModelFlags flags{0, 0, 3, zeus::skWhite};
       x4a4_extensionModel->Render(mgr, xf, x90_actorLights.get(), flags);
     }
   }

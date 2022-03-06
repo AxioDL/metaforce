@@ -249,12 +249,28 @@ void CModel::Touch(u32 matIdx) {
   }
 }
 
-void CModel::Draw(CModelFlags flags) const {}
+void CModel::Draw(CModelFlags flags) {
+  if (flags.x2_flags & CModelFlagBits::DrawNormal) {
+    x28_modelInst->DrawNormal(nullptr, nullptr, ESurfaceSelection::All);
+  }
+  CCubeMaterial::ResetCachedMaterials();
+  MoveToThisFrameList();
+  VerifyCurrentShader(flags.x1_matSetIdx);
+  x28_modelInst->Draw(flags);
+}
 
-void CModel::Draw(TVectorRef positions, TVectorRef normals, CModelFlags flags) {}
+void CModel::Draw(TVectorRef positions, TVectorRef normals, const CModelFlags& flags) {
+  if (flags.x2_flags & CModelFlagBits::DrawNormal) {
+    x28_modelInst->DrawNormal(positions, normals, ESurfaceSelection::All);
+  }
+  CCubeMaterial::ResetCachedMaterials();
+  MoveToThisFrameList();
+  VerifyCurrentShader(flags.x1_matSetIdx);
+  x28_modelInst->Draw(positions, normals, flags);
+}
 
 void CModel::DrawSortedParts(CModelFlags flags) {
-  if ((flags.x2_flags & 0x20) != 0) {
+  if (flags.x2_flags & CModelFlagBits::DrawNormal) {
     x28_modelInst->DrawNormal(nullptr, nullptr, ESurfaceSelection::Sorted);
   }
   CCubeMaterial::ResetCachedMaterials();
@@ -264,7 +280,7 @@ void CModel::DrawSortedParts(CModelFlags flags) {
 }
 
 void CModel::DrawUnsortedParts(CModelFlags flags) {
-  if ((flags.x2_flags & 0x20) != 0) {
+  if (flags.x2_flags & CModelFlagBits::DrawNormal) {
     x28_modelInst->DrawNormal(nullptr, nullptr, ESurfaceSelection::Unsorted);
   }
   CCubeMaterial::ResetCachedMaterials();

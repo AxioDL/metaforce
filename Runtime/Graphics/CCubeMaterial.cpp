@@ -48,7 +48,7 @@ void CCubeMaterial::SetCurrent(const CModelFlags& flags, const CCubeSurface& sur
   }
 
   u32 texCount = SBig(*reinterpret_cast<const u32*>(materialDataCur + 4));
-  if ((flags.x2_flags & 4) != 0) { // render without texture lock
+  if (flags.x2_flags & CModelFlagBits::NoTextureLock) {
     materialDataCur += (2 + texCount) * 4;
   } else {
     materialDataCur += 8;
@@ -259,16 +259,16 @@ void CCubeMaterial::SetupBlendMode(u32 blendFactors, const CModelFlags& flags, b
   aurora::gfx::set_blend_mode(ERglBlendMode::Blend, newSrcFactor, newDstFactor, ERglLogicOp::Clear);
 }
 
-void CCubeMaterial::HandleDepth(u16 modelFlags, CCubeMaterialFlags matFlags) {
+void CCubeMaterial::HandleDepth(CModelFlagsFlags modelFlags, CCubeMaterialFlags matFlags) {
   ERglEnum func = ERglEnum::Never;
-  if ((modelFlags & 0x1) == 0) {
+  if (!(modelFlags & CModelFlagBits::DepthTest)) {
     func = ERglEnum::Always;
-  } else if ((modelFlags & 0x8) != 0) {
-    func = (modelFlags & 0x10) != 0 ? ERglEnum::Greater : ERglEnum::GEqual;
+  } else if (modelFlags & CModelFlagBits::DepthGreater) {
+    func = modelFlags & CModelFlagBits::DepthNonInclusive ? ERglEnum::Greater : ERglEnum::GEqual;
   } else {
-    func = (modelFlags & 0x10) != 0 ? ERglEnum::Less : ERglEnum::LEqual;
+    func = modelFlags & CModelFlagBits::DepthNonInclusive ? ERglEnum::Less : ERglEnum::LEqual;
   }
-  bool depthWrite = (modelFlags & 0x2) != 0 && matFlags & CCubeMaterialFlagBits::fDepthWrite;
+  bool depthWrite = modelFlags & CModelFlagBits::DepthUpdate && matFlags & CCubeMaterialFlagBits::fDepthWrite;
   aurora::gfx::set_depth_mode(true, func, depthWrite);
 }
 

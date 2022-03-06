@@ -179,7 +179,7 @@ public:
   void CacheReflection(TReflectionCallback cb, void* ctx, bool clearAfter) override;
   void DrawSpaceWarp(const zeus::CVector3f& pt, float strength) override;
   void DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,
-                        TVectorRef positions, TVectorRef normals, CModelFlags flags) override;
+                        TVectorRef positions, TVectorRef normals, const CModelFlags& flags) override;
   void DrawModelDisintegrate(const CModel& model, const CTexture& tex, const zeus::CColor& color, TVectorRef positions,
                              TVectorRef normals) override;
   void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) override;

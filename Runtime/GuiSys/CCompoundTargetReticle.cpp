@@ -502,7 +502,7 @@ void CCompoundTargetReticle::Draw(const CStateManager& mgr, bool hideLockon) {
 }
 
 void CCompoundTargetReticle::DrawGrapplePoint(const CScriptGrapplePoint& point, float t, const CStateManager& mgr,
-                                              const zeus::CMatrix3f& rot, bool zEqual) const {
+                                              const zeus::CMatrix3f& rot, bool zEqual) {
   zeus::CVector3f orbitPos = point.GetOrbitPosition(mgr);
   zeus::CColor color;
 
@@ -524,7 +524,7 @@ void CCompoundTargetReticle::DrawGrapplePoint(const CScriptGrapplePoint& point, 
 }
 
 void CCompoundTargetReticle::DrawGrappleGroup(const zeus::CMatrix3f& rot, const CStateManager& mgr,
-                                              bool hideLockon) const {
+                                              bool hideLockon) {
   if (x28_noDrawTicks > 0) {
     return;
   }
@@ -569,7 +569,7 @@ void CCompoundTargetReticle::DrawGrappleGroup(const zeus::CMatrix3f& rot, const 
   }
 }
 
-void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager& mgr) const {
+void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager& mgr) {
   if (x28_noDrawTicks > 0) {
     return;
   }
@@ -677,7 +677,7 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
                                 1.f / x10c_currGroupInterp.GetFactor() * g_tweakTargeting->GetOuterBeamSquaresScale());
     zeus::CMatrix3f outerBeamXf = rot * scale;
     for (int i = 0; i < 9; ++i) {
-      const SOuterItemInfo& info = xe0_outerBeamIconSquares[i];
+      SOuterItemInfo& info = xe0_outerBeamIconSquares[i];
       if (info.x0_model.IsLoaded()) {
         zeus::CTransform modelXf(lockBreakXf * outerBeamXf * zeus::CMatrix3f::RotateY(info.x10_rotAng),
                                  x10c_currGroupInterp.GetTargetPositionWorld());
@@ -925,7 +925,7 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, con
   }
 }
 
-void CCompoundTargetReticle::DrawOrbitZoneGroup(const zeus::CMatrix3f& rot, const CStateManager& mgr) const {
+void CCompoundTargetReticle::DrawOrbitZoneGroup(const zeus::CMatrix3f& rot, const CStateManager& mgr) {
   if (x28_noDrawTicks > 0) {
     return;
   }

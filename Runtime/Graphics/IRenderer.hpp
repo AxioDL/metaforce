@@ -87,7 +87,7 @@ public:
   virtual void CacheReflection(TReflectionCallback cb, void* ctx, bool clearAfter) = 0;
   virtual void DrawSpaceWarp(const zeus::CVector3f& pt, float strength) = 0;
   virtual void DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,
-                                TVectorRef positions, TVectorRef normals, CModelFlags flags) = 0;
+                                TVectorRef positions, TVectorRef normals, const CModelFlags& flags) = 0;
   virtual void DrawModelDisintegrate(const CModel& model, const CTexture& tex, const zeus::CColor& color,
                                      TVectorRef positions, TVectorRef normals) = 0;
   virtual void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) = 0;

@@ -654,8 +654,8 @@ void CWorld::TouchSky() {
     xb4_skyboxOverride.value()->Touch(0);
 }
 
-void CWorld::DrawSky(const zeus::CTransform& xf) const {
-  const CModel* model;
+void CWorld::DrawSky(const zeus::CTransform& xf) {
+  CModel* model;
   if (xa4_skyboxWorldLoaded)
     model = xa4_skyboxWorldLoaded->GetObj();
   else if (xb4_skyboxOverride)
@@ -674,7 +674,6 @@ void CWorld::DrawSky(const zeus::CTransform& xf) const {
   CGraphics::SetDepthRange(DEPTH_SKY, DEPTH_FAR);
 
   CModelFlags flags(0, 0, 1, zeus::skWhite);
-  // flags.m_noZWrite = true;
   model->Draw(flags);
 
   CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);

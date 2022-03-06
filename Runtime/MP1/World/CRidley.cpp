@@ -617,9 +617,9 @@ void CRidley::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   CPlayerState::EPlayerVisor r28 = mgr.GetPlayerState()->GetActiveVisor(mgr);
   bool atLastMat = GetModelData()->GetNumMaterialSets() == (matSet + 1);
   if (r28 == CPlayerState::EPlayerVisor::Thermal && atLastMat) {
-    xb4_drawFlags.x2_flags |= 0x40;
+    xb4_drawFlags.x2_flags |= CModelFlagBits::Unknown1;
   } else {
-    xb4_drawFlags.x2_flags &= 0x40;
+    xb4_drawFlags.x2_flags &= CModelFlagBits::Unknown1;
   }
   xb4_drawFlags.x1_matSetIdx = matSet;
 

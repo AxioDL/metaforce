@@ -13,6 +13,17 @@ namespace metaforce {
 class CCubeSurface;
 class CCubeMaterial;
 
+enum class CModelFlagBits : u16 {
+  DepthTest = 0x1,
+  DepthUpdate = 0x2,
+  NoTextureLock = 0x4,
+  DepthGreater = 0x8,
+  DepthNonInclusive = 0x10,
+  DrawNormal = 0x20,
+  Unknown1 = 0x40,
+};
+using CModelFlagsFlags = Flags<CModelFlagBits>;
+
 struct CModelFlags {
   /**
    * 2: add color
@@ -22,14 +33,7 @@ struct CModelFlags {
    */
   u8 x0_blendMode = 0;
   u8 x1_matSetIdx = 0;
-  /**
-   * 0x1: depth equal
-   * 0x2: depth update
-   * 0x4: render without texture lock
-   * 0x8: depth greater
-   * 0x10: depth non-inclusive
-   */
-  u16 x2_flags = 0;
+  CModelFlagsFlags x2_flags{};
   /**
    * Set into kcolor slot specified by material
    */
@@ -37,6 +41,8 @@ struct CModelFlags {
 
   constexpr CModelFlags() = default;
   constexpr CModelFlags(u8 blendMode, u8 shadIdx, u16 flags, const zeus::CColor& col)
+  : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), x2_flags(flags), x4_color(col) {}
+  constexpr CModelFlags(u8 blendMode, u8 shadIdx, CModelFlagsFlags flags, const zeus::CColor& col)
   : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), x2_flags(flags), x4_color(col) {}
 
   bool operator==(const CModelFlags& other) const {
@@ -92,8 +98,8 @@ public:
   void RemoveFromList();
   void VerifyCurrentShader(u32 matIdx);
   void Touch(u32 matIdx);
-  void Draw(CModelFlags flags) const;
-  void Draw(TVectorRef positions, TVectorRef normals, CModelFlags flags);
+  void Draw(CModelFlags flags);
+  void Draw(TVectorRef positions, TVectorRef normals, const CModelFlags& flags);
   void DrawSortedParts(CModelFlags flags);
   void DrawUnsortedParts(CModelFlags flags);
   bool IsLoaded(u32 matIdx);

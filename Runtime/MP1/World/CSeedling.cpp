@@ -108,10 +108,7 @@ void CSeedling::Think(float dt, CStateManager& mgr) {
 void CSeedling::Render(CStateManager& mgr) {
   if (x400_25_alive && x6bc_spikeData) {
     const size_t index = x722_24_renderOnlyClusterA ? 0 : size_t(x722_25_curNeedleCluster);
-    CModelFlags flags;
-    flags.x2_flags = 3;
-    flags.x4_color = zeus::skWhite;
-
+    CModelFlags flags{0, 0, 3, zeus::skWhite};
     for (const auto& sv : skNeedleLocators[index]) {
       x6bc_spikeData->Render(mgr, GetLctrTransform(sv), x90_actorLights.get(), flags);
     }

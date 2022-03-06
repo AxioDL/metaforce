@@ -56,7 +56,7 @@ int CPlayerVisor::FindCachedInactiveScanTarget(TUniqueId uid) const {
   return -1;
 }
 
-bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const {
+bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) {
   if (!x124_scanIconNoncritical.IsLoaded() || !x130_scanIconCritical.IsLoaded())
     return false;
   if (!x114_scanShield.IsLoaded())
@@ -89,7 +89,7 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const {
       if (!act->GetMaterialList().HasMaterial(EMaterialTypes::Scannable))
         continue;
       const CScannableObjectInfo* scanInfo = act->GetScannableObjectInfo();
-      const CModel* useModel;
+      CModel* useModel;
       const zeus::CColor* useColor;
       const zeus::CColor* useDimColor;
       if (scanInfo->IsImportant()) {

@@ -157,7 +157,7 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
 }
 
 void CDecal::RenderMdl() {
-  const CDecalDescription& desc = *x0_description;
+  CDecalDescription& desc = *x0_description;
   zeus::CColor color = zeus::skWhite;
   zeus::CVector3f dmop;
   zeus::CTransform rotXf;
