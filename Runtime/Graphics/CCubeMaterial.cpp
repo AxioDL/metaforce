@@ -6,6 +6,8 @@
 #include "Graphics/CCubeSurface.hpp"
 #include "Graphics/CModel.hpp"
 
+#include <aurora/model.hpp>
+
 namespace metaforce {
 static u32 sReflectionType = 0;
 static u32 sLastMaterialUnique = UINT32_MAX;
@@ -65,8 +67,8 @@ void CCubeMaterial::SetCurrent(const CModelFlags& flags, const CCubeSurface& sur
   }
   sLastMaterialUnique = groupIdx;
 
-  CCubeMaterialVatFlags vatFlags = SBig(*reinterpret_cast<const u32*>(materialDataCur));
-  // SetVtxDescv_Compressed(vatFlags);
+  u32 vatFlags = SBig(*reinterpret_cast<const u32*>(materialDataCur));
+  aurora::gfx::model::set_vtx_desc_compressed(vatFlags);
   materialDataCur += 8;
 
   bool packedLightMaps = matFlags.IsSet(CCubeMaterialFlagBits::fLightmapUvArray);

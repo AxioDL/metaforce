@@ -6,6 +6,8 @@
 #include "Graphics/CGraphics.hpp"
 #include "Graphics/CModel.hpp"
 
+#include <aurora/model.hpp>
+
 namespace metaforce {
 bool CCubeModel::sRenderModelBlack = false;
 bool CCubeModel::sRenderModelShadow = false;
@@ -156,7 +158,8 @@ void CCubeModel::DrawFlat(TVectorRef positions, TVectorRef normals, ESurfaceSele
     const auto* surface = x38_firstUnsortedSurf;
     while (surface != nullptr) {
       const auto mat = GetMaterialByIndex(surface->GetMaterialIndex());
-      // TODO draw
+      aurora::gfx::model::set_vtx_desc_compressed(mat.GetVertexDesc());
+      aurora::gfx::model::queue_surface(surface->GetDisplayList(), surface->GetDisplayListSize());
       surface = surface->GetNextSurface();
     }
   }
@@ -164,14 +167,19 @@ void CCubeModel::DrawFlat(TVectorRef positions, TVectorRef normals, ESurfaceSele
     const auto* surface = x3c_firstSortedSurf;
     while (surface != nullptr) {
       const auto mat = GetMaterialByIndex(surface->GetMaterialIndex());
-      // TODO draw
+      aurora::gfx::model::set_vtx_desc_compressed(mat.GetVertexDesc());
+      aurora::gfx::model::queue_surface(surface->GetDisplayList(), surface->GetDisplayListSize());
       surface = surface->GetNextSurface();
     }
   }
 }
 
 void CCubeModel::DrawNormal(TVectorRef positions, TVectorRef normals, ESurfaceSelection surfaces) {
-  // TODO bunch of CGX stuff, what is it doing?
+  CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::skPassZero);
+  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+  // TODO update fog
+  CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::Zero, ERglBlendFactor::One, ERglLogicOp::Clear);
   DrawFlat(positions, normals, surfaces);
 }
 
@@ -201,7 +209,7 @@ void CCubeModel::DrawSurface(const CCubeSurface& surface, const CModelFlags& fla
   auto mat = GetMaterialByIndex(surface.GetMaterialIndex());
   if (!mat.GetFlags().IsSet(CCubeMaterialFlagBits::fShadowOccluderMesh) || sDrawingOccluders) {
     mat.SetCurrent(flags, surface, *this);
-    // TODO draw
+    aurora::gfx::model::queue_surface(surface.GetDisplayList(), surface.GetDisplayListSize());
   }
 }
 
@@ -249,10 +257,10 @@ void CCubeModel::DisableShadowMaps() { sRenderModelShadow = false; }
 
 void CCubeModel::SetArraysCurrent() {
   if (x0_modelInstance.GetVertexPointer() != nullptr) {
-    // TODO set vertices active
+    aurora::gfx::model::set_vertex_buffer(*x0_modelInstance.GetVertexPointer());
   }
   if (x0_modelInstance.GetNormalPointer() != nullptr) {
-    // TODO set normals active
+    aurora::gfx::model::set_normal_buffer(*x0_modelInstance.GetNormalPointer());
   }
   SetStaticArraysCurrent();
 }
@@ -273,26 +281,26 @@ void CCubeModel::SetRenderModelBlack(bool v) {
 }
 
 void CCubeModel::SetSkinningArraysCurrent(TVectorRef positions, TVectorRef normals) {
-  // TODO activate vertices, normals & colors
+  aurora::gfx::model::set_vertex_buffer(*positions);
+  aurora::gfx::model::set_normal_buffer(*normals);
+  // colors unused
   SetStaticArraysCurrent();
 }
 
 void CCubeModel::SetStaticArraysCurrent() {
-  // TODO activate colors
+  // colors unused
   const auto* packedTexCoords = x0_modelInstance.GetPackedTCPointer();
   const auto* texCoords = x0_modelInstance.GetTCPointer();
   if (packedTexCoords == nullptr) {
     sUsingPackedLightmaps = false;
   }
   if (sUsingPackedLightmaps) {
-    // TODO activate packed TCs for texture 0
+    aurora::gfx::model::set_tex0_tc_buffer(*packedTexCoords);
   } else if (texCoords != nullptr) {
-    // TODO activate TCs for texture 0
+    aurora::gfx::model::set_tex0_tc_buffer(*packedTexCoords);
   }
   if (texCoords != nullptr) {
-    for (int i = 1; i < 8; ++i) {
-      // TODO activate TCs for textures 1-7
-    }
+    aurora::gfx::model::set_tc_buffer(*texCoords);
   }
   CCubeMaterial::KillCachedViewDepState();
 }
@@ -300,9 +308,9 @@ void CCubeModel::SetStaticArraysCurrent() {
 void CCubeModel::SetUsingPackedLightmaps(bool v) {
   sUsingPackedLightmaps = v;
   if (v) {
-    // TODO activate packed TCs for texture 0
+    aurora::gfx::model::set_tex0_tc_buffer(*x0_modelInstance.GetPackedTCPointer());
   } else {
-    // TODO activate TCs for texture 0
+    aurora::gfx::model::set_tex0_tc_buffer(*x0_modelInstance.GetTCPointer());
   }
 }
 

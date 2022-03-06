@@ -19,6 +19,10 @@ const CTevPass skPassThru{
     {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC},
     {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA},
 };
+const CTevPass skPassZero{
+    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO},
+    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO},
+};
 const CTevPass sTevPass805a5698{
     {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_C0, GX::TevColorArg::CC_ZERO},
     {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_A0, GX::TevAlphaArg::CA_ZERO},

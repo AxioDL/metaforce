@@ -3,7 +3,7 @@
 #include "../common.hpp"
 #include "../gx.hpp"
 
-namespace aurora::gfx::stream {
+namespace aurora::gfx::model {
 struct DrawData {
   PipelineRef pipeline;
   Range vertRange;
@@ -14,9 +14,9 @@ struct DrawData {
   BindGroupRef textureBindGroup;
 };
 
-struct PipelineConfig : public GXPipelineConfig {
+struct PipelineConfig : GXPipelineConfig {
+  ShaderRef shader;
   uint32_t uniformSize;
-  metaforce::EStreamFlags flags;
 };
 
 struct CachedBindGroup {
@@ -35,4 +35,4 @@ struct State {
 State construct_state();
 wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] PipelineConfig config);
 void render(const State& state, const DrawData& data, const wgpu::RenderPassEncoder& pass);
-} // namespace aurora::gfx::stream
+} // namespace aurora::gfx::model

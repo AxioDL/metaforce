@@ -145,7 +145,7 @@ void CTexture::UnLock() {
 
 void CTexture::Load(GX::TexMapID id, EClampMode clamp) {
   if (sLoadedTextures[id] != this || xa_29_canLoadObj) {
-    auto* image_ptr = /*x44_aramToken.GetMRAMSafe() */ x44_aramToken_x4_buff.get();
+    // auto* image_ptr = /*x44_aramToken.GetMRAMSafe() */ x44_aramToken_x4_buff.get();
     CountMemory();
     if (HasPalette()) {
       x10_graphicsPalette->Load();
@@ -202,8 +202,8 @@ void CTexture::MakeSwappable() {
 
 const u8* CTexture::GetConstBitMapData(s32 mip) const {
   u32 buffOffset = 0;
-  if (x8_mips > 0) {
-    for (u32 i = 0; i < x8_mips; ++i) {
+  if (x8_mips > mip) {
+    for (u32 i = 0; i < mip; ++i) {
       buffOffset += (x9_bitsPerPixel >> 3) * (x4_w >> (i & 0x3f)) * (x6_h >> (i & 0x3f));
     }
   }

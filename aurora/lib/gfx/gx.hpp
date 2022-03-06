@@ -22,6 +22,7 @@ extern std::array<zeus::CColor, GX::MAX_KCOLOR> g_kcolors;
 extern bool g_alphaUpdate;
 extern std::optional<float> g_dstAlpha;
 extern zeus::CColor g_clearColor;
+extern bool g_alphaDiscard;
 
 struct SChannelState {
   zeus::CColor matColor;
@@ -43,18 +44,56 @@ struct STevStage {
   GX::TexMapID texMapId = GX::TEXMAP_NULL;
   GX::ChannelID channelId = GX::COLOR_NULL;
 
-  STevStage(const metaforce::CTevCombiners::ColorPass& colPass, const metaforce::CTevCombiners::AlphaPass& alphaPass,
-            const metaforce::CTevCombiners::CTevOp& colorOp, const metaforce::CTevCombiners::CTevOp& alphaOp)
+  constexpr STevStage(const metaforce::CTevCombiners::ColorPass& colPass,
+                      const metaforce::CTevCombiners::AlphaPass& alphaPass,
+                      const metaforce::CTevCombiners::CTevOp& colorOp,
+                      const metaforce::CTevCombiners::CTevOp& alphaOp) noexcept
   : colorPass(colPass), alphaPass(alphaPass), colorOp(colorOp), alphaOp(alphaOp) {}
+};
+struct STextureBind {
+  aurora::gfx::TextureHandle handle;
+  metaforce::EClampMode clampMode;
+  float lod;
+
+  STextureBind() noexcept = default;
+  STextureBind(aurora::gfx::TextureHandle handle, metaforce::EClampMode clampMode, float lod) noexcept
+  : handle(std::move(handle)), clampMode(clampMode), lod(lod) {}
+  void reset() noexcept { handle.reset(); };
+  [[nodiscard]] wgpu::SamplerDescriptor get_descriptor() const noexcept;
+  operator bool() const noexcept { return handle; }
 };
 
 constexpr u32 maxTevStages = GX::MAX_TEVSTAGE;
 extern std::array<std::optional<STevStage>, maxTevStages> g_tevStages;
+constexpr u32 maxTextures = 8;
+extern std::array<STextureBind, maxTextures> g_textures;
 
-static inline XXH64_hash_t hash_tev_stages(XXH64_hash_t seed = 0) {
-  const auto end = std::find_if(g_tevStages.cbegin(), g_tevStages.cend(), [](const auto& a) { return !a; });
-  return xxh3_hash(g_tevStages.data(), (end - g_tevStages.begin()) * sizeof(STevStage), seed);
-}
+static inline Mat4x4<float> get_combined_matrix() noexcept { return g_proj * g_mv; }
 
-static inline Mat4x4<float> get_combined_matrix() { return g_proj * g_mv; }
+const STextureBind& get_texture(GX::TexMapID id) noexcept;
+
+struct GXShaderConfig {
+  std::array<std::optional<STevStage>, maxTevStages> tevStages;
+  bool alphaDiscard;
+  bool denormalizedVertexAttributes;
+  bool denormalizedNorm;
+  bool denormalizedColor;
+  std::bitset<maxTextures> boundTextures;
+};
+struct GXPipelineConfig {
+  GXShaderConfig shaderConfig;
+  GX::Primitive primitive;
+  metaforce::ERglEnum depthFunc;
+  metaforce::ERglCullMode cullMode;
+  metaforce::ERglBlendMode blendMode;
+  metaforce::ERglBlendFactor blendFacSrc, blendFacDst;
+  metaforce::ERglLogicOp blendOp;
+  std::optional<float> dstAlpha;
+  bool depthCompare, depthUpdate, alphaUpdate;
+};
+void populate_gx_pipeline_config(GXPipelineConfig& config, GX::Primitive primitive,
+                                 std::bitset<maxTextures> enabledTextures) noexcept;
+wgpu::ShaderModule build_shader(const GXShaderConfig& config);
+wgpu::RenderPipeline build_pipeline(wgpu::PipelineLayout layout, ArrayRef<wgpu::VertexBufferLayout> vtxBuffers,
+                                    const GXPipelineConfig& config, zstring_view label) noexcept;
 } // namespace aurora::gfx

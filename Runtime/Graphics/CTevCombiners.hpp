@@ -29,6 +29,7 @@ public:
 };
 
 extern const CTevPass skPassThru;
+extern const CTevPass skPassZero;
 extern const CTevPass sTevPass805a5698;
 extern const CTevPass sTevPass805a5e70;
 extern const CTevPass sTevPass805a5ebc;

@@ -26,11 +26,13 @@ add_library(aurora STATIC
     lib/gfx/texture.cpp
     lib/gfx/stream.cpp
     lib/gfx/gx.cpp
+    lib/gfx/gx_shader.cpp
     lib/gfx/texture_convert.cpp
     lib/gfx/movie_player/shader.cpp
     lib/gfx/textured_quad/shader.cpp
     lib/gfx/colored_quad/shader.cpp
     lib/gfx/stream/shader.cpp
+    lib/gfx/model/shader.cpp
     )
 target_compile_definitions(aurora PRIVATE IMGUI_USER_CONFIG="imconfig_user.h") # IMGUI_USE_WCHAR32
 target_include_directories(aurora PUBLIC include ../)
