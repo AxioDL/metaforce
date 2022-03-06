@@ -110,9 +110,6 @@ private:
   float m_vpad;
 
   void DecodeFromRead(const void* data);
-  void DrawFrame(u32 left, u32 right, u32 top, u32 bottom);
-  void DrawFrame(const zeus::CVector3f& v1, const zeus::CVector3f& v2, const zeus::CVector3f& v3,
-                 const zeus::CVector3f& v4);
   void PostDVDReadRequestIfNeeded();
   void ReadCompleted();
 

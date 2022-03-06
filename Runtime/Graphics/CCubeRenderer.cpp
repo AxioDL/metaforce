@@ -472,13 +472,10 @@ void CCubeRenderer::DoThermalBlendHot() {}
 u32 CCubeRenderer::GetStaticWorldDataSize() { return 0; }
 
 void CCubeRenderer::SetGXRegister1Color(const zeus::CColor& color) {
-  CGraphics::g_ColorRegs[1] = color;
-  aurora::gfx::set_gx_reg1_color(color);
+  aurora::gfx::set_tev_reg_color(GX::TevRegID::TEVREG1, color);
 }
 
 void CCubeRenderer::SetWorldLightFadeLevel(float level) { x2fc_tevReg1Color = zeus::CColor(level, level, level, 1.f); }
-
-void CCubeRenderer::SetWorldLightMultiplyColor(const zeus::CColor& color) { CGraphics::g_ColorRegs[2] = color; }
 
 void CCubeRenderer::PrepareDynamicLights(const std::vector<CLight>& lights) {}
 void CCubeRenderer::AllocatePhazonSuitMaskTexture() {}
@@ -510,5 +507,14 @@ void CCubeRenderer::SetupCGraphicsState() {
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
   // CGX::SetChanCtrl(EChannelId::Channel1, false, GX::SRC_REG, GX::LIGHT_NULL, GX::DF_NONE, GX::AF_NONE);
   CCubeMaterial::EnsureTevsDirect();
+}
+
+void CCubeRenderer::SetupRendererStates(bool depthWrite) {
+  CGraphics::DisableAllLights();
+  CGraphics::SetModelMatrix({});
+  CGraphics::SetAmbientColor(zeus::skBlack);
+  CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, depthWrite);
+  CCubeMaterial::ResetCachedMaterials();
+  aurora::gfx::set_tev_reg_color(GX::TEVREG1, x2fc_tevReg1Color);
 }
 } // namespace metaforce

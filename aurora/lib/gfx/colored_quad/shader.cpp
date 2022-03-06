@@ -1,6 +1,7 @@
 #include "shader.hpp"
 
 #include "../../gpu.hpp"
+#include "../gx.hpp"
 
 #include <logvisor/logvisor.hpp>
 #include <magic_enum.hpp>

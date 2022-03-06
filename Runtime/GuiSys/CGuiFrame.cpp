@@ -44,21 +44,19 @@ void CGuiFrame::SortDrawOrder() {
             });
 }
 
-void CGuiFrame::EnableLights(u32 lights) const {
+void CGuiFrame::EnableLights(ERglLight lights) const {
   CGraphics::DisableAllLights();
 
   zeus::CColor ambColor(zeus::skBlack);
-  ERglLight lightId = ERglLight::Zero;
-  int idx = 0;
+  ERglLight lightId = 0;
   int enabledLights = 0;
   for (CGuiLight* light : m_indexedLights) {
     if (light == nullptr || !light->GetIsVisible()) {
-      ++reinterpret_cast<std::underlying_type_t<ERglLight>&>(lightId);
-      ++idx;
+      ++lightId;
       continue;
     }
-    if ((lights & (1 << idx)) != 0) {
-      const zeus::CColor& geomCol = light->GetGeometryColor();
+    if ((lights & (1 << lightId)) != 0) {
+      const auto& geomCol = light->GetGeometryColor();
       if (geomCol.r() != 0.f || geomCol.g() != 0.f || geomCol.b() != 0.f) {
         CGraphics::LoadLight(lightId, light->BuildLight());
         CGraphics::EnableLight(lightId);
@@ -67,8 +65,7 @@ void CGuiFrame::EnableLights(u32 lights) const {
       ambColor += light->GetAmbientLightColor();
       ++enabledLights;
     }
-    ++reinterpret_cast<std::underlying_type_t<ERglLight>&>(lightId);
-    ++idx;
+    ++lightId;
   }
   if (enabledLights == 0) {
     CGraphics::SetAmbientColor(zeus::skWhite);

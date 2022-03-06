@@ -12,13 +12,7 @@ using gpu::utils::make_vertex_state;
 State construct_state() {
   wgpu::ShaderModuleWGSLDescriptor wgslDescriptor{};
   wgslDescriptor.source = R"""(
-struct Uniform {
-    xf: mat4x4<f32>;
-    color: vec4<f32>;
-};
 @group(0) @binding(0)
-var<uniform> ubuf: Uniform;
-@group(0) @binding(1)
 var tex_sampler: sampler;
 @group(1) @binding(0)
 var tex_y: texture_2d<f32>;
@@ -35,7 +29,7 @@ struct VertexOutput {
 @stage(vertex)
 fn vs_main(@location(0) in_pos: vec3<f32>, @location(1) in_uv: vec2<f32>) -> VertexOutput {
     var out: VertexOutput;
-    out.pos = ubuf.xf * vec4<f32>(in_pos, 1.0);
+    out.pos = vec4<f32>(in_pos, 1.0);
     out.uv = in_uv;
     return out;
 }
@@ -47,7 +41,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
         textureSample(tex_u, tex_sampler, in.uv).x - 0.5,
         textureSample(tex_v, tex_sampler, in.uv).x - 0.5
     );
-    return ubuf.color * vec4<f32>(
+    return vec4<f32>(
         yuv.x + 1.5958 * yuv.z,
         yuv.x - 0.39173 * yuv.y - 0.8129 * yuv.z,
         yuv.x + 2.017 * yuv.y,
@@ -61,24 +55,9 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
   };
   auto shader = g_device.CreateShaderModule(&shaderDescriptor);
 
-  wgpu::SupportedLimits limits;
-  g_device.GetLimits(&limits);
-  const auto uniform_alignment = limits.limits.minUniformBufferOffsetAlignment;
-  const auto uniform_size = ALIGN(sizeof(Uniform), uniform_alignment);
-
   const std::array uniformLayoutEntries{
       wgpu::BindGroupLayoutEntry{
           .binding = 0,
-          .visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-          .buffer =
-              wgpu::BufferBindingLayout{
-                  .type = wgpu::BufferBindingType::Uniform,
-                  .hasDynamicOffset = true,
-                  .minBindingSize = uniform_size,
-              },
-      },
-      wgpu::BindGroupLayoutEntry{
-          .binding = 1,
           .visibility = wgpu::ShaderStage::Fragment,
           .sampler =
               wgpu::SamplerBindingLayout{
@@ -107,11 +86,6 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
   const std::array uniformBindGroupEntries{
       wgpu::BindGroupEntry{
           .binding = 0,
-          .buffer = g_uniformBuffer,
-          .size = uniform_size,
-      },
-      wgpu::BindGroupEntry{
-          .binding = 1,
           .sampler = sampler,
       },
   };
@@ -219,23 +193,16 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
 }
 
 DrawData make_draw_data(const State& state, const TextureHandle& tex_y, const TextureHandle& tex_u,
-                        const TextureHandle& tex_v, const zeus::CVector3f& v1, const zeus::CVector3f& v2,
-                        const zeus::CVector3f& v3, const zeus::CVector3f& v4) {
+                        const TextureHandle& tex_v, float h_pad, float v_pad) {
   auto pipeline = pipeline_ref(PipelineConfig{});
 
   const std::array verts{
-      Vert{{v1.x(), v1.z(), v1.y()}, {0.0, 0.0}},
-      Vert{{v2.x(), v2.z(), v2.y()}, {0.0, 1.0}},
-      Vert{{v3.x(), v3.z(), v3.y()}, {1.0, 0.0}},
-      Vert{{v4.x(), v4.z(), v4.y()}, {1.0, 1.0}},
+      Vert{{-h_pad, v_pad, 0.f}, {0.0, 0.0}},
+      Vert{{-h_pad, -v_pad, 0.f}, {0.0, 1.0}},
+      Vert{{h_pad, v_pad, 0.f}, {1.0, 0.0}},
+      Vert{{h_pad, -v_pad, 0.f}, {1.0, 1.0}},
   };
   const auto vertRange = push_verts(ArrayRef{verts});
-
-  const auto uniform = Uniform{
-      .xf = Mat4x4_Identity,
-      .color = zeus::skWhite,
-  };
-  const auto uniformRange = push_uniform(uniform);
 
   const std::array entries{
       wgpu::BindGroupEntry{
@@ -261,7 +228,6 @@ DrawData make_draw_data(const State& state, const TextureHandle& tex_y, const Te
   return {
       .pipeline = pipeline,
       .vertRange = vertRange,
-      .uniformRange = uniformRange,
       .textureBindGroup = textureBindGroup,
   };
 }
@@ -271,8 +237,7 @@ void render(const State& state, const DrawData& data, const wgpu::RenderPassEnco
     return;
   }
 
-  const std::array offsets{data.uniformRange.first};
-  pass.SetBindGroup(0, state.uniformBindGroup, offsets.size(), offsets.data());
+  pass.SetBindGroup(0, state.uniformBindGroup);
   pass.SetBindGroup(1, find_bind_group(data.textureBindGroup));
   pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.first, data.vertRange.second);
   pass.Draw(4);

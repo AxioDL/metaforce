@@ -25,6 +25,7 @@ add_library(aurora STATIC
     lib/gfx/common.cpp
     lib/gfx/texture.cpp
     lib/gfx/stream.cpp
+    lib/gfx/gx.cpp
     lib/gfx/texture_convert.cpp
     lib/gfx/movie_player/shader.cpp
     lib/gfx/textured_quad/shader.cpp

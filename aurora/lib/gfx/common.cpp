@@ -65,24 +65,6 @@ struct Command {
   } data;
 };
 
-zeus::CMatrix4f g_mv;
-zeus::CMatrix4f g_mvInv;
-zeus::CMatrix4f g_proj;
-metaforce::CFogState g_fogState;
-// GX state
-metaforce::ERglCullMode g_cullMode;
-metaforce::ERglBlendMode g_blendMode;
-metaforce::ERglBlendFactor g_blendFacSrc;
-metaforce::ERglBlendFactor g_blendFacDst;
-metaforce::ERglLogicOp g_blendOp;
-bool g_depthCompare;
-bool g_depthUpdate;
-metaforce::ERglEnum g_depthFunc;
-std::array<zeus::CColor, 4> g_colorRegs;
-bool g_alphaUpdate;
-std::optional<float> g_dstAlpha;
-zeus::CColor g_clearColor;
-
 using NewPipelineCallback = std::function<wgpu::RenderPipeline()>;
 static std::mutex g_pipelineMutex;
 static std::thread g_pipelineThread;
@@ -135,48 +117,6 @@ static void push_draw_command(ShaderDrawCommand data) { g_commands.push_back({Co
 
 bool get_dxt_compression_supported() noexcept { return g_device.HasFeature(wgpu::FeatureName::TextureCompressionBC); }
 
-// GX state
-void set_cull_mode(metaforce::ERglCullMode mode) noexcept { g_cullMode = mode; }
-void set_blend_mode(metaforce::ERglBlendMode mode, metaforce::ERglBlendFactor src, metaforce::ERglBlendFactor dst,
-                    metaforce::ERglLogicOp op) noexcept {
-  g_blendMode = mode;
-  g_blendFacSrc = src;
-  g_blendFacDst = dst;
-  g_blendOp = op;
-}
-void set_depth_mode(bool compare_enable, metaforce::ERglEnum func, bool update_enable) noexcept {
-  g_depthCompare = compare_enable;
-  g_depthFunc = func;
-  g_depthUpdate = update_enable;
-}
-void set_gx_reg1_color(const zeus::CColor& color) noexcept { g_colorRegs[1] = color; }
-void set_alpha_update(bool enabled) noexcept { g_alphaUpdate = enabled; }
-void set_dst_alpha(bool enabled, float value) noexcept {
-  if (enabled) {
-    g_dstAlpha = value;
-  } else {
-    g_dstAlpha.reset();
-  }
-}
-void set_clear_color(const zeus::CColor& color) noexcept { g_clearColor = color; }
-
-// Model state
-void set_alpha_discard(bool v) {}
-
-void update_model_view(const zeus::CMatrix4f& mv, const zeus::CMatrix4f& mv_inv) noexcept {
-  g_mv = mv;
-  g_mvInv = mv_inv;
-}
-constexpr zeus::CMatrix4f DepthCorrect{
-    // clang-format off
-    1.f, 0.f, 0.f, 0.f,
-    0.f, 1.f, 0.f, 0.f,
-    0.f, 0.f, 0.5f, 0.5f,
-    0.f, 0.f, 0.f, 1.f,
-    // clang-format on
-};
-void update_projection(const zeus::CMatrix4f& proj) noexcept { g_proj = DepthCorrect * proj; }
-void update_fog_state(const metaforce::CFogState& state) noexcept { g_fogState = state; }
 void set_viewport(const zeus::CRectangle& rect, float znear, float zfar) noexcept {
   g_commands.push_back({CommandType::SetViewport, {.setViewport = {rect, znear, zfar}}});
 }
@@ -243,9 +183,8 @@ PipelineRef pipeline_ref(colored_quad::PipelineConfig config) {
 }
 
 void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v,
-                        const zeus::CVector3f& v1, const zeus::CVector3f& v2, const zeus::CVector3f& v3,
-                        const zeus::CVector3f& v4) noexcept {
-  auto data = movie_player::make_draw_data(g_state.moviePlayer, tex_y, tex_u, tex_v, v1, v2, v3, v4);
+                        float h_pad, float v_pad) noexcept {
+  auto data = movie_player::make_draw_data(g_state.moviePlayer, tex_y, tex_u, tex_v, h_pad, v_pad);
   push_draw_command({.type = ShaderType::MoviePlayer, .moviePlayer = data});
 }
 template <>

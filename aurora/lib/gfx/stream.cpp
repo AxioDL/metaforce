@@ -2,6 +2,7 @@
 
 #include "../gpu.hpp"
 #include "common.hpp"
+#include "gx.hpp"
 
 #include <utility>
 
@@ -11,28 +12,6 @@ namespace aurora::gfx {
 using namespace fmt::literals;
 
 static logvisor::Module Log("aurora::gfx::stream");
-
-struct STevStage {
-  metaforce::CTevCombiners::ColorPass colorPass;
-  metaforce::CTevCombiners::AlphaPass alphaPass;
-  metaforce::CTevCombiners::CTevOp colorOp;
-  metaforce::CTevCombiners::CTevOp alphaOp;
-
-  STevStage(const metaforce::CTevCombiners::ColorPass& colPass, const metaforce::CTevCombiners::AlphaPass& alphaPass,
-            const metaforce::CTevCombiners::CTevOp& colorOp, const metaforce::CTevCombiners::CTevOp& alphaOp)
-  : colorPass(colPass), alphaPass(alphaPass), colorOp(colorOp), alphaOp(alphaOp) {}
-};
-constexpr u32 maxTevStages = 2;
-static std::array<std::optional<STevStage>, maxTevStages> sTevStages;
-
-void disable_tev_stage(metaforce::ERglTevStage stage) noexcept { sTevStages[static_cast<size_t>(stage)].reset(); }
-
-void update_tev_stage(metaforce::ERglTevStage stage, const metaforce::CTevCombiners::ColorPass& colPass,
-                      const metaforce::CTevCombiners::AlphaPass& alphaPass,
-                      const metaforce::CTevCombiners::CTevOp& colorOp,
-                      const metaforce::CTevCombiners::CTevOp& alphaOp) noexcept {
-  sTevStages[static_cast<size_t>(stage)] = {colPass, alphaPass, colorOp, alphaOp};
-}
 
 struct SStreamState {
   GX::Primitive primitive;
@@ -218,7 +197,7 @@ std::unordered_map<ShaderRef, wgpu::ShaderModule> g_streamCachedShaders;
 
 static ShaderRef generate_shader() {
   auto flags = sStreamState->flags;
-  const auto hash = xxh3_hash(sTevStages, static_cast<metaforce::EStreamFlags::MaskType>(flags));
+  const auto hash = hash_tev_stages(static_cast<metaforce::EStreamFlags::MaskType>(flags));
   if (g_streamCachedShaders.contains(hash)) {
     return hash;
   }
@@ -264,7 +243,7 @@ static ShaderRef generate_shader() {
   }
   std::string fragmentFn;
   bool hasRast = false;
-  for (size_t idx = 0; const auto& stage : sTevStages) {
+  for (size_t idx = 0; const auto& stage : g_tevStages) {
     if (!stage) {
       idx++;
       continue;
@@ -288,7 +267,7 @@ static ShaderRef generate_shader() {
     }
     idx++;
   }
-  for (size_t idx = 0; const auto& stage : sTevStages) {
+  for (size_t idx = 0; const auto& stage : g_tevStages) {
     if (!stage) {
       idx++;
       continue;

@@ -472,13 +472,12 @@ void CActorLights::ActivateLights() const {
   if (lights.empty()) {
     CGraphics::DisableAllLights();
   } else {
-    for (int idx = 0; const auto& item : lights) {
-      CGraphics::LoadLight(static_cast<ERglLight>(idx), item);
+    for (ERglLight idx = 0; const auto& item : lights) {
+      CGraphics::LoadLight(idx, item);
       idx++;
     }
     // Sets n LSB to 1
-    auto bits = static_cast<u8>((1 << lights.size()) + 255);
-    CGraphics::SetLightState(static_cast<ERglLightBits>(bits));
+    CGraphics::SetLightState(static_cast<ERglLight>((1 << lights.size()) + 255));
   }
 
   if (x298_31_disableWorldLights) {

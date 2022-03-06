@@ -113,8 +113,7 @@ void CFrontEndUI::PlayAdvanceSfx() {
   CSfxManager::SfxStart(SFXfnt_advance_R, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
-CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveGameScreen* sui, u32 rnd)
-: x0_rnd(rnd), x4_saveUI(sui) {
+CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveGameScreen* sui, u32 rnd) : x0_rnd(rnd), x4_saveUI(sui) {
   x10_frme = g_SimplePool->GetObj("FRME_NewFileSelect");
 }
 
@@ -218,8 +217,7 @@ void CFrontEndUI::SNewFileSelectFrame::Update(float dt) {
   x1c_loadedFrame->Update(dt);
 }
 
-CFrontEndUI::SNewFileSelectFrame::EAction
-CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input) {
+CFrontEndUI::SNewFileSelectFrame::EAction CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input) {
   xc_action = EAction::None;
 
   if (x8_subMenu != ESubMenu::EraseGamePopup)
@@ -962,8 +960,8 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveGameScreen* saveUI) {
   x30_textpane_instructions.SetPairText(instructionStr);
 }
 
-CFrontEndUI::SFusionBonusFrame::EAction
-CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSaveGameScreen* sui) {
+CFrontEndUI::SFusionBonusFrame::EAction CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input,
+                                                                                         CSaveGameScreen* sui) {
   x8_action = EAction::None;
 
   if (sui)
@@ -1149,8 +1147,7 @@ void CFrontEndUI::SFrontEndFrame::Update(float dt) {
   x14_loadedFrme->Update(dt);
 }
 
-CFrontEndUI::SFrontEndFrame::EAction
-CFrontEndUI::SFrontEndFrame::ProcessUserInput(const CFinalInput& input) {
+CFrontEndUI::SFrontEndFrame::EAction CFrontEndUI::SFrontEndFrame::ProcessUserInput(const CFinalInput& input) {
   x4_action = EAction::None;
   x14_loadedFrme->ProcessUserInput(input);
   return x4_action;
@@ -1193,8 +1190,7 @@ void CFrontEndUI::SFrontEndFrame::DoAdvance(CGuiTableGroup* caller) {
   }
 }
 
-CFrontEndUI::SFrontEndFrame::SFrontEndFrame(u32 rnd)
-: x0_rnd(rnd) {
+CFrontEndUI::SFrontEndFrame::SFrontEndFrame(u32 rnd) : x0_rnd(rnd) {
   x8_frme = g_SimplePool->GetObj("FRME_FrontEndPL");
 }
 
@@ -1827,15 +1823,14 @@ void CFrontEndUI::Draw() {
 
     if (x64_pressStartAlpha > 0.f && x38_pressStart.IsLoaded()) {
       /* Render "Press Start" */
-      // TODO fixme
-//      const zeus::CRectangle rect(0.5f - x38_pressStart->GetWidth() / 2.f / 640.f * hPad,
-//                                  0.5f + (x38_pressStart->GetHeight() / 2.f - 240.f + 72.f) / 480.f * vPad,
-//                                  x38_pressStart->GetWidth() / 640.f * hPad,
-//                                  x38_pressStart->GetHeight() / 480.f * vPad);
-//      zeus::CColor color = zeus::skWhite;
-//      color.a() = x64_pressStartAlpha;
-//      aurora::gfx::queue_textured_quad(aurora::gfx::CameraFilterType::Add, x38_pressStart->GetTexture(),
-//                                       aurora::gfx::ZComp::Always, false, color, 1.f, rect, 0.f);
+      CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+      g_Renderer->SetBlendMode_AdditiveAlpha();
+      g_Renderer->SetDepthReadWrite(false, false);
+      const auto width = x38_pressStart->GetWidth();
+      const auto height = x38_pressStart->GetHeight();
+      CGraphics::Render2D(*x38_pressStart, 320 - width / 2, 72 - height / 2, width, height,
+                          zeus::CColor{1.f, x64_pressStartAlpha});
     }
 
     if (xc0_attractCount > 0) {

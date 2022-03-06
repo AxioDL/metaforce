@@ -1,5 +1,6 @@
 #include "shader.hpp"
 
+#include "../gx.hpp"
 #include "../../gpu.hpp"
 
 #include <logvisor/logvisor.hpp>

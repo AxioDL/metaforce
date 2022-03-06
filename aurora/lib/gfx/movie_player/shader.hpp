@@ -30,15 +30,10 @@ struct alignas(4) Vert {
   Vec3<float> pos;
   Vec2<float> uv;
 };
-struct alignas(4) Uniform {
-  Mat4x4<float> xf;
-  Vec4<float> color;
-};
 
 State construct_state();
 wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] PipelineConfig config);
 DrawData make_draw_data(const State& state, const TextureHandle& tex_y, const TextureHandle& tex_u,
-                        const TextureHandle& tex_v, const zeus::CVector3f& v1, const zeus::CVector3f& v2,
-                        const zeus::CVector3f& v3, const zeus::CVector3f& v4);
+                        const TextureHandle& tex_v, float h_pad, float v_pad);
 void render(const State& state, const DrawData& data, const wgpu::RenderPassEncoder& pass);
 } // namespace aurora::gfx::movie_player

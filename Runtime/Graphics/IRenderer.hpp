@@ -108,7 +108,7 @@ public:
   virtual u32 GetStaticWorldDataSize() = 0;
   virtual void SetGXRegister1Color(const zeus::CColor& color) = 0;
   virtual void SetWorldLightFadeLevel(float level) = 0;
-  virtual void SetWorldLightMultiplyColor(const zeus::CColor& color) = 0;
+  // Something
   virtual void PrepareDynamicLights(const std::vector<CLight>& lights) = 0;
 };
 

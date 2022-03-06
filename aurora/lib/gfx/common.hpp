@@ -142,24 +142,6 @@ constexpr Mat4x4<float> Mat4x4_Identity{
 } // namespace aurora
 
 namespace aurora::gfx {
-extern zeus::CMatrix4f g_mv;
-extern zeus::CMatrix4f g_mvInv;
-extern zeus::CMatrix4f g_proj;
-extern metaforce::CFogState g_fogState;
-// GX state
-extern metaforce::ERglCullMode g_cullMode;
-extern metaforce::ERglBlendMode g_blendMode;
-extern metaforce::ERglBlendFactor g_blendFacSrc;
-extern metaforce::ERglBlendFactor g_blendFacDst;
-extern metaforce::ERglLogicOp g_blendOp;
-extern bool g_depthCompare;
-extern bool g_depthUpdate;
-extern metaforce::ERglEnum g_depthFunc;
-extern std::array<zeus::CColor, 4> g_colorRegs;
-extern bool g_alphaUpdate;
-extern std::optional<float> g_dstAlpha;
-extern zeus::CColor g_clearColor;
-
 extern wgpu::Buffer g_vertexBuffer;
 extern wgpu::Buffer g_uniformBuffer;
 extern wgpu::Buffer g_indexBuffer;
@@ -232,6 +214,4 @@ const wgpu::BindGroup& find_bind_group(BindGroupRef id);
 const wgpu::Sampler& sampler_ref(const wgpu::SamplerDescriptor& descriptor);
 
 uint32_t align_uniform(uint32_t value);
-
-static inline Mat4x4<float> get_combined_matrix() { return g_proj * g_mv; }
 } // namespace aurora::gfx

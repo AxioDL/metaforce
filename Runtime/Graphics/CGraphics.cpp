@@ -12,15 +12,12 @@
 namespace metaforce {
 CGraphics::CProjectionState CGraphics::g_Proj;
 CFogState CGraphics::g_Fog;
-std::array<zeus::CColor, 3> CGraphics::g_ColorRegs{};
 float CGraphics::g_ProjAspect = 1.f;
-u32 CGraphics::g_NumLightsActive = 0;
 u32 CGraphics::g_NumBreakpointsWaiting = 0;
 u32 CGraphics::g_FlippingState;
 bool CGraphics::g_LastFrameUsedAbove = false;
 bool CGraphics::g_InterruptLastFrameUsedAbove = false;
-ERglLightBits CGraphics::g_LightActive = ERglLightBits::None;
-ERglLightBits CGraphics::g_LightsWereOn = ERglLightBits::None;
+std::bitset<aurora::gfx::MaxLights> CGraphics::g_LightActive{};
 zeus::CTransform CGraphics::g_GXModelView;
 zeus::CTransform CGraphics::g_GXModelViewInvXpose;
 zeus::CTransform CGraphics::g_GXModelMatrix = zeus::CTransform();
@@ -60,33 +57,52 @@ const std::array<zeus::CMatrix3f, 6> CGraphics::skCubeBasisMats{{
 }};
 
 void CGraphics::DisableAllLights() {
-  g_NumLightsActive = 0;
-  g_LightActive = ERglLightBits::None;
-  // TODO: turn lights off for real
+  g_LightActive.reset();
+  aurora::gfx::set_light_state(g_LightActive);
 }
 
 void CGraphics::LoadLight(ERglLight light, const CLight& info) {
-  // TODO: load light for real
+  const auto lightId = static_cast<GX::LightID>(1 << light);
+  switch (info.GetType()) {
+  case ELightType::LocalAmbient:
+    aurora::gfx::load_light_ambient(lightId, info.GetColor());
+    break;
+  case ELightType::Point:
+  case ELightType::Spot:
+  case ELightType::Custom:
+  case ELightType::Directional: {
+    aurora::gfx::Light lightOut{
+        .pos = CGraphics::g_CameraMatrix * info.GetPosition(),
+        .dir = (CGraphics::g_CameraMatrix.basis * info.GetDirection()).normalized(),
+        .color = info.GetColor(),
+        .linAtt = {info.GetAttenuationConstant(), info.GetAttenuationLinear(), info.GetAttenuationQuadratic()},
+        .angAtt = {info.GetAngleAttenuationConstant(), info.GetAngleAttenuationLinear(),
+                   info.GetAngleAttenuationQuadratic()},
+    };
+    if (info.GetType() == ELightType::Directional) {
+      lightOut.pos = (-lightOut.dir) * 1048576.f;
+    }
+    aurora::gfx::load_light(lightId, lightOut);
+    break;
+  }
+  }
 }
 
 void CGraphics::EnableLight(ERglLight light) {
-  ERglLightBits lightBit = ERglLightBits(1 << int(light));
-  if ((lightBit & g_LightActive) == ERglLightBits::None) {
-    g_LightActive |= lightBit;
-    ++g_NumLightsActive;
-    // TODO: turn light on for real
+  if (!g_LightActive.test(light)) {
+    g_LightActive.set(light);
+    aurora::gfx::set_light_state(g_LightActive);
   }
-  g_LightsWereOn = g_LightActive;
 }
 
-void CGraphics::SetLightState(ERglLightBits lightState) {
-  // TODO: set state for real
+void CGraphics::SetLightState(std::bitset<aurora::gfx::MaxLights> lightState) {
   g_LightActive = lightState;
-  g_NumLightsActive = zeus::PopCount(lightState);
+  aurora::gfx::set_light_state(g_LightActive);
 }
 
 void CGraphics::SetAmbientColor(const zeus::CColor& col) {
-  // TODO: set for real
+  aurora::gfx::set_chan_amb_color(GX::COLOR0A0, col);
+  aurora::gfx::set_chan_amb_color(GX::COLOR1A1, col);
 }
 
 void CGraphics::SetFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) {
@@ -150,13 +166,53 @@ void CGraphics::EndScene() {
   UpdateFPSCounter();
 }
 
-void CGraphics::Render2D(const CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::CColor& col) {
+void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::CColor& col) {
   const auto oldProj = g_Proj;
-  CGraphics::SetOrtho(-g_Viewport.x8_width / 2, g_Viewport.x8_width / 2, g_Viewport.xc_height / 2,
-                      -g_Viewport.xc_height / 2, -1.f, -10.f);
-  // TODO
+  const auto oldCull = g_cullMode;
+  const auto oldLights = g_LightActive;
+  SetOrtho(-g_Viewport.x10_halfWidth, g_Viewport.x10_halfWidth, g_Viewport.x14_halfHeight, -g_Viewport.x14_halfHeight,
+           -1.f, -10.f);
+  // disable Y/Z swap TODO do we need to do this elsewhere?
+  aurora::gfx::update_model_view(zeus::CMatrix4f{}, zeus::CMatrix4f{});
+  DisableAllLights();
+  SetCullMode(ERglCullMode::None);
+  tex.Load(GX::TEXMAP0, EClampMode::Repeat);
+
+//  float hPad, vPad;
+//  if (CGraphics::GetViewportAspect() >= 1.78f) {
+//    hPad = 1.78f / CGraphics::GetViewportAspect();
+//    vPad = 1.78f / 1.33f;
+//  } else {
+//    hPad = 1.f;
+//    vPad = CGraphics::GetViewportAspect() / 1.33f;
+//  }
+  // TODO make this right
+  float scaledX = static_cast<float>(x) / 640.f * static_cast<float>(g_Viewport.x8_width);
+  float scaledY = static_cast<float>(y) / 448.f * static_cast<float>(g_Viewport.xc_height);
+  float scaledW = static_cast<float>(w) / 640.f * static_cast<float>(g_Viewport.x8_width);
+  float scaledH = static_cast<float>(h) / 448.f * static_cast<float>(g_Viewport.xc_height);
+
+  float x1 = scaledX - g_Viewport.x10_halfWidth;
+  float y1 = scaledY - g_Viewport.x14_halfHeight;
+  float x2 = x1 + scaledW;
+  float y2 = y1 + scaledH;
+  StreamBegin(GX::TRIANGLESTRIP);
+  StreamColor(col);
+  StreamTexcoord(0.f, 0.f);
+  StreamVertex(x1, y1, 1.f);
+  StreamTexcoord(1.f, 0.f);
+  StreamVertex(x2, y1, 1.f);
+  StreamTexcoord(0.f, 1.f);
+  StreamVertex(x1, y2, 1.f);
+  StreamTexcoord(1.f, 1.f);
+  StreamVertex(x2, y2, 1.f);
+  StreamEnd();
+
+  SetLightState(g_LightActive);
   g_Proj = oldProj;
   FlushProjection();
+  SetModelMatrix({});
+  SetCullMode(oldCull);
 }
 
 bool CGraphics::BeginRender2D(const CTexture& tex) { return false; }
@@ -249,13 +305,12 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix() {
     float rpl = g_Proj.x8_right + g_Proj.x4_left;
     float tmb = g_Proj.xc_top - g_Proj.x10_bottom;
     float tpb = g_Proj.xc_top + g_Proj.x10_bottom;
-    float fpn = g_Proj.x18_far + g_Proj.x14_near;
     float fmn = g_Proj.x18_far - g_Proj.x14_near;
     // clang-format off
     return {
         2.f / rml, 0.f, 0.f, -rpl / rml,
         0.f, 2.f / tmb, 0.f, -tpb / tmb,
-        0.f, 0.f, -2.f / fmn, -fpn / fmn,
+        0.f, 0.f, -1.f / fmn, -g_Proj.x14_near / fmn,
         0.f, 0.f, 0.f, 1.f
     };
     // clang-format on

@@ -457,6 +457,8 @@ enum TexMapID {
   TEXMAP6,
   TEXMAP7,
   MAX_TEXMAP,
+  TEXMAP_NULL = 0xFF,
+  TEX_DISABLE = 0x100,
 };
 
 enum TevStageID {

@@ -76,17 +76,17 @@ void CCubeMaterial::SetCurrent(const CModelFlags& flags, const CCubeSurface& sur
 
   u32 finalKColorCount = 0;
   if (matFlags & CCubeMaterialFlagBits::fKonstValues) {
-    u32 konstCount = *reinterpret_cast<const u32*>(materialDataCur);
+    u32 konstCount = SBig(*reinterpret_cast<const u32*>(materialDataCur));
     finalKColorCount = konstCount;
     materialDataCur += 4;
     for (u32 i = 0; i < konstCount; ++i) {
-      u32 kColor = *reinterpret_cast<const u32*>(materialDataCur);
+      u32 kColor = SBig(*reinterpret_cast<const u32*>(materialDataCur));
       materialDataCur += 4;
-      // TODO set KColor
+      aurora::gfx::set_tev_k_color(static_cast<GX::TevKColorID>(i), kColor);
     }
   }
 
-  u32 blendFactors = *reinterpret_cast<const u32*>(materialDataCur);
+  u32 blendFactors = SBig(*reinterpret_cast<const u32*>(materialDataCur));
   materialDataCur += 4;
   if (g_Renderer->IsInAreaDraw()) {
     // TODO blackout fog, additive blend
@@ -128,25 +128,27 @@ void CCubeMaterial::SetCurrent(const CModelFlags& flags, const CCubeSurface& sur
     finalTevCount = firstTev + 1;
     u32 ccFlags = SBig(*reinterpret_cast<const u32*>(materialDataCur + 8));
     finalCCFlags = ccFlags;
-    u32 outputReg = ccFlags >> 9 & 0x3;
-    if (outputReg == 1) { // TevReg0
+    auto outputReg = static_cast<GX::TevRegID>(ccFlags >> 9 & 0x3);
+    if (outputReg == GX::TEVREG0) {
       materialDataCur += 20;
       texMapTexCoordFlags += 1;
       finalCCFlags = SBig(*reinterpret_cast<const u32*>(materialDataCur + 8));
-      // Set TevReg0 = 0xc0c0c0c0
+      aurora::gfx::set_tev_reg_color(GX::TEVREG0, 0xc0c0c0c0);
     }
     finalACFlags = SBig(*reinterpret_cast<const u32*>(materialDataCur + 12));
-    HandleTev(firstTev, materialDataCur, texMapTexCoordFlags, CCubeModel::sRenderModelShadow);
+    HandleTev(firstTev, reinterpret_cast<const u32*>(materialDataCur), texMapTexCoordFlags,
+              CCubeModel::sRenderModelShadow);
     usesTevReg2 = false;
   } else {
     finalTevCount = firstTev + matTevCount;
     for (u32 i = firstTev; i < finalTevCount; ++i) {
-      HandleTev(i, materialDataCur, texMapTexCoordFlags, CCubeModel::sRenderModelShadow && i == firstTev);
+      HandleTev(i, reinterpret_cast<const u32*>(materialDataCur), texMapTexCoordFlags,
+                CCubeModel::sRenderModelShadow && i == firstTev);
       u32 ccFlags = SBig(*reinterpret_cast<const u32*>(materialDataCur + 8));
       finalCCFlags = ccFlags;
       finalACFlags = SBig(*reinterpret_cast<const u32*>(materialDataCur + 12));
-      u32 outputReg = ccFlags >> 9 & 0x3;
-      if (outputReg == 3) { // TevReg2
+      auto outputReg = static_cast<GX::TevRegID>(ccFlags >> 9 & 0x3);
+      if (outputReg == GX::TEVREG2) {
         usesTevReg2 = true;
       }
       materialDataCur += 20;
@@ -310,10 +312,34 @@ u32 CCubeMaterial::HandleColorChannels(u32 chanCount, u32 firstChan) {
   return chanCount;
 }
 
-void CCubeMaterial::HandleTev(u32 tevCur, const u8* materialDataCur, const u32* texMapTexCoordFlags,
+void CCubeMaterial::HandleTev(u32 tevCur, const u32* materialDataCur, const u32* texMapTexCoordFlags,
                               bool shadowMapsEnabled) {
-  u32 colorArgs = shadowMapsEnabled ? 0x7a04f : SBig(*materialDataCur);
-  // CGX::SetStandardDirectTev_Compressed
+  const u32 colorArgs = shadowMapsEnabled ? 0x7a04f : SBig(materialDataCur[0]);
+  const u32 alphaArgs = SBig(materialDataCur[1]);
+  const u32 colorOps = SBig(materialDataCur[2]);
+  const u32 alphaOps = SBig(materialDataCur[3]);
+
+  // GXSetTevDirect(tevCur);
+  const CTevCombiners::ColorPass colPass{colorArgs};
+  const CTevCombiners::AlphaPass alphaPass{alphaArgs};
+  const CTevCombiners::CTevOp colorOp{colorOps};
+  const CTevCombiners::CTevOp alphaOp{alphaOps};
+  // TODO does this actually change anything?
+  // if (colorOps == alphaOps && ((colorOps & 0x1FF) == 0x100)) {
+  //  colorOp = {true, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, colorOp.x10_regId};
+  //  alphaOp = {true, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, colorOp.x10_regId};
+  // }
+  aurora::gfx::update_tev_stage(static_cast<ERglTevStage>(tevCur), colPass, alphaPass, colorOp, alphaOp);
+
+  u32 tmtcFlags = SBig(*texMapTexCoordFlags);
+  u32 matFlags = SBig(materialDataCur[4]);
+  aurora::gfx::set_tev_order(static_cast<GX::TevStageID>(tevCur), static_cast<GX::TexCoordID>(tmtcFlags & 0xFF),
+                             static_cast<GX::TexMapID>(tmtcFlags >> 8 & 0xFF),
+                             static_cast<GX::ChannelID>(matFlags & 0xFF));
+  aurora::gfx::set_tev_k_color_sel(static_cast<GX::TevStageID>(tevCur),
+                                   static_cast<GX::TevKColorSel>(matFlags >> 0x8 & 0xFF));
+  aurora::gfx::set_tev_k_alpha_sel(static_cast<GX::TevStageID>(tevCur),
+                                   static_cast<GX::TevKAlphaSel>(matFlags >> 0x10 & 0xFF));
 }
 
 u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, u32 texMtx, u32 pttTexMtx) {
@@ -409,17 +435,27 @@ u32 CCubeMaterial::HandleReflection(bool usesTevReg2, u32 indTexSlot, u32 r5, u3
   } else {
     // GX_CC_KONST
   }
-  // set reflection kcolor
+  aurora::gfx::set_tev_k_color(static_cast<GX::TevKColorID>(finalKColorCount),
+                               zeus::CColor{sReflectionAlpha, sReflectionAlpha});
+  aurora::gfx::set_tev_k_color_sel(static_cast<GX::TevStageID>(finalTevCount),
+                                   static_cast<GX::TevKColorSel>(GX::TEV_KCSEL_K0 + finalKColorCount));
+
+  const auto stage = static_cast<GX::TevStageID>(finalTevCount + out);
   // tex = g_Renderer->GetRealReflection
   // tex.Load(texCount, 0)
 
+  // TODO
+
   finalACFlags = 0;
   finalCCFlags = 0;
+
+  // aurora::gfx::set_tev_order(stage, ...)
+
   return out + 1;
 }
 
 void CCubeMaterial::DoPassthru(u32 finalTevCount) {
-  // TODO
+  aurora::gfx::disable_tev_stage(static_cast<ERglTevStage>(finalTevCount));
 }
 
 void CCubeMaterial::DoModelShadow(u32 texCount, u32 tcgCount) {

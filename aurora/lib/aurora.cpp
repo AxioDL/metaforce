@@ -1,5 +1,6 @@
 #include <aurora/aurora.hpp>
 #include "gfx/common.hpp"
+#include "gfx/gx.hpp"
 #include "gpu.hpp"
 #include "input.hpp"
 #include "imgui.hpp"
@@ -298,7 +299,13 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
               // .resolveTarget = g_frameBufferResolved.view,
               .loadOp = wgpu::LoadOp::Clear,
               .storeOp = wgpu::StoreOp::Store,
-              .clearColor = {0.f, 0.f, 0.f, 0.f},
+              .clearColor =
+                  {
+                      .r = gfx::g_clearColor.r(),
+                      .g = gfx::g_clearColor.g(),
+                      .b = gfx::g_clearColor.b(),
+                      .a = gfx::g_clearColor.a(),
+                  },
           },
       };
       const auto depthStencilAttachment = wgpu::RenderPassDepthStencilAttachment{

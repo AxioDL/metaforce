@@ -227,7 +227,7 @@ bool CModel::IsLoaded(u32 matIdx) {
   VerifyCurrentShader(matIdx);
   const auto& textures = *x28_modelInst->x1c_textures;
   if (textures.empty()) {
-    return false;
+    return true;
   }
   for (const auto& token : textures) {
     if (token.IsNull() && !token.IsLoaded()) {

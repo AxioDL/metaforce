@@ -151,6 +151,16 @@ struct CTevOp {
   GX::TevScale xc_scale = GX::TevScale::CS_SCALE_1;
   GX::TevRegID x10_regId = GX::TevRegID::TEVPREV;
 
+  constexpr CTevOp() = default;
+  constexpr CTevOp(bool clamp, GX::TevOp op, GX::TevBias bias, GX::TevScale scale, GX::TevRegID regId)
+  : x0_clamp(clamp), x4_op(op), x8_bias(bias), xc_scale(scale), x10_regId(regId) {}
+  constexpr CTevOp(u32 compressedDesc)
+  : x0_clamp((compressedDesc >> 8 & 1) != 0)
+  , x4_op(static_cast<GX::TevOp>(compressedDesc & 0xF))
+  , x8_bias(static_cast<GX::TevBias>(compressedDesc >> 4 & 3))
+  , xc_scale(static_cast<GX::TevScale>(compressedDesc >> 6 & 3))
+  , x10_regId(static_cast<GX::TevRegID>(compressedDesc >> 9 & 3)) {}
+
   bool operator<=>(const CTevOp&) const = default;
 };
 struct ColorPass {
@@ -159,6 +169,14 @@ struct ColorPass {
   GX::TevColorArg x8_c;
   GX::TevColorArg xc_d;
 
+  constexpr ColorPass(GX::TevColorArg a, GX::TevColorArg b, GX::TevColorArg c, GX::TevColorArg d)
+  : x0_a(a), x4_b(b), x8_c(c), xc_d(d) {}
+  constexpr ColorPass(u32 compressedDesc)
+  : x0_a(static_cast<GX::TevColorArg>(compressedDesc & 0x1F))
+  , x4_b(static_cast<GX::TevColorArg>(compressedDesc >> 5 & 0x1F))
+  , x8_c(static_cast<GX::TevColorArg>(compressedDesc >> 10 & 0x1F))
+  , xc_d(static_cast<GX::TevColorArg>(compressedDesc >> 15 & 0x1F)) {}
+
   bool operator<=>(const ColorPass&) const = default;
 };
 struct AlphaPass {
@@ -166,6 +184,14 @@ struct AlphaPass {
   GX::TevAlphaArg x4_b;
   GX::TevAlphaArg x8_c;
   GX::TevAlphaArg xc_d;
+
+  constexpr AlphaPass(GX::TevAlphaArg a, GX::TevAlphaArg b, GX::TevAlphaArg c, GX::TevAlphaArg d)
+  : x0_a(a), x4_b(b), x8_c(c), xc_d(d) {}
+  constexpr AlphaPass(u32 compressedDesc)
+  : x0_a(static_cast<GX::TevAlphaArg>(compressedDesc & 0x1F))
+  , x4_b(static_cast<GX::TevAlphaArg>(compressedDesc >> 5 & 0x1F))
+  , x8_c(static_cast<GX::TevAlphaArg>(compressedDesc >> 10 & 0x1F))
+  , xc_d(static_cast<GX::TevAlphaArg>(compressedDesc >> 15 & 0x1F)) {}
 
   bool operator<=>(const AlphaPass&) const = default;
 };
@@ -220,8 +246,23 @@ enum class ZComp : uint8_t {
   Always,
 };
 
+constexpr u32 MaxLights = 8;
+struct Light {
+  zeus::CVector3f pos;
+  zeus::CVector3f dir;
+  zeus::CColor color;
+  zeus::CVector3f linAtt{1.f, 0.f, 0.f};
+  zeus::CVector3f angAtt{1.f, 0.f, 0.f};
+};
+
 [[nodiscard]] bool get_dxt_compression_supported() noexcept;
 
+void stream_begin(GX::Primitive primitive) noexcept;
+void stream_vertex(metaforce::EStreamFlags flags, const zeus::CVector3f& pos, const zeus::CVector3f& nrm,
+                   const zeus::CColor& color, const zeus::CVector2f& uv) noexcept;
+void stream_end() noexcept;
+
+// GX state
 void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp, const TextureHandle& tex, float lod) noexcept;
 void unbind_texture(GX::TexMapID id) noexcept;
 void disable_tev_stage(metaforce::ERglTevStage stage) noexcept;
@@ -229,20 +270,20 @@ void update_tev_stage(metaforce::ERglTevStage stage, const metaforce::CTevCombin
                       const metaforce::CTevCombiners::AlphaPass& alphaPass,
                       const metaforce::CTevCombiners::CTevOp& colorOp,
                       const metaforce::CTevCombiners::CTevOp& alphaOp) noexcept;
-void stream_begin(GX::Primitive primitive) noexcept;
-void stream_vertex(metaforce::EStreamFlags flags, const zeus::CVector3f& pos, const zeus::CVector3f& nrm,
-                   const zeus::CColor& color, const zeus::CVector2f& uv) noexcept;
-void stream_end() noexcept;
-
-// GX state
 void set_cull_mode(metaforce::ERglCullMode mode) noexcept;
 void set_blend_mode(metaforce::ERglBlendMode mode, metaforce::ERglBlendFactor src, metaforce::ERglBlendFactor dst,
                     metaforce::ERglLogicOp op) noexcept;
 void set_depth_mode(bool compare_enable, metaforce::ERglEnum func, bool update_enable) noexcept;
-void set_gx_reg1_color(const zeus::CColor& color) noexcept;
+void set_tev_reg_color(GX::TevRegID id, const zeus::CColor& color) noexcept;
+void set_tev_k_color(GX::TevKColorID id, const zeus::CColor& color) noexcept;
 void set_alpha_update(bool enabled) noexcept;
 void set_dst_alpha(bool enabled, float value) noexcept;
 void set_clear_color(const zeus::CColor& color) noexcept;
+void set_tev_order(GX::TevStageID id, GX::TexCoordID tcid, GX::TexMapID tmid, GX::ChannelID cid) noexcept;
+void set_tev_k_color_sel(GX::TevStageID id, GX::TevKColorSel sel) noexcept;
+void set_tev_k_alpha_sel(GX::TevStageID id, GX::TevKAlphaSel sel) noexcept;
+void set_chan_amb_color(GX::ChannelID id, const zeus::CColor& color) noexcept;
+void set_chan_mat_color(GX::ChannelID id, const zeus::CColor& color) noexcept;
 
 // Model state
 void set_alpha_discard(bool v);
@@ -250,6 +291,9 @@ void set_alpha_discard(bool v);
 void update_model_view(const zeus::CMatrix4f& mv, const zeus::CMatrix4f& mv_inv) noexcept;
 void update_projection(const zeus::CMatrix4f& proj) noexcept;
 void update_fog_state(const metaforce::CFogState& state) noexcept;
+void load_light(GX::LightID id, const Light& light) noexcept;
+void load_light_ambient(GX::LightID id, const zeus::CColor& ambient) noexcept;
+void set_light_state(std::bitset<MaxLights> bits) noexcept;
 void set_viewport(const zeus::CRectangle& rect, float znear, float zfar) noexcept;
 void set_scissor(uint32_t x, uint32_t y, uint32_t w, uint32_t h) noexcept;
 
@@ -272,9 +316,8 @@ void queue_colored_quad_verts(CameraFilterType filter_type, ZComp z_comparison, 
                               const ArrayRef<zeus::CVector3f>& pos) noexcept;
 void queue_colored_quad(CameraFilterType filter_type, ZComp z_comparison, bool z_test, const zeus::CColor& color,
                         const zeus::CRectangle& rect, float z) noexcept;
-void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v,
-                        const zeus::CVector3f& v1, const zeus::CVector3f& v2, const zeus::CVector3f& v3,
-                        const zeus::CVector3f& v4) noexcept;
+void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v, float h_pad,
+                        float v_pad) noexcept;
 
 TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mips, metaforce::ETexelFormat format,
                                     ArrayRef<uint8_t> data, zstring_view label) noexcept;

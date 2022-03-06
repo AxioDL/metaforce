@@ -25,20 +25,7 @@ extern CVar* g_disableLighting;
 class CLight;
 class CTimeProvider;
 
-enum class ERglLight : u8 { Zero = 0, One, Two, Three, Four, Five, Six, Seven };
-
-enum class ERglLightBits : u8 {
-  None = 0,
-  Zero = 1,
-  One = 1 << 1,
-  Two = 1 << 2,
-  Three = 1 << 3,
-  Four = 1 << 4,
-  Five = 1 << 5,
-  Six = 1 << 6,
-  Seven = 1 << 7
-};
-ENABLE_BITWISE_ENUM(ERglLightBits)
+using ERglLight = u8;
 
 struct SViewport {
   u32 x0_left;
@@ -119,15 +106,12 @@ public:
   static zeus::CVector2f g_CachedDepthRange;
   static CFogState g_Fog;
   static SViewport g_Viewport;
-  static std::array<zeus::CColor, 3> g_ColorRegs;
   static float g_ProjAspect;
-  static u32 g_NumLightsActive;
   static u32 g_NumBreakpointsWaiting;
   static u32 g_FlippingState;
   static bool g_LastFrameUsedAbove;
   static bool g_InterruptLastFrameUsedAbove;
-  static ERglLightBits g_LightActive;
-  static ERglLightBits g_LightsWereOn;
+  static std::bitset<aurora::gfx::MaxLights> g_LightActive;
   static zeus::CTransform g_GXModelView;
   static zeus::CTransform g_GXModelViewInvXpose;
   static zeus::CTransform g_GXModelMatrix;
@@ -147,7 +131,7 @@ public:
   static void DisableAllLights();
   static void LoadLight(ERglLight light, const CLight& info);
   static void EnableLight(ERglLight light);
-  static void SetLightState(ERglLightBits lightState);
+  static void SetLightState(std::bitset<aurora::gfx::MaxLights> lightState);
   static void SetAmbientColor(const zeus::CColor& col);
   static void SetFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color);
   static void SetDepthWriteMode(bool test, ERglEnum comp, bool write);
@@ -155,7 +139,7 @@ public:
   static void SetCullMode(ERglCullMode);
   static void BeginScene();
   static void EndScene();
-  static void Render2D(const CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::CColor& col);
+  static void Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::CColor& col);
   static bool BeginRender2D(const CTexture& tex);
   static void DoRender2D(const CTexture& tex, s32 x, s32 y, s32 w1, s32 w2, s32 w3, s32 w4, s32 w5,
                          const zeus::CColor& col);

@@ -366,36 +366,24 @@ void CMoviePlayer::Rewind() {
 }
 
 void CMoviePlayer::Draw() {
-  if (GetIsFullyCached()) {
-    g_Renderer->SetDepthReadWrite(false, false);
-    g_Renderer->SetViewportOrtho(false, -4096.f, 4096.f);
-    const auto vpHeight = CGraphics::GetViewportHeight();
-    const auto vpWidth = CGraphics::GetViewportWidth();
-    const auto vpTop = CGraphics::GetViewportTop();
-    const auto vpLeft = CGraphics::GetViewportLeft();
-    const auto [width, height] = GetVideoDimensions();
-    const auto centerX = (width - vpWidth) / 2;
-    const auto centerY = (height - vpHeight) / 2;
-    DrawFrame(vpLeft - centerX, vpLeft + vpWidth + centerX, vpTop - centerY, vpTop + vpHeight + centerY);
-  }
-}
-
-void CMoviePlayer::DrawFrame(u32 left, u32 right, u32 top, u32 bottom) {
-  DrawFrame({static_cast<float>(left), 0.f, static_cast<float>(bottom)},
-            {static_cast<float>(right), 0.f, static_cast<float>(bottom)},
-            {static_cast<float>(left), 0.f, static_cast<float>(top)},
-            {static_cast<float>(right), 0.f, static_cast<float>(top)});
-}
-
-void CMoviePlayer::DrawFrame(const zeus::CVector3f& v1, const zeus::CVector3f& v2, const zeus::CVector3f& v3,
-                             const zeus::CVector3f& v4) {
-  if (xd0_drawTexSlot == UINT32_MAX)
+  if (xd0_drawTexSlot == UINT32_MAX || !GetIsFullyCached()) {
     return;
+  }
   SCOPED_GRAPHICS_DEBUG_GROUP("CMoviePlayer::DrawFrame", zeus::skYellow);
+
+  /* Correct movie aspect ratio */
+  float hPad, vPad;
+  if (CGraphics::GetViewportAspect() >= 1.78f) {
+    hPad = 1.78f / CGraphics::GetViewportAspect();
+    vPad = 1.78f / 1.33f;
+  } else {
+    hPad = 1.f;
+    vPad = CGraphics::GetViewportAspect() / 1.33f;
+  }
 
   /* draw appropriate field */
   CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
-  aurora::gfx::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0], tex.U, tex.V, v1, v2, v3, v4);
+  aurora::gfx::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0], tex.U, tex.V, hPad, vPad);
 
   /* ensure second field is being displayed by VI to signal advance
    * (faked in metaforce with continuous xor) */

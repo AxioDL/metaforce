@@ -9,6 +9,7 @@
 #include "Runtime/GuiSys/CGuiHeadWidget.hpp"
 #include "Runtime/GuiSys/CGuiWidgetIdDB.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
 
 namespace metaforce {
 class CGuiCamera;
@@ -69,7 +70,7 @@ public:
   void SetHeadWidget(std::shared_ptr<CGuiHeadWidget>&& hwig) { xc_headWidget = std::move(hwig); }
   CGuiHeadWidget* GetHeadWidget() const { return xc_headWidget.get(); }
   void SortDrawOrder();
-  void EnableLights(u32 lights) const;
+  void EnableLights(ERglLight lights) const;
   void DisableLights() const;
   void RemoveLight(CGuiLight* light);
   void AddLight(CGuiLight* light);

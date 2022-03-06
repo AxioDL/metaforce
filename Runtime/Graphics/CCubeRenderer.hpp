@@ -195,10 +195,10 @@ public:
   u32 GetStaticWorldDataSize() override;
   void SetGXRegister1Color(const zeus::CColor& color) override;
   void SetWorldLightFadeLevel(float level) override;
-  void SetWorldLightMultiplyColor(const zeus::CColor& color) override;
   void PrepareDynamicLights(const std::vector<CLight>& lights) override;
 
   // Non-virtual functions
+  void SetupRendererStates(bool depthWrite);
   void AllocatePhazonSuitMaskTexture();
   void DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectMod, const TLockedToken<CTexture>& indTex,
                                     const zeus::CColor& indirectMod, float blurRadius, float scale, float offX,
@@ -212,7 +212,6 @@ public:
   void RenderBucketItems(const CAreaListItem* lights);
   void DrawRenderBucketsDebug() {}
 
-  void SetupRendererStates(bool b) {}
   // Getters
   [[nodiscard]] bool IsInAreaDraw() const { return x318_30_inAreaDraw; }
   [[nodiscard]] bool IsReflectionDirty() const { return x318_24_refectionDirty; }
