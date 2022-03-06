@@ -257,7 +257,74 @@ void CCubeRenderer::EnablePVS(const CPVSVisSet& set, u32 areaIdx) {
 void CCubeRenderer::DisablePVS() { xc8_pvs.reset(); }
 
 void CCubeRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) {}
-void CCubeRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender) {}
+void CCubeRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawUnsortedGeometry", zeus::skPurple);
+  SetupRendererStates(true);
+  CModelFlags flags;
+  CAreaListItem* lastOctreeItem = nullptr;
+
+  for (CAreaListItem& item : x1c_areaListItems) {
+    if (areaIdx != -1 && item.x18_areaIdx != areaIdx)
+      continue;
+
+    if (item.x4_octTree)
+      lastOctreeItem = &item;
+
+    CPVSVisSet* pvs = nullptr;
+    if (xc8_pvs)
+      pvs = &*xc8_pvs;
+    if (xe0_pvsAreaIdx != item.x18_areaIdx)
+      pvs = nullptr;
+
+    u32 idx = 0;
+    for (auto it = item.x10_models->begin(); it != item.x10_models->end(); ++it, ++idx) {
+      const auto& model = *it;
+      if (pvs) {
+        bool vis = pvs->GetVisible(idx) != EPVSVisSetState::EndOfTree;
+        switch (xc0_pvsMode) {
+        case EPVSMode::PVS: {
+          if (!vis) {
+            model->SetVisible(false);
+            continue;
+          }
+          break;
+        }
+        case EPVSMode::PVSAndMask: {
+          if (!vis && (model->GetFlags() & mask) != targetMask) {
+            model->SetVisible(false);
+            continue;
+          }
+          break;
+        }
+        default:
+          break;
+        }
+      }
+
+      if ((model->GetFlags() & mask) != targetMask) {
+        model->SetVisible(false);
+        continue;
+      }
+
+      if (!x44_frustumPlanes.aabbFrustumTest(model->GetBounds())) {
+        model->SetVisible(false);
+        continue;
+      }
+
+      if (x318_25_drawWireframe) {
+        model->SetVisible(false);
+        HandleUnsortedModelWireframe(lastOctreeItem, *model);
+        continue;
+      }
+
+      model->SetVisible(true);
+      HandleUnsortedModel(lastOctreeItem, *model, flags);
+    }
+  }
+
+  SetupCGraphicsState();
+}
+
 void CCubeRenderer::DrawSortedGeometry(int areaIdx, int mask, int targetMask) {
   SetupRendererStates(true);
   const CAreaListItem* item = nullptr;
@@ -288,6 +355,31 @@ void CCubeRenderer::RenderBucketItems(const CAreaListItem* lights) {}
 void CCubeRenderer::PostRenderFogs() {}
 void CCubeRenderer::SetModelMatrix(const zeus::CTransform& xf) { CGraphics::SetModelMatrix(xf); }
 
+void CCubeRenderer::HandleUnsortedModel(CAreaListItem* areaItem, CCubeModel& model, const CModelFlags& flags) {
+  if (model.GetFirstUnsortedSurface() == nullptr) {
+    return;
+  }
+  model.SetArraysCurrent();
+  ActivateLightsForModel(areaItem, model);
+  for (auto *it = model.GetFirstUnsortedSurface(); it != nullptr; it = it->GetNextSurface()) {
+    model.DrawSurface(*it, CModelFlags(0, 0, 3, zeus::skWhite));
+  }
+}
+
+void CCubeRenderer::HandleUnsortedModelWireframe(CAreaListItem* areaItem, CCubeModel& model) {
+  model.SetArraysCurrent();
+  ActivateLightsForModel(areaItem, model);
+  for (auto* it = model.GetFirstUnsortedSurface(); it != nullptr; it = it->GetNextSurface()) {
+    model.DrawSurfaceWireframe(*it);
+  }
+  for (auto* it = model.GetFirstSortedSurface(); it != nullptr; it = it->GetNextSurface()) {
+    model.DrawSurfaceWireframe(*it);
+  }
+}
+
+void CCubeRenderer::ActivateLightsForModel(CAreaListItem* areaItem, CCubeModel& model) {
+
+}
 void CCubeRenderer::AddParticleGen(CParticleGen& gen) {
   auto bounds = gen.GetBounds();
 

@@ -212,6 +212,11 @@ public:
   void RenderBucketItems(const CAreaListItem* lights);
   void DrawRenderBucketsDebug() {}
 
+  void HandleUnsortedModel(CAreaListItem* areaItem, CCubeModel& model, const CModelFlags& flags);
+  void HandleUnsortedModelWireframe(CAreaListItem* areaItem, CCubeModel& model);
+
+  void ActivateLightsForModel(CAreaListItem* areaItem, CCubeModel& model);
+
   // Getters
   [[nodiscard]] bool IsInAreaDraw() const { return x318_30_inAreaDraw; }
   [[nodiscard]] bool IsReflectionDirty() const { return x318_24_refectionDirty; }

@@ -91,7 +91,10 @@ public:
   void DrawSurfaceWireframe(const CCubeSurface& surface);
   void SetArraysCurrent();
   void SetUsingPackedLightmaps(bool v);
+  zeus::CAABox GetBounds() const { return x20_worldAABB; }
+  u8 GetFlags() const { return x41_visorFlags; }
   bool AreTexturesLoaded() const { return x40_24_texturesLoaded; }
+  void SetVisible(bool v) { x40_25_modelVisible = v; }
   bool IsVisible() const { return x40_25_modelVisible; }
   [[nodiscard]] CCubeSurface* GetFirstUnsortedSurface() { return x38_firstUnsortedSurf; }
   [[nodiscard]] const CCubeSurface* GetFirstUnsortedSurface() const { return x38_firstUnsortedSurf; }
