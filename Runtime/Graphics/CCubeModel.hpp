@@ -91,7 +91,7 @@ public:
   void DrawSurfaceWireframe(const CCubeSurface& surface);
   void SetArraysCurrent();
   void SetUsingPackedLightmaps(bool v);
-  bool AreaTexturesLoaded() const { return x40_24_texturesLoaded; }
+  bool AreTexturesLoaded() const { return x40_24_texturesLoaded; }
   bool IsVisible() const { return x40_25_modelVisible; }
   [[nodiscard]] CCubeSurface* GetFirstUnsortedSurface() { return x38_firstUnsortedSurf; }
   [[nodiscard]] const CCubeSurface* GetFirstUnsortedSurface() const { return x38_firstUnsortedSurf; }
