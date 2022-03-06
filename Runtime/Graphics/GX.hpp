@@ -476,7 +476,8 @@ enum TevStageID {
   TEVSTAGE13,
   TEVSTAGE14,
   TEVSTAGE15,
-  MAX_TEVSTAGE
+  MAX_TEVSTAGE,
+  NULL_STAGE = -1,
 };
 
 enum IndTexFormat {

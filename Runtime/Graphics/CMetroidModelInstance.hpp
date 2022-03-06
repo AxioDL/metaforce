@@ -34,6 +34,7 @@ public:
 
   [[nodiscard]] u32 GetFlags() const { return x0_visorFlags; }
   [[nodiscard]] const zeus::CAABox& GetBoundingBox() const { return x34_worldAABB; }
+  [[nodiscard]] std::vector<CCubeSurface>* GetSurfaces() { return &x50_surfaces; }
   [[nodiscard]] const std::vector<CCubeSurface>* GetSurfaces() const { return &x50_surfaces; }
   [[nodiscard]] const u8* GetMaterialPointer() const { return x4c_materialData; }
   [[nodiscard]] TVectorRef GetVertexPointer() const { return &x60_positions; }

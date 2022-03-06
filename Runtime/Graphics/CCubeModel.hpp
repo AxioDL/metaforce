@@ -91,6 +91,12 @@ public:
   void DrawSurfaceWireframe(const CCubeSurface& surface);
   void SetArraysCurrent();
   void SetUsingPackedLightmaps(bool v);
+  bool AreaTexturesLoaded() const { return x40_24_texturesLoaded; }
+  bool IsVisible() const { return x40_25_modelVisible; }
+  [[nodiscard]] CCubeSurface* GetFirstUnsortedSurface() { return x38_firstUnsortedSurf; }
+  [[nodiscard]] const CCubeSurface* GetFirstUnsortedSurface() const { return x38_firstUnsortedSurf; }
+  [[nodiscard]] CCubeSurface* GetFirstSortedSurface() { return x3c_firstSortedSurf; }
+  [[nodiscard]] const CCubeSurface* GetFirstSortedSurface() const { return x3c_firstSortedSurf; }
 
   [[nodiscard]] TVectorRef GetPositions() const { return x0_modelInstance.GetVertexPointer(); }
   [[nodiscard]] TVectorRef GetNormals() const { return x0_modelInstance.GetNormalPointer(); }

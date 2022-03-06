@@ -32,7 +32,13 @@ public:
 
   enum class EDrawableSorting { SortedCallback, UnsortedCallback };
   enum class EDebugOption { Invalid = -1, PVSMode, PVSState, FogDisabled };
-  enum class EPrimitiveType {};
+  enum class EPrimitiveType {
+    Triangles = GX::TRIANGLES,
+    TriangleFan = GX::TRIANGLEFAN,
+    TriangleStrip = GX::TRIANGLESTRIP,
+    Lines = GX::LINES,
+    LineStrip = GX::LINESTRIP,
+  };
 
   virtual ~IRenderer() = default;
   virtual void AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry, const CAreaRenderOctTree* octTree,

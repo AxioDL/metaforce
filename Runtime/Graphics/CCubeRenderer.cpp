@@ -2,10 +2,14 @@
 
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CDrawable.hpp"
+#include "Runtime/Graphics/CMetroidModelInstance.hpp"
 #include "Runtime/Graphics/CDrawablePlaneObject.hpp"
 #include "Runtime/Graphics/CLight.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CParticleGen.hpp"
+#include "Runtime/Graphics/CCubeModel.hpp"
+#include "Runtime/Graphics/CCubeSurface.hpp"
+#include "Runtime/Graphics/CCubeMaterial.hpp"
 
 namespace metaforce {
 static logvisor::Module Log("CCubeRenderer");
@@ -169,8 +173,9 @@ void Buckets::Init() {
 
 CCubeRenderer::CAreaListItem::CAreaListItem(const std::vector<CMetroidModelInstance>* geom,
                                             const CAreaRenderOctTree* octTree,
-                                            std::unordered_map<CAssetId, TCachedToken<CTexture>>&& textures,
-                                            std::vector<CCubeModel*>&& models, int areaIdx)
+                                            std::unique_ptr<std::vector<TCachedToken<CTexture>>>&& textures,
+                                            std::unique_ptr<std::vector<std::unique_ptr<CCubeModel>>>&& models,
+                                            int areaIdx)
 : x0_geometry(geom)
 , x4_octTree(octTree)
 , x8_textures(std::move(textures))
@@ -178,9 +183,9 @@ CCubeRenderer::CAreaListItem::CAreaListItem(const std::vector<CMetroidModelInsta
 , x18_areaIdx(areaIdx) {}
 
 CCubeRenderer::CCubeRenderer(IObjectStore& store, IFactory& resFac) : x8_factory(resFac), xc_store(store) {
-  // void* data = xe4_blackTex.GetBitMapData();
-  // memset(data, 0, 32);
-  // xe4_blackTex.UnLock();
+  void* data = xe4_blackTex.Lock();
+  memset(data, 0, 32);
+  xe4_blackTex.UnLock();
   GenerateReflectionTex();
   GenerateFogVolumeRampTex();
   GenerateSphereRampTex();
@@ -201,8 +206,42 @@ void CCubeRenderer::ReallyDrawPhazonSuitIndirectEffect(const zeus::CColor& vertC
                                                        float scale, float offX, float offY) {}
 void CCubeRenderer::ReallyDrawPhazonSuitEffect(const zeus::CColor& modColor, const CTexture& maskTex) {}
 void CCubeRenderer::DoPhazonSuitIndirectAlphaBlur(float blurRadius, float f2, const TLockedToken<CTexture>& indTex) {}
+
+void CCubeRenderer::AddWorldSurfaces(CCubeModel& model) {
+  for (auto* it = model.GetFirstSortedSurface(); it != nullptr; it = it->GetNextSurface()) {
+    auto mat = model.GetMaterialByIndex(it->GetMaterialIndex());
+    auto blend = mat.GetCompressedBlend();
+    auto bounds = it->GetBounds();
+    auto pos = bounds.closestPointAlongVector(xb0_viewPlane.normal());
+    Buckets::Insert(pos, bounds, EDrawableType::WorldSurface, it, xb0_viewPlane, static_cast<u16>(blend == 0x50004));
+  }
+}
 void CCubeRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry,
-                                      const CAreaRenderOctTree* octTree, int areaIdx) {}
+                                      const CAreaRenderOctTree* octTree, int areaIdx) {
+  auto search = FindStaticGeometry(geometry);
+  if (search == x1c_areaListItems.end()) {
+    auto textures = std::make_unique<std::vector<TCachedToken<CTexture>>>();
+    auto models = std::make_unique<std::vector<std::unique_ptr<CCubeModel>>>();
+    if (!geometry->empty()) {
+      CCubeModel::MakeTexturesFromMats((*geometry)[0].GetMaterialPointer(), *textures.get(), &xc_store, false);
+      models->reserve(geometry->size());
+      int instIdx = 0;
+      for (const CMetroidModelInstance& inst : *geometry) {
+        models->emplace_back(
+            std::make_unique<CCubeModel>(const_cast<std::vector<CCubeSurface>*>(inst.GetSurfaces()), textures.get(),
+                                         const_cast<u8*>(inst.GetMaterialPointer()),
+                                         const_cast<std::vector<zeus::CVector3f>*>(inst.GetVertexPointer()),
+                                         const_cast<std::vector<zeus::CColor>*>(inst.GetColorPointer()),
+                                         const_cast<std::vector<zeus::CVector3f>*>(inst.GetNormalPointer()),
+                                         const_cast<std::vector<zeus::CVector2f>*>(inst.GetTCPointer()),
+                                         const_cast<std::vector<zeus::CVector2f>*>(inst.GetPackedTCPointer()),
+                                         inst.GetBoundingBox(), inst.GetFlags(), false, instIdx));
+        ++instIdx;
+      }
+    }
+    x1c_areaListItems.emplace_back(geometry, octTree, std::move(textures), std::move(models), areaIdx);
+  }
+}
 
 void CCubeRenderer::EnablePVS(const CPVSVisSet& set, u32 areaIdx) {
   if (!xdc_) {
@@ -220,15 +259,32 @@ void CCubeRenderer::DisablePVS() { xc8_pvs.reset(); }
 void CCubeRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) {}
 void CCubeRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender) {}
 void CCubeRenderer::DrawSortedGeometry(int areaIdx, int mask, int targetMask) {
-  //SetupRenderState();
-  //TODO: Loop
+  SetupRendererStates(true);
+  const CAreaListItem* item = nullptr;
+  for (const auto& areaListItem : x1c_areaListItems) {
+    if (areaIdx == -1 || areaIdx == areaListItem.x18_areaIdx) {
+      if (areaListItem.x4_octTree != nullptr) {
+        item = &areaListItem;
+      }
+
+      for (const auto& model : *areaListItem.x10_models) {
+        if (model->IsVisible()) {
+          AddWorldSurfaces(*model);
+        }
+      }
+    }
+  }
   Buckets::Sort();
-  //RenderBucketItems(items);
-  //DrawRenderBucketsDebug();
+  RenderBucketItems(item);
+  SetupCGraphicsState();
+  DrawRenderBucketsDebug();
   Buckets::Clear();
 }
+
 void CCubeRenderer::DrawStaticGeometry(int areaIdx, int mask, int targetMask) {}
 void CCubeRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask) {}
+
+void CCubeRenderer::RenderBucketItems(const CAreaListItem* lights) {}
 void CCubeRenderer::PostRenderFogs() {}
 void CCubeRenderer::SetModelMatrix(const zeus::CTransform& xf) { CGraphics::SetModelMatrix(xf); }
 
@@ -300,7 +356,18 @@ void CCubeRenderer::SetPerspective(float fovy, float width, float height, float 
 }
 
 std::pair<zeus::CVector2f, zeus::CVector2f> CCubeRenderer::SetViewportOrtho(bool centered, float znear, float zfar) {
-  return std::pair<zeus::CVector2f, zeus::CVector2f>();
+  auto left = static_cast<float>(centered ? CGraphics::GetViewportLeft() - CGraphics::GetViewportWidth() / 2
+                                          : CGraphics::GetViewportLeft());
+  auto top = static_cast<float>(centered ? CGraphics::GetViewportTop() - CGraphics::GetViewportHeight() / 2
+                                         : CGraphics::GetViewportHeight());
+  auto right = static_cast<float>(CGraphics::GetViewportLeft() +
+                                  (centered ? CGraphics::GetViewportWidth() / 2 : CGraphics::GetViewportWidth()));
+  auto bottom = static_cast<float>(CGraphics::GetViewportTop() +
+                                   (centered ? CGraphics::GetViewportHeight() / 2 : CGraphics::GetViewportHeight()));
+  CGraphics::SetOrtho(left, right, top, bottom, znear, zfar);
+  CGraphics::SetViewPointMatrix({});
+  CGraphics::SetModelMatrix({});
+  return {{left, top}, {right, bottom}};
 }
 
 void CCubeRenderer::SetClippingPlanes(const zeus::CFrustum& frustum) { x44_frustumPlanes = frustum; }
@@ -359,18 +426,31 @@ void CCubeRenderer::SetDebugOption(IRenderer::EDebugOption option, int value) {
   }
 }
 
-void CCubeRenderer::BeginPrimitive(IRenderer::EPrimitiveType, int) {}
-void CCubeRenderer::BeginLines(int) {}
-void CCubeRenderer::BeginLineStrip(int) {}
-void CCubeRenderer::BeginTriangles(int) {}
-void CCubeRenderer::BeginTriangleStrip(int) {}
-void CCubeRenderer::BeginTriangleFan(int) {}
-void CCubeRenderer::PrimVertex(const zeus::CVector3f&) {}
-void CCubeRenderer::PrimNormal(const zeus::CVector3f&) {}
-void CCubeRenderer::PrimColor(float, float, float, float) {}
-void CCubeRenderer::PrimColor(const zeus::CColor&) {}
-void CCubeRenderer::EndPrimitive() {}
-void CCubeRenderer::SetAmbientColor(const zeus::CColor& color) {}
+void CCubeRenderer::BeginPrimitive(IRenderer::EPrimitiveType type, s32 nverts) {
+  x18_primVertCount = nverts;
+  CGraphics::StreamBegin(GX::Primitive(type));
+}
+void CCubeRenderer::BeginLines(s32 nverts) { BeginPrimitive(EPrimitiveType::Lines, nverts); }
+void CCubeRenderer::BeginLineStrip(s32 nverts) { BeginPrimitive(EPrimitiveType::LineStrip, nverts); }
+void CCubeRenderer::BeginTriangles(s32 nverts) { BeginPrimitive(EPrimitiveType::Triangles, nverts); }
+void CCubeRenderer::BeginTriangleStrip(s32 nverts) { BeginPrimitive(EPrimitiveType::TriangleStrip, nverts); }
+void CCubeRenderer::BeginTriangleFan(s32 nverts) { BeginPrimitive(EPrimitiveType::TriangleFan, nverts); }
+void CCubeRenderer::PrimVertex(const zeus::CVector3f& vertex) {
+  --x18_primVertCount;
+  CGraphics::StreamColor(x2e0_primColor);
+  CGraphics::StreamNormal(x2e4_primNormal);
+  CGraphics::StreamVertex(vertex);
+}
+void CCubeRenderer::PrimNormal(const zeus::CVector3f& normal) { x2e4_primNormal = normal; }
+void CCubeRenderer::PrimColor(float r, float g, float b, float a) { PrimColor({r, g, b, a}); }
+void CCubeRenderer::PrimColor(const zeus::CColor& color) { x2e0_primColor = color; }
+void CCubeRenderer::EndPrimitive() {
+  while (x18_primVertCount > 0) {
+    PrimVertex(zeus::skZero3f);
+  }
+  CGraphics::StreamEnd();
+}
+void CCubeRenderer::SetAmbientColor(const zeus::CColor& color) { CGraphics::SetAmbientColor(color); }
 void CCubeRenderer::DrawString(const char* string, int x, int y) { x10_font.DrawString(string, x, y, zeus::skWhite); }
 
 u32 CCubeRenderer::GetFPS() { return CGraphics::GetFPS(); }
@@ -406,6 +486,13 @@ void CCubeRenderer::DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirect
                                                  const TLockedToken<CTexture>& indTex, const zeus::CColor& indirectMod,
                                                  float blurRadius, float scale, float offX, float offY) {}
 void CCubeRenderer::DrawXRayOutline(const zeus::CAABox& aabb) {}
+
+std::list<CCubeRenderer::CAreaListItem>::iterator
+CCubeRenderer::FindStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) {
+  return std::find_if(x1c_areaListItems.begin(), x1c_areaListItems.end(),
+                      [&](const CAreaListItem& item) { return item.x0_geometry == geometry; });
+}
+
 void CCubeRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const {}
 int CCubeRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits,
                                                 const zeus::CAABox& aabb) {
@@ -413,4 +500,15 @@ int CCubeRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<
 }
 void CCubeRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vector<u32>& modelBits,
                                                      const zeus::CAABox& aabb, float alpha) {}
+
+void CCubeRenderer::SetupCGraphicsState() {
+  CGraphics::DisableAllLights();
+  CGraphics::SetModelMatrix({});
+  CTevCombiners::ResetStates();
+  CGraphics::SetAmbientColor({0.4f});
+  // CGX::SetChanMatColor(EChannelId::Channel0, GX::Color{0xFFFFFFFF});
+  CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
+  // CGX::SetChanCtrl(EChannelId::Channel1, false, GX::SRC_REG, GX::LIGHT_NULL, GX::DF_NONE, GX::AF_NONE);
+  CCubeMaterial::EnsureTevsDirect();
+}
 } // namespace metaforce

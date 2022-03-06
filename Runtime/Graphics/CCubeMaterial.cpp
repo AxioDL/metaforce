@@ -426,4 +426,15 @@ void CCubeMaterial::DoModelShadow(u32 texCount, u32 tcgCount) {
   // CCubeModel::sShadowTexture->Load(texCount, EClampMode::One);
   // TODO
 }
+
+static GX::TevStageID sCurrentTevStage = GX::NULL_STAGE;
+void CCubeMaterial::EnsureTevsDirect() {
+  if (sCurrentTevStage == GX::NULL_STAGE) {
+    return;
+  }
+
+  //CGX::SetNumIndStages(0);
+  //CGX::SetTevDirect(sCurrentTevStage);
+  sCurrentTevStage = GX::NULL_STAGE;
+}
 } // namespace metaforce

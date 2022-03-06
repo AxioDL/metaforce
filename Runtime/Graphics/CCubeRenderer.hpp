@@ -23,15 +23,15 @@ class CCubeRenderer final : public IRenderer {
     const std::vector<CMetroidModelInstance>* x0_geometry;
     const CAreaRenderOctTree* x4_octTree;
     /* originally auto_ptrs of vectors */
-    std::unordered_map<CAssetId, TCachedToken<CTexture>> x8_textures;
-    std::vector<CCubeModel*> x10_models;
+    std::unique_ptr<std::vector<TCachedToken<CTexture>>> x8_textures;
+    std::unique_ptr<std::vector<std::unique_ptr<CCubeModel>>> x10_models;
     int x18_areaIdx;
     /* Per-area octree-word major, light bits minor */
     std::vector<u32> x1c_lightOctreeWords;
 
     CAreaListItem(const std::vector<CMetroidModelInstance>* geom, const CAreaRenderOctTree* octTree,
-                  std::unordered_map<CAssetId, TCachedToken<CTexture>>&& textures, std::vector<CCubeModel*>&& models,
-                  int areaIdx);
+                  std::unique_ptr<std::vector<TCachedToken<CTexture>>>&& textures,
+                  std::unique_ptr<std::vector<std::unique_ptr<CCubeModel>>>&& models, int areaIdx);
   };
 
   struct CFogVolumeListItem {
@@ -53,7 +53,7 @@ private:
   IFactory& x8_factory;
   IObjectStore& xc_store;
   CFont x10_font{1.f};
-  // u32 x18_ = 0;
+  u32 x18_primVertCount = 0;
   std::list<CAreaListItem> x1c_areaListItems;
   // TODO x34...x40
   zeus::CFrustum x44_frustumPlanes; // {zeus::skIdentityMatrix4f, 1.5707964f, 1.f, 1.f, false, 100.f}
@@ -74,8 +74,8 @@ private:
   std::list<CFogVolumeListItem> x2ac_fogVolumes;
   std::list<std::pair<zeus::CVector3f, float>> x2c4_spaceWarps;
   u32 x2dc_reflectionAge = 2;
-  zeus::CColor x2e0_ = zeus::skWhite;
-  zeus::CVector3f x2e4_ = zeus::skForward;
+  zeus::CColor x2e0_primColor = zeus::skWhite;
+  zeus::CVector3f x2e4_primNormal = zeus::skForward;
   float x2f0_thermalVisorLevel = 1.f;
   zeus::CColor x2f4_thermColor{1.f, 0.f, 1.f, 1.f};
   float x2f8_thermColdScale = 0.f; // ??? byte in code
@@ -107,6 +107,7 @@ public:
   CCubeRenderer(IObjectStore& store, IFactory& resFac);
   ~CCubeRenderer() override;
 
+  void AddWorldSurfaces(CCubeModel& model);
   void AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry, const CAreaRenderOctTree* octTree,
                          int areaIdx) override;
   void EnablePVS(const CPVSVisSet& set, u32 areaIdx) override;
@@ -203,15 +204,21 @@ public:
                                     const zeus::CColor& indirectMod, float blurRadius, float scale, float offX,
                                     float offY);
   void DrawXRayOutline(const zeus::CAABox& aabb);
+  std::list<CAreaListItem>::iterator FindStaticGeometry(const std::vector<CMetroidModelInstance>* geometry);
   void FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const;
   int DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb);
   void DrawOverlappingWorldModelShadows(int alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb,
                                         float alpha);
+  void RenderBucketItems(const CAreaListItem* lights);
+  void DrawRenderBucketsDebug() {}
 
+  void SetupRendererStates(bool b) {}
   // Getters
   [[nodiscard]] bool IsInAreaDraw() const { return x318_30_inAreaDraw; }
   [[nodiscard]] bool IsReflectionDirty() const { return x318_24_refectionDirty; }
   void SetReflectionDirty(bool v) { x318_24_refectionDirty = v; }
   [[nodiscard]] bool IsThermalVisorActive() const { return x318_29_thermalVisor; }
+
+  static void SetupCGraphicsState();
 };
 } // namespace metaforce

@@ -88,6 +88,7 @@ public:
   static void ResetCachedMaterials();
   static void EnsureViewDepStateCached(const CCubeSurface* surface);
   static void KillCachedViewDepState();
+  static void EnsureTevsDirect();
 
 private:
   void SetCurrentBlack();
