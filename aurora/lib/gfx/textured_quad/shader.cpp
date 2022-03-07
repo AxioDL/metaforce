@@ -348,7 +348,7 @@ DrawData make_draw_data_verts(const State& state, CameraFilterType filter_type, 
   const auto vertRange = push_verts(ArrayRef{verts});
 
   const auto uniform = Uniform{
-      .xf = get_combined_matrix(),
+      .xf = gx::get_combined_matrix(),
       .color = color,
       .lod = lod,
   };

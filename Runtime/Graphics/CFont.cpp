@@ -23,6 +23,10 @@ CFont::CFont(float scale) : x0_fontSize(16.f * scale), x4_scale(scale) {
   ++sNumInstances;
 }
 
+void CFont::Shutdown() {
+  mpTexture.reset();
+}
+
 void CFont::TileCopy8(u8* dest, const u8* src) {
   for (u32 i = 0; i < 4; ++i) {
     dest[0] = src[0];

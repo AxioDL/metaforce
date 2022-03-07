@@ -272,6 +272,7 @@ public:
   //  static void DrawArray(size_t start, size_t count) { g_BooMainCommandQueue->draw(start, count); }
   //  static void DrawArrayIndexed(size_t start, size_t count) { g_BooMainCommandQueue->drawIndexed(start, count); }
 
+  static void SetTevStates(EStreamFlags flags) noexcept;
   static void SetTevOp(ERglTevStage stage, const CTevCombiners::CTevPass& pass);
   static void StreamBegin(GX::Primitive primitive);
   static void StreamNormal(const zeus::CVector3f& nrm);

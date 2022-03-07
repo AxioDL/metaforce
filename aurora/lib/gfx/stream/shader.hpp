@@ -3,21 +3,18 @@
 #include "../common.hpp"
 #include "../gx.hpp"
 
+#include <unordered_map>
+
 namespace aurora::gfx::stream {
 struct DrawData {
   PipelineRef pipeline;
   Range vertRange;
   Range uniformRange;
   uint32_t vertexCount;
-  uint32_t uniformSize;
-  BindGroupRef samplerBindGroup;
-  BindGroupRef textureBindGroup;
+  gx::GXBindGroups bindGroups;
 };
 
-struct PipelineConfig : public GXPipelineConfig {
-  uint32_t uniformSize;
-  metaforce::EStreamFlags flags;
-};
+struct PipelineConfig : public gx::PipelineConfig {};
 
 struct CachedBindGroup {
   wgpu::BindGroupLayout layout;
@@ -30,6 +27,7 @@ struct State {
   wgpu::BindGroupLayout textureLayout;
   mutable std::unordered_map<uint32_t, CachedBindGroup> uniform;
   mutable std::unordered_map<uint64_t, wgpu::Sampler> sampler;
+  mutable std::unordered_map<PipelineRef, gx::ShaderInfo> shaderInfo;
 };
 
 State construct_state();

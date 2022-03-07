@@ -14,10 +14,10 @@ namespace aurora::gfx::stream {
 static logvisor::Module Log("aurora::gfx::stream");
 
 using gpu::g_device;
-using gpu::g_graphicsConfig;
-using gpu::utils::make_vertex_state;
 
 wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] PipelineConfig config) {
+  const auto [shader, info] = build_shader(config.shaderConfig);
+
   std::array<wgpu::VertexAttribute, 4> attributes{};
   attributes[0] = wgpu::VertexAttribute{
       .format = wgpu::VertexFormat::Float32x3,
@@ -26,7 +26,7 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
   };
   uint64_t offset = 12;
   uint32_t shaderLocation = 1;
-  if (config.flags & metaforce::EStreamFlagBits::fHasNormal) {
+  if (info.usesNormal) {
     attributes[shaderLocation] = wgpu::VertexAttribute{
         .format = wgpu::VertexFormat::Float32x3,
         .offset = offset,
@@ -35,7 +35,7 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
     offset += 12;
     shaderLocation++;
   }
-  if (config.flags & metaforce::EStreamFlagBits::fHasColor) {
+  if (info.usesVtxColor) {
     attributes[shaderLocation] = wgpu::VertexAttribute{
         .format = wgpu::VertexFormat::Float32x4,
         .offset = offset,
@@ -44,7 +44,11 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
     offset += 16;
     shaderLocation++;
   }
-  if (config.flags & metaforce::EStreamFlagBits::fHasTexture) {
+  // TODO only sample 1?
+  for (int i = 0; i < info.sampledTextures.size(); ++i) {
+    if (!info.sampledTextures.test(i)) {
+      continue;
+    }
     attributes[shaderLocation] = wgpu::VertexAttribute{
         .format = wgpu::VertexFormat::Float32x2,
         .offset = offset,
@@ -59,57 +63,7 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
       .attributes = attributes.data(),
   }};
 
-  wgpu::BindGroupLayout uniformLayout;
-  if (state.uniform.contains(config.uniformSize)) {
-    uniformLayout = state.uniform.at(config.uniformSize).layout;
-  } else {
-    const std::array uniformLayoutEntries{wgpu::BindGroupLayoutEntry{
-        .binding = 0,
-        .visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-        .buffer =
-            wgpu::BufferBindingLayout{
-                .type = wgpu::BufferBindingType::Uniform,
-                .hasDynamicOffset = true,
-                .minBindingSize = config.uniformSize,
-            },
-    }};
-    const auto uniformLayoutDescriptor = wgpu::BindGroupLayoutDescriptor{
-        .label = "Stream Uniform Bind Group Layout",
-        .entryCount = uniformLayoutEntries.size(),
-        .entries = uniformLayoutEntries.data(),
-    };
-    uniformLayout = g_device.CreateBindGroupLayout(&uniformLayoutDescriptor);
-
-    const std::array uniformBindGroupEntries{wgpu::BindGroupEntry{
-        .binding = 0,
-        .buffer = g_uniformBuffer,
-        .size = config.uniformSize,
-    }};
-    const auto uniformBindGroupDescriptor = wgpu::BindGroupDescriptor{
-        .label = "Stream Quad Uniform Bind Group",
-        .layout = uniformLayout,
-        .entryCount = uniformBindGroupEntries.size(),
-        .entries = uniformBindGroupEntries.data(),
-    };
-    auto uniformBindGroup = g_device.CreateBindGroup(&uniformBindGroupDescriptor);
-
-    state.uniform.try_emplace(config.uniformSize, uniformLayout, std::move(uniformBindGroup));
-  }
-
-  const std::array bindGroupLayouts{
-      uniformLayout,
-      state.samplerLayout,
-      state.textureLayout,
-  };
-  const auto pipelineLayoutDescriptor = wgpu::PipelineLayoutDescriptor{
-      .label = "Stream Pipeline Layout",
-      .bindGroupLayoutCount =
-          static_cast<uint32_t>(config.flags & metaforce::EStreamFlagBits::fHasTexture ? bindGroupLayouts.size() : 1),
-      .bindGroupLayouts = bindGroupLayouts.data(),
-  };
-  auto pipelineLayout = g_device.CreatePipelineLayout(&pipelineLayoutDescriptor);
-
-  return build_pipeline(pipelineLayout, vertexBuffers, config, "Stream Pipeline");
+  return build_pipeline(config, info, vertexBuffers, shader, "Stream Pipeline");
 }
 
 State construct_state() {
@@ -160,10 +114,10 @@ void render(const State& state, const DrawData& data, const wgpu::RenderPassEnco
   }
 
   const std::array offsets{data.uniformRange.first};
-  pass.SetBindGroup(0, state.uniform.at(data.uniformSize).bindGroup, offsets.size(), offsets.data());
-  if (data.samplerBindGroup && data.textureBindGroup) {
-    pass.SetBindGroup(1, find_bind_group(data.samplerBindGroup));
-    pass.SetBindGroup(2, find_bind_group(data.textureBindGroup));
+  pass.SetBindGroup(0, find_bind_group(data.bindGroups.uniformBindGroup), offsets.size(), offsets.data());
+  if (data.bindGroups.samplerBindGroup && data.bindGroups.textureBindGroup) {
+    pass.SetBindGroup(1, find_bind_group(data.bindGroups.samplerBindGroup));
+    pass.SetBindGroup(2, find_bind_group(data.bindGroups.textureBindGroup));
   }
   pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.first, data.vertRange.second);
   pass.Draw(data.vertexCount);

@@ -3,6 +3,8 @@
 #include "../common.hpp"
 #include "../gx.hpp"
 
+#include <unordered_map>
+
 namespace aurora::gfx::model {
 struct DrawData {
   PipelineRef pipeline;
@@ -14,7 +16,7 @@ struct DrawData {
   BindGroupRef textureBindGroup;
 };
 
-struct PipelineConfig : GXPipelineConfig {
+struct PipelineConfig : gx::PipelineConfig {
   ShaderRef shader;
   uint32_t uniformSize;
 };

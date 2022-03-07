@@ -6,7 +6,7 @@
 namespace metaforce {
 template <class T, size_t N>
 void write_reserved_vector(const rstl::reserved_vector<T, N>& v, COutputStream& out) {
-  out.Put(v.size());
+  out.Put<u32>(v.size());
   for (const auto& t : v) {
     out.Put(t);
   }
@@ -14,7 +14,7 @@ void write_reserved_vector(const rstl::reserved_vector<T, N>& v, COutputStream& 
 
 template <class T>
 void write_vector(const std::vector<T>& v, COutputStream& out) {
-  out.Put(v.size());
+  out.Put<u32>(v.size());
   for (const auto& t : v) {
     out.Put(t);
   }

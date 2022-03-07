@@ -24,5 +24,7 @@ public:
   u32 StringWidth(const char* str) const;
   u32 CharsWidth(const char* str, u32 len) const;
   u32 CharWidth(const char chr) const;
+
+  static void Shutdown();
 };
 }

@@ -23,6 +23,7 @@
 #include "Runtime/Character/CSkinRules.hpp"
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
 #include "Runtime/Collision/CCollisionResponseData.hpp"
+#include "Runtime/Graphics/CFont.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
@@ -702,6 +703,7 @@ void CMain::ShutdownSubsystems() {
   CMappableObject::Shutdown();
   // Metaforce additions
   CMoviePlayer::Shutdown();
+  CFont::Shutdown();
 }
 
 void CMain::Shutdown() {

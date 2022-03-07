@@ -11,6 +11,8 @@
 #endif
 
 namespace aurora {
+template <typename T>
+static inline void xxh3_update(XXH3_state_t& state, const T& input);
 static inline XXH64_hash_t xxh3_hash(const void* input, size_t len, XXH64_hash_t seed = 0) {
   return XXH3_64bits_withSeed(input, len, seed);
 }

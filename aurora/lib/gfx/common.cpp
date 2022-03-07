@@ -66,7 +66,7 @@ struct Command {
 };
 
 using NewPipelineCallback = std::function<wgpu::RenderPipeline()>;
-static std::mutex g_pipelineMutex;
+std::mutex g_pipelineMutex;
 static std::thread g_pipelineThread;
 static std::atomic_bool g_pipelineThreadEnd;
 static std::condition_variable g_pipelineCv;
@@ -277,7 +277,10 @@ void shutdown() {
   g_pipelineCv.notify_all();
   g_pipelineThread.join();
 
+  gx::shutdown();
+
   g_cachedBindGroups.clear();
+  g_cachedSamplers.clear();
   g_pipelines.clear();
   g_vertexBuffer = {};
   g_uniformBuffer = {};

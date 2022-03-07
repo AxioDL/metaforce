@@ -4,6 +4,8 @@
 #include "common.hpp"
 #include "gx.hpp"
 
+#include <unordered_map>
+
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx::stream");
 
@@ -53,74 +55,19 @@ void stream_vertex(metaforce::EStreamFlags flags, const zeus::CVector3f& pos, co
 }
 
 void stream_end() noexcept {
-  const auto& tex = get_texture(GX::TEXMAP0);
-  if (sStreamState->flags & metaforce::EStreamFlagBits::fHasTexture && !tex) {
-    Log.report(logvisor::Fatal, FMT_STRING("Stream has texture but no texture bound!"));
-    unreachable();
-  }
   const auto vertRange = push_verts(sStreamState->vertexBuffer.data(), sStreamState->vertexBuffer.size());
 
-  ByteBuffer uniBuf;
-  std::bitset<g_colorRegs.size()> usedColors;
-  {
-    const auto xf = get_combined_matrix();
-    uniBuf.append(&xf, 64);
-  }
-  if (sStreamState->flags & metaforce::EStreamFlagBits::fHasTexture) {
-    uniBuf.append(&tex.lod, 4);
-  }
-  const auto uniRange = push_uniform(uniBuf.data(), uniBuf.size());
-
-  const auto uniform_size = align_uniform(uniBuf.size());
-
-  stream::PipelineConfig config{
-      .uniformSize = uniform_size,
-      .flags = sStreamState->flags,
-  };
+  stream::PipelineConfig config{};
   config.shaderConfig.denormalizedVertexAttributes = true;
-  config.shaderConfig.denormalizedNorm = sStreamState->flags.IsSet(metaforce::EStreamFlagBits::fHasNormal);
-  config.shaderConfig.denormalizedColor = sStreamState->flags.IsSet(metaforce::EStreamFlagBits::fHasColor);
-  populate_gx_pipeline_config(config, sStreamState->primitive, {1});
+  const auto info = populate_pipeline_config(config, sStreamState->primitive);
   const auto pipeline = pipeline_ref(config);
-
-  BindGroupRef samplerBindGroup{};
-  BindGroupRef textureBindGroup{};
-  if (sStreamState->flags & metaforce::EStreamFlagBits::fHasTexture) {
-    const auto& state = get_state<stream::State>();
-    {
-      const std::array samplerEntries{wgpu::BindGroupEntry{
-          .binding = 0,
-          .sampler = sampler_ref(tex.get_descriptor()),
-      }};
-      samplerBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
-          .label = "Stream Sampler Bind Group",
-          .layout = state.samplerLayout,
-          .entryCount = samplerEntries.size(),
-          .entries = samplerEntries.data(),
-      });
-    }
-    {
-      const std::array textureEntries{wgpu::BindGroupEntry{
-          .binding = 0,
-          .textureView = tex.handle.ref->view,
-      }};
-      textureBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
-          .label = "Stream Texture Bind Group",
-          .layout = state.textureLayout,
-          .entryCount = textureEntries.size(),
-          .entries = textureEntries.data(),
-      });
-    }
-  }
 
   push_draw_command(stream::DrawData{
       .pipeline = pipeline,
       .vertRange = vertRange,
-      .uniformRange = uniRange,
+      .uniformRange = build_uniform(info),
       .vertexCount = sStreamState->vertexCount,
-      .uniformSize = uniform_size,
-      .samplerBindGroup = samplerBindGroup,
-      .textureBindGroup = textureBindGroup,
+      .bindGroups = build_bind_groups(info),
   });
 
   sStreamState.reset();

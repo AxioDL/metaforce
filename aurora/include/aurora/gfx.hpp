@@ -284,6 +284,7 @@ void set_tev_k_color_sel(GX::TevStageID id, GX::TevKColorSel sel) noexcept;
 void set_tev_k_alpha_sel(GX::TevStageID id, GX::TevKAlphaSel sel) noexcept;
 void set_chan_amb_color(GX::ChannelID id, const zeus::CColor& color) noexcept;
 void set_chan_mat_color(GX::ChannelID id, const zeus::CColor& color) noexcept;
+void set_chan_mat_src(GX::ChannelID id, GX::ColorSrc src) noexcept;
 
 // Model state
 void set_alpha_discard(bool v);

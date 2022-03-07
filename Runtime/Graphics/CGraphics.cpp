@@ -178,14 +178,14 @@ void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::
   SetCullMode(ERglCullMode::None);
   tex.Load(GX::TEXMAP0, EClampMode::Repeat);
 
-//  float hPad, vPad;
-//  if (CGraphics::GetViewportAspect() >= 1.78f) {
-//    hPad = 1.78f / CGraphics::GetViewportAspect();
-//    vPad = 1.78f / 1.33f;
-//  } else {
-//    hPad = 1.f;
-//    vPad = CGraphics::GetViewportAspect() / 1.33f;
-//  }
+  //  float hPad, vPad;
+  //  if (CGraphics::GetViewportAspect() >= 1.78f) {
+  //    hPad = 1.78f / CGraphics::GetViewportAspect();
+  //    vPad = 1.78f / 1.33f;
+  //  } else {
+  //    hPad = 1.f;
+  //    vPad = CGraphics::GetViewportAspect() / 1.33f;
+  //  }
   // TODO make this right
   float scaledX = static_cast<float>(x) / 640.f * static_cast<float>(g_Viewport.x8_width);
   float scaledY = static_cast<float>(y) / 448.f * static_cast<float>(g_Viewport.xc_height);
@@ -565,7 +565,10 @@ void CGraphics::StreamVertex(const zeus::CVector3f& pos) {
   aurora::gfx::stream_vertex(sStreamFlags, pos, sQueuedNormal, sQueuedColor, sQueuedTexCoord);
 }
 
-void CGraphics::StreamEnd() { aurora::gfx::stream_end(); }
+void CGraphics::StreamEnd() {
+  SetTevStates(sStreamFlags);
+  aurora::gfx::stream_end();
+}
 
 void CGraphics::DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
                               const zeus::CColor& col, s32 numVerts) {
@@ -576,5 +579,17 @@ void CGraphics::DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* po
     StreamVertex(pos[i]);
   }
   StreamEnd();
+}
+
+void CGraphics::SetTevStates(EStreamFlags flags) noexcept {
+  if (flags & EStreamFlagBits::fHasTexture) {
+    aurora::gfx::set_tev_order(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR0A0);
+    aurora::gfx::set_tev_order(GX::TEVSTAGE1, GX::TEXCOORD1, GX::TEXMAP1, GX::COLOR0A0);
+  } else {
+    aurora::gfx::set_tev_order(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
+    aurora::gfx::set_tev_order(GX::TEVSTAGE1, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
+  }
+  // TODO load TCGs
+  aurora::gfx::set_chan_mat_src(GX::COLOR0A0, flags & EStreamFlagBits::fHasColor ? GX::SRC_VTX : GX::SRC_REG);
 }
 } // namespace metaforce
