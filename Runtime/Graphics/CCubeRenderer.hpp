@@ -25,13 +25,13 @@ class CCubeRenderer final : public IRenderer {
     /* originally auto_ptrs of vectors */
     std::unique_ptr<std::vector<TCachedToken<CTexture>>> x8_textures;
     std::unique_ptr<std::vector<std::unique_ptr<CCubeModel>>> x10_models;
-    int x18_areaIdx;
+    s32 x18_areaIdx;
     /* Per-area octree-word major, light bits minor */
     std::vector<u32> x1c_lightOctreeWords;
 
     CAreaListItem(const std::vector<CMetroidModelInstance>* geom, const CAreaRenderOctTree* octTree,
                   std::unique_ptr<std::vector<TCachedToken<CTexture>>>&& textures,
-                  std::unique_ptr<std::vector<std::unique_ptr<CCubeModel>>>&& models, int areaIdx);
+                  std::unique_ptr<std::vector<std::unique_ptr<CCubeModel>>>&& models, s32 areaIdx);
   };
 
   struct CFogVolumeListItem {
@@ -109,20 +109,20 @@ public:
 
   void AddWorldSurfaces(CCubeModel& model);
   void AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry, const CAreaRenderOctTree* octTree,
-                         int areaIdx) override;
+                         s32 areaIdx) override;
   void EnablePVS(const CPVSVisSet& set, u32 areaIdx) override;
   void DisablePVS() override;
   void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) override;
-  void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender = false) override;
-  void DrawSortedGeometry(int areaIdx, int mask, int targetMask) override;
-  void DrawStaticGeometry(int areaIdx, int mask, int targetMask) override;
-  void DrawAreaGeometry(int areaIdx, int mask, int targetMask) override;
+  void DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask, bool shadowRender = false) override;
+  void DrawSortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) override;
+  void DrawStaticGeometry(s32 areaIdx, s32 mask, s32 targetMask) override;
+  void DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) override;
   void PostRenderFogs() override;
   void SetModelMatrix(const zeus::CTransform& xf) override;
   void AddParticleGen(CParticleGen& gen) override;
   void AddParticleGen(CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds) override;
-  void AddPlaneObject(void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type) override;
-  void AddDrawable(void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode,
+  void AddPlaneObject(void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, s32 type) override;
+  void AddDrawable(void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, s32 mode,
                    EDrawableSorting sorting) override;
   void SetDrawableCallback(TDrawableCallback cb, void* ctx) override;
   void SetWorldViewpoint(const zeus::CTransform& xf) override;
@@ -130,7 +130,7 @@ public:
   void SetPerspective(float fovy, float width, float height, float znear, float zfar) override;
   std::pair<zeus::CVector2f, zeus::CVector2f> SetViewportOrtho(bool centered, float znear, float zfar) override;
   void SetClippingPlanes(const zeus::CFrustum& frustum) override;
-  void SetViewport(int left, int right, int width, int height) override;
+  void SetViewport(s32 left, s32 right, s32 width, s32 height) override;
   void SetDepthReadWrite(bool read, bool write) override {
     CGraphics::SetDepthWriteMode(read, ERglEnum::LEqual, write);
   }
@@ -162,8 +162,8 @@ public:
   }
   void BeginScene() override;
   void EndScene() override;
-  void SetDebugOption(EDebugOption, int) override;
-  void BeginPrimitive(EPrimitiveType, int) override;
+  void SetDebugOption(EDebugOption, s32) override;
+  void BeginPrimitive(EPrimitiveType, s32) override;
   void BeginLines(int) override;
   void BeginLineStrip(int) override;
   void BeginTriangles(int) override;
@@ -175,7 +175,7 @@ public:
   void PrimColor(const zeus::CColor&) override;
   void EndPrimitive() override;
   void SetAmbientColor(const zeus::CColor& color) override;
-  void DrawString(const char* string, int, int) override;
+  void DrawString(const char* string, s32, s32) override;
   u32 GetFPS() override;
   void CacheReflection(TReflectionCallback cb, void* ctx, bool clearAfter) override;
   void DrawSpaceWarp(const zeus::CVector3f& pt, float strength) override;
@@ -184,7 +184,7 @@ public:
   void DrawModelDisintegrate(const CModel& model, const CTexture& tex, const zeus::CColor& color, TVectorRef positions,
                              TVectorRef normals) override;
   void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) override;
-  void SetWireframeFlags(int flags) override;
+  void SetWireframeFlags(s32 flags) override;
   void SetWorldFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) override;
   void RenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const TLockedToken<CModel>* model,
                        const CSkinnedModel* sModel) override;
@@ -206,8 +206,8 @@ public:
   void DrawXRayOutline(const zeus::CAABox& aabb);
   std::list<CAreaListItem>::iterator FindStaticGeometry(const std::vector<CMetroidModelInstance>* geometry);
   void FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const;
-  int DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb);
-  void DrawOverlappingWorldModelShadows(int alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb,
+  s32 DrawOverlappingWorldModelIDs(s32 alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb);
+  void DrawOverlappingWorldModelShadows(s32 alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb,
                                         float alpha);
   void RenderBucketItems(const CAreaListItem* lights);
   void DrawRenderBucketsDebug() {}
@@ -215,13 +215,21 @@ public:
   void HandleUnsortedModel(CAreaListItem* areaItem, CCubeModel& model, const CModelFlags& flags);
   void HandleUnsortedModelWireframe(CAreaListItem* areaItem, CCubeModel& model);
 
-  void ActivateLightsForModel(CAreaListItem* areaItem, CCubeModel& model);
+  void ActivateLightsForModel(const CAreaListItem* areaItem, CCubeModel& model);
 
   // Getters
   [[nodiscard]] bool IsInAreaDraw() const { return x318_30_inAreaDraw; }
   [[nodiscard]] bool IsReflectionDirty() const { return x318_24_refectionDirty; }
   void SetReflectionDirty(bool v) { x318_24_refectionDirty = v; }
   [[nodiscard]] bool IsThermalVisorActive() const { return x318_29_thermalVisor; }
+  CTexture* GetRealReflection() {
+    x2dc_reflectionAge = 0;
+    if (x14c_reflectionTex) {
+      return x14c_reflectionTex.get();
+    }
+
+    return &xe4_blackTex;
+  }
 
   static void SetupCGraphicsState();
 };

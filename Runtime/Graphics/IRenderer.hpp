@@ -42,20 +42,20 @@ public:
 
   virtual ~IRenderer() = default;
   virtual void AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry, const CAreaRenderOctTree* octTree,
-                                 int areaIdx) = 0;
+                                 s32 areaIdx) = 0;
   virtual void EnablePVS(const CPVSVisSet& set, u32 areaIdx) = 0;
   virtual void DisablePVS() = 0;
   virtual void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) = 0;
-  virtual void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender = false) = 0;
-  virtual void DrawSortedGeometry(int areaIdx, int mask, int targetMask) = 0;
-  virtual void DrawStaticGeometry(int areaIdx, int mask, int targetMask) = 0;
-  virtual void DrawAreaGeometry(int areaIdx, int mask, int targetMask) = 0;
+  virtual void DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask, bool shadowRender = false) = 0;
+  virtual void DrawSortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) = 0;
+  virtual void DrawStaticGeometry(s32 areaIdx, s32 mask, s32 targetMask) = 0;
+  virtual void DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) = 0;
   virtual void PostRenderFogs() = 0;
   virtual void SetModelMatrix(const zeus::CTransform& xf) = 0;
   virtual void AddParticleGen(CParticleGen& gen) = 0;
   virtual void AddParticleGen(CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds) = 0;
-  virtual void AddPlaneObject(void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type) = 0;
-  virtual void AddDrawable(void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode,
+  virtual void AddPlaneObject(void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, s32 type) = 0;
+  virtual void AddDrawable(void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, s32 mode,
                            EDrawableSorting sorting) = 0;
   virtual void SetDrawableCallback(TDrawableCallback cb, void* ctx) = 0;
   virtual void SetWorldViewpoint(const zeus::CTransform& xf) = 0;
@@ -63,7 +63,7 @@ public:
   virtual void SetPerspective(float fovy, float aspect, float znear, float zfar) = 0;
   virtual std::pair<zeus::CVector2f, zeus::CVector2f> SetViewportOrtho(bool centered, float znear, float zfar) = 0;
   virtual void SetClippingPlanes(const zeus::CFrustum& frustum) = 0;
-  virtual void SetViewport(int left, int bottom, int width, int height) = 0;
+  virtual void SetViewport(s32 left, s32 bottom, s32 width, s32 height) = 0;
   virtual void SetDepthReadWrite(bool, bool) = 0;
   virtual void SetBlendMode_AdditiveAlpha() = 0;
   virtual void SetBlendMode_AlphaBlended() = 0;
@@ -73,15 +73,15 @@ public:
   virtual void SetBlendMode_InvertSrc() = 0;
   virtual void SetBlendMode_Replace() = 0;
   virtual void SetBlendMode_AdditiveDestColor() = 0;
-  virtual void SetDebugOption(EDebugOption, int) = 0;
+  virtual void SetDebugOption(EDebugOption, s32) = 0;
   virtual void BeginScene() = 0;
   virtual void EndScene() = 0;
-  virtual void BeginPrimitive(EPrimitiveType, int) = 0;
-  virtual void BeginLines(int) = 0;
-  virtual void BeginLineStrip(int) = 0;
-  virtual void BeginTriangles(int) = 0;
-  virtual void BeginTriangleStrip(int) = 0;
-  virtual void BeginTriangleFan(int) = 0;
+  virtual void BeginPrimitive(EPrimitiveType, s32) = 0;
+  virtual void BeginLines(s32) = 0;
+  virtual void BeginLineStrip(s32) = 0;
+  virtual void BeginTriangles(s32) = 0;
+  virtual void BeginTriangleStrip(s32) = 0;
+  virtual void BeginTriangleFan(s32) = 0;
   virtual void PrimVertex(const zeus::CVector3f&) = 0;
   virtual void PrimNormal(const zeus::CVector3f&) = 0;
   virtual void PrimColor(float, float, float, float) = 0;
@@ -97,7 +97,7 @@ public:
   virtual void DrawModelDisintegrate(const CModel& model, const CTexture& tex, const zeus::CColor& color,
                                      TVectorRef positions, TVectorRef normals) = 0;
   virtual void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) = 0;
-  virtual void SetWireframeFlags(int flags) = 0;
+  virtual void SetWireframeFlags(s32 flags) = 0;
   virtual void SetWorldFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) = 0;
   virtual void RenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const TLockedToken<CModel>* model,
                                const CSkinnedModel* sModel) = 0;

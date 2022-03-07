@@ -66,7 +66,7 @@ void Buckets::Sort() {
     precision = 50 / u32(sPlaneObjectBucket->size() + 1);
     pitch = 1.f / (delta / float(precision - 2));
 
-    int accum = 0;
+    s32 accum = 0;
     for (u16 idx : *sPlaneObjectBucket) {
       ++accum;
       CDrawablePlaneObject& planeObj = (*sPlaneObjectData)[idx];
@@ -75,12 +75,12 @@ void Buckets::Sort() {
   }
 
   for (CDrawable& drawable : *sData) {
-    int slot;
+    s32 slot;
     float relDist = drawable.GetDistance() - sMinMaxDistance[0];
     if (sPlaneObjectBucket->empty()) {
-      slot = zeus::clamp(1, int(relDist * pitch), 49);
+      slot = zeus::clamp(1, s32(relDist * pitch), 49);
     } else {
-      slot = zeus::clamp(0, int(relDist * pitch), int(precision) - 2);
+      slot = zeus::clamp(0, s32(relDist * pitch), s32(precision) - 2);
       for (u16 idx : *sPlaneObjectBucket) {
         CDrawablePlaneObject& planeObj = (*sPlaneObjectData)[idx];
         bool partial, full;
@@ -175,7 +175,7 @@ CCubeRenderer::CAreaListItem::CAreaListItem(const std::vector<CMetroidModelInsta
                                             const CAreaRenderOctTree* octTree,
                                             std::unique_ptr<std::vector<TCachedToken<CTexture>>>&& textures,
                                             std::unique_ptr<std::vector<std::unique_ptr<CCubeModel>>>&& models,
-                                            int areaIdx)
+                                            s32 areaIdx)
 : x0_geometry(geom)
 , x4_octTree(octTree)
 , x8_textures(std::move(textures))
@@ -217,7 +217,7 @@ void CCubeRenderer::AddWorldSurfaces(CCubeModel& model) {
   }
 }
 void CCubeRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry,
-                                      const CAreaRenderOctTree* octTree, int areaIdx) {
+                                      const CAreaRenderOctTree* octTree, s32 areaIdx) {
   auto search = FindStaticGeometry(geometry);
   if (search == x1c_areaListItems.end()) {
     auto textures = std::make_unique<std::vector<TCachedToken<CTexture>>>();
@@ -225,7 +225,7 @@ void CCubeRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* 
     if (!geometry->empty()) {
       CCubeModel::MakeTexturesFromMats((*geometry)[0].GetMaterialPointer(), *textures.get(), &xc_store, false);
       models->reserve(geometry->size());
-      int instIdx = 0;
+      s32 instIdx = 0;
       for (const CMetroidModelInstance& inst : *geometry) {
         models->emplace_back(
             std::make_unique<CCubeModel>(const_cast<std::vector<CCubeSurface>*>(inst.GetSurfaces()), textures.get(),
@@ -256,30 +256,40 @@ void CCubeRenderer::EnablePVS(const CPVSVisSet& set, u32 areaIdx) {
 
 void CCubeRenderer::DisablePVS() { xc8_pvs.reset(); }
 
-void CCubeRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) {}
-void CCubeRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender) {
-  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawUnsortedGeometry", zeus::skPurple);
+void CCubeRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) {
+  auto search = FindStaticGeometry(geometry);
+  if (search != x1c_areaListItems.end()) {
+    x1c_areaListItems.erase(search);
+  }
+}
+
+void CCubeRenderer::DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask, bool shadowRender) {
   SetupRendererStates(true);
   CModelFlags flags;
   CAreaListItem* lastOctreeItem = nullptr;
 
   for (CAreaListItem& item : x1c_areaListItems) {
-    if (areaIdx != -1 && item.x18_areaIdx != areaIdx)
+    if (areaIdx != -1 && item.x18_areaIdx != areaIdx) {
       continue;
+    }
 
-    if (item.x4_octTree)
+    if (item.x4_octTree != nullptr) {
       lastOctreeItem = &item;
+    }
 
     CPVSVisSet* pvs = nullptr;
-    if (xc8_pvs)
+    if (xc8_pvs) {
       pvs = &*xc8_pvs;
-    if (xe0_pvsAreaIdx != item.x18_areaIdx)
+    }
+
+    if (xe0_pvsAreaIdx != item.x18_areaIdx) {
       pvs = nullptr;
+    }
 
     u32 idx = 0;
     for (auto it = item.x10_models->begin(); it != item.x10_models->end(); ++it, ++idx) {
       const auto& model = *it;
-      if (pvs) {
+      if (pvs != nullptr) {
         bool vis = pvs->GetVisible(idx) != EPVSVisSetState::EndOfTree;
         switch (xc0_pvsMode) {
         case EPVSMode::PVS: {
@@ -325,7 +335,7 @@ void CCubeRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, 
   SetupCGraphicsState();
 }
 
-void CCubeRenderer::DrawSortedGeometry(int areaIdx, int mask, int targetMask) {
+void CCubeRenderer::DrawSortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   SetupRendererStates(true);
   const CAreaListItem* item = nullptr;
   for (const auto& areaListItem : x1c_areaListItems) {
@@ -348,10 +358,96 @@ void CCubeRenderer::DrawSortedGeometry(int areaIdx, int mask, int targetMask) {
   Buckets::Clear();
 }
 
-void CCubeRenderer::DrawStaticGeometry(int areaIdx, int mask, int targetMask) {}
-void CCubeRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask) {}
+void CCubeRenderer::DrawStaticGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
+  DrawUnsortedGeometry(areaIdx, mask, targetMask);
+  DrawSortedGeometry(areaIdx, mask, targetMask);
+}
 
-void CCubeRenderer::RenderBucketItems(const CAreaListItem* lights) {}
+void CCubeRenderer::DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
+  x318_30_inAreaDraw = true;
+  SetupRendererStates(true);
+  CModelFlags flags;
+
+  for (CAreaListItem& item : x1c_areaListItems) {
+    if (areaIdx != -1 || item.x18_areaIdx == areaIdx) {
+      CPVSVisSet* pvs = xc8_pvs ? &*xc8_pvs : nullptr;
+      if (xe0_pvsAreaIdx != item.x18_areaIdx) {
+        pvs = nullptr;
+      }
+      s32 modelIdx = 0;
+      for (auto it = item.x10_models->begin(); it != item.x10_models->end(); ++it, ++modelIdx) {
+        const auto& model = *it;
+        if (pvs != nullptr) {
+          bool visible = pvs->GetVisible(modelIdx) != EPVSVisSetState::EndOfTree;
+          if ((xc0_pvsMode == EPVSMode::PVS && !visible) || (xc0_pvsMode == EPVSMode::PVSAndMask && visible)) {
+            continue;
+          }
+        }
+        if ((model->GetFlags() & mask) != targetMask) {
+          continue;
+        }
+        if (!x44_frustumPlanes.aabbFrustumTest(model->GetBounds())) {
+          continue;
+        }
+
+        for (const auto* surf = model->GetFirstUnsortedSurface(); surf != nullptr; surf = surf->GetNextSurface()) {
+          model->DrawSurface(*surf, CModelFlags(0, 0, 3, zeus::skWhite));
+        }
+        for (const auto* surf = model->GetFirstSortedSurface(); surf != nullptr; surf = surf->GetNextSurface()) {
+          model->DrawSurface(*surf, CModelFlags(0, 0, 3, zeus::skWhite));
+        }
+      }
+    }
+  }
+
+  x318_30_inAreaDraw = false;
+}
+
+void CCubeRenderer::RenderBucketItems(const CAreaListItem* item) {
+  CCubeModel* lastModel = nullptr;
+  EDrawableType lastDrawableType = EDrawableType::Invalid;
+  for (u16 idx : Buckets::sBucketIndex) {
+    rstl::reserved_vector<CDrawable*, 128>& bucket = (*Buckets::sBuckets)[idx];
+    for (CDrawable* drawable : bucket) {
+      EDrawableType type = drawable->GetType();
+      switch (type) {
+      case EDrawableType::Particle: {
+        if (lastDrawableType != EDrawableType::Particle) {
+          SetupCGraphicsState();
+        }
+
+        static_cast<CParticleGen*>(drawable->GetData())->Render();
+        break;
+      }
+      case EDrawableType::WorldSurface: {
+        if (lastDrawableType != EDrawableType::WorldSurface) {
+          SetupRendererStates(false);
+          lastModel = nullptr;
+        }
+
+        auto* surface = static_cast<CCubeSurface*>(drawable->GetData());
+        auto* model = surface->GetParent();
+        if (model != lastModel) {
+          model->SetArraysCurrent();
+          ActivateLightsForModel(item, *model);
+        }
+        model->DrawSurface(*surface, CModelFlags(0, 0, 1, zeus::skWhite));
+        break;
+      }
+      default: {
+        if (type != lastDrawableType) {
+          CCubeMaterial::EnsureTevsDirect();
+        }
+        if (xa8_drawableCallback != nullptr) {
+          xa8_drawableCallback(drawable->GetData(), xac_drawableCallbackUserData, s32(drawable->GetType()) - 2);
+        }
+        break;
+      }
+      }
+      lastDrawableType = type;
+    }
+  }
+}
 void CCubeRenderer::PostRenderFogs() {}
 void CCubeRenderer::SetModelMatrix(const zeus::CTransform& xf) { CGraphics::SetModelMatrix(xf); }
 
@@ -361,7 +457,7 @@ void CCubeRenderer::HandleUnsortedModel(CAreaListItem* areaItem, CCubeModel& mod
   }
   model.SetArraysCurrent();
   ActivateLightsForModel(areaItem, model);
-  for (auto *it = model.GetFirstUnsortedSurface(); it != nullptr; it = it->GetNextSurface()) {
+  for (auto* it = model.GetFirstUnsortedSurface(); it != nullptr; it = it->GetNextSurface()) {
     model.DrawSurface(*it, CModelFlags(0, 0, 3, zeus::skWhite));
   }
 }
@@ -377,9 +473,7 @@ void CCubeRenderer::HandleUnsortedModelWireframe(CAreaListItem* areaItem, CCubeM
   }
 }
 
-void CCubeRenderer::ActivateLightsForModel(CAreaListItem* areaItem, CCubeModel& model) {
-
-}
+void CCubeRenderer::ActivateLightsForModel(const CAreaListItem* areaItem, CCubeModel& model) {}
 void CCubeRenderer::AddParticleGen(CParticleGen& gen) {
   auto bounds = gen.GetBounds();
 
@@ -393,33 +487,22 @@ void CCubeRenderer::AddParticleGen(CParticleGen& gen, const zeus::CVector3f& pos
   Buckets::Insert(pos, bounds, EDrawableType::Particle, reinterpret_cast<void*>(&gen), xb0_viewPlane, 0);
 }
 
-void CCubeRenderer::AddPlaneObject(void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type) {
+void CCubeRenderer::AddPlaneObject(void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, s32 type) {
 
-  auto closestPoint = aabb.closestPointAlongVector(xb0_viewPlane.normal());
-  auto closestDist = xb0_viewPlane.pointToPlaneDist(closestPoint);
-  auto furthestPoint = aabb.furthestPointAlongVector(xb0_viewPlane.normal());
-  auto furthestDist = xb0_viewPlane.pointToPlaneDist(furthestPoint);
+  const auto closestPoint = aabb.closestPointAlongVector(xb0_viewPlane.normal());
+  const auto closestDist = xb0_viewPlane.pointToPlaneDist(closestPoint);
+  const auto furthestPoint = aabb.furthestPointAlongVector(xb0_viewPlane.normal());
+  const auto furthestDist = xb0_viewPlane.pointToPlaneDist(furthestPoint);
 
   if (closestDist >= 0.f || furthestDist >= 0.f) {
-    bool zOnly = false;
-    if (plane.normal() == zeus::skUp) {
-      zOnly = true;
-    }
-
-    bool invertTest = false;
-    if (zOnly) {
-      invertTest = CGraphics::g_GXModelView.origin.z() >= plane.d();
-    } else if (plane.pointToPlaneDist(CGraphics::g_GXModelView.origin) < 0.f) {
-      invertTest = false;
-    } else {
-      invertTest = true;
-    }
-
+    const bool zOnly = plane.normal() == zeus::skUp;
+    const bool invertTest = zOnly ? CGraphics::g_GXModelView.origin.z() >= plane.d()
+                                  : plane.pointToPlaneDist(CGraphics::g_GXModelView.origin) >= 0.f;
     Buckets::InsertPlaneObject(closestDist, furthestDist, aabb, invertTest, plane, zOnly, EDrawableType(type + 2), obj);
   }
 }
 
-void CCubeRenderer::AddDrawable(void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, int mode,
+void CCubeRenderer::AddDrawable(void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, s32 mode,
                                 IRenderer::EDrawableSorting sorting) {
   if (sorting == EDrawableSorting::UnsortedCallback) {
     xa8_drawableCallback(obj, xac_drawableCallbackUserData, mode);
@@ -464,7 +547,7 @@ std::pair<zeus::CVector2f, zeus::CVector2f> CCubeRenderer::SetViewportOrtho(bool
 
 void CCubeRenderer::SetClippingPlanes(const zeus::CFrustum& frustum) { x44_frustumPlanes = frustum; }
 
-void CCubeRenderer::SetViewport(int left, int bottom, int width, int height) {
+void CCubeRenderer::SetViewport(s32 left, s32 bottom, s32 width, s32 height) {
   CGraphics::SetViewport(left, bottom, width, height);
   CGraphics::SetScissor(left, bottom, width, height);
 }
@@ -508,7 +591,7 @@ void CCubeRenderer::EndScene() {
   };
 }
 
-void CCubeRenderer::SetDebugOption(IRenderer::EDebugOption option, int value) {
+void CCubeRenderer::SetDebugOption(IRenderer::EDebugOption option, s32 value) {
   if (option == EDebugOption::PVSState) {
     xc8_pvs->SetState(EPVSVisSetState(value));
   } else if (option == EDebugOption::PVSMode) {
@@ -543,7 +626,7 @@ void CCubeRenderer::EndPrimitive() {
   CGraphics::StreamEnd();
 }
 void CCubeRenderer::SetAmbientColor(const zeus::CColor& color) { CGraphics::SetAmbientColor(color); }
-void CCubeRenderer::DrawString(const char* string, int x, int y) { x10_font.DrawString(string, x, y, zeus::skWhite); }
+void CCubeRenderer::DrawString(const char* string, s32 x, s32 y) { x10_font.DrawString(string, x, y, zeus::skWhite); }
 
 u32 CCubeRenderer::GetFPS() { return CGraphics::GetFPS(); }
 void CCubeRenderer::CacheReflection(IRenderer::TReflectionCallback cb, void* ctx, bool clearAfter) {}
@@ -553,7 +636,7 @@ void CCubeRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mu
 void CCubeRenderer::DrawModelDisintegrate(const CModel& model, const CTexture& tex, const zeus::CColor& color,
                                           TVectorRef positions, TVectorRef normals) {}
 void CCubeRenderer::DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) {}
-void CCubeRenderer::SetWireframeFlags(int flags) {}
+void CCubeRenderer::SetWireframeFlags(s32 flags) {}
 void CCubeRenderer::SetWorldFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) {}
 void CCubeRenderer::RenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
                                     const TLockedToken<CModel>* model, const CSkinnedModel* sModel) {}
@@ -583,11 +666,13 @@ CCubeRenderer::FindStaticGeometry(const std::vector<CMetroidModelInstance>* geom
 }
 
 void CCubeRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const {}
-int CCubeRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits,
+s32 CCubeRenderer::DrawOverlappingWorldModelIDs(s32 alphaVal, const std::vector<u32>& modelBits,
                                                 const zeus::CAABox& aabb) {
+  SetupRendererStates(true);
+
   return 0;
 }
-void CCubeRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vector<u32>& modelBits,
+void CCubeRenderer::DrawOverlappingWorldModelShadows(s32 alphaVal, const std::vector<u32>& modelBits,
                                                      const zeus::CAABox& aabb, float alpha) {}
 
 void CCubeRenderer::SetupCGraphicsState() {

@@ -4,7 +4,14 @@
 #include <zeus/CAABox.hpp>
 
 namespace metaforce {
-enum class EDrawableType : u16 { WorldSurface, Particle, Actor, SimpleShadow, Decal };
+enum class EDrawableType : u16 {
+  WorldSurface,
+  Particle,
+  Actor,
+  SimpleShadow,
+  Decal,
+  Invalid = 0xFFFF,
+};
 
 class CDrawable {
   EDrawableType x0_type;
