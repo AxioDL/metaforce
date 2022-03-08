@@ -36,6 +36,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
     x84_lightIdx = lightIdx;
   }
 
+  return; // TODO
   if (aid != kInvalidAreaId) {
     const CGameArea* area = mgr.GetWorld()->GetAreaAlways(aid);
     if (area->IsPostConstructed()) {

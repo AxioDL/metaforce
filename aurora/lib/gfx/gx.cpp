@@ -68,7 +68,7 @@ constexpr zeus::CMatrix4f DepthCorrect{
     0.f, 0.f, 0.f, 1.f,
     // clang-format on
 };
-void update_projection(const zeus::CMatrix4f& proj) noexcept { gx::g_proj = /*DepthCorrect **/ proj; }
+void update_projection(const zeus::CMatrix4f& proj) noexcept { gx::g_proj = DepthCorrect * proj; }
 void update_fog_state(const metaforce::CFogState& state) noexcept { gx::g_fogState = state; }
 
 void disable_tev_stage(metaforce::ERglTevStage stage) noexcept { gx::g_tevStages[static_cast<size_t>(stage)].reset(); }

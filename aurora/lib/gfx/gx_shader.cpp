@@ -530,7 +530,7 @@ var<storage, read> v_packed_uvs: Vec2Block;
       }
       info.usesVtxColor = true;
     } else {
-      fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = ubuf.cc{0}_mat; // TODO lighting"), i);
+      fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = ubuf.cc{0}_amb; // TODO lighting"), i);
     }
   }
   for (int i = 0; i < info.sampledKcolors.size(); ++i) {

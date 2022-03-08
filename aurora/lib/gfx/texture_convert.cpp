@@ -66,6 +66,17 @@ static size_t ComputeMippedBlockCountDXT1(u32 w, u32 h, u32 mips) {
   return ret;
 }
 
+template <typename T>
+constexpr T bswap16(T val) noexcept {
+#if __GNUC__
+  return __builtin_bswap16(val);
+#elif _WIN32
+  return _byteswap_ushort(val);
+#else
+  return (val = (val << 8) | ((val >> 8) & 0xFF));
+#endif
+}
+
 static ByteBuffer BuildI4FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {
   const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
   ByteBuffer buf{sizeof(RGBA8) * texelCount};
@@ -205,11 +216,12 @@ ByteBuffer BuildIA8FromGCN(uint32_t width, uint32_t height, uint32_t mips, Array
         for (uint32_t y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           for (size_t x = 0; x < 4; ++x) {
-            const u8 intensity = in[x] >> 8;
+            const auto texel = bswap16(in[x]);
+            const u8 intensity = texel >> 8;
             target[x].r = intensity;
             target[x].g = intensity;
             target[x].b = intensity;
-            target[x].a = in[x] & 0xff;
+            target[x].a = texel & 0xff;
           }
           in += 4;
         }
@@ -319,7 +331,7 @@ ByteBuffer BuildRGB565FromGCN(uint32_t width, uint32_t height, uint32_t mips, Ar
         for (uint32_t y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           for (size_t x = 0; x < 4; ++x) {
-            const auto texel = in[x];
+            const auto texel = bswap16(in[x]);
             target[x].r = Convert5To8(texel >> 11 & 0x1f);
             target[x].g = Convert6To8(texel >> 5 & 0x3f);
             target[x].b = Convert5To8(texel & 0x1f);
@@ -359,7 +371,7 @@ ByteBuffer BuildRGB5A3FromGCN(uint32_t width, uint32_t height, uint32_t mips, Ar
         for (uint32_t y = 0; y < 4; ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           for (size_t x = 0; x < 4; ++x) {
-            const auto texel = in[x];
+            const auto texel = bswap16(in[x]);
             if ((texel & 0x8000) != 0) {
               target[x].r = Convert5To8(texel >> 10 & 0x1f);
               target[x].g = Convert5To8(texel >> 5 & 0x1f);
@@ -430,17 +442,6 @@ ByteBuffer BuildRGBA8FromGCN(uint32_t width, uint32_t height, uint32_t mips, Arr
   }
 
   return buf;
-}
-
-template <typename T>
-constexpr T bswap16(T val) noexcept {
-#if __GNUC__
-  return __builtin_bswap16(val);
-#elif _WIN32
-  return _byteswap_ushort(val);
-#else
-  return (val = (val << 8) | ((val >> 8) & 0xFF));
-#endif
 }
 
 ByteBuffer BuildDXT1FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {

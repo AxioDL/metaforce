@@ -164,10 +164,7 @@ inline void xxh3_update(XXH3_state_t& state, const gfx::gx::STevStage& input) {
   XXH3_64bits_update(&state, &input.channelId, sizeof(gfx::gx::STevStage::channelId));
 }
 template <>
-inline XXH64_hash_t xxh3_hash(const gfx::gx::ShaderConfig& input, XXH64_hash_t seed) {
-  XXH3_state_t state;
-  memset(&state, 0, sizeof(XXH3_state_t));
-  XXH3_64bits_reset_withSeed(&state, seed);
+inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ShaderConfig& input) {
   for (const auto& item : input.tevStages) {
     if (!item) {
       break;
@@ -180,6 +177,5 @@ inline XXH64_hash_t xxh3_hash(const gfx::gx::ShaderConfig& input, XXH64_hash_t s
   XXH3_64bits_update(&state, &input.alphaDiscard, sizeof(bool));
   XXH3_64bits_update(&state, &input.denormalizedVertexAttributes, sizeof(bool));
   XXH3_64bits_update(&state, &input.denormalizedHasNrm, sizeof(bool));
-  return XXH3_64bits_digest(&state);
 }
 } // namespace aurora

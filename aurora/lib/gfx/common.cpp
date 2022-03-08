@@ -68,7 +68,115 @@ struct Command {
     ShaderDrawCommand draw;
   } data;
 };
+} // namespace aurora::gfx
 
+namespace aurora {
+template <>
+inline void xxh3_update(XXH3_state_t& state, const gfx::colored_quad::PipelineConfig& input) {
+  XXH3_64bits_update(&state, &input.filterType, sizeof(gfx::colored_quad::PipelineConfig::filterType));
+  XXH3_64bits_update(&state, &input.zComparison, sizeof(gfx::colored_quad::PipelineConfig::zComparison));
+  XXH3_64bits_update(&state, &input.zTest, sizeof(gfx::colored_quad::PipelineConfig::zTest));
+}
+template <>
+inline void xxh3_update(XXH3_state_t& state, const gfx::textured_quad::PipelineConfig& input) {
+  XXH3_64bits_update(&state, &input.filterType, sizeof(gfx::textured_quad::PipelineConfig::filterType));
+  XXH3_64bits_update(&state, &input.zComparison, sizeof(gfx::textured_quad::PipelineConfig::zComparison));
+  XXH3_64bits_update(&state, &input.zTest, sizeof(gfx::textured_quad::PipelineConfig::zTest));
+}
+template <>
+inline void xxh3_update(XXH3_state_t& state, const gfx::movie_player::PipelineConfig& input) {
+  // no-op
+}
+template <>
+inline void xxh3_update(XXH3_state_t& state, const gfx::gx::PipelineConfig& input) {
+  xxh3_update(state, input.shaderConfig);
+  XXH3_64bits_update(&state, &input.primitive, sizeof(gfx::gx::PipelineConfig::primitive));
+  XXH3_64bits_update(&state, &input.depthFunc, sizeof(gfx::gx::PipelineConfig::depthFunc));
+  XXH3_64bits_update(&state, &input.cullMode, sizeof(gfx::gx::PipelineConfig::cullMode));
+  XXH3_64bits_update(&state, &input.blendMode, sizeof(gfx::gx::PipelineConfig::blendMode));
+  XXH3_64bits_update(&state, &input.blendFacSrc, sizeof(gfx::gx::PipelineConfig::blendFacSrc));
+  XXH3_64bits_update(&state, &input.blendFacDst, sizeof(gfx::gx::PipelineConfig::blendFacDst));
+  XXH3_64bits_update(&state, &input.blendOp, sizeof(gfx::gx::PipelineConfig::blendOp));
+  if (input.dstAlpha) {
+    XXH3_64bits_update(&state, &*input.dstAlpha, sizeof(float));
+  }
+  XXH3_64bits_update(&state, &input.depthCompare, sizeof(gfx::gx::PipelineConfig::depthCompare));
+  XXH3_64bits_update(&state, &input.depthUpdate, sizeof(gfx::gx::PipelineConfig::depthUpdate));
+  XXH3_64bits_update(&state, &input.alphaUpdate, sizeof(gfx::gx::PipelineConfig::alphaUpdate));
+}
+template <>
+inline void xxh3_update(XXH3_state_t& state, const gfx::stream::PipelineConfig& input) {
+  xxh3_update<gfx::gx::PipelineConfig>(state, input);
+}
+template <>
+inline void xxh3_update(XXH3_state_t& state, const gfx::model::PipelineConfig& input) {
+  xxh3_update<gfx::gx::PipelineConfig>(state, input);
+}
+template <>
+inline void xxh3_update(XXH3_state_t& state, const gfx::PipelineCreateCommand& input) {
+  XXH3_64bits_update(&state, &input.type, sizeof(gfx::PipelineCreateCommand::type));
+  switch (input.type) {
+  case gfx::ShaderType::Aabb:
+    // TODO
+    break;
+  case gfx::ShaderType::ColoredQuad:
+    xxh3_update(state, input.coloredQuad);
+    break;
+  case gfx::ShaderType::TexturedQuad:
+    xxh3_update(state, input.texturedQuad);
+    break;
+  case gfx::ShaderType::MoviePlayer:
+    xxh3_update(state, input.moviePlayer);
+    break;
+  case gfx::ShaderType::Stream:
+    xxh3_update(state, input.stream);
+    break;
+  case gfx::ShaderType::Model:
+    xxh3_update(state, input.model);
+    break;
+  }
+}
+template <>
+inline void xxh3_update(XXH3_state_t& state, const wgpu::BindGroupEntry& input) {
+  XXH3_64bits_update(&state, &input.binding, sizeof(wgpu::BindGroupEntry::binding));
+  XXH3_64bits_update(&state, &input.buffer, sizeof(wgpu::BindGroupEntry::buffer));
+  XXH3_64bits_update(&state, &input.offset, sizeof(wgpu::BindGroupEntry::offset));
+  if (input.buffer != nullptr) {
+    XXH3_64bits_update(&state, &input.size, sizeof(wgpu::BindGroupEntry::size));
+  }
+  XXH3_64bits_update(&state, &input.sampler, sizeof(wgpu::BindGroupEntry::sampler));
+  XXH3_64bits_update(&state, &input.textureView, sizeof(wgpu::BindGroupEntry::textureView));
+}
+template <>
+inline void xxh3_update(XXH3_state_t& state, const wgpu::BindGroupDescriptor& input) {
+  if (input.label != nullptr) {
+    XXH3_64bits_update(&state, input.label, strlen(input.label));
+  }
+  XXH3_64bits_update(&state, &input.layout, sizeof(wgpu::BindGroupDescriptor::layout));
+  XXH3_64bits_update(&state, &input.entryCount, sizeof(wgpu::BindGroupDescriptor::entryCount));
+  for (int i = 0; i < input.entryCount; ++i) {
+    xxh3_update(state, input.entries[i]);
+  }
+}
+template <>
+inline void xxh3_update(XXH3_state_t& state, const wgpu::SamplerDescriptor& input) {
+  if (input.label != nullptr) {
+    XXH3_64bits_update(&state, input.label, strlen(input.label));
+  }
+  XXH3_64bits_update(&state, &input.addressModeU, sizeof(wgpu::SamplerDescriptor::addressModeU));
+  XXH3_64bits_update(&state, &input.addressModeV, sizeof(wgpu::SamplerDescriptor::addressModeV));
+  XXH3_64bits_update(&state, &input.addressModeW, sizeof(wgpu::SamplerDescriptor::addressModeW));
+  XXH3_64bits_update(&state, &input.magFilter, sizeof(wgpu::SamplerDescriptor::magFilter));
+  XXH3_64bits_update(&state, &input.minFilter, sizeof(wgpu::SamplerDescriptor::minFilter));
+  XXH3_64bits_update(&state, &input.mipmapFilter, sizeof(wgpu::SamplerDescriptor::mipmapFilter));
+  XXH3_64bits_update(&state, &input.lodMinClamp, sizeof(wgpu::SamplerDescriptor::lodMinClamp));
+  XXH3_64bits_update(&state, &input.lodMaxClamp, sizeof(wgpu::SamplerDescriptor::lodMaxClamp));
+  XXH3_64bits_update(&state, &input.compare, sizeof(wgpu::SamplerDescriptor::compare));
+  XXH3_64bits_update(&state, &input.maxAnisotropy, sizeof(wgpu::SamplerDescriptor::maxAnisotropy));
+}
+} // namespace aurora
+
+namespace aurora::gfx {
 using NewPipelineCallback = std::function<wgpu::RenderPipeline()>;
 std::mutex g_pipelineMutex;
 static std::thread g_pipelineThread;
@@ -188,8 +296,8 @@ PipelineRef pipeline_ref(colored_quad::PipelineConfig config) {
                        [=]() { return create_pipeline(g_state.coloredQuad, config); });
 }
 
-void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v,
-                        float h_pad, float v_pad) noexcept {
+void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v, float h_pad,
+                        float v_pad) noexcept {
   auto data = movie_player::make_draw_data(g_state.moviePlayer, tex_y, tex_u, tex_v, h_pad, v_pad);
   push_draw_command({.type = ShaderType::MoviePlayer, .moviePlayer = data});
 }
@@ -422,8 +530,7 @@ Range push_storage(const uint8_t* data, size_t length) {
 }
 
 BindGroupRef bind_group_ref(const wgpu::BindGroupDescriptor& descriptor) {
-  const auto id =
-      xxh3_hash(descriptor.entries, descriptor.entryCount * sizeof(wgpu::BindGroupEntry), xxh3_hash(descriptor));
+  const auto id = xxh3_hash(descriptor);
   if (!g_cachedBindGroups.contains(id)) {
     g_cachedBindGroups[id] = g_device.CreateBindGroup(&descriptor);
   }

@@ -18,7 +18,11 @@ static inline XXH64_hash_t xxh3_hash(const void* input, size_t len, XXH64_hash_t
 }
 template <typename T>
 static inline XXH64_hash_t xxh3_hash(const T& input, XXH64_hash_t seed = 0) {
-  return xxh3_hash(&input, sizeof(T), seed);
+  XXH3_state_t state;
+  memset(&state, 0, sizeof(XXH3_state_t));
+  XXH3_64bits_reset_withSeed(&state, seed);
+  xxh3_update(state, input);
+  return XXH3_64bits_digest(&state);
 }
 
 class ByteBuffer {

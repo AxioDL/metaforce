@@ -19,18 +19,9 @@ struct DrawData {
   gx::GXBindGroups bindGroups;
 };
 
-struct PipelineConfig : gx::PipelineConfig {
+struct PipelineConfig : gx::PipelineConfig {};
 
-};
-
-struct CachedBindGroup {
-  wgpu::BindGroupLayout layout;
-  wgpu::BindGroup bindGroup;
-  CachedBindGroup(wgpu::BindGroupLayout layout, wgpu::BindGroup&& group)
-  : layout(std::move(layout)), bindGroup(std::move(group)) {}
-};
-struct State {
-};
+struct State {};
 
 State construct_state();
 wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] PipelineConfig config);
