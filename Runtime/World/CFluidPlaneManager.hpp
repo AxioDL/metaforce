@@ -60,6 +60,8 @@ public:
   rstl::reserved_vector<CSplashRecord, 32>& SplashRecords() { return x18_splashes; }
   const CRippleManager& GetRippleManager() const { return x0_rippleManager; }
   CRippleManager& RippleManager() { return x0_rippleManager; }
+
+  static void Shutdown();
 };
 
 } // namespace metaforce

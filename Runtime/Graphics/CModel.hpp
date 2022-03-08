@@ -6,11 +6,11 @@
 #include "CToken.hpp"
 #include "GCNTypes.hpp"
 #include "Graphics/CCubeModel.hpp"
+#include "Graphics/CCubeSurface.hpp"
 #include "Graphics/CTexture.hpp"
 #include "IObjectStore.hpp"
 
 namespace metaforce {
-class CCubeSurface;
 class CCubeMaterial;
 
 enum class CModelFlagBits : u16 {

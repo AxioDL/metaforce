@@ -704,6 +704,7 @@ void CMain::ShutdownSubsystems() {
   // Metaforce additions
   CMoviePlayer::Shutdown();
   CFont::Shutdown();
+  CFluidPlaneManager::Shutdown();
 }
 
 void CMain::Shutdown() {

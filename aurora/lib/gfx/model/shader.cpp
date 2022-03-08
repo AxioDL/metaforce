@@ -116,7 +116,7 @@ void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
   std::vector<u32> indices;
 
   size_t offset = 0;
-  while (offset < dlSize) {
+  while (offset < dlSize - 6) {
     const auto header = dlStart[offset];
     const auto primitive = static_cast<GX::Primitive>(header & 0xF8);
     const auto vtxFmt = static_cast<VertexFormat>(header & 0x3);

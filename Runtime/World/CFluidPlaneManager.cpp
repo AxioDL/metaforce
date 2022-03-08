@@ -140,4 +140,8 @@ void CFluidPlaneManager::SetupRippleMap() {
                                                     "Ripple Map");
 }
 
+void CFluidPlaneManager::Shutdown() {
+  RippleMapTex.reset();
+}
+
 } // namespace metaforce

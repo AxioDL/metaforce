@@ -19,7 +19,7 @@ static std::vector<std::string> g_Args;
 
 // SDL
 static SDL_Window* g_window;
-static WindowSize g_windowSize;
+WindowSize g_windowSize;
 
 // GPU
 using gpu::g_depthBuffer;

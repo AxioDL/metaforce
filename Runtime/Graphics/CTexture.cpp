@@ -342,7 +342,7 @@ void CTexture::InvalidateTexMap(GX::TexMapID id) {
 
 CFactoryFnReturn FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                  CObjectReference* selfRef) {
-  const auto label = fmt::format("{} {}", tag.type, tag.id);
+  const auto label = fmt::format(FMT_STRING("{} {}"), tag.type, tag.id);
   return TToken<CTexture>::GetIObjObjectFor(std::make_unique<CTexture>(in, label));
 }
 } // namespace metaforce

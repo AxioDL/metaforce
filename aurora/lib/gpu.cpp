@@ -1,5 +1,7 @@
 #include "gpu.hpp"
 
+#include <aurora/aurora.hpp>
+
 #include <SDL.h>
 #include <dawn/native/DawnNative.h>
 #include <dawn/webgpu_cpp.h>
@@ -8,6 +10,11 @@
 #include <memory>
 
 #include "dawn/BackendBinding.hpp"
+
+// FIXME hack to avoid crash on Windows
+namespace aurora {
+extern WindowSize g_windowSize;
+} // namespace aurora
 
 namespace aurora::gpu {
 static logvisor::Module Log("aurora::gpu");
@@ -192,18 +199,17 @@ void initialize(SDL_Window* window) {
     g_swapChain = g_device.CreateSwapChain(nullptr, &descriptor);
   }
   {
-    int width = 0;
-    int height = 0;
-    SDL_GL_GetDrawableSize(window, &width, &height);
+    const auto size = get_window_size();
     g_graphicsConfig = GraphicsConfig{
-        .width = static_cast<uint32_t>(width),
-        .height = static_cast<uint32_t>(height),
+        .width = size.fb_width,
+        .height = size.fb_height,
         .colorFormat = swapChainFormat,
         .depthFormat = wgpu::TextureFormat::Depth32Float,
         .msaaSamples = 1, // TODO 4
         .textureAnistropy = 16,
     };
-    resize_swapchain(width, height);
+    resize_swapchain(size.fb_width, size.fb_height);
+    g_windowSize = size;
   }
 }
 

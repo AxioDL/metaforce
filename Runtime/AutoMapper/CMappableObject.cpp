@@ -112,6 +112,7 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
   SCOPED_GRAPHICS_DEBUG_GROUP("CMappableObject::Draw", zeus::skCyan);
   if (IsDoorType(x0_type)) {
     std::pair<zeus::CColor, zeus::CColor> colors = GetDoorColors(curArea, mwInfo, alpha);
+    if (m_doorSurface) // TODO
     for (int s = 0; s < 6; ++s) {
       DoorSurface& ds = *m_doorSurface;
       ds.m_surface.draw(colors.first, s * 4, 4);

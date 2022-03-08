@@ -25,7 +25,7 @@ public:
 
   void Execute(ERglTevStage stage) const;
 
-  bool operator<=>(const CTevPass&) const = default;
+  auto operator<=>(const CTevPass&) const = default;
 };
 
 extern const CTevPass skPassThru;

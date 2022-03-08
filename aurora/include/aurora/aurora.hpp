@@ -178,7 +178,7 @@ struct WindowSize {
   uint32_t fb_height;
   float scale;
 
-  bool operator<=>(const WindowSize& rhs) const = default;
+  auto operator<=>(const WindowSize& rhs) const = default;
 };
 enum class MouseButton {
   None = 0,

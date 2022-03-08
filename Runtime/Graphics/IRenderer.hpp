@@ -5,6 +5,7 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 #include <zeus/CAABox.hpp>
@@ -17,7 +18,6 @@ namespace metaforce {
 class CAreaOctTree;
 class CLight;
 class CMetroidModelInstance;
-class CModel;
 class CPVSVisSet;
 class CParticleGen;
 class CSkinnedModel;

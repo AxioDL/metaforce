@@ -129,8 +129,17 @@ void set_chan_mat_src(GX::ChannelID id, GX::ColorSrc src) noexcept {
   gx::g_colorChannels[id - GX::COLOR0A0].matSrc = src;
 }
 
-void load_light(GX::LightID id, const Light& light) noexcept { gx::g_lights[id] = light; }
-void load_light_ambient(GX::LightID id, const zeus::CColor& ambient) noexcept { gx::g_lights[id] = ambient; }
+static inline u8 light_idx(GX::LightID id) {
+#ifdef _MSC_VER
+  unsigned long r = 0;
+  _BitScanForward(&r, id);
+  return r;
+#else
+  return __builtin_ctz(id);
+#endif
+}
+void load_light(GX::LightID id, const Light& light) noexcept { gx::g_lights[light_idx(id)] = light; }
+void load_light_ambient(GX::LightID id, const zeus::CColor& ambient) noexcept { gx::g_lights[light_idx(id)] = ambient; }
 void set_light_state(std::bitset<MaxLights> bits) noexcept { gx::g_lightState = bits; }
 
 namespace gx {
@@ -187,6 +196,9 @@ static inline wgpu::BlendFactor to_blend_factor(metaforce::ERglBlendFactor fac) 
     return wgpu::BlendFactor::Dst;
   case metaforce::ERglBlendFactor::InvDstColor:
     return wgpu::BlendFactor::OneMinusDst;
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("invalid blend factor {}"), fac);
+    unreachable();
   }
 }
 
@@ -208,6 +220,9 @@ static inline wgpu::CompareFunction to_compare_function(metaforce::ERglEnum func
     return wgpu::CompareFunction::GreaterEqual;
   case metaforce::ERglEnum::Always:
     return wgpu::CompareFunction::Always;
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("invalid depth fn {}"), func);
+    unreachable();
   }
 }
 
@@ -328,7 +343,8 @@ wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderIn
   return g_device.CreateRenderPipeline(&descriptor);
 }
 
-ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive, const BindGroupRanges& ranges) noexcept {
+ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive,
+                                    const BindGroupRanges& ranges) noexcept {
   for (size_t idx = 0; const auto& item : g_tevStages) {
     // Copy until disabled TEV stage (indicating end)
     if (!item) {

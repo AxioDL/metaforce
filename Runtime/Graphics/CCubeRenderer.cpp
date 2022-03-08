@@ -593,7 +593,9 @@ void CCubeRenderer::EndScene() {
 
 void CCubeRenderer::SetDebugOption(IRenderer::EDebugOption option, s32 value) {
   if (option == EDebugOption::PVSState) {
-    xc8_pvs->SetState(EPVSVisSetState(value));
+    if (xc8_pvs) {
+      xc8_pvs->SetState(EPVSVisSetState(value));
+    }
   } else if (option == EDebugOption::PVSMode) {
     xc0_pvsMode = EPVSMode(value);
   } else if (option == EDebugOption::FogDisabled) {

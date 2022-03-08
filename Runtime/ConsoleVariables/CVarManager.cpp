@@ -12,6 +12,14 @@
 #include <memory>
 #include <regex>
 
+#if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
+#define S_ISREG(m) (((m)&S_IFMT) == S_IFREG)
+#endif
+
+#if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
+#define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
+#endif
+
 namespace metaforce {
 
 CVar* com_developer = nullptr;
@@ -165,7 +173,13 @@ void CVarManager::serialize() {
     textOut.WriteString(str);
   }
 
-  auto* file = fopen(filename.c_str(), "wbe");
+  auto* file = fopen(filename.c_str(),
+#ifdef _MSC_VER
+                     "wb"
+#else
+                     "wbe"
+#endif
+  );
   if (file != nullptr) {
     u32 writeLen = memOut.GetWritePosition();
     u32 offset = 0;
@@ -182,7 +196,13 @@ std::vector<StoreCVar::CVar> CVarManager::loadCVars(const std::string& filename)
   CBasics::Sstat st;
   if (CBasics::Stat(filename.c_str(), &st) == 0 && S_ISREG(st.st_mode)) {
 
-    auto* file = fopen(filename.c_str(), "rbe");
+    auto* file = fopen(filename.c_str(),
+#ifdef _MSC_VER
+                       "rb"
+#else
+                       "rbe"
+#endif
+                       );
     if (file != nullptr) {
 
       std::unique_ptr<u8[]> inBuf(new u8[st.st_size]);
