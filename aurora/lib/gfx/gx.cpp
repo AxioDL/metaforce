@@ -356,7 +356,8 @@ ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primit
   // TODO separate shader info from build_shader for async
   {
     std::lock_guard lk{g_pipelineMutex};
-    const auto [_, info] = build_shader(config.shaderConfig);
+    auto [_, info] = build_shader(config.shaderConfig);
+    info.bindGroups = build_bind_groups(info); // TODO this is hack
     return info;
   }
 }

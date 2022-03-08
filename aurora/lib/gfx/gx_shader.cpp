@@ -513,7 +513,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {{
   auto shader = gpu::g_device.CreateShaderModule(&shaderDescriptor);
 
   info.uniformSize = align_uniform(info.uniformSize);
-  const auto pair = std::make_pair(std::move(shader), info);
+  auto pair = std::make_pair(std::move(shader), info);
   g_gxCachedShaders.emplace(hash, pair);
 
   return pair;

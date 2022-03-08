@@ -91,8 +91,19 @@ struct PipelineConfig {
   std::optional<float> dstAlpha;
   bool depthCompare, depthUpdate, alphaUpdate;
 };
+struct GXBindGroupLayouts {
+  wgpu::BindGroupLayout uniformLayout;
+  wgpu::BindGroupLayout samplerLayout;
+  wgpu::BindGroupLayout textureLayout;
+};
+struct GXBindGroups {
+  BindGroupRef uniformBindGroup;
+  BindGroupRef samplerBindGroup;
+  BindGroupRef textureBindGroup;
+};
 // Output info from shader generation
 struct ShaderInfo {
+  GXBindGroups bindGroups;
   std::bitset<maxTextures> sampledTextures;
   std::bitset<4> sampledKcolors;
   std::bitset<2> sampledColorChannels;
@@ -105,20 +116,8 @@ wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderIn
                                     ArrayRef<wgpu::VertexBufferLayout> vtxBuffers, wgpu::ShaderModule shader,
                                     zstring_view label) noexcept;
 std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& config) noexcept;
-
 // Range build_vertex_buffer(const GXShaderInfo& info) noexcept;
 Range build_uniform(const ShaderInfo& info) noexcept;
-
-struct GXBindGroupLayouts {
-  wgpu::BindGroupLayout uniformLayout;
-  wgpu::BindGroupLayout samplerLayout;
-  wgpu::BindGroupLayout textureLayout;
-};
-struct GXBindGroups {
-  BindGroupRef uniformBindGroup;
-  BindGroupRef samplerBindGroup;
-  BindGroupRef textureBindGroup;
-};
 GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info) noexcept;
 GXBindGroups build_bind_groups(const ShaderInfo& info) noexcept;
 } // namespace aurora::gfx::gx

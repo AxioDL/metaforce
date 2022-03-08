@@ -67,7 +67,7 @@ void stream_end() noexcept {
       .vertRange = vertRange,
       .uniformRange = build_uniform(info),
       .vertexCount = sStreamState->vertexCount,
-      .bindGroups = build_bind_groups(info),
+      .bindGroups = info.bindGroups,
   });
 
   sStreamState.reset();
