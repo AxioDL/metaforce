@@ -4,18 +4,7 @@ namespace metaforce::CTevCombiners {
 u32 CTevPass::sNextUniquePass = 0;
 
 void CTevPass::Execute(ERglTevStage stage) const {
-  if (*this == skPassThru) {
-    // TODO proper handling of # tev stages
-    if (stage > ERglTevStage::Stage0) {
-      aurora::gfx::disable_tev_stage(stage);
-    } else {
-      aurora::gfx::disable_tev_stage(ERglTevStage::Stage1);
-    }
-  } else {
-    aurora::gfx::update_tev_stage(stage, x4_colorPass, x14_alphaPass, x24_colorOp, x38_alphaOp);
-    aurora::gfx::set_tev_order(static_cast<GX::TevStageID>(stage), GX::TEXCOORD_NULL, static_cast<GX::TexMapID>(stage),
-                               GX::COLOR_NULL);
-  }
+  aurora::gfx::update_tev_stage(stage, x4_colorPass, x14_alphaPass, x24_colorOp, x38_alphaOp);
 }
 
 constexpr u32 maxTevPasses = 2;
@@ -104,7 +93,10 @@ bool SetPassCombiners(ERglTevStage stage, const CTevPass& pass) {
 }
 
 void RecomputePasses() {
-  sNumEnabledPasses = std::count(sValidPasses.begin(), sValidPasses.end(), true);
+  sNumEnabledPasses = 1 - static_cast<int>(sValidPasses[1]);
+  for (u32 i = sNumEnabledPasses; i < u32(ERglTevStage::MAX); ++i) {
+    aurora::gfx::disable_tev_stage(ERglTevStage(i));
+  }
   // CGX::SetNumTevStages(sNumEnabledPasses);
 }
 
