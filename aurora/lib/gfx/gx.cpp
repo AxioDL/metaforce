@@ -363,29 +363,53 @@ ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primit
 }
 
 Range build_uniform(const ShaderInfo& info) noexcept {
-  ByteBuffer uniBuf;
+  auto [buf, range] = map_uniform(info.uniformSize);
   {
-    const auto xf = get_combined_matrix();
-    uniBuf.append(&xf, 64);
+    buf.append(&g_mv, 64);
+    buf.append(&g_mvInv, 64);
+    buf.append(&g_proj, 64);
   }
   for (int i = 0; i < info.usesTevReg.size(); ++i) {
     if (!info.usesTevReg.test(i)) {
       continue;
     }
-    uniBuf.append(&g_colorRegs[i], 16);
+    buf.append(&g_colorRegs[i], 16);
+  }
+  if (info.sampledColorChannels.any()) {
+    zeus::CColor ambient = zeus::skClear;
+    int addedLights = 0;
+    for (int i = 0; i < g_lightState.size(); ++i) {
+      if (!g_lightState.test(i)) {
+        continue;
+      }
+      const auto& variant = g_lights[i];
+      if (std::holds_alternative<zeus::CColor>(variant)) {
+        ambient += std::get<zeus::CColor>(variant);
+      } else if (std::holds_alternative<Light>(variant)) {
+        static_assert(sizeof(Light) == 80);
+        buf.append(&std::get<Light>(variant), sizeof(Light));
+        ++addedLights;
+      }
+    }
+    constexpr Light emptyLight{};
+    for (int i = addedLights; i < MaxLights; ++i) {
+      buf.append(&emptyLight, sizeof(Light));
+    }
+    buf.append(&ambient, 16);
+//    fmt::print(FMT_STRING("Added lights: {}, ambient: {},{},{},{}\n"), addedLights, ambient.r(), ambient.g(), ambient.b(), ambient.a());
   }
   for (int i = 0; i < info.sampledColorChannels.size(); ++i) {
     if (!info.sampledColorChannels.test(i)) {
       continue;
     }
-    uniBuf.append(&g_colorChannels[i].ambColor, 16);
-    uniBuf.append(&g_colorChannels[i].matColor, 16);
+    buf.append(&g_colorChannels[i].ambColor, 16);
+    buf.append(&g_colorChannels[i].matColor, 16);
   }
   for (int i = 0; i < info.sampledKcolors.size(); ++i) {
     if (!info.sampledKcolors.test(i)) {
       continue;
     }
-    uniBuf.append(&g_kcolors[i], 16);
+    buf.append(&g_kcolors[i], 16);
   }
   for (int i = 0; i < info.sampledTextures.size(); ++i) {
     if (!info.sampledTextures.test(i)) {
@@ -396,9 +420,9 @@ Range build_uniform(const ShaderInfo& info) noexcept {
       Log.report(logvisor::Fatal, FMT_STRING("unbound texture {}"), i);
       unreachable();
     }
-    uniBuf.append(&tex.lod, 4);
+    buf.append(&tex.lod, 4);
   }
-  return push_uniform(uniBuf.data(), uniBuf.size());
+  return range;
 }
 
 static std::unordered_map<u32, wgpu::BindGroupLayout> sUniformBindGroupLayouts;

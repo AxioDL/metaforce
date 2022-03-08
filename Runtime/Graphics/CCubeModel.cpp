@@ -78,7 +78,7 @@ bool CCubeModel::TryLockTextures() {
       }
       if (loadTexture) {
         // texture->LoadToMRAM();
-        texturesPumped = true;
+        // texturesPumped = true;
       }
     }
     if (!texturesPumped) {

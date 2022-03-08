@@ -342,7 +342,7 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
 
   Log.report(logvisor::Info, FMT_STRING("Shader config (hash {:x}):"), hash);
   ShaderInfo info{
-      .uniformSize = 64, // MVP MTX
+      .uniformSize = 64 * 3, // mv, mvInv, proj
   };
 
   {
@@ -383,6 +383,7 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
     Log.report(logvisor::Info, FMT_STRING("  denormalizedVertexAttributes: {}"), config.denormalizedVertexAttributes);
   }
 
+  std::string uniformPre;
   std::string uniBufAttrs;
   std::string uniformBindings;
   std::string sampBindings;
@@ -395,11 +396,15 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
   if (config.denormalizedVertexAttributes) {
     vtxInAttrs += "\n    @location(0) in_pos: vec3<f32>";
     vtxOutAttrs += "\n    @builtin(position) pos: vec4<f32>;";
-    vtxXfrAttrsPre += "\n    out.pos = ubuf.xf * vec4<f32>(in_pos, 1.0);";
+    vtxXfrAttrsPre += "\n    var obj_pos = vec4<f32>(in_pos, 1.0);"
+        "\n    var mv_pos = ubuf.mv * obj_pos;"
+        "\n    out.pos = ubuf.proj * mv_pos;";
     if (config.denormalizedHasNrm) {
       vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) nrm: vec3<f32>;"), locIdx);
       vtxInAttrs += fmt::format(FMT_STRING("\n    , @location({}) in_nrm: vec3<f32>"), ++locIdx);
       vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.nrm = in_nrm;"));
+      vtxXfrAttrsPre += "\n    var obj_norm = vec4<f32>(in_nrm, 0.0);"
+          "\n    var mv_norm = ubuf.mv_inv * obj_norm;";
       info.usesNormal = true;
     }
   } else {
@@ -424,7 +429,11 @@ var<storage, read> v_packed_uvs: Vec2Block;
         "\n    , @location(1) in_uv_0_4_idx: vec4<i32>"
         "\n    , @location(2) in_uv_5_7_idx: vec4<i32>";
     vtxOutAttrs += "\n    @builtin(position) pos: vec4<f32>;";
-    vtxXfrAttrsPre += "\n    out.pos = ubuf.xf * vec4<f32>(v_verts.data[in_pos_nrm_idx[0]].xyz, 1.0);";
+    vtxXfrAttrsPre += "\n    var obj_pos = vec4<f32>(v_verts.data[in_pos_nrm_idx[0]].xyz, 1.0);"
+        "\n    var obj_norm = vec4<f32>(v_verts.data[in_pos_nrm_idx[1]].xyz, 0.0);"
+        "\n    var mv_pos = ubuf.mv * obj_pos;"
+        "\n    var mv_norm = ubuf.mv_inv * obj_norm;"
+        "\n    out.pos = ubuf.proj * mv_pos;";
   }
 
   std::string fragmentFnPre;
@@ -507,6 +516,20 @@ var<storage, read> v_packed_uvs: Vec2Block;
     }
     uniBufAttrs += fmt::format(FMT_STRING("\n    tevreg{}: vec4<f32>;"), i);
     fragmentFnPre += fmt::format(FMT_STRING("\n    var tevreg{0} = ubuf.tevreg{0};"), i);
+    info.uniformSize += 16;
+  }
+  if (info.sampledColorChannels.any()) {
+    uniformPre += "\n"
+        "struct Light {\n"
+        "    pos: vec3<f32>;\n"
+        "    dir: vec3<f32>;\n"
+        "    color: vec4<f32>;\n"
+        "    lin_att: vec3<f32>;\n"
+        "    ang_att: vec3<f32>;\n"
+        "};";
+    uniBufAttrs += fmt::format(FMT_STRING("\n    lights: array<Light, {}>;"), MaxLights);
+    uniBufAttrs += "\n    lighting_ambient: vec4<f32>;";
+    info.uniformSize += (80 * MaxLights) + 16;
   }
   for (int i = 0; i < info.sampledColorChannels.size(); ++i) {
     if (!info.sampledColorChannels.test(i)) {
@@ -514,23 +537,46 @@ var<storage, read> v_packed_uvs: Vec2Block;
     }
 
     uniBufAttrs += fmt::format(FMT_STRING("\n    cc{0}_amb: vec4<f32>;"), i);
-    uniBufAttrs += fmt::format(FMT_STRING("\n    cc{0}_mat: vec4<f32>;"), i); // TODO not needed for SRC_VTX
+    uniBufAttrs += fmt::format(FMT_STRING("\n    cc{0}_mat: vec4<f32>;"), i);
     info.uniformSize += 32;
+
+    vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>;"), locIdx++, i);
+    vtxXfrAttrs += fmt::format(FMT_STRING(R"""(
+    {{
+      var lighting = ubuf.lighting_ambient + ubuf.cc{0}_amb;
+      for (var i = 0; i < {1}; i = i + 1) {{
+          var light = ubuf.lights[i];
+          var delta = mv_pos.xyz - light.pos;
+          var dist = length(delta);
+          var delta_norm = delta / dist;
+          var ang_dot = max(dot(delta_norm, light.dir), 0.0);
+          var lin_att = light.lin_att;
+          var att = 1.0 / (lin_att.z * dist * dist * lin_att.y * dist + lin_att.x);
+          var ang_att = light.ang_att;
+          var ang_att_d = ang_att.z * ang_dot * ang_dot * ang_att.y * ang_dot + ang_att.x;
+          var this_color = light.color.xyz * ang_att_d * att * max(dot(-delta_norm, mv_norm.xyz), 0.0);
+//          if (i == 0 && c_traits.shader.world_shadow == 1u) {{
+//              // TODO ExtTex0 sample
+//          }}
+          lighting = lighting + vec4<f32>(this_color, 0.0);
+      }}
+      out.cc{0} = clamp(lighting, vec4<f32>(0.0), vec4<f32>(1.0));
+    }}
+)"""), i, MaxLights);
 
     if (config.channelMatSrcs[i] == GX::SRC_VTX) {
       if (config.denormalizedVertexAttributes) {
         if (!info.usesVtxColor) {
-          vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) clr: vec4<f32>;"), locIdx);
-          vtxInAttrs += fmt::format(FMT_STRING("\n    , @location({}) in_clr: vec4<f32>"), ++locIdx);
-          vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.clr = in_clr;"));
+          vtxInAttrs += fmt::format(FMT_STRING("\n    , @location({}) in_clr: vec4<f32>"), locIdx);
+          vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.cc{} = in_clr;"), i);
         }
-        fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{} = in.clr; // TODO lighting"), i);
+        fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
       } else {
         Log.report(logvisor::Fatal, FMT_STRING("SRC_VTX unsupported with normalized vertex attributes"));
       }
       info.usesVtxColor = true;
     } else {
-      fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = ubuf.cc{0}_amb; // TODO lighting"), i);
+      fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
     }
   }
   for (int i = 0; i < info.sampledKcolors.size(); ++i) {
@@ -540,6 +586,7 @@ var<storage, read> v_packed_uvs: Vec2Block;
     uniBufAttrs += fmt::format(FMT_STRING("\n    kcolor{}: vec4<f32>;"), i);
     info.uniformSize += 16;
   }
+  size_t texBindIdx = 0;
   for (int i = 0; i < info.sampledTextures.size(); ++i) {
     if (!info.sampledTextures.test(i)) {
       continue;
@@ -547,12 +594,13 @@ var<storage, read> v_packed_uvs: Vec2Block;
     uniBufAttrs += fmt::format(FMT_STRING("\n    tex{}_lod: f32;"), i);
     info.uniformSize += 4;
 
-    sampBindings += fmt::format(FMT_STRING("\n@group(1) @binding({0})\n"
-                                           "var tex{0}_samp: sampler;"),
-                                i);
-    texBindings += fmt::format(FMT_STRING("\n@group(2) @binding({0})\n"
-                                          "var tex{0}: texture_2d<f32>;"),
-                               i);
+    sampBindings += fmt::format(FMT_STRING("\n@group(1) @binding({})\n"
+                                           "var tex{}_samp: sampler;"),
+                                texBindIdx, i);
+    texBindings += fmt::format(FMT_STRING("\n@group(2) @binding({})\n"
+                                          "var tex{}: texture_2d<f32>;"),
+                               texBindIdx, i);
+    ++texBindIdx;
 
     if (config.denormalizedVertexAttributes) {
       vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) tex{}_uv: vec2<f32>;"), locIdx, i);
@@ -576,9 +624,11 @@ var<storage, read> v_packed_uvs: Vec2Block;
   }
 
   const auto shaderSource =
-      fmt::format(FMT_STRING(R"""(
+      fmt::format(FMT_STRING(R"""({uniformPre}
 struct Uniform {{
-    xf: mat4x4<f32>;{uniBufAttrs}
+    mv: mat4x4<f32>;
+    mv_inv: mat4x4<f32>;
+    proj: mat4x4<f32>;{uniBufAttrs}
 }};
 @group(0) @binding(0)
 var<uniform> ubuf: Uniform;{uniformBindings}{sampBindings}{texBindings}
@@ -602,7 +652,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {{
                   "uniBufAttrs"_a = uniBufAttrs, "sampBindings"_a = sampBindings, "texBindings"_a = texBindings,
                   "vtxOutAttrs"_a = vtxOutAttrs, "vtxInAttrs"_a = vtxInAttrs, "vtxXfrAttrs"_a = vtxXfrAttrs,
                   "fragmentFn"_a = fragmentFn, "fragmentFnPre"_a = fragmentFnPre, "vtxXfrAttrsPre"_a = vtxXfrAttrsPre,
-                  "uniformBindings"_a = uniformBindings);
+                  "uniformBindings"_a = uniformBindings, "uniformPre"_a = uniformPre);
   Log.report(logvisor::Info, FMT_STRING("Generated shader: {}"), shaderSource);
 
   wgpu::ShaderModuleWGSLDescriptor wgslDescriptor{};

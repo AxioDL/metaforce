@@ -30,26 +30,32 @@ public:
   ByteBuffer() noexcept = default;
   explicit ByteBuffer(size_t size) noexcept
   : m_data(static_cast<uint8_t*>(calloc(1, size))), m_length(size), m_capacity(size) {}
+  explicit ByteBuffer(uint8_t* data, size_t size) noexcept
+  : m_data(data), m_length(0), m_capacity(size), m_owned(false) {}
   ~ByteBuffer() noexcept {
-    if (m_data != nullptr) {
+    if (m_data != nullptr && m_owned) {
       free(m_data);
     }
   }
-  ByteBuffer(ByteBuffer&& rhs) noexcept : m_data(rhs.m_data), m_length(rhs.m_length), m_capacity(rhs.m_capacity) {
+  ByteBuffer(ByteBuffer&& rhs) noexcept
+  : m_data(rhs.m_data), m_length(rhs.m_length), m_capacity(rhs.m_capacity), m_owned(rhs.m_owned) {
     rhs.m_data = nullptr;
     rhs.m_length = 0;
     rhs.m_capacity = 0;
+    rhs.m_owned = true;
   }
   ByteBuffer& operator=(ByteBuffer&& rhs) noexcept {
-    if (m_data != nullptr) {
+    if (m_data != nullptr && m_owned) {
       free(m_data);
     }
     m_data = rhs.m_data;
     m_length = rhs.m_length;
     m_capacity = rhs.m_capacity;
+    m_owned = rhs.m_owned;
     rhs.m_data = nullptr;
     rhs.m_length = 0;
     rhs.m_capacity = 0;
+    rhs.m_owned = true;
     return *this;
   }
   ByteBuffer(ByteBuffer const&) = delete;
@@ -61,38 +67,52 @@ public:
   [[nodiscard]] bool empty() const noexcept { return m_length == 0; }
 
   void append(const void* data, size_t size) {
-    resize(m_length + size);
+    resize(m_length + size, false);
     memcpy(m_data + m_length, data, size);
     m_length += size;
   }
 
   void append_zeroes(size_t size) {
-    resize(m_length + size);
-    memset(m_data + m_length, 0, size);
+    resize(m_length + size, true);
     m_length += size;
   }
 
   void clear() {
-    if (m_data != nullptr) {
+    if (m_data != nullptr && m_owned) {
       free(m_data);
     }
     m_data = nullptr;
     m_length = 0;
     m_capacity = 0;
+    m_owned = true;
   }
+
+  void reserve_extra(size_t size) { resize(m_length + size, true); }
 
 private:
   uint8_t* m_data = nullptr;
   size_t m_length = 0;
   size_t m_capacity = 0;
+  bool m_owned = true;
 
-  void resize(size_t size) {
+  void resize(size_t size, bool zeroed) {
     if (size == 0) {
       clear();
     } else if (m_data == nullptr) {
-      m_data = static_cast<uint8_t*>(malloc(size));
+      if (zeroed) {
+        m_data = static_cast<uint8_t*>(calloc(1, size));
+      } else {
+        m_data = static_cast<uint8_t*>(malloc(size));
+      }
+      m_owned = true;
     } else if (size > m_capacity) {
+      if (!m_owned) {
+        abort();
+      }
       m_data = static_cast<uint8_t*>(realloc(m_data, size));
+      if (zeroed) {
+        memset(m_data + m_capacity, 0, size - m_capacity);
+      }
     } else {
       return;
     }
@@ -165,6 +185,10 @@ template <typename T>
 static inline Range push_storage(const T& data) {
   return push_storage(reinterpret_cast<const uint8_t*>(&data), sizeof(T));
 }
+std::pair<ByteBuffer, Range> map_verts(size_t length);
+std::pair<ByteBuffer, Range> map_indices(size_t length);
+std::pair<ByteBuffer, Range> map_uniform(size_t length);
+std::pair<ByteBuffer, Range> map_storage(size_t length);
 
 template <typename State>
 const State& get_state();

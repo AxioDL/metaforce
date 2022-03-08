@@ -8,7 +8,6 @@
 #include <memory>
 
 #include "dawn/BackendBinding.hpp"
-#include "dawn/Hacks.hpp"
 
 namespace aurora::gpu {
 static logvisor::Module Log("aurora::gpu");
@@ -133,16 +132,41 @@ void initialize(SDL_Window* window) {
              g_AdapterProperties.driverDescription);
 
   {
+    WGPUSupportedLimits supportedLimits{};
+    g_Adapter.GetLimits(&supportedLimits);
+    const wgpu::RequiredLimits requiredLimits{
+        .limits =
+            {
+                .minUniformBufferOffsetAlignment = supportedLimits.limits.minUniformBufferOffsetAlignment,
+                .minStorageBufferOffsetAlignment = supportedLimits.limits.minStorageBufferOffsetAlignment,
+            },
+    };
     const std::array<wgpu::FeatureName, 1> requiredFeatures{
         wgpu::FeatureName::TextureCompressionBC,
     };
+    const std::array enableToggles {
+      /* clang-format off */
+#if _WIN32
+      "use_dxc",
+#endif
+#ifdef NDEBUG
+      "skip_validation", "disable_robustness",
+#else
+      "use_user_defined_labels_in_backend",
+#endif
+      /* clang-format on */
+    };
+    wgpu::DawnTogglesDeviceDescriptor togglesDescriptor{};
+    togglesDescriptor.forceEnabledTogglesCount = enableToggles.size();
+    togglesDescriptor.forceEnabledToggles = enableToggles.data();
     const auto deviceDescriptor = wgpu::DeviceDescriptor{
+        .nextInChain = &togglesDescriptor,
         .requiredFeaturesCount = requiredFeatures.size(),
         .requiredFeatures = requiredFeatures.data(),
+        .requiredLimits = &requiredLimits,
     };
     g_device = wgpu::Device::Acquire(g_Adapter.CreateDevice(&deviceDescriptor));
     g_device.SetUncapturedErrorCallback(&error_callback, nullptr);
-    hacks::apply_toggles(g_device.Get());
   }
   g_queue = g_device.GetQueue();
 

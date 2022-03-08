@@ -305,9 +305,34 @@ void CCubeMaterial::EnsureViewDepStateCached(const CCubeSurface* surface) {
 u32 CCubeMaterial::HandleColorChannels(u32 chanCount, u32 firstChan) {
   if (CCubeModel::sRenderModelShadow) {
     if (chanCount != 0) {
-      // TODO
+      aurora::gfx::set_chan_amb_color(GX::COLOR1A1, zeus::skBlack);
+      aurora::gfx::set_chan_mat_color(GX::COLOR1A1, zeus::skWhite);
+
+      // TODO chan / lights
+
+      aurora::gfx::set_chan_mat_color(GX::COLOR0A0, zeus::skWhite);
     }
     return 2;
+  }
+
+  if (chanCount == 2) {
+    aurora::gfx::set_chan_amb_color(GX::COLOR1A1, zeus::skBlack);
+    aurora::gfx::set_chan_mat_color(GX::COLOR1A1, zeus::skWhite);
+  } else {
+    // TODO chan ctrls
+  }
+
+  if (chanCount == 0) {
+    // TODO more chan ctrls
+  } else {
+    auto uVar3 = firstChan & 0xfffffffe;
+    // TODO enabled lights
+    // TODO chan ctrl
+    // if (sEnabledLights == 0) {
+    //   aurora::gfx::set_chan_mat_color(GX::COLOR0A0, amb_clr);
+    // } else {
+    aurora::gfx::set_chan_mat_color(GX::COLOR0A0, zeus::skWhite);
+    // }
   }
 
   // TODO
@@ -385,36 +410,56 @@ void CCubeMaterial::HandleTransparency(u32& finalTevCount, u32& finalKColorCount
   }
   if (modelFlags.x0_blendMode == 3) {
     // Stage outputting splatted KAlpha as color to reg0
+    aurora::gfx::update_tev_stage(static_cast<ERglTevStage>(finalTevCount),
+                                  CTevCombiners::ColorPass{GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_KONST},
+                                  CTevCombiners::AlphaPass{GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_APREV},
+                                  CTevCombiners::CTevOp{true, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, GX::TEVREG0},
+                                  CTevCombiners::CTevOp{true, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, GX::TEVPREV});
     // GXSetTevColorIn(finalTevCount, TEVCOLORARG_ZERO, TEVCOLORARG_ZERO, TEVCOLORARG_ZERO, TEVCOLORARG_KONST);
     // GXSetTevAlphaIn(finalTevCount, TEVALPHAARG_ZERO, TEVALPHAARG_ZERO, TEVALPHAARG_ZERO, TEVALPHAARG_APREV);
     // GXSetTevColorOp(finalTevCount, 0, 0, 0, 1, 1); // ColorReg0
+    aurora::gfx::set_tev_k_color_sel(static_cast<GX::TevStageID>(finalTevCount),
+                                     static_cast<GX::TevKColorSel>(finalKColorCount + GX::TEV_KCSEL_K0_A));
     // GXSetTevKColorSel(finalTevCount, finalKColorCount+28);
     // GXSetTevAlphaOp(finalTevCount, 0, 0, 0, 1, 0); // AlphaRegPrev
     // GXSetTevOrder(finalTevCount, 255, 255, 255);
     // GXSetTevDirect(finalTevCount);
     // Stage interpolating from splatted KAlpha using KColor
+    aurora::gfx::update_tev_stage(static_cast<ERglTevStage>(finalTevCount + 1),
+                                  CTevCombiners::ColorPass{GX::CC_CPREV, GX::CC_C0, GX::CC_KONST, GX::CC_ZERO},
+                                  CTevCombiners::AlphaPass{GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_APREV},
+                                  CTevCombiners::CTevOp{true, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, GX::TEVPREV},
+                                  CTevCombiners::CTevOp{true, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, GX::TEVPREV});
     // GXSetTevColorIn(finalTevCount + 1, TEVCOLORARG_CPREV, TEVCOLORARG_C0, TEVCOLORARG_KONST, TEVCOLORARG_ZERO);
     // GXSetTevAlphaIn(finalTevCount + 1, TEVALPHAARG_ZERO, TEVALPHAARG_ZERO, TEVALPHAARG_ZERO, TEVALPHAARG_APREV);
+    aurora::gfx::set_tev_k_color_sel(static_cast<GX::TevStageID>(finalTevCount + 1),
+                                     static_cast<GX::TevKColorSel>(finalKColorCount + GX::TEV_KCSEL_K0));
     // GXSetTevKColorSel(finalTevCount, finalKColorCount+12);
     // SetStandardTevColorAlphaOp(finalTevCount + 1);
     // GXSetTevDirect(finalTevCount + 1);
     // GXSetTevOrder(finalTevCount + 1, 255, 255, 255);
+    aurora::gfx::set_tev_k_color(static_cast<GX::TevKColorID>(finalKColorCount), modelFlags.x4_color);
     // GXSetTevKColor(finalKColorCount, modelFlags.x4_color);
     finalKColorCount += 1;
     finalTevCount += 2;
   } else {
     // Mul KAlpha
+    CTevCombiners::AlphaPass alphaPass{GX::CA_ZERO, GX::CA_KONST, GX::CA_APREV, GX::CA_ZERO};
     u32 tevAlpha = 0x000380C7; // TEVALPHAARG_ZERO, TEVALPHAARG_KONST, TEVALPHAARG_APREV, TEVALPHAARG_ZERO
     if (modelFlags.x0_blendMode == 8) {
       // Set KAlpha
+      alphaPass = {GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_KONST};
       tevAlpha = 0x00031CE7; // TEVALPHAARG_ZERO, TEVALPHAARG_ZERO, TEVALPHAARG_ZERO, TEVALPHAARG_KONST
     }
     // Mul KColor
+    CTevCombiners::ColorPass colorPass{GX::CC_ZERO, GX::CC_KONST, GX::CC_CPREV, GX::CC_ZERO};
     u32 tevColor = 0x000781CF; // TEVCOLORARG_ZERO, TEVCOLORARG_KONST, TEVCOLORARG_CPREV, TEVCOLORARG_ZERO
     if (modelFlags.x0_blendMode == 2) {
       // Add KColor
+      colorPass = {GX::CC_ZERO, GX::CC_ONE, GX::CC_CPREV, GX::CC_KONST};
       tevColor = 0x0007018F; // TEVCOLORARG_ZERO, TEVCOLORARG_ONE, TEVCOLORARG_CPREV, TEVCOLORARG_KONST
     }
+    aurora::gfx::update_tev_stage(static_cast<ERglTevStage>(finalTevCount), colorPass, alphaPass, {}, {});
     // GXSetTevColorIn(finalTevCount)
     // GXSetTevAlphaIn(finalTevCount)
     // SetStandardTevColorAlphaOp(finalTevCount);
@@ -422,8 +467,13 @@ void CCubeMaterial::HandleTransparency(u32& finalTevCount, u32& finalKColorCount
     finalACFlags = 0x100;
     // GXSetTevDirect(finalTevCount);
     // GXSetTevOrder(finalTevCount, 255, 255, 255);
+    aurora::gfx::set_tev_k_color(static_cast<GX::TevKColorID>(finalKColorCount), modelFlags.x4_color);
     // GXSetTevKColor(finalKColorCount, modelFlags.x4_color);
+    aurora::gfx::set_tev_k_color_sel(static_cast<GX::TevStageID>(finalKColorCount),
+                                     static_cast<GX::TevKColorSel>(finalKColorCount + GX::TEV_KCSEL_K0));
     // GXSetTevKColorSel(finalTevCount, finalKColorCount+12);
+    aurora::gfx::set_tev_k_alpha_sel(static_cast<GX::TevStageID>(finalTevCount),
+                                     static_cast<GX::TevKAlphaSel>(finalKColorCount + GX::TEV_KASEL_K0_A));
     // GXSetTevKAlphaSel(finalTevCount, finalKColorCount+28);
     finalTevCount += 1;
     finalKColorCount += 1;
@@ -473,8 +523,8 @@ void CCubeMaterial::EnsureTevsDirect() {
     return;
   }
 
-  //CGX::SetNumIndStages(0);
-  //CGX::SetTevDirect(sCurrentTevStage);
+  // CGX::SetNumIndStages(0);
+  // CGX::SetTevDirect(sCurrentTevStage);
   sCurrentTevStage = GX::NULL_STAGE;
 }
 } // namespace metaforce

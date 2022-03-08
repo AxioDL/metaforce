@@ -424,24 +424,18 @@ void shutdown() {
 }
 
 void render(const wgpu::RenderPassEncoder& pass) {
-  {
-    if (g_verts.size() > 0) {
-      g_queue.WriteBuffer(g_vertexBuffer, 0, g_verts.data(), g_verts.size());
-      g_verts.clear();
+  const auto writeBuffer = [](ByteBuffer& buf, wgpu::Buffer& out) {
+    const auto size = buf.size();
+    if (size > 0) {
+      g_queue.WriteBuffer(out, 0, buf.data(), size);
+      buf.clear();
+      buf.reserve_extra(size); // Reserve size from previous frame
     }
-    if (g_uniforms.size() > 0) {
-      g_queue.WriteBuffer(g_uniformBuffer, 0, g_uniforms.data(), g_uniforms.size());
-      g_uniforms.clear();
-    }
-    if (g_indices.size() > 0) {
-      g_queue.WriteBuffer(g_indexBuffer, 0, g_indices.data(), g_indices.size());
-      g_indices.clear();
-    }
-    if (g_storage.size() > 0) {
-      g_queue.WriteBuffer(g_storageBuffer, 0, g_storage.data(), g_storage.size());
-      g_storage.clear();
-    }
-  }
+  };
+  writeBuffer(g_verts, g_vertexBuffer);
+  writeBuffer(g_uniforms, g_uniformBuffer);
+  writeBuffer(g_indices, g_indexBuffer);
+  writeBuffer(g_storage, g_storageBuffer);
 
   g_currentPipeline = UINT64_MAX;
 
@@ -514,7 +508,19 @@ static inline Range push(ByteBuffer& target, const uint8_t* data, size_t length,
       target.append_zeroes(padding);
     }
   }
-  return {begin, begin + length};
+  return {begin, begin + length + padding};
+}
+static inline Range map(ByteBuffer& target, size_t length, size_t alignment) {
+  size_t padding = 0;
+  if (alignment != 0) {
+    padding = alignment - length % alignment;
+  }
+  if (length == 0) {
+    length = alignment;
+  }
+  auto begin = target.size();
+  target.append_zeroes(length + padding);
+  return {begin, begin + length + padding};
 }
 Range push_verts(const uint8_t* data, size_t length) { return push(g_verts, data, length, 0 /* TODO? */); }
 Range push_indices(const uint8_t* data, size_t length) { return push(g_indices, data, length, 0 /* TODO? */); }
@@ -527,6 +533,26 @@ Range push_storage(const uint8_t* data, size_t length) {
   wgpu::SupportedLimits limits;
   g_device.GetLimits(&limits);
   return push(g_storage, data, length, limits.limits.minStorageBufferOffsetAlignment);
+}
+std::pair<ByteBuffer, Range> map_verts(size_t length) {
+  const auto range = map(g_verts, length, 0 /* TODO? */);
+  return {ByteBuffer{g_verts.data() + range.first, range.second - range.first}, range};
+}
+std::pair<ByteBuffer, Range> map_indices(size_t length) {
+  const auto range = map(g_indices, length, 0 /* TODO? */);
+  return {ByteBuffer{g_indices.data() + range.first, range.second - range.first}, range};
+}
+std::pair<ByteBuffer, Range> map_uniform(size_t length) {
+  wgpu::SupportedLimits limits;
+  g_device.GetLimits(&limits);
+  const auto range = map(g_uniforms, length, limits.limits.minUniformBufferOffsetAlignment);
+  return {ByteBuffer{g_uniforms.data() + range.first, range.second - range.first}, range};
+}
+std::pair<ByteBuffer, Range> map_storage(size_t length) {
+  wgpu::SupportedLimits limits;
+  g_device.GetLimits(&limits);
+  const auto range = map(g_storage, length, limits.limits.minStorageBufferOffsetAlignment);
+  return {ByteBuffer{g_storage.data() + range.first, range.second - range.first}, range};
 }
 
 BindGroupRef bind_group_ref(const wgpu::BindGroupDescriptor& descriptor) {

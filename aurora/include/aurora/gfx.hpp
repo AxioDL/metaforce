@@ -248,9 +248,9 @@ enum class ZComp : uint8_t {
 
 constexpr u32 MaxLights = 8;
 struct Light {
-  zeus::CVector3f pos;
-  zeus::CVector3f dir;
-  zeus::CColor color;
+  zeus::CVector3f pos{0.f, 0.f, 0.f};
+  zeus::CVector3f dir{0.f, 0.f, -1.f};
+  zeus::CColor color{0.f, 0.f, 0.f, 0.f};
   zeus::CVector3f linAtt{1.f, 0.f, 0.f};
   zeus::CVector3f angAtt{1.f, 0.f, 0.f};
 };

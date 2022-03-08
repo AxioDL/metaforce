@@ -21,7 +21,6 @@ add_library(aurora STATIC
     lib/imgui.cpp
     lib/input.cpp
     lib/dawn/BackendBinding.cpp
-    lib/dawn/Hacks.cpp
     lib/gfx/common.cpp
     lib/gfx/texture.cpp
     lib/gfx/stream.cpp
