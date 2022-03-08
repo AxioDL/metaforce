@@ -295,7 +295,7 @@ wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderIn
       .targetCount = colorTargets.size(),
       .targets = colorTargets.data(),
   };
-  const auto layouts = build_bind_group_layouts(info);
+  const auto layouts = build_bind_group_layouts(info, config.shaderConfig);
   const std::array bindGroupLayouts{
       layouts.uniformLayout,
       layouts.samplerLayout,
@@ -328,7 +328,7 @@ wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderIn
   return g_device.CreateRenderPipeline(&descriptor);
 }
 
-ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive) noexcept {
+ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive, const BindGroupRanges& ranges) noexcept {
   for (size_t idx = 0; const auto& item : g_tevStages) {
     // Copy until disabled TEV stage (indicating end)
     if (!item) {
@@ -357,7 +357,7 @@ ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primit
   {
     std::lock_guard lk{g_pipelineMutex};
     auto [_, info] = build_shader(config.shaderConfig);
-    info.bindGroups = build_bind_groups(info); // TODO this is hack
+    info.bindGroups = build_bind_groups(info, config.shaderConfig, ranges); // TODO this is hack
     return info;
   }
 }
@@ -398,15 +398,42 @@ Range build_uniform(const ShaderInfo& info) noexcept {
 static std::unordered_map<u32, wgpu::BindGroupLayout> sUniformBindGroupLayouts;
 static std::unordered_map<u32, std::pair<wgpu::BindGroupLayout, wgpu::BindGroupLayout>> sTextureBindGroupLayouts;
 
-GXBindGroups build_bind_groups(const ShaderInfo& info) noexcept {
-  const auto layouts = build_bind_group_layouts(info);
+GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& config,
+                               const BindGroupRanges& ranges) noexcept {
+  const auto layouts = build_bind_group_layouts(info, config);
   u32 textureCount = info.sampledTextures.count();
 
-  const std::array uniformEntries{wgpu::BindGroupEntry{
-      .binding = 0,
-      .buffer = g_uniformBuffer,
-      .size = info.uniformSize,
-  }};
+  const std::array uniformEntries{
+      wgpu::BindGroupEntry{
+          .binding = 0,
+          .buffer = g_uniformBuffer,
+          .size = info.uniformSize,
+      },
+      // Vertices
+      wgpu::BindGroupEntry{
+          .binding = 1,
+          .buffer = g_storageBuffer,
+          .size = ranges.vtxDataRange.second - ranges.vtxDataRange.first,
+      },
+      // Normals
+      wgpu::BindGroupEntry{
+          .binding = 2,
+          .buffer = g_storageBuffer,
+          .size = ranges.nrmDataRange.second - ranges.nrmDataRange.first,
+      },
+      // UVs
+      wgpu::BindGroupEntry{
+          .binding = 3,
+          .buffer = g_storageBuffer,
+          .size = ranges.tcDataRange.second - ranges.tcDataRange.first,
+      },
+      // Packed UVs
+      wgpu::BindGroupEntry{
+          .binding = 4,
+          .buffer = g_storageBuffer,
+          .size = ranges.packedTcDataRange.second - ranges.packedTcDataRange.first,
+      },
+  };
   std::array<wgpu::BindGroupEntry, maxTextures> samplerEntries;
   std::array<wgpu::BindGroupEntry, maxTextures> textureEntries;
   for (u32 texIdx = 0, i = 0; texIdx < info.sampledTextures.size(); ++texIdx) {
@@ -432,7 +459,7 @@ GXBindGroups build_bind_groups(const ShaderInfo& info) noexcept {
       .uniformBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
           .label = "GX Uniform Bind Group",
           .layout = layouts.uniformLayout,
-          .entryCount = uniformEntries.size(),
+          .entryCount = static_cast<uint32_t>(config.denormalizedVertexAttributes ? 1 : uniformEntries.size()),
           .entries = uniformEntries.data(),
       }),
       .samplerBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
@@ -450,28 +477,67 @@ GXBindGroups build_bind_groups(const ShaderInfo& info) noexcept {
   };
 }
 
-GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info) noexcept {
+GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const ShaderConfig& config) noexcept {
   GXBindGroupLayouts out;
-  if (sUniformBindGroupLayouts.contains(info.uniformSize)) {
-    out.uniformLayout = sUniformBindGroupLayouts[info.uniformSize];
+  u32 uniformSizeKey = info.uniformSize + (config.denormalizedVertexAttributes ? 0 : 1);
+  if (sUniformBindGroupLayouts.contains(uniformSizeKey)) {
+    out.uniformLayout = sUniformBindGroupLayouts[uniformSizeKey];
   } else {
-    const std::array uniformLayoutEntries{wgpu::BindGroupLayoutEntry{
-        .binding = 0,
-        .visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-        .buffer =
-            wgpu::BufferBindingLayout{
-                .type = wgpu::BufferBindingType::Uniform,
-                .hasDynamicOffset = true,
-                .minBindingSize = info.uniformSize,
-            },
-    }};
+    const std::array uniformLayoutEntries{
+        wgpu::BindGroupLayoutEntry{
+            .binding = 0,
+            .visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
+            .buffer =
+                wgpu::BufferBindingLayout{
+                    .type = wgpu::BufferBindingType::Uniform,
+                    .hasDynamicOffset = true,
+                    .minBindingSize = info.uniformSize,
+                },
+        },
+        wgpu::BindGroupLayoutEntry{
+            .binding = 1,
+            .visibility = wgpu::ShaderStage::Vertex,
+            .buffer =
+                {
+                    .type = wgpu::BufferBindingType::ReadOnlyStorage,
+                    .hasDynamicOffset = true,
+                },
+        },
+        wgpu::BindGroupLayoutEntry{
+            .binding = 2,
+            .visibility = wgpu::ShaderStage::Vertex,
+            .buffer =
+                {
+                    .type = wgpu::BufferBindingType::ReadOnlyStorage,
+                    .hasDynamicOffset = true,
+                },
+        },
+        wgpu::BindGroupLayoutEntry{
+            .binding = 3,
+            .visibility = wgpu::ShaderStage::Vertex,
+            .buffer =
+                {
+                    .type = wgpu::BufferBindingType::ReadOnlyStorage,
+                    .hasDynamicOffset = true,
+                },
+        },
+        wgpu::BindGroupLayoutEntry{
+            .binding = 4,
+            .visibility = wgpu::ShaderStage::Vertex,
+            .buffer =
+                {
+                    .type = wgpu::BufferBindingType::ReadOnlyStorage,
+                    .hasDynamicOffset = true,
+                },
+        },
+    };
     const auto uniformLayoutDescriptor = wgpu::BindGroupLayoutDescriptor{
         .label = "GX Uniform Bind Group Layout",
-        .entryCount = uniformLayoutEntries.size(),
+        .entryCount = static_cast<uint32_t>(config.denormalizedVertexAttributes ? 1 : uniformLayoutEntries.size()),
         .entries = uniformLayoutEntries.data(),
     };
     out.uniformLayout = g_device.CreateBindGroupLayout(&uniformLayoutDescriptor);
-    sUniformBindGroupLayouts.try_emplace(info.uniformSize, out.uniformLayout);
+    sUniformBindGroupLayouts.try_emplace(uniformSizeKey, out.uniformLayout);
   }
 
   u32 textureCount = info.sampledTextures.count();

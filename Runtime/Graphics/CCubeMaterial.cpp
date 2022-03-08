@@ -311,6 +311,8 @@ u32 CCubeMaterial::HandleColorChannels(u32 chanCount, u32 firstChan) {
   }
 
   // TODO
+  aurora::gfx::set_chan_mat_src(GX::COLOR0A0, GX::SRC_REG);
+  aurora::gfx::set_chan_mat_src(GX::COLOR1A1, GX::SRC_REG);
   return chanCount;
 }
 

@@ -59,7 +59,8 @@ void stream_end() noexcept {
 
   stream::PipelineConfig config{};
   config.shaderConfig.denormalizedVertexAttributes = true;
-  const auto info = populate_pipeline_config(config, sStreamState->primitive);
+  config.shaderConfig.denormalizedHasNrm = sStreamState->flags.IsSet(metaforce::EStreamFlagBits::fHasNormal);
+  const auto info = populate_pipeline_config(config, sStreamState->primitive, {});
   const auto pipeline = pipeline_ref(config);
 
   push_draw_command(stream::DrawData{

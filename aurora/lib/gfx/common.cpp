@@ -5,6 +5,7 @@
 #include "movie_player/shader.hpp"
 #include "stream/shader.hpp"
 #include "textured_quad/shader.hpp"
+#include "model/shader.hpp"
 
 #include <condition_variable>
 #include <deque>
@@ -23,6 +24,7 @@ struct ShaderState {
   colored_quad::State coloredQuad;
   textured_quad::State texturedQuad;
   stream::State stream;
+  model::State model;
 };
 struct ShaderDrawCommand {
   ShaderType type;
@@ -31,6 +33,7 @@ struct ShaderDrawCommand {
     colored_quad::DrawData coloredQuad;
     textured_quad::DrawData texturedQuad;
     stream::DrawData stream;
+    model::DrawData model;
   };
 };
 struct PipelineCreateCommand {
@@ -40,6 +43,7 @@ struct PipelineCreateCommand {
     colored_quad::PipelineConfig coloredQuad;
     textured_quad::PipelineConfig texturedQuad;
     stream::PipelineConfig stream;
+    model::PipelineConfig model;
   };
 };
 enum class CommandType {
@@ -80,9 +84,11 @@ std::atomic_uint32_t createdPipelines;
 static ByteBuffer g_verts;
 static ByteBuffer g_uniforms;
 static ByteBuffer g_indices;
+static ByteBuffer g_storage;
 wgpu::Buffer g_vertexBuffer;
 wgpu::Buffer g_uniformBuffer;
 wgpu::Buffer g_indexBuffer;
+wgpu::Buffer g_storageBuffer;
 
 static ShaderState g_state;
 static PipelineRef g_currentPipeline;
@@ -207,6 +213,16 @@ PipelineRef pipeline_ref(stream::PipelineConfig config) {
                        [=]() { return create_pipeline(g_state.stream, config); });
 }
 
+template <>
+void push_draw_command(model::DrawData data) {
+  push_draw_command({.type = ShaderType::Model, .model = data});
+}
+template <>
+PipelineRef pipeline_ref(model::PipelineConfig config) {
+  return find_pipeline({.type = ShaderType::Model, .model = config},
+                       [=]() { return create_pipeline(g_state.model, config); });
+}
+
 static void pipeline_worker() {
   bool hasMore = false;
   while (true) {
@@ -242,34 +258,43 @@ void initialize() {
   g_pipelineThread = std::thread(pipeline_worker);
 
   {
-    const auto uniformDescriptor = wgpu::BufferDescriptor{
+    const wgpu::BufferDescriptor descriptor{
         .label = "Shared Uniform Buffer",
         .usage = wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst,
         .size = 134217728, // 128mb
     };
-    g_uniformBuffer = g_device.CreateBuffer(&uniformDescriptor);
+    g_uniformBuffer = g_device.CreateBuffer(&descriptor);
   }
   {
-    const auto vertexDescriptor = wgpu::BufferDescriptor{
+    const wgpu::BufferDescriptor descriptor{
         .label = "Shared Vertex Buffer",
         .usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst,
         .size = 16777216, // 16mb
     };
-    g_vertexBuffer = g_device.CreateBuffer(&vertexDescriptor);
+    g_vertexBuffer = g_device.CreateBuffer(&descriptor);
   }
   {
-    const auto vertexDescriptor = wgpu::BufferDescriptor{
+    const wgpu::BufferDescriptor descriptor{
         .label = "Shared Index Buffer",
-        .usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst,
+        .usage = wgpu::BufferUsage::Index | wgpu::BufferUsage::CopyDst,
         .size = 4194304, // 4mb
     };
-    g_indexBuffer = g_device.CreateBuffer(&vertexDescriptor);
+    g_indexBuffer = g_device.CreateBuffer(&descriptor);
+  }
+  {
+    const wgpu::BufferDescriptor descriptor{
+        .label = "Shared Storage Buffer",
+        .usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst,
+        .size = 134217728, // 128mb
+    };
+    g_storageBuffer = g_device.CreateBuffer(&descriptor);
   }
 
   g_state.moviePlayer = movie_player::construct_state();
   g_state.coloredQuad = colored_quad::construct_state();
   g_state.texturedQuad = textured_quad::construct_state();
   g_state.stream = stream::construct_state();
+  g_state.model = model::construct_state();
 }
 
 void shutdown() {
@@ -285,6 +310,7 @@ void shutdown() {
   g_vertexBuffer = {};
   g_uniformBuffer = {};
   g_indexBuffer = {};
+  g_storageBuffer = {};
 
   g_state = {};
 }
@@ -302,6 +328,10 @@ void render(const wgpu::RenderPassEncoder& pass) {
     if (g_indices.size() > 0) {
       g_queue.WriteBuffer(g_indexBuffer, 0, g_indices.data(), g_indices.size());
       g_indices.clear();
+    }
+    if (g_storage.size() > 0) {
+      g_queue.WriteBuffer(g_storageBuffer, 0, g_storage.data(), g_storage.size());
+      g_storage.clear();
     }
   }
 
@@ -336,6 +366,9 @@ void render(const wgpu::RenderPassEncoder& pass) {
       case ShaderType::Stream:
         stream::render(g_state.stream, draw.stream, pass);
         break;
+      case ShaderType::Model:
+        model::render(g_state.model, draw.model, pass);
+        break;
       }
     } break;
     }
@@ -363,9 +396,15 @@ static inline Range push(ByteBuffer& target, const uint8_t* data, size_t length,
     padding = alignment - length % alignment;
   }
   auto begin = target.size();
-  target.append(data, length);
-  if (padding > 0) {
-    target.append_zeroes(padding);
+  if (length == 0) {
+    // TODO shared zero buf?
+    length = alignment;
+    target.append_zeroes(alignment);
+  } else {
+    target.append(data, length);
+    if (padding > 0) {
+      target.append_zeroes(padding);
+    }
   }
   return {begin, begin + length};
 }
@@ -375,6 +414,11 @@ Range push_uniform(const uint8_t* data, size_t length) {
   wgpu::SupportedLimits limits;
   g_device.GetLimits(&limits);
   return push(g_uniforms, data, length, limits.limits.minUniformBufferOffsetAlignment);
+}
+Range push_storage(const uint8_t* data, size_t length) {
+  wgpu::SupportedLimits limits;
+  g_device.GetLimits(&limits);
+  return push(g_storage, data, length, limits.limits.minStorageBufferOffsetAlignment);
 }
 
 BindGroupRef bind_group_ref(const wgpu::BindGroupDescriptor& descriptor) {

@@ -147,6 +147,7 @@ namespace aurora::gfx {
 extern wgpu::Buffer g_vertexBuffer;
 extern wgpu::Buffer g_uniformBuffer;
 extern wgpu::Buffer g_indexBuffer;
+extern wgpu::Buffer g_storageBuffer;
 
 struct TextureRef {
   wgpu::Texture texture;
@@ -178,6 +179,7 @@ enum class ShaderType {
   TexturedQuad,
   MoviePlayer,
   Stream,
+  Model,
 };
 
 void initialize();
@@ -199,6 +201,11 @@ Range push_uniform(const uint8_t* data, size_t length);
 template <typename T>
 static inline Range push_uniform(const T& data) {
   return push_uniform(reinterpret_cast<const uint8_t*>(&data), sizeof(T));
+}
+Range push_storage(const uint8_t* data, size_t length);
+template <typename T>
+static inline Range push_storage(const T& data) {
+  return push_storage(reinterpret_cast<const uint8_t*>(&data), sizeof(T));
 }
 
 template <typename State>

@@ -2,8 +2,8 @@
 
 #include <array>
 #include <compare>
-#include <vector>
 #include <type_traits>
+#include <vector>
 
 #include "Runtime/RetroTypes.hpp"
 

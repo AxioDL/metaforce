@@ -5,7 +5,12 @@ u32 CTevPass::sNextUniquePass = 0;
 
 void CTevPass::Execute(ERglTevStage stage) const {
   if (*this == skPassThru) {
-    aurora::gfx::disable_tev_stage(stage);
+    // TODO proper handling of # tev stages
+    if (stage > ERglTevStage::Stage0) {
+      aurora::gfx::disable_tev_stage(stage);
+    } else {
+      aurora::gfx::disable_tev_stage(ERglTevStage::Stage1);
+    }
   } else {
     aurora::gfx::update_tev_stage(stage, x4_colorPass, x14_alphaPass, x24_colorOp, x38_alphaOp);
     aurora::gfx::set_tev_order(static_cast<GX::TevStageID>(stage), GX::TEXCOORD_NULL, static_cast<GX::TexMapID>(stage),

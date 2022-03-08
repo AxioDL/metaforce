@@ -9,16 +9,18 @@ namespace aurora::gfx::model {
 struct DrawData {
   PipelineRef pipeline;
   Range vertRange;
+  Range idxRange;
+  Range sVtxRange;
+  Range sNrmRange;
+  Range sTcRange;
+  Range sPackedTcRange;
   Range uniformRange;
-  uint32_t vertexCount;
-  uint32_t uniformSize;
-  BindGroupRef samplerBindGroup;
-  BindGroupRef textureBindGroup;
+  uint32_t indexCount;
+  gx::GXBindGroups bindGroups;
 };
 
 struct PipelineConfig : gx::PipelineConfig {
-  ShaderRef shader;
-  uint32_t uniformSize;
+
 };
 
 struct CachedBindGroup {
@@ -28,10 +30,6 @@ struct CachedBindGroup {
   : layout(std::move(layout)), bindGroup(std::move(group)) {}
 };
 struct State {
-  wgpu::BindGroupLayout samplerLayout;
-  wgpu::BindGroupLayout textureLayout;
-  mutable std::unordered_map<uint32_t, CachedBindGroup> uniform;
-  mutable std::unordered_map<uint64_t, wgpu::Sampler> sampler;
 };
 
 State construct_state();

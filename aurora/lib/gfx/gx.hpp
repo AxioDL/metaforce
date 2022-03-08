@@ -77,8 +77,9 @@ const TextureBind& get_texture(GX::TexMapID id) noexcept;
 struct ShaderConfig {
   std::array<std::optional<STevStage>, maxTevStages> tevStages;
   std::array<GX::ColorSrc, 2> channelMatSrcs;
-  bool alphaDiscard;
-  bool denormalizedVertexAttributes;
+  bool alphaDiscard = false;
+  bool denormalizedVertexAttributes = false;
+  bool denormalizedHasNrm = false; // TODO this is a hack
 };
 struct PipelineConfig {
   ShaderConfig shaderConfig;
@@ -111,15 +112,33 @@ struct ShaderInfo {
   bool usesVtxColor : 1 = false;
   bool usesNormal : 1 = false;
 };
-ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive) noexcept;
+struct BindGroupRanges {
+  Range vtxDataRange;
+  Range nrmDataRange;
+  Range tcDataRange;
+  Range packedTcDataRange;
+};
+ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive,
+                                    const BindGroupRanges& ranges) noexcept;
 wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderInfo& info,
                                     ArrayRef<wgpu::VertexBufferLayout> vtxBuffers, wgpu::ShaderModule shader,
                                     zstring_view label) noexcept;
 std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& config) noexcept;
 // Range build_vertex_buffer(const GXShaderInfo& info) noexcept;
 Range build_uniform(const ShaderInfo& info) noexcept;
-GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info) noexcept;
-GXBindGroups build_bind_groups(const ShaderInfo& info) noexcept;
+GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const ShaderConfig& config) noexcept;
+GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& config,
+                               const BindGroupRanges& ranges) noexcept;
+
+struct DlVert {
+  s16 pos;
+  s16 norm;
+  // colors ignored
+  std::array<s16, 7> uvs;
+  // pn_mtx_idx ignored
+  // tex_mtx_idxs ignored
+  s16 _pad;
+};
 } // namespace aurora::gfx::gx
 
 namespace aurora {
@@ -149,6 +168,7 @@ inline XXH64_hash_t xxh3_hash(const gfx::gx::ShaderConfig& input, XXH64_hash_t s
   XXH3_64bits_update(&state, input.channelMatSrcs.data(), input.channelMatSrcs.size() * sizeof(GX::ColorSrc));
   XXH3_64bits_update(&state, &input.alphaDiscard, sizeof(bool));
   XXH3_64bits_update(&state, &input.denormalizedVertexAttributes, sizeof(bool));
+  XXH3_64bits_update(&state, &input.denormalizedHasNrm, sizeof(bool));
   return XXH3_64bits_digest(&state);
 }
 } // namespace aurora

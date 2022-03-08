@@ -59,16 +59,6 @@ void set_normal_buffer(const std::vector<zeus::CVector3f>& norm) noexcept { nrmD
 void set_tex0_tc_buffer(const std::vector<zeus::CVector2f>& tcs) noexcept { tex0TcData = &tcs; }
 void set_tc_buffer(const std::vector<zeus::CVector2f>& tcs) noexcept { tcData = &tcs; }
 
-struct DlVert {
-  s16 pos;
-  s16 norm;
-  // colors ignored
-  std::array<s16, 7> uvs;
-  // pn_mtx_idx ignored
-  // tex_mtx_idxs ignored
-  s16 _pad;
-};
-
 enum class VertexFormat : u8 {
   F32F32,
   S16F32,
@@ -77,8 +67,8 @@ enum class VertexFormat : u8 {
 static VtxDescFlags sVtxDescFlags;
 void set_vtx_desc_compressed(u32 vtxDesc) noexcept { sVtxDescFlags = vtxDesc; }
 
-static inline std::pair<DlVert, size_t> readVert(const u8* data) noexcept {
-  DlVert out{};
+static inline std::pair<gx::DlVert, size_t> readVert(const u8* data) noexcept {
+  gx::DlVert out{};
   size_t offset = 0;
   const auto read8 = [data, &offset](VtxDescAttrType type) -> s8 {
     if (type == VtxDescAttrType::Direct) {
@@ -122,7 +112,7 @@ static inline std::pair<DlVert, size_t> readVert(const u8* data) noexcept {
 
 void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
   //  Log.report(logvisor::Info, FMT_STRING("DL size {}"), dlSize);
-  std::vector<DlVert> verts;
+  std::vector<gx::DlVert> verts;
   std::vector<u32> indices;
 
   size_t offset = 0;
@@ -176,5 +166,70 @@ void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
   }
 
   //  Log.report(logvisor::Info, FMT_STRING("Read {} verts, {} indices"), verts.size(), indices.size());
+  const auto vertRange = push_verts(ArrayRef{verts});
+  const auto idxRange = push_indices(ArrayRef{indices});
+  const auto sVtxRange = push_storage(reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size() * 16);
+  const auto sNrmRange = push_storage(reinterpret_cast<const uint8_t*>(nrmData->data()), nrmData->size() * 16);
+  const auto sTcRange = push_storage(reinterpret_cast<const uint8_t*>(tcData->data()), tcData->size() * 16);
+  Range sPackedTcRange;
+  if (tcData == tex0TcData) {
+    sPackedTcRange = sTcRange;
+  } else {
+    sPackedTcRange = push_storage(reinterpret_cast<const uint8_t*>(tex0TcData->data()), tex0TcData->size() * 16);
+  }
+
+  model::PipelineConfig config{};
+  const gx::BindGroupRanges ranges{
+      .vtxDataRange = sVtxRange,
+      .nrmDataRange = sNrmRange,
+      .tcDataRange = sTcRange,
+      .packedTcDataRange = sPackedTcRange,
+  };
+  const auto info = populate_pipeline_config(config, GX::TRIANGLES, ranges);
+  const auto pipeline = pipeline_ref(config);
+
+  push_draw_command(model::DrawData{
+      .pipeline = pipeline,
+      .vertRange = vertRange,
+      .idxRange = idxRange,
+      .sVtxRange = sVtxRange,
+      .sNrmRange = sNrmRange,
+      .sTcRange = sTcRange,
+      .sPackedTcRange = sPackedTcRange,
+      .uniformRange = build_uniform(info),
+      .indexCount = static_cast<uint32_t>(indices.size()),
+      .bindGroups = info.bindGroups,
+  });
+}
+
+State construct_state() { return {}; }
+
+wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] PipelineConfig config) {
+  const auto [shader, info] = build_shader(config.shaderConfig);
+
+  const auto attributes = gpu::utils::make_vertex_attributes(
+      std::array{wgpu::VertexFormat::Sint16x2, wgpu::VertexFormat::Sint16x4, wgpu::VertexFormat::Sint16x4});
+  const std::array vertexBuffers{gpu::utils::make_vertex_buffer_layout(sizeof(gx::DlVert), attributes)};
+
+  return build_pipeline(config, info, vertexBuffers, shader, "Model Pipeline");
+}
+
+void render(const State& state, const DrawData& data, const wgpu::RenderPassEncoder& pass) {
+  if (!bind_pipeline(data.pipeline, pass)) {
+    return;
+  }
+
+  const std::array offsets{
+      data.uniformRange.first, data.sVtxRange.first,      data.sNrmRange.first,
+      data.sTcRange.first,     data.sPackedTcRange.first,
+  };
+  pass.SetBindGroup(0, find_bind_group(data.bindGroups.uniformBindGroup), offsets.size(), offsets.data());
+  if (data.bindGroups.samplerBindGroup && data.bindGroups.textureBindGroup) {
+    pass.SetBindGroup(1, find_bind_group(data.bindGroups.samplerBindGroup));
+    pass.SetBindGroup(2, find_bind_group(data.bindGroups.textureBindGroup));
+  }
+  pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.first, data.vertRange.second);
+  pass.SetIndexBuffer(g_indexBuffer, wgpu::IndexFormat::Uint32, data.idxRange.first, data.idxRange.second);
+  pass.DrawIndexed(data.indexCount);
 }
 } // namespace aurora::gfx::model
