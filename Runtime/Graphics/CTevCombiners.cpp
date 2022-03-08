@@ -95,8 +95,8 @@ bool SetPassCombiners(ERglTevStage stage, const CTevPass& pass) {
 }
 
 void RecomputePasses() {
-  sNumEnabledPasses = 1 - static_cast<int>(sValidPasses[1]);
-  for (u32 i = sNumEnabledPasses; i < u32(ERglTevStage::MAX); ++i) {
+  sNumEnabledPasses = 1 - static_cast<int>(sValidPasses[maxTevPasses - 1]);
+  for (u32 i = sNumEnabledPasses; i < maxTevPasses; ++i) {
     aurora::gfx::disable_tev_stage(ERglTevStage(i));
   }
   // CGX::SetNumTevStages(sNumEnabledPasses);
