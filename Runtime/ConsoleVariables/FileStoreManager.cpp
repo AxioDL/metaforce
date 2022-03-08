@@ -71,6 +71,7 @@ FileStoreManager::FileStoreManager(std::string_view org, std::string_view domain
 #endif
   } else {
     m_storeRoot = std::string(prefPath);
+    SDL_free(prefPath);
   }
   g_instance = this;
 }

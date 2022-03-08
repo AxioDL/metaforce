@@ -220,7 +220,7 @@ void CCubeMaterial::SetCurrent(const CModelFlags& flags, const CCubeSurface& sur
   }
 
   // SetNumIndStages(numIndStages);
-  // SetNumTevStages(finalTevCount);
+  aurora::gfx::disable_tev_stage(static_cast<ERglTevStage>(finalTevCount));
   // SetNumTexGens(tcgCount);
   // SetNumColorChans(finalNumColorChans);
 }

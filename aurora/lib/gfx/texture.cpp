@@ -130,27 +130,38 @@ void write_texture(const TextureHandle& handle, ArrayRef<uint8_t> data) noexcept
     }
   }
 
-  const auto dstView = wgpu::ImageCopyTexture{
-      .texture = ref.texture,
-  };
-  if (ref.size.depthOrArrayLayers != 1) {
-    Log.report(logvisor::Fatal, FMT_STRING("write_texture: unsupported depth {}"), ref.size.depthOrArrayLayers);
-    unreachable();
+  uint32_t offset = 0;
+  for (uint32_t mip = 0; mip < ref.mipCount; ++mip) {
+    const auto mipSize = wgpu::Extent3D{
+        .width = std::max(ref.size.width >> mip, 1u),
+        .height = std::max(ref.size.height >> mip, 1u),
+        .depthOrArrayLayers = ref.size.depthOrArrayLayers,
+    };
+    const auto info = format_info(ref.format);
+    const auto physicalSize = physical_size(mipSize, info);
+    const uint32_t widthBlocks = physicalSize.width / info.blockWidth;
+    const uint32_t heightBlocks = physicalSize.height / info.blockHeight;
+    const uint32_t bytesPerRow = widthBlocks * info.blockSize;
+    const uint32_t dataSize = bytesPerRow * heightBlocks * mipSize.depthOrArrayLayers;
+    if (offset + dataSize > data.size()) {
+      Log.report(logvisor::Fatal, FMT_STRING("write_texture: expected at least {} bytes, got {}"), offset + dataSize,
+                 data.size());
+      unreachable();
+    }
+    const auto dstView = wgpu::ImageCopyTexture{
+        .texture = ref.texture,
+        .mipLevel = mip,
+    };
+    const auto dataLayout = wgpu::TextureDataLayout{
+        .bytesPerRow = bytesPerRow,
+        .rowsPerImage = heightBlocks,
+    };
+    g_queue.WriteTexture(&dstView, data.data() + offset, dataSize, &dataLayout, &physicalSize);
+    offset += dataSize;
   }
-  const auto info = format_info(ref.format);
-  const auto physicalSize = physical_size(ref.size, info);
-  const uint32_t widthBlocks = physicalSize.width / info.blockWidth;
-  const uint32_t heightBlocks = physicalSize.height / info.blockHeight;
-  const uint32_t bytesPerRow = widthBlocks * info.blockSize;
-  const uint32_t dataSize = bytesPerRow * heightBlocks * ref.size.depthOrArrayLayers;
-  if (dataSize > data.size()) {
-    Log.report(logvisor::Fatal, FMT_STRING("write_texture: expected at least {} bytes, got {}"), dataSize, data.size());
-    unreachable();
+  if (offset < data.size()) {
+    Log.report(logvisor::Warning, FMT_STRING("write_texture: texture used {} bytes, but given {} bytes"), offset,
+               data.size());
   }
-  const auto dataLayout = wgpu::TextureDataLayout{
-      .bytesPerRow = bytesPerRow,
-      .rowsPerImage = heightBlocks,
-  };
-  g_queue.WriteTexture(&dstView, data.data(), dataSize, &dataLayout, &ref.size);
 }
 } // namespace aurora::gfx

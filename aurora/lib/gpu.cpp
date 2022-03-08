@@ -102,7 +102,7 @@ static TextureWithSampler create_depth_texture() {
 }
 
 static void error_callback(WGPUErrorType type, char const* message, void* userdata) {
-  Log.report(logvisor::Error, FMT_STRING("Dawn error {}: {}"),
+  Log.report(logvisor::Fatal, FMT_STRING("Dawn error {}: {}"),
              magic_enum::enum_name(static_cast<wgpu::ErrorType>(type)), message);
 }
 

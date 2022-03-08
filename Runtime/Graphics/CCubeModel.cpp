@@ -25,8 +25,8 @@ static zeus::CVector3f sPlayerPosition;
 
 CCubeModel::CCubeModel(std::vector<CCubeSurface>* surfaces, std::vector<TCachedToken<CTexture>>* textures,
                        u8* materialData, std::vector<zeus::CVector3f>* positions, std::vector<zeus::CColor>* colors,
-                       std::vector<zeus::CVector3f>* normals, std::vector<zeus::CVector2f>* texCoords,
-                       std::vector<zeus::CVector2f>* packedTexCoords, const zeus::CAABox& aabb, u8 flags, bool b1,
+                       std::vector<zeus::CVector3f>* normals, std::vector<aurora::Vec2<float>>* texCoords,
+                       std::vector<aurora::Vec2<float>>* packedTexCoords, const zeus::CAABox& aabb, u8 flags, bool b1,
                        u32 idx)
 : x0_modelInstance(surfaces, materialData, positions, colors, normals, texCoords, packedTexCoords)
 , x1c_textures(textures)
@@ -256,12 +256,8 @@ void CCubeModel::EnableShadowMaps(const CTexture& shadowTex, const zeus::CTransf
 void CCubeModel::DisableShadowMaps() { sRenderModelShadow = false; }
 
 void CCubeModel::SetArraysCurrent() {
-  if (x0_modelInstance.GetVertexPointer() != nullptr) {
-    aurora::gfx::model::set_vertex_buffer(*x0_modelInstance.GetVertexPointer());
-  }
-  if (x0_modelInstance.GetNormalPointer() != nullptr) {
-    aurora::gfx::model::set_normal_buffer(*x0_modelInstance.GetNormalPointer());
-  }
+  aurora::gfx::model::set_vertex_buffer(x0_modelInstance.GetVertexPointer());
+  aurora::gfx::model::set_normal_buffer(x0_modelInstance.GetNormalPointer());
   SetStaticArraysCurrent();
 }
 
@@ -281,8 +277,8 @@ void CCubeModel::SetRenderModelBlack(bool v) {
 }
 
 void CCubeModel::SetSkinningArraysCurrent(TVectorRef positions, TVectorRef normals) {
-  aurora::gfx::model::set_vertex_buffer(*positions);
-  aurora::gfx::model::set_normal_buffer(*normals);
+  aurora::gfx::model::set_vertex_buffer(positions);
+  aurora::gfx::model::set_normal_buffer(normals);
   // colors unused
   SetStaticArraysCurrent();
 }
@@ -295,22 +291,20 @@ void CCubeModel::SetStaticArraysCurrent() {
     sUsingPackedLightmaps = false;
   }
   if (sUsingPackedLightmaps) {
-    aurora::gfx::model::set_tex0_tc_buffer(*packedTexCoords);
-  } else if (texCoords != nullptr) {
-    aurora::gfx::model::set_tex0_tc_buffer(*packedTexCoords);
+    aurora::gfx::model::set_tex0_tc_buffer(packedTexCoords);
+  } else {
+    aurora::gfx::model::set_tex0_tc_buffer(texCoords);
   }
-  if (texCoords != nullptr) {
-    aurora::gfx::model::set_tc_buffer(*texCoords);
-  }
+  aurora::gfx::model::set_tc_buffer(texCoords);
   CCubeMaterial::KillCachedViewDepState();
 }
 
 void CCubeModel::SetUsingPackedLightmaps(bool v) {
   sUsingPackedLightmaps = v;
   if (v) {
-    aurora::gfx::model::set_tex0_tc_buffer(*x0_modelInstance.GetPackedTCPointer());
+    aurora::gfx::model::set_tex0_tc_buffer(x0_modelInstance.GetPackedTCPointer());
   } else {
-    aurora::gfx::model::set_tex0_tc_buffer(*x0_modelInstance.GetTCPointer());
+    aurora::gfx::model::set_tex0_tc_buffer(x0_modelInstance.GetTCPointer());
   }
 }
 

@@ -87,8 +87,8 @@ private:
   std::vector<zeus::CVector3f> m_positions;
   std::vector<zeus::CVector3f> m_normals;
   std::vector<zeus::CColor> m_colors;
-  std::vector<zeus::CVector2f> m_floatUVs;
-  std::vector<zeus::CVector2f> m_shortUVs;
+  std::vector<aurora::Vec2<float>> m_floatUVs;
+  std::vector<aurora::Vec2<float>> m_shortUVs;
 
 public:
   CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store);

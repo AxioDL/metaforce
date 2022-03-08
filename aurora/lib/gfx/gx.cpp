@@ -68,7 +68,7 @@ constexpr zeus::CMatrix4f DepthCorrect{
     0.f, 0.f, 0.f, 1.f,
     // clang-format on
 };
-void update_projection(const zeus::CMatrix4f& proj) noexcept { gx::g_proj = DepthCorrect * proj; }
+void update_projection(const zeus::CMatrix4f& proj) noexcept { gx::g_proj = /*DepthCorrect **/ proj; }
 void update_fog_state(const metaforce::CFogState& state) noexcept { gx::g_fogState = state; }
 
 void disable_tev_stage(metaforce::ERglTevStage stage) noexcept { gx::g_tevStages[static_cast<size_t>(stage)].reset(); }
@@ -295,11 +295,11 @@ wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderIn
       .targetCount = colorTargets.size(),
       .targets = colorTargets.data(),
   };
-  const auto layouts = build_bind_group_layouts(info, config.shaderConfig);
+  auto layouts = build_bind_group_layouts(info, config.shaderConfig);
   const std::array bindGroupLayouts{
-      layouts.uniformLayout,
-      layouts.samplerLayout,
-      layouts.textureLayout,
+      std::move(layouts.uniformLayout),
+      std::move(layouts.samplerLayout),
+      std::move(layouts.textureLayout),
   };
   const auto pipelineLayoutDescriptor = wgpu::PipelineLayoutDescriptor{
       .label = "GX Pipeline Layout",
@@ -367,6 +367,12 @@ Range build_uniform(const ShaderInfo& info) noexcept {
   {
     const auto xf = get_combined_matrix();
     uniBuf.append(&xf, 64);
+  }
+  for (int i = 0; i < info.usesTevReg.size(); ++i) {
+    if (!info.usesTevReg.test(i)) {
+      continue;
+    }
+    uniBuf.append(&g_colorRegs[i], 16);
   }
   for (int i = 0; i < info.sampledColorChannels.size(); ++i) {
     if (!info.sampledColorChannels.test(i)) {

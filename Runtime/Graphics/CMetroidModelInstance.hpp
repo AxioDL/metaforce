@@ -22,8 +22,8 @@ class CMetroidModelInstance {
   std::vector<zeus::CVector3f> x60_positions;       // was void*
   std::vector<zeus::CVector3f> x64_normals;         // was void*
   std::vector<zeus::CColor> x68_colors;             // was void*
-  std::vector<zeus::CVector2f> x6c_texCoords;       // was void*
-  std::vector<zeus::CVector2f> x70_packedTexCoords; // was void*
+  std::vector<aurora::Vec2<float>> x6c_texCoords;       // was void*
+  std::vector<aurora::Vec2<float>> x70_packedTexCoords; // was void*
 
 public:
   CMetroidModelInstance() = default;
@@ -40,8 +40,8 @@ public:
   [[nodiscard]] TVectorRef GetVertexPointer() const { return &x60_positions; }
   [[nodiscard]] TVectorRef GetNormalPointer() const { return &x64_normals; }
   [[nodiscard]] const std::vector<zeus::CColor>* GetColorPointer() const { return &x68_colors; }
-  [[nodiscard]] const std::vector<zeus::CVector2f>* GetTCPointer() const { return &x6c_texCoords; }
-  [[nodiscard]] const std::vector<zeus::CVector2f>* GetPackedTCPointer() const { return &x70_packedTexCoords; }
+  [[nodiscard]] const std::vector<aurora::Vec2<float>>* GetTCPointer() const { return &x6c_texCoords; }
+  [[nodiscard]] const std::vector<aurora::Vec2<float>>* GetPackedTCPointer() const { return &x70_packedTexCoords; }
 };
 
 } // namespace metaforce

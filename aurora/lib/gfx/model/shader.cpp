@@ -10,14 +10,14 @@ enum class VtxDescAttr : u8 {
   Position = 0,
   Normal = 2,
   Color0 = 4,
-  Color1 = 8,
-  Tex0 = 10,
-  Tex1 = 12,
-  Tex2 = 14,
-  Tex3 = 16,
-  Tex4 = 18,
-  Tex5 = 20,
-  Tex6 = 22,
+  Color1 = 6,
+  Tex0 = 8,
+  Tex1 = 10,
+  Tex2 = 12,
+  Tex3 = 14,
+  Tex4 = 16,
+  Tex5 = 18,
+  Tex6 = 20,
   PnMatIdx = 24,
   Tex0MatIdx = 25,
   Tex1MatIdx = 26,
@@ -51,13 +51,13 @@ static logvisor::Module Log("aurora::gfx::model");
 
 static const std::vector<zeus::CVector3f>* vtxData;
 static const std::vector<zeus::CVector3f>* nrmData;
-static const std::vector<zeus::CVector2f>* tex0TcData;
-static const std::vector<zeus::CVector2f>* tcData;
+static const std::vector<Vec2<float>>* tex0TcData;
+static const std::vector<Vec2<float>>* tcData;
 
-void set_vertex_buffer(const std::vector<zeus::CVector3f>& data) noexcept { vtxData = &data; }
-void set_normal_buffer(const std::vector<zeus::CVector3f>& norm) noexcept { nrmData = &norm; }
-void set_tex0_tc_buffer(const std::vector<zeus::CVector2f>& tcs) noexcept { tex0TcData = &tcs; }
-void set_tc_buffer(const std::vector<zeus::CVector2f>& tcs) noexcept { tcData = &tcs; }
+void set_vertex_buffer(const std::vector<zeus::CVector3f>* data) noexcept { vtxData = data; }
+void set_normal_buffer(const std::vector<zeus::CVector3f>* norm) noexcept { nrmData = norm; }
+void set_tex0_tc_buffer(const std::vector<Vec2<float>>* tcs) noexcept { tex0TcData = tcs; }
+void set_tc_buffer(const std::vector<Vec2<float>>* tcs) noexcept { tcData = tcs; }
 
 enum class VertexFormat : u8 {
   F32F32,
@@ -170,12 +170,12 @@ void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
   const auto idxRange = push_indices(ArrayRef{indices});
   const auto sVtxRange = push_storage(reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size() * 16);
   const auto sNrmRange = push_storage(reinterpret_cast<const uint8_t*>(nrmData->data()), nrmData->size() * 16);
-  const auto sTcRange = push_storage(reinterpret_cast<const uint8_t*>(tcData->data()), tcData->size() * 16);
+  const auto sTcRange = push_storage(reinterpret_cast<const uint8_t*>(tcData->data()), tcData->size() * 8);
   Range sPackedTcRange;
   if (tcData == tex0TcData) {
     sPackedTcRange = sTcRange;
   } else {
-    sPackedTcRange = push_storage(reinterpret_cast<const uint8_t*>(tex0TcData->data()), tex0TcData->size() * 16);
+    sPackedTcRange = push_storage(reinterpret_cast<const uint8_t*>(tex0TcData->data()), tex0TcData->size() * 8);
   }
 
   model::PipelineConfig config{};

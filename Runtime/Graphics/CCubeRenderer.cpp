@@ -233,8 +233,8 @@ void CCubeRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* 
                                          const_cast<std::vector<zeus::CVector3f>*>(inst.GetVertexPointer()),
                                          const_cast<std::vector<zeus::CColor>*>(inst.GetColorPointer()),
                                          const_cast<std::vector<zeus::CVector3f>*>(inst.GetNormalPointer()),
-                                         const_cast<std::vector<zeus::CVector2f>*>(inst.GetTCPointer()),
-                                         const_cast<std::vector<zeus::CVector2f>*>(inst.GetPackedTCPointer()),
+                                         const_cast<std::vector<aurora::Vec2<float>>*>(inst.GetTCPointer()),
+                                         const_cast<std::vector<aurora::Vec2<float>>*>(inst.GetPackedTCPointer()),
                                          inst.GetBoundingBox(), inst.GetFlags(), false, instIdx));
         ++instIdx;
       }

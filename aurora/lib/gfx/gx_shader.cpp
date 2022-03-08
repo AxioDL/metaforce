@@ -19,13 +19,23 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const STe
   case GX::CC_APREV:
     return "prev.a";
   case GX::CC_C0:
+    info.usesTevReg.set(0);
+    return "tevreg0.rgb";
   case GX::CC_A0:
+    info.usesTevReg.set(0);
+    return "tevreg0.a";
   case GX::CC_C1:
+    info.usesTevReg.set(1);
+    return "tevreg1.rgb";
   case GX::CC_A1:
+    info.usesTevReg.set(1);
+    return "tevreg1.a";
   case GX::CC_C2:
+    info.usesTevReg.set(2);
+    return "tevreg2.rgb";
   case GX::CC_A2:
-    Log.report(logvisor::Fatal, FMT_STRING("TODO {}"), arg);
-    unreachable();
+    info.usesTevReg.set(2);
+    return "tevreg2.a";
   case GX::CC_TEXC: {
     if (stage.texMapId == GX::TEXMAP_NULL) {
       Log.report(logvisor::Fatal, FMT_STRING("unmapped texture for stage {}"), stageIdx);
@@ -161,6 +171,9 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const STe
   }
   case GX::CC_ZERO:
     return "0.0";
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("invalid color arg {}"), arg);
+    unreachable();
   }
 }
 
@@ -169,10 +182,14 @@ static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const STe
   case GX::CA_APREV:
     return "prev.a";
   case GX::CA_A0:
+    info.usesTevReg.set(0);
+    return "tevreg0.a";
   case GX::CA_A1:
+    info.usesTevReg.set(1);
+    return "tevreg1.a";
   case GX::CA_A2:
-    Log.report(logvisor::Fatal, FMT_STRING("TODO {}"), arg);
-    unreachable();
+    info.usesTevReg.set(2);
+    return "tevreg2.a";
   case GX::CA_TEXA: {
     if (stage.texMapId == GX::TEXMAP_NULL) {
       Log.report(logvisor::Fatal, FMT_STRING("unmapped texture for stage {}"), stageIdx);
@@ -269,6 +286,9 @@ static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const STe
   }
   case GX::CA_ZERO:
     return "0.0";
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("invalid alpha arg {}"), arg);
+    unreachable();
   }
 }
 
@@ -292,6 +312,9 @@ static std::string_view tev_bias(GX::TevBias bias) {
     return " + 0.5";
   case GX::TB_SUBHALF:
     return " - 0.5";
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("invalid bias {}"), bias);
+    unreachable();
   }
 }
 
@@ -305,6 +328,9 @@ static std::string_view tev_scale(GX::TevScale scale) {
     return " * 4.0";
   case GX::CS_DIVIDE_2:
     return " / 2.0";
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("invalid scale {}"), scale);
+    unreachable();
   }
 }
 
@@ -379,7 +405,7 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
   } else {
     uniformBindings += R"""(
 struct Vec3Block {
-    data: array<vec3<f32>>;
+    data: array<vec4<f32>>;
 };
 struct Vec2Block {
     data: array<vec2<f32>>;
@@ -398,7 +424,7 @@ var<storage, read> v_packed_uvs: Vec2Block;
         "\n    , @location(1) in_uv_0_4_idx: vec4<i32>"
         "\n    , @location(2) in_uv_5_7_idx: vec4<i32>";
     vtxOutAttrs += "\n    @builtin(position) pos: vec4<f32>;";
-    vtxXfrAttrsPre += "\n    out.pos = ubuf.xf * vec4<f32>(v_verts.data[in_pos_nrm_idx[0]], 1.0);";
+    vtxXfrAttrsPre += "\n    out.pos = ubuf.xf * vec4<f32>(v_verts.data[in_pos_nrm_idx[0]].xyz, 1.0);";
   }
 
   std::string fragmentFnPre;
@@ -413,6 +439,18 @@ var<storage, read> v_packed_uvs: Vec2Block;
       case GX::TevRegID::TEVPREV:
         outReg = "prev";
         break;
+      case GX::TEVREG0:
+        outReg = "tevreg0";
+        info.usesTevReg.set(0);
+        break;
+      case GX::TEVREG1:
+        outReg = "tevreg1";
+        info.usesTevReg.set(1);
+        break;
+      case GX::TEVREG2:
+        outReg = "tevreg2";
+        info.usesTevReg.set(2);
+        break;
       default:
         Log.report(logvisor::Fatal, FMT_STRING("TODO: colorOp outReg {}"), stage->colorOp.x10_regId);
       }
@@ -423,6 +461,9 @@ var<storage, read> v_packed_uvs: Vec2Block;
                       color_arg_reg(stage->colorPass.x8_c, idx, *stage, info),
                       color_arg_reg(stage->colorPass.xc_d, idx, *stage, info), tev_op(stage->colorOp.x4_op),
                       tev_bias(stage->colorOp.x8_bias), tev_scale(stage->colorOp.xc_scale));
+      if (stage->colorOp.x0_clamp) {
+        op = fmt::format(FMT_STRING("clamp({}, vec3<f32>(0.0), vec3<f32>(1.0))"), op);
+      }
       fragmentFn += fmt::format(FMT_STRING("\n    {0} = vec4<f32>({1}, {0}.a);"), outReg, op);
     }
     {
@@ -430,6 +471,18 @@ var<storage, read> v_packed_uvs: Vec2Block;
       switch (stage->alphaOp.x10_regId) {
       case GX::TevRegID::TEVPREV:
         outReg = "prev.a";
+        break;
+      case GX::TEVREG0:
+        outReg = "tevreg0.a";
+        info.usesTevReg.set(0);
+        break;
+      case GX::TEVREG1:
+        outReg = "tevreg1.a";
+        info.usesTevReg.set(1);
+        break;
+      case GX::TEVREG2:
+        outReg = "tevreg2.a";
+        info.usesTevReg.set(2);
         break;
       default:
         Log.report(logvisor::Fatal, FMT_STRING("TODO: alphaOp outReg {}"), stage->alphaOp.x10_regId);
@@ -441,9 +494,19 @@ var<storage, read> v_packed_uvs: Vec2Block;
                       alpha_arg_reg(stage->alphaPass.x8_c, idx, *stage, info),
                       alpha_arg_reg(stage->alphaPass.xc_d, idx, *stage, info), tev_op(stage->alphaOp.x4_op),
                       tev_bias(stage->alphaOp.x8_bias), tev_scale(stage->alphaOp.xc_scale));
+      if (stage->alphaOp.x0_clamp) {
+        op = fmt::format(FMT_STRING("clamp({}, 0.0, 1.0)"), op);
+      }
       fragmentFn += fmt::format(FMT_STRING("\n    {0} = {1};"), outReg, op);
     }
     idx++;
+  }
+  for (int i = 0; i < info.usesTevReg.size(); ++i) {
+    if (!info.usesTevReg.test(i)) {
+      continue;
+    }
+    uniBufAttrs += fmt::format(FMT_STRING("\n    tevreg{}: vec4<f32>;"), i);
+    fragmentFnPre += fmt::format(FMT_STRING("\n    var tevreg{0} = ubuf.tevreg{0};"), i);
   }
   for (int i = 0; i < info.sampledColorChannels.size(); ++i) {
     if (!info.sampledColorChannels.test(i)) {
@@ -499,12 +562,12 @@ var<storage, read> v_packed_uvs: Vec2Block;
       vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) tex{}_uv: vec2<f32>;"), locIdx, i);
       if (i < 4) {
         if (i == 0) {
-          vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{}_uv = v_packed_uvs.data[in_uv_0_4[{}]];"), i, i);
+          vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{}_uv = v_packed_uvs.data[in_uv_0_4_idx[{}]];"), i, i);
         } else {
-          vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{}_uv = v_uvs.data[in_uv_0_4[{}]];"), i, i);
+          vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{}_uv = v_uvs.data[in_uv_0_4_idx[{}]];"), i, i);
         }
       } else {
-        vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{}_uv = v_uvs.data[in_uv_5_7[{}]];"), i, i - 4);
+        vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{}_uv = v_uvs.data[in_uv_5_7_idx[{}]];"), i, i - 4);
       }
     }
     fragmentFnPre += fmt::format(
@@ -544,9 +607,10 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {{
 
   wgpu::ShaderModuleWGSLDescriptor wgslDescriptor{};
   wgslDescriptor.source = shaderSource.c_str();
+  const auto label = fmt::format(FMT_STRING("GX Shader {:x}"), hash);
   const auto shaderDescriptor = wgpu::ShaderModuleDescriptor{
       .nextInChain = &wgslDescriptor,
-      .label = "GX Shader",
+      .label = label.c_str(),
   };
   auto shader = gpu::g_device.CreateShaderModule(&shaderDescriptor);
 

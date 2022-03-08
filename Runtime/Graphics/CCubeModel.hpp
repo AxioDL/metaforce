@@ -33,13 +33,13 @@ private:
     std::vector<zeus::CVector3f>* x8_positions;        // was void*
     std::vector<zeus::CVector3f>* xc_normals;          // was void*
     std::vector<zeus::CColor>* x10_colors;             // was void*
-    std::vector<zeus::CVector2f>* x14_texCoords;       // was void*
-    std::vector<zeus::CVector2f>* x18_packedTexCoords; // was void*
+    std::vector<aurora::Vec2<float>>* x14_texCoords;       // was void*
+    std::vector<aurora::Vec2<float>>* x18_packedTexCoords; // was void*
 
   public:
     ModelInstance(std::vector<CCubeSurface>* surfaces, u8* material, std::vector<zeus::CVector3f>* positions,
                   std::vector<zeus::CColor>* colors, std::vector<zeus::CVector3f>* normals,
-                  std::vector<zeus::CVector2f>* texCoords, std::vector<zeus::CVector2f>* packedTexCoords)
+                  std::vector<aurora::Vec2<float>>* texCoords, std::vector<aurora::Vec2<float>>* packedTexCoords)
     : x0_surfacePtrs(surfaces)
     , x4_materialData(material)
     , x8_positions(positions)
@@ -58,8 +58,8 @@ private:
     [[nodiscard]] TVectorRef GetVertexPointer() const { return x8_positions; }
     [[nodiscard]] TVectorRef GetNormalPointer() const { return xc_normals; }
     [[nodiscard]] std::vector<zeus::CColor>* GetColorPointer() const { return x10_colors; }
-    [[nodiscard]] std::vector<zeus::CVector2f>* GetTCPointer() const { return x14_texCoords; }
-    [[nodiscard]] std::vector<zeus::CVector2f>* GetPackedTCPointer() const { return x18_packedTexCoords; }
+    [[nodiscard]] std::vector<aurora::Vec2<float>>* GetTCPointer() const { return x14_texCoords; }
+    [[nodiscard]] std::vector<aurora::Vec2<float>>* GetPackedTCPointer() const { return x18_packedTexCoords; }
   };
 
   ModelInstance x0_modelInstance;
@@ -75,8 +75,8 @@ private:
 public:
   CCubeModel(std::vector<CCubeSurface>* surfaces, std::vector<TCachedToken<CTexture>>* textures, u8* materialData,
              std::vector<zeus::CVector3f>* positions, std::vector<zeus::CColor>* colors,
-             std::vector<zeus::CVector3f>* normals, std::vector<zeus::CVector2f>* texCoords,
-             std::vector<zeus::CVector2f>* packedTexCoords, const zeus::CAABox& aabb, u8 flags, bool b1, u32 idx);
+             std::vector<zeus::CVector3f>* normals, std::vector<aurora::Vec2<float>>* texCoords,
+             std::vector<aurora::Vec2<float>>* packedTexCoords, const zeus::CAABox& aabb, u8 flags, bool b1, u32 idx);
 
   CCubeMaterial GetMaterialByIndex(u32 idx);
   bool TryLockTextures();

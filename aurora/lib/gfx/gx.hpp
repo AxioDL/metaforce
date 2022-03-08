@@ -108,6 +108,7 @@ struct ShaderInfo {
   std::bitset<maxTextures> sampledTextures;
   std::bitset<4> sampledKcolors;
   std::bitset<2> sampledColorChannels;
+  std::bitset<3> usesTevReg;
   u32 uniformSize = 0;
   bool usesVtxColor : 1 = false;
   bool usesNormal : 1 = false;
@@ -143,21 +144,29 @@ struct DlVert {
 
 namespace aurora {
 template <>
+inline void xxh3_update(XXH3_state_t& state, const metaforce::CTevCombiners::CTevOp& input) {
+  XXH3_64bits_update(&state, &input.x0_clamp, sizeof(bool));
+  XXH3_64bits_update(&state, &input.x4_op, sizeof(metaforce::CTevCombiners::CTevOp::x4_op));
+  XXH3_64bits_update(&state, &input.x8_bias, sizeof(metaforce::CTevCombiners::CTevOp::x8_bias));
+  XXH3_64bits_update(&state, &input.xc_scale, sizeof(metaforce::CTevCombiners::CTevOp::xc_scale));
+  XXH3_64bits_update(&state, &input.x10_regId, sizeof(metaforce::CTevCombiners::CTevOp::x10_regId));
+}
+template <>
 inline void xxh3_update(XXH3_state_t& state, const gfx::gx::STevStage& input) {
-  XXH3_64bits_update(&state, &input.colorPass, sizeof(metaforce::CTevCombiners::ColorPass));
-  XXH3_64bits_update(&state, &input.alphaPass, sizeof(metaforce::CTevCombiners::AlphaPass));
-  XXH3_64bits_update(&state, &input.colorOp, sizeof(metaforce::CTevCombiners::CTevOp));
-  XXH3_64bits_update(&state, &input.alphaOp, sizeof(metaforce::CTevCombiners::CTevOp));
-  XXH3_64bits_update(&state, &input.kcSel, sizeof(GX::TevKColorSel));
-  XXH3_64bits_update(&state, &input.kaSel, sizeof(GX::TevKAlphaSel));
-  XXH3_64bits_update(&state, &input.texCoordId, sizeof(GX::TexCoordID));
-  XXH3_64bits_update(&state, &input.texMapId, sizeof(GX::TexMapID));
-  XXH3_64bits_update(&state, &input.channelId, sizeof(GX::ChannelID));
+  XXH3_64bits_update(&state, &input.colorPass, sizeof(gfx::gx::STevStage::colorPass));
+  XXH3_64bits_update(&state, &input.alphaPass, sizeof(gfx::gx::STevStage::alphaPass));
+  xxh3_update(state, input.colorOp);
+  xxh3_update(state, input.alphaOp);
+  XXH3_64bits_update(&state, &input.kcSel, sizeof(gfx::gx::STevStage::kcSel));
+  XXH3_64bits_update(&state, &input.kaSel, sizeof(gfx::gx::STevStage::kaSel));
+  XXH3_64bits_update(&state, &input.texCoordId, sizeof(gfx::gx::STevStage::texCoordId));
+  XXH3_64bits_update(&state, &input.texMapId, sizeof(gfx::gx::STevStage::texMapId));
+  XXH3_64bits_update(&state, &input.channelId, sizeof(gfx::gx::STevStage::channelId));
 }
 template <>
 inline XXH64_hash_t xxh3_hash(const gfx::gx::ShaderConfig& input, XXH64_hash_t seed) {
   XXH3_state_t state;
-  XXH3_INITSTATE(&state);
+  memset(&state, 0, sizeof(XXH3_state_t));
   XXH3_64bits_reset_withSeed(&state, seed);
   for (const auto& item : input.tevStages) {
     if (!item) {
@@ -165,7 +174,9 @@ inline XXH64_hash_t xxh3_hash(const gfx::gx::ShaderConfig& input, XXH64_hash_t s
     }
     xxh3_update(state, *item);
   }
-  XXH3_64bits_update(&state, input.channelMatSrcs.data(), input.channelMatSrcs.size() * sizeof(GX::ColorSrc));
+  for (const auto& item : input.channelMatSrcs) {
+    XXH3_64bits_update(&state, &item, sizeof(GX::ColorSrc));
+  }
   XXH3_64bits_update(&state, &input.alphaDiscard, sizeof(bool));
   XXH3_64bits_update(&state, &input.denormalizedVertexAttributes, sizeof(bool));
   XXH3_64bits_update(&state, &input.denormalizedHasNrm, sizeof(bool));
