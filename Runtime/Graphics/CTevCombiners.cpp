@@ -5,6 +5,8 @@ u32 CTevPass::sNextUniquePass = 0;
 
 void CTevPass::Execute(ERglTevStage stage) const {
   aurora::gfx::update_tev_stage(stage, x4_colorPass, x14_alphaPass, x24_colorOp, x38_alphaOp);
+  aurora::gfx::set_tev_k_color_sel(static_cast<GX::TevStageID>(stage), GX::TevKColorSel::TEV_KCSEL_8_8);
+  aurora::gfx::set_tev_k_alpha_sel(static_cast<GX::TevStageID>(stage), GX::TevKAlphaSel::TEV_KASEL_8_8);
 }
 
 constexpr u32 maxTevPasses = 2;
