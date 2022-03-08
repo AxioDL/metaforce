@@ -196,8 +196,8 @@ public:
   void RenderAuxiliary(const zeus::CFrustum& frustum) const;
   void Render(CSkinnedModel& model, const CModelFlags& drawFlags, const std::optional<CVertexMorphEffect>& morphEffect,
               const float* morphMagnitudes);
-  void SetupRender(CSkinnedModel& model, const CModelFlags& drawFlags,
-                   const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
+  void SetupRender(CSkinnedModel& model, const std::optional<CVertexMorphEffect>& morphEffect,
+                   const float* morphMagnitudes);
   static void DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags);
   void PreRender();
   void BuildPose();
@@ -218,7 +218,7 @@ public:
   TLockedToken<CSkinnedModel>& GetModelData() { return xd8_modelData; }
   const TLockedToken<CSkinnedModel>& GetModelData() const { return xd8_modelData; }
 
-  static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
+  static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose,
                                const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
   void AdvanceParticles(const zeus::CTransform& xf, float dt, const zeus::CVector3f&, CStateManager& stateMgr);
   float GetAverageVelocity(int animIn) const;

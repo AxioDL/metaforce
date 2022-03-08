@@ -366,7 +366,7 @@ void CCubeRenderer::DrawStaticGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
 void CCubeRenderer::DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   x318_30_inAreaDraw = true;
   SetupRendererStates(true);
-  CModelFlags flags;
+  constexpr CModelFlags flags{0, 0, 3, zeus::skWhite};
 
   for (CAreaListItem& item : x1c_areaListItems) {
     if (areaIdx != -1 || item.x18_areaIdx == areaIdx) {
@@ -391,10 +391,10 @@ void CCubeRenderer::DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
         }
 
         for (const auto* surf = model->GetFirstUnsortedSurface(); surf != nullptr; surf = surf->GetNextSurface()) {
-          model->DrawSurface(*surf, CModelFlags(0, 0, 3, zeus::skWhite));
+          model->DrawSurface(*surf, flags);
         }
         for (const auto* surf = model->GetFirstSortedSurface(); surf != nullptr; surf = surf->GetNextSurface()) {
-          model->DrawSurface(*surf, CModelFlags(0, 0, 3, zeus::skWhite));
+          model->DrawSurface(*surf, flags);
         }
       }
     }
@@ -654,9 +654,14 @@ void CCubeRenderer::SetWorldLightFadeLevel(float level) { x2fc_tevReg1Color = ze
 
 void CCubeRenderer::PrepareDynamicLights(const std::vector<CLight>& lights) {}
 void CCubeRenderer::AllocatePhazonSuitMaskTexture() {}
+
 void CCubeRenderer::DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectMod,
                                                  const TLockedToken<CTexture>& indTex, const zeus::CColor& indirectMod,
-                                                 float blurRadius, float scale, float offX, float offY) {}
+                                                 float blurRadius, float scale, float offX, float offY) {
+  // TODO
+  aurora::gfx::set_dst_alpha(false, 0.f);
+}
+
 void CCubeRenderer::DrawXRayOutline(const zeus::CAABox& aabb) {}
 
 std::list<CCubeRenderer::CAreaListItem>::iterator

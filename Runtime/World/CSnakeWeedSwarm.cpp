@@ -413,15 +413,15 @@ void CSnakeWeedSwarm::RenderBoid(u32 idx, const CBoid& boid, u32& posesToBuild) 
   auto& modelData = *x1b0_modelData[modelIdx];
   auto& model = modelData.PickAnimatedModel(x1c4_which);
   auto& animData = *modelData.GetAnimationData();
-  constexpr CModelFlags useFlags(0, 0, 3, zeus::skWhite);
   if (posesToBuild & 1 << modelIdx) {
     posesToBuild &= ~(1 << modelIdx);
     animData.BuildPose();
-    model.Calculate(animData.GetPose(), useFlags, std::nullopt, nullptr);
+    model.Calculate(animData.GetPose(), std::nullopt, nullptr);
   }
   CGraphics::SetModelMatrix(
       zeus::CTransform::Translate(boid.GetPosition() - zeus::CVector3f(0.f, 0.f, boid.GetZOffset())) *
       zeus::CTransform::Scale(boid.GetScale()));
+  constexpr CModelFlags useFlags{0, 0, 3, zeus::skWhite};
   animData.Render(model, useFlags, std::nullopt, nullptr);
 }
 

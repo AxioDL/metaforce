@@ -293,7 +293,7 @@ void CModelData::RenderThermal(const zeus::CTransform& xf, const zeus::CColor& m
 
   if (x10_animData) {
     CSkinnedModel& model = PickAnimatedModel(EWhichModel::ThermalHot);
-    x10_animData->SetupRender(model, flags, {}, nullptr);
+    x10_animData->SetupRender(model, {}, nullptr);
     ThermalDraw(mulColor, addColor, flags);
   } else {
     auto& model = PickStaticModel(EWhichModel::ThermalHot);
@@ -360,51 +360,66 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf, const CAc
   x14_24_renderSorted = false;
 }
 
-void CModelData::InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
-                             const zeus::CColor& alphaColor, const zeus::CColor& additiveColor) {
+void CModelData::MultiLightingDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
+                                   const zeus::CColor& alphaColor, const zeus::CColor& additiveColor) {
+  CModel* model = nullptr;
+  const auto callback = [&](auto positions, auto normals) {
+    CGraphics::DisableAllLights();
+    constexpr CModelFlags flags1{5, 0, 3, zeus::CColor{1.f, 0.f}};
+    const CModelFlags flags2{5, 0, 1, alphaColor};
+    const CModelFlags flags3{7, 0, 1, additiveColor};
+    if (positions == nullptr) {
+      model->Draw(flags1);
+      if (lights != nullptr) {
+        lights->ActivateLights();
+      }
+      model->Draw(flags2);
+      model->Draw(flags3);
+    } else {
+      model->Draw(positions, normals, flags1);
+      if (lights != nullptr) {
+        lights->ActivateLights();
+      }
+      model->Draw(positions, normals, flags2);
+      model->Draw(positions, normals, flags3);
+    }
+  };
   CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
-  // TODO where is this method?
-  // if (x10_animData) {
-  //   CSkinnedModel& model = PickAnimatedModel(which);
-  //   model.GetModelInst()->DisableAllLights();
-  //   CModelFlags flags = {};
-  //
-  //   /* Z-prime */
-  //   flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-  //   flags.x4_color = zeus::skWhite;
-  //   x10_animData->Render(model, flags, std::nullopt, nullptr);
-  //
-  //   /* Normal Blended */
-  //   lights->ActivateLights(*model.GetModelInst());
-  //   flags.m_extendedShader = EExtendedShader::ForcedAlpha;
-  //   flags.x4_color = alphaColor;
-  //   x10_animData->Render(model, flags, std::nullopt, nullptr);
-  //
-  //   /* Selection Additive */
-  //   flags.m_extendedShader = EExtendedShader::ForcedAdditive;
-  //   flags.x4_color = additiveColor;
-  //   x10_animData->Render(model, flags, std::nullopt, nullptr);
-  // } else {
-  //   CBooModel& model = *PickStaticModel(which);
-  //   model.DisableAllLights();
-  //   CModelFlags flags = {};
-  //
-  //   /* Z-prime */
-  //   flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-  //   flags.x4_color = zeus::skWhite;
-  //   model.Draw(flags, nullptr, nullptr);
-  //
-  //   /* Normal Blended */
-  //   lights->ActivateLights(model);
-  //   flags.m_extendedShader = EExtendedShader::ForcedAlpha;
-  //   flags.x4_color = alphaColor;
-  //   model.Draw(flags, nullptr, nullptr);
-  //
-  //   /* Selection Additive */
-  //   flags.m_extendedShader = EExtendedShader::ForcedAdditive;
-  //   flags.x4_color = additiveColor;
-  //   model.Draw(flags, nullptr, nullptr);
-  // }
+  if (x10_animData) {
+    auto& skinnedModel = PickAnimatedModel(which);
+    x10_animData->SetupRender(skinnedModel, {}, nullptr);
+    model = skinnedModel.GetModel().GetObj();
+    skinnedModel.DoDrawCallback(callback);
+  } else {
+    model = PickStaticModel(which).GetObj();
+    callback(nullptr, nullptr);
+  }
+}
+
+void CModelData::MultiPassDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
+                               const CModelFlags* flags, u32 count) {
+  CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
+  if (lights == nullptr) {
+    CGraphics::DisableAllLights();
+    g_Renderer->SetAmbientColor(x18_ambientColor);
+  } else {
+    lights->ActivateLights();
+  }
+  if (x10_animData) {
+    auto& skinnedModel = PickAnimatedModel(which);
+    x10_animData->SetupRender(skinnedModel, {}, nullptr);
+    auto& model = *skinnedModel.GetModel();
+    skinnedModel.DoDrawCallback([&](auto positions, auto normals) {
+      for (int i = 0; i < count; ++i) {
+        model.Draw(positions, normals, flags[i]);
+      }
+    });
+  } else {
+    auto& model = *PickStaticModel(which);
+    for (int i = 0; i < count; ++i) {
+      model.Draw(flags[i]);
+    }
+  }
 }
 
 void CModelData::DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform& xf, const CTexture& tex,
@@ -442,8 +457,7 @@ void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf,
   //    model.Draw(flags, nullptr, nullptr);
   //  }
 }
-void CModelData::ThermalDraw(const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags) {
 
-}
+void CModelData::ThermalDraw(const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags) {}
 
 } // namespace metaforce

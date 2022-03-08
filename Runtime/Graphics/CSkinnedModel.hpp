@@ -42,8 +42,8 @@ public:
   void SetLayoutInfo(const TLockedToken<CCharLayoutInfo>& inf) { x1c_layoutInfo = inf; }
   const TLockedToken<CCharLayoutInfo>& GetLayoutInfo() const { return x1c_layoutInfo; }
 
-  void Calculate(const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
-                 const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
+  void Calculate(const CPoseAsTransforms& pose, const std::optional<CVertexMorphEffect>& morphEffect,
+                 const float* morphMagnitudes);
   void Draw(TVectorRef verts, TVectorRef normals, const CModelFlags& drawFlags);
   void Draw(const CModelFlags& drawFlags);
   void DoDrawCallback(const FCustomDraw& func) const;

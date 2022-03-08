@@ -65,7 +65,7 @@ CCubeMaterial CCubeModel::GetMaterialByIndex(u32 idx) {
 
 bool CCubeModel::TryLockTextures() {
   if (!x40_24_texturesLoaded) {
-    bool texturesPumped = false;
+    bool texturesLoading = false;
     for (auto& texture : *x1c_textures) {
       texture.Lock();
       bool loadTexture = true;
@@ -77,11 +77,12 @@ bool CCubeModel::TryLockTextures() {
         }
       }
       if (loadTexture) {
-        // texture->LoadToMRAM();
-        // texturesPumped = true;
+        // if (!texture->LoadToMRAM()) {
+        //   texturesLoading = true;
+        // }
       }
     }
-    if (!texturesPumped) {
+    if (!texturesLoading) {
       x40_24_texturesLoaded = true;
     }
   }

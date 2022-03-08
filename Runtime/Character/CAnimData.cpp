@@ -545,18 +545,18 @@ void CAnimData::RenderAuxiliary(const zeus::CFrustum& frustum) const { x120_part
 
 void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags,
                        const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
-  SetupRender(model, drawFlags, morphEffect, morphMagnitudes);
+  SetupRender(model, morphEffect, morphMagnitudes);
   DrawSkinnedModel(model, drawFlags);
 }
 
-void CAnimData::SetupRender(CSkinnedModel& model, const CModelFlags& drawFlags,
-                            const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
+void CAnimData::SetupRender(CSkinnedModel& model, const std::optional<CVertexMorphEffect>& morphEffect,
+                            const float* morphMagnitudes) {
   OPTICK_EVENT();
   if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildNoScale(x224_pose);
     x220_30_poseBuilt = true;
   }
-  PoseSkinnedModel(model, x224_pose, drawFlags, morphEffect, morphMagnitudes);
+  PoseSkinnedModel(model, x224_pose, morphEffect, morphMagnitudes);
 }
 
 void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) {
@@ -805,9 +805,9 @@ void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedTo
   xf8_infraModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo());
 }
 
-void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
+void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose,
                                  const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
-  model.Calculate(pose, drawFlags, morphEffect, morphMagnitudes);
+  model.Calculate(pose, morphEffect, morphMagnitudes);
 }
 
 void CAnimData::AdvanceParticles(const zeus::CTransform& xf, float dt, const zeus::CVector3f& vec,

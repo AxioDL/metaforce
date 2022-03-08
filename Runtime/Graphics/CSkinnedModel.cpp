@@ -26,8 +26,8 @@ CSkinnedModel::CSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinR
 : CSkinnedModel(store.GetObj(SObjectTag{FOURCC('CMDL'), model}), store.GetObj(SObjectTag{FOURCC('CSKR'), skinRules}),
                 store.GetObj(SObjectTag{FOURCC('CINF'), layoutInfo})) {}
 
-void CSkinnedModel::Calculate(const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
-                              const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
+void CSkinnedModel::Calculate(const CPoseAsTransforms& pose, const std::optional<CVertexMorphEffect>& morphEffect,
+                              const float* morphMagnitudes) {
   // TODO
   // if (morphEffect || g_PointGenFunc) {
   //   if (boo::ObjToken<boo::IGraphicsBufferD> vertBuf = m_modelInst->UpdateUniformData(drawFlags, nullptr, nullptr))

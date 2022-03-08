@@ -126,13 +126,13 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
 
     CModelFlags flags(7, 0, 3, zeus::CColor(1.f, 0.f));
     // flags.m_extendedShader = EExtendedShader::SolidColorFrontfaceCullLEqualAlphaOnly;
-    // x20_actorLights->ActivateLights(model->GetInstance());
+    x20_actorLights->ActivateLights();
     model->Draw(flags);
 
     flags.x4_color = color;
     flags.x4_color.a() *= alpha;
     // flags.m_extendedShader = EExtendedShader::ForcedAdditive;
-    model->Draw(flags);
+    model->Draw({8, 0, 1, flags.x4_color});
   }
 }
 

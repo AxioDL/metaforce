@@ -541,6 +541,7 @@ var<storage, read> v_packed_uvs: Vec2Block;
     info.uniformSize += 32;
 
     vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>;"), locIdx++, i);
+    // TODO only perform lighting on CC0 when enabled
     vtxXfrAttrs += fmt::format(FMT_STRING(R"""(
     {{
       var lighting = ubuf.lighting_ambient + ubuf.cc{0}_amb;
@@ -561,8 +562,7 @@ var<storage, read> v_packed_uvs: Vec2Block;
           lighting = lighting + vec4<f32>(this_color, 0.0);
       }}
       out.cc{0} = clamp(lighting, vec4<f32>(0.0), vec4<f32>(1.0));
-    }}
-)"""), i, MaxLights);
+    }})"""), i, MaxLights);
 
     if (config.channelMatSrcs[i] == GX::SRC_VTX) {
       if (config.denormalizedVertexAttributes) {

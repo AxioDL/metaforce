@@ -122,8 +122,10 @@ public:
               const CModelFlags& drawFlags);
   void Render(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights, const CModelFlags& drawFlags);
 
-  void InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
-                   const zeus::CColor& color0, const zeus::CColor& color1);
+  void MultiLightingDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
+                         const zeus::CColor& alphaColor, const zeus::CColor& additiveColor);
+  void MultiPassDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
+                     const CModelFlags* flags, u32 count);
   void DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform& xf, const CTexture& tex,
                         const zeus::CColor& addColor, float t);
   void DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf, const CTexture& tex,
