@@ -168,7 +168,10 @@ void CInGameGuiManager::DoStateTransition(CStateManager& stateMgr) {
   }
 }
 
-void CInGameGuiManager::DestroyAreaTextures(CStateManager& stateMgr) {}
+void CInGameGuiManager::DestroyAreaTextures(CStateManager& stateMgr) {
+  // TODO
+  CModel::DisableTextureTimeout();
+}
 
 void CInGameGuiManager::TryReloadAreaTextures() {}
 
@@ -270,6 +273,7 @@ void CInGameGuiManager::OnNewPauseScreenState(CArchitectureQueue& archQueue) {
   if (x1c0_nextState >= EInGameGuiState::Zero && x1c0_nextState <= EInGameGuiState::InGame) {
     if (x44_messageScreen)
       x44_messageScreen.reset();
+    CModel::EnableTextureTimeout();
     RefreshHudOptions();
   }
   x1bc_prevState = x1c0_nextState;

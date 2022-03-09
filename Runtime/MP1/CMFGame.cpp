@@ -255,6 +255,7 @@ void CMFGame::EnterMapScreen() {
 }
 
 CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
+  CModel::DisableTextureTimeout();
   auto* m = static_cast<CMain*>(g_Main);
   switch (m->GetFlowState()) {
   case EClientFlowStates::Default:
@@ -357,6 +358,7 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
     if (x2c_25_transitionFinished) {
       queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 10, 1000,
                                             std::make_shared<CMFGame>(x14_stateMgr, x18_guiMgr, queue)));
+      CModel::EnableTextureTimeout();
       return EMessageReturn::RemoveIOWinAndExit;
     }
     break;

@@ -92,6 +92,7 @@ private:
 
 public:
   CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store);
+  ~CModel();
 
   void UpdateLastFrame();
   void MoveToThisFrameList();

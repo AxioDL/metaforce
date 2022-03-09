@@ -2099,7 +2099,10 @@ void CStateManager::UpdateAreaSounds() {
   CSfxManager::SetActiveAreas(areas);
 }
 
-void CStateManager::FrameEnd() { g_SimplePool->Flush(); }
+void CStateManager::FrameEnd() {
+  CModel::FrameDone();
+  g_SimplePool->Flush();
+}
 
 void CStateManager::ProcessPlayerInput() {
   if (x84c_player) {

@@ -102,6 +102,8 @@ IObj* CToken::GetObj() {
   return x0_objRef->GetObject();
 }
 CToken& CToken::operator=(const CToken& other) {
+  if (this == &other)
+    return *this;
   Unlock();
   RemoveRef();
   x0_objRef = other.x0_objRef;

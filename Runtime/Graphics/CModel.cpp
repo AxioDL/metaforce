@@ -133,6 +133,11 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
   // DCFlushRange(x0_data, dataLen);
 }
 
+CModel::~CModel() {
+  RemoveFromList();
+  sTotalMemory -= x4_dataLen;
+}
+
 void CModel::UpdateLastFrame() { x38_lastFrame = CGraphics::GetFrameCounter(); }
 
 void CModel::MoveToThisFrameList() {
