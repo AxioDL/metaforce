@@ -696,6 +696,8 @@ CTweakPlayer::CTweakPlayer(CInputStream& in) {
   x304_gravityDamageReduction = in.ReadFloat();
   /* x308_phazonDamageReduction */
   x308_phazonDamageReduction = in.ReadFloat();
+
+  FixupValues();
 }
 
 void CTweakPlayer::PutTo(COutputStream& out) {
