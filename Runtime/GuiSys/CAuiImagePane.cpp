@@ -81,9 +81,9 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, CTexture& tex, in
     tex.Load(GX::TEXMAP0, EClampMode::Repeat);
     CGraphics::StreamBegin(GX::TRIANGLESTRIP);
     CGraphics::StreamColor(useColor);
-    for (u32 i = 0; i < 4; ++i) {
+    for (u32 i = 0; i < useUVs->size(); ++i) {
       CGraphics::StreamTexcoord((*useUVs)[i]);
-      CGraphics::StreamVertex(vec[i]);
+      CGraphics::StreamVertex(xe0_coords[i]);
     }
     CGraphics::StreamEnd();
   } else if ((x14c_deResFactor == 0.f && alpha == 1.f) || tex.GetNumberOfMipMaps() == 1) {
@@ -92,9 +92,9 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, CTexture& tex, in
     tex.LoadMipLevel(0.f, GX::TEXMAP0, EClampMode::Repeat);
     CGraphics::StreamBegin(GX::TRIANGLESTRIP);
     CGraphics::StreamColor(useColor);
-    for (u32 i = 0; i < 4; ++i) {
+    for (u32 i = 0; i < useUVs->size(); ++i) {
       CGraphics::StreamTexcoord((*useUVs)[i] + xd0_uvBias0);
-      CGraphics::StreamVertex(vec[i]);
+      CGraphics::StreamVertex(xe0_coords[i]);
     }
     CGraphics::StreamEnd();
   } else {
