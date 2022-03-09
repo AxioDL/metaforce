@@ -1,5 +1,4 @@
 #include "CNESEmulator.hpp"
-#include "CNESShader.hpp"
 #include "CGameState.hpp"
 #include "Input/CFinalInput.hpp"
 #include "logvisor/logvisor.hpp"

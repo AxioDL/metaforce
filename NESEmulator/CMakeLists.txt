@@ -1,5 +1,5 @@
 file(GLOB MAPPER_SRCS ../extern/fixNES/mapper/*.c)
-add_library(NESEmulator CNESEmulator.hpp CNESEmulator.cpp CNESShader.hpp CNESShader.cpp malloc.h
+add_library(NESEmulator CNESEmulator.hpp CNESEmulator.cpp malloc.h
         apu.c ../extern/fixNES/audio_fds.c ../extern/fixNES/audio_mmc5.c ../extern/fixNES/audio_vrc6.c
         ../extern/fixNES/audio_vrc7.c ../extern/fixNES/audio_n163.c ../extern/fixNES/audio_s5b.c
         ../extern/fixNES/cpu.c ppu.c ../extern/fixNES/mem.c ../extern/fixNES/input.c ../extern/fixNES/mapper.c

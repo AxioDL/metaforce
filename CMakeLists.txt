@@ -92,15 +92,6 @@ if(APPLE AND NOT CMAKE_OSX_SYSROOT)
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
-option(METAFORCE_CROSSCOMPILING "Don't build tools; attempt package import" OFF)
-if (METAFORCE_CROSSCOMPILING)
-  set(CMAKE_CROSSCOMPILING On)
-endif()
-
-if(CMAKE_CROSSCOMPILING)
-  set(HAVE_WORDS_BIGENDIAN_EXITCODE 0 CACHE INTEGER "Makes soxr happy" FORCE)
-endif()
-
 # MSVC has a "latest" flag, which always uses the newest standard
 # when available. GCC and Clang posess no such flag, and must be
 # manually enforced. CMake, curiously, also doesn't have a "latest"
@@ -346,45 +337,15 @@ if (NOT WIN32)
   set(ZLIB_LIBRARIES ZLIB::ZLIB CACHE STRING "zlib libraries" FORCE)
 endif()
 
-# TODO migrate bintoc
-include(hecl/ApplicationTools.cmake)
+include(ExternalProject)
+ExternalProject_Add(bintoc
+    SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/bintoc"
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+    INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install)
+include(${CMAKE_CURRENT_LIST_DIR}/bintoc/bintocHelpers.cmake)
 
 add_subdirectory(extern)
-
-set(DATA_SPEC_LIBS RetroDataSpec AssetNameMap)
-set(HECL_DATASPEC_DECLS
-"/* RetroCommon specs */
-namespace DataSpec
-{
-    extern hecl::Database::DataSpecEntry SpecEntMP1;
-    extern hecl::Database::DataSpecEntry SpecEntMP1PC;
-    extern hecl::Database::DataSpecEntry SpecEntMP1ORIG;
-    extern hecl::Database::DataSpecEntry SpecEntMP2;
-    extern hecl::Database::DataSpecEntry SpecEntMP2PC;
-    extern hecl::Database::DataSpecEntry SpecEntMP2ORIG;
-    extern hecl::Database::DataSpecEntry SpecEntMP3;
-    extern hecl::Database::DataSpecEntry SpecEntMP3PC;
-    extern hecl::Database::DataSpecEntry SpecEntMP3ORIG;
-}")
-set(HECL_DATASPEC_PUSHES
-"    /* RetroCommon */
-    hecl::Database::DATA_SPEC_REGISTRY.reserve(9);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1PC);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1ORIG);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2PC);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2ORIG);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3ORIG);")
-
 add_subdirectory(imgui)
-add_subdirectory(hecl EXCLUDE_FROM_ALL)
-target_include_directories(hecl-full PRIVATE ${CMAKE_SOURCE_DIR})
-target_include_directories(hecl-light PRIVATE ${CMAKE_SOURCE_DIR})
-target_link_libraries(hecl-full PRIVATE zeus nod)
-target_link_libraries(hecl-light PRIVATE zeus nod)
 
 if(NOT TARGET atdna)
   # Import native atdna if cross-compiling
@@ -394,65 +355,20 @@ if(NOT TARGET atdna)
   endif()
 endif()
 
-if (NOT CMAKE_CROSSCOMPILING)
-  add_subdirectory(assetnameparser EXCLUDE_FROM_ALL)
-endif ()
-add_compile_definitions(URDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
-add_subdirectory(DataSpec EXCLUDE_FROM_ALL)
-
 add_subdirectory(NESEmulator EXCLUDE_FROM_ALL)
 add_subdirectory(aurora)
 add_subdirectory(Runtime)
-add_subdirectory(mpcksum EXCLUDE_FROM_ALL)
 add_subdirectory(gbalink EXCLUDE_FROM_ALL)
-
-if (NOT WINDOWS_STORE AND NOT NX)
-  if (APPLE AND EXISTS /opt/local/libexec/qt5)
-    # macports qt5 (build with +universal)
-    set(Qt5Widgets_DIR /opt/local/libexec/qt5)
-  elseif (APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
-    set(QT_HOMEBREW_PATH /usr/local/opt/qt)
-  elseif (APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL arm64)
-    set(QT_HOMEBREW_PATH /opt/homebrew/opt/qt)
-  else ()
-    set(QT_HOMEBREW_PATH "")
-  endif ()
-
-  find_package(Qt6Widgets QUIET PATHS ${QT_HOMEBREW_PATH})
-  find_package(Qt5Widgets QUIET PATHS ${QT_HOMEBREW_PATH})
-  if (Qt6Widgets_FOUND)
-    message(STATUS "Qt6 found, metaforce-gui will be built")
-    add_subdirectory(metaforce-gui EXCLUDE_FROM_ALL)
-  elseif(Qt5Widgets_FOUND)
-    message(STATUS "Qt5 found, metaforce-gui will be built")
-    add_subdirectory(metaforce-gui EXCLUDE_FROM_ALL)
-  else()
-    message(STATUS "Qt5-6 not found, metaforce-gui will not be built")
-  endif()
-endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_BINARY_DIR}/version.h)
 
 # Packaging logic
-list(APPEND BINARY_TARGETS metaforce) # hecl visigen
+list(APPEND BINARY_TARGETS metaforce)
 set(DSYM_ONLY_TARGETS "")
 if (TARGET crashpad_handler)
   list(APPEND BINARY_TARGETS crashpad_handler)
 endif ()
 set(BIN_PREFIX "${CMAKE_INSTALL_PREFIX}")
-#if (TARGET metaforce-gui)
-#  if (APPLE)
-#    # app bundle already has all needed binaries
-#    install(TARGETS metaforce-gui DESTINATION ${BIN_PREFIX})
-#    list(APPEND DSYM_ONLY_TARGETS metaforce-gui)
-#    # we have to rename here, cmake is inflexible about bundle naming
-#    install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND rm -fr Metaforce.app)")
-#    install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND mv metaforce-gui.app Metaforce.app)")
-#    set(BIN_PREFIX "${BIN_PREFIX}/Metaforce.app/Contents/MacOS")
-#  else()
-#    list(APPEND BINARY_TARGETS metaforce-gui)
-#  endif ()
-#endif ()
 install(TARGETS ${BINARY_TARGETS} DESTINATION ${BIN_PREFIX})
 if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
   foreach (target IN LISTS BINARY_TARGETS DSYM_ONLY_TARGETS)

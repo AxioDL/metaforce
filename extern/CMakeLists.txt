@@ -1,8 +1,3 @@
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/extern/sanitizers-cmake/cmake")
-find_package(Sanitizers)
-
-add_subdirectory(boo EXCLUDE_FROM_ALL)
-
 option(BUILD_ATHENA "Build Athena libraries from source" ON)
 if (WIN32 OR APPLE)
   # Default to binary atdna on Windows & macOS
@@ -42,7 +37,9 @@ else ()
   include(athena/atdna/atdnaHelpers.cmake)
 endif ()
 
-# amuse must come after athena/atdna
+add_subdirectory(boo EXCLUDE_FROM_ALL)
+add_subdirectory(nod EXCLUDE_FROM_ALL)
+# amuse must come after athena/atdna, boo and nod
 add_subdirectory(amuse EXCLUDE_FROM_ALL)
 
 if (NOT GEKKO AND NOT NX)
@@ -68,8 +65,6 @@ endif ()
 
 add_subdirectory(jbus EXCLUDE_FROM_ALL)
 add_subdirectory(kabufuda EXCLUDE_FROM_ALL)
-add_subdirectory(libpng EXCLUDE_FROM_ALL)
-add_subdirectory(libSquish EXCLUDE_FROM_ALL)
 
 add_library(nativefiledialog STATIC EXCLUDE_FROM_ALL nativefiledialog/src/nfd_common.c)
 target_include_directories(nativefiledialog PUBLIC nativefiledialog/src/include)
@@ -94,7 +89,33 @@ else ()
   message(WARNING "nativefiledialog unsupported for ${CMAKE_SYSTEM_NAME}")
 endif ()
 
-add_subdirectory(nod EXCLUDE_FROM_ALL)
+if (WIN32)
+  set(SDL_LIBC ON CACHE BOOL "Use the system C library" FORCE)
+endif ()
+add_subdirectory(../extern/SDL SDL2 EXCLUDE_FROM_ALL)
+if (NOT MSVC)
+  target_compile_options(SDL2-static PRIVATE -Wno-implicit-fallthrough -Wno-shadow)
+endif ()
+
+add_subdirectory(../extern/dawn dawn EXCLUDE_FROM_ALL)
+if (DAWN_ENABLE_VULKAN)
+  target_compile_definitions(dawn_native PRIVATE
+      DAWN_ENABLE_VULKAN_VALIDATION_LAYERS
+      DAWN_VK_DATA_DIR="vulkandata")
+endif ()
+if (NOT MSVC)
+  target_compile_options(SPIRV-Tools-static PRIVATE -Wno-implicit-fallthrough)
+  target_compile_options(SPIRV-Tools-opt PRIVATE -Wno-implicit-fallthrough)
+endif ()
+
+option(OPTICK_ENABLED "Enable profiling with Optick" OFF)
+set(OPTICK_USE_VULKAN ${DAWN_ENABLE_VULKAN} CACHE BOOL "Built-in support for Vulkan" FORCE)
+set(OPTICK_INSTALL_TARGETS OFF CACHE BOOL "Should optick be installed? Set to OFF if you use add_subdirectory to include Optick." FORCE)
+add_subdirectory(optick)
+if (NOT MSVC)
+  target_compile_options(OptickCore PRIVATE -Wno-implicit-fallthrough)
+endif ()
+
 add_subdirectory(libjpeg-turbo EXCLUDE_FROM_ALL)
 add_subdirectory(xxhash EXCLUDE_FROM_ALL)
 add_subdirectory(zeus EXCLUDE_FROM_ALL)

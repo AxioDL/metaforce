@@ -7,11 +7,7 @@ for sub in "extern/amuse" \
            "extern/boo" \
            "extern/jbus" \
            "extern/kabufuda" \
-           "extern/libjpeg-turbo" \
-           "extern/libpng" \
-           "extern/libSquish" \
            "extern/nod" \
-           "extern/tinyxml2" \
            "extern/xxhash" \
            "extern/zeus"; do
     if [ -d $sub ]; then

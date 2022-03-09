@@ -24,8 +24,6 @@ add_subdirectory(Particle)
 
 if (WIN32)
     list(APPEND PLAT_SRCS CMemoryCardSysWin.cpp)
-#elseif (APPLE)
-    #list(APPEND PLAT_SRCS CMemoryCardSysOSX.cpp)
 else ()
     list(APPEND PLAT_SRCS CMemoryCardSysNix.cpp)
 endif ()
@@ -143,17 +141,15 @@ set(RUNTIME_SOURCES_B
 function(add_runtime_common_library name)
     add_library(${name} ${ARGN})
     target_compile_definitions(${name} PUBLIC "-DMETAFORCE_TARGET_BYTE_ORDER=__BYTE_ORDER__")
-    if (COMMAND add_sanitizers)
-        add_sanitizers(${name})
-    endif ()
-
     if (WINDOWS_STORE)
         set_property(TARGET ${name} PROPERTY VS_WINRT_COMPONENT TRUE)
     endif ()
 endfunction()
 
 set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
-set(RUNTIME_LIBRARIES amuse zeus nod NESEmulator libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore imgui aurora SDL2-static)
+set(RUNTIME_LIBRARIES amuse zeus nod NESEmulator libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore imgui aurora SDL2-static
+    boo # TODO move audiodev
+    )
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
 target_include_directories(RuntimeCommon PUBLIC ${RUNTIME_INCLUDES})
@@ -216,9 +212,6 @@ if (WIN32)
 elseif (APPLE)
     # nothing
 elseif (UNIX)
-    add_subdirectory(platforms/freedesktop)
-    declare_wmicon_target()
-    set(PLAT_SRCS mainicon_netwm.cpp)
     set(PLAT_LIBS rt)
 endif ()
 
@@ -232,13 +225,7 @@ if (TARGET nativefiledialog)
 endif()
 target_compile_definitions(metaforce PUBLIC "-DMETAFORCE_TARGET_BYTE_ORDER=__BYTE_ORDER__")
 
-if (COMMAND add_sanitizers)
-    add_sanitizers(metaforce)
-endif ()
-
-if (NOT WINDOWS_STORE)
-    #add_dependencies(metaforce hecl) # visigen
-else ()
+if (WINDOWS_STORE)
     set_property(TARGET metaforce PROPERTY VS_WINRT_COMPONENT TRUE)
     # This should match the Package.appxmanifest
     set_property(TARGET metaforce PROPERTY VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION "10.0.14393.0")
