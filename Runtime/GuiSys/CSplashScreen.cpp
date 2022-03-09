@@ -91,17 +91,9 @@ void CSplashScreen::Draw() {
     CGraphics::StreamEnd();
     CGraphics::SetCullMode(ERglCullMode::Front);
   } else {
-    // TODO
-    // CGraphics::Render2D();
+    // TODO originally uses CGraphics viewport, but Render2D needs scaling fix
+    CGraphics::Render2D(tex, 0, 0, 640, 448, color);
   }
-
-//  zeus::CRectangle rect;
-//  rect.size.x() = width / (480.f * CGraphics::GetViewportAspect());
-//  rect.size.y() = height / 480.f;
-//  rect.position.x() = 0.5f - rect.size.x() / 2.f;
-//  rect.position.y() = 0.5f - rect.size.y() / 2.f;
-//  aurora::gfx::queue_textured_quad(aurora::gfx::CameraFilterType::Blend, tex.GetTexture(),
-//                                   aurora::gfx::ZComp::Always, false, color, 1.f, rect, 0.f);
 
   // Progressive scan options omitted
 }
