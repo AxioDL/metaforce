@@ -541,8 +541,21 @@ var<storage, read> v_packed_uvs: Vec2Block;
     info.uniformSize += 32;
 
     vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>;"), locIdx++, i);
-    // TODO only perform lighting on CC0 when enabled
-    vtxXfrAttrs += fmt::format(FMT_STRING(R"""(
+
+    if (config.channelMatSrcs[i] == GX::SRC_VTX) {
+      if (config.denormalizedVertexAttributes) {
+        if (!info.usesVtxColor) {
+          vtxInAttrs += fmt::format(FMT_STRING("\n    , @location({}) in_clr: vec4<f32>"), locIdx);
+          vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.cc{} = in_clr;"), i);
+        }
+        fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
+      } else {
+        Log.report(logvisor::Fatal, FMT_STRING("SRC_VTX unsupported with normalized vertex attributes"));
+      }
+      info.usesVtxColor = true;
+    } else {
+      // TODO only perform lighting on CC0 when enabled
+      vtxXfrAttrs += fmt::format(FMT_STRING(R"""(
     {{
       var lighting = ubuf.lighting_ambient + ubuf.cc{0}_amb;
       for (var i = 0; i < {1}; i = i + 1) {{
@@ -563,19 +576,6 @@ var<storage, read> v_packed_uvs: Vec2Block;
       }}
       out.cc{0} = clamp(lighting, vec4<f32>(0.0), vec4<f32>(1.0));
     }})"""), i, MaxLights);
-
-    if (config.channelMatSrcs[i] == GX::SRC_VTX) {
-      if (config.denormalizedVertexAttributes) {
-        if (!info.usesVtxColor) {
-          vtxInAttrs += fmt::format(FMT_STRING("\n    , @location({}) in_clr: vec4<f32>"), locIdx);
-          vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.cc{} = in_clr;"), i);
-        }
-        fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
-      } else {
-        Log.report(logvisor::Fatal, FMT_STRING("SRC_VTX unsupported with normalized vertex attributes"));
-      }
-      info.usesVtxColor = true;
-    } else {
       fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
     }
   }
