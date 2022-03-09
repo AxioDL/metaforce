@@ -471,7 +471,7 @@ var<storage, read> v_packed_uvs: Vec2Block;
                       color_arg_reg(stage->colorPass.xc_d, idx, *stage, info), tev_op(stage->colorOp.x4_op),
                       tev_bias(stage->colorOp.x8_bias), tev_scale(stage->colorOp.xc_scale));
       if (stage->colorOp.x0_clamp) {
-        op = fmt::format(FMT_STRING("clamp({}, vec3<f32>(0.0), vec3<f32>(1.0))"), op);
+        op = fmt::format(FMT_STRING("clamp(vec3<f32>({}), vec3<f32>(0.0), vec3<f32>(1.0))"), op);
       }
       fragmentFn += fmt::format(FMT_STRING("\n    {0} = vec4<f32>({1}, {0}.a);"), outReg, op);
     }

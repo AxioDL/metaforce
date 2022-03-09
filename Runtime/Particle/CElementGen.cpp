@@ -1178,7 +1178,7 @@ void CElementGen::RenderLines() {
     constWidth = std::max(0.f, std::min(constWidth, 42.5f));
   }
 
-  m_lineRenderer->Reset();
+  // m_lineRenderer->Reset();
 
   for (auto& particle : x30_particles) {
     g_currentParticle = &particle;
@@ -1205,14 +1205,14 @@ void CElementGen::RenderLines() {
     zeus::CVector3f p2 = systemCameraMatrix * (particle.x2c_lineLengthOrSize * dVec + particle.x4_pos);
 
     if (widtConst) {
-      m_lineRenderer->AddVertex(p1, particle.x34_color, constWidth, {uvs.xMin, uvs.yMin});
-      m_lineRenderer->AddVertex(p2, particle.x34_color, constWidth, {uvs.xMax, uvs.yMax});
+      // m_lineRenderer->AddVertex(p1, particle.x34_color, constWidth, {uvs.xMin, uvs.yMin});
+      // m_lineRenderer->AddVertex(p2, particle.x34_color, constWidth, {uvs.xMax, uvs.yMax});
     } else if (widt) {
       float width = 1.f;
       widt->GetValue(0, width);
       width = std::max(0.f, std::min(width, 42.5f));
-      m_lineRenderer->AddVertex(p1, particle.x34_color, width, {uvs.xMin, uvs.yMin});
-      m_lineRenderer->AddVertex(p2, particle.x34_color, width, {uvs.xMax, uvs.yMax});
+      // m_lineRenderer->AddVertex(p1, particle.x34_color, width, {uvs.xMin, uvs.yMin});
+      // m_lineRenderer->AddVertex(p2, particle.x34_color, width, {uvs.xMax, uvs.yMax});
     }
   }
 
