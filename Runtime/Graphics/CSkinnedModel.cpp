@@ -36,8 +36,8 @@ void CSkinnedModel::AllocateStorage() {
   }
 }
 
-void CSkinnedModel::Calculate(const CPoseAsTransforms& pose, const std::optional<CVertexMorphEffect>& morphEffect,
-                              TConstVectorRef morphMagnitudes, SSkinningWorkspace* workspace) {
+void CSkinnedModel::Calculate(const CPoseAsTransforms& pose, CVertexMorphEffect* morphEffect,
+                              TConstVectorRef averagedNormals, SSkinningWorkspace* workspace) {
   if (workspace == nullptr) {
     if (x35_disableWorkspaces) {
       x10_skinRules->BuildAccumulatedTransforms(pose, *x1c_layoutInfo);
@@ -52,7 +52,7 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose, const std::optional
   x10_skinRules->BuildNormals(x4_model->GetNormals(), &workspace->m_normalWorkspace);
 
   if (morphEffect) {
-    morphEffect->MorphVertices(*workspace, morphMagnitudes, x10_skinRules, pose);
+    morphEffect->MorphVertices(*workspace, averagedNormals, x10_skinRules, pose, x10_skinRules->GetVertexCount());
   }
   if (g_PointGenFunc != nullptr) {
     g_PointGenFunc(*workspace);
@@ -93,13 +93,13 @@ void CSkinnedModel::DoDrawCallback(const FCustomDraw& func) const {
   }
 }
 
-CMorphableSkinnedModel::CMorphableSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules,
-                                               CAssetId layoutInfo)
+CSkinnedModelWithAvgNormals::CSkinnedModelWithAvgNormals(IObjectStore& store, CAssetId model, CAssetId skinRules,
+                                                         CAssetId layoutInfo)
 : CSkinnedModel(store, model, skinRules, layoutInfo) {
   const auto vertexCount = GetSkinRules()->GetVertexCount();
   const auto& modelPositions = *GetModel()->GetPositions();
 
-  x40_morphMagnitudes.resize(vertexCount);
+  x40_averagedNormals.resize(vertexCount);
   std::vector<std::pair<zeus::CVector3f, std::list<u32>>> vertMap;
   for (int vertIdx = 0; vertIdx < vertexCount; ++vertIdx) {
     const auto curPos = modelPositions[vertIdx];
@@ -123,7 +123,7 @@ CMorphableSkinnedModel::CMorphableSkinnedModel(IObjectStore& store, CAssetId mod
     }
     averagedNormal.normalize();
     for (const auto idx : idxs) {
-      x40_morphMagnitudes[idx] = averagedNormal;
+      x40_averagedNormals[idx] = averagedNormal;
     }
   }
 }

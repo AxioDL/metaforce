@@ -643,7 +643,7 @@ void COmegaPirate::Render(CStateManager& mgr) {
 
   if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay && xa2c_skeletonAlpha > 0.f) {
     const CModelFlags flags{5, 0, 3, zeus::CColor{1.f, xa2c_skeletonAlpha}};
-    animData->Render(x9f0_skeletonModel, flags, std::nullopt, nullptr);
+    animData->Render(x9f0_skeletonModel, flags, nullptr, nullptr);
   }
   if (x9a0_visible) {
     bool isXRay = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay;
@@ -651,7 +651,7 @@ void COmegaPirate::Render(CStateManager& mgr) {
       g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
       const CModelFlags flags{5, 0, 1, zeus::CColor{1.f, 0.2f}};
       auto& model = *animData->GetModelData().GetObj();
-      animData->Render(model, flags, std::nullopt, nullptr);
+      animData->Render(model, flags, nullptr, nullptr);
     }
     CPatterned::Render(mgr);
     if (isXRay) {

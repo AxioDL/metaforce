@@ -68,7 +68,7 @@ class CCharAnimTime;
 class CCharLayoutInfo;
 class CInt32POINode;
 class CModel;
-class CMorphableSkinnedModel;
+class CSkinnedModelWithAvgNormals;
 class CParticlePOINode;
 class CPrimitive;
 class CRandom16;
@@ -102,7 +102,7 @@ private:
   CCharacterInfo xc_charInfo;
   TLockedToken<CCharLayoutInfo> xcc_layoutData;
   TLockedToken<CSkinnedModel> xd8_modelData;
-  TLockedToken<CMorphableSkinnedModel> xe4_iceModelData;
+  TLockedToken<CSkinnedModelWithAvgNormals> xe4_iceModelData;
   std::shared_ptr<CSkinnedModel> xf4_xrayModel;
   std::shared_ptr<CSkinnedModel> xf8_infraModel;
   std::shared_ptr<CAnimSysContext> xfc_animCtx;
@@ -147,9 +147,9 @@ private:
 public:
   CAnimData(CAssetId, const CCharacterInfo& character, int defaultAnim, int charIdx, bool loop,
             TLockedToken<CCharLayoutInfo> layout, TToken<CSkinnedModel> model,
-            const std::optional<TToken<CMorphableSkinnedModel>>& iceModel, const std::weak_ptr<CAnimSysContext>& ctx,
-            std::shared_ptr<CAnimationManager> animMgr, std::shared_ptr<CTransitionManager> transMgr,
-            TLockedToken<CCharacterFactory> charFactory);
+            const std::optional<TToken<CSkinnedModelWithAvgNormals>>& iceModel,
+            const std::weak_ptr<CAnimSysContext>& ctx, std::shared_ptr<CAnimationManager> animMgr,
+            std::shared_ptr<CTransitionManager> transMgr, TLockedToken<CCharacterFactory> charFactory);
 
   void SetParticleEffectState(std::string_view effectName, bool active, CStateManager& mgr);
   void InitializeEffects(CStateManager& mgr, TAreaId aId, const zeus::CVector3f& scale);
@@ -194,10 +194,9 @@ public:
   std::shared_ptr<CAnimationManager> GetAnimationManager() const;
   void RecalcPoseBuilder(const CCharAnimTime* time);
   void RenderAuxiliary(const zeus::CFrustum& frustum) const;
-  void Render(CSkinnedModel& model, const CModelFlags& drawFlags, const std::optional<CVertexMorphEffect>& morphEffect,
-              TVectorRef morphMagnitudes);
-  void SetupRender(CSkinnedModel& model, const std::optional<CVertexMorphEffect>& morphEffect,
-                   TVectorRef morphMagnitudes);
+  void Render(CSkinnedModel& model, const CModelFlags& drawFlags, CVertexMorphEffect* morphEffect,
+              TConstVectorRef averagedNormals);
+  void SetupRender(CSkinnedModel& model, CVertexMorphEffect* morphEffect, TConstVectorRef averagedNormals);
   static void DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags);
   void PreRender();
   void BuildPose();
@@ -218,8 +217,8 @@ public:
   TLockedToken<CSkinnedModel>& GetModelData() { return xd8_modelData; }
   const TLockedToken<CSkinnedModel>& GetModelData() const { return xd8_modelData; }
 
-  static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose,
-                               const std::optional<CVertexMorphEffect>& morphEffect, TVectorRef morphMagnitudes);
+  static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, CVertexMorphEffect* morphEffect,
+                               TConstVectorRef averagedNormals);
   void AdvanceParticles(const zeus::CTransform& xf, float dt, const zeus::CVector3f&, CStateManager& stateMgr);
   float GetAverageVelocity(int animIn) const;
   void ResetPOILists();
@@ -243,8 +242,8 @@ public:
 
   s32 GetCharacterIndex() const { return x204_charIdx; }
   u16 GetDefaultAnimation() const { return x208_defaultAnim; }
-  TLockedToken<CMorphableSkinnedModel>& GetIceModel() { return xe4_iceModelData; }
-  const TLockedToken<CMorphableSkinnedModel>& GetIceModel() const { return xe4_iceModelData; }
+  TLockedToken<CSkinnedModelWithAvgNormals>& GetIceModel() { return xe4_iceModelData; }
+  const TLockedToken<CSkinnedModelWithAvgNormals>& GetIceModel() const { return xe4_iceModelData; }
   void SetParticleLightIdx(s32 idx) { x21c_particleLightIdx = idx; }
 
   void MarkPoseDirty() { x220_30_poseBuilt = false; }

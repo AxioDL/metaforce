@@ -293,7 +293,7 @@ void CModelData::RenderThermal(const zeus::CTransform& xf, const zeus::CColor& m
 
   if (x10_animData) {
     CSkinnedModel& model = PickAnimatedModel(EWhichModel::ThermalHot);
-    x10_animData->SetupRender(model, {}, nullptr);
+    x10_animData->SetupRender(model, nullptr, nullptr);
     ThermalDraw(mulColor, addColor, flags);
   } else {
     auto& model = PickStaticModel(EWhichModel::ThermalHot);
@@ -342,7 +342,7 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf, const CAc
   }
 
   if (x10_animData) {
-    x10_animData->Render(PickAnimatedModel(which), drawFlags, {}, nullptr);
+    x10_animData->Render(PickAnimatedModel(which), drawFlags, nullptr, nullptr);
   } else {
     // TODO supposed to be optional_object?
     if (x1c_normalModel) {
@@ -387,7 +387,7 @@ void CModelData::MultiLightingDraw(EWhichModel which, const zeus::CTransform& xf
   CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
   if (x10_animData) {
     auto& skinnedModel = PickAnimatedModel(which);
-    x10_animData->SetupRender(skinnedModel, {}, nullptr);
+    x10_animData->SetupRender(skinnedModel, nullptr, nullptr);
     model = skinnedModel.GetModel().GetObj();
     skinnedModel.DoDrawCallback(callback);
   } else {
@@ -407,7 +407,7 @@ void CModelData::MultiPassDraw(EWhichModel which, const zeus::CTransform& xf, co
   }
   if (x10_animData) {
     auto& skinnedModel = PickAnimatedModel(which);
-    x10_animData->SetupRender(skinnedModel, {}, nullptr);
+    x10_animData->SetupRender(skinnedModel, nullptr, nullptr);
     auto& model = *skinnedModel.GetModel();
     skinnedModel.DoDrawCallback([&](auto positions, auto normals) {
       for (int i = 0; i < count; ++i) {

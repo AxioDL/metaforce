@@ -41,7 +41,7 @@ void CAnimData::InitializeCache() {}
 
 CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAnim, int charIdx, bool loop,
                      TLockedToken<CCharLayoutInfo> layout, TToken<CSkinnedModel> model,
-                     const std::optional<TToken<CMorphableSkinnedModel>>& iceModel,
+                     const std::optional<TToken<CSkinnedModelWithAvgNormals>>& iceModel,
                      const std::weak_ptr<CAnimSysContext>& ctx, std::shared_ptr<CAnimationManager> animMgr,
                      std::shared_ptr<CTransitionManager> transMgr, TLockedToken<CCharacterFactory> charFactory)
 : x0_charFactory(charFactory)
@@ -543,20 +543,19 @@ void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time) {
 
 void CAnimData::RenderAuxiliary(const zeus::CFrustum& frustum) const { x120_particleDB.AddToRendererClipped(frustum); }
 
-void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags,
-                       const std::optional<CVertexMorphEffect>& morphEffect, TVectorRef morphMagnitudes) {
-  SetupRender(model, morphEffect, morphMagnitudes);
+void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags, CVertexMorphEffect* morphEffect,
+                       TConstVectorRef averagedNormals) {
+  SetupRender(model, morphEffect, averagedNormals);
   DrawSkinnedModel(model, drawFlags);
 }
 
-void CAnimData::SetupRender(CSkinnedModel& model, const std::optional<CVertexMorphEffect>& morphEffect,
-                            TVectorRef morphMagnitudes) {
+void CAnimData::SetupRender(CSkinnedModel& model, CVertexMorphEffect* morphEffect, TConstVectorRef averagedNormals) {
   OPTICK_EVENT();
   if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildNoScale(x224_pose);
     x220_30_poseBuilt = true;
   }
-  PoseSkinnedModel(model, x224_pose, morphEffect, morphMagnitudes);
+  PoseSkinnedModel(model, x224_pose, morphEffect, averagedNormals);
 }
 
 void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) {
@@ -805,9 +804,9 @@ void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedTo
   xf8_infraModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo());
 }
 
-void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose,
-                                 const std::optional<CVertexMorphEffect>& morphEffect, TVectorRef morphMagnitudes) {
-  model.Calculate(pose, morphEffect, morphMagnitudes, nullptr);
+void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, CVertexMorphEffect* morphEffect,
+                                 TConstVectorRef averagedNormals) {
+  model.Calculate(pose, morphEffect, averagedNormals, nullptr);
 }
 
 void CAnimData::AdvanceParticles(const zeus::CTransform& xf, float dt, const zeus::CVector3f& vec,

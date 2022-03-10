@@ -27,7 +27,7 @@ CFactoryFnReturn CCharacterFactory::CDummyFactory::Build(const SObjectTag& tag, 
     return TToken<CSkinnedModel>::GetIObjObjectFor(std::make_unique<CSkinnedModel>(
         *g_SimplePool, charInfo.GetModelId(), charInfo.GetSkinRulesId(), charInfo.GetCharLayoutInfoId()));
   case 1:
-    return TToken<CSkinnedModel>::GetIObjObjectFor(std::make_unique<CMorphableSkinnedModel>(
+    return TToken<CSkinnedModel>::GetIObjObjectFor(std::make_unique<CSkinnedModelWithAvgNormals>(
         *g_SimplePool, charInfo.GetIceModelId(), charInfo.GetIceSkinRulesId(), charInfo.GetCharLayoutInfoId()));
   default:
     break;
@@ -82,7 +82,7 @@ std::unique_ptr<CAnimData> CCharacterFactory::CreateCharacter(int charIdx, bool 
 
   TToken<CSkinnedModel> skinnedModel = x70_cacheResPool.GetObj({FourCC(0u), charInfo.GetModelId()}, charParm);
 
-  std::optional<TToken<CMorphableSkinnedModel>> iceModel;
+  std::optional<TToken<CSkinnedModelWithAvgNormals>> iceModel;
   if (charInfo.GetIceModelId().IsValid() && charInfo.GetIceSkinRulesId().IsValid()) {
     iceModel.emplace(x70_cacheResPool.GetObj({FourCC(1u), charInfo.GetIceModelId()}, charParm));
   }

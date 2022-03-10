@@ -60,8 +60,11 @@ public:
   const TLockedToken<CCharLayoutInfo>& GetLayoutInfo() const { return x1c_layoutInfo; }
 
   void AllocateStorage();
-  void Calculate(const CPoseAsTransforms& pose, const std::optional<CVertexMorphEffect>& morphEffect,
-                 TConstVectorRef averagedNormals, SSkinningWorkspace* workspace);
+  // Metaforce addition: Originally morphEffect is rstl::optional_object<CVertexMorphEffect>*
+  // This prevents constructing it as a reference to the held pointer in CPatterned, thus in
+  // retail it's copied in every invocation of RenderIceModelWithFlags.
+  void Calculate(const CPoseAsTransforms& pose, CVertexMorphEffect* morphEffect, TConstVectorRef averagedNormals,
+                 SSkinningWorkspace* workspace);
   void Draw(TConstVectorRef verts, TConstVectorRef normals, const CModelFlags& drawFlags);
   void Draw(const CModelFlags& drawFlags);
   void DoDrawCallback(const FCustomDraw& func) const;
@@ -71,13 +74,12 @@ public:
   static FPointGenerator g_PointGenFunc;
 };
 
-class CMorphableSkinnedModel : public CSkinnedModel {
-  std::vector<zeus::CVector3f> x40_morphMagnitudes; // was rstl::auto_ptr<float[]>
+class CSkinnedModelWithAvgNormals : public CSkinnedModel {
+  std::vector<zeus::CVector3f> x40_averagedNormals; // was rstl::auto_ptr<float[]>
 
 public:
-  CMorphableSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo);
-  TConstVectorRef GetMorphMagnitudes() const { return &x40_morphMagnitudes; }
-  TVectorRef GetMorphMagnitudes() { return &x40_morphMagnitudes; }
+  CSkinnedModelWithAvgNormals(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo);
+  TConstVectorRef GetAveragedNormals() const { return &x40_averagedNormals; }
 };
 
 } // namespace metaforce

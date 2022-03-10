@@ -123,7 +123,7 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     if (HasModelData() && GetModelData()->HasAnimData() && GetModelData()->GetAnimationData()->GetIceModel()) {
       const auto& baseAABB = GetBaseBoundingBox();
       float diagExtent = (baseAABB.max - baseAABB.min).magnitude() * 0.5f;
-      x510_vertexMorph = std::make_shared<CVertexMorphEffect>(zeus::skRight, zeus::CVector3f{}, diagExtent, 0.f,
+      x510_vertexMorph = std::make_shared<CVertexMorphEffect>(zeus::skRight, zeus::CVector3f{}, 0.f, diagExtent,
                                                               *mgr.GetActiveRandom());
     }
 
@@ -1697,8 +1697,8 @@ void CPatterned::RenderIceModelWithFlags(const CModelFlags& flags) const {
   CModelFlags useFlags = flags;
   useFlags.x1_matSetIdx = 0;
   CAnimData* animData = x64_modelData->GetAnimationData();
-  if (CMorphableSkinnedModel* iceModel = animData->GetIceModel().GetObj()) {
-    animData->Render(*iceModel, useFlags, {*x510_vertexMorph}, iceModel->GetMorphMagnitudes());
+  if (CSkinnedModelWithAvgNormals* iceModel = animData->GetIceModel().GetObj()) {
+    animData->Render(*iceModel, useFlags, x510_vertexMorph.get(), iceModel->GetAveragedNormals());
   }
 }
 
