@@ -124,10 +124,11 @@ void CGuiFrame::Update(float dt) { xc_headWidget->Update(dt); }
 void CGuiFrame::Draw(const CGuiWidgetDrawParms& parms) const {
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CGuiFrame::Draw FRME_{}"), x0_id).c_str(), zeus::skMagenta);
   CGraphics::SetCullMode(ERglCullMode::None);
+  // CGraphics::ResetGfxStates();
   CGraphics::SetAmbientColor(zeus::skWhite);
   DisableLights();
   x14_camera->Draw(parms);
-  // Set one-stage modulate
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
   CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
                           ERglLogicOp::Clear);
 

@@ -469,7 +469,7 @@ void CCubeMaterial::HandleTransparency(u32& finalTevCount, u32& finalKColorCount
     // GXSetTevOrder(finalTevCount, 255, 255, 255);
     aurora::gfx::set_tev_k_color(static_cast<GX::TevKColorID>(finalKColorCount), modelFlags.x4_color);
     // GXSetTevKColor(finalKColorCount, modelFlags.x4_color);
-    aurora::gfx::set_tev_k_color_sel(static_cast<GX::TevStageID>(finalKColorCount),
+    aurora::gfx::set_tev_k_color_sel(static_cast<GX::TevStageID>(finalTevCount),
                                      static_cast<GX::TevKColorSel>(finalKColorCount + GX::TEV_KCSEL_K0));
     // GXSetTevKColorSel(finalTevCount, finalKColorCount+12);
     aurora::gfx::set_tev_k_alpha_sel(static_cast<GX::TevStageID>(finalTevCount),
