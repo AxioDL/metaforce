@@ -631,27 +631,27 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
   CGlobalRandom gr(x27c_randState);
 
   SChildGeneratorDesc& icts = desc->x8c_x78_ICTS;
-  if (icts.m_found && x84_prevFrame != x74_curFrame && x2a0_CSSD == x74_curFrame) {
+  if (icts && x84_prevFrame != x74_curFrame && x2a0_CSSD == x74_curFrame) {
     int ncsyVal = 1;
     if (CIntElement* ncsy = desc->x9c_x88_NCSY.get())
       ncsy->GetValue(x74_curFrame, ncsyVal);
 
-    CGenDescription* ictsDesc = icts.m_token.GetObj();
+    CGenDescription* ictsDesc = icts.GetObj();
     if (!(x26d_27_enableOPTS && ictsDesc->x45_31_x32_25_OPTS)) {
       x290_activePartChildren.reserve(ncsyVal + x290_activePartChildren.size());
       for (int i = 0; i < ncsyVal; ++i) {
-        std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(icts.m_token);
+        std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(*icts);
         x290_activePartChildren.emplace_back(std::move(chGen));
       }
     }
   }
 
   SChildGeneratorDesc& iits = desc->xb8_xa4_IITS;
-  if (iits.m_found && x84_prevFrame != x74_curFrame && x74_curFrame < x268_PSLT && x88_particleEmission == 1 &&
+  if (iits && x84_prevFrame != x74_curFrame && x74_curFrame < x268_PSLT && x88_particleEmission == 1 &&
       x74_curFrame >= x2a4_SISY && ((x74_curFrame - x2a4_SISY) % x2a8_PISY) == 0) {
-    CGenDescription* iitsDesc = iits.m_token.GetObj();
+    CGenDescription* iitsDesc = iits.GetObj();
     if (!(x26d_27_enableOPTS && iitsDesc->x45_31_x32_25_OPTS)) {
-      std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(iits.m_token);
+      std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(*iits);
       x290_activePartChildren.emplace_back(std::move(chGen));
     }
   }
@@ -678,24 +678,24 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
   }
 
   SChildGeneratorDesc& idts = desc->xa4_x90_IDTS;
-  if (idts.m_found && x74_curFrame == x268_PSLT && x84_prevFrame != x74_curFrame) {
+  if (idts && x74_curFrame == x268_PSLT && x84_prevFrame != x74_curFrame) {
     int ndsyVal = 1;
     if (CIntElement* ndsy = desc->xb4_xa0_NDSY.get())
       ndsy->GetValue(0, ndsyVal);
 
-    CGenDescription* idtsDesc = idts.m_token.GetObj();
+    CGenDescription* idtsDesc = idts.GetObj();
     if (!(x26d_27_enableOPTS && idtsDesc->x45_31_x32_25_OPTS)) {
       x290_activePartChildren.reserve(ndsyVal + x290_activePartChildren.size());
       for (int i = 0; i < ndsyVal; ++i) {
-        std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(idts.m_token);
+        std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(*idts);
         x290_activePartChildren.emplace_back(std::move(chGen));
       }
     }
   }
 
   SSwooshGeneratorDesc& sswh = desc->xd4_xc0_SSWH;
-  if (sswh.m_found && x84_prevFrame != x74_curFrame && x74_curFrame == x2ac_SSSD) {
-    std::unique_ptr<CParticleGen> sswhGen = std::make_unique<CParticleSwoosh>(sswh.m_token, 0);
+  if (sswh && x84_prevFrame != x74_curFrame && x74_curFrame == x2ac_SSSD) {
+    std::unique_ptr<CParticleGen> sswhGen = std::make_unique<CParticleSwoosh>(*sswh, 0);
     sswhGen->SetGlobalTranslation(xe8_globalTranslation);
     sswhGen->SetGlobalScale(x100_globalScale);
     sswhGen->SetLocalScale(x16c_localScale);
@@ -706,8 +706,8 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
   }
 
   SElectricGeneratorDesc& selc = desc->xec_xd8_SELC;
-  if (selc.m_found && x84_prevFrame != x74_curFrame && x74_curFrame == x2bc_SESD) {
-    std::unique_ptr<CParticleGen> selcGen = std::make_unique<CParticleElectric>(selc.m_token);
+  if (selc && x84_prevFrame != x74_curFrame && x74_curFrame == x2bc_SESD) {
+    std::unique_ptr<CParticleGen> selcGen = std::make_unique<CParticleElectric>(*selc);
     selcGen->SetGlobalTranslation(xe8_globalTranslation);
     selcGen->SetGlobalScale(x100_globalScale);
     selcGen->SetLocalScale(x16c_localScale);
@@ -862,7 +862,7 @@ void CElementGen::Render(const CActorLights* actorLights) {
 
   if (x30_particles.size()) {
     SParticleModel& pmdl = desc->x5c_x48_PMDL;
-    if (pmdl.m_found || desc->x45_24_x31_26_PMUS)
+    if (pmdl || desc->x45_24_x31_26_PMUS)
       RenderModels(actorLights);
 
     if (x26c_31_LINE)
@@ -1076,7 +1076,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
         break;
       }
     } else {
-      CModel* model = desc->x5c_x48_PMDL.m_token.GetObj();
+      CModel* model = desc->x5c_x48_PMDL.GetObj();
       if (actorLights)
         actorLights->ActivateLights();
       if (g_subtractBlend) {

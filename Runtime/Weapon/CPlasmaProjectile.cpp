@@ -252,12 +252,11 @@ void CPlasmaProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
   switch (msg) {
   case EScriptObjectMessage::Registered: {
     xe6_27_thermalVisorFlags = 2;
-    const SChildGeneratorDesc& apsm = x170_projectile.GetWeaponDescription()->x34_APSM;
-    if (apsm)
-      x520_weaponGen = std::make_unique<CElementGen>(apsm.m_token);
+    const auto& weaponDesc = x170_projectile.GetWeaponDescription();
+    if (weaponDesc->x34_APSM)
+      x520_weaponGen = std::make_unique<CElementGen>(*weaponDesc->x34_APSM);
     if (x520_weaponGen && x520_weaponGen->SystemHasLight())
-      CreatePlasmaLights(x170_projectile.GetWeaponDescription().GetObjectTag()->id.Value(), x520_weaponGen->GetLight(),
-                         mgr);
+      CreatePlasmaLights(weaponDesc.GetObjectTag()->id.Value(), x520_weaponGen->GetLight(), mgr);
     else
       x520_weaponGen.reset();
     if (x548_28_drawOwnerFirst)

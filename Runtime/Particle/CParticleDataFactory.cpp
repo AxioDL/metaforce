@@ -37,13 +37,13 @@ SParticleModel CParticleDataFactory::GetModel(CInputStream& in, CSimplePool* res
   CAssetId id = in.Get<CAssetId>();
   if (!id.IsValid())
     return {};
-  return {resPool->GetObj({FOURCC('CMDL'), id}), true};
+  return resPool->GetObj({FOURCC('CMDL'), id});
 }
 
 SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(CAssetId res, CSimplePool* resPool,
                                                                 const std::vector<CAssetId>& tracker) {
   if (std::count(tracker.cbegin(), tracker.cend(), res) == 0)
-    return {resPool->GetObj({FOURCC('PART'), res}), true};
+    return resPool->GetObj({FOURCC('PART'), res});
   return {};
 }
 
@@ -65,7 +65,7 @@ SSwooshGeneratorDesc CParticleDataFactory::GetSwooshGeneratorDesc(CInputStream& 
   CAssetId id = in.Get<CAssetId>();
   if (!id.IsValid())
     return {};
-  return {resPool->GetObj({FOURCC('SWHC'), id}), true};
+  return resPool->GetObj({FOURCC('SWHC'), id});
 }
 
 SElectricGeneratorDesc CParticleDataFactory::GetElectricGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
@@ -75,7 +75,7 @@ SElectricGeneratorDesc CParticleDataFactory::GetElectricGeneratorDesc(CInputStre
   CAssetId id = in.Get<CAssetId>();
   if (!id.IsValid())
     return {};
-  return {resPool->GetObj({FOURCC('ELSC'), id}), true};
+  return resPool->GetObj({FOURCC('ELSC'), id});
 }
 
 std::unique_ptr<CUVElement> CParticleDataFactory::GetTextureElement(CInputStream& in, CSimplePool* resPool) {
@@ -1012,20 +1012,11 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
 }
 
 void CParticleDataFactory::LoadGPSMTokens(CGenDescription* desc) {
-  if (desc->x5c_x48_PMDL.m_found)
-    desc->x5c_x48_PMDL.m_model = desc->x5c_x48_PMDL.m_token.GetObj();
-
-  if (desc->x8c_x78_ICTS.m_found)
-    desc->x8c_x78_ICTS.m_gen = desc->x8c_x78_ICTS.m_token.GetObj();
-
-  if (desc->xa4_x90_IDTS.m_found)
-    desc->xa4_x90_IDTS.m_gen = desc->xa4_x90_IDTS.m_token.GetObj();
-
-  if (desc->xb8_xa4_IITS.m_found)
-    desc->xb8_xa4_IITS.m_gen = desc->xb8_xa4_IITS.m_token.GetObj();
-
-  if (desc->xd4_xc0_SSWH.m_found)
-    desc->xd4_xc0_SSWH.m_swoosh = desc->xd4_xc0_SSWH.m_token.GetObj();
+  desc->x5c_x48_PMDL.Load();
+  desc->x8c_x78_ICTS.Load();
+  desc->xa4_x90_IDTS.Load();
+  desc->xb8_xa4_IITS.Load();
+  desc->xd4_xc0_SSWH.Load();
 }
 
 CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,

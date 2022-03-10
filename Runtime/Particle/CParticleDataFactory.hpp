@@ -24,41 +24,29 @@ class CUVElement;
 class CVParamTransfer;
 class CVectorElement;
 
-struct SParticleModel {
-  TLockedToken<CModel> m_token;
-  bool m_found = false;
-  CModel* m_model = nullptr;
-  SParticleModel() = default;
-  SParticleModel(CToken&& tok, bool found) : m_token(std::move(tok)), m_found(found) {}
-  explicit operator bool() const { return m_found; }
+template <typename T>
+struct STokenDesc {
+  std::optional<TLockedToken<T>> x0_res;
+  STokenDesc() = default;
+  STokenDesc(CToken&& tok) : x0_res(std::move(tok)) {}
+  void Load() {
+    if (x0_res) {
+      x0_res->GetObj();
+    }
+  }
+  explicit operator bool() const { return x0_res.has_value(); }
+  auto* GetObj() { return x0_res ? x0_res->GetObj() : nullptr; }
+  const auto* GetObj() const { return x0_res ? x0_res->GetObj() : nullptr; }
+  auto& operator*() { return *x0_res; }
+  const auto& operator*() const { return *x0_res; }
+  auto& operator->() { return *x0_res; }
+  const auto& operator->() const { return *x0_res; }
 };
 
-struct SChildGeneratorDesc {
-  TLockedToken<CGenDescription> m_token;
-  bool m_found = false;
-  CGenDescription* m_gen = nullptr;
-  SChildGeneratorDesc() = default;
-  SChildGeneratorDesc(CToken&& tok, bool found) : m_token(std::move(tok)), m_found(found) {}
-  explicit operator bool() const { return m_found; }
-};
-
-struct SSwooshGeneratorDesc {
-  TLockedToken<CSwooshDescription> m_token;
-  bool m_found = false;
-  CSwooshDescription* m_swoosh = nullptr;
-  SSwooshGeneratorDesc() = default;
-  SSwooshGeneratorDesc(CToken&& tok, bool found) : m_token(std::move(tok)), m_found(found) {}
-  explicit operator bool() const { return m_found; }
-};
-
-struct SElectricGeneratorDesc {
-  TLockedToken<CElectricDescription> m_token;
-  bool m_found = false;
-  CElectricDescription* m_electric = nullptr;
-  SElectricGeneratorDesc() = default;
-  SElectricGeneratorDesc(CToken&& tok, bool found) : m_token(std::move(tok)), m_found(found) {}
-  explicit operator bool() const { return m_found; }
-};
+using SParticleModel = STokenDesc<CModel>;
+using SChildGeneratorDesc = STokenDesc<CGenDescription>;
+using SSwooshGeneratorDesc = STokenDesc<CSwooshDescription>;
+using SElectricGeneratorDesc = STokenDesc<CElectricDescription>;
 
 class CParticleDataFactory {
   friend class CDecalDataFactory;

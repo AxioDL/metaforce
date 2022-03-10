@@ -212,14 +212,14 @@ void CDecal::RenderMdl() {
 
   if (desc.x5c_24_DMAB) {
     const CModelFlags flags(7, 0, 1, color);
-    desc.x38_DMDL.m_token->Draw(flags);
+    desc.x38_DMDL->Draw(flags);
   } else {
     if (color.a() == 1.f) {
       constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
-      desc.x38_DMDL.m_token->Draw(flags);
+      desc.x38_DMDL->Draw(flags);
     } else {
       const CModelFlags flags(5, 0, 1, color);
-      desc.x38_DMDL.m_token->Draw(flags);
+      desc.x38_DMDL->Draw(flags);
     }
   }
 }

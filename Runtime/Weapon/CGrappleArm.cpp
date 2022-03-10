@@ -496,7 +496,7 @@ void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransfo
   // g_Renderer->SetAmbientColor(zeus::skWhite);
   CSkinnedModel& model = *x50_grappleArmSkeletonModel->GetAnimationData()->GetModelData();
   // model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
-  x0_grappleArmModel->GetAnimationData()->Render(model, flags, std::nullopt, nullptr);
+  x0_grappleArmModel->GetAnimationData()->Render(model, flags, nullptr, nullptr);
   // g_Renderer->SetAmbientColor(zeus::skWhite);
   // CGraphics::DisableAllLights();
 }

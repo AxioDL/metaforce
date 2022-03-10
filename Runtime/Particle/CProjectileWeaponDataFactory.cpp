@@ -124,7 +124,7 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
         break;
       CAssetId id(in);
       if (id.IsValid())
-        desc->x94_COLR = {resPool->GetObj({FOURCC('CRSC'), id}), true};
+        desc->x94_COLR = resPool->GetObj({FOURCC('CRSC'), id});
       break;
     }
     case SBIG('EWTR'):

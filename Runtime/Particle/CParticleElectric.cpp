@@ -45,7 +45,7 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
   if (desc->x40_SSWH) {
     x450_27_haveSSWH = true;
     for (int i = 0; i < x154_SCNT; ++i) {
-      x1e0_swooshGenerators.emplace_back(std::make_unique<CParticleSwoosh>(desc->x40_SSWH.m_token, x150_SSEG));
+      x1e0_swooshGenerators.emplace_back(std::make_unique<CParticleSwoosh>(*desc->x40_SSWH, x150_SSEG));
       x1e0_swooshGenerators.back()->DoElectricWarmup();
     }
   }
@@ -59,7 +59,7 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
     x450_25_haveGPSM = true;
     x400_gpsmGenerators.reserve(x154_SCNT);
     for (int i = 0; i < x154_SCNT; ++i) {
-      x400_gpsmGenerators.emplace_back(std::make_unique<CElementGen>(desc->x50_GPSM.m_token));
+      x400_gpsmGenerators.emplace_back(std::make_unique<CElementGen>(*desc->x50_GPSM));
       x400_gpsmGenerators.back()->SetParticleEmission(false);
     }
   }
@@ -68,7 +68,7 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
     x450_26_haveEPSM = true;
     x410_epsmGenerators.reserve(x154_SCNT);
     for (int i = 0; i < x154_SCNT; ++i) {
-      x410_epsmGenerators.emplace_back(std::make_unique<CElementGen>(desc->x60_EPSM.m_token));
+      x410_epsmGenerators.emplace_back(std::make_unique<CElementGen>(*desc->x60_EPSM));
       x410_epsmGenerators.back()->SetParticleEmission(false);
     }
   }

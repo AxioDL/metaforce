@@ -116,12 +116,9 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInput
 }
 
 void CParticleElectricDataFactory::LoadELSMTokens(CElectricDescription* desc) {
-  if (desc->x40_SSWH.m_found)
-    desc->x40_SSWH.m_swoosh = desc->x40_SSWH.m_token.GetObj();
-  if (desc->x50_GPSM.m_found)
-    desc->x50_GPSM.m_gen = desc->x50_GPSM.m_token.GetObj();
-  if (desc->x60_EPSM.m_found)
-    desc->x60_EPSM.m_gen = desc->x60_EPSM.m_token.GetObj();
+  desc->x40_SSWH.Load();
+  desc->x50_GPSM.Load();
+  desc->x60_EPSM.Load();
 }
 
 CFactoryFnReturn FParticleElectricDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
