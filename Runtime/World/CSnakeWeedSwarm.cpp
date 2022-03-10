@@ -416,7 +416,7 @@ void CSnakeWeedSwarm::RenderBoid(u32 idx, const CBoid& boid, u32& posesToBuild) 
   if (posesToBuild & 1 << modelIdx) {
     posesToBuild &= ~(1 << modelIdx);
     animData.BuildPose();
-    model.Calculate(animData.GetPose(), std::nullopt, nullptr);
+    model.Calculate(animData.GetPose(), std::nullopt, nullptr, nullptr); // TODO x178_workspaces[modelIdx]
   }
   CGraphics::SetModelMatrix(
       zeus::CTransform::Translate(boid.GetPosition() - zeus::CVector3f(0.f, 0.f, boid.GetZOffset())) *

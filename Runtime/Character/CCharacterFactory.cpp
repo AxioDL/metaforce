@@ -22,7 +22,7 @@ CFactoryFnReturn CCharacterFactory::CDummyFactory::Build(const SObjectTag& tag, 
 
   const CCharacterInfo& charInfo = *params.GetOwnedObj<const CCharacterInfo*>();
 
-  switch (tag.type.toUint32() & 0x1) {
+  switch (tag.type.toUint32()) {
   case 0:
     return TToken<CSkinnedModel>::GetIObjObjectFor(std::make_unique<CSkinnedModel>(
         *g_SimplePool, charInfo.GetModelId(), charInfo.GetSkinRulesId(), charInfo.GetCharLayoutInfoId()));

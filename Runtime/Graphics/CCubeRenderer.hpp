@@ -180,9 +180,9 @@ public:
   void CacheReflection(TReflectionCallback cb, void* ctx, bool clearAfter) override;
   void DrawSpaceWarp(const zeus::CVector3f& pt, float strength) override;
   void DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,
-                        TVectorRef positions, TVectorRef normals, const CModelFlags& flags) override;
-  void DrawModelDisintegrate(const CModel& model, const CTexture& tex, const zeus::CColor& color, TVectorRef positions,
-                             TVectorRef normals) override;
+                        TConstVectorRef positions, TConstVectorRef normals, const CModelFlags& flags) override;
+  void DrawModelDisintegrate(const CModel& model, const CTexture& tex, const zeus::CColor& color,
+                             TConstVectorRef positions, TConstVectorRef normals) override;
   void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) override;
   void SetWireframeFlags(s32 flags) override;
   void SetWorldFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) override;

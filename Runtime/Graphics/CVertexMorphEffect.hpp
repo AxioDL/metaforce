@@ -5,6 +5,7 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/Character/CPoseAsTransforms.hpp"
+#include "Runtime/Graphics/CCubeModel.hpp"
 
 #include <zeus/CUnitVector.hpp>
 #include <zeus/CVector3f.hpp>
@@ -12,6 +13,7 @@
 namespace metaforce {
 class CRandom16;
 class CSkinRules;
+struct SSkinningWorkspace;
 
 class CVertexMorphEffect {
   zeus::CUnitVector3f x0_;
@@ -28,7 +30,7 @@ class CVertexMorphEffect {
 public:
   CVertexMorphEffect(const zeus::CUnitVector3f& v1, const zeus::CVector3f& v2, float diagExtent, float f2,
                      CRandom16& random);
-  void MorphVertices(std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn, const float* magnitudes,
+  void MorphVertices(SSkinningWorkspace& workspace, TConstVectorRef magnitudes,
                      const TLockedToken<CSkinRules>& skinRules, const CPoseAsTransforms& pose) const;
   void Reset(const zeus::CVector3f& dir, const zeus::CVector3f& pos, float duration) {}
   void Update(float) {}

@@ -18,15 +18,32 @@ class CPoseAsTransforms;
 class CVertexMorphEffect;
 class IObjectStore;
 
+// Originally vert + normal workspaces were allocated together, but here separated for ease of use
+struct SSkinningWorkspace {
+  std::vector<zeus::CVector3f> m_vertexWorkspace;
+  std::vector<zeus::CVector3f> m_normalWorkspace;
+
+  SSkinningWorkspace(const CSkinRules& rules) { Reset(rules); }
+  void Reset(const CSkinRules& rules) {
+    m_vertexWorkspace.clear();
+    m_normalWorkspace.clear();
+    m_vertexWorkspace.reserve(rules.GetVertexCount());
+    m_normalWorkspace.reserve(rules.GetNormalCount());
+  }
+  [[nodiscard]] bool IsEmpty() const { return m_vertexWorkspace.empty() || m_normalWorkspace.empty(); }
+};
+
 // Lambda instead of userdata pointer
-using FCustomDraw = std::function<void(TVectorRef positions, TVectorRef normals)>;
+using FCustomDraw = std::function<void(TConstVectorRef positions, TConstVectorRef normals)>;
+using FPointGenerator = std::function<void(const SSkinningWorkspace& workspace)>;
 
 class CSkinnedModel {
   TLockedToken<CModel> x4_model;
   TLockedToken<CSkinRules> x10_skinRules;
   TLockedToken<CCharLayoutInfo> x1c_layoutInfo;
-  std::vector<zeus::CVector3f> x24_vertWorkspace;   // was rstl::auto_ptr<float[]>
-  std::vector<zeus::CVector3f> x2c_normalWorkspace; // was rstl::auto_ptr<float[]>
+  // rstl::auto_ptr<float[]> x24_vertWorkspace;
+  // rstl::auto_ptr<float[]> x2c_normalWorkspace;
+  SSkinningWorkspace m_workspace;
   bool x34_owned = true;
   bool x35_disableWorkspaces = false;
 
@@ -42,28 +59,25 @@ public:
   void SetLayoutInfo(const TLockedToken<CCharLayoutInfo>& inf) { x1c_layoutInfo = inf; }
   const TLockedToken<CCharLayoutInfo>& GetLayoutInfo() const { return x1c_layoutInfo; }
 
+  void AllocateStorage();
   void Calculate(const CPoseAsTransforms& pose, const std::optional<CVertexMorphEffect>& morphEffect,
-                 const float* morphMagnitudes);
-  void Draw(TVectorRef verts, TVectorRef normals, const CModelFlags& drawFlags);
+                 TConstVectorRef averagedNormals, SSkinningWorkspace* workspace);
+  void Draw(TConstVectorRef verts, TConstVectorRef normals, const CModelFlags& drawFlags);
   void Draw(const CModelFlags& drawFlags);
   void DoDrawCallback(const FCustomDraw& func) const;
 
-  using FPointGenerator = void (*)(void* item, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
-  static void SetPointGeneratorFunc(void* ctx, FPointGenerator func) {
-    g_PointGenFunc = func;
-    g_PointGenCtx = ctx;
-  }
+  static void SetPointGeneratorFunc(FPointGenerator func) { g_PointGenFunc = std::move(func); }
   static void ClearPointGeneratorFunc() { g_PointGenFunc = nullptr; }
   static FPointGenerator g_PointGenFunc;
-  static void* g_PointGenCtx;
 };
 
 class CMorphableSkinnedModel : public CSkinnedModel {
-  std::unique_ptr<float[]> x40_morphMagnitudes;
+  std::vector<zeus::CVector3f> x40_morphMagnitudes; // was rstl::auto_ptr<float[]>
 
 public:
   CMorphableSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo);
-  const float* GetMorphMagnitudes() const { return x40_morphMagnitudes.get(); }
+  TConstVectorRef GetMorphMagnitudes() const { return &x40_morphMagnitudes; }
+  TVectorRef GetMorphMagnitudes() { return &x40_morphMagnitudes; }
 };
 
 } // namespace metaforce

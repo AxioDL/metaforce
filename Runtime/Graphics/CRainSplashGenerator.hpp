@@ -7,6 +7,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/Graphics/CSkinnedModel.hpp"
 
 #include <zeus/CVector3f.hpp>
 
@@ -61,14 +62,13 @@ class CRainSplashGenerator {
   void UpdateRainSplashRange(CStateManager& mgr, int start, int end, float dt);
   void UpdateRainSplashes(CStateManager& mgr, float magnitude, float dt);
   void DoDraw(const zeus::CTransform& xf);
-  static u32 GetNextBestPt(u32 pt, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn, CRandom16& rand,
-                           float minZ);
+  static u32 GetNextBestPt(u32 pt, const SSkinningWorkspace& workspace, CRandom16& rand, float minZ);
   void AddPoint(const zeus::CVector3f& pos);
 
 public:
   CRainSplashGenerator(const zeus::CVector3f& scale, u32 maxSplashes, u32 genRate, float minZ, float alpha);
   void Update(float dt, CStateManager& mgr);
-  void GeneratePoints(const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
+  void GeneratePoints(const SSkinningWorkspace& workspace);
   void Draw(const zeus::CTransform& xf);
   bool IsRaining() const { return x48_25_raining; }
 };

@@ -30,14 +30,14 @@ CActorModelParticles::CItem::CItem(const CEntity& ent, CActorModelParticles& par
   x8_onFireGens.resize(8);
 }
 
-static s32 GetNextBestPt(s32 start, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn,
-                         CRandom16& rnd) {
-  const zeus::CVector3f& startVec = vn[start].first;
+static s32 GetNextBestPt(s32 start, const SSkinningWorkspace& workspace, CRandom16& rnd) {
+  const auto& verts = workspace.m_vertexWorkspace;
+  const zeus::CVector3f& startVec = verts[start];
   s32 ret = start;
   float maxMag = 0.f;
   for (s32 i = 0; i < 10; ++i) {
-    s32 idx = rnd.Range(0, s32(vn.size()) - 1);
-    const zeus::CVector3f& rndVec = vn[idx].first;
+    s32 idx = rnd.Range(0, s32(verts.size()) - 1);
+    const zeus::CVector3f& rndVec = verts[idx];
     float mag = (startVec - rndVec).magSquared();
     if (mag > maxMag) {
       ret = idx;
@@ -46,11 +46,15 @@ static s32 GetNextBestPt(s32 start, const std::vector<std::pair<zeus::CVector3f,
   }
   return ret;
 }
-void CActorModelParticles::CItem::GeneratePoints(const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
+
+void CActorModelParticles::CItem::GeneratePoints(const SSkinningWorkspace& workspace) {
+  const auto& verts = workspace.m_vertexWorkspace;
+  const auto& norms = workspace.m_normalWorkspace;
+
   for (std::pair<std::unique_ptr<CElementGen>, u32>& pair : x8_onFireGens) {
     if (pair.first) {
       CRandom16 rnd(pair.second);
-      const zeus::CVector3f& vec = vn[rnd.Float() * (vn.size() - 1)].first;
+      const zeus::CVector3f& vec = verts[rnd.Float() * (verts.size() - 1)];
       pair.first->SetTranslation(xec_particleOffsetScale * vec);
     }
   }
@@ -60,9 +64,9 @@ void CActorModelParticles::CItem::GeneratePoints(const std::vector<std::pair<zeu
     s32 count = (x84_ashMaxParticles >= 16 ? 16 : x84_ashMaxParticles);
     s32 idx = x80_ashPointIterator;
     for (u32 i = 0; i < count; ++i) {
-      idx = GetNextBestPt(idx, vn, rnd);
-      x78_ashGen->SetTranslation(xec_particleOffsetScale * vn[idx].first);
-      zeus::CVector3f v = vn[idx].second;
+      idx = GetNextBestPt(idx, workspace, rnd);
+      x78_ashGen->SetTranslation(xec_particleOffsetScale * verts[idx]);
+      zeus::CVector3f v = norms[idx];
       if (v.canBeNormalized()) {
         v.normalize();
         x78_ashGen->SetOrientation(zeus::CTransform{v.cross(zeus::skUp), v, zeus::skUp, zeus::skZero3f});
@@ -80,10 +84,10 @@ void CActorModelParticles::CItem::GeneratePoints(const std::vector<std::pair<zeu
     std::unique_ptr<CElementGen> iceGen = x128_parent.MakeIceGen();
     iceGen->SetGlobalOrientAndTrans(xf8_iceXf);
 
-    s32 idx = GetNextBestPt(xb0_icePointIterator, vn, rnd);
-    iceGen->SetTranslation(xec_particleOffsetScale * vn[idx].first);
+    s32 idx = GetNextBestPt(xb0_icePointIterator, workspace, rnd);
+    iceGen->SetTranslation(xec_particleOffsetScale * verts[idx]);
 
-    iceGen->SetOrientation(zeus::CTransform::MakeRotationsBasedOnY(zeus::CUnitVector3f(vn[idx].second)));
+    iceGen->SetOrientation(zeus::CTransform::MakeRotationsBasedOnY(zeus::CUnitVector3f(norms[idx])));
 
     x8c_iceGens.push_back(std::move(iceGen));
     xb0_icePointIterator = (x8c_iceGens.size() == 4 ? -1 : idx);
@@ -98,9 +102,9 @@ void CActorModelParticles::CItem::GeneratePoints(const std::vector<std::pair<zeu
 #endif
     s32 idx = xc8_electricPointIterator;
     for (u32 i = 0; i < end; ++i) {
-      xc0_electricGen->SetOverrideIPos(vn[rnd.Range(0, s32(vn.size()) - 1)].first * xec_particleOffsetScale);
-      idx = rnd.Range(0, s32(vn.size()) - 1);
-      xc0_electricGen->SetOverrideFPos(vn[idx].first * xec_particleOffsetScale);
+      xc0_electricGen->SetOverrideIPos(verts[rnd.Range(0, s32(verts.size()) - 1)] * xec_particleOffsetScale);
+      idx = rnd.Range(0, s32(verts.size()) - 1);
+      xc0_electricGen->SetOverrideFPos(verts[idx] * xec_particleOffsetScale);
       xc0_electricGen->ForceParticleCreation(1);
     }
 
@@ -109,7 +113,7 @@ void CActorModelParticles::CItem::GeneratePoints(const std::vector<std::pair<zeu
   }
 
   if (xd4_rainSplashGen)
-    xd4_rainSplashGen->GeneratePoints(vn);
+    xd4_rainSplashGen->GeneratePoints(workspace);
 }
 
 bool CActorModelParticles::CItem::UpdateOnFire(float dt, CActor* actor, CStateManager& mgr) {
@@ -516,19 +520,12 @@ void CActorModelParticles::Update(float dt, CStateManager& mgr) {
   }
 }
 
-void CActorModelParticles::PointGenerator(void* ctx,
-                                          const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  static_cast<CItem*>(ctx)->GeneratePoints(vn);
-}
-
 void CActorModelParticles::SetupHook(TUniqueId uid) {
   const auto search = FindSystem(uid);
-
   if (search == x0_items.cend()) {
     return;
   }
-
-  CSkinnedModel::SetPointGeneratorFunc(&*search, PointGenerator);
+  CSkinnedModel::SetPointGeneratorFunc([=](const auto& workspace) { search->GeneratePoints(workspace); });
 }
 
 std::list<CActorModelParticles::CItem>::iterator CActorModelParticles::FindSystem(TUniqueId uid) {
@@ -622,7 +619,7 @@ void CActorModelParticles::LightDudeOnFire(CActor& act) {
 const CTexture* CActorModelParticles::GetAshyTexture(const CActor& act) {
   auto iter = FindSystem(act.GetUniqueId());
   if (iter != x0_items.cend() && iter->xdc_ashy && iter->xdc_ashy.IsLoaded()) {
-//    iter->xdc_ashy->GetBooTexture()->setClampMode(boo::TextureClampMode::ClampToEdge);
+    //    iter->xdc_ashy->GetBooTexture()->setClampMode(boo::TextureClampMode::ClampToEdge);
     return iter->xdc_ashy.GetObj();
   }
   return nullptr;

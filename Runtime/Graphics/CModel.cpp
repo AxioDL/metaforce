@@ -201,9 +201,13 @@ void CModel::EnableTextureTimeout() { sIsTextureTimeoutEnabled = true; }
 
 void CModel::DisableTextureTimeout() { sIsTextureTimeoutEnabled = false; }
 
-TVectorRef CModel::GetPositions() const { return x28_modelInst->GetPositions(); }
+TVectorRef CModel::GetPositions() { return x28_modelInst->GetPositions(); }
 
-TVectorRef CModel::GetNormals() const { return x28_modelInst->GetNormals(); }
+TConstVectorRef CModel::GetPositions() const { return x28_modelInst->GetPositions(); }
+
+TVectorRef CModel::GetNormals() { return x28_modelInst->GetNormals(); }
+
+TConstVectorRef CModel::GetNormals() const { return x28_modelInst->GetNormals(); }
 
 void CModel::VerifyCurrentShader(u32 matIdx) {
   if (matIdx > x18_matSets.size()) {
@@ -264,7 +268,7 @@ void CModel::Draw(CModelFlags flags) {
   x28_modelInst->Draw(flags);
 }
 
-void CModel::Draw(TVectorRef positions, TVectorRef normals, const CModelFlags& flags) {
+void CModel::Draw(TConstVectorRef positions, TConstVectorRef normals, const CModelFlags& flags) {
   if (flags.x2_flags & CModelFlagBits::DrawNormal) {
     x28_modelInst->DrawNormal(positions, normals, ESurfaceSelection::All);
   }

@@ -71,7 +71,7 @@ public:
 
   public:
     CItem(const CEntity& ent, CActorModelParticles& parent);
-    void GeneratePoints(const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
+    void GeneratePoints(const SSkinningWorkspace& workspace);
     bool Update(float dt, CStateManager& mgr);
     void Lock(EDependency i);
     void Unlock(EDependency i);
@@ -150,7 +150,6 @@ private:
 
 public:
   CActorModelParticles();
-  static void PointGenerator(void* item, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
   void AddStragglersToRenderer(const CStateManager& mgr);
   void Update(float dt, CStateManager& mgr);
   void SetupHook(TUniqueId uid);

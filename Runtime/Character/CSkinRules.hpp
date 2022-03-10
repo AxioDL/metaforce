@@ -3,12 +3,14 @@
 #include <vector>
 
 #include "Runtime/CFactoryMgr.hpp"
-#include "Runtime/Character/CSkinBank.hpp"
+#include "Runtime/Character/CSegId.hpp"
+#include "Runtime/Graphics/CCubeModel.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
+class CCharLayoutInfo;
 class CPoseAsTransforms;
 class CModel;
 
@@ -24,12 +26,20 @@ class CVirtualBone {
   rstl::reserved_vector<SSkinWeighting, 3> x0_weights;
   u32 x1c_vertexCount;
   zeus::CTransform x20_xf;
-  zeus::CMatrix3f x50_mtx;
+  zeus::CMatrix3f x50_rotation;
 
 public:
   explicit CVirtualBone(CInputStream& in);
 
-  [[nodiscard]] const rstl::reserved_vector<SSkinWeighting, 3>& GetWeights() const { return x0_weights; }
+  void BuildPoints(const zeus::CVector3f* in, TVectorRef out, u32 count) const;
+  void BuildNormals(const zeus::CVector3f* in, TVectorRef out, u32 count) const;
+  void BuildAccumulatedTransform(const CPoseAsTransforms& pose, const zeus::CVector3f* points);
+
+  [[nodiscard]] const auto& GetWeights() const { return x0_weights; }
+  [[nodiscard]] u32 GetVertexCount() const { return x1c_vertexCount; }
+
+private:
+  void BuildFinalPosMatrix(const CPoseAsTransforms& pose, const zeus::CVector3f* points);
 };
 
 class CSkinRules {
@@ -42,17 +52,12 @@ class CSkinRules {
 public:
   explicit CSkinRules(CInputStream& in);
 
-  //  void GetBankTransforms(std::vector<const zeus::CTransform*>& out, const CPoseAsTransforms& pose,
-  //                         int skinBankIdx) const {
-  //    // FIXME: This is definitely not proper behavior, this is here to fix the phazon suit crashing
-  //    if (x0_skinBanks.size() <= skinBankIdx) {
-  //      return;
-  //    }
-  //    x0_skinBanks[skinBankIdx].GetBankTransforms(out, pose);
-  //  }
+  void BuildPoints(TConstVectorRef positions, TVectorRef out);
+  void BuildNormals(TConstVectorRef normals, TVectorRef out);
+  void BuildAccumulatedTransforms(const CPoseAsTransforms& pose, const CCharLayoutInfo& info);
 
-  //  void TransformVerticesCPU(std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vnOut,
-  //                            const CPoseAsTransforms& pose, const CModel& model) const;
+  [[nodiscard]] u32 GetVertexCount() const { return x10_vertexCount; }
+  [[nodiscard]] u32 GetNormalCount() const { return x14_normalCount; }
 };
 
 CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params,

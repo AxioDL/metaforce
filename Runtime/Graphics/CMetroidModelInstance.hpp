@@ -37,8 +37,10 @@ public:
   [[nodiscard]] std::vector<CCubeSurface>* GetSurfaces() { return &x50_surfaces; }
   [[nodiscard]] const std::vector<CCubeSurface>* GetSurfaces() const { return &x50_surfaces; }
   [[nodiscard]] const u8* GetMaterialPointer() const { return x4c_materialData; }
-  [[nodiscard]] TVectorRef GetVertexPointer() const { return &x60_positions; }
-  [[nodiscard]] TVectorRef GetNormalPointer() const { return &x64_normals; }
+  [[nodiscard]] TVectorRef GetVertexPointer() { return &x60_positions; }
+  [[nodiscard]] TConstVectorRef GetVertexPointer() const { return &x60_positions; }
+  [[nodiscard]] TVectorRef GetNormalPointer() { return &x64_normals; }
+  [[nodiscard]] TConstVectorRef GetNormalPointer() const { return &x64_normals; }
   [[nodiscard]] const std::vector<zeus::CColor>* GetColorPointer() const { return &x68_colors; }
   [[nodiscard]] const std::vector<aurora::Vec2<float>>* GetTCPointer() const { return &x6c_texCoords; }
   [[nodiscard]] const std::vector<aurora::Vec2<float>>* GetPackedTCPointer() const { return &x70_packedTexCoords; }

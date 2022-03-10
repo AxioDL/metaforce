@@ -102,8 +102,6 @@ private:
   void UpdateSwingAction(float grappleSwingT, float dt, CStateManager& mgr);
   void RenderXRayModel(const CStateManager& mgr, const zeus::CTransform& modelXf, const CModelFlags& flags);
 
-  static void PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
-
 public:
   explicit CGrappleArm(const zeus::CVector3f& scale);
   void AsyncLoadSuit(CStateManager& mgr);

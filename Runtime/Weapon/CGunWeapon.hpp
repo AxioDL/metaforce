@@ -102,8 +102,6 @@ protected:
   void LockTokens(CStateManager& mgr);
   void UnlockTokens();
 
-  static void PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
-
 public:
   CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId playerId, EMaterialTypes playerMaterial,
              const zeus::CVector3f& scale);

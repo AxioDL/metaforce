@@ -455,7 +455,7 @@ zeus::CTransform CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* 
   if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildTransform(id, ret);
   } else {
-    ret.setRotation(x224_pose.GetTransformMinusOffset(id));
+    ret.setRotation(x224_pose.GetRotation(id));
     ret.origin = x224_pose.GetOffset(id);
   }
   return ret;
@@ -544,13 +544,13 @@ void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time) {
 void CAnimData::RenderAuxiliary(const zeus::CFrustum& frustum) const { x120_particleDB.AddToRendererClipped(frustum); }
 
 void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags,
-                       const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
+                       const std::optional<CVertexMorphEffect>& morphEffect, TVectorRef morphMagnitudes) {
   SetupRender(model, morphEffect, morphMagnitudes);
   DrawSkinnedModel(model, drawFlags);
 }
 
 void CAnimData::SetupRender(CSkinnedModel& model, const std::optional<CVertexMorphEffect>& morphEffect,
-                            const float* morphMagnitudes) {
+                            TVectorRef morphMagnitudes) {
   OPTICK_EVENT();
   if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildNoScale(x224_pose);
@@ -560,7 +560,7 @@ void CAnimData::SetupRender(CSkinnedModel& model, const std::optional<CVertexMor
 }
 
 void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) {
-  // TODO: some GX light stuff?
+  aurora::gfx::set_chan_mat_src(GX::COLOR0A0, GX::SRC_REG);
   model.Draw(flags);
 }
 
@@ -806,8 +806,8 @@ void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedTo
 }
 
 void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose,
-                                 const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
-  model.Calculate(pose, morphEffect, morphMagnitudes);
+                                 const std::optional<CVertexMorphEffect>& morphEffect, TVectorRef morphMagnitudes) {
+  model.Calculate(pose, morphEffect, morphMagnitudes, nullptr);
 }
 
 void CAnimData::AdvanceParticles(const zeus::CTransform& xf, float dt, const zeus::CVector3f& vec,

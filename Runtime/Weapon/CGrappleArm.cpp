@@ -501,10 +501,6 @@ void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransfo
   // CGraphics::DisableAllLights();
 }
 
-void CGrappleArm::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  static_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
-}
-
 void CGrappleArm::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags,
                          const CActorLights* lights) {
   if (!x3b2_24_active || x3b2_29_suitLoading) {
@@ -528,7 +524,8 @@ void CGrappleArm::Render(const CStateManager& mgr, const zeus::CVector3f& pos, c
   }
 
   if (x3a4_rainSplashGenerator && x3a4_rainSplashGenerator->IsRaining()) {
-    CSkinnedModel::SetPointGeneratorFunc(x3a4_rainSplashGenerator.get(), PointGenerator);
+    CSkinnedModel::SetPointGeneratorFunc(
+        [&](const auto& workspace) { x3a4_rainSplashGenerator->GeneratePoints(workspace); });
   }
 
   x0_grappleArmModel->Render(mgr, modelXf, useLights, useFlags);

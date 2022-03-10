@@ -195,9 +195,9 @@ public:
   void RecalcPoseBuilder(const CCharAnimTime* time);
   void RenderAuxiliary(const zeus::CFrustum& frustum) const;
   void Render(CSkinnedModel& model, const CModelFlags& drawFlags, const std::optional<CVertexMorphEffect>& morphEffect,
-              const float* morphMagnitudes);
+              TVectorRef morphMagnitudes);
   void SetupRender(CSkinnedModel& model, const std::optional<CVertexMorphEffect>& morphEffect,
-                   const float* morphMagnitudes);
+                   TVectorRef morphMagnitudes);
   static void DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags);
   void PreRender();
   void BuildPose();
@@ -219,7 +219,7 @@ public:
   const TLockedToken<CSkinnedModel>& GetModelData() const { return xd8_modelData; }
 
   static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose,
-                               const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
+                               const std::optional<CVertexMorphEffect>& morphEffect, TVectorRef morphMagnitudes);
   void AdvanceParticles(const zeus::CTransform& xf, float dt, const zeus::CVector3f&, CStateManager& stateMgr);
   float GetAverageVelocity(int animIn) const;
   void ResetPOILists();

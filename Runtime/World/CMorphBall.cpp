@@ -1657,10 +1657,6 @@ void CMorphBall::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   }
 }
 
-void CMorphBall::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  static_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
-}
-
 void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) const {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlayer::Render", zeus::skPurple);
   zeus::CTransform ballToWorld = GetBallToWorld();
@@ -1685,7 +1681,8 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
   // flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
 
   if (x1c1c_rainSplashGen && x1c1c_rainSplashGen->IsRaining()) {
-    CSkinnedModel::SetPointGeneratorFunc(x1c1c_rainSplashGen.get(), PointGenerator);
+    CSkinnedModel::SetPointGeneratorFunc(
+        [&](const auto& workspace) { x1c1c_rainSplashGen->GeneratePoints(workspace); });
   }
 
   if (x1c34_boostLightFactor != 1.f) {

@@ -250,10 +250,6 @@ void CGunWeapon::TouchHolo(const CStateManager& mgr) {
     x60_holoModelData->Touch(mgr, 0);
 }
 
-void CGunWeapon::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  static_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
-}
-
 void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
                       const CActorLights* lights) {
   if (!x218_26_loaded)
@@ -262,7 +258,8 @@ void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CT
   zeus::CTransform armXf = xf * x10_solidModelData->GetScaledLocatorTransform("elbow");
 
   if (x1bc_rainSplashGenerator && x1bc_rainSplashGenerator->IsRaining())
-    CSkinnedModel::SetPointGeneratorFunc(x1bc_rainSplashGenerator, PointGenerator);
+    CSkinnedModel::SetPointGeneratorFunc(
+        [&](const auto& workspace) { x1bc_rainSplashGenerator->GeneratePoints(workspace); });
 
   if (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot && x200_beamId != CPlayerState::EBeamId::Ice) {
     /* Hot Draw */

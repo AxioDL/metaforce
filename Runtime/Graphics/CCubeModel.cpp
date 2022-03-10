@@ -121,7 +121,7 @@ void CCubeModel::Draw(const CModelFlags& flags) {
   DrawSurfaces(flags);
 }
 
-void CCubeModel::Draw(TVectorRef positions, TVectorRef normals, const CModelFlags& flags) {
+void CCubeModel::Draw(TConstVectorRef positions, TConstVectorRef normals, const CModelFlags& flags) {
   CCubeMaterial::KillCachedViewDepState();
   SetSkinningArraysCurrent(positions, normals);
   DrawSurfaces(flags);
@@ -149,7 +149,7 @@ void CCubeModel::DrawAlphaSurfaces(const CModelFlags& flags) {
   }
 }
 
-void CCubeModel::DrawFlat(TVectorRef positions, TVectorRef normals, ESurfaceSelection surfaces) {
+void CCubeModel::DrawFlat(TConstVectorRef positions, TConstVectorRef normals, ESurfaceSelection surfaces) {
   if (positions == nullptr) {
     SetArraysCurrent();
   } else {
@@ -175,7 +175,7 @@ void CCubeModel::DrawFlat(TVectorRef positions, TVectorRef normals, ESurfaceSele
   }
 }
 
-void CCubeModel::DrawNormal(TVectorRef positions, TVectorRef normals, ESurfaceSelection surfaces) {
+void CCubeModel::DrawNormal(TConstVectorRef positions, TConstVectorRef normals, ESurfaceSelection surfaces) {
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
   CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::skPassZero);
   CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
@@ -277,7 +277,7 @@ void CCubeModel::SetRenderModelBlack(bool v) {
   // TODO another value is set here, but always 0?
 }
 
-void CCubeModel::SetSkinningArraysCurrent(TVectorRef positions, TVectorRef normals) {
+void CCubeModel::SetSkinningArraysCurrent(TConstVectorRef positions, TConstVectorRef normals) {
   aurora::gfx::model::set_vertex_buffer(positions);
   aurora::gfx::model::set_normal_buffer(normals);
   // colors unused

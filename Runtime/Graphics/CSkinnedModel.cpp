@@ -4,13 +4,17 @@
 #include "Runtime/Graphics/CVertexMorphEffect.hpp"
 
 #include <logvisor/logvisor.hpp>
+#include <list>
 
 namespace metaforce {
 static logvisor::Module Log("metaforce::CSkinnedModel");
 
 CSkinnedModel::CSkinnedModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules,
                              const TLockedToken<CCharLayoutInfo>& layoutInfo)
-: x4_model(std::move(model)), x10_skinRules(std::move(skinRules)), x1c_layoutInfo(std::move(layoutInfo)) {
+: x4_model(std::move(model))
+, x10_skinRules(std::move(skinRules))
+, x1c_layoutInfo(std::move(layoutInfo))
+, m_workspace(*x10_skinRules) {
   if (!x4_model) {
     Log.report(logvisor::Fatal, FMT_STRING("bad model token provided to CSkinnedModel"));
   }
@@ -26,32 +30,36 @@ CSkinnedModel::CSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinR
 : CSkinnedModel(store.GetObj(SObjectTag{FOURCC('CMDL'), model}), store.GetObj(SObjectTag{FOURCC('CSKR'), skinRules}),
                 store.GetObj(SObjectTag{FOURCC('CINF'), layoutInfo})) {}
 
-void CSkinnedModel::Calculate(const CPoseAsTransforms& pose, const std::optional<CVertexMorphEffect>& morphEffect,
-                              const float* morphMagnitudes) {
-  // TODO
-  // if (morphEffect || g_PointGenFunc) {
-  //   if (boo::ObjToken<boo::IGraphicsBufferD> vertBuf = m_modelInst->UpdateUniformData(drawFlags, nullptr, nullptr))
-  //   {
-  //     x10_skinRules->TransformVerticesCPU(m_vertWorkspace, pose, *x4_model);
-  //     if (morphEffect)
-  //       morphEffect->MorphVertices(m_vertWorkspace, morphMagnitudes, x10_skinRules, pose);
-  //     if (g_PointGenFunc)
-  //       g_PointGenFunc(g_PointGenCtx, m_vertWorkspace);
-  //     x4_model->ApplyVerticesCPU(vertBuf, m_vertWorkspace);
-  //     m_modifiedVBO = true;
-  //   }
-  // } else {
-  //   if (boo::ObjToken<boo::IGraphicsBufferD> vertBuf =
-  //           m_modelInst->UpdateUniformData(drawFlags, x10_skinRules.GetObj(), &pose)) {
-  //     if (m_modifiedVBO) {
-  //       x4_model->RestoreVerticesCPU(vertBuf);
-  //       m_modifiedVBO = false;
-  //     }
-  //   }
-  // }
+void CSkinnedModel::AllocateStorage() {
+  if (x34_owned) {
+    m_workspace.Reset(*x10_skinRules);
+  }
 }
 
-void CSkinnedModel::Draw(TVectorRef verts, TVectorRef norms, const CModelFlags& drawFlags) {
+void CSkinnedModel::Calculate(const CPoseAsTransforms& pose, const std::optional<CVertexMorphEffect>& morphEffect,
+                              TConstVectorRef morphMagnitudes, SSkinningWorkspace* workspace) {
+  if (workspace == nullptr) {
+    if (x35_disableWorkspaces) {
+      x10_skinRules->BuildAccumulatedTransforms(pose, *x1c_layoutInfo);
+      return;
+    }
+    AllocateStorage();
+    workspace = &m_workspace;
+  }
+
+  x10_skinRules->BuildAccumulatedTransforms(pose, *x1c_layoutInfo);
+  x10_skinRules->BuildPoints(x4_model->GetPositions(), &workspace->m_vertexWorkspace);
+  x10_skinRules->BuildNormals(x4_model->GetNormals(), &workspace->m_normalWorkspace);
+
+  if (morphEffect) {
+    morphEffect->MorphVertices(*workspace, morphMagnitudes, x10_skinRules, pose);
+  }
+  if (g_PointGenFunc != nullptr) {
+    g_PointGenFunc(*workspace);
+  }
+}
+
+void CSkinnedModel::Draw(TConstVectorRef verts, TConstVectorRef norms, const CModelFlags& drawFlags) {
   OPTICK_EVENT();
   x4_model->Draw(verts, norms, drawFlags);
   // PostDrawFunc();
@@ -63,10 +71,10 @@ void CSkinnedModel::Draw(const CModelFlags& drawFlags) {
     CGraphics::SetModelMatrix(mtx * x10_skinRules->x0_bones.front().x20_xf);
     x4_model->Draw(drawFlags);
     CGraphics::SetModelMatrix(mtx);
-  } else if (x24_vertWorkspace.empty()) {
+  } else if (m_workspace.IsEmpty()) {
     x4_model->Draw(drawFlags);
   } else {
-    x4_model->Draw(&x24_vertWorkspace, &x2c_normalWorkspace, drawFlags);
+    x4_model->Draw(&m_workspace.m_vertexWorkspace, &m_workspace.m_normalWorkspace, drawFlags);
     // PostDrawFunc();
   }
 }
@@ -77,19 +85,49 @@ void CSkinnedModel::DoDrawCallback(const FCustomDraw& func) const {
     CGraphics::SetModelMatrix(mtx * x10_skinRules->x0_bones.front().x20_xf);
     func(x4_model->GetPositions(), x4_model->GetNormals());
     CGraphics::SetModelMatrix(mtx);
-  } else if (x24_vertWorkspace.empty()) {
+  } else if (m_workspace.IsEmpty()) {
     func(x4_model->GetPositions(), x4_model->GetNormals());
   } else {
-    func(&x24_vertWorkspace, &x2c_normalWorkspace);
+    func(&m_workspace.m_vertexWorkspace, &m_workspace.m_normalWorkspace);
     // PostDrawFunc();
   }
 }
 
 CMorphableSkinnedModel::CMorphableSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules,
                                                CAssetId layoutInfo)
-: CSkinnedModel(store, model, skinRules, layoutInfo) {}
+: CSkinnedModel(store, model, skinRules, layoutInfo) {
+  const auto vertexCount = GetSkinRules()->GetVertexCount();
+  const auto& modelPositions = *GetModel()->GetPositions();
 
-CSkinnedModel::FPointGenerator CSkinnedModel::g_PointGenFunc = nullptr;
-void* CSkinnedModel::g_PointGenCtx = nullptr;
+  x40_morphMagnitudes.resize(vertexCount);
+  std::vector<std::pair<zeus::CVector3f, std::list<u32>>> vertMap;
+  for (int vertIdx = 0; vertIdx < vertexCount; ++vertIdx) {
+    const auto curPos = modelPositions[vertIdx];
+    if (std::find_if(vertMap.cbegin(), vertMap.cend(), [=](const auto& pair) { return pair.first.isEqu(curPos); }) ==
+        vertMap.cend()) {
+      auto& [_, list] = vertMap.emplace_back(curPos, std::list<u32>{});
+      for (int idx = vertIdx; idx < vertexCount; ++idx) {
+        // Originally uses ==, but adjusted to match above
+        if (modelPositions[idx].isEqu(curPos)) {
+          list.emplace_back(idx);
+        }
+      }
+    }
+  }
+
+  const auto& modelNormals = *GetModel()->GetNormals();
+  for (const auto& [_, idxs] : vertMap) {
+    zeus::CVector3f averagedNormal;
+    for (const auto idx : idxs) {
+      averagedNormal += modelNormals[idx];
+    }
+    averagedNormal.normalize();
+    for (const auto idx : idxs) {
+      x40_morphMagnitudes[idx] = averagedNormal;
+    }
+  }
+}
+
+FPointGenerator CSkinnedModel::g_PointGenFunc;
 
 } // namespace metaforce

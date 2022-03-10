@@ -33,17 +33,10 @@ void CHierarchyPoseBuilder::RecursivelyBuildNoScale(const CSegId& boneId, const 
                                                     CPoseAsTransforms& pose, const zeus::CQuaternion& parentRot,
                                                     const zeus::CMatrix3f& parentXf,
                                                     const zeus::CVector3f& parentOffset) const {
-  zeus::CVector3f bindOffset;
-  if (x0_layoutDesc.GetScaledLayoutDescription()) {
-    const CLayoutDescription::CScaledLayoutDescription& desc = *x0_layoutDesc.GetScaledLayoutDescription();
-    bindOffset = desc.ScaledLayout()->GetFromRootUnrotated(boneId);
-  } else
-    bindOffset = x0_layoutDesc.GetCharLayoutInfo()->GetFromRootUnrotated(boneId);
-
   zeus::CQuaternion quat = parentRot * node.x4_rotation;
   zeus::CMatrix3f xf = quat;
   zeus::CVector3f xfOffset = parentXf * node.x14_offset + parentOffset;
-  pose.Insert(boneId, quat, xfOffset, bindOffset);
+  pose.Insert(boneId, quat, xfOffset);
 
   CSegId curBone = node.x0_child;
   while (curBone != 0) {
@@ -59,29 +52,25 @@ void CHierarchyPoseBuilder::RecursivelyBuild(const CSegId& boneId, const CTreeNo
   zeus::CQuaternion quat = parentRot * node.x4_rotation;
 
   float scale;
-  zeus::CVector3f bindOffset;
   if (x0_layoutDesc.GetScaledLayoutDescription()) {
-    const CLayoutDescription::CScaledLayoutDescription& desc = *x0_layoutDesc.GetScaledLayoutDescription();
-    scale = desc.GlobalScale();
-    bindOffset = desc.ScaledLayout()->GetFromRootUnrotated(boneId);
+    scale = x0_layoutDesc.GetScaledLayoutDescription()->GlobalScale();
   } else {
     scale = 1.f;
-    bindOffset = x0_layoutDesc.GetCharLayoutInfo()->GetFromRootUnrotated(boneId);
   }
 
-  zeus::CMatrix3f mtxXf;
+  zeus::CMatrix3f rotation;
   if (scale == 1.f)
-    mtxXf = quat;
+    rotation = quat;
   else
-    mtxXf = parentXf * zeus::CMatrix3f(scale);
+    rotation = parentXf * (zeus::CMatrix3f{node.x4_rotation} * zeus::CMatrix3f{scale});
 
-  zeus::CVector3f xfOffset = parentXf * node.x14_offset + parentOffset;
-  pose.Insert(boneId, mtxXf, xfOffset, bindOffset);
+  zeus::CVector3f offset = parentOffset + (parentXf * node.x14_offset);
+  pose.Insert(boneId, rotation, offset);
 
   CSegId curBone = node.x0_child;
   while (curBone != 0) {
     const CTreeNode& node = x38_treeMap[curBone];
-    RecursivelyBuild(curBone, node, pose, quat, quat, xfOffset);
+    RecursivelyBuild(curBone, node, pose, quat, quat, offset);
     curBone = node.x1_sibling;
   }
 }

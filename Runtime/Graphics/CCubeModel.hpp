@@ -21,18 +21,19 @@ enum class ESurfaceSelection {
 };
 
 // These parameters were originally float*
-using TVectorRef = const std::vector<zeus::CVector3f>*;
+using TVectorRef = std::vector<zeus::CVector3f>*;
+using TConstVectorRef = const std::vector<zeus::CVector3f>*;
 
 class CCubeModel {
   friend class CModel;
 
 private:
   class ModelInstance {
-    std::vector<CCubeSurface>* x0_surfacePtrs;         // was rstl::vector<void*>*
-    u8* x4_materialData;                               //
-    std::vector<zeus::CVector3f>* x8_positions;        // was void*
-    std::vector<zeus::CVector3f>* xc_normals;          // was void*
-    std::vector<zeus::CColor>* x10_colors;             // was void*
+    std::vector<CCubeSurface>* x0_surfacePtrs;             // was rstl::vector<void*>*
+    u8* x4_materialData;                                   //
+    std::vector<zeus::CVector3f>* x8_positions;            // was void*
+    std::vector<zeus::CVector3f>* xc_normals;              // was void*
+    std::vector<zeus::CColor>* x10_colors;                 // was void*
     std::vector<aurora::Vec2<float>>* x14_texCoords;       // was void*
     std::vector<aurora::Vec2<float>>* x18_packedTexCoords; // was void*
 
@@ -55,8 +56,10 @@ private:
     [[nodiscard]] std::vector<CCubeSurface>* Surfaces() const { return x0_surfacePtrs; }
     [[nodiscard]] u8* GetMaterialPointer() const { return x4_materialData; }
     void SetMaterialPointer(u8* mat) { x4_materialData = mat; }
-    [[nodiscard]] TVectorRef GetVertexPointer() const { return x8_positions; }
-    [[nodiscard]] TVectorRef GetNormalPointer() const { return xc_normals; }
+    [[nodiscard]] TVectorRef GetVertexPointer() { return x8_positions; }
+    [[nodiscard]] TConstVectorRef GetVertexPointer() const { return x8_positions; }
+    [[nodiscard]] TVectorRef GetNormalPointer() { return xc_normals; }
+    [[nodiscard]] TConstVectorRef GetNormalPointer() const { return xc_normals; }
     [[nodiscard]] std::vector<zeus::CColor>* GetColorPointer() const { return x10_colors; }
     [[nodiscard]] std::vector<aurora::Vec2<float>>* GetTCPointer() const { return x14_texCoords; }
     [[nodiscard]] std::vector<aurora::Vec2<float>>* GetPackedTCPointer() const { return x18_packedTexCoords; }
@@ -84,8 +87,8 @@ public:
   void RemapMaterialData(u8* data, std::vector<TCachedToken<CTexture>>& textures);
   void Draw(const CModelFlags& flags);
   void DrawAlpha(const CModelFlags& flags);
-  void DrawFlat(TVectorRef positions, TVectorRef normals, ESurfaceSelection surfaces);
-  void DrawNormal(TVectorRef positions, TVectorRef normals, ESurfaceSelection surfaces);
+  void DrawFlat(TConstVectorRef positions, TConstVectorRef normals, ESurfaceSelection surfaces);
+  void DrawNormal(TConstVectorRef positions, TConstVectorRef normals, ESurfaceSelection surfaces);
   void DrawNormal(const CModelFlags& flags);
   void DrawSurface(const CCubeSurface& surface, const CModelFlags& flags);
   void DrawSurfaceWireframe(const CCubeSurface& surface);
@@ -101,8 +104,10 @@ public:
   [[nodiscard]] CCubeSurface* GetFirstSortedSurface() { return x3c_firstSortedSurf; }
   [[nodiscard]] const CCubeSurface* GetFirstSortedSurface() const { return x3c_firstSortedSurf; }
 
-  [[nodiscard]] TVectorRef GetPositions() const { return x0_modelInstance.GetVertexPointer(); }
-  [[nodiscard]] TVectorRef GetNormals() const { return x0_modelInstance.GetNormalPointer(); }
+  [[nodiscard]] TVectorRef GetPositions() { return x0_modelInstance.GetVertexPointer(); }
+  [[nodiscard]] TConstVectorRef GetPositions() const { return x0_modelInstance.GetVertexPointer(); }
+  [[nodiscard]] TVectorRef GetNormals() { return x0_modelInstance.GetNormalPointer(); }
+  [[nodiscard]] TConstVectorRef GetNormals() const { return x0_modelInstance.GetNormalPointer(); }
   [[nodiscard]] TCachedToken<CTexture>& GetTexture(u32 idx) const { return x1c_textures->at(idx); }
 
   static void EnableShadowMaps(const CTexture& shadowTex, const zeus::CTransform& textureProjXf, u8 chan0DisableMask,
@@ -121,11 +126,11 @@ public:
   static const CTexture* sShadowTexture;
 
 private:
-  void Draw(TVectorRef positions, TVectorRef normals, const CModelFlags& flags);
+  void Draw(TConstVectorRef positions, TConstVectorRef normals, const CModelFlags& flags);
   void DrawAlphaSurfaces(const CModelFlags& flags);
   void DrawNormalSurfaces(const CModelFlags& flags);
   void DrawSurfaces(const CModelFlags& flags);
-  void SetSkinningArraysCurrent(TVectorRef positions, TVectorRef normals);
+  void SetSkinningArraysCurrent(TConstVectorRef positions, TConstVectorRef normals);
   void SetStaticArraysCurrent();
 };
 } // namespace metaforce

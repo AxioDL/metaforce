@@ -100,13 +100,15 @@ public:
   void VerifyCurrentShader(u32 matIdx);
   void Touch(u32 matIdx);
   void Draw(CModelFlags flags);
-  void Draw(TVectorRef positions, TVectorRef normals, const CModelFlags& flags);
+  void Draw(TConstVectorRef positions, TConstVectorRef normals, const CModelFlags& flags);
   void DrawSortedParts(CModelFlags flags);
   void DrawUnsortedParts(CModelFlags flags);
   bool IsLoaded(u32 matIdx);
 
-  TVectorRef GetPositions() const;
-  TVectorRef GetNormals() const;
+  TVectorRef GetPositions();
+  TConstVectorRef GetPositions() const;
+  TVectorRef GetNormals();
+  TConstVectorRef GetNormals() const;
   u32 GetNumMaterialSets() const { return x18_matSets.size(); }
   bool IsOpaque() const { return x28_modelInst->x3c_firstSortedSurf == nullptr; }
   const zeus::CAABox& GetAABB() const { return x28_modelInst->x20_worldAABB; }
