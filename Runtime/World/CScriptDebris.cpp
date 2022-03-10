@@ -396,7 +396,7 @@ void CScriptDebris::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
     t = 0.f;
   }
 
-  xb4_drawFlags = CModelFlags(5, 0, 3, zeus::CColor::lerp(zeus::skWhite, x268_endsColor, t));
+  xb4_drawFlags = CModelFlags(5, 0, t == 1.f ? 3 : 1, zeus::CColor::lerp(zeus::skWhite, x268_endsColor, t));
 }
 
 void CScriptDebris::Render(CStateManager& mgr) { CPhysicsActor::Render(mgr); }
