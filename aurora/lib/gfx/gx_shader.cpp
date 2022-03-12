@@ -12,7 +12,7 @@ static logvisor::Module Log("aurora::gfx::gx");
 
 std::unordered_map<ShaderRef, std::pair<wgpu::ShaderModule, gx::ShaderInfo>> g_gxCachedShaders;
 
-static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const STevStage& stage, ShaderInfo& info) {
+static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const TevStage& stage, ShaderInfo& info) {
   switch (arg) {
   case GX::CC_CPREV:
     return "prev.rgb";
@@ -105,64 +105,64 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const STe
     case GX::TEV_KCSEL_1_8:
       return "(1.0/8.0)";
     case GX::TEV_KCSEL_K0:
-      info.sampledKcolors.set(0);
+      info.sampledKColors.set(0);
       return "ubuf.kcolor0.rgb";
     case GX::TEV_KCSEL_K1:
-      info.sampledKcolors.set(1);
+      info.sampledKColors.set(1);
       return "ubuf.kcolor1.rgb";
     case GX::TEV_KCSEL_K2:
-      info.sampledKcolors.set(2);
+      info.sampledKColors.set(2);
       return "ubuf.kcolor2.rgb";
     case GX::TEV_KCSEL_K3:
-      info.sampledKcolors.set(3);
+      info.sampledKColors.set(3);
       return "ubuf.kcolor3.rgb";
     case GX::TEV_KCSEL_K0_R:
-      info.sampledKcolors.set(0);
+      info.sampledKColors.set(0);
       return "ubuf.kcolor0.r";
     case GX::TEV_KCSEL_K1_R:
-      info.sampledKcolors.set(1);
+      info.sampledKColors.set(1);
       return "ubuf.kcolor1.r";
     case GX::TEV_KCSEL_K2_R:
-      info.sampledKcolors.set(2);
+      info.sampledKColors.set(2);
       return "ubuf.kcolor2.r";
     case GX::TEV_KCSEL_K3_R:
-      info.sampledKcolors.set(3);
+      info.sampledKColors.set(3);
       return "ubuf.kcolor3.r";
     case GX::TEV_KCSEL_K0_G:
-      info.sampledKcolors.set(0);
+      info.sampledKColors.set(0);
       return "ubuf.kcolor0.g";
     case GX::TEV_KCSEL_K1_G:
-      info.sampledKcolors.set(1);
+      info.sampledKColors.set(1);
       return "ubuf.kcolor1.g";
     case GX::TEV_KCSEL_K2_G:
-      info.sampledKcolors.set(2);
+      info.sampledKColors.set(2);
       return "ubuf.kcolor2.g";
     case GX::TEV_KCSEL_K3_G:
-      info.sampledKcolors.set(3);
+      info.sampledKColors.set(3);
       return "ubuf.kcolor3.g";
     case GX::TEV_KCSEL_K0_B:
-      info.sampledKcolors.set(0);
+      info.sampledKColors.set(0);
       return "ubuf.kcolor0.b";
     case GX::TEV_KCSEL_K1_B:
-      info.sampledKcolors.set(1);
+      info.sampledKColors.set(1);
       return "ubuf.kcolor1.b";
     case GX::TEV_KCSEL_K2_B:
-      info.sampledKcolors.set(2);
+      info.sampledKColors.set(2);
       return "ubuf.kcolor2.b";
     case GX::TEV_KCSEL_K3_B:
-      info.sampledKcolors.set(3);
+      info.sampledKColors.set(3);
       return "ubuf.kcolor3.b";
     case GX::TEV_KCSEL_K0_A:
-      info.sampledKcolors.set(0);
+      info.sampledKColors.set(0);
       return "ubuf.kcolor0.a";
     case GX::TEV_KCSEL_K1_A:
-      info.sampledKcolors.set(1);
+      info.sampledKColors.set(1);
       return "ubuf.kcolor1.a";
     case GX::TEV_KCSEL_K2_A:
-      info.sampledKcolors.set(2);
+      info.sampledKColors.set(2);
       return "ubuf.kcolor2.a";
     case GX::TEV_KCSEL_K3_A:
-      info.sampledKcolors.set(3);
+      info.sampledKColors.set(3);
       return "ubuf.kcolor3.a";
     default:
       Log.report(logvisor::Fatal, FMT_STRING("invalid kcSel {}"), stage.kcSel);
@@ -177,7 +177,7 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const STe
   }
 }
 
-static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const STevStage& stage, ShaderInfo& info) {
+static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const TevStage& stage, ShaderInfo& info) {
   switch (arg) {
   case GX::CA_APREV:
     return "prev.a";
@@ -232,52 +232,52 @@ static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const STe
     case GX::TEV_KASEL_1_8:
       return "(1.0/8.0)";
     case GX::TEV_KASEL_K0_R:
-      info.sampledKcolors.set(0);
+      info.sampledKColors.set(0);
       return "ubuf.kcolor0.r";
     case GX::TEV_KASEL_K1_R:
-      info.sampledKcolors.set(1);
+      info.sampledKColors.set(1);
       return "ubuf.kcolor1.r";
     case GX::TEV_KASEL_K2_R:
-      info.sampledKcolors.set(2);
+      info.sampledKColors.set(2);
       return "ubuf.kcolor2.r";
     case GX::TEV_KASEL_K3_R:
-      info.sampledKcolors.set(3);
+      info.sampledKColors.set(3);
       return "ubuf.kcolor3.r";
     case GX::TEV_KASEL_K0_G:
-      info.sampledKcolors.set(0);
+      info.sampledKColors.set(0);
       return "ubuf.kcolor0.g";
     case GX::TEV_KASEL_K1_G:
-      info.sampledKcolors.set(1);
+      info.sampledKColors.set(1);
       return "ubuf.kcolor1.g";
     case GX::TEV_KASEL_K2_G:
-      info.sampledKcolors.set(2);
+      info.sampledKColors.set(2);
       return "ubuf.kcolor2.g";
     case GX::TEV_KASEL_K3_G:
-      info.sampledKcolors.set(3);
+      info.sampledKColors.set(3);
       return "ubuf.kcolor3.g";
     case GX::TEV_KASEL_K0_B:
-      info.sampledKcolors.set(0);
+      info.sampledKColors.set(0);
       return "ubuf.kcolor0.b";
     case GX::TEV_KASEL_K1_B:
-      info.sampledKcolors.set(1);
+      info.sampledKColors.set(1);
       return "ubuf.kcolor1.b";
     case GX::TEV_KASEL_K2_B:
-      info.sampledKcolors.set(2);
+      info.sampledKColors.set(2);
       return "ubuf.kcolor2.b";
     case GX::TEV_KASEL_K3_B:
-      info.sampledKcolors.set(3);
+      info.sampledKColors.set(3);
       return "ubuf.kcolor3.b";
     case GX::TEV_KASEL_K0_A:
-      info.sampledKcolors.set(0);
+      info.sampledKColors.set(0);
       return "ubuf.kcolor0.a";
     case GX::TEV_KASEL_K1_A:
-      info.sampledKcolors.set(1);
+      info.sampledKColors.set(1);
       return "ubuf.kcolor1.a";
     case GX::TEV_KASEL_K2_A:
-      info.sampledKcolors.set(2);
+      info.sampledKColors.set(2);
       return "ubuf.kcolor2.a";
     case GX::TEV_KASEL_K3_A:
-      info.sampledKcolors.set(3);
+      info.sampledKColors.set(3);
       return "ubuf.kcolor3.a";
     default:
       Log.report(logvisor::Fatal, FMT_STRING("invalid kaSel {}"), stage.kaSel);
@@ -352,34 +352,34 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
         break;
       }
       Log.report(logvisor::Info, FMT_STRING("  tevStages[{}]:"), i);
-      Log.report(logvisor::Info, FMT_STRING("    color_a: {}"), stage->colorPass.x0_a);
-      Log.report(logvisor::Info, FMT_STRING("    color_b: {}"), stage->colorPass.x4_b);
-      Log.report(logvisor::Info, FMT_STRING("    color_c: {}"), stage->colorPass.x8_c);
-      Log.report(logvisor::Info, FMT_STRING("    color_d: {}"), stage->colorPass.xc_d);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_a: {}"), stage->alphaPass.x0_a);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_b: {}"), stage->alphaPass.x4_b);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_c: {}"), stage->alphaPass.x8_c);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_d: {}"), stage->alphaPass.xc_d);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_clamp: {}"), stage->colorOp.x0_clamp);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_op: {}"), stage->colorOp.x4_op);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_bias: {}"), stage->colorOp.x8_bias);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_scale: {}"), stage->colorOp.xc_scale);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_reg_id: {}"), stage->colorOp.x10_regId);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_clamp: {}"), stage->alphaOp.x0_clamp);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_op: {}"), stage->alphaOp.x4_op);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_bias: {}"), stage->alphaOp.x8_bias);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_scale: {}"), stage->alphaOp.xc_scale);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_reg_id: {}"), stage->alphaOp.x10_regId);
+      Log.report(logvisor::Info, FMT_STRING("    color_a: {}"), stage->colorPass.a);
+      Log.report(logvisor::Info, FMT_STRING("    color_b: {}"), stage->colorPass.b);
+      Log.report(logvisor::Info, FMT_STRING("    color_c: {}"), stage->colorPass.c);
+      Log.report(logvisor::Info, FMT_STRING("    color_d: {}"), stage->colorPass.d);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_a: {}"), stage->alphaPass.a);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_b: {}"), stage->alphaPass.b);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_c: {}"), stage->alphaPass.c);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_d: {}"), stage->alphaPass.d);
+      Log.report(logvisor::Info, FMT_STRING("    color_op_clamp: {}"), stage->colorOp.clamp);
+      Log.report(logvisor::Info, FMT_STRING("    color_op_op: {}"), stage->colorOp.op);
+      Log.report(logvisor::Info, FMT_STRING("    color_op_bias: {}"), stage->colorOp.bias);
+      Log.report(logvisor::Info, FMT_STRING("    color_op_scale: {}"), stage->colorOp.scale);
+      Log.report(logvisor::Info, FMT_STRING("    color_op_reg_id: {}"), stage->colorOp.outReg);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_op_clamp: {}"), stage->alphaOp.clamp);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_op_op: {}"), stage->alphaOp.op);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_op_bias: {}"), stage->alphaOp.bias);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_op_scale: {}"), stage->alphaOp.scale);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_op_reg_id: {}"), stage->alphaOp.outReg);
       Log.report(logvisor::Info, FMT_STRING("    kc_sel: {}"), stage->kcSel);
       Log.report(logvisor::Info, FMT_STRING("    ka_sel: {}"), stage->kaSel);
       Log.report(logvisor::Info, FMT_STRING("    texCoordId: {}"), stage->texCoordId);
       Log.report(logvisor::Info, FMT_STRING("    texMapId: {}"), stage->texMapId);
       Log.report(logvisor::Info, FMT_STRING("    channelId: {}"), stage->channelId);
     }
-    for (int i = 0; i < config.channelMatSrcs.size(); ++i) {
-      Log.report(logvisor::Info, FMT_STRING("  channelMatSrcs[{}]: {}"), i, config.channelMatSrcs[i]);
-    }
-    Log.report(logvisor::Info, FMT_STRING("  alphaDiscard: {}"), config.alphaDiscard);
+    //    for (int i = 0; i < config.channelMatSrcs.size(); ++i) {
+    //      Log.report(logvisor::Info, FMT_STRING("  channelMatSrcs[{}]: {}"), i, config.channelMatSrcs[i]);
+    //    }
+    //    Log.report(logvisor::Info, FMT_STRING("  alphaDiscard: {}"), config.alphaDiscard);
     Log.report(logvisor::Info, FMT_STRING("  denormalizedVertexAttributes: {}"), config.denormalizedVertexAttributes);
   }
 
@@ -396,14 +396,16 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
   if (config.denormalizedVertexAttributes) {
     vtxInAttrs += "\n    @location(0) in_pos: vec3<f32>";
     vtxOutAttrs += "\n    @builtin(position) pos: vec4<f32>;";
-    vtxXfrAttrsPre += "\n    var obj_pos = vec4<f32>(in_pos, 1.0);"
+    vtxXfrAttrsPre +=
+        "\n    var obj_pos = vec4<f32>(in_pos, 1.0);"
         "\n    var mv_pos = ubuf.mv * obj_pos;"
         "\n    out.pos = ubuf.proj * mv_pos;";
     if (config.denormalizedHasNrm) {
       vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) nrm: vec3<f32>;"), locIdx);
       vtxInAttrs += fmt::format(FMT_STRING("\n    , @location({}) in_nrm: vec3<f32>"), ++locIdx);
       vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.nrm = in_nrm;"));
-      vtxXfrAttrsPre += "\n    var obj_norm = vec4<f32>(in_nrm, 0.0);"
+      vtxXfrAttrsPre +=
+          "\n    var obj_norm = vec4<f32>(in_nrm, 0.0);"
           "\n    var mv_norm = ubuf.mv_inv * obj_norm;";
       info.usesNormal = true;
     }
@@ -429,7 +431,8 @@ var<storage, read> v_packed_uvs: Vec2Block;
         "\n    , @location(1) in_uv_0_4_idx: vec4<i32>"
         "\n    , @location(2) in_uv_5_7_idx: vec4<i32>";
     vtxOutAttrs += "\n    @builtin(position) pos: vec4<f32>;";
-    vtxXfrAttrsPre += "\n    var obj_pos = vec4<f32>(v_verts.data[in_pos_nrm_idx[0]].xyz, 1.0);"
+    vtxXfrAttrsPre +=
+        "\n    var obj_pos = vec4<f32>(v_verts.data[in_pos_nrm_idx[0]].xyz, 1.0);"
         "\n    var obj_norm = vec4<f32>(v_verts.data[in_pos_nrm_idx[1]].xyz, 0.0);"
         "\n    var mv_pos = ubuf.mv * obj_pos;"
         "\n    var mv_norm = ubuf.mv_inv * obj_norm;"
@@ -444,7 +447,7 @@ var<storage, read> v_packed_uvs: Vec2Block;
     }
     {
       std::string outReg;
-      switch (stage->colorOp.x10_regId) {
+      switch (stage->colorOp.outReg) {
       case GX::TevRegID::TEVPREV:
         outReg = "prev";
         break;
@@ -461,23 +464,21 @@ var<storage, read> v_packed_uvs: Vec2Block;
         info.usesTevReg.set(2);
         break;
       default:
-        Log.report(logvisor::Fatal, FMT_STRING("TODO: colorOp outReg {}"), stage->colorOp.x10_regId);
+        Log.report(logvisor::Fatal, FMT_STRING("TODO: colorOp outReg {}"), stage->colorOp.outReg);
       }
-      std::string op =
-          fmt::format(FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),
-                      color_arg_reg(stage->colorPass.x0_a, idx, *stage, info),
-                      color_arg_reg(stage->colorPass.x4_b, idx, *stage, info),
-                      color_arg_reg(stage->colorPass.x8_c, idx, *stage, info),
-                      color_arg_reg(stage->colorPass.xc_d, idx, *stage, info), tev_op(stage->colorOp.x4_op),
-                      tev_bias(stage->colorOp.x8_bias), tev_scale(stage->colorOp.xc_scale));
-      if (stage->colorOp.x0_clamp) {
+      std::string op = fmt::format(
+          FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),
+          color_arg_reg(stage->colorPass.a, idx, *stage, info), color_arg_reg(stage->colorPass.b, idx, *stage, info),
+          color_arg_reg(stage->colorPass.c, idx, *stage, info), color_arg_reg(stage->colorPass.d, idx, *stage, info),
+          tev_op(stage->colorOp.op), tev_bias(stage->colorOp.bias), tev_scale(stage->colorOp.scale));
+      if (stage->colorOp.clamp) {
         op = fmt::format(FMT_STRING("clamp(vec3<f32>({}), vec3<f32>(0.0), vec3<f32>(1.0))"), op);
       }
       fragmentFn += fmt::format(FMT_STRING("\n    {0} = vec4<f32>({1}, {0}.a);"), outReg, op);
     }
     {
       std::string outReg;
-      switch (stage->alphaOp.x10_regId) {
+      switch (stage->alphaOp.outReg) {
       case GX::TevRegID::TEVPREV:
         outReg = "prev.a";
         break;
@@ -494,16 +495,14 @@ var<storage, read> v_packed_uvs: Vec2Block;
         info.usesTevReg.set(2);
         break;
       default:
-        Log.report(logvisor::Fatal, FMT_STRING("TODO: alphaOp outReg {}"), stage->alphaOp.x10_regId);
+        Log.report(logvisor::Fatal, FMT_STRING("TODO: alphaOp outReg {}"), stage->alphaOp.outReg);
       }
-      std::string op =
-          fmt::format(FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),
-                      alpha_arg_reg(stage->alphaPass.x0_a, idx, *stage, info),
-                      alpha_arg_reg(stage->alphaPass.x4_b, idx, *stage, info),
-                      alpha_arg_reg(stage->alphaPass.x8_c, idx, *stage, info),
-                      alpha_arg_reg(stage->alphaPass.xc_d, idx, *stage, info), tev_op(stage->alphaOp.x4_op),
-                      tev_bias(stage->alphaOp.x8_bias), tev_scale(stage->alphaOp.xc_scale));
-      if (stage->alphaOp.x0_clamp) {
+      std::string op = fmt::format(
+          FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),
+          alpha_arg_reg(stage->alphaPass.a, idx, *stage, info), alpha_arg_reg(stage->alphaPass.b, idx, *stage, info),
+          alpha_arg_reg(stage->alphaPass.c, idx, *stage, info), alpha_arg_reg(stage->alphaPass.d, idx, *stage, info),
+          tev_op(stage->alphaOp.op), tev_bias(stage->alphaOp.bias), tev_scale(stage->alphaOp.scale));
+      if (stage->alphaOp.clamp) {
         op = fmt::format(FMT_STRING("clamp({}, 0.0, 1.0)"), op);
       }
       fragmentFn += fmt::format(FMT_STRING("\n    {0} = {1};"), outReg, op);
@@ -518,19 +517,7 @@ var<storage, read> v_packed_uvs: Vec2Block;
     fragmentFnPre += fmt::format(FMT_STRING("\n    var tevreg{0} = ubuf.tevreg{0};"), i);
     info.uniformSize += 16;
   }
-  if (info.sampledColorChannels.any()) {
-    uniformPre += "\n"
-        "struct Light {\n"
-        "    pos: vec3<f32>;\n"
-        "    dir: vec3<f32>;\n"
-        "    color: vec4<f32>;\n"
-        "    lin_att: vec3<f32>;\n"
-        "    ang_att: vec3<f32>;\n"
-        "};";
-    uniBufAttrs += fmt::format(FMT_STRING("\n    lights: array<Light, {}>;"), MaxLights);
-    uniBufAttrs += "\n    lighting_ambient: vec4<f32>;";
-    info.uniformSize += (80 * MaxLights) + 16;
-  }
+  bool addedLightStruct = false;
   for (int i = 0; i < info.sampledColorChannels.size(); ++i) {
     if (!info.sampledColorChannels.test(i)) {
       continue;
@@ -540,26 +527,30 @@ var<storage, read> v_packed_uvs: Vec2Block;
     uniBufAttrs += fmt::format(FMT_STRING("\n    cc{0}_mat: vec4<f32>;"), i);
     info.uniformSize += 32;
 
-    vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>;"), locIdx++, i);
-
-    if (config.channelMatSrcs[i] == GX::SRC_VTX) {
-      if (config.denormalizedVertexAttributes) {
-        if (!info.usesVtxColor) {
-          vtxInAttrs += fmt::format(FMT_STRING("\n    , @location({}) in_clr: vec4<f32>"), locIdx);
-          vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.cc{} = in_clr;"), i);
-        }
-        fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
-      } else {
-        Log.report(logvisor::Fatal, FMT_STRING("SRC_VTX unsupported with normalized vertex attributes"));
+    if (config.colorChannels[i].lightingEnabled) {
+      if (!addedLightStruct) {
+        uniformPre +=
+            "\n"
+            "struct Light {\n"
+            "    pos: vec3<f32>;\n"
+            "    dir: vec3<f32>;\n"
+            "    color: vec4<f32>;\n"
+            "    lin_att: vec3<f32>;\n"
+            "    ang_att: vec3<f32>;\n"
+            "};";
+        addedLightStruct = true;
       }
-      info.usesVtxColor = true;
-    } else {
-      // TODO only perform lighting on CC0 when enabled
+
+      uniBufAttrs += fmt::format(FMT_STRING("\n    lights{}: array<Light, {}>;"), i, GX::MaxLights);
+      uniBufAttrs += fmt::format(FMT_STRING("\n    lighting_ambient{}: vec4<f32>;"), i);
+      info.uniformSize += (80 * GX::MaxLights) + 16;
+
+      vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>;"), locIdx++, i);
       vtxXfrAttrs += fmt::format(FMT_STRING(R"""(
     {{
-      var lighting = ubuf.lighting_ambient + ubuf.cc{0}_amb;
+      var lighting = ubuf.lighting_ambient{0} + ubuf.cc{0}_amb;
       for (var i = 0; i < {1}; i = i + 1) {{
-          var light = ubuf.lights[i];
+          var light = ubuf.lights{0}[i];
           var delta = mv_pos.xyz - light.pos;
           var dist = length(delta);
           var delta_norm = delta / dist;
@@ -575,12 +566,27 @@ var<storage, read> v_packed_uvs: Vec2Block;
           lighting = lighting + vec4<f32>(this_color, 0.0);
       }}
       out.cc{0} = clamp(lighting, vec4<f32>(0.0), vec4<f32>(1.0));
-    }})"""), i, MaxLights);
+    }})"""),
+                                 i, GX::MaxLights);
       fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
+    } else if (config.colorChannels[i].matSrc == GX::SRC_VTX) {
+      if (config.denormalizedVertexAttributes) {
+        if (!info.usesVtxColor) {
+          vtxInAttrs += fmt::format(FMT_STRING("\n    , @location({}) in_clr: vec4<f32>"), locIdx);
+        }
+        vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>;"), locIdx++, i);
+        vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.cc{} = in_clr;"), i);
+        fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
+      } else {
+        Log.report(logvisor::Fatal, FMT_STRING("SRC_VTX unsupported with normalized vertex attributes"));
+      }
+      info.usesVtxColor = true;
+    } else {
+      fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = ubuf.cc{0}_mat;"), i);
     }
   }
-  for (int i = 0; i < info.sampledKcolors.size(); ++i) {
-    if (!info.sampledKcolors.test(i)) {
+  for (int i = 0; i < info.sampledKColors.size(); ++i) {
+    if (!info.sampledKColors.test(i)) {
       continue;
     }
     uniBufAttrs += fmt::format(FMT_STRING("\n    kcolor{}: vec4<f32>;"), i);
@@ -621,6 +627,9 @@ var<storage, read> v_packed_uvs: Vec2Block;
     fragmentFnPre += fmt::format(
         FMT_STRING("\n    var sampled{0} = textureSampleBias(tex{0}, tex{0}_samp, in.tex{0}_uv, ubuf.tex{0}_lod);"), i);
     locIdx++;
+  }
+  if (config.alphaDiscard) {
+    fragmentFn += fmt::format(FMT_STRING("\n   if (prev.a < {}f) {{ discard; }}"), *config.alphaDiscard);
   }
 
   const auto shaderSource =

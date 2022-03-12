@@ -1,15 +1,16 @@
 #include "Runtime/Graphics/CCubeRenderer.hpp"
 
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CDrawable.hpp"
-#include "Runtime/Graphics/CMetroidModelInstance.hpp"
-#include "Runtime/Graphics/CDrawablePlaneObject.hpp"
-#include "Runtime/Graphics/CLight.hpp"
-#include "Runtime/Graphics/CModel.hpp"
-#include "Runtime/Particle/CParticleGen.hpp"
+#include "Runtime/Graphics/CCubeMaterial.hpp"
 #include "Runtime/Graphics/CCubeModel.hpp"
 #include "Runtime/Graphics/CCubeSurface.hpp"
-#include "Runtime/Graphics/CCubeMaterial.hpp"
+#include "Runtime/Graphics/CDrawable.hpp"
+#include "Runtime/Graphics/CDrawablePlaneObject.hpp"
+#include "Runtime/Graphics/CGX.hpp"
+#include "Runtime/Graphics/CLight.hpp"
+#include "Runtime/Graphics/CMetroidModelInstance.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/Particle/CParticleGen.hpp"
 
 namespace metaforce {
 static logvisor::Module Log("CCubeRenderer");
@@ -197,15 +198,35 @@ CCubeRenderer::CCubeRenderer(IObjectStore& store, IFactory& resFac) : x8_factory
 
 CCubeRenderer::~CCubeRenderer() { g_Renderer = nullptr; }
 
-void CCubeRenderer::GenerateReflectionTex() {}
-void CCubeRenderer::GenerateFogVolumeRampTex() {}
-void CCubeRenderer::GenerateSphereRampTex() {}
-void CCubeRenderer::LoadThermoPalette() {}
-void CCubeRenderer::ReallyDrawPhazonSuitIndirectEffect(const zeus::CColor& vertColor, const CTexture& maskTex,
-                                                       const CTexture& indTex, const zeus::CColor& modColor,
-                                                       float scale, float offX, float offY) {}
-void CCubeRenderer::ReallyDrawPhazonSuitEffect(const zeus::CColor& modColor, const CTexture& maskTex) {}
-void CCubeRenderer::DoPhazonSuitIndirectAlphaBlur(float blurRadius, float f2, const TLockedToken<CTexture>& indTex) {}
+void CCubeRenderer::GenerateReflectionTex() {
+  // TODO
+}
+
+void CCubeRenderer::GenerateFogVolumeRampTex() {
+  // TODO
+}
+
+void CCubeRenderer::GenerateSphereRampTex() {
+  // TODO
+}
+
+void CCubeRenderer::LoadThermoPalette() {
+  // TODO
+}
+
+void CCubeRenderer::ReallyDrawPhazonSuitIndirectEffect(const zeus::CColor& vertColor, CTexture& maskTex,
+                                                       CTexture& indTex, const zeus::CColor& modColor, float scale,
+                                                       float offX, float offY) {
+  // TODO
+}
+
+void CCubeRenderer::ReallyDrawPhazonSuitEffect(const zeus::CColor& modColor, CTexture& maskTex) {
+  // TODO
+}
+
+void CCubeRenderer::DoPhazonSuitIndirectAlphaBlur(float blurRadius, float f2, const TLockedToken<CTexture>& indTex) {
+  // TODO
+}
 
 void CCubeRenderer::AddWorldSurfaces(CCubeModel& model) {
   for (auto* it = model.GetFirstSortedSurface(); it != nullptr; it = it->GetNextSurface()) {
@@ -216,6 +237,7 @@ void CCubeRenderer::AddWorldSurfaces(CCubeModel& model) {
     Buckets::Insert(pos, bounds, EDrawableType::WorldSurface, it, xb0_viewPlane, static_cast<u16>(blend == 0x50004));
   }
 }
+
 void CCubeRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* geometry,
                                       const CAreaRenderOctTree* octTree, s32 areaIdx) {
   auto search = FindStaticGeometry(geometry);
@@ -448,7 +470,11 @@ void CCubeRenderer::RenderBucketItems(const CAreaListItem* item) {
     }
   }
 }
-void CCubeRenderer::PostRenderFogs() {}
+
+void CCubeRenderer::PostRenderFogs() {
+  // TODO
+}
+
 void CCubeRenderer::SetModelMatrix(const zeus::CTransform& xf) { CGraphics::SetModelMatrix(xf); }
 
 void CCubeRenderer::HandleUnsortedModel(CAreaListItem* areaItem, CCubeModel& model, const CModelFlags& flags) {
@@ -473,7 +499,10 @@ void CCubeRenderer::HandleUnsortedModelWireframe(CAreaListItem* areaItem, CCubeM
   }
 }
 
-void CCubeRenderer::ActivateLightsForModel(const CAreaListItem* areaItem, CCubeModel& model) {}
+void CCubeRenderer::ActivateLightsForModel(const CAreaListItem* areaItem, CCubeModel& model) {
+  // TODO
+}
+
 void CCubeRenderer::AddParticleGen(CParticleGen& gen) {
   auto bounds = gen.GetBounds();
 
@@ -575,8 +604,8 @@ void CCubeRenderer::BeginScene() {
   }
 
   // GXSetPixelFmt(x318_26_requestRGBA6, GX_ZC_LINEAR);
-  aurora::gfx::set_alpha_update(true);
-  aurora::gfx::set_dst_alpha(true, 0.f);
+  GXSetAlphaUpdate(true);
+  GXSetDstAlpha(true, 0.f);
   CGraphics::BeginScene();
 }
 
@@ -607,64 +636,164 @@ void CCubeRenderer::BeginPrimitive(IRenderer::EPrimitiveType type, s32 nverts) {
   x18_primVertCount = nverts;
   CGraphics::StreamBegin(GX::Primitive(type));
 }
+
 void CCubeRenderer::BeginLines(s32 nverts) { BeginPrimitive(EPrimitiveType::Lines, nverts); }
+
 void CCubeRenderer::BeginLineStrip(s32 nverts) { BeginPrimitive(EPrimitiveType::LineStrip, nverts); }
+
 void CCubeRenderer::BeginTriangles(s32 nverts) { BeginPrimitive(EPrimitiveType::Triangles, nverts); }
+
 void CCubeRenderer::BeginTriangleStrip(s32 nverts) { BeginPrimitive(EPrimitiveType::TriangleStrip, nverts); }
+
 void CCubeRenderer::BeginTriangleFan(s32 nverts) { BeginPrimitive(EPrimitiveType::TriangleFan, nverts); }
+
 void CCubeRenderer::PrimVertex(const zeus::CVector3f& vertex) {
   --x18_primVertCount;
   CGraphics::StreamColor(x2e0_primColor);
   CGraphics::StreamNormal(x2e4_primNormal);
   CGraphics::StreamVertex(vertex);
 }
+
 void CCubeRenderer::PrimNormal(const zeus::CVector3f& normal) { x2e4_primNormal = normal; }
+
 void CCubeRenderer::PrimColor(float r, float g, float b, float a) { PrimColor({r, g, b, a}); }
+
 void CCubeRenderer::PrimColor(const zeus::CColor& color) { x2e0_primColor = color; }
+
 void CCubeRenderer::EndPrimitive() {
   while (x18_primVertCount > 0) {
     PrimVertex(zeus::skZero3f);
   }
   CGraphics::StreamEnd();
 }
+
 void CCubeRenderer::SetAmbientColor(const zeus::CColor& color) { CGraphics::SetAmbientColor(color); }
+
 void CCubeRenderer::DrawString(const char* string, s32 x, s32 y) { x10_font.DrawString(string, x, y, zeus::skWhite); }
 
 u32 CCubeRenderer::GetFPS() { return CGraphics::GetFPS(); }
-void CCubeRenderer::CacheReflection(IRenderer::TReflectionCallback cb, void* ctx, bool clearAfter) {}
-void CCubeRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength) {}
-void CCubeRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,
-                                     TConstVectorRef positions, TConstVectorRef normals, const CModelFlags& flags) {}
-void CCubeRenderer::DrawModelDisintegrate(const CModel& model, const CTexture& tex, const zeus::CColor& color,
-                                          TConstVectorRef positions, TConstVectorRef normals) {}
-void CCubeRenderer::DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) {}
-void CCubeRenderer::SetWireframeFlags(s32 flags) {}
-void CCubeRenderer::SetWorldFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) {}
-void CCubeRenderer::RenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
-                                    const TLockedToken<CModel>* model, const CSkinnedModel* sModel) {}
-void CCubeRenderer::SetThermal(bool thermal, float level, const zeus::CColor& color) {}
-void CCubeRenderer::SetThermalColdScale(float scale) {}
-void CCubeRenderer::DoThermalBlendCold() {}
-void CCubeRenderer::DoThermalBlendHot() {}
-u32 CCubeRenderer::GetStaticWorldDataSize() { return 0; }
 
-void CCubeRenderer::SetGXRegister1Color(const zeus::CColor& color) {
-  aurora::gfx::set_tev_reg_color(GX::TevRegID::TEVREG1, color);
+void CCubeRenderer::CacheReflection(IRenderer::TReflectionCallback cb, void* ctx, bool clearAfter) {
+  // TODO
 }
+
+void CCubeRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength) {
+  // TODO
+}
+
+void CCubeRenderer::DrawThermalModel(CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,
+                                     TConstVectorRef positions, TConstVectorRef normals, const CModelFlags& flags) {
+  model.UpdateLastFrame();
+  // TODO
+  // DoThermalModelDraw(model.GetInstance(), multCol, addCol, positions, normals, flags);
+}
+
+void CCubeRenderer::DrawModelDisintegrate(CModel& model, CTexture& tex, const zeus::CColor& color,
+                                          TConstVectorRef positions, TConstVectorRef normals, float t) {
+  tex.Load(GX::TEXMAP0, EClampMode::Clamp);
+  CGX::SetNumIndStages(0);
+  CGX::SetNumTevStages(2);
+  CGX::SetNumTexGens(2);
+  CGX::SetNumChans(0);
+  CGX::SetBlendMode(GX::BM_BLEND, GX::BL_SRCALPHA, GX::BL_INVSRCALPHA, GX::LO_CLEAR);
+  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
+  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE1);
+  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_TEXC);
+  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_TEXA);
+  CGX::SetTevColorIn(GX::TEVSTAGE1, GX::CC_ZERO, GX::CC_TEXC, GX::CC_CPREV, GX::CC_KONST);
+  CGX::SetTevAlphaIn(GX::TEVSTAGE1, GX::CA_ZERO, GX::CA_TEXA, GX::CA_APREV, GX::CA_ZERO);
+  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
+  CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD1, GX::TEXMAP0, GX::COLOR_NULL);
+  CGX::SetTevKColorSel(GX::TEVSTAGE1, GX::TEV_KCSEL_K0);
+  CGX::SetTevKColor(GX::KCOLOR0, color);
+  // TODO
+}
+
+void CCubeRenderer::DrawModelFlat(CModel& model, const CModelFlags& flags, bool unsortedOnly, TConstVectorRef positions,
+                                  TConstVectorRef normals) {
+  if (flags.x0_blendMode >= 7) {
+    CGX::SetBlendMode(GX::BM_BLEND, GX::BL_SRCALPHA, GX::BL_ONE, GX::LO_CLEAR);
+  } else if (flags.x0_blendMode >= 5) {
+    CGX::SetBlendMode(GX::BM_BLEND, GX::BL_SRCALPHA, GX::BL_INVSRCALPHA, GX::LO_CLEAR);
+  } else {
+    CGX::SetBlendMode(GX::BM_BLEND, GX::BL_ONE, GX::BL_ZERO, GX::LO_CLEAR);
+  }
+  CGX::SetZMode(true, flags.x2_flags & CModelFlagBits::DepthTest ? GX::LEQUAL : GX::ALWAYS,
+                flags.x2_flags.IsSet(CModelFlagBits::DepthUpdate));
+  CGX::SetNumTevStages(1);
+  CGX::SetNumTexGens(1);
+  CGX::SetNumChans(0);
+  CGX::SetNumIndStages(0);
+  CGX::SetAlphaCompare(GX::ALWAYS, 0, GX::AOP_AND, GX::ALWAYS, 0);
+  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_KONST);
+  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_KONST);
+  CGX::SetTevKColor(GX::KCOLOR0, flags.x4_color);
+  CGX::SetTevKColorSel(GX::TEVSTAGE0, GX::TEV_KCSEL_K0);
+  CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_K0_A);
+  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR_NULL);
+  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
+  CGX::SetTevDirect(GX::TEVSTAGE0);
+  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_POS, GX::IDENTITY, false, GX::PTIDENTITY);
+  model.UpdateLastFrame();
+  model.GetInstance().DrawFlat(positions, normals, unsortedOnly ? ESurfaceSelection::Unsorted : ESurfaceSelection::All);
+}
+
+void CCubeRenderer::SetWireframeFlags(s32 flags) {
+  // TODO
+}
+
+void CCubeRenderer::SetWorldFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) {
+  // TODO
+}
+
+void CCubeRenderer::RenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
+                                    const TLockedToken<CModel>* model, const CSkinnedModel* sModel) {
+  // TODO
+}
+
+void CCubeRenderer::SetThermal(bool thermal, float level, const zeus::CColor& color) {
+  // TODO
+}
+
+void CCubeRenderer::SetThermalColdScale(float scale) {
+  // TODO
+}
+
+void CCubeRenderer::DoThermalBlendCold() {
+  // TODO
+}
+
+void CCubeRenderer::DoThermalBlendHot() {
+  // TODO
+}
+
+u32 CCubeRenderer::GetStaticWorldDataSize() {
+  // TODO
+  return 0;
+}
+
+void CCubeRenderer::SetGXRegister1Color(const zeus::CColor& color) { GXSetTevColor(GX::TevRegID::TEVREG1, color); }
 
 void CCubeRenderer::SetWorldLightFadeLevel(float level) { x2fc_tevReg1Color = zeus::CColor(level, level, level, 1.f); }
 
-void CCubeRenderer::PrepareDynamicLights(const std::vector<CLight>& lights) {}
-void CCubeRenderer::AllocatePhazonSuitMaskTexture() {}
+void CCubeRenderer::PrepareDynamicLights(const std::vector<CLight>& lights) {
+  // TODO
+}
+
+void CCubeRenderer::AllocatePhazonSuitMaskTexture() {
+  // TODO
+}
 
 void CCubeRenderer::DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectMod,
                                                  const TLockedToken<CTexture>& indTex, const zeus::CColor& indirectMod,
                                                  float blurRadius, float scale, float offX, float offY) {
   // TODO
-  aurora::gfx::set_dst_alpha(false, 0.f);
+  GXSetDstAlpha(false, 0.f);
 }
 
-void CCubeRenderer::DrawXRayOutline(const zeus::CAABox& aabb) {}
+void CCubeRenderer::DrawXRayOutline(const zeus::CAABox& aabb) {
+  // TODO
+}
 
 std::list<CCubeRenderer::CAreaListItem>::iterator
 CCubeRenderer::FindStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) {
@@ -687,9 +816,10 @@ void CCubeRenderer::SetupCGraphicsState() {
   CGraphics::SetModelMatrix({});
   CTevCombiners::ResetStates();
   CGraphics::SetAmbientColor({0.4f});
-  // CGX::SetChanMatColor(EChannelId::Channel0, GX::Color{0xFFFFFFFF});
+  CGX::SetChanMatColor(CGX::EChannelId::Channel0, zeus::skWhite);
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
-  // CGX::SetChanCtrl(EChannelId::Channel1, false, GX::SRC_REG, GX::LIGHT_NULL, GX::DF_NONE, GX::AF_NONE);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel1, false, GX::SRC_REG, GX::SRC_REG, GX::LIGHT_NULL, GX::DF_NONE,
+                   GX::AF_NONE);
   CCubeMaterial::EnsureTevsDirect();
 }
 
@@ -699,6 +829,6 @@ void CCubeRenderer::SetupRendererStates(bool depthWrite) {
   CGraphics::SetAmbientColor(zeus::skBlack);
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, depthWrite);
   CCubeMaterial::ResetCachedMaterials();
-  aurora::gfx::set_tev_reg_color(GX::TEVREG1, x2fc_tevReg1Color);
+  GXSetTevColor(GX::TEVREG1, x2fc_tevReg1Color);
 }
 } // namespace metaforce

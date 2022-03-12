@@ -1713,7 +1713,7 @@ void CPatterned::Render(CStateManager& mgr) {
       (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot && x402_31_thawed) ||
       mgr.GetThermalDrawFlag() == EThermalDrawFlag::Bypass) {
     if (x401_28_burning) {
-      const CTexture* ashy = mgr.GetActorModelParticles()->GetAshyTexture(*this);
+      CTexture* ashy = mgr.GetActorModelParticles()->GetAshyTexture(*this);
       u8 alpha = GetModelAlphau8(mgr);
       if (ashy != nullptr && ((!x401_29_laggedBurnDeath && alpha <= 255) || alpha <= 127)) {
         if (xe5_31_pointGeneratorParticles) {

@@ -422,12 +422,12 @@ void CModelData::MultiPassDraw(EWhichModel which, const zeus::CTransform& xf, co
   }
 }
 
-void CModelData::DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform& xf, const CTexture& tex,
+void CModelData::DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform& xf, CTexture& tex,
                                   const zeus::CColor& addColor, float t) {
   DisintegrateDraw(GetRenderingModel(mgr), xf, tex, addColor, t);
 }
 
-void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf, const CTexture& tex,
+void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf, CTexture& tex,
                                   const zeus::CColor& addColor, float t) {
   zeus::CTransform scaledXf = xf * zeus::CTransform::Scale(x0_scale);
   CGraphics::SetModelMatrix(scaledXf);
@@ -435,27 +435,13 @@ void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf,
   const auto aabb = GetBounds(scaledXf);
   if (x10_animData) {
     auto& model = PickAnimatedModel(which);
-    // x10_animData->SetupRender(model, CModelFlags{}, {}, ?)
-    model.DoDrawCallback([](auto positions, auto normals) {
-      // TODO
+    x10_animData->SetupRender(model, nullptr, nullptr);
+    model.DoDrawCallback([&](auto positions, auto normals) {
+      g_Renderer->DrawModelDisintegrate(*model.GetModel(), tex, addColor, positions, normals, t);
     });
   } else {
-    g_Renderer->DrawModelDisintegrate(*PickStaticModel(which), tex, addColor, {}, {});
+    g_Renderer->DrawModelDisintegrate(*PickStaticModel(which), tex, addColor, nullptr, nullptr, t);
   }
-
-  //  CBooModel::SetDisintegrateTexture(tex.GetTexture());
-  //  CModelFlags flags(5, 0, 3, zeus::skWhite);
-  //  flags.m_extendedShader = EExtendedShader::Disintegrate;
-  //  flags.addColor = addColor;
-  //  flags.addColor.a() = t; // Stash T value in here (shader does not care)
-  //
-  //  if (x10_animData) {
-  //    CSkinnedModel& sModel = PickAnimatedModel(which);
-  //    x10_animData->Render(sModel, flags, std::nullopt, nullptr);
-  //  } else {
-  //    CBooModel& model = *PickStaticModel(which);
-  //    model.Draw(flags, nullptr, nullptr);
-  //  }
 }
 
 void CModelData::ThermalDraw(const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags) {}

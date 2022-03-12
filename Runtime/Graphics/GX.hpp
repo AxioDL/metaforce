@@ -1,7 +1,11 @@
 #pragma once
 
-#include <cstdint>
-#include <cstddef>
+#include "../GCNTypes.hpp"
+
+#include <bit>
+#include <bitset>
+
+#include <zeus/CColor.hpp>
 
 namespace GX {
 enum Attr {
@@ -303,12 +307,14 @@ enum TevSwapSel {
   TEV_SWAP3 = 0x3,
   MAX_TEVSWAP = 0x4,
 };
+
 enum TevColorChan {
   CH_RED = 0x0,
   CH_GREEN = 0x1,
   CH_BLUE = 0x2,
   CH_ALPHA = 0x3,
 };
+
 enum TevRegID {
   TEVPREV = 0,
   TEVREG0 = 1,
@@ -319,14 +325,14 @@ enum TevRegID {
 
 enum DiffuseFn {
   DF_NONE = 0,
-  DF_SIGN,
-  DF_CLAMP,
+  DF_SIGN = 1,
+  DF_CLAMP = 2,
 };
 
 enum AttnFn {
   AF_SPEC = 0,
   AF_SPOT = 1,
-  AF_NONE,
+  AF_NONE = 2,
 };
 
 enum Primitive {
@@ -405,7 +411,7 @@ enum Compare {
   ALWAYS,
 };
 
-enum BlendFactor : uint16_t {
+enum BlendFactor {
   BL_ZERO,
   BL_ONE,
   BL_SRCCLR,
@@ -413,10 +419,19 @@ enum BlendFactor : uint16_t {
   BL_SRCALPHA,
   BL_INVSRCALPHA,
   BL_DSTALPHA,
-  BL_INVDSTALPHA
+  BL_INVDSTALPHA,
+  BL_DSTCLR,
+  BL_INVDSTCLR,
 };
 
-enum TextureFormat : uint32_t {
+enum CullMode {
+  CULL_NONE,
+  CULL_FRONT,
+  CULL_BACK,
+  CULL_ALL,
+};
+
+enum TextureFormat {
   TF_I4 = 0x0,
   TF_I8 = 0x1,
   TF_IA4 = 0x2,
@@ -520,6 +535,7 @@ enum IndTexAlphaSel {
   ITBA_U,
   MAX_ITBALPHA,
 };
+
 enum IndTexStageID {
   INDTEXSTAGE0,
   INDTEXSTAGE1,
@@ -611,6 +627,8 @@ enum LightID {
   MAX_LIGHT = 0x100,
   LIGHT_NULL = 0x000,
 };
+constexpr u8 MaxLights = std::bit_width<std::underlying_type_t<LightID>>(MAX_LIGHT) - 1;
+using LightMask = std::bitset<MaxLights>;
 
 enum FogType {
   FOG_NONE = 0x00,
@@ -627,3 +645,43 @@ enum FogType {
 };
 
 } // namespace GX
+
+using GXColor = zeus::CColor;
+using GXBool = bool;
+
+void GXSetNumChans(u8 num) noexcept;
+void GXSetNumIndStages(u8 num) noexcept;
+void GXSetNumTevStages(u8 num) noexcept;
+void GXSetNumTexGens(u8 num) noexcept;
+void GXSetTevAlphaIn(GX::TevStageID stageId, GX::TevAlphaArg a, GX::TevAlphaArg b, GX::TevAlphaArg c,
+                     GX::TevAlphaArg d) noexcept;
+void GXSetTevAlphaOp(GX::TevStageID stageId, GX::TevOp op, GX::TevBias bias, GX::TevScale scale, GXBool clamp,
+                     GX::TevRegID outReg) noexcept;
+void GXSetTevColorIn(GX::TevStageID stageId, GX::TevColorArg a, GX::TevColorArg b, GX::TevColorArg c,
+                     GX::TevColorArg d) noexcept;
+void GXSetTevColorOp(GX::TevStageID stageId, GX::TevOp op, GX::TevBias bias, GX::TevScale scale, GXBool clamp,
+                     GX::TevRegID outReg) noexcept;
+void GXSetCullMode(GX::CullMode mode) noexcept;
+void GXSetBlendMode(GX::BlendMode mode, GX::BlendFactor src, GX::BlendFactor dst, GX::LogicOp op) noexcept;
+void GXSetZMode(GXBool compare_enable, GX::Compare func, GXBool update_enable) noexcept;
+void GXSetTevColor(GX::TevRegID id, const GXColor& color) noexcept;
+void GXSetTevKColor(GX::TevKColorID id, const GXColor& color) noexcept;
+void GXSetAlphaUpdate(GXBool enabled) noexcept;
+// Originally u8 instead of float
+void GXSetDstAlpha(GXBool enabled, float value) noexcept;
+void GXSetCopyClear(const GXColor& color, float depth) noexcept;
+void GXSetTevOrder(GX::TevStageID id, GX::TexCoordID tcid, GX::TexMapID tmid, GX::ChannelID cid) noexcept;
+void GXSetTevKColorSel(GX::TevStageID id, GX::TevKColorSel sel) noexcept;
+void GXSetTevKAlphaSel(GX::TevStageID id, GX::TevKAlphaSel sel) noexcept;
+void GXSetChanAmbColor(GX::ChannelID id, const GXColor& color) noexcept;
+void GXSetChanMatColor(GX::ChannelID id, const GXColor& color) noexcept;
+void GXSetChanCtrl(GX::ChannelID id, GXBool lightingEnabled, GX::ColorSrc ambSrc, GX::ColorSrc matSrc,
+                   GX::LightMask lightState, GX::DiffuseFn diffFn, GX::AttnFn attnFn) noexcept;
+// Originally u8 instead of floats
+void GXSetAlphaCompare(GX::Compare comp0, float ref0, GX::AlphaOp op, GX::Compare comp1, float ref1) noexcept;
+void GXSetVtxDescv(GX::VtxDescList* list) noexcept;
+void GXClearVtxDesc() noexcept;
+void GXSetArray(GX::Attr attr, const void* data, u8 stride) noexcept;
+void GXSetTevDirect(GX::TevStageID stageId) noexcept;
+void GXSetFog(GX::FogType type, float startZ, float endZ, float nearZ, float farZ, const GXColor& color) noexcept;
+void GXCallDisplayList(const void* data, u32 nbytes) noexcept;

@@ -17,6 +17,7 @@ set(GRAPHICS_SOURCES
         CVertexMorphEffect.hpp CVertexMorphEffect.cpp
         CMoviePlayer.hpp CMoviePlayer.cpp
         CGraphicsPalette.hpp CGraphicsPalette.cpp
+        CGX.hpp CGX.cpp
         CPVSVisSet.hpp CPVSVisSet.cpp
         CPVSVisOctree.hpp CPVSVisOctree.cpp
         CPVSAreaSet.hpp CPVSAreaSet.cpp

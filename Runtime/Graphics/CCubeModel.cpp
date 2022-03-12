@@ -5,21 +5,19 @@
 #include "Graphics/CCubeSurface.hpp"
 #include "Graphics/CGraphics.hpp"
 #include "Graphics/CModel.hpp"
-
-#include <aurora/model.hpp>
+#include "Graphics/CGX.hpp"
 
 namespace metaforce {
 bool CCubeModel::sRenderModelBlack = false;
 bool CCubeModel::sRenderModelShadow = false;
 bool CCubeModel::sUsingPackedLightmaps = false;
 const CTexture* CCubeModel::sShadowTexture = nullptr;
+zeus::CTransform CCubeModel::sTextureProjectionTransform;
+GX::LightMask CCubeModel::sChannel0DisableLightMask;
+GX::LightMask CCubeModel::sChannel1EnableLightMask;
 
 static bool sDrawingOccluders = false;
 static bool sDrawingWireframe = false;
-
-static zeus::CTransform sTextureProjectionTransform;
-static u8 sChannel0DisableLightMask = 0;
-static u8 sChannel1EnableLightMask = 0;
 
 static zeus::CVector3f sPlayerPosition;
 
@@ -159,8 +157,8 @@ void CCubeModel::DrawFlat(TConstVectorRef positions, TConstVectorRef normals, ES
     const auto* surface = x38_firstUnsortedSurf;
     while (surface != nullptr) {
       const auto mat = GetMaterialByIndex(surface->GetMaterialIndex());
-      aurora::gfx::model::set_vtx_desc_compressed(mat.GetVertexDesc());
-      aurora::gfx::model::queue_surface(surface->GetDisplayList(), surface->GetDisplayListSize());
+      CGX::SetVtxDescv_Compressed(mat.GetVertexDesc());
+      CGX::CallDisplayList(surface->GetDisplayList(), surface->GetDisplayListSize());
       surface = surface->GetNextSurface();
     }
   }
@@ -168,19 +166,23 @@ void CCubeModel::DrawFlat(TConstVectorRef positions, TConstVectorRef normals, ES
     const auto* surface = x3c_firstSortedSurf;
     while (surface != nullptr) {
       const auto mat = GetMaterialByIndex(surface->GetMaterialIndex());
-      aurora::gfx::model::set_vtx_desc_compressed(mat.GetVertexDesc());
-      aurora::gfx::model::queue_surface(surface->GetDisplayList(), surface->GetDisplayListSize());
+      CGX::SetVtxDescv_Compressed(mat.GetVertexDesc());
+      CGX::CallDisplayList(surface->GetDisplayList(), surface->GetDisplayListSize());
       surface = surface->GetNextSurface();
     }
   }
 }
 
 void CCubeModel::DrawNormal(TConstVectorRef positions, TConstVectorRef normals, ESurfaceSelection surfaces) {
-  CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
-  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::skPassZero);
-  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
-  // TODO update fog
-  CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::Zero, ERglBlendFactor::One, ERglLogicOp::Clear);
+  CGX::SetNumIndStages(0);
+  CGX::SetNumTevStages(1);
+  CGX::SetNumTexGens(1);
+  CGX::SetZMode(true, GX::LEQUAL, true);
+  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR_NULL);
+  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO);
+  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO);
+  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
+  CGX::SetBlendMode(GX::BM_BLEND, GX::BL_ZERO, GX::BL_ONE, GX::LO_CLEAR);
   DrawFlat(positions, normals, surfaces);
 }
 
@@ -210,7 +212,7 @@ void CCubeModel::DrawSurface(const CCubeSurface& surface, const CModelFlags& fla
   auto mat = GetMaterialByIndex(surface.GetMaterialIndex());
   if (!mat.GetFlags().IsSet(CCubeMaterialFlagBits::fShadowOccluderMesh) || sDrawingOccluders) {
     mat.SetCurrent(flags, surface, *this);
-    aurora::gfx::model::queue_surface(surface.GetDisplayList(), surface.GetDisplayListSize());
+    CGX::CallDisplayList(surface.GetDisplayList(), surface.GetDisplayListSize());
   }
 }
 
@@ -245,8 +247,8 @@ void CCubeModel::DrawSurfaceWireframe(const CCubeSurface& surface) {
   // TODO convert vertices to line strips and draw
 }
 
-void CCubeModel::EnableShadowMaps(const CTexture& shadowTex, const zeus::CTransform& textureProjXf, u8 chan0DisableMask,
-                                  u8 chan1EnableLightMask) {
+void CCubeModel::EnableShadowMaps(const CTexture& shadowTex, const zeus::CTransform& textureProjXf,
+                                  GX::LightMask chan0DisableMask, GX::LightMask chan1EnableLightMask) {
   sRenderModelShadow = true;
   sShadowTexture = &shadowTex;
   sTextureProjectionTransform = textureProjXf;
@@ -257,8 +259,8 @@ void CCubeModel::EnableShadowMaps(const CTexture& shadowTex, const zeus::CTransf
 void CCubeModel::DisableShadowMaps() { sRenderModelShadow = false; }
 
 void CCubeModel::SetArraysCurrent() {
-  aurora::gfx::model::set_vertex_buffer(x0_modelInstance.GetVertexPointer());
-  aurora::gfx::model::set_normal_buffer(x0_modelInstance.GetNormalPointer());
+  CGX::SetArray(GX::VA_POS, x0_modelInstance.GetVertexPointer());
+  CGX::SetArray(GX::VA_NRM, x0_modelInstance.GetNormalPointer());
   SetStaticArraysCurrent();
 }
 
@@ -278,8 +280,8 @@ void CCubeModel::SetRenderModelBlack(bool v) {
 }
 
 void CCubeModel::SetSkinningArraysCurrent(TConstVectorRef positions, TConstVectorRef normals) {
-  aurora::gfx::model::set_vertex_buffer(positions);
-  aurora::gfx::model::set_normal_buffer(normals);
+  CGX::SetArray(GX::VA_POS, positions);
+  CGX::SetArray(GX::VA_NRM, normals);
   // colors unused
   SetStaticArraysCurrent();
 }
@@ -292,20 +294,21 @@ void CCubeModel::SetStaticArraysCurrent() {
     sUsingPackedLightmaps = false;
   }
   if (sUsingPackedLightmaps) {
-    aurora::gfx::model::set_tex0_tc_buffer(packedTexCoords);
+    CGX::SetArray(GX::VA_TEX0, packedTexCoords);
   } else {
-    aurora::gfx::model::set_tex0_tc_buffer(texCoords);
+    CGX::SetArray(GX::VA_TEX0, texCoords);
   }
-  aurora::gfx::model::set_tc_buffer(texCoords);
+  // TexCoord1 is currently used for all remaining
+  CGX::SetArray(GX::VA_TEX1, texCoords);
   CCubeMaterial::KillCachedViewDepState();
 }
 
 void CCubeModel::SetUsingPackedLightmaps(bool v) {
   sUsingPackedLightmaps = v;
   if (v) {
-    aurora::gfx::model::set_tex0_tc_buffer(x0_modelInstance.GetPackedTCPointer());
+    CGX::SetArray(GX::VA_TEX0, x0_modelInstance.GetPackedTCPointer());
   } else {
-    aurora::gfx::model::set_tex0_tc_buffer(x0_modelInstance.GetTCPointer());
+    CGX::SetArray(GX::VA_TEX0, x0_modelInstance.GetTCPointer());
   }
 }
 

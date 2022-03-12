@@ -301,10 +301,10 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
               .storeOp = wgpu::StoreOp::Store,
               .clearColor =
                   {
-                      .r = gfx::gx::g_clearColor.r(),
-                      .g = gfx::gx::g_clearColor.g(),
-                      .b = gfx::gx::g_clearColor.b(),
-                      .a = gfx::gx::g_clearColor.a(),
+                      .r = gfx::gx::g_gxState.clearColor.r(),
+                      .g = gfx::gx::g_gxState.clearColor.g(),
+                      .b = gfx::gx::g_gxState.clearColor.b(),
+                      .a = gfx::gx::g_gxState.clearColor.a(),
                   },
           },
       };

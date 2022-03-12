@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Runtime/RetroTypes.hpp"
-#include "Runtime/Graphics/GX.hpp"
-#include "Runtime/Graphics/CTevCombiners.hpp"
 #include "Runtime/ConsoleVariables/CVar.hpp"
+#include "Runtime/Graphics/CTevCombiners.hpp"
+#include "Runtime/Graphics/GX.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 #include <array>
 #include <chrono>
@@ -24,6 +24,83 @@ class CTexture;
 extern CVar* g_disableLighting;
 class CLight;
 class CTimeProvider;
+
+enum class ERglCullMode : std::underlying_type_t<GX::CullMode> {
+  None = GX::CULL_NONE,
+  Front = GX::CULL_FRONT,
+  Back = GX::CULL_BACK,
+  All = GX::CULL_ALL,
+};
+
+enum class ERglBlendMode : std::underlying_type_t<GX::BlendMode> {
+  None = GX::BM_NONE,
+  Blend = GX::BM_BLEND,
+  Logic = GX::BM_LOGIC,
+  Subtract = GX::BM_SUBTRACT,
+  Max = GX::MAX_BLENDMODE,
+};
+
+enum class ERglBlendFactor : std::underlying_type_t<GX::BlendFactor> {
+  Zero = GX::BL_ZERO,
+  One = GX::BL_ONE,
+  SrcColor = GX::BL_SRCCLR,
+  InvSrcColor = GX::BL_INVSRCCLR,
+  SrcAlpha = GX::BL_SRCALPHA,
+  InvSrcAlpha = GX::BL_INVSRCALPHA,
+  DstAlpha = GX::BL_DSTALPHA,
+  InvDstAlpha = GX::BL_INVDSTALPHA,
+  DstColor = GX::BL_DSTCLR,
+  InvDstColor = GX::BL_INVDSTCLR,
+};
+
+enum class ERglLogicOp : std::underlying_type_t<GX::LogicOp> {
+  Clear = GX::LO_CLEAR,
+  And = GX::LO_AND,
+  RevAnd = GX::LO_REVAND,
+  Copy = GX::LO_COPY,
+  InvAnd = GX::LO_INVAND,
+  NoOp = GX::LO_NOOP,
+  Xor = GX::LO_XOR,
+  Or = GX::LO_OR,
+  Nor = GX::LO_NOR,
+  Equiv = GX::LO_EQUIV,
+  Inv = GX::LO_INV,
+  RevOr = GX::LO_REVOR,
+  InvCopy = GX::LO_INVCOPY,
+  InvOr = GX::LO_INVOR,
+  NAnd = GX::LO_NAND,
+  Set = GX::LO_SET,
+};
+
+enum class ERglAlphaFunc : std::underlying_type_t<GX::Compare> {
+  Never = GX::NEVER,
+  Less = GX::LESS,
+  Equal = GX::EQUAL,
+  LEqual = GX::LEQUAL,
+  Greater = GX::GREATER,
+  NEqual = GX::NEQUAL,
+  GEqual = GX::GEQUAL,
+  Always = GX::ALWAYS,
+};
+
+enum class ERglAlphaOp : std::underlying_type_t<GX::AlphaOp> {
+  And = GX::AOP_AND,
+  Or = GX::AOP_OR,
+  Xor = GX::AOP_XOR,
+  XNor = GX::AOP_XNOR,
+  Max = GX::MAX_ALPHAOP,
+};
+
+enum class ERglEnum : std::underlying_type_t<GX::Compare> {
+  Never = GX::NEVER,
+  Less = GX::LESS,
+  Equal = GX::EQUAL,
+  LEqual = GX::LEQUAL,
+  Greater = GX::GREATER,
+  NEqual = GX::NEQUAL,
+  GEqual = GX::GEQUAL,
+  Always = GX::ALWAYS,
+};
 
 using ERglLight = u8;
 
@@ -104,14 +181,14 @@ public:
 
   static CProjectionState g_Proj;
   static zeus::CVector2f g_CachedDepthRange;
-  static CFogState g_Fog;
+  // static CFogState g_Fog;
   static SViewport g_Viewport;
   static float g_ProjAspect;
   static u32 g_NumBreakpointsWaiting;
   static u32 g_FlippingState;
   static bool g_LastFrameUsedAbove;
   static bool g_InterruptLastFrameUsedAbove;
-  static std::bitset<aurora::gfx::MaxLights> g_LightActive;
+  static GX::LightMask g_LightActive;
   static zeus::CTransform g_GXModelView;
   static zeus::CTransform g_GXModelViewInvXpose;
   static zeus::CTransform g_GXModelMatrix;
@@ -131,7 +208,7 @@ public:
   static void DisableAllLights();
   static void LoadLight(ERglLight light, const CLight& info);
   static void EnableLight(ERglLight light);
-  static void SetLightState(std::bitset<aurora::gfx::MaxLights> lightState);
+  static void SetLightState(GX::LightMask lightState);
   static void SetAmbientColor(const zeus::CColor& col);
   static void SetFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color);
   static void SetDepthWriteMode(bool test, ERglEnum comp, bool write);

@@ -100,7 +100,7 @@ private:
   bool x26d_27_enableOPTS : 1;
   bool x26d_28_enableADV : 1 = false;
   int x270_MBSP = 0;
-  std::bitset<aurora::gfx::MaxLights> x274_backupLightActive{};
+  GX::LightMask x274_backupLightActive{};
   std::array<bool, 4> x278_hasVMD{};
   CRandom16 x27c_randState;
   std::array<CModVectorElement*, 4> x280_VELSources{};

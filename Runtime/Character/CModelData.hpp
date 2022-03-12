@@ -126,10 +126,10 @@ public:
                          const zeus::CColor& alphaColor, const zeus::CColor& additiveColor);
   void MultiPassDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
                      const CModelFlags* flags, u32 count);
-  void DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform& xf, const CTexture& tex,
+  void DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform& xf, CTexture& tex,
                         const zeus::CColor& addColor, float t);
-  void DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf, const CTexture& tex,
-                        const zeus::CColor& addColor, float t);
+  void DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf, CTexture& tex, const zeus::CColor& addColor,
+                        float t);
   void ThermalDraw(const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags);
 
   CAnimData* GetAnimationData() { return x10_animData.get(); }

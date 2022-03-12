@@ -92,11 +92,12 @@ public:
   virtual u32 GetFPS() = 0;
   virtual void CacheReflection(TReflectionCallback cb, void* ctx, bool clearAfter) = 0;
   virtual void DrawSpaceWarp(const zeus::CVector3f& pt, float strength) = 0;
-  virtual void DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,
+  virtual void DrawThermalModel(CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,
                                 TConstVectorRef positions, TConstVectorRef normals, const CModelFlags& flags) = 0;
-  virtual void DrawModelDisintegrate(const CModel& model, const CTexture& tex, const zeus::CColor& color,
-                                     TConstVectorRef positions, TConstVectorRef normals) = 0;
-  virtual void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) = 0;
+  virtual void DrawModelDisintegrate(CModel& model, CTexture& tex, const zeus::CColor& color, TConstVectorRef positions,
+                                     TConstVectorRef normals, float t) = 0;
+  virtual void DrawModelFlat(CModel& model, const CModelFlags& flags, bool unsortedOnly, TConstVectorRef positions,
+                             TConstVectorRef normals) = 0;
   virtual void SetWireframeFlags(s32 flags) = 0;
   virtual void SetWorldFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) = 0;
   virtual void RenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const TLockedToken<CModel>* model,

@@ -5,51 +5,36 @@
 #include <variant>
 
 namespace aurora::gfx::gx {
-extern zeus::CMatrix4f g_mv;
-extern zeus::CMatrix4f g_mvInv;
-extern zeus::CMatrix4f g_proj;
-extern metaforce::CFogState g_fogState;
-extern metaforce::ERglCullMode g_cullMode;
-extern metaforce::ERglBlendMode g_blendMode;
-extern metaforce::ERglBlendFactor g_blendFacSrc;
-extern metaforce::ERglBlendFactor g_blendFacDst;
-extern metaforce::ERglLogicOp g_blendOp;
-extern bool g_depthCompare;
-extern bool g_depthUpdate;
-extern metaforce::ERglEnum g_depthFunc;
-extern std::array<zeus::CColor, 3> g_colorRegs;
-extern std::array<zeus::CColor, GX::MAX_KCOLOR> g_kcolors;
-extern bool g_alphaUpdate;
-extern std::optional<float> g_dstAlpha;
-extern zeus::CColor g_clearColor;
-extern bool g_alphaDiscard;
+constexpr u32 MaxTextures = GX::MAX_TEXMAP;
+constexpr u32 MaxTevStages = GX::MAX_TEVSTAGE;
+constexpr u32 MaxColorChannels = 2; // COLOR0A0, COLOR1A1
+constexpr u32 MaxTevRegs = 3;       // TEVREG0-2
+constexpr u32 MaxKColors = GX::MAX_KCOLOR;
 
-struct SChannelState {
-  zeus::CColor matColor;
-  zeus::CColor ambColor;
-  GX::ColorSrc matSrc;
+template <typename Arg, Arg Default>
+struct TevPass {
+  Arg a = Default;
+  Arg b = Default;
+  Arg c = Default;
+  Arg d = Default;
 };
-extern std::array<SChannelState, 2> g_colorChannels;
-using LightVariant = std::variant<std::monostate, Light, zeus::CColor>;
-extern std::array<LightVariant, MaxLights> g_lights;
-extern std::bitset<MaxLights> g_lightState;
-
-struct STevStage {
-  metaforce::CTevCombiners::ColorPass colorPass;
-  metaforce::CTevCombiners::AlphaPass alphaPass;
-  metaforce::CTevCombiners::CTevOp colorOp;
-  metaforce::CTevCombiners::CTevOp alphaOp;
+struct TevOp {
+  GX::TevOp op = GX::TevOp::TEV_ADD;
+  GX::TevBias bias = GX::TevBias::TB_ZERO;
+  GX::TevScale scale = GX::TevScale::CS_SCALE_1;
+  GX::TevRegID outReg = GX::TevRegID::TEVPREV;
+  bool clamp = true;
+};
+struct TevStage {
+  TevPass<GX::TevColorArg, GX::CC_ZERO> colorPass;
+  TevPass<GX::TevAlphaArg, GX::CA_ZERO> alphaPass;
+  TevOp colorOp;
+  TevOp alphaOp;
   GX::TevKColorSel kcSel = GX::TEV_KCSEL_1;
   GX::TevKAlphaSel kaSel = GX::TEV_KASEL_1;
   GX::TexCoordID texCoordId = GX::TEXCOORD_NULL;
   GX::TexMapID texMapId = GX::TEXMAP_NULL;
   GX::ChannelID channelId = GX::COLOR_NULL;
-
-  constexpr STevStage(const metaforce::CTevCombiners::ColorPass& colPass,
-                      const metaforce::CTevCombiners::AlphaPass& alphaPass,
-                      const metaforce::CTevCombiners::CTevOp& colorOp,
-                      const metaforce::CTevCombiners::CTevOp& alphaOp) noexcept
-  : colorPass(colPass), alphaPass(alphaPass), colorOp(colorOp), alphaOp(alphaOp) {}
 };
 struct TextureBind {
   aurora::gfx::TextureHandle handle;
@@ -63,32 +48,72 @@ struct TextureBind {
   [[nodiscard]] wgpu::SamplerDescriptor get_descriptor() const noexcept;
   operator bool() const noexcept { return handle; }
 };
+// For shader generation
+struct ColorChannelConfig {
+  GX::ColorSrc matSrc = GX::SRC_REG;
+  GX::ColorSrc ambSrc = GX::SRC_REG;
+  bool lightingEnabled = false;
+};
+// For uniform generation
+struct ColorChannelState {
+  zeus::CColor matColor = zeus::skClear;
+  zeus::CColor ambColor = zeus::skClear;
+  GX::LightMask lightState;
+};
+using LightVariant = std::variant<std::monostate, Light, zeus::CColor>;
 
-constexpr u32 maxTevStages = GX::MAX_TEVSTAGE;
-extern std::array<std::optional<STevStage>, maxTevStages> g_tevStages;
-constexpr u32 maxTextures = 8;
-extern std::array<TextureBind, maxTextures> g_textures;
+struct GXState {
+  zeus::CMatrix4f mv;
+  zeus::CMatrix4f mvInv;
+  zeus::CMatrix4f proj;
+  metaforce::CFogState fogState;
+  GX::CullMode cullMode = GX::CULL_BACK;
+  GX::BlendMode blendMode = GX::BM_NONE;
+  GX::BlendFactor blendFacSrc = GX::BL_SRCALPHA;
+  GX::BlendFactor blendFacDst = GX::BL_INVSRCALPHA;
+  GX::LogicOp blendOp = GX::LO_CLEAR;
+  GX::Compare depthFunc = GX::LEQUAL;
+  zeus::CColor clearColor = zeus::skBlack;
+  std::optional<float> dstAlpha;
+  std::optional<float> alphaDiscard;
+  std::array<zeus::CColor, MaxTevRegs> colorRegs;
+  std::array<zeus::CColor, GX::MAX_KCOLOR> kcolors;
+  std::array<ColorChannelConfig, MaxColorChannels> colorChannelConfig;
+  std::array<ColorChannelState, MaxColorChannels> colorChannelState;
+  std::array<LightVariant, GX::MaxLights> lights;
+  std::array<TevStage, MaxTevStages> tevStages;
+  std::array<TextureBind, MaxTextures> textures;
+  GX::LightMask lightState;
+  bool depthCompare = true;
+  bool depthUpdate = true;
+  bool alphaUpdate = true;
+  u8 numChans = 0;
+  u8 numIndStages = 0;
+  u8 numTevStages = 0;
+  u8 numTexGens = 0;
+};
+extern GXState g_gxState;
 
-static inline Mat4x4<float> get_combined_matrix() noexcept { return g_proj * g_mv; }
+static inline Mat4x4<float> get_combined_matrix() noexcept { return g_gxState.proj * g_gxState.mv; }
 
 void shutdown() noexcept;
 const TextureBind& get_texture(GX::TexMapID id) noexcept;
 
 struct ShaderConfig {
-  std::array<std::optional<STevStage>, maxTevStages> tevStages;
-  std::array<GX::ColorSrc, 2> channelMatSrcs;
-  bool alphaDiscard = false;
+  std::array<std::optional<TevStage>, MaxTevStages> tevStages;
+  std::array<ColorChannelConfig, MaxColorChannels> colorChannels;
+  std::optional<float> alphaDiscard;
   bool denormalizedVertexAttributes = false;
   bool denormalizedHasNrm = false; // TODO this is a hack
 };
 struct PipelineConfig {
   ShaderConfig shaderConfig;
   GX::Primitive primitive;
-  metaforce::ERglEnum depthFunc;
-  metaforce::ERglCullMode cullMode;
-  metaforce::ERglBlendMode blendMode;
-  metaforce::ERglBlendFactor blendFacSrc, blendFacDst;
-  metaforce::ERglLogicOp blendOp;
+  GX::Compare depthFunc;
+  GX::CullMode cullMode;
+  GX::BlendMode blendMode;
+  GX::BlendFactor blendFacSrc, blendFacDst;
+  GX::LogicOp blendOp;
   std::optional<float> dstAlpha;
   bool depthCompare, depthUpdate, alphaUpdate;
 };
@@ -105,10 +130,10 @@ struct GXBindGroups {
 // Output info from shader generation
 struct ShaderInfo {
   GXBindGroups bindGroups;
-  std::bitset<maxTextures> sampledTextures;
-  std::bitset<4> sampledKcolors;
-  std::bitset<2> sampledColorChannels;
-  std::bitset<3> usesTevReg;
+  std::bitset<MaxTextures> sampledTextures;
+  std::bitset<MaxKColors> sampledKColors;
+  std::bitset<MaxColorChannels> sampledColorChannels;
+  std::bitset<MaxTevRegs> usesTevReg;
   u32 uniformSize = 0;
   bool usesVtxColor : 1 = false;
   bool usesNormal : 1 = false;
@@ -143,25 +168,41 @@ struct DlVert {
 } // namespace aurora::gfx::gx
 
 namespace aurora {
-template <>
-inline void xxh3_update(XXH3_state_t& state, const metaforce::CTevCombiners::CTevOp& input) {
-  XXH3_64bits_update(&state, &input.x0_clamp, sizeof(bool));
-  XXH3_64bits_update(&state, &input.x4_op, sizeof(metaforce::CTevCombiners::CTevOp::x4_op));
-  XXH3_64bits_update(&state, &input.x8_bias, sizeof(metaforce::CTevCombiners::CTevOp::x8_bias));
-  XXH3_64bits_update(&state, &input.xc_scale, sizeof(metaforce::CTevCombiners::CTevOp::xc_scale));
-  XXH3_64bits_update(&state, &input.x10_regId, sizeof(metaforce::CTevCombiners::CTevOp::x10_regId));
+template <typename Arg, Arg Default>
+inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TevPass<Arg, Default>& input) {
+  XXH3_64bits_update(&state, &input.a, sizeof(Arg));
+  XXH3_64bits_update(&state, &input.b, sizeof(Arg));
+  XXH3_64bits_update(&state, &input.c, sizeof(Arg));
+  XXH3_64bits_update(&state, &input.d, sizeof(Arg));
 }
 template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::STevStage& input) {
-  XXH3_64bits_update(&state, &input.colorPass, sizeof(gfx::gx::STevStage::colorPass));
-  XXH3_64bits_update(&state, &input.alphaPass, sizeof(gfx::gx::STevStage::alphaPass));
+inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TevOp& input) {
+  XXH3_64bits_update(&state, &input.op, sizeof(gfx::gx::TevOp::op));
+  XXH3_64bits_update(&state, &input.bias, sizeof(gfx::gx::TevOp::bias));
+  XXH3_64bits_update(&state, &input.scale, sizeof(gfx::gx::TevOp::scale));
+  XXH3_64bits_update(&state, &input.outReg, sizeof(gfx::gx::TevOp::outReg));
+  XXH3_64bits_update(&state, &input.clamp, sizeof(bool));
+}
+template <>
+inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TevStage& input) {
+  xxh3_update(state, input.colorPass);
+  xxh3_update(state, input.alphaPass);
   xxh3_update(state, input.colorOp);
   xxh3_update(state, input.alphaOp);
-  XXH3_64bits_update(&state, &input.kcSel, sizeof(gfx::gx::STevStage::kcSel));
-  XXH3_64bits_update(&state, &input.kaSel, sizeof(gfx::gx::STevStage::kaSel));
-  XXH3_64bits_update(&state, &input.texCoordId, sizeof(gfx::gx::STevStage::texCoordId));
-  XXH3_64bits_update(&state, &input.texMapId, sizeof(gfx::gx::STevStage::texMapId));
-  XXH3_64bits_update(&state, &input.channelId, sizeof(gfx::gx::STevStage::channelId));
+  XXH3_64bits_update(&state, &input.kcSel, sizeof(gfx::gx::TevStage::kcSel));
+  XXH3_64bits_update(&state, &input.kaSel, sizeof(gfx::gx::TevStage::kaSel));
+  XXH3_64bits_update(&state, &input.texCoordId, sizeof(gfx::gx::TevStage::texCoordId));
+  XXH3_64bits_update(&state, &input.texMapId, sizeof(gfx::gx::TevStage::texMapId));
+  XXH3_64bits_update(&state, &input.channelId, sizeof(gfx::gx::TevStage::channelId));
+}
+template <>
+inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ColorChannelConfig& input) {
+  XXH3_64bits_update(&state, &input.lightingEnabled, sizeof(gfx::gx::ColorChannelConfig::lightingEnabled));
+  XXH3_64bits_update(&state, &input.matSrc, sizeof(gfx::gx::ColorChannelConfig::matSrc));
+  if (input.lightingEnabled) {
+    // Unused when lighting is disabled
+    XXH3_64bits_update(&state, &input.ambSrc, sizeof(gfx::gx::ColorChannelConfig::ambSrc));
+  }
 }
 template <>
 inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ShaderConfig& input) {
@@ -171,10 +212,12 @@ inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ShaderConfig& input)
     }
     xxh3_update(state, *item);
   }
-  for (const auto& item : input.channelMatSrcs) {
-    XXH3_64bits_update(&state, &item, sizeof(GX::ColorSrc));
+  for (const auto& item : input.colorChannels) {
+    xxh3_update(state, item);
   }
-  XXH3_64bits_update(&state, &input.alphaDiscard, sizeof(bool));
+  if (input.alphaDiscard) {
+    XXH3_64bits_update(&state, &*input.alphaDiscard, sizeof(float));
+  }
   XXH3_64bits_update(&state, &input.denormalizedVertexAttributes, sizeof(bool));
   XXH3_64bits_update(&state, &input.denormalizedHasNrm, sizeof(bool));
 }

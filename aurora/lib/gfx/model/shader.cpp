@@ -54,10 +54,10 @@ static const std::vector<zeus::CVector3f>* nrmData;
 static const std::vector<Vec2<float>>* tex0TcData;
 static const std::vector<Vec2<float>>* tcData;
 
-void set_vertex_buffer(const std::vector<zeus::CVector3f>* data) noexcept { vtxData = data; }
-void set_normal_buffer(const std::vector<zeus::CVector3f>* norm) noexcept { nrmData = norm; }
-void set_tex0_tc_buffer(const std::vector<Vec2<float>>* tcs) noexcept { tex0TcData = tcs; }
-void set_tc_buffer(const std::vector<Vec2<float>>* tcs) noexcept { tcData = tcs; }
+// void set_vertex_buffer(const std::vector<zeus::CVector3f>* data) noexcept { vtxData = data; }
+// void set_normal_buffer(const std::vector<zeus::CVector3f>* norm) noexcept { nrmData = norm; }
+// void set_tex0_tc_buffer(const std::vector<Vec2<float>>* tcs) noexcept { tex0TcData = tcs; }
+// void set_tc_buffer(const std::vector<Vec2<float>>* tcs) noexcept { tcData = tcs; }
 
 enum class VertexFormat : u8 {
   F32F32,
@@ -233,3 +233,27 @@ void render(const State& state, const DrawData& data, const wgpu::RenderPassEnco
   pass.DrawIndexed(data.indexCount);
 }
 } // namespace aurora::gfx::model
+
+void GXSetArray(GX::Attr attr, const void* data, u8 stride) noexcept {
+  switch (attr) {
+  case GX::VA_POS:
+    aurora::gfx::model::vtxData = static_cast<const std::vector<zeus::CVector3f>*>(data);
+    break;
+  case GX::VA_NRM:
+    aurora::gfx::model::nrmData = static_cast<const std::vector<zeus::CVector3f>*>(data);
+    break;
+  case GX::VA_TEX0:
+    aurora::gfx::model::tex0TcData = static_cast<const std::vector<aurora::Vec2<float>>*>(data);
+    break;
+  case GX::VA_TEX1:
+    aurora::gfx::model::tcData = static_cast<const std::vector<aurora::Vec2<float>>*>(data);
+    break;
+  default:
+    aurora::gfx::model::Log.report(logvisor::Fatal, FMT_STRING("GXSetArray: invalid attr {}"), attr);
+    unreachable();
+  }
+}
+
+void GXCallDisplayList(const void* data, u32 nbytes) noexcept {
+  aurora::gfx::model::queue_surface(static_cast<const u8*>(data), nbytes);
+}

@@ -23,6 +23,7 @@
 #include "Runtime/Character/CTransitionManager.hpp"
 #include "Runtime/Character/IAnimReader.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
+#include "Runtime/Graphics/CGX.hpp"
 
 #include <logvisor/logvisor.hpp>
 
@@ -559,7 +560,7 @@ void CAnimData::SetupRender(CSkinnedModel& model, CVertexMorphEffect* morphEffec
 }
 
 void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) {
-  aurora::gfx::set_chan_mat_src(GX::COLOR0A0, GX::SRC_REG);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, CGraphics::g_LightActive);
   model.Draw(flags);
 }
 

@@ -105,13 +105,15 @@ public:
   void DrawUnsortedParts(CModelFlags flags);
   bool IsLoaded(u32 matIdx);
 
-  TVectorRef GetPositions();
-  TConstVectorRef GetPositions() const;
-  TVectorRef GetNormals();
-  TConstVectorRef GetNormals() const;
-  u32 GetNumMaterialSets() const { return x18_matSets.size(); }
-  bool IsOpaque() const { return x28_modelInst->x3c_firstSortedSurf == nullptr; }
-  const zeus::CAABox& GetAABB() const { return x28_modelInst->x20_worldAABB; }
+  [[nodiscard]] TVectorRef GetPositions();
+  [[nodiscard]] TConstVectorRef GetPositions() const;
+  [[nodiscard]] TVectorRef GetNormals();
+  [[nodiscard]] TConstVectorRef GetNormals() const;
+  [[nodiscard]] u32 GetNumMaterialSets() const { return x18_matSets.size(); }
+  [[nodiscard]] bool IsOpaque() const { return x28_modelInst->x3c_firstSortedSurf == nullptr; }
+  [[nodiscard]] const zeus::CAABox& GetAABB() const { return x28_modelInst->x20_worldAABB; }
+  [[nodiscard]] auto& GetInstance() { return *x28_modelInst; }
+  [[nodiscard]] const auto& GetInstance() const { return *x28_modelInst; }
 
   static void FrameDone();
   static void EnableTextureTimeout();

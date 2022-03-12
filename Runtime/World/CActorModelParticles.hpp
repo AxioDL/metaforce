@@ -169,6 +169,6 @@ public:
   void EnsureFirePopLoaded(CActor& act);
   void EnsureIceBreakLoaded(CActor& act);
   void LightDudeOnFire(CActor& act);
-  const CTexture* GetAshyTexture(const CActor& act);
+  CTexture* GetAshyTexture(const CActor& act);
 };
 } // namespace metaforce

@@ -332,7 +332,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
 
     bool phazonSuit = x44_suit == CPlayerState::EPlayerSuit::Phazon;
     if (phazonSuit) {
-      aurora::gfx::set_dst_alpha(true, 1.f);
+      GXSetDstAlpha(true, 1.f);
     }
 
     for (size_t i = 0; i <= x118_suitModel1and2.size(); ++i) {

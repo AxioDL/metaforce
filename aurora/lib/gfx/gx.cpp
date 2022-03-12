@@ -4,7 +4,119 @@
 #include "common.hpp"
 
 #include <unordered_map>
-#include <magic_enum.hpp>
+
+using aurora::gfx::gx::g_gxState;
+static logvisor::Module Log("aurora::gx");
+
+void GXSetNumChans(u8 num) noexcept { g_gxState.numChans = num; }
+void GXSetNumIndStages(u8 num) noexcept { g_gxState.numIndStages = num; }
+void GXSetNumTevStages(u8 num) noexcept { g_gxState.numTevStages = num; }
+void GXSetNumTexGens(u8 num) noexcept { g_gxState.numTexGens = num; }
+void GXSetTevAlphaIn(GX::TevStageID stageId, GX::TevAlphaArg a, GX::TevAlphaArg b, GX::TevAlphaArg c,
+                     GX::TevAlphaArg d) noexcept {
+  g_gxState.tevStages[stageId].alphaPass = {a, b, c, d};
+}
+void GXSetTevAlphaOp(GX::TevStageID stageId, GX::TevOp op, GX::TevBias bias, GX::TevScale scale, bool clamp,
+                     GX::TevRegID outReg) noexcept {
+  g_gxState.tevStages[stageId].alphaOp = {op, bias, scale, outReg, clamp};
+}
+void GXSetTevColorIn(GX::TevStageID stageId, GX::TevColorArg a, GX::TevColorArg b, GX::TevColorArg c,
+                     GX::TevColorArg d) noexcept {
+  g_gxState.tevStages[stageId].colorPass = {a, b, c, d};
+}
+void GXSetTevColorOp(GX::TevStageID stageId, GX::TevOp op, GX::TevBias bias, GX::TevScale scale, bool clamp,
+                     GX::TevRegID outReg) noexcept {
+  g_gxState.tevStages[stageId].colorOp = {op, bias, scale, outReg, clamp};
+}
+void GXSetCullMode(GX::CullMode mode) noexcept { g_gxState.cullMode = mode; }
+void GXSetBlendMode(GX::BlendMode mode, GX::BlendFactor src, GX::BlendFactor dst, GX::LogicOp op) noexcept {
+  g_gxState.blendMode = mode;
+  g_gxState.blendFacSrc = src;
+  g_gxState.blendFacDst = dst;
+  g_gxState.blendOp = op;
+}
+void GXSetZMode(bool compare_enable, GX::Compare func, bool update_enable) noexcept {
+  g_gxState.depthCompare = compare_enable;
+  g_gxState.depthFunc = func;
+  g_gxState.depthUpdate = update_enable;
+}
+void GXSetTevColor(GX::TevRegID id, const zeus::CColor& color) noexcept {
+  if (id < GX::TEVREG0 || id > GX::TEVREG2) {
+    Log.report(logvisor::Fatal, FMT_STRING("bad tevreg {}"), id);
+    unreachable();
+  }
+  g_gxState.colorRegs[id - 1] = color;
+}
+void GXSetTevKColor(GX::TevKColorID id, const zeus::CColor& color) noexcept {
+  if (id >= GX::MAX_KCOLOR) {
+    Log.report(logvisor::Fatal, FMT_STRING("bad kcolor {}"), id);
+    unreachable();
+  }
+  g_gxState.kcolors[id] = color;
+}
+void GXSetAlphaUpdate(bool enabled) noexcept { g_gxState.alphaUpdate = enabled; }
+void GXSetDstAlpha(bool enabled, float value) noexcept {
+  if (enabled) {
+    g_gxState.dstAlpha = value;
+  } else {
+    g_gxState.dstAlpha.reset();
+  }
+}
+void GXSetCopyClear(const zeus::CColor& color, float depth) noexcept { g_gxState.clearColor = color; }
+void GXSetTevOrder(GX::TevStageID id, GX::TexCoordID tcid, GX::TexMapID tmid, GX::ChannelID cid) noexcept {
+  auto& stage = g_gxState.tevStages[id];
+  stage.texCoordId = tcid;
+  stage.texMapId = tmid;
+  stage.channelId = cid;
+}
+void GXSetTevKColorSel(GX::TevStageID id, GX::TevKColorSel sel) noexcept { g_gxState.tevStages[id].kcSel = sel; }
+void GXSetTevKAlphaSel(GX::TevStageID id, GX::TevKAlphaSel sel) noexcept { g_gxState.tevStages[id].kaSel = sel; }
+void GXSetChanAmbColor(GX::ChannelID id, const zeus::CColor& color) noexcept {
+  if (id < GX::COLOR0A0 || id > GX::COLOR1A1) {
+    Log.report(logvisor::Fatal, FMT_STRING("bad channel {}"), id);
+    unreachable();
+  }
+  g_gxState.colorChannelState[id - GX::COLOR0A0].ambColor = color;
+}
+void GXSetChanMatColor(GX::ChannelID id, const zeus::CColor& color) noexcept {
+  if (id < GX::COLOR0A0 || id > GX::COLOR1A1) {
+    Log.report(logvisor::Fatal, FMT_STRING("bad channel {}"), id);
+    unreachable();
+  }
+  g_gxState.colorChannelState[id - GX::COLOR0A0].matColor = color;
+}
+void GXSetChanCtrl(GX::ChannelID id, bool lightingEnabled, GX::ColorSrc ambSrc, GX::ColorSrc matSrc,
+                   GX::LightMask lightState, GX::DiffuseFn diffFn, GX::AttnFn attnFn) noexcept {
+  if (id < GX::COLOR0A0 || id > GX::COLOR1A1) {
+    Log.report(logvisor::Fatal, FMT_STRING("bad channel {}"), id);
+    unreachable();
+  }
+  if (diffFn != GX::DF_NONE && diffFn != GX::DF_CLAMP) {
+    Log.report(logvisor::Fatal, FMT_STRING("unhandled diffuse fn {}"), diffFn);
+    unreachable();
+  }
+  if (attnFn != GX::AF_NONE && attnFn != GX::AF_SPOT) {
+    Log.report(logvisor::Fatal, FMT_STRING("unhandled attn fn {}"), attnFn);
+    unreachable();
+  }
+  u32 idx = id - GX::COLOR0A0;
+  auto& chan = g_gxState.colorChannelConfig[idx];
+  chan.lightingEnabled = lightingEnabled;
+  chan.ambSrc = ambSrc;
+  chan.matSrc = matSrc;
+  g_gxState.colorChannelState[idx].lightState = lightState;
+}
+void GXSetAlphaCompare(GX::Compare comp0, float ref0, GX::AlphaOp op, GX::Compare comp1, float ref1) noexcept {
+  if (comp0 == GX::ALWAYS && comp1 == GX::ALWAYS) {
+    g_gxState.alphaDiscard.reset();
+  } else if (comp0 == GX::GEQUAL && comp1 == GX::NEVER) {
+    g_gxState.alphaDiscard = ref0;
+  } else {
+    Log.report(logvisor::Fatal, FMT_STRING("GXSetAlphaCompare: unknown operands"));
+    unreachable();
+  }
+}
+void GXSetVtxDescv(GX::VtxDescList* list) noexcept;
 
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx::gx");
@@ -14,51 +126,13 @@ extern std::mutex g_pipelineMutex;
 
 // GX state
 void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp, const TextureHandle& tex, float lod) noexcept {
-  gx::g_textures[static_cast<size_t>(id)] = {tex, clamp, lod};
+  gx::g_gxState.textures[static_cast<size_t>(id)] = {tex, clamp, lod};
 }
-void unbind_texture(GX::TexMapID id) noexcept { gx::g_textures[static_cast<size_t>(id)].reset(); }
-
-void set_cull_mode(metaforce::ERglCullMode mode) noexcept { gx::g_cullMode = mode; }
-void set_blend_mode(metaforce::ERglBlendMode mode, metaforce::ERglBlendFactor src, metaforce::ERglBlendFactor dst,
-                    metaforce::ERglLogicOp op) noexcept {
-  gx::g_blendMode = mode;
-  gx::g_blendFacSrc = src;
-  gx::g_blendFacDst = dst;
-  gx::g_blendOp = op;
-}
-void set_depth_mode(bool compare_enable, metaforce::ERglEnum func, bool update_enable) noexcept {
-  gx::g_depthCompare = compare_enable;
-  gx::g_depthFunc = func;
-  gx::g_depthUpdate = update_enable;
-}
-void set_tev_reg_color(GX::TevRegID id, const zeus::CColor& color) noexcept {
-  if (id < GX::TEVREG0 || id > GX::TEVREG2) {
-    Log.report(logvisor::Fatal, FMT_STRING("set_tev_reg_color: bad reg {}"), id);
-    unreachable();
-  }
-  gx::g_colorRegs[id - 1] = color;
-}
-void set_tev_k_color(GX::TevKColorID id, const zeus::CColor& color) noexcept {
-  if (id >= GX::MAX_KCOLOR) {
-    Log.report(logvisor::Fatal, FMT_STRING("set_tev_k_color: bad reg {}"), id);
-    unreachable();
-  }
-  gx::g_kcolors[id] = color;
-}
-void set_alpha_update(bool enabled) noexcept { gx::g_alphaUpdate = enabled; }
-void set_dst_alpha(bool enabled, float value) noexcept {
-  if (enabled) {
-    gx::g_dstAlpha = value;
-  } else {
-    gx::g_dstAlpha.reset();
-  }
-}
-void set_clear_color(const zeus::CColor& color) noexcept { gx::g_clearColor = color; }
-void set_alpha_discard(bool v) { gx::g_alphaDiscard = v; }
+void unbind_texture(GX::TexMapID id) noexcept { gx::g_gxState.textures[static_cast<size_t>(id)].reset(); }
 
 void update_model_view(const zeus::CMatrix4f& mv, const zeus::CMatrix4f& mv_inv) noexcept {
-  gx::g_mv = mv;
-  gx::g_mvInv = mv_inv;
+  gx::g_gxState.mv = mv;
+  gx::g_gxState.mvInv = mv_inv;
 }
 constexpr zeus::CMatrix4f DepthCorrect{
     // clang-format off
@@ -68,133 +142,44 @@ constexpr zeus::CMatrix4f DepthCorrect{
     0.f, 0.f, 0.f, 1.f,
     // clang-format on
 };
-void update_projection(const zeus::CMatrix4f& proj) noexcept { gx::g_proj = DepthCorrect * proj; }
-void update_fog_state(const metaforce::CFogState& state) noexcept { gx::g_fogState = state; }
+void update_projection(const zeus::CMatrix4f& proj) noexcept { gx::g_gxState.proj = DepthCorrect * proj; }
+void update_fog_state(const metaforce::CFogState& state) noexcept { gx::g_gxState.fogState = state; }
 
-void disable_tev_stage(metaforce::ERglTevStage stage) noexcept { gx::g_tevStages[static_cast<size_t>(stage)].reset(); }
-void update_tev_stage(metaforce::ERglTevStage stage, const metaforce::CTevCombiners::ColorPass& colPass,
-                      const metaforce::CTevCombiners::AlphaPass& alphaPass,
-                      const metaforce::CTevCombiners::CTevOp& colorOp,
-                      const metaforce::CTevCombiners::CTevOp& alphaOp) noexcept {
-  gx::g_tevStages[static_cast<size_t>(stage)] = {colPass, alphaPass, colorOp, alphaOp};
+void load_light(GX::LightID id, const Light& light) noexcept { gx::g_gxState.lights[std::log2<u32>(id)] = light; }
+void load_light_ambient(GX::LightID id, const zeus::CColor& ambient) noexcept {
+  gx::g_gxState.lights[std::log2<u32>(id)] = ambient;
 }
-
-void set_tev_order(GX::TevStageID id, GX::TexCoordID tcid, GX::TexMapID tmid, GX::ChannelID cid) noexcept {
-  auto& stage = gx::g_tevStages[id];
-  if (!stage) {
-    // Log.report(logvisor::Fatal, FMT_STRING("set_tev_order: disabled stage {}"), id);
-    // unreachable();
-    return;
-  }
-  stage->texCoordId = tcid;
-  stage->texMapId = tmid;
-  stage->channelId = cid;
-}
-void set_tev_k_color_sel(GX::TevStageID id, GX::TevKColorSel sel) noexcept {
-  auto& stage = gx::g_tevStages[id];
-  if (!stage) {
-    Log.report(logvisor::Fatal, FMT_STRING("set_tev_k_color_sel: disabled stage {}"), id);
-    unreachable();
-  }
-  stage->kcSel = sel;
-}
-void set_tev_k_alpha_sel(GX::TevStageID id, GX::TevKAlphaSel sel) noexcept {
-  auto& stage = gx::g_tevStages[id];
-  if (!stage) {
-    Log.report(logvisor::Fatal, FMT_STRING("set_tev_k_alpha_sel: disabled stage {}"), id);
-    unreachable();
-  }
-  stage->kaSel = sel;
-}
-
-void set_chan_amb_color(GX::ChannelID id, const zeus::CColor& color) noexcept {
-  if (id < GX::COLOR0A0 || id > GX::COLOR1A1) {
-    Log.report(logvisor::Fatal, FMT_STRING("set_chan_amb_color: invalid channel {}"), id);
-    unreachable();
-  }
-  gx::g_colorChannels[id - GX::COLOR0A0].ambColor = color;
-}
-void set_chan_mat_color(GX::ChannelID id, const zeus::CColor& color) noexcept {
-  if (id < GX::COLOR0A0 || id > GX::COLOR1A1) {
-    Log.report(logvisor::Fatal, FMT_STRING("set_chan_mat_color: invalid channel {}"), id);
-    unreachable();
-  }
-  gx::g_colorChannels[id - GX::COLOR0A0].matColor = color;
-}
-void set_chan_mat_src(GX::ChannelID id, GX::ColorSrc src) noexcept {
-  if (id < GX::COLOR0A0 || id > GX::COLOR1A1) {
-    Log.report(logvisor::Fatal, FMT_STRING("set_chan_mat_src: invalid channel {}"), id);
-    unreachable();
-  }
-  gx::g_colorChannels[id - GX::COLOR0A0].matSrc = src;
-}
-
-static inline u8 light_idx(GX::LightID id) {
-#ifdef _MSC_VER
-  unsigned long r = 0;
-  _BitScanForward(&r, id);
-  return r;
-#else
-  return __builtin_ctz(id);
-#endif
-}
-void load_light(GX::LightID id, const Light& light) noexcept { gx::g_lights[light_idx(id)] = light; }
-void load_light_ambient(GX::LightID id, const zeus::CColor& ambient) noexcept { gx::g_lights[light_idx(id)] = ambient; }
-void set_light_state(std::bitset<MaxLights> bits) noexcept { gx::g_lightState = bits; }
+void set_light_state(GX::LightMask bits) noexcept { gx::g_gxState.lightState = bits; }
 
 namespace gx {
 using gpu::g_device;
 using gpu::g_graphicsConfig;
 
-zeus::CMatrix4f g_mv;
-zeus::CMatrix4f g_mvInv;
-zeus::CMatrix4f g_proj;
-metaforce::CFogState g_fogState;
-metaforce::ERglCullMode g_cullMode;
-metaforce::ERglBlendMode g_blendMode;
-metaforce::ERglBlendFactor g_blendFacSrc;
-metaforce::ERglBlendFactor g_blendFacDst;
-metaforce::ERglLogicOp g_blendOp;
-bool g_depthCompare;
-bool g_depthUpdate;
-metaforce::ERglEnum g_depthFunc;
-std::array<zeus::CColor, 3> g_colorRegs;
-std::array<zeus::CColor, GX::MAX_KCOLOR> g_kcolors;
-bool g_alphaUpdate;
-std::optional<float> g_dstAlpha;
-zeus::CColor g_clearColor = zeus::skClear;
-bool g_alphaDiscard;
+GXState g_gxState;
 
-std::array<SChannelState, 2> g_colorChannels;
-std::array<LightVariant, MaxLights> g_lights;
-std::bitset<MaxLights> g_lightState;
+const TextureBind& get_texture(GX::TexMapID id) noexcept { return g_gxState.textures[static_cast<size_t>(id)]; }
 
-std::array<std::optional<STevStage>, maxTevStages> g_tevStages;
-std::array<TextureBind, maxTextures> g_textures;
-
-const gx::TextureBind& get_texture(GX::TexMapID id) noexcept { return gx::g_textures[static_cast<size_t>(id)]; }
-
-static inline wgpu::BlendFactor to_blend_factor(metaforce::ERglBlendFactor fac) {
+static inline wgpu::BlendFactor to_blend_factor(GX::BlendFactor fac) {
   switch (fac) {
-  case metaforce::ERglBlendFactor::Zero:
+  case GX::BL_ZERO:
     return wgpu::BlendFactor::Zero;
-  case metaforce::ERglBlendFactor::One:
+  case GX::BL_ONE:
     return wgpu::BlendFactor::One;
-  case metaforce::ERglBlendFactor::SrcColor:
+  case GX::BL_SRCCLR:
     return wgpu::BlendFactor::Src;
-  case metaforce::ERglBlendFactor::InvSrcColor:
+  case GX::BL_INVSRCCLR:
     return wgpu::BlendFactor::OneMinusSrc;
-  case metaforce::ERglBlendFactor::SrcAlpha:
+  case GX::BL_SRCALPHA:
     return wgpu::BlendFactor::SrcAlpha;
-  case metaforce::ERglBlendFactor::InvSrcAlpha:
+  case GX::BL_INVSRCALPHA:
     return wgpu::BlendFactor::OneMinusSrcAlpha;
-  case metaforce::ERglBlendFactor::DstAlpha:
+  case GX::BL_DSTALPHA:
     return wgpu::BlendFactor::DstAlpha;
-  case metaforce::ERglBlendFactor::InvDstAlpha:
+  case GX::BL_INVDSTALPHA:
     return wgpu::BlendFactor::OneMinusDstAlpha;
-  case metaforce::ERglBlendFactor::DstColor:
+  case GX::BL_DSTCLR:
     return wgpu::BlendFactor::Dst;
-  case metaforce::ERglBlendFactor::InvDstColor:
+  case GX::BL_INVDSTCLR:
     return wgpu::BlendFactor::OneMinusDst;
   default:
     Log.report(logvisor::Fatal, FMT_STRING("invalid blend factor {}"), fac);
@@ -202,23 +187,23 @@ static inline wgpu::BlendFactor to_blend_factor(metaforce::ERglBlendFactor fac) 
   }
 }
 
-static inline wgpu::CompareFunction to_compare_function(metaforce::ERglEnum func) {
+static inline wgpu::CompareFunction to_compare_function(GX::Compare func) {
   switch (func) {
-  case metaforce::ERglEnum::Never:
+  case GX::NEVER:
     return wgpu::CompareFunction::Never;
-  case metaforce::ERglEnum::Less:
+  case GX::LESS:
     return wgpu::CompareFunction::Less;
-  case metaforce::ERglEnum::Equal:
+  case GX::EQUAL:
     return wgpu::CompareFunction::Equal;
-  case metaforce::ERglEnum::LEqual:
+  case GX::LEQUAL:
     return wgpu::CompareFunction::LessEqual;
-  case metaforce::ERglEnum::Greater:
+  case GX::GREATER:
     return wgpu::CompareFunction::Greater;
-  case metaforce::ERglEnum::NEqual:
+  case GX::NEQUAL:
     return wgpu::CompareFunction::NotEqual;
-  case metaforce::ERglEnum::GEqual:
+  case GX::GEQUAL:
     return wgpu::CompareFunction::GreaterEqual;
-  case metaforce::ERglEnum::Always:
+  case GX::ALWAYS:
     return wgpu::CompareFunction::Always;
   default:
     Log.report(logvisor::Fatal, FMT_STRING("invalid depth fn {}"), func);
@@ -226,10 +211,10 @@ static inline wgpu::CompareFunction to_compare_function(metaforce::ERglEnum func
   }
 }
 
-static inline wgpu::BlendState to_blend_state(metaforce::ERglBlendMode mode, metaforce::ERglBlendFactor srcFac,
-                                              metaforce::ERglBlendFactor dstFac, std::optional<float> dstAlpha) {
-  if (mode != metaforce::ERglBlendMode::Blend) {
-    Log.report(logvisor::Fatal, FMT_STRING("How to {}?"), magic_enum::enum_name(mode));
+static inline wgpu::BlendState to_blend_state(GX::BlendMode mode, GX::BlendFactor srcFac, GX::BlendFactor dstFac,
+                                              std::optional<float> dstAlpha) {
+  if (mode != GX::BM_BLEND) {
+    Log.report(logvisor::Fatal, FMT_STRING("How to {}?"), mode);
   }
   const auto colorBlendComponent = wgpu::BlendComponent{
       .operation = wgpu::BlendOperation::Add,
@@ -258,7 +243,7 @@ static inline wgpu::ColorWriteMask to_write_mask(bool alphaUpdate) {
   return writeMask;
 }
 
-static inline wgpu::PrimitiveState to_primitive_state(GX::Primitive gx_prim, metaforce::ERglCullMode e_cullMode) {
+static inline wgpu::PrimitiveState to_primitive_state(GX::Primitive gx_prim, GX::CullMode gx_cullMode) {
   wgpu::PrimitiveTopology primitive = wgpu::PrimitiveTopology::TriangleList;
   switch (gx_prim) {
   case GX::TRIANGLES:
@@ -272,14 +257,17 @@ static inline wgpu::PrimitiveState to_primitive_state(GX::Primitive gx_prim, met
   }
   wgpu::FrontFace frontFace = wgpu::FrontFace::CCW;
   wgpu::CullMode cullMode = wgpu::CullMode::None;
-  switch (e_cullMode) {
-  case metaforce::ERglCullMode::Front:
+  switch (gx_cullMode) {
+  case GX::CULL_FRONT:
     frontFace = wgpu::FrontFace::CW;
     cullMode = wgpu::CullMode::Front;
     break;
-  case metaforce::ERglCullMode::Back:
+  case GX::CULL_BACK:
     cullMode = wgpu::CullMode::Back;
     break;
+  case GX::CULL_ALL:
+    Log.report(logvisor::Fatal, FMT_STRING("Unsupported cull mode {}"), gx_cullMode);
+    unreachable();
   default:
     break;
   }
@@ -345,29 +333,24 @@ wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderIn
 
 ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive,
                                     const BindGroupRanges& ranges) noexcept {
-  for (size_t idx = 0; const auto& item : g_tevStages) {
-    // Copy until disabled TEV stage (indicating end)
-    if (!item) {
-      break;
-    }
-    config.shaderConfig.tevStages[idx++] = item;
+  for (size_t i = 0; i < g_gxState.numTevStages; ++i) {
+    config.shaderConfig.tevStages[i] = g_gxState.tevStages[i];
   }
-  config.shaderConfig.channelMatSrcs[0] = g_colorChannels[0].matSrc;
-  config.shaderConfig.channelMatSrcs[1] = g_colorChannels[1].matSrc;
-  config.shaderConfig.alphaDiscard = g_alphaDiscard;
+  config.shaderConfig.colorChannels = g_gxState.colorChannelConfig;
+  config.shaderConfig.alphaDiscard = g_gxState.alphaDiscard;
   config = {
       .shaderConfig = config.shaderConfig,
       .primitive = primitive,
-      .depthFunc = g_depthFunc,
-      .cullMode = g_cullMode,
-      .blendMode = g_blendMode,
-      .blendFacSrc = g_blendFacSrc,
-      .blendFacDst = g_blendFacDst,
-      .blendOp = g_blendOp,
-      .dstAlpha = g_dstAlpha,
-      .depthCompare = g_depthCompare,
-      .depthUpdate = g_depthUpdate,
-      .alphaUpdate = g_alphaUpdate,
+      .depthFunc = g_gxState.depthFunc,
+      .cullMode = g_gxState.cullMode,
+      .blendMode = g_gxState.blendMode,
+      .blendFacSrc = g_gxState.blendFacSrc,
+      .blendFacDst = g_gxState.blendFacDst,
+      .blendOp = g_gxState.blendOp,
+      .dstAlpha = g_gxState.dstAlpha,
+      .depthCompare = g_gxState.depthCompare,
+      .depthUpdate = g_gxState.depthUpdate,
+      .alphaUpdate = g_gxState.alphaUpdate,
   };
   // TODO separate shader info from build_shader for async
   {
@@ -381,51 +364,51 @@ ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primit
 Range build_uniform(const ShaderInfo& info) noexcept {
   auto [buf, range] = map_uniform(info.uniformSize);
   {
-    buf.append(&g_mv, 64);
-    buf.append(&g_mvInv, 64);
-    buf.append(&g_proj, 64);
+    buf.append(&g_gxState.mv, 64);
+    buf.append(&g_gxState.mvInv, 64);
+    buf.append(&g_gxState.proj, 64);
   }
   for (int i = 0; i < info.usesTevReg.size(); ++i) {
     if (!info.usesTevReg.test(i)) {
       continue;
     }
-    buf.append(&g_colorRegs[i], 16);
-  }
-  if (info.sampledColorChannels.any()) {
-    zeus::CColor ambient = zeus::skClear;
-    int addedLights = 0;
-    for (int i = 0; i < g_lightState.size(); ++i) {
-      if (!g_lightState.test(i)) {
-        continue;
-      }
-      const auto& variant = g_lights[i];
-      if (std::holds_alternative<zeus::CColor>(variant)) {
-        ambient += std::get<zeus::CColor>(variant);
-      } else if (std::holds_alternative<Light>(variant)) {
-        static_assert(sizeof(Light) == 80);
-        buf.append(&std::get<Light>(variant), sizeof(Light));
-        ++addedLights;
-      }
-    }
-    constexpr Light emptyLight{};
-    for (int i = addedLights; i < MaxLights; ++i) {
-      buf.append(&emptyLight, sizeof(Light));
-    }
-    buf.append(&ambient, 16);
-//    fmt::print(FMT_STRING("Added lights: {}, ambient: {},{},{},{}\n"), addedLights, ambient.r(), ambient.g(), ambient.b(), ambient.a());
+    buf.append(&g_gxState.colorRegs[i], 16);
   }
   for (int i = 0; i < info.sampledColorChannels.size(); ++i) {
     if (!info.sampledColorChannels.test(i)) {
       continue;
     }
-    buf.append(&g_colorChannels[i].ambColor, 16);
-    buf.append(&g_colorChannels[i].matColor, 16);
+    buf.append(&g_gxState.colorChannelState[i].ambColor, 16);
+    buf.append(&g_gxState.colorChannelState[i].matColor, 16);
+
+    if (g_gxState.colorChannelConfig[i].lightingEnabled) {
+      zeus::CColor ambient = zeus::skClear;
+      int addedLights = 0;
+      for (int li = 0; li < g_gxState.lightState.size(); ++li) {
+        if (!g_gxState.lightState.test(li)) {
+          continue;
+        }
+        const auto& variant = g_gxState.lights[li];
+        if (std::holds_alternative<zeus::CColor>(variant)) {
+          ambient += std::get<zeus::CColor>(variant);
+        } else if (std::holds_alternative<Light>(variant)) {
+          static_assert(sizeof(Light) == 80);
+          buf.append(&std::get<Light>(variant), sizeof(Light));
+          ++addedLights;
+        }
+      }
+      constexpr Light emptyLight{};
+      for (int li = addedLights; li < GX::MaxLights; ++li) {
+        buf.append(&emptyLight, sizeof(Light));
+      }
+      buf.append(&ambient, 16);
+    }
   }
-  for (int i = 0; i < info.sampledKcolors.size(); ++i) {
-    if (!info.sampledKcolors.test(i)) {
+  for (int i = 0; i < info.sampledKColors.size(); ++i) {
+    if (!info.sampledKColors.test(i)) {
       continue;
     }
-    buf.append(&g_kcolors[i], 16);
+    buf.append(&g_gxState.kcolors[i], 16);
   }
   for (int i = 0; i < info.sampledTextures.size(); ++i) {
     if (!info.sampledTextures.test(i)) {
@@ -480,13 +463,13 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
           .size = ranges.packedTcDataRange.second - ranges.packedTcDataRange.first,
       },
   };
-  std::array<wgpu::BindGroupEntry, maxTextures> samplerEntries;
-  std::array<wgpu::BindGroupEntry, maxTextures> textureEntries;
+  std::array<wgpu::BindGroupEntry, MaxTextures> samplerEntries;
+  std::array<wgpu::BindGroupEntry, MaxTextures> textureEntries;
   for (u32 texIdx = 0, i = 0; texIdx < info.sampledTextures.size(); ++texIdx) {
     if (!info.sampledTextures.test(texIdx)) {
       continue;
     }
-    const auto& tex = g_textures[texIdx];
+    const auto& tex = g_gxState.textures[texIdx];
     if (!tex) {
       Log.report(logvisor::Fatal, FMT_STRING("unbound texture {}"), texIdx);
       unreachable();
@@ -592,8 +575,8 @@ GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const Shader
     out.samplerLayout = sl;
     out.textureLayout = tl;
   } else {
-    std::array<wgpu::BindGroupLayoutEntry, maxTextures> samplerEntries;
-    std::array<wgpu::BindGroupLayoutEntry, maxTextures> textureEntries;
+    std::array<wgpu::BindGroupLayoutEntry, MaxTextures> samplerEntries;
+    std::array<wgpu::BindGroupLayoutEntry, MaxTextures> textureEntries;
     for (u32 i = 0; i < textureCount; ++i) {
       samplerEntries[i] = {
           .binding = i,
@@ -637,7 +620,7 @@ void shutdown() noexcept {
   // TODO we should probably store this all in g_state.gx instead
   sUniformBindGroupLayouts.clear();
   sTextureBindGroupLayouts.clear();
-  g_textures.fill({});
+  g_gxState.textures.fill({});
   g_gxCachedShaders.clear();
 }
 

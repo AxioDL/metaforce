@@ -6,18 +6,19 @@
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Graphics/Shaders/CTextSupportShader.hpp"
 #include "Runtime/GuiSys/CGuiSys.hpp"
+#include "Runtime/Graphics/CGX.hpp"
 
 #include <zeus/Math.hpp>
 
 namespace metaforce {
 CGraphics::CProjectionState CGraphics::g_Proj;
-CFogState CGraphics::g_Fog;
+// CFogState CGraphics::g_Fog;
 float CGraphics::g_ProjAspect = 1.f;
 u32 CGraphics::g_NumBreakpointsWaiting = 0;
 u32 CGraphics::g_FlippingState;
 bool CGraphics::g_LastFrameUsedAbove = false;
 bool CGraphics::g_InterruptLastFrameUsedAbove = false;
-std::bitset<aurora::gfx::MaxLights> CGraphics::g_LightActive{};
+GX::LightMask CGraphics::g_LightActive{};
 zeus::CTransform CGraphics::g_GXModelView;
 zeus::CTransform CGraphics::g_GXModelViewInvXpose;
 zeus::CTransform CGraphics::g_GXModelMatrix = zeus::CTransform();
@@ -56,9 +57,15 @@ const std::array<zeus::CMatrix3f, 6> CGraphics::skCubeBasisMats{{
     {-1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, -1.f},
 }};
 
+// Stream API
+static EStreamFlags sStreamFlags;
+static zeus::CColor sQueuedColor;
+static zeus::CVector2f sQueuedTexCoord;
+static zeus::CVector3f sQueuedNormal;
+
 void CGraphics::DisableAllLights() {
   g_LightActive.reset();
-  aurora::gfx::set_light_state(g_LightActive);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, {});
 }
 
 void CGraphics::LoadLight(ERglLight light, const CLight& info) {
@@ -89,50 +96,55 @@ void CGraphics::LoadLight(ERglLight light, const CLight& info) {
 }
 
 void CGraphics::EnableLight(ERglLight light) {
+  CGX::SetNumChans(1);
   if (!g_LightActive.test(light)) {
     g_LightActive.set(light);
-    aurora::gfx::set_light_state(g_LightActive);
+    CGX::SetChanCtrl(CGX::EChannelId::Channel0, g_LightActive);
   }
 }
 
-void CGraphics::SetLightState(std::bitset<aurora::gfx::MaxLights> lightState) {
+void CGraphics::SetLightState(GX::LightMask lightState) {
   g_LightActive = lightState;
-  aurora::gfx::set_light_state(g_LightActive);
+  const bool hasLights = lightState.any();
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, hasLights, GX::SRC_REG,
+                   sStreamFlags & EStreamFlagBits::fHasColor ? GX::SRC_VTX : GX::SRC_REG, lightState,
+                   hasLights ? GX::DF_CLAMP : GX::DF_NONE, hasLights ? GX::AF_SPOT : GX::AF_NONE);
 }
 
 void CGraphics::SetAmbientColor(const zeus::CColor& col) {
-  aurora::gfx::set_chan_amb_color(GX::COLOR0A0, col);
-  aurora::gfx::set_chan_amb_color(GX::COLOR1A1, col);
+  CGX::SetChanAmbColor(CGX::EChannelId::Channel0, col);
+  CGX::SetChanAmbColor(CGX::EChannelId::Channel1, col);
 }
 
 void CGraphics::SetFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) {
-  g_Fog.m_mode = mode > ERglFogMode::PerspRevExp2 ? ERglFogMode(int(mode) - 8) : mode;
-  g_Fog.m_color = color;
-  if (CGraphics::g_Proj.x18_far == CGraphics::g_Proj.x14_near || endz == startz) {
-    g_Fog.m_A = 0.f;
-    g_Fog.m_B = 0.5f;
-    g_Fog.m_C = 0.f;
-  } else {
-    float depthrange = CGraphics::g_Proj.x18_far - CGraphics::g_Proj.x14_near;
-    float fogrange = endz - startz;
-    g_Fog.m_A = (CGraphics::g_Proj.x18_far * CGraphics::g_Proj.x14_near) / (depthrange * fogrange);
-    g_Fog.m_B = CGraphics::g_Proj.x18_far / depthrange;
-    g_Fog.m_C = startz / fogrange;
-  }
+  // g_Fog.m_mode = mode > ERglFogMode::PerspRevExp2 ? ERglFogMode(int(mode) - 8) : mode;
+  // g_Fog.m_color = color;
+  // if (CGraphics::g_Proj.x18_far == CGraphics::g_Proj.x14_near || endz == startz) {
+  //   g_Fog.m_A = 0.f;
+  //   g_Fog.m_B = 0.5f;
+  //   g_Fog.m_C = 0.f;
+  // } else {
+  //   float depthrange = CGraphics::g_Proj.x18_far - CGraphics::g_Proj.x14_near;
+  //   float fogrange = endz - startz;
+  //   g_Fog.m_A = (CGraphics::g_Proj.x18_far * CGraphics::g_Proj.x14_near) / (depthrange * fogrange);
+  //   g_Fog.m_B = CGraphics::g_Proj.x18_far / depthrange;
+  //   g_Fog.m_C = startz / fogrange;
+  // }
+  CGX::SetFog(GX::FogType(mode), startz, endz, g_Proj.x14_near, g_Proj.x18_far, color);
 }
 
 void CGraphics::SetDepthWriteMode(bool compare_enable, ERglEnum comp, bool update_enable) {
   g_depthFunc = comp;
-  aurora::gfx::set_depth_mode(compare_enable, comp, update_enable);
+  CGX::SetZMode(compare_enable, GX::Compare(comp), update_enable);
 }
 
 void CGraphics::SetBlendMode(ERglBlendMode mode, ERglBlendFactor src, ERglBlendFactor dst, ERglLogicOp op) {
-  aurora::gfx::set_blend_mode(mode, src, dst, op);
+  CGX::SetBlendMode(GX::BlendMode(mode), GX::BlendFactor(src), GX::BlendFactor(dst), GX::LogicOp(op));
 }
 
 void CGraphics::SetCullMode(ERglCullMode mode) {
   g_cullMode = mode;
-  aurora::gfx::set_cull_mode(mode);
+  GXSetCullMode(GX::CullMode(mode));
 }
 
 void CGraphics::BeginScene() {
@@ -140,7 +152,8 @@ void CGraphics::BeginScene() {
 }
 
 void CGraphics::EndScene() {
-  aurora::gfx::set_depth_mode(true, ERglEnum::LEqual, true);
+  CGX::SetZMode(true, GX::LEQUAL, true);
+
   /* Spinwait until g_NumBreakpointsWaiting is 0 */
   /* ++g_NumBreakpointsWaiting; */
   /* GXCopyDisp to g_CurrenFrameBuf with clear enabled */
@@ -497,25 +510,17 @@ void CGraphics::SetUseVideoFilter(bool filter) {
 
 void CGraphics::SetClearColor(const zeus::CColor& color) {
   g_ClearColor = color;
-  aurora::gfx::set_clear_color(color);
+  GXSetCopyClear(color, g_ClearDepthValue);
 }
 
 void CGraphics::SetCopyClear(const zeus::CColor& color, float depth) {
   g_ClearColor = color;
   g_ClearDepthValue = depth; // 1.6777215E7 * depth; Metroid Prime needed this to convert float [0,1] depth into 24 bit
                              // range, we no longer have this requirement
-  aurora::gfx::set_clear_color(color);
-  // TODO do we care about depth value?
-  // GXSetCopyClear(g_ClearColor, g_ClearDepthValue);
+  GXSetCopyClear(g_ClearColor, g_ClearDepthValue);
 }
 
 void CGraphics::SetIsBeginSceneClearFb(bool clear) { g_IsBeginSceneClearFb = clear; }
-
-// Stream API
-static EStreamFlags sStreamFlags;
-static zeus::CColor sQueuedColor;
-static zeus::CVector2f sQueuedTexCoord;
-static zeus::CVector3f sQueuedNormal;
 
 void CGraphics::SetTevOp(ERglTevStage stage, const CTevCombiners::CTevPass& pass) {
   CTevCombiners::SetupPass(stage, pass);
@@ -583,13 +588,22 @@ void CGraphics::DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* po
 
 void CGraphics::SetTevStates(EStreamFlags flags) noexcept {
   if (flags & EStreamFlagBits::fHasTexture) {
-    aurora::gfx::set_tev_order(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR0A0);
-    aurora::gfx::set_tev_order(GX::TEVSTAGE1, GX::TEXCOORD1, GX::TEXMAP1, GX::COLOR0A0);
-  } else {
-    aurora::gfx::set_tev_order(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
-    aurora::gfx::set_tev_order(GX::TEVSTAGE1, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
+    CGX::SetNumChans(1);
+    CGX::SetNumTexGens(0);
+    CGX::SetNumTevStages(1);
+    CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR0A0);
+    CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD1, GX::TEXMAP1, GX::COLOR0A0);
+  } else /* if (flags < 8) ? */ {
+    CGX::SetNumChans(1);
+    CGX::SetNumTexGens(2); // sTextureUsed & 3?
+    CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
+    CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
   }
+  CGX::SetNumIndStages(0);
   // TODO load TCGs
-  aurora::gfx::set_chan_mat_src(GX::COLOR0A0, flags & EStreamFlagBits::fHasColor ? GX::SRC_VTX : GX::SRC_REG);
+  const bool hasLights = g_LightActive.any();
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, hasLights, GX::SRC_REG,
+                   flags & EStreamFlagBits::fHasColor ? GX::SRC_VTX : GX::SRC_REG, g_LightActive,
+                   hasLights ? GX::DF_CLAMP : GX::DF_NONE, hasLights ? GX::AF_SPOT : GX::AF_NONE);
 }
 } // namespace metaforce

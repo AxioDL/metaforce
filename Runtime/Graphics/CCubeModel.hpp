@@ -26,6 +26,7 @@ using TConstVectorRef = const std::vector<zeus::CVector3f>*;
 
 class CCubeModel {
   friend class CModel;
+  friend class CCubeMaterial;
 
 private:
   class ModelInstance {
@@ -110,8 +111,8 @@ public:
   [[nodiscard]] TConstVectorRef GetNormals() const { return x0_modelInstance.GetNormalPointer(); }
   [[nodiscard]] TCachedToken<CTexture>& GetTexture(u32 idx) const { return x1c_textures->at(idx); }
 
-  static void EnableShadowMaps(const CTexture& shadowTex, const zeus::CTransform& textureProjXf, u8 chan0DisableMask,
-                               u8 chan1EnableLightMask);
+  static void EnableShadowMaps(const CTexture& shadowTex, const zeus::CTransform& textureProjXf,
+                               GX::LightMask chan0DisableMask, GX::LightMask chan1EnableLightMask);
   static void DisableShadowMaps();
   static void MakeTexturesFromMats(const u8* ptr, std::vector<TCachedToken<CTexture>>& texture, IObjectStore* store,
                                    bool b1);
@@ -120,11 +121,6 @@ public:
   static void SetNewPlayerPositionAndTime(const zeus::CVector3f& pos, const CStopwatch& time);
   static void SetRenderModelBlack(bool v);
 
-  static bool sRenderModelBlack;
-  static bool sUsingPackedLightmaps;
-  static bool sRenderModelShadow;
-  static const CTexture* sShadowTexture;
-
 private:
   void Draw(TConstVectorRef positions, TConstVectorRef normals, const CModelFlags& flags);
   void DrawAlphaSurfaces(const CModelFlags& flags);
@@ -132,5 +128,13 @@ private:
   void DrawSurfaces(const CModelFlags& flags);
   void SetSkinningArraysCurrent(TConstVectorRef positions, TConstVectorRef normals);
   void SetStaticArraysCurrent();
+
+  static bool sRenderModelBlack;
+  static bool sUsingPackedLightmaps;
+  static bool sRenderModelShadow;
+  static const CTexture* sShadowTexture;
+  static zeus::CTransform sTextureProjectionTransform;
+  static GX::LightMask sChannel0DisableLightMask;
+  static GX::LightMask sChannel1EnableLightMask;
 };
 } // namespace metaforce

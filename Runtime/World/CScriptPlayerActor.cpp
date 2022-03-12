@@ -400,7 +400,7 @@ void CScriptPlayerActor::AddToRenderer(const zeus::CFrustum& frustum, CStateMana
 void CScriptPlayerActor::Render(CStateManager& mgr) {
   const bool phazonSuit = x2e8_suitRes.GetCharacterNodeId() == 3;
   if (phazonSuit) {
-    aurora::gfx::set_dst_alpha(true, 1.f);
+    GXSetDstAlpha(true, 1.f);
   }
 
   CPhysicsActor::Render(mgr);
