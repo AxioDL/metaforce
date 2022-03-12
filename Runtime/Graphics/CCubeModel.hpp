@@ -100,6 +100,7 @@ public:
   bool AreTexturesLoaded() const { return x40_24_texturesLoaded; }
   void SetVisible(bool v) { x40_25_modelVisible = v; }
   bool IsVisible() const { return x40_25_modelVisible; }
+  [[nodiscard]] GetIndex() const { return x44_idx; }
   [[nodiscard]] CCubeSurface* GetFirstUnsortedSurface() { return x38_firstUnsortedSurf; }
   [[nodiscard]] const CCubeSurface* GetFirstUnsortedSurface() const { return x38_firstUnsortedSurf; }
   [[nodiscard]] CCubeSurface* GetFirstSortedSurface() { return x3c_firstSortedSurf; }

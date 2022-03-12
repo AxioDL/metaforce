@@ -10,6 +10,7 @@
 #include "Runtime/Graphics/CLight.hpp"
 #include "Runtime/Graphics/CMetroidModelInstance.hpp"
 #include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/World/CGameArea.hpp"
 #include "Runtime/Particle/CParticleGen.hpp"
 
 namespace metaforce {
@@ -499,9 +500,8 @@ void CCubeRenderer::HandleUnsortedModelWireframe(CAreaListItem* areaItem, CCubeM
   }
 }
 
-void CCubeRenderer::ActivateLightsForModel(const CAreaListItem* areaItem, CCubeModel& model) {
-  // TODO
-}
+constexpr bool TestBit(const u32* words, size_t bit) { return (words[bit / 32] & (1U << (bit & 0x1f))) != 0; }
+void CCubeRenderer::ActivateLightsForModel(const CAreaListItem* areaItem, CCubeModel& model) {}
 
 void CCubeRenderer::AddParticleGen(CParticleGen& gen) {
   auto bounds = gen.GetBounds();
