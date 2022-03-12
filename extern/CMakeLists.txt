@@ -19,6 +19,7 @@ if (NOT BUILD_ATDNA)
   message(STATUS "Fetching atdna host binary")
   FetchContent_Populate(athena-host)
   include(${athena-host_SOURCE_DIR}/lib/cmake/atdna/atdnaConfig.cmake)
+  set(atdna_DIR "${athena-host_SOURCE_DIR}/lib/cmake/atdna" PARENT_SCOPE)
 endif ()
 
 if (BUILD_ATHENA OR BUILD_ATDNA)
