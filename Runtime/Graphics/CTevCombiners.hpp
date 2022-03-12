@@ -3,6 +3,8 @@
 #include "Graphics/GX.hpp"
 #include "RetroTypes.hpp"
 
+#include <compare>
+
 namespace metaforce {
 enum class ERglTevStage : std::underlying_type_t<GX::TevStageID> {
   Stage0 = GX::TEVSTAGE0,

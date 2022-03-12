@@ -615,7 +615,7 @@ enum ColorSrc {
   SRC_VTX,
 };
 
-enum LightID {
+enum LightID : u32 {
   LIGHT0 = 0x001,
   LIGHT1 = 0x002,
   LIGHT2 = 0x004,
