@@ -20,10 +20,10 @@ CStateMachine::CStateMachine(CInputStream& in) {
     std::string name;
     while (name.size() < 31) {
       const auto chr = in.ReadChar();
-      name += chr;
       if (chr == '\0') {
         break;
       }
+      name += chr;
     }
     CAiStateFunc func = CAi::GetStateFunc(name);
     x0_states.emplace_back(func, name.c_str());
