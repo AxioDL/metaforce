@@ -501,7 +501,65 @@ void CCubeRenderer::HandleUnsortedModelWireframe(CAreaListItem* areaItem, CCubeM
 }
 
 constexpr bool TestBit(const u32* words, size_t bit) { return (words[bit / 32] & (1U << (bit & 0x1f))) != 0; }
-void CCubeRenderer::ActivateLightsForModel(const CAreaListItem* areaItem, CCubeModel& model) {}
+
+void CCubeRenderer::ActivateLightsForModel(const CAreaListItem* areaItem, CCubeModel& model) {
+  constexpr u32 LightCount = 4;
+  GX::LightMask lightMask;
+
+  if (!x300_dynamicLights.empty()) {
+    std::array<u32, LightCount> addedLights{};
+    std::array<float, LightCount> lightRads{-1.f, -1.f, -1.f, -1.f};
+
+    u32 lightOctreeWordCount = 0;
+    const u32* lightOctreeWords = nullptr;
+    if (areaItem != nullptr && model.GetIndex() != UINT32_MAX) {
+      lightOctreeWordCount = areaItem->x4_octTree->x14_bitmapWordCount;
+      lightOctreeWords = areaItem->x1c_lightOctreeWords.data();
+    }
+
+    u32 lightIdx = 0;
+    for (const auto& light : x300_dynamicLights) {
+      if (lightOctreeWords == nullptr || TestBit(lightOctreeWords, model.GetIndex())) {
+        bool loaded = false;
+        const float radius =
+            model.GetBounds().intersectionRadius(zeus::CSphere(light.GetPosition(), light.GetRadius()));
+
+        if (lightIdx > 0) {
+          for (u32 i = 0; i < lightIdx; ++i) {
+            if (addedLights[i] == light.GetId()) {
+              if (radius >= 0.f && radius < lightRads[i]) {
+                lightRads[i] = radius;
+                CGraphics::LoadLight(i, light);
+                loaded = true;
+              }
+              break;
+            }
+          }
+        }
+
+        if (!loaded) {
+          lightRads[lightIdx] = radius;
+          if (radius >= 0.f) {
+            CGraphics::LoadLight(lightIdx, light);
+            addedLights[lightIdx] = light.GetId();
+            lightMask.set(lightIdx);
+            ++lightIdx;
+          }
+        }
+      }
+
+      lightOctreeWords += lightOctreeWordCount;
+    }
+  }
+
+  if (lightMask.any()) {
+    CGraphics::SetLightState(lightMask);
+    CGX::SetChanMatColor(CGX::EChannelId::Channel0, zeus::skWhite);
+  } else {
+    CGraphics::DisableAllLights();
+    CGX::SetChanAmbColor(CGX::EChannelId::Channel0, CGX::GetChanAmbColor(CGX::EChannelId::Channel0));
+  }
+}
 
 void CCubeRenderer::AddParticleGen(CParticleGen& gen) {
   auto bounds = gen.GetBounds();
@@ -777,7 +835,23 @@ void CCubeRenderer::SetGXRegister1Color(const zeus::CColor& color) { GXSetTevCol
 void CCubeRenderer::SetWorldLightFadeLevel(float level) { x2fc_tevReg1Color = zeus::CColor(level, level, level, 1.f); }
 
 void CCubeRenderer::PrepareDynamicLights(const std::vector<CLight>& lights) {
-  // TODO
+  x300_dynamicLights = lights;
+
+  for (CAreaListItem& area : x1c_areaListItems) {
+    if (const CAreaRenderOctTree* arot = area.x4_octTree) {
+      area.x1c_lightOctreeWords.clear();
+      area.x1c_lightOctreeWords.resize(arot->x14_bitmapWordCount * lights.size());
+      u32* wordPtr = area.x1c_lightOctreeWords.data();
+      for (const CLight& light : lights) {
+        float radius = light.GetRadius();
+        zeus::CVector3f vMin = light.GetPosition() - radius;
+        zeus::CVector3f vMax = light.GetPosition() + radius;
+        zeus::CAABox aabb(vMin, vMax);
+        arot->FindOverlappingModels(wordPtr, aabb);
+        wordPtr += arot->x14_bitmapWordCount;
+      }
+    }
+  }
 }
 
 void CCubeRenderer::AllocatePhazonSuitMaskTexture() {

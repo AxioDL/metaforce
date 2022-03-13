@@ -88,7 +88,7 @@ public:
   float GetAngleAttenuationQuadratic() const { return x38_angleQ; }
 
   ELightType GetType() const { return x1c_type; }
-
+  u32 GetId() const { return x40_lightId; }
   float GetIntensity() const;
   float GetRadius() const;
   const zeus::CColor& GetColor() const { return x18_color; }
