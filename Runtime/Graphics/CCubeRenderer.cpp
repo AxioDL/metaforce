@@ -557,7 +557,7 @@ void CCubeRenderer::ActivateLightsForModel(const CAreaListItem* areaItem, CCubeM
     CGX::SetChanMatColor(CGX::EChannelId::Channel0, zeus::skWhite);
   } else {
     CGraphics::DisableAllLights();
-    CGX::SetChanAmbColor(CGX::EChannelId::Channel0, CGX::GetChanAmbColor(CGX::EChannelId::Channel0));
+    CGX::SetChanMatColor(CGX::EChannelId::Channel0, CGX::GetChanAmbColor(CGX::EChannelId::Channel0));
   }
 }
 
