@@ -573,6 +573,7 @@ void CGraphics::StreamVertex(const zeus::CVector3f& pos) {
 void CGraphics::StreamEnd() {
   SetTevStates(sStreamFlags);
   aurora::gfx::stream_end();
+  sStreamFlags = {};
 }
 
 void CGraphics::DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
