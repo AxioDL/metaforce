@@ -1556,15 +1556,8 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
   }
 
   if (error || ent == nullptr) {
-    while (in.GetReadPosition() != startPos) {
-      in.ReadChar();
-    }
-    const std::string name = HashInstanceName(in);
-    while (in.GetReadPosition() != startPos + length) {
-      in.ReadChar();
-    }
-    LogModule.report(logvisor::Error, FMT_STRING("Script load error while loading {}, name: {}"),
-                     ScriptObjectTypeToStr(type), name);
+    LogModule.report(logvisor::Error, FMT_STRING("Script load error while loading {} (Editor ID: {}, Area: {})"),
+                     ScriptObjectTypeToStr(type), id, aid);
     return {kInvalidEditorId, kInvalidUniqueId};
   } else {
 #ifndef NDEBUG
