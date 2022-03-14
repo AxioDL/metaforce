@@ -61,12 +61,14 @@ struct Command {
       float height;
       float znear;
       float zfar;
+      bool operator==(const SetViewportCommand& rhs) const = default;
     } setViewport;
     struct SetScissorCommand {
       uint32_t x;
       uint32_t y;
       uint32_t w;
       uint32_t h;
+      auto operator<=>(const SetScissorCommand&) const = default;
     } setScissor;
     ShaderDrawCommand draw;
   } data;
@@ -234,11 +236,21 @@ static void push_draw_command(ShaderDrawCommand data) { g_commands.push_back({Co
 
 bool get_dxt_compression_supported() noexcept { return g_device.HasFeature(wgpu::FeatureName::TextureCompressionBC); }
 
-void set_viewport(const zeus::CRectangle& rect, float znear, float zfar) noexcept {
-  g_commands.push_back({CommandType::SetViewport, {.setViewport = {rect, znear, zfar}}});
+static Command::Data::SetViewportCommand g_cachedViewport;
+void set_viewport(float left, float top, float width, float height, float znear, float zfar) noexcept {
+  Command::Data::SetViewportCommand cmd{left, top, width, height, znear, zfar};
+  if (cmd != g_cachedViewport) {
+    g_commands.push_back({CommandType::SetViewport, {.setViewport = cmd}});
+    g_cachedViewport = cmd;
+  }
 }
+static Command::Data::SetScissorCommand g_cachedScissor;
 void set_scissor(uint32_t x, uint32_t y, uint32_t w, uint32_t h) noexcept {
-  g_commands.push_back({CommandType::SetScissor, {.setScissor = {x, y, w, h}}});
+  Command::Data::SetScissorCommand cmd{x, y, w, h};
+  if (cmd != g_cachedScissor) {
+    g_commands.push_back({CommandType::SetScissor, {.setScissor = cmd}});
+    g_cachedScissor = cmd;
+  }
 }
 
 void resolve_color(const ClipRect& rect, uint32_t bind, bool clear_depth) noexcept {
