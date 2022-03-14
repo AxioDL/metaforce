@@ -149,6 +149,7 @@ endfunction()
 set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 set(RUNTIME_LIBRARIES amuse zeus nod NESEmulator libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore imgui aurora SDL2-static
     boo # TODO move audiodev
+    ${ZLIB_LIBRARIES}
     )
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})

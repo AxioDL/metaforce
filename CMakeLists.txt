@@ -332,10 +332,8 @@ if(USE_LD_GOLD)
   endif()
 endif()
 
-if (NOT WIN32)
-  find_package(ZLIB REQUIRED)
-  set(ZLIB_LIBRARIES ZLIB::ZLIB CACHE STRING "zlib libraries" FORCE)
-endif()
+find_package(ZLIB REQUIRED)
+set(ZLIB_LIBRARIES ZLIB::ZLIB CACHE STRING "zlib libraries" FORCE)
 
 include(ExternalProject)
 ExternalProject_Add(bintoc

@@ -17,7 +17,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     # currently explicitly ignored for clang in imgui code, but not gcc (yet)
     target_compile_options(imgui PRIVATE -Wno-deprecated-enum-enum-conversion)
 endif()
-target_link_libraries(imgui PRIVATE aurora zeus logvisor)
+target_link_libraries(imgui PRIVATE aurora zeus logvisor ${ZLIB_LIBRARIES})
 
 # Optional, replaces stb_freetype if available
 find_package(Freetype)
