@@ -589,22 +589,22 @@ void CGraphics::DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* po
 
 void CGraphics::SetTevStates(EStreamFlags flags) noexcept {
   if (flags & EStreamFlagBits::fHasTexture) {
-    CGX::SetNumChans(1);
     CGX::SetNumTexGens(0);
     CGX::SetNumTevStages(1);
     CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR0A0);
     CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD1, GX::TEXMAP1, GX::COLOR0A0);
   } else /* if (flags < 8) ? */ {
-    CGX::SetNumChans(1);
     CGX::SetNumTexGens(2); // sTextureUsed & 3?
     CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
     CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
   }
+  CGX::SetNumChans(1);
   CGX::SetNumIndStages(0);
   // TODO load TCGs
   const bool hasLights = g_LightActive.any();
   CGX::SetChanCtrl(CGX::EChannelId::Channel0, hasLights, GX::SRC_REG,
                    flags & EStreamFlagBits::fHasColor ? GX::SRC_VTX : GX::SRC_REG, g_LightActive,
                    hasLights ? GX::DF_CLAMP : GX::DF_NONE, hasLights ? GX::AF_SPOT : GX::AF_NONE);
+  CGX::FlushState(); // normally would be handled in FullRender TODO
 }
 } // namespace metaforce

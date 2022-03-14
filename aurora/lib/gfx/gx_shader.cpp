@@ -527,6 +527,11 @@ var<storage, read> v_packed_uvs: Vec2Block;
     uniBufAttrs += fmt::format(FMT_STRING("\n    cc{0}_mat: vec4<f32>;"), i);
     info.uniformSize += 32;
 
+    if (config.denormalizedVertexAttributes && !info.usesVtxColor) {
+      vtxInAttrs += fmt::format(FMT_STRING("\n    , @location({}) in_clr: vec4<f32>"), ++locIdx);
+      info.usesVtxColor = true;
+    }
+
     if (config.colorChannels[i].lightingEnabled) {
       if (!addedLightStruct) {
         uniformPre +=
@@ -570,16 +575,12 @@ var<storage, read> v_packed_uvs: Vec2Block;
       fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
     } else if (config.colorChannels[i].matSrc == GX::SRC_VTX) {
       if (config.denormalizedVertexAttributes) {
-        if (!info.usesVtxColor) {
-          vtxInAttrs += fmt::format(FMT_STRING("\n    , @location({}) in_clr: vec4<f32>"), locIdx);
-        }
-        vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>;"), locIdx++, i);
+        vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>;"), locIdx - 1, i);
         vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.cc{} = in_clr;"), i);
         fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
       } else {
         Log.report(logvisor::Fatal, FMT_STRING("SRC_VTX unsupported with normalized vertex attributes"));
       }
-      info.usesVtxColor = true;
     } else {
       fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = ubuf.cc{0}_mat;"), i);
     }

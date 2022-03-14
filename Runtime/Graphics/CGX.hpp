@@ -28,7 +28,7 @@ struct STexState {
 struct SGXState {
   std::array<void*, 12> x0_arrayPtrs{};
   std::array<u16, 2> x30_prevChanCtrls{};
-  std::array<u16, 2> x34_chanCtrls{};
+  std::array<u16, 2> x34_chanCtrls{0x4000, 0x4000};
   std::array<GXColor, 2> x38_chanAmbColors;
   std::array<GXColor, 2> x40_chanMatColors;
   GX::VtxDescList* x48_descList = nullptr;
@@ -150,6 +150,9 @@ static inline void SetChanAmbColor(EChannelId id, const GXColor& color) noexcept
 static inline void SetChanCtrl(EChannelId id, GXBool enable, GX::ColorSrc ambSrc, GX::ColorSrc matSrc,
                                GX::LightMask lights, GX::DiffuseFn diffFn, GX::AttnFn attnFn) noexcept {
   const auto idx = std::underlying_type_t<EChannelId>(id);
+  if (lights.none()) {
+    enable = false;
+  }
   const u32 flags = (attnFn & 3) << 13 | (diffFn & 3) << 11 | (lights.to_ulong() & 0xFF) << 3 | (matSrc & 1) << 2 |
                     (ambSrc & 1) << 1 | (u8(enable) & 1);
   sGXState.x34_chanCtrls[idx] = flags;

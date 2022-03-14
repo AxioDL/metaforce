@@ -146,7 +146,6 @@ void update_projection(const zeus::CMatrix4f& proj) noexcept;
 void update_fog_state(const metaforce::CFogState& state) noexcept;
 void load_light(GX::LightID id, const Light& light) noexcept;
 void load_light_ambient(GX::LightID id, const zeus::CColor& ambient) noexcept;
-void set_light_state(GX::LightMask bits) noexcept;
 void set_viewport(const zeus::CRectangle& rect, float znear, float zfar) noexcept;
 void set_scissor(uint32_t x, uint32_t y, uint32_t w, uint32_t h) noexcept;
 

@@ -332,10 +332,12 @@ wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderIn
 
 ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive,
                                     const BindGroupRanges& ranges) noexcept {
-  for (size_t i = 0; i < g_gxState.numTevStages; ++i) {
+  for (u8 i = 0; i < g_gxState.numTevStages; ++i) {
     config.shaderConfig.tevStages[i] = g_gxState.tevStages[i];
   }
-  config.shaderConfig.colorChannels = g_gxState.colorChannelConfig;
+  for (u8 i = 0; i < g_gxState.numChans; ++i) {
+    config.shaderConfig.colorChannels[i] = g_gxState.colorChannelConfig[i];
+  }
   config.shaderConfig.alphaDiscard = g_gxState.alphaDiscard;
   config = {
       .shaderConfig = config.shaderConfig,
