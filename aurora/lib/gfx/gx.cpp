@@ -183,6 +183,10 @@ void GXSetViewport(float left, float top, float width, float height, float nearZ
 void GXSetScissor(u32 left, u32 top, u32 width, u32 height) noexcept {
   aurora::gfx::set_scissor(left, top, width, height);
 }
+void GXSetFog(GX::FogType type, float startZ, float endZ, float nearZ, float farZ, const GXColor& color) noexcept {
+  g_gxState.fog = {type, startZ, endZ, nearZ, farZ, color};
+}
+void GXSetFogColor(const GXColor& color) noexcept { g_gxState.fog.color = color; }
 
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx::gx");
@@ -195,8 +199,6 @@ void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp, const TextureHan
   gx::g_gxState.textures[static_cast<size_t>(id)] = {tex, clamp, lod};
 }
 void unbind_texture(GX::TexMapID id) noexcept { gx::g_gxState.textures[static_cast<size_t>(id)].reset(); }
-
-void update_fog_state(const metaforce::CFogState& state) noexcept { gx::g_gxState.fogState = state; }
 
 void load_light(GX::LightID id, const Light& light) noexcept { gx::g_gxState.lights[std::log2<u32>(id)] = light; }
 void load_light_ambient(GX::LightID id, const zeus::CColor& ambient) noexcept {
@@ -395,6 +397,7 @@ ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primit
     config.shaderConfig.tcgs[i] = g_gxState.tcgs[i];
   }
   config.shaderConfig.alphaDiscard = g_gxState.alphaDiscard;
+  config.shaderConfig.fogType = g_gxState.fog.type;
   config = {
       .shaderConfig = config.shaderConfig,
       .primitive = primitive,
@@ -500,6 +503,25 @@ Range build_uniform(const ShaderInfo& info) noexcept {
       continue;
     }
     buf.append(&g_gxState.ptTexMtxs[i], 48);
+  }
+  if (info.usesFog) {
+    const auto& state = g_gxState.fog;
+    struct Fog {
+      zeus::CColor color = state.color;
+      float a = 0.f;
+      float b = 0.5f;
+      float c = 0.f;
+      float pad = FLT_MAX;
+    } fog{};
+    static_assert(sizeof(Fog) == 32);
+    if (state.nearZ != state.farZ && state.startZ != state.endZ) {
+      const float depthRange = state.farZ - state.nearZ;
+      const float fogRange = state.endZ - state.startZ;
+      fog.a = (state.farZ * state.nearZ) / (depthRange * fogRange);
+      fog.b = state.farZ / depthRange;
+      fog.c = state.startZ / fogRange;
+    }
+    buf.append(&fog, 32);
   }
   for (int i = 0; i < info.sampledTextures.size(); ++i) {
     if (!info.sampledTextures.test(i)) {

@@ -400,6 +400,7 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
     }
     Log.report(logvisor::Info, FMT_STRING("  alphaDiscard: {}"), config.alphaDiscard.value_or(0.f));
     Log.report(logvisor::Info, FMT_STRING("  denormalizedVertexAttributes: {}"), config.denormalizedVertexAttributes);
+    Log.report(logvisor::Info, FMT_STRING("  fogType: {}"), config.fogType);
   }
 
   std::string uniformPre;
@@ -683,6 +684,49 @@ var<storage, read> v_packed_uvs: Vec2Block;
     }
     uniBufAttrs += fmt::format(FMT_STRING("\n    postmtx{}: mat4x3<f32>;"), i);
     info.uniformSize += 64;
+  }
+  if (config.fogType != GX::FOG_NONE) {
+    info.usesFog = true;
+
+    uniformPre += "\n"
+        "struct Fog {\n"
+        "    color: vec4<f32>;\n"
+        "    a: f32;\n"
+        "    b: f32;\n"
+        "    c: f32;\n"
+        "    pad: f32;\n"
+        "}";
+    uniBufAttrs += "\n    fog: Fog;";
+    info.uniformSize += 32;
+
+    fragmentFn += "\n    var fogF = clamp((ubuf.fog.a / (ubuf.fog.b - in.pos.z)) - ubuf.fog.c, 0.0, 1.0);";
+    switch (config.fogType) {
+    case GX::FOG_PERSP_LIN:
+    case GX::FOG_ORTHO_LIN:
+      fragmentFn += "\n    var fogZ = fogF;";
+      break;
+    case GX::FOG_PERSP_EXP:
+    case GX::FOG_ORTHO_EXP:
+      fragmentFn += "\n    var fogZ = 1.0 - exp2(-8.0 * fogF);";
+      break;
+    case GX::FOG_PERSP_EXP2:
+    case GX::FOG_ORTHO_EXP2:
+      fragmentFn += "\n    var fogZ = 1.0 - exp2(-8.0 * fogF * fogF);";
+      break;
+    case GX::FOG_PERSP_REVEXP:
+    case GX::FOG_ORTHO_REVEXP:
+      fragmentFn += "\n    var fogZ = exp2(-8.0 * (1.0 - fogF));";
+      break;
+    case GX::FOG_PERSP_REVEXP2:
+    case GX::FOG_ORTHO_REVEXP2:
+      fragmentFn += "\n    fogF = 1.0 - fogF;"
+          "\n    var fogZ = exp2(-8.0 * fogF * fogF);";
+      break;
+    default:
+      Log.report(logvisor::Fatal, FMT_STRING("invalid fog type {}"), config.fogType);
+      unreachable();
+    }
+    fragmentFn += "\n    prev = vec4<f32>(mix(prev.rgb, ubuf.fog.color.rgb, clamp(fogZ, 0.0, 1.0)), prev.a);";
   }
   for (int i = 0; i < info.sampledTextures.size(); ++i) {
     if (!info.sampledTextures.test(i)) {

@@ -59,10 +59,10 @@ static inline void update_fog(u32 value) noexcept {
     return;
   }
   if ((value & 0xE0) == 0x20) {
-    // TODO
+    GXSetFogColor(zeus::skClear);
     return;
   }
-  // TODO
+  GXSetFogColor(sGXState.x25c_fogColor);
 }
 
 static inline void FlushState() noexcept {
@@ -186,8 +186,7 @@ static inline void SetFog(GX::FogType type, float startZ, float endZ, float near
   if ((sGXState.x56_blendMode & 0xE0) == 0x20) {
     fogColor = zeus::skClear;
   }
-  // TODO
-  // GXSetFog(type, startZ, endZ, nearZ, farZ, fogColor);
+  GXSetFog(type, startZ, endZ, nearZ, farZ, fogColor);
 }
 
 void SetIndTexMtxSTPointFive(GX::IndTexMtxID id, s8 scaleExp) noexcept;

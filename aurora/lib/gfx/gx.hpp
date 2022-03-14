@@ -73,12 +73,20 @@ struct TcgConfig {
   GX::PTTexMtx postMtx = GX::PTIDENTITY;
   bool normalize = false;
 };
+struct FogState {
+  GX::FogType type = GX::FOG_NONE;
+  float startZ = 0.f;
+  float endZ = 0.f;
+  float nearZ = 0.f;
+  float farZ = 0.f;
+  zeus::CColor color;
+};
 
 struct GXState {
   zeus::CMatrix4f mv;
   zeus::CMatrix4f mvInv;
   zeus::CMatrix4f proj;
-  metaforce::CFogState fogState;
+  FogState fog;
   GX::CullMode cullMode = GX::CULL_BACK;
   GX::BlendMode blendMode = GX::BM_NONE;
   GX::BlendFactor blendFacSrc = GX::BL_SRCALPHA;
@@ -114,6 +122,7 @@ void shutdown() noexcept;
 const TextureBind& get_texture(GX::TexMapID id) noexcept;
 
 struct ShaderConfig {
+  GX::FogType fogType;
   std::array<std::optional<TevStage>, MaxTevStages> tevStages;
   std::array<ColorChannelConfig, MaxColorChannels> colorChannels;
   std::array<TcgConfig, MaxTexCoord> tcgs;
@@ -155,6 +164,7 @@ struct ShaderInfo {
   u32 uniformSize = 0;
   bool usesVtxColor : 1 = false;
   bool usesNormal : 1 = false;
+  bool usesFog : 1 = false;
 };
 struct BindGroupRanges {
   Range vtxDataRange;
@@ -247,7 +257,9 @@ inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ShaderConfig& input)
   if (input.alphaDiscard) {
     XXH3_64bits_update(&state, &*input.alphaDiscard, sizeof(float));
   }
-  XXH3_64bits_update(&state, &input.denormalizedVertexAttributes, sizeof(bool));
-  XXH3_64bits_update(&state, &input.denormalizedHasNrm, sizeof(bool));
+  XXH3_64bits_update(&state, &input.denormalizedVertexAttributes,
+                     sizeof(gfx::gx::ShaderConfig::denormalizedVertexAttributes));
+  XXH3_64bits_update(&state, &input.denormalizedHasNrm, sizeof(gfx::gx::ShaderConfig::denormalizedHasNrm));
+  XXH3_64bits_update(&state, &input.fogType, sizeof(gfx::gx::ShaderConfig::fogType));
 }
 } // namespace aurora

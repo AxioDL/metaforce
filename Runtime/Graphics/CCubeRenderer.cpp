@@ -801,7 +801,7 @@ void CCubeRenderer::SetWireframeFlags(s32 flags) {
 }
 
 void CCubeRenderer::SetWorldFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) {
-  // TODO
+  CGraphics::SetFog(x318_28_disableFog ? ERglFogMode::None : mode, startz, endz, color);
 }
 
 void CCubeRenderer::RenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,

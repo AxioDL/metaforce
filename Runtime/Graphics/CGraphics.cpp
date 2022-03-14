@@ -117,19 +117,6 @@ void CGraphics::SetAmbientColor(const zeus::CColor& col) {
 }
 
 void CGraphics::SetFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) {
-  // g_Fog.m_mode = mode > ERglFogMode::PerspRevExp2 ? ERglFogMode(int(mode) - 8) : mode;
-  // g_Fog.m_color = color;
-  // if (CGraphics::g_Proj.x18_far == CGraphics::g_Proj.x14_near || endz == startz) {
-  //   g_Fog.m_A = 0.f;
-  //   g_Fog.m_B = 0.5f;
-  //   g_Fog.m_C = 0.f;
-  // } else {
-  //   float depthrange = CGraphics::g_Proj.x18_far - CGraphics::g_Proj.x14_near;
-  //   float fogrange = endz - startz;
-  //   g_Fog.m_A = (CGraphics::g_Proj.x18_far * CGraphics::g_Proj.x14_near) / (depthrange * fogrange);
-  //   g_Fog.m_B = CGraphics::g_Proj.x18_far / depthrange;
-  //   g_Fog.m_C = startz / fogrange;
-  // }
   CGX::SetFog(GX::FogType(mode), startz, endz, g_Proj.x14_near, g_Proj.x18_far, color);
 }
 
