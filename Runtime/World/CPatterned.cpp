@@ -1651,11 +1651,11 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
     }
 
     if (x401_29_laggedBurnDeath) {
-      int stripedAlpha = 255;
+      u32 stripedAlpha = 255;
       if (alpha > 127) {
-        stripedAlpha = (alpha - 128) * 2;
+        stripedAlpha = u32(alpha) * 2;
       }
-      xb4_drawFlags = CModelFlags(3, 0, 3, zeus::CColor(0.f, float(stripedAlpha * stripedAlpha) / 65025.f));
+      xb4_drawFlags = CModelFlags(3, 0, 3, zeus::CColor(0.f, float((stripedAlpha * stripedAlpha) >> 8) / 255.f));
     } else if (x401_28_burning) {
       xb4_drawFlags = CModelFlags(5, 0, 3, zeus::CColor(0.f, 1.f));
     } else {
@@ -1667,10 +1667,8 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
     if (col.r() != 0.f || col.g() != 0.f || col.b() != 0.f) {
       /* Being damaged */
       zeus::CColor col2 = col;
-      col2.a() = float(alpha) / 255.f;
-      xb4_drawFlags = CModelFlags(2, 0, 3, zeus::skWhite);
-      /* Make color additive */
-      // TODO xb4_drawFlags.addColor = col2;
+      col2.a() = 1.f;
+      xb4_drawFlags = CModelFlags(2, 0, 3, col2);
     } else {
       xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
     }

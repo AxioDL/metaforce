@@ -433,7 +433,7 @@ var<storage, read> v_packed_uvs: Vec2Block;
     vtxOutAttrs += "\n    @builtin(position) pos: vec4<f32>;";
     vtxXfrAttrsPre +=
         "\n    var obj_pos = vec4<f32>(v_verts.data[in_pos_nrm_idx[0]].xyz, 1.0);"
-        "\n    var obj_norm = vec4<f32>(v_verts.data[in_pos_nrm_idx[1]].xyz, 0.0);"
+        "\n    var obj_norm = vec4<f32>(v_norms.data[in_pos_nrm_idx[1]].xyz, 0.0);"
         "\n    var mv_pos = ubuf.mv * obj_pos;"
         "\n    var mv_norm = ubuf.mv_inv * obj_norm;"
         "\n    out.pos = ubuf.proj * mv_pos;";
@@ -555,14 +555,13 @@ var<storage, read> v_packed_uvs: Vec2Block;
           var dist = length(delta);
           var delta_norm = delta / dist;
           var ang_dot = max(dot(delta_norm, light.dir), 0.0);
-          var lin_att = light.lin_att;
-          var att = 1.0 / (lin_att.z * dist * dist * lin_att.y * dist + lin_att.x);
-          var ang_att = light.ang_att;
-          var ang_att_d = ang_att.z * ang_dot * ang_dot * ang_att.y * ang_dot + ang_att.x;
-          var this_color = light.color.xyz * ang_att_d * att * max(dot(-delta_norm, mv_norm.xyz), 0.0);
-//          if (i == 0 && c_traits.shader.world_shadow == 1u) {{
-//              // TODO ExtTex0 sample
-//          }}
+          var att = 1.0 / (light.lin_att.z * dist * dist +
+                           light.lin_att.y * dist +
+                           light.lin_att.x);
+          var ang_att = light.ang_att.z * ang_dot * ang_dot +
+                        light.ang_att.y * ang_dot +
+                        light.ang_att.x;
+          var this_color = light.color.xyz * ang_att * att * max(dot(-delta_norm, mv_norm.xyz), 0.0);
           lighting = lighting + vec4<f32>(this_color, 0.0);
       }}
       out.cc{0} = clamp(lighting, vec4<f32>(0.0), vec4<f32>(1.0));

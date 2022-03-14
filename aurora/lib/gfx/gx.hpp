@@ -83,7 +83,6 @@ struct GXState {
   std::array<LightVariant, GX::MaxLights> lights;
   std::array<TevStage, MaxTevStages> tevStages;
   std::array<TextureBind, MaxTextures> textures;
-  GX::LightMask lightState;
   bool depthCompare = true;
   bool depthUpdate = true;
   bool alphaUpdate = true;

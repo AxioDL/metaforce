@@ -149,7 +149,6 @@ void load_light(GX::LightID id, const Light& light) noexcept { gx::g_gxState.lig
 void load_light_ambient(GX::LightID id, const zeus::CColor& ambient) noexcept {
   gx::g_gxState.lights[std::log2<u32>(id)] = ambient;
 }
-void set_light_state(GX::LightMask bits) noexcept { gx::g_gxState.lightState = bits; }
 
 namespace gx {
 using gpu::g_device;
@@ -384,8 +383,9 @@ Range build_uniform(const ShaderInfo& info) noexcept {
     if (g_gxState.colorChannelConfig[i].lightingEnabled) {
       zeus::CColor ambient = zeus::skClear;
       int addedLights = 0;
-      for (int li = 0; li < g_gxState.lightState.size(); ++li) {
-        if (!g_gxState.lightState.test(li)) {
+      const auto& lightState = g_gxState.colorChannelState[i].lightState;
+      for (int li = 0; li < lightState.size(); ++li) {
+        if (!lightState.test(li)) {
           continue;
         }
         const auto& variant = g_gxState.lights[li];
