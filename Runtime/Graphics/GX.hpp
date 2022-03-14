@@ -6,6 +6,8 @@
 #include <bitset>
 
 #include <zeus/CColor.hpp>
+#include <zeus/CMatrix4f.hpp>
+#include <zeus/CTransform.hpp>
 
 namespace GX {
 enum Attr {
@@ -246,7 +248,8 @@ enum TexGenSrc {
   TG_TEXCOORD5,
   TG_TEXCOORD6,
   TG_COLOR0,
-  TG_COLOR1
+  TG_COLOR1,
+  MAX_TEXGENSRC = 0xFF,
 };
 
 enum TexMtx {
@@ -644,6 +647,24 @@ enum FogType {
   FOG_ORTHO_REVEXP2 = 0x0F,
 };
 
+enum PosNrmMtx {
+  PNMTX0,
+  PNMTX1,
+  PNMTX2,
+  PNMTX3,
+  PNMTX4,
+  PNMTX5,
+  PNMTX6,
+  PNMTX7,
+  PNMTX8,
+  PNMTX9,
+};
+
+enum ProjectionType {
+  PERSPECTIVE,
+  ORTHOGRAPHIC,
+};
+
 } // namespace GX
 
 using GXColor = zeus::CColor;
@@ -684,4 +705,13 @@ void GXClearVtxDesc() noexcept;
 void GXSetArray(GX::Attr attr, const void* data, u8 stride) noexcept;
 void GXSetTevDirect(GX::TevStageID stageId) noexcept;
 void GXSetFog(GX::FogType type, float startZ, float endZ, float nearZ, float farZ, const GXColor& color) noexcept;
+void GXSetFogColor(const GXColor& color) noexcept;
 void GXCallDisplayList(const void* data, u32 nbytes) noexcept;
+void GXSetTexCoordGen2(GX::TexCoordID dst, GX::TexGenType type, GX::TexGenSrc src, GX::TexMtx mtx, GXBool normalize,
+                       GX::PTTexMtx postMtx) noexcept;
+void GXLoadTexMtxImm(const void* data, u32 id /* GX::TexMtx or GX::PTTexMtx */, GX::TexMtxType type) noexcept;
+void GXLoadPosMtxImm(const zeus::CTransform& xf, GX::PosNrmMtx id) noexcept;
+void GXLoadNrmMtxImm(const zeus::CTransform& xf, GX::PosNrmMtx id) noexcept;
+void GXSetProjection(const zeus::CMatrix4f& mtx, GX::ProjectionType type) noexcept;
+void GXSetViewport(float left, float top, float width, float height, float nearZ, float farZ) noexcept;
+void GXSetScissor(u32 left, u32 top, u32 width, u32 height) noexcept;

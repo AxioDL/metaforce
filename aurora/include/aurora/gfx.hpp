@@ -141,12 +141,10 @@ void stream_end() noexcept;
 void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp, const TextureHandle& tex, float lod) noexcept;
 void unbind_texture(GX::TexMapID id) noexcept;
 
-void update_model_view(const zeus::CMatrix4f& mv, const zeus::CMatrix4f& mv_inv) noexcept;
-void update_projection(const zeus::CMatrix4f& proj) noexcept;
 void update_fog_state(const metaforce::CFogState& state) noexcept;
 void load_light(GX::LightID id, const Light& light) noexcept;
 void load_light_ambient(GX::LightID id, const zeus::CColor& ambient) noexcept;
-void set_viewport(const zeus::CRectangle& rect, float znear, float zfar) noexcept;
+void set_viewport(float left, float top, float width, float height, float znear, float zfar) noexcept;
 void set_scissor(uint32_t x, uint32_t y, uint32_t w, uint32_t h) noexcept;
 
 void resolve_color(const ClipRect& rect, uint32_t bind, bool clear_depth) noexcept;

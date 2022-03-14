@@ -162,24 +162,24 @@ void CCubeMaterial::SetCurrent(const CModelFlags& flags, const CCubeSurface& sur
     u32 fullTcgCount = SBig(*tcgs);
     tcgCount = std::min(fullTcgCount, 2u);
     for (u32 i = 0; i < tcgCount; ++i) {
-      // TODO set TCG
+      CGX::SetTexCoordGen(GX::TexCoordID(i), SBig(tcgs[i + 1]));
     }
     tcgs += fullTcgCount + 1;
   } else {
     tcgCount = SBig(*tcgs);
     for (u32 i = 0; i < tcgCount; ++i) {
-      // TODO set TCG
+      CGX::SetTexCoordGen(GX::TexCoordID(i), SBig(tcgs[i + 1]));
     }
     tcgs += tcgCount + 1;
   }
 
   const u32* uvAnim = tcgs;
-  u32 animCount = uvAnim[1];
+  u32 animCount = SBig(uvAnim[1]);
   uvAnim += 2;
-  u32 texMtx = 30;
-  u32 pttTexMtx = 64;
+  u32 texMtx = GX::TEXMTX0;
+  u32 pttTexMtx = GX::PTTEXMTX0;
   for (u32 i = 0; i < animCount; ++i) {
-    u32 size = HandleAnimatedUV(uvAnim, texMtx, pttTexMtx);
+    u32 size = HandleAnimatedUV(uvAnim, static_cast<GX::TexMtx>(texMtx), static_cast<GX::PTTexMtx>(pttTexMtx));
     if (size == 0)
       break;
     uvAnim += size;
@@ -356,31 +356,73 @@ void CCubeMaterial::HandleTev(u32 tevCur, const u32* materialDataCur, const u32*
   CGX::SetTevKAlphaSel(stage, static_cast<GX::TevKAlphaSel>(matFlags >> 0x10 & 0xFF));
 }
 
-u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, u32 texMtx, u32 pttTexMtx) {
+constexpr zeus::CTransform MvPostXf{
+    {zeus::CVector3f{0.5f, 0.f, 0.f}, {0.f, 0.f, 0.f}, {0.f, 0.5f, 0.f}},
+    {0.5f, 0.5f, 1.f},
+};
+
+u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, GX::TexMtx texMtx, GX::PTTexMtx pttTexMtx) {
   u32 type = SBig(*uvAnim);
+  const float* params = reinterpret_cast<const float*>(uvAnim + 1);
   switch (type) {
-  case 0:
-    // TODO
+  case 0: {
+    auto xf = CGraphics::g_GXModelViewInvXpose;
+    GXLoadTexMtxImm(&xf, texMtx, GX::MTX3x4);
+    GXLoadTexMtxImm(&MvPostXf, pttTexMtx, GX::MTX3x4);
     return 1;
-  case 1:
-    // TODO
+  }
+  case 1: {
+    auto xf = CGraphics::g_GXModelViewInvXpose;
+    xf.origin = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix.origin;
+    GXLoadTexMtxImm(&xf, texMtx, GX::MTX3x4);
+    GXLoadTexMtxImm(&MvPostXf, pttTexMtx, GX::MTX3x4);
     return 1;
-  case 2:
-    // TODO
+  }
+  case 2: {
+    const float f1 = SBig(params[0]);
+    const float f2 = SBig(params[1]);
+    const float f3 = SBig(params[2]);
+    const float f4 = SBig(params[3]);
+    const float seconds = CGraphics::GetSecondsMod900();
+    const auto xf = zeus::CTransform::Translate(seconds * f3 + f1, seconds * f4 + f2, 0.f);
+    GXLoadTexMtxImm(&xf, texMtx, GX::MTX3x4);
     return 5;
-  case 3:
-    // TODO
+  }
+  case 3: {
+    const float angle = CGraphics::GetSecondsMod900() * SBig(params[1]) + SBig(params[0]);
+    const float acos = std::cos(angle);
+    const float asin = std::sin(angle);
+    zeus::CTransform xf;
+    xf.basis[0][0] = acos;
+    xf.basis[0][1] = asin;
+    xf.basis[1][0] = -asin;
+    xf.basis[1][1] = acos;
+    xf.origin[0] = (1.f - (acos - asin)) * 0.5f;
+    xf.origin[1] = (1.f - (asin + acos)) * 0.5f;
+    GXLoadTexMtxImm(&xf, texMtx, GX::MTX3x4);
     return 3;
+  }
   case 4:
-  case 5:
+  case 5: {
     // TODO
+    zeus::CTransform xf;
+    GXLoadTexMtxImm(&xf, texMtx, GX::MTX3x4);
     return 5;
-  case 6:
+  }
+  case 6: {
     // TODO
+    zeus::CTransform xf;
+    GXLoadTexMtxImm(&xf, texMtx, GX::MTX3x4);
+    GXLoadTexMtxImm(&xf, pttTexMtx, GX::MTX3x4);
     return 1;
-  case 7:
+  }
+  case 7: {
     // TODO
-    return 2;
+    zeus::CTransform xf;
+    GXLoadTexMtxImm(&xf, texMtx, GX::MTX3x4);
+    GXLoadTexMtxImm(&xf, pttTexMtx, GX::MTX3x4);
+    return 3;
+  }
   default:
     return 0;
   }

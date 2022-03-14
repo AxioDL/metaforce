@@ -93,7 +93,7 @@ private:
   static void HandleDepth(CModelFlagsFlags modelFlags, CCubeMaterialFlags matFlags);
   static u32 HandleColorChannels(u32 chanCount, u32 firstChan);
   static void HandleTev(u32 tevCur, const u32* materialDataCur, const u32* texMapTexCoordFlags, bool shadowMapsEnabled);
-  static u32 HandleAnimatedUV(const u32* uvAnim, u32 texMtx, u32 pttTexMtx);
+  static u32 HandleAnimatedUV(const u32* uvAnim, GX::TexMtx texMtx, GX::PTTexMtx pttTexMtx);
   static void HandleTransparency(u32& finalTevCount, u32& finalKColorCount, const CModelFlags& modelFlags,
                                  u32 blendFactors, u32& finalCCFlags, u32& finalACFlags);
   static u32 HandleReflection(bool usesTevReg2, u32 indTexSlot, u32 r5, u32 finalTevCount, u32 texCount, u32 tcgCount,

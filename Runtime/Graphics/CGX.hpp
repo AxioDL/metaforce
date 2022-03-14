@@ -44,7 +44,7 @@ struct SGXState {
   u16 x56_blendMode = 0;
   std::array<GXColor, GX::MAX_KCOLOR> x58_kColors;
   std::array<STevState, GX::MAX_TEVSTAGE> x68_tevStates;
-  std::array<STexState, GX::MAX_TEXMAP> x228_texStates;
+  std::array<STexState, GX::MAX_TEXCOORD> x228_texStates;
   u32 x248_alphaCompare = 0;
   float x24c_fogStartZ = 0.f;
   float x250_fogEndZ = 0.f;
@@ -367,9 +367,25 @@ static inline void SetTevOrder(GX::TevStageID stageId, GX::TexCoordID texCoord, 
   }
 }
 
-static inline void SetTexCoordGen(GX::TexCoordID dstCoord, GX::TexGenType fn, GX::TexGenSrc src, u32 mtx,
-                                  GXBool normalize, u32 postMtx) noexcept {
-  // TODO
+static inline void SetTexCoordGen(GX::TexCoordID dstCoord, GX::TexGenType fn, GX::TexGenSrc src, GX::TexMtx mtx,
+                                  GXBool normalize, GX::PTTexMtx postMtx) noexcept {
+  u32 flags = ((postMtx - GX::PTTEXMTX0) & 63) << 15 | (u8(normalize) & 1) << 14 | ((mtx - GX::TEXMTX0) & 31) << 9 |
+              (src & 31) << 4 | (fn & 15);
+  auto& state = sGXState.x228_texStates[dstCoord].x0_coordGen;
+  if (flags != state) {
+    state = flags;
+    GXSetTexCoordGen2(dstCoord, fn, src, mtx, normalize, postMtx);
+  }
+}
+
+static inline void SetTexCoordGen(GX::TexCoordID dstCoord, u32 flags) noexcept {
+  auto& state = sGXState.x228_texStates[dstCoord].x0_coordGen;
+  if (flags != state) {
+    state = flags;
+    GXSetTexCoordGen2(dstCoord, GX::TexGenType(flags & 15), GX::TexGenSrc(flags >> 4 & 31),
+                      GX::TexMtx((flags >> 9 & 31) + GX::TEXMTX0), GXBool(flags >> 14 & 1),
+                      GX::PTTexMtx((flags >> 15 & 63) + GX::PTTEXMTX0));
+  }
 }
 
 void SetVtxDescv(GX::VtxDescList* descList) noexcept;

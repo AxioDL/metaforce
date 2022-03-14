@@ -185,8 +185,7 @@ void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::
   const auto oldLights = g_LightActive;
   SetOrtho(-g_Viewport.x10_halfWidth, g_Viewport.x10_halfWidth, g_Viewport.x14_halfHeight, -g_Viewport.x14_halfHeight,
            -1.f, -10.f);
-  // disable Y/Z swap TODO do we need to do this elsewhere?
-  aurora::gfx::update_model_view(zeus::CMatrix4f{}, zeus::CMatrix4f{});
+  GXLoadPosMtxImm({}, GX::PNMTX0);
   DisableAllLights();
   SetCullMode(ERglCullMode::None);
   tex.Load(GX::TEXMAP0, EClampMode::Repeat);
@@ -252,12 +251,13 @@ void CGraphics::SetViewMatrix() {
   else
     g_GXModelView = g_CameraMatrix * g_GXModelMatrix;
   /* Load position matrix */
+  GXLoadPosMtxImm(g_GXModelView, GX::PNMTX0);
   /* Inverse-transpose */
   g_GXModelViewInvXpose = g_GXModelView.inverse();
   g_GXModelViewInvXpose.origin.zeroOut();
   g_GXModelViewInvXpose.basis.transpose();
   /* Load normal matrix */
-  aurora::gfx::update_model_view(g_GXModelView.toMatrix4f(), g_GXModelViewInvXpose.toMatrix4f());
+  GXLoadNrmMtxImm(g_GXModelViewInvXpose, GX::PNMTX0);
 }
 
 void CGraphics::SetModelMatrix(const zeus::CTransform& xf) {
@@ -365,12 +365,14 @@ void CGraphics::SetOrtho(float left, float right, float top, float bottom, float
 }
 
 void CGraphics::FlushProjection() {
+  const auto mtx = GetPerspectiveProjectionMatrix();
   if (g_Proj.x0_persp) {
     // Convert and load persp
+    GXSetProjection(mtx, GX::PERSPECTIVE);
   } else {
     // Convert and load ortho
+    GXSetProjection(mtx, GX::ORTHOGRAPHIC);
   }
-  aurora::gfx::update_projection(GetPerspectiveProjectionMatrix());
 }
 
 zeus::CVector2i CGraphics::ProjectPoint(const zeus::CVector3f& point) {
@@ -460,17 +462,19 @@ void CGraphics::SetViewport(int leftOff, int bottomOff, int width, int height) {
   CachedVP.position[1] = bottomOff;
   CachedVP.size[0] = width;
   CachedVP.size[1] = height;
-  aurora::gfx::set_viewport(CachedVP, g_CachedDepthRange[0], g_CachedDepthRange[1]);
+  GXSetViewport(CachedVP.position[0], CachedVP.position[1], CachedVP.size[0], CachedVP.size[1], g_CachedDepthRange[0],
+                g_CachedDepthRange[1]);
 }
 
 void CGraphics::SetScissor(int leftOff, int bottomOff, int width, int height) {
-  aurora::gfx::set_scissor(leftOff, bottomOff, width, height);
+  GXSetScissor(leftOff, bottomOff, width, height);
 }
 
 void CGraphics::SetDepthRange(float znear, float zfar) {
   g_CachedDepthRange[0] = znear;
   g_CachedDepthRange[1] = zfar;
-  aurora::gfx::set_viewport(CachedVP, g_CachedDepthRange[0], g_CachedDepthRange[1]);
+  GXSetViewport(CachedVP.position[0], CachedVP.position[1], CachedVP.size[0], CachedVP.size[1], g_CachedDepthRange[0],
+                g_CachedDepthRange[1]);
 }
 
 CTimeProvider* CGraphics::g_ExternalTimeProvider = nullptr;
@@ -600,7 +604,8 @@ void CGraphics::SetTevStates(EStreamFlags flags) noexcept {
   }
   CGX::SetNumChans(1);
   CGX::SetNumIndStages(0);
-  // TODO load TCGs
+  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
+  CGX::SetTexCoordGen(GX::TEXCOORD1, GX::TG_MTX2x4, GX::TG_TEX1, GX::IDENTITY, false, GX::PTIDENTITY);
   const bool hasLights = g_LightActive.any();
   CGX::SetChanCtrl(CGX::EChannelId::Channel0, hasLights, GX::SRC_REG,
                    flags & EStreamFlagBits::fHasColor ? GX::SRC_VTX : GX::SRC_REG, g_LightActive,

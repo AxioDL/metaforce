@@ -55,7 +55,10 @@ struct Command {
   CommandType type;
   union Data {
     struct SetViewportCommand {
-      zeus::CRectangle rect;
+      float left;
+      float top;
+      float width;
+      float height;
       float znear;
       float zfar;
     } setViewport;
@@ -443,8 +446,7 @@ void render(const wgpu::RenderPassEncoder& pass) {
     switch (cmd.type) {
     case CommandType::SetViewport: {
       const auto& vp = cmd.data.setViewport;
-      pass.SetViewport(vp.rect.position.x(), vp.rect.position.y(), vp.rect.size.x(), vp.rect.size.y(), vp.znear,
-                       vp.zfar);
+      pass.SetViewport(vp.left, vp.top, vp.width, vp.height, vp.znear, vp.zfar);
     } break;
     case CommandType::SetScissor: {
       const auto& sc = cmd.data.setScissor;

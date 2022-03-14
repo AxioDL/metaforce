@@ -334,6 +334,16 @@ static std::string_view tev_scale(GX::TevScale scale) {
   }
 }
 
+static std::string in_uv(u32 idx) {
+  if (idx == 0) {
+    return "v_packed_uvs.data[in_uv_0_4_idx[0]]";
+  }
+  if (idx < 4) {
+    return fmt::format(FMT_STRING("v_uvs.data[in_uv_0_4_idx[{}]]"), idx);
+  }
+  return fmt::format(FMT_STRING("v_uvs.data[in_uv_5_7_idx[{}]]"), idx - 4);
+}
+
 std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& config) noexcept {
   const auto hash = xxh3_hash(config);
   if (g_gxCachedShaders.contains(hash)) {
@@ -376,10 +386,19 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
       Log.report(logvisor::Info, FMT_STRING("    texMapId: {}"), stage->texMapId);
       Log.report(logvisor::Info, FMT_STRING("    channelId: {}"), stage->channelId);
     }
-    //    for (int i = 0; i < config.channelMatSrcs.size(); ++i) {
-    //      Log.report(logvisor::Info, FMT_STRING("  channelMatSrcs[{}]: {}"), i, config.channelMatSrcs[i]);
-    //    }
-    //    Log.report(logvisor::Info, FMT_STRING("  alphaDiscard: {}"), config.alphaDiscard);
+    for (int i = 0; i < config.colorChannels.size(); ++i) {
+      const auto& chan = config.colorChannels[i];
+      Log.report(logvisor::Info, FMT_STRING("  colorChannels[{}]: enabled {} mat {} amb {}"), i, chan.lightingEnabled,
+                 chan.matSrc, chan.ambSrc);
+    }
+    for (int i = 0; i < config.tcgs.size(); ++i) {
+      const auto& tcg = config.tcgs[i];
+      if (tcg.src != GX::MAX_TEXGENSRC) {
+        Log.report(logvisor::Info, FMT_STRING("  tcg[{}]: src {} mtx {} post {} type {} norm {}"), i, tcg.src, tcg.mtx,
+                   tcg.postMtx, tcg.type, tcg.normalize);
+      }
+    }
+    Log.report(logvisor::Info, FMT_STRING("  alphaDiscard: {}"), config.alphaDiscard.value_or(0.f));
     Log.report(logvisor::Info, FMT_STRING("  denormalizedVertexAttributes: {}"), config.denormalizedVertexAttributes);
   }
 
@@ -597,6 +616,78 @@ var<storage, read> v_packed_uvs: Vec2Block;
     if (!info.sampledTextures.test(i)) {
       continue;
     }
+    const auto& tcg = config.tcgs[i];
+    if (config.denormalizedVertexAttributes) {
+      vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) tex{}_uv: vec2<f32>;"), locIdx, i);
+      vtxInAttrs += fmt::format(FMT_STRING("\n    , @location({}) in_tex{}_uv: vec2<f32>"), locIdx + 1, i);
+      // TODO check tcg src for denorm?
+      vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{0} = vec4<f32>(in_tex{0}_uv, 0.0, 1.0);"), i);
+    } else {
+      vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) tex{}_uv: vec2<f32>;"), locIdx, i);
+      if (tcg.src >= GX::TG_TEX0 && tcg.src <= GX::TG_TEX7) {
+        vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{} = vec4<f32>({}, 0.0, 1.0);"), i, in_uv(tcg.src - GX::TG_TEX0));
+      } else if (tcg.src == GX::TG_POS) {
+        vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{} = vec4<f32>(obj_pos.xyz, 1.0);"), i);
+      } else if (tcg.src == GX::TG_NRM) {
+        vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{} = vec4<f32>(obj_norm.xyz, 1.0);"), i);
+      } else {
+        Log.report(logvisor::Fatal, FMT_STRING("unhandled tcg src {}"), tcg.src);
+        unreachable();
+      }
+    }
+    // TODO this all assumes MTX3x4 currently
+    if (tcg.mtx == GX::IDENTITY) {
+      vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{0}_tmp = tc{0}.xyz;"), i);
+    } else {
+      u32 texMtxIdx = (tcg.mtx - GX::TEXMTX0) / 3;
+      info.usesTexMtx.set(texMtxIdx);
+      info.texMtxTypes[texMtxIdx] = tcg.type;
+      vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{0}_tmp = ubuf.texmtx{1} * tc{0};"), i, texMtxIdx);
+    }
+    if (tcg.normalize) {
+      vtxXfrAttrs += fmt::format(FMT_STRING("\n    tc{0}_tmp = normalize(tc{0}_tmp);"), i);
+    }
+    if (tcg.postMtx == GX::PTIDENTITY) {
+      vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{0}_proj = tc{0}_tmp;"), i);
+    } else {
+      u32 postMtxIdx = (tcg.postMtx - GX::PTTEXMTX0) / 3;
+      info.usesPTTexMtx.set(postMtxIdx);
+      vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{0}_proj = ubuf.postmtx{1} * vec4<f32>(tc{0}_tmp.xyz, 1.0);"), i, postMtxIdx);
+    }
+    vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{0}_uv = tc{0}_proj.xy;"), i);
+    fragmentFnPre += fmt::format(
+        FMT_STRING("\n    var sampled{0} = textureSampleBias(tex{0}, tex{0}_samp, in.tex{0}_uv, ubuf.tex{0}_lod);"), i);
+    locIdx++;
+  }
+  for (int i = 0; i < info.usesTexMtx.size(); ++i) {
+    if (!info.usesTexMtx.test(i)) {
+      continue;
+    }
+    switch (info.texMtxTypes[i]) {
+    case GX::TG_MTX2x4:
+      uniBufAttrs += fmt::format(FMT_STRING("\n    texmtx{}: mat4x2<f32>;"), i);
+      info.uniformSize += 32;
+      break;
+    case GX::TG_MTX3x4:
+      uniBufAttrs += fmt::format(FMT_STRING("\n    texmtx{}: mat4x3<f32>;"), i);
+      info.uniformSize += 64;
+      break;
+    default:
+      Log.report(logvisor::Fatal, FMT_STRING("unhandled tex mtx type {}"), info.texMtxTypes[i]);
+      unreachable();
+    }
+  }
+  for (int i = 0; i < info.usesPTTexMtx.size(); ++i) {
+    if (!info.usesPTTexMtx.test(i)) {
+      continue;
+    }
+    uniBufAttrs += fmt::format(FMT_STRING("\n    postmtx{}: mat4x3<f32>;"), i);
+    info.uniformSize += 64;
+  }
+  for (int i = 0; i < info.sampledTextures.size(); ++i) {
+    if (!info.sampledTextures.test(i)) {
+      continue;
+    }
     uniBufAttrs += fmt::format(FMT_STRING("\n    tex{}_lod: f32;"), i);
     info.uniformSize += 4;
 
@@ -607,29 +698,9 @@ var<storage, read> v_packed_uvs: Vec2Block;
                                           "var tex{}: texture_2d<f32>;"),
                                texBindIdx, i);
     ++texBindIdx;
-
-    if (config.denormalizedVertexAttributes) {
-      vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) tex{}_uv: vec2<f32>;"), locIdx, i);
-      vtxInAttrs += fmt::format(FMT_STRING("\n    , @location({}) in_tex{}_uv: vec2<f32>"), locIdx + 1, i);
-      vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{0}_uv = in_tex{0}_uv;"), i);
-    } else {
-      vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) tex{}_uv: vec2<f32>;"), locIdx, i);
-      if (i < 4) {
-        if (i == 0) {
-          vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{}_uv = v_packed_uvs.data[in_uv_0_4_idx[{}]];"), i, i);
-        } else {
-          vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{}_uv = v_uvs.data[in_uv_0_4_idx[{}]];"), i, i);
-        }
-      } else {
-        vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{}_uv = v_uvs.data[in_uv_5_7_idx[{}]];"), i, i - 4);
-      }
-    }
-    fragmentFnPre += fmt::format(
-        FMT_STRING("\n    var sampled{0} = textureSampleBias(tex{0}, tex{0}_samp, in.tex{0}_uv, ubuf.tex{0}_lod);"), i);
-    locIdx++;
   }
   if (config.alphaDiscard) {
-    fragmentFn += fmt::format(FMT_STRING("\n   if (prev.a < {}f) {{ discard; }}"), *config.alphaDiscard);
+    fragmentFn += fmt::format(FMT_STRING("\n    if (prev.a < {}f) {{ discard; }}"), *config.alphaDiscard);
   }
 
   const auto shaderSource =

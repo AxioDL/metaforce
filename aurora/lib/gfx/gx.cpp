@@ -116,7 +116,73 @@ void GXSetAlphaCompare(GX::Compare comp0, float ref0, GX::AlphaOp op, GX::Compar
     unreachable();
   }
 }
-void GXSetVtxDescv(GX::VtxDescList* list) noexcept;
+void GXSetTexCoordGen2(GX::TexCoordID dst, GX::TexGenType type, GX::TexGenSrc src, GX::TexMtx mtx, GXBool normalize,
+                       GX::PTTexMtx postMtx) noexcept {
+  if (dst < GX::TEXCOORD0 || dst > GX::TEXCOORD7) {
+    Log.report(logvisor::Fatal, FMT_STRING("invalid tex coord {}"), dst);
+    unreachable();
+  }
+  g_gxState.tcgs[dst] = {type, src, mtx, postMtx, normalize};
+}
+void GXLoadTexMtxImm(const void* data, u32 id, GX::TexMtxType type) noexcept {
+  if ((id < GX::TEXMTX0 || id > GX::IDENTITY) && (id < GX::PTTEXMTX0 || id > GX::PTIDENTITY)) {
+    Log.report(logvisor::Fatal, FMT_STRING("invalid tex mtx {}"), id);
+    unreachable();
+  }
+  if (id >= GX::PTTEXMTX0) {
+    if (type != GX::MTX3x4) {
+      Log.report(logvisor::Fatal, FMT_STRING("invalid pt mtx type {}"), type);
+      unreachable();
+    }
+    const auto idx = (id - GX::PTTEXMTX0) / 3;
+    g_gxState.ptTexMtxs[idx] = *static_cast<const zeus::CTransform*>(data);
+  } else {
+    const auto idx = (id - GX::TEXMTX0) / 3;
+    switch (type) {
+    case GX::MTX3x4:
+      g_gxState.texMtxs[idx] = aurora::Mat4x4<float>{*static_cast<const zeus::CTransform*>(data)};
+      break;
+    case GX::MTX2x4:
+      g_gxState.texMtxs[idx] = *static_cast<const aurora::Mat4x2<float>*>(data);
+      break;
+    }
+  }
+}
+void GXLoadPosMtxImm(const zeus::CTransform& xf, GX::PosNrmMtx id) noexcept {
+  if (id != GX::PNMTX0) {
+    Log.report(logvisor::Fatal, FMT_STRING("invalid pn mtx {}"), id);
+    unreachable();
+  }
+  g_gxState.mv = xf.toMatrix4f();
+}
+void GXLoadNrmMtxImm(const zeus::CTransform& xf, GX::PosNrmMtx id) noexcept {
+  if (id != GX::PNMTX0) {
+    Log.report(logvisor::Fatal, FMT_STRING("invalid pn mtx {}"), id);
+    unreachable();
+  }
+  g_gxState.mvInv = xf.toMatrix4f();
+}
+constexpr zeus::CMatrix4f DepthCorrect{
+    // clang-format off
+    1.f, 0.f, 0.f, 0.f,
+    0.f, 1.f, 0.f, 0.f,
+    0.f, 0.f, 0.5f, 0.5f,
+    0.f, 0.f, 0.f, 1.f,
+    // clang-format on
+};
+void GXSetProjection(const zeus::CMatrix4f& mtx, GX::ProjectionType type) noexcept {
+  if (type == GX::PERSPECTIVE) {
+    g_gxState.proj = DepthCorrect * mtx;
+  } else {
+    g_gxState.proj = mtx;
+  }
+}
+void GXSetViewport(float left, float top, float width, float height, float nearZ, float farZ) noexcept {
+  aurora::gfx::set_viewport(left, top, width, height, nearZ, farZ);
+}
+void GXSetScissor(u32 left, u32 top, u32 width, u32 height) noexcept {
+  aurora::gfx::set_scissor(left, top, width, height);
+}
 
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx::gx");
@@ -130,19 +196,6 @@ void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp, const TextureHan
 }
 void unbind_texture(GX::TexMapID id) noexcept { gx::g_gxState.textures[static_cast<size_t>(id)].reset(); }
 
-void update_model_view(const zeus::CMatrix4f& mv, const zeus::CMatrix4f& mv_inv) noexcept {
-  gx::g_gxState.mv = mv;
-  gx::g_gxState.mvInv = mv_inv;
-}
-constexpr zeus::CMatrix4f DepthCorrect{
-    // clang-format off
-    1.f, 0.f, 0.f, 0.f,
-    0.f, 1.f, 0.f, 0.f,
-    0.f, 0.f, 0.5f, 0.5f,
-    0.f, 0.f, 0.f, 1.f,
-    // clang-format on
-};
-void update_projection(const zeus::CMatrix4f& proj) noexcept { gx::g_gxState.proj = DepthCorrect * proj; }
 void update_fog_state(const metaforce::CFogState& state) noexcept { gx::g_gxState.fogState = state; }
 
 void load_light(GX::LightID id, const Light& light) noexcept { gx::g_gxState.lights[std::log2<u32>(id)] = light; }
@@ -338,6 +391,9 @@ ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primit
   for (u8 i = 0; i < g_gxState.numChans; ++i) {
     config.shaderConfig.colorChannels[i] = g_gxState.colorChannelConfig[i];
   }
+  for (u8 i = 0; i < g_gxState.numTexGens; ++i) {
+    config.shaderConfig.tcgs[i] = g_gxState.tcgs[i];
+  }
   config.shaderConfig.alphaDiscard = g_gxState.alphaDiscard;
   config = {
       .shaderConfig = config.shaderConfig,
@@ -411,6 +467,39 @@ Range build_uniform(const ShaderInfo& info) noexcept {
       continue;
     }
     buf.append(&g_gxState.kcolors[i], 16);
+  }
+  for (int i = 0; i < info.usesTexMtx.size(); ++i) {
+    if (!info.usesTexMtx.test(i)) {
+      continue;
+    }
+    switch (info.texMtxTypes[i]) {
+    case GX::TG_MTX2x4:
+      if (std::holds_alternative<Mat4x2<float>>(g_gxState.texMtxs[i])) {
+        buf.append(&std::get<Mat4x2<float>>(g_gxState.texMtxs[i]), 32);
+      } else {
+        Log.report(logvisor::Fatal, FMT_STRING("expected 2x4 mtx in idx {}"), i);
+        unreachable();
+      }
+      break;
+    case GX::TG_MTX3x4:
+      if (std::holds_alternative<Mat4x4<float>>(g_gxState.texMtxs[i])) {
+        const auto& mat = std::get<Mat4x4<float>>(g_gxState.texMtxs[i]);
+        buf.append(&mat, 64);
+      } else {
+        // Log.report(logvisor::Fatal, FMT_STRING("expected 3x4 mtx in idx {}"), i);
+        buf.append(&Mat4x4_Identity, 64);
+      }
+      break;
+    default:
+      Log.report(logvisor::Fatal, FMT_STRING("unhandled tex mtx type {}"), info.texMtxTypes[i]);
+      unreachable();
+    }
+  }
+  for (int i = 0; i < info.usesPTTexMtx.size(); ++i) {
+    if (!info.usesPTTexMtx.test(i)) {
+      continue;
+    }
+    buf.append(&g_gxState.ptTexMtxs[i], 48);
   }
   for (int i = 0; i < info.sampledTextures.size(); ++i) {
     if (!info.sampledTextures.test(i)) {

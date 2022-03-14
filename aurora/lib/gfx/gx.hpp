@@ -10,6 +10,9 @@ constexpr u32 MaxTevStages = GX::MAX_TEVSTAGE;
 constexpr u32 MaxColorChannels = 2; // COLOR0A0, COLOR1A1
 constexpr u32 MaxTevRegs = 3;       // TEVREG0-2
 constexpr u32 MaxKColors = GX::MAX_KCOLOR;
+constexpr u32 MaxTexMtx = 10;
+constexpr u32 MaxPTTexMtx = 20;
+constexpr u32 MaxTexCoord = GX::MAX_TEXCOORD;
 
 template <typename Arg, Arg Default>
 struct TevPass {
@@ -61,6 +64,15 @@ struct ColorChannelState {
   GX::LightMask lightState;
 };
 using LightVariant = std::variant<std::monostate, Light, zeus::CColor>;
+// Mat4x4 used instead of Mat4x3 for padding purposes
+using TexMtxVariant = std::variant<std::monostate, Mat4x2<float>, Mat4x4<float>>;
+struct TcgConfig {
+  GX::TexGenType type = GX::TG_MTX2x4;
+  GX::TexGenSrc src = GX::MAX_TEXGENSRC;
+  GX::TexMtx mtx = GX::IDENTITY;
+  GX::PTTexMtx postMtx = GX::PTIDENTITY;
+  bool normalize = false;
+};
 
 struct GXState {
   zeus::CMatrix4f mv;
@@ -83,6 +95,9 @@ struct GXState {
   std::array<LightVariant, GX::MaxLights> lights;
   std::array<TevStage, MaxTevStages> tevStages;
   std::array<TextureBind, MaxTextures> textures;
+  std::array<TexMtxVariant, MaxTexMtx> texMtxs;
+  std::array<Mat4x4<float>, MaxPTTexMtx> ptTexMtxs;
+  std::array<TcgConfig, MaxTexCoord> tcgs;
   bool depthCompare = true;
   bool depthUpdate = true;
   bool alphaUpdate = true;
@@ -101,6 +116,7 @@ const TextureBind& get_texture(GX::TexMapID id) noexcept;
 struct ShaderConfig {
   std::array<std::optional<TevStage>, MaxTevStages> tevStages;
   std::array<ColorChannelConfig, MaxColorChannels> colorChannels;
+  std::array<TcgConfig, MaxTexCoord> tcgs;
   std::optional<float> alphaDiscard;
   bool denormalizedVertexAttributes = false;
   bool denormalizedHasNrm = false; // TODO this is a hack
@@ -133,6 +149,9 @@ struct ShaderInfo {
   std::bitset<MaxKColors> sampledKColors;
   std::bitset<MaxColorChannels> sampledColorChannels;
   std::bitset<MaxTevRegs> usesTevReg;
+  std::bitset<MaxTexMtx> usesTexMtx;
+  std::bitset<MaxPTTexMtx> usesPTTexMtx;
+  std::array<GX::TexGenType, MaxTexMtx> texMtxTypes;
   u32 uniformSize = 0;
   bool usesVtxColor : 1 = false;
   bool usesNormal : 1 = false;
@@ -204,6 +223,14 @@ inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ColorChannelConfig& 
   }
 }
 template <>
+inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TcgConfig& input) {
+  XXH3_64bits_update(&state, &input.type, sizeof(gfx::gx::TcgConfig::type));
+  XXH3_64bits_update(&state, &input.src, sizeof(gfx::gx::TcgConfig::src));
+  XXH3_64bits_update(&state, &input.mtx, sizeof(gfx::gx::TcgConfig::mtx));
+  XXH3_64bits_update(&state, &input.postMtx, sizeof(gfx::gx::TcgConfig::postMtx));
+  XXH3_64bits_update(&state, &input.normalize, sizeof(gfx::gx::TcgConfig::normalize));
+}
+template <>
 inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ShaderConfig& input) {
   for (const auto& item : input.tevStages) {
     if (!item) {
@@ -212,6 +239,9 @@ inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ShaderConfig& input)
     xxh3_update(state, *item);
   }
   for (const auto& item : input.colorChannels) {
+    xxh3_update(state, item);
+  }
+  for (const auto& item : input.tcgs) {
     xxh3_update(state, item);
   }
   if (input.alphaDiscard) {
