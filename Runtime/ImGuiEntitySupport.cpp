@@ -429,10 +429,22 @@ IMGUI_ENTITY_INSPECT(CScriptAreaAttributes, CEntity, ScriptAreaAttributes, {
   ImGui::SameLine();
   ImGui::Text("(Asset: 0x%08X)", int(x4c_skybox.Value()));
   ImGuiEnumInput("Env FX Type", x38_envFx);
-  ImGui::SliderFloat("Env FX Density", &x3c_envFxDensity, 0.f, 1.f);
-  ImGui::SliderFloat("Thermal Heat", &x40_thermalHeat, 0.f, 1.f);
+  if (ImGui::SliderFloat("Env FX Density", &x3c_envFxDensity, 0.f, 1.f)) {
+    g_StateManager->GetEnvFxManager()->SetFxDensity(500, x3c_envFxDensity);
+  }
+  if (ImGui::SliderFloat("Thermal Heat", &x40_thermalHeat, 0.f, 1.f)) {
+    CGameArea* area = g_StateManager->GetWorld()->GetArea(x4_areaId);
+    if (area != nullptr && area->IsPostConstructed()) {
+      area->GetPostConstructed()->x111c_thermalCurrent = x40_thermalHeat;
+    }
+  }
   ImGui::SliderFloat("X-Ray Fog Distance", &x44_xrayFogDistance, 0.f, 1.f);
-  ImGui::SliderFloat("World Lighting Level", &x48_worldLightingLevel, 0.f, 1.f);
+  if (ImGui::SliderFloat("World Lighting Level", &x48_worldLightingLevel, 0.f, 1.f)) {
+    CGameArea* area = g_StateManager->GetWorld()->GetArea(x4_areaId);
+    if (area != nullptr && area->IsPostConstructed()) {
+      area->GetPostConstructed()->x1128_worldLightingLevel = x48_worldLightingLevel;
+    }
+  }
   ImGuiEnumInput("Phazon Type", x50_phazon);
 })
 IMGUI_ENTITY_INSPECT(CScriptCameraBlurKeyframe, CEntity, ScriptCameraBlurKeyframe, {})
