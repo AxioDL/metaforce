@@ -305,7 +305,7 @@ u32 CCubeMaterial::HandleColorChannels(u32 chanCount, u32 firstChan) {
       CGX::SetChanMatColor(CGX::EChannelId::Channel1, zeus::skWhite);
 
       auto chan0Lights = CGraphics::g_LightActive & ~CCubeModel::sChannel0DisableLightMask;
-      CGX::SetChanCtrl(CGX::EChannelId::Channel0, chan0Lights); // TODO use firstChan flags
+      CGX::SetChanCtrl(CGX::EChannelId::Channel0, firstChan, chan0Lights);
       CGX::SetChanCtrl(CGX::EChannelId::Channel1, CCubeModel::sChannel1EnableLightMask);
       if (chan0Lights.any()) {
         CGX::SetChanMatColor(CGX::EChannelId::Channel0, zeus::skWhite);
@@ -326,8 +326,7 @@ u32 CCubeMaterial::HandleColorChannels(u32 chanCount, u32 firstChan) {
   if (chanCount == 0) {
     CGX::SetChanCtrl(CGX::EChannelId::Channel0, {});
   } else {
-    // TODO use firstChan flags
-    CGX::SetChanCtrl(CGX::EChannelId::Channel0, CGraphics::g_LightActive);
+    CGX::SetChanCtrl(CGX::EChannelId::Channel0, firstChan, CGraphics::g_LightActive);
     if (CGraphics::g_LightActive.any()) {
       CGX::SetChanMatColor(CGX::EChannelId::Channel0, zeus::skWhite);
     } else {

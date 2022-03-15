@@ -159,6 +159,13 @@ static inline void SetChanCtrl(EChannelId id, GXBool enable, GX::ColorSrc ambSrc
   sGXState.x4c_dirtyChans = 7; // TODO
 }
 
+// Flags with lights override
+static inline void SetChanCtrl(EChannelId id, u32 flags, GX::LightMask lights) noexcept {
+  const auto idx = std::underlying_type_t<EChannelId>(id);
+  sGXState.x34_chanCtrls[idx] = lights.any() ? (flags | lights.to_ulong() << 3) : (flags & 0xFFFFFFFE);
+  sGXState.x4c_dirtyChans = 7; // TODO
+}
+
 // Helper function for common logic
 static inline void SetChanCtrl(EChannelId id, GX::LightMask lights) noexcept {
   const bool hasLights = lights.any();
