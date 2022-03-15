@@ -3,6 +3,7 @@
 #include "../../gpu.hpp"
 #include "../common.hpp"
 
+#include <absl/container/flat_hash_map.h>
 #include <aurora/model.hpp>
 #include <magic_enum.hpp>
 
@@ -53,11 +54,10 @@ static const std::vector<zeus::CVector3f>* vtxData;
 static const std::vector<zeus::CVector3f>* nrmData;
 static const std::vector<Vec2<float>>* tex0TcData;
 static const std::vector<Vec2<float>>* tcData;
-
-// void set_vertex_buffer(const std::vector<zeus::CVector3f>* data) noexcept { vtxData = data; }
-// void set_normal_buffer(const std::vector<zeus::CVector3f>* norm) noexcept { nrmData = norm; }
-// void set_tex0_tc_buffer(const std::vector<Vec2<float>>* tcs) noexcept { tex0TcData = tcs; }
-// void set_tc_buffer(const std::vector<Vec2<float>>* tcs) noexcept { tcData = tcs; }
+static std::optional<Range> staticVtxRange;
+static std::optional<Range> staticNrmRange;
+static std::optional<Range> staticPackedTcRange;
+static std::optional<Range> staticTcRange;
 
 enum class VertexFormat : u8 {
   F32F32,
@@ -110,69 +110,95 @@ static inline std::pair<gx::DlVert, size_t> readVert(const u8* data) noexcept {
   return {out, offset};
 }
 
+static absl::flat_hash_map<XXH64_hash_t, std::pair<std::vector<gx::DlVert>, std::vector<u32>>> sCachedDisplayLists;
+
 void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
-  //  Log.report(logvisor::Info, FMT_STRING("DL size {}"), dlSize);
-  std::vector<gx::DlVert> verts;
-  std::vector<u32> indices;
+  const auto hash = xxh3_hash(dlStart, dlSize, 0);
+  Range vertRange, idxRange;
+  uint32_t numIndices;
+  auto it = sCachedDisplayLists.find(hash);
+  if (it != sCachedDisplayLists.end()) {
+    const auto& [verts, indices] = it->second;
+    numIndices = indices.size();
+    vertRange = push_verts(ArrayRef{verts});
+    idxRange = push_indices(ArrayRef{indices});
+  } else {
+    std::vector<gx::DlVert> verts;
+    std::vector<u32> indices;
 
-  size_t offset = 0;
-  while (offset < dlSize - 6) {
-    const auto header = dlStart[offset];
-    const auto primitive = static_cast<GX::Primitive>(header & 0xF8);
-    const auto vtxFmt = static_cast<VertexFormat>(header & 0x3);
-    const auto vtxCount = metaforce::SBig(*reinterpret_cast<const u16*>(dlStart + offset + 1));
-    //    Log.report(logvisor::Info, FMT_STRING("DL header prim {}, fmt {}, vtx count {}"), primitive,
-    //               magic_enum::enum_name(vtxFmt), vtxCount);
-    offset += 3;
+    size_t offset = 0;
+    while (offset < dlSize - 6) {
+      const auto header = dlStart[offset];
+      const auto primitive = static_cast<GX::Primitive>(header & 0xF8);
+      const auto vtxFmt = static_cast<VertexFormat>(header & 0x3);
+      const auto vtxCount = metaforce::SBig(*reinterpret_cast<const u16*>(dlStart + offset + 1));
+      offset += 3;
 
-    if (primitive == 0) {
-      break;
-    }
-    if (primitive != GX::TRIANGLES && primitive != GX::TRIANGLESTRIP && primitive != GX::TRIANGLEFAN) {
-      Log.report(logvisor::Fatal, FMT_STRING("queue_surface: unsupported primitive type {}"), primitive);
-      unreachable();
-    }
-
-    const u32 idxStart = indices.size();
-    const u16 vertsStart = verts.size();
-    verts.reserve(vertsStart + vtxCount);
-    if (vtxCount > 3 && (primitive == GX::TRIANGLEFAN || primitive == GX::TRIANGLESTRIP)) {
-      indices.reserve(idxStart + (u32(vtxCount) - 3) * 3 + 3);
-    } else {
-      indices.reserve(idxStart + vtxCount);
-    }
-    auto curVert = vertsStart;
-    for (int v = 0; v < vtxCount; ++v) {
-      const auto [vert, read] = readVert(dlStart + offset);
-      verts.push_back(vert);
-      offset += read;
-      if (primitive == GX::TRIANGLES || v < 3) {
-        // pass
-      } else if (primitive == GX::TRIANGLEFAN) {
-        indices.push_back(vertsStart);
-        indices.push_back(curVert - 1);
-      } else if (primitive == GX::TRIANGLESTRIP) {
-        if ((v & 1) == 0) {
-          indices.push_back(curVert - 2);
-          indices.push_back(curVert - 1);
-        } else {
-          indices.push_back(curVert - 1);
-          indices.push_back(curVert - 2);
-        }
+      if (primitive == 0) {
+        break;
       }
-      indices.push_back(curVert);
-      ++curVert;
+      if (primitive != GX::TRIANGLES && primitive != GX::TRIANGLESTRIP && primitive != GX::TRIANGLEFAN) {
+        Log.report(logvisor::Fatal, FMT_STRING("queue_surface: unsupported primitive type {}"), primitive);
+        unreachable();
+      }
+
+      const u32 idxStart = indices.size();
+      const u16 vertsStart = verts.size();
+      verts.reserve(vertsStart + vtxCount);
+      if (vtxCount > 3 && (primitive == GX::TRIANGLEFAN || primitive == GX::TRIANGLESTRIP)) {
+        indices.reserve(idxStart + (u32(vtxCount) - 3) * 3 + 3);
+      } else {
+        indices.reserve(idxStart + vtxCount);
+      }
+      auto curVert = vertsStart;
+      for (int v = 0; v < vtxCount; ++v) {
+        const auto [vert, read] = readVert(dlStart + offset);
+        verts.push_back(vert);
+        offset += read;
+        if (primitive == GX::TRIANGLES || v < 3) {
+          // pass
+        } else if (primitive == GX::TRIANGLEFAN) {
+          indices.push_back(vertsStart);
+          indices.push_back(curVert - 1);
+        } else if (primitive == GX::TRIANGLESTRIP) {
+          if ((v & 1) == 0) {
+            indices.push_back(curVert - 2);
+            indices.push_back(curVert - 1);
+          } else {
+            indices.push_back(curVert - 1);
+            indices.push_back(curVert - 2);
+          }
+        }
+        indices.push_back(curVert);
+        ++curVert;
+      }
     }
+
+    numIndices = indices.size();
+    vertRange = push_verts(ArrayRef{verts});
+    idxRange = push_indices(ArrayRef{indices});
+    sCachedDisplayLists.try_emplace(hash, std::move(verts), std::move(indices));
   }
 
-  //  Log.report(logvisor::Info, FMT_STRING("Read {} verts, {} indices"), verts.size(), indices.size());
-  const auto vertRange = push_verts(ArrayRef{verts});
-  const auto idxRange = push_indices(ArrayRef{indices});
-  const auto sVtxRange = push_storage(reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size() * 16);
-  const auto sNrmRange = push_storage(reinterpret_cast<const uint8_t*>(nrmData->data()), nrmData->size() * 16);
-  const auto sTcRange = push_storage(reinterpret_cast<const uint8_t*>(tcData->data()), tcData->size() * 8);
-  Range sPackedTcRange;
-  if (tcData == tex0TcData) {
+  Range sVtxRange, sNrmRange, sTcRange, sPackedTcRange;
+  if (staticVtxRange) {
+    sVtxRange = *staticVtxRange;
+  } else {
+    sVtxRange = push_storage(reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size() * 16);
+  }
+  if (staticNrmRange) {
+    sNrmRange = *staticNrmRange;
+  } else {
+    sNrmRange = push_storage(reinterpret_cast<const uint8_t*>(nrmData->data()), nrmData->size() * 16);
+  }
+  if (staticTcRange) {
+    sTcRange = *staticTcRange;
+  } else {
+    sTcRange = push_storage(reinterpret_cast<const uint8_t*>(tcData->data()), tcData->size() * 8);
+  }
+  if (staticPackedTcRange) {
+    sPackedTcRange = *staticPackedTcRange;
+  } else if (tcData == tex0TcData) {
     sPackedTcRange = sTcRange;
   } else {
     sPackedTcRange = push_storage(reinterpret_cast<const uint8_t*>(tex0TcData->data()), tex0TcData->size() * 8);
@@ -192,12 +218,9 @@ void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
       .pipeline = pipeline,
       .vertRange = vertRange,
       .idxRange = idxRange,
-      .sVtxRange = sVtxRange,
-      .sNrmRange = sNrmRange,
-      .sTcRange = sTcRange,
-      .sPackedTcRange = sPackedTcRange,
+      .dataRanges = ranges,
       .uniformRange = build_uniform(info),
-      .indexCount = static_cast<uint32_t>(indices.size()),
+      .indexCount = numIndices,
       .bindGroups = info.bindGroups,
   });
 }
@@ -220,36 +243,60 @@ void render(const State& state, const DrawData& data, const wgpu::RenderPassEnco
   }
 
   const std::array offsets{
-      data.uniformRange.first, data.sVtxRange.first,      data.sNrmRange.first,
-      data.sTcRange.first,     data.sPackedTcRange.first,
+      data.uniformRange.offset,
+      storage_offset(data.dataRanges.vtxDataRange),
+      storage_offset(data.dataRanges.nrmDataRange),
+      storage_offset(data.dataRanges.tcDataRange),
+      storage_offset(data.dataRanges.packedTcDataRange),
   };
   pass.SetBindGroup(0, find_bind_group(data.bindGroups.uniformBindGroup), offsets.size(), offsets.data());
   if (data.bindGroups.samplerBindGroup && data.bindGroups.textureBindGroup) {
     pass.SetBindGroup(1, find_bind_group(data.bindGroups.samplerBindGroup));
     pass.SetBindGroup(2, find_bind_group(data.bindGroups.textureBindGroup));
   }
-  pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.first, data.vertRange.second);
-  pass.SetIndexBuffer(g_indexBuffer, wgpu::IndexFormat::Uint32, data.idxRange.first, data.idxRange.second);
+  pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.offset, data.vertRange.size);
+  pass.SetIndexBuffer(g_indexBuffer, wgpu::IndexFormat::Uint32, data.idxRange.offset, data.idxRange.size);
   pass.DrawIndexed(data.indexCount);
 }
 } // namespace aurora::gfx::model
 
+static absl::flat_hash_map<XXH64_hash_t, aurora::gfx::Range> sCachedRanges;
+template <typename Vec>
+static inline void cache_array(const void* data, Vec*& outPtr, std::optional<aurora::gfx::Range>& outRange, u8 stride) {
+  Vec* vecPtr = static_cast<Vec*>(data);
+  outPtr = vecPtr;
+  if (stride == 1) {
+    const auto hash = aurora::xxh3_hash(vecPtr->data(), vecPtr->size() * sizeof(typename Vec::value_type), 0);
+    const auto it = sCachedRanges.find(hash);
+    if (it != sCachedRanges.end()) {
+      outRange = it->second;
+    } else {
+      const auto range = aurora::gfx::push_static_storage(aurora::ArrayRef{*vecPtr});
+      sCachedRanges.try_emplace(hash, range);
+      outRange = range;
+    }
+  } else {
+    outRange.reset();
+  }
+}
+
 void GXSetArray(GX::Attr attr, const void* data, u8 stride) noexcept {
+  using namespace aurora::gfx::model;
   switch (attr) {
   case GX::VA_POS:
-    aurora::gfx::model::vtxData = static_cast<const std::vector<zeus::CVector3f>*>(data);
+    cache_array(data, vtxData, staticVtxRange, stride);
     break;
   case GX::VA_NRM:
-    aurora::gfx::model::nrmData = static_cast<const std::vector<zeus::CVector3f>*>(data);
+    cache_array(data, nrmData, staticNrmRange, stride);
     break;
   case GX::VA_TEX0:
-    aurora::gfx::model::tex0TcData = static_cast<const std::vector<aurora::Vec2<float>>*>(data);
+    cache_array(data, tex0TcData, staticPackedTcRange, stride);
     break;
   case GX::VA_TEX1:
-    aurora::gfx::model::tcData = static_cast<const std::vector<aurora::Vec2<float>>*>(data);
+    cache_array(data, tcData, staticTcRange, stride);
     break;
   default:
-    aurora::gfx::model::Log.report(logvisor::Fatal, FMT_STRING("GXSetArray: invalid attr {}"), attr);
+    Log.report(logvisor::Fatal, FMT_STRING("GXSetArray: invalid attr {}"), attr);
     unreachable();
   }
 }

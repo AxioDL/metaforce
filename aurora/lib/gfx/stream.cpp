@@ -4,8 +4,6 @@
 #include "common.hpp"
 #include "gx.hpp"
 
-#include <unordered_map>
-
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx::stream");
 

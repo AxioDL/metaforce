@@ -6,10 +6,6 @@
 #include <magic_enum.hpp>
 #include <utility>
 
-namespace aurora::gfx {
-extern std::unordered_map<ShaderRef, wgpu::ShaderModule> g_gxCachedShaders;
-} // namespace aurora::gfx
-
 namespace aurora::gfx::stream {
 static logvisor::Module Log("aurora::gfx::stream");
 
@@ -66,60 +62,20 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
   return build_pipeline(config, info, vertexBuffers, shader, "Stream Pipeline");
 }
 
-State construct_state() {
-  const auto samplerBinding = wgpu::SamplerBindingLayout{
-      .type = wgpu::SamplerBindingType::Filtering,
-  };
-  const std::array samplerLayoutEntries{
-      wgpu::BindGroupLayoutEntry{
-          .binding = 0,
-          .visibility = wgpu::ShaderStage::Fragment,
-          .sampler = samplerBinding,
-      },
-  };
-  const auto samplerLayoutDescriptor = wgpu::BindGroupLayoutDescriptor{
-      .label = "Stream Sampler Bind Group Layout",
-      .entryCount = samplerLayoutEntries.size(),
-      .entries = samplerLayoutEntries.data(),
-  };
-  auto samplerLayout = g_device.CreateBindGroupLayout(&samplerLayoutDescriptor);
-
-  const auto textureBinding = wgpu::TextureBindingLayout{
-      .sampleType = wgpu::TextureSampleType::Float,
-      .viewDimension = wgpu::TextureViewDimension::e2D,
-  };
-  const std::array textureLayoutEntries{
-      wgpu::BindGroupLayoutEntry{
-          .binding = 0,
-          .visibility = wgpu::ShaderStage::Fragment,
-          .texture = textureBinding,
-      },
-  };
-  const auto textureLayoutDescriptor = wgpu::BindGroupLayoutDescriptor{
-      .label = "Stream Texture Bind Group Layout",
-      .entryCount = textureLayoutEntries.size(),
-      .entries = textureLayoutEntries.data(),
-  };
-  auto textureLayout = g_device.CreateBindGroupLayout(&textureLayoutDescriptor);
-
-  return {
-      .samplerLayout = samplerLayout,
-      .textureLayout = textureLayout,
-  };
-}
+State construct_state() { return {}; }
 
 void render(const State& state, const DrawData& data, const wgpu::RenderPassEncoder& pass) {
   if (!bind_pipeline(data.pipeline, pass)) {
     return;
   }
 
-  const std::array offsets{data.uniformRange.first};
+  const std::array offsets{data.uniformRange.offset};
   pass.SetBindGroup(0, find_bind_group(data.bindGroups.uniformBindGroup), offsets.size(), offsets.data());
   if (data.bindGroups.samplerBindGroup && data.bindGroups.textureBindGroup) {
     pass.SetBindGroup(1, find_bind_group(data.bindGroups.samplerBindGroup));
     pass.SetBindGroup(2, find_bind_group(data.bindGroups.textureBindGroup));
   }
-  pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.first, data.vertRange.second);
+  pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.offset, data.vertRange.size);
   pass.Draw(data.vertexCount);
 }
 } // namespace aurora::gfx::stream

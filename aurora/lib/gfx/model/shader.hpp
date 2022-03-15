@@ -3,17 +3,12 @@
 #include "../common.hpp"
 #include "../gx.hpp"
 
-#include <unordered_map>
-
 namespace aurora::gfx::model {
 struct DrawData {
   PipelineRef pipeline;
   Range vertRange;
   Range idxRange;
-  Range sVtxRange;
-  Range sNrmRange;
-  Range sTcRange;
-  Range sPackedTcRange;
+  gx::BindGroupRanges dataRanges;
   Range uniformRange;
   uint32_t indexCount;
   gx::GXBindGroups bindGroups;

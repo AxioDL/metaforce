@@ -2,6 +2,7 @@
 #include <SDL_haptic.h>
 
 #include <absl/container/btree_map.h>
+#include <absl/container/flat_hash_map.h>
 #include <absl/strings/str_split.h>
 
 namespace aurora::input {
@@ -13,7 +14,7 @@ struct GameController {
   Sint32 m_index = -1;
   bool m_hasRumble = false;
 };
-std::unordered_map<Uint32, GameController> g_GameControllers;
+absl::flat_hash_map<Uint32, GameController> g_GameControllers;
 
 static std::optional<std::string> remap_controller_layout(std::string_view mapping) {
   std::string newMapping;

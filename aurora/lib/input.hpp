@@ -1,11 +1,11 @@
 #pragma once
 
-#include <unordered_map>
 #include "aurora/aurora.hpp"
 #include "SDL_gamecontroller.h"
 #include "SDL_keyboard.h"
 #include "SDL_keycode.h"
 #include "SDL_mouse.h"
+
 namespace aurora::input {
 Sint32 add_controller(Sint32 which) noexcept;
 void remove_controller(Uint32 instance) noexcept;

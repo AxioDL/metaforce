@@ -380,10 +380,10 @@ void render(const State& state, const DrawData& data, const wgpu::RenderPassEnco
     return;
   }
 
-  const std::array offsets{data.uniformRange.first};
+  const std::array offsets{data.uniformRange.offset};
   pass.SetBindGroup(0, state.uniformBindGroup, offsets.size(), offsets.data());
   pass.SetBindGroup(1, find_bind_group(data.textureBindGroup));
-  pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.first, data.vertRange.second);
+  pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.offset, data.vertRange.size);
   pass.Draw(4);
 }
 } // namespace aurora::gfx::textured_quad

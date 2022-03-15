@@ -3,7 +3,7 @@
 #include "../gpu.hpp"
 #include "common.hpp"
 
-#include <unordered_map>
+#include <absl/container/flat_hash_map.h>
 
 using aurora::gfx::gx::g_gxState;
 static logvisor::Module Log("aurora::gx");
@@ -537,8 +537,8 @@ Range build_uniform(const ShaderInfo& info) noexcept {
   return range;
 }
 
-static std::unordered_map<u32, wgpu::BindGroupLayout> sUniformBindGroupLayouts;
-static std::unordered_map<u32, std::pair<wgpu::BindGroupLayout, wgpu::BindGroupLayout>> sTextureBindGroupLayouts;
+static absl::flat_hash_map<u32, wgpu::BindGroupLayout> sUniformBindGroupLayouts;
+static absl::flat_hash_map<u32, std::pair<wgpu::BindGroupLayout, wgpu::BindGroupLayout>> sTextureBindGroupLayouts;
 
 GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& config,
                                const BindGroupRanges& ranges) noexcept {
@@ -555,25 +555,25 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
       wgpu::BindGroupEntry{
           .binding = 1,
           .buffer = g_storageBuffer,
-          .size = ranges.vtxDataRange.second - ranges.vtxDataRange.first,
+          .size = ranges.vtxDataRange.size,
       },
       // Normals
       wgpu::BindGroupEntry{
           .binding = 2,
           .buffer = g_storageBuffer,
-          .size = ranges.nrmDataRange.second - ranges.nrmDataRange.first,
+          .size = ranges.nrmDataRange.size,
       },
       // UVs
       wgpu::BindGroupEntry{
           .binding = 3,
           .buffer = g_storageBuffer,
-          .size = ranges.tcDataRange.second - ranges.tcDataRange.first,
+          .size = ranges.tcDataRange.size,
       },
       // Packed UVs
       wgpu::BindGroupEntry{
           .binding = 4,
           .buffer = g_storageBuffer,
-          .size = ranges.packedTcDataRange.second - ranges.packedTcDataRange.first,
+          .size = ranges.packedTcDataRange.size,
       },
   };
   std::array<wgpu::BindGroupEntry, MaxTextures> samplerEntries;
@@ -622,8 +622,9 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
 GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const ShaderConfig& config) noexcept {
   GXBindGroupLayouts out;
   u32 uniformSizeKey = info.uniformSize + (config.denormalizedVertexAttributes ? 0 : 1);
-  if (sUniformBindGroupLayouts.contains(uniformSizeKey)) {
-    out.uniformLayout = sUniformBindGroupLayouts[uniformSizeKey];
+  const auto uniformIt = sUniformBindGroupLayouts.find(uniformSizeKey);
+  if (uniformIt != sUniformBindGroupLayouts.end()) {
+    out.uniformLayout = uniformIt->second;
   } else {
     const std::array uniformLayoutEntries{
         wgpu::BindGroupLayoutEntry{
@@ -683,8 +684,9 @@ GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const Shader
   }
 
   u32 textureCount = info.sampledTextures.count();
-  if (sTextureBindGroupLayouts.contains(textureCount)) {
-    const auto& [sl, tl] = sTextureBindGroupLayouts[textureCount];
+  const auto textureIt = sTextureBindGroupLayouts.find(textureCount);
+  if (textureIt != sTextureBindGroupLayouts.end()) {
+    const auto& [sl, tl] = textureIt->second;
     out.samplerLayout = sl;
     out.textureLayout = tl;
   } else {
@@ -728,7 +730,7 @@ GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const Shader
 }
 
 // TODO this is awkward
-extern std::unordered_map<ShaderRef, std::pair<wgpu::ShaderModule, gx::ShaderInfo>> g_gxCachedShaders;
+extern absl::flat_hash_map<ShaderRef, std::pair<wgpu::ShaderModule, gx::ShaderInfo>> g_gxCachedShaders;
 void shutdown() noexcept {
   // TODO we should probably store this all in g_state.gx instead
   sUniformBindGroupLayouts.clear();

@@ -3,14 +3,17 @@
 #include "../gpu.hpp"
 #include "gx.hpp"
 
-#include <unordered_map>
+#include <absl/container/flat_hash_map.h>
 
 namespace aurora::gfx::gx {
 using namespace fmt::literals;
 
 static logvisor::Module Log("aurora::gfx::gx");
 
-std::unordered_map<ShaderRef, std::pair<wgpu::ShaderModule, gx::ShaderInfo>> g_gxCachedShaders;
+absl::flat_hash_map<ShaderRef, std::pair<wgpu::ShaderModule, gx::ShaderInfo>> g_gxCachedShaders;
+#ifndef NDEBUG
+static absl::flat_hash_map<ShaderRef, gx::ShaderConfig> g_gxCachedShaderConfigs;
+#endif
 
 static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const TevStage& stage, ShaderInfo& info) {
   switch (arg) {
@@ -346,8 +349,15 @@ static std::string in_uv(u32 idx) {
 
 std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& config) noexcept {
   const auto hash = xxh3_hash(config);
-  if (g_gxCachedShaders.contains(hash)) {
-    return g_gxCachedShaders[hash];
+  const auto it = g_gxCachedShaders.find(hash);
+  if (it != g_gxCachedShaders.end()) {
+#ifndef NDEBUG
+    if (g_gxCachedShaderConfigs[hash] != config) {
+      Log.report(logvisor::Fatal, FMT_STRING("Shader collision!"));
+      unreachable();
+    }
+#endif
+    return it->second;
   }
 
   Log.report(logvisor::Info, FMT_STRING("Shader config (hash {:x}):"), hash);
@@ -791,6 +801,9 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {{
   info.uniformSize = align_uniform(info.uniformSize);
   auto pair = std::make_pair(std::move(shader), info);
   g_gxCachedShaders.emplace(hash, pair);
+#ifndef NDEBUG
+  g_gxCachedShaderConfigs.emplace(hash, config);
+#endif
 
   return pair;
 }

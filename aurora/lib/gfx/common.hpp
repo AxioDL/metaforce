@@ -126,6 +126,7 @@ extern wgpu::Buffer g_vertexBuffer;
 extern wgpu::Buffer g_uniformBuffer;
 extern wgpu::Buffer g_indexBuffer;
 extern wgpu::Buffer g_storageBuffer;
+extern size_t g_staticStorageLastSize;
 
 struct TextureRef {
   wgpu::Texture texture;
@@ -149,7 +150,14 @@ using BindGroupRef = uint64_t;
 using PipelineRef = uint64_t;
 using SamplerRef = uint64_t;
 using ShaderRef = uint64_t;
-using Range = std::pair<uint32_t, uint32_t>;
+struct Range {
+  uint32_t offset;
+  uint32_t size;
+  bool isStatic;
+};
+static inline uint32_t storage_offset(Range range) {
+  return range.isStatic ? range.offset : range.offset + g_staticStorageLastSize;
+}
 
 enum class ShaderType {
   Aabb,
@@ -182,8 +190,21 @@ static inline Range push_uniform(const T& data) {
 }
 Range push_storage(const uint8_t* data, size_t length);
 template <typename T>
+static inline Range push_storage(ArrayRef<T> data) {
+  return push_storage(reinterpret_cast<const uint8_t*>(data.data()), data.size() * sizeof(T));
+}
+template <typename T>
 static inline Range push_storage(const T& data) {
   return push_storage(reinterpret_cast<const uint8_t*>(&data), sizeof(T));
+}
+Range push_static_storage(const uint8_t* data, size_t length);
+template <typename T>
+static inline Range push_static_storage(ArrayRef<T> data) {
+  return push_static_storage(reinterpret_cast<const uint8_t*>(data.data()), data.size() * sizeof(T));
+}
+template <typename T>
+static inline Range push_static_storage(const T& data) {
+  return push_static_storage(reinterpret_cast<const uint8_t*>(&data), sizeof(T));
 }
 std::pair<ByteBuffer, Range> map_verts(size_t length);
 std::pair<ByteBuffer, Range> map_indices(size_t length);

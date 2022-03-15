@@ -239,7 +239,7 @@ void render(const State& state, const DrawData& data, const wgpu::RenderPassEnco
 
   pass.SetBindGroup(0, state.uniformBindGroup);
   pass.SetBindGroup(1, find_bind_group(data.textureBindGroup));
-  pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.first, data.vertRange.second);
+  pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.offset, data.vertRange.size);
   pass.Draw(4);
 }
 } // namespace aurora::gfx::movie_player

@@ -11,7 +11,7 @@
 #include <deque>
 #include <logvisor/logvisor.hpp>
 #include <thread>
-#include <unordered_map>
+#include <absl/container/flat_hash_map.h>
 
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx");
@@ -187,10 +187,10 @@ std::mutex g_pipelineMutex;
 static std::thread g_pipelineThread;
 static std::atomic_bool g_pipelineThreadEnd;
 static std::condition_variable g_pipelineCv;
-static std::unordered_map<PipelineRef, wgpu::RenderPipeline> g_pipelines;
+static absl::flat_hash_map<PipelineRef, wgpu::RenderPipeline> g_pipelines;
 static std::deque<std::pair<PipelineRef, NewPipelineCallback>> g_queuedPipelines;
-static std::unordered_map<BindGroupRef, wgpu::BindGroup> g_cachedBindGroups;
-static std::unordered_map<SamplerRef, wgpu::Sampler> g_cachedSamplers;
+static absl::flat_hash_map<BindGroupRef, wgpu::BindGroup> g_cachedBindGroups;
+static absl::flat_hash_map<SamplerRef, wgpu::Sampler> g_cachedSamplers;
 std::atomic_uint32_t queuedPipelines;
 std::atomic_uint32_t createdPipelines;
 
@@ -198,10 +198,12 @@ static ByteBuffer g_verts;
 static ByteBuffer g_uniforms;
 static ByteBuffer g_indices;
 static ByteBuffer g_storage;
+static ByteBuffer g_staticStorage;
 wgpu::Buffer g_vertexBuffer;
 wgpu::Buffer g_uniformBuffer;
 wgpu::Buffer g_indexBuffer;
 wgpu::Buffer g_storageBuffer;
+size_t g_staticStorageLastSize = 0;
 
 static ShaderState g_state;
 static PipelineRef g_currentPipeline;
@@ -213,7 +215,7 @@ static PipelineRef find_pipeline(PipelineCreateCommand command, NewPipelineCallb
   bool found = false;
   {
     std::scoped_lock guard{g_pipelineMutex};
-    found = g_pipelines.find(hash) != g_pipelines.end();
+    found = g_pipelines.contains(hash);
     if (!found) {
       const auto ref =
           std::find_if(g_queuedPipelines.begin(), g_queuedPipelines.end(), [=](auto v) { return v.first == hash; });
@@ -364,11 +366,10 @@ static void pipeline_worker() {
     // std::this_thread::sleep_for(std::chrono::milliseconds{1500});
     {
       std::scoped_lock lock{g_pipelineMutex};
-      if (g_pipelines.contains(cb.first)) {
+      if (!g_pipelines.try_emplace(cb.first, std::move(result)).second) {
         Log.report(logvisor::Fatal, FMT_STRING("Duplicate pipeline {}"), cb.first);
         unreachable();
       }
-      g_pipelines[cb.first] = result;
       g_queuedPipelines.pop_front();
       hasMore = !g_queuedPipelines.empty();
     }
@@ -384,7 +385,7 @@ void initialize() {
     const wgpu::BufferDescriptor descriptor{
         .label = "Shared Uniform Buffer",
         .usage = wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst,
-        .size = 134217728, // 128mb
+        .size = 5242880, // 5mb
     };
     g_uniformBuffer = g_device.CreateBuffer(&descriptor);
   }
@@ -392,7 +393,7 @@ void initialize() {
     const wgpu::BufferDescriptor descriptor{
         .label = "Shared Vertex Buffer",
         .usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst,
-        .size = 16777216, // 16mb
+        .size = 5242880, // 5mb
     };
     g_vertexBuffer = g_device.CreateBuffer(&descriptor);
   }
@@ -400,7 +401,7 @@ void initialize() {
     const wgpu::BufferDescriptor descriptor{
         .label = "Shared Index Buffer",
         .usage = wgpu::BufferUsage::Index | wgpu::BufferUsage::CopyDst,
-        .size = 4194304, // 4mb
+        .size = 2097152, // 2mb
     };
     g_indexBuffer = g_device.CreateBuffer(&descriptor);
   }
@@ -439,18 +440,33 @@ void shutdown() {
 }
 
 void render(const wgpu::RenderPassEncoder& pass) {
-  const auto writeBuffer = [](ByteBuffer& buf, wgpu::Buffer& out) {
+  const auto writeBuffer = [](ByteBuffer& buf, wgpu::Buffer& out, std::string_view label) {
     const auto size = buf.size();
+    // Log.report(logvisor::Info, FMT_STRING("{} buffer usage: {}"), label, size);
     if (size > 0) {
       g_queue.WriteBuffer(out, 0, buf.data(), size);
       buf.clear();
       buf.reserve_extra(size); // Reserve size from previous frame
     }
   };
-  writeBuffer(g_verts, g_vertexBuffer);
-  writeBuffer(g_uniforms, g_uniformBuffer);
-  writeBuffer(g_indices, g_indexBuffer);
-  writeBuffer(g_storage, g_storageBuffer);
+  writeBuffer(g_verts, g_vertexBuffer, "Vertex");
+  writeBuffer(g_uniforms, g_uniformBuffer, "Uniform");
+  writeBuffer(g_indices, g_indexBuffer, "Index");
+  {
+    const auto staticSize = g_staticStorage.size();
+    if (staticSize > g_staticStorageLastSize) {
+      g_queue.WriteBuffer(g_storageBuffer, g_staticStorageLastSize, g_staticStorage.data() + g_staticStorageLastSize,
+                          staticSize - g_staticStorageLastSize);
+      g_staticStorageLastSize = staticSize;
+    }
+    const auto size = g_storage.size();
+    if (size > 0) {
+      g_queue.WriteBuffer(g_storageBuffer, staticSize, g_storage.data(), size);
+      g_storage.clear();
+      g_storage.reserve_extra(size); // Reserve size from previous frame
+    }
+    // Log.report(logvisor::Info, FMT_STRING("Static storage: {}, storage: {}"), staticSize, size);
+  }
 
   g_currentPipeline = UINT64_MAX;
 
@@ -498,10 +514,11 @@ bool bind_pipeline(PipelineRef ref, const wgpu::RenderPassEncoder& pass) {
     return true;
   }
   std::lock_guard guard{g_pipelineMutex};
-  if (!g_pipelines.contains(ref)) {
+  const auto it = g_pipelines.find(ref);
+  if (it == g_pipelines.end()) {
     return false;
   }
-  pass.SetPipeline(g_pipelines[ref]);
+  pass.SetPipeline(it->second);
   g_currentPipeline = ref;
   return true;
 }
@@ -522,7 +539,7 @@ static inline Range push(ByteBuffer& target, const uint8_t* data, size_t length,
       target.append_zeroes(padding);
     }
   }
-  return {begin, begin + length + padding};
+  return {static_cast<uint32_t>(begin), static_cast<uint32_t>(length + padding)};
 }
 static inline Range map(ByteBuffer& target, size_t length, size_t alignment) {
   size_t padding = 0;
@@ -534,7 +551,7 @@ static inline Range map(ByteBuffer& target, size_t length, size_t alignment) {
   }
   auto begin = target.size();
   target.append_zeroes(length + padding);
-  return {begin, begin + length + padding};
+  return {static_cast<uint32_t>(begin), static_cast<uint32_t>(length + padding)};
 }
 Range push_verts(const uint8_t* data, size_t length) { return push(g_verts, data, length, 0 /* TODO? */); }
 Range push_indices(const uint8_t* data, size_t length) { return push(g_indices, data, length, 0 /* TODO? */); }
@@ -548,48 +565,57 @@ Range push_storage(const uint8_t* data, size_t length) {
   g_device.GetLimits(&limits);
   return push(g_storage, data, length, limits.limits.minStorageBufferOffsetAlignment);
 }
+Range push_static_storage(const uint8_t* data, size_t length) {
+  wgpu::SupportedLimits limits;
+  g_device.GetLimits(&limits);
+  auto range = push(g_staticStorage, data, length, limits.limits.minStorageBufferOffsetAlignment);
+  range.isStatic = true;
+  return range;
+}
 std::pair<ByteBuffer, Range> map_verts(size_t length) {
   const auto range = map(g_verts, length, 0 /* TODO? */);
-  return {ByteBuffer{g_verts.data() + range.first, range.second - range.first}, range};
+  return {ByteBuffer{g_verts.data() + range.offset, range.size}, range};
 }
 std::pair<ByteBuffer, Range> map_indices(size_t length) {
   const auto range = map(g_indices, length, 0 /* TODO? */);
-  return {ByteBuffer{g_indices.data() + range.first, range.second - range.first}, range};
+  return {ByteBuffer{g_indices.data() + range.offset, range.size}, range};
 }
 std::pair<ByteBuffer, Range> map_uniform(size_t length) {
   wgpu::SupportedLimits limits;
   g_device.GetLimits(&limits);
   const auto range = map(g_uniforms, length, limits.limits.minUniformBufferOffsetAlignment);
-  return {ByteBuffer{g_uniforms.data() + range.first, range.second - range.first}, range};
+  return {ByteBuffer{g_uniforms.data() + range.offset, range.size}, range};
 }
 std::pair<ByteBuffer, Range> map_storage(size_t length) {
   wgpu::SupportedLimits limits;
   g_device.GetLimits(&limits);
   const auto range = map(g_storage, length, limits.limits.minStorageBufferOffsetAlignment);
-  return {ByteBuffer{g_storage.data() + range.first, range.second - range.first}, range};
+  return {ByteBuffer{g_storage.data() + range.offset, range.size}, range};
 }
 
 BindGroupRef bind_group_ref(const wgpu::BindGroupDescriptor& descriptor) {
   const auto id = xxh3_hash(descriptor);
   if (!g_cachedBindGroups.contains(id)) {
-    g_cachedBindGroups[id] = g_device.CreateBindGroup(&descriptor);
+    g_cachedBindGroups.try_emplace(id, g_device.CreateBindGroup(&descriptor));
   }
   return id;
 }
 const wgpu::BindGroup& find_bind_group(BindGroupRef id) {
-  if (!g_cachedBindGroups.contains(id)) {
+  const auto it = g_cachedBindGroups.find(id);
+  if (it == g_cachedBindGroups.end()) {
     Log.report(logvisor::Fatal, FMT_STRING("get_bind_group: failed to locate {}"), id);
     unreachable();
   }
-  return g_cachedBindGroups[id];
+  return it->second;
 }
 
 const wgpu::Sampler& sampler_ref(const wgpu::SamplerDescriptor& descriptor) {
   const auto id = xxh3_hash(descriptor);
-  if (!g_cachedSamplers.contains(id)) {
-    g_cachedSamplers[id] = g_device.CreateSampler(&descriptor);
+  auto it = g_cachedSamplers.find(id);
+  if (it == g_cachedSamplers.end()) {
+    it = g_cachedSamplers.try_emplace(id, g_device.CreateSampler(&descriptor)).first;
   }
-  return g_cachedSamplers[id];
+  return it->second;
 }
 
 uint32_t align_uniform(uint32_t value) {

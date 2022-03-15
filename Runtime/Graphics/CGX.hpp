@@ -123,9 +123,9 @@ static inline void SetAlphaCompare(GX::Compare comp0, u8 ref0, GX::AlphaOp op, G
 }
 
 template <typename T>
-static inline void SetArray(GX::Attr attr, const std::vector<T>* data) noexcept {
+static inline void SetArray(GX::Attr attr, const std::vector<T>* data, bool isStatic) noexcept {
   if (data != nullptr && sGXState.x0_arrayPtrs[attr - GX::VA_POS] != data) {
-    GXSetArray(attr, data, sizeof(T));
+    GXSetArray(attr, data, isStatic ? 1 : 0);
   }
 }
 

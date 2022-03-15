@@ -20,6 +20,7 @@ struct TevPass {
   Arg b = Default;
   Arg c = Default;
   Arg d = Default;
+  bool operator==(const TevPass&) const = default;
 };
 struct TevOp {
   GX::TevOp op = GX::TevOp::TEV_ADD;
@@ -27,6 +28,7 @@ struct TevOp {
   GX::TevScale scale = GX::TevScale::CS_SCALE_1;
   GX::TevRegID outReg = GX::TevRegID::TEVPREV;
   bool clamp = true;
+  bool operator==(const TevOp&) const = default;
 };
 struct TevStage {
   TevPass<GX::TevColorArg, GX::CC_ZERO> colorPass;
@@ -38,6 +40,7 @@ struct TevStage {
   GX::TexCoordID texCoordId = GX::TEXCOORD_NULL;
   GX::TexMapID texMapId = GX::TEXMAP_NULL;
   GX::ChannelID channelId = GX::COLOR_NULL;
+  bool operator==(const TevStage&) const = default;
 };
 struct TextureBind {
   aurora::gfx::TextureHandle handle;
@@ -56,6 +59,7 @@ struct ColorChannelConfig {
   GX::ColorSrc matSrc = GX::SRC_REG;
   GX::ColorSrc ambSrc = GX::SRC_REG;
   bool lightingEnabled = false;
+  bool operator==(const ColorChannelConfig&) const = default;
 };
 // For uniform generation
 struct ColorChannelState {
@@ -72,6 +76,7 @@ struct TcgConfig {
   GX::TexMtx mtx = GX::IDENTITY;
   GX::PTTexMtx postMtx = GX::PTIDENTITY;
   bool normalize = false;
+  bool operator==(const TcgConfig&) const = default;
 };
 struct FogState {
   GX::FogType type = GX::FOG_NONE;
@@ -129,6 +134,7 @@ struct ShaderConfig {
   std::optional<float> alphaDiscard;
   bool denormalizedVertexAttributes = false;
   bool denormalizedHasNrm = false; // TODO this is a hack
+  bool operator==(const ShaderConfig&) const = default;
 };
 struct PipelineConfig {
   ShaderConfig shaderConfig;

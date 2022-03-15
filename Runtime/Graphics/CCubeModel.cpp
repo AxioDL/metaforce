@@ -259,8 +259,8 @@ void CCubeModel::EnableShadowMaps(const CTexture& shadowTex, const zeus::CTransf
 void CCubeModel::DisableShadowMaps() { sRenderModelShadow = false; }
 
 void CCubeModel::SetArraysCurrent() {
-  CGX::SetArray(GX::VA_POS, x0_modelInstance.GetVertexPointer());
-  CGX::SetArray(GX::VA_NRM, x0_modelInstance.GetNormalPointer());
+  CGX::SetArray(GX::VA_POS, x0_modelInstance.GetVertexPointer(), true);
+  CGX::SetArray(GX::VA_NRM, x0_modelInstance.GetNormalPointer(), true);
   SetStaticArraysCurrent();
 }
 
@@ -280,8 +280,8 @@ void CCubeModel::SetRenderModelBlack(bool v) {
 }
 
 void CCubeModel::SetSkinningArraysCurrent(TConstVectorRef positions, TConstVectorRef normals) {
-  CGX::SetArray(GX::VA_POS, positions);
-  CGX::SetArray(GX::VA_NRM, normals);
+  CGX::SetArray(GX::VA_POS, positions, false);
+  CGX::SetArray(GX::VA_NRM, normals, false);
   // colors unused
   SetStaticArraysCurrent();
 }
@@ -294,21 +294,21 @@ void CCubeModel::SetStaticArraysCurrent() {
     sUsingPackedLightmaps = false;
   }
   if (sUsingPackedLightmaps) {
-    CGX::SetArray(GX::VA_TEX0, packedTexCoords);
+    CGX::SetArray(GX::VA_TEX0, packedTexCoords, true);
   } else {
-    CGX::SetArray(GX::VA_TEX0, texCoords);
+    CGX::SetArray(GX::VA_TEX0, texCoords, true);
   }
   // TexCoord1 is currently used for all remaining
-  CGX::SetArray(GX::VA_TEX1, texCoords);
+  CGX::SetArray(GX::VA_TEX1, texCoords, true);
   CCubeMaterial::KillCachedViewDepState();
 }
 
 void CCubeModel::SetUsingPackedLightmaps(bool v) {
   sUsingPackedLightmaps = v;
   if (v) {
-    CGX::SetArray(GX::VA_TEX0, x0_modelInstance.GetPackedTCPointer());
+    CGX::SetArray(GX::VA_TEX0, x0_modelInstance.GetPackedTCPointer(), true);
   } else {
-    CGX::SetArray(GX::VA_TEX0, x0_modelInstance.GetTCPointer());
+    CGX::SetArray(GX::VA_TEX0, x0_modelInstance.GetTCPointer(), true);
   }
 }
 
