@@ -115,7 +115,12 @@ static void error_callback(WGPUErrorType type, char const* message, void* userda
 void initialize(SDL_Window* window) {
   Log.report(logvisor::Info, FMT_STRING("Creating Dawn instance"));
   g_Instance = std::make_unique<dawn::native::Instance>();
-  g_Instance->EnableBackendValidation(true);
+#if !defined(NDEBUG)
+  // D3D12's debug layer is very slow
+  if (preferredBackendType != wgpu::BackendType::D3D12) {
+    g_Instance->EnableBackendValidation(true);
+  }
+#endif
   utils::DiscoverAdapter(g_Instance.get(), window, preferredBackendType);
 
   {
