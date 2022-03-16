@@ -19,6 +19,11 @@ static logvisor::Module Log("aurora::gfx");
 using gpu::g_device;
 using gpu::g_queue;
 
+constexpr uint64_t UniformBufferSize = 5242880;   // 5mb
+constexpr uint64_t VertexBufferSize = 5242880;    // 5mb
+constexpr uint64_t IndexBufferSize = 2097152;     // 2mb
+constexpr uint64_t StorageBufferSize = 134217728; // 128mb
+
 struct ShaderState {
   movie_player::State moviePlayer;
   colored_quad::State coloredQuad;
@@ -381,38 +386,18 @@ static void pipeline_worker() {
 void initialize() {
   g_pipelineThread = std::thread(pipeline_worker);
 
-  {
+  const auto createBuffer = [](wgpu::Buffer& out, wgpu::BufferUsage usage, uint64_t size, const char* label) {
     const wgpu::BufferDescriptor descriptor{
-        .label = "Shared Uniform Buffer",
-        .usage = wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst,
-        .size = 5242880, // 5mb
+        .label = label,
+        .usage = usage | wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapWrite,
+        .size = size,
     };
-    g_uniformBuffer = g_device.CreateBuffer(&descriptor);
-  }
-  {
-    const wgpu::BufferDescriptor descriptor{
-        .label = "Shared Vertex Buffer",
-        .usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst,
-        .size = 5242880, // 5mb
-    };
-    g_vertexBuffer = g_device.CreateBuffer(&descriptor);
-  }
-  {
-    const wgpu::BufferDescriptor descriptor{
-        .label = "Shared Index Buffer",
-        .usage = wgpu::BufferUsage::Index | wgpu::BufferUsage::CopyDst,
-        .size = 2097152, // 2mb
-    };
-    g_indexBuffer = g_device.CreateBuffer(&descriptor);
-  }
-  {
-    const wgpu::BufferDescriptor descriptor{
-        .label = "Shared Storage Buffer",
-        .usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst,
-        .size = 134217728, // 128mb
-    };
-    g_storageBuffer = g_device.CreateBuffer(&descriptor);
-  }
+    out = g_device.CreateBuffer(&descriptor);
+  };
+  createBuffer(g_uniformBuffer, wgpu::BufferUsage::Uniform, UniformBufferSize, "Shared Uniform Buffer");
+  createBuffer(g_vertexBuffer, wgpu::BufferUsage::Vertex, VertexBufferSize, "Shared Vertex Buffer");
+  createBuffer(g_indexBuffer, wgpu::BufferUsage::Index, IndexBufferSize, "Shared Index Buffer");
+  createBuffer(g_storageBuffer, wgpu::BufferUsage::Storage, StorageBufferSize, "Shared Storage Buffer");
 
   g_state.moviePlayer = movie_player::construct_state();
   g_state.coloredQuad = colored_quad::construct_state();
@@ -439,34 +424,56 @@ void shutdown() {
   g_state = {};
 }
 
-void render(const wgpu::RenderPassEncoder& pass) {
+void begin_frame() {
+  int mappedBuffers = 0, totalBuffers = 0;
+  const auto mapBuffer = [&](ByteBuffer& buf, wgpu::Buffer& out, uint64_t size) {
+    struct MapCallbackData {
+      ByteBuffer& buf;
+      wgpu::Buffer& out;
+      uint64_t size;
+      int& mappedBuffers;
+    };
+    auto* data = new MapCallbackData{
+        .buf = buf,
+        .out = out,
+        .size = size,
+        .mappedBuffers = mappedBuffers,
+    };
+    out.MapAsync(
+        wgpu::MapMode::Write, 0, size,
+        [](WGPUBufferMapAsyncStatus status, void* userdata) {
+          if (status != WGPUBufferMapAsyncStatus_Success) {
+            Log.report(logvisor::Fatal, FMT_STRING("Buffer mapping failed: {}"), status);
+            unreachable();
+          }
+          auto* data = static_cast<MapCallbackData*>(userdata);
+          data->buf = ByteBuffer{static_cast<uint8_t*>(data->out.GetMappedRange(0, data->size)), data->size};
+          ++data->mappedBuffers;
+          delete data;
+        },
+        data);
+    ++totalBuffers;
+  };
+  mapBuffer(g_verts, g_vertexBuffer, VertexBufferSize);
+  mapBuffer(g_uniforms, g_uniformBuffer, UniformBufferSize);
+  mapBuffer(g_indices, g_indexBuffer, IndexBufferSize);
+  mapBuffer(g_storage, g_storageBuffer, StorageBufferSize);
+  while (mappedBuffers < totalBuffers) {
+    g_device.Tick();
+  }
+}
+
+void end_frame(const wgpu::RenderPassEncoder& pass) {
   const auto writeBuffer = [](ByteBuffer& buf, wgpu::Buffer& out, std::string_view label) {
     const auto size = buf.size();
     // Log.report(logvisor::Info, FMT_STRING("{} buffer usage: {}"), label, size);
-    if (size > 0) {
-      g_queue.WriteBuffer(out, 0, buf.data(), size);
-      buf.clear();
-      buf.reserve_extra(size); // Reserve size from previous frame
-    }
+    buf.clear();
+    out.Unmap();
   };
   writeBuffer(g_verts, g_vertexBuffer, "Vertex");
   writeBuffer(g_uniforms, g_uniformBuffer, "Uniform");
   writeBuffer(g_indices, g_indexBuffer, "Index");
-  {
-    const auto staticSize = g_staticStorage.size();
-    if (staticSize > g_staticStorageLastSize) {
-      g_queue.WriteBuffer(g_storageBuffer, g_staticStorageLastSize, g_staticStorage.data() + g_staticStorageLastSize,
-                          staticSize - g_staticStorageLastSize);
-      g_staticStorageLastSize = staticSize;
-    }
-    const auto size = g_storage.size();
-    if (size > 0) {
-      g_queue.WriteBuffer(g_storageBuffer, staticSize, g_storage.data(), size);
-      g_storage.clear();
-      g_storage.reserve_extra(size); // Reserve size from previous frame
-    }
-    // Log.report(logvisor::Info, FMT_STRING("Static storage: {}, storage: {}"), staticSize, size);
-  }
+  writeBuffer(g_storage, g_storageBuffer, "Storage");
 
   g_currentPipeline = UINT64_MAX;
 

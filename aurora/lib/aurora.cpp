@@ -286,6 +286,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
     }
 
     const wgpu::TextureView view = g_swapChain.GetCurrentTextureView();
+    gfx::begin_frame();
     g_AppDelegate->onAppDraw();
 
     const auto encoderDescriptor = wgpu::CommandEncoderDescriptor{
@@ -323,7 +324,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
           .depthStencilAttachment = &depthStencilAttachment,
       };
       auto pass = encoder.BeginRenderPass(&renderPassDescriptor);
-      gfx::render(pass);
+      gfx::end_frame(pass);
       pass.End();
     }
     {

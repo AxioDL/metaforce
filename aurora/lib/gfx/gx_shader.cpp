@@ -494,7 +494,7 @@ var<storage, read> v_packed_uvs: Vec2Block;
         info.usesTevReg.set(2);
         break;
       default:
-        Log.report(logvisor::Fatal, FMT_STRING("TODO: colorOp outReg {}"), stage->colorOp.outReg);
+        Log.report(logvisor::Fatal, FMT_STRING("invalid colorOp outReg {}"), stage->colorOp.outReg);
       }
       std::string op = fmt::format(
           FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),
@@ -525,7 +525,7 @@ var<storage, read> v_packed_uvs: Vec2Block;
         info.usesTevReg.set(2);
         break;
       default:
-        Log.report(logvisor::Fatal, FMT_STRING("TODO: alphaOp outReg {}"), stage->alphaOp.outReg);
+        Log.report(logvisor::Fatal, FMT_STRING("invalid alphaOp outReg {}"), stage->alphaOp.outReg);
       }
       std::string op = fmt::format(
           FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),

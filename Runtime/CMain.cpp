@@ -512,9 +512,72 @@ public:
   void onModifierKeyDown(aurora::ModifierKey mods, bool isRepeat) noexcept override {}
   void onModifierKeyUp(aurora::ModifierKey mods) noexcept override {}
 
-  void onMouseMove(int32_t x, int32_t y, int32_t xrel, int32_t yrel, aurora::MouseButton state) noexcept override {}
-  void onMouseButtonDown(int32_t x, int32_t y, aurora::MouseButton button, int32_t clicks) noexcept override {}
-  void onMouseButtonUp(int32_t x, int32_t y, aurora::MouseButton button) noexcept override {}
+  void onMouseMove(int32_t x, int32_t y, int32_t xrel, int32_t yrel, aurora::MouseButton state) noexcept override {
+    if (g_mainMP1) {
+      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+        as->mouseMove(SWindowCoord{.pixel = {x, y}});
+      }
+    }
+  }
+
+  void onMouseButtonDown(int32_t x, int32_t y, aurora::MouseButton button, int32_t clicks) noexcept override {
+    if (g_mainMP1) {
+      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+        EMouseButton asBtn;
+        switch (button) {
+        case aurora::MouseButton::None:
+          asBtn = EMouseButton::None;
+          break;
+        case aurora::MouseButton::Primary:
+          asBtn = EMouseButton::Primary;
+          break;
+        case aurora::MouseButton::Middle:
+          asBtn = EMouseButton::Middle;
+          break;
+        case aurora::MouseButton::Secondary:
+          asBtn = EMouseButton::Secondary;
+          break;
+        case aurora::MouseButton::Aux1:
+          asBtn = EMouseButton::Aux1;
+          break;
+        case aurora::MouseButton::Aux2:
+          asBtn = EMouseButton::Aux2;
+          break;
+        }
+        as->mouseDown(SWindowCoord{.pixel = {x, y}}, asBtn, {});
+      }
+    }
+  }
+
+  void onMouseButtonUp(int32_t x, int32_t y, aurora::MouseButton button) noexcept override {
+    if (g_mainMP1) {
+      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
+        EMouseButton asBtn;
+        switch (button) {
+        case aurora::MouseButton::None:
+          asBtn = EMouseButton::None;
+          break;
+        case aurora::MouseButton::Primary:
+          asBtn = EMouseButton::Primary;
+          break;
+        case aurora::MouseButton::Middle:
+          asBtn = EMouseButton::Middle;
+          break;
+        case aurora::MouseButton::Secondary:
+          asBtn = EMouseButton::Secondary;
+          break;
+        case aurora::MouseButton::Aux1:
+          asBtn = EMouseButton::Aux1;
+          break;
+        case aurora::MouseButton::Aux2:
+          asBtn = EMouseButton::Aux2;
+          break;
+        }
+        as->mouseUp(SWindowCoord{.pixel = {x, y}}, asBtn, {});
+      }
+    }
+  }
+
   void onImGuiInit(float scale) noexcept override { ImGuiEngine_Initialize(scale); }
 
   void onImGuiAddTextures() noexcept override { ImGuiEngine_AddTextures(); }

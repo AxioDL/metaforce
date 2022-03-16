@@ -266,15 +266,15 @@ static inline void cache_array(const void* data, Vec*& outPtr, std::optional<aur
   Vec* vecPtr = static_cast<Vec*>(data);
   outPtr = vecPtr;
   if (stride == 1) {
-    const auto hash = aurora::xxh3_hash(vecPtr->data(), vecPtr->size() * sizeof(typename Vec::value_type), 0);
-    const auto it = sCachedRanges.find(hash);
-    if (it != sCachedRanges.end()) {
-      outRange = it->second;
-    } else {
-      const auto range = aurora::gfx::push_static_storage(aurora::ArrayRef{*vecPtr});
-      sCachedRanges.try_emplace(hash, range);
-      outRange = range;
-    }
+//    const auto hash = aurora::xxh3_hash(vecPtr->data(), vecPtr->size() * sizeof(typename Vec::value_type), 0);
+//    const auto it = sCachedRanges.find(hash);
+//    if (it != sCachedRanges.end()) {
+//      outRange = it->second;
+//    } else {
+//      const auto range = aurora::gfx::push_static_storage(aurora::ArrayRef{*vecPtr});
+//      sCachedRanges.try_emplace(hash, range);
+//      outRange = range;
+//    }
   } else {
     outRange.reset();
   }
