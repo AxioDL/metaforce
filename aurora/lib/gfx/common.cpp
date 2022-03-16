@@ -211,7 +211,7 @@ wgpu::Buffer g_uniformBuffer;
 wgpu::Buffer g_indexBuffer;
 wgpu::Buffer g_storageBuffer;
 size_t g_staticStorageLastSize = 0;
-static std::array<wgpu::Buffer, 2> g_stagingBuffers;
+static std::array<wgpu::Buffer, 3> g_stagingBuffers;
 
 static ShaderState g_state;
 static PipelineRef g_currentPipeline;
@@ -405,10 +405,10 @@ void initialize() {
                "Shared Index Buffer");
   createBuffer(g_storageBuffer, wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, StorageBufferSize,
                "Shared Storage Buffer");
-  createBuffer(g_stagingBuffers[0], wgpu::BufferUsage::MapWrite | wgpu::BufferUsage::CopySrc, StagingBufferSize,
-               "Staging Buffer 1");
-  createBuffer(g_stagingBuffers[1], wgpu::BufferUsage::MapWrite | wgpu::BufferUsage::CopySrc, StagingBufferSize,
-               "Staging Buffer 2");
+  for (int i = 0; i < g_stagingBuffers.size(); ++i) {
+    createBuffer(g_stagingBuffers[i], wgpu::BufferUsage::MapWrite | wgpu::BufferUsage::CopySrc, StagingBufferSize,
+                 "Staging Buffer");
+  }
   map_staging_buffer();
 
   g_state.moviePlayer = movie_player::construct_state();
