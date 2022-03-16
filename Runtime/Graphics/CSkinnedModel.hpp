@@ -52,6 +52,7 @@ public:
   CSkinnedModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules,
                 const TLockedToken<CCharLayoutInfo>& layoutInfo /*, EDataOwnership ownership*/);
   CSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo);
+  virtual ~CSkinnedModel() = default;
 
   TLockedToken<CModel>& GetModel() { return x4_model; }
   const TLockedToken<CModel>& GetModel() const { return x4_model; }
@@ -79,6 +80,8 @@ class CSkinnedModelWithAvgNormals : public CSkinnedModel {
 
 public:
   CSkinnedModelWithAvgNormals(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo);
+  ~CSkinnedModelWithAvgNormals() override = default;
+
   TConstVectorRef GetAveragedNormals() const { return &x40_averagedNormals; }
 };
 

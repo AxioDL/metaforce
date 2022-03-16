@@ -14,7 +14,7 @@ CMetroidModelInstance::CMetroidModelInstance(std::pair<const u8*, u32> modelHead
 : x4c_materialData(materialData), x50_surfaces(std::move(surfaces)) {
   {
     CMemoryInStream stream{modelHeader.first, modelHeader.second};
-    x0_visorFlags = stream.Get<u32>();
+    x0_visorFlags = stream.ReadUint32();
     x4_worldXf = stream.Get<zeus::CTransform>();
     x34_worldAABB = stream.Get<zeus::CAABox>();
   }
@@ -30,16 +30,17 @@ CMetroidModelInstance::CMetroidModelInstance(std::pair<const u8*, u32> modelHead
     u32 numNormals = normals.second / 6;
     CMemoryInStream stream{normals.first, normals.second};
     for (u32 i = 0; i < numNormals; ++i) {
-      x64_normals.emplace_back(static_cast<float>(stream.ReadShort()) / 16384.f,
-                               static_cast<float>(stream.ReadShort()) / 16384.f,
-                               static_cast<float>(stream.ReadShort()) / 16384.f);
+      const auto x = static_cast<float>(stream.ReadInt16()) / 16384.f;
+      const auto y = static_cast<float>(stream.ReadInt16()) / 16384.f;
+      const auto z = static_cast<float>(stream.ReadInt16()) / 16384.f;
+      x64_normals.emplace_back(x, y, z);
     }
   }
   {
     u32 numColors = colors.second / 4;
     CMemoryInStream stream{colors.first, colors.second};
     for (u32 i = 0; i < numColors; ++i) {
-      x68_colors.emplace_back(zeus::CColor(stream.ReadUint32()));
+      x68_colors.emplace_back(stream.ReadUint32());
     }
   }
   {
@@ -53,8 +54,9 @@ CMetroidModelInstance::CMetroidModelInstance(std::pair<const u8*, u32> modelHead
     u32 numPackedTexCoords = packedTexCoords.second / 4;
     CMemoryInStream stream{packedTexCoords.first, packedTexCoords.second};
     for (u32 i = 0; i < numPackedTexCoords; ++i) {
-      x70_packedTexCoords.emplace_back(static_cast<float>(stream.ReadShort()) / 32768.f,
-                                       static_cast<float>(stream.ReadShort()) / 32768.f);
+      const auto u = static_cast<float>(stream.ReadInt16()) / 32768.f;
+      const auto v = static_cast<float>(stream.ReadInt16()) / 32768.f;
+      x70_packedTexCoords.emplace_back(u, v);
     }
   }
 }

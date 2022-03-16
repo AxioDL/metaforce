@@ -75,9 +75,10 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
     if ((flags & 2) == 0) {
       m_normals.emplace_back(normals.Get<zeus::CVector3f>());
     } else {
-      m_normals.emplace_back(static_cast<float>(normals.ReadShort()) / 16384.f,
-                             static_cast<float>(normals.ReadShort()) / 16384.f,
-                             static_cast<float>(normals.ReadShort()) / 16384.f);
+      const auto x = static_cast<float>(normals.ReadShort()) / 16384.f;
+      const auto y = static_cast<float>(normals.ReadShort()) / 16384.f;
+      const auto z = static_cast<float>(normals.ReadShort()) / 16384.f;
+      m_normals.emplace_back(x, y, z);
     }
   }
 
@@ -97,8 +98,9 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
     u32 numShortUVs = CBasics::SwapBytes(*secSizeCur) / 4;
     auto shortUVs = StreamFromPartData(dataCur, secSizeCur);
     for (u32 i = 0; i < numShortUVs; ++i) {
-      m_shortUVs.emplace_back(static_cast<float>(shortUVs.ReadShort()) / 32768.f,
-                              static_cast<float>(shortUVs.ReadShort()) / 32768.f);
+      const auto u = static_cast<float>(shortUVs.ReadShort()) / 32768.f;
+      const auto v = static_cast<float>(shortUVs.ReadShort()) / 32768.f;
+      m_shortUVs.emplace_back(u, v);
     }
   }
 
