@@ -10,6 +10,7 @@
 #include "Runtime/IFactory.hpp"
 #include "Runtime/IObjFactory.hpp"
 #include "Runtime/Character/CAnimationSet.hpp"
+#include "Runtime/Character/CCharacterInfo.hpp"
 
 namespace metaforce {
 class CAdditiveAnimationInfo;
@@ -18,7 +19,6 @@ class CAnimCharacterSet;
 class CAnimData;
 class CAnimationManager;
 class CCharLayoutInfo;
-class CCharacterInfo;
 class CSimplePool;
 class CTransitionDatabaseGame;
 class CTransitionManager;
