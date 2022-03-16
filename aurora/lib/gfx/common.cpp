@@ -84,107 +84,44 @@ struct Command {
 
 namespace aurora {
 template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::colored_quad::PipelineConfig& input) {
-  XXH3_64bits_update(&state, &input.filterType, sizeof(gfx::colored_quad::PipelineConfig::filterType));
-  XXH3_64bits_update(&state, &input.zComparison, sizeof(gfx::colored_quad::PipelineConfig::zComparison));
-  XXH3_64bits_update(&state, &input.zTest, sizeof(gfx::colored_quad::PipelineConfig::zTest));
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::textured_quad::PipelineConfig& input) {
-  XXH3_64bits_update(&state, &input.filterType, sizeof(gfx::textured_quad::PipelineConfig::filterType));
-  XXH3_64bits_update(&state, &input.zComparison, sizeof(gfx::textured_quad::PipelineConfig::zComparison));
-  XXH3_64bits_update(&state, &input.zTest, sizeof(gfx::textured_quad::PipelineConfig::zTest));
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::movie_player::PipelineConfig& input) {
-  // no-op
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::PipelineConfig& input) {
-  xxh3_update(state, input.shaderConfig);
-  XXH3_64bits_update(&state, &input.primitive, sizeof(gfx::gx::PipelineConfig::primitive));
-  XXH3_64bits_update(&state, &input.depthFunc, sizeof(gfx::gx::PipelineConfig::depthFunc));
-  XXH3_64bits_update(&state, &input.cullMode, sizeof(gfx::gx::PipelineConfig::cullMode));
-  XXH3_64bits_update(&state, &input.blendMode, sizeof(gfx::gx::PipelineConfig::blendMode));
-  XXH3_64bits_update(&state, &input.blendFacSrc, sizeof(gfx::gx::PipelineConfig::blendFacSrc));
-  XXH3_64bits_update(&state, &input.blendFacDst, sizeof(gfx::gx::PipelineConfig::blendFacDst));
-  XXH3_64bits_update(&state, &input.blendOp, sizeof(gfx::gx::PipelineConfig::blendOp));
-  if (input.dstAlpha) {
-    XXH3_64bits_update(&state, &*input.dstAlpha, sizeof(float));
-  }
-  XXH3_64bits_update(&state, &input.depthCompare, sizeof(gfx::gx::PipelineConfig::depthCompare));
-  XXH3_64bits_update(&state, &input.depthUpdate, sizeof(gfx::gx::PipelineConfig::depthUpdate));
-  XXH3_64bits_update(&state, &input.alphaUpdate, sizeof(gfx::gx::PipelineConfig::alphaUpdate));
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::stream::PipelineConfig& input) {
-  xxh3_update<gfx::gx::PipelineConfig>(state, input);
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::model::PipelineConfig& input) {
-  xxh3_update<gfx::gx::PipelineConfig>(state, input);
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::PipelineCreateCommand& input) {
-  XXH3_64bits_update(&state, &input.type, sizeof(gfx::PipelineCreateCommand::type));
+inline XXH64_hash_t xxh3_hash(const gfx::PipelineCreateCommand& input, XXH64_hash_t seed) {
+  constexpr auto typeSize = sizeof(gfx::PipelineCreateCommand::type);
   switch (input.type) {
   case gfx::ShaderType::Aabb:
     // TODO
     break;
   case gfx::ShaderType::ColoredQuad:
-    xxh3_update(state, input.coloredQuad);
-    break;
+    return xxh3_hash_s(&input, typeSize + sizeof(gfx::PipelineCreateCommand::coloredQuad), seed);
   case gfx::ShaderType::TexturedQuad:
-    xxh3_update(state, input.texturedQuad);
-    break;
+    return xxh3_hash_s(&input, typeSize + sizeof(gfx::PipelineCreateCommand::texturedQuad), seed);
   case gfx::ShaderType::MoviePlayer:
-    xxh3_update(state, input.moviePlayer);
-    break;
+    return xxh3_hash_s(&input, typeSize + sizeof(gfx::PipelineCreateCommand::moviePlayer), seed);
   case gfx::ShaderType::Stream:
-    xxh3_update(state, input.stream);
-    break;
+    return xxh3_hash_s(&input, typeSize + sizeof(gfx::PipelineCreateCommand::stream), seed);
   case gfx::ShaderType::Model:
-    xxh3_update(state, input.model);
-    break;
+    return xxh3_hash_s(&input, typeSize + sizeof(gfx::PipelineCreateCommand::model), seed);
   }
+  return 0;
 }
 template <>
-inline void xxh3_update(XXH3_state_t& state, const wgpu::BindGroupEntry& input) {
-  XXH3_64bits_update(&state, &input.binding, sizeof(wgpu::BindGroupEntry::binding));
-  XXH3_64bits_update(&state, &input.buffer, sizeof(wgpu::BindGroupEntry::buffer));
-  XXH3_64bits_update(&state, &input.offset, sizeof(wgpu::BindGroupEntry::offset));
-  if (input.buffer != nullptr) {
-    XXH3_64bits_update(&state, &input.size, sizeof(wgpu::BindGroupEntry::size));
-  }
-  XXH3_64bits_update(&state, &input.sampler, sizeof(wgpu::BindGroupEntry::sampler));
-  XXH3_64bits_update(&state, &input.textureView, sizeof(wgpu::BindGroupEntry::textureView));
+inline XXH64_hash_t xxh3_hash(const wgpu::BindGroupDescriptor& input, XXH64_hash_t seed) {
+  constexpr auto offset = sizeof(void*) * 2; // skip nextInChain, label
+  const auto hash = xxh3_hash_s(reinterpret_cast<const u8*>(&input) + offset,
+                                sizeof(wgpu::BindGroupDescriptor) - offset - sizeof(void*) /* skip entries */, seed);
+  //  // TODO ensure size is zeroed elsewhere
+  //  for (int i = 0; i < input.entryCount; ++i) {
+  //    const wgpu::BindGroupEntry& entry = input.entries[i];
+  //    if (!entry.buffer && entry.size != 0) {
+  //      gfx::Log.report(logvisor::Fatal, FMT_STRING("Size != 0! {}"), entry.size);
+  //    }
+  //  }
+  return xxh3_hash_s(input.entries, sizeof(wgpu::BindGroupEntry) * input.entryCount, hash);
 }
 template <>
-inline void xxh3_update(XXH3_state_t& state, const wgpu::BindGroupDescriptor& input) {
-  if (input.label != nullptr) {
-    XXH3_64bits_update(&state, input.label, strlen(input.label));
-  }
-  XXH3_64bits_update(&state, &input.layout, sizeof(wgpu::BindGroupDescriptor::layout));
-  XXH3_64bits_update(&state, &input.entryCount, sizeof(wgpu::BindGroupDescriptor::entryCount));
-  for (int i = 0; i < input.entryCount; ++i) {
-    xxh3_update(state, input.entries[i]);
-  }
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const wgpu::SamplerDescriptor& input) {
-  if (input.label != nullptr) {
-    XXH3_64bits_update(&state, input.label, strlen(input.label));
-  }
-  XXH3_64bits_update(&state, &input.addressModeU, sizeof(wgpu::SamplerDescriptor::addressModeU));
-  XXH3_64bits_update(&state, &input.addressModeV, sizeof(wgpu::SamplerDescriptor::addressModeV));
-  XXH3_64bits_update(&state, &input.addressModeW, sizeof(wgpu::SamplerDescriptor::addressModeW));
-  XXH3_64bits_update(&state, &input.magFilter, sizeof(wgpu::SamplerDescriptor::magFilter));
-  XXH3_64bits_update(&state, &input.minFilter, sizeof(wgpu::SamplerDescriptor::minFilter));
-  XXH3_64bits_update(&state, &input.mipmapFilter, sizeof(wgpu::SamplerDescriptor::mipmapFilter));
-  XXH3_64bits_update(&state, &input.lodMinClamp, sizeof(wgpu::SamplerDescriptor::lodMinClamp));
-  XXH3_64bits_update(&state, &input.lodMaxClamp, sizeof(wgpu::SamplerDescriptor::lodMaxClamp));
-  XXH3_64bits_update(&state, &input.compare, sizeof(wgpu::SamplerDescriptor::compare));
-  XXH3_64bits_update(&state, &input.maxAnisotropy, sizeof(wgpu::SamplerDescriptor::maxAnisotropy));
+inline XXH64_hash_t xxh3_hash(const wgpu::SamplerDescriptor& input, XXH64_hash_t seed) {
+  constexpr auto offset = sizeof(void*) * 2; // skip nextInChain, label
+  return xxh3_hash_s(reinterpret_cast<const u8*>(&input) + offset,
+                     sizeof(wgpu::SamplerDescriptor) - offset - 2 /* skip padding */, seed);
 }
 } // namespace aurora
 
@@ -219,6 +156,7 @@ static PipelineRef g_currentPipeline;
 static std::vector<Command> g_commands;
 
 static PipelineRef find_pipeline(PipelineCreateCommand command, NewPipelineCallback&& cb) {
+  OPTICK_EVENT();
   const auto hash = xxh3_hash(command);
   bool found = false;
   {
@@ -357,6 +295,7 @@ PipelineRef pipeline_ref(model::PipelineConfig config) {
 }
 
 static void pipeline_worker() {
+  OPTICK_THREAD("Pipeline Worker");
   bool hasMore = false;
   while (true) {
     std::pair<PipelineRef, NewPipelineCallback> cb;
@@ -387,6 +326,8 @@ static void pipeline_worker() {
 }
 
 void initialize() {
+  gx::initialize();
+
   g_pipelineThread = std::thread(pipeline_worker);
 
   const auto createBuffer = [](wgpu::Buffer& out, wgpu::BufferUsage usage, uint64_t size, const char* label) {
@@ -440,6 +381,7 @@ void shutdown() {
 static size_t currentStagingBuffer = 0;
 static bool bufferMapped = false;
 void map_staging_buffer() {
+  OPTICK_EVENT();
   bufferMapped = false;
   g_stagingBuffers[currentStagingBuffer].MapAsync(
       wgpu::MapMode::Write, 0, StagingBufferSize,
@@ -456,9 +398,13 @@ void map_staging_buffer() {
 }
 
 void begin_frame() {
-  while (!bufferMapped) {
-    g_device.Tick();
+  {
+    OPTICK_EVENT("Wait for buffer mapping");
+    while (!bufferMapped) {
+      g_device.Tick();
+    }
   }
+  OPTICK_EVENT();
   size_t bufferOffset = 0;
   auto& stagingBuf = g_stagingBuffers[currentStagingBuffer];
   const auto mapBuffer = [&](ByteBuffer& buf, uint64_t size) {
@@ -472,6 +418,7 @@ void begin_frame() {
 }
 
 void end_frame(const wgpu::CommandEncoder& cmd) {
+  OPTICK_EVENT();
   uint64_t bufferOffset = 0;
   const auto writeBuffer = [&](ByteBuffer& buf, wgpu::Buffer& out, uint64_t size, std::string_view label) {
     const auto writeSize = buf.size(); // Only need to copy this many bytes
@@ -491,6 +438,7 @@ void end_frame(const wgpu::CommandEncoder& cmd) {
 }
 
 void render(const wgpu::RenderPassEncoder& pass) {
+  OPTICK_EVENT();
   g_currentPipeline = UINT64_MAX;
 
   for (const auto& cmd : g_commands) {
@@ -533,6 +481,7 @@ void render(const wgpu::RenderPassEncoder& pass) {
 }
 
 bool bind_pipeline(PipelineRef ref, const wgpu::RenderPassEncoder& pass) {
+  OPTICK_EVENT();
   if (ref == g_currentPipeline) {
     return true;
   }
@@ -547,6 +496,7 @@ bool bind_pipeline(PipelineRef ref, const wgpu::RenderPassEncoder& pass) {
 }
 
 static inline Range push(ByteBuffer& target, const uint8_t* data, size_t length, size_t alignment) {
+  OPTICK_EVENT();
   size_t padding = 0;
   if (alignment != 0) {
     padding = alignment - length % alignment;
@@ -565,6 +515,7 @@ static inline Range push(ByteBuffer& target, const uint8_t* data, size_t length,
   return {static_cast<uint32_t>(begin), static_cast<uint32_t>(length + padding)};
 }
 static inline Range map(ByteBuffer& target, size_t length, size_t alignment) {
+  OPTICK_EVENT();
   size_t padding = 0;
   if (alignment != 0) {
     padding = alignment - length % alignment;
@@ -576,19 +527,28 @@ static inline Range map(ByteBuffer& target, size_t length, size_t alignment) {
   target.append_zeroes(length + padding);
   return {static_cast<uint32_t>(begin), static_cast<uint32_t>(length + padding)};
 }
-Range push_verts(const uint8_t* data, size_t length) { return push(g_verts, data, length, 0 /* TODO? */); }
-Range push_indices(const uint8_t* data, size_t length) { return push(g_indices, data, length, 0 /* TODO? */); }
+Range push_verts(const uint8_t* data, size_t length) {
+  OPTICK_EVENT();
+  return push(g_verts, data, length, 0 /* TODO? */);
+}
+Range push_indices(const uint8_t* data, size_t length) {
+  OPTICK_EVENT();
+  return push(g_indices, data, length, 0 /* TODO? */);
+}
 Range push_uniform(const uint8_t* data, size_t length) {
+  OPTICK_EVENT();
   wgpu::SupportedLimits limits;
   g_device.GetLimits(&limits);
   return push(g_uniforms, data, length, limits.limits.minUniformBufferOffsetAlignment);
 }
 Range push_storage(const uint8_t* data, size_t length) {
+  OPTICK_EVENT();
   wgpu::SupportedLimits limits;
   g_device.GetLimits(&limits);
   return push(g_storage, data, length, limits.limits.minStorageBufferOffsetAlignment);
 }
 Range push_static_storage(const uint8_t* data, size_t length) {
+  OPTICK_EVENT();
   wgpu::SupportedLimits limits;
   g_device.GetLimits(&limits);
   auto range = push(g_staticStorage, data, length, limits.limits.minStorageBufferOffsetAlignment);
@@ -596,20 +556,24 @@ Range push_static_storage(const uint8_t* data, size_t length) {
   return range;
 }
 std::pair<ByteBuffer, Range> map_verts(size_t length) {
+  OPTICK_EVENT();
   const auto range = map(g_verts, length, 0 /* TODO? */);
   return {ByteBuffer{g_verts.data() + range.offset, range.size}, range};
 }
 std::pair<ByteBuffer, Range> map_indices(size_t length) {
+  OPTICK_EVENT();
   const auto range = map(g_indices, length, 0 /* TODO? */);
   return {ByteBuffer{g_indices.data() + range.offset, range.size}, range};
 }
 std::pair<ByteBuffer, Range> map_uniform(size_t length) {
+  OPTICK_EVENT();
   wgpu::SupportedLimits limits;
   g_device.GetLimits(&limits);
   const auto range = map(g_uniforms, length, limits.limits.minUniformBufferOffsetAlignment);
   return {ByteBuffer{g_uniforms.data() + range.offset, range.size}, range};
 }
 std::pair<ByteBuffer, Range> map_storage(size_t length) {
+  OPTICK_EVENT();
   wgpu::SupportedLimits limits;
   g_device.GetLimits(&limits);
   const auto range = map(g_storage, length, limits.limits.minStorageBufferOffsetAlignment);
@@ -617,6 +581,7 @@ std::pair<ByteBuffer, Range> map_storage(size_t length) {
 }
 
 BindGroupRef bind_group_ref(const wgpu::BindGroupDescriptor& descriptor) {
+  OPTICK_EVENT();
   const auto id = xxh3_hash(descriptor);
   if (!g_cachedBindGroups.contains(id)) {
     g_cachedBindGroups.try_emplace(id, g_device.CreateBindGroup(&descriptor));
@@ -624,6 +589,7 @@ BindGroupRef bind_group_ref(const wgpu::BindGroupDescriptor& descriptor) {
   return id;
 }
 const wgpu::BindGroup& find_bind_group(BindGroupRef id) {
+  OPTICK_EVENT();
   const auto it = g_cachedBindGroups.find(id);
   if (it == g_cachedBindGroups.end()) {
     Log.report(logvisor::Fatal, FMT_STRING("get_bind_group: failed to locate {}"), id);
@@ -633,6 +599,7 @@ const wgpu::BindGroup& find_bind_group(BindGroupRef id) {
 }
 
 const wgpu::Sampler& sampler_ref(const wgpu::SamplerDescriptor& descriptor) {
+  OPTICK_EVENT();
   const auto id = xxh3_hash(descriptor);
   auto it = g_cachedSamplers.find(id);
   if (it == g_cachedSamplers.end()) {
@@ -642,6 +609,7 @@ const wgpu::Sampler& sampler_ref(const wgpu::SamplerDescriptor& descriptor) {
 }
 
 uint32_t align_uniform(uint32_t value) {
+  OPTICK_EVENT();
   wgpu::SupportedLimits limits;
   g_device.GetLimits(&limits); // TODO cache
   const auto uniform_alignment = limits.limits.minUniformBufferOffsetAlignment;

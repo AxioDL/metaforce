@@ -376,6 +376,7 @@ DrawData make_draw_data_verts(const State& state, CameraFilterType filter_type, 
 }
 
 void render(const State& state, const DrawData& data, const wgpu::RenderPassEncoder& pass) {
+  OPTICK_EVENT();
   if (!bind_pipeline(data.pipeline, pass)) {
     return;
   }

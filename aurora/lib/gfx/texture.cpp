@@ -40,6 +40,7 @@ static wgpu::Extent3D physical_size(wgpu::Extent3D size, TextureFormatInfo info)
 
 TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mips, metaforce::ETexelFormat format,
                                     ArrayRef<uint8_t> data, zstring_view label) noexcept {
+  OPTICK_EVENT();
   auto handle = new_dynamic_texture_2d(width, height, mips, format, label);
   const TextureRef& ref = *handle.ref;
 
@@ -89,6 +90,7 @@ TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mi
 
 TextureHandle new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t mips, metaforce::ETexelFormat format,
                                      zstring_view label) noexcept {
+  OPTICK_EVENT();
   const auto wgpuFormat = to_wgpu(format);
   const auto size = wgpu::Extent3D{
       .width = width,
@@ -120,6 +122,7 @@ TextureHandle new_render_texture(uint32_t width, uint32_t height, uint32_t color
 
 // TODO accept mip/layer parameters
 void write_texture(const TextureHandle& handle, ArrayRef<uint8_t> data) noexcept {
+  OPTICK_EVENT();
   const TextureRef& ref = *handle.ref;
 
   ByteBuffer buffer;

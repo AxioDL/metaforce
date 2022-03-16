@@ -335,6 +335,7 @@ static inline wgpu::PrimitiveState to_primitive_state(GX::Primitive gx_prim, GX:
 wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderInfo& info,
                                     ArrayRef<wgpu::VertexBufferLayout> vtxBuffers, wgpu::ShaderModule shader,
                                     zstring_view label) noexcept {
+  OPTICK_EVENT();
   const auto depthStencil = wgpu::DepthStencilState{
       .format = g_graphicsConfig.depthFormat,
       .depthWriteEnabled = config.depthUpdate,
@@ -387,6 +388,7 @@ wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderIn
 
 ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive,
                                     const BindGroupRanges& ranges) noexcept {
+  OPTICK_EVENT();
   for (u8 i = 0; i < g_gxState.numTevStages; ++i) {
     config.shaderConfig.tevStages[i] = g_gxState.tevStages[i];
   }
@@ -396,7 +398,9 @@ ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primit
   for (u8 i = 0; i < g_gxState.numTexGens; ++i) {
     config.shaderConfig.tcgs[i] = g_gxState.tcgs[i];
   }
-  config.shaderConfig.alphaDiscard = g_gxState.alphaDiscard;
+  if (g_gxState.alphaDiscard) {
+    config.shaderConfig.alphaDiscard = g_gxState.alphaDiscard;
+  }
   config.shaderConfig.fogType = g_gxState.fog.type;
   config = {
       .shaderConfig = config.shaderConfig,
@@ -414,6 +418,7 @@ ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primit
   };
   // TODO separate shader info from build_shader for async
   {
+    OPTICK_EVENT("Shader info & bind groups");
     std::lock_guard lk{g_pipelineMutex};
     auto [_, info] = build_shader(config.shaderConfig);
     info.bindGroups = build_bind_groups(info, config.shaderConfig, ranges); // TODO this is hack
@@ -542,6 +547,7 @@ static absl::flat_hash_map<u32, std::pair<wgpu::BindGroupLayout, wgpu::BindGroup
 
 GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& config,
                                const BindGroupRanges& ranges) noexcept {
+  OPTICK_EVENT();
   const auto layouts = build_bind_group_layouts(info, config);
   u32 textureCount = info.sampledTextures.count();
 
@@ -578,6 +584,9 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
   };
   std::array<wgpu::BindGroupEntry, MaxTextures> samplerEntries;
   std::array<wgpu::BindGroupEntry, MaxTextures> textureEntries;
+  {
+    OPTICK_EVENT("Build texture entries");
+
   for (u32 texIdx = 0, i = 0; texIdx < info.sampledTextures.size(); ++texIdx) {
     if (!info.sampledTextures.test(texIdx)) {
       continue;
@@ -596,6 +605,7 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
         .textureView = tex.handle.ref->view,
     };
     i++;
+  }
   }
   return {
       .uniformBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
@@ -620,6 +630,7 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
 }
 
 GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const ShaderConfig& config) noexcept {
+  OPTICK_EVENT();
   GXBindGroupLayouts out;
   u32 uniformSizeKey = info.uniformSize + (config.denormalizedVertexAttributes ? 0 : 1);
   const auto uniformIt = sUniformBindGroupLayouts.find(uniformSizeKey);
@@ -727,6 +738,10 @@ GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const Shader
     sTextureBindGroupLayouts.try_emplace(textureCount, out.samplerLayout, out.textureLayout);
   }
   return out;
+}
+
+void initialize() noexcept {
+  memset(&g_gxState, 0, sizeof(GXState));
 }
 
 // TODO this is awkward

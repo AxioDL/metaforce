@@ -75,6 +75,7 @@ void new_frame(const WindowSize& size) noexcept {
 }
 
 void render(const wgpu::RenderPassEncoder& pass) noexcept {
+  OPTICK_EVENT();
   ImGui::Render();
 
   auto* data = ImGui::GetDrawData();

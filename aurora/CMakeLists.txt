@@ -19,8 +19,12 @@ add_library(aurora STATIC
 target_compile_definitions(aurora PRIVATE IMGUI_USER_CONFIG="imconfig_user.h") # IMGUI_USE_WCHAR32
 target_include_directories(aurora PUBLIC include ../)
 target_include_directories(aurora PRIVATE ../imgui ../extern/imgui)
+target_include_directories(aurora PRIVATE
+    ../extern/dawn/src
+    ../extern/dawn/third_party/abseil-cpp
+    ${CMAKE_BINARY_DIR}/extern/dawn/gen/src) # for hacks :)
 target_link_libraries(aurora PRIVATE dawn_native dawncpp webgpu_dawn zeus logvisor SDL2-static xxhash
-    absl::btree absl::flat_hash_map)
+    absl::btree absl::flat_hash_map OptickCore)
 if (APPLE)
   target_compile_definitions(aurora PRIVATE DAWN_ENABLE_BACKEND_METAL)
   target_sources(aurora PRIVATE lib/dawn/MetalBinding.mm)

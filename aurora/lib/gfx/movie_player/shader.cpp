@@ -233,6 +233,7 @@ DrawData make_draw_data(const State& state, const TextureHandle& tex_y, const Te
 }
 
 void render(const State& state, const DrawData& data, const wgpu::RenderPassEncoder& pass) {
+  OPTICK_EVENT();
   if (!bind_pipeline(data.pipeline, pass)) {
     return;
   }

@@ -65,6 +65,7 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
 State construct_state() { return {}; }
 
 void render(const State& state, const DrawData& data, const wgpu::RenderPassEncoder& pass) {
+  OPTICK_EVENT();
   if (!bind_pipeline(data.pipeline, pass)) {
     return;
   }

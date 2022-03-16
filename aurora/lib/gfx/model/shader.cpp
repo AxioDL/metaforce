@@ -113,7 +113,8 @@ static inline std::pair<gx::DlVert, size_t> readVert(const u8* data) noexcept {
 static absl::flat_hash_map<XXH64_hash_t, std::pair<std::vector<gx::DlVert>, std::vector<u32>>> sCachedDisplayLists;
 
 void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
-  const auto hash = xxh3_hash(dlStart, dlSize, 0);
+  OPTICK_EVENT();
+  const auto hash = xxh3_hash_s(dlStart, dlSize, 0);
   Range vertRange, idxRange;
   uint32_t numIndices;
   auto it = sCachedDisplayLists.find(hash);
@@ -123,6 +124,7 @@ void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
     vertRange = push_verts(ArrayRef{verts});
     idxRange = push_indices(ArrayRef{indices});
   } else {
+    OPTICK_EVENT("Display list translation");
     std::vector<gx::DlVert> verts;
     std::vector<u32> indices;
 
@@ -181,30 +183,34 @@ void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
   }
 
   Range sVtxRange, sNrmRange, sTcRange, sPackedTcRange;
-  if (staticVtxRange) {
-    sVtxRange = *staticVtxRange;
-  } else {
-    sVtxRange = push_storage(reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size() * 16);
-  }
-  if (staticNrmRange) {
-    sNrmRange = *staticNrmRange;
-  } else {
-    sNrmRange = push_storage(reinterpret_cast<const uint8_t*>(nrmData->data()), nrmData->size() * 16);
-  }
-  if (staticTcRange) {
-    sTcRange = *staticTcRange;
-  } else {
-    sTcRange = push_storage(reinterpret_cast<const uint8_t*>(tcData->data()), tcData->size() * 8);
-  }
-  if (staticPackedTcRange) {
-    sPackedTcRange = *staticPackedTcRange;
-  } else if (tcData == tex0TcData) {
-    sPackedTcRange = sTcRange;
-  } else {
-    sPackedTcRange = push_storage(reinterpret_cast<const uint8_t*>(tex0TcData->data()), tex0TcData->size() * 8);
+  {
+    OPTICK_EVENT("Storage push");
+    if (staticVtxRange) {
+      sVtxRange = *staticVtxRange;
+    } else {
+      sVtxRange = push_storage(reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size() * 16);
+    }
+    if (staticNrmRange) {
+      sNrmRange = *staticNrmRange;
+    } else {
+      sNrmRange = push_storage(reinterpret_cast<const uint8_t*>(nrmData->data()), nrmData->size() * 16);
+    }
+    if (staticTcRange) {
+      sTcRange = *staticTcRange;
+    } else {
+      sTcRange = push_storage(reinterpret_cast<const uint8_t*>(tcData->data()), tcData->size() * 8);
+    }
+    if (staticPackedTcRange) {
+      sPackedTcRange = *staticPackedTcRange;
+    } else if (tcData == tex0TcData) {
+      sPackedTcRange = sTcRange;
+    } else {
+      sPackedTcRange = push_storage(reinterpret_cast<const uint8_t*>(tex0TcData->data()), tex0TcData->size() * 8);
+    }
   }
 
-  model::PipelineConfig config{};
+  model::PipelineConfig config;
+  memset(&config, 0, sizeof(model::PipelineConfig));
   const gx::BindGroupRanges ranges{
       .vtxDataRange = sVtxRange,
       .nrmDataRange = sNrmRange,
@@ -238,6 +244,7 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
 }
 
 void render(const State& state, const DrawData& data, const wgpu::RenderPassEncoder& pass) {
+  OPTICK_EVENT();
   if (!bind_pipeline(data.pipeline, pass)) {
     return;
   }
@@ -281,6 +288,7 @@ static inline void cache_array(const void* data, Vec*& outPtr, std::optional<aur
 }
 
 void GXSetArray(GX::Attr attr, const void* data, u8 stride) noexcept {
+  OPTICK_EVENT();
   using namespace aurora::gfx::model;
   switch (attr) {
   case GX::VA_POS:

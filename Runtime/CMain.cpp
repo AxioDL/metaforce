@@ -351,8 +351,6 @@ public:
       }
     }
 
-    OPTICK_FRAME("MainThread");
-
     // Check if fullscreen has been toggled, if so set the fullscreen cvar accordingly
     if (m_fullscreenToggleRequested) {
       m_cvarCommons.m_fullscreen->fromBoolean(!m_cvarCommons.getFullscreen());

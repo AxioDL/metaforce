@@ -14,7 +14,7 @@ struct DrawData {
   gx::GXBindGroups bindGroups;
 };
 
-struct PipelineConfig : gx::PipelineConfig {};
+PACK(struct PipelineConfig : gx::PipelineConfig {});
 
 struct State {};
 

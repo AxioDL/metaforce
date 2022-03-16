@@ -280,12 +280,18 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   g_AppDelegate->onAppWindowResized(size);
 
   while (poll_events()) {
+    OPTICK_FRAME("MainThread");
+
     imgui::new_frame(g_windowSize);
     if (!g_AppDelegate->onAppIdle(ImGui::GetIO().DeltaTime)) {
       break;
     }
 
-    const wgpu::TextureView view = g_swapChain.GetCurrentTextureView();
+    wgpu::TextureView view;
+    {
+      OPTICK_EVENT("SwapChain GetCurrentTextureView");
+      view = g_swapChain.GetCurrentTextureView();
+    }
     gfx::begin_frame();
     g_AppDelegate->onAppDraw();
 
@@ -293,8 +299,12 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
         .label = "Redraw encoder",
     };
     auto encoder = g_device.CreateCommandEncoder(&encoderDescriptor);
+#if USE_OPTICK
+    auto prevContext = gpu::begin_cmdlist();
+#endif
     gfx::end_frame(encoder);
     {
+      OPTICK_EVENT("Main Render Pass");
       const std::array attachments{
           wgpu::RenderPassColorAttachment{
               .view = view,
@@ -329,6 +339,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
       pass.End();
     }
     {
+      OPTICK_EVENT("ImGui Render Pass");
       const std::array attachments{
           wgpu::RenderPassColorAttachment{
               .view = view,
@@ -345,9 +356,19 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
       imgui::render(pass);
       pass.End();
     }
-    const auto buffer = encoder.Finish();
-    g_queue.Submit(1, &buffer);
-    g_swapChain.Present();
+#if USE_OPTICK
+    gpu::end_cmdlist(prevContext);
+#endif
+    {
+      OPTICK_EVENT("Queue Submit");
+      const auto buffer = encoder.Finish();
+      g_queue.Submit(1, &buffer);
+    }
+    {
+      OPTICK_GPU_FLIP(gpu::get_native_swapchain());
+      OPTICK_CATEGORY("Present", Optick::Category::Wait);
+      g_swapChain.Present();
+    }
 
     g_AppDelegate->onAppPostDraw();
 

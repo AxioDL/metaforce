@@ -18,6 +18,7 @@ struct SStreamState {
 static std::optional<SStreamState> sStreamState;
 
 void stream_begin(GX::Primitive primitive) noexcept {
+  OPTICK_EVENT();
   if (sStreamState) {
     Log.report(logvisor::Fatal, FMT_STRING("Stream began twice!"));
     unreachable();
@@ -27,6 +28,7 @@ void stream_begin(GX::Primitive primitive) noexcept {
 
 void stream_vertex(metaforce::EStreamFlags flags, const zeus::CVector3f& pos, const zeus::CVector3f& nrm,
                    const zeus::CColor& color, const zeus::CVector2f& uv) noexcept {
+  OPTICK_EVENT();
   if (!sStreamState) {
     Log.report(logvisor::Fatal, FMT_STRING("Stream not started!"));
     unreachable();
@@ -53,9 +55,11 @@ void stream_vertex(metaforce::EStreamFlags flags, const zeus::CVector3f& pos, co
 }
 
 void stream_end() noexcept {
+  OPTICK_EVENT();
   const auto vertRange = push_verts(sStreamState->vertexBuffer.data(), sStreamState->vertexBuffer.size());
 
-  stream::PipelineConfig config{};
+  stream::PipelineConfig config;
+  memset(&config, 0, sizeof(stream::PipelineConfig));
   config.shaderConfig.denormalizedVertexAttributes = true;
   config.shaderConfig.denormalizedHasNrm = sStreamState->flags.IsSet(metaforce::EStreamFlagBits::fHasNormal);
   const auto info = populate_pipeline_config(config, sStreamState->primitive, {});

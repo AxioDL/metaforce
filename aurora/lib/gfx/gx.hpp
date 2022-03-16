@@ -14,23 +14,23 @@ constexpr u32 MaxTexMtx = 10;
 constexpr u32 MaxPTTexMtx = 20;
 constexpr u32 MaxTexCoord = GX::MAX_TEXCOORD;
 
-template <typename Arg, Arg Default>
+PACK(template <typename Arg, Arg Default>
 struct TevPass {
   Arg a = Default;
   Arg b = Default;
   Arg c = Default;
   Arg d = Default;
   bool operator==(const TevPass&) const = default;
-};
-struct TevOp {
+});
+PACK(struct TevOp {
   GX::TevOp op = GX::TevOp::TEV_ADD;
   GX::TevBias bias = GX::TevBias::TB_ZERO;
   GX::TevScale scale = GX::TevScale::CS_SCALE_1;
   GX::TevRegID outReg = GX::TevRegID::TEVPREV;
   bool clamp = true;
   bool operator==(const TevOp&) const = default;
-};
-struct TevStage {
+});
+PACK(struct TevStage {
   TevPass<GX::TevColorArg, GX::CC_ZERO> colorPass;
   TevPass<GX::TevAlphaArg, GX::CA_ZERO> alphaPass;
   TevOp colorOp;
@@ -41,7 +41,7 @@ struct TevStage {
   GX::TexMapID texMapId = GX::TEXMAP_NULL;
   GX::ChannelID channelId = GX::COLOR_NULL;
   bool operator==(const TevStage&) const = default;
-};
+});
 struct TextureBind {
   aurora::gfx::TextureHandle handle;
   metaforce::EClampMode clampMode;
@@ -55,37 +55,37 @@ struct TextureBind {
   operator bool() const noexcept { return handle; }
 };
 // For shader generation
-struct ColorChannelConfig {
+PACK(struct ColorChannelConfig {
   GX::ColorSrc matSrc = GX::SRC_REG;
   GX::ColorSrc ambSrc = GX::SRC_REG;
   bool lightingEnabled = false;
   bool operator==(const ColorChannelConfig&) const = default;
-};
+});
 // For uniform generation
-struct ColorChannelState {
+PACK(struct ColorChannelState {
   zeus::CColor matColor = zeus::skClear;
   zeus::CColor ambColor = zeus::skClear;
   GX::LightMask lightState;
-};
+});
 using LightVariant = std::variant<std::monostate, Light, zeus::CColor>;
 // Mat4x4 used instead of Mat4x3 for padding purposes
 using TexMtxVariant = std::variant<std::monostate, Mat4x2<float>, Mat4x4<float>>;
-struct TcgConfig {
+PACK(struct TcgConfig {
   GX::TexGenType type = GX::TG_MTX2x4;
   GX::TexGenSrc src = GX::MAX_TEXGENSRC;
   GX::TexMtx mtx = GX::IDENTITY;
   GX::PTTexMtx postMtx = GX::PTIDENTITY;
   bool normalize = false;
   bool operator==(const TcgConfig&) const = default;
-};
-struct FogState {
+});
+PACK(struct FogState {
   GX::FogType type = GX::FOG_NONE;
   float startZ = 0.f;
   float endZ = 0.f;
   float nearZ = 0.f;
   float farZ = 0.f;
   zeus::CColor color;
-};
+});
 
 struct GXState {
   zeus::CMatrix4f mv;
@@ -123,10 +123,11 @@ extern GXState g_gxState;
 
 static inline Mat4x4<float> get_combined_matrix() noexcept { return g_gxState.proj * g_gxState.mv; }
 
+void initialize() noexcept;
 void shutdown() noexcept;
 const TextureBind& get_texture(GX::TexMapID id) noexcept;
 
-struct ShaderConfig {
+PACK(struct ShaderConfig {
   GX::FogType fogType;
   std::array<std::optional<TevStage>, MaxTevStages> tevStages;
   std::array<ColorChannelConfig, MaxColorChannels> colorChannels;
@@ -135,8 +136,8 @@ struct ShaderConfig {
   bool denormalizedVertexAttributes = false;
   bool denormalizedHasNrm = false; // TODO this is a hack
   bool operator==(const ShaderConfig&) const = default;
-};
-struct PipelineConfig {
+});
+PACK(struct PipelineConfig {
   ShaderConfig shaderConfig;
   GX::Primitive primitive;
   GX::Compare depthFunc;
@@ -146,7 +147,7 @@ struct PipelineConfig {
   GX::LogicOp blendOp;
   std::optional<float> dstAlpha;
   bool depthCompare, depthUpdate, alphaUpdate;
-};
+});
 struct GXBindGroupLayouts {
   wgpu::BindGroupLayout uniformLayout;
   wgpu::BindGroupLayout samplerLayout;
@@ -202,70 +203,71 @@ struct DlVert {
 } // namespace aurora::gfx::gx
 
 namespace aurora {
-template <typename Arg, Arg Default>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TevPass<Arg, Default>& input) {
-  XXH3_64bits_update(&state, &input.a, sizeof(Arg));
-  XXH3_64bits_update(&state, &input.b, sizeof(Arg));
-  XXH3_64bits_update(&state, &input.c, sizeof(Arg));
-  XXH3_64bits_update(&state, &input.d, sizeof(Arg));
-}
+//template <typename Arg, Arg Default>
+//inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TevPass<Arg, Default>& input) {
+//  XXH3_64bits_update(&state, &input.a, sizeof(Arg));
+//  XXH3_64bits_update(&state, &input.b, sizeof(Arg));
+//  XXH3_64bits_update(&state, &input.c, sizeof(Arg));
+//  XXH3_64bits_update(&state, &input.d, sizeof(Arg));
+//}
+//template <>
+//inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TevOp& input) {
+//  XXH3_64bits_update(&state, &input.op, sizeof(gfx::gx::TevOp::op));
+//  XXH3_64bits_update(&state, &input.bias, sizeof(gfx::gx::TevOp::bias));
+//  XXH3_64bits_update(&state, &input.scale, sizeof(gfx::gx::TevOp::scale));
+//  XXH3_64bits_update(&state, &input.outReg, sizeof(gfx::gx::TevOp::outReg));
+//  XXH3_64bits_update(&state, &input.clamp, sizeof(bool));
+//}
+//template <>
+//inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TevStage& input) {
+//  xxh3_update(state, input.colorPass);
+//  xxh3_update(state, input.alphaPass);
+//  xxh3_update(state, input.colorOp);
+//  xxh3_update(state, input.alphaOp);
+//  XXH3_64bits_update(&state, &input.kcSel, sizeof(gfx::gx::TevStage::kcSel));
+//  XXH3_64bits_update(&state, &input.kaSel, sizeof(gfx::gx::TevStage::kaSel));
+//  XXH3_64bits_update(&state, &input.texCoordId, sizeof(gfx::gx::TevStage::texCoordId));
+//  XXH3_64bits_update(&state, &input.texMapId, sizeof(gfx::gx::TevStage::texMapId));
+//  XXH3_64bits_update(&state, &input.channelId, sizeof(gfx::gx::TevStage::channelId));
+//}
+//template <>
+//inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ColorChannelConfig& input) {
+//  XXH3_64bits_update(&state, &input.lightingEnabled, sizeof(gfx::gx::ColorChannelConfig::lightingEnabled));
+//  XXH3_64bits_update(&state, &input.matSrc, sizeof(gfx::gx::ColorChannelConfig::matSrc));
+//  if (input.lightingEnabled) {
+//    // Unused when lighting is disabled
+//    XXH3_64bits_update(&state, &input.ambSrc, sizeof(gfx::gx::ColorChannelConfig::ambSrc));
+//  }
+//}
+//template <>
+//inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TcgConfig& input) {
+//  XXH3_64bits_update(&state, &input.type, sizeof(gfx::gx::TcgConfig::type));
+//  XXH3_64bits_update(&state, &input.src, sizeof(gfx::gx::TcgConfig::src));
+//  XXH3_64bits_update(&state, &input.mtx, sizeof(gfx::gx::TcgConfig::mtx));
+//  XXH3_64bits_update(&state, &input.postMtx, sizeof(gfx::gx::TcgConfig::postMtx));
+//  XXH3_64bits_update(&state, &input.normalize, sizeof(gfx::gx::TcgConfig::normalize));
+//}
 template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TevOp& input) {
-  XXH3_64bits_update(&state, &input.op, sizeof(gfx::gx::TevOp::op));
-  XXH3_64bits_update(&state, &input.bias, sizeof(gfx::gx::TevOp::bias));
-  XXH3_64bits_update(&state, &input.scale, sizeof(gfx::gx::TevOp::scale));
-  XXH3_64bits_update(&state, &input.outReg, sizeof(gfx::gx::TevOp::outReg));
-  XXH3_64bits_update(&state, &input.clamp, sizeof(bool));
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TevStage& input) {
-  xxh3_update(state, input.colorPass);
-  xxh3_update(state, input.alphaPass);
-  xxh3_update(state, input.colorOp);
-  xxh3_update(state, input.alphaOp);
-  XXH3_64bits_update(&state, &input.kcSel, sizeof(gfx::gx::TevStage::kcSel));
-  XXH3_64bits_update(&state, &input.kaSel, sizeof(gfx::gx::TevStage::kaSel));
-  XXH3_64bits_update(&state, &input.texCoordId, sizeof(gfx::gx::TevStage::texCoordId));
-  XXH3_64bits_update(&state, &input.texMapId, sizeof(gfx::gx::TevStage::texMapId));
-  XXH3_64bits_update(&state, &input.channelId, sizeof(gfx::gx::TevStage::channelId));
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ColorChannelConfig& input) {
-  XXH3_64bits_update(&state, &input.lightingEnabled, sizeof(gfx::gx::ColorChannelConfig::lightingEnabled));
-  XXH3_64bits_update(&state, &input.matSrc, sizeof(gfx::gx::ColorChannelConfig::matSrc));
-  if (input.lightingEnabled) {
-    // Unused when lighting is disabled
-    XXH3_64bits_update(&state, &input.ambSrc, sizeof(gfx::gx::ColorChannelConfig::ambSrc));
-  }
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TcgConfig& input) {
-  XXH3_64bits_update(&state, &input.type, sizeof(gfx::gx::TcgConfig::type));
-  XXH3_64bits_update(&state, &input.src, sizeof(gfx::gx::TcgConfig::src));
-  XXH3_64bits_update(&state, &input.mtx, sizeof(gfx::gx::TcgConfig::mtx));
-  XXH3_64bits_update(&state, &input.postMtx, sizeof(gfx::gx::TcgConfig::postMtx));
-  XXH3_64bits_update(&state, &input.normalize, sizeof(gfx::gx::TcgConfig::normalize));
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ShaderConfig& input) {
-  for (const auto& item : input.tevStages) {
-    if (!item) {
-      break;
-    }
-    xxh3_update(state, *item);
-  }
-  for (const auto& item : input.colorChannels) {
-    xxh3_update(state, item);
-  }
-  for (const auto& item : input.tcgs) {
-    xxh3_update(state, item);
-  }
-  if (input.alphaDiscard) {
-    XXH3_64bits_update(&state, &*input.alphaDiscard, sizeof(float));
-  }
-  XXH3_64bits_update(&state, &input.denormalizedVertexAttributes,
-                     sizeof(gfx::gx::ShaderConfig::denormalizedVertexAttributes));
-  XXH3_64bits_update(&state, &input.denormalizedHasNrm, sizeof(gfx::gx::ShaderConfig::denormalizedHasNrm));
-  XXH3_64bits_update(&state, &input.fogType, sizeof(gfx::gx::ShaderConfig::fogType));
+inline XXH64_hash_t xxh3_hash(const gfx::gx::ShaderConfig& input, XXH64_hash_t seed) {
+  return xxh3_hash_s(&input, sizeof(gfx::gx::ShaderConfig), seed);
+//  for (const auto& item : input.tevStages) {
+//    if (!item) {
+//      break;
+//    }
+//    xxh3_update(state, *item);
+//  }
+//  for (const auto& item : input.colorChannels) {
+//    xxh3_update(state, item);
+//  }
+//  for (const auto& item : input.tcgs) {
+//    xxh3_update(state, item);
+//  }
+//  if (input.alphaDiscard) {
+//    XXH3_64bits_update(&state, &*input.alphaDiscard, sizeof(float));
+//  }
+//  XXH3_64bits_update(&state, &input.denormalizedVertexAttributes,
+//                     sizeof(gfx::gx::ShaderConfig::denormalizedVertexAttributes));
+//  XXH3_64bits_update(&state, &input.denormalizedHasNrm, sizeof(gfx::gx::ShaderConfig::denormalizedHasNrm));
+//  XXH3_64bits_update(&state, &input.fogType, sizeof(gfx::gx::ShaderConfig::fogType));
 }
 } // namespace aurora

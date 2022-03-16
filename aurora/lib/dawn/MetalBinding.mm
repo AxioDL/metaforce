@@ -89,7 +89,7 @@ private:
 
 class MetalBinding : public BackendBinding {
 public:
-  MetalBinding(SDL_Window *window, WGPUDevice device) : BackendBinding(window, device) {}
+  MetalBinding(SDL_Window *window, WGPUAdapter adapter, WGPUDevice device) : BackendBinding(window, adapter, device) {}
 
   uint64_t GetSwapChainImplementation() override {
     if (m_swapChainImpl.userData == nullptr) {
@@ -104,5 +104,7 @@ private:
   DawnSwapChainImplementation m_swapChainImpl{};
 };
 
-BackendBinding *CreateMetalBinding(SDL_Window *window, WGPUDevice device) { return new MetalBinding(window, device); }
+BackendBinding *CreateMetalBinding(SDL_Window *window, WGPUAdapter adapter, WGPUDevice device) {
+  return new MetalBinding(window, adapter, device);
+}
 } // namespace aurora::gpu::utils

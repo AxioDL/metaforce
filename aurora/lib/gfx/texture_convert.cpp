@@ -78,6 +78,7 @@ constexpr T bswap16(T val) noexcept {
 }
 
 static ByteBuffer BuildI4FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {
+  OPTICK_EVENT();
   const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
   ByteBuffer buf{sizeof(RGBA8) * texelCount};
 
@@ -117,6 +118,7 @@ static ByteBuffer BuildI4FromGCN(uint32_t width, uint32_t height, uint32_t mips,
 }
 
 static ByteBuffer BuildI8FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {
+  OPTICK_EVENT();
   const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
   ByteBuffer buf{sizeof(RGBA8) * texelCount};
 
@@ -158,6 +160,7 @@ static ByteBuffer BuildI8FromGCN(uint32_t width, uint32_t height, uint32_t mips,
 }
 
 ByteBuffer BuildIA4FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {
+  OPTICK_EVENT();
   const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
   ByteBuffer buf{sizeof(RGBA8) * texelCount};
 
@@ -199,6 +202,7 @@ ByteBuffer BuildIA4FromGCN(uint32_t width, uint32_t height, uint32_t mips, Array
 }
 
 ByteBuffer BuildIA8FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {
+  OPTICK_EVENT();
   const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
   ByteBuffer buf{sizeof(RGBA8) * texelCount};
 
@@ -240,6 +244,7 @@ ByteBuffer BuildIA8FromGCN(uint32_t width, uint32_t height, uint32_t mips, Array
 }
 
 ByteBuffer BuildC4FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data, RGBA8* palette) {
+  OPTICK_EVENT();
   const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
   ByteBuffer buf{sizeof(RGBA8) * texelCount};
 
@@ -277,6 +282,7 @@ ByteBuffer BuildC4FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayR
 }
 
 ByteBuffer BuildC8FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data, RGBA8* palette) {
+  OPTICK_EVENT();
   const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
   ByteBuffer buf{sizeof(RGBA8) * texelCount};
 
@@ -314,6 +320,7 @@ ByteBuffer BuildC8FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayR
 }
 
 ByteBuffer BuildRGB565FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {
+  OPTICK_EVENT();
   const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
   ByteBuffer buf{sizeof(RGBA8) * texelCount};
 
@@ -354,6 +361,7 @@ ByteBuffer BuildRGB565FromGCN(uint32_t width, uint32_t height, uint32_t mips, Ar
 }
 
 ByteBuffer BuildRGB5A3FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {
+  OPTICK_EVENT();
   size_t texelCount = ComputeMippedTexelCount(width, height, mips);
   ByteBuffer buf{sizeof(RGBA8) * texelCount};
 
@@ -401,6 +409,7 @@ ByteBuffer BuildRGB5A3FromGCN(uint32_t width, uint32_t height, uint32_t mips, Ar
 }
 
 ByteBuffer BuildRGBA8FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {
+  OPTICK_EVENT();
   const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
   ByteBuffer buf{sizeof(RGBA8) * texelCount};
 
@@ -445,6 +454,7 @@ ByteBuffer BuildRGBA8FromGCN(uint32_t width, uint32_t height, uint32_t mips, Arr
 }
 
 ByteBuffer BuildDXT1FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {
+  OPTICK_EVENT();
   const size_t blockCount = ComputeMippedBlockCountDXT1(width, height, mips);
   ByteBuffer buf{sizeof(DXT1Block) * blockCount};
 
@@ -493,6 +503,7 @@ ByteBuffer BuildDXT1FromGCN(uint32_t width, uint32_t height, uint32_t mips, Arra
 
 ByteBuffer convert_texture(metaforce::ETexelFormat format, uint32_t width, uint32_t height, uint32_t mips,
                            ArrayRef<uint8_t> data) {
+  OPTICK_EVENT();
   switch (format) {
   case metaforce::ETexelFormat::RGBA8PC:
   case metaforce::ETexelFormat::R8PC:

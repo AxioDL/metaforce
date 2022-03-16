@@ -6,7 +6,7 @@
 namespace aurora::gpu::utils {
 class OpenGLBinding : public BackendBinding {
 public:
-  OpenGLBinding(SDL_Window* window, WGPUDevice device) : BackendBinding(window, device) {}
+  OpenGLBinding(SDL_Window* window, WGPUAdapter adapter, WGPUDevice device) : BackendBinding(window, adapter, device) {}
 
   uint64_t GetSwapChainImplementation() override {
     if (m_swapChainImpl.userData == nullptr) {
@@ -31,5 +31,7 @@ private:
   }
 };
 
-BackendBinding* CreateOpenGLBinding(SDL_Window* window, WGPUDevice device) { return new OpenGLBinding(window, device); }
+BackendBinding* CreateOpenGLBinding(SDL_Window* window, WGPUAdapter adapter, WGPUDevice device) {
+  return new OpenGLBinding(window, adapter, device);
+}
 } // namespace aurora::gpu::utils

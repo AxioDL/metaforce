@@ -3,6 +3,7 @@
 #include <array>
 #include <cstdint>
 #include <dawn/webgpu_cpp.h>
+#include <optick.h>
 
 #ifdef __GNUC__
 [[noreturn]] inline __attribute__((always_inline)) void unreachable() { __builtin_unreachable(); }
@@ -52,6 +53,12 @@ extern TextureWithSampler g_depthBuffer;
 void initialize(SDL_Window* window);
 void shutdown();
 void resize_swapchain(uint32_t width, uint32_t height);
+
+#if USE_OPTICK
+void* get_native_swapchain();
+Optick::GPUContext begin_cmdlist();
+void end_cmdlist(Optick::GPUContext ctx);
+#endif
 } // namespace aurora::gpu
 
 namespace aurora::gpu::utils {

@@ -4,20 +4,32 @@
 #include <utility>
 
 #include <dawn/webgpu_cpp.h>
-#include <xxhash_impl.h>
+#define XXH_INLINE_ALL
+#define XXH_STATIC_LINKING_ONLY
+#define XXH_IMPLEMENTATION
+#include <xxhash.h>
+#include <optick.h>
 
 #ifndef ALIGN
 #define ALIGN(x, a) (((x) + ((a)-1)) & ~((a)-1))
 #endif
 
+#ifdef __GNUC__
+#define PACK(...) __VA_ARGS__  __attribute__((__packed__))
+#endif
+#ifdef _MSC_VER
+#define PACK(...) __pragma(pack(push, 1)); __VA_ARGS__; __pragma(pack(pop))
+#endif
+
 namespace aurora {
 template <typename T>
 static inline void xxh3_update(XXH3_state_t& state, const T& input);
-static inline XXH64_hash_t xxh3_hash(const void* input, size_t len, XXH64_hash_t seed = 0) {
+static inline XXH64_hash_t xxh3_hash_s(const void* input, size_t len, XXH64_hash_t seed = 0) {
   return XXH3_64bits_withSeed(input, len, seed);
 }
 template <typename T>
 static inline XXH64_hash_t xxh3_hash(const T& input, XXH64_hash_t seed = 0) {
+  OPTICK_EVENT();
   XXH3_state_t state;
   memset(&state, 0, sizeof(XXH3_state_t));
   XXH3_64bits_reset_withSeed(&state, seed);

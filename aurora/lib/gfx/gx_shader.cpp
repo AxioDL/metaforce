@@ -359,6 +359,7 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
 #endif
     return it->second;
   }
+  OPTICK_EVENT();
 
   Log.report(logvisor::Info, FMT_STRING("Shader config (hash {:x}):"), hash);
   ShaderInfo info{
@@ -636,7 +637,8 @@ var<storage, read> v_packed_uvs: Vec2Block;
     } else {
       vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) tex{}_uv: vec2<f32>;"), locIdx, i);
       if (tcg.src >= GX::TG_TEX0 && tcg.src <= GX::TG_TEX7) {
-        vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{} = vec4<f32>({}, 0.0, 1.0);"), i, in_uv(tcg.src - GX::TG_TEX0));
+        vtxXfrAttrs +=
+            fmt::format(FMT_STRING("\n    var tc{} = vec4<f32>({}, 0.0, 1.0);"), i, in_uv(tcg.src - GX::TG_TEX0));
       } else if (tcg.src == GX::TG_POS) {
         vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{} = vec4<f32>(obj_pos.xyz, 1.0);"), i);
       } else if (tcg.src == GX::TG_NRM) {
@@ -663,7 +665,8 @@ var<storage, read> v_packed_uvs: Vec2Block;
     } else {
       u32 postMtxIdx = (tcg.postMtx - GX::PTTEXMTX0) / 3;
       info.usesPTTexMtx.set(postMtxIdx);
-      vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{0}_proj = ubuf.postmtx{1} * vec4<f32>(tc{0}_tmp.xyz, 1.0);"), i, postMtxIdx);
+      vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{0}_proj = ubuf.postmtx{1} * vec4<f32>(tc{0}_tmp.xyz, 1.0);"),
+                                 i, postMtxIdx);
     }
     vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{0}_uv = tc{0}_proj.xy;"), i);
     fragmentFnPre += fmt::format(
@@ -698,7 +701,8 @@ var<storage, read> v_packed_uvs: Vec2Block;
   if (config.fogType != GX::FOG_NONE) {
     info.usesFog = true;
 
-    uniformPre += "\n"
+    uniformPre +=
+        "\n"
         "struct Fog {\n"
         "    color: vec4<f32>;\n"
         "    a: f32;\n"
@@ -729,7 +733,8 @@ var<storage, read> v_packed_uvs: Vec2Block;
       break;
     case GX::FOG_PERSP_REVEXP2:
     case GX::FOG_ORTHO_REVEXP2:
-      fragmentFn += "\n    fogF = 1.0 - fogF;"
+      fragmentFn +=
+          "\n    fogF = 1.0 - fogF;"
           "\n    var fogZ = exp2(-8.0 * fogF * fogF);";
       break;
     default:
@@ -796,7 +801,11 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {{
       .nextInChain = &wgslDescriptor,
       .label = label.c_str(),
   };
-  auto shader = gpu::g_device.CreateShaderModule(&shaderDescriptor);
+  wgpu::ShaderModule shader;
+  {
+    OPTICK_EVENT("Device CreateShaderModule");
+    shader = gpu::g_device.CreateShaderModule(&shaderDescriptor);
+  }
 
   info.uniformSize = align_uniform(info.uniformSize);
   auto pair = std::make_pair(std::move(shader), info);

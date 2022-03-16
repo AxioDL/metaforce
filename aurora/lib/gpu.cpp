@@ -182,8 +182,8 @@ void initialize(SDL_Window* window) {
   }
   g_queue = g_device.GetQueue();
 
-  g_BackendBinding =
-      std::unique_ptr<utils::BackendBinding>(utils::CreateBinding(g_backendType, window, g_device.Get()));
+  g_BackendBinding = std::unique_ptr<utils::BackendBinding>(
+      utils::CreateBinding(g_backendType, window, g_Adapter.Get(), g_device.Get()));
   if (!g_BackendBinding) {
     Log.report(logvisor::Fatal, FMT_STRING("Unsupported backend {}"), backendName);
     unreachable();
@@ -237,4 +237,16 @@ void resize_swapchain(uint32_t width, uint32_t height) {
   g_frameBufferResolved = create_render_texture(false);
   g_depthBuffer = create_depth_texture();
 }
+
+#if USE_OPTICK
+void* get_native_swapchain() { return g_BackendBinding->GetNativeSwapChain(); }
+
+Optick::GPUContext begin_cmdlist() {
+  return g_BackendBinding->OptickSetGpuContext();
+}
+
+void end_cmdlist(Optick::GPUContext ctx) {
+  Optick::SetGpuContext(ctx);
+}
+#endif
 } // namespace aurora::gpu
