@@ -172,7 +172,8 @@ void initialize();
 void shutdown();
 
 void begin_frame();
-void end_frame(const wgpu::RenderPassEncoder& pass);
+void end_frame(const wgpu::CommandEncoder& cmd);
+void render(const wgpu::RenderPassEncoder& pass);
 
 Range push_verts(const uint8_t* data, size_t length);
 template <typename T>

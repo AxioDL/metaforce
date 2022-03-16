@@ -293,6 +293,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
         .label = "Redraw encoder",
     };
     auto encoder = g_device.CreateCommandEncoder(&encoderDescriptor);
+    gfx::end_frame(encoder);
     {
       const std::array attachments{
           wgpu::RenderPassColorAttachment{
@@ -324,7 +325,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
           .depthStencilAttachment = &depthStencilAttachment,
       };
       auto pass = encoder.BeginRenderPass(&renderPassDescriptor);
-      gfx::end_frame(pass);
+      gfx::render(pass);
       pass.End();
     }
     {
