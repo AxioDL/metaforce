@@ -99,6 +99,15 @@ struct TevSwap {
   operator bool() const { return *this != TevSwap{}; }
 };
 
+struct AlphaCompare {
+  GX::Compare comp0 = GX::ALWAYS;
+  float ref0 = 0.f;
+  GX::AlphaOp op = GX::AOP_AND;
+  GX::Compare comp1 = GX::ALWAYS;
+  float ref1 = 0.f;
+  bool operator==(const AlphaCompare& other) const = default;
+  operator bool() const { return *this != AlphaCompare{}; }
+};
 struct GXState {
   zeus::CMatrix4f mv;
   zeus::CMatrix4f mvInv;
@@ -112,7 +121,7 @@ struct GXState {
   GX::Compare depthFunc = GX::LEQUAL;
   zeus::CColor clearColor = zeus::skBlack;
   std::optional<float> dstAlpha;
-  std::optional<float> alphaDiscard;
+  AlphaCompare alphaCompare;
   std::array<zeus::CColor, MaxTevRegs> colorRegs;
   std::array<zeus::CColor, GX::MAX_KCOLOR> kcolors;
   std::array<ColorChannelConfig, MaxColorChannels> colorChannelConfig;
@@ -152,7 +161,7 @@ struct ShaderConfig {
   std::array<std::optional<TevStage>, MaxTevStages> tevStages;
   std::array<ColorChannelConfig, MaxColorChannels> colorChannels;
   std::array<TcgConfig, MaxTexCoord> tcgs;
-  std::optional<float> alphaDiscard;
+  AlphaCompare alphaCompare;
   bool hasIndexedAttributes = false;
   bool operator==(const ShaderConfig&) const = default;
 };
@@ -281,8 +290,8 @@ inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ShaderConfig& input)
   for (const auto& item : input.tcgs) {
     xxh3_update(state, item);
   }
-  if (input.alphaDiscard) {
-    XXH3_64bits_update(&state, &*input.alphaDiscard, sizeof(float));
+  if (input.alphaCompare) {
+    XXH3_64bits_update(&state, &input.alphaCompare, sizeof(gfx::gx::AlphaCompare));
   }
   XXH3_64bits_update(&state, &input.hasIndexedAttributes, sizeof(gfx::gx::ShaderConfig::hasIndexedAttributes));
 }

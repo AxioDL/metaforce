@@ -344,6 +344,31 @@ static std::string_view tev_bias(GX::TevBias bias) {
   }
 }
 
+static std::string alpha_compare(GX::Compare comp, float ref, bool& valid) {
+  switch (comp) {
+  case GX::NEVER:
+    return "false";
+  case GX::LESS:
+    return fmt::format(FMT_STRING("(prev.a < {}f)"), ref);
+  case GX::LEQUAL:
+    return fmt::format(FMT_STRING("(prev.a <= {}f)"), ref);
+  case GX::EQUAL:
+    return fmt::format(FMT_STRING("(prev.a == {}f)"), ref);
+  case GX::NEQUAL:
+    return fmt::format(FMT_STRING("(prev.a != {}f)"), ref);
+  case GX::GEQUAL:
+    return fmt::format(FMT_STRING("(prev.a >= {}f)"), ref);
+  case GX::GREATER:
+    return fmt::format(FMT_STRING("(prev.a < {}f)"), ref);
+  case GX::ALWAYS:
+    valid = false;
+    return "true";
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("invalid compare {}"), comp);
+    unreachable();
+  }
+}
+
 static std::string_view tev_scale(GX::TevScale scale) {
   switch (scale) {
   case GX::CS_SCALE_1:
@@ -468,7 +493,9 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
                    tcg.postMtx, tcg.type, tcg.normalize);
       }
     }
-    Log.report(logvisor::Info, FMT_STRING("  alphaDiscard: {}"), config.alphaDiscard.value_or(0.f));
+    Log.report(logvisor::Info, FMT_STRING("  alphaCompare: comp0 {} ref0 {} op {} comp1 {} ref1 {}"),
+               config.alphaCompare.comp0, config.alphaCompare.ref0, config.alphaCompare.op, config.alphaCompare.comp1,
+               config.alphaCompare.ref1);
     Log.report(logvisor::Info, FMT_STRING("  hasIndexedAttributes: {}"), config.hasIndexedAttributes);
     Log.report(logvisor::Info, FMT_STRING("  fogType: {}"), config.fogType);
   }
@@ -810,9 +837,35 @@ var<storage, read> v_packed_uvs: Vec2Block;
                                texBindIdx, i);
     ++texBindIdx;
   }
-  if (config.alphaDiscard) {
-    fragmentFn += fmt::format(FMT_STRING("\n    if (prev.a < {}f) {{ discard; }}"), *config.alphaDiscard);
+
+  if (config.alphaCompare) {
+    bool comp0Valid = true;
+    bool comp1Valid = true;
+    std::string comp0 = alpha_compare(config.alphaCompare.comp0, config.alphaCompare.ref0, comp0Valid);
+    std::string comp1 = alpha_compare(config.alphaCompare.comp1, config.alphaCompare.ref1, comp1Valid);
+    if (comp0Valid || comp1Valid) {
+      switch (config.alphaCompare.op) {
+      case GX::AOP_AND:
+        fragmentFn += fmt::format(FMT_STRING("\n    if (!({} && {})) {{ discard; }}"), comp0, comp1);
+        break;
+      case GX::AOP_OR:
+        fragmentFn += fmt::format(FMT_STRING("\n    if (!({} || {})) {{ discard; }}"), comp0, comp1);
+        break;
+      case GX::AOP_XOR:
+        fragmentFn += fmt::format(FMT_STRING("\n    if (!({} ^^ {})) {{ discard; }}"), comp0, comp1);
+        break;
+      case GX::AOP_XNOR:
+        fragmentFn += fmt::format(FMT_STRING("\n    if (({} ^^ {})) {{ discard; }}"), comp0, comp1);
+        break;
+      default:
+        Log.report(logvisor::Fatal, FMT_STRING("invalid alpha compare op {}"), config.alphaCompare.op);
+        unreachable();
+      }
+    }
   }
+  // if (config.alphaDiscard) {
+  //   fragmentFn += fmt::format(FMT_STRING("\n    if (prev.a < {}f) {{ discard; }}"), *config.alphaDiscard);
+  // }
 
   const auto shaderSource =
       fmt::format(FMT_STRING(R"""({uniformPre}

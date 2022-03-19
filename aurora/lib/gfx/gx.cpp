@@ -108,14 +108,7 @@ void GXSetChanCtrl(GX::ChannelID id, bool lightingEnabled, GX::ColorSrc ambSrc, 
   g_gxState.colorChannelState[idx].lightState = lightState;
 }
 void GXSetAlphaCompare(GX::Compare comp0, float ref0, GX::AlphaOp op, GX::Compare comp1, float ref1) noexcept {
-  if (comp0 == GX::ALWAYS && comp1 == GX::ALWAYS) {
-    g_gxState.alphaDiscard.reset();
-  } else if (comp0 == GX::GEQUAL && comp1 == GX::NEVER) {
-    g_gxState.alphaDiscard = ref0;
-  } else {
-    Log.report(logvisor::Fatal, FMT_STRING("GXSetAlphaCompare: unknown operands"));
-    unreachable();
-  }
+  g_gxState.alphaCompare = {comp0, ref0, op, comp1, ref1};
 }
 void GXSetTexCoordGen2(GX::TexCoordID dst, GX::TexGenType type, GX::TexGenSrc src, GX::TexMtx mtx, GXBool normalize,
                        GX::PTTexMtx postMtx) noexcept {
@@ -422,7 +415,7 @@ ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primit
   for (u8 i = 0; i < g_gxState.numTexGens; ++i) {
     config.shaderConfig.tcgs[i] = g_gxState.tcgs[i];
   }
-  config.shaderConfig.alphaDiscard = g_gxState.alphaDiscard;
+  config.shaderConfig.alphaCompare = g_gxState.alphaCompare;
   if (std::any_of(config.shaderConfig.vtxAttrs.begin(), config.shaderConfig.vtxAttrs.end(),
                   [](const auto type) { return type == GX::INDEX8 || type == GX::INDEX16; })) {
     config.shaderConfig.hasIndexedAttributes = true;
