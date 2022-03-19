@@ -22,7 +22,7 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
   };
   uint64_t offset = 12;
   uint32_t shaderLocation = 1;
-  if (info.usesNormal) {
+  if (config.shaderConfig.vtxAttrs[GX::VA_NRM] == GX::DIRECT) {
     attributes[shaderLocation] = wgpu::VertexAttribute{
         .format = wgpu::VertexFormat::Float32x3,
         .offset = offset,
@@ -31,7 +31,7 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
     offset += 12;
     shaderLocation++;
   }
-  if (info.usesVtxColor) {
+  if (config.shaderConfig.vtxAttrs[GX::VA_CLR0] == GX::DIRECT) {
     attributes[shaderLocation] = wgpu::VertexAttribute{
         .format = wgpu::VertexFormat::Float32x4,
         .offset = offset,
@@ -40,9 +40,8 @@ wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] Pipeli
     offset += 16;
     shaderLocation++;
   }
-  // TODO only sample 1?
-  for (int i = 0; i < info.sampledTextures.size(); ++i) {
-    if (!info.sampledTextures.test(i)) {
+  for (int i = GX::VA_TEX0; i < GX::VA_TEX7; ++i) {
+    if (config.shaderConfig.vtxAttrs[i] != GX::DIRECT) {
       continue;
     }
     attributes[shaderLocation] = wgpu::VertexAttribute{
@@ -76,6 +75,7 @@ void render(const State& state, const DrawData& data, const wgpu::RenderPassEnco
     pass.SetBindGroup(2, find_bind_group(data.bindGroups.textureBindGroup));
   }
   pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.offset, data.vertRange.size);
-  pass.Draw(data.vertexCount);
+  pass.SetIndexBuffer(g_indexBuffer, wgpu::IndexFormat::Uint16, data.indexRange.offset, data.indexRange.size);
+  pass.DrawIndexed(data.indexCount);
 }
 } // namespace aurora::gfx::stream

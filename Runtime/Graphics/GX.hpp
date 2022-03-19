@@ -49,8 +49,9 @@ enum AttrType {
 };
 
 struct VtxDescList {
-  Attr attr;
-  AttrType type;
+  Attr attr = GX::VA_NULL;
+  AttrType type = GX::NONE;
+  operator bool() const { return attr != GX::VA_NULL; }
 };
 
 enum VtxFmt {
@@ -665,6 +666,32 @@ enum ProjectionType {
   ORTHOGRAPHIC,
 };
 
+enum CompCnt {
+  CLR_RGB = 0,
+  POS_XY = 0,
+  TEX_S = 0,
+  NRM_XYZ = 0,
+  CLR_RGBA = 1,
+  POS_XYZ = 1,
+  NRM_NBT = 1,
+  TEX_ST = 1,
+  NRM_NBT3 = 2,
+};
+
+enum CompType {
+  RGB565 = 0,
+  U8 = 0,
+  RGB8 = 1,
+  S8 = 1,
+  U16 = 2,
+  RGBX8 = 2,
+  S16 = 3,
+  RGBA4 = 3,
+  F32 = 4,
+  RGBA6 = 4,
+  RGBA8 = 5,
+};
+
 } // namespace GX
 
 using GXColor = zeus::CColor;
@@ -700,6 +727,7 @@ void GXSetChanCtrl(GX::ChannelID id, GXBool lightingEnabled, GX::ColorSrc ambSrc
                    GX::LightMask lightState, GX::DiffuseFn diffFn, GX::AttnFn attnFn) noexcept;
 // Originally u8 instead of floats
 void GXSetAlphaCompare(GX::Compare comp0, float ref0, GX::AlphaOp op, GX::Compare comp1, float ref1) noexcept;
+void GXSetVtxDesc(GX::Attr attr, GX::AttrType type) noexcept;
 void GXSetVtxDescv(GX::VtxDescList* list) noexcept;
 void GXClearVtxDesc() noexcept;
 void GXSetArray(GX::Attr attr, const void* data, u8 stride) noexcept;
@@ -715,3 +743,21 @@ void GXLoadNrmMtxImm(const zeus::CTransform& xf, GX::PosNrmMtx id) noexcept;
 void GXSetProjection(const zeus::CMatrix4f& mtx, GX::ProjectionType type) noexcept;
 void GXSetViewport(float left, float top, float width, float height, float nearZ, float farZ) noexcept;
 void GXSetScissor(u32 left, u32 top, u32 width, u32 height) noexcept;
+// Unneeded, all attributes are expected to be full floats
+// void GXSetVtxAttrFmt(GX::VtxFmt vtxfmt, GX::Attr attr, GX::CompCnt cnt, GX::CompType type, u8 frac) noexcept;
+// Streaming
+void GXBegin(GX::Primitive primitive, GX::VtxFmt vtxFmt, u16 nVerts) noexcept;
+void GXMatrixIndex1u8(u8 idx) noexcept;
+void GXPosition3f32(const zeus::CVector3f& pos) noexcept;
+static inline void GXPosition3f32(float x, float y, float z) noexcept { GXPosition3f32({x, y, z}); }
+void GXNormal3f32(const zeus::CVector3f& nrm) noexcept;
+static inline void GXNormal3f32(float x, float y, float z) noexcept { GXNormal3f32({x, y, z}); }
+void GXColor4f32(const zeus::CColor& color) noexcept;
+static inline void GXColor4f32(float r, float g, float b, float a) noexcept { GXColor4f32({r, g, b, a}); }
+void GXTexCoord2f32(const zeus::CVector2f& uv) noexcept;
+static inline void GXTexCoord2f32(float u, float v) noexcept { GXTexCoord2f32({u, v}); }
+void GXEnd() noexcept;
+// End streaming
+void GXSetTevSwapModeTable(GX::TevSwapSel id, GX::TevColorChan red, GX::TevColorChan green, GX::TevColorChan blue,
+                           GX::TevColorChan alpha) noexcept;
+void GXSetTevSwapMode(GX::TevStageID stage, GX::TevSwapSel rasSel, GX::TevSwapSel texSel) noexcept;

@@ -87,8 +87,8 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
   modXf.origin += offset;
   CGraphics::SetModelMatrix(modXf);
 
-  SParticleUniforms uniformData = {
-      CGraphics::GetPerspectiveProjectionMatrix(/*true*/) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
+//  SParticleUniforms uniformData = {
+//      CGraphics::GetPerspectiveProjectionMatrix(/*true*/) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
 //  decal.m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
 
   bool redToAlpha = sMoveRedToAlphaBuffer && desc.x18_ADD && desc.x14_TEX;
@@ -104,52 +104,52 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
 //    else
 //      CGraphics::SetShaderDataBinding(decal.m_normalDataBind);
 
-    g_instTexData.clear();
-    g_instTexData.reserve(1);
+//    g_instTexData.clear();
+//    g_instTexData.reserve(1);
 
-    SParticleInstanceTex& inst = g_instTexData.emplace_back();
-    if (decal.x8_rotation == 0.f) {
-      inst.pos[0] = zeus::CVector3f(-size, 0.001f, size);
-      inst.pos[1] = zeus::CVector3f(size, 0.001f, size);
-      inst.pos[2] = zeus::CVector3f(-size, 0.001f, -size);
-      inst.pos[3] = zeus::CVector3f(size, 0.001f, -size);
-    } else {
-      float ang = zeus::degToRad(decal.x8_rotation);
-      float sinSize = std::sin(ang) * size;
-      float cosSize = std::cos(ang) * size;
-      inst.pos[0] = zeus::CVector3f(sinSize - cosSize, 0.001f, cosSize + sinSize);
-      inst.pos[1] = zeus::CVector3f(cosSize + sinSize, 0.001f, cosSize - sinSize);
-      inst.pos[2] = zeus::CVector3f(-(cosSize + sinSize), 0.001f, -(cosSize - sinSize));
-      inst.pos[3] = zeus::CVector3f(-sinSize + cosSize, 0.001f, -cosSize - sinSize);
-    }
-    inst.color = color;
-    inst.uvs[0] = zeus::CVector2f(uvSet.xMin, uvSet.yMin);
-    inst.uvs[1] = zeus::CVector2f(uvSet.xMax, uvSet.yMin);
-    inst.uvs[2] = zeus::CVector2f(uvSet.xMin, uvSet.yMax);
-    inst.uvs[3] = zeus::CVector2f(uvSet.xMax, uvSet.yMax);
+//    SParticleInstanceTex& inst = g_instTexData.emplace_back();
+//    if (decal.x8_rotation == 0.f) {
+//      inst.pos[0] = zeus::CVector3f(-size, 0.001f, size);
+//      inst.pos[1] = zeus::CVector3f(size, 0.001f, size);
+//      inst.pos[2] = zeus::CVector3f(-size, 0.001f, -size);
+//      inst.pos[3] = zeus::CVector3f(size, 0.001f, -size);
+//    } else {
+//      float ang = zeus::degToRad(decal.x8_rotation);
+//      float sinSize = std::sin(ang) * size;
+//      float cosSize = std::cos(ang) * size;
+//      inst.pos[0] = zeus::CVector3f(sinSize - cosSize, 0.001f, cosSize + sinSize);
+//      inst.pos[1] = zeus::CVector3f(cosSize + sinSize, 0.001f, cosSize - sinSize);
+//      inst.pos[2] = zeus::CVector3f(-(cosSize + sinSize), 0.001f, -(cosSize - sinSize));
+//      inst.pos[3] = zeus::CVector3f(-sinSize + cosSize, 0.001f, -cosSize - sinSize);
+//    }
+//    inst.color = color;
+//    inst.uvs[0] = zeus::CVector2f(uvSet.xMin, uvSet.yMin);
+//    inst.uvs[1] = zeus::CVector2f(uvSet.xMax, uvSet.yMin);
+//    inst.uvs[2] = zeus::CVector2f(uvSet.xMin, uvSet.yMax);
+//    inst.uvs[3] = zeus::CVector2f(uvSet.xMax, uvSet.yMax);
 
 //    decal.m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
 //    CGraphics::DrawInstances(0, 4, g_instTexData.size());
   } else {
-    g_instNoTexData.clear();
-    g_instNoTexData.reserve(1);
+//    g_instNoTexData.clear();
+//    g_instNoTexData.reserve(1);
 
-    SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
-    if (decal.x8_rotation == 0.f) {
-      inst.pos[0] = zeus::CVector3f(-size, 0.001f, size);
-      inst.pos[1] = zeus::CVector3f(size, 0.001f, size);
-      inst.pos[2] = zeus::CVector3f(-size, 0.001f, -size);
-      inst.pos[3] = zeus::CVector3f(size, 0.001f, -size);
-    } else {
-      float ang = zeus::degToRad(decal.x8_rotation);
-      float sinSize = std::sin(ang) * size;
-      float cosSize = std::cos(ang) * size;
-      inst.pos[0] = zeus::CVector3f(sinSize - cosSize, 0.001f, cosSize + sinSize);
-      inst.pos[1] = zeus::CVector3f(cosSize + sinSize, 0.001f, cosSize - sinSize);
-      inst.pos[2] = zeus::CVector3f(-(cosSize + sinSize), 0.001f, -(cosSize - sinSize));
-      inst.pos[3] = zeus::CVector3f(-sinSize + cosSize, 0.001f, -cosSize - sinSize);
-    }
-    inst.color = color;
+//    SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
+//    if (decal.x8_rotation == 0.f) {
+//      inst.pos[0] = zeus::CVector3f(-size, 0.001f, size);
+//      inst.pos[1] = zeus::CVector3f(size, 0.001f, size);
+//      inst.pos[2] = zeus::CVector3f(-size, 0.001f, -size);
+//      inst.pos[3] = zeus::CVector3f(size, 0.001f, -size);
+//    } else {
+//      float ang = zeus::degToRad(decal.x8_rotation);
+//      float sinSize = std::sin(ang) * size;
+//      float cosSize = std::cos(ang) * size;
+//      inst.pos[0] = zeus::CVector3f(sinSize - cosSize, 0.001f, cosSize + sinSize);
+//      inst.pos[1] = zeus::CVector3f(cosSize + sinSize, 0.001f, cosSize - sinSize);
+//      inst.pos[2] = zeus::CVector3f(-(cosSize + sinSize), 0.001f, -(cosSize - sinSize));
+//      inst.pos[3] = zeus::CVector3f(-sinSize + cosSize, 0.001f, -cosSize - sinSize);
+//    }
+//    inst.color = color;
 
 //    decal.m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
 //    CGraphics::DrawInstances(0, 4, g_instNoTexData.size());

@@ -813,9 +813,7 @@ void CCubeRenderer::SetThermal(bool thermal, float level, const zeus::CColor& co
   // TODO
 }
 
-void CCubeRenderer::SetThermalColdScale(float scale) {
-  // TODO
-}
+void CCubeRenderer::SetThermalColdScale(float scale) { x2f8_thermColdScale = zeus::clamp(0.f, scale, 1.f); }
 
 void CCubeRenderer::DoThermalBlendCold() {
   // TODO

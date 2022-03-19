@@ -31,7 +31,7 @@ struct SGXState {
   std::array<u16, 2> x34_chanCtrls{0x4000, 0x4000};
   std::array<GXColor, 2> x38_chanAmbColors;
   std::array<GXColor, 2> x40_chanMatColors;
-  GX::VtxDescList* x48_descList = nullptr;
+  u32 x48_descList = 0;
   u8 x4c_dirtyChans = 0;
   u8 x4d_prevNumChans = 0;
   u8 x4e_numChans = 0;
@@ -53,6 +53,7 @@ struct SGXState {
   GXColor x25c_fogColor;
 };
 extern SGXState sGXState;
+extern std::array<GX::VtxDescList, 11> sVtxDescList;
 
 static inline void update_fog(u32 value) noexcept {
   if (sGXState.x53_fogType == GX::FOG_NONE || (sGXState.x56_blendMode & 0xE0) == (value & 0xE0)) {
@@ -92,18 +93,16 @@ static inline void Begin(GX::Primitive primitive, GX::VtxFmt fmt, u16 nverts) no
   if (sGXState.x4c_dirtyChans != 0) {
     FlushState();
   }
-  // TODO GXBegin(type, fmt, nverts);
+  GXBegin(primitive, fmt, nverts);
 }
+
+static inline void End() noexcept { GXEnd(); }
 
 static inline void CallDisplayList(const void* data, u32 nbytes) noexcept {
   if (sGXState.x4c_dirtyChans != 0) {
     FlushState();
   }
   GXCallDisplayList(data, nbytes);
-}
-
-static inline void End() noexcept {
-  // no-op
 }
 
 static inline const GXColor& GetChanAmbColor(EChannelId id) noexcept {
@@ -394,11 +393,33 @@ static inline void SetTexCoordGen(GX::TexCoordID dstCoord, u32 flags) noexcept {
   }
 }
 
-void SetVtxDescv(GX::VtxDescList* descList) noexcept;
-
 static inline void SetVtxDescv_Compressed(u32 descList) noexcept {
-  // TODO convert to GX::VtxDescList
-  aurora::gfx::model::set_vtx_desc_compressed(descList);
+  u32 currentDescList = sGXState.x48_descList;
+  if (descList != currentDescList) {
+    size_t remain = sVtxDescList.size();
+    u32 shift = 0;
+    u32 attrIdx = 0;
+    do {
+      sVtxDescList[attrIdx] = {
+          GX::Attr(GX::VA_POS + attrIdx),
+          GX::AttrType(descList >> shift & 3),
+      };
+      shift += 2;
+      ++attrIdx;
+      --remain;
+    } while (remain != 0);
+    sVtxDescList[attrIdx] = {};
+    GXSetVtxDescv(sVtxDescList.data());
+    sGXState.x48_descList = descList;
+  }
+}
+
+static inline void SetVtxDescv(const GX::VtxDescList* descList) noexcept {
+  u32 flags = 0;
+  for (; descList->attr != GX::VA_NULL; ++descList) {
+    flags |= (descList->type & 3) << (descList->attr - GX::VA_POS) * 2;
+  }
+  SetVtxDescv_Compressed(flags);
 }
 
 static inline void SetZMode(GXBool compareEnable, GX::Compare func, GXBool updateEnable) noexcept {

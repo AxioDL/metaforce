@@ -1,6 +1,7 @@
 #include "gx.hpp"
 
 #include "../gpu.hpp"
+#include "Runtime/Graphics/GX.hpp"
 #include "common.hpp"
 
 #include <absl/container/flat_hash_map.h>
@@ -187,6 +188,28 @@ void GXSetFog(GX::FogType type, float startZ, float endZ, float nearZ, float far
   g_gxState.fog = {type, startZ, endZ, nearZ, farZ, color};
 }
 void GXSetFogColor(const GXColor& color) noexcept { g_gxState.fog.color = color; }
+void GXSetVtxDesc(GX::Attr attr, GX::AttrType type) noexcept { g_gxState.vtxDesc[attr] = type; }
+void GXSetVtxDescv(GX::VtxDescList* list) noexcept {
+  g_gxState.vtxDesc.fill({});
+  while (*list) {
+    g_gxState.vtxDesc[list->attr] = list->type;
+    ++list;
+  }
+}
+void GXClearVtxDesc() noexcept { g_gxState.vtxDesc.fill({}); }
+void GXSetTevSwapModeTable(GX::TevSwapSel id, GX::TevColorChan red, GX::TevColorChan green, GX::TevColorChan blue,
+                           GX::TevColorChan alpha) noexcept {
+  if (id < GX::TEV_SWAP0 || id >= GX::MAX_TEVSWAP) {
+    Log.report(logvisor::Fatal, FMT_STRING("invalid tev swap sel {}"), id);
+    unreachable();
+  }
+  g_gxState.tevSwapTable[id] = {red, green, blue, alpha};
+}
+void GXSetTevSwapMode(GX::TevStageID stageId, GX::TevSwapSel rasSel, GX::TevSwapSel texSel) noexcept {
+  auto& stage = g_gxState.tevStages[stageId];
+  stage.tevSwapRas = rasSel;
+  stage.tevSwapTex = texSel;
+}
 
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx::gx");
@@ -387,6 +410,9 @@ wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderIn
 
 ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive,
                                     const BindGroupRanges& ranges) noexcept {
+  config.shaderConfig.fogType = g_gxState.fog.type;
+  config.shaderConfig.vtxAttrs = g_gxState.vtxDesc;
+  config.shaderConfig.tevSwapTable = g_gxState.tevSwapTable;
   for (u8 i = 0; i < g_gxState.numTevStages; ++i) {
     config.shaderConfig.tevStages[i] = g_gxState.tevStages[i];
   }
@@ -397,7 +423,10 @@ ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primit
     config.shaderConfig.tcgs[i] = g_gxState.tcgs[i];
   }
   config.shaderConfig.alphaDiscard = g_gxState.alphaDiscard;
-  config.shaderConfig.fogType = g_gxState.fog.type;
+  if (std::any_of(config.shaderConfig.vtxAttrs.begin(), config.shaderConfig.vtxAttrs.end(),
+                  [](const auto type) { return type == GX::INDEX8 || type == GX::INDEX16; })) {
+    config.shaderConfig.hasIndexedAttributes = true;
+  }
   config = {
       .shaderConfig = config.shaderConfig,
       .primitive = primitive,
@@ -601,7 +630,7 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
       .uniformBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
           .label = "GX Uniform Bind Group",
           .layout = layouts.uniformLayout,
-          .entryCount = static_cast<uint32_t>(config.denormalizedVertexAttributes ? 1 : uniformEntries.size()),
+          .entryCount = static_cast<uint32_t>(config.hasIndexedAttributes ? uniformEntries.size() : 1),
           .entries = uniformEntries.data(),
       }),
       .samplerBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
@@ -621,7 +650,7 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
 
 GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const ShaderConfig& config) noexcept {
   GXBindGroupLayouts out;
-  u32 uniformSizeKey = info.uniformSize + (config.denormalizedVertexAttributes ? 0 : 1);
+  u32 uniformSizeKey = info.uniformSize + (config.hasIndexedAttributes ? 1 : 0);
   const auto uniformIt = sUniformBindGroupLayouts.find(uniformSizeKey);
   if (uniformIt != sUniformBindGroupLayouts.end()) {
     out.uniformLayout = uniformIt->second;
@@ -676,7 +705,7 @@ GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const Shader
     };
     const auto uniformLayoutDescriptor = wgpu::BindGroupLayoutDescriptor{
         .label = "GX Uniform Bind Group Layout",
-        .entryCount = static_cast<uint32_t>(config.denormalizedVertexAttributes ? 1 : uniformLayoutEntries.size()),
+        .entryCount = static_cast<uint32_t>(config.hasIndexedAttributes ? uniformLayoutEntries.size() : 1),
         .entries = uniformLayoutEntries.data(),
     };
     out.uniformLayout = g_device.CreateBindGroupLayout(&uniformLayoutDescriptor);
