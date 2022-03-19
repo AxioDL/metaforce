@@ -205,6 +205,10 @@ public:
   static ERglEnum g_depthFunc;
   static ERglCullMode g_cullMode;
 
+  static void Startup();
+  static void InitGraphicsVariables();
+  static void InitGraphicsDefaults();
+  static void SetDefaultVtxAttrFmt();
   static void DisableAllLights();
   static void LoadLight(ERglLight light, const CLight& info);
   static void EnableLight(ERglLight light);
@@ -353,14 +357,18 @@ public:
   static void SetTevOp(ERglTevStage stage, const CTevCombiners::CTevPass& pass);
   static void StreamBegin(GX::Primitive primitive);
   static void StreamNormal(const zeus::CVector3f& nrm);
-  static void StreamColor(float r, float g, float b, float a);
   static void StreamColor(const zeus::CColor& color);
-  static void StreamTexcoord(float x, float y);
+  static inline void StreamColor(float r, float g, float b, float a) { StreamColor({r, g, b, a}); }
   static void StreamTexcoord(const zeus::CVector2f& uv);
-  static void StreamVertex(float xyz);
-  static void StreamVertex(float x, float y, float z);
+  static inline void StreamTexcoord(float x, float y) { StreamTexcoord({x, y}); }
   static void StreamVertex(const zeus::CVector3f& pos);
+  static inline void StreamVertex(float xyz) { StreamVertex({xyz, xyz, xyz}); }
+  static inline void StreamVertex(float x, float y, float z) { StreamVertex({x, y, z}); }
   static void StreamEnd();
+  static void UpdateVertexDataStream();
+  static void ResetVertexDataStream(bool end);
+  static void FlushStream();
+  static void FullRender();
   static void DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
                             const zeus::CColor& col, s32 numVerts);
 };

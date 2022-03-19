@@ -132,11 +132,6 @@ struct Light {
 
 [[nodiscard]] bool get_dxt_compression_supported() noexcept;
 
-void stream_begin(GX::Primitive primitive) noexcept;
-void stream_vertex(metaforce::EStreamFlags flags, const zeus::CVector3f& pos, const zeus::CVector3f& nrm,
-                   const zeus::CColor& color, const zeus::CVector2f& uv) noexcept;
-void stream_end() noexcept;
-
 // GX state
 void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp, const TextureHandle& tex, float lod) noexcept;
 void unbind_texture(GX::TexMapID id) noexcept;

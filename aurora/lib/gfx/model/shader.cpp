@@ -5,47 +5,6 @@
 
 #include <absl/container/flat_hash_map.h>
 #include <aurora/model.hpp>
-#include <magic_enum.hpp>
-
-enum class VtxDescAttr : u8 {
-  Position = 0,
-  Normal = 2,
-  Color0 = 4,
-  Color1 = 6,
-  Tex0 = 8,
-  Tex1 = 10,
-  Tex2 = 12,
-  Tex3 = 14,
-  Tex4 = 16,
-  Tex5 = 18,
-  Tex6 = 20,
-  PnMatIdx = 24,
-  Tex0MatIdx = 25,
-  Tex1MatIdx = 26,
-  Tex2MatIdx = 27,
-  Tex3MatIdx = 28,
-  Tex4MatIdx = 29,
-  Tex5MatIdx = 30,
-  Tex6MatIdx = 31,
-};
-enum class VtxDescAttrType : u8 { None = 0, Direct = 1, Index8 = 2, Index16 = 3 };
-class VtxDescFlags {
-  u32 m_flags = 0;
-
-public:
-  constexpr VtxDescFlags() noexcept = default;
-  constexpr VtxDescFlags(u32 flags) noexcept : m_flags(flags){};
-  [[nodiscard]] constexpr VtxDescAttrType GetAttributeType(VtxDescAttr attribute) const noexcept {
-    return VtxDescAttrType((m_flags >> u32(attribute)) & 0x3);
-  }
-  [[nodiscard]] constexpr VtxDescAttrType GetDirectAttributeType(VtxDescAttr attribute) const noexcept {
-    return VtxDescAttrType((m_flags >> u32(attribute)) & 0x1);
-  }
-  constexpr void SetAttributeType(VtxDescAttr attribute, VtxDescAttrType type) noexcept {
-    m_flags &= ~(u32(0x3) << u32(attribute));
-    m_flags |= u32(type) << u32(attribute);
-  }
-};
 
 namespace aurora::gfx::model {
 static logvisor::Module Log("aurora::gfx::model");
@@ -59,53 +18,52 @@ static std::optional<Range> staticNrmRange;
 static std::optional<Range> staticPackedTcRange;
 static std::optional<Range> staticTcRange;
 
-enum class VertexFormat : u8 {
-  F32F32,
-  S16F32,
-  S16S16,
-};
-static VtxDescFlags sVtxDescFlags;
-void set_vtx_desc_compressed(u32 vtxDesc) noexcept { sVtxDescFlags = vtxDesc; }
-
 static inline std::pair<gx::DlVert, size_t> readVert(const u8* data) noexcept {
   gx::DlVert out{};
   size_t offset = 0;
-  const auto read8 = [data, &offset](VtxDescAttrType type) -> s8 {
-    if (type == VtxDescAttrType::Direct) {
-      s8 v = static_cast<s8>(data[offset]);
-      ++offset;
-      return v;
+  const auto vtxTypes = gx::g_gxState.vtxDesc;
+  const auto read8 = [/*data, &offset*/](GX::AttrType type) -> s8 {
+//    if (type == GX::INDEX8) {
+//      s8 v = static_cast<s8>(data[offset]);
+//      ++offset;
+//      return v;
+//    }
+#ifndef NDEBUG
+    if (type != GX::NONE) {
+      Log.report(logvisor::Fatal, FMT_STRING("unsupported vtx attr"));
+      unreachable();
     }
+#endif
     return 0;
   };
-  const auto read16 = [data, &offset](VtxDescAttrType type) -> s16 {
-    if (type == VtxDescAttrType::Index16) {
+  const auto read16 = [data, &offset](GX::AttrType type) -> s16 {
+    if (type == GX::INDEX16) {
       s16 v = metaforce::SBig(*reinterpret_cast<const u16*>(data + offset));
       offset += 2;
       return v;
     }
     return 0;
   };
-  read8(sVtxDescFlags.GetDirectAttributeType(VtxDescAttr::PnMatIdx));
-  read8(sVtxDescFlags.GetDirectAttributeType(VtxDescAttr::Tex0MatIdx));
-  read8(sVtxDescFlags.GetDirectAttributeType(VtxDescAttr::Tex1MatIdx));
-  read8(sVtxDescFlags.GetDirectAttributeType(VtxDescAttr::Tex2MatIdx));
-  read8(sVtxDescFlags.GetDirectAttributeType(VtxDescAttr::Tex3MatIdx));
-  read8(sVtxDescFlags.GetDirectAttributeType(VtxDescAttr::Tex4MatIdx));
-  read8(sVtxDescFlags.GetDirectAttributeType(VtxDescAttr::Tex5MatIdx));
-  read8(sVtxDescFlags.GetDirectAttributeType(VtxDescAttr::Tex6MatIdx));
+  read8(vtxTypes[GX::VA_PNMTXIDX]);
+  read8(vtxTypes[GX::VA_TEX0MTXIDX]);
+  read8(vtxTypes[GX::VA_TEX1MTXIDX]);
+  read8(vtxTypes[GX::VA_TEX2MTXIDX]);
+  read8(vtxTypes[GX::VA_TEX3MTXIDX]);
+  read8(vtxTypes[GX::VA_TEX4MTXIDX]);
+  read8(vtxTypes[GX::VA_TEX5MTXIDX]);
+  read8(vtxTypes[GX::VA_TEX6MTXIDX]);
 
-  out.pos = read16(sVtxDescFlags.GetAttributeType(VtxDescAttr::Position));
-  out.norm = read16(sVtxDescFlags.GetAttributeType(VtxDescAttr::Normal));
-  read16(sVtxDescFlags.GetAttributeType(VtxDescAttr::Color0));
-  read16(sVtxDescFlags.GetAttributeType(VtxDescAttr::Color1));
-  out.uvs[0] = read16(sVtxDescFlags.GetAttributeType(VtxDescAttr::Tex0));
-  out.uvs[1] = read16(sVtxDescFlags.GetAttributeType(VtxDescAttr::Tex1));
-  out.uvs[2] = read16(sVtxDescFlags.GetAttributeType(VtxDescAttr::Tex2));
-  out.uvs[3] = read16(sVtxDescFlags.GetAttributeType(VtxDescAttr::Tex3));
-  out.uvs[4] = read16(sVtxDescFlags.GetAttributeType(VtxDescAttr::Tex4));
-  out.uvs[5] = read16(sVtxDescFlags.GetAttributeType(VtxDescAttr::Tex5));
-  out.uvs[6] = read16(sVtxDescFlags.GetAttributeType(VtxDescAttr::Tex6));
+  out.pos = read16(vtxTypes[GX::VA_POS]);
+  out.norm = read16(vtxTypes[GX::VA_NRM]);
+  read16(vtxTypes[GX::VA_CLR0]);
+  read16(vtxTypes[GX::VA_CLR1]);
+  out.uvs[0] = read16(vtxTypes[GX::VA_TEX0]);
+  out.uvs[1] = read16(vtxTypes[GX::VA_TEX1]);
+  out.uvs[2] = read16(vtxTypes[GX::VA_TEX2]);
+  out.uvs[3] = read16(vtxTypes[GX::VA_TEX3]);
+  out.uvs[4] = read16(vtxTypes[GX::VA_TEX4]);
+  out.uvs[5] = read16(vtxTypes[GX::VA_TEX5]);
+  out.uvs[6] = read16(vtxTypes[GX::VA_TEX6]);
 
   return {out, offset};
 }
@@ -130,7 +88,6 @@ void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
     while (offset < dlSize - 6) {
       const auto header = dlStart[offset];
       const auto primitive = static_cast<GX::Primitive>(header & 0xF8);
-      const auto vtxFmt = static_cast<VertexFormat>(header & 0x3);
       const auto vtxCount = metaforce::SBig(*reinterpret_cast<const u16*>(dlStart + offset + 1));
       offset += 3;
 

@@ -59,9 +59,16 @@ const std::array<zeus::CMatrix3f, 6> CGraphics::skCubeBasisMats{{
 
 // Stream API
 static EStreamFlags sStreamFlags;
-static zeus::CColor sQueuedColor;
-static zeus::CVector2f sQueuedTexCoord;
-static zeus::CVector3f sQueuedNormal;
+static GX::Primitive sStreamPrimitive;
+static u32 sVerticesCount;
+// Originally writes directly to GX FIFO
+struct StreamVertex {
+  zeus::CColor color;
+  zeus::CVector2f texCoord;
+  zeus::CVector3f normal;
+  zeus::CVector3f vertex;
+};
+static std::vector<StreamVertex> sQueuedVertices;
 
 void CGraphics::DisableAllLights() {
   g_LightActive.reset();
@@ -518,53 +525,100 @@ void CGraphics::SetTevOp(ERglTevStage stage, const CTevCombiners::CTevPass& pass
 }
 
 void CGraphics::StreamBegin(GX::Primitive primitive) {
-  sStreamFlags = {};
-  aurora::gfx::stream_begin(primitive);
+  // Originally ResetVertexDataStream(true);
+  sQueuedVertices.clear();
+  sQueuedVertices.emplace_back();
+  sVerticesCount = 0;
+  // End
+  sStreamFlags = EStreamFlagBits::fHasColor;
+  sStreamPrimitive = primitive;
 }
 
 void CGraphics::StreamNormal(const zeus::CVector3f& nrm) {
-  sQueuedNormal = nrm;
+  sQueuedVertices.back().normal = nrm;
   sStreamFlags |= EStreamFlagBits::fHasNormal;
 }
 
-void CGraphics::StreamColor(float r, float g, float b, float a) {
-  sQueuedColor = zeus::CColor{r, g, b, a};
-  sStreamFlags |= EStreamFlagBits::fHasColor;
-}
-
 void CGraphics::StreamColor(const zeus::CColor& color) {
-  sQueuedColor = color;
+  sQueuedVertices.back().color = color;
   sStreamFlags |= EStreamFlagBits::fHasColor;
-}
-
-void CGraphics::StreamTexcoord(float x, float y) {
-  sQueuedTexCoord = {x, y};
-  sStreamFlags |= EStreamFlagBits::fHasTexture;
 }
 
 void CGraphics::StreamTexcoord(const zeus::CVector2f& uv) {
-  sQueuedTexCoord = uv;
+  sQueuedVertices.back().texCoord = uv;
   sStreamFlags |= EStreamFlagBits::fHasTexture;
 }
 
-void CGraphics::StreamVertex(float xyz) {
-  const zeus::CVector3f pos{xyz, xyz, xyz};
-  aurora::gfx::stream_vertex(sStreamFlags, pos, sQueuedNormal, sQueuedColor, sQueuedTexCoord);
-}
-
-void CGraphics::StreamVertex(float x, float y, float z) {
-  const zeus::CVector3f pos{x, y, z};
-  aurora::gfx::stream_vertex(sStreamFlags, pos, sQueuedNormal, sQueuedColor, sQueuedTexCoord);
-}
-
 void CGraphics::StreamVertex(const zeus::CVector3f& pos) {
-  aurora::gfx::stream_vertex(sStreamFlags, pos, sQueuedNormal, sQueuedColor, sQueuedTexCoord);
+  sQueuedVertices.back().vertex = pos;
+  UpdateVertexDataStream();
 }
 
 void CGraphics::StreamEnd() {
-  SetTevStates(sStreamFlags);
-  aurora::gfx::stream_end();
+  if (sVerticesCount != 0) {
+    FlushStream();
+  }
   sStreamFlags = {};
+}
+
+void CGraphics::UpdateVertexDataStream() {
+  ++sVerticesCount;
+  if (sVerticesCount == 240) {
+    FlushStream();
+    ResetVertexDataStream(false);
+  } else {
+    sQueuedVertices.emplace_back(sQueuedVertices.back());
+  }
+}
+
+void CGraphics::FlushStream() {
+  std::array<GX::VtxDescList, 5> vtxDescList{};
+  size_t idx = 0;
+  vtxDescList[idx++] = {GX::VA_POS, GX::DIRECT};
+  if (sStreamFlags & EStreamFlagBits::fHasNormal) {
+    vtxDescList[idx++] = {GX::VA_NRM, GX::DIRECT};
+  }
+  if (sStreamFlags & EStreamFlagBits::fHasColor) {
+    vtxDescList[idx++] = {GX::VA_CLR0, GX::DIRECT};
+  }
+  if (sStreamFlags & EStreamFlagBits::fHasTexture) {
+    vtxDescList[idx++] = {GX::VA_TEX0, GX::DIRECT};
+  }
+  CGX::SetVtxDescv(vtxDescList.data());
+  SetTevStates(sStreamFlags);
+  FullRender();
+}
+
+void CGraphics::FullRender() {
+  CGX::Begin(sStreamPrimitive, GX::VTXFMT0, sVerticesCount);
+  for (size_t i = 0; i < sVerticesCount; ++i) {
+    const auto& item = sQueuedVertices[i];
+    GXPosition3f32(item.vertex);
+    if (sStreamFlags & EStreamFlagBits::fHasNormal) {
+      GXNormal3f32(item.normal);
+    }
+    if (sStreamFlags & EStreamFlagBits::fHasColor) {
+      GXColor4f32(item.color);
+    }
+    if (sStreamFlags & EStreamFlagBits::fHasTexture) {
+      GXTexCoord2f32(item.texCoord);
+    }
+  }
+  CGX::End();
+}
+
+void CGraphics::ResetVertexDataStream(bool end) {
+  if (end) {
+    sQueuedVertices.clear();
+  } else {
+    const auto lastVertex = sQueuedVertices.back();
+    sQueuedVertices.clear();
+    sQueuedVertices.emplace_back(lastVertex);
+  }
+  sVerticesCount = 0;
+  if (!end) {
+    // TODO something with triangle fans
+  }
 }
 
 void CGraphics::DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
@@ -580,12 +634,12 @@ void CGraphics::DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* po
 
 void CGraphics::SetTevStates(EStreamFlags flags) noexcept {
   if (flags & EStreamFlagBits::fHasTexture) {
-    CGX::SetNumTexGens(0);
-    CGX::SetNumTevStages(1);
+    CGX::SetNumTexGens(1); // sTextureUsed & 3?
     CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR0A0);
     CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD1, GX::TEXMAP1, GX::COLOR0A0);
-  } else /* if (flags < 8) ? */ {
-    CGX::SetNumTexGens(2); // sTextureUsed & 3?
+  } else {
+    CGX::SetNumTexGens(0);
+    CGX::SetNumTevStages(1);
     CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
     CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
   }
@@ -598,5 +652,68 @@ void CGraphics::SetTevStates(EStreamFlags flags) noexcept {
                    flags & EStreamFlagBits::fHasColor ? GX::SRC_VTX : GX::SRC_REG, g_LightActive,
                    hasLights ? GX::DF_CLAMP : GX::DF_NONE, hasLights ? GX::AF_SPOT : GX::AF_NONE);
   CGX::FlushState(); // normally would be handled in FullRender TODO
+}
+
+void CGraphics::Startup() {
+  // Setup GXFifo
+  CGX::ResetGXStates();
+  InitGraphicsVariables();
+  // ConfigureFrameBuffer(...);
+  InitGraphicsDefaults();
+  // GXInitTexCacheRegion
+  // GXSetTexRegionCallback
+}
+
+void CGraphics::InitGraphicsVariables() {
+  // g_lightTypes[0..n] = Directional;
+  g_LightActive = {};
+  SetDepthWriteMode(false, g_depthFunc, false);
+  SetCullMode(ERglCullMode::None);
+  SetAmbientColor(zeus::CColor{0.2f, 1.f});
+  g_IsGXModelMatrixIdentity = false;
+  // SetIdentityViewPointMatrix();
+  // SetIdentityModelMatrix();
+  // SetViewport(...);
+  // SetPerspective(...);
+  SetCopyClear(g_ClearColor, 1.f);
+  CGX::SetChanMatColor(CGX::EChannelId::Channel0, zeus::skWhite);
+  // g_RenderState.ResetFlushAll();
+}
+
+void CGraphics::InitGraphicsDefaults() {
+  SetDepthRange(0.f, 1.f);
+  g_IsGXModelMatrixIdentity = false;
+  SetModelMatrix(g_GXModelMatrix);
+  SetViewPointMatrix(g_GXModelView);
+  SetDepthWriteMode(false, g_depthFunc, false);
+  SetCullMode(g_cullMode);
+  SetViewport(g_Viewport.x0_left, g_Viewport.x4_top, g_Viewport.x8_width, g_Viewport.xc_height);
+  FlushProjection();
+  CTevCombiners::Init();
+  DisableAllLights();
+  SetDefaultVtxAttrFmt();
+}
+
+void CGraphics::SetDefaultVtxAttrFmt() {
+  // Unneeded, all attributes are expected to be full floats
+  // Left here for reference
+
+  // GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
+  // GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
+  // GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
+  // GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_NRM, GX::NRM_XYZ, GX::F32, 0);
+  // GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_NRM, GX::NRM_XYZ, GX::S16, 14);
+  // GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_NRM, GX::NRM_XYZ, GX::S16, 14);
+  // GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
+  // GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
+  // GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
+  // GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
+  // GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
+  // GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_TEX0, GX::TEX_ST, GX::U16, 15);
+  // for (GX::Attr attr = GX::VA_TEX1; attr <= GX::VA_TEX7; attr = GX::Attr(attr + 1)) {
+  //   GXSetVtxAttrFmt(GX::VTXFMT0, attr, GX::TEX_ST, GX::F32, 0);
+  //   GXSetVtxAttrFmt(GX::VTXFMT1, attr, GX::TEX_ST, GX::F32, 0);
+  //   GXSetVtxAttrFmt(GX::VTXFMT2, attr, GX::TEX_ST, GX::F32, 0);
+  // }
 }
 } // namespace metaforce
