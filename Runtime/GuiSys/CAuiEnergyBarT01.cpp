@@ -8,8 +8,9 @@ namespace metaforce {
 
 CAuiEnergyBarT01::CAuiEnergyBarT01(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId txtrId)
 : CGuiWidget(parms), xb8_txtrId(txtrId) {
-  if (g_GuiSys->GetUsageMode() != CGuiSys::EUsageMode::Two)
+  if (g_GuiSys->GetUsageMode() != CGuiSys::EUsageMode::Two) {
     xbc_tex = sp->GetObj(SObjectTag{FOURCC('TXTR'), xb8_txtrId});
+  }
 }
 
 std::pair<zeus::CVector3f, zeus::CVector3f> CAuiEnergyBarT01::DownloadBarCoordFunc(float t) {
@@ -18,8 +19,9 @@ std::pair<zeus::CVector3f, zeus::CVector3f> CAuiEnergyBarT01::DownloadBarCoordFu
 }
 
 void CAuiEnergyBarT01::Update(float dt) {
-  if (x100_shadowDrainDelayTimer > 0.f)
+  if (x100_shadowDrainDelayTimer > 0.f) {
     x100_shadowDrainDelayTimer = std::max(x100_shadowDrainDelayTimer - dt, 0.f);
+  }
 
   if (xf8_filledEnergy < xf4_setEnergy) {
     if (xf1_wrapping) {
@@ -45,22 +47,24 @@ void CAuiEnergyBarT01::Update(float dt) {
     }
   }
 
-  if (xfc_shadowEnergy < xf8_filledEnergy)
+  if (xfc_shadowEnergy < xf8_filledEnergy) {
     xfc_shadowEnergy = xf8_filledEnergy;
-  else if (xfc_shadowEnergy > xf8_filledEnergy && x100_shadowDrainDelayTimer == 0.f)
+  } else if (xfc_shadowEnergy > xf8_filledEnergy && x100_shadowDrainDelayTimer == 0.f) {
     xfc_shadowEnergy = std::max(xf8_filledEnergy, xfc_shadowEnergy - dt * xe8_shadowSpeed);
+  }
 
   CGuiWidget::Update(dt);
 }
 
 void CAuiEnergyBarT01::Draw(const CGuiWidgetDrawParms& drawParms) {
-  if (!xbc_tex || !xbc_tex.IsLoaded() || !xd8_coordFunc) {
+  CGraphics::SetModelMatrix(x34_worldXF);
+  if (!xbc_tex || !xbc_tex.IsLoaded() || xd8_coordFunc == nullptr) {
     return;
   }
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CAuiEnergyBarT01::Draw {}"), m_name).c_str(), zeus::skCyan);
 
-  CGraphics::SetModelMatrix(x34_worldXF);
-  m_energyBarShader.updateModelMatrix();
+  CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, false);
+  CGraphics::SetAmbientColor(zeus::skWhite);
+  CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
 
   const float filledT = xe0_maxEnergy > 0.f ? xf8_filledEnergy / xe0_maxEnergy : 0.f;
   const float shadowT = xe0_maxEnergy > 0.f ? xfc_shadowEnergy / xe0_maxEnergy : 0.f;
@@ -77,60 +81,76 @@ void CAuiEnergyBarT01::Draw(const CGuiWidgetDrawParms& drawParms) {
   emptyColor.a() *= drawParms.x0_alphaMod;
   emptyColor *= xa8_color2;
 
-  for (size_t i = 0; i < m_verts.size(); ++i) {
-    std::vector<CEnergyBarShader::Vertex>& verts = m_verts[i];
-    verts.clear();
-
-    float start;
-    float end;
-    switch (i) {
-    case 0:
-    default:
-      start = 0.f;
-      end = filledT;
-      break;
-    case 1:
-      start = filledT;
-      end = shadowT;
-      break;
-    case 2:
-      start = shadowT;
-      end = 1.f;
-      break;
+  zeus::CColor useCol = emptyColor;
+  for (u32 i = 0; i < 3; ++i) {
+    float barOffT;
+    if (i == 0) {
+      barOffT = 0.f;
+    } else if (i == 1) {
+      barOffT = filledT;
+    } else {
+      barOffT = shadowT;
     }
 
-    if (start == end) {
-      continue;
+    float barMaxT;
+    if (i == 0) {
+      barMaxT = filledT;
+    } else if (i == 1) {
+      barMaxT = shadowT;
+    } else {
+      barMaxT = 1.f;
     }
 
-    std::pair<zeus::CVector3f, zeus::CVector3f> coords = xd8_coordFunc(start);
-    while (start < end) {
-      verts.push_back({coords.first, zeus::CVector2f(start, 0.f)});
-      verts.push_back({coords.second, zeus::CVector2f(start, 1.f)});
-      start += xdc_tesselation;
-      if (start >= end) {
-        coords = xd8_coordFunc(end);
-        verts.push_back({coords.first, zeus::CVector2f(end, 0.f)});
-        verts.push_back({coords.second, zeus::CVector2f(end, 1.f)});
-      } else {
-        coords = xd8_coordFunc(start);
+    if (i == 0) {
+      useCol = filledColor;
+    } else if (i == 1) {
+      useCol = shadowColor;
+    } else {
+      useCol = emptyColor;
+    }
+
+    if (barOffT != barMaxT) {
+      CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+      xbc_tex->Load(GX::TEXMAP0, EClampMode::Repeat);
+      CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+      CGraphics::StreamColor(useCol);
+      auto coords = xd8_coordFunc(barOffT);
+      while (barOffT < barMaxT) {
+        CGraphics::StreamTexcoord(barOffT, 0.f);
+        CGraphics::StreamVertex(coords.first);
+        CGraphics::StreamTexcoord(barOffT, 1.f);
+        CGraphics::StreamVertex(coords.second);
+        barOffT += xdc_tesselation;
+        if (barOffT < barMaxT) {
+          coords = xd8_coordFunc(barOffT);
+        } else {
+          coords = xd8_coordFunc(barMaxT);
+          CGraphics::StreamTexcoord(barMaxT, 0.f);
+          CGraphics::StreamVertex(coords.first);
+          CGraphics::StreamTexcoord(barMaxT, 1.f);
+          CGraphics::StreamVertex(coords.second);
+        }
       }
+      CGraphics::StreamEnd();
     }
   }
-
-  m_energyBarShader.draw(filledColor, m_verts[0], shadowColor, m_verts[1], emptyColor, m_verts[2], xbc_tex.GetObj());
+  CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
 }
 
 void CAuiEnergyBarT01::SetCurrEnergy(float e, ESetMode mode) {
   e = zeus::clamp(0.f, e, xe0_maxEnergy);
-  if (e == xf4_setEnergy)
+  if (e == xf4_setEnergy) {
     return;
-  if (xf0_alwaysResetDelayTimer || xf8_filledEnergy == xfc_shadowEnergy)
+  }
+  if (xf0_alwaysResetDelayTimer || xf8_filledEnergy == xfc_shadowEnergy) {
     x100_shadowDrainDelayTimer = xec_shadowDrainDelay;
+  }
   xf1_wrapping = mode == ESetMode::Wrapped;
   xf4_setEnergy = e;
-  if (mode == ESetMode::Insta)
+  if (mode == ESetMode::Insta) {
     xf8_filledEnergy = xf4_setEnergy;
+  }
 }
 
 void CAuiEnergyBarT01::SetMaxEnergy(float maxEnergy) {
@@ -142,7 +162,7 @@ void CAuiEnergyBarT01::SetMaxEnergy(float maxEnergy) {
 
 std::shared_ptr<CGuiWidget> CAuiEnergyBarT01::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
   CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
-  CAssetId tex = in.Get<CAssetId>();
+  auto tex = in.Get<CAssetId>();
   std::shared_ptr<CGuiWidget> ret = std::make_shared<CAuiEnergyBarT01>(parms, sp, tex);
   ret->ParseBaseInfo(frame, in, parms);
   return ret;
