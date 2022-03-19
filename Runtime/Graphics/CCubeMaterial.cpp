@@ -403,8 +403,15 @@ u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, GX::TexMtx texMtx, GX::PT
   }
   case 4:
   case 5: {
-    // TODO
     zeus::CTransform xf;
+    const float value = SBig(params[0]) * SBig(params[2]) * (SBig(params[3]) + CGraphics::GetSecondsMod900());
+    if (type == 4) {
+      xf.origin.x() = std::trunc(SBig(params[1]) * std::fmod(value, 1.f)) * SBig(params[2]);
+      xf.origin.y() = 0.f;
+    } else {
+      xf.origin.x() = 0.f;
+      xf.origin.y() = std::trunc(SBig(params[1]) * std::fmod(value, 1.f)) * SBig(params[2]);
+    }
     GXLoadTexMtxImm(&xf, texMtx, GX::MTX3x4);
     return 5;
   }
