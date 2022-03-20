@@ -1,24 +1,5 @@
 #include "Runtime/Input/CDolphinController.hpp"
 
-namespace PAD {
-// clang-format off
-enum BUTTON : u16 {
-  LEFT         = 0x0001,
-  RIGHT        = 0x0002,
-  DOWN         = 0x0004,
-  UP           = 0x0008,
-  TRIGGER_Z    = 0x0010,
-  TRIGGER_R    = 0x0020,
-  TRIGGER_L    = 0x0040,
-  BUTTON_A     = 0x0100,
-  BUTTON_B     = 0x0200,
-  BUTTON_X     = 0x0400,
-  BUTTON_Y     = 0x0800,
-  BUTTON_START = 0x1000,
-};
-// clang-format on
-} // namespace PAD
-
 namespace metaforce {
 CDolphinController::CDolphinController() {
   static bool sIsInitialized = false;
@@ -77,8 +58,8 @@ void CDolphinController::ProcessAxis(u32 controller, EJoyAxis axis) {
 }
 
 static constexpr std::array<u16, size_t(EButton::MAX)> mButtonMapping{
-    PAD::BUTTON_A, PAD::BUTTON_B, PAD::BUTTON_X, PAD::BUTTON_Y, PAD::BUTTON_START, PAD::TRIGGER_Z,
-    PAD::UP,       PAD::RIGHT,    PAD::DOWN,     PAD::LEFT,     PAD::TRIGGER_L,    PAD::TRIGGER_R,
+    PAD::BUTTON_A,  PAD::BUTTON_B,     PAD::BUTTON_X,    PAD::BUTTON_Y,    PAD::BUTTON_START, PAD::TRIGGER_Z,
+    PAD::BUTTON_UP, PAD::BUTTON_RIGHT, PAD::BUTTON_DOWN, PAD::BUTTON_LEFT, PAD::TRIGGER_L,    PAD::TRIGGER_R,
 };
 
 void CDolphinController::ProcessButtons(u32 controller) {

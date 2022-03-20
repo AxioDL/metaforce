@@ -6,6 +6,7 @@
 #include <magic_enum.hpp>
 
 namespace metaforce {
+static logvisor::Module Log("CInputGenerator");
 
 void CInputGenerator::Update(float dt, CArchitectureQueue& queue) {
   if (m_firstFrame) {

@@ -2,19 +2,8 @@
 
 #include "Runtime/Input/IController.hpp"
 
+
 namespace metaforce {
-struct PADStatus {
-  u16 x0_buttons;
-  s8 x2_stickX;
-  s8 x3_stickY;
-  s8 x4_substickX;
-  s8 x5_substickY;
-  u8 x6_triggerL;
-  u8 x7_triggerR;
-  u8 x8_analogA;
-  u8 x9_analogB;
-  s8 xa_err;
-};
 
 class CDolphinController : public IController {
 

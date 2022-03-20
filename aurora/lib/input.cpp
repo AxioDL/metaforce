@@ -1,4 +1,6 @@
 #include "input.hpp"
+#include "aurora/pad.hpp"
+
 #include <SDL_haptic.h>
 
 #include <absl/container/btree_map.h>
@@ -13,8 +15,29 @@ struct GameController {
   bool m_isGameCube = false;
   Sint32 m_index = -1;
   bool m_hasRumble = false;
+  constexpr bool operator==(const GameController&) const = default;
 };
 absl::flat_hash_map<Uint32, GameController> g_GameControllers;
+
+GameController get_controller_for_player(u32 player) {
+  for (const auto& [which, controller] : g_GameControllers) {
+    if (player_index(which) == player) {
+      return controller;
+    }
+  }
+
+  return {};
+}
+
+Sint32 get_instance_for_player(u32 player) {
+  for (const auto& [which, controller] : g_GameControllers) {
+    if (player_index(which) == player) {
+      return which;
+    }
+  }
+
+  return {};
+}
 
 static std::optional<std::string> remap_controller_layout(std::string_view mapping) {
   std::string newMapping;
@@ -319,3 +342,109 @@ MouseButton translate_mouse_button_state(Uint8 state) noexcept {
 }
 
 } // namespace aurora::input
+
+void PADSetSpec(u32 spec) {}
+void PADInit() {}
+
+static const std::array<std::pair<SDL_GameControllerButton, PAD::BUTTON>, 12> mMapping{{
+    {SDL_CONTROLLER_BUTTON_A, PAD::BUTTON_A},
+    {SDL_CONTROLLER_BUTTON_B, PAD::BUTTON_B},
+    {SDL_CONTROLLER_BUTTON_X, PAD::BUTTON_X},
+    {SDL_CONTROLLER_BUTTON_Y, PAD::BUTTON_Y},
+    {SDL_CONTROLLER_BUTTON_START, PAD::BUTTON_START},
+    {SDL_CONTROLLER_BUTTON_BACK, PAD::TRIGGER_Z},
+    {SDL_CONTROLLER_BUTTON_LEFTSHOULDER, PAD::TRIGGER_L},
+    {SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, PAD::TRIGGER_R},
+    {SDL_CONTROLLER_BUTTON_DPAD_UP, PAD::BUTTON_UP},
+    {SDL_CONTROLLER_BUTTON_DPAD_DOWN, PAD::BUTTON_DOWN},
+    {SDL_CONTROLLER_BUTTON_DPAD_LEFT, PAD::BUTTON_LEFT},
+    {SDL_CONTROLLER_BUTTON_DPAD_RIGHT, PAD::BUTTON_RIGHT},
+}};
+
+u32 PADRead(PAD::Status* status) {
+  u32 rumbleSupport = 0;
+  for (u32 i = 0; i < 4; ++i) {
+    memset(&status[i], 0, sizeof(PAD::Status));
+    auto controller = aurora::input::get_controller_for_player(i);
+    if (controller == aurora::input::GameController{}) {
+      status[i].xa_err = PAD::ERR_NO_CONTROLLER;
+      continue;
+    }
+    status[i].xa_err = PAD::ERR_NONE;
+    std::for_each(mMapping.begin(), mMapping.end(), [&controller, &i, &status](const auto& pair) {
+      if (SDL_GameControllerGetButton(controller.m_controller, pair.first)) {
+        status[i].x0_buttons |= pair.second;
+      }
+    });
+
+    Sint16 x = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_LEFTX);
+    Sint16 y = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_LEFTY);
+    x /= 256;
+    y = (-(y + 1u)) / 256u;
+
+    status[i].x2_stickX = static_cast<s8>(x);
+    status[i].x3_stickY = static_cast<s8>(y);
+
+    x = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_RIGHTX);
+    y = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_RIGHTY);
+    x /= 256;
+    y = (-(y + 1u)) / 256u;
+
+    status[i].x4_substickX = static_cast<s8>(x);
+    status[i].x5_substickY = static_cast<s8>(y);
+
+    x = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+    y = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+    x /= 128;
+    y = (-(y + 1u)) / 128u;
+
+    status[i].x6_triggerL = static_cast<s8>(x);
+    status[i].x7_triggerR = static_cast<s8>(y);
+
+
+    if (controller.m_hasRumble) {
+      // Nintendo... why are these bits backwards? >.>
+      rumbleSupport |= PAD::CHAN3_BIT << (3 - i);
+    }
+  }
+  return rumbleSupport;
+}
+
+void PADControlAllMotors(const u32* commands) {
+  for (u32 i = 0; i < 4; ++i) {
+    auto controller = aurora::input::get_controller_for_player(i);
+    auto instance = aurora::input::get_instance_for_player(i);
+    if (controller == aurora::input::GameController{}) {
+      continue;
+    }
+
+    if (controller.m_isGameCube) {
+      if (commands[i] == PAD::MOTOR_STOP) {
+        aurora::input::controller_rumble(instance, 0, 1, 0);
+      } else if (commands[i] == PAD::MOTOR_RUMBLE) {
+        aurora::input::controller_rumble(instance, 1, 1, 0);
+      } else if (commands[i] == PAD::MOTOR_STOP_HARD) {
+        aurora::input::controller_rumble(instance, 0, 0, 0);
+      }
+    } else {
+      // TODO: Figure out sane values for generic controllers
+    }
+  }
+}
+
+
+u32 SIProbe(s32 chan) {
+  const auto controller = aurora::input::get_controller_for_player(chan);
+  if (controller == aurora::input::GameController{}){
+    return SI::ERROR_NO_RESPONSE;
+  }
+
+  if (controller.m_isGameCube) {
+    auto level = SDL_JoystickCurrentPowerLevel(SDL_GameControllerGetJoystick(controller.m_controller));
+    if (level == SDL_JOYSTICK_POWER_UNKNOWN) {
+      return SI::GC_WAVEBIRD;
+    }
+  }
+
+  return SI::GC_CONTROLLER;
+}

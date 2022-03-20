@@ -1,4 +1,6 @@
 #pragma once
+#include "Runtime/Input/PAD.hpp"
+
 
 namespace metaforce {
 enum class EIOPort {
