@@ -47,6 +47,14 @@ void CInputGenerator::controllerAdded(uint32_t which) noexcept {
     aurora::set_controller_player_index(which, 0);
   }
 
+  if (m_state[player].m_hasRumble && m_state[player].m_isGamecube) {
+    /* The GameCube controller can get stuck in a state where it's always rumbling if the game crashes
+     * (this can actually happen on hardware in certain cases)
+     * so lets toggle the motors to ensure they're off, this happens so quickly the player doesn't notice
+     */
+    aurora::controller_rumble(which, 1, 1);
+    aurora::controller_rumble(which, 0, 0);
+  }
   m_state[player] =
       SAuroraControllerState(which, aurora::is_controller_gamecube(which), aurora::controller_has_rumble(which));
 }
