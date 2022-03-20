@@ -85,7 +85,7 @@ void COptionsScreen::OnEnumChanged(CGuiTableGroup* caller, int oldSel) {
 
   if (opt == EGameOption::Rumble && caller->GetUserSelection() > 0) {
     x1a8_rumble.HardStopAll();
-    x1a8_rumble.Rumble(RumbleFxTable[size_t(ERumbleFxId::PlayerBump)], 1.f, ERumblePriority::One, EIOPort::Zero);
+    x1a8_rumble.Rumble(RumbleFxTable[size_t(ERumbleFxId::PlayerBump)], 1.f, ERumblePriority::One, EIOPort::Player1);
   }
 
   CPauseScreenBase::UpdateSideTable(caller);

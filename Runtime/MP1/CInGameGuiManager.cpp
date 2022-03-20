@@ -629,7 +629,7 @@ void CInGameGuiManager::ShowPauseGameHudMessage(CStateManager& stateMgr, CAssetI
 }
 
 void CInGameGuiManager::PauseGame(CStateManager& stateMgr, EInGameGuiState state) {
-  g_InputGenerator->SetMotorState(EIOPort::Zero, EMotorState::Stop);
+  g_InputGenerator->SetMotorState(EIOPort::Player1, EMotorState::Stop);
   CSfxManager::SetChannel(CSfxManager::ESfxChannels::PauseScreen);
   BeginStateTransition(state, stateMgr);
 }

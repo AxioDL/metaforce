@@ -4,15 +4,12 @@
 #include <atomic>
 #include <mutex>
 
+#include "Runtime/Input/InputTypes.hpp"
 #include "Runtime/Input/CFinalInput.hpp"
 #include "Runtime/Input/CKeyboardMouseController.hpp"
 
 namespace metaforce {
 class CArchitectureQueue;
-
-enum class EIOPort { Zero, One, Two, Three };
-
-enum class EMotorState { Stop, Rumble, StopHard };
 
 class CInputGenerator /*: public boo::DeviceFinder*/ {
   enum class EStatusChange { NoChange = 0, Connected = 1, Disconnected = 2 };
@@ -152,7 +149,7 @@ public:
 //  }
   void SetMotorState(EIOPort port, EMotorState state);
   void ControlAllMotors(const std::array<EMotorState, 4>& states) {
-    for (u32 i = 0; i <= size_t(EIOPort::Three); ++i ) {
+    for (u32 i = 0; i <= size_t(EIOPort::Player4); ++i ) {
       SetMotorState(EIOPort(i), states[i]);
     }
   }

@@ -17,7 +17,7 @@ public:
   void StopRumble(s16 id) {
     if (id == -1)
       return;
-    x0_rumbleGenerator.Stop(id, EIOPort::Zero);
+    x0_rumbleGenerator.Stop(id, EIOPort::Player1);
   }
   void HardStopAll() { x0_rumbleGenerator.HardStopAll(); }
   s16 Rumble(CStateManager& mgr, const zeus::CVector3f& pos, ERumbleFxId fx, float dist, ERumblePriority priority);
