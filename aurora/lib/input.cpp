@@ -396,7 +396,7 @@ u32 PADRead(PAD::Status* status) {
     x = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
     y = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
     x /= 128;
-    y = (-(y + 1u)) / 128u;
+    y /= 128;
 
     status[i].x6_triggerL = static_cast<s8>(x);
     status[i].x7_triggerR = static_cast<s8>(y);
