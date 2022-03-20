@@ -1620,6 +1620,11 @@ void CElementGen::RenderParticles() {
       break;
     }
   }
+
+  CGX::End();
+  if (moveRedToAlphaBuffer) {
+    GXSetTevSwapMode(GX::TevStageID(nextStage - 1), GX::TEV_SWAP0, GX::TEV_SWAP0);
+  }
   CGraphics::SetCullMode(ERglCullMode::Front);
   CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
 }
