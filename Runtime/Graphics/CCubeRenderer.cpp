@@ -519,6 +519,10 @@ void CCubeRenderer::ActivateLightsForModel(const CAreaListItem* areaItem, CCubeM
 
     u32 lightIdx = 0;
     for (const auto& light : x300_dynamicLights) {
+      if (lightIdx >= LightCount) {
+        break;
+      }
+
       if (lightOctreeWords == nullptr || TestBit(lightOctreeWords, model.GetIndex())) {
         bool loaded = false;
         const float radius =
