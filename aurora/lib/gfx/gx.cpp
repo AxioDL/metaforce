@@ -283,15 +283,31 @@ static inline wgpu::CompareFunction to_compare_function(GX::Compare func) {
 
 static inline wgpu::BlendState to_blend_state(GX::BlendMode mode, GX::BlendFactor srcFac, GX::BlendFactor dstFac,
                                               std::optional<float> dstAlpha) {
-  if (mode != GX::BM_BLEND) {
-    Log.report(logvisor::Fatal, FMT_STRING("How to {}?"), mode);
-  }
-  const auto colorBlendComponent = wgpu::BlendComponent{
+  wgpu::BlendComponent colorBlendComponent;
+  switch (mode) {
+  case GX::BM_BLEND:
+    colorBlendComponent = {
       .operation = wgpu::BlendOperation::Add,
       .srcFactor = to_blend_factor(srcFac),
       .dstFactor = to_blend_factor(dstFac),
+    };
+    break;
+  case GX::BM_SUBTRACT:
+    colorBlendComponent = {
+        .operation = wgpu::BlendOperation::Subtract,
+        .srcFactor = wgpu::BlendFactor::Src,
+        .dstFactor = wgpu::BlendFactor::Dst,
+    };
+    break;
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("How to {}?"), mode);
+    unreachable();
+  }
+  wgpu::BlendComponent alphaBlendComponent{
+    .operation = wgpu::BlendOperation::Add,
+    .srcFactor = wgpu::BlendFactor::Zero,
+    .dstFactor = wgpu::BlendFactor::One,
   };
-  auto alphaBlendComponent = colorBlendComponent;
   if (dstAlpha) {
     alphaBlendComponent = wgpu::BlendComponent{
         .operation = wgpu::BlendOperation::Add,
