@@ -4,7 +4,7 @@
 
 namespace metaforce::CGX {
 SGXState sGXState{};
-std::array<GX::VtxDescList, 11> sVtxDescList{};
+std::array<GX::VtxDescList, 12> sVtxDescList{};
 
 void ResetGXStates() noexcept {
   sGXState.x48_descList = 0;

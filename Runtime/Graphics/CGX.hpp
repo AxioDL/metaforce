@@ -53,7 +53,7 @@ struct SGXState {
   GXColor x25c_fogColor;
 };
 extern SGXState sGXState;
-extern std::array<GX::VtxDescList, 11> sVtxDescList;
+extern std::array<GX::VtxDescList, 12> sVtxDescList;
 
 static inline void update_fog(u32 value) noexcept {
   if (sGXState.x53_fogType == GX::FOG_NONE || (sGXState.x56_blendMode & 0xE0) == (value & 0xE0)) {
@@ -396,7 +396,7 @@ static inline void SetTexCoordGen(GX::TexCoordID dstCoord, u32 flags) noexcept {
 static inline void SetVtxDescv_Compressed(u32 descList) noexcept {
   u32 currentDescList = sGXState.x48_descList;
   if (descList != currentDescList) {
-    size_t remain = sVtxDescList.size();
+    size_t remain = sVtxDescList.size() - 1;
     u32 shift = 0;
     u32 attrIdx = 0;
     do {
