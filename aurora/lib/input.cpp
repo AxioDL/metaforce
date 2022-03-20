@@ -403,8 +403,7 @@ u32 PADRead(PAD::Status* status) {
 
 
     if (controller.m_hasRumble) {
-      // Nintendo... why are these bits backwards? >.>
-      rumbleSupport |= PAD::CHAN3_BIT << (3 - i);
+      rumbleSupport |= PAD::CHAN0_BIT >> i;
     }
   }
   return rumbleSupport;
