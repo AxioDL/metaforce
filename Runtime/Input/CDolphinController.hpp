@@ -15,7 +15,7 @@ class CDolphinController : public IController {
   std::array<CControllerGamepadData, 4> x34_gamepadStates{};
   std::array<EMotorState, 4> x194_motorStates{};
   std::array<u32, 4> x1a4_controllerTypes{};
-  std::array<u32, 4> x1b4_{};
+  std::array<u32, 4> x1b4_controllerTypePollTime{};
   u32 x1c4_ = 0xf0000000;
   u32 x1c8_invalidControllers = 0;
   u32 x1cc_ = 0;
