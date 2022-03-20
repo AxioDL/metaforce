@@ -902,7 +902,7 @@ void CCubeRenderer::SetupCGraphicsState() {
 void CCubeRenderer::SetupRendererStates(bool depthWrite) {
   CGraphics::DisableAllLights();
   CGraphics::SetModelMatrix({});
-  CGraphics::SetAmbientColor(zeus::skBlack);
+  CGraphics::SetAmbientColor(zeus::skClear);
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, depthWrite);
   CCubeMaterial::ResetCachedMaterials();
   GXSetTevColor(GX::TEVREG1, x2fc_tevReg1Color);

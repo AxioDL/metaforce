@@ -525,8 +525,8 @@ float CActor::GetPitch() const { return zeus::CQuaternion(x34_transform.buildMat
 float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).yaw(); }
 
 void CActor::EnsureRendered(const CStateManager& mgr) {
-  const zeus::CAABox aabb = GetSortingBounds(mgr);
-  EnsureRendered(mgr, aabb.closestPointAlongVector(CGraphics::g_ViewMatrix.basis[1]), aabb);
+  const auto bounds = GetSortingBounds(mgr);
+  EnsureRendered(mgr, bounds.closestPointAlongVector(CGraphics::g_ViewMatrix.frontVector()), bounds);
 }
 
 void CActor::EnsureRendered(const CStateManager& stateMgr, const zeus::CVector3f& pos, const zeus::CAABox& aabb) {

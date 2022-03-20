@@ -179,6 +179,7 @@ void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
       .uniformRange = build_uniform(info),
       .indexCount = numIndices,
       .bindGroups = info.bindGroups,
+      .dstAlpha = gx::g_gxState.dstAlpha,
   });
 }
 
@@ -213,6 +214,10 @@ void render(const State& state, const DrawData& data, const wgpu::RenderPassEnco
   }
   pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.offset, data.vertRange.size);
   pass.SetIndexBuffer(g_indexBuffer, wgpu::IndexFormat::Uint32, data.idxRange.offset, data.idxRange.size);
+  if (data.dstAlpha) {
+    const wgpu::Color color{0.f, 0.f, 0.f, *data.dstAlpha};
+    pass.SetBlendConstant(&color);
+  }
   pass.DrawIndexed(data.indexCount);
 }
 } // namespace aurora::gfx::model

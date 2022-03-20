@@ -145,7 +145,7 @@ void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateMana
 
 void CBloodFlower::Render(CStateManager& mgr) {
   CPatterned::Render(mgr);
-  x574_podEffect->Render(GetActorLights());
+  x574_podEffect->Render();
 }
 
 EWeaponCollisionResponseTypes CBloodFlower::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,

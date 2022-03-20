@@ -928,7 +928,7 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
 //  CGraphics::DrawArray(drawStart, m_cachedVerts.size() - drawStart);
 }
 
-void CParticleSwoosh::Render(const CActorLights*) {
+void CParticleSwoosh::Render() {
   if (x1b4_LENG < 2 || x1ac_particleCount <= 1) {
     return;
   }

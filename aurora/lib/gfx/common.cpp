@@ -191,6 +191,7 @@ inline void xxh3_update(XXH3_state_t& state, const wgpu::SamplerDescriptor& inpu
 namespace aurora::gfx {
 using NewPipelineCallback = std::function<wgpu::RenderPipeline()>;
 std::mutex g_pipelineMutex;
+static bool g_hasPipelineThread = false;
 static std::thread g_pipelineThread;
 static std::atomic_bool g_pipelineThreadEnd;
 static std::condition_variable g_pipelineCv;
@@ -225,9 +226,14 @@ static PipelineRef find_pipeline(PipelineCreateCommand command, NewPipelineCallb
     std::scoped_lock guard{g_pipelineMutex};
     found = g_pipelines.contains(hash);
     if (!found) {
-      const auto ref =
-          std::find_if(g_queuedPipelines.begin(), g_queuedPipelines.end(), [=](auto v) { return v.first == hash; });
-      if (ref != g_queuedPipelines.end()) {
+      if (g_hasPipelineThread) {
+        const auto ref =
+            std::find_if(g_queuedPipelines.begin(), g_queuedPipelines.end(), [=](auto v) { return v.first == hash; });
+        if (ref != g_queuedPipelines.end()) {
+          found = true;
+        }
+      } else {
+        g_pipelines.try_emplace(hash, cb());
         found = true;
       }
     }
@@ -387,7 +393,11 @@ static void pipeline_worker() {
 }
 
 void initialize() {
-  g_pipelineThread = std::thread(pipeline_worker);
+  // No async pipelines for OpenGL (ES)
+  if (gpu::g_backendType != wgpu::BackendType::OpenGL && gpu::g_backendType != wgpu::BackendType::OpenGLES) {
+    g_pipelineThread = std::thread(pipeline_worker);
+    g_hasPipelineThread = true;
+  }
 
   const auto createBuffer = [](wgpu::Buffer& out, wgpu::BufferUsage usage, uint64_t size, const char* label) {
     const wgpu::BufferDescriptor descriptor{
@@ -419,9 +429,11 @@ void initialize() {
 }
 
 void shutdown() {
-  g_pipelineThreadEnd = true;
-  g_pipelineCv.notify_all();
-  g_pipelineThread.join();
+  if (g_hasPipelineThread) {
+    g_pipelineThreadEnd = true;
+    g_pipelineCv.notify_all();
+    g_pipelineThread.join();
+  }
 
   gx::shutdown();
 

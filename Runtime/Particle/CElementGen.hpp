@@ -184,13 +184,13 @@ public:
   void SetExternalVar(int index, float var) { x9c_externalVars[index] = var; }
 
   bool InternalUpdate(double dt);
-  void RenderModels(const CActorLights* actLights);
+  void RenderModels();
   void RenderLines();
   void RenderParticles();
   void RenderParticlesIndirectTexture();
 
   bool Update(double t) override;
-  void Render(const CActorLights* actorLights = nullptr) override;
+  void Render() override;
   void SetOrientation(const zeus::CTransform& orientation) override;
   void SetTranslation(const zeus::CVector3f& translation) override;
   void SetGlobalOrientation(const zeus::CTransform& orientation) override;
@@ -228,6 +228,12 @@ public:
 
   std::vector<CParticle> const& GetParticles() const { return x30_particles; }
   std::vector<CParticle>& GetParticles() { return x30_particles; }
+
+private:
+  void RenderBasicParticlesNoRotNoTS(const zeus::CTransform& xf) noexcept;
+  void RenderBasicParticlesNoRotTS(const zeus::CTransform& xf) noexcept;
+  void RenderBasicParticlesRotNoTS(const zeus::CTransform& xf) noexcept;
+  void RenderBasicParticlesRotTS(const zeus::CTransform& xf) noexcept;
 };
 ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 

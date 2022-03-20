@@ -365,14 +365,14 @@ u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, GX::TexMtx texMtx, GX::PT
   const float* params = reinterpret_cast<const float*>(uvAnim + 1);
   switch (type) {
   case 0: {
-    auto xf = CGraphics::g_GXModelViewInvXpose;
+    auto xf = CGraphics::g_ViewMatrix.inverse().multiplyIgnoreTranslation(CGraphics::g_GXModelMatrix);
+    xf.origin.zeroOut();
     GXLoadTexMtxImm(&xf, texMtx, GX::MTX3x4);
     GXLoadTexMtxImm(&MvPostXf, pttTexMtx, GX::MTX3x4);
     return 1;
   }
   case 1: {
-    auto xf = CGraphics::g_GXModelViewInvXpose;
-    xf.origin = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix.origin;
+    auto xf = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix;
     GXLoadTexMtxImm(&xf, texMtx, GX::MTX3x4);
     GXLoadTexMtxImm(&MvPostXf, pttTexMtx, GX::MTX3x4);
     return 1;

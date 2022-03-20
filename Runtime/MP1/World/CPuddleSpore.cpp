@@ -154,7 +154,7 @@ void CPuddleSpore::Render(CStateManager& mgr) {
   CPatterned::Render(mgr);
   if (x56c_ > 0.01f) {
     for (const auto& elemGen : x5dc_elemGens)
-      elemGen->Render(GetActorLights());
+      elemGen->Render();
   }
 }
 

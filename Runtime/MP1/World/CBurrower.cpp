@@ -125,8 +125,10 @@ void CBurrower::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr)
 }
 
 void CBurrower::Render(CStateManager& mgr) {
-  if (GetActorLights() != nullptr && x674_jumpParticle) {
-    x674_jumpParticle->Render(GetActorLights());
+  auto* lights = GetActorLights();
+  if (lights != nullptr && x674_jumpParticle) {
+    lights->ActivateLights();
+    x674_jumpParticle->Render();
   }
   CPatterned::Render(mgr);
 }

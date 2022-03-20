@@ -78,30 +78,51 @@ SElectricGeneratorDesc CParticleDataFactory::GetElectricGeneratorDesc(CInputStre
   return resPool->GetObj({FOURCC('ELSC'), id});
 }
 
+static std::unique_ptr<CTexture> CreateTexture(u32 value) {
+  auto tex = std::make_unique<CTexture>(ETexelFormat::RGBA8, 4, 4, 1, "CUVElement Fallback Texture"sv);
+  auto* data = reinterpret_cast<u32*>(tex->Lock());
+  for (int i = 0; i < 4 * 4; ++i) {
+    data[i] = value;
+  }
+  tex->UnLock();
+  return tex;
+}
+
 std::unique_ptr<CUVElement> CParticleDataFactory::GetTextureElement(CInputStream& in, CSimplePool* resPool) {
   FourCC clsId = GetClassID(in);
   switch (clsId.toUint32()) {
   case SBIG('CNST'): {
-    FourCC subId = GetClassID(in);
-    if (subId == SBIG('NONE'))
-      return nullptr;
-    CAssetId id = in.Get<CAssetId>();
-    TToken<CTexture> txtr = resPool->GetObj({FOURCC('TXTR'), id});
+    CAssetId id;
+    const auto subId = GetClassID(in);
+    if (subId != SBIG('NONE')) {
+      id = in.Get<CAssetId>();
+    }
+    TToken<CTexture> txtr;
+    if (id.IsValid()) {
+      txtr = resPool->GetObj({FOURCC('TXTR'), id});
+    } else {
+      txtr = CreateTexture(0xFFFFFFFF);
+    }
     return std::make_unique<CUVEConstant>(std::move(txtr));
   }
   case SBIG('ATEX'): {
-    const FourCC subId = GetClassID(in);
-    if (subId == SBIG('NONE')) {
-      return nullptr;
+    CAssetId id;
+    const auto subId = GetClassID(in);
+    if (subId != SBIG('NONE')) {
+      id = in.Get<CAssetId>();
     }
-    const CAssetId id = in.Get<CAssetId>();
     auto a = GetIntElement(in);
     auto b = GetIntElement(in);
     auto c = GetIntElement(in);
     auto d = GetIntElement(in);
     auto e = GetIntElement(in);
     const bool f = GetBool(in);
-    TToken<CTexture> txtr = resPool->GetObj({FOURCC('TXTR'), id});
+    TToken<CTexture> txtr;
+    if (id.IsValid()) {
+      txtr = resPool->GetObj({FOURCC('TXTR'), id});
+    } else {
+      txtr = CreateTexture(0xFFFFFFFF);
+    }
     return std::make_unique<CUVEAnimTexture>(std::move(txtr), std::move(std::move(a)), std::move(b), std::move(c),
                                              std::move(d), std::move(e), f);
   }

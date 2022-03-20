@@ -76,6 +76,10 @@ void render(const State& state, const DrawData& data, const wgpu::RenderPassEnco
   }
   pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.offset, data.vertRange.size);
   pass.SetIndexBuffer(g_indexBuffer, wgpu::IndexFormat::Uint16, data.indexRange.offset, data.indexRange.size);
+  if (data.dstAlpha) {
+    const wgpu::Color color{0.f, 0.f, 0.f, *data.dstAlpha};
+    pass.SetBlendConstant(&color);
+  }
   pass.DrawIndexed(data.indexCount);
 }
 } // namespace aurora::gfx::stream

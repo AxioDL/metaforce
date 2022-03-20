@@ -136,7 +136,7 @@ public:
   CSwooshDescription* GetDesc() { return x1c_desc.GetObj(); }
 
   bool Update(double) override;
-  void Render(const CActorLights* = nullptr) override;
+  void Render() override;
   void SetOrientation(const zeus::CTransform&) override;
   void SetTranslation(const zeus::CVector3f&) override;
   void SetGlobalOrientation(const zeus::CTransform&) override;

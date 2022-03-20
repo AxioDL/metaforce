@@ -12,6 +12,7 @@ struct DrawData {
   Range uniformRange;
   uint32_t indexCount;
   gx::GXBindGroups bindGroups;
+  std::optional<float> dstAlpha;
 };
 
 struct PipelineConfig : gx::PipelineConfig {};

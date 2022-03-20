@@ -67,8 +67,8 @@ struct ColorChannelConfig {
 };
 // For uniform generation
 struct ColorChannelState {
-  zeus::CColor matColor = zeus::skClear;
-  zeus::CColor ambColor = zeus::skClear;
+  zeus::CColor matColor;
+  zeus::CColor ambColor;
   GX::LightMask lightState;
 };
 using LightVariant = std::variant<std::monostate, Light, zeus::CColor>;
@@ -98,7 +98,6 @@ struct TevSwap {
   bool operator==(const TevSwap&) const = default;
   operator bool() const { return *this != TevSwap{}; }
 };
-
 struct AlphaCompare {
   GX::Compare comp0 = GX::ALWAYS;
   float ref0 = 0.f;
@@ -108,6 +107,7 @@ struct AlphaCompare {
   bool operator==(const AlphaCompare& other) const = default;
   operator bool() const { return *this != AlphaCompare{}; }
 };
+
 struct GXState {
   zeus::CMatrix4f mv;
   zeus::CMatrix4f mvInv;
@@ -274,6 +274,14 @@ inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TcgConfig& input) {
   XXH3_64bits_update(&state, &input.normalize, sizeof(gfx::gx::TcgConfig::normalize));
 }
 template <>
+inline void xxh3_update(XXH3_state_t& state, const gfx::gx::AlphaCompare& input) {
+  XXH3_64bits_update(&state, &input.comp0, sizeof(gfx::gx::AlphaCompare::comp0));
+  XXH3_64bits_update(&state, &input.ref0, sizeof(gfx::gx::AlphaCompare::ref0));
+  XXH3_64bits_update(&state, &input.op, sizeof(gfx::gx::AlphaCompare::op));
+  XXH3_64bits_update(&state, &input.comp1, sizeof(gfx::gx::AlphaCompare::comp1));
+  XXH3_64bits_update(&state, &input.ref1, sizeof(gfx::gx::AlphaCompare::ref1));
+}
+template <>
 inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ShaderConfig& input) {
   XXH3_64bits_update(&state, &input.fogType, sizeof(gfx::gx::ShaderConfig::fogType));
   XXH3_64bits_update(&state, &input.vtxAttrs, sizeof(gfx::gx::ShaderConfig::vtxAttrs));
@@ -291,7 +299,7 @@ inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ShaderConfig& input)
     xxh3_update(state, item);
   }
   if (input.alphaCompare) {
-    XXH3_64bits_update(&state, &input.alphaCompare, sizeof(gfx::gx::AlphaCompare));
+    xxh3_update(state, input.alphaCompare);
   }
   XXH3_64bits_update(&state, &input.hasIndexedAttributes, sizeof(gfx::gx::ShaderConfig::hasIndexedAttributes));
 }

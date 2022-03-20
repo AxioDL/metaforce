@@ -241,9 +241,9 @@ void CWaveBuster::RenderParticles() {
   }
 
   x38c_busterSparksGen->SetParticleEmission(false);
-  x384_busterSwoosh1Gen->Render(GetActorLights());
-  x388_busterSwoosh2Gen->Render(GetActorLights());
-  x38c_busterSparksGen->Render(GetActorLights());
+  x384_busterSwoosh1Gen->Render();
+  x388_busterSwoosh2Gen->Render();
+  x38c_busterSparksGen->Render();
 }
 
 void CWaveBuster::RenderBeam() {

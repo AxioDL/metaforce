@@ -14,7 +14,7 @@ struct SStreamState {
   aurora::ByteBuffer vertexBuffer;
   std::vector<u16> indices;
 #ifndef NDEBUG
-  GX::Attr currentAttr{};
+  GX::Attr nextAttr;
 #endif
 
   explicit SStreamState(GX::Primitive primitive, u16 numVerts, u16 vertexSize) noexcept : primitive(primitive) {
@@ -26,6 +26,10 @@ struct SStreamState {
     } else {
       indices.reserve(numVerts);
     }
+#ifndef NDEBUG
+    nextAttr =
+        GX::Attr(std::find(g_gxState.vtxDesc.begin(), g_gxState.vtxDesc.end(), GX::DIRECT) - g_gxState.vtxDesc.begin());
+#endif
   }
 };
 static std::optional<SStreamState> sStreamState;
@@ -68,29 +72,26 @@ static inline void check_attr_order(GX::Attr attr) noexcept {
     Log.report(logvisor::Fatal, FMT_STRING("Stream not started!"));
     unreachable();
   }
-  if (sStreamState->currentAttr >= attr) {
-    Log.report(logvisor::Fatal, FMT_STRING("bad attribute order: {}, last {}"), attr, sStreamState->currentAttr);
+  if (sStreamState->nextAttr != attr) {
+    Log.report(logvisor::Fatal, FMT_STRING("bad attribute order: {}, expected {}"), attr, sStreamState->nextAttr);
     unreachable();
   }
-  sStreamState->currentAttr = attr;
+  auto nextAttr = std::find(g_gxState.vtxDesc.begin() + attr + 1, g_gxState.vtxDesc.end(), GX::DIRECT);
+  if (nextAttr == g_gxState.vtxDesc.end()) {
+    nextAttr = std::find(g_gxState.vtxDesc.begin(), g_gxState.vtxDesc.end(), GX::DIRECT);
+  }
+  sStreamState->nextAttr = GX::Attr(nextAttr - g_gxState.vtxDesc.begin());
 #endif
 }
 void GXPosition3f32(const zeus::CVector3f& pos) noexcept {
-#ifndef NDEBUG
-  if (!sStreamState) {
-    Log.report(logvisor::Fatal, FMT_STRING("Stream not started!"));
-    unreachable();
-  }
-  sStreamState->currentAttr = GX::VA_POS;
-#endif
+  check_attr_order(GX::VA_POS);
   auto& state = *sStreamState;
   state.vertexBuffer.append(&pos, 12);
   if (state.primitive == GX::TRIANGLES || state.vertexCount < 3) {
-    state.indices.push_back(state.vertexCount);
+    // pass
   } else if (state.primitive == GX::TRIANGLEFAN) {
     state.indices.push_back(0);
     state.indices.push_back(state.vertexCount - 1);
-    state.indices.push_back(state.vertexCount);
   } else if (state.primitive == GX::TRIANGLESTRIP) {
     if ((state.vertexCount & 1) == 0) {
       state.indices.push_back(state.vertexCount - 2);
@@ -99,16 +100,13 @@ void GXPosition3f32(const zeus::CVector3f& pos) noexcept {
       state.indices.push_back(state.vertexCount - 1);
       state.indices.push_back(state.vertexCount - 2);
     }
-    state.indices.push_back(state.vertexCount);
   } else if (state.primitive == GX::QUADS) {
     if ((state.vertexCount & 3) == 3) {
-      state.indices.push_back(state.vertexCount - 1);
-      state.indices.push_back(state.vertexCount);
       state.indices.push_back(state.vertexCount - 3);
-    } else {
-      state.indices.push_back(state.vertexCount);
+      state.indices.push_back(state.vertexCount - 1);
     }
   }
+  state.indices.push_back(state.vertexCount);
   ++state.vertexCount;
 }
 void GXNormal3f32(const zeus::CVector3f& nrm) noexcept {
@@ -124,6 +122,10 @@ void GXTexCoord2f32(const zeus::CVector2f& uv) noexcept {
   sStreamState->vertexBuffer.append(&uv, 8);
 }
 void GXEnd() noexcept {
+  if (sStreamState->vertexCount == 0) {
+    sStreamState.reset();
+    return;
+  }
   const auto vertRange = aurora::gfx::push_verts(sStreamState->vertexBuffer.data(), sStreamState->vertexBuffer.size());
   const auto indexRange = aurora::gfx::push_indices(aurora::ArrayRef{sStreamState->indices});
   aurora::gfx::stream::PipelineConfig config{};
@@ -136,6 +138,7 @@ void GXEnd() noexcept {
       .indexRange = indexRange,
       .indexCount = static_cast<uint32_t>(sStreamState->indices.size()),
       .bindGroups = info.bindGroups,
+      .dstAlpha = g_gxState.dstAlpha,
   });
   sStreamState.reset();
 }

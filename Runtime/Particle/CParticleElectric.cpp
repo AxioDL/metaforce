@@ -607,7 +607,7 @@ bool CParticleElectric::Update(double dt) {
   return ret;
 }
 
-void CParticleElectric::Render(const CActorLights* lights) {
+void CParticleElectric::Render() {
   SCOPED_GRAPHICS_DEBUG_GROUP(
       fmt::format(FMT_STRING("CParticleElectric::Render {}"), *x1c_elecDesc.GetObjectTag()).c_str(), zeus::skYellow);
 
@@ -625,13 +625,13 @@ void CParticleElectric::Render(const CActorLights* lights) {
 
   if (x450_25_haveGPSM) {
     for (int i = 0; i < x154_SCNT; ++i) {
-      x400_gpsmGenerators[i]->Render(lights);
+      x400_gpsmGenerators[i]->Render();
     }
   }
 
   if (x450_26_haveEPSM) {
     for (int i = 0; i < x154_SCNT; ++i) {
-      x410_epsmGenerators[i]->Render(lights);
+      x410_epsmGenerators[i]->Render();
     }
   }
 }

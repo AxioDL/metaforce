@@ -510,30 +510,30 @@ void CScriptGunTurret::Render(CStateManager& mgr) {
       case ETurretState::DeactiveFromReady:
       case ETurretState::Deactivating:
       case ETurretState::DeactivatingFromReady:
-        x470_deactivateLight->Render(x90_actorLights.get());
+        x470_deactivateLight->Render();
         break;
       case ETurretState::Inactive:
-        x468_idleLight->Render(x90_actorLights.get());
+        x468_idleLight->Render();
         break;
       case ETurretState::PanningA:
       case ETurretState::PanningB:
-        x490_panningEffect->Render(x90_actorLights.get());
+        x490_panningEffect->Render();
         break;
       case ETurretState::Ready:
       case ETurretState::Targeting:
       case ETurretState::Firing:
       case ETurretState::ExitTargeting:
       case ETurretState::Frenzy:
-        x478_targettingLight->Render(x90_actorLights.get());
+        x478_targettingLight->Render();
         if (x520_state == ETurretState::Firing) {
-          x488_chargingEffect->Render(x90_actorLights.get());
+          x488_chargingEffect->Render();
         }
         break;
       default:
         break;
       }
     } else {
-      x480_frozenEffect->Render(x90_actorLights.get());
+      x480_frozenEffect->Render();
     }
   } else if (x258_type == ETurretComponent::Base) {
     if (x4a4_extensionModel && x4f8_extensionT > 0.f) {

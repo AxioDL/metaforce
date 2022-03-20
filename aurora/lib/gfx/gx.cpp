@@ -282,37 +282,93 @@ static inline wgpu::CompareFunction to_compare_function(GX::Compare func) {
 }
 
 static inline wgpu::BlendState to_blend_state(GX::BlendMode mode, GX::BlendFactor srcFac, GX::BlendFactor dstFac,
-                                              std::optional<float> dstAlpha) {
+                                              GX::LogicOp op, std::optional<float> dstAlpha) {
   wgpu::BlendComponent colorBlendComponent;
   switch (mode) {
+  case GX::BM_NONE:
+    colorBlendComponent = {
+        .operation = wgpu::BlendOperation::Add,
+        .srcFactor = wgpu::BlendFactor::Src,
+        .dstFactor = wgpu::BlendFactor::Zero,
+    };
+    break;
   case GX::BM_BLEND:
     colorBlendComponent = {
-      .operation = wgpu::BlendOperation::Add,
-      .srcFactor = to_blend_factor(srcFac),
-      .dstFactor = to_blend_factor(dstFac),
+        .operation = wgpu::BlendOperation::Add,
+        .srcFactor = to_blend_factor(srcFac),
+        .dstFactor = to_blend_factor(dstFac),
     };
     break;
   case GX::BM_SUBTRACT:
     colorBlendComponent = {
-        .operation = wgpu::BlendOperation::Subtract,
+        .operation = wgpu::BlendOperation::ReverseSubtract,
         .srcFactor = wgpu::BlendFactor::Src,
         .dstFactor = wgpu::BlendFactor::Dst,
     };
     break;
+  case GX::BM_LOGIC:
+    switch (op) {
+    case GX::LO_CLEAR:
+      colorBlendComponent = {
+          .operation = wgpu::BlendOperation::Add,
+          .srcFactor = wgpu::BlendFactor::Zero,
+          .dstFactor = wgpu::BlendFactor::Zero,
+      };
+      break;
+    case GX::LO_COPY:
+      colorBlendComponent = {
+          .operation = wgpu::BlendOperation::Add,
+          .srcFactor = wgpu::BlendFactor::Src,
+          .dstFactor = wgpu::BlendFactor::Zero,
+      };
+      break;
+    case GX::LO_NOOP:
+      colorBlendComponent = {
+          .operation = wgpu::BlendOperation::Add,
+          .srcFactor = wgpu::BlendFactor::Zero,
+          .dstFactor = wgpu::BlendFactor::Dst,
+      };
+      break;
+    case GX::LO_INV:
+      colorBlendComponent = {
+          .operation = wgpu::BlendOperation::Add,
+          .srcFactor = wgpu::BlendFactor::Zero,
+          .dstFactor = wgpu::BlendFactor::OneMinusDst,
+      };
+      break;
+    case GX::LO_INVCOPY:
+      colorBlendComponent = {
+          .operation = wgpu::BlendOperation::Add,
+          .srcFactor = wgpu::BlendFactor::OneMinusSrc,
+          .dstFactor = wgpu::BlendFactor::Zero,
+      };
+      break;
+    case GX::LO_SET:
+      colorBlendComponent = {
+          .operation = wgpu::BlendOperation::Add,
+          .srcFactor = wgpu::BlendFactor::One,
+          .dstFactor = wgpu::BlendFactor::Zero,
+      };
+      break;
+    default:
+      Log.report(logvisor::Fatal, FMT_STRING("unsupported logic op {}"), op);
+      unreachable();
+    }
+    break;
   default:
-    Log.report(logvisor::Fatal, FMT_STRING("How to {}?"), mode);
+    Log.report(logvisor::Fatal, FMT_STRING("unsupported blend mode {}"), mode);
     unreachable();
   }
   wgpu::BlendComponent alphaBlendComponent{
-    .operation = wgpu::BlendOperation::Add,
-    .srcFactor = wgpu::BlendFactor::Zero,
-    .dstFactor = wgpu::BlendFactor::One,
+      .operation = wgpu::BlendOperation::Add,
+      .srcFactor = wgpu::BlendFactor::SrcAlpha,
+      .dstFactor = wgpu::BlendFactor::Zero,
   };
   if (dstAlpha) {
     alphaBlendComponent = wgpu::BlendComponent{
         .operation = wgpu::BlendOperation::Add,
-        .srcFactor = wgpu::BlendFactor::Zero,
-        .dstFactor = wgpu::BlendFactor::Constant,
+        .srcFactor = wgpu::BlendFactor::Constant,
+        .dstFactor = wgpu::BlendFactor::Zero,
     };
   }
   return {
@@ -372,7 +428,8 @@ wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderIn
       .depthWriteEnabled = config.depthUpdate,
       .depthCompare = to_compare_function(config.depthFunc),
   };
-  const auto blendState = to_blend_state(config.blendMode, config.blendFacSrc, config.blendFacDst, config.dstAlpha);
+  const auto blendState =
+      to_blend_state(config.blendMode, config.blendFacSrc, config.blendFacDst, config.blendOp, config.dstAlpha);
   const std::array colorTargets{wgpu::ColorTargetState{
       .format = g_graphicsConfig.colorFormat,
       .blend = &blendState,

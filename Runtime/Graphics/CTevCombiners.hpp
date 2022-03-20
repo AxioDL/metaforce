@@ -102,13 +102,14 @@ public:
 };
 
 extern const CTevPass skPassThru;
+extern const CTevPass sTevPass804bfcc0;
+extern const CTevPass sTevPass804bfe68;
 extern const CTevPass sTevPass805a5698;
 extern const CTevPass sTevPass805a5e70;
 extern const CTevPass sTevPass805a5ebc;
 extern const CTevPass sTevPass805a5f08;
 extern const CTevPass sTevPass805a5f54;
 extern const CTevPass sTevPass805a5fa0;
-extern const CTevPass sTevPass804bfcc0;
 extern const CTevPass sTevPass805a5fec;
 extern const CTevPass sTevPass805a6038;
 extern const CTevPass sTevPass805a6084;
