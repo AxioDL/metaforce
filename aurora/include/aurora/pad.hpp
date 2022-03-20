@@ -51,8 +51,11 @@ enum CHAN : u32 {
 } // namespace PAD
 
 namespace SI {
+constexpr u32 ERROR_UNKNOWN = 0x0040;
+constexpr u32 ERROR_BUSY = 0x0080;
 constexpr u32 ERROR_NO_RESPONSE = 0x0008;
 constexpr u32 TYPE_GC = 0x08000000;
+constexpr u32 GBA = 0x00040000;
 constexpr u32 GC_STANDARD = 0x01000000;
 constexpr u32 GC_WIRELESS = 0x80000000;
 constexpr u32 WIRELESS_STATE = 0x02000000;
@@ -63,15 +66,15 @@ constexpr u32 GC_WAVEBIRD = (TYPE_GC | GC_WIRELESS | GC_STANDARD | WIRELESS_STAT
 } // namespace SI
 
 using PADSamplingCallback = void (*)(void);
-constexpr bool PADButtonDown(u16 lastButton, u16 button) { return ((lastButton ^ button) & button) != 0; }
-constexpr bool PADButtonUp(u16 lastButton, u16 button) { return ((lastButton ^ button) & lastButton) != 0; }
+constexpr bool PADButtonDown(bool lastButton, bool button) { return ((lastButton ^ button) & button) != 0; }
+constexpr bool PADButtonUp(bool lastButton, bool button) { return ((lastButton ^ button) & lastButton) != 0; }
 void PADClamp(PAD::Status* status);
 void PADClampCircle(PAD::Status* status);
 void PADInit();
 bool PADIsBarrel(s32 chan);
 u32 PADRead(PAD::Status* status);
-bool PADRecalibrate(u32 mask);
-bool PADReset(u32 mask);
+static bool PADRecalibrate(u32 mask) { return true; }
+static bool PADReset(u32 mask) { return true; }
 void PADSetAnalog(u32 mode);
 void PADSetSpec(s32 spec);
 void PADSetSamplingCallback(PADSamplingCallback callback);

@@ -4,10 +4,15 @@ namespace metaforce {
 CDolphinController::CDolphinController() {
   static bool sIsInitialized = false;
   if (!sIsInitialized) {
-    // PADSetSpec(5);
-    // PADInit();
+    PADSetSpec(5);
+    PADInit();
     sIsInitialized = true;
   }
+}
+
+void CDolphinController::Poll() {
+  ReadDevices();
+  ProcessInputData();
 }
 void CDolphinController::SetMotorState(EIOPort port, EMotorState state) { x194_motorStates[u32(port)] = state; }
 
@@ -21,6 +26,66 @@ float CDolphinController::GetAnalogStickMaxValue(EJoyAxis axis) {
   }
 
   return 0.f;
+}
+
+void CDolphinController::ReadDevices() {
+  std::array<PADStatus, 4> status{};
+  PADRead(status.data());
+  if (status[0].xa_err == PAD::ERR_NONE) {
+    PADClamp(status.data());
+    x4_status = status;
+  } else {
+    x4_status[0].xa_err = status[0].xa_err;
+    x4_status[1].xa_err = status[1].xa_err;
+    x4_status[2].xa_err = status[2].xa_err;
+    x4_status[3].xa_err = status[3].xa_err;
+  }
+
+  for (u32 i = 0; i < 4; ++i) {
+    if (x4_status[i].xa_err != PAD::ERR_NOT_READY) {
+      if (x4_status[i].xa_err == PAD::ERR_NONE) {
+        x34_gamepadStates[i].SetDeviceIsPresent(true);
+      } else if (x4_status[i].xa_err == PAD::ERR_NO_CONTROLLER) {
+        x1c8_invalidControllers |= PAD::CHAN0_BIT >> i;
+        x34_gamepadStates[i].SetDeviceIsPresent(false);
+      }
+    }
+
+    if (x1b4_[i] == 0) {
+      const auto type = SIProbe(i);
+      if ((type & (SI::ERROR_NO_RESPONSE | SI::ERROR_UNKNOWN | SI::ERROR_BUSY)) == 0) {
+        x1b4_[i] = 0x3c;
+        if (type == SI::GC_WIRELESS) {
+          x1a4_controllerTypes[i] = skTypeWavebird;
+        } else if (type == SI::GBA) { /* here for completeness, the GameCube adapter does not support GBA */
+          x1a4_controllerTypes[i] = skTypeGBA;
+        } else if (type == SI::GC_STANDARD) {
+          x1a4_controllerTypes[i] = skTypeStandard;
+        }
+      } else {
+        x1a4_controllerTypes[i] = skTypeUnknown;
+      }
+    } else {
+      --x1b4_[i];
+    }
+  }
+
+  if (x1c8_invalidControllers != 0 && PADReset(x1c8_invalidControllers)) {
+    x1c8_invalidControllers = 0;
+  }
+}
+
+void CDolphinController::ProcessInputData() {
+  for (u32 i = 0; i < 4; ++i) {
+    if (!x34_gamepadStates[i].DeviceIsPresent()) {
+      continue;
+    }
+    ProcessAxis(i, EJoyAxis::LeftX);
+    ProcessAxis(i, EJoyAxis::LeftY);
+    ProcessAxis(i, EJoyAxis::RightX);
+    ProcessAxis(i, EJoyAxis::RightY);
+    ProcessButtons(i);
+  }
 }
 
 void CDolphinController::ProcessAxis(u32 controller, EJoyAxis axis) {
@@ -72,8 +137,48 @@ void CDolphinController::ProcessButtons(u32 controller) {
   ProcessAnalogButton(x4_status[controller].x7_triggerR,
                       x34_gamepadStates[controller].GetAnalogButton(EAnalogButton::Right));
 }
-void CDolphinController::ProcessDigitalButton(u32 controller, CControllerButton& button, u16 mapping) {}
-void CDolphinController::ProcessAnalogButton(float value, CControllerAxis& axis) {}
+void CDolphinController::ProcessDigitalButton(u32 controller, CControllerButton& button, u16 mapping) {
+  bool btnPressed = (x4_status[controller].x0_buttons & mapping) != 0;
+  button.SetPressEvent(PADButtonDown(button.GetIsPressed(), btnPressed));
+  button.SetReleaseEvent(PADButtonUp(button.GetIsPressed(), btnPressed));
+  button.SetPressEvent(btnPressed);
+}
+void CDolphinController::ProcessAnalogButton(float value, CControllerAxis& axis) {
+  float absolute = value * (1 / 150.f);
+  if (value * (1 / 150.f) > 1.f) {
+    absolute = kAbsoluteMaximum;
+  }
 
-void CDolphinController::Initialize() {}
+  float relative = absolute - axis.GetAbsoluteValue();
+  if (relative > kRelativeMaximum) {
+    relative = kRelativeMaximum;
+  }
+
+  axis.SetRelativeValue(relative);
+  axis.SetAbsoluteValue(absolute);
+}
+
+bool CDolphinController::Initialize() {
+  // GBAInit();
+  memset(x4_status.data(), 0, sizeof(PADStatus) * x4_status.size());
+  x34_gamepadStates[0].SetDeviceIsPresent(false);
+  x194_motorStates[0] = EMotorState::StopHard;
+  x1b4_[0] = 0;
+  x1a4_controllerTypes[0] = skTypeUnknown;
+  x34_gamepadStates[1].SetDeviceIsPresent(false);
+  x194_motorStates[1] = EMotorState::StopHard;
+  x1b4_[1] = 0;
+  x1a4_controllerTypes[0] = skTypeUnknown;
+  x34_gamepadStates[2].SetDeviceIsPresent(false);
+  x194_motorStates[2] = EMotorState::StopHard;
+  x1b4_[2] = 0;
+  x1a4_controllerTypes[0] = skTypeUnknown;
+  x34_gamepadStates[3].SetDeviceIsPresent(false);
+  x194_motorStates[3] = EMotorState::StopHard;
+  x1b4_[3] = 0;
+  x1a4_controllerTypes[0] = skTypeUnknown;
+  PADControlAllMotors(reinterpret_cast<const u32*>(x194_motorStates.data()));
+  Poll();
+  return true;
+}
 } // namespace metaforce

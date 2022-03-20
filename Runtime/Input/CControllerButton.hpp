@@ -25,15 +25,16 @@ enum class EAnalogButton {
 };
 
 class CControllerButton {
-  bool x0_;
-  bool x1_pressed;
-  bool x2_;
+  bool x0_pressed;
+  bool x1_pressEvent;
+  bool x2_releaseEvent;
 
 public:
-  void SetIsPressed(bool pressed) { x1_pressed = pressed; }
-  [[nodiscard]] bool GetIsPressed() const { return x1_pressed; }
-  void SetPressEvent(bool press);
-  [[nodiscard]] bool GetPressEvent() const;
-  void SetReleaseEvent(bool release);
+  void SetIsPressed(bool pressed) { x0_pressed = pressed; }
+  [[nodiscard]] bool GetIsPressed() const { return x0_pressed; }
+  void SetPressEvent(bool press){ x1_pressEvent = press; }
+  [[nodiscard]] bool GetPressEvent() const{ return x1_pressEvent; }
+  void SetReleaseEvent(bool release) { x2_releaseEvent = release;};
+  [[nodiscard]] bool GetReleaseEvent() const { return x2_releaseEvent; }
 };
 } // namespace metaforce
