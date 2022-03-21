@@ -94,6 +94,7 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
                                                    amuse::IBackendVoiceAllocator& backend)
 : m_parent(parent)
 , x0_audioSys(voiceEngine, backend, 0, 0, 0, 0, 0)
+, x30_newInputGenerator(/*osCtx, */ g_tweakPlayer->GetLeftLogicalThreshold(), g_tweakPlayer->GetRightLogicalThreshold())
 , x30_inputGenerator(g_tweakPlayer->GetLeftLogicalThreshold(), g_tweakPlayer->GetRightLogicalThreshold())
 , x44_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero) {
   auto* m = static_cast<CMain*>(g_Main);
@@ -135,7 +136,8 @@ void CGameArchitectureSupport::UpdateTicks(float dt) {
 
 void CGameArchitectureSupport::Update(float dt) {
   g_GameState->GetWorldTransitionManager()->TouchModels();
-  x30_inputGenerator.Update(dt, x4_archQueue);
+  x30_newInputGenerator.Update(dt, x4_archQueue);
+  // x30_inputGenerator.Update(dt, x4_archQueue);
   x4_archQueue.Push(MakeMsg::CreateFrameEnd(EArchMsgTarget::Game, x78_gameFrameCount));
   x58_ioWinManager.PumpMessages(x4_archQueue);
 }
@@ -635,8 +637,7 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
 
       while (args.end() - it >= 4) {
         const char* layerStr = (*(it + 3)).c_str();
-        if (!(layerStr[0] == '0' && layerStr[1] == 'x') &&
-            (layerStr[0] == '0' || layerStr[0] == '1')) {
+        if (!(layerStr[0] == '0' && layerStr[1] == 'x') && (layerStr[0] == '0' || layerStr[0] == '1')) {
           for (const auto* cur = layerStr; *cur != '\0'; ++cur)
             if (*cur == '1')
               m_warpLayerBits |= u64(1) << (cur - layerStr);
@@ -691,9 +692,7 @@ bool CMain::Proc(float dt) {
   return x160_24_finished;
 }
 
-void CMain::Draw() {
-  x164_archSupport->Draw();
-}
+void CMain::Draw() { x164_archSupport->Draw(); }
 
 void CMain::ShutdownSubsystems() {
   CDecalManager::Shutdown();
@@ -711,8 +710,8 @@ void CMain::Shutdown() {
   x128_globalObjects->m_gameResFactory->UnloadPersistentResources();
   x164_archSupport.reset();
   ShutdownSubsystems();
-//  CBooModel::Shutdown();
-//  CGraphics::ShutdownBoo();
+  //  CBooModel::Shutdown();
+  //  CGraphics::ShutdownBoo();
   ShutdownDiscord();
 }
 

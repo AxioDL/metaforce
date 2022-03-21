@@ -6,6 +6,7 @@
 #include <absl/container/btree_map.h>
 #include <absl/container/flat_hash_map.h>
 #include <absl/strings/str_split.h>
+#include <cmath>
 
 namespace aurora::input {
 static logvisor::Module Log("aurora::input");
@@ -343,7 +344,7 @@ MouseButton translate_mouse_button_state(Uint8 state) noexcept {
 
 } // namespace aurora::input
 
-void PADSetSpec(u32 spec) {}
+void PADSetSpec(s32 spec) {}
 void PADInit() {}
 
 static const std::array<std::pair<SDL_GameControllerButton, PAD::BUTTON>, 12> mMapping{{
@@ -401,7 +402,6 @@ u32 PADRead(PAD::Status* status) {
     status[i].x6_triggerL = static_cast<s8>(x);
     status[i].x7_triggerR = static_cast<s8>(y);
 
-
     if (controller.m_hasRumble) {
       rumbleSupport |= PAD::CHAN0_BIT >> i;
     }
@@ -431,10 +431,9 @@ void PADControlAllMotors(const u32* commands) {
   }
 }
 
-
 u32 SIProbe(s32 chan) {
   const auto controller = aurora::input::get_controller_for_player(chan);
-  if (controller == aurora::input::GameController{}){
+  if (controller == aurora::input::GameController{}) {
     return SI::ERROR_NO_RESPONSE;
   }
 
@@ -446,4 +445,161 @@ u32 SIProbe(s32 chan) {
   }
 
   return SI::GC_CONTROLLER;
+}
+
+struct PADCLampRegion {
+  u8 minTrigger;
+  u8 maxTrigger;
+  s8 minStick;
+  s8 maxStick;
+  s8 xyStick;
+  s8 minSubstick;
+  s8 maxSubstick;
+  s8 xySubstick;
+  s8 radStick;
+  s8 radSubstick;
+};
+
+static constexpr PADCLampRegion ClampRegion{
+    // Triggers
+    30,
+    180,
+
+    // Left stick
+    15,
+    72,
+    40,
+
+    // Right stick
+    15,
+    59,
+    31,
+
+    // Stick radii
+    56,
+    44,
+};
+
+void ClampTrigger(u8* trigger, u8 min, u8 max) {
+  if (*trigger <= min) {
+    *trigger = 0;
+  } else {
+    if (*trigger > max) {
+      *trigger = max;
+    }
+    *trigger -= min;
+  }
+}
+
+void ClampCircle(s8* px, s8* py, s8 radius, s8 min) {
+  int x = *px;
+  int y = *py;
+
+  if (-min < x && x < min) {
+    x = 0;
+  } else if (0 < x) {
+    x -= min;
+  } else {
+    x += min;
+  }
+
+  if (-min < y && y < min) {
+    y = 0;
+  } else if (0 < y) {
+    y -= min;
+  } else {
+    y += min;
+  }
+
+  int squared = x * x + y * y;
+  if (radius * radius < squared) {
+    s32 length = static_cast<s32>(std::sqrt(squared));
+    x = (x * radius) / length;
+    y = (y * radius) / length;
+  }
+
+  *px = static_cast<s8>(x);
+  *py = static_cast<s8>(y);
+}
+
+void ClampStick(s8* px, s8* py, s8 max, s8 xy, s8 min) {
+  s8 x = *px;
+  s8 y = *py;
+
+  s8 signX = 0;
+  if (0 <= x) {
+    signX = 1;
+  } else {
+    signX = -1;
+    x = -x;
+  }
+
+  s8 signY = 0;
+  if (0 <= y) {
+    signY = 1;
+  } else {
+    signY = -1;
+    y = -y;
+  }
+
+  if (x <= min) {
+    x = 0;
+  } else {
+    x -= min;
+  }
+  if (y <= min) {
+    y = 0;
+  } else {
+    y -= min;
+  }
+
+  if (x == 0 && y == 0) {
+    *px = *py = 0;
+    return;
+  }
+
+  if (xy * y <= xy * x) {
+    s8 d = xy * x + (max - xy) * y;
+    if (xy * max < d) {
+      x = (xy * max * x / d);
+      y = (xy * max * y / d);
+    }
+  } else {
+    s8 d = xy * y + (max - xy) * x;
+    if (xy * max < d) {
+      x = (xy * max * x / d);
+      y = (xy * max * y / d);
+    }
+  }
+
+  *px = (signX * x);
+  *py = (signY * y);
+}
+
+void PADClamp(PAD::Status* status) {
+  for (u32 i = 0; i < 4; ++i) {
+    if (status[i].xa_err != PAD::ERR_NONE) {
+      continue;
+    }
+
+    ClampStick(&status[i].x2_stickX, &status[i].x3_stickY, ClampRegion.maxStick, ClampRegion.xyStick,
+               ClampRegion.minStick);
+    ClampStick(&status[i].x4_substickX, &status[i].x5_substickY, ClampRegion.maxSubstick, ClampRegion.xySubstick,
+               ClampRegion.minSubstick);
+    ClampTrigger(&status[i].x6_triggerL, ClampRegion.minTrigger, ClampRegion.maxTrigger);
+    ClampTrigger(&status[i].x7_triggerR, ClampRegion.minTrigger, ClampRegion.maxTrigger);
+  }
+}
+
+void PADClampCircle(PAD::Status* status) {
+  for (u32 i = 0; i < 4; ++i) {
+    if (status[i].xa_err != PAD::ERR_NONE) {
+      continue;
+    }
+
+    ClampCircle(&status[i].x2_stickX, &status[i].x3_stickY, ClampRegion.radStick, ClampRegion.minStick);
+    ClampCircle(&status[i].x4_substickX, &status[i].x5_substickY, ClampRegion.radSubstick, ClampRegion.minSubstick);
+    ClampTrigger(&status[i].x6_triggerL, ClampRegion.minTrigger, ClampRegion.maxTrigger);
+    ClampTrigger(&status[i].x7_triggerR, ClampRegion.minTrigger, ClampRegion.maxTrigger);
+  }
 }

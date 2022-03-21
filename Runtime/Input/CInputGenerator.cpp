@@ -117,12 +117,14 @@ void CInputGenerator::SetMotorState(EIOPort port, EMotorState state) {
 }
 
 const CFinalInput& CInputGenerator::getFinalInput(unsigned int idx, float dt) {
+#if 0
   auto input = CFinalInput(idx, dt, m_data, m_lastUpdate);
   // Merge controller input with kb/m input
   auto state = m_state[idx];
   state.clamp();
   input |= CFinalInput(idx, dt, state, m_lastUpdate, m_leftDiv, m_rightDiv);
   m_lastUpdate = input;
+#endif
   return m_lastUpdate;
 }
 

@@ -25,9 +25,9 @@ enum class EAnalogButton {
 };
 
 class CControllerButton {
-  bool x0_pressed;
-  bool x1_pressEvent;
-  bool x2_releaseEvent;
+  bool x0_pressed = false;
+  bool x1_pressEvent = false;
+  bool x2_releaseEvent = false;
 
 public:
   void SetIsPressed(bool pressed) { x0_pressed = pressed; }

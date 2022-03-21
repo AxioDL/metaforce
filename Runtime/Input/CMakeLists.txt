@@ -7,6 +7,7 @@ set(INPUT_SOURCES
         CDolphinController.hpp CDolphinController.cpp
         CKeyboardMouseController.hpp
         ControlMapper.hpp ControlMapper.cpp
+        NewCInputGenerator.hpp NewCInputGenerator.cpp
         CInputGenerator.hpp CInputGenerator.cpp
         CFinalInput.hpp CFinalInput.cpp
         CRumbleManager.hpp CRumbleManager.cpp

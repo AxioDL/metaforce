@@ -19,6 +19,7 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Audio/CAudioSys.hpp"
+#include "Runtime/Input/NewCInputGenerator.hpp"
 #include "Runtime/Input/CInputGenerator.hpp"
 #include "Runtime/GuiSys/CGuiSys.hpp"
 #include "Runtime/CIOWinManager.hpp"
@@ -115,6 +116,7 @@ class CGameArchitectureSupport {
   CMain& m_parent;
   CArchitectureQueue x4_archQueue;
   CAudioSys x0_audioSys;
+  WIP::CInputGenerator x30_newInputGenerator;
   CInputGenerator x30_inputGenerator;
   CGuiSys x44_guiSys;
   CIOWinManager x58_ioWinManager;

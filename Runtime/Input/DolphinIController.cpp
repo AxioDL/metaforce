@@ -1,4 +1,3 @@
-#include "Runtime/Input/IController.hpp"
 #include "Runtime/Input/CDolphinController.hpp"
 
 namespace metaforce {

@@ -14,6 +14,7 @@ protected:
   static constexpr float kRelativeMinimum = -1.f;
   static constexpr float kRelativeMaximum = 1.f;
 public:
+  virtual ~IController() = default;
   virtual void Poll() = 0;
   virtual u32 GetDeviceCount() const = 0;
   virtual CControllerGamepadData& GetGamepadData(u32 controller) = 0;

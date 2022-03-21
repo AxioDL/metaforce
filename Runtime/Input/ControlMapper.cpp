@@ -339,6 +339,7 @@ float ControlMapper::GetAnalogInput(ECommands cmd, const CFinalInput& input) {
       ret = (input.*fn)();
     }
   }
+#if 0 // TODO: reimplement this
   if (const auto& kbm = input.GetKBM()) {
     switch (cmd) {
     case ECommands::Forward:
@@ -395,6 +396,7 @@ float ControlMapper::GetAnalogInput(ECommands cmd, const CFinalInput& input) {
     }
     }
   }
+#endif
   return ret;
 }
 

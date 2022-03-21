@@ -927,10 +927,12 @@ void ImGuiConsole::ShowInputViewer() {
   if (input.x4_controllerIdx != 0) {
     return;
   }
+#if 0
   if (m_whichController != input.m_which) {
     m_controllerName = static_cast<std::string>(aurora::get_controller_name(input.m_which));
     m_whichController = input.m_which;
   }
+#endif
   // Code -stolen- borrowed from Practice Mod
   ImGuiIO& io = ImGui::GetIO();
   ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
