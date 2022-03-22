@@ -541,10 +541,10 @@ void ClampCircle(s8* px, s8* py, s8 radius, s8 min) {
 }
 
 void ClampStick(s8* px, s8* py, s8 max, s8 xy, s8 min) {
-  s8 x = *px;
-  s8 y = *py;
+  s32 x = *px;
+  s32 y = *py;
 
-  s8 signX = 0;
+  s32 signX = 0;
   if (0 <= x) {
     signX = 1;
   } else {
@@ -577,13 +577,13 @@ void ClampStick(s8* px, s8* py, s8 max, s8 xy, s8 min) {
   }
 
   if (xy * y <= xy * x) {
-    s8 d = xy * x + (max - xy) * y;
+    s32 d = xy * x + (max - xy) * y;
     if (xy * max < d) {
       x = (xy * max * x / d);
       y = (xy * max * y / d);
     }
   } else {
-    s8 d = xy * y + (max - xy) * x;
+    s32 d = xy * y + (max - xy) * x;
     if (xy * max < d) {
       x = (xy * max * x / d);
       y = (xy * max * y / d);

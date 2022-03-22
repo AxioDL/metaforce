@@ -54,6 +54,7 @@ extern class CCubeRenderer* g_Renderer;
 extern class CStringTable* g_MainStringTable;
 extern class CTextureCache* g_TextureCache;
 extern class CInputGenerator* g_InputGenerator;
+extern class IController* g_Controller;
 extern class CStateManager* g_StateManager;
 
 #if USE_DOWNCAST_TWEAKS

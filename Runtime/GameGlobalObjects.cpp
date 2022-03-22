@@ -17,6 +17,7 @@ class CCubeRenderer* g_Renderer = nullptr;
 class CStringTable* g_MainStringTable = nullptr;
 class CTextureCache* g_TextureCache = nullptr;
 class CInputGenerator* g_InputGenerator = nullptr;
+class IController* g_Controller = nullptr;
 class CStateManager* g_StateManager = nullptr;
 
 ITweakGame* g_tweakGame = nullptr;

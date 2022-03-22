@@ -94,12 +94,12 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
                                                    amuse::IBackendVoiceAllocator& backend)
 : m_parent(parent)
 , x0_audioSys(voiceEngine, backend, 0, 0, 0, 0, 0)
-, x30_newInputGenerator(/*osCtx, */ g_tweakPlayer->GetLeftLogicalThreshold(), g_tweakPlayer->GetRightLogicalThreshold())
-, x30_inputGenerator(g_tweakPlayer->GetLeftLogicalThreshold(), g_tweakPlayer->GetRightLogicalThreshold())
+, x30_inputGenerator(/*osCtx, */ g_tweakPlayer->GetLeftLogicalThreshold(), g_tweakPlayer->GetRightLogicalThreshold())
 , x44_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero) {
   auto* m = static_cast<CMain*>(g_Main);
 
   g_InputGenerator = &x30_inputGenerator;
+  g_Controller = x30_inputGenerator.GetController();
 
   CAudioSys::SysSetVolume(0x7f);
   CAudioSys::SetDefaultVolumeScale(0x75);
@@ -136,8 +136,7 @@ void CGameArchitectureSupport::UpdateTicks(float dt) {
 
 void CGameArchitectureSupport::Update(float dt) {
   g_GameState->GetWorldTransitionManager()->TouchModels();
-  x30_newInputGenerator.Update(dt, x4_archQueue);
-  // x30_inputGenerator.Update(dt, x4_archQueue);
+  x30_inputGenerator.Update(dt, x4_archQueue);
   x4_archQueue.Push(MakeMsg::CreateFrameEnd(EArchMsgTarget::Game, x78_gameFrameCount));
   x58_ioWinManager.PumpMessages(x4_archQueue);
 }
@@ -224,15 +223,15 @@ CGameArchitectureSupport::~CGameArchitectureSupport() {
 }
 
 void CGameArchitectureSupport::charKeyDown(uint8_t charCode, aurora::ModifierKey mods, bool isRepeat) {
-  x30_inputGenerator.charKeyDown(charCode, mods, isRepeat);
+  // x30_inputGenerator.charKeyDown(charCode, mods, isRepeat);
 }
 
 void CGameArchitectureSupport::specialKeyDown(aurora::SpecialKey key, aurora::ModifierKey mods, bool isRepeat) {
-  x30_inputGenerator.specialKeyDown(key, mods, isRepeat);
+  // x30_inputGenerator.specialKeyDown(key, mods, isRepeat);
 }
 
 void CGameArchitectureSupport::specialKeyUp(aurora::SpecialKey key, aurora::ModifierKey mods) {
-  x30_inputGenerator.specialKeyUp(key, mods);
+  // x30_inputGenerator.specialKeyUp(key, mods);
 }
 
 CMain::CMain(IFactory* resFactory, CSimplePool* resStore)

@@ -15,6 +15,7 @@
 #include "Runtime/GuiSys/CGuiModel.hpp"
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Runtime/Input/CInputGenerator.hpp"
+#include "Runtime/Input/IController.hpp"
 #include "Runtime/MP1/CSamusHud.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/World/CPlayer.hpp"
@@ -629,7 +630,7 @@ void CInGameGuiManager::ShowPauseGameHudMessage(CStateManager& stateMgr, CAssetI
 }
 
 void CInGameGuiManager::PauseGame(CStateManager& stateMgr, EInGameGuiState state) {
-  g_InputGenerator->SetMotorState(EIOPort::Player1, EMotorState::Stop);
+  g_Controller->SetMotorState(EIOPort::Player1, EMotorState::Stop);
   CSfxManager::SetChannel(CSfxManager::ESfxChannels::PauseScreen);
   BeginStateTransition(state, stateMgr);
 }

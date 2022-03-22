@@ -316,7 +316,7 @@ public:
     if (auto* input = g_InputGenerator) {
       if (!m_deferredControllers.empty()) {
         for (const auto which : m_deferredControllers) {
-          input->controllerAdded(which);
+          //input->controllerAdded(which);
         }
         m_deferredControllers.clear();
       }
@@ -432,19 +432,19 @@ public:
 
   void onControllerButton(uint32_t idx, aurora::ControllerButton button, bool pressed) noexcept override {
     if (auto* input = g_InputGenerator) {
-      input->controllerButton(idx, button, pressed);
+      //input->controllerButton(idx, button, pressed);
     }
   }
 
   void onControllerAxis(uint32_t idx, aurora::ControllerAxis axis, int16_t value) noexcept override {
     if (auto* input = g_InputGenerator) {
-      input->controllerAxis(idx, axis, value);
+      //input->controllerAxis(idx, axis, value);
     }
   }
 
   void onControllerAdded(uint32_t which) noexcept override {
     if (auto* input = g_InputGenerator) {
-      input->controllerAdded(which);
+      //input->controllerAdded(which);
     } else {
       m_deferredControllers.emplace_back(which);
     }
@@ -452,7 +452,7 @@ public:
 
   void onControllerRemoved(uint32_t which) noexcept override {
     if (auto* input = g_InputGenerator) {
-      input->controllerRemoved(which);
+      //input->controllerRemoved(which);
     }
   }
 
