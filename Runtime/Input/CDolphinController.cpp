@@ -103,21 +103,8 @@ void CDolphinController::ProcessAxis(u32 controller, EJoyAxis axis) {
     axisValue = x4_status[controller].x5_substickY;
   }
   axisValue *= 1.f / maxAxisValue;
-  float absolute = kAbsoluteMinimum;
-  if (axisValue < kAbsoluteMinimum) {
-    absolute = kAbsoluteMinimum;
-  } else if (axisValue > kAbsoluteMaximum) {
-    absolute = kAbsoluteMaximum;
-  }
-
-  axisValue = absolute - data.GetAbsoluteValue();
-  float relativeValue = kRelativeMinimum;
-  if (axisValue < kRelativeMinimum) {
-    relativeValue = kRelativeMinimum;
-  } else if (axisValue > kRelativeMaximum) {
-    relativeValue = kRelativeMaximum;
-  }
-
+  float absolute = zeus::clamp(kAbsoluteMinimum, axisValue, kAbsoluteMaximum);
+  float relativeValue = zeus::clamp(kRelativeMinimum, absolute - data.GetAbsoluteValue(), kRelativeMaximum);
   data.SetAbsoluteValue(absolute);
   data.SetRelativeValue(relativeValue);
 }
@@ -141,7 +128,7 @@ void CDolphinController::ProcessDigitalButton(u32 controller, CControllerButton&
   bool btnPressed = (x4_status[controller].x0_buttons & mapping) != 0;
   button.SetPressEvent(PADButtonDown(button.GetIsPressed(), btnPressed));
   button.SetReleaseEvent(PADButtonUp(button.GetIsPressed(), btnPressed));
-  button.SetPressEvent(btnPressed);
+  button.SetIsPressed(btnPressed);
 }
 void CDolphinController::ProcessAnalogButton(float value, CControllerAxis& axis) {
   float absolute = value * (1 / 150.f);

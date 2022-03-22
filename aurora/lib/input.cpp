@@ -380,16 +380,34 @@ u32 PADRead(PAD::Status* status) {
 
     Sint16 x = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_LEFTX);
     Sint16 y = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_LEFTY);
-    x /= 256;
-    y = (-(y + 1u)) / 256u;
+    if (std::abs(x) > 8000) {
+      x /= 256;
+    } else {
+      x = 0;
+    }
+
+    if (std::abs(y) > 8000) {
+      y = (-(y + 1u)) / 256u;
+    } else {
+      y = 0;
+    }
 
     status[i].x2_stickX = static_cast<s8>(x);
     status[i].x3_stickY = static_cast<s8>(y);
 
     x = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_RIGHTX);
     y = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_RIGHTY);
-    x /= 256;
-    y = (-(y + 1u)) / 256u;
+    if (std::abs(x) > 8000) {
+      x /= 256;
+    } else {
+      x = 0;
+    }
+
+    if (std::abs(y) > 8000) {
+      y = (-(y + 1u)) / 256u;
+    } else {
+      y = 0;
+    }
 
     status[i].x4_substickX = static_cast<s8>(x);
     status[i].x5_substickY = static_cast<s8>(y);
