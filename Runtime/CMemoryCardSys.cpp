@@ -216,14 +216,16 @@ void CMemoryCardSys::CCardFileInfo::BuildCardBuffer() {
   u32 bannerSz = CalculateBannerDataSize();
   x104_cardBuffer.resize((bannerSz + xf4_saveBuffer.size() + 8191) & ~8191);
 
-  CMemoryStreamOut w(x104_cardBuffer.data(), x104_cardBuffer.size(), CMemoryStreamOut::EOwnerShip::NotOwned);
-  w.WriteLong(0);
-  char comment[64];
-  std::memset(comment, 0, std::size(comment));
-  std::strncpy(comment, x28_comment.data(), std::size(comment) - 1);
-  w.Write(reinterpret_cast<const u8*>(comment), 64);
-  WriteBannerData(w);
-  WriteIconData(w);
+  {
+    CMemoryStreamOut w(x104_cardBuffer.data(), x104_cardBuffer.size(), CMemoryStreamOut::EOwnerShip::NotOwned);
+    w.WriteLong(0);
+    char comment[64];
+    std::memset(comment, 0, std::size(comment));
+    std::strncpy(comment, x28_comment.data(), std::size(comment) - 1);
+    w.Put(reinterpret_cast<const u8*>(comment), 64);
+    WriteBannerData(w);
+    WriteIconData(w);
+  }
   memmove(x104_cardBuffer.data() + bannerSz, xf4_saveBuffer.data(), xf4_saveBuffer.size());
   reinterpret_cast<u32&>(*x104_cardBuffer.data()) =
       CBasics::SwapBytes(CCRC32::Calculate(x104_cardBuffer.data() + 4, x104_cardBuffer.size() - 4));
@@ -237,12 +239,12 @@ void CMemoryCardSys::CCardFileInfo::WriteBannerData(COutputStream& out) const {
     const auto format = tex->GetTextureFormat();
     const auto* texels = tex->GetConstBitMapData(0);
     if (format == ETexelFormat::RGB5A3) {
-      out.Write(texels, 6144);
+      out.Put(texels, 6144);
     } else {
-      out.Write(texels, 3072);
+      out.Put(texels, 3072);
     }
     if (format == ETexelFormat::C8) {
-      out.Write(tex->GetPalette()->GetEntries(), 512);
+      out.Put(tex->GetPalette()->GetEntries(), 512);
     }
   }
 }
@@ -253,16 +255,16 @@ void CMemoryCardSys::CCardFileInfo::WriteIconData(COutputStream& out) const {
     const auto format = icon.x8_tex->GetTextureFormat();
     const auto* texels = icon.x8_tex->GetConstBitMapData(0);
     if (format == ETexelFormat::RGB5A3) {
-      out.Write(texels, 2048);
+      out.Put(texels, 2048);
     } else {
-      out.Write(texels, 1024);
+      out.Put(texels, 1024);
     }
     if (format == ETexelFormat::C8) {
       palette = icon.x8_tex->GetPalette()->GetEntries();
     }
   }
   if (palette != nullptr) {
-    out.Write(palette, 512);
+    out.Put(palette, 512);
   }
 }
 

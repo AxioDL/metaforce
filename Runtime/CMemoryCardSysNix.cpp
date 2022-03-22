@@ -60,7 +60,7 @@ std::string CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot slot, bool do
       }
       auto path = *dolphinPath + "GC";
       int ret = mkdir(path.c_str(), 0755);
-      if (ret != 0 && ret != EEXIST) {
+      if (ret != 0 && errno != EEXIST) {
         return {};
       }
 

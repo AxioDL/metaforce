@@ -98,31 +98,29 @@ u32 CInputStream::ReadBytes(void* dest, u32 len) {
 
 u32 CInputStream::ReadBits(u32 bitCount) {
   u32 ret = 0;
-  const s32 shiftAmt = x20_bitOffset - s32(bitCount);
-  if (shiftAmt < 0) {
-    /* OR in remaining bits of cached value */
-    u32 mask = bitCount == 32 ? UINT32_MAX : ((1U << bitCount) - 1);
-    ret |= (x1c_bitWord << u32(-shiftAmt)) & mask;
-    /* Load in exact number of bytes remaining */
-    auto loadDiv = std::div(-shiftAmt, 8);
-    if (loadDiv.rem != 0) {
-      ++loadDiv.quot;
-    }
-    Get(reinterpret_cast<u8*>(&x1c_bitWord) + 4 - loadDiv.quot, loadDiv.quot);
-#if METAFORCE_TARGET_BYTE_ORDER == __ORDER_LITTLE_ENDIAN__
+  u32 bitOffset = x20_bitOffset;
+  if (bitOffset < bitCount) {
+    u32 shiftAmt = bitCount - bitOffset;
+    const u32 mask = bitOffset == 32 ? 0xffffffff : (1 << bitOffset) - 1;
+    const u32 bitWord = x1c_bitWord;
+    x20_bitOffset = 0;
+    const u32 len = (shiftAmt / 8) + static_cast<unsigned int>((shiftAmt % 8) != 0);
+    Get(reinterpret_cast<u8*>(&x1c_bitWord), len);
+#if METAFORCE_TARGET_BYTE_ORDER == __LITTLE_ENDIAN
     x1c_bitWord = CBasics::SwapBytes(x1c_bitWord);
 #endif
-    /* New bit offset */
-    x20_bitOffset = loadDiv.quot * 8 + shiftAmt;
-    /* OR in next bits */
-    mask = (1U << u32(-shiftAmt)) - 1;
-    ret |= (x1c_bitWord >> x20_bitOffset) & mask;
+    const u32 mask2 = shiftAmt == 32 ? 0xffffffff : (1 << shiftAmt) - 1;
+    u32 tmp = x20_bitOffset;
+    x20_bitOffset = len * 8;
+    ret = ((mask & (bitWord >> (32 - bitOffset))) << shiftAmt) |
+          ((mask2 & (x1c_bitWord >> (32 - shiftAmt))) << tmp);
+    x20_bitOffset -= shiftAmt;
+    x1c_bitWord <<= u64(shiftAmt);
   } else {
-    /* OR in bits of cached value */
-    const u32 mask = bitCount == 32 ? UINT32_MAX : ((1U << bitCount) - 1);
-    ret |= (x1c_bitWord >> u32(shiftAmt)) & mask;
-    /* New bit offset */
+    u32 baseVal2 = (bitCount == 0x20 ? 0xffffffff : (1 << bitCount) - 1);
     x20_bitOffset -= bitCount;
+    ret = baseVal2 & (x1c_bitWord >> (32 - bitCount));
+    x1c_bitWord <<= u64(bitCount);
   }
 
   return ret;

@@ -19,11 +19,10 @@ class COutputStream {
 protected:
   void DoFlush();
   void DoPut(const u8* ptr, u32 len);
-
-public:
-  COutputStream(u8* ptr, s32 unk);
-  virtual ~COutputStream();
   virtual void Write(const u8* ptr, u32 len) = 0;
+public:
+  COutputStream(s32 unk);
+  virtual ~COutputStream();
 
   void WriteBits(u32 val, u32 bitCount);
   void WriteChar(u8 c);

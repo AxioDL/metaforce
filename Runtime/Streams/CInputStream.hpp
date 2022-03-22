@@ -18,12 +18,11 @@ class CInputStream {
   bool InternalReadNext();
   bool GrabAnotherBlock();
 
+  virtual u32 Read(void* dest, u32 len) = 0;
 public:
   explicit CInputStream(s32 len);
   CInputStream(const void* ptr, u32 len, bool owned);
   virtual ~CInputStream();
-
-  virtual u32 Read(void* dest, u32 len) = 0;
 
   u32 GetReadPosition() const { return x18_readPosition; }
   u32 ReadBits(u32 bitCount);

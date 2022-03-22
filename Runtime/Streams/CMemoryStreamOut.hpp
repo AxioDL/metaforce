@@ -15,13 +15,14 @@ private:
   u32 x84_position = 0;
   bool x88_owned;
 
+protected:
+  void Write(const u8* ptr, u32 len) override;
 public:
-  CMemoryStreamOut(u8* workBuf, u32 len, EOwnerShip ownership = EOwnerShip::NotOwned, s32 unk = 4096)
-  : COutputStream(workBuf, unk), x7c_ptr(workBuf), x80_len(len), x88_owned(ownership == EOwnerShip::Owned) {}
+  CMemoryStreamOut(u8* workBuf, u32 len, EOwnerShip ownership = EOwnerShip::NotOwned, s32 blockLen = 4096)
+  : COutputStream(blockLen), x7c_ptr(workBuf), x80_len(len), x88_owned(ownership == EOwnerShip::Owned) {}
 
   ~CMemoryStreamOut() override;
 
-  void Write(const u8* ptr, u32 len) override;
   u32 GetWritePosition() const { return x84_position; }
 };
 } // namespace metaforce

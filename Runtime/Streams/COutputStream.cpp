@@ -7,11 +7,10 @@
 namespace metaforce {
 static u32 min_containing_bytes(u32 v) {
   v = 32 - v;
-  v = (v >> 3) - (static_cast<s32>(-(v & 7)) >> 31);
-  return v;
+  return (v / 8) + static_cast<unsigned int>((v % 8) != 0);
 }
 
-COutputStream::COutputStream(u8* ptr, s32 len) : x8_bufLen(len) {
+COutputStream::COutputStream(s32 len) : x8_bufLen(len) {
   xc_ptr = len <= 64 ? reinterpret_cast<u8*>(((reinterpret_cast<uintptr_t>(x1c_scratch) + 7) & ~7) + 6) : new u8[len];
 }
 
@@ -34,24 +33,23 @@ void COutputStream::DoPut(const u8* ptr, u32 len) {
   }
 
   x10_numWrites += len;
-  u32 offset = x4_position;
   u32 curLen = len;
-  if (x8_bufLen < len + offset) {
+  if (x8_bufLen < len + x4_position) {
     while (curLen != 0) {
-      offset = x4_position;
-      u32 count = x8_bufLen - offset;
+      u32 count = x8_bufLen - x4_position;
       if (curLen < count) {
         count = curLen;
       }
       if (count == 0) {
         DoFlush();
       } else {
-        memcpy(xc_ptr + offset, ptr + (len - curLen), count);
+        memcpy(xc_ptr + x4_position, ptr + (len - curLen), count);
+        x4_position += count;
         curLen -= count;
       }
     }
   } else {
-    memcpy(xc_ptr + offset, ptr, len);
+    memcpy(xc_ptr + x4_position, ptr, len);
     x4_position += len;
   }
 }
@@ -77,28 +75,21 @@ void COutputStream::Put(const u8* ptr, u32 len) {
   DoPut(ptr, len);
 }
 
-void COutputStream::WriteBits(u32 val, u32 bitCount) {
-  const s32 shiftAmt = x18_shiftRegisterOffset - s32(bitCount);
-  if (shiftAmt < 0) {
-    /* OR remaining bits to cached value */
-    const u32 mask = (1U << x18_shiftRegisterOffset) - 1;
-    x14_shiftRegister |= (val >> u32(-shiftAmt)) & mask;
-
-    /* Write out 32-bits */
+void COutputStream::WriteBits(u32 value, u32 bitCount) {
+  u32 bitOffset = x18_shiftRegisterOffset;
+  if (bitOffset < bitCount) {
+    u32 shiftAmt = bitCount - bitOffset;
+    x14_shiftRegister |= (value >> shiftAmt) & (bitOffset == 32 ? 0xffffffff : (1 << bitOffset) - 1);
+    x18_shiftRegisterOffset = 0;
     FlushShiftRegister();
-
-    /* Cache remaining bits */
-    x18_shiftRegisterOffset = 0x20 + shiftAmt;
-    x14_shiftRegister = val << x18_shiftRegisterOffset;
+    const u32 mask = (shiftAmt == 0x20 ? 0xffffffff : (1 << shiftAmt) - 1);
+    x14_shiftRegister = (value & mask) << (0x20 - shiftAmt);
+    x18_shiftRegisterOffset -= shiftAmt;
   } else {
-    /* OR bits to cached value */
-    const u32 mask = bitCount == 32 ? UINT32_MAX : ((1U << bitCount) - 1);
-    x14_shiftRegister |= (val & mask) << u32(shiftAmt);
-
-    /* New bit offset */
+    const u32 mask = bitCount == 32 ? 0xffffffff :  (1 << bitCount) - 1;
+    x14_shiftRegister |= (value & mask) << (bitOffset - bitCount);
     x18_shiftRegisterOffset -= bitCount;
   }
-
 }
 
 void COutputStream::WriteChar(u8 c) {
