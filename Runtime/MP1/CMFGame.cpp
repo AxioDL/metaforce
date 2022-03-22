@@ -134,7 +134,8 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
           } else if (!cineCam) {
             x14_stateManager->DeferStateTransition(EStateManagerTransition::PauseGame);
           }
-        } else if ((input.PZ() || input.PKey('\t')) && !cineCam && x14_stateManager->CanShowMapScreen()) {
+        } else if ((input.PZ() || input.PSpecialKey(aurora::SpecialKey::Tab)) && !cineCam &&
+                   x14_stateManager->CanShowMapScreen()) {
           x14_stateManager->DeferStateTransition(EStateManagerTransition::MapScreen);
         }
       }
@@ -347,8 +348,8 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
 
     x1c_loadList.clear();
 
-//    if (!CGraphics::g_BooFactory->areShadersReady())
-//      return EMessageReturn::Exit;
+    //    if (!CGraphics::g_BooFactory->areShadersReady())
+    //      return EMessageReturn::Exit;
 
     wtMgr->StartTextFadeOut();
     x2c_25_transitionFinished = wtMgr->IsTransitionFinished();

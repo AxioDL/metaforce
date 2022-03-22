@@ -662,8 +662,7 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
 
   bool mouseHeld = false;
   if (const auto& kbm = input.GetKBM()) {
-    if (kbm->m_mouseButtons[size_t(EMouseButton::Middle)] ||
-        kbm->m_mouseButtons[size_t(EMouseButton::Secondary)]) {
+    if (kbm->m_mouseButtons[size_t(EMouseButton::Middle)] || kbm->m_mouseButtons[size_t(EMouseButton::Secondary)]) {
       mouseHeld = true;
       if (float(m_mouseDelta.x()) < 0.f)
         right += -m_mouseDelta.x();
@@ -1084,7 +1083,8 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
     }
   }
 
-  if (input.PZ() || input.PKey('\t') || input.PB() || input.PSpecialKey(aurora::SpecialKey::Esc)) {
+  if (input.PZ() || input.PSpecialKey(aurora::SpecialKey::Tab) || input.PB() ||
+      input.PSpecialKey(aurora::SpecialKey::Esc)) {
     if (x328_ == 0) {
       if (CanLeaveMapScreenInternal(mgr)) {
         LeaveMapScreen(mgr);

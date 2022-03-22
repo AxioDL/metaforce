@@ -617,7 +617,7 @@ void CNESEmulator::ProcessUserInput(const CFinalInput& input, int) {
   inValReads[BUTTON_DOWN] = input.DDPDown() || input.DLADown();
   inValReads[BUTTON_LEFT] = input.DDPLeft() || input.DLALeft();
   inValReads[BUTTON_RIGHT] = input.DDPRight() || input.DLARight();
-  inValReads[BUTTON_SELECT] = input.DZ() || input.DKey('\t');
+  inValReads[BUTTON_SELECT] = input.DZ() || input.DSpecialKey(aurora::SpecialKey::Tab);
   inValReads[BUTTON_START] = input.DStart() || input.DSpecialKey(aurora::SpecialKey::Esc);
 }
 

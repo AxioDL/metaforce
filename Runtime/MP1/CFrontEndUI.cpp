@@ -981,7 +981,7 @@ CFrontEndUI::SFusionBonusFrame::EAction CFrontEndUI::SFusionBonusFrame::ProcessU
       }
     } else if (x24_loadedFrame) {
       CFinalInput useInput = input;
-      if (input.PZ() || input.PKey('\t')) {
+      if (input.PZ() || input.PSpecialKey(aurora::SpecialKey::Tab)) {
         useInput.x2d_b28_PA = true;
         m_gbaOverride = true;
       }
