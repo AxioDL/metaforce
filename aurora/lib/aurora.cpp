@@ -414,6 +414,9 @@ void set_fullscreen(bool fullscreen) noexcept {
   SDL_SetWindowFullscreen(g_window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
 
+uint32_t  get_which_controller_for_player(int32_t index) noexcept {
+  return input::get_instance_for_player(index);
+}
 int32_t get_controller_player_index(uint32_t instance) noexcept { return input::player_index(instance); }
 
 void set_controller_player_index(uint32_t instance, int32_t index) noexcept {

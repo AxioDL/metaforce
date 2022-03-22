@@ -20,7 +20,7 @@ struct GameController {
 };
 absl::flat_hash_map<Uint32, GameController> g_GameControllers;
 
-GameController get_controller_for_player(u32 player) {
+GameController get_controller_for_player(u32 player) noexcept {
   for (const auto& [which, controller] : g_GameControllers) {
     if (player_index(which) == player) {
       return controller;
@@ -30,7 +30,7 @@ GameController get_controller_for_player(u32 player) {
   return {};
 }
 
-Sint32 get_instance_for_player(u32 player) {
+Sint32 get_instance_for_player(u32 player) noexcept {
   for (const auto& [which, controller] : g_GameControllers) {
     if (player_index(which) == player) {
       return which;

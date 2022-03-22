@@ -96,8 +96,8 @@ struct CFinalInput {
   bool PDPLeft() const { return x2e_b30_PDPLeft; }
   bool PDPDown() const { return x2e_b29_PDPDown; }
   bool PDPUp() const { return x2e_b27_PDPUp; }
-  bool PRTrigger() const { return x28_anaRightTriggerP > 0.5f; }
-  bool PLTrigger() const { return x24_anaLeftTriggerP > 0.5f; }
+  bool PRTrigger() const { return x28_anaRightTriggerP > 0.05f; }
+  bool PLTrigger() const { return x24_anaLeftTriggerP > 0.05f; }
   bool PRARight() const { return x10_anaRightX > 0.7f && x22_enableAnaRightXP; }
   bool PRALeft() const { return x10_anaRightX < -0.7f && x22_enableAnaRightXP; }
   bool PRADown() const { return x14_anaRightY < -0.7f && x23_enableAnaRightYP; }

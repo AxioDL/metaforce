@@ -924,15 +924,16 @@ void ImGuiConsole::ShowInputViewer() {
     return;
   }
   auto input = g_InputGenerator->GetLastInput();
-  if (input.x4_controllerIdx != 0) {
+  if (input.ControllerIdx() != 0) {
     return;
   }
-#if 0
-  if (m_whichController != input.m_which) {
-    m_controllerName = static_cast<std::string>(aurora::get_controller_name(input.m_which));
-    m_whichController = input.m_which;
+
+  u32 thisWhich = aurora::get_which_controller_for_player(input.ControllerIdx());
+  if (m_whichController != thisWhich) {
+    m_controllerName = static_cast<std::string>(aurora::get_controller_name(thisWhich));
+    m_whichController = thisWhich;
   }
-#endif
+
   // Code -stolen- borrowed from Practice Mod
   ImGuiIO& io = ImGui::GetIO();
   ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |

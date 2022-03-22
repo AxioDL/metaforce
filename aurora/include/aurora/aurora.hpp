@@ -249,6 +249,7 @@ void set_window_title(zstring_view title) noexcept;
 [[nodiscard]] Backend get_backend() noexcept;
 [[nodiscard]] std::string_view get_backend_string() noexcept;
 void set_fullscreen(bool fullscreen) noexcept;
+[[nodiscard]] uint32_t get_which_controller_for_player(int32_t index) noexcept;
 [[nodiscard]] int32_t get_controller_player_index(uint32_t which) noexcept;
 void set_controller_player_index(uint32_t which, int32_t index) noexcept;
 [[nodiscard]] bool is_controller_gamecube(uint32_t which) noexcept;

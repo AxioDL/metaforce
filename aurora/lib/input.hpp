@@ -7,6 +7,7 @@
 #include "SDL_mouse.h"
 
 namespace aurora::input {
+Sint32 get_instance_for_player(u32 player) noexcept;
 Sint32 add_controller(Sint32 which) noexcept;
 void remove_controller(Uint32 instance) noexcept;
 Sint32 player_index(Uint32 instance) noexcept;

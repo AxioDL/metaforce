@@ -132,7 +132,7 @@ void CDolphinController::ProcessDigitalButton(u32 controller, CControllerButton&
 }
 void CDolphinController::ProcessAnalogButton(float value, CControllerAxis& axis) {
   float absolute = value * (1 / 150.f);
-  if (value * (1 / 150.f) > 1.f) {
+  if (value * (1 / 150.f) > kAbsoluteMaximum) {
     absolute = kAbsoluteMaximum;
   }
 
