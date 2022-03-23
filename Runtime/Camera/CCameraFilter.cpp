@@ -8,14 +8,14 @@
 #include "Runtime/Graphics/Shaders/CRandomStaticFilter.hpp"
 #include "Runtime/Graphics/Shaders/CScanLinesFilter.hpp"
 #include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/Graphics/CGX.hpp"
 
 #include <algorithm>
 #include <zeus/CColor.hpp>
 
 namespace metaforce {
 
-template <class S>
-void CCameraFilterPass<S>::Update(float dt) {
+void CCameraFilterPass::Update(float dt) {
   if (x10_remTime <= 0.f)
     return;
 
@@ -31,26 +31,16 @@ void CCameraFilterPass<S>::Update(float dt) {
       x20_nextTxtr = {};
     }
   }
-
-  if (x0_curType == EFilterType::Passthru)
-    m_shader = std::nullopt;
-  else if (x0_curType != origType)
-    m_shader.emplace(x0_curType, x24_texObj);
 }
 
-template <class S>
-void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape, float time, const zeus::CColor& color,
-                                     CAssetId txtr) {
+void CCameraFilterPass::SetFilter(EFilterType type, EFilterShape shape, float time, const zeus::CColor& color,
+                                  CAssetId txtr) {
   if (time == 0.f) {
     xc_duration = 0.f;
     x10_remTime = 0.f;
 
     if (txtr.IsValid())
       x24_texObj = g_SimplePool->GetObj({FOURCC('TXTR'), txtr});
-    if (type == EFilterType::Passthru)
-      m_shader = std::nullopt;
-    else if (x0_curType != type || (x20_nextTxtr != txtr && txtr.IsValid()))
-      m_shader.emplace(type, x24_texObj);
 
     x4_nextType = type;
     x0_curType = type;
@@ -90,28 +80,18 @@ void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape, float
       }
       x0_curType = x4_nextType;
     }
-
-    if (x0_curType == EFilterType::Passthru)
-      m_shader = std::nullopt;
-    else if (x0_curType != origType || (x20_nextTxtr != origTxtr && x20_nextTxtr.IsValid()))
-      m_shader.emplace(x0_curType, x24_texObj);
   }
 }
 
-template <class S>
-void CCameraFilterPass<S>::DisableFilter(float time) {
+void CCameraFilterPass::DisableFilter(float time) {
   SetFilter(EFilterType::Passthru, x8_shape, time, zeus::skWhite, {});
 }
 
-template <class S>
-void CCameraFilterPass<S>::Draw() {
-  if (!m_shader) {
-    return;
-  }
-  m_shader->DrawFilter(x8_shape, x18_curColor, GetT(x4_nextType == EFilterType::Passthru));
+void CCameraFilterPass::Draw() {
+  DrawFilter(x0_curType, x8_shape, x18_curColor, x24_texObj.GetObj(), GetT(x4_nextType == EFilterType::Passthru));
 }
 
-float CCameraFilterPassBase::GetT(bool invert) const {
+float CCameraFilterPass::GetT(bool invert) const {
   float tmp;
   if (xc_duration == 0.f)
     tmp = 1.f;
@@ -122,41 +102,150 @@ float CCameraFilterPassBase::GetT(bool invert) const {
   return tmp;
 }
 
-void CCameraFilterPassPoly::SetFilter(EFilterType type, EFilterShape shape, float time, const zeus::CColor& color,
-                                      CAssetId txtr) {
-  if (!m_filter || m_shape != shape) {
-    m_shape = shape;
-    switch (shape) {
-    case EFilterShape::Fullscreen:
-    case EFilterShape::FullscreenHalvesLeftRight:
-    case EFilterShape::FullscreenHalvesTopBottom:
-    case EFilterShape::FullscreenQuarters:
-      if (txtr.IsValid())
-        m_filter = std::make_unique<CCameraFilterPass<CTexturedQuadFilterAlpha>>();
-      else
-        m_filter = std::make_unique<CCameraFilterPass<CColoredQuadFilter>>();
-      break;
-    case EFilterShape::CinemaBars:
-      m_filter = std::make_unique<CCameraFilterPass<CWideScreenFilter>>();
-      break;
-    case EFilterShape::ScanLinesEven:
-      m_filter = std::make_unique<CCameraFilterPass<CScanLinesFilterEven>>();
-      break;
-    case EFilterShape::ScanLinesOdd:
-      m_filter = std::make_unique<CCameraFilterPass<CScanLinesFilterOdd>>();
-      break;
-    case EFilterShape::RandomStatic:
-      m_filter = std::make_unique<CCameraFilterPass<CRandomStaticFilter>>();
-      break;
-    case EFilterShape::CookieCutterDepthRandomStatic:
-      m_filter = std::make_unique<CCameraFilterPass<CCookieCutterDepthRandomStaticFilter>>();
-      break;
-    default:
-      break;
-    }
+void CCameraFilterPass::DrawFilter(EFilterType type, EFilterShape shape, const zeus::CColor& color, CTexture* tex,
+                                   float lod) {
+  switch (type) {
+  case EFilterType::Multiply:
+    g_Renderer->SetBlendMode_ColorMultiply();
+    break;
+  case EFilterType::Invert:
+    g_Renderer->SetBlendMode_InvertDst();
+    break;
+  case EFilterType::Add:
+    g_Renderer->SetBlendMode_AdditiveAlpha();
+    break;
+  case EFilterType::Subtract:
+    CGX::SetBlendMode(GX::BM_SUBTRACT, GX::BL_ONE, GX::BL_ONE, GX::LO_CLEAR);
+    break;
+  case EFilterType::Blend:
+    g_Renderer->SetBlendMode_AlphaBlended();
+    break;
+  case EFilterType::Widescreen:
+    return;
+  case EFilterType::SceneAdd:
+    g_Renderer->SetBlendMode_AdditiveDestColor();
+    break;
+  case EFilterType::NoColor:
+    g_Renderer->SetBlendMode_NoColorWrite();
+    break;
+  default:
+    return;
   }
-  if (m_filter)
-    m_filter->SetFilter(type, shape, time, color, txtr);
+  DrawFilterShape(shape, color, tex, lod);
+  g_Renderer->SetBlendMode_AlphaBlended();
+}
+
+void CCameraFilterPass::DrawFullScreenColoredQuad(const zeus::CColor& color) {
+  const auto [lt, rb] = g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
+  g_Renderer->SetDepthReadWrite(false, false);
+  g_Renderer->BeginTriangleStrip(4);
+  g_Renderer->PrimColor(color);
+  g_Renderer->PrimVertex({lt.x() - 1.f, 0.f, 1.f + rb.y()});
+  g_Renderer->PrimVertex({lt.x() - 1.f, 0.f, lt.y() - 1.f});
+  g_Renderer->PrimVertex({1.f + rb.x(), 0.f, 1.f + rb.y()});
+  g_Renderer->PrimVertex({1.f + rb.x(), 0.f, lt.y() - 1.f});
+  g_Renderer->EndPrimitive();
+}
+
+void CCameraFilterPass::DrawFilterShape(EFilterShape shape, const zeus::CColor& color, CTexture* tex, float lod) {
+  switch (shape) {
+  default:
+    if (tex == nullptr) {
+      DrawFullScreenColoredQuad(color);
+    } else {
+      DrawFullScreenTexturedQuad(color, tex, lod);
+    }
+    break;
+  case EFilterShape::FullscreenQuarters:
+    if (tex == nullptr) {
+      DrawFullScreenColoredQuad(color);
+    } else {
+      DrawFullScreenTexturedQuadQuarters(color, tex, lod);
+    }
+    break;
+  case EFilterShape::CinemaBars:
+    DrawWideScreen(color, tex, lod);
+    break;
+  case EFilterShape::ScanLinesEven:
+    DrawScanLines(color, true);
+    break;
+  case EFilterShape::ScanLinesOdd:
+    DrawScanLines(color, false);
+    break;
+  case EFilterShape::RandomStatic:
+    DrawRandomStatic(color, 1.f, false);
+    break;
+  case EFilterShape::CookieCutterDepthRandomStatic:
+    DrawRandomStatic(color, lod, true);
+    break;
+  }
+}
+
+void CCameraFilterPass::DrawFullScreenTexturedQuadQuarters(const zeus::CColor& color, CTexture* tex, float lod) {
+  const auto [lt, rb] = g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+  g_Renderer->SetDepthReadWrite(false, false);
+  if (tex != nullptr) {
+    tex->Load(GX::TEXMAP0, EClampMode::Repeat);
+  }
+  CGraphics::SetCullMode(ERglCullMode::None);
+  for (int i = 0; i < 4; ++i) {
+    g_Renderer->SetModelMatrix(zeus::CTransform::Scale((i & 1) != 0 ? 1.f : -1.f, 0.f, (i & 2) != 0 ? 1.f : -1.f));
+    CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+    CGraphics::StreamColor(color);
+    CGraphics::StreamTexcoord(lod, lod);
+    CGraphics::StreamVertex(lt.x(), 0.f, rb.y());
+    CGraphics::StreamTexcoord(lod, 0.f);
+    CGraphics::StreamVertex(lt.x(), 0.f, 0.f);
+    CGraphics::StreamTexcoord(0.f, lod);
+    CGraphics::StreamVertex(0.f, 0.f, rb.y());
+    CGraphics::StreamTexcoord(0.f, 0.f);
+    CGraphics::StreamVertex(0.f, 0.f, 0.f);
+    CGraphics::StreamEnd();
+  }
+  CGraphics::SetCullMode(ERglCullMode::Front);
+}
+
+void CCameraFilterPass::DrawFullScreenTexturedQuad(const zeus::CColor& color, CTexture* tex, float lod) {
+  const float u = 0.5f - 0.5f * lod;
+  const float v = 0.5f + 0.5f * lod;
+  const auto [lt, rb] = g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
+  g_Renderer->SetDepthReadWrite(false, false);
+  if (tex != nullptr) {
+    tex->Load(GX::TEXMAP0, EClampMode::Repeat);
+  }
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+  CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+  CGraphics::StreamColor(color);
+  CGraphics::StreamTexcoord(u, v);
+  CGraphics::StreamVertex(lt.x() - 1.f, 0.f, 1.f + rb.y());
+  CGraphics::StreamTexcoord(u, u);
+  CGraphics::StreamVertex(lt.x() - 1.f, 0.f, lt.y() - 1.f);
+  CGraphics::StreamTexcoord(v, v);
+  CGraphics::StreamVertex(1.f + rb.x(), 0.f, 1.f + rb.y());
+  CGraphics::StreamTexcoord(v, u);
+  CGraphics::StreamVertex(1.f + rb.x(), 0.f, lt.y() - 1.f);
+  CGraphics::StreamEnd();
+}
+
+void CCameraFilterPass::DrawRandomStatic(const zeus::CColor& color, float alpha, bool cookieCutterDepth) {
+  // TODO
+}
+
+void CCameraFilterPass::DrawScanLines(const zeus::CColor& color, bool even) {
+  const auto [lt, rb] = g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
+  g_Renderer->SetDepthReadWrite(false, false);
+  g_Renderer->SetModelMatrix({});
+  // CGraphics::SetLineWidth(2.f, 5);
+  // g_Renderer->BeginLines(...);
+  // TODO
+  // CGraphics::SetLineWidth(1.f, 5);
+}
+
+void CCameraFilterPass::DrawWideScreen(const zeus::CColor& color, CTexture* tex, float lod) {
+  // TODO
 }
 
 void CCameraBlurPass::Draw(bool clearDepth) {

@@ -600,7 +600,7 @@ void CStateManager::DrawDebugStuff() const {
 
 void CStateManager::RenderCamerasAndAreaLights() {
   x870_cameraManager->RenderCameras(*this);
-  for (const CCameraFilterPassPoly& filter : xb84_camFilterPasses) {
+  for (auto& filter : xb84_camFilterPasses) {
     filter.Draw();
   }
 }

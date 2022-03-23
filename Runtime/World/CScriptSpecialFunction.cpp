@@ -835,7 +835,7 @@ void CScriptSpecialFunction::ThinkChaffTarget(float dt, CStateManager& mgr) {
   const zeus::CAABox box(5.f - GetTranslation(), 5.f + GetTranslation());
   EntityList nearList;
   mgr.BuildNearList(nearList, box, CMaterialFilter::MakeInclude({EMaterialTypes::Projectile}), nullptr);
-  CCameraFilterPassPoly& filter = mgr.GetCameraFilterPass(7);
+  auto& filter = mgr.GetCameraFilterPass(7);
 
   for (const auto& uid : nearList) {
     if (const TCastToPtr<CEnergyProjectile> proj = mgr.ObjectById(uid)) {

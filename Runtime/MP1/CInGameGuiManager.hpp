@@ -69,7 +69,7 @@ private:
   std::vector<TLockedToken<CDependencyGroup>> xc8_inGameGuiDGRPs;
   std::vector<u32> xd8_;
   std::vector<CToken> xe8_pauseResources;
-  CCameraFilterPass<CColoredQuadFilter> xf8_camFilter;
+  CCameraFilterPass xf8_camFilter;
   CAssetId x124_pauseGameHudMessage;
   float x128_pauseGameHudTime = 0.f;
   std::list<CToken> x12c_;

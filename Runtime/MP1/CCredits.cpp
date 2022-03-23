@@ -127,8 +127,6 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
   }
     [[fallthrough]];
   case 3: {
-    m_videoFilter.Update(dt);
-    m_textFilter.Update(dt);
     // if (!x28_->PumpIndexLoad())
     //    break;
     x28_->Update(dt);
@@ -212,8 +210,7 @@ void CCredits::DrawVideo() {
       alpha = zeus::clamp(0.f, alpha, 1.f);
       zeus::CColor filterCol = zeus::skBlack;
       filterCol.a() = alpha;
-      m_videoFilter.SetFilter(EFilterType::Blend, EFilterShape::Fullscreen, 1.f, filterCol, {});
-      m_videoFilter.Draw();
+      CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, filterCol, nullptr, 1.f);
     }
   }
 }
@@ -221,8 +218,7 @@ void CCredits::DrawVideo() {
 void CCredits::DrawText() {
   float width = 896.f * CGraphics::GetViewportAspect();
   CGraphics::SetOrtho(0.f, width, 896.f, 0.f, -4096.f, 4096.f);
-  auto region =
-      std::make_pair<zeus::CVector2f, zeus::CVector2f>(zeus::CVector2f{0.f, 0.f}, zeus::CVector2f{width, 896.f});
+  auto region = std::make_pair(zeus::CVector2f{0.f, 0.f}, zeus::CVector2f{width, 896.f});
   CGraphics::SetViewPointMatrix(zeus::CTransform());
   CGraphics::SetModelMatrix(zeus::CTransform::Translate((width - 1280.f) / 2.f, 0.f, 896.f));
   float dVar5 = (x48_ - (region.second.y() - region.first.y()));
@@ -231,8 +227,7 @@ void CCredits::DrawText() {
       DrawText(*text, {0.5f * (region.second.x() - text->GetExtentX()), 0.f, x48_ - offset.x});
     }
   }
-  m_textFilter.SetFilter(EFilterType::Multiply, EFilterShape::CinemaBars, 1.f, zeus::skBlack, {});
-  m_textFilter.Draw();
+  CCameraFilterPass::DrawFilter(EFilterType::Multiply, EFilterShape::CinemaBars, zeus::skBlack, nullptr, 1.f);
 }
 
 void CCredits::DrawText(CGuiTextSupport& text, const zeus::CVector3f& translation) {

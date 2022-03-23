@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Runtime/CPlayerState.hpp"
-#include "Runtime/RetroTypes.hpp"
-#include "Runtime/rstl.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/CPlayerState.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
 
 #include <zeus/CVector2f.hpp>
 
@@ -45,21 +45,20 @@ class CPlayerVisor {
   float x58_scanMagInterp = 1.f;
   CSfxHandle x5c_visorLoopSfx;
   CSfxHandle x60_scanningLoopSfx;
-  CCameraFilterPass<CColoredQuadFilter> x64_scanDim;
+  CCameraFilterPass x64_scanDim;
   CCameraBlurPass x90_xrayBlur;
   float xc4_vpScaleX = 1.f;
   float xc8_vpScaleY = 1.f;
-  TLockedToken<CModel> xcc_scanFrameCorner;
-  TLockedToken<CModel> xd8_scanFrameCenterSide;
-  TLockedToken<CModel> xe4_scanFrameCenterTop;
-  TLockedToken<CModel> xf0_scanFrameStretchSide;
-  TLockedToken<CModel> xfc_scanFrameStretchTop;
-   TCachedToken<CModel> x108_newScanPane;
-//  CTexturedQuadFilter x108_newScanPane;
-  TLockedToken<CModel> x114_scanShield;
+  TCachedToken<CModel> xcc_scanFrameCorner;
+  TCachedToken<CModel> xd8_scanFrameCenterSide;
+  TCachedToken<CModel> xe4_scanFrameCenterTop;
+  TCachedToken<CModel> xf0_scanFrameStretchSide;
+  TCachedToken<CModel> xfc_scanFrameStretchTop;
+  TCachedToken<CModel> x108_newScanPane;
+  TCachedToken<CModel> x114_scanShield;
   int x120_assetLockCountdown = 0;
-  TLockedToken<CModel> x124_scanIconNoncritical;
-  TLockedToken<CModel> x130_scanIconCritical;
+  TCachedToken<CModel> x124_scanIconNoncritical;
+  TCachedToken<CModel> x130_scanIconCritical;
   rstl::reserved_vector<SScanTarget, 64> x13c_scanTargets;
   TLockedToken<CTexture> x540_xrayPalette;
   float x54c_scanFrameColorInterp = 0.f;

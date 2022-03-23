@@ -170,8 +170,8 @@ private:
   CFinalInput xb54_finalInput;
 
   static constexpr size_t numCameraPasses = 9;
-  std::array<CCameraFilterPassPoly, numCameraPasses> xb84_camFilterPasses; // size: 0x2c
-  std::array<CCameraBlurPass, numCameraPasses> xd14_camBlurPasses;         // size: 0x34
+  std::array<CCameraFilterPass, numCameraPasses> xb84_camFilterPasses; // size: 0x2c
+  std::array<CCameraBlurPass, numCameraPasses> xd14_camBlurPasses;     // size: 0x34
 
   s32 xeec_hintIdx = -1;
   u32 xef0_hintPeriods = 0;
@@ -385,8 +385,8 @@ public:
   void ClearActiveRandom() { x900_activeRandom = nullptr; }
   CRumbleManager& GetRumbleManager() { return *x88c_rumbleManager; }
   const CRumbleManager& GetRumbleManager() const { return *x88c_rumbleManager; }
-  CCameraFilterPassPoly& GetCameraFilterPass(int idx) { return xb84_camFilterPasses[idx]; }
-  const CCameraFilterPassPoly& GetCameraFilterPass(int idx) const { return xb84_camFilterPasses[idx]; }
+  CCameraFilterPass& GetCameraFilterPass(int idx) { return xb84_camFilterPasses[idx]; }
+  const CCameraFilterPass& GetCameraFilterPass(int idx) const { return xb84_camFilterPasses[idx]; }
   CCameraBlurPass& GetCameraBlurPass(int idx) { return xd14_camBlurPasses[idx]; }
   const CCameraBlurPass& GetCameraBlurPass(int idx) const { return xd14_camBlurPasses[idx]; }
 

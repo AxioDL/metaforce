@@ -695,8 +695,23 @@ void CCubeRenderer::SetDebugOption(IRenderer::EDebugOption option, s32 value) {
 }
 
 void CCubeRenderer::BeginPrimitive(IRenderer::EPrimitiveType type, s32 nverts) {
+  constexpr std::array vtxDescList{
+      GX::VtxDescList{GX::VA_POS, GX::DIRECT},
+      GX::VtxDescList{GX::VA_NRM, GX::DIRECT},
+      GX::VtxDescList{GX::VA_CLR0, GX::DIRECT},
+      GX::VtxDescList{},
+  };
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX::SRC_REG, GX::SRC_VTX, {}, GX::DF_NONE, GX::AF_NONE);
+  CGX::SetNumChans(1);
+  CGX::SetNumTexGens(0);
+  CGX::SetNumTevStages(1);
+  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
+  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_RASC);
+  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_RASA);
+  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
   x18_primVertCount = nverts;
-  CGraphics::StreamBegin(GX::Primitive(type));
+  CGX::SetVtxDescv(vtxDescList.data());
+  CGX::Begin(GX::Primitive(type), GX::VTXFMT0, nverts);
 }
 
 void CCubeRenderer::BeginLines(s32 nverts) { BeginPrimitive(EPrimitiveType::Lines, nverts); }
@@ -711,9 +726,9 @@ void CCubeRenderer::BeginTriangleFan(s32 nverts) { BeginPrimitive(EPrimitiveType
 
 void CCubeRenderer::PrimVertex(const zeus::CVector3f& vertex) {
   --x18_primVertCount;
-  CGraphics::StreamColor(x2e0_primColor);
-  CGraphics::StreamNormal(x2e4_primNormal);
-  CGraphics::StreamVertex(vertex);
+  GXPosition3f32(vertex);
+  GXNormal3f32(x2e4_primNormal);
+  GXColor4f32(x2e0_primColor);
 }
 
 void CCubeRenderer::PrimNormal(const zeus::CVector3f& normal) { x2e4_primNormal = normal; }
@@ -726,7 +741,7 @@ void CCubeRenderer::EndPrimitive() {
   while (x18_primVertCount > 0) {
     PrimVertex(zeus::skZero3f);
   }
-  CGraphics::StreamEnd();
+  CGX::End();
 }
 
 void CCubeRenderer::SetAmbientColor(const zeus::CColor& color) { CGraphics::SetAmbientColor(color); }

@@ -15,8 +15,6 @@
 namespace metaforce::MP1 {
 
 CPlayerVisor::CPlayerVisor(CStateManager&) {
-  // TODO
-  // : x108_newScanPane(EFilterType::Blend, CGraphics::g_SpareTexture.get())
   xcc_scanFrameCorner = g_SimplePool->GetObj("CMDL_ScanFrameCorner");
   xd8_scanFrameCenterSide = g_SimplePool->GetObj("CMDL_ScanFrameCenterSide");
   xe4_scanFrameCenterTop = g_SimplePool->GetObj("CMDL_ScanFrameCenterTop");
@@ -289,37 +287,33 @@ CPlayerVisor::EScanWindowState CPlayerVisor::GetDesiredScanWindowState(const CSt
 }
 
 void CPlayerVisor::LockUnlockAssets() {
-#if 0
-    if (x1c_curVisor == CPlayerState::EPlayerVisor::Scan)
-        x120_assetLockCountdown = 2;
-    else if (x120_assetLockCountdown > 0)
-        --x120_assetLockCountdown;
+  if (x1c_curVisor == CPlayerState::EPlayerVisor::Scan) {
+    x120_assetLockCountdown = 2;
+  } else if (x120_assetLockCountdown > 0) {
+    --x120_assetLockCountdown;
+  }
 
-    if (x120_assetLockCountdown > 0)
-    {
-        xcc_scanFrameCorner.Lock();
-        xd8_scanFrameCenterSide.Lock();
-        xe4_scanFrameCenterTop.Lock();
-        xf0_scanFrameStretchSide.Lock();
-        xfc_scanFrameStretchTop.Lock();
-        //x108_newScanPane.Lock();
-        x114_scanShield.Lock();
-        x124_scanIconNoncritical.Lock();
-        x130_scanIconCritical.Lock();
-    }
-    else
-    {
-        xcc_scanFrameCorner.Unlock();
-        xd8_scanFrameCenterSide.Unlock();
-        xe4_scanFrameCenterTop.Unlock();
-        xf0_scanFrameStretchSide.Unlock();
-        xfc_scanFrameStretchTop.Unlock();
-        //x108_newScanPane.Unlock();
-        x114_scanShield.Unlock();
-        x124_scanIconNoncritical.Unlock();
-        x130_scanIconCritical.Unlock();
-    }
-#endif
+  if (x120_assetLockCountdown > 0) {
+    xcc_scanFrameCorner.Lock();
+    xd8_scanFrameCenterSide.Lock();
+    xe4_scanFrameCenterTop.Lock();
+    xf0_scanFrameStretchSide.Lock();
+    xfc_scanFrameStretchTop.Lock();
+    x108_newScanPane.Lock();
+    x114_scanShield.Lock();
+    x124_scanIconNoncritical.Lock();
+    x130_scanIconCritical.Lock();
+  } else {
+    xcc_scanFrameCorner.Unlock();
+    xd8_scanFrameCenterSide.Unlock();
+    xe4_scanFrameCenterTop.Unlock();
+    xf0_scanFrameStretchSide.Unlock();
+    xfc_scanFrameStretchTop.Unlock();
+    x108_newScanPane.Unlock();
+    x114_scanShield.Unlock();
+    x124_scanIconNoncritical.Unlock();
+    x130_scanIconCritical.Unlock();
+  }
 }
 
 void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* tgtMgr) {
@@ -522,8 +516,8 @@ void CPlayerVisor::BeginTransitionIn(const CStateManager&) {
   switch (x1c_curVisor) {
   case CPlayerState::EPlayerVisor::XRay:
     x90_xrayBlur.SetBlur(EBlurType::Xray, 0.f, 0.f);
-    // xc4_vpScaleX = 0.9f;
-    // xc8_vpScaleY = 0.9f;
+    xc4_vpScaleX = 0.9f;
+    xc8_vpScaleY = 0.9f;
     CSfxManager::SfxStart(SFXui_into_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
     break;
   case CPlayerState::EPlayerVisor::Scan:
@@ -542,8 +536,8 @@ void CPlayerVisor::FinishTransitionOut(const CStateManager&) {
   switch (x1c_curVisor) {
   case CPlayerState::EPlayerVisor::XRay:
     x90_xrayBlur.DisableBlur(0.f);
-    // xc4_vpScaleX = 1.f;
-    // xc8_vpScaleY = 1.f;
+    xc4_vpScaleX = 1.f;
+    xc8_vpScaleY = 1.f;
     break;
   case CPlayerState::EPlayerVisor::Scan:
     x64_scanDim.DisableFilter(0.f);
