@@ -414,6 +414,14 @@ u32 PADRead(PAD::Status* status) {
 
     x = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
     y = SDL_GameControllerGetAxis(controller.m_controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+    if (!controller.m_isGameCube) {
+      if (x > 31150) {
+        status[i].x0_buttons |= PAD::TRIGGER_L;
+      }
+      if (y > 31150) {
+        status[i].x0_buttons |= PAD::TRIGGER_R;
+      }
+    }
     x /= 128;
     y /= 128;
 
