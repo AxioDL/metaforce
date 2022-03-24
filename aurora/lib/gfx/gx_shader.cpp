@@ -359,7 +359,7 @@ static std::string alpha_compare(GX::Compare comp, float ref, bool& valid) {
   case GX::GEQUAL:
     return fmt::format(FMT_STRING("(prev.a >= {}f)"), ref);
   case GX::GREATER:
-    return fmt::format(FMT_STRING("(prev.a < {}f)"), ref);
+    return fmt::format(FMT_STRING("(prev.a > {}f)"), ref);
   case GX::ALWAYS:
     valid = false;
     return "true";

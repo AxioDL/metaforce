@@ -228,7 +228,10 @@ void CGraphics::DoRender2D(const CTexture& tex, s32 x, s32 y, s32 w1, s32 w2, s3
 
 void CGraphics::EndRender2D(bool v) {}
 
-void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1) {}
+void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1) {
+  CGX::SetAlphaCompare(static_cast<GX::Compare>(comp0), ref0, static_cast<GX::AlphaOp>(op),
+                       static_cast<GX::Compare>(comp1), ref1);
+}
 
 void CGraphics::SetViewPointMatrix(const zeus::CTransform& xf) {
   g_ViewMatrix = xf;

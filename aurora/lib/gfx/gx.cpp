@@ -597,7 +597,7 @@ Range build_uniform(const ShaderInfo& info) noexcept {
     if (!info.usesPTTexMtx.test(i)) {
       continue;
     }
-    buf.append(&g_gxState.ptTexMtxs[i], 48);
+    buf.append(&g_gxState.ptTexMtxs[i], 64);
   }
   if (info.usesFog) {
     const auto& state = g_gxState.fog;
