@@ -1215,7 +1215,7 @@ void CElementGen::RenderParticles() {
     }
   }
 
-  bool hasModuColor = x338_moduColor != zeus::skBlack; // TODO skClear?
+  bool hasModuColor = x338_moduColor != zeus::skWhite;
   CGraphics::SetCullMode(ERglCullMode::None);
   zeus::CTransform systemModelMatrix(CGraphics::g_ViewMatrix);
   systemModelMatrix.origin.zeroOut();

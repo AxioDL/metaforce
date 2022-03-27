@@ -50,9 +50,8 @@ void CExplosion::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
   } else if (msg == EScriptObjectMessage::Registered) {
     if (xe8_particleGen->SystemHasLight()) {
       xec_explosionLight = mgr.AllocateUniqueId();
-      mgr.AddObject(new CGameLight(xec_explosionLight, GetAreaIdAlways(), true, "ExplodePLight_" + x10_name,
-                                   x34_transform, GetUniqueId(), xe8_particleGen->GetLight(), 1, /*xf0_particleDesc*/ 0,
-                                   0.f));
+      mgr.AddObject(new CGameLight(xec_explosionLight, GetAreaIdAlways(), GetActive(), "ExplodePLight_" + x10_name,
+                                   x34_transform, GetUniqueId(), xe8_particleGen->GetLight(), 1, 0, 0.f));
     }
   }
 
@@ -111,8 +110,8 @@ void CExplosion::Render(CStateManager& mgr) {
     return;
   }
 
-  CElementGen::SetSubtractBlend(xf4_24_renderThermalHot);
-  CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 74.f, zeus::skBlack);
+  CElementGen::SetSubtractBlend(!xf4_24_renderThermalHot);
+  CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::skBlack);
   xe8_particleGen->Render();
   mgr.SetupFogForArea(GetAreaIdAlways());
   CElementGen::SetSubtractBlend(false);
