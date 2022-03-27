@@ -498,7 +498,7 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
   std::string vtxXfrAttrsPre;
   std::string vtxXfrAttrs;
   size_t locIdx = 0;
-  size_t vtxOutIdx = 0;
+  size_t vtxOutIdx = 1;
   size_t uniBindingIdx = 1;
   if (config.indexedAttributeCount > 0) {
     // Display list attributes
@@ -583,7 +583,8 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
   }
   vtxXfrAttrsPre += fmt::format(FMT_STRING("\n    var mv_pos = ubuf.pos_mtx * vec4<f32>({}, 1.0);"
                                            "\n    var mv_nrm = ubuf.nrm_mtx * vec4<f32>({}, 0.0);"
-                                           "\n    out.pos = ubuf.proj * vec4<f32>(mv_pos, 1.0);"),
+                                           "\n    out.pos = ubuf.proj * vec4<f32>(mv_pos, 1.0);"
+                                           "\n    out.norm = vec4<f32>(mv_nrm, 0.0);"),
                                 vtx_attr(config, GX::VA_POS), vtx_attr(config, GX::VA_NRM));
 
   std::string fragmentFnPre;
@@ -902,7 +903,8 @@ struct Uniform {{
 var<uniform> ubuf: Uniform;{uniformBindings}{sampBindings}{texBindings}
 
 struct VertexOutput {{
-    @builtin(position) pos: vec4<f32>;{vtxOutAttrs}
+    @builtin(position) pos: vec4<f32>;
+    @location(0) norm: vec4<f32>;{vtxOutAttrs}
 }};
 
 @stage(vertex)
@@ -915,6 +917,7 @@ fn vs_main({vtxInAttrs}
 @stage(fragment)
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {{
     var prev: vec4<f32>;{fragmentFnPre}{fragmentFn}
+    //prev = vec4<f32>(in.norm.xyz, prev.a);
     return prev;
 }}
 )"""),

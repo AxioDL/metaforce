@@ -434,10 +434,23 @@ u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, GX::TexMtx texMtx, GX::PT
     return 1;
   }
   case 7: {
-    // TODO
-    zeus::CTransform xf;
-    GXLoadTexMtxImm(&xf, texMtx, GX::MTX3x4);
-    GXLoadTexMtxImm(&xf, pttTexMtx, GX::MTX3x4);
+    zeus::CTransform mtx = CGraphics::g_ViewMatrix.inverse().multiplyIgnoreTranslation(CGraphics::g_GXModelMatrix);
+    mtx.origin.zeroOut();
+    float xy = SBig(params[1]) * (CGraphics::g_ViewMatrix.origin.x() + CGraphics::g_ViewMatrix.origin.y()) * 0.025f;
+    xy = (xy - static_cast<int>(xy));
+    float z = SBig(params[1]) * CGraphics::g_ViewMatrix.origin.z() * 0.05f;
+    z = (z - static_cast<int>(z));
+    float halfA = SBig(params[0]) * 0.5f;
+    zeus::CTransform postMtx{
+        {
+            zeus::CVector3f{halfA, 0.f, 0.f},
+            zeus::CVector3f{0.f, 0.f, 0.f},
+            zeus::CVector3f{0.f, halfA, 0.f},
+        },
+        zeus::CVector3f{xy, z, 1.f},
+    };
+    GXLoadTexMtxImm(&mtx, texMtx, GX::MTX3x4);
+    GXLoadTexMtxImm(&postMtx, pttTexMtx, GX::MTX3x4);
     return 3;
   }
   default:
