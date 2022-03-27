@@ -489,10 +489,9 @@ ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primit
     config.shaderConfig.tcgs[i] = g_gxState.tcgs[i];
   }
   config.shaderConfig.alphaCompare = g_gxState.alphaCompare;
-  if (std::any_of(config.shaderConfig.vtxAttrs.begin(), config.shaderConfig.vtxAttrs.end(),
-                  [](const auto type) { return type == GX::INDEX8 || type == GX::INDEX16; })) {
-    config.shaderConfig.hasIndexedAttributes = true;
-  }
+  config.shaderConfig.indexedAttributeCount =
+      std::count_if(config.shaderConfig.vtxAttrs.begin(), config.shaderConfig.vtxAttrs.end(),
+                    [](const auto type) { return type == GX::INDEX8 || type == GX::INDEX16; });
   config = {
       .shaderConfig = config.shaderConfig,
       .primitive = primitive,
@@ -658,17 +657,17 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
           .buffer = g_storageBuffer,
           .size = ranges.nrmDataRange.size,
       },
-      // UVs
+      // Packed UVs
       wgpu::BindGroupEntry{
           .binding = 3,
           .buffer = g_storageBuffer,
-          .size = ranges.tcDataRange.size,
+          .size = ranges.packedTcDataRange.size,
       },
-      // Packed UVs
+      // UVs
       wgpu::BindGroupEntry{
           .binding = 4,
           .buffer = g_storageBuffer,
-          .size = ranges.packedTcDataRange.size,
+          .size = ranges.tcDataRange.size,
       },
   };
   std::array<wgpu::BindGroupEntry, MaxTextures> samplerEntries;
@@ -696,7 +695,7 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
       .uniformBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
           .label = "GX Uniform Bind Group",
           .layout = layouts.uniformLayout,
-          .entryCount = static_cast<uint32_t>(config.hasIndexedAttributes ? uniformEntries.size() : 1),
+          .entryCount = static_cast<uint32_t>(config.indexedAttributeCount > 0 ? uniformEntries.size() : 1),
           .entries = uniformEntries.data(),
       }),
       .samplerBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
@@ -716,7 +715,7 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
 
 GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const ShaderConfig& config) noexcept {
   GXBindGroupLayouts out;
-  u32 uniformSizeKey = info.uniformSize + (config.hasIndexedAttributes ? 1 : 0);
+  u32 uniformSizeKey = info.uniformSize + (config.indexedAttributeCount > 0 ? 1 : 0);
   const auto uniformIt = sUniformBindGroupLayouts.find(uniformSizeKey);
   if (uniformIt != sUniformBindGroupLayouts.end()) {
     out.uniformLayout = uniformIt->second;
@@ -771,7 +770,7 @@ GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const Shader
     };
     const auto uniformLayoutDescriptor = wgpu::BindGroupLayoutDescriptor{
         .label = "GX Uniform Bind Group Layout",
-        .entryCount = static_cast<uint32_t>(config.hasIndexedAttributes ? uniformLayoutEntries.size() : 1),
+        .entryCount = static_cast<uint32_t>(config.indexedAttributeCount > 0 ? uniformLayoutEntries.size() : 1),
         .entries = uniformLayoutEntries.data(),
     };
     out.uniformLayout = g_device.CreateBindGroupLayout(&uniformLayoutDescriptor);

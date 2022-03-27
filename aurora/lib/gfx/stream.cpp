@@ -8,6 +8,19 @@ static logvisor::Module Log("aurora::gfx::stream");
 
 using aurora::gfx::gx::g_gxState;
 
+#ifndef NDEBUG
+static inline GX::Attr next_attr(size_t begin) {
+  auto iter = std::find_if(g_gxState.vtxDesc.begin() + begin, g_gxState.vtxDesc.end(),
+                           [](const auto type) { return type != GX::NONE; });
+  if (begin > 0 && iter == g_gxState.vtxDesc.end()) {
+    // wrap around
+    iter = std::find_if(g_gxState.vtxDesc.begin(), g_gxState.vtxDesc.end(),
+                        [](const auto type) { return type != GX::NONE; });
+  }
+  return GX::Attr(iter - g_gxState.vtxDesc.begin());
+}
+#endif
+
 struct SStreamState {
   GX::Primitive primitive;
   u16 vertexCount = 0;
@@ -27,8 +40,7 @@ struct SStreamState {
       indices.reserve(numVerts);
     }
 #ifndef NDEBUG
-    nextAttr =
-        GX::Attr(std::find(g_gxState.vtxDesc.begin(), g_gxState.vtxDesc.end(), GX::DIRECT) - g_gxState.vtxDesc.begin());
+    nextAttr = next_attr(0);
 #endif
   }
 };
@@ -54,9 +66,8 @@ void GXBegin(GX::Primitive primitive, GX::VtxFmt vtxFmt, u16 nVerts) noexcept {
         Log.report(logvisor::Fatal, FMT_STRING("don't know how to handle attr {}"), attr);
         unreachable();
       }
-    } else if (type != GX::NONE) {
-      Log.report(logvisor::Fatal, FMT_STRING("invalid vtx type {} for attr {}"), type, attr);
-      unreachable();
+    } else if (type == GX::INDEX8 || type == GX::INDEX16) {
+      vertexSize += 2;
     }
     attr = GX::Attr(attr + 1);
   }
@@ -76,11 +87,7 @@ static inline void check_attr_order(GX::Attr attr) noexcept {
     Log.report(logvisor::Fatal, FMT_STRING("bad attribute order: {}, expected {}"), attr, sStreamState->nextAttr);
     unreachable();
   }
-  auto nextAttr = std::find(g_gxState.vtxDesc.begin() + attr + 1, g_gxState.vtxDesc.end(), GX::DIRECT);
-  if (nextAttr == g_gxState.vtxDesc.end()) {
-    nextAttr = std::find(g_gxState.vtxDesc.begin(), g_gxState.vtxDesc.end(), GX::DIRECT);
-  }
-  sStreamState->nextAttr = GX::Attr(nextAttr - g_gxState.vtxDesc.begin());
+  sStreamState->nextAttr = next_attr(attr + 1);
 #endif
 }
 void GXPosition3f32(const zeus::CVector3f& pos) noexcept {

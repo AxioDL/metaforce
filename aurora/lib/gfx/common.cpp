@@ -619,7 +619,6 @@ static inline Range push(ByteBuffer& target, const uint8_t* data, size_t length,
   }
   auto begin = target.size();
   if (length == 0) {
-    // TODO shared zero buf?
     length = alignment;
     target.append_zeroes(alignment);
   } else {
@@ -642,8 +641,8 @@ static inline Range map(ByteBuffer& target, size_t length, size_t alignment) {
   target.append_zeroes(length + padding);
   return {static_cast<uint32_t>(begin), static_cast<uint32_t>(length + padding)};
 }
-Range push_verts(const uint8_t* data, size_t length) { return push(g_verts, data, length, 0 /* TODO? */); }
-Range push_indices(const uint8_t* data, size_t length) { return push(g_indices, data, length, 0 /* TODO? */); }
+Range push_verts(const uint8_t* data, size_t length) { return push(g_verts, data, length, 4); }
+Range push_indices(const uint8_t* data, size_t length) { return push(g_indices, data, length, 4); }
 Range push_uniform(const uint8_t* data, size_t length) {
   wgpu::SupportedLimits limits;
   g_device.GetLimits(&limits);
@@ -662,11 +661,11 @@ Range push_static_storage(const uint8_t* data, size_t length) {
   return range;
 }
 std::pair<ByteBuffer, Range> map_verts(size_t length) {
-  const auto range = map(g_verts, length, 0 /* TODO? */);
+  const auto range = map(g_verts, length, 4);
   return {ByteBuffer{g_verts.data() + range.offset, range.size}, range};
 }
 std::pair<ByteBuffer, Range> map_indices(size_t length) {
-  const auto range = map(g_indices, length, 0 /* TODO? */);
+  const auto range = map(g_indices, length, 4);
   return {ByteBuffer{g_indices.data() + range.offset, range.size}, range};
 }
 std::pair<ByteBuffer, Range> map_uniform(size_t length) {

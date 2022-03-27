@@ -162,7 +162,7 @@ struct ShaderConfig {
   std::array<ColorChannelConfig, MaxColorChannels> colorChannels;
   std::array<TcgConfig, MaxTexCoord> tcgs;
   AlphaCompare alphaCompare;
-  bool hasIndexedAttributes = false;
+  u32 indexedAttributeCount = 0;
   bool operator==(const ShaderConfig&) const = default;
 };
 struct PipelineConfig {
@@ -216,16 +216,6 @@ Range build_uniform(const ShaderInfo& info) noexcept;
 GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const ShaderConfig& config) noexcept;
 GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& config,
                                const BindGroupRanges& ranges) noexcept;
-
-struct DlVert {
-  s16 pos;
-  s16 norm;
-  // colors ignored
-  std::array<s16, 7> uvs;
-  // pn_mtx_idx ignored
-  // tex_mtx_idxs ignored
-  s16 _pad;
-};
 } // namespace aurora::gfx::gx
 
 namespace aurora {
@@ -301,6 +291,6 @@ inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ShaderConfig& input)
   if (input.alphaCompare) {
     xxh3_update(state, input.alphaCompare);
   }
-  XXH3_64bits_update(&state, &input.hasIndexedAttributes, sizeof(gfx::gx::ShaderConfig::hasIndexedAttributes));
+  XXH3_64bits_update(&state, &input.indexedAttributeCount, sizeof(gfx::gx::ShaderConfig::indexedAttributeCount));
 }
 } // namespace aurora
