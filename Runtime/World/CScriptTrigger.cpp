@@ -25,15 +25,7 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEnti
 , x148_26_deactivateOnEntered(deactivateOnEntered)
 , x148_27_deactivateOnExited(deactivateOnExited) {
   SetCallTouch(false);
-#ifdef NDEBUG
-  // FIXME: HACK This fixes the HotE softlock, definitely need to look into the morphball's collision codepath and
-  // FIXME: determine the proper fix
-  if (GetEditorId() == 0x0034004B) {
-    Log.report(logvisor::Warning, FMT_STRING("BUG THIS!: Overriding forceField.x() for trigger {} in area {}"),
-               GetEditorId(), GetAreaIdAlways());
-    x11c_forceField.x() = 0.f;
-  }
-#else
+#ifndef NDEBUG
   // HACK: For some reason MetroidPrime's lair doesn't enable this trigger until after the cutscene, activate it in debug build
   if (GetEditorId() == 0x000B01DB && !GetActive()) {
     Log.report(logvisor::Warning, FMT_STRING("BUG THIS!: Overriding active for trigger {} in area {}"), GetEditorId(),
