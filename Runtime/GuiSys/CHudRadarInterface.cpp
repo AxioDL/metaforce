@@ -26,19 +26,19 @@ CHudRadarInterface::CHudRadarInterface(CGuiFrame& baseHud, CStateManager& stateM
   x40_BaseWidget_RadarStuff->SetColor(g_tweakGuiColors->GetRadarStuffColor());
 }
 
-void CHudRadarInterface::DoDrawRadarPaint(const zeus::CVector3f& translate, float radius, const zeus::CColor& color) {
+void CHudRadarInterface::DoDrawRadarPaint(float radius) {
   radius *= 4.f;
 
-  CRadarPaintShader::Instance& inst = m_paintInsts.emplace_back();
-  inst.pos[0] = translate + zeus::CVector3f(-radius, 0.f, radius);
-  inst.uv[0].assign(0.f, 1.f);
-  inst.pos[1] = translate + zeus::CVector3f(-radius, 0.f, -radius);
-  inst.uv[1].assign(0.f, 0.f);
-  inst.pos[2] = translate + zeus::CVector3f(radius, 0.f, radius);
-  inst.uv[2].assign(1.f, 1.f);
-  inst.pos[3] = translate + zeus::CVector3f(radius, 0.f, -radius);
-  inst.uv[3].assign(1.f, 0.f);
-  inst.color = color;
+  CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+  CGraphics::StreamTexcoord(0.f, 1.f);
+  CGraphics::StreamVertex(-radius, 0.f, radius);
+  CGraphics::StreamTexcoord(0.f, 0.f);
+  CGraphics::StreamVertex(-radius, 0.f, -radius);
+  CGraphics::StreamTexcoord(1.f, 1.f);
+  CGraphics::StreamVertex(radius, 0.f, radius);
+  CGraphics::StreamTexcoord(1.f, 0.f);
+  CGraphics::StreamVertex(radius, 0.f, -radius);
+  CGraphics::StreamEnd();
 }
 
 void CHudRadarInterface::DrawRadarPaint(const zeus::CVector3f& enemyPos, float radius, float alpha,
@@ -55,10 +55,15 @@ void CHudRadarInterface::DrawRadarPaint(const zeus::CVector3f& enemyPos, float r
   }
 
   const zeus::CVector2f scopeScaled = playerToEnemy * parms.x70_scopeScalar;
+  g_Renderer->SetModelMatrix(
+      parms.x3c_postTranslate *
+      zeus::CTransform::Translate(parms.xc_preTranslate * zeus::CVector3f(scopeScaled.x(), 0.f, scopeScaled.y())));
+
   zeus::CColor color = g_tweakGuiColors->GetRadarEnemyPaintColor();
   color.a() *= alpha;
   color.a() *= parms.x74_alpha;
-  DoDrawRadarPaint(parms.xc_preTranslate * zeus::CVector3f(scopeScaled.x(), 0.f, scopeScaled.y()), radius, color);
+  CGraphics::StreamColor(color);
+  DoDrawRadarPaint(radius);
 }
 
 void CHudRadarInterface::SetIsVisibleGame(bool v) {
@@ -115,13 +120,17 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) {
   drawParms.x3c_postTranslate = x40_BaseWidget_RadarStuff->GetWorldTransform();
   const float enemyRadius = g_tweakGui->GetRadarEnemyPaintRadius();
 
-  m_paintInsts.clear();
   x44_camera->Draw(CGuiWidgetDrawParms{0.f, zeus::CVector3f{}});
-  CGraphics::SetModelMatrix(drawParms.x3c_postTranslate);
 
+  g_Renderer->SetModelMatrix(drawParms.x3c_postTranslate);
+  g_Renderer->SetBlendMode_AdditiveAlpha();
+  x0_txtrRadarPaint->Load(GX::TEXMAP0, EClampMode::Repeat);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+  g_Renderer->SetDepthReadWrite(false, false);
   zeus::CColor playerColor = g_tweakGuiColors->GetRadarPlayerPaintColor();
   playerColor.a() *= alpha;
-  DoDrawRadarPaint(zeus::skZero3f, g_tweakGui->GetRadarPlayerPaintRadius(), playerColor);
+  CGraphics::StreamColor(playerColor);
+  DoDrawRadarPaint(g_tweakGui->GetRadarPlayerPaintRadius());
 
   const zeus::CAABox radarBounds(
       player.GetTranslation().x() - drawParms.x78_xyRadius, player.GetTranslation().y() - drawParms.x78_xyRadius,
@@ -156,7 +165,7 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) {
     }
   }
 
-  m_paintShader.draw(m_paintInsts, x0_txtrRadarPaint.GetObj());
+  g_Renderer->SetDepthReadWrite(true, true);
 }
 
 } // namespace metaforce

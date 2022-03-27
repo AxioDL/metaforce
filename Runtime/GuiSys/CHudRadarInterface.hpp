@@ -4,7 +4,6 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
-#include "Runtime/Graphics/Shaders/CRadarPaintShader.hpp"
 
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
@@ -33,9 +32,8 @@ class CHudRadarInterface {
   bool x3c_25_visibleDebug : 1 = true;
   CGuiWidget* x40_BaseWidget_RadarStuff;
   CGuiCamera* x44_camera;
-  CRadarPaintShader m_paintShader;
-  std::vector<CRadarPaintShader::Instance> m_paintInsts;
-  void DoDrawRadarPaint(const zeus::CVector3f& translate, float radius, const zeus::CColor& color);
+
+  void DoDrawRadarPaint(float radius);
   void DrawRadarPaint(const zeus::CVector3f& enemyPos, float radius, float alpha, const SRadarPaintDrawParms& parms);
 
 public:

@@ -61,12 +61,15 @@ const std::array<zeus::CMatrix3f, 6> CGraphics::skCubeBasisMats{{
 static EStreamFlags sStreamFlags;
 static GX::Primitive sStreamPrimitive;
 static u32 sVerticesCount;
+static zeus::CColor sQueuedColor;
 // Originally writes directly to GX FIFO
 struct StreamVertex {
   zeus::CColor color;
   zeus::CVector2f texCoord;
   zeus::CVector3f normal;
   zeus::CVector3f vertex;
+  constexpr StreamVertex(const zeus::CColor& color) : color(color) {}
+  constexpr StreamVertex(const StreamVertex&) = default;
 };
 static std::vector<StreamVertex> sQueuedVertices;
 
@@ -530,7 +533,7 @@ void CGraphics::SetTevOp(ERglTevStage stage, const CTevCombiners::CTevPass& pass
 void CGraphics::StreamBegin(GX::Primitive primitive) {
   // Originally ResetVertexDataStream(true);
   sQueuedVertices.clear();
-  sQueuedVertices.emplace_back();
+  sQueuedVertices.emplace_back(sQueuedColor);
   sVerticesCount = 0;
   // End
   sStreamFlags = EStreamFlagBits::fHasColor;
@@ -543,7 +546,11 @@ void CGraphics::StreamNormal(const zeus::CVector3f& nrm) {
 }
 
 void CGraphics::StreamColor(const zeus::CColor& color) {
-  sQueuedVertices.back().color = color;
+  if (sStreamFlags) {
+    sQueuedVertices.back().color = color;
+  } else {
+    sQueuedColor = color;
+  }
   sStreamFlags |= EStreamFlagBits::fHasColor;
 }
 
