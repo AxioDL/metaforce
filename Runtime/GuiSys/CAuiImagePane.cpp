@@ -103,13 +103,13 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, CTexture& tex, in
       float rgba2 = 1.f - rgba1;
       tex.LoadMipLevel(mip1, GX::TexMapID::TEXMAP0, EClampMode::Repeat);
       tex.LoadMipLevel(mip2, GX::TexMapID::TEXMAP1, EClampMode::Repeat);
-      const GX::VtxDescList list[3]{
+      std::array<GX::VtxDescList, 3> list{{
           {GX::VA_POS, GX::DIRECT},
           {GX::VA_TEX0, GX::DIRECT},
-          {GX::VA_NULL, GX::NONE},
-      };
+          GX::VtxDescList{},
+      }};
 
-      CGX::SetVtxDescv(reinterpret_cast<const GX::VtxDescList*>(&list));
+      CGX::SetVtxDescv(list.data());
       CGX::SetNumChans(0);
       CGX::SetNumTexGens(2);
       CGX::SetNumTevStages(2);

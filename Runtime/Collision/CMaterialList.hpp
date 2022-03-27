@@ -102,11 +102,13 @@ public:
 
   constexpr u64 GetValue() const noexcept { return x0_list; }
 
-  static constexpr s32 BitPosition(u64 flag) noexcept {
-    for (u32 i = 0; i < 64; ++i) {
-      if ((flag & (u64{1} << i)) != 0) {
-        return static_cast<s32>(i);
+  static constexpr s32 BitPosition(u64 flags) noexcept {
+    for (s32 ret = 0, i = 0; i < 32; ++i) {
+      if ((flags & 1) != 0u) {
+        return ret;
       }
+      flags >>= 1;
+      ++ret;
     }
     return -1;
   }
