@@ -65,11 +65,11 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, CTexture& tex, in
     const float x0 = tmpRecip.x() * static_cast<float>(frame % static_cast<int>(tmp.x()));
     const float x1 = x0 + tmpRecip.x();
     const float y0 = tmpRecip.y() * static_cast<float>(frame % static_cast<int>(tmp.y()));
-    const float y1 = y0 + tmpRecip.y();
+    const float y1 = y0 - tmpRecip.y();
     vec.push_back(zeus::CVector2f(x0, y0));
     vec.push_back(zeus::CVector2f(x0, y1));
-    vec.push_back(zeus::CVector2f(x1, y1));
     vec.push_back(zeus::CVector2f(x1, y0));
+    vec.push_back(zeus::CVector2f(x1, y1));
     useUVs = &vec;
   } else {
     useUVs = &x114_uvs;
