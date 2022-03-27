@@ -19,6 +19,10 @@ static logvisor::Module Log("aurora::gfx");
 using gpu::g_device;
 using gpu::g_queue;
 
+#ifdef AURORA_GFX_DEBUG_GROUPS
+std::vector<std::string> g_debugGroupStack;
+#endif
+
 constexpr uint64_t UniformBufferSize = 5242880;   // 5mb
 constexpr uint64_t VertexBufferSize = 5242880;    // 5mb
 constexpr uint64_t IndexBufferSize = 2097152;     // 2mb
@@ -60,6 +64,9 @@ enum class CommandType {
 };
 struct Command {
   CommandType type;
+#ifdef AURORA_GFX_DEBUG_GROUPS
+  std::vector<std::string> debugGroupStack;
+#endif
   union Data {
     struct SetViewportCommand {
       float left;
@@ -248,7 +255,15 @@ static PipelineRef find_pipeline(PipelineCreateCommand command, NewPipelineCallb
   return hash;
 }
 
-static void push_draw_command(ShaderDrawCommand data) { g_commands.push_back({CommandType::Draw, {.draw = data}}); }
+static void push_draw_command(ShaderDrawCommand data) {
+  g_commands.push_back({
+      .type = CommandType::Draw,
+#ifdef AURORA_GFX_DEBUG_GROUPS
+      .debugGroupStack = g_debugGroupStack,
+#endif
+      .data = {.draw = data},
+  });
+}
 
 bool get_dxt_compression_supported() noexcept { return g_device.HasFeature(wgpu::FeatureName::TextureCompressionBC); }
 
@@ -256,7 +271,13 @@ static Command::Data::SetViewportCommand g_cachedViewport;
 void set_viewport(float left, float top, float width, float height, float znear, float zfar) noexcept {
   Command::Data::SetViewportCommand cmd{left, top, width, height, znear, zfar};
   if (cmd != g_cachedViewport) {
-    g_commands.push_back({CommandType::SetViewport, {.setViewport = cmd}});
+    g_commands.push_back({
+        .type = CommandType::SetViewport,
+#ifdef AURORA_GFX_DEBUG_GROUPS
+        .debugGroupStack = g_debugGroupStack,
+#endif
+        .data = {.setViewport = cmd},
+    });
     g_cachedViewport = cmd;
   }
 }
@@ -264,7 +285,13 @@ static Command::Data::SetScissorCommand g_cachedScissor;
 void set_scissor(uint32_t x, uint32_t y, uint32_t w, uint32_t h) noexcept {
   Command::Data::SetScissorCommand cmd{x, y, w, h};
   if (cmd != g_cachedScissor) {
-    g_commands.push_back({CommandType::SetScissor, {.setScissor = cmd}});
+    g_commands.push_back({
+        .type = CommandType::SetScissor,
+#ifdef AURORA_GFX_DEBUG_GROUPS
+        .debugGroupStack = g_debugGroupStack,
+#endif
+        .data = {.setScissor = cmd},
+    });
     g_cachedScissor = cmd;
   }
 }
@@ -504,8 +531,29 @@ void end_frame(const wgpu::CommandEncoder& cmd) {
 
 void render(const wgpu::RenderPassEncoder& pass) {
   g_currentPipeline = UINT64_MAX;
+#ifdef AURORA_GFX_DEBUG_GROUPS
+  std::vector<std::string> lastDebugGroupStack;
+#endif
 
   for (const auto& cmd : g_commands) {
+#ifdef AURORA_GFX_DEBUG_GROUPS
+    {
+      size_t firstDiff = lastDebugGroupStack.size();
+      for (size_t i = 0; i < lastDebugGroupStack.size(); ++i) {
+        if (i >= cmd.debugGroupStack.size() || cmd.debugGroupStack[i] != lastDebugGroupStack[i]) {
+          firstDiff = i;
+          break;
+        }
+      }
+      for (size_t i = firstDiff; i < lastDebugGroupStack.size(); ++i) {
+        pass.PopDebugGroup();
+      }
+      for (size_t i = firstDiff; i < cmd.debugGroupStack.size(); ++i) {
+        pass.PushDebugGroup(cmd.debugGroupStack[i].c_str());
+      }
+      lastDebugGroupStack = cmd.debugGroupStack;
+    }
+#endif
     switch (cmd.type) {
     case CommandType::SetViewport: {
       const auto& vp = cmd.data.setViewport;
@@ -540,6 +588,12 @@ void render(const wgpu::RenderPassEncoder& pass) {
     } break;
     }
   }
+
+#ifdef AURORA_GFX_DEBUG_GROUPS
+  for (size_t i = 0; i < lastDebugGroupStack.size(); ++i) {
+    pass.PopDebugGroup();
+  }
+#endif
 
   g_commands.clear();
 }
@@ -658,5 +712,16 @@ uint32_t align_uniform(uint32_t value) {
   g_device.GetLimits(&limits); // TODO cache
   const auto uniform_alignment = limits.limits.minUniformBufferOffsetAlignment;
   return ALIGN(value, uniform_alignment);
+}
+
+void push_debug_group(zstring_view label) noexcept {
+#ifdef AURORA_GFX_DEBUG_GROUPS
+  g_debugGroupStack.emplace_back(label);
+#endif
+}
+void pop_debug_group() noexcept {
+#ifdef AURORA_GFX_DEBUG_GROUPS
+  g_debugGroupStack.pop_back();
+#endif
 }
 } // namespace aurora::gfx

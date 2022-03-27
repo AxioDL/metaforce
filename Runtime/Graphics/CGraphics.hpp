@@ -406,22 +406,10 @@ public:
   //  void Draw() const { CGraphics::DrawArray(m_start, m_vec.size() - m_start); }
 };
 
-#ifdef BOO_GRAPHICS_DEBUG_GROUPS
-class GraphicsDebugGroup {
-  /* Stack only */
-  void* operator new(size_t);
-  void operator delete(void*);
-  void* operator new[](size_t);
-  void operator delete[](void*);
-
-public:
-  explicit GraphicsDebugGroup(const char* name, const zeus::CColor& color = zeus::skWhite) {
-    zeus::simd_floats f(color.mSimd);
-    CGraphics::g_BooMainCommandQueue->pushDebugGroup(name, f.array());
-  }
-  ~GraphicsDebugGroup() { CGraphics::g_BooMainCommandQueue->popDebugGroup(); }
-};
-#define SCOPED_GRAPHICS_DEBUG_GROUP(...) GraphicsDebugGroup _GfxDbg_(__VA_ARGS__);
+#ifdef AURORA_GFX_DEBUG_GROUPS
+#define SCOPED_GRAPHICS_DEBUG_GROUP(name, ...)                                                                         \
+  OPTICK_EVENT_DYNAMIC(name);                                                                                          \
+  aurora::gfx::ScopedDebugGroup _GfxDbg_{name}
 #else
 #define SCOPED_GRAPHICS_DEBUG_GROUP(name, ...) OPTICK_EVENT_DYNAMIC(name)
 #endif

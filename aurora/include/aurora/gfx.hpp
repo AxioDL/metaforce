@@ -132,6 +132,16 @@ struct Light {
 
 [[nodiscard]] bool get_dxt_compression_supported() noexcept;
 
+#ifndef NDEBUG
+#define AURORA_GFX_DEBUG_GROUPS
+#endif
+void push_debug_group(zstring_view label) noexcept;
+void pop_debug_group() noexcept;
+struct ScopedDebugGroup {
+  inline ScopedDebugGroup(zstring_view label) noexcept { push_debug_group(label); }
+  inline ~ScopedDebugGroup() noexcept { pop_debug_group(); }
+};
+
 // GX state
 void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp, const TextureHandle& tex, float lod) noexcept;
 void unbind_texture(GX::TexMapID id) noexcept;
