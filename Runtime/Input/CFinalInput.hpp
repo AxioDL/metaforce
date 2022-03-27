@@ -23,7 +23,7 @@ struct SAuroraControllerState {
 
 struct CFinalInput {
   float x0_dt = 0.0f;
-  u32 x4_controllerIdx = -1;
+  u32 x4_controllerIdx = 0;
   float x8_anaLeftX = 0.0f;
   float xc_anaLeftY = 0.0f;
   float x10_anaRightX = 0.0f;
@@ -36,8 +36,8 @@ struct CFinalInput {
   bool x22_enableAnaRightXP = false;
   bool x23_enableAnaRightYP = false;
 
-  float x24_anaLeftTriggerP;
-  float x28_anaRightTriggerP;
+  float x24_anaLeftTriggerP = 0.f;
+  float x28_anaRightTriggerP = 0.f;
 
   bool x2c_b24_A : 1 = false;
   bool x2c_b25_B : 1 = false;
