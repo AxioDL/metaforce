@@ -416,10 +416,21 @@ u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, GX::TexMtx texMtx, GX::PT
     return 5;
   }
   case 6: {
-    // TODO
-    zeus::CTransform xf;
-    GXLoadTexMtxImm(&xf, texMtx, GX::MTX3x4);
-    GXLoadTexMtxImm(&xf, pttTexMtx, GX::MTX3x4);
+    const zeus::CTransform mtx{CGraphics::g_GXModelMatrix.basis};
+    const zeus::CTransform postMtx{
+        {
+            zeus::CVector3f{0.5f, 0.f, 0.f},
+            zeus::CVector3f{0.f, 0.f, 0.f},
+            zeus::CVector3f{0.f, 0.5f, 0.f},
+        },
+        zeus::CVector3f{
+            CGraphics::g_GXModelMatrix.origin.x() * 0.05f,
+            CGraphics::g_GXModelMatrix.origin.y() * 0.05f,
+            1.f,
+        },
+    };
+    GXLoadTexMtxImm(&mtx, texMtx, GX::MTX3x4);
+    GXLoadTexMtxImm(&postMtx, pttTexMtx, GX::MTX3x4);
     return 1;
   }
   case 7: {

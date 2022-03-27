@@ -521,7 +521,8 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
       } else {
         attrName = VtxAttributeNames[attr];
       }
-      vtxXfrAttrsPre += fmt::format(FMT_STRING("\n    var {} = v_arr_{}[in_dl{}[{}]];"), vtx_attr(config, attr), attrName, div, rem);
+      vtxXfrAttrsPre +=
+          fmt::format(FMT_STRING("\n    var {} = v_arr_{}[in_dl{}[{}]];"), vtx_attr(config, attr), attrName, div, rem);
       if (addUniformBinding) {
         std::string_view arrType;
         if (attr == GX::VA_POS || attr == GX::VA_NRM) {
@@ -580,11 +581,9 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
       vtxInAttrs += fmt::format(FMT_STRING("@location({}) in_tex{}_uv: vec2<f32>"), locIdx++, attr - GX::VA_TEX0);
     }
   }
-  vtxXfrAttrsPre += fmt::format(FMT_STRING("\n    var obj_pos = vec4<f32>({}, 1.0);"
-                                           "\n    var obj_norm = vec4<f32>({}, 0.0);"
-                                           "\n    var mv_pos = ubuf.mv * obj_pos;"
-                                           "\n    var mv_norm = ubuf.mv_inv * obj_norm;"
-                                           "\n    out.pos = ubuf.proj * mv_pos;"),
+  vtxXfrAttrsPre += fmt::format(FMT_STRING("\n    var mv_pos = ubuf.pos_mtx * vec4<f32>({}, 1.0);"
+                                           "\n    var mv_nrm = ubuf.nrm_mtx * vec4<f32>({}, 0.0);"
+                                           "\n    out.pos = ubuf.proj * vec4<f32>(mv_pos, 1.0);"),
                                 vtx_attr(config, GX::VA_POS), vtx_attr(config, GX::VA_NRM));
 
   std::string fragmentFnPre;
@@ -713,7 +712,7 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
           var ang_att = light.ang_att.z * ang_dot * ang_dot +
                         light.ang_att.y * ang_dot +
                         light.ang_att.x;
-          var this_color = light.color.xyz * ang_att * att * max(dot(-delta_norm, mv_norm.xyz), 0.0);
+          var this_color = light.color.xyz * ang_att * att * max(dot(-delta_norm, mv_nrm), 0.0);
           lighting = lighting + vec4<f32>(this_color, 0.0);
       }}
       out.cc{0} = clamp(lighting, vec4<f32>(0.0), vec4<f32>(1.0));
@@ -746,9 +745,9 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
       vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{} = vec4<f32>({}, 0.0, 1.0);"), i,
                                  vtx_attr(config, GX::Attr(GX::VA_TEX0 + (tcg.src - GX::TG_TEX0))));
     } else if (tcg.src == GX::TG_POS) {
-      vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{} = vec4<f32>(obj_pos.xyz, 1.0);"), i);
+      vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{} = vec4<f32>(in_pos, 1.0);"), i);
     } else if (tcg.src == GX::TG_NRM) {
-      vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{} = vec4<f32>(obj_norm.xyz, 1.0);"), i);
+      vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{} = vec4<f32>(in_nrm, 1.0);"), i);
     } else {
       Log.report(logvisor::Fatal, FMT_STRING("unhandled tcg src {}"), tcg.src);
       unreachable();
@@ -895,8 +894,8 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
   const auto shaderSource =
       fmt::format(FMT_STRING(R"""({uniformPre}
 struct Uniform {{
-    mv: mat4x4<f32>;
-    mv_inv: mat4x4<f32>;
+    pos_mtx: mat4x3<f32>;
+    nrm_mtx: mat4x3<f32>;
     proj: mat4x4<f32>;{uniBufAttrs}
 }};
 @group(0) @binding(0)

@@ -254,7 +254,6 @@ void CGraphics::SetViewMatrix() {
   GXLoadPosMtxImm(g_GXModelView, GX::PNMTX0);
   /* Inverse-transpose */
   g_GXModelViewInvXpose = g_GXModelView.inverse();
-  g_GXModelViewInvXpose.origin.zeroOut();
   g_GXModelViewInvXpose.basis.transpose();
   /* Load normal matrix */
   GXLoadNrmMtxImm(g_GXModelViewInvXpose, GX::PNMTX0);
