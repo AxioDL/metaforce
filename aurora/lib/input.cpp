@@ -452,7 +452,13 @@ void PADControlAllMotors(const u32* commands) {
         aurora::input::controller_rumble(instance, 0, 0, 0);
       }
     } else {
-      // TODO: Figure out sane values for generic controllers
+      if (commands[i] == PAD::MOTOR_STOP) {
+        aurora::input::controller_rumble(instance, 0, 0, 1);
+      } else if (commands[i] == PAD::MOTOR_RUMBLE) {
+        aurora::input::controller_rumble(instance, 32767, 32767, 0);
+      } else if (commands[i] == PAD::MOTOR_STOP_HARD) {
+        aurora::input::controller_rumble(instance, 0, 0, 0);
+      }
     }
   }
 }
