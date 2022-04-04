@@ -237,6 +237,10 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
 #endif
   SDL_SetHint(SDL_HINT_JOYSTICK_GAMECUBE_RUMBLE_BRAKE, "1");
+
+  SDL_SetHint(SDL_HINT_SCREENSAVER_INHIBIT_ACTIVITY_NAME, "Metaforce");
+
+  SDL_DisableScreenSaver();
   /* TODO: Make this an option rather than hard coding it */
   SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS,"1");
 
@@ -363,6 +367,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   gfx::shutdown();
   gpu::shutdown();
   SDL_DestroyWindow(g_window);
+  SDL_EnableScreenSaver();
   SDL_Quit();
 }
 
