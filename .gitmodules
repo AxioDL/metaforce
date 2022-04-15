@@ -1,18 +1,18 @@
 [submodule "extern/nod"]
 	path = extern/nod
-	url = ../nod.git
+	url = https://github.com/AxioDL/metaforce/nod.git
 	branch = master
 [submodule "extern/amuse"]
 	path = extern/amuse
-	url = ../amuse.git
+	url = https://github.com/AxioDL/metaforce/amuse.git
 	branch = master
 [submodule "extern/kabufuda"]
 	path = extern/kabufuda
-	url = ../kabufuda.git
+	url = https://github.com/AxioDL/metaforce/kabufuda.git
 	branch = master
 [submodule "extern/jbus"]
 	path = extern/jbus
-	url = ../jbus.git
+	url = https://github.com/AxioDL/metaforce/jbus.git
 	branch = master
 [submodule "extern/discord-rpc"]
 	path = extern/discord-rpc
@@ -28,19 +28,19 @@
 	branch = master
 [submodule "extern/athena"]
 	path = extern/athena
-	url = ../../libAthena/athena.git
+	url = https://github.com/libAthena/athena.git
 	branch = master
 [submodule "extern/boo"]
 	path = extern/boo
-	url = ../boo.git
+	url = https://github.com/AxioDL/metaforce/boo.git
 	branch = master
 [submodule "extern/libjpeg-turbo"]
 	path = extern/libjpeg-turbo
-	url = ../libjpeg-turbo.git
+	url = https://github.com/AxioDL/metaforce/libjpeg-turbo.git
 	branch = thp
 [submodule "extern/zeus"]
 	path = extern/zeus
-	url = ../zeus.git
+	url = https://github.com/AxioDL/metaforce/zeus.git
 	branch = master
 [submodule "extern/imgui"]
 	path = extern/imgui
