@@ -104,7 +104,7 @@ enum TevKColorID {
   MAX_KCOLOR,
 };
 
-enum TevKColorSel : uint8_t {
+enum TevKColorSel {
   TEV_KCSEL_8_8 = 0x00,
   TEV_KCSEL_7_8 = 0x01,
   TEV_KCSEL_6_8 = 0x02,
@@ -362,7 +362,7 @@ enum ChannelID {
   COLOR_NULL = 0xff
 };
 
-enum BlendMode : uint8_t {
+enum BlendMode {
   BM_NONE,
   BM_BLEND,
   BM_LOGIC,
@@ -370,7 +370,7 @@ enum BlendMode : uint8_t {
   MAX_BLENDMODE,
 };
 
-enum LogicOp : uint8_t {
+enum LogicOp {
   LO_CLEAR,
   LO_AND,
   LO_REVAND,
@@ -389,7 +389,7 @@ enum LogicOp : uint8_t {
   LO_SET
 };
 
-enum AlphaOp : uint8_t {
+enum AlphaOp {
   AOP_AND,
   AOP_OR,
   AOP_XOR,
@@ -715,8 +715,7 @@ void GXSetZMode(GXBool compare_enable, GX::Compare func, GXBool update_enable) n
 void GXSetTevColor(GX::TevRegID id, const GXColor& color) noexcept;
 void GXSetTevKColor(GX::TevKColorID id, const GXColor& color) noexcept;
 void GXSetAlphaUpdate(GXBool enabled) noexcept;
-// Originally u8 instead of float
-void GXSetDstAlpha(GXBool enabled, float value) noexcept;
+void GXSetDstAlpha(GXBool enabled, u8 value) noexcept;
 void GXSetCopyClear(const GXColor& color, float depth) noexcept;
 void GXSetTevOrder(GX::TevStageID id, GX::TexCoordID tcid, GX::TexMapID tmid, GX::ChannelID cid) noexcept;
 void GXSetTevKColorSel(GX::TevStageID id, GX::TevKColorSel sel) noexcept;
@@ -725,8 +724,7 @@ void GXSetChanAmbColor(GX::ChannelID id, const GXColor& color) noexcept;
 void GXSetChanMatColor(GX::ChannelID id, const GXColor& color) noexcept;
 void GXSetChanCtrl(GX::ChannelID id, GXBool lightingEnabled, GX::ColorSrc ambSrc, GX::ColorSrc matSrc,
                    GX::LightMask lightState, GX::DiffuseFn diffFn, GX::AttnFn attnFn) noexcept;
-// Originally u8 instead of floats
-void GXSetAlphaCompare(GX::Compare comp0, float ref0, GX::AlphaOp op, GX::Compare comp1, float ref1) noexcept;
+void GXSetAlphaCompare(GX::Compare comp0, u8 ref0, GX::AlphaOp op, GX::Compare comp1, u8 ref1) noexcept;
 void GXSetVtxDesc(GX::Attr attr, GX::AttrType type) noexcept;
 void GXSetVtxDescv(GX::VtxDescList* list) noexcept;
 void GXClearVtxDesc() noexcept;

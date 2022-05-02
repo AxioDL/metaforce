@@ -30,30 +30,85 @@ static inline std::string_view chan_comp(GX::TevColorChan chan) noexcept {
   }
 }
 
+static void color_arg_reg_info(GX::TevColorArg arg, const TevStage& stage, ShaderInfo& info) {
+  switch (arg) {
+  case GX::CC_C0:
+  case GX::CC_A0:
+    info.usesTevReg.set(0);
+    break;
+  case GX::CC_C1:
+  case GX::CC_A1:
+    info.usesTevReg.set(1);
+    break;
+  case GX::CC_C2:
+  case GX::CC_A2:
+    info.usesTevReg.set(2);
+    break;
+  case GX::CC_TEXC:
+  case GX::CC_TEXA:
+    info.sampledTextures.set(stage.texMapId);
+    break;
+  case GX::CC_RASC:
+  case GX::CC_RASA:
+    info.sampledColorChannels.set(stage.channelId - GX::COLOR0A0);
+    break;
+  case GX::CC_KONST:
+    switch (stage.kcSel) {
+    case GX::TEV_KCSEL_K0:
+    case GX::TEV_KCSEL_K0_R:
+    case GX::TEV_KCSEL_K0_G:
+    case GX::TEV_KCSEL_K0_B:
+    case GX::TEV_KCSEL_K0_A:
+      info.sampledKColors.set(0);
+      break;
+    case GX::TEV_KCSEL_K1:
+    case GX::TEV_KCSEL_K1_R:
+    case GX::TEV_KCSEL_K1_G:
+    case GX::TEV_KCSEL_K1_B:
+    case GX::TEV_KCSEL_K1_A:
+      info.sampledKColors.set(1);
+      break;
+    case GX::TEV_KCSEL_K2:
+    case GX::TEV_KCSEL_K2_R:
+    case GX::TEV_KCSEL_K2_G:
+    case GX::TEV_KCSEL_K2_B:
+    case GX::TEV_KCSEL_K2_A:
+      info.sampledKColors.set(2);
+      break;
+    case GX::TEV_KCSEL_K3:
+    case GX::TEV_KCSEL_K3_R:
+    case GX::TEV_KCSEL_K3_G:
+    case GX::TEV_KCSEL_K3_B:
+    case GX::TEV_KCSEL_K3_A:
+      info.sampledKColors.set(3);
+      break;
+    default:
+      break;
+    }
+    break;
+  default:
+    break;
+  }
+}
+
 static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const ShaderConfig& config,
-                                 const TevStage& stage, ShaderInfo& info) {
+                                 const TevStage& stage) {
   switch (arg) {
   case GX::CC_CPREV:
     return "prev.rgb";
   case GX::CC_APREV:
     return "prev.a";
   case GX::CC_C0:
-    info.usesTevReg.set(0);
     return "tevreg0.rgb";
   case GX::CC_A0:
-    info.usesTevReg.set(0);
     return "tevreg0.a";
   case GX::CC_C1:
-    info.usesTevReg.set(1);
     return "tevreg1.rgb";
   case GX::CC_A1:
-    info.usesTevReg.set(1);
     return "tevreg1.a";
   case GX::CC_C2:
-    info.usesTevReg.set(2);
     return "tevreg2.rgb";
   case GX::CC_A2:
-    info.usesTevReg.set(2);
     return "tevreg2.a";
   case GX::CC_TEXC: {
     if (stage.texMapId == GX::TEXMAP_NULL) {
@@ -63,7 +118,6 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
       Log.report(logvisor::Fatal, FMT_STRING("invalid texture {} for stage {}"), stage.texMapId, stageIdx);
       unreachable();
     }
-    info.sampledTextures.set(stage.texMapId);
     const auto swap = config.tevSwapTable[stage.tevSwapTex];
     return fmt::format(FMT_STRING("sampled{}.{}{}{}"), stage.texMapId, chan_comp(swap.red), chan_comp(swap.green),
                        chan_comp(swap.blue));
@@ -76,7 +130,6 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
       Log.report(logvisor::Fatal, FMT_STRING("invalid texture {} for stage {}"), stage.texMapId, stageIdx);
       unreachable();
     }
-    info.sampledTextures.set(stage.texMapId);
     const auto swap = config.tevSwapTable[stage.tevSwapTex];
     return fmt::format(FMT_STRING("sampled{}.{}"), stage.texMapId, chan_comp(swap.alpha));
   }
@@ -89,7 +142,6 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
       unreachable();
     }
     u32 idx = stage.channelId - GX::COLOR0A0;
-    info.sampledColorChannels.set(idx);
     const auto swap = config.tevSwapTable[stage.tevSwapRas];
     return fmt::format(FMT_STRING("rast{}.{}{}{}"), idx, chan_comp(swap.red), chan_comp(swap.green),
                        chan_comp(swap.blue));
@@ -103,7 +155,6 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
       unreachable();
     }
     u32 idx = stage.channelId - GX::COLOR0A0;
-    info.sampledColorChannels.set(idx);
     const auto swap = config.tevSwapTable[stage.tevSwapRas];
     return fmt::format(FMT_STRING("rast{}.{}"), idx, chan_comp(swap.alpha));
   }
@@ -130,64 +181,44 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
     case GX::TEV_KCSEL_1_8:
       return "(1.0/8.0)";
     case GX::TEV_KCSEL_K0:
-      info.sampledKColors.set(0);
       return "ubuf.kcolor0.rgb";
     case GX::TEV_KCSEL_K1:
-      info.sampledKColors.set(1);
       return "ubuf.kcolor1.rgb";
     case GX::TEV_KCSEL_K2:
-      info.sampledKColors.set(2);
       return "ubuf.kcolor2.rgb";
     case GX::TEV_KCSEL_K3:
-      info.sampledKColors.set(3);
       return "ubuf.kcolor3.rgb";
     case GX::TEV_KCSEL_K0_R:
-      info.sampledKColors.set(0);
       return "ubuf.kcolor0.r";
     case GX::TEV_KCSEL_K1_R:
-      info.sampledKColors.set(1);
       return "ubuf.kcolor1.r";
     case GX::TEV_KCSEL_K2_R:
-      info.sampledKColors.set(2);
       return "ubuf.kcolor2.r";
     case GX::TEV_KCSEL_K3_R:
-      info.sampledKColors.set(3);
       return "ubuf.kcolor3.r";
     case GX::TEV_KCSEL_K0_G:
-      info.sampledKColors.set(0);
       return "ubuf.kcolor0.g";
     case GX::TEV_KCSEL_K1_G:
-      info.sampledKColors.set(1);
       return "ubuf.kcolor1.g";
     case GX::TEV_KCSEL_K2_G:
-      info.sampledKColors.set(2);
       return "ubuf.kcolor2.g";
     case GX::TEV_KCSEL_K3_G:
-      info.sampledKColors.set(3);
       return "ubuf.kcolor3.g";
     case GX::TEV_KCSEL_K0_B:
-      info.sampledKColors.set(0);
       return "ubuf.kcolor0.b";
     case GX::TEV_KCSEL_K1_B:
-      info.sampledKColors.set(1);
       return "ubuf.kcolor1.b";
     case GX::TEV_KCSEL_K2_B:
-      info.sampledKColors.set(2);
       return "ubuf.kcolor2.b";
     case GX::TEV_KCSEL_K3_B:
-      info.sampledKColors.set(3);
       return "ubuf.kcolor3.b";
     case GX::TEV_KCSEL_K0_A:
-      info.sampledKColors.set(0);
       return "ubuf.kcolor0.a";
     case GX::TEV_KCSEL_K1_A:
-      info.sampledKColors.set(1);
       return "ubuf.kcolor1.a";
     case GX::TEV_KCSEL_K2_A:
-      info.sampledKColors.set(2);
       return "ubuf.kcolor2.a";
     case GX::TEV_KCSEL_K3_A:
-      info.sampledKColors.set(3);
       return "ubuf.kcolor3.a";
     default:
       Log.report(logvisor::Fatal, FMT_STRING("invalid kcSel {}"), stage.kcSel);
@@ -202,19 +233,68 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
   }
 }
 
+static void alpha_arg_reg_info(GX::TevAlphaArg arg, const TevStage& stage, ShaderInfo& info) {
+  switch (arg) {
+  case GX::CA_A0:
+    info.usesTevReg.set(0);
+    break;
+  case GX::CA_A1:
+    info.usesTevReg.set(1);
+    break;
+  case GX::CA_A2:
+    info.usesTevReg.set(2);
+    break;
+  case GX::CA_TEXA:
+    info.sampledTextures.set(stage.texMapId);
+    break;
+  case GX::CA_RASA:
+    info.sampledColorChannels.set(stage.channelId - GX::COLOR0A0);
+    break;
+  case GX::CA_KONST:
+    switch (stage.kaSel) {
+    case GX::TEV_KASEL_K0_R:
+    case GX::TEV_KASEL_K0_G:
+    case GX::TEV_KASEL_K0_B:
+    case GX::TEV_KASEL_K0_A:
+      info.sampledKColors.set(0);
+      break;
+    case GX::TEV_KASEL_K1_R:
+    case GX::TEV_KASEL_K1_G:
+    case GX::TEV_KASEL_K1_B:
+    case GX::TEV_KASEL_K1_A:
+      info.sampledKColors.set(1);
+      break;
+    case GX::TEV_KASEL_K2_R:
+    case GX::TEV_KASEL_K2_G:
+    case GX::TEV_KASEL_K2_B:
+    case GX::TEV_KASEL_K2_A:
+      info.sampledKColors.set(2);
+      break;
+    case GX::TEV_KASEL_K3_R:
+    case GX::TEV_KASEL_K3_G:
+    case GX::TEV_KASEL_K3_B:
+    case GX::TEV_KASEL_K3_A:
+      info.sampledKColors.set(3);
+      break;
+    default:
+      break;
+    }
+    break;
+  default:
+    break;
+  }
+}
+
 static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const ShaderConfig& config,
-                                 const TevStage& stage, ShaderInfo& info) {
+                                 const TevStage& stage) {
   switch (arg) {
   case GX::CA_APREV:
     return "prev.a";
   case GX::CA_A0:
-    info.usesTevReg.set(0);
     return "tevreg0.a";
   case GX::CA_A1:
-    info.usesTevReg.set(1);
     return "tevreg1.a";
   case GX::CA_A2:
-    info.usesTevReg.set(2);
     return "tevreg2.a";
   case GX::CA_TEXA: {
     if (stage.texMapId == GX::TEXMAP_NULL) {
@@ -224,7 +304,6 @@ static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const Sha
       Log.report(logvisor::Fatal, FMT_STRING("invalid texture {} for stage {}"), stage.texMapId, stageIdx);
       unreachable();
     }
-    info.sampledTextures.set(stage.texMapId);
     const auto swap = config.tevSwapTable[stage.tevSwapTex];
     return fmt::format(FMT_STRING("sampled{}.{}"), stage.texMapId, chan_comp(swap.alpha));
   }
@@ -237,7 +316,6 @@ static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const Sha
       unreachable();
     }
     u32 idx = stage.channelId - GX::COLOR0A0;
-    info.sampledColorChannels.set(idx);
     const auto swap = config.tevSwapTable[stage.tevSwapRas];
     return fmt::format(FMT_STRING("rast{}.{}"), idx, chan_comp(swap.alpha));
   }
@@ -260,52 +338,36 @@ static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const Sha
     case GX::TEV_KASEL_1_8:
       return "(1.0/8.0)";
     case GX::TEV_KASEL_K0_R:
-      info.sampledKColors.set(0);
       return "ubuf.kcolor0.r";
     case GX::TEV_KASEL_K1_R:
-      info.sampledKColors.set(1);
       return "ubuf.kcolor1.r";
     case GX::TEV_KASEL_K2_R:
-      info.sampledKColors.set(2);
       return "ubuf.kcolor2.r";
     case GX::TEV_KASEL_K3_R:
-      info.sampledKColors.set(3);
       return "ubuf.kcolor3.r";
     case GX::TEV_KASEL_K0_G:
-      info.sampledKColors.set(0);
       return "ubuf.kcolor0.g";
     case GX::TEV_KASEL_K1_G:
-      info.sampledKColors.set(1);
       return "ubuf.kcolor1.g";
     case GX::TEV_KASEL_K2_G:
-      info.sampledKColors.set(2);
       return "ubuf.kcolor2.g";
     case GX::TEV_KASEL_K3_G:
-      info.sampledKColors.set(3);
       return "ubuf.kcolor3.g";
     case GX::TEV_KASEL_K0_B:
-      info.sampledKColors.set(0);
       return "ubuf.kcolor0.b";
     case GX::TEV_KASEL_K1_B:
-      info.sampledKColors.set(1);
       return "ubuf.kcolor1.b";
     case GX::TEV_KASEL_K2_B:
-      info.sampledKColors.set(2);
       return "ubuf.kcolor2.b";
     case GX::TEV_KASEL_K3_B:
-      info.sampledKColors.set(3);
       return "ubuf.kcolor3.b";
     case GX::TEV_KASEL_K0_A:
-      info.sampledKColors.set(0);
       return "ubuf.kcolor0.a";
     case GX::TEV_KASEL_K1_A:
-      info.sampledKColors.set(1);
       return "ubuf.kcolor1.a";
     case GX::TEV_KASEL_K2_A:
-      info.sampledKColors.set(2);
       return "ubuf.kcolor2.a";
     case GX::TEV_KASEL_K3_A:
-      info.sampledKColors.set(3);
       return "ubuf.kcolor3.a";
     default:
       Log.report(logvisor::Fatal, FMT_STRING("invalid kaSel {}"), stage.kaSel);
@@ -346,22 +408,23 @@ static std::string_view tev_bias(GX::TevBias bias) {
   }
 }
 
-static std::string alpha_compare(GX::Compare comp, float ref, bool& valid) {
+static std::string alpha_compare(GX::Compare comp, u8 ref, bool& valid) {
+  const float fref = ref / 255.f;
   switch (comp) {
   case GX::NEVER:
     return "false";
   case GX::LESS:
-    return fmt::format(FMT_STRING("(prev.a < {}f)"), ref);
+    return fmt::format(FMT_STRING("(prev.a < {}f)"), fref);
   case GX::LEQUAL:
-    return fmt::format(FMT_STRING("(prev.a <= {}f)"), ref);
+    return fmt::format(FMT_STRING("(prev.a <= {}f)"), fref);
   case GX::EQUAL:
-    return fmt::format(FMT_STRING("(prev.a == {}f)"), ref);
+    return fmt::format(FMT_STRING("(prev.a == {}f)"), fref);
   case GX::NEQUAL:
-    return fmt::format(FMT_STRING("(prev.a != {}f)"), ref);
+    return fmt::format(FMT_STRING("(prev.a != {}f)"), fref);
   case GX::GEQUAL:
-    return fmt::format(FMT_STRING("(prev.a >= {}f)"), ref);
+    return fmt::format(FMT_STRING("(prev.a >= {}f)"), fref);
   case GX::GREATER:
-    return fmt::format(FMT_STRING("(prev.a > {}f)"), ref);
+    return fmt::format(FMT_STRING("(prev.a > {}f)"), fref);
   case GX::ALWAYS:
     valid = false;
     return "true";
@@ -422,7 +485,106 @@ constexpr std::array<std::string_view, MaxVtxAttr> VtxAttributeNames{
     "pos_mtx_array", "nrm_mtx_array", "tex_mtx_array", "light_array", "nbt",
 };
 
-std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& config) noexcept {
+ShaderInfo build_shader_info(const ShaderConfig& config) noexcept {
+  //  const auto hash = xxh3_hash(config);
+  //  const auto it = g_gxCachedShaders.find(hash);
+  //  if (it != g_gxCachedShaders.end()) {
+  //    return it->second.second;
+  //  }
+
+  ShaderInfo info{
+      .uniformSize = 64 * 3, // mv, mvInv, proj
+  };
+  for (int i = 0; i < config.tevStageCount; ++i) {
+    const auto& stage = config.tevStages[i];
+    // Color pass
+    switch (stage.colorOp.outReg) {
+    case GX::TEVREG0:
+      info.usesTevReg.set(0);
+      break;
+    case GX::TEVREG1:
+      info.usesTevReg.set(1);
+      break;
+    case GX::TEVREG2:
+      info.usesTevReg.set(2);
+      break;
+    default:
+      break;
+    }
+    color_arg_reg_info(stage.colorPass.a, stage, info);
+    color_arg_reg_info(stage.colorPass.b, stage, info);
+    color_arg_reg_info(stage.colorPass.c, stage, info);
+    color_arg_reg_info(stage.colorPass.d, stage, info);
+
+    // Alpha pass
+    switch (stage.alphaOp.outReg) {
+    case GX::TEVREG0:
+      info.usesTevReg.set(0);
+      break;
+    case GX::TEVREG1:
+      info.usesTevReg.set(1);
+      break;
+    case GX::TEVREG2:
+      info.usesTevReg.set(2);
+      break;
+    default:
+      break;
+    }
+    alpha_arg_reg_info(stage.alphaPass.a, stage, info);
+    alpha_arg_reg_info(stage.alphaPass.b, stage, info);
+    alpha_arg_reg_info(stage.alphaPass.c, stage, info);
+    alpha_arg_reg_info(stage.alphaPass.d, stage, info);
+  }
+  info.uniformSize += info.usesTevReg.count() * 16;
+  for (int i = 0; i < info.sampledColorChannels.size(); ++i) {
+    if (info.sampledColorChannels.test(i)) {
+      info.uniformSize += 32;
+      if (config.colorChannels[i].lightingEnabled) {
+        info.uniformSize += (80 * GX::MaxLights) + 16;
+      }
+    }
+  }
+  info.uniformSize += info.sampledKColors.count() * 16;
+  for (int i = 0; i < info.sampledTextures.size(); ++i) {
+    if (!info.sampledTextures.test(i)) {
+      continue;
+    }
+    const auto& tcg = config.tcgs[i];
+    if (tcg.mtx != GX::IDENTITY) {
+      u32 texMtxIdx = (tcg.mtx - GX::TEXMTX0) / 3;
+      info.usesTexMtx.set(texMtxIdx);
+      info.texMtxTypes[texMtxIdx] = tcg.type;
+    }
+    if (tcg.postMtx != GX::PTIDENTITY) {
+      u32 postMtxIdx = (tcg.postMtx - GX::PTTEXMTX0) / 3;
+      info.usesPTTexMtx.set(postMtxIdx);
+    }
+  }
+  for (int i = 0; i < info.usesTexMtx.size(); ++i) {
+    if (info.usesTexMtx.test(i)) {
+      switch (info.texMtxTypes[i]) {
+      case GX::TG_MTX2x4:
+        info.uniformSize += 32;
+        break;
+      case GX::TG_MTX3x4:
+        info.uniformSize += 64;
+        break;
+      default:
+        break;
+      }
+    }
+  }
+  info.uniformSize += info.usesPTTexMtx.count() * 64;
+  if (config.fogType != GX::FOG_NONE) {
+    info.usesFog = true;
+    info.uniformSize += 32;
+  }
+  info.uniformSize += info.sampledTextures.count() * 4;
+  info.uniformSize = align_uniform(info.uniformSize);
+  return info;
+}
+
+wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& info) noexcept {
   const auto hash = xxh3_hash(config);
   const auto it = g_gxCachedShaders.find(hash);
   if (it != g_gxCachedShaders.end()) {
@@ -432,44 +594,38 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
       unreachable();
     }
 #endif
-    return it->second;
+    return it->second.first;
   }
 
   Log.report(logvisor::Info, FMT_STRING("Shader config (hash {:x}):"), hash);
-  ShaderInfo info{
-      .uniformSize = 64 * 3, // mv, mvInv, proj
-  };
 
   {
-    for (int i = 0; i < config.tevStages.size(); ++i) {
+    for (int i = 0; i < config.tevStageCount; ++i) {
       const auto& stage = config.tevStages[i];
-      if (!stage) {
-        break;
-      }
       Log.report(logvisor::Info, FMT_STRING("  tevStages[{}]:"), i);
-      Log.report(logvisor::Info, FMT_STRING("    color_a: {}"), stage->colorPass.a);
-      Log.report(logvisor::Info, FMT_STRING("    color_b: {}"), stage->colorPass.b);
-      Log.report(logvisor::Info, FMT_STRING("    color_c: {}"), stage->colorPass.c);
-      Log.report(logvisor::Info, FMT_STRING("    color_d: {}"), stage->colorPass.d);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_a: {}"), stage->alphaPass.a);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_b: {}"), stage->alphaPass.b);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_c: {}"), stage->alphaPass.c);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_d: {}"), stage->alphaPass.d);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_clamp: {}"), stage->colorOp.clamp);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_op: {}"), stage->colorOp.op);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_bias: {}"), stage->colorOp.bias);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_scale: {}"), stage->colorOp.scale);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_reg_id: {}"), stage->colorOp.outReg);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_clamp: {}"), stage->alphaOp.clamp);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_op: {}"), stage->alphaOp.op);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_bias: {}"), stage->alphaOp.bias);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_scale: {}"), stage->alphaOp.scale);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_reg_id: {}"), stage->alphaOp.outReg);
-      Log.report(logvisor::Info, FMT_STRING("    kc_sel: {}"), stage->kcSel);
-      Log.report(logvisor::Info, FMT_STRING("    ka_sel: {}"), stage->kaSel);
-      Log.report(logvisor::Info, FMT_STRING("    texCoordId: {}"), stage->texCoordId);
-      Log.report(logvisor::Info, FMT_STRING("    texMapId: {}"), stage->texMapId);
-      Log.report(logvisor::Info, FMT_STRING("    channelId: {}"), stage->channelId);
+      Log.report(logvisor::Info, FMT_STRING("    color_a: {}"), stage.colorPass.a);
+      Log.report(logvisor::Info, FMT_STRING("    color_b: {}"), stage.colorPass.b);
+      Log.report(logvisor::Info, FMT_STRING("    color_c: {}"), stage.colorPass.c);
+      Log.report(logvisor::Info, FMT_STRING("    color_d: {}"), stage.colorPass.d);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_a: {}"), stage.alphaPass.a);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_b: {}"), stage.alphaPass.b);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_c: {}"), stage.alphaPass.c);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_d: {}"), stage.alphaPass.d);
+      Log.report(logvisor::Info, FMT_STRING("    color_op_clamp: {}"), stage.colorOp.clamp);
+      Log.report(logvisor::Info, FMT_STRING("    color_op_op: {}"), stage.colorOp.op);
+      Log.report(logvisor::Info, FMT_STRING("    color_op_bias: {}"), stage.colorOp.bias);
+      Log.report(logvisor::Info, FMT_STRING("    color_op_scale: {}"), stage.colorOp.scale);
+      Log.report(logvisor::Info, FMT_STRING("    color_op_reg_id: {}"), stage.colorOp.outReg);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_op_clamp: {}"), stage.alphaOp.clamp);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_op_op: {}"), stage.alphaOp.op);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_op_bias: {}"), stage.alphaOp.bias);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_op_scale: {}"), stage.alphaOp.scale);
+      Log.report(logvisor::Info, FMT_STRING("    alpha_op_reg_id: {}"), stage.alphaOp.outReg);
+      Log.report(logvisor::Info, FMT_STRING("    kc_sel: {}"), stage.kcSel);
+      Log.report(logvisor::Info, FMT_STRING("    ka_sel: {}"), stage.kaSel);
+      Log.report(logvisor::Info, FMT_STRING("    texCoordId: {}"), stage.texCoordId);
+      Log.report(logvisor::Info, FMT_STRING("    texMapId: {}"), stage.texMapId);
+      Log.report(logvisor::Info, FMT_STRING("    channelId: {}"), stage.channelId);
     }
     for (int i = 0; i < config.colorChannels.size(); ++i) {
       const auto& chan = config.colorChannels[i];
@@ -594,85 +750,70 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
 
   std::string fragmentFnPre;
   std::string fragmentFn;
-  for (size_t idx = 0; const auto& stage : config.tevStages) {
-    if (!stage) {
-      break;
-    }
+  for (u32 idx = 0; idx < config.tevStageCount; ++idx) {
+    const auto& stage = config.tevStages[idx];
     {
       std::string outReg;
-      switch (stage->colorOp.outReg) {
+      switch (stage.colorOp.outReg) {
       case GX::TEVPREV:
         outReg = "prev";
         break;
       case GX::TEVREG0:
         outReg = "tevreg0";
-        info.usesTevReg.set(0);
         break;
       case GX::TEVREG1:
         outReg = "tevreg1";
-        info.usesTevReg.set(1);
         break;
       case GX::TEVREG2:
         outReg = "tevreg2";
-        info.usesTevReg.set(2);
         break;
       default:
-        Log.report(logvisor::Fatal, FMT_STRING("invalid colorOp outReg {}"), stage->colorOp.outReg);
+        Log.report(logvisor::Fatal, FMT_STRING("invalid colorOp outReg {}"), stage.colorOp.outReg);
       }
-      std::string op =
-          fmt::format(FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),
-                      color_arg_reg(stage->colorPass.a, idx, config, *stage, info),
-                      color_arg_reg(stage->colorPass.b, idx, config, *stage, info),
-                      color_arg_reg(stage->colorPass.c, idx, config, *stage, info),
-                      color_arg_reg(stage->colorPass.d, idx, config, *stage, info), tev_op(stage->colorOp.op),
-                      tev_bias(stage->colorOp.bias), tev_scale(stage->colorOp.scale));
-      if (stage->colorOp.clamp) {
+      std::string op = fmt::format(
+          FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),
+          color_arg_reg(stage.colorPass.a, idx, config, stage), color_arg_reg(stage.colorPass.b, idx, config, stage),
+          color_arg_reg(stage.colorPass.c, idx, config, stage), color_arg_reg(stage.colorPass.d, idx, config, stage),
+          tev_op(stage.colorOp.op), tev_bias(stage.colorOp.bias), tev_scale(stage.colorOp.scale));
+      if (stage.colorOp.clamp) {
         op = fmt::format(FMT_STRING("clamp(vec3<f32>({}), vec3<f32>(0.0), vec3<f32>(1.0))"), op);
       }
       fragmentFn += fmt::format(FMT_STRING("\n    {0} = vec4<f32>({1}, {0}.a);"), outReg, op);
     }
     {
       std::string outReg;
-      switch (stage->alphaOp.outReg) {
+      switch (stage.alphaOp.outReg) {
       case GX::TEVPREV:
         outReg = "prev.a";
         break;
       case GX::TEVREG0:
         outReg = "tevreg0.a";
-        info.usesTevReg.set(0);
         break;
       case GX::TEVREG1:
         outReg = "tevreg1.a";
-        info.usesTevReg.set(1);
         break;
       case GX::TEVREG2:
         outReg = "tevreg2.a";
-        info.usesTevReg.set(2);
         break;
       default:
-        Log.report(logvisor::Fatal, FMT_STRING("invalid alphaOp outReg {}"), stage->alphaOp.outReg);
+        Log.report(logvisor::Fatal, FMT_STRING("invalid alphaOp outReg {}"), stage.alphaOp.outReg);
       }
-      std::string op =
-          fmt::format(FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),
-                      alpha_arg_reg(stage->alphaPass.a, idx, config, *stage, info),
-                      alpha_arg_reg(stage->alphaPass.b, idx, config, *stage, info),
-                      alpha_arg_reg(stage->alphaPass.c, idx, config, *stage, info),
-                      alpha_arg_reg(stage->alphaPass.d, idx, config, *stage, info), tev_op(stage->alphaOp.op),
-                      tev_bias(stage->alphaOp.bias), tev_scale(stage->alphaOp.scale));
-      if (stage->alphaOp.clamp) {
+      std::string op = fmt::format(
+          FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),
+          alpha_arg_reg(stage.alphaPass.a, idx, config, stage), alpha_arg_reg(stage.alphaPass.b, idx, config, stage),
+          alpha_arg_reg(stage.alphaPass.c, idx, config, stage), alpha_arg_reg(stage.alphaPass.d, idx, config, stage),
+          tev_op(stage.alphaOp.op), tev_bias(stage.alphaOp.bias), tev_scale(stage.alphaOp.scale));
+      if (stage.alphaOp.clamp) {
         op = fmt::format(FMT_STRING("clamp({}, 0.0, 1.0)"), op);
       }
       fragmentFn += fmt::format(FMT_STRING("\n    {0} = {1};"), outReg, op);
     }
-    idx++;
   }
   for (int i = 0; i < info.usesTevReg.size(); ++i) {
-    if (!info.usesTevReg.test(i)) {
-      continue;
+    if (info.usesTevReg.test(i)) {
+      uniBufAttrs += fmt::format(FMT_STRING("\n    tevreg{}: vec4<f32>;"), i);
+      fragmentFnPre += fmt::format(FMT_STRING("\n    var tevreg{0} = ubuf.tevreg{0};"), i);
     }
-    uniBufAttrs += fmt::format(FMT_STRING("\n    tevreg{}: vec4<f32>;"), i);
-    fragmentFnPre += fmt::format(FMT_STRING("\n    var tevreg{0} = ubuf.tevreg{0};"), i);
-    info.uniformSize += 16;
   }
   bool addedLightStruct = false;
   for (int i = 0; i < info.sampledColorChannels.size(); ++i) {
@@ -682,7 +823,6 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
 
     uniBufAttrs += fmt::format(FMT_STRING("\n    cc{0}_amb: vec4<f32>;"), i);
     uniBufAttrs += fmt::format(FMT_STRING("\n    cc{0}_mat: vec4<f32>;"), i);
-    info.uniformSize += 32;
 
     if (config.colorChannels[i].lightingEnabled) {
       if (!addedLightStruct) {
@@ -700,7 +840,6 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
 
       uniBufAttrs += fmt::format(FMT_STRING("\n    lights{}: array<Light, {}>;"), i, GX::MaxLights);
       uniBufAttrs += fmt::format(FMT_STRING("\n    lighting_ambient{}: vec4<f32>;"), i);
-      info.uniformSize += (80 * GX::MaxLights) + 16;
 
       vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>;"), vtxOutIdx++, i);
       vtxXfrAttrs += fmt::format(FMT_STRING(R"""(
@@ -734,11 +873,9 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
     }
   }
   for (int i = 0; i < info.sampledKColors.size(); ++i) {
-    if (!info.sampledKColors.test(i)) {
-      continue;
+    if (info.sampledKColors.test(i)) {
+      uniBufAttrs += fmt::format(FMT_STRING("\n    kcolor{}: vec4<f32>;"), i);
     }
-    uniBufAttrs += fmt::format(FMT_STRING("\n    kcolor{}: vec4<f32>;"), i);
-    info.uniformSize += 16;
   }
   size_t texBindIdx = 0;
   for (int i = 0; i < info.sampledTextures.size(); ++i) {
@@ -763,8 +900,6 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
       vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{0}_tmp = tc{0}.xyz;"), i);
     } else {
       u32 texMtxIdx = (tcg.mtx - GX::TEXMTX0) / 3;
-      info.usesTexMtx.set(texMtxIdx);
-      info.texMtxTypes[texMtxIdx] = tcg.type;
       vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{0}_tmp = ubuf.texmtx{1} * tc{0};"), i, texMtxIdx);
     }
     if (tcg.normalize) {
@@ -774,7 +909,6 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
       vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{0}_proj = tc{0}_tmp;"), i);
     } else {
       u32 postMtxIdx = (tcg.postMtx - GX::PTTEXMTX0) / 3;
-      info.usesPTTexMtx.set(postMtxIdx);
       vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{0}_proj = ubuf.postmtx{1} * vec4<f32>(tc{0}_tmp.xyz, 1.0);"),
                                  i, postMtxIdx);
     }
@@ -783,33 +917,26 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
         FMT_STRING("\n    var sampled{0} = textureSampleBias(tex{0}, tex{0}_samp, in.tex{0}_uv, ubuf.tex{0}_lod);"), i);
   }
   for (int i = 0; i < info.usesTexMtx.size(); ++i) {
-    if (!info.usesTexMtx.test(i)) {
-      continue;
-    }
-    switch (info.texMtxTypes[i]) {
-    case GX::TG_MTX2x4:
-      uniBufAttrs += fmt::format(FMT_STRING("\n    texmtx{}: mat4x2<f32>;"), i);
-      info.uniformSize += 32;
-      break;
-    case GX::TG_MTX3x4:
-      uniBufAttrs += fmt::format(FMT_STRING("\n    texmtx{}: mat4x3<f32>;"), i);
-      info.uniformSize += 64;
-      break;
-    default:
-      Log.report(logvisor::Fatal, FMT_STRING("unhandled tex mtx type {}"), info.texMtxTypes[i]);
-      unreachable();
+    if (info.usesTexMtx.test(i)) {
+      switch (info.texMtxTypes[i]) {
+      case GX::TG_MTX2x4:
+        uniBufAttrs += fmt::format(FMT_STRING("\n    texmtx{}: mat4x2<f32>;"), i);
+        break;
+      case GX::TG_MTX3x4:
+        uniBufAttrs += fmt::format(FMT_STRING("\n    texmtx{}: mat4x3<f32>;"), i);
+        break;
+      default:
+        Log.report(logvisor::Fatal, FMT_STRING("unhandled tex mtx type {}"), info.texMtxTypes[i]);
+        unreachable();
+      }
     }
   }
   for (int i = 0; i < info.usesPTTexMtx.size(); ++i) {
-    if (!info.usesPTTexMtx.test(i)) {
-      continue;
+    if (info.usesPTTexMtx.test(i)) {
+      uniBufAttrs += fmt::format(FMT_STRING("\n    postmtx{}: mat4x3<f32>;"), i);
     }
-    uniBufAttrs += fmt::format(FMT_STRING("\n    postmtx{}: mat4x3<f32>;"), i);
-    info.uniformSize += 64;
   }
-  if (config.fogType != GX::FOG_NONE) {
-    info.usesFog = true;
-
+  if (info.usesFog) {
     uniformPre +=
         "\n"
         "struct Fog {\n"
@@ -820,7 +947,6 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
         "    pad: f32;\n"
         "}";
     uniBufAttrs += "\n    fog: Fog;";
-    info.uniformSize += 32;
 
     fragmentFn += "\n    var fogF = clamp((ubuf.fog.a / (ubuf.fog.b - in.pos.z)) - ubuf.fog.c, 0.0, 1.0);";
     switch (config.fogType) {
@@ -857,7 +983,6 @@ std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& confi
       continue;
     }
     uniBufAttrs += fmt::format(FMT_STRING("\n    tex{}_lod: f32;"), i);
-    info.uniformSize += 4;
 
     sampBindings += fmt::format(FMT_STRING("\n@group(1) @binding({})\n"
                                            "var tex{}_samp: sampler;"),
@@ -939,13 +1064,12 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {{
   };
   auto shader = gpu::g_device.CreateShaderModule(&shaderDescriptor);
 
-  info.uniformSize = align_uniform(info.uniformSize);
   auto pair = std::make_pair(std::move(shader), info);
   g_gxCachedShaders.emplace(hash, pair);
 #ifndef NDEBUG
   g_gxCachedShaderConfigs.emplace(hash, config);
 #endif
 
-  return pair;
+  return pair.first;
 }
 } // namespace aurora::gfx::gx

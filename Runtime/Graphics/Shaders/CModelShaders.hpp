@@ -59,43 +59,43 @@ class CModelShaders {
   friend class CModel;
 
 public:
-  struct Light {
-    zeus::CVector3f pos;
-    zeus::CVector3f dir;
-    zeus::CColor color = zeus::skClear;
-    std::array<float, 4> linAtt{1.f, 0.f, 0.f};
-    std::array<float, 4> angAtt{1.f, 0.f, 0.f};
-  };
-
-  struct LightingUniform {
-    std::array<Light, URDE_MAX_LIGHTS> lights;
-    zeus::CColor ambient;
-    std::array<zeus::CColor, 3> colorRegs;
-    zeus::CColor mulColor;
-    zeus::CColor addColor;
-    CFogState fog;
-
-    void ActivateLights(const std::vector<CLight>& lts);
-  };
-
-  struct ThermalUniform {
-    zeus::CColor mulColor;
-    zeus::CColor addColor;
-  };
-
-  struct SolidUniform {
-    zeus::CColor solidColor;
-  };
-
-  struct MBShadowUniform {
-    zeus::CVector4f shadowUp;
-    float shadowId;
-  };
-
-  struct OneTextureUniform {
-    zeus::CColor addColor;
-    CFogState fog;
-  };
+//  struct Light {
+//    zeus::CVector3f pos;
+//    zeus::CVector3f dir;
+//    zeus::CColor color = zeus::skClear;
+//    std::array<float, 4> linAtt{1.f, 0.f, 0.f};
+//    std::array<float, 4> angAtt{1.f, 0.f, 0.f};
+//  };
+//
+//  struct LightingUniform {
+//    std::array<Light, URDE_MAX_LIGHTS> lights;
+//    zeus::CColor ambient;
+//    std::array<zeus::CColor, 3> colorRegs;
+//    zeus::CColor mulColor;
+//    zeus::CColor addColor;
+//    CFogState fog;
+//
+//    void ActivateLights(const std::vector<CLight>& lts);
+//  };
+//
+//  struct ThermalUniform {
+//    zeus::CColor mulColor;
+//    zeus::CColor addColor;
+//  };
+//
+//  struct SolidUniform {
+//    zeus::CColor solidColor;
+//  };
+//
+//  struct MBShadowUniform {
+//    zeus::CVector4f shadowUp;
+//    float shadowId;
+//  };
+//
+//  struct OneTextureUniform {
+//    zeus::CColor addColor;
+//    CFogState fog;
+//  };
 
   static void Initialize();
   static void Shutdown();

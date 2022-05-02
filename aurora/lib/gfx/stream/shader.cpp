@@ -12,7 +12,8 @@ static logvisor::Module Log("aurora::gfx::stream");
 using gpu::g_device;
 
 wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] PipelineConfig config) {
-  const auto [shader, info] = build_shader(config.shaderConfig);
+  const auto info = build_shader_info(config.shaderConfig); // TODO remove
+  const auto shader = build_shader(config.shaderConfig, info);
 
   std::array<wgpu::VertexAttribute, 4> attributes{};
   attributes[0] = wgpu::VertexAttribute{
@@ -76,8 +77,8 @@ void render(const State& state, const DrawData& data, const wgpu::RenderPassEnco
   }
   pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.offset, data.vertRange.size);
   pass.SetIndexBuffer(g_indexBuffer, wgpu::IndexFormat::Uint16, data.indexRange.offset, data.indexRange.size);
-  if (data.dstAlpha) {
-    const wgpu::Color color{0.f, 0.f, 0.f, *data.dstAlpha};
+  if (data.dstAlpha != UINT32_MAX) {
+    const wgpu::Color color{0.f, 0.f, 0.f, data.dstAlpha / 255.f};
     pass.SetBlendConstant(&color);
   }
   pass.DrawIndexed(data.indexCount);

@@ -116,7 +116,7 @@ static inline void SetAlphaCompare(GX::Compare comp0, u8 ref0, GX::AlphaOp op, G
   u32 flags = ref1 << 17 | (comp1 & 7) << 14 | (op & 7) << 11 | ref0 << 3 | (comp0 & 7);
   if (flags != sGXState.x248_alphaCompare) {
     sGXState.x248_alphaCompare = flags;
-    GXSetAlphaCompare(comp0, ref0 / 255.f, op, comp1, ref1 / 255.f);
+    GXSetAlphaCompare(comp0, ref0, op, comp1, ref1);
     // GXSetZCompLoc(comp0 == GX::ALWAYS);
   }
 }

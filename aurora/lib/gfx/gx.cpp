@@ -56,11 +56,11 @@ void GXSetTevKColor(GX::TevKColorID id, const zeus::CColor& color) noexcept {
   g_gxState.kcolors[id] = color;
 }
 void GXSetAlphaUpdate(bool enabled) noexcept { g_gxState.alphaUpdate = enabled; }
-void GXSetDstAlpha(bool enabled, float value) noexcept {
+void GXSetDstAlpha(bool enabled, u8 value) noexcept {
   if (enabled) {
     g_gxState.dstAlpha = value;
   } else {
-    g_gxState.dstAlpha.reset();
+    g_gxState.dstAlpha = UINT32_MAX;
   }
 }
 void GXSetCopyClear(const zeus::CColor& color, float depth) noexcept { g_gxState.clearColor = color; }
@@ -107,7 +107,7 @@ void GXSetChanCtrl(GX::ChannelID id, bool lightingEnabled, GX::ColorSrc ambSrc, 
   chan.matSrc = matSrc;
   g_gxState.colorChannelState[idx].lightState = lightState;
 }
-void GXSetAlphaCompare(GX::Compare comp0, float ref0, GX::AlphaOp op, GX::Compare comp1, float ref1) noexcept {
+void GXSetAlphaCompare(GX::Compare comp0, u8 ref0, GX::AlphaOp op, GX::Compare comp1, u8 ref1) noexcept {
   g_gxState.alphaCompare = {comp0, ref0, op, comp1, ref1};
 }
 void GXSetTexCoordGen2(GX::TexCoordID dst, GX::TexGenType type, GX::TexGenSrc src, GX::TexMtx mtx, GXBool normalize,
@@ -203,6 +203,9 @@ void GXSetTevSwapMode(GX::TevStageID stageId, GX::TevSwapSel rasSel, GX::TevSwap
   stage.tevSwapRas = rasSel;
   stage.tevSwapTex = texSel;
 }
+void GXSetLineWidth(u8 width, GX::TexOffset offs) noexcept {
+  // TODO
+}
 
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx::gx");
@@ -282,7 +285,7 @@ static inline wgpu::CompareFunction to_compare_function(GX::Compare func) {
 }
 
 static inline wgpu::BlendState to_blend_state(GX::BlendMode mode, GX::BlendFactor srcFac, GX::BlendFactor dstFac,
-                                              GX::LogicOp op, std::optional<float> dstAlpha) {
+                                              GX::LogicOp op, u32 dstAlpha) {
   wgpu::BlendComponent colorBlendComponent;
   switch (mode) {
   case GX::BM_NONE:
@@ -364,7 +367,7 @@ static inline wgpu::BlendState to_blend_state(GX::BlendMode mode, GX::BlendFacto
       .srcFactor = wgpu::BlendFactor::SrcAlpha,
       .dstFactor = wgpu::BlendFactor::Zero,
   };
-  if (dstAlpha) {
+  if (dstAlpha != UINT32_MAX) {
     alphaBlendComponent = wgpu::BlendComponent{
         .operation = wgpu::BlendOperation::Add,
         .srcFactor = wgpu::BlendFactor::Constant,
@@ -474,14 +477,14 @@ wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderIn
   return g_device.CreateRenderPipeline(&descriptor);
 }
 
-ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive,
-                                    const BindGroupRanges& ranges) noexcept {
+void populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive) noexcept {
   config.shaderConfig.fogType = g_gxState.fog.type;
   config.shaderConfig.vtxAttrs = g_gxState.vtxDesc;
   config.shaderConfig.tevSwapTable = g_gxState.tevSwapTable;
   for (u8 i = 0; i < g_gxState.numTevStages; ++i) {
     config.shaderConfig.tevStages[i] = g_gxState.tevStages[i];
   }
+  config.shaderConfig.tevStageCount = g_gxState.numTevStages;
   for (u8 i = 0; i < g_gxState.numChans; ++i) {
     config.shaderConfig.colorChannels[i] = g_gxState.colorChannelConfig[i];
   }
@@ -506,13 +509,6 @@ ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primit
       .depthUpdate = g_gxState.depthUpdate,
       .alphaUpdate = g_gxState.alphaUpdate,
   };
-  // TODO separate shader info from build_shader for async
-  {
-    std::lock_guard lk{g_pipelineMutex};
-    auto [_, info] = build_shader(config.shaderConfig);
-    info.bindGroups = build_bind_groups(info, config.shaderConfig, ranges); // TODO this is hack
-    return info;
-  }
 }
 
 Range build_uniform(const ShaderInfo& info) noexcept {

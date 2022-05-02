@@ -242,7 +242,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
 
   SDL_DisableScreenSaver();
   /* TODO: Make this an option rather than hard coding it */
-  SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS,"1");
+  SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 
   Uint32 flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
   switch (gpu::preferredBackendType) {
@@ -421,9 +421,7 @@ void set_fullscreen(bool fullscreen) noexcept {
   SDL_SetWindowFullscreen(g_window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
 
-uint32_t  get_which_controller_for_player(int32_t index) noexcept {
-  return input::get_instance_for_player(index);
-}
+uint32_t get_which_controller_for_player(int32_t index) noexcept { return input::get_instance_for_player(index); }
 int32_t get_controller_player_index(uint32_t instance) noexcept { return input::player_index(instance); }
 
 void set_controller_player_index(uint32_t instance, int32_t index) noexcept {

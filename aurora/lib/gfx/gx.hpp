@@ -2,6 +2,7 @@
 
 #include "common.hpp"
 
+#include <type_traits>
 #include <variant>
 
 namespace aurora::gfx::gx {
@@ -24,14 +25,18 @@ struct TevPass {
   Arg d = Default;
   bool operator==(const TevPass&) const = default;
 };
+static_assert(std::has_unique_object_representations_v<TevPass<GX::TevColorArg, GX::CC_ZERO>>);
+static_assert(std::has_unique_object_representations_v<TevPass<GX::TevAlphaArg, GX::CA_ZERO>>);
 struct TevOp {
   GX::TevOp op = GX::TevOp::TEV_ADD;
   GX::TevBias bias = GX::TevBias::TB_ZERO;
   GX::TevScale scale = GX::TevScale::CS_SCALE_1;
   GX::TevRegID outReg = GX::TevRegID::TEVPREV;
   bool clamp = true;
+  u32 _pad : 24 = 0;
   bool operator==(const TevOp&) const = default;
 };
+static_assert(std::has_unique_object_representations_v<TevOp>);
 struct TevStage {
   TevPass<GX::TevColorArg, GX::CC_ZERO> colorPass;
   TevPass<GX::TevAlphaArg, GX::CA_ZERO> alphaPass;
@@ -46,6 +51,7 @@ struct TevStage {
   GX::TevSwapSel tevSwapTex = GX::TEV_SWAP0;
   bool operator==(const TevStage&) const = default;
 };
+static_assert(std::has_unique_object_representations_v<TevStage>);
 struct TextureBind {
   aurora::gfx::TextureHandle handle;
   metaforce::EClampMode clampMode;
@@ -63,8 +69,10 @@ struct ColorChannelConfig {
   GX::ColorSrc matSrc = GX::SRC_REG;
   GX::ColorSrc ambSrc = GX::SRC_REG;
   bool lightingEnabled = false;
+  u32 _pad : 24 = 0;
   bool operator==(const ColorChannelConfig&) const = default;
 };
+static_assert(std::has_unique_object_representations_v<ColorChannelConfig>);
 // For uniform generation
 struct ColorChannelState {
   zeus::CColor matColor;
@@ -80,8 +88,10 @@ struct TcgConfig {
   GX::TexMtx mtx = GX::IDENTITY;
   GX::PTTexMtx postMtx = GX::PTIDENTITY;
   bool normalize = false;
+  u32 _pad : 24 = 0;
   bool operator==(const TcgConfig&) const = default;
 };
+static_assert(std::has_unique_object_representations_v<TcgConfig>);
 struct FogState {
   GX::FogType type = GX::FOG_NONE;
   float startZ = 0.f;
@@ -98,15 +108,17 @@ struct TevSwap {
   bool operator==(const TevSwap&) const = default;
   operator bool() const { return *this != TevSwap{}; }
 };
+static_assert(std::has_unique_object_representations_v<TevSwap>);
 struct AlphaCompare {
   GX::Compare comp0 = GX::ALWAYS;
-  float ref0 = 0.f;
+  u32 ref0; // would be u8 but extended to avoid padding bytes
   GX::AlphaOp op = GX::AOP_AND;
   GX::Compare comp1 = GX::ALWAYS;
-  float ref1 = 0.f;
+  u32 ref1;
   bool operator==(const AlphaCompare& other) const = default;
   operator bool() const { return *this != AlphaCompare{}; }
 };
+static_assert(std::has_unique_object_representations_v<AlphaCompare>);
 
 struct GXState {
   zeus::CMatrix4f mv;
@@ -120,7 +132,7 @@ struct GXState {
   GX::LogicOp blendOp = GX::LO_CLEAR;
   GX::Compare depthFunc = GX::LEQUAL;
   zeus::CColor clearColor = zeus::skBlack;
-  std::optional<float> dstAlpha;
+  u32 dstAlpha; // u8; UINT32_MAX = disabled
   AlphaCompare alphaCompare;
   std::array<zeus::CColor, MaxTevRegs> colorRegs;
   std::array<zeus::CColor, GX::MAX_KCOLOR> kcolors;
@@ -158,13 +170,15 @@ struct ShaderConfig {
   GX::FogType fogType;
   std::array<GX::AttrType, MaxVtxAttr> vtxAttrs;
   std::array<TevSwap, MaxTevSwap> tevSwapTable;
-  std::array<std::optional<TevStage>, MaxTevStages> tevStages;
+  std::array<TevStage, MaxTevStages> tevStages;
+  u32 tevStageCount = 0;
   std::array<ColorChannelConfig, MaxColorChannels> colorChannels;
   std::array<TcgConfig, MaxTexCoord> tcgs;
   AlphaCompare alphaCompare;
   u32 indexedAttributeCount = 0;
   bool operator==(const ShaderConfig&) const = default;
 };
+static_assert(std::has_unique_object_representations_v<ShaderConfig>);
 struct PipelineConfig {
   ShaderConfig shaderConfig;
   GX::Primitive primitive;
@@ -173,9 +187,11 @@ struct PipelineConfig {
   GX::BlendMode blendMode;
   GX::BlendFactor blendFacSrc, blendFacDst;
   GX::LogicOp blendOp;
-  std::optional<float> dstAlpha;
+  u32 dstAlpha;
   bool depthCompare, depthUpdate, alphaUpdate;
+  u8 _pad;
 };
+static_assert(std::has_unique_object_representations_v<PipelineConfig>);
 struct GXBindGroupLayouts {
   wgpu::BindGroupLayout uniformLayout;
   wgpu::BindGroupLayout samplerLayout;
@@ -188,7 +204,6 @@ struct GXBindGroups {
 };
 // Output info from shader generation
 struct ShaderInfo {
-  GXBindGroups bindGroups;
   std::bitset<MaxTextures> sampledTextures;
   std::bitset<MaxKColors> sampledKColors;
   std::bitset<MaxColorChannels> sampledColorChannels;
@@ -205,92 +220,15 @@ struct BindGroupRanges {
   Range tcDataRange;
   Range packedTcDataRange;
 };
-ShaderInfo populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive,
-                                    const BindGroupRanges& ranges) noexcept;
+void populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive) noexcept;
 wgpu::RenderPipeline build_pipeline(const PipelineConfig& config, const ShaderInfo& info,
                                     ArrayRef<wgpu::VertexBufferLayout> vtxBuffers, wgpu::ShaderModule shader,
                                     zstring_view label) noexcept;
-std::pair<wgpu::ShaderModule, ShaderInfo> build_shader(const ShaderConfig& config) noexcept;
+ShaderInfo build_shader_info(const ShaderConfig& config) noexcept;
+wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& info) noexcept;
 // Range build_vertex_buffer(const GXShaderInfo& info) noexcept;
 Range build_uniform(const ShaderInfo& info) noexcept;
 GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const ShaderConfig& config) noexcept;
 GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& config,
                                const BindGroupRanges& ranges) noexcept;
 } // namespace aurora::gfx::gx
-
-namespace aurora {
-template <typename Arg, Arg Default>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TevPass<Arg, Default>& input) {
-  XXH3_64bits_update(&state, &input.a, sizeof(Arg));
-  XXH3_64bits_update(&state, &input.b, sizeof(Arg));
-  XXH3_64bits_update(&state, &input.c, sizeof(Arg));
-  XXH3_64bits_update(&state, &input.d, sizeof(Arg));
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TevOp& input) {
-  XXH3_64bits_update(&state, &input.op, sizeof(gfx::gx::TevOp::op));
-  XXH3_64bits_update(&state, &input.bias, sizeof(gfx::gx::TevOp::bias));
-  XXH3_64bits_update(&state, &input.scale, sizeof(gfx::gx::TevOp::scale));
-  XXH3_64bits_update(&state, &input.outReg, sizeof(gfx::gx::TevOp::outReg));
-  XXH3_64bits_update(&state, &input.clamp, sizeof(bool));
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TevStage& input) {
-  xxh3_update(state, input.colorPass);
-  xxh3_update(state, input.alphaPass);
-  xxh3_update(state, input.colorOp);
-  xxh3_update(state, input.alphaOp);
-  XXH3_64bits_update(&state, &input.kcSel, sizeof(gfx::gx::TevStage::kcSel));
-  XXH3_64bits_update(&state, &input.kaSel, sizeof(gfx::gx::TevStage::kaSel));
-  XXH3_64bits_update(&state, &input.texCoordId, sizeof(gfx::gx::TevStage::texCoordId));
-  XXH3_64bits_update(&state, &input.texMapId, sizeof(gfx::gx::TevStage::texMapId));
-  XXH3_64bits_update(&state, &input.channelId, sizeof(gfx::gx::TevStage::channelId));
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ColorChannelConfig& input) {
-  XXH3_64bits_update(&state, &input.lightingEnabled, sizeof(gfx::gx::ColorChannelConfig::lightingEnabled));
-  XXH3_64bits_update(&state, &input.matSrc, sizeof(gfx::gx::ColorChannelConfig::matSrc));
-  if (input.lightingEnabled) {
-    // Unused when lighting is disabled
-    XXH3_64bits_update(&state, &input.ambSrc, sizeof(gfx::gx::ColorChannelConfig::ambSrc));
-  }
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::TcgConfig& input) {
-  XXH3_64bits_update(&state, &input.type, sizeof(gfx::gx::TcgConfig::type));
-  XXH3_64bits_update(&state, &input.src, sizeof(gfx::gx::TcgConfig::src));
-  XXH3_64bits_update(&state, &input.mtx, sizeof(gfx::gx::TcgConfig::mtx));
-  XXH3_64bits_update(&state, &input.postMtx, sizeof(gfx::gx::TcgConfig::postMtx));
-  XXH3_64bits_update(&state, &input.normalize, sizeof(gfx::gx::TcgConfig::normalize));
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::AlphaCompare& input) {
-  XXH3_64bits_update(&state, &input.comp0, sizeof(gfx::gx::AlphaCompare::comp0));
-  XXH3_64bits_update(&state, &input.ref0, sizeof(gfx::gx::AlphaCompare::ref0));
-  XXH3_64bits_update(&state, &input.op, sizeof(gfx::gx::AlphaCompare::op));
-  XXH3_64bits_update(&state, &input.comp1, sizeof(gfx::gx::AlphaCompare::comp1));
-  XXH3_64bits_update(&state, &input.ref1, sizeof(gfx::gx::AlphaCompare::ref1));
-}
-template <>
-inline void xxh3_update(XXH3_state_t& state, const gfx::gx::ShaderConfig& input) {
-  XXH3_64bits_update(&state, &input.fogType, sizeof(gfx::gx::ShaderConfig::fogType));
-  XXH3_64bits_update(&state, &input.vtxAttrs, sizeof(gfx::gx::ShaderConfig::vtxAttrs));
-  XXH3_64bits_update(&state, &input.tevSwapTable, sizeof(gfx::gx::ShaderConfig::tevSwapTable));
-  for (const auto& item : input.tevStages) {
-    if (!item) {
-      break;
-    }
-    xxh3_update(state, *item);
-  }
-  for (const auto& item : input.colorChannels) {
-    xxh3_update(state, item);
-  }
-  for (const auto& item : input.tcgs) {
-    xxh3_update(state, item);
-  }
-  if (input.alphaCompare) {
-    xxh3_update(state, input.alphaCompare);
-  }
-  XXH3_64bits_update(&state, &input.indexedAttributeCount, sizeof(gfx::gx::ShaderConfig::indexedAttributeCount));
-}
-} // namespace aurora

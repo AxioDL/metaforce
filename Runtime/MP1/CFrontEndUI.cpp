@@ -1841,9 +1841,7 @@ void CFrontEndUI::Draw() {
         /* To black */
         zeus::CColor color = zeus::skBlack;
         color.a() = 1.f - x58_fadeBlackTimer;
-        zeus::CRectangle rect(0, 0, 1, 1);
-        aurora::gfx::queue_colored_quad(aurora::gfx::CameraFilterType::Blend, aurora::gfx::ZComp::Always, false, color,
-                                        rect, 0.f);
+        CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, color, nullptr, 1.f);
       }
     }
 
@@ -1853,16 +1851,12 @@ void CFrontEndUI::Draw() {
         /* To black */
         zeus::CColor color = zeus::skBlack;
         color.a() = zeus::clamp(0.f, 1.f - x58_fadeBlackTimer, 1.f);
-        zeus::CRectangle rect(0, 0, 1, 1);
-        aurora::gfx::queue_colored_quad(aurora::gfx::CameraFilterType::Blend, aurora::gfx::ZComp::Always, false, color,
-                                        rect, 0.f);
+        CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, color, nullptr, 1.f);
       } else if (x50_curScreen == EScreen::Title && x54_nextScreen == EScreen::Title) {
         /* From black with 30-sec skip to title */
         zeus::CColor color = zeus::skBlack;
         color.a() = 1.f - zeus::clamp(0.f, 30.f - x58_fadeBlackTimer, 1.f);
-        zeus::CRectangle rect(0, 0, 1, 1);
-        aurora::gfx::queue_colored_quad(aurora::gfx::CameraFilterType::Blend, aurora::gfx::ZComp::Always, false, color,
-                                        rect, 0.f);
+        CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, color, nullptr, 1.f);
       }
     }
 

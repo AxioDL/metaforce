@@ -40,7 +40,7 @@ static inline void read_vert(ByteBuffer& out, const u8* data) noexcept {
 static absl::flat_hash_map<XXH64_hash_t, std::pair<ByteBuffer, ByteBuffer>> sCachedDisplayLists;
 
 void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
-  const auto hash = xxh3_hash(dlStart, dlSize, 0);
+  const auto hash = xxh3_hash_s(dlStart, dlSize, 0);
   Range vertRange, idxRange;
   u32 numIndices = 0;
   auto it = sCachedDisplayLists.find(hash);
@@ -165,13 +165,15 @@ void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
   }
 
   model::PipelineConfig config{};
+  populate_pipeline_config(config, GX::TRIANGLES);
+  const auto info = gx::build_shader_info(config.shaderConfig);
   const gx::BindGroupRanges ranges{
       .vtxDataRange = sVtxRange,
       .nrmDataRange = sNrmRange,
       .tcDataRange = sTcRange,
       .packedTcDataRange = sPackedTcRange,
   };
-  const auto info = populate_pipeline_config(config, GX::TRIANGLES, ranges);
+  const auto bindGroups = gx::build_bind_groups(info, config.shaderConfig, ranges);
   const auto pipeline = pipeline_ref(config);
 
   push_draw_command(model::DrawData{
@@ -181,7 +183,7 @@ void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
       .dataRanges = ranges,
       .uniformRange = build_uniform(info),
       .indexCount = numIndices,
-      .bindGroups = info.bindGroups,
+      .bindGroups = bindGroups,
       .dstAlpha = gx::g_gxState.dstAlpha,
   });
 }
@@ -189,9 +191,10 @@ void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
 State construct_state() { return {}; }
 
 wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] PipelineConfig config) {
-  const auto [shader, info] = build_shader(config.shaderConfig);
+  const auto info = build_shader_info(config.shaderConfig); // TODO remove
+  const auto shader = build_shader(config.shaderConfig, info);
 
-  std::array<wgpu::VertexAttribute, gx::MaxVtxAttr> vtxAttrs;
+  std::array<wgpu::VertexAttribute, gx::MaxVtxAttr> vtxAttrs{};
   auto [num4xAttr, rem] = std::div(config.shaderConfig.indexedAttributeCount, 4);
   u32 num2xAttr = 0;
   if (rem > 2) {
@@ -246,8 +249,8 @@ void render(const State& state, const DrawData& data, const wgpu::RenderPassEnco
   }
   pass.SetVertexBuffer(0, g_vertexBuffer, data.vertRange.offset, data.vertRange.size);
   pass.SetIndexBuffer(g_indexBuffer, wgpu::IndexFormat::Uint16, data.idxRange.offset, data.idxRange.size);
-  if (data.dstAlpha) {
-    const wgpu::Color color{0.f, 0.f, 0.f, *data.dstAlpha};
+  if (data.dstAlpha != UINT32_MAX) {
+    const wgpu::Color color{0.f, 0.f, 0.f, data.dstAlpha / 255.f};
     pass.SetBlendConstant(&color);
   }
   pass.DrawIndexed(data.indexCount);

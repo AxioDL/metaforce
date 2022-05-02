@@ -128,6 +128,14 @@ void GXTexCoord2f32(const zeus::CVector2f& uv) noexcept {
   check_attr_order(GX::VA_TEX0);
   sStreamState->vertexBuffer.append(&uv, 8);
 }
+void GXPosition1x16(u16 idx) noexcept {
+  check_attr_order(GX::VA_POS);
+  // keep aligned
+  if (sStreamState->vertexBuffer.size() % 4 != 0) {
+    sStreamState->vertexBuffer.append_zeroes(4 - (sStreamState->vertexBuffer.size() % 4));
+  }
+  sStreamState->vertexBuffer.append(&idx, 2);
+}
 void GXEnd() noexcept {
   if (sStreamState->vertexCount == 0) {
     sStreamState.reset();
@@ -136,7 +144,8 @@ void GXEnd() noexcept {
   const auto vertRange = aurora::gfx::push_verts(sStreamState->vertexBuffer.data(), sStreamState->vertexBuffer.size());
   const auto indexRange = aurora::gfx::push_indices(aurora::ArrayRef{sStreamState->indices});
   aurora::gfx::stream::PipelineConfig config{};
-  const auto info = populate_pipeline_config(config, GX::TRIANGLES, {});
+  populate_pipeline_config(config, GX::TRIANGLES);
+  const auto info = aurora::gfx::gx::build_shader_info(config.shaderConfig);
   const auto pipeline = aurora::gfx::pipeline_ref(config);
   aurora::gfx::push_draw_command(aurora::gfx::stream::DrawData{
       .pipeline = pipeline,
@@ -144,7 +153,7 @@ void GXEnd() noexcept {
       .uniformRange = build_uniform(info),
       .indexRange = indexRange,
       .indexCount = static_cast<uint32_t>(sStreamState->indices.size()),
-      .bindGroups = info.bindGroups,
+      .bindGroups = aurora::gfx::gx::build_bind_groups(info, config.shaderConfig, {}),
       .dstAlpha = g_gxState.dstAlpha,
   });
   sStreamState.reset();

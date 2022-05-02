@@ -17,22 +17,6 @@ class CLineRenderer {
 public:
   enum class EPrimitiveMode { Lines, LineStrip, LineLoop };
 
-  struct SDrawVertTex {
-    zeus::CVector4f pos;
-    zeus::CColor color;
-    zeus::CVector2f uv;
-  };
-
-  struct SDrawVertNoTex {
-    zeus::CVector4f pos;
-    zeus::CColor color;
-  };
-
-  struct SDrawUniform {
-    zeus::CColor moduColor;
-    CFogState fog;
-  };
-
 private:
   EPrimitiveMode m_mode;
   u32 m_maxVerts;

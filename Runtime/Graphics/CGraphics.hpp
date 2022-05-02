@@ -104,6 +104,31 @@ enum class ERglEnum : std::underlying_type_t<GX::Compare> {
 
 using ERglLight = u8;
 
+enum class ERglTexOffset : std::underlying_type_t<GX::TexOffset> {
+  Zero = GX::TO_ZERO,
+  Sixteenth = GX::TO_SIXTEENTH,
+  Eighth = GX::TO_EIGHTH,
+  Fourth = GX::TO_FOURTH,
+  Half = GX::TO_HALF,
+  One = GX::TO_ONE,
+};
+
+enum class ERglFogMode : std::underlying_type_t<GX::FogType> {
+  None = GX::FOG_NONE,
+
+  PerspLin = GX::FOG_PERSP_LIN,
+  PerspExp = GX::FOG_PERSP_EXP,
+  PerspExp2 = GX::FOG_ORTHO_EXP2,
+  PerspRevExp = GX::FOG_PERSP_REVEXP,
+  PerspRevExp2 = GX::FOG_PERSP_REVEXP2,
+
+  OrthoLin = GX::FOG_ORTHO_LIN,
+  OrthoExp = GX::FOG_ORTHO_EXP,
+  OrthoExp2 = GX::FOG_ORTHO_EXP2,
+  OrthoRevExp = GX::FOG_ORTHO_REVEXP,
+  OrthoRevExp2 = GX::FOG_ORTHO_REVEXP2,
+};
+
 struct SViewport {
   u32 x0_left;
   u32 x4_top;
@@ -371,6 +396,7 @@ public:
   static void FullRender();
   static void DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
                             const zeus::CColor& col, s32 numVerts);
+  static void SetLineWidth(float width, ERglTexOffset offs);
 };
 
 template <class VTX>

@@ -11,8 +11,9 @@ struct DrawData {
 };
 
 struct PipelineConfig {
-  // nothing
+  u32 pad = 0; // empty
 };
+static_assert(std::has_unique_object_representations_v<PipelineConfig>);
 static const std::array INITIAL_PIPELINES{
     PipelineConfig{},
 };

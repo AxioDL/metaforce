@@ -1,6 +1,7 @@
 #pragma once
 #include <aurora/gfx.hpp>
 
+#include <type_traits>
 #include <utility>
 
 #include <dawn/webgpu_cpp.h>
@@ -11,18 +12,15 @@
 #endif
 
 namespace aurora {
-template <typename T>
-static inline void xxh3_update(XXH3_state_t& state, const T& input);
-static inline XXH64_hash_t xxh3_hash(const void* input, size_t len, XXH64_hash_t seed = 0) {
+static inline XXH64_hash_t xxh3_hash_s(const void* input, size_t len, XXH64_hash_t seed = 0) {
   return XXH3_64bits_withSeed(input, len, seed);
 }
 template <typename T>
 static inline XXH64_hash_t xxh3_hash(const T& input, XXH64_hash_t seed = 0) {
-  XXH3_state_t state;
-  memset(&state, 0, sizeof(XXH3_state_t));
-  XXH3_64bits_reset_withSeed(&state, seed);
-  xxh3_update(state, input);
-  return XXH3_64bits_digest(&state);
+  // Validate that the type has no padding bytes, which can easily cause
+  // hash mismatches. This also disallows floats, but that's okay for us.
+  static_assert(std::has_unique_object_representations_v<T>);
+  return xxh3_hash_s(&input, sizeof(T), seed);
 }
 
 class ByteBuffer {
@@ -160,9 +158,6 @@ static inline uint32_t storage_offset(Range range) {
 }
 
 enum class ShaderType {
-  Aabb,
-  ColoredQuad,
-  TexturedQuad,
   MoviePlayer,
   Stream,
   Model,
