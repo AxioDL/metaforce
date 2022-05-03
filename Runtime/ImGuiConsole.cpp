@@ -25,6 +25,11 @@ void ClearIniSettings();
 namespace aurora::gfx {
 extern std::atomic_uint32_t queuedPipelines;
 extern std::atomic_uint32_t createdPipelines;
+
+extern size_t g_lastVertSize;
+extern size_t g_lastUniformSize;
+extern size_t g_lastIndexSize;
+extern size_t g_lastStorageSize;
 } // namespace aurora::gfx
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
