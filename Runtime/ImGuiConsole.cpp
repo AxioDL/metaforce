@@ -740,6 +740,20 @@ std::optional<std::string> ImGuiConsole::ShowAboutWindow(bool canClose, std::str
   return result;
 }
 
+static std::string BytesToString(size_t bytes) {
+  constexpr std::array suffixes{"B"sv, "KB"sv, "MB"sv, "GB"sv, "TB"sv, "PB"sv, "EB"sv};
+  u32 s = 0;
+  auto count = static_cast<double>(bytes);
+  while (count >= 1024.0 && s < 7) {
+    s++;
+    count /= 1024.0;
+  }
+  if (count - floor(count) == 0.0) {
+    return fmt::format("{}{}", static_cast<size_t>(count), suffixes[s]);
+  }
+  return fmt::format("{:.1f}{}", count, suffixes[s]);
+}
+
 void ImGuiConsole::ShowDebugOverlay() {
   if (!m_frameCounter && !m_frameRate && !m_inGameTime && !m_roomTimer && !m_playerInfo && !m_areaInfo &&
       !m_worldInfo && !m_randomStats && !m_resourceStats && !m_pipelineInfo) {
@@ -907,6 +921,17 @@ void ImGuiConsole::ShowDebugOverlay() {
 
       ImGuiStringViewText(fmt::format(FMT_STRING("Queued pipelines: {}\n"), aurora::gfx::queuedPipelines));
       ImGuiStringViewText(fmt::format(FMT_STRING("Done pipelines:   {}\n"), aurora::gfx::createdPipelines));
+      ImGuiStringViewText(
+          fmt::format(FMT_STRING("Vertex size:      {}\n"), BytesToString(aurora::gfx::g_lastVertSize)));
+      ImGuiStringViewText(
+          fmt::format(FMT_STRING("Uniform size:     {}\n"), BytesToString(aurora::gfx::g_lastUniformSize)));
+      ImGuiStringViewText(
+          fmt::format(FMT_STRING("Index size:       {}\n"), BytesToString(aurora::gfx::g_lastIndexSize)));
+      ImGuiStringViewText(
+          fmt::format(FMT_STRING("Storage size:     {}\n"), BytesToString(aurora::gfx::g_lastStorageSize)));
+      ImGuiStringViewText(fmt::format(FMT_STRING("Total:            {}\n"),
+                                      BytesToString(aurora::gfx::g_lastVertSize + aurora::gfx::g_lastUniformSize +
+                                                    aurora::gfx::g_lastIndexSize + aurora::gfx::g_lastStorageSize)));
     }
     ShowCornerContextMenu(m_debugOverlayCorner, m_inputOverlayCorner);
   }

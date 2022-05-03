@@ -21,10 +21,10 @@ using gpu::g_queue;
 std::vector<std::string> g_debugGroupStack;
 #endif
 
-constexpr uint64_t UniformBufferSize = 5242880;   // 5mb
-constexpr uint64_t VertexBufferSize = 5242880;    // 5mb
-constexpr uint64_t IndexBufferSize = 2097152;     // 2mb
-constexpr uint64_t StorageBufferSize = 134217728; // 128mb
+constexpr uint64_t UniformBufferSize = 3145728; // 3mb
+constexpr uint64_t VertexBufferSize = 3145728;  // 3mb
+constexpr uint64_t IndexBufferSize = 1048576;   // 1mb
+constexpr uint64_t StorageBufferSize = 8388608; // 8mb
 
 constexpr uint64_t StagingBufferSize = UniformBufferSize + VertexBufferSize + IndexBufferSize + StorageBufferSize;
 
@@ -358,6 +358,12 @@ void begin_frame() {
   mapBuffer(g_storage, StorageBufferSize);
 }
 
+// for imgui debug
+size_t g_lastVertSize;
+size_t g_lastUniformSize;
+size_t g_lastIndexSize;
+size_t g_lastStorageSize;
+
 void end_frame(const wgpu::CommandEncoder& cmd) {
   uint64_t bufferOffset = 0;
   const auto writeBuffer = [&](ByteBuffer& buf, wgpu::Buffer& out, uint64_t size, std::string_view label) {
@@ -367,12 +373,13 @@ void end_frame(const wgpu::CommandEncoder& cmd) {
       buf.clear();
     }
     bufferOffset += size;
+    return writeSize;
   };
   g_stagingBuffers[currentStagingBuffer].Unmap();
-  writeBuffer(g_verts, g_vertexBuffer, VertexBufferSize, "Vertex");
-  writeBuffer(g_uniforms, g_uniformBuffer, UniformBufferSize, "Uniform");
-  writeBuffer(g_indices, g_indexBuffer, IndexBufferSize, "Index");
-  writeBuffer(g_storage, g_storageBuffer, StorageBufferSize, "Storage");
+  g_lastVertSize = writeBuffer(g_verts, g_vertexBuffer, VertexBufferSize, "Vertex");
+  g_lastUniformSize = writeBuffer(g_uniforms, g_uniformBuffer, UniformBufferSize, "Uniform");
+  g_lastIndexSize = writeBuffer(g_indices, g_indexBuffer, IndexBufferSize, "Index");
+  g_lastStorageSize = writeBuffer(g_storage, g_storageBuffer, StorageBufferSize, "Storage");
   currentStagingBuffer = (currentStagingBuffer + 1) % g_stagingBuffers.size();
   map_staging_buffer();
 }
