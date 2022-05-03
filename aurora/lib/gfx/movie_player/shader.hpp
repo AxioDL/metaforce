@@ -33,7 +33,7 @@ struct alignas(4) Vert {
 };
 
 State construct_state();
-wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] PipelineConfig config);
+wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] const PipelineConfig& config);
 DrawData make_draw_data(const State& state, const TextureHandle& tex_y, const TextureHandle& tex_u,
                         const TextureHandle& tex_v, float h_pad, float v_pad);
 void render(const State& state, const DrawData& data, const wgpu::RenderPassEncoder& pass);

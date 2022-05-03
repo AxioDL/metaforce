@@ -10,6 +10,7 @@
 #include <deque>
 #include <logvisor/logvisor.hpp>
 #include <thread>
+#include <fstream>
 
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx");
@@ -124,7 +125,23 @@ static PipelineRef g_currentPipeline;
 
 static std::vector<Command> g_commands;
 
-static void find_pipeline(PipelineRef hash, NewPipelineCallback&& cb) {
+static ByteBuffer g_serializedPipelines;
+static u32 g_serializedPipelineCount = 0;
+
+template <typename PipelineConfig>
+static void serialize_pipeline_config(ShaderType type, const PipelineConfig& config) {
+  static_assert(std::has_unique_object_representations_v<PipelineConfig>);
+  g_serializedPipelines.append(&type, sizeof(type));
+  const u32 configSize = sizeof(config);
+  g_serializedPipelines.append(&configSize, sizeof(configSize));
+  g_serializedPipelines.append(&config, configSize);
+  ++g_serializedPipelineCount;
+}
+
+template <typename PipelineConfig>
+static PipelineRef find_pipeline(ShaderType type, const PipelineConfig& config, NewPipelineCallback&& cb,
+                                 bool serialize = true) {
+  PipelineRef hash = xxh3_hash(config, static_cast<XXH64_hash_t>(type));
   bool found = false;
   {
     std::scoped_lock guard{g_pipelineMutex};
@@ -138,17 +155,24 @@ static void find_pipeline(PipelineRef hash, NewPipelineCallback&& cb) {
         }
       } else {
         g_pipelines.try_emplace(hash, cb());
+        if (serialize) {
+          serialize_pipeline_config(type, config);
+        }
         found = true;
       }
     }
     if (!found) {
       g_queuedPipelines.emplace_back(std::pair{hash, std::move(cb)});
+      if (serialize) {
+        serialize_pipeline_config(type, config);
+      }
     }
   }
   if (!found) {
     g_pipelineCv.notify_one();
     queuedPipelines++;
   }
+  return hash;
 }
 
 static void push_draw_command(ShaderDrawCommand data) {
@@ -204,9 +228,7 @@ void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, 
 }
 template <>
 PipelineRef pipeline_ref(movie_player::PipelineConfig config) {
-  PipelineRef ref = xxh3_hash(config, static_cast<XXH64_hash_t>(ShaderType::MoviePlayer));
-  find_pipeline(ref, [=]() { return create_pipeline(g_state.moviePlayer, config); });
-  return ref;
+  return find_pipeline(ShaderType::MoviePlayer, config, [=]() { return create_pipeline(g_state.moviePlayer, config); });
 }
 
 template <>
@@ -219,9 +241,7 @@ void push_draw_command(stream::DrawData data) {
 }
 template <>
 PipelineRef pipeline_ref(stream::PipelineConfig config) {
-  PipelineRef ref = xxh3_hash(config, static_cast<XXH64_hash_t>(ShaderType::Stream));
-  find_pipeline(ref, [=]() { return create_pipeline(g_state.stream, config); });
-  return ref;
+  return find_pipeline(ShaderType::Stream, config, [=]() { return create_pipeline(g_state.stream, config); });
 }
 
 template <>
@@ -230,9 +250,7 @@ void push_draw_command(model::DrawData data) {
 }
 template <>
 PipelineRef pipeline_ref(model::PipelineConfig config) {
-  PipelineRef ref = xxh3_hash(config, static_cast<XXH64_hash_t>(ShaderType::Model));
-  find_pipeline(ref, [=]() { return create_pipeline(g_state.model, config); });
-  return ref;
+  return find_pipeline(ShaderType::Model, config, [=]() { return create_pipeline(g_state.model, config); });
 }
 
 static void pipeline_worker() {
@@ -301,6 +319,53 @@ void initialize() {
   g_state.moviePlayer = movie_player::construct_state();
   g_state.stream = stream::construct_state();
   g_state.model = model::construct_state();
+
+  g_serializedPipelines = {};
+  {
+    // Load serialized pipeline cache
+    std::ifstream file("pipeline_cache.bin", std::ios::in | std::ios::binary | std::ios::ate);
+    const size_t size = file.tellg();
+    file.seekg(0, std::ios::beg);
+    constexpr size_t headerSize = sizeof(g_serializedPipelineCount);
+    if (size != -1 && size > headerSize) {
+      g_serializedPipelines.append_zeroes(size - headerSize);
+      file.read(reinterpret_cast<char*>(&g_serializedPipelineCount), headerSize);
+      file.read(reinterpret_cast<char*>(g_serializedPipelines.data()), size - headerSize);
+    }
+  }
+  if (g_serializedPipelineCount > 0) {
+    size_t offset = 0;
+    while (offset < g_serializedPipelines.size()) {
+      ShaderType type = *reinterpret_cast<const ShaderType*>(g_serializedPipelines.data() + offset);
+      offset += sizeof(ShaderType);
+      u32 size = *reinterpret_cast<const u32*>(g_serializedPipelines.data() + offset);
+      offset += sizeof(u32);
+      switch (type) {
+      case ShaderType::MoviePlayer: {
+        const movie_player::PipelineConfig config =
+            *reinterpret_cast<const movie_player::PipelineConfig*>(g_serializedPipelines.data() + offset);
+        find_pipeline(
+            type, config, [=]() { return movie_player::create_pipeline(g_state.moviePlayer, config); }, false);
+      } break;
+      case ShaderType::Stream: {
+        const stream::PipelineConfig config =
+            *reinterpret_cast<const stream::PipelineConfig*>(g_serializedPipelines.data() + offset);
+        find_pipeline(
+            type, config, [=]() { return stream::create_pipeline(g_state.stream, config); }, false);
+      } break;
+      case ShaderType::Model: {
+        const model::PipelineConfig config =
+            *reinterpret_cast<const model::PipelineConfig*>(g_serializedPipelines.data() + offset);
+        find_pipeline(
+            type, config, [=]() { return model::create_pipeline(g_state.model, config); }, false);
+      } break;
+      default:
+        Log.report(logvisor::Warning, FMT_STRING("Unknown pipeline type {}"), type);
+        break;
+      }
+      offset += size;
+    }
+  }
 }
 
 void shutdown() {
@@ -308,6 +373,13 @@ void shutdown() {
     g_pipelineThreadEnd = true;
     g_pipelineCv.notify_all();
     g_pipelineThread.join();
+  }
+
+  {
+    // Write serialized pipelines to file
+    std::ofstream file("pipeline_cache.bin", std::ios::out | std::ios::trunc | std::ios::binary);
+    file.write(reinterpret_cast<const char*>(&g_serializedPipelineCount), sizeof(g_serializedPipelineCount));
+    file.write(reinterpret_cast<const char*>(g_serializedPipelines.data()), g_serializedPipelines.size());
   }
 
   gx::shutdown();

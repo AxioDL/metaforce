@@ -179,7 +179,10 @@ struct ShaderConfig {
   bool operator==(const ShaderConfig&) const = default;
 };
 static_assert(std::has_unique_object_representations_v<ShaderConfig>);
+
+constexpr u32 GXPipelineConfigVersion = 1;
 struct PipelineConfig {
+  u32 version = GXPipelineConfigVersion;
   ShaderConfig shaderConfig;
   GX::Primitive primitive;
   GX::Compare depthFunc;
@@ -189,9 +192,10 @@ struct PipelineConfig {
   GX::LogicOp blendOp;
   u32 dstAlpha;
   bool depthCompare, depthUpdate, alphaUpdate;
-  u8 _pad;
+  u8 _pad = 0;
 };
 static_assert(std::has_unique_object_representations_v<PipelineConfig>);
+
 struct GXBindGroupLayouts {
   wgpu::BindGroupLayout uniformLayout;
   wgpu::BindGroupLayout samplerLayout;

@@ -190,7 +190,7 @@ void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
 
 State construct_state() { return {}; }
 
-wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] PipelineConfig config) {
+wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] const PipelineConfig& config) {
   const auto info = build_shader_info(config.shaderConfig); // TODO remove
   const auto shader = build_shader(config.shaderConfig, info);
 

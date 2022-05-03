@@ -11,7 +11,7 @@ static logvisor::Module Log("aurora::gfx::stream");
 
 using gpu::g_device;
 
-wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] PipelineConfig config) {
+wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] const PipelineConfig& config) {
   const auto info = build_shader_info(config.shaderConfig); // TODO remove
   const auto shader = build_shader(config.shaderConfig, info);
 
