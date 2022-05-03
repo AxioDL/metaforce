@@ -115,5 +115,6 @@ private:
   void SetOverlayWindowLocation(int corner) const;
   void ShowCornerContextMenu(int& corner, int avoidCorner) const;
   void ShowPlayerTransformEditor();
+  void ShowPipelineProgress();
 };
 } // namespace metaforce

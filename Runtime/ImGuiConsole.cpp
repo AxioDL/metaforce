@@ -1291,6 +1291,7 @@ void ImGuiConsole::PreUpdate() {
   ShowDebugOverlay();
   ShowInputViewer();
   ShowPlayerTransformEditor();
+  ShowPipelineProgress();
 }
 
 void ImGuiConsole::PostUpdate() {
@@ -1705,6 +1706,31 @@ void ImGuiConsole::ShowPlayerTransformEditor() {
       ImGui::PopID();
     }
   }
+  ImGui::End();
+}
+
+void ImGuiConsole::ShowPipelineProgress() {
+  if (aurora::gfx::queuedPipelines == 0) {
+    return;
+  }
+  const auto* viewport = ImGui::GetMainViewport();
+  const auto padding = viewport->WorkPos.y + 10.f;
+  const auto halfWidth = viewport->GetWorkCenter().x;
+  ImGui::SetNextWindowPos(ImVec2{halfWidth, padding}, ImGuiCond_Always, ImVec2{0.5f, 0.f});
+  ImGui::SetNextWindowSize(ImVec2{halfWidth, 0.f}, ImGuiCond_Always);
+  ImGui::SetNextWindowBgAlpha(0.65f);
+  ImGui::Begin("Pipelines", nullptr,
+               ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMove |
+                   ImGuiWindowFlags_NoSavedSettings);
+  const u32 totalPipelines = aurora::gfx::queuedPipelines + aurora::gfx::createdPipelines;
+  const auto percent = static_cast<float>(aurora::gfx::createdPipelines) / static_cast<float>(totalPipelines);
+  const auto progressStr =
+      fmt::format(FMT_STRING("Processing pipelines: {} / {}"), aurora::gfx::createdPipelines, totalPipelines);
+  const auto textSize = ImGui::CalcTextSize(progressStr.data(), progressStr.data() + progressStr.size());
+  ImGui::NewLine();
+  ImGui::SameLine(ImGui::GetWindowWidth() / 2.f - textSize.x + textSize.x / 2.f);
+  ImGuiStringViewText(progressStr);
+  ImGui::ProgressBar(percent);
   ImGui::End();
 }
 } // namespace metaforce

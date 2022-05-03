@@ -125,7 +125,7 @@ static PipelineRef g_currentPipeline;
 
 static std::vector<Command> g_commands;
 
-static ByteBuffer g_serializedPipelines;
+static ByteBuffer g_serializedPipelines{};
 static u32 g_serializedPipelineCount = 0;
 
 template <typename PipelineConfig>
@@ -320,7 +320,6 @@ void initialize() {
   g_state.stream = stream::construct_state();
   g_state.model = model::construct_state();
 
-  g_serializedPipelines = {};
   {
     // Load serialized pipeline cache
     std::ifstream file("pipeline_cache.bin", std::ios::in | std::ios::binary | std::ios::ate);
@@ -342,20 +341,33 @@ void initialize() {
       offset += sizeof(u32);
       switch (type) {
       case ShaderType::MoviePlayer: {
-        const movie_player::PipelineConfig config =
+        if (size != sizeof(movie_player::PipelineConfig)) {
+          break;
+        }
+        const auto config =
             *reinterpret_cast<const movie_player::PipelineConfig*>(g_serializedPipelines.data() + offset);
         find_pipeline(
             type, config, [=]() { return movie_player::create_pipeline(g_state.moviePlayer, config); }, false);
       } break;
       case ShaderType::Stream: {
-        const stream::PipelineConfig config =
-            *reinterpret_cast<const stream::PipelineConfig*>(g_serializedPipelines.data() + offset);
+        if (size != sizeof(stream::PipelineConfig)) {
+          break;
+        }
+        const auto config = *reinterpret_cast<const stream::PipelineConfig*>(g_serializedPipelines.data() + offset);
+        if (config.version != gx::GXPipelineConfigVersion) {
+          break;
+        }
         find_pipeline(
             type, config, [=]() { return stream::create_pipeline(g_state.stream, config); }, false);
       } break;
       case ShaderType::Model: {
-        const model::PipelineConfig config =
-            *reinterpret_cast<const model::PipelineConfig*>(g_serializedPipelines.data() + offset);
+        if (size != sizeof(model::PipelineConfig)) {
+          break;
+        }
+        const auto config = *reinterpret_cast<const model::PipelineConfig*>(g_serializedPipelines.data() + offset);
+        if (config.version != gx::GXPipelineConfigVersion) {
+          break;
+        }
         find_pipeline(
             type, config, [=]() { return model::create_pipeline(g_state.model, config); }, false);
       } break;
