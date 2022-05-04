@@ -688,10 +688,9 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
         } else if (attr >= GX::VA_TEX0 && attr <= GX::VA_TEX7) {
           arrType = "vec2<f32>";
         }
-        uniformBindings += fmt::format(
-            "\n@group(0) @binding({})"
-            "\nvar<storage, read> v_arr_{}: array<{}>;",
-            uniBindingIdx++, attrName, arrType);
+        uniformBindings += fmt::format(FMT_STRING("\n@group(0) @binding({})"
+                                                  "\nvar<storage, read> v_arr_{}: array<{}>;"),
+                                       uniBindingIdx++, attrName, arrType);
       }
       ++currAttrIdx;
     }

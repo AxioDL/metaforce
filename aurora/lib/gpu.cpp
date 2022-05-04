@@ -150,8 +150,12 @@ void initialize(SDL_Window* window) {
         .limits =
             {
                 // Use "best" supported alignments
-                .minUniformBufferOffsetAlignment = supportedLimits.limits.minUniformBufferOffsetAlignment,
-                .minStorageBufferOffsetAlignment = supportedLimits.limits.minStorageBufferOffsetAlignment,
+                .minUniformBufferOffsetAlignment = supportedLimits.limits.minUniformBufferOffsetAlignment == 0
+                                                       ? WGPU_LIMIT_U32_UNDEFINED
+                                                       : supportedLimits.limits.minUniformBufferOffsetAlignment,
+                .minStorageBufferOffsetAlignment = supportedLimits.limits.minStorageBufferOffsetAlignment == 0
+                                                       ? WGPU_LIMIT_U32_UNDEFINED
+                                                       : supportedLimits.limits.minStorageBufferOffsetAlignment,
             },
     };
     const std::array<wgpu::FeatureName, 1> requiredFeatures{

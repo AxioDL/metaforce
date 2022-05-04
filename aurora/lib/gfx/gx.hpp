@@ -33,7 +33,9 @@ struct TevOp {
   GX::TevScale scale = GX::TevScale::CS_SCALE_1;
   GX::TevRegID outReg = GX::TevRegID::TEVPREV;
   bool clamp = true;
-  u32 _pad : 24 = 0;
+  u8 _p1 = 0;
+  u8 _p2 = 0;
+  u8 _p3 = 0;
   bool operator==(const TevOp&) const = default;
 };
 static_assert(std::has_unique_object_representations_v<TevOp>);
@@ -69,7 +71,9 @@ struct ColorChannelConfig {
   GX::ColorSrc matSrc = GX::SRC_REG;
   GX::ColorSrc ambSrc = GX::SRC_REG;
   bool lightingEnabled = false;
-  u32 _pad : 24 = 0;
+  u8 _p1 = 0;
+  u8 _p2 = 0;
+  u8 _p3 = 0;
   bool operator==(const ColorChannelConfig&) const = default;
 };
 static_assert(std::has_unique_object_representations_v<ColorChannelConfig>);
@@ -88,7 +92,9 @@ struct TcgConfig {
   GX::TexMtx mtx = GX::IDENTITY;
   GX::PTTexMtx postMtx = GX::PTIDENTITY;
   bool normalize = false;
-  u32 _pad : 24 = 0;
+  u8 _p1 = 0;
+  u8 _p2 = 0;
+  u8 _p3 = 0;
   bool operator==(const TcgConfig&) const = default;
 };
 static_assert(std::has_unique_object_representations_v<TcgConfig>);
