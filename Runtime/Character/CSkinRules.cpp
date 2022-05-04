@@ -102,7 +102,7 @@ void CVirtualBone::BuildAccumulatedTransform(const CPoseAsTransforms& pose, cons
   x50_rotation = pose.GetRotation(x0_weights[0].x0_id);
 }
 
-static constexpr zeus::CMatrix3f WeightedMatrix(const zeus::CMatrix3f& m1, float w1, const zeus::CMatrix3f& m2, float w2) {
+static inline zeus::CMatrix3f WeightedMatrix(const zeus::CMatrix3f& m1, float w1, const zeus::CMatrix3f& m2, float w2) {
   return {
       m1[0] * w1 + m2[0] * w2,
       m1[1] * w1 + m2[1] * w2,
@@ -110,7 +110,7 @@ static constexpr zeus::CMatrix3f WeightedMatrix(const zeus::CMatrix3f& m1, float
   };
 }
 
-static constexpr zeus::CVector3f WeightedVector(const zeus::CVector3f& v1, float w1, const zeus::CVector3f& v2, float w2) {
+static inline zeus::CVector3f WeightedVector(const zeus::CVector3f& v1, float w1, const zeus::CVector3f& v2, float w2) {
   return v1 * w1 + v2 * w2;
 }
 

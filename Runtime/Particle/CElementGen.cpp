@@ -868,7 +868,7 @@ void CElementGen::Render() {
 }
 
 void CElementGen::RenderModels() {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderModels")), zeus::skYellow);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderModels")).c_str(), zeus::skYellow);
 
   CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
   if (x26d_26_modelsUseLights) {
@@ -1093,7 +1093,7 @@ void CElementGen::RenderModels() {
 }
 
 void CElementGen::RenderLines() {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderLines")), zeus::skYellow);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderLines")).c_str(), zeus::skYellow);
 
   CGenDescription* desc = x1c_genDesc.GetObj();
   CGlobalRandom gr(x27c_randState);
@@ -1202,7 +1202,7 @@ void CElementGen::RenderParticles() {
     return;
   }
 
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderParticles")), zeus::skYellow);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderParticles")).c_str(), zeus::skYellow);
 
   CRealElement* size = desc->x4c_x38_SIZE.get();
   if (size && size->IsConstant()) {
@@ -1636,7 +1636,7 @@ void CElementGen::RenderParticles() {
 }
 
 void CElementGen::RenderParticlesIndirectTexture() {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderParticlesIndirectTexture")), zeus::skYellow);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderParticlesIndirectTexture")).c_str(), zeus::skYellow);
 
   CGenDescription* desc = x1c_genDesc.GetObj();
 

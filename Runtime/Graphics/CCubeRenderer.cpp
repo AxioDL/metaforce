@@ -289,7 +289,7 @@ void CCubeRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance
 void CCubeRenderer::DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask, bool shadowRender) {
   SCOPED_GRAPHICS_DEBUG_GROUP(
       fmt::format(FMT_STRING("CCubeRenderer::DrawUnsortedGeometry areaIdx={} mask={} targetMask={} shadowRender={}"),
-                  areaIdx, mask, targetMask, shadowRender),
+                  areaIdx, mask, targetMask, shadowRender).c_str(),
       zeus::skBlue);
 
   SetupRendererStates(true);
@@ -366,7 +366,7 @@ void CCubeRenderer::DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask, 
 void CCubeRenderer::DrawSortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   SCOPED_GRAPHICS_DEBUG_GROUP(
       fmt::format(FMT_STRING("CCubeRenderer::DrawSortedGeometry areaIdx={} mask={} targetMask={}"), areaIdx, mask,
-                  targetMask),
+                  targetMask).c_str(),
       zeus::skBlue);
 
   SetupRendererStates(true);
@@ -399,7 +399,7 @@ void CCubeRenderer::DrawStaticGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
 void CCubeRenderer::DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   SCOPED_GRAPHICS_DEBUG_GROUP(
       fmt::format(FMT_STRING("CCubeRenderer::DrawAreaGeometry areaIdx={} mask={} targetMask={}"), areaIdx, mask,
-                  targetMask),
+                  targetMask).c_str(),
       zeus::skBlue);
 
   x318_30_inAreaDraw = true;
@@ -442,7 +442,7 @@ void CCubeRenderer::DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
 }
 
 void CCubeRenderer::RenderBucketItems(const CAreaListItem* item) {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CCubeRenderer::RenderBucketItems areaIdx={}"), item->x18_areaIdx),
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CCubeRenderer::RenderBucketItems areaIdx={}"), item->x18_areaIdx).c_str(),
                               zeus::skBlue);
 
   CCubeModel* lastModel = nullptr;

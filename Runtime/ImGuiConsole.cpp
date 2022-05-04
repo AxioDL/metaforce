@@ -754,9 +754,9 @@ static std::string BytesToString(size_t bytes) {
     count /= 1024.0;
   }
   if (count - floor(count) == 0.0) {
-    return fmt::format("{}{}", static_cast<size_t>(count), suffixes[s]);
+    return fmt::format(FMT_STRING("{}{}"), static_cast<size_t>(count), suffixes[s]);
   }
-  return fmt::format("{:.1f}{}", count, suffixes[s]);
+  return fmt::format(FMT_STRING("{:.1f}{}"), count, suffixes[s]);
 }
 
 void ImGuiConsole::ShowDebugOverlay() {

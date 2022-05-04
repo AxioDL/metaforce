@@ -4,6 +4,15 @@
 #include <iostream>
 #include "Runtime/CInfiniteLoopDetector.hpp"
 
+#include "ImGuiEngine.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/MP1/MP1.hpp"
+#include "Runtime/ConsoleVariables/FileStoreManager.hpp"
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
+#include "amuse/BooBackend.hpp"
+
+#include "logvisor/logvisor.hpp"
+
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -13,15 +22,6 @@
 #endif
 #include <Windows.h>
 #endif
-
-#include "logvisor/logvisor.hpp"
-
-#include "ImGuiEngine.hpp"
-#include "Runtime/Graphics/CGraphics.hpp"
-#include "Runtime/MP1/MP1.hpp"
-#include "Runtime/ConsoleVariables/FileStoreManager.hpp"
-#include "Runtime/ConsoleVariables/CVarManager.hpp"
-#include "amuse/BooBackend.hpp"
 
 #include "../version.h"
 
