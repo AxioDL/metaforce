@@ -151,10 +151,10 @@ void initialize(SDL_Window* window) {
             {
                 // Use "best" supported alignments
                 .minUniformBufferOffsetAlignment = supportedLimits.limits.minUniformBufferOffsetAlignment == 0
-                                                       ? WGPU_LIMIT_U32_UNDEFINED
+                                                       ? static_cast<uint32_t>(WGPU_LIMIT_U32_UNDEFINED)
                                                        : supportedLimits.limits.minUniformBufferOffsetAlignment,
                 .minStorageBufferOffsetAlignment = supportedLimits.limits.minStorageBufferOffsetAlignment == 0
-                                                       ? WGPU_LIMIT_U32_UNDEFINED
+                                                       ? static_cast<uint32_t>(WGPU_LIMIT_U32_UNDEFINED)
                                                        : supportedLimits.limits.minStorageBufferOffsetAlignment,
             },
     };

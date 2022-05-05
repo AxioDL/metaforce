@@ -1710,9 +1710,13 @@ void ImGuiConsole::ShowPlayerTransformEditor() {
 }
 
 void ImGuiConsole::ShowPipelineProgress() {
-  if (aurora::gfx::queuedPipelines == 0) {
+  const u32 queuedPipelines = aurora::gfx::queuedPipelines;
+  if (queuedPipelines == 0) {
     return;
   }
+  const u32 createdPipelines = aurora::gfx::createdPipelines;
+  const u32 totalPipelines = queuedPipelines + createdPipelines;
+
   const auto* viewport = ImGui::GetMainViewport();
   const auto padding = viewport->WorkPos.y + 10.f;
   const auto halfWidth = viewport->GetWorkCenter().x;
@@ -1722,10 +1726,8 @@ void ImGuiConsole::ShowPipelineProgress() {
   ImGui::Begin("Pipelines", nullptr,
                ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMove |
                    ImGuiWindowFlags_NoSavedSettings);
-  const u32 totalPipelines = aurora::gfx::queuedPipelines + aurora::gfx::createdPipelines;
-  const auto percent = static_cast<float>(aurora::gfx::createdPipelines) / static_cast<float>(totalPipelines);
-  const auto progressStr =
-      fmt::format(FMT_STRING("Processing pipelines: {} / {}"), aurora::gfx::createdPipelines, totalPipelines);
+  const auto percent = static_cast<float>(createdPipelines) / static_cast<float>(totalPipelines);
+  const auto progressStr = fmt::format(FMT_STRING("Processing pipelines: {} / {}"), createdPipelines, totalPipelines);
   const auto textSize = ImGui::CalcTextSize(progressStr.data(), progressStr.data() + progressStr.size());
   ImGui::NewLine();
   ImGui::SameLine(ImGui::GetWindowWidth() / 2.f - textSize.x + textSize.x / 2.f);
