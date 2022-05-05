@@ -6,7 +6,6 @@
 #include "Runtime/AutoMapper/CMappableObject.hpp"
 #include "Runtime/CResFactory.hpp"
 #include "Runtime/Graphics/CLineRenderer.hpp"
-#include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 #include <zeus/CAABox.hpp>
@@ -22,18 +21,6 @@ public:
     zeus::CVector3f xc_centroid;
     const u8* x18_surfOffset;
     const u8* x1c_outlineOffset;
-    u32 m_primStart;
-    u32 m_primCount;
-    struct Instance {
-      CMapSurfaceShader m_surfacePrims;
-      std::vector<CLineRenderer> m_linePrims;
-      Instance(aurora::ArrayRef<zeus::CVector3f> vbo,
-               aurora::ArrayRef<u16> ibo)
-      : m_surfacePrims(vbo, ibo) {}
-      Instance(Instance&&) = default;
-      Instance& operator=(Instance&&) = default;
-    };
-    std::vector<Instance> m_instances;
 
   public:
     explicit CMapAreaSurface(const void* surfBuf);
@@ -43,6 +30,8 @@ public:
               float lineWidth, size_t instIdx = 0);
     const zeus::CVector3f& GetNormal() const { return x0_normal; }
     const zeus::CVector3f& GetCenterPosition() const { return xc_centroid; }
+
+    static void SetupGXMaterial();
   };
   enum class EVisMode { Always, MapStationOrVisit, Visit, Never };
 
@@ -62,9 +51,7 @@ private:
   std::vector<zeus::CVector3f> m_verts;
   u8* x40_surfaceStart;
   std::vector<CMapAreaSurface> m_surfaces;
-  std::unique_ptr<u8[]> x44_buf;
-//  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
-//  boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
+  std::unique_ptr<u8[]> x44_buf; // was u8*
 
 public:
   explicit CMapArea(CInputStream& in, u32 size);

@@ -5,9 +5,6 @@
 #include <utility>
 
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CLineRenderer.hpp"
-#include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 #include <zeus/CAABox.hpp>
@@ -59,16 +56,6 @@ private:
   u32 xc_;
   zeus::CTransform x10_transform;
 
-  struct DoorSurface {
-    CMapSurfaceShader m_surface;
-    CLineRenderer m_outline;
-    explicit DoorSurface()
-    : m_surface(skDoorVerts, skDoorIndices)
-    , m_outline(CLineRenderer::EPrimitiveMode::LineLoop, 5, {}, false, false, true) {}
-  };
-  std::optional<DoorSurface> m_doorSurface;
-  std::optional<CTexturedQuadFilter> m_texQuadFilter;
-
   zeus::CTransform AdjustTransformForType() const;
   std::pair<zeus::CColor, zeus::CColor> GetDoorColors(int idx, const CMapWorldInfo& mwInfo, float alpha) const;
 
@@ -85,10 +72,8 @@ public:
   bool IsDoorConnectedToVisitedArea(const CStateManager&) const;
   bool IsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& mwInfo) const;
   bool GetIsSeen() const;
-  void CreateDoorSurface() { m_doorSurface.emplace(); }
 
   static void ReadAutoMapperTweaks(const ITweakAutoMapper&);
-  static bool GetTweakIsMapVisibilityCheat();
   static bool IsDoorType(EMappableObjectType type) {
     return type >= EMappableObjectType::BlueDoor && type <= EMappableObjectType::PlasmaDoorFloor2;
   }

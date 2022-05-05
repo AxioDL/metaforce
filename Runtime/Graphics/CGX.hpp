@@ -197,7 +197,13 @@ static inline void SetFog(GX::FogType type, float startZ, float endZ, float near
 
 void SetIndTexMtxSTPointFive(GX::IndTexMtxID id, s8 scaleExp) noexcept;
 
-void SetLineWidth(u8 width, GX::TexOffset offset) noexcept;
+static inline void SetLineWidth(u8 width, GX::TexOffset offset) noexcept {
+  u32 flags = u32(width) | (offset & 0xFF) << 8;
+  if (flags != sGXState.x54_lineWidthAndOffset) {
+    sGXState.x54_lineWidthAndOffset = flags;
+    GXSetLineWidth(width, offset);
+  }
+}
 
 static inline void SetNumChans(u8 num) noexcept {
   sGXState.x4c_dirtyChans = 7; // TODO

@@ -742,7 +742,8 @@ void GXSetProjection(const zeus::CMatrix4f& mtx, GX::ProjectionType type) noexce
 void GXSetViewport(float left, float top, float width, float height, float nearZ, float farZ) noexcept;
 void GXSetScissor(u32 left, u32 top, u32 width, u32 height) noexcept;
 // Unneeded, all attributes are expected to be full floats
-// void GXSetVtxAttrFmt(GX::VtxFmt vtxfmt, GX::Attr attr, GX::CompCnt cnt, GX::CompType type, u8 frac) noexcept;
+static inline void GXSetVtxAttrFmt(GX::VtxFmt vtxfmt, GX::Attr attr, GX::CompCnt cnt, GX::CompType type,
+                                   u8 frac) noexcept {}
 // Streaming
 void GXBegin(GX::Primitive primitive, GX::VtxFmt vtxFmt, u16 nVerts) noexcept;
 void GXMatrixIndex1u8(u8 idx) noexcept;
@@ -754,8 +755,10 @@ void GXColor4f32(const zeus::CColor& color) noexcept;
 static inline void GXColor4f32(float r, float g, float b, float a) noexcept { GXColor4f32({r, g, b, a}); }
 void GXTexCoord2f32(const zeus::CVector2f& uv) noexcept;
 static inline void GXTexCoord2f32(float u, float v) noexcept { GXTexCoord2f32({u, v}); }
+void GXPosition1x16(u16 index) noexcept;
 void GXEnd() noexcept;
 // End streaming
 void GXSetTevSwapModeTable(GX::TevSwapSel id, GX::TevColorChan red, GX::TevColorChan green, GX::TevColorChan blue,
                            GX::TevColorChan alpha) noexcept;
 void GXSetTevSwapMode(GX::TevStageID stage, GX::TevSwapSel rasSel, GX::TevSwapSel texSel) noexcept;
+void GXSetLineWidth(u8 width, GX::TexOffset texOffset) noexcept;

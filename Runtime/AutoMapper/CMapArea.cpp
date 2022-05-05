@@ -8,6 +8,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/World/CWorld.hpp"
 #include "Runtime/CBasics.hpp"
+#include "Runtime/Graphics/CGX.hpp"
 
 namespace metaforce {
 constexpr std::array<zeus::CVector3f, 3> MinesPostTransforms{{
@@ -71,7 +72,7 @@ CMapArea::CMapArea(CInputStream& in, u32 size)
 , x2c_vertexCount(in.ReadLong())
 , x30_surfaceCount(in.ReadLong())
 , x34_size(size - 52) {
-  x44_buf.reset(new u8[x34_size]);
+  x44_buf = std::make_unique<u8[]>(x34_size);
   in.ReadBytes(x44_buf.get(), x34_size);
   PostConstruct();
 }
@@ -106,44 +107,6 @@ void CMapArea::PostConstruct() {
   for (u32 i = 0, j = 0; i < x30_surfaceCount; ++i, j += 32) {
     m_surfaces.emplace_back(x40_surfaceStart + j).PostConstruct(x44_buf.get(), index);
   }
-
-//  CGraphics::CommitResources([this, &index](boo::IGraphicsDataFactory::Context& ctx) {
-//    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, m_verts.data(), 16, m_verts.size());
-//    m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, index.data(), 4, index.size());
-//
-//    /* Only the map universe specifies Always; it draws a maximum of 1016 instances */
-//    size_t instCount = (xc_visibilityMode == EVisMode::Always) ? 1024 : 1;
-//
-//    for (u32 i = 0; i < x30_surfaceCount; ++i) {
-//      CMapAreaSurface& surf = m_surfaces[i];
-//      surf.m_instances.reserve(instCount);
-//      for (u32 inst = 0; inst < instCount; ++inst) {
-//        CMapAreaSurface::Instance& instance = surf.m_instances.emplace_back(ctx, m_vbo, m_ibo);
-//
-//        athena::io::MemoryReader r(surf.x1c_outlineOffset, INT_MAX);
-//        u32 outlineCount = r.ReadLong();
-//
-//        std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
-//        linePrims.reserve(outlineCount * 2);
-//        for (u32 j = 0; j < 2; ++j) {
-//          r.seek(4, athena::SeekOrigin::Begin);
-//          for (u32 k = 0; k < outlineCount; ++k) {
-//            const u32 count = r.ReadLong();
-//            r.seek(count);
-//            r.seekAlign4();
-//            linePrims.emplace_back(ctx, CLineRenderer::EPrimitiveMode::LineStrip, count, nullptr, false, false, true);
-//          }
-//        }
-//      }
-//    }
-//
-//    for (u32 i = 0; i < x28_mappableObjCount; ++i) {
-//      CMappableObject& mapObj = m_mappableObjects[i];
-//      if (CMappableObject::IsDoorType(mapObj.GetType()))
-//        mapObj.CreateDoorSurface(ctx);
-//    }
-//    return true;
-//  } BooTrace);
 }
 
 bool CMapArea::GetIsVisibleToAutoMapper(bool worldVis, bool areaVis) const {
@@ -191,7 +154,7 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
   x18_surfOffset = buf + reinterpret_cast<uintptr_t>(x18_surfOffset);
   x1c_outlineOffset = buf + reinterpret_cast<uintptr_t>(x1c_outlineOffset);
 
-  m_primStart = index.size();
+//  m_primStart = index.size();
   bool start = true;
   {
     CMemoryInStream r(x18_surfOffset, INT_MAX, CMemoryInStream::EOwnerShip::NotOwned);
@@ -256,20 +219,20 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
       }
     }
   }
-  m_primCount = index.size() - m_primStart;
+//  m_primCount = index.size() - m_primStart;
 }
 
 void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::CColor& surfColor,
                                      const zeus::CColor& lineColor, float lineWidth, size_t instIdx) {
-  if (instIdx >= m_instances.size()) {
-    return;
-  }
-
-  Instance& instance = m_instances[instIdx];
-
-  if (surfColor.a()) {
-    instance.m_surfacePrims.draw(surfColor, m_primStart, m_primCount);
-  }
+//  if (instIdx >= m_instances.size()) {
+//    return;
+//  }
+//
+//  Instance& instance = m_instances[instIdx];
+//
+//  if (surfColor.a()) {
+//    instance.m_surfacePrims.draw(surfColor, m_primStart, m_primCount);
+//  }
 
   if (lineColor.a()) {
     bool draw2 = lineWidth > 1.f;
@@ -278,35 +241,52 @@ void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::C
     outlineCount = CBasics::SwapBytes(outlineCount);
 #endif
 
-
-    std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
-    zeus::CColor color = lineColor;
-    if (draw2)
-      color.a() *= 0.5f;
-    float width = lineWidth;
-
-    auto primIt = linePrims.begin();
-    for (u32 j = 0; j <= u32(draw2); ++j) {
-      CMemoryInStream r(x1c_outlineOffset, INT_MAX, CMemoryInStream::EOwnerShip::NotOwned);
-      r.ReadLong();
-      for (u32 i = 0; i < outlineCount; ++i) {
-        CLineRenderer& prim = *primIt++;
-        prim.Reset();
-        u32 count = r.ReadLong();
-        for (u32 v = 0; v < count; ++v) {
-          u8 idx = r.ReadUint8();
-          prim.AddVertex(verts[idx], color, width);
-        }
-
-        u32 pos = r.GetReadPosition();
-        while (r.GetReadPosition() != ROUND_UP_4(pos)) {
-          r.ReadUint8();
-        }
-        prim.Render();
-      }
-      width -= 1.f;
-    }
+//    std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
+//    zeus::CColor color = lineColor;
+//    if (draw2)
+//      color.a() *= 0.5f;
+//    float width = lineWidth;
+//
+//    auto primIt = linePrims.begin();
+//    for (u32 j = 0; j <= u32(draw2); ++j) {
+//      CMemoryInStream r(x1c_outlineOffset, INT_MAX, CMemoryInStream::EOwnerShip::NotOwned);
+//      r.ReadLong();
+//      for (u32 i = 0; i < outlineCount; ++i) {
+//        CLineRenderer& prim = *primIt++;
+//        prim.Reset();
+//        u32 count = r.ReadLong();
+//        for (u32 v = 0; v < count; ++v) {
+//          u8 idx = r.ReadUint8();
+//          prim.AddVertex(verts[idx], color, width);
+//        }
+//
+//        u32 pos = r.GetReadPosition();
+//        while (r.GetReadPosition() != ROUND_UP_4(pos)) {
+//          r.ReadUint8();
+//        }
+//        prim.Render();
+//      }
+//      width -= 1.f;
+//    }
   }
+}
+
+void CMapArea::CMapAreaSurface::SetupGXMaterial() {
+  constexpr std::array vtxDescList{
+      GX::VtxDescList{GX::VA_POS, GX::INDEX8},
+      GX::VtxDescList{},
+  };
+  CGX::SetVtxDescv(vtxDescList.data());
+  CGX::SetNumChans(1);
+  CGX::SetNumTexGens(0);
+  CGX::SetNumTevStages(1);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX::SRC_REG, GX::SRC_VTX, {}, GX::DF_NONE, GX::AF_NONE);
+  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_KONST);
+  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_KONST);
+  CGX::SetTevColorOp(GX::TEVSTAGE0, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, true, GX::TEVPREV);
+  CGX::SetTevAlphaOp(GX::TEVSTAGE0, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, true, GX::TEVPREV);
+  CGX::SetTevKColorSel(GX::TEVSTAGE0, GX::TEV_KCSEL_K0);
+  CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_K0_A);
 }
 
 CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, const CVParamTransfer&,

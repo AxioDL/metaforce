@@ -1324,13 +1324,13 @@ void CElementGen::RenderParticles() {
   CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR0A0);
   CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX::SRC_REG, GX::SRC_VTX, {}, GX::DF_NONE, GX::AF_NONE);
   CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
-  // GXSetVtxAttrFmt(GX::VTXFMT6, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT6, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
-  // if (constUVs) {
-  //   GXSetVtxAttrFmt(GX::VTXFMT6, GX::VA_TEX0, GX::TEX_ST, GX::RGBA8, 1);
-  // } else {
-  //   GXSetVtxAttrFmt(GX::VTXFMT6, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
-  // }
+  GXSetVtxAttrFmt(GX::VTXFMT6, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT6, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
+  if (constUVs) {
+    GXSetVtxAttrFmt(GX::VTXFMT6, GX::VA_TEX0, GX::TEX_ST, GX::RGBA8, 1);
+  } else {
+    GXSetVtxAttrFmt(GX::VTXFMT6, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
+  }
 
   int mbspVal = std::max(1, x270_MBSP);
   if (x26c_30_MBLR) {

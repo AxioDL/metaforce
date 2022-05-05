@@ -704,25 +704,26 @@ void CGraphics::InitGraphicsDefaults() {
 }
 
 void CGraphics::SetDefaultVtxAttrFmt() {
-  // Unneeded, all attributes are expected to be full floats
-  // Left here for reference
+  GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_NRM, GX::NRM_XYZ, GX::F32, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_NRM, GX::NRM_XYZ, GX::S16, 14);
+  GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_NRM, GX::NRM_XYZ, GX::S16, 14);
+  GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_TEX0, GX::TEX_ST, GX::U16, 15);
+  for (GX::Attr attr = GX::VA_TEX1; attr <= GX::VA_TEX7; attr = GX::Attr(attr + 1)) {
+    GXSetVtxAttrFmt(GX::VTXFMT0, attr, GX::TEX_ST, GX::F32, 0);
+    GXSetVtxAttrFmt(GX::VTXFMT1, attr, GX::TEX_ST, GX::F32, 0);
+    GXSetVtxAttrFmt(GX::VTXFMT2, attr, GX::TEX_ST, GX::F32, 0);
+  }
+}
 
-  // GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_NRM, GX::NRM_XYZ, GX::F32, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_NRM, GX::NRM_XYZ, GX::S16, 14);
-  // GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_NRM, GX::NRM_XYZ, GX::S16, 14);
-  // GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_TEX0, GX::TEX_ST, GX::U16, 15);
-  // for (GX::Attr attr = GX::VA_TEX1; attr <= GX::VA_TEX7; attr = GX::Attr(attr + 1)) {
-  //   GXSetVtxAttrFmt(GX::VTXFMT0, attr, GX::TEX_ST, GX::F32, 0);
-  //   GXSetVtxAttrFmt(GX::VTXFMT1, attr, GX::TEX_ST, GX::F32, 0);
-  //   GXSetVtxAttrFmt(GX::VTXFMT2, attr, GX::TEX_ST, GX::F32, 0);
-  // }
+void CGraphics::SetLineWidth(float width, ERglTexOffset offs) {
+  CGX::SetLineWidth(u8(width * 6.f), GX::TexOffset(offs));
 }
 } // namespace metaforce
