@@ -84,8 +84,8 @@ void ImGuiControllerConfig::show(bool& visible) {
         PADRestoreDefaultMapping(i);
       }
     }
-    ImGui::End();
   }
+  ImGui::End();
 
   showEditor(m_editorVisible);
 }
@@ -96,7 +96,7 @@ void ImGuiControllerConfig::showEditor(bool& visible) {
   }
 
   if (ImGui::Begin("Controller Atlas Editor", &visible)) {
-    ImGui::End();
   }
+  ImGui::End();
 }
 } // namespace metaforce
