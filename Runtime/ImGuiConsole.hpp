@@ -7,6 +7,7 @@
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CEntity.hpp"
 #include "Runtime/ImGuiPlayerLoadouts.hpp"
+#include "Runtime/ImGuiControllerConfig.hpp"
 
 #include "Runtime/ConsoleVariables/CVarCommons.hpp"
 #include "Runtime/ConsoleVariables/CVarManager.hpp"
@@ -99,6 +100,9 @@ private:
   float m_menuHintTime = 5.f;
   std::string m_controllerName;
   u32 m_whichController = -1;
+
+  bool m_controllerConfigVisible = false;
+  ImGuiControllerConfig m_controllerConfig;
 
   void ShowAppMainMenuBar(bool canInspect);
   void ShowMenuGame();

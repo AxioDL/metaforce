@@ -218,6 +218,7 @@ endif ()
 
 add_executable(metaforce CMain.cpp ${PLAT_SRCS}
     ImGuiConsole.hpp ImGuiConsole.cpp
+    ImGuiControllerConfig.hpp ImGuiControllerConfig.cpp
     ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp)
 # RUNTIME_LIBRARIES repeated here for link ordering
 target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS})

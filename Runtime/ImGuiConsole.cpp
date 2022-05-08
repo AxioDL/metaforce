@@ -1158,6 +1158,7 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
       ImGui::MenuItem("Items", nullptr, &m_showItemsWindow, canInspect && m_developer && m_cheats);
       ImGui::MenuItem("Layers", nullptr, &m_showLayersWindow, canInspect && m_developer);
       ImGui::MenuItem("Console Variables", nullptr, &m_showConsoleVariablesWindow);
+      ImGui::MenuItem("Controller Config", nullptr, &m_controllerConfigVisible);
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Debug")) {
@@ -1292,6 +1293,7 @@ void ImGuiConsole::PreUpdate() {
   ShowInputViewer();
   ShowPlayerTransformEditor();
   ShowPipelineProgress();
+  m_controllerConfig.show(m_controllerConfigVisible);
 }
 
 void ImGuiConsole::PostUpdate() {

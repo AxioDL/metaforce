@@ -437,5 +437,6 @@ void controller_rumble(uint32_t instance, uint16_t low_freq_intensity, uint16_t 
   input::controller_rumble(instance, low_freq_intensity, high_freq_intensity, duration_ms);
 }
 
+uint32_t get_controller_count() noexcept { return input::controller_count(); }
 std::string get_controller_name(uint32_t instance) noexcept { return input::controller_name(instance); }
 } // namespace aurora

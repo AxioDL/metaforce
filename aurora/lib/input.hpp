@@ -17,6 +17,7 @@ bool is_gamecube(Uint32 instance) noexcept;
 bool controller_has_rumble(Uint32 instance) noexcept;
 void controller_rumble(uint32_t instance, uint16_t low_freq_intensity, uint16_t high_freq_intensity,
                        uint16_t duration_ms) noexcept;
+uint32_t controller_count() noexcept;
 ControllerButton translate_controller_button(SDL_GameControllerButton button) noexcept;
 ControllerAxis translate_controller_axis(SDL_GameControllerAxis axis) noexcept;
 char translate_key(SDL_Keysym sym, SpecialKey& specialSym, ModifierKey& modifierSym) noexcept;

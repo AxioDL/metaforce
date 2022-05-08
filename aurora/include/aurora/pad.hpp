@@ -81,3 +81,33 @@ void PADSetSamplingCallback(PADSamplingCallback callback);
 void PADControlAllMotors(const u32* commands);
 
 u32 SIProbe(s32 chan);
+
+/* New API to facilitate controller interactions */
+struct PADDeadZones {
+  bool emulateTriggers = true;
+  bool useDeadzones = true;
+  u16 stickDeadZone = 8000;
+  u16 substickDeadZone = 8000;
+  u16 leftTriggerActivationZone = 31150;
+  u16 rightTriggerActivationZone = 31150;
+};
+
+struct PADButtonMapping {
+  u32 nativeButton;
+  PAD::BUTTON padButton;
+};
+
+s32 PADGetCount();
+void PADGetVidPid(u32 idx, u32* vid, u32* pid);
+const char* PADGetName(u32 idx);
+void PADSetButtonMapping(u32 port, PADButtonMapping mapping);
+void PADSetAllButtonMappings(u32 port, PADButtonMapping buttons[12]);
+PADButtonMapping* PADGetButtonMappings(u32 port, u32* buttonCount);
+void PADSerializeMappings();
+PADDeadZones* PADGetDeadZones(u32 port);
+const char* PADGetButtonName(PAD::BUTTON);
+const char* PADGetNativeButtonName(u32 button);
+/* Returns any pressed native button */
+s32 PADGetNativeButtonPressed(u32 port);
+void PADRestoreDefaultMapping(u32 port);
+void PADBlockInput(bool block);
