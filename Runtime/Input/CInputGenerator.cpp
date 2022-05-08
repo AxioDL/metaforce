@@ -30,8 +30,11 @@ void CInputGenerator::Update(float dt, CArchitectureQueue& queue) {
         if (i == 0) {
           firstController = true;
         }
-        m_lastInput = CFinalInput(i, dt, cont, xc_leftDiv, x10_rightDiv);
-        queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, m_lastInput));
+        auto tmp = CFinalInput(i, dt, cont, xc_leftDiv, x10_rightDiv);
+        if (i == 0) {
+          m_lastInput = tmp;
+        }
+        queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, tmp));
         ++availSlot;
       }
 

@@ -22,7 +22,7 @@ struct GameController {
   PADDeadZones m_deadZones;
   u16 m_vid = 0;
   u16 m_pid = 0;
-  std::array<PADButtonMapping, 12> m_mapping;
+  std::array<PADButtonMapping, 12> m_mapping{};
   bool m_mappingLoaded = false;
   constexpr bool operator==(const GameController& other) const {
     return m_controller == other.m_controller && m_index == other.m_index;
@@ -37,20 +37,24 @@ GameController* get_controller_for_player(u32 player) noexcept {
     }
   }
 
+#if 0
   /* If we don't have a controller assigned to this port use the first unassigned controller */
   if (!g_GameControllers.empty()) {
     int32_t availIndex = -1;
-    for (const auto& controller : g_GameControllers) {
-      if (player_index(controller.second.m_index) == -1) {
-        availIndex = controller.second.m_index;
+    GameController* ct = nullptr;
+    for (auto& controller : g_GameControllers) {
+      if (player_index(controller.first) == -1) {
+        availIndex = controller.first;
+        ct = &controller.second;
         break;
       }
     }
     if (availIndex != -1) {
-      set_player_index(g_GameControllers.begin()->second.m_index, player);
-      return get_controller_for_player(player);
+      set_player_index(availIndex, player);
+      return ct;
     }
   }
+#endif
   return nullptr;
 }
 
@@ -389,6 +393,71 @@ static const std::array<PADButtonMapping, 12> mDefaultButtons{{
 void PADSetSpec(s32 spec) {}
 void PADInit() {}
 
+aurora::input::GameController* __PADGetControllerForIndex(u32 idx) {
+  if (idx >= aurora::input::g_GameControllers.size()) {
+    return nullptr;
+  }
+
+  u32 tmp = 0;
+  auto iter = aurora::input::g_GameControllers.begin();
+  while (tmp < idx) {
+    ++iter;
+    ++tmp;
+  }
+  if (iter == aurora::input::g_GameControllers.end()) {
+    return nullptr;
+  }
+
+  return &iter->second;
+}
+
+u32 PADCount() { return aurora::input::g_GameControllers.size(); }
+
+const char* PADGetNameForControllerIndex(u32 idx) {
+  auto* ctrl = __PADGetControllerForIndex(idx);
+  if (ctrl == nullptr) {
+    return nullptr;
+  }
+
+  return SDL_GameControllerName(ctrl->m_controller);
+}
+
+void PADSetPortForIndex(u32 idx, s32 port) {
+  auto* ctrl = __PADGetControllerForIndex(idx);
+  auto* dest = aurora::input::get_controller_for_player(port);
+  if (ctrl == nullptr) {
+    return;
+  }
+  if (dest != nullptr) {
+    SDL_GameControllerSetPlayerIndex(dest->m_controller, -1);
+  }
+  SDL_GameControllerSetPlayerIndex(ctrl->m_controller, port);
+}
+
+s32 PADGetIndexForPort(u32 port) {
+  auto* ctrl = aurora::input::get_controller_for_player(port);
+  if (ctrl == nullptr) {
+    return -1;
+  }
+  s32 index = 0;
+  for (auto iter = aurora::input::g_GameControllers.begin(); iter != aurora::input::g_GameControllers.end();
+       ++iter, ++index) {
+    if (&iter->second == ctrl) {
+      break;
+    }
+  }
+
+  return index;
+}
+
+void PADClearPort(u32 port) {
+  auto* ctrl = aurora::input::get_controller_for_player(port);
+  if (ctrl == nullptr) {
+    return;
+  }
+  SDL_GameControllerSetPlayerIndex(ctrl->m_controller, -1);
+}
+
 void __PADLoadMapping(aurora::input::GameController* controller) {
   s32 playerIndex = SDL_GameControllerGetPlayerIndex(controller->m_controller);
   if (playerIndex == -1) {
@@ -402,11 +471,9 @@ void __PADLoadMapping(aurora::input::GameController* controller) {
 
   controller->m_mappingLoaded = true;
 
-  FILE* file =
-      fopen(fmt::format(FMT_STRING("{}/{}_{:04X}_{:04X}.controller"), basePath,
-                        aurora::input::controller_name(controller->m_index), controller->m_vid, controller->m_pid)
-                .c_str(),
-            "rbe");
+  auto path = fmt::format(FMT_STRING("{}/{}_{:04X}_{:04X}.controller"), basePath, PADGetName(playerIndex),
+                          controller->m_vid, controller->m_pid);
+  FILE* file = fopen(path.c_str(), "rbe");
   if (file == nullptr) {
     return;
   }
@@ -434,7 +501,7 @@ void __PADLoadMapping(aurora::input::GameController* controller) {
   }
 
   fread(&controller->m_deadZones, 1, sizeof(PADDeadZones), file);
-  fread(&controller->m_mapping, 1, sizeof(PADButtonMapping), file);
+  fread(&controller->m_mapping, 1, sizeof(PADButtonMapping) * controller->m_mapping.size(), file);
   fclose(file);
 }
 
@@ -455,9 +522,6 @@ u32 PADRead(PAD::Status* status) {
 
     if (!controller->m_mappingLoaded) {
       __PADLoadMapping(controller);
-#ifndef NDEBUG
-      PADSerializeMappings();
-#endif
     }
     status[i].xa_err = PAD::ERR_NONE;
     std::for_each(controller->m_mapping.begin(), controller->m_mapping.end(),
@@ -563,7 +627,7 @@ void PADControlAllMotors(const u32* commands) {
 }
 
 u32 SIProbe(s32 chan) {
-  auto *const controller = aurora::input::get_controller_for_player(chan);
+  auto* const controller = aurora::input::get_controller_for_player(chan);
   if (controller == nullptr) {
     return SI::ERROR_NO_RESPONSE;
   }
@@ -735,26 +799,10 @@ void PADClampCircle(PAD::Status* status) {
   }
 }
 
-s32 PADGetCount() { return aurora::input::g_GameControllers.size(); }
-
-aurora::input::GameController* __PADGetController(s32 idx) {
-  auto iter = aurora::input::g_GameControllers.begin();
-  s32 i = 0;
-  for (; aurora::input::g_GameControllers.begin() != aurora::input::g_GameControllers.end() && i < idx; ++iter, ++i) {}
-  if (iter == aurora::input::g_GameControllers.end()) {
-    return nullptr;
-  }
-
-  return &iter->second;
-}
-
-void PADGetVidPid(u32 idx, u32* vid, u32* pid) {
+void PADGetVidPid(u32 port, u32* vid, u32* pid) {
   *vid = 0;
   *pid = 0;
-  if (idx < 0 || idx >= aurora::input::g_GameControllers.size()) {
-    return;
-  }
-  auto* controller = __PADGetController(idx);
+  auto* controller = aurora::input::get_controller_for_player(port);
   if (controller == nullptr) {
     return;
   }
@@ -763,8 +811,8 @@ void PADGetVidPid(u32 idx, u32* vid, u32* pid) {
   *pid = controller->m_pid;
 }
 
-const char* PADGetName(u32 idx) {
-  auto* controller = __PADGetController(idx);
+const char* PADGetName(u32 port) {
+  auto* controller = aurora::input::get_controller_for_player(port);
   if (controller == nullptr) {
     return nullptr;
   }
@@ -916,6 +964,4 @@ void PADRestoreDefaultMapping(u32 port) {
   controller->m_mapping = mDefaultButtons;
 }
 
-void PADBlockInput(bool block) {
-  gBlockPAD = block;
-}
+void PADBlockInput(bool block) { gBlockPAD = block; }

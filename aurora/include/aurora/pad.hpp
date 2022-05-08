@@ -97,9 +97,15 @@ struct PADButtonMapping {
   PAD::BUTTON padButton;
 };
 
-s32 PADGetCount();
-void PADGetVidPid(u32 idx, u32* vid, u32* pid);
-const char* PADGetName(u32 idx);
+/* Returns the total number of controllers */
+u32 PADCount();
+/* Returns the controller name for the given index into the controller map */
+const char* PADGetNameForControllerIndex(u32 idx);
+void PADSetPortForIndex(u32 index, s32 port);
+s32 PADGetIndexForPort(u32 port);
+void PADGetVidPid(u32 port, u32* vid, u32* pid);
+void PADClearPort(u32 port);
+const char* PADGetName(u32 port);
 void PADSetButtonMapping(u32 port, PADButtonMapping mapping);
 void PADSetAllButtonMappings(u32 port, PADButtonMapping buttons[12]);
 PADButtonMapping* PADGetButtonMappings(u32 port, u32* buttonCount);
