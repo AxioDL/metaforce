@@ -88,7 +88,6 @@ private:
   SOnScreenTex x1c4_onScreenTex;
   float x1d8_onScreenTexAlpha = 0.f;
   TLockedToken<CTexture> x1dc_onScreenTexTok; // Used to be heap-allocated
-  std::optional<CTexturedQuadFilterAlpha> m_onScreenQuad;
   EHelmetVisMode x1e0_helmetVisMode;
   bool x1e4_enableTargetingManager;
   bool x1e8_enableAutoMapper;
@@ -99,12 +98,6 @@ private:
   bool x1f8_25_playerAlive : 1 = true;
   bool x1f8_26_deferTransition : 1 = false;
   bool x1f8_27_exitSaveUI : 1 = true;
-
-  std::optional<CTexturedQuadFilter> m_deathRenderTexQuad;
-  std::optional<CTexturedQuadFilter> m_deathDotQuad;
-  CRandomStaticFilter m_randomStatic{EFilterType::Blend};
-  CColoredQuadFilter m_deathWhiteout{EFilterType::Blend};
-  CColoredQuadFilter m_deathBlackout{EFilterType::Blend};
 
   static std::vector<TLockedToken<CDependencyGroup>> LockPauseScreenDependencies();
   bool CheckDGRPLoadComplete() const;

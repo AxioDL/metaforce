@@ -355,33 +355,28 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   rect.x10_height = int(vpH);
   CGraphics::ResolveSpareTexture(rect);
 
-  x64_scanDim.Draw();
+  // TODO hack; figure out why needed
+  CGraphics::SetCullMode(ERglCullMode::None);
+
+  {
+    SCOPED_GRAPHICS_DEBUG_GROUP("x64_scanDim Draw", zeus::skMagenta);
+    x64_scanDim.Draw();
+  }
 
   g_Renderer->SetViewportOrtho(true, -1.f, 1.f);
 
   const zeus::CTransform windowScale = zeus::CTransform::Scale(x48_interpWindowDims.x(), 1.f, x48_interpWindowDims.y());
   const zeus::CTransform seventeenScale = zeus::CTransform::Scale(17.f * vpScale, 1.f, 17.f * vpScale);
-  CGraphics::SetModelMatrix(seventeenScale * windowScale);
+  const zeus::CTransform mm = seventeenScale * windowScale;
+  g_Renderer->SetModelMatrix(mm);
+  CGraphics::LoadDolphinSpareTexture(0, GX::TEXMAP0);
 
-  const float uvX0 = float(rect.x4_left) / float(CGraphics::GetViewportWidth());
-  const float uvX1 = float(rect.x4_left + rect.xc_width) / float(CGraphics::GetViewportWidth());
-  const float uvY0 = float(rect.x8_top) / float(CGraphics::GetViewportHeight());
-  const float uvY1 = float(rect.x8_top + rect.x10_height) / float(CGraphics::GetViewportHeight());
-  std::array<CTexturedQuadFilter::Vert, 4> rttVerts{{
-      {{-5.f, 0.f, 4.45f}, {uvX0, uvY0}},
-      {{5.f, 0.f, 4.45f}, {uvX1, uvY0}},
-      {{-5.f, 0.f, -4.45f}, {uvX0, uvY1}},
-      {{5.f, 0.f, -4.45f}, {uvX1, uvY1}},
-  }};
-  //  if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL) {
-  //    rttVerts[0].m_uv.y() = uvY1;
-  //    rttVerts[1].m_uv.y() = uvY1;
-  //    rttVerts[2].m_uv.y() = uvY0;
-  //    rttVerts[3].m_uv.y() = uvY0;
-  //  }
-  //  x108_newScanPane.drawVerts(zeus::CColor(1.f, transFactor), rttVerts);
+  if (x108_newScanPane) {
+    SCOPED_GRAPHICS_DEBUG_GROUP("x108_newScanPane Draw", zeus::skMagenta);
+    x108_newScanPane->Draw(CModelFlags{5, 0, 7, zeus::CColor{1.f, transFactor}});
+  }
 
-  // No cull faces
+  CGraphics::SetCullMode(ERglCullMode::None);
 
   zeus::CColor frameColor = zeus::CColor::lerp(g_tweakGuiColors->GetScanFrameInactiveColor(),
                                                g_tweakGuiColors->GetScanFrameActiveColor(), x54c_scanFrameColorInterp);
@@ -390,7 +385,6 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   CModelFlags flags(5, 0, 0,
                     frameColor + g_tweakGuiColors->GetScanFrameImpulseColor() *
                                      zeus::CColor(x550_scanFrameColorImpulseInterp, x550_scanFrameColorImpulseInterp));
-  // TODO flags.m_noCull = true;
 
   const zeus::CTransform verticalFlip = zeus::CTransform::Scale(1.f, 1.f, -1.f);
   const zeus::CTransform horizontalFlip = zeus::CTransform::Scale(-1.f, 1.f, 1.f);
@@ -454,7 +448,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
     xf0_scanFrameStretchSide->Draw(flags);
   }
 
-  // cull faces
+  CGraphics::SetCullMode(ERglCullMode::Front);
 }
 
 void CPlayerVisor::DrawXRayEffect(const CStateManager&) {

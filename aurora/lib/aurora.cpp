@@ -300,52 +300,26 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
     };
     auto encoder = g_device.CreateCommandEncoder(&encoderDescriptor);
     gfx::end_frame(encoder);
+    gfx::render(encoder);
     {
       const std::array attachments{
           wgpu::RenderPassColorAttachment{
               .view = view,
-              // .resolveTarget = g_frameBufferResolved.view,
               .loadOp = wgpu::LoadOp::Clear,
               .storeOp = wgpu::StoreOp::Store,
-              .clearValue =
-                  {
-                      .r = gfx::gx::g_gxState.clearColor.r(),
-                      .g = gfx::gx::g_gxState.clearColor.g(),
-                      .b = gfx::gx::g_gxState.clearColor.b(),
-                      .a = gfx::gx::g_gxState.clearColor.a(),
-                  },
-          },
-      };
-      const auto depthStencilAttachment = wgpu::RenderPassDepthStencilAttachment{
-          .view = g_depthBuffer.view,
-          .depthLoadOp = wgpu::LoadOp::Clear,
-          .depthStoreOp = wgpu::StoreOp::Discard,
-          .clearDepth = 1.f,
-      };
-      auto renderPassDescriptor = wgpu::RenderPassDescriptor{
-          .label = "Main render pass",
-          .colorAttachmentCount = attachments.size(),
-          .colorAttachments = attachments.data(),
-          .depthStencilAttachment = &depthStencilAttachment,
-      };
-      auto pass = encoder.BeginRenderPass(&renderPassDescriptor);
-      gfx::render(pass);
-      pass.End();
-    }
-    {
-      const std::array attachments{
-          wgpu::RenderPassColorAttachment{
-              .view = view,
-              .loadOp = wgpu::LoadOp::Load,
-              .storeOp = wgpu::StoreOp::Store,
           },
       };
       auto renderPassDescriptor = wgpu::RenderPassDescriptor{
-          .label = "ImGui render pass",
+          .label = "Post render pass",
           .colorAttachmentCount = attachments.size(),
           .colorAttachments = attachments.data(),
       };
       auto pass = encoder.BeginRenderPass(&renderPassDescriptor);
+      // Copy EFB -> XFB (swapchain)
+      pass.SetPipeline(gpu::g_CopyPipeline);
+      pass.SetBindGroup(0, gpu::g_CopyBindGroup);
+      pass.Draw(3);
+      // Render ImGui
       imgui::render(pass);
       pass.End();
     }

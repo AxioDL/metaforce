@@ -113,9 +113,30 @@ TextureHandle new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t m
   return {std::make_shared<TextureRef>(std::move(texture), std::move(textureView), size, wgpuFormat, mips, format)};
 }
 
-TextureHandle new_render_texture(uint32_t width, uint32_t height, uint32_t color_bind_count, uint32_t depth_bind_count,
-                                 zstring_view label) noexcept {
-  return {}; // TODO
+TextureHandle new_render_texture(uint32_t width, uint32_t height, zstring_view label) noexcept {
+  const auto wgpuFormat = gpu::g_graphicsConfig.colorFormat;
+  const auto size = wgpu::Extent3D{
+      .width = width,
+      .height = height,
+  };
+  const auto textureDescriptor = wgpu::TextureDescriptor{
+      .label = label.c_str(),
+      .usage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst,
+      .size = size,
+      .format = wgpuFormat,
+      .mipLevelCount = 1,
+  };
+  const auto viewLabel = fmt::format(FMT_STRING("{} view"), label);
+  const auto textureViewDescriptor = wgpu::TextureViewDescriptor{
+      .label = viewLabel.c_str(),
+      .format = wgpuFormat,
+      .dimension = wgpu::TextureViewDimension::e2D,
+      .mipLevelCount = 1,
+  };
+  auto texture = g_device.CreateTexture(&textureDescriptor);
+  auto textureView = texture.CreateView(&textureViewDescriptor);
+  return {std::make_shared<TextureRef>(std::move(texture), std::move(textureView), size, wgpuFormat, 1,
+                                       metaforce::ETexelFormat::Invalid)};
 }
 
 // TODO accept mip/layer parameters

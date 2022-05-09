@@ -123,7 +123,17 @@ static wgpu::SupportedLimits g_cachedLimits;
 static ShaderState g_state;
 static PipelineRef g_currentPipeline;
 
-static std::vector<Command> g_commands;
+using CommandList = std::vector<Command>;
+struct RenderPass {
+  u32 resolveTarget = UINT32_MAX;
+  ClipRect resolveRect;
+  zeus::CColor clearColor{0.f, 0.f};
+  CommandList commands;
+  bool clear = true;
+};
+static std::vector<RenderPass> g_renderPasses;
+static u32 g_currentRenderPass;
+std::vector<TextureHandle> g_resolvedTextures;
 
 static ByteBuffer g_serializedPipelines{};
 static u32 g_serializedPipelineCount = 0;
@@ -175,27 +185,23 @@ static PipelineRef find_pipeline(ShaderType type, const PipelineConfig& config, 
   return hash;
 }
 
-static void push_draw_command(ShaderDrawCommand data) {
-  g_commands.push_back({
-      .type = CommandType::Draw,
+static inline void push_command(CommandType type, const Command::Data& data) {
+  g_renderPasses[g_currentRenderPass].commands.push_back({
+      .type = type,
 #ifdef AURORA_GFX_DEBUG_GROUPS
       .debugGroupStack = g_debugGroupStack,
 #endif
-      .data = {.draw = data},
+      .data = data,
   });
 }
+
+static void push_draw_command(ShaderDrawCommand data) { push_command(CommandType::Draw, Command::Data{.draw = data}); }
 
 static Command::Data::SetViewportCommand g_cachedViewport;
 void set_viewport(float left, float top, float width, float height, float znear, float zfar) noexcept {
   Command::Data::SetViewportCommand cmd{left, top, width, height, znear, zfar};
   if (cmd != g_cachedViewport) {
-    g_commands.push_back({
-        .type = CommandType::SetViewport,
-#ifdef AURORA_GFX_DEBUG_GROUPS
-        .debugGroupStack = g_debugGroupStack,
-#endif
-        .data = {.setViewport = cmd},
-    });
+    push_command(CommandType::SetViewport, Command::Data{.setViewport = cmd});
     g_cachedViewport = cmd;
   }
 }
@@ -203,23 +209,39 @@ static Command::Data::SetScissorCommand g_cachedScissor;
 void set_scissor(uint32_t x, uint32_t y, uint32_t w, uint32_t h) noexcept {
   Command::Data::SetScissorCommand cmd{x, y, w, h};
   if (cmd != g_cachedScissor) {
-    g_commands.push_back({
-        .type = CommandType::SetScissor,
-#ifdef AURORA_GFX_DEBUG_GROUPS
-        .debugGroupStack = g_debugGroupStack,
-#endif
-        .data = {.setScissor = cmd},
-    });
+    push_command(CommandType::SetScissor, Command::Data{.setScissor = cmd});
     g_cachedScissor = cmd;
   }
 }
 
+bool operator==(const wgpu::Extent3D& lhs, const wgpu::Extent3D& rhs) {
+  return lhs.width == rhs.width && lhs.height == rhs.height && lhs.depthOrArrayLayers == rhs.depthOrArrayLayers;
+}
+
 void resolve_color(const ClipRect& rect, uint32_t bind, bool clear_depth) noexcept {
-  // TODO
+  if (g_resolvedTextures.size() < bind + 1) {
+    g_resolvedTextures.resize(bind + 1);
+  }
+  const wgpu::Extent3D size{
+      .width = static_cast<uint32_t>(rect.width),
+      .height = static_cast<uint32_t>(rect.height),
+  };
+  if (!g_resolvedTextures[bind] || g_resolvedTextures[bind].ref->size != size) {
+    g_resolvedTextures[bind] = new_render_texture(rect.width, rect.height, "Resolved Texture");
+  }
+  auto& currentPass = g_renderPasses[g_currentRenderPass];
+  currentPass.resolveTarget = bind;
+  currentPass.resolveRect = rect;
+  auto& newPass = g_renderPasses.emplace_back();
+  newPass.clearColor = gx::g_gxState.clearColor;
+  newPass.clear = false; // TODO
+  ++g_currentRenderPass;
 }
 void resolve_depth(const ClipRect& rect, uint32_t bind) noexcept {
   // TODO
 }
+
+void bind_color(u32 bindIdx, GX::TexMapID id) noexcept { gx::g_gxState.textures[static_cast<size_t>(id)] = {bindIdx}; }
 
 void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v, float h_pad,
                         float v_pad) noexcept {
@@ -323,13 +345,15 @@ void initialize() {
   {
     // Load serialized pipeline cache
     std::ifstream file("pipeline_cache.bin", std::ios::in | std::ios::binary | std::ios::ate);
-    const size_t size = file.tellg();
-    file.seekg(0, std::ios::beg);
-    constexpr size_t headerSize = sizeof(g_serializedPipelineCount);
-    if (size != -1 && size > headerSize) {
-      g_serializedPipelines.append_zeroes(size - headerSize);
-      file.read(reinterpret_cast<char*>(&g_serializedPipelineCount), headerSize);
-      file.read(reinterpret_cast<char*>(g_serializedPipelines.data()), size - headerSize);
+    if (file) {
+      const size_t size = file.tellg();
+      file.seekg(0, std::ios::beg);
+      constexpr size_t headerSize = sizeof(g_serializedPipelineCount);
+      if (size != -1 && size > headerSize) {
+        g_serializedPipelines.append_zeroes(size - headerSize);
+        file.read(reinterpret_cast<char*>(&g_serializedPipelineCount), headerSize);
+        file.read(reinterpret_cast<char*>(g_serializedPipelines.data()), size - headerSize);
+      }
     }
   }
   if (g_serializedPipelineCount > 0) {
@@ -390,8 +414,10 @@ void shutdown() {
   {
     // Write serialized pipelines to file
     std::ofstream file("pipeline_cache.bin", std::ios::out | std::ios::trunc | std::ios::binary);
-    file.write(reinterpret_cast<const char*>(&g_serializedPipelineCount), sizeof(g_serializedPipelineCount));
-    file.write(reinterpret_cast<const char*>(g_serializedPipelines.data()), g_serializedPipelines.size());
+    if (file) {
+      file.write(reinterpret_cast<const char*>(&g_serializedPipelineCount), sizeof(g_serializedPipelineCount));
+      file.write(reinterpret_cast<const char*>(g_serializedPipelines.data()), g_serializedPipelines.size());
+    }
   }
 
   gx::shutdown();
@@ -440,6 +466,9 @@ void begin_frame() {
   mapBuffer(g_uniforms, UniformBufferSize);
   mapBuffer(g_indices, IndexBufferSize);
   mapBuffer(g_storage, StorageBufferSize);
+
+  g_renderPasses.emplace_back();
+  g_currentRenderPass = 0;
 }
 
 // for imgui debug
@@ -468,13 +497,80 @@ void end_frame(const wgpu::CommandEncoder& cmd) {
   map_staging_buffer();
 }
 
-void render(const wgpu::RenderPassEncoder& pass) {
+void render(wgpu::CommandEncoder& cmd) {
+  for (u32 i = 0; i < g_renderPasses.size(); ++i) {
+    const auto& passInfo = g_renderPasses[i];
+    bool finalPass = i == g_renderPasses.size() - 1;
+    if (finalPass && passInfo.resolveTarget != UINT32_MAX) {
+      Log.report(logvisor::Fatal, FMT_STRING("Final render pass must not have resolve target"));
+      unreachable();
+    }
+    const std::array attachments{
+        wgpu::RenderPassColorAttachment{
+            .view = gpu::g_frameBuffer.view,
+            .resolveTarget = gpu::g_graphicsConfig.msaaSamples > 1 ? gpu::g_frameBufferResolved.view : nullptr,
+            .loadOp = passInfo.clear ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load,
+            .storeOp = wgpu::StoreOp::Store,
+            .clearValue =
+                {
+                    .r = passInfo.clearColor.r(),
+                    .g = passInfo.clearColor.g(),
+                    .b = passInfo.clearColor.b(),
+                    .a = passInfo.clearColor.a(),
+                },
+        },
+    };
+    const wgpu::RenderPassDepthStencilAttachment depthStencilAttachment{
+        .view = gpu::g_depthBuffer.view,
+        .depthLoadOp = wgpu::LoadOp::Clear,
+        .depthStoreOp = wgpu::StoreOp::Discard,
+        .depthClearValue = 1.f,
+    };
+    const auto label = fmt::format(FMT_STRING("Render pass {}"), i);
+    const wgpu::RenderPassDescriptor renderPassDescriptor{
+        .label = label.c_str(),
+        .colorAttachmentCount = attachments.size(),
+        .colorAttachments = attachments.data(),
+        .depthStencilAttachment = &depthStencilAttachment,
+    };
+    auto pass = cmd.BeginRenderPass(&renderPassDescriptor);
+    render_pass(pass, i);
+    pass.End();
+
+    if (passInfo.resolveTarget != UINT32_MAX) {
+      wgpu::ImageCopyTexture src{
+          .origin =
+              wgpu::Origin3D{
+                  .x = static_cast<uint32_t>(passInfo.resolveRect.x),
+                  .y = static_cast<uint32_t>(passInfo.resolveRect.y),
+              },
+      };
+      if (gpu::g_graphicsConfig.msaaSamples > 1) {
+        src.texture = gpu::g_frameBufferResolved.texture;
+      } else {
+        src.texture = gpu::g_frameBuffer.texture;
+      }
+      auto& target = g_resolvedTextures[passInfo.resolveTarget];
+      const wgpu::ImageCopyTexture dst{
+          .texture = target.ref->texture,
+      };
+      const wgpu::Extent3D size{
+          .width = static_cast<uint32_t>(passInfo.resolveRect.width),
+          .height = static_cast<uint32_t>(passInfo.resolveRect.height),
+      };
+      cmd.CopyTextureToTexture(&src, &dst, &size);
+    }
+  }
+  g_renderPasses.clear();
+}
+
+void render_pass(const wgpu::RenderPassEncoder& pass, u32 idx) {
   g_currentPipeline = UINT64_MAX;
 #ifdef AURORA_GFX_DEBUG_GROUPS
   std::vector<std::string> lastDebugGroupStack;
 #endif
 
-  for (const auto& cmd : g_commands) {
+  for (const auto& cmd : g_renderPasses[idx].commands) {
 #ifdef AURORA_GFX_DEBUG_GROUPS
     {
       size_t firstDiff = lastDebugGroupStack.size();
@@ -524,8 +620,6 @@ void render(const wgpu::RenderPassEncoder& pass) {
     pass.PopDebugGroup();
   }
 #endif
-
-  g_commands.clear();
 }
 
 bool bind_pipeline(PipelineRef ref, const wgpu::RenderPassEncoder& pass) {

@@ -48,10 +48,13 @@ extern GraphicsConfig g_graphicsConfig;
 extern TextureWithSampler g_frameBuffer;
 extern TextureWithSampler g_frameBufferResolved;
 extern TextureWithSampler g_depthBuffer;
+extern wgpu::RenderPipeline g_CopyPipeline;
+extern wgpu::BindGroup g_CopyBindGroup;
 
 void initialize(SDL_Window* window);
 void shutdown();
 void resize_swapchain(uint32_t width, uint32_t height);
+TextureWithSampler create_render_texture(bool multisampled);
 } // namespace aurora::gpu
 
 namespace aurora::gpu::utils {

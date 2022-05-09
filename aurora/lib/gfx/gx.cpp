@@ -495,6 +495,80 @@ void populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive) n
   config.shaderConfig.indexedAttributeCount =
       std::count_if(config.shaderConfig.vtxAttrs.begin(), config.shaderConfig.vtxAttrs.end(),
                     [](const auto type) { return type == GX::INDEX8 || type == GX::INDEX16; });
+  for (u8 i = 0; i < MaxTextures; ++i) {
+    const auto& bind = g_gxState.textures[i];
+    bool hasAlpha = false;
+    // TODO check resolved fmt
+    if (bind.handle) {
+      wgpu::TextureFormat format = bind.handle.ref->format;
+      switch (format) {
+      case wgpu::TextureFormat::R8Unorm:
+      case wgpu::TextureFormat::R8Snorm:
+      case wgpu::TextureFormat::R8Uint:
+      case wgpu::TextureFormat::R8Sint:
+      case wgpu::TextureFormat::R16Uint:
+      case wgpu::TextureFormat::R16Sint:
+      case wgpu::TextureFormat::R16Float:
+      case wgpu::TextureFormat::RG8Unorm:
+      case wgpu::TextureFormat::RG8Snorm:
+      case wgpu::TextureFormat::RG8Uint:
+      case wgpu::TextureFormat::RG8Sint:
+      case wgpu::TextureFormat::R32Float:
+      case wgpu::TextureFormat::R32Uint:
+      case wgpu::TextureFormat::R32Sint:
+      case wgpu::TextureFormat::RG16Uint:
+      case wgpu::TextureFormat::RG16Sint:
+      case wgpu::TextureFormat::RG16Float:
+      case wgpu::TextureFormat::RG11B10Ufloat:
+      case wgpu::TextureFormat::RGB9E5Ufloat:
+      case wgpu::TextureFormat::RG32Float:
+      case wgpu::TextureFormat::RG32Uint:
+      case wgpu::TextureFormat::RG32Sint:
+      case wgpu::TextureFormat::BC4RUnorm:
+      case wgpu::TextureFormat::BC4RSnorm:
+      case wgpu::TextureFormat::BC5RGUnorm:
+      case wgpu::TextureFormat::BC5RGSnorm:
+      case wgpu::TextureFormat::BC6HRGBUfloat:
+      case wgpu::TextureFormat::BC6HRGBFloat:
+      case wgpu::TextureFormat::ETC2RGB8Unorm:
+      case wgpu::TextureFormat::ETC2RGB8UnormSrgb:
+        hasAlpha = false;
+        break;
+      case wgpu::TextureFormat::RGBA8Unorm:
+      case wgpu::TextureFormat::RGBA8UnormSrgb:
+      case wgpu::TextureFormat::RGBA8Snorm:
+      case wgpu::TextureFormat::RGBA8Uint:
+      case wgpu::TextureFormat::RGBA8Sint:
+      case wgpu::TextureFormat::BGRA8Unorm:
+      case wgpu::TextureFormat::BGRA8UnormSrgb:
+      case wgpu::TextureFormat::RGB10A2Unorm:
+      case wgpu::TextureFormat::RGBA16Uint:
+      case wgpu::TextureFormat::RGBA16Sint:
+      case wgpu::TextureFormat::RGBA16Float:
+      case wgpu::TextureFormat::RGBA32Float:
+      case wgpu::TextureFormat::RGBA32Uint:
+      case wgpu::TextureFormat::RGBA32Sint:
+      case wgpu::TextureFormat::BC1RGBAUnorm:
+      case wgpu::TextureFormat::BC1RGBAUnormSrgb:
+      case wgpu::TextureFormat::BC2RGBAUnorm:
+      case wgpu::TextureFormat::BC2RGBAUnormSrgb:
+      case wgpu::TextureFormat::BC3RGBAUnorm:
+      case wgpu::TextureFormat::BC3RGBAUnormSrgb:
+      case wgpu::TextureFormat::BC7RGBAUnorm:
+      case wgpu::TextureFormat::BC7RGBAUnormSrgb:
+      case wgpu::TextureFormat::ETC2RGB8A1Unorm:
+      case wgpu::TextureFormat::ETC2RGB8A1UnormSrgb:
+      case wgpu::TextureFormat::ETC2RGBA8Unorm:
+      case wgpu::TextureFormat::ETC2RGBA8UnormSrgb:
+        hasAlpha = true;
+        break;
+      default:
+        Log.report(logvisor::Fatal, FMT_STRING("Unknown texture format {}"), format);
+        unreachable();
+      }
+    }
+    config.shaderConfig.texHasAlpha[i] = hasAlpha;
+  }
   config = {
       .shaderConfig = config.shaderConfig,
       .primitive = primitive,
@@ -681,10 +755,17 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
         .binding = i,
         .sampler = sampler_ref(tex.get_descriptor()),
     };
-    textureEntries[i] = {
-        .binding = i,
-        .textureView = tex.handle.ref->view,
-    };
+    if (tex.handle) {
+      textureEntries[i] = {
+          .binding = i,
+          .textureView = tex.handle.ref->view,
+      };
+    } else if (tex.resolvedBindIdx != UINT32_MAX) {
+      textureEntries[i] = {
+          .binding = i,
+          .textureView = g_resolvedTextures[tex.resolvedBindIdx].ref->view,
+      };
+    }
     i++;
   }
   return {

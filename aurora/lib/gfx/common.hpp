@@ -125,6 +125,8 @@ extern wgpu::Buffer g_uniformBuffer;
 extern wgpu::Buffer g_indexBuffer;
 extern wgpu::Buffer g_storageBuffer;
 extern size_t g_staticStorageLastSize;
+// TODO this is a bad place for this...
+extern std::vector<TextureHandle> g_resolvedTextures;
 
 struct TextureRef {
   wgpu::Texture texture;
@@ -168,7 +170,8 @@ void shutdown();
 
 void begin_frame();
 void end_frame(const wgpu::CommandEncoder& cmd);
-void render(const wgpu::RenderPassEncoder& pass);
+void render(wgpu::CommandEncoder& cmd);
+void render_pass(const wgpu::RenderPassEncoder& pass, u32 idx);
 void map_staging_buffer();
 
 Range push_verts(const uint8_t* data, size_t length);

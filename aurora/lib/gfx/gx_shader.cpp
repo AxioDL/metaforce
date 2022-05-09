@@ -6,6 +6,7 @@
 #include <absl/container/flat_hash_map.h>
 
 constexpr bool EnableNormalVisualization = false;
+constexpr bool EnableDebugPrints = true;
 
 namespace aurora::gfx::gx {
 using namespace fmt::literals;
@@ -119,6 +120,7 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
       unreachable();
     }
     const auto swap = config.tevSwapTable[stage.tevSwapTex];
+    // TODO check for CH_ALPHA + config.texHasAlpha
     return fmt::format(FMT_STRING("sampled{}.{}{}{}"), stage.texMapId, chan_comp(swap.red), chan_comp(swap.green),
                        chan_comp(swap.blue));
   }
@@ -131,6 +133,9 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
       unreachable();
     }
     const auto swap = config.tevSwapTable[stage.tevSwapTex];
+    if (swap.alpha == GX::CH_ALPHA && !config.texHasAlpha[stage.texMapId]) {
+      return "1.0";
+    }
     return fmt::format(FMT_STRING("sampled{}.{}"), stage.texMapId, chan_comp(swap.alpha));
   }
   case GX::CC_RASC: {
@@ -305,6 +310,9 @@ static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const Sha
       unreachable();
     }
     const auto swap = config.tevSwapTable[stage.tevSwapTex];
+    if (swap.alpha == GX::CH_ALPHA && !config.texHasAlpha[stage.texMapId]) {
+      return "1.0";
+    }
     return fmt::format(FMT_STRING("sampled{}.{}"), stage.texMapId, chan_comp(swap.alpha));
   }
   case GX::CA_RASA: {
@@ -597,53 +605,60 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
     return it->second.first;
   }
 
-  Log.report(logvisor::Info, FMT_STRING("Shader config (hash {:x}):"), hash);
-
-  {
-    for (int i = 0; i < config.tevStageCount; ++i) {
-      const auto& stage = config.tevStages[i];
-      Log.report(logvisor::Info, FMT_STRING("  tevStages[{}]:"), i);
-      Log.report(logvisor::Info, FMT_STRING("    color_a: {}"), stage.colorPass.a);
-      Log.report(logvisor::Info, FMT_STRING("    color_b: {}"), stage.colorPass.b);
-      Log.report(logvisor::Info, FMT_STRING("    color_c: {}"), stage.colorPass.c);
-      Log.report(logvisor::Info, FMT_STRING("    color_d: {}"), stage.colorPass.d);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_a: {}"), stage.alphaPass.a);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_b: {}"), stage.alphaPass.b);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_c: {}"), stage.alphaPass.c);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_d: {}"), stage.alphaPass.d);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_clamp: {}"), stage.colorOp.clamp);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_op: {}"), stage.colorOp.op);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_bias: {}"), stage.colorOp.bias);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_scale: {}"), stage.colorOp.scale);
-      Log.report(logvisor::Info, FMT_STRING("    color_op_reg_id: {}"), stage.colorOp.outReg);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_clamp: {}"), stage.alphaOp.clamp);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_op: {}"), stage.alphaOp.op);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_bias: {}"), stage.alphaOp.bias);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_scale: {}"), stage.alphaOp.scale);
-      Log.report(logvisor::Info, FMT_STRING("    alpha_op_reg_id: {}"), stage.alphaOp.outReg);
-      Log.report(logvisor::Info, FMT_STRING("    kc_sel: {}"), stage.kcSel);
-      Log.report(logvisor::Info, FMT_STRING("    ka_sel: {}"), stage.kaSel);
-      Log.report(logvisor::Info, FMT_STRING("    texCoordId: {}"), stage.texCoordId);
-      Log.report(logvisor::Info, FMT_STRING("    texMapId: {}"), stage.texMapId);
-      Log.report(logvisor::Info, FMT_STRING("    channelId: {}"), stage.channelId);
-    }
-    for (int i = 0; i < config.colorChannels.size(); ++i) {
-      const auto& chan = config.colorChannels[i];
-      Log.report(logvisor::Info, FMT_STRING("  colorChannels[{}]: enabled {} mat {} amb {}"), i, chan.lightingEnabled,
-                 chan.matSrc, chan.ambSrc);
-    }
-    for (int i = 0; i < config.tcgs.size(); ++i) {
-      const auto& tcg = config.tcgs[i];
-      if (tcg.src != GX::MAX_TEXGENSRC) {
-        Log.report(logvisor::Info, FMT_STRING("  tcg[{}]: src {} mtx {} post {} type {} norm {}"), i, tcg.src, tcg.mtx,
-                   tcg.postMtx, tcg.type, tcg.normalize);
+  if (EnableDebugPrints) {
+    Log.report(logvisor::Info, FMT_STRING("Shader config (hash {:x}):"), hash);
+    {
+      for (int i = 0; i < config.tevStageCount; ++i) {
+        const auto& stage = config.tevStages[i];
+        Log.report(logvisor::Info, FMT_STRING("  tevStages[{}]:"), i);
+        Log.report(logvisor::Info, FMT_STRING("    color_a: {}"), stage.colorPass.a);
+        Log.report(logvisor::Info, FMT_STRING("    color_b: {}"), stage.colorPass.b);
+        Log.report(logvisor::Info, FMT_STRING("    color_c: {}"), stage.colorPass.c);
+        Log.report(logvisor::Info, FMT_STRING("    color_d: {}"), stage.colorPass.d);
+        Log.report(logvisor::Info, FMT_STRING("    alpha_a: {}"), stage.alphaPass.a);
+        Log.report(logvisor::Info, FMT_STRING("    alpha_b: {}"), stage.alphaPass.b);
+        Log.report(logvisor::Info, FMT_STRING("    alpha_c: {}"), stage.alphaPass.c);
+        Log.report(logvisor::Info, FMT_STRING("    alpha_d: {}"), stage.alphaPass.d);
+        Log.report(logvisor::Info, FMT_STRING("    color_op_clamp: {}"), stage.colorOp.clamp);
+        Log.report(logvisor::Info, FMT_STRING("    color_op_op: {}"), stage.colorOp.op);
+        Log.report(logvisor::Info, FMT_STRING("    color_op_bias: {}"), stage.colorOp.bias);
+        Log.report(logvisor::Info, FMT_STRING("    color_op_scale: {}"), stage.colorOp.scale);
+        Log.report(logvisor::Info, FMT_STRING("    color_op_reg_id: {}"), stage.colorOp.outReg);
+        Log.report(logvisor::Info, FMT_STRING("    alpha_op_clamp: {}"), stage.alphaOp.clamp);
+        Log.report(logvisor::Info, FMT_STRING("    alpha_op_op: {}"), stage.alphaOp.op);
+        Log.report(logvisor::Info, FMT_STRING("    alpha_op_bias: {}"), stage.alphaOp.bias);
+        Log.report(logvisor::Info, FMT_STRING("    alpha_op_scale: {}"), stage.alphaOp.scale);
+        Log.report(logvisor::Info, FMT_STRING("    alpha_op_reg_id: {}"), stage.alphaOp.outReg);
+        Log.report(logvisor::Info, FMT_STRING("    kc_sel: {}"), stage.kcSel);
+        Log.report(logvisor::Info, FMT_STRING("    ka_sel: {}"), stage.kaSel);
+        Log.report(logvisor::Info, FMT_STRING("    texCoordId: {}"), stage.texCoordId);
+        Log.report(logvisor::Info, FMT_STRING("    texMapId: {}"), stage.texMapId);
+        Log.report(logvisor::Info, FMT_STRING("    channelId: {}"), stage.channelId);
       }
+      for (int i = 0; i < config.colorChannels.size(); ++i) {
+        const auto& chan = config.colorChannels[i];
+        Log.report(logvisor::Info, FMT_STRING("  colorChannels[{}]: enabled {} mat {} amb {}"), i, chan.lightingEnabled,
+                   chan.matSrc, chan.ambSrc);
+      }
+      for (int i = 0; i < config.tcgs.size(); ++i) {
+        const auto& tcg = config.tcgs[i];
+        if (tcg.src != GX::MAX_TEXGENSRC) {
+          Log.report(logvisor::Info, FMT_STRING("  tcg[{}]: src {} mtx {} post {} type {} norm {}"), i, tcg.src,
+                     tcg.mtx, tcg.postMtx, tcg.type, tcg.normalize);
+        }
+      }
+      Log.report(logvisor::Info, FMT_STRING("  alphaCompare: comp0 {} ref0 {} op {} comp1 {} ref1 {}"),
+                 config.alphaCompare.comp0, config.alphaCompare.ref0, config.alphaCompare.op, config.alphaCompare.comp1,
+                 config.alphaCompare.ref1);
+      Log.report(logvisor::Info, FMT_STRING("  indexedAttributeCount: {}"), config.indexedAttributeCount);
+      Log.report(logvisor::Info, FMT_STRING("  fogType: {}"), config.fogType);
+      std::string hasAlphaArr;
+      for (int i = 0; i < config.texHasAlpha.size(); ++i) {
+        if (i != 0) hasAlphaArr += ", ";
+        hasAlphaArr += config.texHasAlpha[i] ? "Y" : "N";
+      }
+      Log.report(logvisor::Info, FMT_STRING("  texHasAlpha: [{}]"), hasAlphaArr);
     }
-    Log.report(logvisor::Info, FMT_STRING("  alphaCompare: comp0 {} ref0 {} op {} comp1 {} ref1 {}"),
-               config.alphaCompare.comp0, config.alphaCompare.ref0, config.alphaCompare.op, config.alphaCompare.comp1,
-               config.alphaCompare.ref1);
-    Log.report(logvisor::Info, FMT_STRING("  indexedAttributeCount: {}"), config.indexedAttributeCount);
-    Log.report(logvisor::Info, FMT_STRING("  fogType: {}"), config.fogType);
   }
 
   std::string uniformPre;
@@ -912,8 +927,15 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
                                  i, postMtxIdx);
     }
     vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{0}_uv = tc{0}_proj.xy;"), i);
+    std::string uvIn;
+    // FIXME terrible hack to flip Y for render textures
+    if (config.texHasAlpha[i]) {
+      uvIn = fmt::format(FMT_STRING("in.tex{0}_uv"), i);
+    } else {
+      uvIn = fmt::format(FMT_STRING("vec2<f32>(in.tex{0}_uv.x, -in.tex{0}_uv.y)"), i);
+    }
     fragmentFnPre += fmt::format(
-        FMT_STRING("\n    var sampled{0} = textureSampleBias(tex{0}, tex{0}_samp, in.tex{0}_uv, ubuf.tex{0}_lod);"), i);
+        FMT_STRING("\n    var sampled{0} = textureSampleBias(tex{0}, tex{0}_samp, {1}, ubuf.tex{0}_lod);"), i, uvIn);
   }
   for (int i = 0; i < info.usesTexMtx.size(); ++i) {
     if (info.usesTexMtx.test(i)) {
@@ -1052,7 +1074,9 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {{
                   "vtxOutAttrs"_a = vtxOutAttrs, "vtxInAttrs"_a = vtxInAttrs, "vtxXfrAttrs"_a = vtxXfrAttrs,
                   "fragmentFn"_a = fragmentFn, "fragmentFnPre"_a = fragmentFnPre, "vtxXfrAttrsPre"_a = vtxXfrAttrsPre,
                   "uniformBindings"_a = uniformBindings, "uniformPre"_a = uniformPre);
-  Log.report(logvisor::Info, FMT_STRING("Generated shader: {}"), shaderSource);
+  if (EnableDebugPrints) {
+    Log.report(logvisor::Info, FMT_STRING("Generated shader: {}"), shaderSource);
+  }
 
   wgpu::ShaderModuleWGSLDescriptor wgslDescriptor{};
   wgslDescriptor.source = shaderSource.c_str();

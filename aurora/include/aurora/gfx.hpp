@@ -98,6 +98,7 @@ void set_scissor(uint32_t x, uint32_t y, uint32_t w, uint32_t h) noexcept;
 
 void resolve_color(const ClipRect& rect, uint32_t bind, bool clear_depth) noexcept;
 void resolve_depth(const ClipRect& rect, uint32_t bind) noexcept;
+void bind_color(u32 bindIdx, GX::TexMapID id) noexcept;
 
 void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v, float h_pad,
                         float v_pad) noexcept;
@@ -106,7 +107,6 @@ TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mi
                                     ArrayRef<uint8_t> data, zstring_view label) noexcept;
 TextureHandle new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t mips, metaforce::ETexelFormat format,
                                      zstring_view label) noexcept;
-TextureHandle new_render_texture(uint32_t width, uint32_t height, uint32_t color_bind_count, uint32_t depth_bind_count,
-                                 zstring_view label) noexcept;
+TextureHandle new_render_texture(uint32_t width, uint32_t height, zstring_view label) noexcept;
 void write_texture(const TextureHandle& handle, ArrayRef<uint8_t> data) noexcept;
 } // namespace aurora::gfx

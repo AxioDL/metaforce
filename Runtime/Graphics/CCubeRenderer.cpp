@@ -640,9 +640,9 @@ void CCubeRenderer::SetPerspective(float fovy, float width, float height, float 
 }
 
 std::pair<zeus::CVector2f, zeus::CVector2f> CCubeRenderer::SetViewportOrtho(bool centered, float znear, float zfar) {
-  auto left = static_cast<float>(centered ? CGraphics::GetViewportLeft() - CGraphics::GetViewportWidth() / 2
+  auto left = static_cast<float>(centered ? CGraphics::GetViewportLeft() - CGraphics::GetViewportHalfWidth()
                                           : CGraphics::GetViewportLeft());
-  auto top = static_cast<float>(centered ? CGraphics::GetViewportTop() - CGraphics::GetViewportHeight() / 2
+  auto top = static_cast<float>(centered ? CGraphics::GetViewportTop() - CGraphics::GetViewportHalfHeight()
                                          : CGraphics::GetViewportHeight());
   auto right = static_cast<float>(CGraphics::GetViewportLeft() +
                                   (centered ? CGraphics::GetViewportWidth() / 2 : CGraphics::GetViewportWidth()));

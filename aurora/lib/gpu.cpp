@@ -28,12 +28,17 @@ TextureWithSampler g_frameBuffer;
 TextureWithSampler g_frameBufferResolved;
 TextureWithSampler g_depthBuffer;
 
+// EFB -> XFB copy pipeline
+static wgpu::BindGroupLayout g_CopyBindGroupLayout;
+wgpu::RenderPipeline g_CopyPipeline;
+wgpu::BindGroup g_CopyBindGroup;
+
 static std::unique_ptr<dawn::native::Instance> g_Instance;
 static dawn::native::Adapter g_Adapter;
 static wgpu::AdapterProperties g_AdapterProperties;
 static std::unique_ptr<utils::BackendBinding> g_BackendBinding;
 
-static TextureWithSampler create_render_texture(bool multisampled) {
+TextureWithSampler create_render_texture(bool multisampled) {
   const auto size = wgpu::Extent3D{
       .width = g_graphicsConfig.width,
       .height = g_graphicsConfig.height,
@@ -45,7 +50,7 @@ static TextureWithSampler create_render_texture(bool multisampled) {
   }
   const auto textureDescriptor = wgpu::TextureDescriptor{
       .label = "Render texture",
-      .usage = wgpu::TextureUsage::RenderAttachment | wgpu::TextureUsage::TextureBinding,
+      .usage = wgpu::TextureUsage::RenderAttachment | wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopySrc | wgpu::TextureUsage::CopyDst,
       .size = size,
       .format = format,
       .sampleCount = sampleCount,
@@ -105,6 +110,119 @@ static TextureWithSampler create_depth_texture() {
       .format = format,
       .sampler = std::move(sampler),
   };
+}
+
+void create_copy_pipeline() {
+  wgpu::ShaderModuleWGSLDescriptor sourceDescriptor{};
+  sourceDescriptor.source = R"""(
+@group(0) @binding(0)
+var efb_sampler: sampler;
+@group(0) @binding(1)
+var efb_texture: texture_2d<f32>;
+
+struct VertexOutput {
+    @builtin(position) pos: vec4<f32>,
+    @location(0) uv: vec2<f32>,
+};
+
+var<private> pos: array<vec2<f32>, 3> = array<vec2<f32>, 3>(
+    vec2(-1.0, 1.0),
+    vec2(-1.0, -3.0),
+    vec2(3.0, 1.0),
+);
+var<private> uvs: array<vec2<f32>, 3> = array<vec2<f32>, 3>(
+    vec2(0.0, 0.0),
+    vec2(0.0, 2.0),
+    vec2(2.0, 0.0),
+);
+
+@stage(vertex)
+fn vs_main(@builtin(vertex_index) vtxIdx: u32) -> VertexOutput {
+    var out: VertexOutput;
+    out.pos = vec4<f32>(pos[vtxIdx], 0.0, 1.0);
+    out.uv = uvs[vtxIdx];
+    return out;
+}
+
+@stage(fragment)
+fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
+    return textureSample(efb_texture, efb_sampler, in.uv);
+}
+)""";
+  const wgpu::ShaderModuleDescriptor moduleDescriptor{
+      .nextInChain = &sourceDescriptor,
+      .label = "XFB Copy Module",
+  };
+  auto module = g_device.CreateShaderModule(&moduleDescriptor);
+  const std::array colorTargets{
+      wgpu::ColorTargetState{
+          .format = g_graphicsConfig.colorFormat,
+      },
+  };
+  const wgpu::FragmentState fragmentState{
+      .module = module,
+      .entryPoint = "fs_main",
+      .targetCount = colorTargets.size(),
+      .targets = colorTargets.data(),
+  };
+  const std::array bindGroupLayoutEntries{
+      wgpu::BindGroupLayoutEntry{
+          .binding = 0,
+          .visibility = wgpu::ShaderStage::Fragment,
+          .sampler =
+              wgpu::SamplerBindingLayout{
+                  .type = wgpu::SamplerBindingType::Filtering,
+              },
+      },
+      wgpu::BindGroupLayoutEntry{
+          .binding = 1,
+          .visibility = wgpu::ShaderStage::Fragment,
+          .texture =
+              wgpu::TextureBindingLayout{
+                  .sampleType = wgpu::TextureSampleType::Float,
+                  .viewDimension = wgpu::TextureViewDimension::e2D,
+              },
+      },
+  };
+  const wgpu::BindGroupLayoutDescriptor bindGroupLayoutDescriptor{
+      .entryCount = bindGroupLayoutEntries.size(),
+      .entries = bindGroupLayoutEntries.data(),
+  };
+  g_CopyBindGroupLayout = g_device.CreateBindGroupLayout(&bindGroupLayoutDescriptor);
+  const wgpu::PipelineLayoutDescriptor layoutDescriptor{
+      .bindGroupLayoutCount = 1,
+      .bindGroupLayouts = &g_CopyBindGroupLayout,
+  };
+  auto pipelineLayout = g_device.CreatePipelineLayout(&layoutDescriptor);
+  const wgpu::RenderPipelineDescriptor pipelineDescriptor{
+      .layout = pipelineLayout,
+      .vertex =
+          wgpu::VertexState{
+              .module = module,
+              .entryPoint = "vs_main",
+          },
+      .fragment = &fragmentState,
+  };
+  g_CopyPipeline = g_device.CreateRenderPipeline(&pipelineDescriptor);
+}
+
+void create_copy_bind_group() {
+  const std::array bindGroupEntries{
+      wgpu::BindGroupEntry{
+          .binding = 0,
+          .sampler = g_graphicsConfig.msaaSamples > 1 ? gpu::g_frameBufferResolved.sampler : gpu::g_frameBuffer.sampler,
+      },
+      wgpu::BindGroupEntry{
+          .binding = 1,
+          .textureView = g_graphicsConfig.msaaSamples > 1 ? gpu::g_frameBufferResolved.view : gpu::g_frameBuffer.view,
+      },
+  };
+  const wgpu::BindGroupDescriptor bindGroupDescriptor{
+      .layout = g_CopyBindGroupLayout,
+      .entryCount = bindGroupEntries.size(),
+      .entries = bindGroupEntries.data(),
+  };
+  g_CopyBindGroup = g_device.CreateBindGroup(&bindGroupDescriptor);
 }
 
 static void error_callback(WGPUErrorType type, char const* message, void* userdata) {
@@ -215,9 +333,10 @@ void initialize(SDL_Window* window) {
         .height = size.fb_height,
         .colorFormat = swapChainFormat,
         .depthFormat = wgpu::TextureFormat::Depth32Float,
-        .msaaSamples = 1, // TODO 4
+        .msaaSamples = 4,
         .textureAnistropy = 16,
     };
+    create_copy_pipeline();
     resize_swapchain(size.fb_width, size.fb_height);
     g_windowSize = size;
   }
@@ -241,5 +360,6 @@ void resize_swapchain(uint32_t width, uint32_t height) {
   g_frameBuffer = create_render_texture(true);
   g_frameBufferResolved = create_render_texture(false);
   g_depthBuffer = create_depth_texture();
+  create_copy_bind_group();
 }
 } // namespace aurora::gpu

@@ -56,15 +56,20 @@ struct TevStage {
 static_assert(std::has_unique_object_representations_v<TevStage>);
 struct TextureBind {
   aurora::gfx::TextureHandle handle;
-  metaforce::EClampMode clampMode;
-  float lod;
+  metaforce::EClampMode clampMode = metaforce::EClampMode::Repeat;
+  float lod = 0.f;
+  u32 resolvedBindIdx = UINT32_MAX;
 
   TextureBind() noexcept = default;
+  TextureBind(u32 resolvedBindIdx) noexcept : resolvedBindIdx(resolvedBindIdx) {}
   TextureBind(aurora::gfx::TextureHandle handle, metaforce::EClampMode clampMode, float lod) noexcept
   : handle(std::move(handle)), clampMode(clampMode), lod(lod) {}
-  void reset() noexcept { handle.reset(); };
+  void reset() noexcept {
+    handle.reset();
+    resolvedBindIdx = UINT32_MAX;
+  };
   [[nodiscard]] wgpu::SamplerDescriptor get_descriptor() const noexcept;
-  operator bool() const noexcept { return handle; }
+  operator bool() const noexcept { return handle || resolvedBindIdx != UINT32_MAX; }
 };
 // For shader generation
 struct ColorChannelConfig {
@@ -182,11 +187,12 @@ struct ShaderConfig {
   std::array<TcgConfig, MaxTexCoord> tcgs;
   AlphaCompare alphaCompare;
   u32 indexedAttributeCount = 0;
+  std::array<bool, MaxTextures> texHasAlpha;
   bool operator==(const ShaderConfig&) const = default;
 };
 static_assert(std::has_unique_object_representations_v<ShaderConfig>);
 
-constexpr u32 GXPipelineConfigVersion = 1;
+constexpr u32 GXPipelineConfigVersion = 2;
 struct PipelineConfig {
   u32 version = GXPipelineConfigVersion;
   ShaderConfig shaderConfig;
