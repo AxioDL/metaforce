@@ -144,7 +144,7 @@ void initialize(SDL_Window* window) {
              g_AdapterProperties.driverDescription);
 
   {
-    WGPUSupportedLimits supportedLimits;
+    WGPUSupportedLimits supportedLimits{};
     g_Adapter.GetLimits(&supportedLimits);
     const wgpu::RequiredLimits requiredLimits{
         .limits =

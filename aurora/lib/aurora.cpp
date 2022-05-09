@@ -307,7 +307,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
               // .resolveTarget = g_frameBufferResolved.view,
               .loadOp = wgpu::LoadOp::Clear,
               .storeOp = wgpu::StoreOp::Store,
-              .clearColor =
+              .clearValue =
                   {
                       .r = gfx::gx::g_gxState.clearColor.r(),
                       .g = gfx::gx::g_gxState.clearColor.g(),
@@ -321,8 +321,6 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
           .depthLoadOp = wgpu::LoadOp::Clear,
           .depthStoreOp = wgpu::StoreOp::Discard,
           .clearDepth = 1.f,
-          .stencilLoadOp = wgpu::LoadOp::Clear,
-          .stencilStoreOp = wgpu::StoreOp::Discard,
       };
       auto renderPassDescriptor = wgpu::RenderPassDescriptor{
           .label = "Main render pass",
