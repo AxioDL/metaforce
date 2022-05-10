@@ -125,6 +125,7 @@ void ImGuiControllerConfig::show(bool& visible) {
             m_pendingMapping = nullptr;
             m_pendingValid = false;
             m_pendingPort = -1;
+            PADBlockInput(false);
           }
           u32 vid, pid;
           PADGetVidPid(i, &vid, &pid);
