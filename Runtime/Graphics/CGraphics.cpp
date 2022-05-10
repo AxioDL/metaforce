@@ -82,7 +82,7 @@ void CGraphics::DisableAllLights() {
 void CGraphics::LoadLight(ERglLight light, const CLight& info) {
   const auto lightId = static_cast<GX::LightID>(1 << light);
 
-#if 0
+#if 1
   zeus::CVector3f pos = info.GetPosition();
   zeus::CVector3f dir = info.GetDirection();
   if (info.GetType() == ELightType::Directional) {

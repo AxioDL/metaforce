@@ -397,7 +397,7 @@ void GXLoadLightObjImm(const GX::LightObj* light, GX::LightID id) {
   realLight.dir.assign(light->nx, light->ny, light->nz);
   realLight.angAtt.assign(light->a0, light->a1, light->a2);
   realLight.linAtt.assign(light->k0, light->k1, light->k2);
-  realLight.color.fromRGBA32(light->color.num);
+  realLight.color.fromRGBA8(light->color.color[0], light->color.color[1], light->color.color[2], light->color.color[3]);
   g_gxState.lights[idx] = realLight;
 }
 
