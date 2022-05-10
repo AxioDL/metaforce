@@ -88,7 +88,8 @@ void CGraphics::LoadLight(ERglLight light, const CLight& info) {
   if (info.GetType() == ELightType::Directional) {
     return;
     dir = -(g_CameraMatrix.buildMatrix3f() * dir);
-    GXInitLightPos(&g_LightObjs[static_cast<u32>(light)], dir.x() * 1048576.f, dir.y() * 1048576.f, dir.z() * 1048576.f);
+    GXInitLightPos(&g_LightObjs[static_cast<u32>(light)], dir.x() * 1048576.f, dir.y() * 1048576.f,
+                   dir.z() * 1048576.f);
     GXInitLightAttn(&g_LightObjs[static_cast<u32>(light)], 1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
   } else if (info.GetType() == ELightType::Spot) {
     pos = g_CameraMatrix * pos;
@@ -96,7 +97,7 @@ void CGraphics::LoadLight(ERglLight light, const CLight& info) {
     GXInitLightPos(obj, pos.x(), pos.y(), pos.z());
     dir = g_CameraMatrix.buildMatrix3f() * dir;
     GXInitLightDir(obj, dir.x(), dir.y(), dir.z());
-    GXInitLightAttn(obj, 1.f, 0.f, 0.f, info.GetAttenuationConstant(), info.GetAngleAttenuationLinear(),
+    GXInitLightAttn(obj, 1.f, 0.f, 0.f, info.GetAttenuationConstant(), info.GetAttenuationLinear(),
                     info.GetAttenuationQuadratic());
     GXInitLightSpot(obj, info.GetSpotCutoff(), GX::SP_COS2);
   } else if (info.GetType() == ELightType::Custom) {
@@ -106,13 +107,13 @@ void CGraphics::LoadLight(ERglLight light, const CLight& info) {
     dir = g_CameraMatrix.buildMatrix3f() * dir;
     GXInitLightDir(obj, dir.x(), dir.y(), dir.z());
     GXInitLightAttn(obj, info.GetAngleAttenuationConstant(), info.GetAngleAttenuationLinear(),
-                    info.GetAngleAttenuationQuadratic(), info.GetAttenuationConstant(),
-                    info.GetAngleAttenuationLinear(), info.GetAttenuationQuadratic());
+                    info.GetAngleAttenuationQuadratic(), info.GetAttenuationConstant(), info.GetAttenuationLinear(),
+                    info.GetAttenuationQuadratic());
   } else if (info.GetType() == ELightType::LocalAmbient) {
     pos = g_CameraMatrix * pos;
     GXInitLightPos(&g_LightObjs[static_cast<u32>(light)], pos.x(), pos.y(), pos.z());
     GXInitLightAttn(&g_LightObjs[static_cast<u32>(light)], 1.f, 0.f, 0.f, info.GetAttenuationConstant(),
-                    info.GetAngleAttenuationLinear(), info.GetAttenuationQuadratic());
+                    info.GetAttenuationLinear(), info.GetAttenuationQuadratic());
   }
 
   g_LightTypes[static_cast<u32>(light)] = info.GetType();
