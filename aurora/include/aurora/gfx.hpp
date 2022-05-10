@@ -71,8 +71,8 @@ struct Light {
   zeus::CVector3f pos{0.f, 0.f, 0.f};
   zeus::CVector3f dir{0.f, 0.f, -1.f};
   zeus::CColor color{0.f, 1.f};
-  zeus::CVector3f linAtt{1.f, 0.f, 0.f};
-  zeus::CVector3f angAtt{1.f, 0.f, 0.f};
+  zeus::CVector3f cosAtt{1.f, 0.f, 0.f};
+  zeus::CVector3f distAtt{1.f, 0.f, 0.f};
 };
 
 #ifndef NDEBUG

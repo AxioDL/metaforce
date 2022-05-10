@@ -847,8 +847,8 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
             "    pos: vec3<f32>,\n"
             "    dir: vec3<f32>,\n"
             "    color: vec4<f32>,\n"
-            "    lin_att: vec3<f32>,\n"
-            "    ang_att: vec3<f32>,\n"
+            "    cos_att: vec3<f32>,\n"
+            "    dist_att: vec3<f32>,\n"
             "};";
         addedLightStruct = true;
       }
@@ -873,8 +873,8 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
       } else if (cc.attnFn == GX::AF_SPOT) {
         lightAttnFn = fmt::format(FMT_STRING(R"""(
           var cosine = max(0.0, dot(ldir, light.dir));
-          var cos_attn = dot(light.ang_att, vec3<f32>(1.0, cosine, cosine * cosine));
-          var dist_attn = dot(light.lin_att, vec3<f32>(1.0, dist, dist2));
+          var cos_attn = dot(light.cos_att, vec3<f32>(1.0, cosine, cosine * cosine));
+          var dist_attn = dot(light.dist_att, vec3<f32>(1.0, dist, dist2));
           attn = max(0.0, cos_attn / dist_attn);)"""));
       } else if (cc.attnFn == GX::AF_SPEC) {
         diffFn = GX::DF_NONE;
