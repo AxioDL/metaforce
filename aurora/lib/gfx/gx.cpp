@@ -207,6 +207,229 @@ void GXSetLineWidth(u8 width, GX::TexOffset offs) noexcept {
   // TODO
 }
 
+// Lighting
+void GXInitLightAttn(GX::LightObj* light, float a0, float a1, float a2, float k0, float k1, float k2) {
+  light->a0 = a0;
+  light->a1 = a1;
+  light->a2 = a2;
+  light->k0 = k0;
+  light->k1 = k1;
+  light->k2 = k2;
+}
+
+void GXInitLightAttnA(GX::LightObj* light, float a0, float a1, float a2) {
+  light->a0 = a0;
+  light->a1 = a1;
+  light->a2 = a2;
+}
+
+void GXInitLightAttnK(GX::LightObj* light, float k0, float k1, float k2) {
+  light->k0 = k0;
+  light->k1 = k1;
+  light->k2 = k2;
+}
+
+void GXInitLightSpot(GX::LightObj* light, float cutoff, GX::SpotFn spotFn) {
+  if (cutoff < 0.f || cutoff > 90.f) {
+    spotFn = GX::SP_OFF;
+  }
+
+  float cr = (cutoff * M_PIF) / 180.f;
+  float a0 = 1.f;
+  float a1 = 0.f;
+  float a2 = 0.f;
+  switch (spotFn) {
+  case GX::SP_OFF:
+    a0 = 1.f;
+    a1 = 0.f;
+    a2 = 0.f;
+    break;
+  case GX::SP_FLAT:
+    a0 = -1000.f * cr;
+    a1 = 1000.f;
+    a2 = 0.f;
+    break;
+  case GX::SP_COS:
+    a0 = -cr / (1.f - cr);
+    a1 = 1.f / (1.f - cr);
+    a2 = 0.f;
+    break;
+  case GX::SP_COS2:
+    a0 = 0.0f;
+    a1 = -cr / (1.f - cr);
+    a2 = 1.f / (1.f - cr);
+    break;
+  case GX::SP_SHARP: {
+    const float d = (1.f - cr) * (1.f - cr);
+    a0 = cr * (cr - 2.f);
+    a1 = 2.f / d;
+    a2 = -1.f / d;
+    break;
+  }
+  case GX::SP_RING1: {
+    const float d = (1.f - cr) * (1.f - cr);
+    a0 = 4.f * cr / d;
+    a1 = 4.f * (1.f + cr) / d;
+    a2 = -4.f / d;
+    break;
+  }
+  case GX::SP_RING2: {
+    const float d = (1.f - cr) * (1.f - cr);
+    a0 = 1.f - 2.f * cr * cr / d;
+    a1 = 4.f * cr / d;
+    a2 = -2.f / d;
+    break;
+  }
+  }
+
+  light->a0 = a0;
+  light->a1 = a1;
+  light->a2 = a2;
+}
+
+void GXInitLightDistAttn(GX::LightObj* light, float refDistance, float refBrightness, GX::DistAttnFn distFunc) {
+  if (refDistance < 0.f || refBrightness < 0.f || refBrightness >= 1.f) {
+    distFunc = GX::DA_OFF;
+  }
+  float k0 = 1.f;
+  float k1 = 0.f;
+  float k2 = 0.f;
+  switch (distFunc) {
+  case GX::DA_GENTLE:
+    k0 = 1.0f;
+    k1 = (1.0f - refBrightness) / (refBrightness * refDistance);
+    k2 = 0.0f;
+    break;
+  case GX::DA_MEDIUM:
+    k0 = 1.0f;
+    k1 = 0.5f * (1.0f - refBrightness) / (refBrightness * refDistance);
+    k2 = 0.5f * (1.0f - refBrightness) / (refBrightness * refDistance * refDistance);
+    break;
+  case GX::DA_STEEP:
+    k0 = 1.0f;
+    k1 = 0.0f;
+    k2 = (1.0f - refBrightness) / (refBrightness * refDistance * refDistance);
+    break;
+  case GX::DA_OFF:
+    k0 = 1.0f;
+    k1 = 0.0f;
+    k2 = 0.0f;
+    break;
+  }
+
+  light->k0 = k0;
+  light->k1 = k1;
+  light->k2 = k2;
+}
+
+void GXInitLightPos(GX::LightObj* light, float x, float y, float z) {
+  light->px = x;
+  light->py = y;
+  light->pz = z;
+}
+
+void GXInitLightDir(GX::LightObj* light, float nx, float ny, float nz) {
+  light->nx = nx;
+  light->ny = ny;
+  light->nz = nz;
+}
+void GXInitSpecularDir(GX::LightObj* light, float nx, float ny, float nz) {
+  float hx = -nx;
+  float hy = -ny;
+  float hz = (-nz + 1.0f);
+  float mag = ((hx * hx) + (hy * hy) + (hz * hz));
+  if (mag != 0.0f) {
+    mag = 1.0f / sqrtf(mag);
+  }
+  light->px = (nx * GX::LARGE_NUMBER);
+  light->py = (ny * GX::LARGE_NUMBER);
+  light->pz = (nz * GX::LARGE_NUMBER);
+  light->nx = hx * mag;
+  light->ny = hy * mag;
+  light->nz = hz * mag;
+}
+
+void GXInitSpecularDirHA(GX::LightObj* light, float nx, float ny, float nz, float hx, float hy, float hz) {
+  light->px = (nx * GX::LARGE_NUMBER);
+  light->py = (ny * GX::LARGE_NUMBER);
+  light->pz = (nz * GX::LARGE_NUMBER);
+  light->nx = hx;
+  light->ny = hy;
+  light->nz = hz;
+}
+
+void GXInitLightColor(GX::LightObj* light, GX::Color col) { light->color = col; }
+
+void GXLoadLightObjImm(const GX::LightObj* light, GX::LightID id) {
+  u32 idx = 0;
+  switch (id) {
+  case GX::LIGHT0:
+    idx = 0;
+    break;
+  case GX::LIGHT1:
+    idx = 1;
+    break;
+  case GX::LIGHT2:
+    idx = 2;
+    break;
+  case GX::LIGHT3:
+    idx = 3;
+    break;
+  case GX::LIGHT4:
+    idx = 4;
+    break;
+  case GX::LIGHT5:
+    idx = 5;
+    break;
+  case GX::LIGHT6:
+    idx = 6;
+    break;
+  case GX::LIGHT7:
+    idx = 7;
+    break;
+  default:
+    idx = 0;
+    break;
+  }
+
+  aurora::gfx::Light realLight;
+  realLight.pos.assign(light->px, light->py, light->pz);
+  realLight.dir.assign(light->nx, light->ny, light->nz);
+  realLight.angAtt.assign(light->a0, light->a1, light->a2);
+  realLight.linAtt.assign(light->k0, light->k1, light->k2);
+  realLight.color.fromRGBA32(light->color.num);
+  g_gxState.lights[idx] = realLight;
+}
+
+/* TODO Figure out a way to implement this, requires GXSetArray */
+void GXLoadLightObjIndx(u32 index, GX::LightID) {}
+
+void GXGetLightAttnA(const GX::LightObj* light, float* a0, float* a1, float* a2) {
+  *a0 = light->a0;
+  *a1 = light->a1;
+  *a2 = light->a2;
+}
+
+void GXGetLightAttnK(const GX::LightObj* light, float* k0, float* k1, float* k2) {
+  *k0 = light->k0;
+  *k1 = light->k1;
+  *k2 = light->k2;
+}
+
+void GXGetLightPos(const GX::LightObj* light, float* x, float* y, float* z) {
+  *x = light->px;
+  *z = light->py;
+  *z = light->pz;
+}
+
+void GXGetLightDir(const GX::LightObj* light, float* nx, float* ny, float* nz) {
+  *nx = light->nx;
+  *ny = light->ny;
+  *nz = light->nz;
+}
+
+void GXGetLightColor(const GX::LightObj* light, GX::Color* col) { *col = light->color; }
+
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx::gx");
 

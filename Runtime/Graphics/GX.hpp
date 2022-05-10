@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef GX_IS_WII
+#define GX_IS_WII 0
+#endif
+
 #include "../GCNTypes.hpp"
 
 #include <bit>
@@ -10,6 +14,12 @@
 #include <zeus/CTransform.hpp>
 
 namespace GX {
+#if GX_IS_WII
+constexpr float LARGE_NUMBER = -1.0e+18f;
+#else
+constexpr float LARGE_NUMBER = -1048576.0f;
+#endif
+
 enum Attr {
   VA_PNMTXIDX = 0x0,
   VA_TEX0MTXIDX = 0x1,
@@ -692,6 +702,39 @@ enum CompType {
   RGBA8 = 5,
 };
 
+struct LightObj {
+  u32 __padding[3];
+  GX::Color color;
+  float a0 = 1.f;
+  float a1 = 0.f;
+  float a2 = 0.f;
+  float k0 = 1.f;
+  float k1 = 0.f;
+  float k2 = 0.f;
+  float px = 0.f;
+  float py = 0.f;
+  float pz = 0.f;
+  float nx = 0.f;
+  float ny = 0.f;
+  float nz = 0.f;
+};
+
+enum SpotFn {
+  SP_OFF,
+  SP_FLAT,
+  SP_COS,
+  SP_COS2,
+  SP_SHARP,
+  SP_RING1,
+  SP_RING2,
+};
+
+enum DistAttnFn {
+  DA_OFF,
+  DA_GENTLE,
+  DA_MEDIUM,
+  DA_STEEP,
+};
 } // namespace GX
 
 using GXColor = zeus::CColor;
@@ -759,3 +802,38 @@ void GXEnd() noexcept;
 void GXSetTevSwapModeTable(GX::TevSwapSel id, GX::TevColorChan red, GX::TevColorChan green, GX::TevColorChan blue,
                            GX::TevColorChan alpha) noexcept;
 void GXSetTevSwapMode(GX::TevStageID stage, GX::TevSwapSel rasSel, GX::TevSwapSel texSel) noexcept;
+
+// Lighting
+void GXInitLightAttn(GX::LightObj* light, float a0, float a1, float a2, float k0, float k1, float k2);
+void GXInitLightAttnA(GX::LightObj* light, float a0, float a1, float a2);
+void GXInitLightAttnK(GX::LightObj* light, float k0, float k1, float k2);
+void GXInitLightSpot(GX::LightObj* light, float cutoff, GX::SpotFn spotFn);
+void GXInitLightDistAttn(GX::LightObj* light, float refDistance, float refBrightness, GX::DistAttnFn distFunc);
+constexpr void GXInitLightShininess(GX::LightObj* light, float shininess) {
+  GXInitLightAttn(light, 0.f, 0.f, 1.f, (shininess) / 2.f, 0.f, 1.f - (shininess) / 2.f);
+}
+void GXInitLightPos(GX::LightObj* light, float x, float y, float z);
+constexpr void GXInitLightPosv(GX::LightObj* light, float vec[3]) { GXInitLightPos(light, vec[0], vec[1], vec[2]); }
+void GXInitLightDir(GX::LightObj* light, float nx, float ny, float nz);
+constexpr void GXInitLightDirv(GX::LightObj* light, float vec[3]) { GXInitLightDir(light, vec[0], vec[1], vec[2]); }
+void GXInitSpecularDir(GX::LightObj* light, float nx, float ny, float nz);
+void GXInitSpecularDirHA(GX::LightObj* light, float nx, float ny, float nz, float hx, float hy, float hz);
+constexpr void GXInitLightSpecularDirHAv(GX::LightObj* light, float vecn[3], float vech[3]) {
+  GXInitSpecularDirHA(light, vecn[0], vecn[1], vecn[2], vech[0], vech[1], vech[2]);
+}
+void GXInitLightColor(GX::LightObj* light, GX::Color col);
+void GXLoadLightObjImm(const GX::LightObj* light, GX::LightID id);
+void GXLoadLightObjIndx(u32 index, GX::LightID);
+
+void GXGetLightAttnA(const GX::LightObj* light, float* a0, float* a1, float* a2);
+void GXGetLightAttnK(const GX::LightObj* light, float* k0, float* k1, float* k2);
+void GXGetLightPos(const GX::LightObj* light, float* x, float* y, float* z);
+constexpr void GXGetLightPosv(const GX::LightObj* light, float* vec[3]) {
+  GXGetLightPos(light, vec[0], vec[1], vec[2]);
+}
+void GXGetLightDir(const GX::LightObj* light, float* nx, float* ny, float* nz);
+constexpr void GXGetLightDirv(const GX::LightObj* light, float* vec[3]) {
+  GXGetLightDir(light, vec[0], vec[1], vec[2]);
+}
+
+void GXGetLightColor(const GX::LightObj* light, GX::Color* col);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Runtime/ConsoleVariables/CVar.hpp"
+#include "Runtime/Graphics/CLight.hpp"
 #include "Runtime/Graphics/CTevCombiners.hpp"
 #include "Runtime/Graphics/GX.hpp"
 #include "Runtime/RetroTypes.hpp"
@@ -22,7 +23,6 @@ using frame_clock = std::chrono::high_resolution_clock;
 namespace metaforce {
 class CTexture;
 extern CVar* g_disableLighting;
-class CLight;
 class CTimeProvider;
 
 enum class ERglCullMode : std::underlying_type_t<GX::CullMode> {
@@ -214,6 +214,8 @@ public:
   static bool g_LastFrameUsedAbove;
   static bool g_InterruptLastFrameUsedAbove;
   static GX::LightMask g_LightActive;
+  static std::array<GX::LightObj, GX::MaxLights> g_LightObjs;
+  static std::array<ELightType, GX::MaxLights> g_LightTypes;
   static zeus::CTransform g_GXModelView;
   static zeus::CTransform g_GXModelViewInvXpose;
   static zeus::CTransform g_GXModelMatrix;

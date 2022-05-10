@@ -72,6 +72,7 @@ public:
     x4c_24_intensityDirty = true;
     x4c_25_radiusDirty = true;
   }
+  float GetSpotCutoff() const { return x20_spotCutoff; }
   float GetAttenuationConstant() const { return x24_distC; }
   float GetAttenuationLinear() const { return x28_distL; }
   float GetAttenuationQuadratic() const { return x2c_distQ; }
