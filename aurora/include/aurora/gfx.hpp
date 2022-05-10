@@ -70,7 +70,7 @@ struct ClipRect {
 struct Light {
   zeus::CVector3f pos{0.f, 0.f, 0.f};
   zeus::CVector3f dir{0.f, 0.f, -1.f};
-  zeus::CColor color{0.f, 0.f, 0.f, 0.f};
+  zeus::CColor color{0.f, 1.f};
   zeus::CVector3f linAtt{1.f, 0.f, 0.f};
   zeus::CVector3f angAtt{1.f, 0.f, 0.f};
 };
@@ -88,10 +88,6 @@ struct ScopedDebugGroup {
 // GX state
 void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp, const TextureHandle& tex, float lod) noexcept;
 void unbind_texture(GX::TexMapID id) noexcept;
-
-// TODO migrate to GX
-void load_light(GX::LightID id, const Light& light) noexcept;
-void load_light_ambient(GX::LightID id, const zeus::CColor& ambient) noexcept;
 
 void set_viewport(float left, float top, float width, float height, float znear, float zfar) noexcept;
 void set_scissor(uint32_t x, uint32_t y, uint32_t w, uint32_t h) noexcept;

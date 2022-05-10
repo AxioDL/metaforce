@@ -548,7 +548,7 @@ ShaderInfo build_shader_info(const ShaderConfig& config) noexcept {
     if (info.sampledColorChannels.test(i)) {
       info.uniformSize += 32;
       if (config.colorChannels[i].lightingEnabled) {
-        info.uniformSize += (80 * GX::MaxLights) + 16;
+        info.uniformSize += (80 * GX::MaxLights);
       }
     }
   }
@@ -758,7 +758,7 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
                                            "\n    out.pos = ubuf.proj * vec4<f32>(mv_pos, 1.0);"),
                                 vtx_attr(config, GX::VA_POS), vtx_attr(config, GX::VA_NRM));
   if constexpr (EnableNormalVisualization) {
-    vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) nrm: vec3<f32>;"), vtxOutIdx++);
+    vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) nrm: vec3<f32>,"), vtxOutIdx++);
     vtxXfrAttrsPre += "\n    out.nrm = mv_nrm;";
   }
 
@@ -825,7 +825,7 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
   }
   for (int i = 0; i < info.usesTevReg.size(); ++i) {
     if (info.usesTevReg.test(i)) {
-      uniBufAttrs += fmt::format(FMT_STRING("\n    tevreg{}: vec4<f32>;"), i);
+      uniBufAttrs += fmt::format(FMT_STRING("\n    tevreg{}: vec4<f32>,"), i);
       fragmentFnPre += fmt::format(FMT_STRING("\n    var tevreg{0} = ubuf.tevreg{0};"), i);
     }
   }
@@ -835,51 +835,77 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
       continue;
     }
 
-    uniBufAttrs += fmt::format(FMT_STRING("\n    cc{0}_amb: vec4<f32>;"), i);
-    uniBufAttrs += fmt::format(FMT_STRING("\n    cc{0}_mat: vec4<f32>;"), i);
+    uniBufAttrs += fmt::format(FMT_STRING("\n    cc{0}_amb: vec4<f32>,"), i);
+    uniBufAttrs += fmt::format(FMT_STRING("\n    cc{0}_mat: vec4<f32>,"), i);
 
-    if (config.colorChannels[i].lightingEnabled) {
+    const auto& cc = config.colorChannels[i];
+    if (cc.lightingEnabled) {
       if (!addedLightStruct) {
         uniformPre +=
             "\n"
             "struct Light {\n"
-            "    pos: vec3<f32>;\n"
-            "    dir: vec3<f32>;\n"
-            "    color: vec4<f32>;\n"
-            "    lin_att: vec3<f32>;\n"
-            "    ang_att: vec3<f32>;\n"
+            "    pos: vec3<f32>,\n"
+            "    dir: vec3<f32>,\n"
+            "    color: vec4<f32>,\n"
+            "    lin_att: vec3<f32>,\n"
+            "    ang_att: vec3<f32>,\n"
             "};";
         addedLightStruct = true;
       }
 
-      uniBufAttrs += fmt::format(FMT_STRING("\n    lights{}: array<Light, {}>;"), i, GX::MaxLights);
-      uniBufAttrs += fmt::format(FMT_STRING("\n    lighting_ambient{}: vec4<f32>;"), i);
+      uniBufAttrs += fmt::format(FMT_STRING("\n    lights{}: array<Light, {}>,"), i, GX::MaxLights);
+      vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>,"), vtxOutIdx++, i);
 
-      vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>;"), vtxOutIdx++, i);
+      std::string ambSrc, matSrc, lightAttnFn, lightDiffFn;
+      if (cc.ambSrc == GX::SRC_VTX) {
+        ambSrc = vtx_attr(config, static_cast<GX::Attr>(GX::VA_CLR0 + i));
+      } else if (cc.ambSrc == GX::SRC_REG) {
+        ambSrc = fmt::format(FMT_STRING("ubuf.cc{0}_amb"), i);
+      }
+      if (cc.matSrc == GX::SRC_VTX) {
+        matSrc = vtx_attr(config, static_cast<GX::Attr>(GX::VA_CLR0 + i));
+      } else if (cc.matSrc == GX::SRC_REG) {
+        matSrc = fmt::format(FMT_STRING("ubuf.cc{0}_mat"), i);
+      }
+      GX::DiffuseFn diffFn = cc.diffFn;
+      if (cc.attnFn == GX::AF_NONE) {
+        lightAttnFn = "attn = 1.0;";
+      } else if (cc.attnFn == GX::AF_SPOT) {
+        lightAttnFn = fmt::format(FMT_STRING(R"""(
+          var cosine = max(0.0, dot(ldir, light.dir));
+          var cos_attn = dot(light.ang_att, vec3<f32>(1.0, cosine, cosine * cosine));
+          var dist_attn = dot(light.lin_att, vec3<f32>(1.0, dist, dist2));
+          attn = max(0.0, cos_attn / dist_attn);)"""));
+      } else if (cc.attnFn == GX::AF_SPEC) {
+        diffFn = GX::DF_NONE;
+        Log.report(logvisor::Fatal, FMT_STRING("AF_SPEC unimplemented"));
+      }
+      if (diffFn == GX::DF_NONE) {
+        lightDiffFn = "1.0";
+      } else if (diffFn == GX::DF_SIGN) {
+        lightDiffFn = "dot(ldir, mv_nrm)";
+      } else if (diffFn == GX::DF_CLAMP) {
+        lightDiffFn = "max(0.0, dot(ldir, mv_nrm))";
+      }
       vtxXfrAttrs += fmt::format(FMT_STRING(R"""(
     {{
-      var lighting = ubuf.lighting_ambient{0} + ubuf.cc{0}_amb;
+      var lighting = {5};
       for (var i = 0; i < {1}; i = i + 1) {{
           var light = ubuf.lights{0}[i];
-          var delta = mv_pos.xyz - light.pos;
-          var dist = length(delta);
-          var delta_norm = delta / dist;
-          var ang_dot = max(dot(delta_norm, light.dir), 0.0);
-          var att = 1.0 / (light.lin_att.z * dist * dist +
-                           light.lin_att.y * dist +
-                           light.lin_att.x);
-          var ang_att = light.ang_att.z * ang_dot * ang_dot +
-                        light.ang_att.y * ang_dot +
-                        light.ang_att.x;
-          var this_color = light.color.xyz * ang_att * att * max(dot(-delta_norm, mv_nrm), 0.0);
-          lighting = lighting + vec4<f32>(this_color, 0.0);
+          var ldir = light.pos - mv_pos;
+          var dist2 = dot(ldir, ldir);
+          var dist = sqrt(dist2);
+          ldir = ldir / dist;
+          var attn: f32;{2}
+          var diff = {3};
+          lighting = lighting + (attn * diff * light.color);
       }}
-      out.cc{0} = clamp(lighting, vec4<f32>(0.0), vec4<f32>(1.0));
+      out.cc{0} = {4} * clamp(lighting, vec4<f32>(0.0), vec4<f32>(1.0));
     }})"""),
-                                 i, GX::MaxLights);
+                                 i, GX::MaxLights, lightAttnFn, lightDiffFn, matSrc, ambSrc);
       fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
-    } else if (config.colorChannels[i].matSrc == GX::SRC_VTX) {
-      vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>;"), vtxOutIdx++, i);
+    } else if (cc.matSrc == GX::SRC_VTX) {
+      vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>,"), vtxOutIdx++, i);
       vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.cc{} = {};"), i, vtx_attr(config, GX::Attr(GX::VA_CLR0 + i)));
       fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
     } else {
@@ -888,7 +914,7 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
   }
   for (int i = 0; i < info.sampledKColors.size(); ++i) {
     if (info.sampledKColors.test(i)) {
-      uniBufAttrs += fmt::format(FMT_STRING("\n    kcolor{}: vec4<f32>;"), i);
+      uniBufAttrs += fmt::format(FMT_STRING("\n    kcolor{}: vec4<f32>,"), i);
     }
   }
   size_t texBindIdx = 0;
@@ -897,7 +923,7 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
       continue;
     }
     const auto& tcg = config.tcgs[i];
-    vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) tex{}_uv: vec2<f32>;"), vtxOutIdx++, i);
+    vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) tex{}_uv: vec2<f32>,"), vtxOutIdx++, i);
     if (tcg.src >= GX::TG_TEX0 && tcg.src <= GX::TG_TEX7) {
       vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{} = vec4<f32>({}, 0.0, 1.0);"), i,
                                  vtx_attr(config, GX::Attr(GX::VA_TEX0 + (tcg.src - GX::TG_TEX0))));
@@ -941,10 +967,10 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
     if (info.usesTexMtx.test(i)) {
       switch (info.texMtxTypes[i]) {
       case GX::TG_MTX2x4:
-        uniBufAttrs += fmt::format(FMT_STRING("\n    texmtx{}: mat4x2<f32>;"), i);
+        uniBufAttrs += fmt::format(FMT_STRING("\n    texmtx{}: mat4x2<f32>,"), i);
         break;
       case GX::TG_MTX3x4:
-        uniBufAttrs += fmt::format(FMT_STRING("\n    texmtx{}: mat4x3<f32>;"), i);
+        uniBufAttrs += fmt::format(FMT_STRING("\n    texmtx{}: mat4x3<f32>,"), i);
         break;
       default:
         Log.report(logvisor::Fatal, FMT_STRING("unhandled tex mtx type {}"), info.texMtxTypes[i]);
@@ -954,20 +980,20 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
   }
   for (int i = 0; i < info.usesPTTexMtx.size(); ++i) {
     if (info.usesPTTexMtx.test(i)) {
-      uniBufAttrs += fmt::format(FMT_STRING("\n    postmtx{}: mat4x3<f32>;"), i);
+      uniBufAttrs += fmt::format(FMT_STRING("\n    postmtx{}: mat4x3<f32>,"), i);
     }
   }
   if (info.usesFog) {
     uniformPre +=
         "\n"
         "struct Fog {\n"
-        "    color: vec4<f32>;\n"
-        "    a: f32;\n"
-        "    b: f32;\n"
-        "    c: f32;\n"
-        "    pad: f32;\n"
+        "    color: vec4<f32>,\n"
+        "    a: f32,\n"
+        "    b: f32,\n"
+        "    c: f32,\n"
+        "    pad: f32,\n"
         "}";
-    uniBufAttrs += "\n    fog: Fog;";
+    uniBufAttrs += "\n    fog: Fog,";
 
     fragmentFn += "\n    var fogF = clamp((ubuf.fog.a / (ubuf.fog.b - in.pos.z)) - ubuf.fog.c, 0.0, 1.0);";
     switch (config.fogType) {
@@ -1003,7 +1029,7 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
     if (!info.sampledTextures.test(i)) {
       continue;
     }
-    uniBufAttrs += fmt::format(FMT_STRING("\n    tex{}_lod: f32;"), i);
+    uniBufAttrs += fmt::format(FMT_STRING("\n    tex{}_lod: f32,"), i);
 
     sampBindings += fmt::format(FMT_STRING("\n@group(1) @binding({})\n"
                                            "var tex{}_samp: sampler;"),
@@ -1046,15 +1072,15 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
   const auto shaderSource =
       fmt::format(FMT_STRING(R"""({uniformPre}
 struct Uniform {{
-    pos_mtx: mat4x3<f32>;
-    nrm_mtx: mat4x3<f32>;
-    proj: mat4x4<f32>;{uniBufAttrs}
+    pos_mtx: mat4x3<f32>,
+    nrm_mtx: mat4x3<f32>,
+    proj: mat4x4<f32>,{uniBufAttrs}
 }};
 @group(0) @binding(0)
 var<uniform> ubuf: Uniform;{uniformBindings}{sampBindings}{texBindings}
 
 struct VertexOutput {{
-    @builtin(position) pos: vec4<f32>;{vtxOutAttrs}
+    @builtin(position) pos: vec4<f32>,{vtxOutAttrs}
 }};
 
 @stage(vertex)

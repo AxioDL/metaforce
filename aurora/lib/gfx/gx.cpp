@@ -92,19 +92,13 @@ void GXSetChanCtrl(GX::ChannelID id, bool lightingEnabled, GX::ColorSrc ambSrc, 
     Log.report(logvisor::Fatal, FMT_STRING("bad channel {}"), id);
     unreachable();
   }
-  if (diffFn != GX::DF_NONE && diffFn != GX::DF_CLAMP) {
-    Log.report(logvisor::Fatal, FMT_STRING("unhandled diffuse fn {}"), diffFn);
-    unreachable();
-  }
-  if (attnFn != GX::AF_NONE && attnFn != GX::AF_SPOT) {
-    Log.report(logvisor::Fatal, FMT_STRING("unhandled attn fn {}"), attnFn);
-    unreachable();
-  }
   u32 idx = id - GX::COLOR0A0;
   auto& chan = g_gxState.colorChannelConfig[idx];
   chan.lightingEnabled = lightingEnabled;
   chan.ambSrc = ambSrc;
   chan.matSrc = matSrc;
+  chan.diffFn = diffFn;
+  chan.attnFn = attnFn;
   g_gxState.colorChannelState[idx].lightState = lightState;
 }
 void GXSetAlphaCompare(GX::Compare comp0, u8 ref0, GX::AlphaOp op, GX::Compare comp1, u8 ref1) noexcept {
@@ -361,37 +355,7 @@ void GXInitSpecularDirHA(GX::LightObj* light, float nx, float ny, float nz, floa
 void GXInitLightColor(GX::LightObj* light, GX::Color col) { light->color = col; }
 
 void GXLoadLightObjImm(const GX::LightObj* light, GX::LightID id) {
-  u32 idx = 0;
-  switch (id) {
-  case GX::LIGHT0:
-    idx = 0;
-    break;
-  case GX::LIGHT1:
-    idx = 1;
-    break;
-  case GX::LIGHT2:
-    idx = 2;
-    break;
-  case GX::LIGHT3:
-    idx = 3;
-    break;
-  case GX::LIGHT4:
-    idx = 4;
-    break;
-  case GX::LIGHT5:
-    idx = 5;
-    break;
-  case GX::LIGHT6:
-    idx = 6;
-    break;
-  case GX::LIGHT7:
-    idx = 7;
-    break;
-  default:
-    idx = 0;
-    break;
-  }
-
+  u32 idx = std::log2<u32>(id);
   aurora::gfx::Light realLight;
   realLight.pos.assign(light->px, light->py, light->pz);
   realLight.dir.assign(light->nx, light->ny, light->nz);
@@ -441,11 +405,6 @@ void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp, const TextureHan
   gx::g_gxState.textures[static_cast<size_t>(id)] = {tex, clamp, lod};
 }
 void unbind_texture(GX::TexMapID id) noexcept { gx::g_gxState.textures[static_cast<size_t>(id)].reset(); }
-
-void load_light(GX::LightID id, const Light& light) noexcept { gx::g_gxState.lights[std::log2<u32>(id)] = light; }
-void load_light_ambient(GX::LightID id, const zeus::CColor& ambient) noexcept {
-  gx::g_gxState.lights[std::log2<u32>(id)] = ambient;
-}
 
 namespace gx {
 using gpu::g_device;
@@ -829,27 +788,21 @@ Range build_uniform(const ShaderInfo& info) noexcept {
     buf.append(&g_gxState.colorChannelState[i].matColor, 16);
 
     if (g_gxState.colorChannelConfig[i].lightingEnabled) {
-      zeus::CColor ambient = zeus::skClear;
       int addedLights = 0;
       const auto& lightState = g_gxState.colorChannelState[i].lightState;
       for (int li = 0; li < lightState.size(); ++li) {
         if (!lightState.test(li)) {
           continue;
         }
-        const auto& variant = g_gxState.lights[li];
-        if (std::holds_alternative<zeus::CColor>(variant)) {
-          ambient += std::get<zeus::CColor>(variant);
-        } else if (std::holds_alternative<Light>(variant)) {
-          static_assert(sizeof(Light) == 80);
-          buf.append(&std::get<Light>(variant), sizeof(Light));
-          ++addedLights;
-        }
+        const auto& light = g_gxState.lights[li];
+        static_assert(sizeof(Light) == 80);
+        buf.append(&light, sizeof(Light));
+        ++addedLights;
       }
       constexpr Light emptyLight{};
       for (int li = addedLights; li < GX::MaxLights; ++li) {
         buf.append(&emptyLight, sizeof(Light));
       }
-      buf.append(&ambient, 16);
     }
   }
   for (int i = 0; i < info.sampledKColors.size(); ++i) {

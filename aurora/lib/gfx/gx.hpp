@@ -75,6 +75,8 @@ struct TextureBind {
 struct ColorChannelConfig {
   GX::ColorSrc matSrc = GX::SRC_REG;
   GX::ColorSrc ambSrc = GX::SRC_REG;
+  GX::DiffuseFn diffFn = GX::DF_NONE;
+  GX::AttnFn attnFn = GX::AF_NONE;
   bool lightingEnabled = false;
   u8 _p1 = 0;
   u8 _p2 = 0;
@@ -149,7 +151,7 @@ struct GXState {
   std::array<zeus::CColor, GX::MAX_KCOLOR> kcolors;
   std::array<ColorChannelConfig, MaxColorChannels> colorChannelConfig;
   std::array<ColorChannelState, MaxColorChannels> colorChannelState;
-  std::array<LightVariant, GX::MaxLights> lights;
+  std::array<Light, GX::MaxLights> lights;
   std::array<TevStage, MaxTevStages> tevStages;
   std::array<TextureBind, MaxTextures> textures;
   std::array<TexMtxVariant, MaxTexMtx> texMtxs;
