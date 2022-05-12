@@ -16,6 +16,10 @@ CScriptMidi::CScriptMidi(TUniqueId id, const CEntityInfo& info, std::string_view
   x34_song = g_SimplePool->GetObj(SObjectTag{FOURCC('CSNG'), csng});
 }
 
+CScriptMidi::~CScriptMidi() {
+  StopInternal(0.f);
+}
+
 void CScriptMidi::StopInternal(float fadeTime) {
   if (!x3c_handle) {
     return;
