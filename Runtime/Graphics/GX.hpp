@@ -809,16 +809,16 @@ void GXInitLightAttnA(GX::LightObj* light, float a0, float a1, float a2);
 void GXInitLightAttnK(GX::LightObj* light, float k0, float k1, float k2);
 void GXInitLightSpot(GX::LightObj* light, float cutoff, GX::SpotFn spotFn);
 void GXInitLightDistAttn(GX::LightObj* light, float refDistance, float refBrightness, GX::DistAttnFn distFunc);
-constexpr void GXInitLightShininess(GX::LightObj* light, float shininess) {
+static inline void GXInitLightShininess(GX::LightObj* light, float shininess) {
   GXInitLightAttn(light, 0.f, 0.f, 1.f, (shininess) / 2.f, 0.f, 1.f - (shininess) / 2.f);
 }
 void GXInitLightPos(GX::LightObj* light, float x, float y, float z);
-constexpr void GXInitLightPosv(GX::LightObj* light, float vec[3]) { GXInitLightPos(light, vec[0], vec[1], vec[2]); }
+static inline void GXInitLightPosv(GX::LightObj* light, float vec[3]) { GXInitLightPos(light, vec[0], vec[1], vec[2]); }
 void GXInitLightDir(GX::LightObj* light, float nx, float ny, float nz);
-constexpr void GXInitLightDirv(GX::LightObj* light, float vec[3]) { GXInitLightDir(light, vec[0], vec[1], vec[2]); }
+static inline void GXInitLightDirv(GX::LightObj* light, float vec[3]) { GXInitLightDir(light, vec[0], vec[1], vec[2]); }
 void GXInitSpecularDir(GX::LightObj* light, float nx, float ny, float nz);
 void GXInitSpecularDirHA(GX::LightObj* light, float nx, float ny, float nz, float hx, float hy, float hz);
-constexpr void GXInitLightSpecularDirHAv(GX::LightObj* light, float vecn[3], float vech[3]) {
+static inline void GXInitLightSpecularDirHAv(GX::LightObj* light, float vecn[3], float vech[3]) {
   GXInitSpecularDirHA(light, vecn[0], vecn[1], vecn[2], vech[0], vech[1], vech[2]);
 }
 void GXInitLightColor(GX::LightObj* light, GX::Color col);
@@ -828,11 +828,11 @@ void GXLoadLightObjIndx(u32 index, GX::LightID);
 void GXGetLightAttnA(const GX::LightObj* light, float* a0, float* a1, float* a2);
 void GXGetLightAttnK(const GX::LightObj* light, float* k0, float* k1, float* k2);
 void GXGetLightPos(const GX::LightObj* light, float* x, float* y, float* z);
-constexpr void GXGetLightPosv(const GX::LightObj* light, float* vec[3]) {
+static inline void GXGetLightPosv(const GX::LightObj* light, float* vec[3]) {
   GXGetLightPos(light, vec[0], vec[1], vec[2]);
 }
 void GXGetLightDir(const GX::LightObj* light, float* nx, float* ny, float* nz);
-constexpr void GXGetLightDirv(const GX::LightObj* light, float* vec[3]) {
+static inline void GXGetLightDirv(const GX::LightObj* light, float* vec[3]) {
   GXGetLightDir(light, vec[0], vec[1], vec[2]);
 }
 

@@ -826,8 +826,8 @@ void PADSetButtonMapping(u32 port, PADButtonMapping mapping) {
     return;
   }
 
-  auto* iter = std::find_if(controller->m_mapping.begin(), controller->m_mapping.end(),
-                            [mapping](const auto& pair) { return mapping.padButton == pair.padButton; });
+  auto iter = std::find_if(controller->m_mapping.begin(), controller->m_mapping.end(),
+                           [mapping](const auto& pair) { return mapping.padButton == pair.padButton; });
   if (iter == controller->m_mapping.end()) {
     return;
   }
