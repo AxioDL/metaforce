@@ -27,11 +27,11 @@ class CLight {
   zeus::CColor x18_color = zeus::skClear;
   ELightType x1c_type = ELightType::Custom;
   float x20_spotCutoff = 0.f;
-  float x24_distC = 1.f;
-  float x28_distL = 0.f;
+  float x24_distC = 0.f;
+  float x28_distL = 1.f;
   float x2c_distQ = 0.f;
-  float x30_angleC = 1.f;
-  float x34_angleL = 0.f;
+  float x30_angleC = 0.f;
+  float x34_angleL = 1.f;
   float x38_angleQ = 0.f;
   u32 x3c_priority = 0;
   u32 x40_lightId = 0; // Serves as unique key
@@ -97,7 +97,7 @@ public:
 
   static CLight BuildDirectional(const zeus::CVector3f& dir, const zeus::CColor& color);
   static CLight BuildSpot(const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeus::CColor& color,
-                          float angle);
+                          float cutoff);
   static CLight BuildPoint(const zeus::CVector3f& pos, const zeus::CColor& color);
   static CLight BuildCustom(const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeus::CColor& color,
                             float distC, float distL, float distQ, float angleC, float angleL, float angleQ);

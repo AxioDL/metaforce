@@ -64,7 +64,7 @@ CLight CWorldLight::GetAsCGraphicsLight() const {
   }
 
   const auto [distC, distL, distQ] = CalculateLightFalloff(x3c_falloff, x28_q);
-  return CLight::BuildCustom(x10_position, zeus::CVector3f{0.f, 1.f, 0.f},
+  return CLight::BuildCustom(x10_position, zeus::CVector3f{1.f, 0.f, 0.f},
                              zeus::CColor{x4_color.x(), x4_color.y(), x4_color.z(), 1.f}, distC, distL, distQ, 1.f, 0.f,
                              0.f);
 }

@@ -9,7 +9,7 @@ constexpr zeus::CVector3f kDefaultDirection(0.f, -1.f, 0.f);
 
 float CLight::CalculateLightRadius() const {
   if (FLT_EPSILON > x28_distL && FLT_EPSILON > x2c_distQ) {
-    return 0.f;
+    return FLT_MAX;
   }
 
   float intensity = GetIntensity();
@@ -77,8 +77,8 @@ CLight CLight::BuildDirectional(const zeus::CVector3f& dir, const zeus::CColor& 
 }
 
 CLight CLight::BuildSpot(const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeus::CColor& color,
-                         float angle) {
-  return CLight(ELightType::Spot, pos, dir, color, angle);
+                         float cutoff) {
+  return CLight(ELightType::Spot, pos, dir, color, cutoff);
 }
 
 CLight CLight::BuildPoint(const zeus::CVector3f& pos, const zeus::CColor& color) {

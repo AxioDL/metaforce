@@ -135,7 +135,7 @@ void CActorLights::AddOverflowToLights(const CLight& light, const zeus::CColor& 
 }
 
 void CActorLights::MoveAmbienceToLights(const zeus::CColor& color) {
-  if (x298_29_ambienceGenerated) {
+  if (x298_29_ambienceGenerated || x0_areaLights.empty()) {
     x288_ambientColor += color * 0.333333f;
     x288_ambientColor.a() = 1.f;
     return;
@@ -187,6 +187,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
     /* Early return if not ready for update */
     if (mgr.GetInputFrameIdx() - x2a4_lastUpdateFrame < x2a8_areaUpdateFramePeriod)
       return false;
+    x2a4_lastUpdateFrame = mgr.GetInputFrameIdx();
     vec = aabb.center() + x2ac_actorPosBias;
     if (x2d4_worldLightingLevel == worldLightingLevel)
       if ((x2c0_lastActorPos - vec).magSquared() < x2cc_actorPositionDeltaUpdateThreshold)
@@ -243,19 +244,13 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
       x288_ambientColor = light.GetNormalIndependentLightingAtPoint(vec);
     } else {
       EPVSVisSetState visible = EPVSVisSetState::OutOfBounds;
-      if (area.GetAreaVisSet()) {
-        if (lightIt->DoesCastShadows()) {
-          u32 pvsIdx;
-          if (use2ndLayer)
-            pvsIdx = area.Get2ndPVSLightFeature(lightIdx);
-          else
-            pvsIdx = area.Get1stPVSLightFeature(lightIdx);
-          visible = sets[0].GetVisible(pvsIdx);
-          if (visible != EPVSVisSetState::OutOfBounds)
-            visible = std::max(visible, sets[1].GetVisible(pvsIdx));
-          if (visible != EPVSVisSetState::OutOfBounds)
-            visible = std::max(visible, sets[2].GetVisible(pvsIdx));
-        }
+      if (area.GetAreaVisSet() && lightIt->DoesCastShadows()) {
+        u32 pvsIdx = use2ndLayer ? area.Get2ndPVSLightFeature(lightIdx) : area.Get1stPVSLightFeature(lightIdx);
+        visible = sets[0].GetVisible(pvsIdx);
+        if (visible != EPVSVisSetState::OutOfBounds)
+          visible = std::max(visible, sets[1].GetVisible(pvsIdx));
+        if (visible != EPVSVisSetState::OutOfBounds)
+          visible = std::max(visible, sets[2].GetVisible(pvsIdx));
       }
       if (visible != EPVSVisSetState::EndOfTree) {
         zeus::CSphere sphere(light.GetPosition(), light.GetRadius() * 2.f);

@@ -224,19 +224,16 @@ void GXInitLightAttnK(GX::LightObj* light, float k0, float k1, float k2) {
 }
 
 void GXInitLightSpot(GX::LightObj* light, float cutoff, GX::SpotFn spotFn) {
-  if (cutoff < 0.f || cutoff > 90.f) {
+  if (cutoff <= 0.f || cutoff > 90.f) {
     spotFn = GX::SP_OFF;
   }
 
-  float cr = (cutoff * M_PIF) / 180.f;
+  float cr = std::cos((cutoff * M_PIF) / 180.f);
   float a0 = 1.f;
   float a1 = 0.f;
   float a2 = 0.f;
   switch (spotFn) {
-  case GX::SP_OFF:
-    a0 = 1.f;
-    a1 = 0.f;
-    a2 = 0.f;
+  default:
     break;
   case GX::SP_FLAT:
     a0 = -1000.f * cr;
@@ -249,7 +246,7 @@ void GXInitLightSpot(GX::LightObj* light, float cutoff, GX::SpotFn spotFn) {
     a2 = 0.f;
     break;
   case GX::SP_COS2:
-    a0 = 0.0f;
+    a0 = 0.f;
     a1 = -cr / (1.f - cr);
     a2 = 1.f / (1.f - cr);
     break;
@@ -323,10 +320,11 @@ void GXInitLightPos(GX::LightObj* light, float x, float y, float z) {
 }
 
 void GXInitLightDir(GX::LightObj* light, float nx, float ny, float nz) {
-  light->nx = nx;
-  light->ny = ny;
-  light->nz = nz;
+  light->nx = -nx;
+  light->ny = -ny;
+  light->nz = -nz;
 }
+
 void GXInitSpecularDir(GX::LightObj* light, float nx, float ny, float nz) {
   float hx = -nx;
   float hy = -ny;
