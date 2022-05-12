@@ -112,7 +112,7 @@ public:
   void EnablePVS(const CPVSVisSet& set, u32 areaIdx) override;
   void DisablePVS() override;
   void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) override;
-  void DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask, bool shadowRender = false) override;
+  void DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) override;
   void DrawSortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) override;
   void DrawStaticGeometry(s32 areaIdx, s32 mask, s32 targetMask) override;
   void DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) override;

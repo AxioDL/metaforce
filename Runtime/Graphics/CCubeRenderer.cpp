@@ -286,10 +286,11 @@ void CCubeRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance
   }
 }
 
-void CCubeRenderer::DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask, bool shadowRender) {
+void CCubeRenderer::DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   SCOPED_GRAPHICS_DEBUG_GROUP(
-      fmt::format(FMT_STRING("CCubeRenderer::DrawUnsortedGeometry areaIdx={} mask={} targetMask={} shadowRender={}"),
-                  areaIdx, mask, targetMask, shadowRender).c_str(),
+      fmt::format(FMT_STRING("CCubeRenderer::DrawUnsortedGeometry areaIdx={} mask={} targetMask={}"), areaIdx, mask,
+                  targetMask)
+          .c_str(),
       zeus::skBlue);
 
   SetupRendererStates(true);

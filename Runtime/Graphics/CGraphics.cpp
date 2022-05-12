@@ -82,69 +82,41 @@ void CGraphics::DisableAllLights() {
 void CGraphics::LoadLight(ERglLight light, const CLight& info) {
   const auto lightId = static_cast<GX::LightID>(1 << light);
 
-#if 1
+  auto& obj = g_LightObjs[light];
   zeus::CVector3f pos = info.GetPosition();
   zeus::CVector3f dir = info.GetDirection();
-  if (info.GetType() == ELightType::Directional) {
-    return;
+  const auto type = info.GetType();
+  if (type == ELightType::Directional) {
     dir = -(g_CameraMatrix.buildMatrix3f() * dir);
-    GXInitLightPos(&g_LightObjs[static_cast<u32>(light)], dir.x() * 1048576.f, dir.y() * 1048576.f,
-                   dir.z() * 1048576.f);
-    GXInitLightAttn(&g_LightObjs[static_cast<u32>(light)], 1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
-  } else if (info.GetType() == ELightType::Spot) {
+    GXInitLightPos(&obj, dir.x() * 1048576.f, dir.y() * 1048576.f, dir.z() * 1048576.f);
+    GXInitLightAttn(&obj, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
+  } else if (type == ELightType::Spot) {
     pos = g_CameraMatrix * pos;
-    GX::LightObj* obj = &g_LightObjs[static_cast<u32>(light)];
-    GXInitLightPos(obj, pos.x(), pos.y(), pos.z());
+    GXInitLightPos(&obj, pos.x(), pos.y(), pos.z());
     dir = g_CameraMatrix.buildMatrix3f() * dir;
-    GXInitLightDir(obj, dir.x(), dir.y(), dir.z());
-    GXInitLightAttn(obj, 1.f, 0.f, 0.f, info.GetAttenuationConstant(), info.GetAttenuationLinear(),
+    GXInitLightDir(&obj, dir.x(), dir.y(), dir.z());
+    GXInitLightAttn(&obj, 1.f, 0.f, 0.f, info.GetAttenuationConstant(), info.GetAttenuationLinear(),
                     info.GetAttenuationQuadratic());
-    GXInitLightSpot(obj, info.GetSpotCutoff(), GX::SP_COS2);
-  } else if (info.GetType() == ELightType::Custom) {
+    GXInitLightSpot(&obj, info.GetSpotCutoff(), GX::SP_COS2);
+  } else if (type == ELightType::Custom) {
     pos = g_CameraMatrix * pos;
-    GX::LightObj* obj = &g_LightObjs[static_cast<u32>(light)];
-    GXInitLightPos(obj, pos.x(), pos.y(), pos.z());
+    GXInitLightPos(&obj, pos.x(), pos.y(), pos.z());
     dir = g_CameraMatrix.buildMatrix3f() * dir;
-    GXInitLightDir(obj, dir.x(), dir.y(), dir.z());
-    GXInitLightAttn(obj, info.GetAngleAttenuationConstant(), info.GetAngleAttenuationLinear(),
+    GXInitLightDir(&obj, dir.x(), dir.y(), dir.z());
+    GXInitLightAttn(&obj, info.GetAngleAttenuationConstant(), info.GetAngleAttenuationLinear(),
                     info.GetAngleAttenuationQuadratic(), info.GetAttenuationConstant(), info.GetAttenuationLinear(),
                     info.GetAttenuationQuadratic());
-  } else if (info.GetType() == ELightType::LocalAmbient) {
+  } else if (type == ELightType::LocalAmbient || type == ELightType::Point) {
     pos = g_CameraMatrix * pos;
-    GXInitLightPos(&g_LightObjs[static_cast<u32>(light)], pos.x(), pos.y(), pos.z());
-    GXInitLightAttn(&g_LightObjs[static_cast<u32>(light)], 1.f, 0.f, 0.f, info.GetAttenuationConstant(),
-                    info.GetAttenuationLinear(), info.GetAttenuationQuadratic());
+    GXInitLightPos(&obj, pos.x(), pos.y(), pos.z());
+    GXInitLightAttn(&obj, 1.f, 0.f, 0.f, info.GetAttenuationConstant(), info.GetAttenuationLinear(),
+                    info.GetAttenuationQuadratic());
   }
 
-  g_LightTypes[static_cast<u32>(light)] = info.GetType();
+  g_LightTypes[light] = type;
   GX::Color col(info.GetColor().r(), info.GetColor().g(), info.GetColor().b());
-  GXInitLightColor(&g_LightObjs[static_cast<u32>(light)], col);
-  GXLoadLightObjImm(&g_LightObjs[static_cast<u32>(light)], lightId);
-#else
-  switch (info.GetType()) {
-  case ELightType::LocalAmbient:
-    aurora::gfx::load_light_ambient(lightId, info.GetColor());
-    break;
-  case ELightType::Point:
-  case ELightType::Spot:
-  case ELightType::Custom:
-  case ELightType::Directional: {
-    aurora::gfx::Light lightOut{
-        .pos = CGraphics::g_CameraMatrix * info.GetPosition(),
-        .dir = (CGraphics::g_CameraMatrix.basis * info.GetDirection()).normalized(),
-        .color = info.GetColor(),
-        .linAtt = {info.GetAttenuationConstant(), info.GetAttenuationLinear(), info.GetAttenuationQuadratic()},
-        .angAtt = {info.GetAngleAttenuationConstant(), info.GetAngleAttenuationLinear(),
-                   info.GetAngleAttenuationQuadratic()},
-    };
-    if (info.GetType() == ELightType::Directional) {
-      lightOut.pos = (-lightOut.dir) * 1048576.f;
-    }
-    aurora::gfx::load_light(lightId, lightOut);
-    break;
-  }
-  }
-#endif
+  GXInitLightColor(&obj, col);
+  GXLoadLightObjImm(&obj, lightId);
 }
 
 void CGraphics::EnableLight(ERglLight light) {

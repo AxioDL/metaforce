@@ -46,7 +46,7 @@ public:
   virtual void EnablePVS(const CPVSVisSet& set, u32 areaIdx) = 0;
   virtual void DisablePVS() = 0;
   virtual void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>* geometry) = 0;
-  virtual void DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask, bool shadowRender = false) = 0;
+  virtual void DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) = 0;
   virtual void DrawSortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) = 0;
   virtual void DrawStaticGeometry(s32 areaIdx, s32 mask, s32 targetMask) = 0;
   virtual void DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) = 0;
