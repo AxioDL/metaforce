@@ -86,6 +86,32 @@
       ]
     },
     {
+      "name": "linux-clang-debug-asan",
+      "displayName": "Linux (Clang) Debug w/ ASAN",
+      "inherits": [
+        "linux-clang-debug"
+      ],
+      "cacheVariables": {
+        "METAFORCE_ASAN": {
+          "type": "BOOL",
+          "value": true
+        }
+      }
+    },
+    {
+      "name": "linux-clang-relwithdebinfo-asan",
+      "displayName": "Linux (Clang) RelWithDebInfo w/ ASAN",
+      "inherits": [
+        "linux-clang-relwithdebinfo"
+      ],
+      "cacheVariables": {
+        "METAFORCE_ASAN": {
+          "type": "BOOL",
+          "value": true
+        }
+      }
+    },
+    {
       "name": "windows-msvc",
       "displayName": "Windows (MSVC)",
       "generator": "Ninja",
@@ -294,6 +320,18 @@
       "configurePreset": "linux-clang-relwithdebinfo",
       "description": "Linux (Clang) release build with debug info",
       "displayName": "Linux (Clang) RelWithDebInfo"
+    },
+    {
+      "name": "linux-clang-debug-asan",
+      "configurePreset": "linux-clang-debug-asan",
+      "description": "Linux (Clang) debug build w/ ASAN",
+      "displayName": "Linux (Clang) Debug w/ ASAN"
+    },
+    {
+      "name": "linux-clang-relwithdebinfo-asan",
+      "configurePreset": "linux-clang-relwithdebinfo-asan",
+      "description": "Linux (Clang) release build with debug info w/ ASAN",
+      "displayName": "Linux (Clang) RelWithDebInfo w/ ASAN"
     },
     {
       "name": "macos-default-debug",

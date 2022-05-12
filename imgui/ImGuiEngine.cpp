@@ -136,9 +136,13 @@ Icon GetIcon() {
   int iconHeight = 0;
   auto* data = stbi_load_from_memory(static_cast<const stbi_uc*>(METAFORCE_ICON), int(METAFORCE_ICON_SZ), &iconWidth,
                                      &iconHeight, nullptr, 4);
+  size_t size = static_cast<size_t>(iconWidth) * static_cast<size_t>(iconHeight) * 4;
+  auto ptr = std::make_unique<u8[]>(size);
+  memcpy(ptr.get(), data, size);
+  stbi_image_free(data);
   return Icon{
-      std::unique_ptr<uint8_t[]>{data},
-      static_cast<size_t>(iconWidth) * static_cast<size_t>(iconHeight) * 4,
+      std::move(ptr),
+      size,
       static_cast<uint32_t>(iconWidth),
       static_cast<uint32_t>(iconHeight),
   };

@@ -231,7 +231,12 @@ else()
     add_compile_options(-fno-asynchronous-unwind-tables)
   endif()
 
-  if(METAFORCE_MSAN)
+  if (METAFORCE_ASAN)
+    add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++> -fsanitize=address
+        -fsanitize-address-use-after-scope)
+    add_link_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++> -fsanitize=address
+        -fsanitize-address-use-after-scope)
+  elseif(METAFORCE_MSAN)
     add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++> -fsanitize=memory
                         -fsanitize-memory-track-origins -fsanitize-recover=all)
   endif()
@@ -250,10 +255,6 @@ else()
   if(APPLE)
     add_compile_options(-Wno-error=deprecated-declarations
                         $<$<CONFIG:Release>:-flto=thin>)
-    if (METAFORCE_ASAN)
-      add_compile_options(-fsanitize=address -fsanitize-address-use-after-scope)
-      add_link_options(-fsanitize=address -fsanitize-address-use-after-scope)
-    endif ()
   endif()
 
 endif()
