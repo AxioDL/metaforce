@@ -33,6 +33,7 @@ public:
     const_iterator() : m_val(nullptr) {}
     explicit const_iterator(const T* val) : m_val(val) {}
     using value_type = T;
+    using element_type = T;
     using difference_type = std::ptrdiff_t;
     using pointer = T*;
     using reference = T&;
