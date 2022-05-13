@@ -473,7 +473,7 @@ void __PADLoadMapping(aurora::input::GameController* controller) {
 
   auto path = fmt::format(FMT_STRING("{}/{}_{:04X}_{:04X}.controller"), basePath, PADGetName(playerIndex),
                           controller->m_vid, controller->m_pid);
-  FILE* file = fopen(path.c_str(), "rbe");
+  FILE* file = fopen(path.c_str(), "rb");
   if (file == nullptr) {
     return;
   }
