@@ -36,12 +36,6 @@ enum class ETexelFormat {
   R8PC = 12,
 };
 
-enum class EClampMode {
-  Clamp,
-  Repeat,
-  Mirror,
-};
-
 enum class EStreamFlagBits : u8 {
   fHasNormal = 0x1,
   fHasColor = 0x2,
@@ -52,13 +46,7 @@ using EStreamFlags = Flags<EStreamFlagBits>;
 
 namespace aurora::gfx {
 struct TextureRef;
-struct TextureHandle {
-  std::shared_ptr<TextureRef> ref;
-  TextureHandle() = default;
-  TextureHandle(std::shared_ptr<TextureRef>&& ref) : ref(std::move(ref)) {}
-  operator bool() const { return ref.operator bool(); }
-  void reset() { ref.reset(); }
-};
+using TextureHandle = std::shared_ptr<TextureRef>;
 
 struct ClipRect {
   int32_t x;
@@ -85,24 +73,19 @@ struct ScopedDebugGroup {
   inline ~ScopedDebugGroup() noexcept { pop_debug_group(); }
 };
 
-// GX state
-void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp, const TextureHandle& tex, float lod) noexcept;
-void unbind_texture(GX::TexMapID id) noexcept;
-
 void set_viewport(float left, float top, float width, float height, float znear, float zfar) noexcept;
 void set_scissor(uint32_t x, uint32_t y, uint32_t w, uint32_t h) noexcept;
 
-void resolve_color(const ClipRect& rect, uint32_t bind, bool clear_depth) noexcept;
-void resolve_depth(const ClipRect& rect, uint32_t bind) noexcept;
-void bind_color(u32 bindIdx, GX::TexMapID id) noexcept;
+void resolve_color(const ClipRect& rect, uint32_t bindIdx, GX::TextureFormat fmt, bool clear_depth) noexcept;
+void resolve_depth(const ClipRect& rect, uint32_t bindIdx, GX::TextureFormat fmt) noexcept;
 
 void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v, float h_pad,
                         float v_pad) noexcept;
 
-TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mips, metaforce::ETexelFormat format,
+TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mips, GX::TextureFormat format,
                                     ArrayRef<uint8_t> data, zstring_view label) noexcept;
-TextureHandle new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t mips, metaforce::ETexelFormat format,
+TextureHandle new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t mips, GX::TextureFormat format,
                                      zstring_view label) noexcept;
-TextureHandle new_render_texture(uint32_t width, uint32_t height, zstring_view label) noexcept;
-void write_texture(const TextureHandle& handle, ArrayRef<uint8_t> data) noexcept;
+TextureHandle new_render_texture(uint32_t width, uint32_t height, GX::TextureFormat fmt, zstring_view label) noexcept;
+void write_texture(const TextureRef& handle, ArrayRef<uint8_t> data) noexcept;
 } // namespace aurora::gfx

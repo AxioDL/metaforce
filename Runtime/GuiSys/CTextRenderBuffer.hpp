@@ -27,58 +27,29 @@ class CTextRenderBuffer {
   friend class CTextSupportShader;
 
 public:
-  enum class Command { CharacterRender, ImageRender, FontChange, PaletteChange };
-#if 0
-    struct Primitive
-    {
-        CTextColor x0_color1;
-        Command x4_command;
-        u16 x8_xPos;
-        u16 xa_zPos;
-        char16_t xc_glyph;
-        u8 xe_imageIndex;
-    };
-#endif
+  enum class Command { CharacterRender, ImageRender, FontChange, PaletteChange, Invalid };
+  struct Primitive {
+    CTextColor x0_color1;
+    Command x4_command;
+    u16 x8_xPos;
+    u16 xa_zPos;
+    char16_t xc_glyph;
+    u8 xe_imageIndex;
+  };
   enum class EMode { AllocTally, BufferFill };
 
 private:
   EMode x0_mode;
-#if 0
-    std::vector<TToken<CRasterFont>> x4_fonts;
-    std::vector<CFontImageDef> x14_images;
-    std::vector<int> x24_primOffsets;
-    std::vector<char> x34_bytecode;
-    u32 x44_blobSize = 0;
-    u32 x48_curBytecodeOffset = 0;
-    u8 x4c_activeFont;
-    u32 x50_paletteCount = 0;
-    std::array<std::unique_ptr<CGraphicsPalette>, 64> x54_palettes;
-    u32 x254_nextPalette = 0;
-
-#else
-  /* Boo-specific text-rendering functionality */
-//  hecl::UniformBufferPool<CTextSupportShader::Uniform>::Token m_uniBuf;
-//  hecl::UniformBufferPool<CTextSupportShader::Uniform>::Token m_uniBuf2;
-
-  struct BooFontCharacters;
-  std::vector<BooFontCharacters> m_fontCharacters;
-
-  struct BooImage;
-  std::vector<BooImage> m_images;
-
-  struct BooPrimitiveMark;
-  std::vector<BooPrimitiveMark> m_primitiveMarks;
-  u32 m_imagesCount = 0;
-  u32 m_activeFontCh = UINT32_MAX;
-
-  zeus::CColor m_main;
-  zeus::CColor m_outline = zeus::skBlack;
-
-  CGuiWidget::EGuiModelDrawFlags m_drawFlags;
-
-  bool m_committed = false;
-  void CommitResources();
-#endif
+  std::vector<TToken<CRasterFont>> x4_fonts;
+  std::vector<CFontImageDef> x14_images;
+  std::vector<int> x24_primOffsets;
+  std::vector<char> x34_bytecode;
+  u32 x44_blobSize = 0;
+  u32 x48_curBytecodeOffset = 0;
+  u8 x4c_activeFont;
+  u32 x50_paletteCount = 0;
+  std::array<std::unique_ptr<CGraphicsPalette>, 64> x54_palettes;
+  u32 x254_nextPalette = 0;
 
 public:
   CTextRenderBuffer(CTextRenderBuffer&& other) noexcept;
@@ -87,18 +58,13 @@ public:
 
   CTextRenderBuffer& operator=(CTextRenderBuffer&& other) noexcept;
 
-#if 0
-    void SetPrimitive(const Primitive&, int);
-    Primitive GetPrimitive(int) const;
-    void GetOutStream();
-    void VerifyBuffer();
-    int GetMatchingPaletteIndex(const CGraphicsPalette& palette);
-    CGraphicsPalette* GetNextAvailablePalette();
-    void AddPaletteChange(const CGraphicsPalette& palette);
-#else
-  void SetPrimitiveOpacity(int idx, float opacity);
-  u32 GetPrimitiveCount() const;
-#endif
+  void SetPrimitive(const Primitive&, int);
+  [[nodiscard]] Primitive GetPrimitive(int) const;
+  void GetOutStream();
+  void VerifyBuffer();
+  int GetMatchingPaletteIndex(const CGraphicsPalette& palette);
+  CGraphicsPalette* GetNextAvailablePalette();
+  void AddPaletteChange(const CGraphicsPalette& palette);
   void SetMode(EMode mode);
   void Render(const zeus::CColor& col, float time);
   void AddImage(const zeus::CVector2i& offset, const CFontImageDef& image);

@@ -5,12 +5,12 @@
 #include "../gpu.hpp"
 
 namespace aurora::gfx {
-static wgpu::TextureFormat to_wgpu(metaforce::ETexelFormat format) {
+static wgpu::TextureFormat to_wgpu(GX::TextureFormat format) {
   switch (format) {
-  case metaforce::ETexelFormat::C8:
-  case metaforce::ETexelFormat::R8PC:
+  case GX::TF_C8:
+  case GX::TF_I8:
     return wgpu::TextureFormat::R8Unorm;
-  case metaforce::ETexelFormat::CMPR:
+  case GX::TF_CMPR:
     if (gpu::g_device.HasFeature(wgpu::FeatureName::TextureCompressionBC)) {
       return wgpu::TextureFormat::BC1RGBAUnorm;
     }
@@ -20,6 +20,6 @@ static wgpu::TextureFormat to_wgpu(metaforce::ETexelFormat format) {
   }
 }
 
-ByteBuffer convert_texture(metaforce::ETexelFormat format, uint32_t width, uint32_t height, uint32_t mips,
+ByteBuffer convert_texture(GX::TextureFormat format, uint32_t width, uint32_t height, uint32_t mips,
                            ArrayRef<uint8_t> data);
 } // namespace aurora::gfx

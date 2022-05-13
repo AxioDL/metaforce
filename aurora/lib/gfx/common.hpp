@@ -128,22 +128,25 @@ extern size_t g_staticStorageLastSize;
 // TODO this is a bad place for this...
 extern std::vector<TextureHandle> g_resolvedTextures;
 
+constexpr GX::TextureFormat InvalidTextureFormat = static_cast<GX::TextureFormat>(-1);
 struct TextureRef {
   wgpu::Texture texture;
   wgpu::TextureView view;
   wgpu::Extent3D size;
   wgpu::TextureFormat format;
   uint32_t mipCount;
-  metaforce::ETexelFormat gameFormat;
+  GX::TextureFormat gxFormat;
+  bool isRenderTexture; // :shrug: for now
 
   TextureRef(wgpu::Texture&& texture, wgpu::TextureView&& view, wgpu::Extent3D size, wgpu::TextureFormat format,
-             uint32_t mipCount, metaforce::ETexelFormat gameFormat = metaforce::ETexelFormat::Invalid)
+             uint32_t mipCount, GX::TextureFormat gxFormat, bool isRenderTexture)
   : texture(std::move(texture))
   , view(std::move(view))
   , size(size)
   , format(format)
   , mipCount(mipCount)
-  , gameFormat(gameFormat) {}
+  , gxFormat(gxFormat)
+  , isRenderTexture(isRenderTexture) {}
 };
 
 using BindGroupRef = uint64_t;

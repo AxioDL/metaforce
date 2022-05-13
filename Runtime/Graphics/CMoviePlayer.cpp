@@ -192,28 +192,22 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
     CTHPTextureSet& set = x80_textures.emplace_back();
     if (deinterlace) {
       /* metaforce addition: this way interlaced THPs don't look horrible */
-      set.Y[0] =
-          aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1, ETexelFormat::R8PC,
-                                              fmt::format(FMT_STRING("Movie {} Texture Set {} Y[0]"), path, i));
-      set.Y[1] =
-          aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1, ETexelFormat::R8PC,
-                                              fmt::format(FMT_STRING("Movie {} Texture Set {} Y[1]"), path, i));
-      set.U =
-          aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, ETexelFormat::R8PC,
-                                              fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
-      set.V =
-          aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, ETexelFormat::R8PC,
-                                              fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
+      set.Y[0] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1, GX::TF_I8,
+                                                     fmt::format(FMT_STRING("Movie {} Texture Set {} Y[0]"), path, i));
+      set.Y[1] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1, GX::TF_I8,
+                                                     fmt::format(FMT_STRING("Movie {} Texture Set {} Y[1]"), path, i));
+      set.U = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX::TF_I8,
+                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
+      set.V = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX::TF_I8,
+                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
     } else {
       /* normal progressive presentation */
-      set.Y[0] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height, 1, ETexelFormat::R8PC,
+      set.Y[0] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height, 1, GX::TF_I8,
                                                      fmt::format(FMT_STRING("Movie {} Texture Set {} Y"), path, i));
-      set.U =
-          aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, ETexelFormat::R8PC,
-                                              fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
-      set.V =
-          aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, ETexelFormat::R8PC,
-                                              fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
+      set.U = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX::TF_I8,
+                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
+      set.V = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX::TF_I8,
+                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
     }
     if (xf4_25_hasAudio)
       set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);
@@ -504,18 +498,18 @@ void CMoviePlayer::DecodeFromRead(const void* data) {
           memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2),
                  x6c_videoInfo.width);
         }
-        aurora::gfx::write_texture(tex.Y[0], {buffer.get(), planeSizeHalf});
+        aurora::gfx::write_texture(*tex.Y[0], {buffer.get(), planeSizeHalf});
         for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
           memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2 + 1),
                  x6c_videoInfo.width);
         }
-        aurora::gfx::write_texture(tex.Y[1], {buffer.get(), planeSizeHalf});
+        aurora::gfx::write_texture(*tex.Y[1], {buffer.get(), planeSizeHalf});
       } else {
         /* Direct planar load */
-        aurora::gfx::write_texture(tex.Y[0], {m_yuvBuf.get(), planeSize});
+        aurora::gfx::write_texture(*tex.Y[0], {m_yuvBuf.get(), planeSize});
       }
-      aurora::gfx::write_texture(tex.U, {m_yuvBuf.get() + planeSize, planeSizeQuarter});
-      aurora::gfx::write_texture(tex.V, {m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter});
+      aurora::gfx::write_texture(*tex.U, {m_yuvBuf.get() + planeSize, planeSizeQuarter});
+      aurora::gfx::write_texture(*tex.V, {m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter});
 
       break;
     }

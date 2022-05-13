@@ -48,7 +48,7 @@ void CCameraBlurFilter::draw(float amount, bool clearDepth) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CCameraBlurFilter::draw", zeus::skMagenta);
 
   const SClipScreenRect clipRect(CGraphics::g_Viewport);
-  CGraphics::ResolveSpareTexture(clipRect, 0, clearDepth);
+//  CGraphics::ResolveSpareTexture(clipRect, 0, clearDepth);
   const float aspect = float(CGraphics::g_CroppedViewport.xc_width) / float(CGraphics::g_CroppedViewport.x10_height);
 
   const float xFac = float(CGraphics::GetCroppedViewportWidth()) / float(CGraphics::GetViewportWidth());

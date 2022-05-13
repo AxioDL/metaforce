@@ -25,35 +25,6 @@ enum class CCubeMaterialFlagBits : u32 {
 };
 using CCubeMaterialFlags = Flags<CCubeMaterialFlagBits>;
 
-enum class CCubeMaterialVatAttribute : u32 {
-  Position = 0,
-  Normal = 2,
-  Color0 = 4,
-  Color1 = 8,
-  Tex0 = 10,
-  Tex1 = 12,
-  Tex2 = 14,
-  Tex3 = 16,
-  Tex4 = 18,
-  Tex5 = 20,
-  Tex6 = 22,
-};
-enum class CCubeMaterialVatAttributeType : u32 { None = 0, Direct = 1, Index8 = 2, Index16 = 3 };
-class CCubeMaterialVatFlags {
-  u32 m_flags = 0;
-
-public:
-  constexpr CCubeMaterialVatFlags() noexcept = default;
-  constexpr CCubeMaterialVatFlags(u32 flags) noexcept : m_flags(flags){};
-  [[nodiscard]] CCubeMaterialVatAttributeType GetAttributeType(CCubeMaterialVatAttribute attribute) const noexcept {
-    return CCubeMaterialVatAttributeType((m_flags >> u32(attribute)) & 0x3);
-  }
-  void SetAttributeType(CCubeMaterialVatAttribute attribute, CCubeMaterialVatAttributeType type) noexcept {
-    m_flags &= ~(u32(0x3) << u32(attribute));
-    m_flags |= u32(type) << u32(attribute);
-  }
-};
-
 class CCubeMaterial {
   const u8* x0_data;
 
@@ -72,7 +43,7 @@ public:
   [[nodiscard]] CCubeMaterialFlags GetFlags() const {
     return CCubeMaterialFlags(SBig(*reinterpret_cast<const u32*>(x0_data)));
   }
-  [[nodiscard]] CCubeMaterialVatFlags GetVatFlags() const {
+  [[nodiscard]] u32 GetVatFlags() const {
     return SBig(*reinterpret_cast<const u32*>(x0_data + 8 + (GetTextureCount() * 4)));
   }
   [[nodiscard]] u32 GetUsedTextureSlots() const { return static_cast<u32>(GetFlags()) >> 16; }

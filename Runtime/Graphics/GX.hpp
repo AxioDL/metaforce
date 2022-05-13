@@ -8,6 +8,7 @@
 
 #include <bit>
 #include <bitset>
+#include <memory>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
@@ -740,6 +741,96 @@ enum DistAttnFn {
 using GXColor = zeus::CColor;
 using GXBool = bool;
 
+enum GXTlutFmt {
+  GX_TL_IA8 = 0x0,
+  GX_TL_RGB565 = 0x1,
+  GX_TL_RGB5A3 = 0x2,
+  GX_MAX_TLUTFMT = 0x3,
+};
+
+struct GXTlutObj {
+  u32 format;
+  u32 addr;
+  u16 entries;
+};
+
+enum GXTlut {
+  GX_TLUT0 = 0,
+  GX_TLUT1 = 1,
+  GX_TLUT2 = 2,
+  GX_TLUT3 = 3,
+  GX_TLUT4 = 4,
+  GX_TLUT5 = 5,
+  GX_TLUT6 = 6,
+  GX_TLUT7 = 7,
+  GX_TLUT8 = 8,
+  GX_TLUT9 = 9,
+  GX_TLUT10 = 10,
+  GX_TLUT11 = 11,
+  GX_TLUT12 = 12,
+  GX_TLUT13 = 13,
+  GX_TLUT14 = 14,
+  GX_TLUT15 = 15,
+  GX_BIGTLUT0 = 16,
+  GX_BIGTLUT1 = 17,
+  GX_BIGTLUT2 = 18,
+  GX_BIGTLUT3 = 19,
+};
+
+enum GXTexWrapMode {
+  GX_CLAMP = 0,
+  GX_REPEAT = 1,
+  GX_MIRROR = 2,
+  GX_MAX_TEXWRAPMODE = 3,
+};
+
+enum GXTexFilter {
+  GX_NEAR,
+  GX_LINEAR,
+  GX_NEAR_MIP_NEAR,
+  GX_LIN_MIP_NEAR,
+  GX_NEAR_MIP_LIN,
+  GX_LIN_MIP_LIN,
+};
+
+enum GXAnisotropy {
+  GX_ANISO_1,
+  GX_ANISO_2,
+  GX_ANISO_4,
+  GX_MAX_ANISOTROPY,
+};
+
+enum GXCITexFmt {
+  GX_TF_C4 = GX::TF_C4,
+  GX_TF_C8 = GX::TF_C8,
+  GX_TF_C14X2 = GX::TF_C14X2,
+};
+
+namespace aurora::gfx {
+struct TextureRef;
+} // namespace aurora::gfx
+struct GXTexObj {
+  std::shared_ptr<aurora::gfx::TextureRef> ref;
+  void* data;
+  u32 dataSize;
+  u16 width;
+  u16 height;
+  GX::TextureFormat fmt;
+  GXTexWrapMode wrapS;
+  GXTexWrapMode wrapT;
+  GXBool hasMips;
+  GXTexFilter minFilter;
+  GXTexFilter magFilter;
+  float minLod;
+  float maxLod;
+  float lodBias;
+  GXBool biasClamp;
+  GXBool doEdgeLod;
+  GXAnisotropy maxAniso;
+  GXTlut tlut;
+  bool dataInvalidated;
+};
+
 void GXSetNumChans(u8 num) noexcept;
 void GXSetNumIndStages(u8 num) noexcept;
 void GXSetNumTevStages(u8 num) noexcept;
@@ -772,7 +863,6 @@ void GXSetVtxDesc(GX::Attr attr, GX::AttrType type) noexcept;
 void GXSetVtxDescv(GX::VtxDescList* list) noexcept;
 void GXClearVtxDesc() noexcept;
 void GXSetArray(GX::Attr attr, const void* data, u8 stride) noexcept;
-void GXSetTevDirect(GX::TevStageID stageId) noexcept;
 void GXSetFog(GX::FogType type, float startZ, float endZ, float nearZ, float farZ, const GXColor& color) noexcept;
 void GXSetFogColor(const GXColor& color) noexcept;
 void GXCallDisplayList(const void* data, u32 nbytes) noexcept;
@@ -785,7 +875,8 @@ void GXSetProjection(const zeus::CMatrix4f& mtx, GX::ProjectionType type) noexce
 void GXSetViewport(float left, float top, float width, float height, float nearZ, float farZ) noexcept;
 void GXSetScissor(u32 left, u32 top, u32 width, u32 height) noexcept;
 // Unneeded, all attributes are expected to be full floats
-// void GXSetVtxAttrFmt(GX::VtxFmt vtxfmt, GX::Attr attr, GX::CompCnt cnt, GX::CompType type, u8 frac) noexcept;
+static inline void GXSetVtxAttrFmt(GX::VtxFmt vtxfmt, GX::Attr attr, GX::CompCnt cnt, GX::CompType type,
+                                   u8 frac) noexcept {}
 // Streaming
 void GXBegin(GX::Primitive primitive, GX::VtxFmt vtxFmt, u16 nVerts) noexcept;
 void GXMatrixIndex1u8(u8 idx) noexcept;
@@ -802,38 +893,78 @@ void GXEnd() noexcept;
 void GXSetTevSwapModeTable(GX::TevSwapSel id, GX::TevColorChan red, GX::TevColorChan green, GX::TevColorChan blue,
                            GX::TevColorChan alpha) noexcept;
 void GXSetTevSwapMode(GX::TevStageID stage, GX::TevSwapSel rasSel, GX::TevSwapSel texSel) noexcept;
+void GXSetLineWidth(u8 width, GX::TexOffset texOffset) noexcept;
+void GXInitTlutObj(GXTlutObj* obj, void* data, GXTlutFmt format, u16 entries) noexcept;
+void GXLoadTlut(const GXTlutObj* obj, GXTlut idx) noexcept;
+void GXInitTexObj(GXTexObj* obj, void* data, u16 width, u16 height, GX::TextureFormat format, GXTexWrapMode wrapS,
+                  GXTexWrapMode wrapT, GXBool mipmap) noexcept;
+// Addition for binding render textures
+void GXInitTexObjResolved(GXTexObj* obj, u32 bindIdx, GX::TextureFormat format, GXTexWrapMode wrapS, GXTexWrapMode wrapT);
+void GXInitTexObjLOD(GXTexObj* obj, GXTexFilter minFilt, GXTexFilter magFilt, float minLod, float maxLod, float lodBias,
+                     GXBool biasClamp, GXBool doEdgeLod, GXAnisotropy maxAniso) noexcept;
+void GXInitTexObjCI(GXTexObj* obj, void* data, u16 width, u16 height, GXCITexFmt format, GXTexWrapMode wrapS,
+                    GXTexWrapMode wrapT, GXBool mipmap, u32 tlut) noexcept;
+void GXInitTexObjData(GXTexObj* obj, void* data) noexcept;
+void GXInitTexObjWrapMode(GXTexObj* obj, GXTexWrapMode wrapS, GXTexWrapMode wrapT) noexcept;
+void GXInitTexObjTlut(GXTexObj* obj, u32 tlut) noexcept;
+void GXLoadTexObj(GXTexObj* obj, GX::TexMapID id) noexcept;
+void GXSetTexCopySrc(u16 x, u16 y, u16 w, u16 h) noexcept;
+void GXSetTexCopyDst(u16 wd, u16 ht, GX::TextureFormat fmt, GXBool mipmap) noexcept;
+u32 GXGetTexBufferSize(u16 width, u16 height, u32 fmt, GXBool mips, u8 maxLod) noexcept;
+void GXCopyTex(void* dest, GXBool clear) noexcept;
+static inline void GXPixModeSync() noexcept {} // no-op
+void GXSetIndTexMtx(GX::IndTexMtxID id, const void* mtx /* Mat4x2<float> */, s8 scaleExp) noexcept;
+void GXSetTevIndirect(GX::TevStageID tevStage, GX::IndTexStageID indStage, GX::IndTexFormat fmt,
+                      GX::IndTexBiasSel biasSel, GX::IndTexMtxID matrixSel, GX::IndTexWrap wrapS, GX::IndTexWrap wrapT,
+                      GXBool addPrev, GXBool indLod, GX::IndTexAlphaSel alphaSel) noexcept;
+static inline void GXSetTevDirect(GX::TevStageID stageId) noexcept {
+  GXSetTevIndirect(stageId, GX::INDTEXSTAGE0, GX::ITF_8, GX::ITB_NONE, GX::ITM_OFF, GX::ITW_OFF, GX::ITW_OFF, false,
+                   false, GX::ITBA_OFF);
+}
+static inline void GXSetTevIndWarp(GX::TevStageID tevStage, GX::IndTexStageID indStage, GXBool signedOffsets,
+                                   GXBool replaceMode, GX::IndTexMtxID matrixSel) noexcept {
+  const auto wrap = replaceMode ? GX::ITW_0 : GX::ITW_OFF;
+  const auto biasSel = signedOffsets ? GX::ITB_STU : GX::ITB_NONE;
+  GXSetTevIndirect(tevStage, indStage, GX::ITF_8, biasSel, matrixSel, wrap, wrap, false, false, GX::ITBA_OFF);
+}
+void GXSetIndTexOrder(GX::IndTexStageID indStage, GX::TexCoordID texCoord, GX::TexMapID texMap) noexcept;
+void GXSetIndTexCoordScale(GX::IndTexStageID indStage, GX::IndTexScale scaleS, GX::IndTexScale scaleT) noexcept;
 
 // Lighting
-void GXInitLightAttn(GX::LightObj* light, float a0, float a1, float a2, float k0, float k1, float k2);
-void GXInitLightAttnA(GX::LightObj* light, float a0, float a1, float a2);
-void GXInitLightAttnK(GX::LightObj* light, float k0, float k1, float k2);
-void GXInitLightSpot(GX::LightObj* light, float cutoff, GX::SpotFn spotFn);
-void GXInitLightDistAttn(GX::LightObj* light, float refDistance, float refBrightness, GX::DistAttnFn distFunc);
-static inline void GXInitLightShininess(GX::LightObj* light, float shininess) {
+void GXInitLightAttn(GX::LightObj* light, float a0, float a1, float a2, float k0, float k1, float k2) noexcept;
+void GXInitLightAttnA(GX::LightObj* light, float a0, float a1, float a2) noexcept;
+void GXInitLightAttnK(GX::LightObj* light, float k0, float k1, float k2) noexcept;
+void GXInitLightSpot(GX::LightObj* light, float cutoff, GX::SpotFn spotFn) noexcept;
+void GXInitLightDistAttn(GX::LightObj* light, float refDistance, float refBrightness, GX::DistAttnFn distFunc) noexcept;
+static inline void GXInitLightShininess(GX::LightObj* light, float shininess) noexcept {
   GXInitLightAttn(light, 0.f, 0.f, 1.f, (shininess) / 2.f, 0.f, 1.f - (shininess) / 2.f);
 }
-void GXInitLightPos(GX::LightObj* light, float x, float y, float z);
-static inline void GXInitLightPosv(GX::LightObj* light, float vec[3]) { GXInitLightPos(light, vec[0], vec[1], vec[2]); }
-void GXInitLightDir(GX::LightObj* light, float nx, float ny, float nz);
-static inline void GXInitLightDirv(GX::LightObj* light, float vec[3]) { GXInitLightDir(light, vec[0], vec[1], vec[2]); }
-void GXInitSpecularDir(GX::LightObj* light, float nx, float ny, float nz);
-void GXInitSpecularDirHA(GX::LightObj* light, float nx, float ny, float nz, float hx, float hy, float hz);
-static inline void GXInitLightSpecularDirHAv(GX::LightObj* light, float vecn[3], float vech[3]) {
+void GXInitLightPos(GX::LightObj* light, float x, float y, float z) noexcept;
+static inline void GXInitLightPosv(GX::LightObj* light, float vec[3]) noexcept {
+  GXInitLightPos(light, vec[0], vec[1], vec[2]);
+}
+void GXInitLightDir(GX::LightObj* light, float nx, float ny, float nz) noexcept;
+static inline void GXInitLightDirv(GX::LightObj* light, float vec[3]) noexcept {
+  GXInitLightDir(light, vec[0], vec[1], vec[2]);
+}
+void GXInitSpecularDir(GX::LightObj* light, float nx, float ny, float nz) noexcept;
+void GXInitSpecularDirHA(GX::LightObj* light, float nx, float ny, float nz, float hx, float hy, float hz) noexcept;
+static inline void GXInitLightSpecularDirHAv(GX::LightObj* light, float vecn[3], float vech[3]) noexcept {
   GXInitSpecularDirHA(light, vecn[0], vecn[1], vecn[2], vech[0], vech[1], vech[2]);
 }
-void GXInitLightColor(GX::LightObj* light, GX::Color col);
-void GXLoadLightObjImm(const GX::LightObj* light, GX::LightID id);
-void GXLoadLightObjIndx(u32 index, GX::LightID);
+void GXInitLightColor(GX::LightObj* light, GX::Color col) noexcept;
+void GXLoadLightObjImm(const GX::LightObj* light, GX::LightID id) noexcept;
+void GXLoadLightObjIndx(u32 index, GX::LightID) noexcept;
 
-void GXGetLightAttnA(const GX::LightObj* light, float* a0, float* a1, float* a2);
-void GXGetLightAttnK(const GX::LightObj* light, float* k0, float* k1, float* k2);
-void GXGetLightPos(const GX::LightObj* light, float* x, float* y, float* z);
-static inline void GXGetLightPosv(const GX::LightObj* light, float* vec[3]) {
+void GXGetLightAttnA(const GX::LightObj* light, float* a0, float* a1, float* a2) noexcept;
+void GXGetLightAttnK(const GX::LightObj* light, float* k0, float* k1, float* k2) noexcept;
+void GXGetLightPos(const GX::LightObj* light, float* x, float* y, float* z) noexcept;
+static inline void GXGetLightPosv(const GX::LightObj* light, float* vec[3]) noexcept {
   GXGetLightPos(light, vec[0], vec[1], vec[2]);
 }
-void GXGetLightDir(const GX::LightObj* light, float* nx, float* ny, float* nz);
-static inline void GXGetLightDirv(const GX::LightObj* light, float* vec[3]) {
+void GXGetLightDir(const GX::LightObj* light, float* nx, float* ny, float* nz) noexcept;
+static inline void GXGetLightDirv(const GX::LightObj* light, float* vec[3]) noexcept {
   GXGetLightDir(light, vec[0], vec[1], vec[2]);
 }
 
-void GXGetLightColor(const GX::LightObj* light, GX::Color* col);
+void GXGetLightColor(const GX::LightObj* light, GX::Color* col) noexcept;

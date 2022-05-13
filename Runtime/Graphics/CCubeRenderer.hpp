@@ -69,7 +69,7 @@ private:
   CTexture x150_reflectionTex{ETexelFormat::IA8, 32, 32, 1, "Reflection Texture"};
   CTexture x1b8_fogVolumeRamp{ETexelFormat::I8, 256, 256, 1, "Fog Volume Ramp Texture"};
   CTexture x220_sphereRamp{ETexelFormat::I8, 32, 32, 1, "Sphere Ramp Texture"};
-  // CGraphicsPalette x288_thermoPalette{1, 16};
+  CGraphicsPalette x288_thermoPalette{EPaletteFormat::RGB565, 16};
   CRandom16 x2a8_thermalRand{20};
   std::list<CFogVolumeListItem> x2ac_fogVolumes;
   std::list<std::pair<zeus::CVector3f, float>> x2c4_spaceWarps;
@@ -91,6 +91,8 @@ private:
   bool x318_29_thermalVisor : 1 = false;
   bool x318_30_inAreaDraw : 1 = false;
   bool x318_31_persistRGBA6 : 1 = false;
+
+  CTexture m_thermalRandomStatic{ETexelFormat::IA4, 640, 448, 1, "Thermal Random Static"};
 
   void GenerateReflectionTex();
   void GenerateFogVolumeRampTex();

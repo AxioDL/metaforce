@@ -1,16 +1,17 @@
 #pragma once
 
 #include "RetroTypes.hpp"
+#include "GX.hpp"
 
 #include <memory>
 
 namespace metaforce {
 class CInputStream;
 
-enum class EPaletteFormat {
-  IA8 = 0x0,
-  RGB565 = 0x1,
-  RGB5A3 = 0x2,
+enum class EPaletteFormat : std::underlying_type_t<GXTlutFmt> {
+  IA8 = GX_TL_IA8,
+  RGB565 = GX_TL_RGB565,
+  RGB5A3 = GX_TL_RGB5A3,
 };
 
 class CGraphicsPalette {
@@ -20,7 +21,7 @@ class CGraphicsPalette {
   u32 x4_frameLoaded{};
   u32 x8_entryCount;
   std::unique_ptr<u8[]> xc_entries;
-  /* GXTlutObj x10_; */
+  GXTlutObj x10_tlutObj;
   bool x1c_locked = false;
 
 public:
@@ -28,8 +29,11 @@ public:
   explicit CGraphicsPalette(CInputStream& in);
 
   void Load();
+  void Lock();
+  void UnLock();
 
-  [[nodiscard]] const u8* GetEntries() const { return xc_entries.get(); }
+  [[nodiscard]] u8* GetPaletteData() { return xc_entries.get(); }
+  [[nodiscard]] const u8* GetPaletteData() const { return xc_entries.get(); }
 
   static void SetCurrentFrameCount(u32 frameCount) { sCurrentFrameCount = frameCount; }
 };

@@ -42,11 +42,11 @@ void GXSetZMode(bool compare_enable, GX::Compare func, bool update_enable) noexc
   g_gxState.depthUpdate = update_enable;
 }
 void GXSetTevColor(GX::TevRegID id, const zeus::CColor& color) noexcept {
-  if (id < GX::TEVREG0 || id > GX::TEVREG2) {
+  if (id < GX::TEVPREV || id > GX::TEVREG2) {
     Log.report(logvisor::Fatal, FMT_STRING("bad tevreg {}"), id);
     unreachable();
   }
-  g_gxState.colorRegs[id - 1] = color;
+  g_gxState.colorRegs[id] = color;
 }
 void GXSetTevKColor(GX::TevKColorID id, const zeus::CColor& color) noexcept {
   if (id >= GX::MAX_KCOLOR) {
@@ -201,8 +201,76 @@ void GXSetLineWidth(u8 width, GX::TexOffset offs) noexcept {
   // TODO
 }
 
+u32 GXGetTexBufferSize(u16 width, u16 height, u32 fmt, GXBool mips, u8 maxLod) noexcept {
+  s32 shiftX = 0;
+  s32 shiftY = 0;
+  switch (fmt) {
+  case GX::TF_I4:
+  case GX::TF_C4:
+  case GX::TF_CMPR:
+  case GX::CTF_R4:
+  case GX::CTF_Z4:
+    shiftX = 3;
+    shiftY = 3;
+    break;
+  case GX::TF_I8:
+  case GX::TF_IA4:
+  case GX::TF_C8:
+  case GX::TF_Z8:
+  case GX::CTF_RA4:
+  case GX::CTF_A8:
+  case GX::CTF_R8:
+  case GX::CTF_G8:
+  case GX::CTF_B8:
+  case GX::CTF_Z8M:
+  case GX::CTF_Z8L:
+    shiftX = 3;
+    shiftY = 2;
+    break;
+  case GX::TF_IA8:
+  case GX::TF_RGB565:
+  case GX::TF_RGB5A3:
+  case GX::TF_RGBA8:
+  case GX::TF_C14X2:
+  case GX::TF_Z16:
+  case GX::TF_Z24X8:
+  case GX::CTF_RA8:
+  case GX::CTF_RG8:
+  case GX::CTF_GB8:
+  case GX::CTF_Z16L:
+    shiftX = 2;
+    shiftY = 2;
+    break;
+  default:
+    break;
+  }
+  u32 bitSize = fmt == GX::TF_RGBA8 || fmt == GX::TF_Z24X8 ? 64 : 32;
+  u32 bufLen = 0;
+  if (mips) {
+    while (maxLod != 0) {
+      const u32 tileX = ((width + (1 << shiftX) - 1) >> shiftX);
+      const u32 tileY = ((height + (1 << shiftY) - 1) >> shiftY);
+      bufLen += bitSize * tileX * tileY;
+
+      if (width == 1 && height == 1) {
+        return bufLen;
+      }
+
+      width = (width < 2) ? 1 : width / 2;
+      height = (height < 2) ? 1 : height / 2;
+      --maxLod;
+    };
+  } else {
+    const u32 tileX = ((width + (1 << shiftX) - 1) >> shiftX);
+    const u32 tileY = ((height + (1 << shiftY) - 1) >> shiftY);
+    bufLen = bitSize * tileX * tileY;
+  }
+
+  return bufLen;
+}
+
 // Lighting
-void GXInitLightAttn(GX::LightObj* light, float a0, float a1, float a2, float k0, float k1, float k2) {
+void GXInitLightAttn(GX::LightObj* light, float a0, float a1, float a2, float k0, float k1, float k2) noexcept {
   light->a0 = a0;
   light->a1 = a1;
   light->a2 = a2;
@@ -211,19 +279,19 @@ void GXInitLightAttn(GX::LightObj* light, float a0, float a1, float a2, float k0
   light->k2 = k2;
 }
 
-void GXInitLightAttnA(GX::LightObj* light, float a0, float a1, float a2) {
+void GXInitLightAttnA(GX::LightObj* light, float a0, float a1, float a2) noexcept {
   light->a0 = a0;
   light->a1 = a1;
   light->a2 = a2;
 }
 
-void GXInitLightAttnK(GX::LightObj* light, float k0, float k1, float k2) {
+void GXInitLightAttnK(GX::LightObj* light, float k0, float k1, float k2) noexcept {
   light->k0 = k0;
   light->k1 = k1;
   light->k2 = k2;
 }
 
-void GXInitLightSpot(GX::LightObj* light, float cutoff, GX::SpotFn spotFn) {
+void GXInitLightSpot(GX::LightObj* light, float cutoff, GX::SpotFn spotFn) noexcept {
   if (cutoff <= 0.f || cutoff > 90.f) {
     spotFn = GX::SP_OFF;
   }
@@ -278,7 +346,8 @@ void GXInitLightSpot(GX::LightObj* light, float cutoff, GX::SpotFn spotFn) {
   light->a2 = a2;
 }
 
-void GXInitLightDistAttn(GX::LightObj* light, float refDistance, float refBrightness, GX::DistAttnFn distFunc) {
+void GXInitLightDistAttn(GX::LightObj* light, float refDistance, float refBrightness,
+                         GX::DistAttnFn distFunc) noexcept {
   if (refDistance < 0.f || refBrightness < 0.f || refBrightness >= 1.f) {
     distFunc = GX::DA_OFF;
   }
@@ -313,19 +382,19 @@ void GXInitLightDistAttn(GX::LightObj* light, float refDistance, float refBright
   light->k2 = k2;
 }
 
-void GXInitLightPos(GX::LightObj* light, float x, float y, float z) {
+void GXInitLightPos(GX::LightObj* light, float x, float y, float z) noexcept {
   light->px = x;
   light->py = y;
   light->pz = z;
 }
 
-void GXInitLightDir(GX::LightObj* light, float nx, float ny, float nz) {
+void GXInitLightDir(GX::LightObj* light, float nx, float ny, float nz) noexcept {
   light->nx = -nx;
   light->ny = -ny;
   light->nz = -nz;
 }
 
-void GXInitSpecularDir(GX::LightObj* light, float nx, float ny, float nz) {
+void GXInitSpecularDir(GX::LightObj* light, float nx, float ny, float nz) noexcept {
   float hx = -nx;
   float hy = -ny;
   float hz = (-nz + 1.0f);
@@ -341,7 +410,7 @@ void GXInitSpecularDir(GX::LightObj* light, float nx, float ny, float nz) {
   light->nz = hz * mag;
 }
 
-void GXInitSpecularDirHA(GX::LightObj* light, float nx, float ny, float nz, float hx, float hy, float hz) {
+void GXInitSpecularDirHA(GX::LightObj* light, float nx, float ny, float nz, float hx, float hy, float hz) noexcept {
   light->px = (nx * GX::LARGE_NUMBER);
   light->py = (ny * GX::LARGE_NUMBER);
   light->pz = (nz * GX::LARGE_NUMBER);
@@ -350,9 +419,9 @@ void GXInitSpecularDirHA(GX::LightObj* light, float nx, float ny, float nz, floa
   light->nz = hz;
 }
 
-void GXInitLightColor(GX::LightObj* light, GX::Color col) { light->color = col; }
+void GXInitLightColor(GX::LightObj* light, GX::Color col) noexcept { light->color = col; }
 
-void GXLoadLightObjImm(const GX::LightObj* light, GX::LightID id) {
+void GXLoadLightObjImm(const GX::LightObj* light, GX::LightID id) noexcept {
   u32 idx = std::log2<u32>(id);
   aurora::gfx::Light realLight;
   realLight.pos.assign(light->px, light->py, light->pz);
@@ -364,45 +433,158 @@ void GXLoadLightObjImm(const GX::LightObj* light, GX::LightID id) {
 }
 
 /* TODO Figure out a way to implement this, requires GXSetArray */
-void GXLoadLightObjIndx(u32 index, GX::LightID) {}
+void GXLoadLightObjIndx(u32 index, GX::LightID) noexcept {}
 
-void GXGetLightAttnA(const GX::LightObj* light, float* a0, float* a1, float* a2) {
+void GXGetLightAttnA(const GX::LightObj* light, float* a0, float* a1, float* a2) noexcept {
   *a0 = light->a0;
   *a1 = light->a1;
   *a2 = light->a2;
 }
 
-void GXGetLightAttnK(const GX::LightObj* light, float* k0, float* k1, float* k2) {
+void GXGetLightAttnK(const GX::LightObj* light, float* k0, float* k1, float* k2) noexcept {
   *k0 = light->k0;
   *k1 = light->k1;
   *k2 = light->k2;
 }
 
-void GXGetLightPos(const GX::LightObj* light, float* x, float* y, float* z) {
+void GXGetLightPos(const GX::LightObj* light, float* x, float* y, float* z) noexcept {
   *x = light->px;
   *z = light->py;
   *z = light->pz;
 }
 
-void GXGetLightDir(const GX::LightObj* light, float* nx, float* ny, float* nz) {
-  *nx = light->nx;
-  *ny = light->ny;
-  *nz = light->nz;
+void GXGetLightDir(const GX::LightObj* light, float* nx, float* ny, float* nz) noexcept {
+  *nx = -light->nx;
+  *ny = -light->ny;
+  *nz = -light->nz;
 }
 
-void GXGetLightColor(const GX::LightObj* light, GX::Color* col) { *col = light->color; }
+void GXGetLightColor(const GX::LightObj* light, GX::Color* col) noexcept { *col = light->color; }
+
+// Indirect Texturing
+void GXSetTevIndirect(GX::TevStageID tevStage, GX::IndTexStageID indStage, GX::IndTexFormat fmt,
+                      GX::IndTexBiasSel biasSel, GX::IndTexMtxID matrixSel, GX::IndTexWrap wrapS, GX::IndTexWrap wrapT,
+                      GXBool addPrev, GXBool indLod, GX::IndTexAlphaSel alphaSel) noexcept {
+  auto& stage = g_gxState.tevStages[tevStage];
+  stage.indTexStage = indStage;
+  stage.indTexFormat = fmt;
+  stage.indTexBiasSel = biasSel;
+  stage.indTexAlphaSel = alphaSel;
+  stage.indTexMtxId = matrixSel;
+  stage.indTexWrapS = wrapS;
+  stage.indTexWrapT = wrapT;
+  stage.indTexAddPrev = addPrev;
+  stage.indTexUseOrigLOD = indLod;
+}
+void GXSetIndTexOrder(GX::IndTexStageID indStage, GX::TexCoordID texCoord, GX::TexMapID texMap) noexcept {
+  auto& stage = g_gxState.indStages[indStage];
+  stage.texCoordId = texCoord;
+  stage.texMapId = texMap;
+}
+void GXSetIndTexCoordScale(GX::IndTexStageID indStage, GX::IndTexScale scaleS, GX::IndTexScale scaleT) noexcept {
+  auto& stage = g_gxState.indStages[indStage];
+  stage.scaleS = scaleS;
+  stage.scaleT = scaleT;
+}
+void GXSetIndTexMtx(GX::IndTexMtxID id, const void* mtx, s8 scaleExp) noexcept {
+  if (id < GX::ITM_0 || id > GX::ITM_2) {
+    Log.report(logvisor::Fatal, FMT_STRING("invalid ind tex mtx ID {}"), id);
+  }
+  g_gxState.indTexMtxs[id - 1] = {*static_cast<const aurora::Mat3x2<float>*>(mtx), scaleExp};
+}
+
+void GXInitTexObj(GXTexObj* obj, void* data, u16 width, u16 height, GX::TextureFormat format, GXTexWrapMode wrapS,
+                  GXTexWrapMode wrapT, GXBool mipmap) noexcept {
+  obj->data = data;
+  obj->width = width;
+  obj->height = height;
+  obj->fmt = format;
+  obj->wrapS = wrapS;
+  obj->wrapT = wrapT;
+  obj->hasMips = mipmap;
+  // TODO default values?
+  obj->minFilter = GX_LINEAR;
+  obj->magFilter = GX_LINEAR;
+  obj->minLod = 0.f;
+  obj->maxLod = 0.f;
+  obj->lodBias = 0.f;
+  obj->biasClamp = false;
+  obj->doEdgeLod = false;
+  obj->maxAniso = GX_ANISO_4;
+  obj->tlut = GX_TLUT0;
+  obj->dataInvalidated = true;
+}
+void GXInitTexObjResolved(GXTexObj* obj, u32 bindIdx, GX::TextureFormat format, GXTexWrapMode wrapS,
+                          GXTexWrapMode wrapT) {
+  const auto& ref = aurora::gfx::g_resolvedTextures[bindIdx];
+  obj->ref = ref;
+  obj->data = nullptr;
+  obj->dataSize = 0;
+  obj->width = ref->size.width;
+  obj->height = ref->size.height;
+  obj->fmt = format;
+  obj->wrapS = wrapS;
+  obj->wrapT = wrapT;
+  obj->hasMips = false; // TODO
+  // TODO default values?
+  obj->minFilter = GX_LINEAR;
+  obj->magFilter = GX_LINEAR;
+  obj->minLod = 0.f;
+  obj->maxLod = 0.f;
+  obj->lodBias = 0.f;
+  obj->biasClamp = false;
+  obj->doEdgeLod = false;
+  obj->maxAniso = GX_ANISO_4;
+  obj->tlut = GX_TLUT0;
+  obj->dataInvalidated = false;
+}
+void GXInitTexObjLOD(GXTexObj* obj, GXTexFilter minFilt, GXTexFilter magFilt, float minLod, float maxLod, float lodBias,
+                     GXBool biasClamp, GXBool doEdgeLod, GXAnisotropy maxAniso) noexcept {
+  obj->minFilter = minFilt;
+  obj->magFilter = magFilt;
+  obj->minLod = minLod;
+  obj->maxLod = maxLod;
+  obj->lodBias = lodBias;
+  obj->doEdgeLod = doEdgeLod;
+  obj->maxAniso = maxAniso;
+}
+void GXInitTexObjCI(GXTexObj* obj, void* data, u16 width, u16 height, GXCITexFmt format, GXTexWrapMode wrapS,
+                    GXTexWrapMode wrapT, GXBool mipmap, u32 tlut) noexcept {
+  // TODO
+}
+void GXInitTexObjData(GXTexObj* obj, void* data) noexcept {
+  obj->data = data;
+  obj->dataInvalidated = true;
+}
+void GXInitTexObjWrapMode(GXTexObj* obj, GXTexWrapMode wrapS, GXTexWrapMode wrapT) noexcept {
+  obj->wrapS = wrapS;
+  obj->wrapT = wrapT;
+}
+void GXInitTexObjTlut(GXTexObj* obj, u32 tlut) noexcept { obj->tlut = static_cast<GXTlut>(tlut); }
+void GXLoadTexObj(GXTexObj* obj, GX::TexMapID id) noexcept {
+  if (!obj->ref) {
+    obj->ref =
+        aurora::gfx::new_dynamic_texture_2d(obj->width, obj->height, u32(obj->minLod) + 1, obj->fmt, "GXLoadTexObj");
+  }
+  if (obj->dataInvalidated) {
+    aurora::gfx::write_texture(*obj->ref, {static_cast<const u8*>(obj->data), UINT32_MAX /* TODO */});
+    obj->dataInvalidated = false;
+  }
+  g_gxState.textures[id] = {*obj};
+}
+
+void GXInitTlutObj(GXTlutObj* obj, void* data, GXTlutFmt format, u16 entries) noexcept {
+  // TODO
+}
+void GXLoadTlut(const GXTlutObj* obj, GXTlut idx) noexcept {
+  // TODO
+}
 
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx::gx");
 
 // TODO remove this hack for build_shader
 extern std::mutex g_pipelineMutex;
-
-// GX state
-void bind_texture(GX::TexMapID id, metaforce::EClampMode clamp, const TextureHandle& tex, float lod) noexcept {
-  gx::g_gxState.textures[static_cast<size_t>(id)] = {tex, clamp, lod};
-}
-void unbind_texture(GX::TexMapID id) noexcept { gx::g_gxState.textures[static_cast<size_t>(id)].reset(); }
 
 namespace gx {
 using gpu::g_device;
@@ -677,77 +859,22 @@ void populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive) n
                     [](const auto type) { return type == GX::INDEX8 || type == GX::INDEX16; });
   for (u8 i = 0; i < MaxTextures; ++i) {
     const auto& bind = g_gxState.textures[i];
-    bool hasAlpha = false;
-    // TODO check resolved fmt
-    if (bind.handle) {
-      wgpu::TextureFormat format = bind.handle.ref->format;
-      switch (format) {
-      case wgpu::TextureFormat::R8Unorm:
-      case wgpu::TextureFormat::R8Snorm:
-      case wgpu::TextureFormat::R8Uint:
-      case wgpu::TextureFormat::R8Sint:
-      case wgpu::TextureFormat::R16Uint:
-      case wgpu::TextureFormat::R16Sint:
-      case wgpu::TextureFormat::R16Float:
-      case wgpu::TextureFormat::RG8Unorm:
-      case wgpu::TextureFormat::RG8Snorm:
-      case wgpu::TextureFormat::RG8Uint:
-      case wgpu::TextureFormat::RG8Sint:
-      case wgpu::TextureFormat::R32Float:
-      case wgpu::TextureFormat::R32Uint:
-      case wgpu::TextureFormat::R32Sint:
-      case wgpu::TextureFormat::RG16Uint:
-      case wgpu::TextureFormat::RG16Sint:
-      case wgpu::TextureFormat::RG16Float:
-      case wgpu::TextureFormat::RG11B10Ufloat:
-      case wgpu::TextureFormat::RGB9E5Ufloat:
-      case wgpu::TextureFormat::RG32Float:
-      case wgpu::TextureFormat::RG32Uint:
-      case wgpu::TextureFormat::RG32Sint:
-      case wgpu::TextureFormat::BC4RUnorm:
-      case wgpu::TextureFormat::BC4RSnorm:
-      case wgpu::TextureFormat::BC5RGUnorm:
-      case wgpu::TextureFormat::BC5RGSnorm:
-      case wgpu::TextureFormat::BC6HRGBUfloat:
-      case wgpu::TextureFormat::BC6HRGBFloat:
-      case wgpu::TextureFormat::ETC2RGB8Unorm:
-      case wgpu::TextureFormat::ETC2RGB8UnormSrgb:
-        hasAlpha = false;
-        break;
-      case wgpu::TextureFormat::RGBA8Unorm:
-      case wgpu::TextureFormat::RGBA8UnormSrgb:
-      case wgpu::TextureFormat::RGBA8Snorm:
-      case wgpu::TextureFormat::RGBA8Uint:
-      case wgpu::TextureFormat::RGBA8Sint:
-      case wgpu::TextureFormat::BGRA8Unorm:
-      case wgpu::TextureFormat::BGRA8UnormSrgb:
-      case wgpu::TextureFormat::RGB10A2Unorm:
-      case wgpu::TextureFormat::RGBA16Uint:
-      case wgpu::TextureFormat::RGBA16Sint:
-      case wgpu::TextureFormat::RGBA16Float:
-      case wgpu::TextureFormat::RGBA32Float:
-      case wgpu::TextureFormat::RGBA32Uint:
-      case wgpu::TextureFormat::RGBA32Sint:
-      case wgpu::TextureFormat::BC1RGBAUnorm:
-      case wgpu::TextureFormat::BC1RGBAUnormSrgb:
-      case wgpu::TextureFormat::BC2RGBAUnorm:
-      case wgpu::TextureFormat::BC2RGBAUnormSrgb:
-      case wgpu::TextureFormat::BC3RGBAUnorm:
-      case wgpu::TextureFormat::BC3RGBAUnormSrgb:
-      case wgpu::TextureFormat::BC7RGBAUnorm:
-      case wgpu::TextureFormat::BC7RGBAUnormSrgb:
-      case wgpu::TextureFormat::ETC2RGB8A1Unorm:
-      case wgpu::TextureFormat::ETC2RGB8A1UnormSrgb:
-      case wgpu::TextureFormat::ETC2RGBA8Unorm:
-      case wgpu::TextureFormat::ETC2RGBA8UnormSrgb:
-        hasAlpha = true;
-        break;
-      default:
-        Log.report(logvisor::Fatal, FMT_STRING("Unknown texture format {}"), format);
-        unreachable();
-      }
+    GX::TextureFormat copyFmt, bindFmt;
+    bool flipUV = false;
+    if (!bind.texObj.ref) {
+      config.shaderConfig.textureConfig[i] = {};
+      continue;
+    } else if (bind.texObj.ref->isRenderTexture) {
+      // EFB copy
+      copyFmt = bind.texObj.ref->gxFormat;
+      bindFmt = bind.texObj.fmt;
+      flipUV = true;
+    } else {
+      // Loaded texture object, no conversion necessary
+      copyFmt = InvalidTextureFormat;
+      bindFmt = InvalidTextureFormat;
     }
-    config.shaderConfig.texHasAlpha[i] = hasAlpha;
+    config.shaderConfig.textureConfig[i] = {copyFmt, bindFmt, flipUV};
   }
   config = {
       .shaderConfig = config.shaderConfig,
@@ -870,7 +997,7 @@ Range build_uniform(const ShaderInfo& info) noexcept {
       Log.report(logvisor::Fatal, FMT_STRING("unbound texture {}"), i);
       unreachable();
     }
-    buf.append(&tex.lod, 4);
+    buf.append(&tex.texObj.lodBias, 4);
   }
   return range;
 }
@@ -929,17 +1056,10 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
         .binding = i,
         .sampler = sampler_ref(tex.get_descriptor()),
     };
-    if (tex.handle) {
-      textureEntries[i] = {
-          .binding = i,
-          .textureView = tex.handle.ref->view,
-      };
-    } else if (tex.resolvedBindIdx != UINT32_MAX) {
-      textureEntries[i] = {
-          .binding = i,
-          .textureView = g_resolvedTextures[tex.resolvedBindIdx].ref->view,
-      };
-    }
+    textureEntries[i] = {
+        .binding = i,
+        .textureView = tex.texObj.ref->view,
+    };
     i++;
   }
   return {
@@ -1084,29 +1204,64 @@ void shutdown() noexcept {
   g_gxCachedShaders.clear();
 }
 
-wgpu::SamplerDescriptor TextureBind::get_descriptor() const noexcept {
-  wgpu::AddressMode mode;
-  switch (clampMode) {
-  case metaforce::EClampMode::Clamp:
-    mode = wgpu::AddressMode::ClampToEdge;
-    break;
-  case metaforce::EClampMode::Repeat:
-    mode = wgpu::AddressMode::Repeat;
-    break;
-  case metaforce::EClampMode::Mirror:
-    mode = wgpu::AddressMode::MirrorRepeat;
-    break;
+static wgpu::AddressMode wgpu_address_mode(GXTexWrapMode mode) {
+  switch (mode) {
+  case GX_CLAMP:
+    return wgpu::AddressMode::ClampToEdge;
+  case GX_REPEAT:
+    return wgpu::AddressMode::Repeat;
+  case GX_MIRROR:
+    return wgpu::AddressMode::MirrorRepeat;
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("invalid wrap mode {}"), mode);
+    unreachable();
   }
+}
+static std::pair<wgpu::FilterMode, wgpu::FilterMode> wgpu_filter_mode(GXTexFilter filter) {
+  switch (filter) {
+  case GX_NEAR:
+    return {wgpu::FilterMode::Nearest, wgpu::FilterMode::Linear};
+  case GX_LINEAR:
+    return {wgpu::FilterMode::Linear, wgpu::FilterMode::Linear};
+  case GX_NEAR_MIP_NEAR:
+    return {wgpu::FilterMode::Nearest, wgpu::FilterMode::Nearest};
+  case GX_LIN_MIP_NEAR:
+    return {wgpu::FilterMode::Linear, wgpu::FilterMode::Nearest};
+  case GX_NEAR_MIP_LIN:
+    return {wgpu::FilterMode::Nearest, wgpu::FilterMode::Linear};
+  case GX_LIN_MIP_LIN:
+    return {wgpu::FilterMode::Linear, wgpu::FilterMode::Linear};
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("invalid filter mode {}"), filter);
+    unreachable();
+  }
+}
+static u16 wgpu_aniso(GXAnisotropy aniso) {
+  // TODO use config values?
+  switch (aniso) {
+  case GX_ANISO_1:
+    return 1;
+  case GX_ANISO_2:
+    return 2;
+  case GX_ANISO_4:
+    return 4;
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("invalid aniso mode {}"), aniso);
+    unreachable();
+  }
+}
+wgpu::SamplerDescriptor TextureBind::get_descriptor() const noexcept {
+  const auto [minFilter, mipFilter] = wgpu_filter_mode(texObj.minFilter);
+  const auto [magFilter, _] = wgpu_filter_mode(texObj.magFilter);
   return {
       .label = "Generated Sampler",
-      .addressModeU = mode,
-      .addressModeV = mode,
-      .addressModeW = mode,
-      // TODO logic from CTexture?
-      .magFilter = wgpu::FilterMode::Linear,
-      .minFilter = wgpu::FilterMode::Linear,
-      .mipmapFilter = wgpu::FilterMode::Linear,
-      .maxAnisotropy = g_graphicsConfig.textureAnistropy,
+      .addressModeU = wgpu_address_mode(texObj.wrapS),
+      .addressModeV = wgpu_address_mode(texObj.wrapT),
+      .addressModeW = wgpu::AddressMode::Repeat,
+      .magFilter = magFilter,
+      .minFilter = minFilter,
+      .mipmapFilter = mipFilter,
+      .maxAnisotropy = wgpu_aniso(texObj.maxAniso),
   };
 }
 } // namespace gx

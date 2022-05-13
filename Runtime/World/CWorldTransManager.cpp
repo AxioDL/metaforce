@@ -290,9 +290,9 @@ void CWorldTransManager::DrawEnabled() {
     float t = zeus::clamp(0.f, (x0_curTime - x4_modelData->x1d0_dissolveStartTime) / 2.f, 1.f);
     DrawFirstPass(&lights);
     SClipScreenRect rect(CGraphics::g_Viewport);
-    CGraphics::ResolveSpareTexture(rect);
+//    CGraphics::ResolveSpareTexture(rect);
 //    CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
-    DrawSecondPass(&lights);
+//    DrawSecondPass(&lights);
 //    m_dissolve.drawCropped(zeus::CColor{1.f, 1.f, 1.f, 1.f - t}, 1.f);
   }
 

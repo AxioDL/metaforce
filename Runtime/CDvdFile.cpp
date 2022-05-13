@@ -95,6 +95,7 @@ std::mutex CDvdFile::m_WaitMutex;
 std::atomic_bool CDvdFile::m_WorkerRun = {false};
 std::vector<std::shared_ptr<IDvdRequest>> CDvdFile::m_RequestQueue;
 std::string CDvdFile::m_rootDirectory;
+std::unique_ptr<u8[]> CDvdFile::m_dolBuf;
 
 CDvdFile::CDvdFile(std::string_view path) : x18_path(path) {
   auto* node = ResolvePath(path);
@@ -211,6 +212,7 @@ bool CDvdFile::Initialize(const std::string_view& path) {
   if (!m_DvdRoot) {
     return false;
   }
+  m_dolBuf = m_DvdRoot->getDataPartition()->getDOLBuf();
   m_WorkerRun.store(true);
   m_WorkerThread = std::thread(WorkerProc);
   return true;

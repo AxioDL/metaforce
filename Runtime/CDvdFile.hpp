@@ -40,6 +40,7 @@ class CDvdFile {
   static std::atomic_bool m_WorkerRun;
   static std::vector<std::shared_ptr<IDvdRequest>> m_RequestQueue;
   static std::string m_rootDirectory;
+  static std::unique_ptr<u8[]> m_dolBuf;
   static void WorkerProc();
 
   std::string x18_path;
@@ -55,6 +56,7 @@ public:
   static SDiscInfo DiscInfo();
   static void SetRootDirectory(const std::string_view& rootDir);
   static void Shutdown();
+  static u8* GetDolBuf() { return m_dolBuf.get(); }
 
   CDvdFile(std::string_view path);
   operator bool() const { return m_reader.operator bool(); }

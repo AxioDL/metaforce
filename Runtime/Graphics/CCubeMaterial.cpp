@@ -55,7 +55,7 @@ void CCubeMaterial::SetCurrent(const CModelFlags& flags, const CCubeSurface& sur
     materialDataCur += 8;
     for (u32 i = 0; i < texCount; ++i) {
       u32 texIdx = SBig(*reinterpret_cast<const u32*>(materialDataCur));
-      sRenderingModel->GetTexture(texIdx)->Load(static_cast<GX::TexMapID>(i), EClampMode::Repeat);
+      model.GetTexture(texIdx)->Load(static_cast<GX::TexMapID>(i), EClampMode::Repeat);
       materialDataCur += 4;
     }
   }
@@ -225,16 +225,24 @@ void CCubeMaterial::SetCurrent(const CModelFlags& flags, const CCubeSurface& sur
 }
 
 void CCubeMaterial::SetCurrentBlack() {
-  auto flags = GetFlags();
-  auto vatFlags = GetVatFlags();
-
+  const auto flags = GetFlags();
+  const auto vatFlags = GetVatFlags();
   if (flags.IsSet(CCubeMaterialFlagBits::fDepthSorting) || flags.IsSet(CCubeMaterialFlagBits::fAlphaTest)) {
     CGX::SetBlendMode(GX::BM_BLEND, GX::BL_ZERO, GX::BL_ONE, GX::LO_CLEAR);
   } else {
     CGX::SetBlendMode(GX::BM_BLEND, GX::BL_ONE, GX::BL_ZERO, GX::LO_CLEAR);
   }
-  // set vtx desc flags
-  // TODO
+//  CGX::SetVtxDescv_Compressed(vatFlags);
+//  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO /* ? CC_ONE */);
+//  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO /* ? CA_KONST */);
+//  CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_1);
+//  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_POS, GX::IDENTITY, false, GX::PTIDENTITY);
+//  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
+//  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR_NULL);
+//  CGX::SetNumTevStages(1);
+//  CGX::SetNumChans(0);
+//  CGX::SetNumTexGens(1);
+//  CGX::SetNumIndStages(0);
 }
 
 void CCubeMaterial::SetupBlendMode(u32 blendFactors, const CModelFlags& flags, bool alphaTest) {

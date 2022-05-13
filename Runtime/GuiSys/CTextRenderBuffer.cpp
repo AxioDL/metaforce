@@ -12,74 +12,74 @@
 
 namespace metaforce {
 
-struct CTextRenderBuffer::BooFontCharacters {
-  TLockedToken<CRasterFont> m_font;
+//struct CTextRenderBuffer::BooFontCharacters {
+//  TLockedToken<CRasterFont> m_font;
 //  hecl::VertexBufferPool<CTextSupportShader::CharacterInstance>::Token m_instBuf;
 //  boo::ObjToken<boo::IShaderDataBinding> m_dataBinding;
 //  boo::ObjToken<boo::IShaderDataBinding> m_dataBinding2;
-  std::vector<CTextSupportShader::CharacterInstance> m_charData;
-  u32 m_charCount = 0;
-  bool m_dirty = true;
-
-  BooFontCharacters(const CToken& token) : m_font(token) {}
-};
-
-struct CTextRenderBuffer::BooImage {
-  CFontImageDef m_imageDef;
+//  std::vector<CTextSupportShader::CharacterInstance> m_charData;
+//  u32 m_charCount = 0;
+//  bool m_dirty = true;
+//
+//  BooFontCharacters(const CToken& token) : m_font(token) {}
+//};
+//
+//struct CTextRenderBuffer::BooImage {
+//  CFontImageDef m_imageDef;
 //  hecl::VertexBufferPool<CTextSupportShader::ImageInstance>::Token m_instBuf;
 //  std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding;
 //  std::vector<boo::ObjToken<boo::IShaderDataBinding>> m_dataBinding2;
-  CTextSupportShader::ImageInstance m_imageData;
-  bool m_dirty = true;
-
-  BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset) : m_imageDef(imgDef) {
-    m_imageData.SetMetrics(imgDef, offset);
-  }
-};
-
-struct CTextRenderBuffer::BooPrimitiveMark {
-  Command m_cmd;
-  u32 m_bindIdx;
-  u32 m_instIdx;
-
-  void SetOpacity(CTextRenderBuffer& rb, float opacity) {
-    switch (m_cmd) {
-    case Command::CharacterRender: {
-      BooFontCharacters& fc = rb.m_fontCharacters[m_bindIdx];
-      CTextSupportShader::CharacterInstance& inst = fc.m_charData[m_instIdx];
-      inst.m_mulColor.a() = opacity;
-      fc.m_dirty = true;
-      break;
-    }
-    case Command::ImageRender: {
-      BooImage& img = rb.m_images[m_bindIdx];
-      img.m_imageData.m_color.a() = opacity;
-      img.m_dirty = true;
-      break;
-    }
-    default:
-      break;
-    }
-  }
-};
+//  CTextSupportShader::ImageInstance m_imageData;
+//  bool m_dirty = true;
+//
+//  BooImage(const CFontImageDef& imgDef, const zeus::CVector2i& offset) : m_imageDef(imgDef) {
+//    m_imageData.SetMetrics(imgDef, offset);
+//  }
+//};
+//
+//struct CTextRenderBuffer::BooPrimitiveMark {
+//  Command m_cmd;
+//  u32 m_bindIdx;
+//  u32 m_instIdx;
+//
+//  void SetOpacity(CTextRenderBuffer& rb, float opacity) {
+//    switch (m_cmd) {
+//    case Command::CharacterRender: {
+//      BooFontCharacters& fc = rb.m_fontCharacters[m_bindIdx];
+//      CTextSupportShader::CharacterInstance& inst = fc.m_charData[m_instIdx];
+//      inst.m_mulColor.a() = opacity;
+//      fc.m_dirty = true;
+//      break;
+//    }
+//    case Command::ImageRender: {
+//      BooImage& img = rb.m_images[m_bindIdx];
+//      img.m_imageData.m_color.a() = opacity;
+//      img.m_dirty = true;
+//      break;
+//    }
+//    default:
+//      break;
+//    }
+//  }
+//};
 
 CTextRenderBuffer::CTextRenderBuffer(CTextRenderBuffer&&) noexcept = default;
 
-CTextRenderBuffer::CTextRenderBuffer(EMode mode, CGuiWidget::EGuiModelDrawFlags df) : x0_mode(mode), m_drawFlags(df) {}
+CTextRenderBuffer::CTextRenderBuffer(EMode mode, CGuiWidget::EGuiModelDrawFlags df) : x0_mode(mode)/*, m_drawFlags(df)*/ {}
 
 CTextRenderBuffer::~CTextRenderBuffer() = default;
 
 CTextRenderBuffer& CTextRenderBuffer::operator=(CTextRenderBuffer&&) noexcept = default;
 
-void CTextRenderBuffer::CommitResources() {
-  if (m_committed)
-    return;
-  m_committed = true;
-
-  /* Ensure font textures are ready outside transaction */
-  for (BooFontCharacters& chs : m_fontCharacters)
-    chs.m_font->GetTexture();
-
+//void CTextRenderBuffer::CommitResources() {
+//  if (m_committed)
+//    return;
+//  m_committed = true;
+//
+//  /* Ensure font textures are ready outside transaction */
+//  for (BooFontCharacters& chs : m_fontCharacters)
+//    chs.m_font->GetTexture();
+//
 //  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
 //    m_uniBuf = CTextSupportShader::s_Uniforms.allocateBlock(CGraphics::g_BooFactory);
 //    auto uBufInfo = m_uniBuf.getBufferInfo();
@@ -142,109 +142,103 @@ void CTextRenderBuffer::CommitResources() {
 //    }
 //    return true;
 //  } BooTrace);
-}
+//}
 
 void CTextRenderBuffer::SetMode(EMode mode) {
-  if (mode == EMode::BufferFill) {
-    m_images.reserve(m_imagesCount);
-    for (BooFontCharacters& fc : m_fontCharacters)
-      fc.m_charData.reserve(fc.m_charCount);
-  }
-  m_activeFontCh = -1;
   x0_mode = mode;
 }
 
-void CTextRenderBuffer::SetPrimitiveOpacity(int idx, float opacity) {
-  m_primitiveMarks[idx].SetOpacity(*this, opacity);
-}
-
-u32 CTextRenderBuffer::GetPrimitiveCount() const { return m_primitiveMarks.size(); }
+//void CTextRenderBuffer::SetPrimitiveOpacity(int idx, float opacity) {
+//  m_primitiveMarks[idx].SetOpacity(*this, opacity);
+//}
+//
+//u32 CTextRenderBuffer::GetPrimitiveCount() const { return m_primitiveMarks.size(); }
 
 void CTextRenderBuffer::Render(const zeus::CColor& col, float time) {
-  CommitResources();
+//  CommitResources();
 
 //  const zeus::CMatrix4f mv = CGraphics::g_GXModelView.toMatrix4f();
 //  const zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(true);
 //  const zeus::CMatrix4f mat = proj * mv;
 
 //  m_uniBuf.access() = CTextSupportShader::Uniform{mat, col};
-  if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
-    zeus::CColor colPremul = col * col.a();
-    colPremul.a() = col.a();
+//  if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
+//    zeus::CColor colPremul = col * col.a();
+//    colPremul.a() = col.a();
 //    m_uniBuf2.access() = CTextSupportShader::Uniform{mat, colPremul};
-  }
+//  }
 
-  for (BooFontCharacters& chs : m_fontCharacters) {
-    if (chs.m_charData.size()) {
-      if (chs.m_dirty) {
+//  for (BooFontCharacters& chs : m_fontCharacters) {
+//    if (chs.m_charData.size()) {
+//      if (chs.m_dirty) {
 //        std::memmove(chs.m_instBuf.access(), chs.m_charData.data(),
 //                     sizeof(CTextSupportShader::CharacterInstance) * chs.m_charData.size());
-        chs.m_dirty = false;
-      }
+//        chs.m_dirty = false;
+//      }
 //      CGraphics::SetShaderDataBinding(chs.m_dataBinding);
 //      CGraphics::DrawInstances(0, 4, chs.m_charData.size());
-      if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
+//      if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
 //        CGraphics::SetShaderDataBinding(chs.m_dataBinding2);
 //        CGraphics::DrawInstances(0, 4, chs.m_charData.size());
-      }
-    }
-  }
+//      }
+//    }
+//  }
 
-  for (BooImage& img : m_images) {
-    if (img.m_dirty) {
+//  for (BooImage& img : m_images) {
+//    if (img.m_dirty) {
 //      *img.m_instBuf.access() = img.m_imageData;
-      img.m_dirty = false;
-    }
+//      img.m_dirty = false;
+//    }
 //    const int idx = int(img.m_imageDef.x0_fps * time) % img.m_dataBinding.size();
 //    CGraphics::SetShaderDataBinding(img.m_dataBinding[idx]);
 //    CGraphics::DrawInstances(0, 4, 1);
-    if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
+//    if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw) {
 //      CGraphics::SetShaderDataBinding(img.m_dataBinding2[idx]);
 //      CGraphics::DrawInstances(0, 4, 1);
-    }
-  }
+//    }
+//  }
 }
 
 void CTextRenderBuffer::AddImage(const zeus::CVector2i& offset, const CFontImageDef& image) {
-  if (x0_mode == EMode::AllocTally)
-    m_primitiveMarks.push_back({Command::ImageRender, m_imagesCount++, 0});
-  else
-    m_images.emplace_back(image, offset);
+//  if (x0_mode == EMode::AllocTally)
+//    m_primitiveMarks.push_back({Command::ImageRender, m_imagesCount++, 0});
+//  else
+//    m_images.emplace_back(image, offset);
 }
 
 void CTextRenderBuffer::AddCharacter(const zeus::CVector2i& offset, char16_t ch, const zeus::CColor& color) {
-  if (m_activeFontCh == UINT32_MAX)
-    return;
-  BooFontCharacters& chs = m_fontCharacters[m_activeFontCh];
-  if (x0_mode == EMode::AllocTally)
-    m_primitiveMarks.push_back({Command::CharacterRender, m_activeFontCh, chs.m_charCount++});
-  else {
-    const CGlyph* glyph = chs.m_font.GetObj()->GetGlyph(ch);
-
-    CTextSupportShader::CharacterInstance& inst = chs.m_charData.emplace_back();
-    inst.SetMetrics(*glyph, offset);
-    inst.m_fontColor = m_main * color;
-    inst.m_outlineColor = m_outline * color;
-    inst.m_mulColor = zeus::skWhite;
-  }
+//  if (m_activeFontCh == UINT32_MAX)
+//    return;
+//  BooFontCharacters& chs = m_fontCharacters[m_activeFontCh];
+//  if (x0_mode == EMode::AllocTally)
+//    m_primitiveMarks.push_back({Command::CharacterRender, m_activeFontCh, chs.m_charCount++});
+//  else {
+//    const CGlyph* glyph = chs.m_font.GetObj()->GetGlyph(ch);
+//
+//    CTextSupportShader::CharacterInstance& inst = chs.m_charData.emplace_back();
+//    inst.SetMetrics(*glyph, offset);
+//    inst.m_fontColor = m_main * color;
+//    inst.m_outlineColor = m_outline * color;
+//    inst.m_mulColor = zeus::skWhite;
+//  }
 }
 
 void CTextRenderBuffer::AddPaletteChange(const zeus::CColor& main, const zeus::CColor& outline) {
-  m_main = main;
-  m_outline = outline;
+//  m_main = main;
+//  m_outline = outline;
 }
 
 void CTextRenderBuffer::AddFontChange(const TToken<CRasterFont>& font) {
-  for (size_t i = 0; i < m_fontCharacters.size(); ++i) {
-    BooFontCharacters& chs = m_fontCharacters[i];
-    if (*chs.m_font.GetObjectTag() == *font.GetObjectTag()) {
-      m_activeFontCh = i;
-      return;
-    }
-  }
-
-  m_activeFontCh = m_fontCharacters.size();
-  m_fontCharacters.emplace_back(font);
+//  for (size_t i = 0; i < m_fontCharacters.size(); ++i) {
+//    BooFontCharacters& chs = m_fontCharacters[i];
+//    if (*chs.m_font.GetObjectTag() == *font.GetObjectTag()) {
+//      m_activeFontCh = i;
+//      return;
+//    }
+//  }
+//
+//  m_activeFontCh = m_fontCharacters.size();
+//  m_fontCharacters.emplace_back(font);
 }
 
 bool CTextRenderBuffer::HasSpaceAvailable(const zeus::CVector2i& origin, const zeus::CVector2i& extent) const {
@@ -263,23 +257,65 @@ std::pair<zeus::CVector2i, zeus::CVector2i> CTextRenderBuffer::AccumulateTextBou
   std::pair<zeus::CVector2i, zeus::CVector2i> ret =
       std::make_pair(zeus::CVector2i{INT_MAX, INT_MAX}, zeus::CVector2i{INT_MIN, INT_MIN});
 
-  for (const BooFontCharacters& chars : m_fontCharacters) {
-    for (const CTextSupportShader::CharacterInstance& charInst : chars.m_charData) {
-      ret.first.x = std::min(ret.first.x, int(charInst.m_pos[0].x()));
-      ret.first.y = std::min(ret.first.y, int(charInst.m_pos[0].z()));
-      ret.second.x = std::max(ret.second.x, int(charInst.m_pos[3].x()));
-      ret.second.y = std::max(ret.second.y, int(charInst.m_pos[3].z()));
-    }
-  }
-
-  for (const BooImage& imgs : m_images) {
-    ret.first.x = std::min(ret.first.x, int(imgs.m_imageData.m_pos[0].x()));
-    ret.first.y = std::min(ret.first.y, int(imgs.m_imageData.m_pos[0].z()));
-    ret.second.x = std::max(ret.second.x, int(imgs.m_imageData.m_pos[3].x()));
-    ret.second.y = std::max(ret.second.y, int(imgs.m_imageData.m_pos[3].z()));
-  }
+//  for (const BooFontCharacters& chars : m_fontCharacters) {
+//    for (const CTextSupportShader::CharacterInstance& charInst : chars.m_charData) {
+//      ret.first.x = std::min(ret.first.x, int(charInst.m_pos[0].x()));
+//      ret.first.y = std::min(ret.first.y, int(charInst.m_pos[0].z()));
+//      ret.second.x = std::max(ret.second.x, int(charInst.m_pos[3].x()));
+//      ret.second.y = std::max(ret.second.y, int(charInst.m_pos[3].z()));
+//    }
+//  }
+//
+//  for (const BooImage& imgs : m_images) {
+//    ret.first.x = std::min(ret.first.x, int(imgs.m_imageData.m_pos[0].x()));
+//    ret.first.y = std::min(ret.first.y, int(imgs.m_imageData.m_pos[0].z()));
+//    ret.second.x = std::max(ret.second.x, int(imgs.m_imageData.m_pos[3].x()));
+//    ret.second.y = std::max(ret.second.y, int(imgs.m_imageData.m_pos[3].z()));
+//  }
 
   return ret;
+}
+
+void CTextRenderBuffer::SetPrimitive(const Primitive& prim, s32 idx) {
+  CMemoryStreamOut out(reinterpret_cast<u8*>(x34_bytecode.data() + x24_primOffsets[idx]),
+                       x44_blobSize - x24_primOffsets[idx]);
+  if (prim.x4_command == Command::ImageRender) {
+    out.WriteUint8(1);
+    out.Put(prim.x8_xPos);
+    out.Put(prim.xa_zPos);
+    out.Put(prim.xe_imageIndex);
+//    out.Put(prim.x0_color1.toRGBA());
+  } else if (prim.x4_command == Command::CharacterRender) {
+    out.WriteUint8(0);
+    out.Put(prim.x8_xPos);
+    out.Put(prim.xa_zPos);
+    out.Put(u16(prim.xc_glyph));
+//    out.Put(prim.x0_color1.toRGBA());
+  }
+}
+
+CTextRenderBuffer::Primitive CTextRenderBuffer::GetPrimitive(s32 idx) const {
+  CMemoryInStream in(reinterpret_cast<const u8*>(x34_bytecode.data() + x24_primOffsets[idx]),
+                     x44_blobSize - x24_primOffsets[idx]);
+  auto cmd = Command(in.ReadChar());
+  if (cmd == Command::ImageRender) {
+    u16 xPos = in.ReadShort();
+    u16 zPos = in.ReadShort();
+    u8 imageIndex = in.ReadChar();
+    CTextColor color(in.ReadUint32());
+    return {color, Command::ImageRender, xPos, zPos, u'\0', imageIndex };
+  }
+
+  if (cmd == Command::CharacterRender) {
+    u16 xPos = in.ReadShort();
+    u16 zPos = in.ReadShort();
+    char16_t glyph = in.ReadUint16();
+    CTextColor color(in.ReadUint32());
+
+    return {color, Command::CharacterRender, xPos, zPos, glyph, 0};
+  }
+
+  return {CTextColor(zeus::Comp32(0)), Command::Invalid, 0, 0, u'\0', 0 };
 }
 
 } // namespace metaforce

@@ -128,7 +128,7 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
 
   //  CGraphics::SetShaderDataBinding(m_dataBindBlurX);
   //  CGraphics::DrawArray(0, 4);
-  CGraphics::ResolveSpareTexture(rect, 2);
+//  CGraphics::ResolveSpareTexture(rect, 2);
 
   /* Y Pass */
   blurDir = zeus::CVector4f{0.f, radius * blurScale, 0.f, 0.f};
@@ -136,7 +136,7 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
 
   //  CGraphics::SetShaderDataBinding(m_dataBindBlurY);
   //  CGraphics::DrawArray(0, 4);
-  CGraphics::ResolveSpareTexture(rect, 2);
+//  CGraphics::ResolveSpareTexture(rect, 2);
 }
 
 void CPhazonSuitFilter::draw(const zeus::CColor& color, float indScale, float indOffX, float indOffY) {

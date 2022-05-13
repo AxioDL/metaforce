@@ -3,19 +3,22 @@
 #include "common.hpp"
 
 #include <type_traits>
+#include <utility>
 #include <variant>
 
 namespace aurora::gfx::gx {
 constexpr u32 MaxTextures = GX::MAX_TEXMAP;
 constexpr u32 MaxTevStages = GX::MAX_TEVSTAGE;
 constexpr u32 MaxColorChannels = 2; // COLOR0A0, COLOR1A1
-constexpr u32 MaxTevRegs = 3;       // TEVREG0-2
+constexpr u32 MaxTevRegs = 4;       // TEVPREV, TEVREG0-2
 constexpr u32 MaxKColors = GX::MAX_KCOLOR;
 constexpr u32 MaxTexMtx = 10;
 constexpr u32 MaxPTTexMtx = 20;
 constexpr u32 MaxTexCoord = GX::MAX_TEXCOORD;
 constexpr u32 MaxVtxAttr = GX::VA_MAX_ATTR;
 constexpr u32 MaxTevSwap = GX::MAX_TEVSWAP;
+constexpr u32 MaxIndStages = GX::MAX_INDTEXSTAGE;
+constexpr u32 MaxIndTexMtxs = 3;
 
 template <typename Arg, Arg Default>
 struct TevPass {
@@ -51,25 +54,37 @@ struct TevStage {
   GX::ChannelID channelId = GX::COLOR_NULL;
   GX::TevSwapSel tevSwapRas = GX::TEV_SWAP0;
   GX::TevSwapSel tevSwapTex = GX::TEV_SWAP0;
+  GX::IndTexStageID indTexStage = GX::INDTEXSTAGE0;
+  GX::IndTexFormat indTexFormat = GX::ITF_8;
+  GX::IndTexBiasSel indTexBiasSel = GX::ITB_NONE;
+  GX::IndTexAlphaSel indTexAlphaSel = GX::ITBA_OFF;
+  GX::IndTexMtxID indTexMtxId = GX::ITM_OFF;
+  GX::IndTexWrap indTexWrapS = GX::ITW_OFF;
+  GX::IndTexWrap indTexWrapT = GX::ITW_OFF;
+  bool indTexUseOrigLOD = false;
+  bool indTexAddPrev = false;
+  u8 _p1 = 0;
+  u8 _p2 = 0;
   bool operator==(const TevStage&) const = default;
 };
 static_assert(std::has_unique_object_representations_v<TevStage>);
+struct IndStage {
+  GX::TexCoordID texCoordId;
+  GX::TexMapID texMapId;
+  GX::IndTexScale scaleS;
+  GX::IndTexScale scaleT;
+};
+static_assert(std::has_unique_object_representations_v<IndStage>);
 struct TextureBind {
-  aurora::gfx::TextureHandle handle;
-  metaforce::EClampMode clampMode = metaforce::EClampMode::Repeat;
-  float lod = 0.f;
-  u32 resolvedBindIdx = UINT32_MAX;
+  GXTexObj texObj;
 
   TextureBind() noexcept = default;
-  TextureBind(u32 resolvedBindIdx) noexcept : resolvedBindIdx(resolvedBindIdx) {}
-  TextureBind(aurora::gfx::TextureHandle handle, metaforce::EClampMode clampMode, float lod) noexcept
-  : handle(std::move(handle)), clampMode(clampMode), lod(lod) {}
+  TextureBind(GXTexObj obj) noexcept : texObj(std::move(obj)) {}
   void reset() noexcept {
-    handle.reset();
-    resolvedBindIdx = UINT32_MAX;
+    texObj.ref.reset();
   };
   [[nodiscard]] wgpu::SamplerDescriptor get_descriptor() const noexcept;
-  operator bool() const noexcept { return handle || resolvedBindIdx != UINT32_MAX; }
+  operator bool() const noexcept { return texObj.ref.operator bool(); }
 };
 // For shader generation
 struct ColorChannelConfig {
@@ -132,6 +147,10 @@ struct AlphaCompare {
   operator bool() const { return *this != AlphaCompare{}; }
 };
 static_assert(std::has_unique_object_representations_v<AlphaCompare>);
+struct IndTexMtxInfo {
+  aurora::Mat3x2<float> mtx;
+  s8 scaleExp;
+};
 
 struct GXState {
   zeus::CMatrix4f mv;
@@ -164,6 +183,8 @@ struct GXState {
       TevSwap{GX::CH_GREEN, GX::CH_GREEN, GX::CH_GREEN, GX::CH_ALPHA},
       TevSwap{GX::CH_BLUE, GX::CH_BLUE, GX::CH_BLUE, GX::CH_ALPHA},
   };
+  std::array<IndStage, MaxIndStages> indStages;
+  std::array<IndTexMtxInfo, MaxIndTexMtxs> indTexMtxs;
   bool depthCompare = true;
   bool depthUpdate = true;
   bool alphaUpdate = true;
@@ -179,6 +200,15 @@ static inline Mat4x4<float> get_combined_matrix() noexcept { return g_gxState.pr
 void shutdown() noexcept;
 const TextureBind& get_texture(GX::TexMapID id) noexcept;
 
+struct TextureConfig {
+  GX::TextureFormat copyFmt = InvalidTextureFormat; // GXSetTexCopyDst
+  GX::TextureFormat loadFmt = InvalidTextureFormat; // GXTexObj format
+  bool flipUV = false;                              // For render textures
+  u8 _p1 = 0;
+  u8 _p2 = 0;
+  u8 _p3 = 0;
+  bool operator==(const TextureConfig&) const = default;
+};
 struct ShaderConfig {
   GX::FogType fogType;
   std::array<GX::AttrType, MaxVtxAttr> vtxAttrs;
@@ -189,12 +219,12 @@ struct ShaderConfig {
   std::array<TcgConfig, MaxTexCoord> tcgs;
   AlphaCompare alphaCompare;
   u32 indexedAttributeCount = 0;
-  std::array<bool, MaxTextures> texHasAlpha;
+  std::array<TextureConfig, MaxTextures> textureConfig;
   bool operator==(const ShaderConfig&) const = default;
 };
 static_assert(std::has_unique_object_representations_v<ShaderConfig>);
 
-constexpr u32 GXPipelineConfigVersion = 2;
+constexpr u32 GXPipelineConfigVersion = 3;
 struct PipelineConfig {
   u32 version = GXPipelineConfigVersion;
   ShaderConfig shaderConfig;
@@ -222,10 +252,12 @@ struct GXBindGroups {
 };
 // Output info from shader generation
 struct ShaderInfo {
+  std::bitset<MaxTexCoord> sampledTexCoords;
   std::bitset<MaxTextures> sampledTextures;
   std::bitset<MaxKColors> sampledKColors;
   std::bitset<MaxColorChannels> sampledColorChannels;
   std::bitset<MaxTevRegs> usesTevReg;
+  std::bitset<MaxTevRegs> writesTevReg;
   std::bitset<MaxTexMtx> usesTexMtx;
   std::bitset<MaxPTTexMtx> usesPTTexMtx;
   std::array<GX::TexGenType, MaxTexMtx> texMtxTypes;

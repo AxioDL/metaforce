@@ -68,44 +68,48 @@ const CTextRenderBuffer* CGuiTextSupport::GetCurrentPageRenderBuffer() const {
 
 float CGuiTextSupport::GetCurrentAnimationOverAge() const {
   float ret = 0.f;
-  if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
-    if (x50_typeEnable) {
-      if (x40_primStartTimes.size()) {
-        const auto& lastTime = x40_primStartTimes.back();
-        ret = std::max(ret, (buf->GetPrimitiveCount() - lastTime.second) / x58_chRate + lastTime.first);
-      } else {
-        ret = std::max(ret, buf->GetPrimitiveCount() / x58_chRate);
-      }
-    }
-  }
+  // TODO
+//  if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
+//    if (x50_typeEnable) {
+//      if (x40_primStartTimes.size()) {
+//        const auto& lastTime = x40_primStartTimes.back();
+//        ret = std::max(ret, (buf->GetPrimitiveCount() - lastTime.second) / x58_chRate + lastTime.first);
+//      } else {
+//        ret = std::max(ret, buf->GetPrimitiveCount() / x58_chRate);
+//      }
+//    }
+//  }
   return ret;
 }
 
 float CGuiTextSupport::GetNumCharsTotal() const {
-  if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
-    if (x50_typeEnable) {
-      return buf->GetPrimitiveCount();
-    }
-  }
+  // TODO
+//  if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
+//    if (x50_typeEnable) {
+//      return buf->GetPrimitiveCount();
+//    }
+//  }
   return 0.f;
 }
 
 float CGuiTextSupport::GetNumCharsPrinted() const {
-  if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
-    if (x50_typeEnable) {
-      const float charsPrinted = x3c_curTime * x58_chRate;
-      return std::min(charsPrinted, float(buf->GetPrimitiveCount()));
-    }
-  }
+  // TODO
+//  if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
+//    if (x50_typeEnable) {
+//      const float charsPrinted = x3c_curTime * x58_chRate;
+//      return std::min(charsPrinted, float(buf->GetPrimitiveCount()));
+//    }
+//  }
   return 0.f;
 }
 
 float CGuiTextSupport::GetTotalAnimationTime() const {
-  if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
-    if (x50_typeEnable) {
-      return buf->GetPrimitiveCount() / x58_chRate;
-    }
-  }
+  // TODO
+//  if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
+//    if (x50_typeEnable) {
+//      return buf->GetPrimitiveCount() / x58_chRate;
+//    }
+//  }
   return 0.f;
 }
 
@@ -117,20 +121,21 @@ void CGuiTextSupport::SetTypeWriteEffectOptions(bool enable, float chFadeTime, f
   x58_chRate = std::max(chRate, 1.f);
   if (enable) {
     if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
-      float chStartTime = 0.f;
-      for (u32 i = 0; i < buf->GetPrimitiveCount(); ++i) {
-        for (const std::pair<float, int>& p : x40_primStartTimes) {
-          if (p.second < i)
-            continue;
-          if (p.second != i)
-            break;
-          chStartTime = p.first;
-          break;
-        }
-
-        buf->SetPrimitiveOpacity(i, std::min(std::max(0.f, (x3c_curTime - chStartTime) / x54_chFadeTime), 1.f));
-        chStartTime += 1.f / x58_chRate;
-      }
+      // TODO
+//      float chStartTime = 0.f;
+//      for (u32 i = 0; i < buf->GetPrimitiveCount(); ++i) {
+//        for (const std::pair<float, int>& p : x40_primStartTimes) {
+//          if (p.second < i)
+//            continue;
+//          if (p.second != i)
+//            break;
+//          chStartTime = p.first;
+//          break;
+//        }
+//
+//        buf->SetPrimitiveOpacity(i, std::min(std::max(0.f, (x3c_curTime - chStartTime) / x54_chFadeTime), 1.f));
+//        chStartTime += 1.f / x58_chRate;
+//      }
     }
   }
 }
@@ -138,20 +143,21 @@ void CGuiTextSupport::SetTypeWriteEffectOptions(bool enable, float chFadeTime, f
 void CGuiTextSupport::Update(float dt) {
   if (x50_typeEnable) {
     if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
-      float chStartTime = 0.f;
-      for (u32 i = 0; i < buf->GetPrimitiveCount(); ++i) {
-        for (const std::pair<float, int>& p : x40_primStartTimes) {
-          if (p.second < i)
-            continue;
-          if (p.second != i)
-            break;
-          chStartTime = p.first;
-          break;
-        }
-
-        buf->SetPrimitiveOpacity(i, std::min(std::max(0.f, (x3c_curTime - chStartTime) / x54_chFadeTime), 1.f));
-        chStartTime += 1.f / x58_chRate;
-      }
+      // TODO
+//      float chStartTime = 0.f;
+//      for (u32 i = 0; i < buf->GetPrimitiveCount(); ++i) {
+//        for (const std::pair<float, int>& p : x40_primStartTimes) {
+//          if (p.second < i)
+//            continue;
+//          if (p.second != i)
+//            break;
+//          chStartTime = p.first;
+//          break;
+//        }
+//
+//        buf->SetPrimitiveOpacity(i, std::min(std::max(0.f, (x3c_curTime - chStartTime) / x54_chFadeTime), 1.f));
+//        chStartTime += 1.f / x58_chRate;
+//      }
     }
     x3c_curTime += dt;
   }
@@ -253,7 +259,8 @@ void CGuiTextSupport::SetFontColor(const zeus::CColor& col) {
 void CGuiTextSupport::AddText(std::u16string_view str) {
   if (x60_renderBuf) {
     const float t = GetCurrentAnimationOverAge();
-    x40_primStartTimes.emplace_back(std::max(t, x3c_curTime), x60_renderBuf->GetPrimitiveCount());
+    // TODO
+//    x40_primStartTimes.emplace_back(std::max(t, x3c_curTime), x60_renderBuf->GetPrimitiveCount());
   }
   x0_string += str;
   ClearRenderBuffer();

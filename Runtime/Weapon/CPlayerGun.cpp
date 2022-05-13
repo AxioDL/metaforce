@@ -2133,7 +2133,7 @@ zeus::CVector3f CPlayerGun::ConvertToScreenSpace(const zeus::CVector3f& pos, con
 
 void CPlayerGun::CopyScreenTex() {
   // Copy lower right quadrant to gpCopyTexBuf as RGBA8
-  CGraphics::ResolveSpareTexture(CGraphics::g_Viewport);
+  // TODO CGraphics::ResolveSpareTexture(CGraphics::g_Viewport);
 }
 
 void CPlayerGun::DrawScreenTex(float z) {

@@ -40,6 +40,14 @@ static inline void read_vert(ByteBuffer& out, const u8* data) noexcept {
 static absl::flat_hash_map<XXH64_hash_t, std::pair<ByteBuffer, ByteBuffer>> sCachedDisplayLists;
 
 void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
+  // TODO CElementGen needs fixing
+  for (const auto& type : gx::g_gxState.vtxDesc) {
+    if (type == GX::DIRECT) {
+      Log.report(logvisor::Warning, FMT_STRING("Direct attributes in surface config!"));
+      return;
+    }
+  }
+
   const auto hash = xxh3_hash_s(dlStart, dlSize, 0);
   Range vertRange, idxRange;
   u32 numIndices = 0;
@@ -55,7 +63,11 @@ void queue_surface(const u8* dlStart, u32 dlSize) noexcept {
     u8 inVtxSize = 0;
     u8 outVtxSize = 0;
     for (const auto& type : gx::g_gxState.vtxDesc) {
-      if (type == GX::NONE || type == GX::DIRECT) {
+      if (type == GX::DIRECT) {
+        Log.report(logvisor::Fatal, FMT_STRING("Direct attributes in surface config!"));
+        unreachable();
+      }
+      if (type == GX::NONE) {
         continue;
       }
       if (type == GX::INDEX8) {

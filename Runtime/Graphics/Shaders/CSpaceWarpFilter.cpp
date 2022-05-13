@@ -36,7 +36,7 @@ void CSpaceWarpFilter::GenerateWarpRampTex() {
     }
   }
   m_warpTex = aurora::gfx::new_static_texture_2d(
-      WARP_RAMP_RES + 1, WARP_RAMP_RES + 1, 1, ETexelFormat::RGBA8PC,
+      WARP_RAMP_RES + 1, WARP_RAMP_RES + 1, 1, GX::TF_RGBA8,
       {reinterpret_cast<const uint8_t*>(data.data()), (WARP_RAMP_RES + 1) * (WARP_RAMP_RES + 1) * 4}, "Warp Ramp");
 }
 
@@ -158,7 +158,7 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt) {
   clipRect.x4_left += CGraphics::g_CroppedViewport.x4_left;
   clipRect.x8_top += CGraphics::g_CroppedViewport.x8_top;
   clipRect.x8_top = CGraphics::GetViewportHeight() - clipRect.x10_height - clipRect.x8_top;
-  CGraphics::ResolveSpareTexture(clipRect);
+//  CGraphics::ResolveSpareTexture(clipRect);
 
   m_uniform.m_strength.x() =
       m_uniform.m_matrix[0][0] * m_strength * 0.5f * (clipRect.x10_height / float(clipRect.xc_width));

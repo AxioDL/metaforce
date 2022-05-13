@@ -6,8 +6,15 @@
 #include "Runtime/Graphics/GX.hpp"
 #include "Runtime/IObj.hpp"
 #include "Runtime/Streams/CInputStream.hpp"
+#include "GX.hpp"
 
 namespace metaforce {
+enum class EClampMode : std::underlying_type_t<GXTexWrapMode> {
+  Clamp = GX_CLAMP,
+  Repeat = GX_REPEAT,
+  Mirror = GX_MIRROR,
+};
+
 class CTexture {
   class CDumpedBitmapDataReloader {
     int x0_;
@@ -56,18 +63,19 @@ private:
   u32 xc_memoryAllocated = 0;
   std::unique_ptr<CGraphicsPalette> x10_graphicsPalette;
   std::unique_ptr<CDumpedBitmapDataReloader> x14_bitmapReloader;
-  u32 x18_gxFormat = GX::TF_RGB565;
-  u32 x1c_gxCIFormat = GX::TF_C8;
-  aurora::gfx::TextureHandle x20_texObj; // was GXTexObj
+  GX::TextureFormat x18_gxFormat = GX::TF_RGB565;
+  GXCITexFmt x1c_gxCIFormat = GX_TF_C8;
+  GXTexObj x20_texObj;
   EClampMode x40_clampMode = EClampMode::Repeat;
   std::unique_ptr<u8[]> x44_aramToken_x4_buff; // was CARAMToken
   u32 x64_frameAllocated{};
 
   // Metaforce additions
   std::string m_label;
+  bool m_needsTexObjDataLoad = true;
 
   void InitBitmapBuffers(ETexelFormat fmt, u16 width, u16 height, s32 mips);
-  void InitTextureObjs(bool write); // write param is added
+  void InitTextureObjs();
   void CountMemory();
   void UncountMemory();
   void MangleMipmap(u32 mip);

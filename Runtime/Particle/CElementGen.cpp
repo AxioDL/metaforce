@@ -1751,7 +1751,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
     if (!clipRect.x0_valid)
       continue;
 
-    CGraphics::ResolveSpareTexture(clipRect);
+//    CGraphics::ResolveSpareTexture(clipRect);
 
 //    SParticleInstanceIndTex& inst = g_instIndTexData.emplace_back();
 //    inst.pos[0] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size, 1.f};

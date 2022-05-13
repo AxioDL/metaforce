@@ -207,15 +207,15 @@ DrawData make_draw_data(const State& state, const TextureHandle& tex_y, const Te
   const std::array entries{
       wgpu::BindGroupEntry{
           .binding = 0,
-          .textureView = tex_y.ref->view,
+          .textureView = tex_y->view,
       },
       wgpu::BindGroupEntry{
           .binding = 1,
-          .textureView = tex_u.ref->view,
+          .textureView = tex_u->view,
       },
       wgpu::BindGroupEntry{
           .binding = 2,
-          .textureView = tex_v.ref->view,
+          .textureView = tex_v->view,
       },
   };
   const auto textureBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{

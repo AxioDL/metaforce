@@ -309,14 +309,19 @@ public:
 
   static const std::array<zeus::CMatrix3f, 6> skCubeBasisMats;
 
-  static void ResolveSpareTexture(const SClipScreenRect& rect, int bindIdx = 0, bool clearDepth = false) {
-    aurora::gfx::resolve_color({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx, clearDepth);
+  static void ResolveSpareTexture(const SClipScreenRect& rect, int bindIdx, GX::TextureFormat format,
+                                  bool clearDepth = false) {
+    aurora::gfx::resolve_color({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx, format,
+                               clearDepth);
   }
-  static void LoadDolphinSpareTexture(int bindIdx, GX::TexMapID id) {
-    aurora::gfx::bind_color(bindIdx, id);
+  static void LoadDolphinSpareTexture(int bindIdx, GX::TextureFormat format, GX::TexMapID id) {
+    GXTexObj obj;
+    GXInitTexObjResolved(&obj, bindIdx, format, GX_CLAMP, GX_CLAMP);
+    GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
+    GXLoadTexObj(&obj, id);
   }
   static void ResolveSpareDepth(const SClipScreenRect& rect, int bindIdx = 0) {
-    aurora::gfx::resolve_depth({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx);
+    // aurora::gfx::resolve_depth({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx);
   }
 
   static void SetTevStates(EStreamFlags flags) noexcept;

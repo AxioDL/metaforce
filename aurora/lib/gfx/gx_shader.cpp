@@ -33,25 +33,46 @@ static inline std::string_view chan_comp(GX::TevColorChan chan) noexcept {
 
 static void color_arg_reg_info(GX::TevColorArg arg, const TevStage& stage, ShaderInfo& info) {
   switch (arg) {
+  case GX::CC_CPREV:
+  case GX::CC_APREV:
+    if (!info.writesTevReg.test(GX::TEVPREV)) {
+      info.usesTevReg.set(GX::TEVPREV);
+    }
+    break;
   case GX::CC_C0:
   case GX::CC_A0:
-    info.usesTevReg.set(0);
+    if (!info.writesTevReg.test(GX::TEVREG0)) {
+      info.usesTevReg.set(GX::TEVREG0);
+    }
     break;
   case GX::CC_C1:
   case GX::CC_A1:
-    info.usesTevReg.set(1);
+    if (!info.writesTevReg.test(GX::TEVREG1)) {
+      info.usesTevReg.set(GX::TEVREG1);
+    }
     break;
   case GX::CC_C2:
   case GX::CC_A2:
-    info.usesTevReg.set(2);
+    if (!info.writesTevReg.test(GX::TEVREG2)) {
+      info.usesTevReg.set(GX::TEVREG2);
+    }
     break;
   case GX::CC_TEXC:
   case GX::CC_TEXA:
+    if (stage.texCoordId == GX::TEXCOORD_NULL) {
+      Log.report(logvisor::Fatal, FMT_STRING("texCoord not bound"));
+    }
+    if (stage.texMapId == GX::TEXMAP_NULL) {
+      Log.report(logvisor::Fatal, FMT_STRING("texMap not bound"));
+    }
+    info.sampledTexCoords.set(stage.texCoordId);
     info.sampledTextures.set(stage.texMapId);
     break;
   case GX::CC_RASC:
   case GX::CC_RASA:
-    info.sampledColorChannels.set(stage.channelId - GX::COLOR0A0);
+    if (stage.channelId >= GX::COLOR0A0 && stage.channelId <= GX::COLOR1A1) {
+      info.sampledColorChannels.set(stage.channelId - GX::COLOR0A0);
+    }
     break;
   case GX::CC_KONST:
     switch (stage.kcSel) {
@@ -92,25 +113,60 @@ static void color_arg_reg_info(GX::TevColorArg arg, const TevStage& stage, Shade
   }
 }
 
+static bool formatHasAlpha(GX::TextureFormat format) {
+  switch (format) {
+  case GX::TF_I4:
+  case GX::TF_I8:
+  case GX::TF_RGB565:
+  case GX::TF_C4:
+  case GX::TF_C8:
+  case GX::TF_C14X2:
+  case GX::TF_Z8:
+  case GX::TF_Z16:
+  case GX::TF_Z24X8:
+  case GX::CTF_R4:
+  case GX::CTF_R8:
+  case GX::CTF_G8:
+  case GX::CTF_B8:
+  case GX::CTF_RG8:
+  case GX::CTF_GB8:
+  case GX::CTF_Z4:
+  case GX::CTF_Z8M:
+  case GX::CTF_Z8L:
+  case GX::CTF_Z16L:
+    return false;
+  case GX::TF_IA4:
+  case GX::TF_IA8:
+  case GX::TF_RGB5A3:
+  case GX::TF_RGBA8:
+  case GX::TF_CMPR:
+  case GX::CTF_RA4:
+  case GX::CTF_RA8:
+  case GX::CTF_YUVA8:
+  case GX::CTF_A8:
+    return true;
+  }
+}
+
 static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const ShaderConfig& config,
                                  const TevStage& stage) {
   switch (arg) {
   case GX::CC_CPREV:
     return "prev.rgb";
   case GX::CC_APREV:
-    return "prev.a";
+    return "vec3<f32>(prev.a)";
   case GX::CC_C0:
     return "tevreg0.rgb";
   case GX::CC_A0:
-    return "tevreg0.a";
+    return "vec3<f32>(tevreg0.a)";
   case GX::CC_C1:
     return "tevreg1.rgb";
   case GX::CC_A1:
-    return "tevreg1.a";
+    return "vec3<f32>(tevreg1.a)";
   case GX::CC_C2:
     return "tevreg2.rgb";
   case GX::CC_A2:
-    return "tevreg2.a";
+    return "vec3<f32>(tevreg2.a)";
   case GX::CC_TEXC: {
     if (stage.texMapId == GX::TEXMAP_NULL) {
       Log.report(logvisor::Fatal, FMT_STRING("unmapped texture for stage {}"), stageIdx);
@@ -121,7 +177,7 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
     }
     const auto swap = config.tevSwapTable[stage.tevSwapTex];
     // TODO check for CH_ALPHA + config.texHasAlpha
-    return fmt::format(FMT_STRING("sampled{}.{}{}{}"), stage.texMapId, chan_comp(swap.red), chan_comp(swap.green),
+    return fmt::format(FMT_STRING("sampled{}.{}{}{}"), stageIdx, chan_comp(swap.red), chan_comp(swap.green),
                        chan_comp(swap.blue));
   }
   case GX::CC_TEXA: {
@@ -133,15 +189,14 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
       unreachable();
     }
     const auto swap = config.tevSwapTable[stage.tevSwapTex];
-    if (swap.alpha == GX::CH_ALPHA && !config.texHasAlpha[stage.texMapId]) {
-      return "1.0";
-    }
-    return fmt::format(FMT_STRING("sampled{}.{}"), stage.texMapId, chan_comp(swap.alpha));
+    return fmt::format(FMT_STRING("vec3<f32>(sampled{}.{})"), stageIdx, chan_comp(swap.alpha));
   }
   case GX::CC_RASC: {
     if (stage.channelId == GX::COLOR_NULL) {
       Log.report(logvisor::Fatal, FMT_STRING("unmapped color channel for stage {}"), stageIdx);
       unreachable();
+    } else if (stage.channelId == GX::COLOR_ZERO) {
+      return "vec3<f32>(0.0)";
     } else if (stage.channelId < GX::COLOR0A0 || stage.channelId > GX::COLOR1A1) {
       Log.report(logvisor::Fatal, FMT_STRING("invalid color channel {} for stage {}"), stage.channelId, stageIdx);
       unreachable();
@@ -155,36 +210,38 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
     if (stage.channelId == GX::COLOR_NULL) {
       Log.report(logvisor::Fatal, FMT_STRING("unmapped color channel for stage {}"), stageIdx);
       unreachable();
+    } else if (stage.channelId == GX::COLOR_ZERO) {
+      return "vec3<f32>(0.0)";
     } else if (stage.channelId < GX::COLOR0A0 || stage.channelId > GX::COLOR1A1) {
       Log.report(logvisor::Fatal, FMT_STRING("invalid color channel {} for stage {}"), stage.channelId, stageIdx);
       unreachable();
     }
     u32 idx = stage.channelId - GX::COLOR0A0;
     const auto swap = config.tevSwapTable[stage.tevSwapRas];
-    return fmt::format(FMT_STRING("rast{}.{}"), idx, chan_comp(swap.alpha));
+    return fmt::format(FMT_STRING("vec3<f32>(rast{}.{})"), idx, chan_comp(swap.alpha));
   }
   case GX::CC_ONE:
-    return "1.0";
+    return "vec3<f32>(1.0)";
   case GX::CC_HALF:
-    return "0.5";
+    return "vec3<f32>(0.5)";
   case GX::CC_KONST: {
     switch (stage.kcSel) {
     case GX::TEV_KCSEL_8_8:
-      return "1.0";
+      return "vec3<f32>(1.0)";
     case GX::TEV_KCSEL_7_8:
-      return "(7.0/8.0)";
+      return "vec3<f32>(7.0/8.0)";
     case GX::TEV_KCSEL_6_8:
-      return "(6.0/8.0)";
+      return "vec3<f32>(6.0/8.0)";
     case GX::TEV_KCSEL_5_8:
-      return "(5.0/8.0)";
+      return "vec3<f32>(5.0/8.0)";
     case GX::TEV_KCSEL_4_8:
-      return "(4.0/8.0)";
+      return "vec3<f32>(4.0/8.0)";
     case GX::TEV_KCSEL_3_8:
-      return "(3.0/8.0)";
+      return "vec3<f32>(3.0/8.0)";
     case GX::TEV_KCSEL_2_8:
-      return "(2.0/8.0)";
+      return "vec3<f32>(2.0/8.0)";
     case GX::TEV_KCSEL_1_8:
-      return "(1.0/8.0)";
+      return "vec3<f32>(1.0/8.0)";
     case GX::TEV_KCSEL_K0:
       return "ubuf.kcolor0.rgb";
     case GX::TEV_KCSEL_K1:
@@ -194,44 +251,44 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
     case GX::TEV_KCSEL_K3:
       return "ubuf.kcolor3.rgb";
     case GX::TEV_KCSEL_K0_R:
-      return "ubuf.kcolor0.r";
+      return "vec3<f32>(ubuf.kcolor0.r)";
     case GX::TEV_KCSEL_K1_R:
-      return "ubuf.kcolor1.r";
+      return "vec3<f32>(ubuf.kcolor1.r)";
     case GX::TEV_KCSEL_K2_R:
-      return "ubuf.kcolor2.r";
+      return "vec3<f32>(ubuf.kcolor2.r)";
     case GX::TEV_KCSEL_K3_R:
-      return "ubuf.kcolor3.r";
+      return "vec3<f32>(ubuf.kcolor3.r)";
     case GX::TEV_KCSEL_K0_G:
-      return "ubuf.kcolor0.g";
+      return "vec3<f32>(ubuf.kcolor0.g)";
     case GX::TEV_KCSEL_K1_G:
-      return "ubuf.kcolor1.g";
+      return "vec3<f32>(ubuf.kcolor1.g)";
     case GX::TEV_KCSEL_K2_G:
-      return "ubuf.kcolor2.g";
+      return "vec3<f32>(ubuf.kcolor2.g)";
     case GX::TEV_KCSEL_K3_G:
-      return "ubuf.kcolor3.g";
+      return "vec3<f32>(ubuf.kcolor3.g)";
     case GX::TEV_KCSEL_K0_B:
-      return "ubuf.kcolor0.b";
+      return "vec3<f32>(ubuf.kcolor0.b)";
     case GX::TEV_KCSEL_K1_B:
-      return "ubuf.kcolor1.b";
+      return "vec3<f32>(ubuf.kcolor1.b)";
     case GX::TEV_KCSEL_K2_B:
-      return "ubuf.kcolor2.b";
+      return "vec3<f32>(ubuf.kcolor2.b)";
     case GX::TEV_KCSEL_K3_B:
-      return "ubuf.kcolor3.b";
+      return "vec3<f32>(ubuf.kcolor3.b)";
     case GX::TEV_KCSEL_K0_A:
-      return "ubuf.kcolor0.a";
+      return "vec3<f32>(ubuf.kcolor0.a)";
     case GX::TEV_KCSEL_K1_A:
-      return "ubuf.kcolor1.a";
+      return "vec3<f32>(ubuf.kcolor1.a)";
     case GX::TEV_KCSEL_K2_A:
-      return "ubuf.kcolor2.a";
+      return "vec3<f32>(ubuf.kcolor2.a)";
     case GX::TEV_KCSEL_K3_A:
-      return "ubuf.kcolor3.a";
+      return "vec3<f32>(ubuf.kcolor3.a)";
     default:
       Log.report(logvisor::Fatal, FMT_STRING("invalid kcSel {}"), stage.kcSel);
       unreachable();
     }
   }
   case GX::CC_ZERO:
-    return "0.0";
+    return "vec3<f32>(0.0)";
   default:
     Log.report(logvisor::Fatal, FMT_STRING("invalid color arg {}"), arg);
     unreachable();
@@ -240,20 +297,40 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
 
 static void alpha_arg_reg_info(GX::TevAlphaArg arg, const TevStage& stage, ShaderInfo& info) {
   switch (arg) {
+  case GX::CA_APREV:
+    if (!info.writesTevReg.test(GX::TEVPREV)) {
+      info.usesTevReg.set(GX::TEVPREV);
+    }
+    break;
   case GX::CA_A0:
-    info.usesTevReg.set(0);
+    if (!info.writesTevReg.test(GX::TEVREG0)) {
+      info.usesTevReg.set(GX::TEVREG0);
+    }
     break;
   case GX::CA_A1:
-    info.usesTevReg.set(1);
+    if (!info.writesTevReg.test(GX::TEVREG1)) {
+      info.usesTevReg.set(GX::TEVREG1);
+    }
     break;
   case GX::CA_A2:
-    info.usesTevReg.set(2);
+    if (!info.writesTevReg.test(GX::TEVREG2)) {
+      info.usesTevReg.set(GX::TEVREG2);
+    }
     break;
   case GX::CA_TEXA:
+    if (stage.texCoordId == GX::TEXCOORD_NULL) {
+      Log.report(logvisor::Fatal, FMT_STRING("texCoord not bound"));
+    }
+    if (stage.texMapId == GX::TEXMAP_NULL) {
+      Log.report(logvisor::Fatal, FMT_STRING("texMap not bound"));
+    }
+    info.sampledTexCoords.set(stage.texCoordId);
     info.sampledTextures.set(stage.texMapId);
     break;
   case GX::CA_RASA:
-    info.sampledColorChannels.set(stage.channelId - GX::COLOR0A0);
+    if (stage.channelId >= GX::COLOR0A0 && stage.channelId <= GX::COLOR1A1) {
+      info.sampledColorChannels.set(stage.channelId - GX::COLOR0A0);
+    }
     break;
   case GX::CA_KONST:
     switch (stage.kaSel) {
@@ -310,15 +387,14 @@ static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const Sha
       unreachable();
     }
     const auto swap = config.tevSwapTable[stage.tevSwapTex];
-    if (swap.alpha == GX::CH_ALPHA && !config.texHasAlpha[stage.texMapId]) {
-      return "1.0";
-    }
-    return fmt::format(FMT_STRING("sampled{}.{}"), stage.texMapId, chan_comp(swap.alpha));
+    return fmt::format(FMT_STRING("sampled{}.{}"), stageIdx, chan_comp(swap.alpha));
   }
   case GX::CA_RASA: {
     if (stage.channelId == GX::COLOR_NULL) {
       Log.report(logvisor::Fatal, FMT_STRING("unmapped color channel for stage {}"), stageIdx);
       unreachable();
+    } else if (stage.channelId == GX::COLOR_ZERO) {
+      return "0.0";
     } else if (stage.channelId < GX::COLOR0A0 || stage.channelId > GX::COLOR1A1) {
       Log.report(logvisor::Fatal, FMT_STRING("invalid color channel {} for stage {}"), stage.channelId, stageIdx);
       unreachable();
@@ -393,9 +469,9 @@ static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const Sha
 static std::string_view tev_op(GX::TevOp op) {
   switch (op) {
   case GX::TEV_ADD:
-    return "+";
+    return ""sv;
   case GX::TEV_SUB:
-    return "-";
+    return "-"sv;
   default:
     Log.report(logvisor::Fatal, FMT_STRING("TODO {}"), op);
     unreachable();
@@ -405,11 +481,11 @@ static std::string_view tev_op(GX::TevOp op) {
 static std::string_view tev_bias(GX::TevBias bias) {
   switch (bias) {
   case GX::TB_ZERO:
-    return " + 0.0";
+    return ""sv;
   case GX::TB_ADDHALF:
-    return " + 0.5";
+    return " + 0.5"sv;
   case GX::TB_SUBHALF:
-    return " - 0.5";
+    return " - 0.5"sv;
   default:
     Log.report(logvisor::Fatal, FMT_STRING("invalid bias {}"), bias);
     unreachable();
@@ -420,7 +496,7 @@ static std::string alpha_compare(GX::Compare comp, u8 ref, bool& valid) {
   const float fref = ref / 255.f;
   switch (comp) {
   case GX::NEVER:
-    return "false";
+    return "false"s;
   case GX::LESS:
     return fmt::format(FMT_STRING("(prev.a < {}f)"), fref);
   case GX::LEQUAL:
@@ -435,7 +511,7 @@ static std::string alpha_compare(GX::Compare comp, u8 ref, bool& valid) {
     return fmt::format(FMT_STRING("(prev.a > {}f)"), fref);
   case GX::ALWAYS:
     valid = false;
-    return "true";
+    return "true"s;
   default:
     Log.report(logvisor::Fatal, FMT_STRING("invalid compare {}"), comp);
     unreachable();
@@ -445,13 +521,13 @@ static std::string alpha_compare(GX::Compare comp, u8 ref, bool& valid) {
 static std::string_view tev_scale(GX::TevScale scale) {
   switch (scale) {
   case GX::CS_SCALE_1:
-    return " * 1.0";
+    return ""sv;
   case GX::CS_SCALE_2:
-    return " * 2.0";
+    return " * 2.0"sv;
   case GX::CS_SCALE_4:
-    return " * 4.0";
+    return " * 4.0"sv;
   case GX::CS_DIVIDE_2:
-    return " / 2.0";
+    return " / 2.0"sv;
   default:
     Log.report(logvisor::Fatal, FMT_STRING("invalid scale {}"), scale);
     unreachable();
@@ -463,16 +539,16 @@ static inline std::string vtx_attr(const ShaderConfig& config, GX::Attr attr) {
   if (type == GX::NONE) {
     if (attr == GX::VA_NRM) {
       // Default normal
-      return "vec3<f32>(1.0, 0.0, 0.0)";
+      return "vec3<f32>(1.0, 0.0, 0.0)"s;
     }
     Log.report(logvisor::Fatal, FMT_STRING("unmapped attr {}"), attr);
     unreachable();
   }
   if (attr == GX::VA_POS) {
-    return "in_pos";
+    return "in_pos"s;
   }
   if (attr == GX::VA_NRM) {
-    return "in_nrm";
+    return "in_nrm"s;
   }
   if (attr == GX::VA_CLR0 || attr == GX::VA_CLR1) {
     const auto idx = attr - GX::VA_CLR0;
@@ -485,6 +561,36 @@ static inline std::string vtx_attr(const ShaderConfig& config, GX::Attr attr) {
   Log.report(logvisor::Fatal, FMT_STRING("unhandled attr {}"), attr);
   unreachable();
 }
+
+static inline std::string texture_conversion(const TextureConfig& tex, u32 stageIdx) {
+  std::string out;
+  switch (tex.copyFmt) {
+  default:
+    break;
+  case GX::TF_RGB565:
+    // Set alpha channel to 1.0
+    out += fmt::format(FMT_STRING("\n    sampled{0}.a = 1.0;"), stageIdx);
+    break;
+  case GX::TF_I4:
+    // Perform intensity conversion
+    out += fmt::format(
+        FMT_STRING("\n    {{"
+                   "\n        var intensity = dot(sampled{0}.rgb, vec3(0.257, 0.504, 0.098)) + 16.0 / 255.0;"
+                   "\n        sampled{0} = vec4<f32>(intensity);"
+                   "\n    }}"),
+        stageIdx);
+    break;
+  }
+  return out;
+}
+
+constexpr std::array<std::string_view, GX::TevColorArg::CC_ZERO + 1> TevColorArgNames{
+    "CPREV"sv, "APREV"sv, "C0"sv,   "A0"sv,   "C1"sv,  "A1"sv,   "C2"sv,    "A2"sv,
+    "TEXC"sv,  "TEXA"sv,  "RASC"sv, "RASA"sv, "ONE"sv, "HALF"sv, "KONST"sv, "ZERO"sv,
+};
+constexpr std::array<std::string_view, GX::TevAlphaArg::CA_ZERO + 1> TevAlphaArgNames{
+    "APREV"sv, "A0"sv, "A1"sv, "A2"sv, "TEXA"sv, "RASA"sv, "KONST"sv, "ZERO"sv,
+};
 
 constexpr std::array<std::string_view, MaxVtxAttr> VtxAttributeNames{
     "pn_mtx",        "tex0_mtx",      "tex1_mtx",      "tex2_mtx",    "tex3_mtx", "tex4_mtx", "tex5_mtx",
@@ -506,42 +612,23 @@ ShaderInfo build_shader_info(const ShaderConfig& config) noexcept {
   for (int i = 0; i < config.tevStageCount; ++i) {
     const auto& stage = config.tevStages[i];
     // Color pass
-    switch (stage.colorOp.outReg) {
-    case GX::TEVREG0:
-      info.usesTevReg.set(0);
-      break;
-    case GX::TEVREG1:
-      info.usesTevReg.set(1);
-      break;
-    case GX::TEVREG2:
-      info.usesTevReg.set(2);
-      break;
-    default:
-      break;
-    }
     color_arg_reg_info(stage.colorPass.a, stage, info);
     color_arg_reg_info(stage.colorPass.b, stage, info);
     color_arg_reg_info(stage.colorPass.c, stage, info);
     color_arg_reg_info(stage.colorPass.d, stage, info);
+    info.writesTevReg.set(stage.colorOp.outReg);
 
     // Alpha pass
-    switch (stage.alphaOp.outReg) {
-    case GX::TEVREG0:
-      info.usesTevReg.set(0);
-      break;
-    case GX::TEVREG1:
-      info.usesTevReg.set(1);
-      break;
-    case GX::TEVREG2:
-      info.usesTevReg.set(2);
-      break;
-    default:
-      break;
-    }
     alpha_arg_reg_info(stage.alphaPass.a, stage, info);
     alpha_arg_reg_info(stage.alphaPass.b, stage, info);
     alpha_arg_reg_info(stage.alphaPass.c, stage, info);
     alpha_arg_reg_info(stage.alphaPass.d, stage, info);
+    if (!info.writesTevReg.test(stage.alphaOp.outReg)) {
+      // If we're writing alpha to a register that's not been
+      // written to in the shader, load from uniform buffer
+      info.usesTevReg.set(stage.alphaOp.outReg);
+      info.writesTevReg.set(stage.alphaOp.outReg);
+    }
   }
   info.uniformSize += info.usesTevReg.count() * 16;
   for (int i = 0; i < info.sampledColorChannels.size(); ++i) {
@@ -611,14 +698,14 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
       for (int i = 0; i < config.tevStageCount; ++i) {
         const auto& stage = config.tevStages[i];
         Log.report(logvisor::Info, FMT_STRING("  tevStages[{}]:"), i);
-        Log.report(logvisor::Info, FMT_STRING("    color_a: {}"), stage.colorPass.a);
-        Log.report(logvisor::Info, FMT_STRING("    color_b: {}"), stage.colorPass.b);
-        Log.report(logvisor::Info, FMT_STRING("    color_c: {}"), stage.colorPass.c);
-        Log.report(logvisor::Info, FMT_STRING("    color_d: {}"), stage.colorPass.d);
-        Log.report(logvisor::Info, FMT_STRING("    alpha_a: {}"), stage.alphaPass.a);
-        Log.report(logvisor::Info, FMT_STRING("    alpha_b: {}"), stage.alphaPass.b);
-        Log.report(logvisor::Info, FMT_STRING("    alpha_c: {}"), stage.alphaPass.c);
-        Log.report(logvisor::Info, FMT_STRING("    alpha_d: {}"), stage.alphaPass.d);
+        Log.report(logvisor::Info, FMT_STRING("    color_a: {}"), TevColorArgNames[stage.colorPass.a]);
+        Log.report(logvisor::Info, FMT_STRING("    color_b: {}"), TevColorArgNames[stage.colorPass.b]);
+        Log.report(logvisor::Info, FMT_STRING("    color_c: {}"), TevColorArgNames[stage.colorPass.c]);
+        Log.report(logvisor::Info, FMT_STRING("    color_d: {}"), TevColorArgNames[stage.colorPass.d]);
+        Log.report(logvisor::Info, FMT_STRING("    alpha_a: {}"), TevAlphaArgNames[stage.alphaPass.a]);
+        Log.report(logvisor::Info, FMT_STRING("    alpha_b: {}"), TevAlphaArgNames[stage.alphaPass.b]);
+        Log.report(logvisor::Info, FMT_STRING("    alpha_c: {}"), TevAlphaArgNames[stage.alphaPass.c]);
+        Log.report(logvisor::Info, FMT_STRING("    alpha_d: {}"), TevAlphaArgNames[stage.alphaPass.d]);
         Log.report(logvisor::Info, FMT_STRING("    color_op_clamp: {}"), stage.colorOp.clamp);
         Log.report(logvisor::Info, FMT_STRING("    color_op_op: {}"), stage.colorOp.op);
         Log.report(logvisor::Info, FMT_STRING("    color_op_bias: {}"), stage.colorOp.bias);
@@ -652,12 +739,6 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
                  config.alphaCompare.ref1);
       Log.report(logvisor::Info, FMT_STRING("  indexedAttributeCount: {}"), config.indexedAttributeCount);
       Log.report(logvisor::Info, FMT_STRING("  fogType: {}"), config.fogType);
-      std::string hasAlphaArr;
-      for (int i = 0; i < config.texHasAlpha.size(); ++i) {
-        if (i != 0) hasAlphaArr += ", ";
-        hasAlphaArr += config.texHasAlpha[i] ? "Y" : "N";
-      }
-      Log.report(logvisor::Info, FMT_STRING("  texHasAlpha: [{}]"), hasAlphaArr);
     }
   }
 
@@ -785,12 +866,12 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
         Log.report(logvisor::Fatal, FMT_STRING("invalid colorOp outReg {}"), stage.colorOp.outReg);
       }
       std::string op = fmt::format(
-          FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),
-          color_arg_reg(stage.colorPass.a, idx, config, stage), color_arg_reg(stage.colorPass.b, idx, config, stage),
-          color_arg_reg(stage.colorPass.c, idx, config, stage), color_arg_reg(stage.colorPass.d, idx, config, stage),
-          tev_op(stage.colorOp.op), tev_bias(stage.colorOp.bias), tev_scale(stage.colorOp.scale));
+          FMT_STRING("(({4}mix({0}, {1}, {2}) + {3}){5}){6}"), color_arg_reg(stage.colorPass.a, idx, config, stage),
+          color_arg_reg(stage.colorPass.b, idx, config, stage), color_arg_reg(stage.colorPass.c, idx, config, stage),
+          color_arg_reg(stage.colorPass.d, idx, config, stage), tev_op(stage.colorOp.op), tev_bias(stage.colorOp.bias),
+          tev_scale(stage.colorOp.scale));
       if (stage.colorOp.clamp) {
-        op = fmt::format(FMT_STRING("clamp(vec3<f32>({}), vec3<f32>(0.0), vec3<f32>(1.0))"), op);
+        op = fmt::format(FMT_STRING("clamp({}, vec3<f32>(0.0), vec3<f32>(1.0))"), op);
       }
       fragmentFn += fmt::format(FMT_STRING("\n    {0} = vec4<f32>({1}, {0}.a);"), outReg, op);
     }
@@ -813,20 +894,28 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
         Log.report(logvisor::Fatal, FMT_STRING("invalid alphaOp outReg {}"), stage.alphaOp.outReg);
       }
       std::string op = fmt::format(
-          FMT_STRING("({3} {4} ((1.0 - {2}) * {0} + {2} * {1}){5}){6}"),
-          alpha_arg_reg(stage.alphaPass.a, idx, config, stage), alpha_arg_reg(stage.alphaPass.b, idx, config, stage),
-          alpha_arg_reg(stage.alphaPass.c, idx, config, stage), alpha_arg_reg(stage.alphaPass.d, idx, config, stage),
-          tev_op(stage.alphaOp.op), tev_bias(stage.alphaOp.bias), tev_scale(stage.alphaOp.scale));
+          FMT_STRING("(({4}mix({0}, {1}, {2}) + {3}){5}){6}"), alpha_arg_reg(stage.alphaPass.a, idx, config, stage),
+          alpha_arg_reg(stage.alphaPass.b, idx, config, stage), alpha_arg_reg(stage.alphaPass.c, idx, config, stage),
+          alpha_arg_reg(stage.alphaPass.d, idx, config, stage), tev_op(stage.alphaOp.op), tev_bias(stage.alphaOp.bias),
+          tev_scale(stage.alphaOp.scale));
       if (stage.alphaOp.clamp) {
         op = fmt::format(FMT_STRING("clamp({}, 0.0, 1.0)"), op);
       }
       fragmentFn += fmt::format(FMT_STRING("\n    {0} = {1};"), outReg, op);
     }
   }
-  for (int i = 0; i < info.usesTevReg.size(); ++i) {
+  if (info.usesTevReg.test(0)) {
+    uniBufAttrs += "\n    tevprev: vec4<f32>,";
+    fragmentFnPre += "\n    var prev = ubuf.tevprev;";
+  } else {
+    fragmentFnPre += "\n    var prev: vec4<f32>;";
+  }
+  for (int i = 1 /* Skip TEVPREV */; i < info.usesTevReg.size(); ++i) {
     if (info.usesTevReg.test(i)) {
-      uniBufAttrs += fmt::format(FMT_STRING("\n    tevreg{}: vec4<f32>,"), i);
-      fragmentFnPre += fmt::format(FMT_STRING("\n    var tevreg{0} = ubuf.tevreg{0};"), i);
+      uniBufAttrs += fmt::format(FMT_STRING("\n    tevreg{}: vec4<f32>,"), i - 1);
+      fragmentFnPre += fmt::format(FMT_STRING("\n    var tevreg{0} = ubuf.tevreg{0};"), i - 1);
+    } else if (info.writesTevReg.test(i)) {
+      fragmentFnPre += fmt::format(FMT_STRING("\n    var tevreg{0}: vec4<f32>;"), i - 1);
     }
   }
   bool addedLightStruct = false;
@@ -917,9 +1006,8 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
       uniBufAttrs += fmt::format(FMT_STRING("\n    kcolor{}: vec4<f32>,"), i);
     }
   }
-  size_t texBindIdx = 0;
-  for (int i = 0; i < info.sampledTextures.size(); ++i) {
-    if (!info.sampledTextures.test(i)) {
+  for (int i = 0; i < info.sampledTexCoords.size(); ++i) {
+    if (!info.sampledTexCoords.test(i)) {
       continue;
     }
     const auto& tcg = config.tcgs[i];
@@ -932,7 +1020,7 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
     } else if (tcg.src == GX::TG_NRM) {
       vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{} = vec4<f32>(in_nrm, 1.0);"), i);
     } else {
-      Log.report(logvisor::Fatal, FMT_STRING("unhandled tcg src {}"), tcg.src);
+      Log.report(logvisor::Fatal, FMT_STRING("unhandled tcg src {} for "), tcg.src);
       unreachable();
     }
     // TODO this all assumes MTX3x4 currently
@@ -953,15 +1041,27 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
                                  i, postMtxIdx);
     }
     vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.tex{0}_uv = tc{0}_proj.xy;"), i);
-    std::string uvIn;
-    // FIXME terrible hack to flip Y for render textures
-    if (config.texHasAlpha[i]) {
-      uvIn = fmt::format(FMT_STRING("in.tex{0}_uv"), i);
-    } else {
-      uvIn = fmt::format(FMT_STRING("vec2<f32>(in.tex{0}_uv.x, -in.tex{0}_uv.y)"), i);
+  }
+  for (int i = 0; i < config.tevStages.size(); ++i) {
+    const auto& stage = config.tevStages[i];
+    if (stage.texMapId == GX::TEXMAP_NULL ||
+        stage.texCoordId == GX::TEXCOORD_NULL
+        // TODO should check this per-stage probably
+        || !info.sampledTextures.test(stage.texMapId)) {
+      continue;
     }
-    fragmentFnPre += fmt::format(
-        FMT_STRING("\n    var sampled{0} = textureSampleBias(tex{0}, tex{0}_samp, {1}, ubuf.tex{0}_lod);"), i, uvIn);
+    std::string uvIn;
+    const auto& texConfig = config.textureConfig[stage.texMapId];
+    // TODO
+    // if (texConfig.flipUV) {
+    //   uvIn = fmt::format(FMT_STRING("vec2<f32>(in.tex{0}_uv.x, -in.tex{0}_uv.y)"), stage.texCoordId);
+    // } else {
+    uvIn = fmt::format(FMT_STRING("in.tex{0}_uv"), stage.texCoordId);
+    // }
+    fragmentFnPre +=
+        fmt::format(FMT_STRING("\n    var sampled{0} = textureSampleBias(tex{1}, tex{1}_samp, {2}, ubuf.tex{1}_lod);"),
+                    i, stage.texMapId, uvIn);
+    fragmentFnPre += texture_conversion(texConfig, i);
   }
   for (int i = 0; i < info.usesTexMtx.size(); ++i) {
     if (info.usesTexMtx.test(i)) {
@@ -1025,6 +1125,7 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
     }
     fragmentFn += "\n    prev = vec4<f32>(mix(prev.rgb, ubuf.fog.color.rgb, clamp(fogZ, 0.0, 1.0)), prev.a);";
   }
+  size_t texBindIdx = 0;
   for (int i = 0; i < info.sampledTextures.size(); ++i) {
     if (!info.sampledTextures.test(i)) {
       continue;
@@ -1091,8 +1192,7 @@ fn vs_main({vtxInAttrs}
 }}
 
 @stage(fragment)
-fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {{
-    var prev: vec4<f32>;{fragmentFnPre}{fragmentFn}
+fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {{{fragmentFnPre}{fragmentFn}
     return prev;
 }}
 )"""),

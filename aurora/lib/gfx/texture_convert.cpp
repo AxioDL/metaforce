@@ -491,41 +491,38 @@ ByteBuffer BuildDXT1FromGCN(uint32_t width, uint32_t height, uint32_t mips, Arra
   return buf;
 }
 
-ByteBuffer convert_texture(metaforce::ETexelFormat format, uint32_t width, uint32_t height, uint32_t mips,
+ByteBuffer convert_texture(GX::TextureFormat format, uint32_t width, uint32_t height, uint32_t mips,
                            ArrayRef<uint8_t> data) {
   switch (format) {
-  case metaforce::ETexelFormat::RGBA8PC:
-  case metaforce::ETexelFormat::R8PC:
-    return {};
-  case metaforce::ETexelFormat::Invalid:
-    Log.report(logvisor::Fatal, FMT_STRING("convert_texture: invalid format supplied"));
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("convert_texture: unknown format supplied {}"), format);
     unreachable();
-  case metaforce::ETexelFormat::I4:
+  case GX::TF_I4:
     return BuildI4FromGCN(width, height, mips, data);
-  case metaforce::ETexelFormat::I8:
+  case GX::TF_I8:
     return BuildI8FromGCN(width, height, mips, data);
-  case metaforce::ETexelFormat::IA4:
+  case GX::TF_IA4:
     return BuildIA4FromGCN(width, height, mips, data);
-  case metaforce::ETexelFormat::IA8:
+  case GX::TF_IA8:
     return BuildIA8FromGCN(width, height, mips, data);
-  case metaforce::ETexelFormat::C4:
+  case GX::TF_C4:
     Log.report(logvisor::Fatal, FMT_STRING("convert_texture: C4 unimplemented"));
     unreachable();
     // return BuildC4FromGCN(width, height, mips, data);
-  case metaforce::ETexelFormat::C8:
+  case GX::TF_C8:
     Log.report(logvisor::Fatal, FMT_STRING("convert_texture: C8 unimplemented"));
     unreachable();
     // return BuildC8FromGCN(width, height, mips, data);
-  case metaforce::ETexelFormat::C14X2:
+  case GX::TF_C14X2:
     Log.report(logvisor::Fatal, FMT_STRING("convert_texture: C14X2 unimplemented"));
     unreachable();
-  case metaforce::ETexelFormat::RGB565:
+  case GX::TF_RGB565:
     return BuildRGB565FromGCN(width, height, mips, data);
-  case metaforce::ETexelFormat::RGB5A3:
+  case GX::TF_RGB5A3:
     return BuildRGB5A3FromGCN(width, height, mips, data);
-  case metaforce::ETexelFormat::RGBA8:
+  case GX::TF_RGBA8:
     return BuildRGBA8FromGCN(width, height, mips, data);
-  case metaforce::ETexelFormat::CMPR:
+  case GX::TF_CMPR:
     if (gpu::g_device.HasFeature(wgpu::FeatureName::TextureCompressionBC)) {
       return BuildDXT1FromGCN(width, height, mips, data);
     } else {

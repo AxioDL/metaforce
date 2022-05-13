@@ -135,7 +135,7 @@ void CFluidPlaneManager::SetupRippleMap() {
     curX += (1.f / 63.f);
   }
 
-  RippleMapTex = aurora::gfx::new_static_texture_2d(64, 64, 1, ETexelFormat::R8PC,
+  RippleMapTex = aurora::gfx::new_static_texture_2d(64, 64, 1, GX::TF_I8,
                                                     {reinterpret_cast<const uint8_t*>(RippleValues.data()), 64 * 64},
                                                     "Ripple Map");
 }

@@ -218,7 +218,7 @@ bool operator==(const wgpu::Extent3D& lhs, const wgpu::Extent3D& rhs) {
   return lhs.width == rhs.width && lhs.height == rhs.height && lhs.depthOrArrayLayers == rhs.depthOrArrayLayers;
 }
 
-void resolve_color(const ClipRect& rect, uint32_t bind, bool clear_depth) noexcept {
+void resolve_color(const ClipRect& rect, uint32_t bind, GX::TextureFormat fmt, bool clear_depth) noexcept {
   if (g_resolvedTextures.size() < bind + 1) {
     g_resolvedTextures.resize(bind + 1);
   }
@@ -226,8 +226,8 @@ void resolve_color(const ClipRect& rect, uint32_t bind, bool clear_depth) noexce
       .width = static_cast<uint32_t>(rect.width),
       .height = static_cast<uint32_t>(rect.height),
   };
-  if (!g_resolvedTextures[bind] || g_resolvedTextures[bind].ref->size != size) {
-    g_resolvedTextures[bind] = new_render_texture(rect.width, rect.height, "Resolved Texture");
+  if (!g_resolvedTextures[bind] || g_resolvedTextures[bind]->size != size) {
+    g_resolvedTextures[bind] = new_render_texture(rect.width, rect.height, fmt, "Resolved Texture");
   }
   auto& currentPass = g_renderPasses[g_currentRenderPass];
   currentPass.resolveTarget = bind;
@@ -237,11 +237,9 @@ void resolve_color(const ClipRect& rect, uint32_t bind, bool clear_depth) noexce
   newPass.clear = false; // TODO
   ++g_currentRenderPass;
 }
-void resolve_depth(const ClipRect& rect, uint32_t bind) noexcept {
+void resolve_depth(const ClipRect& rect, uint32_t bind, GX::TextureFormat fmt) noexcept {
   // TODO
 }
-
-void bind_color(u32 bindIdx, GX::TexMapID id) noexcept { gx::g_gxState.textures[static_cast<size_t>(id)] = {bindIdx}; }
 
 void queue_movie_player(const TextureHandle& tex_y, const TextureHandle& tex_u, const TextureHandle& tex_v, float h_pad,
                         float v_pad) noexcept {
@@ -552,7 +550,7 @@ void render(wgpu::CommandEncoder& cmd) {
       }
       auto& target = g_resolvedTextures[passInfo.resolveTarget];
       const wgpu::ImageCopyTexture dst{
-          .texture = target.ref->texture,
+          .texture = target->texture,
       };
       const wgpu::Extent3D size{
           .width = static_cast<uint32_t>(passInfo.resolveRect.width),

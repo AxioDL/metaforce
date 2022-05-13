@@ -300,8 +300,7 @@ static inline void SetTevDirect(GX::TevStageID stageId) noexcept {
   auto& state = sGXState.x68_tevStates[stageId].x10_indFlags;
   if (state != 0) {
     state = 0;
-    // TODO
-    // GXSetTevDirect(stageId);
+    GXSetTevDirect(stageId);
   }
 }
 
@@ -331,12 +330,19 @@ static inline void SetStandardDirectTev_Compressed(GX::TevStageID stageId, u32 c
   }
 }
 
-void SetTevIndirect(GX::TevStageID stageId, GX::IndTexStageID indStage, GX::IndTexFormat fmt, GX::IndTexBiasSel biasSel,
-                    GX::IndTexMtxID mtxSel, GX::IndTexWrap wrapS, GX::IndTexWrap wrapT, GXBool addPrev, GXBool indLod,
-                    GX::IndTexAlphaSel alphaSel) noexcept;
+static inline void SetTevIndirect(GX::TevStageID stageId, GX::IndTexStageID indStage, GX::IndTexFormat fmt,
+                                  GX::IndTexBiasSel biasSel, GX::IndTexMtxID mtxSel, GX::IndTexWrap wrapS,
+                                  GX::IndTexWrap wrapT, GXBool addPrev, GXBool indLod,
+                                  GX::IndTexAlphaSel alphaSel) noexcept {
+  // TODO
+  GXSetTevIndirect(stageId, indStage, fmt, biasSel, mtxSel, wrapS, wrapT, addPrev, indLod, alphaSel);
+}
 
-void SetTevIndWarp(GX::TevStageID stageId, GX::IndTexStageID indStage, GXBool signedOffset, GXBool replaceMode,
-                   GX::IndTexMtxID mtxSel) noexcept;
+static inline void SetTevIndWarp(GX::TevStageID stageId, GX::IndTexStageID indStage, GXBool signedOffset, GXBool replaceMode,
+                   GX::IndTexMtxID mtxSel) noexcept {
+  // TODO
+  GXSetTevIndWarp(stageId, indStage, signedOffset, replaceMode, mtxSel);
+}
 
 static inline void SetTevKAlphaSel(GX::TevStageID stageId, GX::TevKAlphaSel sel) noexcept {
   auto& state = sGXState.x68_tevStates[stageId].x19_kAlphaSel;
