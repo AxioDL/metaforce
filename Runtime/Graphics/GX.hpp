@@ -748,10 +748,11 @@ enum GXTlutFmt {
   GX_MAX_TLUTFMT = 0x3,
 };
 
+namespace aurora::gfx {
+struct TextureRef;
+} // namespace aurora::gfx
 struct GXTlutObj {
-  u32 format;
-  u32 addr;
-  u16 entries;
+  std::shared_ptr<aurora::gfx::TextureRef> ref;
 };
 
 enum GXTlut {
@@ -806,12 +807,9 @@ enum GXCITexFmt {
   GX_TF_C14X2 = GX::TF_C14X2,
 };
 
-namespace aurora::gfx {
-struct TextureRef;
-} // namespace aurora::gfx
 struct GXTexObj {
   std::shared_ptr<aurora::gfx::TextureRef> ref;
-  void* data;
+  const void* data;
   u32 dataSize;
   u16 width;
   u16 height;
@@ -894,12 +892,13 @@ void GXSetTevSwapModeTable(GX::TevSwapSel id, GX::TevColorChan red, GX::TevColor
                            GX::TevColorChan alpha) noexcept;
 void GXSetTevSwapMode(GX::TevStageID stage, GX::TevSwapSel rasSel, GX::TevSwapSel texSel) noexcept;
 void GXSetLineWidth(u8 width, GX::TexOffset texOffset) noexcept;
-void GXInitTlutObj(GXTlutObj* obj, void* data, GXTlutFmt format, u16 entries) noexcept;
+void GXInitTlutObj(GXTlutObj* obj, const void* data, GXTlutFmt format, u16 entries) noexcept;
 void GXLoadTlut(const GXTlutObj* obj, GXTlut idx) noexcept;
-void GXInitTexObj(GXTexObj* obj, void* data, u16 width, u16 height, GX::TextureFormat format, GXTexWrapMode wrapS,
+void GXInitTexObj(GXTexObj* obj, const void* data, u16 width, u16 height, GX::TextureFormat format, GXTexWrapMode wrapS,
                   GXTexWrapMode wrapT, GXBool mipmap) noexcept;
 // Addition for binding render textures
-void GXInitTexObjResolved(GXTexObj* obj, u32 bindIdx, GX::TextureFormat format, GXTexWrapMode wrapS, GXTexWrapMode wrapT);
+void GXInitTexObjResolved(GXTexObj* obj, u32 bindIdx, GX::TextureFormat format, GXTexWrapMode wrapS,
+                          GXTexWrapMode wrapT);
 void GXInitTexObjLOD(GXTexObj* obj, GXTexFilter minFilt, GXTexFilter magFilt, float minLod, float maxLod, float lodBias,
                      GXBool biasClamp, GXBool doEdgeLod, GXAnisotropy maxAniso) noexcept;
 void GXInitTexObjCI(GXTexObj* obj, void* data, u16 width, u16 height, GXCITexFmt format, GXTexWrapMode wrapS,

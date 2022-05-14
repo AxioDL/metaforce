@@ -173,6 +173,7 @@ struct GXState {
   std::array<Light, GX::MaxLights> lights;
   std::array<TevStage, MaxTevStages> tevStages;
   std::array<TextureBind, MaxTextures> textures;
+  std::array<GXTlutObj, MaxTextures> tluts;
   std::array<TexMtxVariant, MaxTexMtx> texMtxs;
   std::array<Mat4x4<float>, MaxPTTexMtx> ptTexMtxs;
   std::array<TcgConfig, MaxTexCoord> tcgs;

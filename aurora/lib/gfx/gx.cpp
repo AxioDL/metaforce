@@ -493,7 +493,7 @@ void GXSetIndTexMtx(GX::IndTexMtxID id, const void* mtx, s8 scaleExp) noexcept {
   g_gxState.indTexMtxs[id - 1] = {*static_cast<const aurora::Mat3x2<float>*>(mtx), scaleExp};
 }
 
-void GXInitTexObj(GXTexObj* obj, void* data, u16 width, u16 height, GX::TextureFormat format, GXTexWrapMode wrapS,
+void GXInitTexObj(GXTexObj* obj, const void* data, u16 width, u16 height, GX::TextureFormat format, GXTexWrapMode wrapS,
                   GXTexWrapMode wrapT, GXBool mipmap) noexcept {
   obj->data = data;
   obj->width = width;
@@ -550,7 +550,24 @@ void GXInitTexObjLOD(GXTexObj* obj, GXTexFilter minFilt, GXTexFilter magFilt, fl
 }
 void GXInitTexObjCI(GXTexObj* obj, void* data, u16 width, u16 height, GXCITexFmt format, GXTexWrapMode wrapS,
                     GXTexWrapMode wrapT, GXBool mipmap, u32 tlut) noexcept {
-  // TODO
+  obj->data = data;
+  obj->width = width;
+  obj->height = height;
+  obj->fmt = static_cast<GX::TextureFormat>(format);
+  obj->wrapS = wrapS;
+  obj->wrapT = wrapT;
+  obj->hasMips = mipmap;
+  obj->tlut = static_cast<GXTlut>(tlut);
+  // TODO default values?
+  obj->minFilter = GX_LINEAR;
+  obj->magFilter = GX_LINEAR;
+  obj->minLod = 0.f;
+  obj->maxLod = 0.f;
+  obj->lodBias = 0.f;
+  obj->biasClamp = false;
+  obj->doEdgeLod = false;
+  obj->maxAniso = GX_ANISO_4;
+  obj->dataInvalidated = true;
 }
 void GXInitTexObjData(GXTexObj* obj, void* data) noexcept {
   obj->data = data;
@@ -573,12 +590,27 @@ void GXLoadTexObj(GXTexObj* obj, GX::TexMapID id) noexcept {
   g_gxState.textures[id] = {*obj};
 }
 
-void GXInitTlutObj(GXTlutObj* obj, void* data, GXTlutFmt format, u16 entries) noexcept {
-  // TODO
+void GXInitTlutObj(GXTlutObj* obj, const void* data, GXTlutFmt format, u16 entries) noexcept {
+  GX::TextureFormat texFmt;
+  switch (format) {
+  case GX_TL_IA8:
+    texFmt = GX::TF_IA8;
+    break;
+  case GX_TL_RGB565:
+    texFmt = GX::TF_RGB565;
+    break;
+  case GX_TL_RGB5A3:
+    texFmt = GX::TF_RGB5A3;
+    break;
+  default:
+    Log.report(logvisor::Fatal, FMT_STRING("invalid tlut format {}"), format);
+    unreachable();
+  }
+  obj->ref = aurora::gfx::new_static_texture_2d(
+      entries, 1, 1, texFmt, aurora::ArrayRef{static_cast<const u8*>(data), static_cast<size_t>(entries) * 2},
+      "GXInitTlutObj");
 }
-void GXLoadTlut(const GXTlutObj* obj, GXTlut idx) noexcept {
-  // TODO
-}
+void GXLoadTlut(const GXTlutObj* obj, GXTlut idx) noexcept { g_gxState.tluts[idx] = *obj; }
 
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx::gx");
@@ -869,7 +901,7 @@ void populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive) n
     } else {
       // Loaded texture object, no conversion necessary
       copyFmt = InvalidTextureFormat;
-      bindFmt = InvalidTextureFormat;
+      bindFmt = bind.texObj.fmt;
     }
     config.shaderConfig.textureConfig[i] = {copyFmt, bindFmt, flipUV};
   }
@@ -1005,7 +1037,6 @@ static absl::flat_hash_map<u32, std::pair<wgpu::BindGroupLayout, wgpu::BindGroup
 GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& config,
                                const BindGroupRanges& ranges) noexcept {
   const auto layouts = build_bind_group_layouts(info, config);
-  u32 textureCount = info.sampledTextures.count();
 
   const std::array uniformEntries{
       wgpu::BindGroupEntry{
@@ -1039,7 +1070,9 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
       },
   };
   std::array<wgpu::BindGroupEntry, MaxTextures> samplerEntries;
-  std::array<wgpu::BindGroupEntry, MaxTextures> textureEntries;
+  std::array<wgpu::BindGroupEntry, MaxTextures * 2> textureEntries;
+  u32 samplerCount = 0;
+  u32 textureCount = 0;
   for (u32 texIdx = 0, i = 0; texIdx < info.sampledTextures.size(); ++texIdx) {
     if (!info.sampledTextures.test(texIdx)) {
       continue;
@@ -1053,10 +1086,31 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
         .binding = i,
         .sampler = sampler_ref(tex.get_descriptor()),
     };
+    ++samplerCount;
     textureEntries[i] = {
         .binding = i,
         .textureView = tex.texObj.ref->view,
     };
+    // Load palette
+    const auto& texConfig = config.textureConfig[i];
+    if (texConfig.loadFmt == GX::TF_C4 || texConfig.loadFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2) {
+      ++i;
+      u32 tlut = tex.texObj.tlut;
+      if (tlut < GX_TLUT0 || tlut > GX_TLUT7) {
+        Log.report(logvisor::Fatal, FMT_STRING("tlut out of bounds {}"), tlut);
+        unreachable();
+      } else if (!g_gxState.tluts[tlut].ref) {
+        Log.report(logvisor::Fatal, FMT_STRING("tlut unbound {}"), tlut);
+        unreachable();
+      }
+      textureEntries[i] = {
+          .binding = i,
+          .textureView = g_gxState.tluts[tlut].ref->view,
+      };
+      textureCount += 2;
+    } else {
+      ++textureCount;
+    }
     i++;
   }
   return {
@@ -1069,7 +1123,7 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
       .samplerBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
           .label = "GX Sampler Bind Group",
           .layout = layouts.samplerLayout,
-          .entryCount = textureCount,
+          .entryCount = samplerCount,
           .entries = samplerEntries.data(),
       }),
       .textureBindGroup = bind_group_ref(wgpu::BindGroupDescriptor{
@@ -1146,34 +1200,62 @@ GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const Shader
   }
 
   u32 textureCount = info.sampledTextures.count();
-  const auto textureIt = sTextureBindGroupLayouts.find(textureCount);
-  if (textureIt != sTextureBindGroupLayouts.end()) {
-    const auto& [sl, tl] = textureIt->second;
-    out.samplerLayout = sl;
-    out.textureLayout = tl;
-  } else {
+//  const auto textureIt = sTextureBindGroupLayouts.find(textureCount);
+//  if (textureIt != sTextureBindGroupLayouts.end()) {
+//    const auto& [sl, tl] = textureIt->second;
+//    out.samplerLayout = sl;
+//    out.textureLayout = tl;
+//  } else {
+    u32 numSamplers = 0;
+    u32 numTextures = 0;
     std::array<wgpu::BindGroupLayoutEntry, MaxTextures> samplerEntries;
-    std::array<wgpu::BindGroupLayoutEntry, MaxTextures> textureEntries;
-    for (u32 i = 0; i < textureCount; ++i) {
+    std::array<wgpu::BindGroupLayoutEntry, MaxTextures * 2> textureEntries;
+    for (u32 i = 0, t = 0; i < textureCount; ++i, ++t) {
       samplerEntries[i] = {
           .binding = i,
           .visibility = wgpu::ShaderStage::Fragment,
           .sampler = {.type = wgpu::SamplerBindingType::Filtering},
       };
-      textureEntries[i] = {
-          .binding = i,
-          .visibility = wgpu::ShaderStage::Fragment,
-          .texture =
-              {
-                  .sampleType = wgpu::TextureSampleType::Float,
-                  .viewDimension = wgpu::TextureViewDimension::e2D,
-              },
-      };
+      ++numSamplers;
+      const auto& texConfig = config.textureConfig[i];
+      if (texConfig.loadFmt == GX::TF_C4 || texConfig.loadFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2) {
+        textureEntries[t] = {
+            .binding = t,
+            .visibility = wgpu::ShaderStage::Fragment,
+            .texture =
+                {
+                    .sampleType = wgpu::TextureSampleType::Sint,
+                    .viewDimension = wgpu::TextureViewDimension::e2D,
+                },
+        };
+        ++t;
+        textureEntries[t] = {
+            .binding = t,
+            .visibility = wgpu::ShaderStage::Fragment,
+            .texture =
+                {
+                    .sampleType = wgpu::TextureSampleType::Float,
+                    .viewDimension = wgpu::TextureViewDimension::e2D,
+                },
+        };
+        numTextures += 2;
+      } else {
+        textureEntries[t] = {
+            .binding = t,
+            .visibility = wgpu::ShaderStage::Fragment,
+            .texture =
+                {
+                    .sampleType = wgpu::TextureSampleType::Float,
+                    .viewDimension = wgpu::TextureViewDimension::e2D,
+                },
+        };
+        ++numTextures;
+      }
     }
     {
       const wgpu::BindGroupLayoutDescriptor descriptor{
           .label = "GX Sampler Bind Group",
-          .entryCount = textureCount,
+          .entryCount = numSamplers,
           .entries = samplerEntries.data(),
       };
       out.samplerLayout = g_device.CreateBindGroupLayout(&descriptor);
@@ -1181,13 +1263,13 @@ GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const Shader
     {
       const wgpu::BindGroupLayoutDescriptor descriptor{
           .label = "GX Texture Bind Group",
-          .entryCount = textureCount,
+          .entryCount = numTextures,
           .entries = textureEntries.data(),
       };
       out.textureLayout = g_device.CreateBindGroupLayout(&descriptor);
     }
-    sTextureBindGroupLayouts.try_emplace(textureCount, out.samplerLayout, out.textureLayout);
-  }
+//    sTextureBindGroupLayouts.try_emplace(textureCount, out.samplerLayout, out.textureLayout);
+//  }
   return out;
 }
 

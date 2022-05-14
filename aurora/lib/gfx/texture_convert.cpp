@@ -87,11 +87,11 @@ constexpr T bswap16(T val) noexcept {
 
 static ByteBuffer BuildI4FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {
   const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
-  ByteBuffer buf{sizeof(RGBA8) * texelCount};
+  ByteBuffer buf{texelCount};
 
   uint32_t w = width;
   uint32_t h = height;
-  auto* targetMip = reinterpret_cast<RGBA8*>(buf.data());
+  u8* targetMip = buf.data();
   const uint8_t* in = data.data();
   for (uint32_t mip = 0; mip < mips; ++mip) {
     const uint32_t bwidth = (w + 7) / 8;
@@ -101,12 +101,9 @@ static ByteBuffer BuildI4FromGCN(uint32_t width, uint32_t height, uint32_t mips,
       for (uint32_t bx = 0; bx < bwidth; ++bx) {
         const uint32_t baseX = bx * 8;
         for (uint32_t y = 0; y < std::min(h, 8u); ++y) {
-          RGBA8* target = targetMip + (baseY + y) * w + baseX;
+          u8* target = targetMip + (baseY + y) * w + baseX;
           for (uint32_t x = 0; x < std::min(w, 8u); ++x) {
-            target[x].r = Convert4To8(in[x / 2] >> ((x & 1) ? 0 : 4) & 0xf);
-            target[x].g = target[x].r;
-            target[x].b = target[x].r;
-            target[x].a = target[x].r;
+            target[x] = Convert4To8(in[x / 2] >> ((x & 1) ? 0 : 4) & 0xf);
           }
           in += std::min<size_t>(w / 4, 4);
         }
@@ -247,13 +244,13 @@ ByteBuffer BuildIA8FromGCN(uint32_t width, uint32_t height, uint32_t mips, Array
   return buf;
 }
 
-ByteBuffer BuildC4FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data, RGBA8* palette) {
+ByteBuffer BuildC4FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {
   const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
-  ByteBuffer buf{sizeof(RGBA8) * texelCount};
+  ByteBuffer buf{texelCount * 2};
 
   uint32_t w = width;
   uint32_t h = height;
-  auto* targetMip = reinterpret_cast<RGBA8*>(buf.data());
+  u16* targetMip = reinterpret_cast<u16*>(buf.data());
   const uint8_t* in = data.data();
   for (uint32_t mip = 0; mip < mips; ++mip) {
     const uint32_t bwidth = (w + 7) / 8;
@@ -262,13 +259,13 @@ ByteBuffer BuildC4FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayR
       const uint32_t baseY = by * 8;
       for (uint32_t bx = 0; bx < bwidth; ++bx) {
         const uint32_t baseX = bx * 8;
-        for (uint32_t y = 0; y < 8; ++y) {
-          RGBA8* target = targetMip + (baseY + y) * w + baseX;
+        for (uint32_t y = 0; y < std::min(8u, h); ++y) {
+          u16* target = targetMip + (baseY + y) * w + baseX;
           const auto n = std::min(w, 8u);
           for (size_t x = 0; x < n; ++x) {
-            target[x] = palette[in[x / 2] >> ((x & 1) ? 0 : 4) & 0xf];
+            target[x] = in[x / 2] >> ((x & 1) ? 0 : 4) & 0xf;
           }
-          in += n;
+          in += n / 2;
         }
       }
     }
@@ -284,13 +281,13 @@ ByteBuffer BuildC4FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayR
   return buf;
 }
 
-ByteBuffer BuildC8FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data, RGBA8* palette) {
+ByteBuffer BuildC8FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {
   const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
-  ByteBuffer buf{sizeof(RGBA8) * texelCount};
+  ByteBuffer buf{texelCount * 2};
 
   uint32_t w = width;
   uint32_t h = height;
-  auto* targetMip = reinterpret_cast<RGBA8*>(buf.data());
+  u16* targetMip = reinterpret_cast<u16*>(buf.data());
   const uint8_t* in = data.data();
   for (uint32_t mip = 0; mip < mips; ++mip) {
     const uint32_t bwidth = (w + 7) / 8;
@@ -300,10 +297,10 @@ ByteBuffer BuildC8FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayR
       for (uint32_t bx = 0; bx < bwidth; ++bx) {
         const uint32_t baseX = bx * 8;
         for (uint32_t y = 0; y < 4; ++y) {
-          RGBA8* target = targetMip + (baseY + y) * w + baseX;
+          u16* target = targetMip + (baseY + y) * w + baseX;
           const auto n = std::min(w, 8u);
           for (size_t x = 0; x < n; ++x) {
-            target[x] = palette[in[x]];
+            target[x] = in[x];
           }
           in += n;
         }
@@ -336,9 +333,9 @@ ByteBuffer BuildRGB565FromGCN(uint32_t width, uint32_t height, uint32_t mips, Ar
       const uint32_t baseY = by * 4;
       for (uint32_t bx = 0; bx < bwidth; ++bx) {
         const uint32_t baseX = bx * 4;
-        for (uint32_t y = 0; y < 4; ++y) {
+        for (uint32_t y = 0; y < std::min(4u, h); ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
-          for (size_t x = 0; x < 4; ++x) {
+          for (size_t x = 0; x < std::min(4u, w); ++x) {
             const auto texel = bswap16(in[x]);
             target[x].r = Convert5To8(texel >> 11 & 0x1f);
             target[x].g = Convert6To8(texel >> 5 & 0x3f);
@@ -376,9 +373,9 @@ ByteBuffer BuildRGB5A3FromGCN(uint32_t width, uint32_t height, uint32_t mips, Ar
       const uint32_t baseY = by * 4;
       for (uint32_t bx = 0; bx < bwidth; ++bx) {
         const uint32_t baseX = bx * 4;
-        for (uint32_t y = 0; y < 4; ++y) {
+        for (uint32_t y = 0; y < std::min(4u, h); ++y) {
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
-          for (size_t x = 0; x < 4; ++x) {
+          for (size_t x = 0; x < std::min(4u, w); ++x) {
             const auto texel = bswap16(in[x]);
             if ((texel & 0x8000) != 0) {
               target[x].r = Convert5To8(texel >> 10 & 0x1f);
@@ -599,13 +596,9 @@ ByteBuffer convert_texture(GX::TextureFormat format, uint32_t width, uint32_t he
   case GX::TF_IA8:
     return BuildIA8FromGCN(width, height, mips, data);
   case GX::TF_C4:
-    Log.report(logvisor::Fatal, FMT_STRING("convert_texture: C4 unimplemented"));
-    unreachable();
-    // return BuildC4FromGCN(width, height, mips, data);
+    return BuildC4FromGCN(width, height, mips, data);
   case GX::TF_C8:
-    Log.report(logvisor::Fatal, FMT_STRING("convert_texture: C8 unimplemented"));
-    unreachable();
-    // return BuildC8FromGCN(width, height, mips, data);
+    return BuildC8FromGCN(width, height, mips, data);
   case GX::TF_C14X2:
     Log.report(logvisor::Fatal, FMT_STRING("convert_texture: C14X2 unimplemented"));
     unreachable();

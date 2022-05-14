@@ -562,7 +562,7 @@ static inline std::string vtx_attr(const ShaderConfig& config, GX::Attr attr) {
   unreachable();
 }
 
-static inline std::string texture_conversion(const TextureConfig& tex, u32 stageIdx) {
+static inline std::string texture_conversion(const TextureConfig& tex, u32 stageIdx, u32 texMapId) {
   std::string out;
   switch (tex.copyFmt) {
   default:
@@ -572,13 +572,23 @@ static inline std::string texture_conversion(const TextureConfig& tex, u32 stage
     out += fmt::format(FMT_STRING("\n    sampled{0}.a = 1.0;"), stageIdx);
     break;
   case GX::TF_I4:
+  case GX::TF_I8:
     // Perform intensity conversion
     out += fmt::format(
         FMT_STRING("\n    {{"
                    "\n        var intensity = dot(sampled{0}.rgb, vec3(0.257, 0.504, 0.098)) + 16.0 / 255.0;"
-                   "\n        sampled{0} = vec4<f32>(intensity);"
+                   "\n        sampled{0} = vec4<f32>(intensity, 0.f, 0.f, 1.f);"
                    "\n    }}"),
         stageIdx);
+    break;
+  }
+  switch (tex.loadFmt) {
+  default:
+    break;
+  case GX::TF_I4:
+  case GX::TF_I8:
+    // Splat R to RGBA
+    out += fmt::format(FMT_STRING("\n    sampled{0} = vec4<f32>(sampled{0}.r);"), stageIdx);
     break;
   }
   return out;
@@ -1058,10 +1068,16 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
     // } else {
     uvIn = fmt::format(FMT_STRING("in.tex{0}_uv"), stage.texCoordId);
     // }
-    fragmentFnPre +=
-        fmt::format(FMT_STRING("\n    var sampled{0} = textureSampleBias(tex{1}, tex{1}_samp, {2}, ubuf.tex{1}_lod);"),
-                    i, stage.texMapId, uvIn);
-    fragmentFnPre += texture_conversion(texConfig, i);
+    if (texConfig.loadFmt == GX::TF_C4 || texConfig.loadFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2) {
+      fragmentFnPre +=
+          fmt::format(FMT_STRING("\n    var sampled{0} = textureSamplePalette(tex{1}, tex{1}_samp, {2}, tlut{1});"),
+                      i, stage.texMapId, uvIn);
+    } else {
+      fragmentFnPre += fmt::format(
+          FMT_STRING("\n    var sampled{0} = textureSampleBias(tex{1}, tex{1}_samp, {2}, ubuf.tex{1}_lod);"), i,
+          stage.texMapId, uvIn);
+    }
+    fragmentFnPre += texture_conversion(texConfig, i, stage.texMapId);
   }
   for (int i = 0; i < info.usesTexMtx.size(); ++i) {
     if (info.usesTexMtx.test(i)) {
@@ -1135,9 +1151,21 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
     sampBindings += fmt::format(FMT_STRING("\n@group(1) @binding({})\n"
                                            "var tex{}_samp: sampler;"),
                                 texBindIdx, i);
-    texBindings += fmt::format(FMT_STRING("\n@group(2) @binding({})\n"
-                                          "var tex{}: texture_2d<f32>;"),
-                               texBindIdx, i);
+
+    const auto& texConfig = config.textureConfig[i];
+    if (texConfig.loadFmt == GX::TF_C4 || texConfig.loadFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2) {
+      texBindings += fmt::format(FMT_STRING("\n@group(2) @binding({})\n"
+                                            "var tex{}: texture_2d<i32>;"),
+                                 texBindIdx, i);
+      ++texBindIdx;
+      texBindings += fmt::format(FMT_STRING("\n@group(2) @binding({})\n"
+                                            "var tlut{}: texture_2d<f32>;"),
+                                 texBindIdx, i);
+    } else {
+      texBindings += fmt::format(FMT_STRING("\n@group(2) @binding({})\n"
+                                            "var tex{}: texture_2d<f32>;"),
+                                 texBindIdx, i);
+    }
     ++texBindIdx;
   }
 
@@ -1183,6 +1211,19 @@ var<uniform> ubuf: Uniform;{uniformBindings}{sampBindings}{texBindings}
 struct VertexOutput {{
     @builtin(position) pos: vec4<f32>,{vtxOutAttrs}
 }};
+
+fn textureSamplePalette(tex: texture_2d<i32>, samp: sampler, uv: vec2<f32>, tlut: texture_2d<f32>) -> vec4<f32> {{
+    var f = fract(uv * vec2<f32>(textureDimensions(tex)) + 0.5);
+    var i = textureGather(0, tex, samp, uv);
+    var sX = textureLoad(tlut, vec2<i32>(i.x, 0), 0);
+    var sY = textureLoad(tlut, vec2<i32>(i.y, 0), 0);
+    var sZ = textureLoad(tlut, vec2<i32>(i.z, 0), 0);
+    var sW = textureLoad(tlut, vec2<i32>(i.w, 0), 0);
+    // Bilinear filtering
+    var tA = mix(sW, sZ, f.x);
+    var tB = mix(sX, sY, f.x);
+    return mix(tA, tB, f.y);
+}}
 
 @stage(vertex)
 fn vs_main({vtxInAttrs}

@@ -285,10 +285,11 @@ void initialize(SDL_Window* window) {
       "use_dxc",
 #endif
 #ifdef NDEBUG
-      "skip_validation", "disable_robustness",
-#else
-      "use_user_defined_labels_in_backend",
+      "skip_validation",
+      "disable_robustness",
 #endif
+      "use_user_defined_labels_in_backend",
+      "disable_symbol_renaming",
       /* clang-format on */
     };
     wgpu::DawnTogglesDeviceDescriptor togglesDescriptor{};

@@ -102,11 +102,6 @@ u32 CTextRenderBuffer::GetCurLen() {
 }
 
 void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
-  static const GX::VtxDescList skVtxDesc[3]{
-      {GX::VA_POS, GX::DIRECT},
-      {GX::VA_TEX0, GX::DIRECT},
-      {GX::VA_NULL, GX::NONE},
-  };
   x4c_activeFont = -1;
   x4d_activePalette = -1;
   CMemoryInStream in(x34_bytecode.data(), x44_blobSize);
@@ -127,8 +122,8 @@ void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
         x4f_queuedPalette = -1;
       }
 
-      u16 offX = in.ReadShort();
-      u16 offY = in.ReadShort();
+      s16 offX = in.ReadShort();
+      s16 offY = in.ReadShort();
       char16_t chr = in.ReadShort();
       zeus::CColor chrColor(static_cast<zeus::Comp32>(in.ReadLong()));
       if (x4c_activeFont != -1) {
@@ -151,8 +146,8 @@ void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
         }
       }
     } else if (cmd == Command::ImageRender) {
-      u16 offX = in.ReadShort();
-      u16 offY = in.ReadShort();
+      s16 offX = in.ReadShort();
+      s16 offY = in.ReadShort();
       u8 imageIdx = in.ReadChar();
       zeus::CColor imageColor(static_cast<zeus::Comp32>(in.ReadLong()));
       auto imageDef = x14_images[imageIdx];
@@ -169,7 +164,12 @@ void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
         CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_TEXC, GX::CC_KONST, GX::CC_ZERO);
         CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_TEXA, GX::CA_KONST, GX::CA_ZERO);
         CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
-        CGX::SetVtxDescv(skVtxDesc);
+        constexpr std::array skVtxDesc{
+            GX::VtxDescList{GX::VA_POS, GX::DIRECT},
+            GX::VtxDescList{GX::VA_TEX0, GX::DIRECT},
+            GX::VtxDescList{},
+        };
+        CGX::SetVtxDescv(skVtxDesc.data());
         CGX::SetNumChans(0);
         CGX::SetNumTexGens(1);
         CGX::SetNumTevStages(1);

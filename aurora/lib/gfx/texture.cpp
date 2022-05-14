@@ -22,6 +22,8 @@ static TextureFormatInfo format_info(wgpu::TextureFormat format) {
   switch (format) {
   case wgpu::TextureFormat::R8Unorm:
     return {1, 1, 1, false};
+  case wgpu::TextureFormat::R16Sint:
+    return {1, 1, 2, false};
   case wgpu::TextureFormat::RGBA8Unorm:
   case wgpu::TextureFormat::R32Float:
     return {1, 1, 4, false};
