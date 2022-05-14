@@ -5,8 +5,8 @@ namespace metaforce {
 class CMemoryInStream final : public CInputStream {
 public:
   enum class EOwnerShip {
-    NotOwned,
     Owned,
+    NotOwned,
   };
 
   CMemoryInStream(const void* ptr, u32 len) : CInputStream(ptr, len, false) {}

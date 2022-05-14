@@ -24,6 +24,7 @@ public:
   COutputStream(s32 unk);
   virtual ~COutputStream();
 
+  u32 GetNumWrites() const { return x10_numWrites; }
   void WriteBits(u32 val, u32 bitCount);
   void WriteChar(u8 c);
   void WriteShort(u16 s);

@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "Runtime/CSimplePool.hpp"
+#include "Runtime/Graphics/CGX.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/GuiSys/CDrawStringOptions.hpp"
 #include "Runtime/GuiSys/CTextRenderBuffer.hpp"
@@ -151,17 +152,15 @@ void CRasterFont::DrawString(const CDrawStringOptions& opts, int x, int y, int& 
   if (!x0_initialized)
     return;
 
-  if (renderBuf) {
-    /* CGraphicsPalette pal = CGraphicsPalette::CGraphcisPalette(2, 4); */
-    /* zeus::CColor color = zeus::CColor(0.f, 0.f, 0.f, 0.f) */
-    /* tmp = color.ToRGB5A3(); */
-    /* tmp2 = opts.x8_.ToRGB5A3(); */
-    /* tmp3 = opts.xc_.ToRGB5A3(); */
-    /* tmp4 = zeus::CColor(0.f, 0.f, 0.f, 0.f); */
-    /* tmp5 = tmp4.ToRGBA5A3(); */
-    /* pal.UnLock(); */
-    /* renderBuf->AddPaletteChange(pal); */
-    renderBuf->AddPaletteChange(opts.x4_colors[0], opts.x4_colors[1]);
+  if (renderBuf != nullptr) {
+    CGraphicsPalette pal(EPaletteFormat::RGB5A3, 4);
+    pal.Lock();
+    *reinterpret_cast<u16*>(pal.GetPaletteData() + 0) = SBIG(zeus::CColor(0.f, 0.f, 0.f, 0.f).toRGB5A3());
+    *reinterpret_cast<u16*>(pal.GetPaletteData() + 2) = SBIG(opts.x4_colors[0].toRGB5A3());
+    *reinterpret_cast<u16*>(pal.GetPaletteData() + 4) = SBIG(opts.x4_colors[1].toRGB5A3());
+    *reinterpret_cast<u16*>(pal.GetPaletteData() + 6) = SBIG(zeus::CColor(0.f, 0.f, 0.f, 0.f).toRGB5A3());
+    pal.UnLock();
+    renderBuf->AddPaletteChange(pal);
   }
 
   SinglePassDrawString(opts, x, y, xout, yout, renderBuf, str, len);
@@ -210,6 +209,28 @@ bool CRasterFont::IsFinishedLoading() const {
   return true;
 }
 
+void CRasterFont::SetupRenderState() {
+  static const GX::VtxDescList skDescList[3] = {
+    {GX::VA_POS, GX::DIRECT},
+    {GX::VA_TEX0, GX::DIRECT},
+    {GX::VA_NULL, GX::NONE}
+  };
+
+  x80_texture->Load(GX::TEXMAP0, EClampMode::Clamp);
+  CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_K0_A);
+  CGX::SetTevKColorSel(GX::TEVSTAGE0, GX::TEV_KCSEL_K0);
+  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_TEXC, GX::CC_KONST, GX::CC_ZERO);
+  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_TEXA, GX::CA_KONST, GX::CA_ZERO);
+  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
+  CGX::SetTevDirect(GX::TEVSTAGE0);
+  CGX::SetVtxDescv(skDescList);
+  CGX::SetNumChans(0);
+  CGX::SetNumTexGens(1);
+  CGX::SetNumTevStages(1);
+  CGX::SetNumIndStages(0);
+  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
+  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
+}
 std::unique_ptr<IObj> FRasterFontFactory([[maybe_unused]] const SObjectTag& tag, CInputStream& in,
                                          const CVParamTransfer& vparms, [[maybe_unused]] CObjectReference* selfRef) {
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();

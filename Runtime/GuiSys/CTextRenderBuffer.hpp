@@ -27,7 +27,8 @@ class CTextRenderBuffer {
   friend class CTextSupportShader;
 
 public:
-  enum class Command { CharacterRender, ImageRender, FontChange, PaletteChange, Invalid };
+  enum class Command { CharacterRender, ImageRender, FontChange, PaletteChange, Invalid = -1 };
+#if 1
   struct Primitive {
     CTextColor x0_color1;
     Command x4_command;
@@ -36,6 +37,7 @@ public:
     char16_t xc_glyph;
     u8 xe_imageIndex;
   };
+#endif
   enum class EMode { AllocTally, BufferFill };
 
 private:
@@ -46,34 +48,37 @@ private:
   std::vector<char> x34_bytecode;
   u32 x44_blobSize = 0;
   u32 x48_curBytecodeOffset = 0;
-  u8 x4c_activeFont;
-  u32 x50_paletteCount = 0;
-  std::array<std::unique_ptr<CGraphicsPalette>, 64> x54_palettes;
-  u32 x254_nextPalette = 0;
+  s8 x4c_activeFont = -1;
+  s8 x4d_ = -1;
+  s8 x4e_ = -1;
+  s8 x4f_curPalette = -1;
+  rstl::reserved_vector<std::unique_ptr<CGraphicsPalette>, 64> x50_palettes;
+  s32 x254_nextPalette = 0;
 
 public:
   CTextRenderBuffer(CTextRenderBuffer&& other) noexcept;
-  CTextRenderBuffer(EMode mode, CGuiWidget::EGuiModelDrawFlags df);
+  CTextRenderBuffer(EMode mode);
   ~CTextRenderBuffer();
 
   CTextRenderBuffer& operator=(CTextRenderBuffer&& other) noexcept;
 
   void SetPrimitive(const Primitive&, int);
   [[nodiscard]] Primitive GetPrimitive(int) const;
-  void GetOutStream();
+  [[nodiscard]] u32 GetPrimitiveCount() const { return x24_primOffsets.size(); }
+  [[nodiscard]] u8* GetOutStream();
+  [[nodiscard]] u32 GetCurLen();
   void VerifyBuffer();
   int GetMatchingPaletteIndex(const CGraphicsPalette& palette);
-  CGraphicsPalette* GetNextAvailablePalette();
+  [[nodiscard]] CGraphicsPalette* GetNextAvailablePalette();
   void AddPaletteChange(const CGraphicsPalette& palette);
   void SetMode(EMode mode);
-  void Render(const zeus::CColor& col, float time);
+  void Render(const CTextColor& col, float time);
   void AddImage(const zeus::CVector2i& offset, const CFontImageDef& image);
-  void AddCharacter(const zeus::CVector2i& offset, char16_t ch, const zeus::CColor& color);
-  void AddPaletteChange(const zeus::CColor& main, const zeus::CColor& outline);
+  void AddCharacter(const zeus::CVector2i& offset, char16_t ch, const CTextColor& color);
   void AddFontChange(const TToken<CRasterFont>& font);
 
-  bool HasSpaceAvailable(const zeus::CVector2i& origin, const zeus::CVector2i& extent) const;
-  std::pair<zeus::CVector2i, zeus::CVector2i> AccumulateTextBounds() const;
+  [[nodiscard]] bool HasSpaceAvailable(const zeus::CVector2i& origin, const zeus::CVector2i& extent);
+  [[nodiscard]] std::pair<zeus::CVector2i, zeus::CVector2i> AccumulateTextBounds();
 };
 
 } // namespace metaforce

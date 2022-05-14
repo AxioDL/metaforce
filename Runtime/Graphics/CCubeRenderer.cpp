@@ -19,8 +19,11 @@
 namespace metaforce {
 static logvisor::Module Log("CCubeRenderer");
 
+/* TODO: This is to fix some areas exceeding the max drawable count, the proper number is 128 drawables per bucket */
+// using BucketHolderType = rstl::reserved_vector<CDrawable*, 128>;
+using BucketHolderType = rstl::reserved_vector<CDrawable*, 132>;
 static rstl::reserved_vector<CDrawable, 512> sDataHolder;
-static rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50> sBucketsHolder;
+static rstl::reserved_vector<BucketHolderType, 50> sBucketsHolder;
 static rstl::reserved_vector<CDrawablePlaneObject, 8> sPlaneObjectDataHolder;
 static rstl::reserved_vector<u16, 8> sPlaneObjectBucketHolder;
 
@@ -29,11 +32,11 @@ class Buckets {
 
   static inline rstl::reserved_vector<u16, 50> sBucketIndex;
   static inline rstl::reserved_vector<CDrawable, 512>* sData = nullptr;
-  static inline rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50>* sBuckets = nullptr;
+  static inline rstl::reserved_vector<BucketHolderType, 50>* sBuckets = nullptr;
   static inline rstl::reserved_vector<CDrawablePlaneObject, 8>* sPlaneObjectData = nullptr;
   static inline rstl::reserved_vector<u16, 8>* sPlaneObjectBucket = nullptr;
   static constexpr std::array skWorstMinMaxDistance{99999.0f, -99999.0f};
-  static inline std::array sMinMaxDistance{0.0f, 0.0f};
+  static inline std::array sMinMaxDistance{99999.0f, -99999.0f};
 
 public:
   static void Clear();
@@ -51,7 +54,7 @@ void Buckets::Clear() {
   sBucketIndex.clear();
   sPlaneObjectData->clear();
   sPlaneObjectBucket->clear();
-  for (rstl::reserved_vector<CDrawable*, 128>& bucket : *sBuckets) {
+  for (BucketHolderType& bucket : *sBuckets) {
     bucket.clear();
   }
   sMinMaxDistance = skWorstMinMaxDistance;
@@ -60,12 +63,14 @@ void Buckets::Clear() {
 void Buckets::Sort() {
   float delta = std::max(1.f, sMinMaxDistance[1] - sMinMaxDistance[0]);
   float pitch = 49.f / delta;
-  for (auto it = sPlaneObjectData->begin(); it != sPlaneObjectData->end(); ++it)
-    if (sPlaneObjectBucket->size() != sPlaneObjectBucket->capacity())
+  for (auto it = sPlaneObjectData->begin(); it != sPlaneObjectData->end(); ++it) {
+    if (sPlaneObjectBucket->size() != sPlaneObjectBucket->capacity()) {
       sPlaneObjectBucket->push_back(s16(it - sPlaneObjectData->begin()));
+    }
+  }
 
   u32 precision = 50;
-  if (sPlaneObjectBucket->size()) {
+  if (!sPlaneObjectBucket->empty()) {
     std::sort(sPlaneObjectBucket->begin(), sPlaneObjectBucket->end(),
               [](u16 a, u16 b) { return (*sPlaneObjectData)[a].GetDistance() < (*sPlaneObjectData)[b].GetDistance(); });
     precision = 50 / u32(sPlaneObjectBucket->size() + 1);
@@ -80,7 +85,7 @@ void Buckets::Sort() {
   }
 
   for (CDrawable& drawable : *sData) {
-    s32 slot;
+    s32 slot = -1;
     float relDist = drawable.GetDistance() - sMinMaxDistance[0];
     if (sPlaneObjectBucket->empty()) {
       slot = zeus::clamp(1, s32(relDist * pitch), 49);
@@ -88,7 +93,8 @@ void Buckets::Sort() {
       slot = zeus::clamp(0, s32(relDist * pitch), s32(precision) - 2);
       for (u16 idx : *sPlaneObjectBucket) {
         CDrawablePlaneObject& planeObj = (*sPlaneObjectData)[idx];
-        bool partial, full;
+        bool partial = false;
+        bool full = false;
         if (planeObj.x3c_25_zOnly) {
           partial = drawable.GetBounds().max.z() > planeObj.GetPlane().d();
           full = drawable.GetBounds().min.z() > planeObj.GetPlane().d();
@@ -98,22 +104,26 @@ void Buckets::Sort() {
           full = planeObj.GetPlane().pointToPlaneDist(
                      drawable.GetBounds().furthestPointAlongVector(planeObj.GetPlane().normal())) > 0.f;
         }
-        bool cont;
-        if (drawable.GetType() == EDrawableType::Particle)
+        bool cont = false;
+        if (drawable.GetType() == EDrawableType::Particle) {
           cont = planeObj.x3c_24_invertTest ? !partial : full;
-        else
+        } else {
           cont = planeObj.x3c_24_invertTest ? (!partial || !full) : (partial || full);
-        if (!cont)
+        }
+        if (!cont) {
           break;
-        slot += precision;
+        }
+        slot += s32(precision);
       }
     }
 
-    if (slot == -1)
+    if (slot == -1) {
       slot = 49;
-    rstl::reserved_vector<CDrawable*, 128>& bucket = (*sBuckets)[slot];
-    if (bucket.size() < bucket.capacity())
+    }
+    BucketHolderType& bucket = (*sBuckets)[slot];
+    if (bucket.size() < bucket.capacity()) {
       bucket.push_back(&drawable);
+    }
     // else
     //    Log.report(logvisor::Fatal, FMT_STRING("Full bucket!!!"));
   }
@@ -122,7 +132,7 @@ void Buckets::Sort() {
   for (auto it = sBuckets->rbegin(); it != sBuckets->rend(); ++it) {
     --bucketIdx;
     sBucketIndex.push_back(bucketIdx);
-    rstl::reserved_vector<CDrawable*, 128>& bucket = *it;
+    BucketHolderType& bucket = *it;
     if (bucket.size()) {
       std::sort(bucket.begin(), bucket.end(), [](CDrawable* a, CDrawable* b) {
         if (a->GetDistance() == b->GetDistance())
@@ -134,7 +144,7 @@ void Buckets::Sort() {
 
   for (auto it = sPlaneObjectBucket->rbegin(); it != sPlaneObjectBucket->rend(); ++it) {
     CDrawablePlaneObject& planeObj = (*sPlaneObjectData)[*it];
-    rstl::reserved_vector<CDrawable*, 128>& bucket = (*sBuckets)[planeObj.x24_targetBucket];
+    BucketHolderType& bucket = (*sBuckets)[planeObj.x24_targetBucket];
     bucket.push_back(&planeObj);
   }
 }
@@ -394,7 +404,8 @@ void CCubeRenderer::DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) 
 void CCubeRenderer::DrawSortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   SCOPED_GRAPHICS_DEBUG_GROUP(
       fmt::format(FMT_STRING("CCubeRenderer::DrawSortedGeometry areaIdx={} mask={} targetMask={}"), areaIdx, mask,
-                  targetMask).c_str(),
+                  targetMask)
+          .c_str(),
       zeus::skBlue);
 
   SetupRendererStates(true);
@@ -427,7 +438,8 @@ void CCubeRenderer::DrawStaticGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
 void CCubeRenderer::DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   SCOPED_GRAPHICS_DEBUG_GROUP(
       fmt::format(FMT_STRING("CCubeRenderer::DrawAreaGeometry areaIdx={} mask={} targetMask={}"), areaIdx, mask,
-                  targetMask).c_str(),
+                  targetMask)
+          .c_str(),
       zeus::skBlue);
 
   x318_30_inAreaDraw = true;
@@ -476,7 +488,7 @@ void CCubeRenderer::RenderBucketItems(const CAreaListItem* item) {
   CCubeModel* lastModel = nullptr;
   EDrawableType lastDrawableType = EDrawableType::Invalid;
   for (u16 idx : Buckets::sBucketIndex) {
-    rstl::reserved_vector<CDrawable*, 128>& bucket = (*Buckets::sBuckets)[idx];
+    BucketHolderType& bucket = (*Buckets::sBuckets)[idx];
     for (CDrawable* drawable : bucket) {
       EDrawableType type = drawable->GetType();
       switch (type) {

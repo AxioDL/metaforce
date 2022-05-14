@@ -151,6 +151,8 @@ public:
   CTexture& GetTexture() { return *x80_texture; }
 
   bool IsFinishedLoading() const;
+
+  void SetupRenderState();
 };
 
 std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,

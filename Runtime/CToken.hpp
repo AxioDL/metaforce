@@ -91,6 +91,7 @@ public:
   CToken(IObj* obj);
   CToken(std::unique_ptr<IObj>&& obj);
   const SObjectTag* GetObjectTag() const;
+  const CObjectReference* GetObjectReference() const { return x0_objRef; }
   ~CToken();
 };
 

@@ -12,7 +12,7 @@
 namespace metaforce {
 
 CTextRenderBuffer CTextExecuteBuffer::BuildRenderBuffer(CGuiWidget::EGuiModelDrawFlags df) const {
-  CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally, df);
+  CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally);//, df);
 
   {
     CFontRenderState rendState;
@@ -35,7 +35,7 @@ CTextRenderBuffer CTextExecuteBuffer::BuildRenderBufferPage(InstList::const_iter
                                                             InstList::const_iterator pgStart,
                                                             InstList::const_iterator pgEnd,
                                                             CGuiWidget::EGuiModelDrawFlags df) const {
-  CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally, df);
+  CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally);//, df);
 
   {
     CFontRenderState rendState;
@@ -71,7 +71,7 @@ std::list<CTextRenderBuffer> CTextExecuteBuffer::BuildRenderBufferPages(const ze
   std::list<CTextRenderBuffer> ret;
 
   for (auto it = x0_instList.begin(); it != x0_instList.end();) {
-    CTextRenderBuffer rbuf(CTextRenderBuffer::EMode::AllocTally, df);
+    CTextRenderBuffer rbuf(CTextRenderBuffer::EMode::AllocTally);//, df);
 
     {
       CFontRenderState rstate;

@@ -5,8 +5,8 @@ namespace metaforce {
 class CMemoryStreamOut final : public COutputStream {
 public:
   enum class EOwnerShip {
-    NotOwned,
     Owned,
+    NotOwned,
   };
 
 private:

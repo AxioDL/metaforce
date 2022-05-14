@@ -28,9 +28,9 @@ public:
   explicit CGraphicsPalette(EPaletteFormat fmt, int count);
   explicit CGraphicsPalette(CInputStream& in);
 
-  void Load();
-  void Lock();
+  void Lock() { x1c_locked = true; }
   void UnLock();
+  void Load();
 
   [[nodiscard]] u8* GetPaletteData() { return xc_entries.get(); }
   [[nodiscard]] const u8* GetPaletteData() const { return xc_entries.get(); }

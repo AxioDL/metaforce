@@ -24,8 +24,6 @@ void CGraphicsPalette::Load() {
   x4_frameLoaded = sCurrentFrameCount;
 }
 
-void CGraphicsPalette::Lock() { x1c_locked = true; }
-
 void CGraphicsPalette::UnLock() {
   // DCStoreRange(xc_lut, x8_numEntries << 1);
   GXInitTlutObj(&x10_tlutObj, xc_entries.get(), static_cast<GXTlutFmt>(x0_fmt), x8_entryCount);
