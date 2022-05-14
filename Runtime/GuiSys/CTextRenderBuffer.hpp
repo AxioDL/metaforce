@@ -49,9 +49,9 @@ private:
   u32 x44_blobSize = 0;
   u32 x48_curBytecodeOffset = 0;
   s8 x4c_activeFont = -1;
-  s8 x4d_ = -1;
-  s8 x4e_ = -1;
-  s8 x4f_curPalette = -1;
+  s8 x4d_activePalette = -1;
+  s8 x4e_queuedFont = -1;
+  s8 x4f_queuedPalette = -1;
   rstl::reserved_vector<std::unique_ptr<CGraphicsPalette>, 64> x50_palettes;
   s32 x254_nextPalette = 0;
 

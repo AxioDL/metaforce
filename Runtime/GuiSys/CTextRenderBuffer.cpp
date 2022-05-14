@@ -1,5 +1,6 @@
 #include "Runtime/GuiSys/CTextRenderBuffer.hpp"
 
+#include "Runtime/Graphics/CGX.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CGraphicsPalette.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
@@ -100,8 +101,60 @@ u32 CTextRenderBuffer::GetCurLen() {
   return x44_blobSize - x48_curBytecodeOffset;
 }
 
-void CTextRenderBuffer::Render(const zeus::CColor& col, float time) {
-  // TODO
+void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
+  x4c_activeFont = -1;
+  x4d_activePalette = -1;
+  CMemoryInStream in(x34_bytecode.data(), x44_blobSize);
+  while (in.GetReadPosition() < x44_blobSize) {
+    auto cmd = static_cast<Command>(in.ReadChar());
+    if (cmd == Command::FontChange) {
+      x4c_activeFont = x4e_queuedFont = in.ReadChar();
+    } else if (cmd == Command::CharacterRender) {
+      if (x4e_queuedFont != -1) {
+        auto font = x4_fonts[x4e_queuedFont];
+        if (font) {
+          font->SetupRenderState();
+          x4e_queuedFont = -1;
+        }
+      }
+      if (x4f_queuedPalette != -1) {
+        x50_palettes[x4f_queuedPalette]->Load();
+        x4f_queuedPalette = -1;
+      }
+
+      u16 offX = in.ReadShort();
+      u16 offY = in.ReadShort();
+      char16_t chr = in.ReadShort();
+      zeus::CColor chrColor(static_cast<zeus::Comp32>(in.ReadLong()));
+      if (x4c_activeFont != -1) {
+        auto font = x4_fonts[x4c_activeFont];
+        if (font && font->GetGlyph(chr) != nullptr) {
+          const auto* glyph = font->GetGlyph(chr);
+          CGX::SetTevKColor(GX::KCOLOR0, chrColor * color);
+          CGX::Begin(GX::TRIANGLESTRIP, GX::VTXFMT0, 4);
+          {
+            GXPosition3f32(offX, 0.f, offY);
+            GXTexCoord2f32(glyph->GetStartU(), glyph->GetStartV());
+            GXPosition3f32(offX + glyph->GetCellWidth(), 0.f, offY);
+            GXTexCoord2f32(glyph->GetEndU(), glyph->GetStartV());
+            GXPosition3f32(offX, 0.f, offY + glyph->GetCellHeight());
+            GXTexCoord2f32(glyph->GetStartU(), glyph->GetEndV());
+            GXPosition3f32(offX + glyph->GetCellWidth(), 0.f, offY + glyph->GetCellHeight());
+            GXTexCoord2f32(glyph->GetEndU(), glyph->GetEndV());
+          }
+          CGX::End();
+        }
+      }
+    } else if (cmd == Command::ImageRender) {
+      u16 offX = in.ReadShort();
+      u16 offY = in.ReadShort();
+      u8 imageIdx = in.ReadChar();
+      zeus::CColor imageColor(static_cast<zeus::Comp32>(in.ReadLong()));
+      // TODO: Finish
+    } else if (cmd == Command::PaletteChange) {
+      x4d_activePalette = x4f_queuedPalette = in.ReadChar();
+    }
+  }
 }
 
 void CTextRenderBuffer::AddPaletteChange(const CGraphicsPalette& palette) {
