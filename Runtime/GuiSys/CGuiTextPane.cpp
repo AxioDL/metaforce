@@ -23,7 +23,7 @@ bool testProjectedLine(const zeus::CVector2f& a, const zeus::CVector2f& b, const
 }
 } // Anonymous namespace
 
-bool CGuiTextPane::sDrawPaneRects = true;
+bool CGuiTextPane::sDrawPaneRects = false;
 CGuiTextPane::CGuiTextPane(const CGuiWidgetParms& parms, CSimplePool* sp, const zeus::CVector2f& dim,
                            const zeus::CVector3f& vec, CAssetId fontId, const CGuiTextProperties& props,
                            const zeus::CColor& fontCol, const zeus::CColor& outlineCol, s32 extentX, s32 extentY,

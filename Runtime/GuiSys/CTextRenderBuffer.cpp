@@ -102,6 +102,11 @@ u32 CTextRenderBuffer::GetCurLen() {
 }
 
 void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
+  static const GX::VtxDescList skVtxDesc[3]{
+      {GX::VA_POS, GX::DIRECT},
+      {GX::VA_TEX0, GX::DIRECT},
+      {GX::VA_NULL, GX::NONE},
+  };
   x4c_activeFont = -1;
   x4d_activePalette = -1;
   CMemoryInStream in(x34_bytecode.data(), x44_blobSize);
@@ -150,7 +155,42 @@ void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
       u16 offY = in.ReadShort();
       u8 imageIdx = in.ReadChar();
       zeus::CColor imageColor(static_cast<zeus::Comp32>(in.ReadLong()));
-      // TODO: Finish
+      auto imageDef = x14_images[imageIdx];
+      auto tex = imageDef.x4_texs[static_cast<u32>(time * imageDef.x0_fps) % imageDef.x4_texs.size()];
+      if (tex) {
+        tex->Load(GX::TEXMAP0, EClampMode::Clamp);
+        float width = imageDef.x4_texs.front()->GetWidth() * imageDef.x14_cropFactor.x();
+        float height = imageDef.x4_texs.front()->GetHeight() * imageDef.x14_cropFactor.y();
+        float cropXHalf = imageDef.x14_cropFactor.x() * 0.5f;
+        float cropYHalf = imageDef.x14_cropFactor.y() * 0.5f;
+
+        CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_K0_A);
+        CGX::SetTevKColorSel(GX::TEVSTAGE0, GX::TEV_KCSEL_K0);
+        CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_TEXC, GX::CC_KONST, GX::CC_ZERO);
+        CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_TEXA, GX::CA_KONST, GX::CA_ZERO);
+        CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
+        CGX::SetVtxDescv(skVtxDesc);
+        CGX::SetNumChans(0);
+        CGX::SetNumTexGens(1);
+        CGX::SetNumTevStages(1);
+        CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
+        CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
+        CGX::SetTevKColor(GX::KCOLOR0, imageColor * color);
+        CGX::Begin(GX::TRIANGLESTRIP, GX::VTXFMT0, 4);
+        {
+          GXPosition3f32(offX, 0.f, offY);
+          GXTexCoord2f32(0.5f - cropXHalf, 0.5f + cropYHalf);
+          GXPosition3f32(offX + width, 0.f, offY);
+          GXTexCoord2f32(0.5f + cropXHalf, 0.5f + cropYHalf);
+          GXPosition3f32(offX, 0.f, offY + height);
+          GXTexCoord2f32(0.5f - cropXHalf, 0.5f - cropYHalf);
+          GXPosition3f32(offX + width, 0.f, offY + height);
+          GXTexCoord2f32(0.5f + cropXHalf, 0.5f - cropYHalf);
+        }
+        CGX::End();
+        x4e_queuedFont = x4c_activeFont;
+        x4f_queuedPalette = x4d_activePalette;
+      }
     } else if (cmd == Command::PaletteChange) {
       x4d_activePalette = x4f_queuedPalette = in.ReadChar();
     }

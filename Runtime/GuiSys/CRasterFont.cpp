@@ -216,7 +216,7 @@ void CRasterFont::SetupRenderState() {
     {GX::VA_NULL, GX::NONE}
   };
 
-  x80_texture->Load(GX::TEXMAP0, EClampMode::Clamp);
+  //x80_texture->Load(GX::TEXMAP0, EClampMode::Clamp);
   CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_K0_A);
   CGX::SetTevKColorSel(GX::TEVSTAGE0, GX::TEV_KCSEL_K0);
   CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_TEXC, GX::CC_KONST, GX::CC_ZERO);
