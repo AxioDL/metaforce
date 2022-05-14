@@ -138,7 +138,6 @@ TextureHandle new_render_texture(uint32_t width, uint32_t height, GX::TextureFor
   return std::make_shared<TextureRef>(std::move(texture), std::move(textureView), size, wgpuFormat, 1, fmt, true);
 }
 
-// TODO accept mip/layer parameters
 void write_texture(const TextureRef& ref, ArrayRef<uint8_t> data) noexcept {
   ByteBuffer buffer;
   if (ref.gxFormat != InvalidTextureFormat) {

@@ -36,6 +36,14 @@ constexpr u8 Convert6To8(u8 v) {
   return static_cast<u8>((u32{v} << 2) | (u32{v} >> 4));
 }
 
+constexpr u8 S3TCBlend(u8 a_, u8 b_) {
+  u32 a = a_;
+  u32 b = b_;
+  return static_cast<u8>((((a << 1) + a) + ((b << 2) + b)) >> 3);
+}
+
+constexpr u8 HalfBlend(u8 a, u8 b) { return static_cast<u8>((static_cast<u32>(a) + static_cast<u32>(b)) >> 1); }
+
 static size_t ComputeMippedTexelCount(u32 w, u32 h, u32 mips) {
   size_t ret = w * h;
   for (u32 i = mips; i > 1; --i) {
@@ -491,6 +499,90 @@ ByteBuffer BuildDXT1FromGCN(uint32_t width, uint32_t height, uint32_t mips, Arra
   return buf;
 }
 
+ByteBuffer BuildRGBA8FromCMPR(u32 width, u32 height, u32 mips, ArrayRef<u8> data) {
+  const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
+  const size_t blockCount = ComputeMippedBlockCountDXT1(width, height, mips);
+  ByteBuffer buf{sizeof(RGBA8) * texelCount};
+
+  u32 h = height;
+  u32 w = width;
+  u8* dst = buf.data();
+  const u8* src = data.data();
+  for (u32 mip = 0; mip < mips; ++mip) {
+    for (u32 yy = 0; yy < h; yy += 8) {
+      for (u32 xx = 0; xx < w; xx += 8) {
+        for (u32 yb = 0; yb < 8; yb += 4) {
+          for (u32 xb = 0; xb < 8; xb += 4) {
+            // CMPR difference: Big-endian color1/2
+            const u16 color1 = bswap16(*reinterpret_cast<const u16*>(src));
+            const u16 color2 = bswap16(*reinterpret_cast<const u16*>(src + 2));
+            src += 4;
+
+            // Fill in first two colors in color table.
+            std::array<u8, 16> color_table{};
+
+            color_table[0] = Convert5To8(static_cast<u8>((color1 >> 11) & 0x1F));
+            color_table[1] = Convert6To8(static_cast<u8>((color1 >> 5) & 0x3F));
+            color_table[2] = Convert5To8(static_cast<u8>(color1 & 0x1F));
+            color_table[3] = 0xFF;
+
+            color_table[4] = Convert5To8(static_cast<u8>((color2 >> 11) & 0x1F));
+            color_table[5] = Convert6To8(static_cast<u8>((color2 >> 5) & 0x3F));
+            color_table[6] = Convert5To8(static_cast<u8>(color2 & 0x1F));
+            color_table[7] = 0xFF;
+            if (color1 > color2) {
+              // Predict gradients.
+              color_table[8] = S3TCBlend(color_table[4], color_table[0]);
+              color_table[9] = S3TCBlend(color_table[5], color_table[1]);
+              color_table[10] = S3TCBlend(color_table[6], color_table[2]);
+              color_table[11] = 0xFF;
+
+              color_table[12] = S3TCBlend(color_table[0], color_table[4]);
+              color_table[13] = S3TCBlend(color_table[1], color_table[5]);
+              color_table[14] = S3TCBlend(color_table[2], color_table[6]);
+              color_table[15] = 0xFF;
+            } else {
+              color_table[8] = HalfBlend(color_table[0], color_table[4]);
+              color_table[9] = HalfBlend(color_table[1], color_table[5]);
+              color_table[10] = HalfBlend(color_table[2], color_table[6]);
+              color_table[11] = 0xFF;
+
+              // CMPR difference: GX fills with an alpha 0 midway point here.
+              color_table[12] = color_table[8];
+              color_table[13] = color_table[9];
+              color_table[14] = color_table[10];
+              color_table[15] = 0;
+            }
+
+            for (u32 y = 0; y < 4; ++y) {
+              u8 bits = src[y];
+              for (u32 x = 0; x < 4; ++x) {
+                if (xx + xb + x >= w || yy + yb + y >= h) {
+                  continue;
+                }
+                u8* dstOffs = dst + ((yy + yb + y) * w + (xx + xb + x)) * 4;
+                const u8* colorTableOffs = &color_table[static_cast<size_t>((bits >> 6) & 3) * 4];
+                memcpy(dstOffs, colorTableOffs, 4);
+                bits <<= 2;
+              }
+            }
+            src += 4;
+          }
+        }
+      }
+    }
+    dst += w * h * 4;
+    if (w > 1) {
+      w /= 2;
+    }
+    if (h > 1) {
+      h /= 2;
+    }
+  }
+
+  return buf;
+}
+
 ByteBuffer convert_texture(GX::TextureFormat format, uint32_t width, uint32_t height, uint32_t mips,
                            ArrayRef<uint8_t> data) {
   switch (format) {
@@ -500,7 +592,8 @@ ByteBuffer convert_texture(GX::TextureFormat format, uint32_t width, uint32_t he
   case GX::TF_I4:
     return BuildI4FromGCN(width, height, mips, data);
   case GX::TF_I8:
-    return BuildI8FromGCN(width, height, mips, data);
+    // No conversion
+    return {};
   case GX::TF_IA4:
     return BuildIA4FromGCN(width, height, mips, data);
   case GX::TF_IA8:
@@ -526,8 +619,7 @@ ByteBuffer convert_texture(GX::TextureFormat format, uint32_t width, uint32_t he
     if (gpu::g_device.HasFeature(wgpu::FeatureName::TextureCompressionBC)) {
       return BuildDXT1FromGCN(width, height, mips, data);
     } else {
-      Log.report(logvisor::Fatal, FMT_STRING("convert_texture: TODO implement CMPR to RGBA"));
-      unreachable();
+      return BuildRGBA8FromCMPR(width, height, mips, data);
     }
   }
 }

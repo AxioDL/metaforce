@@ -583,9 +583,6 @@ void GXLoadTlut(const GXTlutObj* obj, GXTlut idx) noexcept {
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx::gx");
 
-// TODO remove this hack for build_shader
-extern std::mutex g_pipelineMutex;
-
 namespace gx {
 using gpu::g_device;
 using gpu::g_graphicsConfig;
