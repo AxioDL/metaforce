@@ -28,8 +28,9 @@ else ()
     list(APPEND PLAT_SRCS CMemoryCardSysNix.cpp)
 endif ()
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
 add_custom_command(OUTPUT TCastTo.hpp TCastTo.cpp DEPENDS MkCastTo.py
-        COMMAND python ARGS ${CMAKE_CURRENT_SOURCE_DIR}/MkCastTo.py
+        COMMAND ${Python3_EXECUTABLE} ARGS ${CMAKE_CURRENT_SOURCE_DIR}/MkCastTo.py
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generating cast functions")
 
