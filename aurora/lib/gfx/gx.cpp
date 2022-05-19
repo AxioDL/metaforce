@@ -1279,7 +1279,12 @@ void shutdown() noexcept {
   // TODO we should probably store this all in g_state.gx instead
   sUniformBindGroupLayouts.clear();
   sTextureBindGroupLayouts.clear();
-  g_gxState.textures.fill({});
+  for (auto& item : g_gxState.textures) {
+    item.texObj.ref.reset();
+  }
+  for (auto& item : g_gxState.tluts) {
+    item.ref.reset();
+  }
   g_gxCachedShaders.clear();
 }
 
