@@ -28,16 +28,14 @@ class CTextRenderBuffer {
 
 public:
   enum class Command { CharacterRender, ImageRender, FontChange, PaletteChange, Invalid = -1 };
-#if 1
   struct Primitive {
     CTextColor x0_color1;
     Command x4_command;
-    u16 x8_xPos;
-    u16 xa_zPos;
+    s16 x8_xPos;
+    s16 xa_zPos;
     char16_t xc_glyph;
     u8 xe_imageIndex;
   };
-#endif
   enum class EMode { AllocTally, BufferFill };
 
 private:

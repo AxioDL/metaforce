@@ -77,7 +77,7 @@ void CPauseScreenBlur::Update(float dt, const CStateManager& stateMgr, bool b) {
   if (x18_blurAmt == 0.f && b) {
     x1c_camBlur.DisableBlur(0.f);
   } else {
-    x1c_camBlur.SetBlur(EBlurType::HiBlur, g_tweakGui->GetPauseBlurFactor() * std::fabs(x18_blurAmt), 0.f);
+    x1c_camBlur.SetBlur(EBlurType::HiBlur, g_tweakGui->GetPauseBlurFactor() * std::fabs(x18_blurAmt), 0.f, true);
     x50_24_blurring = true;
   }
 }

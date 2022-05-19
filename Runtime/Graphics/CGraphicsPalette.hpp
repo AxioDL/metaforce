@@ -20,7 +20,7 @@ class CGraphicsPalette {
   EPaletteFormat x0_fmt;
   u32 x4_frameLoaded{};
   u32 x8_entryCount;
-  std::unique_ptr<u8[]> xc_entries;
+  std::unique_ptr<u16[]> xc_entries;
   GXTlutObj x10_tlutObj;
   bool x1c_locked = false;
 
@@ -28,12 +28,14 @@ public:
   explicit CGraphicsPalette(EPaletteFormat fmt, int count);
   explicit CGraphicsPalette(CInputStream& in);
 
-  void Lock() { x1c_locked = true; }
+  u16* Lock() {
+    x1c_locked = true;
+    return xc_entries.get();
+  }
   void UnLock();
   void Load();
 
-  [[nodiscard]] u8* GetPaletteData() { return xc_entries.get(); }
-  [[nodiscard]] const u8* GetPaletteData() const { return xc_entries.get(); }
+  [[nodiscard]] const u16* GetPaletteData() const { return xc_entries.get(); }
 
   static void SetCurrentFrameCount(u32 frameCount) { sCurrentFrameCount = frameCount; }
 };

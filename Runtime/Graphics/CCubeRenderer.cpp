@@ -245,10 +245,10 @@ void CCubeRenderer::GenerateSphereRampTex() {
 }
 
 void CCubeRenderer::LoadThermoPalette() {
-  x288_thermoPalette.Lock();
+  auto* out = x288_thermoPalette.Lock();
   TToken<CTexture> token = xc_store.GetObj("TXTR_ThermoPalette");
-  u8* data = token.GetObj()->GetPalette()->GetPaletteData();
-  memcpy(x288_thermoPalette.GetPaletteData(), data, 32);
+  const auto* data = token.GetObj()->GetPalette()->GetPaletteData();
+  memcpy(out, data, 32);
   x288_thermoPalette.UnLock();
 }
 

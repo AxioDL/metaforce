@@ -463,7 +463,7 @@ void CPlayerVisor::DrawThermalEffect(const CStateManager&) {
 void CPlayerVisor::UpdateCurrentVisor(float transFactor) {
   switch (x1c_curVisor) {
   case CPlayerState::EPlayerVisor::XRay:
-    x90_xrayBlur.SetBlur(EBlurType::Xray, 36.f * transFactor, 0.f);
+    x90_xrayBlur.SetBlur(EBlurType::Xray, 36.f * transFactor, 0.f, false);
     break;
   case CPlayerState::EPlayerVisor::Scan: {
     zeus::CColor dimColor =
@@ -482,7 +482,7 @@ void CPlayerVisor::FinishTransitionIn() {
     x90_xrayBlur.DisableBlur(0.f);
     break;
   case CPlayerState::EPlayerVisor::XRay:
-    x90_xrayBlur.SetBlur(EBlurType::Xray, 36.f, 0.f);
+    x90_xrayBlur.SetBlur(EBlurType::Xray, 36.f, 0.f, false);
     if (!x5c_visorLoopSfx)
       x5c_visorLoopSfx =
           CSfxManager::SfxStart(SFXui_visor_xray_lp, x24_visorSfxVol, 0.f, false, 0x7f, true, kInvalidAreaId);
@@ -509,7 +509,7 @@ void CPlayerVisor::FinishTransitionIn() {
 void CPlayerVisor::BeginTransitionIn(const CStateManager&) {
   switch (x1c_curVisor) {
   case CPlayerState::EPlayerVisor::XRay:
-    x90_xrayBlur.SetBlur(EBlurType::Xray, 0.f, 0.f);
+    x90_xrayBlur.SetBlur(EBlurType::Xray, 0.f, 0.f, false);
     xc4_vpScaleX = 0.9f;
     xc8_vpScaleY = 0.9f;
     CSfxManager::SfxStart(SFXui_into_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);

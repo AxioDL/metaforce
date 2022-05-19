@@ -324,6 +324,7 @@ public:
     // aurora::gfx::resolve_depth({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx);
   }
 
+  static void ResetGfxStates() noexcept;
   static void SetTevStates(EStreamFlags flags) noexcept;
   static void SetTevOp(ERglTevStage stage, const CTevCombiners::CTevPass& pass);
   static void StreamBegin(GX::Primitive primitive);

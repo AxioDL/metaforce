@@ -44,16 +44,16 @@ CTextRenderBuffer::Primitive CTextRenderBuffer::GetPrimitive(s32 idx) const {
                      x44_blobSize - x24_primOffsets[idx]);
   auto cmd = Command(in.ReadChar());
   if (cmd == Command::ImageRender) {
-    u16 xPos = in.ReadShort();
-    u16 zPos = in.ReadShort();
+    s16 xPos = in.ReadShort();
+    s16 zPos = in.ReadShort();
     u8 imageIndex = in.ReadChar();
     CTextColor color(in.ReadUint32());
     return {color, Command::ImageRender, xPos, zPos, u'\0', imageIndex};
   }
 
   if (cmd == Command::CharacterRender) {
-    u16 xPos = in.ReadShort();
-    u16 zPos = in.ReadShort();
+    s16 xPos = in.ReadShort();
+    s16 zPos = in.ReadShort();
     char16_t glyph = in.ReadUint16();
     CTextColor color(in.ReadUint32());
 
@@ -207,8 +207,8 @@ void CTextRenderBuffer::AddPaletteChange(const CGraphicsPalette& palette) {
         GetNextAvailablePalette();
         paletteIndex = x254_nextPalette - 1;
         CGraphicsPalette* destPalette = x50_palettes[x254_nextPalette - 1].get();
-        destPalette->Lock();
-        memcpy(destPalette->GetPaletteData(), palette.GetPaletteData(), 8);
+        u16* data = destPalette->Lock();
+        memcpy(data, palette.GetPaletteData(), 8);
         destPalette->UnLock();
       }
       out.WriteUint8(static_cast<u8>(Command::PaletteChange));

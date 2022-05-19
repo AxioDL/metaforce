@@ -179,12 +179,6 @@ void CGraphics::EndScene() {
   g_InterruptLastFrameUsedAbove ^= 1;
   g_LastFrameUsedAbove = g_InterruptLastFrameUsedAbove;
 
-  /* Flush text instance buffers just before GPU command list submission */
-  CTextSupportShader::UpdateBuffers();
-
-  /* Same with line renderer */
-  //  CLineRenderer::UpdateBuffers();
-
   ++g_FrameCounter;
 
   UpdateFPSCounter();
@@ -688,14 +682,7 @@ void CGraphics::Startup() {
 }
 
 void CGraphics::InitGraphicsVariables() {
-  g_LightTypes[0] = ELightType::Directional;
-  g_LightTypes[1] = ELightType::Directional;
-  g_LightTypes[2] = ELightType::Directional;
-  g_LightTypes[3] = ELightType::Directional;
-  g_LightTypes[4] = ELightType::Directional;
-  g_LightTypes[5] = ELightType::Directional;
-  g_LightTypes[6] = ELightType::Directional;
-  g_LightTypes[7] = ELightType::Directional;
+  g_LightTypes.fill(ELightType::Directional);
   g_LightActive = {};
   SetDepthWriteMode(false, g_depthFunc, false);
   SetCullMode(ERglCullMode::None);
@@ -728,22 +715,26 @@ void CGraphics::SetDefaultVtxAttrFmt() {
   // Unneeded, all attributes are expected to be full floats
   // Left here for reference
 
-  // GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_NRM, GX::NRM_XYZ, GX::F32, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_NRM, GX::NRM_XYZ, GX::S16, 14);
-  // GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_NRM, GX::NRM_XYZ, GX::S16, 14);
-  // GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
-  // GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_TEX0, GX::TEX_ST, GX::U16, 15);
-  // for (GX::Attr attr = GX::VA_TEX1; attr <= GX::VA_TEX7; attr = GX::Attr(attr + 1)) {
-  //   GXSetVtxAttrFmt(GX::VTXFMT0, attr, GX::TEX_ST, GX::F32, 0);
-  //   GXSetVtxAttrFmt(GX::VTXFMT1, attr, GX::TEX_ST, GX::F32, 0);
-  //   GXSetVtxAttrFmt(GX::VTXFMT2, attr, GX::TEX_ST, GX::F32, 0);
-  // }
+  GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_NRM, GX::NRM_XYZ, GX::F32, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_NRM, GX::NRM_XYZ, GX::S16, 14);
+  GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_NRM, GX::NRM_XYZ, GX::S16, 14);
+  GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
+  GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_TEX0, GX::TEX_ST, GX::U16, 15);
+  for (GX::Attr attr = GX::VA_TEX1; attr <= GX::VA_TEX7; attr = GX::Attr(attr + 1)) {
+    GXSetVtxAttrFmt(GX::VTXFMT0, attr, GX::TEX_ST, GX::F32, 0);
+    GXSetVtxAttrFmt(GX::VTXFMT1, attr, GX::TEX_ST, GX::F32, 0);
+    GXSetVtxAttrFmt(GX::VTXFMT2, attr, GX::TEX_ST, GX::F32, 0);
+  }
+}
+
+void CGraphics::ResetGfxStates() noexcept {
+  // sRenderState.x0_ = 0;
 }
 } // namespace metaforce

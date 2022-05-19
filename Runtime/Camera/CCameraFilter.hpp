@@ -80,17 +80,14 @@ class CCameraBlurPass {
   float x20_startValue = 0.f;
   float x24_totalTime = 0.f;
   float x28_remainingTime = 0.f;
-  // bool x2c_usePersistent = false;
-  // bool x2d_noPersistentCopy = false;
-  // u32 x30_persistentBuf = 0;
-
-  std::optional<CCameraBlurFilter> m_shader;
-  std::optional<CXRayBlurFilter> m_xrayShader;
+  bool x2c_usePersistent = false;
+  bool x2d_noPersistentCopy = false;
+  u32 x30_persistentBuf = 0;
 
 public:
   void Draw(bool clearDepth = false);
   void Update(float dt);
-  void SetBlur(EBlurType type, float amount, float duration);
+  void SetBlur(EBlurType type, float amount, float duration, bool usePersistentFb);
   void DisableBlur(float duration);
   EBlurType GetCurrType() const { return x10_curType; }
 };

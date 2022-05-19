@@ -615,7 +615,7 @@ void CStateManager::DrawE3DeathEffect() {
     const float blurAmt = zeus::clamp(0.f, (player.x9f4_deathTime - 1.f) / (6.f - 1.f), 1.f);
     if (blurAmt > 0.f) {
       CCameraBlurPass blur;
-      blur.SetBlur(EBlurType::HiBlur, 7.f * blurAmt, 0.f);
+      blur.SetBlur(EBlurType::HiBlur, 7.f * blurAmt, 0.f, false);
       blur.Draw();
     }
   }

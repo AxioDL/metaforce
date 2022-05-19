@@ -154,11 +154,11 @@ void CRasterFont::DrawString(const CDrawStringOptions& opts, int x, int y, int& 
 
   if (renderBuf != nullptr) {
     CGraphicsPalette pal(EPaletteFormat::RGB5A3, 4);
-    pal.Lock();
-    *reinterpret_cast<u16*>(pal.GetPaletteData() + 0) = bswap16(zeus::CColor(0.f, 0.f, 0.f, 0.f).toRGB5A3());
-    *reinterpret_cast<u16*>(pal.GetPaletteData() + 2) = bswap16(opts.x4_colors[0].toRGB5A3());
-    *reinterpret_cast<u16*>(pal.GetPaletteData() + 4) = bswap16(opts.x4_colors[1].toRGB5A3());
-    *reinterpret_cast<u16*>(pal.GetPaletteData() + 6) = bswap16(zeus::CColor(0.f, 0.f, 0.f, 0.f).toRGB5A3());
+    u16* data = pal.Lock();
+    data[0] = bswap16(zeus::CColor(0.f, 0.f, 0.f, 0.f).toRGB5A3());
+    data[1] = bswap16(opts.x4_colors[0].toRGB5A3());
+    data[2] = bswap16(opts.x4_colors[1].toRGB5A3());
+    data[3] = bswap16(zeus::CColor(0.f, 0.f, 0.f, 0.f).toRGB5A3());
     pal.UnLock();
     renderBuf->AddPaletteChange(pal);
   }

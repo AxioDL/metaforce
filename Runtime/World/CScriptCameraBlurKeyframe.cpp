@@ -21,7 +21,7 @@ void CScriptCameraBlurKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqu
   switch (msg) {
   case EScriptObjectMessage::Increment:
     if (GetActive()) {
-      stateMgr.GetCameraBlurPass(3).SetBlur(x34_type, x38_amount, x40_timeIn);
+      stateMgr.GetCameraBlurPass(3).SetBlur(x34_type, x38_amount, x40_timeIn, false);
     }
     break;
   case EScriptObjectMessage::Decrement:

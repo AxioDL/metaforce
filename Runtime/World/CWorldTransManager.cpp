@@ -218,7 +218,13 @@ void CWorldTransManager::DrawFirstPass(CActorLights* lights) {
       zeus::CTransform::RotateZ(zeus::degToRad(zeus::clamp(0.f, x0_curTime / 25.f, 100.f) * 360.f + 180.f - 90.f));
   CGraphics::SetViewPointMatrix(rotateXf * translateXf);
   DrawAllModels(lights);
-  m_camblur.draw(x4_modelData->x1c8_blurResult);
+  if (x4_modelData->x1c8_blurResult > 0.f) {
+    const auto backupProjectionState = CGraphics::GetProjectionState();
+    CCameraBlurPass blurPass;
+    blurPass.SetBlur(EBlurType::LoBlur, x4_modelData->x1c8_blurResult, 0.f, false);
+    blurPass.Draw();
+    CGraphics::SetProjectionState(backupProjectionState);
+  }
 }
 
 void CWorldTransManager::DrawSecondPass(CActorLights* lights) {
@@ -296,8 +302,7 @@ void CWorldTransManager::DrawEnabled() {
 //    m_dissolve.drawCropped(zeus::CColor{1.f, 1.f, 1.f, 1.f - t}, 1.f);
   }
 
-  CWideScreenFilter::SetViewportToFull();
-  m_widescreen.draw(zeus::skBlack, 1.f);
+  CCameraFilterPass::DrawFilter(EFilterType::Multiply, EFilterShape::CinemaBars, zeus::skBlack, nullptr, 1.f);
 
   float ftbT = 0.f;
   if (x0_curTime < 0.25f)
@@ -307,12 +312,12 @@ void CWorldTransManager::DrawEnabled() {
   else if (x0_curTime > x4_modelData->x1d8_transCompleteTime - 0.25f)
     ftbT = 1.f - (x4_modelData->x1d8_transCompleteTime - x0_curTime) / 0.25f;
   if (ftbT > 0.f)
-    m_fadeToBlack.draw(zeus::CColor{0.f, 0.f, 0.f, ftbT});
+    CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, zeus::CColor{0.f, ftbT}, nullptr, 1.f);
 }
 
 void CWorldTransManager::DrawDisabled() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CWorldTransManager::DrawDisabled", zeus::skPurple);
-  m_fadeToBlack.draw(zeus::CColor{0.f, 0.f, 0.f, 0.01f});
+  CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, zeus::CColor{0.f, 0.01f}, nullptr, 1.f);
 }
 
 void CWorldTransManager::DrawText() {
@@ -321,6 +326,11 @@ void CWorldTransManager::DrawText() {
   CGraphics::SetOrtho(0.f, width, 448.f, 0.f, -4096.f, 4096.f);
   CGraphics::SetViewPointMatrix(zeus::CTransform());
   CGraphics::SetModelMatrix(zeus::CTransform::Translate((width - 640.f) / 2.f, 0.f, 448.f));
+  // g_Renderer->SetViewportOrtho(false, -4096.f, 4096.f);
+  // g_Renderer->SetModelMatrix(zeus::CTransform::Translate(0.f, 0.f, 0.f));
+  CGraphics::SetCullMode(ERglCullMode::None);
+  g_Renderer->SetDepthReadWrite(false, false);
+  g_Renderer->SetBlendMode_AdditiveAlpha();
   x8_textData->Render();
 
   float filterAlpha = 0.f;
@@ -332,8 +342,10 @@ void CWorldTransManager::DrawText() {
   if (filterAlpha > 0.f) {
     zeus::CColor filterColor = x44_27_fadeWhite ? zeus::skWhite : zeus::skBlack;
     filterColor.a() = filterAlpha;
-    m_fadeToBlack.draw(filterColor);
+    CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, filterColor, nullptr, 1.f);
   }
+
+  CGraphics::SetIsBeginSceneClearFb(true);
 }
 
 void CWorldTransManager::Draw() {

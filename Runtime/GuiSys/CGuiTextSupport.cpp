@@ -149,8 +149,11 @@ void CGuiTextSupport::Update(float dt) {
           break;
         }
 
-        //buf->SetPrimitiveOpacity(i, std::min(std::max(0.f, (x3c_curTime - chStartTime) / x54_chFadeTime), 1.f));
+        auto primitive = buf->GetPrimitive(i);
+        float alpha = std::clamp((x3c_curTime - chStartTime) / x54_chFadeTime, 0.f, 1.f);
         chStartTime += 1.f / x58_chRate;
+        primitive.x0_color1 = zeus::CColor{alpha, alpha};
+        buf->SetPrimitive(primitive, i);
       }
     }
     x3c_curTime += dt;

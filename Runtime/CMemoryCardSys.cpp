@@ -244,7 +244,7 @@ void CMemoryCardSys::CCardFileInfo::WriteBannerData(COutputStream& out) const {
       out.Put(texels, 3072);
     }
     if (format == ETexelFormat::C8) {
-      out.Put(tex->GetPalette()->GetPaletteData(), 512);
+      out.Put(reinterpret_cast<const u8*>(tex->GetPalette()->GetPaletteData()), 512);
     }
   }
 }
@@ -260,7 +260,7 @@ void CMemoryCardSys::CCardFileInfo::WriteIconData(COutputStream& out) const {
       out.Put(texels, 1024);
     }
     if (format == ETexelFormat::C8) {
-      palette = icon.x8_tex->GetPalette()->GetPaletteData();
+      palette = reinterpret_cast<const u8*>(icon.x8_tex->GetPalette()->GetPaletteData());
     }
   }
   if (palette != nullptr) {

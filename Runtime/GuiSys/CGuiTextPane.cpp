@@ -78,40 +78,32 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) {
   geomCol.a() *= parms.x0_alphaMod;
   xd4_textSupport.SetGeometryColor(geomCol);
 
-#if 0
-    CGraphics::SetDepthWriteMode(xb6_31_depthTest, ERglEnum::LEqual, xb7_24_depthWrite);
+  CGraphics::SetDepthWriteMode(xb6_31_depthTest, ERglEnum::LEqual, xb7_24_depthWrite);
 
-    switch (xac_drawFlags)
-    {
-    case EGuiModelDrawFlags::Shadeless:
-    case EGuiModelDrawFlags::Opaque:
-        CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One,
-                                ERglBlendFactor::Zero, ERglLogicOp::Clear);
-        xd4_textSupport.Render();
-        break;
-    case EGuiModelDrawFlags::Alpha:
-        CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
-                                ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
-        xd4_textSupport.Render();
-        break;
-    case EGuiModelDrawFlags::Additive:
-        CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
-                                ERglBlendFactor::One, ERglLogicOp::Clear);
-        xd4_textSupport.Render();
-        break;
-    case EGuiModelDrawFlags::AlphaAdditiveOverdraw:
-        CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha,
-                                ERglBlendFactor::InvSrcAlpha, ERglLogicOp::Clear);
-        xd4_textSupport.Render();
-        xd4_textSupport.SetGeometryColor(geomCol * zeus::CColor(geomCol.a(), geomCol.a(), geomCol.a(), 1.f));
-        CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One,
-                                ERglBlendFactor::One, ERglLogicOp::Clear);
-        xd4_textSupport.Render();
-        break;
-    }
-#else
-  xd4_textSupport.Render();
-#endif
+  switch (xac_drawFlags) {
+  case EGuiModelDrawFlags::Shadeless:
+  case EGuiModelDrawFlags::Opaque:
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::Zero, ERglLogicOp::Clear);
+    xd4_textSupport.Render();
+    break;
+  case EGuiModelDrawFlags::Alpha:
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
+                            ERglLogicOp::Clear);
+    xd4_textSupport.Render();
+    break;
+  case EGuiModelDrawFlags::Additive:
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
+    xd4_textSupport.Render();
+    break;
+  case EGuiModelDrawFlags::AlphaAdditiveOverdraw:
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
+                            ERglLogicOp::Clear);
+    xd4_textSupport.Render();
+    xd4_textSupport.SetGeometryColor(geomCol * zeus::CColor(geomCol.a(), 1.f));
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::One, ERglLogicOp::Clear);
+    xd4_textSupport.Render();
+    break;
+  }
 }
 
 bool CGuiTextPane::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const {
