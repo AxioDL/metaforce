@@ -42,8 +42,7 @@ void CSimpleShadow::Render(TLockedToken<CTexture>& tex) {
                           ERglLogicOp::Clear);
   CGraphics::StreamBegin(GX::QUADS);
   float radius = x34_radius * x30_scale;
-  float t = x3c_heightAlpha * x38_userAlpha;
-  CGraphics::StreamColor(zeus::CColor{t, t} /* TODO double check */);
+  CGraphics::StreamColor(zeus::CColor{1.f, x3c_heightAlpha * x38_userAlpha});
   CGraphics::StreamTexcoord(0.f, 0.f);
   CGraphics::StreamVertex(-radius, 0.f, -radius);
   CGraphics::StreamTexcoord(0.f, 1.f);

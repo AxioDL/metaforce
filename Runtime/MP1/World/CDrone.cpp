@@ -934,8 +934,8 @@ void CDrone::SetVisorFlareEnabled(CStateManager& mgr, bool activate) {
     x57a_visorFlareId = mgr.AllocateUniqueId();
     flare = new CScriptVisorFlare(x57a_visorFlareId, "DroneVisorFlare"sv,
                                   CEntityInfo{GetAreaIdAlways(), CEntity::NullConnectionList}, activate,
-                                  GetLctrTransform("Beacon_LCTR"sv).origin, CVisorFlare::EBlendMode::Zero, true, 0.1f,
-                                  1.f, 2.f, 0, 0, x57c_flares);
+                                  GetLctrTransform("Beacon_LCTR"sv).origin, CVisorFlare::EBlendMode::Additive, true,
+                                  0.1f, 1.f, 2.f, 0, 0, x57c_flares);
     mgr.AddObject(flare);
   }
   mgr.SendScriptMsg(flare, GetUniqueId(), activate ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate);

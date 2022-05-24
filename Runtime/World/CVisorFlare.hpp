@@ -16,26 +16,27 @@ class CTexture;
 class CVisorFlare {
 public:
   enum class EBlendMode {
-    Zero = 0,
+    Additive = 0,
+    Blend = 1,
   };
   class CFlareDef {
-    TToken<CTexture> x0_tex;
-    float x8_f1;
-    float xc_f2;
+    mutable TToken<CTexture> x0_tex;
+    float x8_pos;
+    float xc_scale;
     zeus::CColor x10_color;
 
   public:
     CFlareDef() = default;
     CFlareDef(const CFlareDef&) = default;
-    CFlareDef(const TToken<CTexture>& tex, float f1, float f2, const zeus::CColor& color)
-    : x0_tex(tex), x8_f1(f1), xc_f2(f2), x10_color(color) {
+    CFlareDef(const TToken<CTexture>& tex, float pos, float scale, const zeus::CColor& color)
+    : x0_tex(tex), x8_pos(pos), xc_scale(scale), x10_color(color) {
       x0_tex.Lock();
     }
 
-    TToken<CTexture> GetTexture() const { return x0_tex; }
+    TToken<CTexture>& GetTexture() const { return x0_tex; }
     zeus::CColor GetColor() const { return x10_color; }
-    float GetScale() const;
-    float GetPosition() const;
+    float GetPosition() const { return x8_pos; }
+    float GetScale() const { return xc_scale; }
   };
 
 private:
@@ -49,6 +50,11 @@ private:
   float x28_ = 0.f;
   u32 x2c_w1;
   u32 x30_w2;
+
+  void SetupRenderState(const CStateManager& mgr) const;
+  void ResetTevSwapMode(const CStateManager& mgr) const;
+  void DrawDirect(const zeus::CColor& color, float f1, float f2) const;
+  void DrawStreamed(const zeus::CColor& color, float f1, float f2) const;
 
 public:
   CVisorFlare(EBlendMode blendMode, bool, float, float, float, u32, u32, std::vector<CFlareDef> flares);
