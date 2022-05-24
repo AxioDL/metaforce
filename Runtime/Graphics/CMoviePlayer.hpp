@@ -136,9 +136,12 @@ public:
   float GetPlayedSeconds() const { return xdc_frameRem + xe8_curSeconds; }
   float GetTotalSeconds() const { return xe4_totalSeconds; }
   void SetPlayMode(EPlayMode mode) { xe0_playMode = mode; }
-  void Draw();
+  bool DrawVideo();
+  void DrawFrame(const zeus::CVector3f& v1, const zeus::CVector3f& v2, const zeus::CVector3f& v3,
+                 const zeus::CVector3f& v4);
   void Update(float dt);
-  std::pair<u32, u32> GetVideoDimensions() const { return {x6c_videoInfo.width, x6c_videoInfo.height}; }
+  u32 GetWidth() const { return x6c_videoInfo.width; }
+  u32 GetHeight() const { return x6c_videoInfo.width; }
 
   static void Initialize();
   static void Shutdown();

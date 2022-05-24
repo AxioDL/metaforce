@@ -1,5 +1,14 @@
 #include "BackendBinding.hpp"
 
+#if defined(DAWN_ENABLE_BACKEND_D3D12)
+#include <dawn/native/D3D12Backend.h>
+#endif
+#if defined(DAWN_ENABLE_BACKEND_METAL)
+#include <dawn/native/MetalBackend.h>
+#endif
+#if defined(DAWN_ENABLE_BACKEND_VULKAN)
+#include <dawn/native/VulkanBackend.h>
+#endif
 #if defined(DAWN_ENABLE_BACKEND_OPENGL)
 #include <SDL_video.h>
 #include <dawn/native/OpenGLBackend.h>
@@ -25,23 +34,44 @@ BackendBinding* CreateVulkanBinding(SDL_Window* window, WGPUDevice device);
 
 BackendBinding::BackendBinding(SDL_Window* window, WGPUDevice device) : m_window(window), m_device(device) {}
 
-void DiscoverAdapter(dawn::native::Instance* instance, SDL_Window* window, wgpu::BackendType type) {
-  if (type == wgpu::BackendType::OpenGL || type == wgpu::BackendType::OpenGLES) {
+bool DiscoverAdapter(dawn::native::Instance* instance, SDL_Window* window, wgpu::BackendType type) {
+  switch (type) {
+#if defined(DAWN_ENABLE_BACKEND_D3D12)
+  case wgpu::BackendType::D3D12: {
+    dawn::native::d3d12::AdapterDiscoveryOptions options;
+    return instance->DiscoverAdapters(&options);
+  }
+#endif
+#if defined(DAWN_ENABLE_BACKEND_METAL)
+  case wgpu::BackendType::Metal: {
+    dawn::native::metal::AdapterDiscoveryOptions options;
+    return instance->DiscoverAdapters(&options);
+  }
+#endif
+#if defined(DAWN_ENABLE_BACKEND_VULKAN)
+  case wgpu::BackendType::Vulkan: {
+    dawn::native::vulkan::AdapterDiscoveryOptions options;
+    return instance->DiscoverAdapters(&options);
+  }
+#endif
 #if defined(DAWN_ENABLE_BACKEND_OPENGL)
+  case wgpu::BackendType::OpenGL:
+  case wgpu::BackendType::OpenGLES: {
     SDL_GL_CreateContext(window);
     auto getProc = reinterpret_cast<void* (*)(const char*)>(SDL_GL_GetProcAddress);
     if (type == wgpu::BackendType::OpenGL) {
       dawn::native::opengl::AdapterDiscoveryOptions adapterOptions;
       adapterOptions.getProc = getProc;
-      instance->DiscoverAdapters(&adapterOptions);
+      return instance->DiscoverAdapters(&adapterOptions);
     } else {
       dawn::native::opengl::AdapterDiscoveryOptionsES adapterOptions;
       adapterOptions.getProc = getProc;
-      instance->DiscoverAdapters(&adapterOptions);
+      return instance->DiscoverAdapters(&adapterOptions);
     }
+  }
 #endif
-  } else {
-    instance->DiscoverDefaultAdapters();
+  default:
+    return false;
   }
 }
 

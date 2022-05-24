@@ -1450,17 +1450,17 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
     if (IsInMapperState(EAutoMapperState::MapScreen)) {
       CAssetId wldMlvl = x24_world->IGetWorldAssetId();
       const CMapWorld* mw = x24_world->IGetMapWorld();
-      std::vector<CTexturedQuadFilter>& hintBeaconFilters = m_hintBeaconFilters;
-      if (hintBeaconFilters.size() < x1f8_hintLocations.size()) {
-        hintBeaconFilters.reserve(x1f8_hintLocations.size());
-        for (u32 i = hintBeaconFilters.size(); i < x1f8_hintLocations.size(); ++i)
-          hintBeaconFilters.emplace_back(EFilterType::Add, x3c_hintBeacon);
-      }
+//      std::vector<CTexturedQuadFilter>& hintBeaconFilters = m_hintBeaconFilters;
+//      if (hintBeaconFilters.size() < x1f8_hintLocations.size()) {
+//        hintBeaconFilters.reserve(x1f8_hintLocations.size());
+//        for (u32 i = hintBeaconFilters.size(); i < x1f8_hintLocations.size(); ++i)
+//          hintBeaconFilters.emplace_back(EFilterType::Add, x3c_hintBeacon);
+//      }
       auto locIt = x1f8_hintLocations.cbegin();
-      auto filterIt = hintBeaconFilters.begin();
-      for (; locIt != x1f8_hintLocations.cend(); ++locIt, ++filterIt) {
+//      auto filterIt = hintBeaconFilters.begin();
+      for (; locIt != x1f8_hintLocations.cend(); ++locIt/*, ++filterIt*/) {
         const SAutoMapperHintLocation& loc = *locIt;
-        CTexturedQuadFilter& filter = *filterIt;
+//        CTexturedQuadFilter& filter = *filterIt;
         if (loc.x8_worldId != wldMlvl)
           continue;
         const CMapArea* mapa = mw->GetMapArea(loc.xc_areaId);
@@ -1475,12 +1475,12 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
           beaconAlpha = loc.x4_beaconAlpha;
         }
         if (beaconAlpha > 0.f) {
-          constexpr std::array<CTexturedQuadFilter::Vert, 4> verts{{
-              {{-4.f, -8.f, 8.f}, {0.f, 1.f}},
-              {{-4.f, -8.f, 0.f}, {0.f, 0.f}},
-              {{4.f, -8.f, 8.f}, {1.f, 1.f}},
-              {{4.f, -8.f, 0.f}, {1.f, 0.f}},
-          }};
+//          constexpr std::array<CTexturedQuadFilter::Vert, 4> verts{{
+//              {{-4.f, -8.f, 8.f}, {0.f, 1.f}},
+//              {{-4.f, -8.f, 0.f}, {0.f, 0.f}},
+//              {{4.f, -8.f, 8.f}, {1.f, 1.f}},
+//              {{4.f, -8.f, 0.f}, {1.f, 0.f}},
+//          }};
           float colorAlpha = beaconAlpha;
           if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
           } else {
@@ -1489,7 +1489,8 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
           colorAlpha *= mapAlpha;
           zeus::CColor color = zeus::skWhite;
           color.a() = colorAlpha;
-          filter.drawVerts(color, verts);
+          // TODO
+//          filter.drawVerts(color, verts);
         }
       }
     }

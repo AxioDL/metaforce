@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Runtime/RetroTypes.hpp"
-#include "Runtime/Graphics/Shaders/CWorldShadowShader.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CTransform.hpp>

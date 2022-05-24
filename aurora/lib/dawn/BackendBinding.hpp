@@ -21,7 +21,7 @@ protected:
   WGPUDevice m_device = nullptr;
 };
 
-void DiscoverAdapter(dawn::native::Instance* instance, SDL_Window* window, wgpu::BackendType type);
+bool DiscoverAdapter(dawn::native::Instance* instance, SDL_Window* window, wgpu::BackendType type);
 BackendBinding* CreateBinding(wgpu::BackendType type, SDL_Window* window, WGPUDevice device);
 
 } // namespace aurora::gpu::utils

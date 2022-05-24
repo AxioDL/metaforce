@@ -316,7 +316,13 @@ public:
   }
   static void LoadDolphinSpareTexture(int bindIdx, GX::TextureFormat format, GX::TexMapID id) {
     GXTexObj obj;
-    GXInitTexObjResolved(&obj, bindIdx, format, GX_CLAMP, GX_CLAMP);
+    GXInitTexObjResolved(&obj, bindIdx, format, GX_CLAMP, GX_CLAMP, GX_TLUT0);
+    GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
+    GXLoadTexObj(&obj, id);
+  }
+  static void LoadDolphinSpareTexture(int bindIdx, GXCITexFmt format, GXTlut tlut, GX::TexMapID id) {
+    GXTexObj obj;
+    GXInitTexObjResolved(&obj, bindIdx, static_cast<GX::TextureFormat>(format), GX_CLAMP, GX_CLAMP, tlut);
     GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
     GXLoadTexObj(&obj, id);
   }

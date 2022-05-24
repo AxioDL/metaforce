@@ -214,7 +214,8 @@ void CMFGame::Draw() {
 
   if (x1c_flowState == EGameFlowState::CinematicSkip) {
     const float c = std::min(1.f, 1.f - x20_cineSkipTime);
-    m_fadeToBlack.draw(zeus::CColor{c, c, c, c});
+    CCameraFilterPass::DrawFilter(EFilterType::Multiply, EFilterShape::Fullscreen, zeus::CColor{c, c, c, c}, nullptr,
+                                  1.f);
   }
 }
 

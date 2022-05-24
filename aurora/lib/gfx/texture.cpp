@@ -71,18 +71,20 @@ TextureHandle new_static_texture_2d(uint32_t width, uint32_t height, uint32_t mi
                  offset + dataSize, data.size());
       unreachable();
     }
-    const auto dstView = wgpu::ImageCopyTexture{
+    auto dstView = wgpu::ImageCopyTexture{
         .texture = ref.texture,
         .mipLevel = mip,
     };
+    const auto range = push_texture_data(data.data() + offset, dataSize, bytesPerRow, heightBlocks);
     const auto dataLayout = wgpu::TextureDataLayout{
+        .offset = range.offset,
         .bytesPerRow = bytesPerRow,
         .rowsPerImage = heightBlocks,
     };
-    g_queue.WriteTexture(&dstView, data.data() + offset, dataSize, &dataLayout, &physicalSize);
+    g_textureUploads.emplace_back(dataLayout, std::move(dstView), physicalSize);
     offset += dataSize;
   }
-  if (offset < data.size()) {
+  if (data.size() != UINT32_MAX && offset < data.size()) {
     Log.report(logvisor::Warning, FMT_STRING("new_static_texture_2d[{}]: texture used {} bytes, but given {} bytes"),
                label, offset, data.size());
   }
@@ -112,7 +114,8 @@ TextureHandle new_dynamic_texture_2d(uint32_t width, uint32_t height, uint32_t m
   };
   auto texture = g_device.CreateTexture(&textureDescriptor);
   auto textureView = texture.CreateView(&textureViewDescriptor);
-  return std::make_shared<TextureRef>(std::move(texture), std::move(textureView), size, wgpuFormat, mips, format, false);
+  return std::make_shared<TextureRef>(std::move(texture), std::move(textureView), size, wgpuFormat, mips, format,
+                                      false);
 }
 
 TextureHandle new_render_texture(uint32_t width, uint32_t height, GX::TextureFormat fmt, zstring_view label) noexcept {
@@ -167,18 +170,20 @@ void write_texture(const TextureRef& ref, ArrayRef<uint8_t> data) noexcept {
                  data.size());
       unreachable();
     }
-    const auto dstView = wgpu::ImageCopyTexture{
+    auto dstView = wgpu::ImageCopyTexture{
         .texture = ref.texture,
         .mipLevel = mip,
     };
+    const auto range = push_texture_data(data.data() + offset, dataSize, bytesPerRow, heightBlocks);
     const auto dataLayout = wgpu::TextureDataLayout{
+        .offset = range.offset,
         .bytesPerRow = bytesPerRow,
         .rowsPerImage = heightBlocks,
     };
-    g_queue.WriteTexture(&dstView, data.data() + offset, dataSize, &dataLayout, &physicalSize);
+    g_textureUploads.emplace_back(dataLayout, std::move(dstView), physicalSize);
     offset += dataSize;
   }
-  if (offset < data.size()) {
+  if (data.size() != UINT32_MAX && offset < data.size()) {
     Log.report(logvisor::Warning, FMT_STRING("write_texture: texture used {} bytes, but given {} bytes"), offset,
                data.size());
   }

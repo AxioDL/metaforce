@@ -10,8 +10,6 @@
 #include "Runtime/Character/CActorLights.hpp"
 #include "Runtime/Character/CModelData.hpp"
 #include "Runtime/Graphics/CRainSplashGenerator.hpp"
-#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Weapon/CAuxWeapon.hpp"
 #include "Runtime/Weapon/CFidget.hpp"
@@ -254,10 +252,6 @@ private:
   bool x835_29_powerBombReady : 1 = false;
   bool x835_30_inPhazonPool : 1 = false;
   bool x835_31_actorAttached : 1 = false;
-
-//  CTexturedQuadFilter m_screenQuad{EFilterType::Blend, CGraphics::g_SpareTexture.get(),
-//                                   CTexturedQuadFilter::ZTest::GEqualZWrite};
-  CAABoxShader m_aaboxShader{true};
 
   void InitBeamData();
   void InitBombData();

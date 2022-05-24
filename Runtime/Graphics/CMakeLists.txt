@@ -26,8 +26,6 @@ set(GRAPHICS_SOURCES
         CRainSplashGenerator.hpp CRainSplashGenerator.cpp
         CFont.hpp CFont.cpp
         Shaders/CLineRendererShaders.hpp Shaders/CLineRendererShaders.cpp
-        Shaders/CTexturedQuadFilter.hpp Shaders/CTexturedQuadFilter.cpp
-        Shaders/CColoredQuadFilter.hpp Shaders/CColoredQuadFilter.cpp
         Shaders/CColoredStripShader.hpp Shaders/CColoredStripShader.cpp
         Shaders/CModelShaders.hpp Shaders/CModelShaders.cpp
         Shaders/CThermalColdFilter.hpp Shaders/CThermalColdFilter.cpp

@@ -221,6 +221,30 @@ static bool poll_events() noexcept {
   return true;
 }
 
+static SDL_Window* create_window(wgpu::BackendType type) {
+  Uint32 flags = SDL_WINDOW_HIDDEN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
+  switch (type) {
+#ifdef DAWN_ENABLE_BACKEND_VULKAN
+  case wgpu::BackendType::Vulkan:
+    flags |= SDL_WINDOW_VULKAN;
+    break;
+#endif
+#ifdef DAWN_ENABLE_BACKEND_METAL
+  case wgpu::BackendType::Metal:
+    flags |= SDL_WINDOW_METAL;
+    break;
+#endif
+#ifdef DAWN_ENABLE_BACKEND_OPENGL
+  case wgpu::BackendType::OpenGL:
+    flags |= SDL_WINDOW_OPENGL;
+    break;
+#endif
+  default:
+    break;
+  }
+  return SDL_CreateWindow("Metaforce", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 960, flags);
+}
+
 void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv) noexcept {
   g_AppDelegate = std::move(app);
   /* Lets gather arguments skipping the program filename */
@@ -244,34 +268,25 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv)
   /* TODO: Make this an option rather than hard coding it */
   SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 
-  Uint32 flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
-  switch (gpu::preferredBackendType) {
-#ifdef DAWN_ENABLE_BACKEND_VULKAN
-  case wgpu::BackendType::Vulkan:
-    flags |= SDL_WINDOW_VULKAN;
-    break;
-#endif
-#ifdef DAWN_ENABLE_BACKEND_METAL
-  case wgpu::BackendType::Metal:
-    flags |= SDL_WINDOW_METAL;
-    break;
-#endif
-#ifdef DAWN_ENABLE_BACKEND_OPENGL
-  case wgpu::BackendType::OpenGL:
-    flags |= SDL_WINDOW_OPENGL;
-    break;
-#endif
-  default:
-    break;
+  for (const auto backendType : gpu::PreferredBackendOrder) {
+    auto* window = create_window(backendType);
+    if (window == nullptr) {
+      continue;
+    }
+    g_window = window;
+    if (gpu::initialize(window, backendType)) {
+      break;
+    }
+    g_window = nullptr;
+    SDL_DestroyWindow(window);
   }
-  g_window = SDL_CreateWindow("Metaforce", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 960, flags);
   if (g_window == nullptr) {
     Log.report(logvisor::Fatal, FMT_STRING("Error creating window: {}"), SDL_GetError());
     unreachable();
   }
   set_window_icon(std::move(icon));
+  SDL_ShowWindow(g_window);
 
-  gpu::initialize(g_window);
   gfx::initialize();
 
   imgui::create_context();

@@ -4,7 +4,11 @@
 #include <cassert>
 #include <dawn/native/VulkanBackend.h>
 
+#include <logvisor/logvisor.hpp>
+
 namespace aurora::gpu::utils {
+static logvisor::Module Log("aurora::gpu::utils::VulkanBinding");
+
 class VulkanBinding : public BackendBinding {
 public:
   VulkanBinding(SDL_Window* window, WGPUDevice device) : BackendBinding(window, device) {}
@@ -29,7 +33,7 @@ private:
   void CreateSwapChainImpl() {
     VkSurfaceKHR surface = VK_NULL_HANDLE;
     if (SDL_Vulkan_CreateSurface(m_window, dawn::native::vulkan::GetInstance(m_device), &surface) != SDL_TRUE) {
-      assert(false);
+      Log.report(logvisor::Fatal, FMT_STRING("Failed to create Vulkan surface: {}"), SDL_GetError());
     }
     m_swapChainImpl = dawn::native::vulkan::CreateNativeSwapChainImpl(m_device, surface);
   }

@@ -1805,7 +1805,7 @@ void CFrontEndUI::Draw() {
   } else {
     if ((xcc_curMoviePtr != nullptr)) {
       /* Render movie */
-      xcc_curMoviePtr->Draw();
+      xcc_curMoviePtr->DrawVideo();
     }
 
     if (x50_curScreen == EScreen::FileSelect && x54_nextScreen == EScreen::FileSelect) {

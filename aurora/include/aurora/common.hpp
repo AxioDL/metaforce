@@ -30,6 +30,7 @@ struct Vec3 {
   constexpr Vec3() = default;
   constexpr Vec3(T x, T y, T z) : x(x), y(y), z(z) {}
   constexpr Vec3(const zeus::CVector3f& vec) : x(vec.x()), y(vec.y()), z(vec.z()) {}
+  operator zeus::CVector3f() const { return {x, y, z}; }
 
   bool operator==(const Vec3&) const = default;
 };

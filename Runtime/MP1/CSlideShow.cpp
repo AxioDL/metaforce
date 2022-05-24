@@ -120,15 +120,16 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg, CA
 }
 
 void CSlideShow::SSlideData::Draw() {
-  if (!IsLoaded()) {
-    return;
-  }
-
-  const zeus::CRectangle rect;
-  m_texQuad->draw(x30_mulColor, 1.f, rect);
-
-  const zeus::CVector2f centeredOffset((x28_canvasSize.x() - m_texQuad->GetTex()->GetWidth()) * 0.5f,
-                                       (x28_canvasSize.y() - m_texQuad->GetTex()->GetHeight()) * 0.5f);
+  // TODO
+//  if (!IsLoaded()) {
+//    return;
+//  }
+//
+//  const zeus::CRectangle rect;
+//  m_texQuad->draw(x30_mulColor, 1.f, rect);
+//
+//  const zeus::CVector2f centeredOffset((x28_canvasSize.x() - m_texQuad->GetTex()->GetWidth()) * 0.5f,
+//                                       (x28_canvasSize.y() - m_texQuad->GetTex()->GetHeight()) * 0.5f);
 }
 
 void CSlideShow::Draw() {

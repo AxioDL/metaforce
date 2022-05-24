@@ -16,30 +16,26 @@ void CFaceplateDecoration::Update(float dt, CStateManager& stateMgr) {
     if (xc_ready) {
       x4_tex.Unlock();
       x0_id = txtrId;
-      if (m_texFilter)
-        m_texFilter = std::nullopt;
     }
   }
 
   if (x0_id != txtrId && txtrId.IsValid()) {
-    if (m_texFilter)
-      m_texFilter = std::nullopt;
     x0_id = txtrId;
     x4_tex = g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), txtrId});
     xc_ready = true;
     x4_tex.Lock();
   }
-
-  if (!m_texFilter && x4_tex.IsLoaded())
-    m_texFilter.emplace(EFilterType::Blend, x4_tex);
 }
 
 void CFaceplateDecoration::Draw(CStateManager& stateMgr) {
-  if (xc_ready && m_texFilter) {
+  if (xc_ready && x4_tex) {
     SCOPED_GRAPHICS_DEBUG_GROUP("CFaceplateDecoration::Draw", zeus::skPurple);
-    zeus::CColor color = zeus::skWhite;
-    color.a() = stateMgr.GetPlayer().GetVisorSteam().GetAlpha();
-    m_texFilter->DrawFilter(EFilterShape::FullscreenQuarters, color, 1.f);
+    float alpha = stateMgr.GetPlayer().GetVisorSteam().GetAlpha();
+    if (!zeus::close_enough(alpha, 0.f)) {
+      zeus::CColor color = zeus::skWhite;
+      color.a() = alpha;
+      CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::FullscreenQuarters, color, x4_tex.GetObj(), 1.f);
+    }
   }
 }
 

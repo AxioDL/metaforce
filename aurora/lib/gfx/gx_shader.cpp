@@ -564,6 +564,7 @@ static inline std::string vtx_attr(const ShaderConfig& config, GX::Attr attr) {
 
 static inline std::string texture_conversion(const TextureConfig& tex, u32 stageIdx, u32 texMapId) {
   std::string out;
+  if (tex.renderTex)
   switch (tex.copyFmt) {
   default:
     break;
@@ -573,13 +574,12 @@ static inline std::string texture_conversion(const TextureConfig& tex, u32 stage
     break;
   case GX::TF_I4:
   case GX::TF_I8:
-    // Perform intensity conversion
-    out += fmt::format(
-        FMT_STRING("\n    {{"
-                   "\n        var intensity = dot(sampled{0}.rgb, vec3(0.257, 0.504, 0.098)) + 16.0 / 255.0;"
-                   "\n        sampled{0} = vec4<f32>(intensity, 0.f, 0.f, 1.f);"
-                   "\n    }}"),
-        stageIdx);
+    // FIXME HACK
+    if (tex.loadFmt != GX::TF_C4 && tex.loadFmt != GX::TF_C8 && tex.loadFmt != GX::TF_C14X2) {
+      // Perform intensity conversion
+      out += fmt::format(FMT_STRING("\n    sampled{0} = vec4<f32>(intensityF32(sampled{0}.rgb), 0.f, 0.f, 1.f);"),
+                         stageIdx);
+    }
     break;
   }
   switch (tex.loadFmt) {
@@ -883,7 +883,7 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
       if (stage.colorOp.clamp) {
         op = fmt::format(FMT_STRING("clamp({}, vec3<f32>(0.0), vec3<f32>(1.0))"), op);
       }
-      fragmentFn += fmt::format(FMT_STRING("\n    {0} = vec4<f32>({1}, {0}.a);"), outReg, op);
+      fragmentFn += fmt::format(FMT_STRING("\n    // TEV stage {2}\n    {0} = vec4<f32>({1}, {0}.a);"), outReg, op, idx);
     }
     {
       std::string outReg;
@@ -1033,7 +1033,6 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
       Log.report(logvisor::Fatal, FMT_STRING("unhandled tcg src {} for "), tcg.src);
       unreachable();
     }
-    // TODO this all assumes MTX3x4 currently
     if (tcg.mtx == GX::IDENTITY) {
       vtxXfrAttrs += fmt::format(FMT_STRING("\n    var tc{0}_tmp = tc{0}.xyz;"), i);
     } else {
@@ -1069,9 +1068,11 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
     uvIn = fmt::format(FMT_STRING("in.tex{0}_uv"), stage.texCoordId);
     // }
     if (texConfig.loadFmt == GX::TF_C4 || texConfig.loadFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2) {
+      bool isPaletted =
+          texConfig.copyFmt == GX::TF_C4 || texConfig.copyFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2;
       fragmentFnPre +=
-          fmt::format(FMT_STRING("\n    var sampled{0} = textureSamplePalette(tex{1}, tex{1}_samp, {2}, tlut{1});"),
-                      i, stage.texMapId, uvIn);
+          fmt::format(FMT_STRING("\n    var sampled{0} = textureSamplePalette{3}(tex{1}, tex{1}_samp, {2}, tlut{1});"),
+                      i, stage.texMapId, uvIn, isPaletted ? ""sv : "RGB"sv);
     } else {
       fragmentFnPre += fmt::format(
           FMT_STRING("\n    var sampled{0} = textureSampleBias(tex{1}, tex{1}_samp, {2}, ubuf.tex{1}_lod);"), i,
@@ -1111,7 +1112,7 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
         "}";
     uniBufAttrs += "\n    fog: Fog,";
 
-    fragmentFn += "\n    var fogF = clamp((ubuf.fog.a / (ubuf.fog.b - in.pos.z)) - ubuf.fog.c, 0.0, 1.0);";
+    fragmentFn += "\n    // Fog\n    var fogF = clamp((ubuf.fog.a / (ubuf.fog.b - in.pos.z)) - ubuf.fog.c, 0.0, 1.0);";
     switch (config.fogType) {
     case GX::FOG_PERSP_LIN:
     case GX::FOG_ORTHO_LIN:
@@ -1154,9 +1155,11 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
 
     const auto& texConfig = config.textureConfig[i];
     if (texConfig.loadFmt == GX::TF_C4 || texConfig.loadFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2) {
+      bool isPaletted =
+          texConfig.copyFmt == GX::TF_C4 || texConfig.copyFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2;
       texBindings += fmt::format(FMT_STRING("\n@group(2) @binding({})\n"
-                                            "var tex{}: texture_2d<i32>;"),
-                                 texBindIdx, i);
+                                            "var tex{}: texture_2d<{}>;"),
+                                 texBindIdx, i, isPaletted ? "i32"sv : "f32"sv);
       ++texBindIdx;
       texBindings += fmt::format(FMT_STRING("\n@group(2) @binding({})\n"
                                             "var tlut{}: texture_2d<f32>;"),
@@ -1175,6 +1178,7 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
     std::string comp0 = alpha_compare(config.alphaCompare.comp0, config.alphaCompare.ref0, comp0Valid);
     std::string comp1 = alpha_compare(config.alphaCompare.comp1, config.alphaCompare.ref1, comp1Valid);
     if (comp0Valid || comp1Valid) {
+      fragmentFn += "\n    // Alpha compare";
       switch (config.alphaCompare.op) {
       case GX::AOP_AND:
         fragmentFn += fmt::format(FMT_STRING("\n    if (!({} && {})) {{ discard; }}"), comp0, comp1);
@@ -1212,17 +1216,48 @@ struct VertexOutput {{
     @builtin(position) pos: vec4<f32>,{vtxOutAttrs}
 }};
 
+fn intensityF32(rgb: vec3<f32>) -> f32 {{
+    // RGB to intensity conversion
+    // https://github.com/dolphin-emu/dolphin/blob/4cd48e609c507e65b95bca5afb416b59eaf7f683/Source/Core/VideoCommon/TextureConverterShaderGen.cpp#L237-L241
+    return dot(rgb, vec3(0.257, 0.504, 0.098)) + 16.0 / 255.0;
+}}
+fn intensityI32(rgb: vec3<f32>) -> i32 {{
+    return i32(dot(rgb, vec3(0.257, 0.504, 0.098)) * 255.f);
+}}
 fn textureSamplePalette(tex: texture_2d<i32>, samp: sampler, uv: vec2<f32>, tlut: texture_2d<f32>) -> vec4<f32> {{
-    var f = fract(uv * vec2<f32>(textureDimensions(tex)) + 0.5);
+    // Gather index values
     var i = textureGather(0, tex, samp, uv);
-    var sX = textureLoad(tlut, vec2<i32>(i.x, 0), 0);
-    var sY = textureLoad(tlut, vec2<i32>(i.y, 0), 0);
-    var sZ = textureLoad(tlut, vec2<i32>(i.z, 0), 0);
-    var sW = textureLoad(tlut, vec2<i32>(i.w, 0), 0);
-    // Bilinear filtering
-    var tA = mix(sW, sZ, f.x);
-    var tB = mix(sX, sY, f.x);
-    return mix(tA, tB, f.y);
+    // Load palette colors
+    var c0 = textureLoad(tlut, vec2<i32>(i[0], 0), 0);
+    var c1 = textureLoad(tlut, vec2<i32>(i[1], 0), 0);
+    var c2 = textureLoad(tlut, vec2<i32>(i[2], 0), 0);
+    var c3 = textureLoad(tlut, vec2<i32>(i[3], 0), 0);
+    // Perform bilinear filtering
+    var f = fract(uv * vec2<f32>(textureDimensions(tex)) + 0.5);
+    var t0 = mix(c3, c2, f.x);
+    var t1 = mix(c0, c1, f.x);
+    return mix(t0, t1, f.y);
+}}
+fn textureSamplePaletteRGB(tex: texture_2d<f32>, samp: sampler, uv: vec2<f32>, tlut: texture_2d<f32>) -> vec4<f32> {{
+    // Gather RGB channels
+    var iR = textureGather(0, tex, samp, uv);
+    var iG = textureGather(1, tex, samp, uv);
+    var iB = textureGather(2, tex, samp, uv);
+    // Perform intensity conversion
+    var i0 = intensityI32(vec3<f32>(iR[0], iG[0], iB[0]));
+    var i1 = intensityI32(vec3<f32>(iR[1], iG[1], iB[1]));
+    var i2 = intensityI32(vec3<f32>(iR[2], iG[2], iB[2]));
+    var i3 = intensityI32(vec3<f32>(iR[3], iG[3], iB[3]));
+    // Load palette colors
+    var c0 = textureLoad(tlut, vec2<i32>(i0, 0), 0);
+    var c1 = textureLoad(tlut, vec2<i32>(i1, 0), 0);
+    var c2 = textureLoad(tlut, vec2<i32>(i2, 0), 0);
+    var c3 = textureLoad(tlut, vec2<i32>(i3, 0), 0);
+    // Perform bilinear filtering
+    var f = fract(uv * vec2<f32>(textureDimensions(tex)) + 0.5);
+    var t0 = mix(c3, c2, f.x);
+    var t1 = mix(c0, c1, f.x);
+    return mix(t0, t1, f.y);
 }}
 
 @stage(vertex)

@@ -26,8 +26,10 @@ constexpr uint64_t UniformBufferSize = 3145728; // 3mb
 constexpr uint64_t VertexBufferSize = 3145728;  // 3mb
 constexpr uint64_t IndexBufferSize = 1048576;   // 1mb
 constexpr uint64_t StorageBufferSize = 8388608; // 8mb
+constexpr uint64_t TextureUploadSize = 8388608; // 8mb
 
-constexpr uint64_t StagingBufferSize = UniformBufferSize + VertexBufferSize + IndexBufferSize + StorageBufferSize;
+constexpr uint64_t StagingBufferSize =
+    UniformBufferSize + VertexBufferSize + IndexBufferSize + StorageBufferSize + TextureUploadSize;
 
 struct ShaderState {
   movie_player::State moviePlayer;
@@ -112,6 +114,7 @@ static ByteBuffer g_uniforms;
 static ByteBuffer g_indices;
 static ByteBuffer g_storage;
 static ByteBuffer g_staticStorage;
+static ByteBuffer g_textureUpload;
 wgpu::Buffer g_vertexBuffer;
 wgpu::Buffer g_uniformBuffer;
 wgpu::Buffer g_indexBuffer;
@@ -134,6 +137,7 @@ struct RenderPass {
 static std::vector<RenderPass> g_renderPasses;
 static u32 g_currentRenderPass;
 std::vector<TextureHandle> g_resolvedTextures;
+std::vector<TextureUpload> g_textureUploads;
 
 static ByteBuffer g_serializedPipelines{};
 static u32 g_serializedPipelineCount = 0;
@@ -420,6 +424,7 @@ void shutdown() {
 
   gx::shutdown();
 
+  g_resolvedTextures.clear();
   g_cachedBindGroups.clear();
   g_cachedSamplers.clear();
   g_pipelines.clear();
@@ -464,6 +469,7 @@ void begin_frame() {
   mapBuffer(g_uniforms, UniformBufferSize);
   mapBuffer(g_indices, IndexBufferSize);
   mapBuffer(g_storage, StorageBufferSize);
+  mapBuffer(g_textureUpload, TextureUploadSize);
 
   g_renderPasses.emplace_back();
   g_currentRenderPass = 0;
@@ -491,6 +497,23 @@ void end_frame(const wgpu::CommandEncoder& cmd) {
   g_lastUniformSize = writeBuffer(g_uniforms, g_uniformBuffer, UniformBufferSize, "Uniform");
   g_lastIndexSize = writeBuffer(g_indices, g_indexBuffer, IndexBufferSize, "Index");
   g_lastStorageSize = writeBuffer(g_storage, g_storageBuffer, StorageBufferSize, "Storage");
+  {
+    // Perform texture copies
+    for (const auto& item : g_textureUploads) {
+      const wgpu::ImageCopyBuffer buf{
+          .layout =
+              wgpu::TextureDataLayout{
+                  .offset = item.layout.offset + bufferOffset,
+                  .bytesPerRow = ALIGN(item.layout.bytesPerRow, 256),
+                  .rowsPerImage = item.layout.rowsPerImage,
+              },
+          .buffer = g_stagingBuffers[currentStagingBuffer],
+      };
+      cmd.CopyBufferToTexture(&buf, &item.tex, &item.size);
+    }
+    g_textureUploads.clear();
+    g_textureUpload.clear();
+  }
   currentStagingBuffer = (currentStagingBuffer + 1) % g_stagingBuffers.size();
   map_staging_buffer();
 }
@@ -674,6 +697,18 @@ Range push_storage(const uint8_t* data, size_t length) {
 Range push_static_storage(const uint8_t* data, size_t length) {
   auto range = push(g_staticStorage, data, length, g_cachedLimits.limits.minStorageBufferOffsetAlignment);
   range.isStatic = true;
+  return range;
+}
+Range push_texture_data(const uint8_t* data, size_t length, u32 bytesPerRow, u32 rowsPerImage) {
+  // For CopyBufferToTexture, we need an alignment of 256 per row (see Dawn kTextureBytesPerRowAlignment)
+  const auto copyBytesPerRow = ALIGN(bytesPerRow, 256);
+  const auto range = map(g_textureUpload, copyBytesPerRow * rowsPerImage, 0);
+  u8* dst = g_textureUpload.data() + range.offset;
+  for (u32 i = 0; i < rowsPerImage; ++i) {
+    memcpy(dst, data, bytesPerRow);
+    data += bytesPerRow;
+    dst += copyBytesPerRow;
+  }
   return range;
 }
 std::pair<ByteBuffer, Range> map_verts(size_t length) {

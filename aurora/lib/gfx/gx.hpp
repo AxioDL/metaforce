@@ -188,6 +188,7 @@ struct GXState {
   std::array<IndTexMtxInfo, MaxIndTexMtxs> indTexMtxs;
   bool depthCompare = true;
   bool depthUpdate = true;
+  bool colorUpdate = true;
   bool alphaUpdate = true;
   u8 numChans = 0;
   u8 numIndStages = 0;
@@ -202,9 +203,9 @@ void shutdown() noexcept;
 const TextureBind& get_texture(GX::TexMapID id) noexcept;
 
 struct TextureConfig {
-  GX::TextureFormat copyFmt = InvalidTextureFormat; // GXSetTexCopyDst
-  GX::TextureFormat loadFmt = InvalidTextureFormat; // GXTexObj format
-  bool flipUV = false;                              // For render textures
+  GX::TextureFormat copyFmt = InvalidTextureFormat; // Underlying texture format
+  GX::TextureFormat loadFmt = InvalidTextureFormat; // Texture format being bound
+  bool renderTex = false;                           // Perform conversion / flip UVs
   u8 _p1 = 0;
   u8 _p2 = 0;
   u8 _p3 = 0;
@@ -225,7 +226,7 @@ struct ShaderConfig {
 };
 static_assert(std::has_unique_object_representations_v<ShaderConfig>);
 
-constexpr u32 GXPipelineConfigVersion = 3;
+constexpr u32 GXPipelineConfigVersion = 4;
 struct PipelineConfig {
   u32 version = GXPipelineConfigVersion;
   ShaderConfig shaderConfig;
@@ -236,8 +237,7 @@ struct PipelineConfig {
   GX::BlendFactor blendFacSrc, blendFacDst;
   GX::LogicOp blendOp;
   u32 dstAlpha;
-  bool depthCompare, depthUpdate, alphaUpdate;
-  u8 _pad = 0;
+  bool depthCompare, depthUpdate, alphaUpdate, colorUpdate;
 };
 static_assert(std::has_unique_object_representations_v<PipelineConfig>);
 

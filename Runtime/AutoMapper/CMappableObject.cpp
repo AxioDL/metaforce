@@ -167,16 +167,16 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
     iconColor.a() *= alpha;
 
     TLockedToken<CTexture> tex = g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), iconRes});
-    if (!m_texQuadFilter || m_texQuadFilter->GetTex().GetObj() != tex.GetObj()) {
+//    if (!m_texQuadFilter || m_texQuadFilter->GetTex().GetObj() != tex.GetObj()) {
       //m_texQuadFilter.emplace(EFilterType::Add, tex, CTexturedQuadFilter::ZTest::GEqual);
-    }
+//    }
 
-    constexpr std::array<CTexturedQuadFilter::Vert, 4> verts{{
-        {{-2.6f, 0.f, 2.6f}, {0.f, 1.f}},
-        {{-2.6f, 0.f, -2.6f}, {0.f, 0.f}},
-        {{2.6f, 0.f, 2.6f}, {1.f, 1.f}},
-        {{2.6f, 0.f, -2.6f}, {1.f, 0.f}},
-    }};
+//    constexpr std::array<CTexturedQuadFilter::Vert, 4> verts{{
+//        {{-2.6f, 0.f, 2.6f}, {0.f, 1.f}},
+//        {{-2.6f, 0.f, -2.6f}, {0.f, 0.f}},
+//        {{2.6f, 0.f, 2.6f}, {1.f, 1.f}},
+//        {{2.6f, 0.f, -2.6f}, {1.f, 0.f}},
+//    }};
     //m_texQuadFilter->drawVerts(iconColor, verts);
   }
 }

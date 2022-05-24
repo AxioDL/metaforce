@@ -601,6 +601,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
       float z = 0.5f * (zT * zT * zT * zT * zT * (CGraphics::GetViewportHeight() - 12.f) + 12.f);
       float x = 0.5f * (xT * (CGraphics::GetViewportWidth() - 12.f) + 12.f);
 
+      // TODO
       //      const std::array<CTexturedQuadFilter::Vert, 4> verts{{
       //          {{-x, 0.f, z}, {0.f, 0.f}},
       //          {{-x, 0.f, -z}, {0.f, 1.f}},

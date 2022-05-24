@@ -171,8 +171,6 @@ class CThardus : public CPatterned {
   zeus::CVector2f GetTargetVector(float arg, CStateManager& mgr);
   void sub801dbc40();
 
-  std::optional<CTexturedQuadFilter> m_flareFilter;
-
   void DoDoubleSnap(CStateManager& mgr) {
     x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "DoubleSnap"sv);
   }

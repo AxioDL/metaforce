@@ -50,7 +50,8 @@ TextureWithSampler create_render_texture(bool multisampled) {
   }
   const auto textureDescriptor = wgpu::TextureDescriptor{
       .label = "Render texture",
-      .usage = wgpu::TextureUsage::RenderAttachment | wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopySrc | wgpu::TextureUsage::CopyDst,
+      .usage = wgpu::TextureUsage::RenderAttachment | wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopySrc |
+               wgpu::TextureUsage::CopyDst,
       .size = size,
       .format = format,
       .sampleCount = sampleCount,
@@ -230,27 +231,54 @@ static void error_callback(WGPUErrorType type, char const* message, void* userda
              magic_enum::enum_name(static_cast<wgpu::ErrorType>(type)), message);
 }
 
-void initialize(SDL_Window* window) {
-  Log.report(logvisor::Info, FMT_STRING("Creating Dawn instance"));
-  g_Instance = std::make_unique<dawn::native::Instance>();
-#if !defined(NDEBUG)
-  // D3D12's debug layer is very slow
-  if (preferredBackendType != wgpu::BackendType::D3D12) {
-    g_Instance->EnableBackendValidation(true);
+static void device_callback(WGPURequestDeviceStatus status, WGPUDevice device, char const* message, void* userdata) {
+  if (status == WGPURequestDeviceStatus_Success) {
+    g_device = wgpu::Device::Acquire(device);
+  } else {
+    Log.report(logvisor::Warning, FMT_STRING("Device request failed with message: {}"), message);
   }
+  *static_cast<bool*>(userdata) = true;
+}
+
+bool initialize(SDL_Window* window, wgpu::BackendType backendType) {
+  if (!g_Instance) {
+    Log.report(logvisor::Info, FMT_STRING("Creating Dawn instance"));
+    g_Instance = std::make_unique<dawn::native::Instance>();
+  }
+#ifndef NDEBUG
+  // D3D12's debug layer is very slow
+//  g_Instance->EnableBackendValidation(backendType != wgpu::BackendType::D3D12);
 #endif
-  utils::DiscoverAdapter(g_Instance.get(), window, preferredBackendType);
+  if (!utils::DiscoverAdapter(g_Instance.get(), window, backendType)) {
+    return false;
+  }
 
   {
     std::vector<dawn::native::Adapter> adapters = g_Instance->GetAdapters();
-    const auto adapterIt = std::find_if(adapters.begin(), adapters.end(), [](const auto& adapter) -> bool {
+    std::sort(adapters.begin(), adapters.end(), [&](const auto& a, const auto& b) {
+      wgpu::AdapterProperties propertiesA;
+      wgpu::AdapterProperties propertiesB;
+      a.GetProperties(&propertiesA);
+      b.GetProperties(&propertiesB);
+      constexpr std::array PreferredTypeOrder{
+          wgpu::AdapterType::DiscreteGPU,
+          wgpu::AdapterType::IntegratedGPU,
+          wgpu::AdapterType::CPU,
+      };
+      const auto typeItA = std::find(PreferredTypeOrder.begin(), PreferredTypeOrder.end(), propertiesA.adapterType);
+      const auto typeItB = std::find(PreferredTypeOrder.begin(), PreferredTypeOrder.end(), propertiesB.adapterType);
+      if (typeItA == PreferredTypeOrder.end() && typeItB != PreferredTypeOrder.end()) {
+        return -1;
+      }
+      return static_cast<int>(typeItA - typeItB);
+    });
+    const auto adapterIt = std::find_if(adapters.begin(), adapters.end(), [=](const auto& adapter) -> bool {
       wgpu::AdapterProperties properties;
       adapter.GetProperties(&properties);
-      return properties.backendType == preferredBackendType;
+      return properties.backendType == backendType;
     });
     if (adapterIt == adapters.end()) {
-      Log.report(logvisor::Fatal, FMT_STRING("Failed to find usable graphics backend"));
-      unreachable();
+      return false;
     }
     g_Adapter = *adapterIt;
   }
@@ -276,9 +304,13 @@ void initialize(SDL_Window* window) {
                                                        : supportedLimits.limits.minStorageBufferOffsetAlignment,
             },
     };
-    const std::array<wgpu::FeatureName, 1> requiredFeatures{
-        wgpu::FeatureName::TextureCompressionBC,
-    };
+    std::vector<wgpu::FeatureName> features;
+    const auto supportedFeatures = g_Adapter.GetSupportedFeatures();
+    for (const auto* const feature : supportedFeatures) {
+      if (strcmp(feature, "texture-compression-bc") == 0) {
+        features.push_back(wgpu::FeatureName::TextureCompressionBC);
+      }
+    }
     const std::array enableToggles {
       /* clang-format off */
 #if _WIN32
@@ -297,11 +329,18 @@ void initialize(SDL_Window* window) {
     togglesDescriptor.forceEnabledToggles = enableToggles.data();
     const auto deviceDescriptor = wgpu::DeviceDescriptor{
         .nextInChain = &togglesDescriptor,
-        .requiredFeaturesCount = requiredFeatures.size(),
-        .requiredFeatures = requiredFeatures.data(),
+        .requiredFeaturesCount = static_cast<uint32_t>(features.size()),
+        .requiredFeatures = features.data(),
         .requiredLimits = &requiredLimits,
     };
-    g_device = wgpu::Device::Acquire(g_Adapter.CreateDevice(&deviceDescriptor));
+    bool deviceCallbackReceived = false;
+    g_Adapter.RequestDevice(&deviceDescriptor, &device_callback, &deviceCallbackReceived);
+    // while (!deviceCallbackReceived) {
+    //   TODO wgpuInstanceProcessEvents
+    // }
+    if (!g_device) {
+      return false;
+    }
     g_device.SetUncapturedErrorCallback(&error_callback, nullptr);
   }
   g_queue = g_device.GetQueue();
@@ -309,8 +348,7 @@ void initialize(SDL_Window* window) {
   g_BackendBinding =
       std::unique_ptr<utils::BackendBinding>(utils::CreateBinding(g_backendType, window, g_device.Get()));
   if (!g_BackendBinding) {
-    Log.report(logvisor::Fatal, FMT_STRING("Unsupported backend {}"), backendName);
-    unreachable();
+    return false;
   }
 
   auto swapChainFormat = static_cast<wgpu::TextureFormat>(g_BackendBinding->GetPreferredSwapChainTextureFormat());
@@ -341,9 +379,13 @@ void initialize(SDL_Window* window) {
     resize_swapchain(size.fb_width, size.fb_height);
     g_windowSize = size;
   }
+  return true;
 }
 
 void shutdown() {
+  g_CopyBindGroupLayout = {};
+  g_CopyPipeline = {};
+  g_CopyBindGroup = {};
   g_frameBuffer = {};
   g_frameBufferResolved = {};
   g_depthBuffer = {};

@@ -10,9 +10,6 @@
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Character/CModelData.hpp"
 #include "Runtime/Graphics/CLight.hpp"
-#include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
-#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
 

@@ -20,8 +20,8 @@ target_include_directories(aurora PRIVATE ../imgui ../extern/imgui)
 target_link_libraries(aurora PRIVATE dawn_native dawncpp webgpu_dawn zeus logvisor SDL2-static xxhash
     absl::btree absl::flat_hash_map)
 if (APPLE)
-  target_compile_definitions(aurora PRIVATE DAWN_ENABLE_BACKEND_METAL)
-  target_sources(aurora PRIVATE lib/dawn/MetalBinding.mm)
+  target_compile_definitions(aurora PRIVATE DAWN_ENABLE_BACKEND_METAL DAWN_ENABLE_BACKEND_VULKAN)
+  target_sources(aurora PRIVATE lib/dawn/MetalBinding.mm lib/dawn/VulkanBinding.cpp)
   set_source_files_properties(lib/dawn/MetalBinding.mm PROPERTIES COMPILE_FLAGS -fobjc-arc)
 elseif (WIN32)
   target_compile_definitions(aurora PRIVATE

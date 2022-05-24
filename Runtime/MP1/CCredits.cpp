@@ -198,20 +198,17 @@ CIOWin::EMessageReturn CCredits::ProcessUserInput(const CFinalInput& input) {
 }
 
 void CCredits::DrawVideo() {
-  if (x28_) {
-    /* Render movie */
-    x28_->Draw();
-    if (x5c_27_ || x5c_28_) {
-      float alpha = x58_ / g_tweakGui->x310_;
-      if (x5c_27_) {
-        alpha = 1.f - alpha;
-      }
-
-      alpha = zeus::clamp(0.f, alpha, 1.f);
-      zeus::CColor filterCol = zeus::skBlack;
-      filterCol.a() = alpha;
-      CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, filterCol, nullptr, 1.f);
+  /* Render movie */
+  if (x28_ && x28_->DrawVideo() && (x5c_27_ || x5c_28_)) {
+    float alpha = x58_ / g_tweakGui->x310_;
+    if (x5c_27_) {
+      alpha = 1.f - alpha;
     }
+
+    alpha = zeus::clamp(0.f, alpha, 1.f);
+    zeus::CColor filterCol = zeus::skBlack;
+    filterCol.a() = alpha;
+    CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, filterCol, nullptr, 1.f);
   }
 }
 

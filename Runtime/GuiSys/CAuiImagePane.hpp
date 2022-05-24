@@ -4,7 +4,6 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/rstl.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
 #include <zeus/CVector2f.hpp>

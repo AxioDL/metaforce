@@ -3,7 +3,6 @@
 #include <optional>
 
 #include "Runtime/GCNTypes.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 
 //#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
@@ -13,8 +12,8 @@
 namespace metaforce {
 
 class CWorldShadowShader {
-  aurora::gfx::TextureHandle m_tex;
-  std::optional<CTexturedQuadFilter> m_prevQuad;
+//  aurora::gfx::TextureHandle m_tex;
+//  std::optional<CTexturedQuadFilter> m_prevQuad;
   u32 m_w, m_h;
 
   struct Uniform {
@@ -40,7 +39,7 @@ public:
   u32 GetWidth() const { return m_w; }
   u32 GetHeight() const { return m_h; }
 
-  const aurora::gfx::TextureHandle& GetTexture() const { return m_tex; }
+//  const aurora::gfx::TextureHandle& GetTexture() const { return m_tex; }
 };
 
 } // namespace metaforce

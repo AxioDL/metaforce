@@ -31,15 +31,24 @@ struct TextureWithSampler {
   wgpu::Sampler sampler;
 };
 
+constexpr std::array PreferredBackendOrder{
 #ifdef DAWN_ENABLE_BACKEND_D3D12
-static const wgpu::BackendType preferredBackendType = wgpu::BackendType::D3D12;
-#elif DAWN_ENABLE_BACKEND_VULKAN
-static const wgpu::BackendType preferredBackendType = wgpu::BackendType::Vulkan;
-#elif DAWN_ENABLE_BACKEND_METAL
-static const wgpu::BackendType preferredBackendType = wgpu::BackendType::Metal;
-#else
-static const wgpu::BackendType preferredBackendType = wgpu::BackendType::OpenGL;
+    wgpu::BackendType::D3D12,
 #endif
+#ifdef DAWN_ENABLE_BACKEND_METAL
+    wgpu::BackendType::Metal,
+#endif
+#ifdef DAWN_ENABLE_BACKEND_VULKAN
+    wgpu::BackendType::Vulkan,
+#endif
+#ifdef DAWN_ENABLE_BACKEND_DESKTOP_GL
+    wgpu::BackendType::OpenGL,
+#endif
+#ifdef DAWN_ENABLE_BACKEND_OPENGLES
+    wgpu::BackendType::OpenGLES,
+#endif
+};
+
 extern wgpu::Device g_device;
 extern wgpu::Queue g_queue;
 extern wgpu::SwapChain g_swapChain;
@@ -51,7 +60,7 @@ extern TextureWithSampler g_depthBuffer;
 extern wgpu::RenderPipeline g_CopyPipeline;
 extern wgpu::BindGroup g_CopyBindGroup;
 
-void initialize(SDL_Window* window);
+bool initialize(SDL_Window* window, wgpu::BackendType backendType);
 void shutdown();
 void resize_swapchain(uint32_t width, uint32_t height);
 TextureWithSampler create_render_texture(bool multisampled);

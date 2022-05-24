@@ -355,9 +355,6 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   rect.x10_height = int(vpH);
   CGraphics::ResolveSpareTexture(rect, 0, GX::TF_RGB565);
 
-  // TODO hack; figure out why needed
-  CGraphics::SetCullMode(ERglCullMode::None);
-
   {
     SCOPED_GRAPHICS_DEBUG_GROUP("x64_scanDim Draw", zeus::skMagenta);
     x64_scanDim.Draw();

@@ -86,7 +86,7 @@ EQuitAction CQuitGameScreen::Update(float dt) {
 void CQuitGameScreen::Draw() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CQuitGameScreen::Draw", zeus::skPurple);
   if (x0_type == EQuitType::QuitGame) {
-    m_blackScreen->draw(zeus::CColor(0.f, 0.5f));
+    CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, zeus::CColor{0.f, 0.5f}, nullptr, 1.f);
   }
 
   if (x10_loadedFrame) {
@@ -111,10 +111,6 @@ void CQuitGameScreen::ProcessUserInput(const CFinalInput& input) {
   }
 }
 
-CQuitGameScreen::CQuitGameScreen(EQuitType tp) : x0_type(tp) {
-  x4_frame = g_SimplePool->GetObj("FRME_QuitScreen");
-  if (tp == EQuitType::QuitGame)
-    m_blackScreen.emplace(EFilterType::Blend);
-}
+CQuitGameScreen::CQuitGameScreen(EQuitType tp) : x0_type(tp) { x4_frame = g_SimplePool->GetObj("FRME_QuitScreen"); }
 
 } // namespace metaforce::MP1

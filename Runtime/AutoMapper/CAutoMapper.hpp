@@ -133,7 +133,6 @@ private:
   bool m_frmeInitialized = false;
   TLockedToken<CModel> x30_miniMapSamus;
   TLockedToken<CTexture> x3c_hintBeacon;
-  std::vector<CTexturedQuadFilter> m_hintBeaconFilters;
   rstl::reserved_vector<TLockedToken<CTexture>, 5> x48_mapIcons;
   CAssetId x74_areaHintDescId;
   TLockedToken<CStringTable> x78_areaHintDesc;

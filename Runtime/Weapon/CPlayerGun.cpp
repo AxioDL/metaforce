@@ -175,8 +175,6 @@ CPlayerGun::CPlayerGun(TUniqueId playerId)
   x550_camBob.SetPlayerVelocity(zeus::skZero3f);
   x550_camBob.SetBobMagnitude(0.f);
   x550_camBob.SetBobTimeScale(0.f);
-
-  m_aaboxShader.setAABB(x6c8_hologramClipCube);
 }
 
 void CPlayerGun::InitBeamData() {
@@ -2140,13 +2138,17 @@ void CPlayerGun::DrawScreenTex(float z) {
   // Use CopyScreenTex rendering to draw over framebuffer pixels in front of `z`
   // This is accomplished using orthographic projection quad with sweeping `y` coordinates
   // Depth is set to GEQUAL to obscure pixels in front rather than behind
-//  m_screenQuad.draw(zeus::skWhite, 1.f, CTexturedQuadFilter::DefaultRect, z);
+
+  // TODO
+  // m_screenQuad.draw(zeus::skWhite, 1.f, CTexturedQuadFilter::DefaultRect, z);
 }
 
 void CPlayerGun::DrawClipCube(const zeus::CAABox& aabb) {
   // Render AABB as completely transparent object, only modifying Z-buffer
   // AABB has already been set in constructor (since it's constant)
-  m_aaboxShader.draw(zeus::skClear);
+
+  // TODO
+  // m_aaboxShader.draw(zeus::skClear);
 }
 
 void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) {

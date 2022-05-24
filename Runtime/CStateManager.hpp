@@ -18,7 +18,6 @@
 #include "Runtime/Camera/CCameraManager.hpp"
 #include "Runtime/Camera/CCameraShakeData.hpp"
 #include "Runtime/GameObjectLists.hpp"
-#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Runtime/Input/CFinalInput.hpp"
 #include "Runtime/Input/CRumbleManager.hpp"
 #include "Runtime/Weapon/CWeaponMgr.hpp"
@@ -211,8 +210,6 @@ private:
   bool xf94_29_cinematicPause : 1 = false;
   bool xf94_30_fullThreat : 1 = false;
 
-  CColoredQuadFilter m_deathWhiteout{EFilterType::Add};
-  CColoredQuadFilter m_escapeWhiteout{EFilterType::Add};
   bool m_warping = false;
   std::map<TEditorId, std::set<SConnection>> m_incomingConnections;
 
@@ -258,11 +255,8 @@ public:
   void DrawAdditionalFilters();
   zeus::CFrustum SetupDrawFrustum(const SViewport& vp) const;
   zeus::CFrustum SetupViewForDraw(const SViewport& vp) const;
-  zeus::CFrustum SetupViewForCubeFaceDraw(const zeus::CVector3f& pos, int face) const;
   void ResetViewAfterDraw(const SViewport& backupViewport, const zeus::CTransform& backupViewMatrix) const;
   void DrawWorld();
-  void DrawActorCubeFaces(CActor& actor, int& cubeInst) const;
-  void DrawWorldCubeFaces() const;
   void SetupFogForArea3XRange(TAreaId area) const;
   void SetupFogForArea(TAreaId area) const;
   void SetupFogForAreaNonCurrent(TAreaId area) const;

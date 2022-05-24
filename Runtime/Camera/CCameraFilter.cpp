@@ -4,10 +4,6 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
-#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
-#include "Runtime/Graphics/Shaders/CRandomStaticFilter.hpp"
-#include "Runtime/Graphics/Shaders/CScanLinesFilter.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Runtime/Graphics/CGX.hpp"
 
 #include <algorithm>

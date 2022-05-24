@@ -98,6 +98,7 @@ if (NOT MSVC)
   target_compile_options(SDL2-static PRIVATE -Wno-implicit-fallthrough -Wno-shadow)
 endif ()
 
+set(DAWN_ENABLE_VULKAN ON CACHE BOOL "Enable compilation of the Vulkan backend" FORCE)
 add_subdirectory(../extern/dawn dawn EXCLUDE_FROM_ALL)
 if (DAWN_ENABLE_VULKAN)
   target_compile_definitions(dawn_native PRIVATE

@@ -125,6 +125,15 @@ extern wgpu::Buffer g_uniformBuffer;
 extern wgpu::Buffer g_indexBuffer;
 extern wgpu::Buffer g_storageBuffer;
 extern size_t g_staticStorageLastSize;
+struct TextureUpload {
+  wgpu::TextureDataLayout layout;
+  wgpu::ImageCopyTexture tex;
+  wgpu::Extent3D size;
+
+  TextureUpload(wgpu::TextureDataLayout layout, wgpu::ImageCopyTexture tex, wgpu::Extent3D size) noexcept
+  : layout(std::move(layout)), tex(std::move(tex)), size(std::move(size)) {}
+};
+extern std::vector<TextureUpload> g_textureUploads;
 // TODO this is a bad place for this...
 extern std::vector<TextureHandle> g_resolvedTextures;
 
@@ -210,6 +219,7 @@ template <typename T>
 static inline Range push_static_storage(const T& data) {
   return push_static_storage(reinterpret_cast<const uint8_t*>(&data), sizeof(T));
 }
+Range push_texture_data(const uint8_t* data, size_t length, u32 bytesPerRow, u32 rowsPerImage);
 std::pair<ByteBuffer, Range> map_verts(size_t length);
 std::pair<ByteBuffer, Range> map_indices(size_t length);
 std::pair<ByteBuffer, Range> map_uniform(size_t length);

@@ -3,7 +3,6 @@
 #include "Runtime/CIOWin.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 
 namespace metaforce {
 

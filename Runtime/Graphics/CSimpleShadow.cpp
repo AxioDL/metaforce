@@ -19,29 +19,40 @@ zeus::CAABox CSimpleShadow::GetMaxShadowBox(const zeus::CAABox& aabb) const {
 
 zeus::CAABox CSimpleShadow::GetBounds() const {
   float extent = x34_radius * x30_scale;
-  return {{x0_xf.origin.x() - extent, x0_xf.origin.y() - extent, x0_xf.origin.z() - extent},
-          {x0_xf.origin.x() + extent, x0_xf.origin.y() + extent, x0_xf.origin.z() + extent}};
+  return {
+      {x0_xf.origin.x() - extent, x0_xf.origin.y() - extent, x0_xf.origin.z() - extent},
+      {x0_xf.origin.x() + extent, x0_xf.origin.y() + extent, x0_xf.origin.z() + extent},
+  };
 }
 
-void CSimpleShadow::Render(const TLockedToken<CTexture>& tex) {
+void CSimpleShadow::Render(TLockedToken<CTexture>& tex) {
   if (!x48_24_collision)
     return;
   SCOPED_GRAPHICS_DEBUG_GROUP("CSimpleShadow::Render", zeus::skGrey);
 
   CGraphics::DisableAllLights();
   CGraphics::SetModelMatrix(x0_xf);
+  tex->Load(GX::TEXMAP0, EClampMode::Repeat);
 
-  //if (!m_filter || m_filter->GetTex().GetObj() != tex.GetObj())
-    //m_filter.emplace(EFilterType::InvDstMultiply, tex, CTexturedQuadFilter::ZTest::LEqual);
-
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+  CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
+  CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, false);
+  CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
+                          ERglLogicOp::Clear);
+  CGraphics::StreamBegin(GX::QUADS);
   float radius = x34_radius * x30_scale;
-  const std::array<CTexturedQuadFilter::Vert, 4> verts{{
-      {{-radius, 0.f, -radius}, {0.f, 0.f}},
-      {{radius, 0.f, -radius}, {0.f, 1.f}},
-      {{-radius, 0.f, radius}, {1.f, 0.f}},
-      {{radius, 0.f, radius}, {1.f, 1.f}},
-  }};
-  //m_filter->drawVerts(zeus::skWhite, verts);
+  float t = x3c_heightAlpha * x38_userAlpha;
+  CGraphics::StreamColor(zeus::CColor{t, t} /* TODO double check */);
+  CGraphics::StreamTexcoord(0.f, 0.f);
+  CGraphics::StreamVertex(-radius, 0.f, -radius);
+  CGraphics::StreamTexcoord(0.f, 1.f);
+  CGraphics::StreamVertex(radius, 0.f, -radius);
+  CGraphics::StreamTexcoord(1.f, 1.f);
+  CGraphics::StreamVertex(radius, 0.f, radius);
+  CGraphics::StreamTexcoord(1.f, 0.f);
+  CGraphics::StreamVertex(-radius, 0.f, radius);
+  CGraphics::StreamEnd();
 }
 
 void CSimpleShadow::Calculate(const zeus::CAABox& aabb, const zeus::CTransform& xf, const CStateManager& mgr) {

@@ -741,6 +741,19 @@ enum DistAttnFn {
 using GXColor = zeus::CColor;
 using GXBool = bool;
 
+struct GXColorS10 {
+  s16 r;
+  s16 g;
+  s16 b;
+  s16 a;
+
+  constexpr GXColorS10(u64 c) noexcept
+  : r(static_cast<s16>((c >> 48) & 0xFFFF))
+  , g(static_cast<s16>((c >> 32) & 0xFFFF))
+  , b(static_cast<s16>((c >> 16) & 0xFFFF))
+  , a(static_cast<s16>(c & 0xFFFF)) {}
+};
+
 enum GXTlutFmt {
   GX_TL_IA8 = 0x0,
   GX_TL_RGB565 = 0x1,
@@ -845,7 +858,9 @@ void GXSetCullMode(GX::CullMode mode) noexcept;
 void GXSetBlendMode(GX::BlendMode mode, GX::BlendFactor src, GX::BlendFactor dst, GX::LogicOp op) noexcept;
 void GXSetZMode(GXBool compare_enable, GX::Compare func, GXBool update_enable) noexcept;
 void GXSetTevColor(GX::TevRegID id, const GXColor& color) noexcept;
+void GXSetTevColorS10(GX::TevRegID id, const GXColorS10& color) noexcept;
 void GXSetTevKColor(GX::TevKColorID id, const GXColor& color) noexcept;
+void GXSetColorUpdate(GXBool enabled) noexcept;
 void GXSetAlphaUpdate(GXBool enabled) noexcept;
 void GXSetDstAlpha(GXBool enabled, u8 value) noexcept;
 void GXSetCopyClear(const GXColor& color, float depth) noexcept;
@@ -898,7 +913,7 @@ void GXInitTexObj(GXTexObj* obj, const void* data, u16 width, u16 height, GX::Te
                   GXTexWrapMode wrapT, GXBool mipmap) noexcept;
 // Addition for binding render textures
 void GXInitTexObjResolved(GXTexObj* obj, u32 bindIdx, GX::TextureFormat format, GXTexWrapMode wrapS,
-                          GXTexWrapMode wrapT);
+                          GXTexWrapMode wrapT, GXTlut tlut);
 void GXInitTexObjLOD(GXTexObj* obj, GXTexFilter minFilt, GXTexFilter magFilt, float minLod, float maxLod, float lodBias,
                      GXBool biasClamp, GXBool doEdgeLod, GXAnisotropy maxAniso) noexcept;
 void GXInitTexObjCI(GXTexObj* obj, void* data, u16 width, u16 height, GXCITexFmt format, GXTexWrapMode wrapS,
@@ -912,6 +927,7 @@ void GXSetTexCopyDst(u16 wd, u16 ht, GX::TextureFormat fmt, GXBool mipmap) noexc
 u32 GXGetTexBufferSize(u16 width, u16 height, u32 fmt, GXBool mips, u8 maxLod) noexcept;
 void GXCopyTex(void* dest, GXBool clear) noexcept;
 static inline void GXPixModeSync() noexcept {} // no-op
+void GXInvalidateTexAll() noexcept;
 void GXSetIndTexMtx(GX::IndTexMtxID id, const void* mtx /* Mat4x2<float> */, s8 scaleExp) noexcept;
 void GXSetTevIndirect(GX::TevStageID tevStage, GX::IndTexStageID indStage, GX::IndTexFormat fmt,
                       GX::IndTexBiasSel biasSel, GX::IndTexMtxID matrixSel, GX::IndTexWrap wrapS, GX::IndTexWrap wrapT,

@@ -682,16 +682,16 @@ void CCubeRenderer::SetPerspective(float fovy, float width, float height, float 
 std::pair<zeus::CVector2f, zeus::CVector2f> CCubeRenderer::SetViewportOrtho(bool centered, float znear, float zfar) {
   auto left = static_cast<float>(centered ? CGraphics::GetViewportLeft() - CGraphics::GetViewportHalfWidth()
                                           : CGraphics::GetViewportLeft());
-  auto top = static_cast<float>(centered ? CGraphics::GetViewportTop() - CGraphics::GetViewportHalfHeight()
-                                         : CGraphics::GetViewportHeight());
+  auto bottom = static_cast<float>(centered ? CGraphics::GetViewportTop() - CGraphics::GetViewportHalfHeight()
+                                            : CGraphics::GetViewportTop());
   auto right = static_cast<float>(CGraphics::GetViewportLeft() +
                                   (centered ? CGraphics::GetViewportWidth() / 2 : CGraphics::GetViewportWidth()));
-  auto bottom = static_cast<float>(CGraphics::GetViewportTop() +
-                                   (centered ? CGraphics::GetViewportHeight() / 2 : CGraphics::GetViewportHeight()));
+  auto top = static_cast<float>(CGraphics::GetViewportTop() +
+                                (centered ? CGraphics::GetViewportHeight() / 2 : CGraphics::GetViewportHeight()));
   CGraphics::SetOrtho(left, right, top, bottom, znear, zfar);
   CGraphics::SetViewPointMatrix({});
   CGraphics::SetModelMatrix({});
-  return {{left, top}, {right, bottom}};
+  return {{left, bottom}, {right, top}};
 }
 
 void CCubeRenderer::SetClippingPlanes(const zeus::CFrustum& frustum) { x44_frustumPlanes = frustum; }
@@ -896,6 +896,8 @@ void CCubeRenderer::SetThermal(bool thermal, float level, const zeus::CColor& co
 void CCubeRenderer::SetThermalColdScale(float scale) { x2f8_thermColdScale = zeus::clamp(0.f, scale, 1.f); }
 
 void CCubeRenderer::DoThermalBlendCold() {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CCubeRenderer::DoThermalBlendCold", zeus::skBlue);
+
   // Capture EFB
   x318_26_requestRGBA6 = true;
   GXSetAlphaUpdate(true);
@@ -908,12 +910,14 @@ void CCubeRenderer::DoThermalBlendCold() {
   // GXSetTexCopySrc(left, top, width, height);
   // GXSetTexCopyDst(width, height, GX::TF_I4, false);
   // GXCopyTex(sSpareTextureData, true);
-  CGraphics::ResolveSpareTexture(aurora::gfx::ClipRect{
-      .x = static_cast<int32_t>(left),
-      .y = static_cast<int32_t>(top),
-      .width = static_cast<int32_t>(width),
-      .height = static_cast<int32_t>(height),
-  }, 0, GX::TF_I4);
+  CGraphics::ResolveSpareTexture(
+      aurora::gfx::ClipRect{
+          .x = static_cast<int32_t>(left),
+          .y = static_cast<int32_t>(top),
+          .width = static_cast<int32_t>(width),
+          .height = static_cast<int32_t>(height),
+      },
+      0, GX::TF_I4);
   // CGraphics::LoadDolphinSpareTexture(width, height, GX::TF_I4, nullptr, GX::TEXMAP7);
   CGraphics::LoadDolphinSpareTexture(0, GX::TF_I4, GX::TEXMAP7);
 
@@ -1019,14 +1023,7 @@ void CCubeRenderer::DoThermalBlendCold() {
 }
 
 void CCubeRenderer::DoThermalBlendHot() {
-  CGX::SetNumIndStages(0);
-  CGX::SetTevDirect(GX::TEVSTAGE0);
-  GXSetAlphaUpdate(true);
-  //  CGraphics::SetProjectionState(backupProjectionState);
-  //  CGraphics::SetViewPointMatrix(backupViewMatrix);
-  CDecal::SetMoveRedToAlphaBuffer(false);
-  CElementGen::SetMoveRedToAlphaBuffer(false);
-  return; // TODO
+  SCOPED_GRAPHICS_DEBUG_GROUP("CCubeRenderer::DoThermalBlendHot", zeus::skRed);
 
   GXSetAlphaUpdate(false);
   GXSetDstAlpha(true, 0);
@@ -1041,7 +1038,7 @@ void CCubeRenderer::DoThermalBlendHot() {
   CGraphics::ResolveSpareTexture(CGraphics::g_Viewport, 0, GX::TF_I4);
   x288_thermoPalette.Load();
   // CGraphics::LoadDolphinSpareTexture(width, height, GX::TF_C4, GX::TLUT0, nullptr, GX::TEXMAP7);
-  CGraphics::LoadDolphinSpareTexture(0, GX::TF_C4, GX::TEXMAP7);
+  CGraphics::LoadDolphinSpareTexture(0, GX_TF_C4, GX_TLUT0, GX::TEXMAP7);
   CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_TEXA, GX::CC_TEXC, GX::CC_ZERO);
   CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_TEXA);
   CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
@@ -1080,7 +1077,14 @@ void CCubeRenderer::DoThermalBlendHot() {
   GXTexCoord2f32(1.f, 0.f);
   CGX::End();
 
-  // move prologue here
+  // Cleanup
+  CGX::SetNumIndStages(0);
+  CGX::SetTevDirect(GX::TEVSTAGE0);
+  GXSetAlphaUpdate(true);
+  CGraphics::SetProjectionState(backupProjectionState);
+  CGraphics::SetViewPointMatrix(backupViewMatrix);
+  CDecal::SetMoveRedToAlphaBuffer(false);
+  CElementGen::SetMoveRedToAlphaBuffer(false);
 }
 
 u32 CCubeRenderer::GetStaticWorldDataSize() {

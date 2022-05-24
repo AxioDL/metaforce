@@ -85,12 +85,15 @@ void CPauseScreenBlur::Update(float dt, const CStateManager& stateMgr, bool b) {
 void CPauseScreenBlur::Draw(const CStateManager&) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPauseScreenBlur::Draw", zeus::skPurple);
   x1c_camBlur.Draw(true);
+  CGraphics::DisableAllLights();
+  CGraphics::SetAmbientColor(zeus::skWhite);
   const float t = std::fabs(x18_blurAmt);
   if (x1c_camBlur.GetCurrType() != EBlurType::NoBlur) {
     const auto filterColor = zeus::CColor::lerp(zeus::skWhite, g_tweakGuiColors->GetPauseBlurFilterColor(), t);
-    m_quarterFilter.DrawFilter(EFilterShape::FullscreenQuarters, filterColor, t);
+    CCameraFilterPass::DrawFilter(EFilterType::Multiply, EFilterShape::FullscreenQuarters, filterColor,
+                                  x4_mapLightQuarter.GetObj(), t);
     const auto scanLinesColor = zeus::CColor::lerp(zeus::skWhite, zeus::CColor(0.75f, 1.f), t);
-    m_linesFilter.draw(scanLinesColor);
+    CCameraFilterPass::DrawFilter(EFilterType::Multiply, EFilterShape::ScanLinesEven, scanLinesColor, nullptr, t);
   }
 
   if (x50_24_blurring /*&& x1c_camBlur.x2d_noPersistentCopy*/) {

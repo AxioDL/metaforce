@@ -4,7 +4,6 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
-#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 
 namespace metaforce {
@@ -25,7 +24,7 @@ class CQuitGameScreen {
   CGuiFrame* x10_loadedFrame = nullptr;
   CGuiTableGroup* x14_tablegroup_quitgame = nullptr;
   EQuitAction x18_action = EQuitAction::None;
-  std::optional<CColoredQuadFilter> m_blackScreen;
+
   void SetColors();
 
 public:

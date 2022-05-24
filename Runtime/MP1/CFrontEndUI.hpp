@@ -11,8 +11,6 @@
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/Audio/CStaticAudioPlayer.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
-#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 #include "Runtime/Input/CRumbleGenerator.hpp"
 #include "Runtime/MP1/CGBASupport.hpp"

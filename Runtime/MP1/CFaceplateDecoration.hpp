@@ -4,7 +4,7 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
 
 namespace metaforce {
 class CStateManager;
@@ -15,7 +15,6 @@ class CFaceplateDecoration {
   CAssetId x0_id;
   TToken<CTexture> x4_tex;
   bool xc_ready = false;
-  std::optional<CTexturedQuadFilter> m_texFilter;
 
 public:
   explicit CFaceplateDecoration(CStateManager& stateMgr);

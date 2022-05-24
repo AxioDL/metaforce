@@ -166,9 +166,6 @@ class CSamusHud {
   std::array<float, 32> x72c_camZTweaks;
   rstl::reserved_vector<SProfileInfo, 15> x7ac_;
 
-  CColoredQuadFilter m_energyDrainFilter;
-  CCookieCutterDepthRandomStaticFilter m_cookieCutterStatic{EFilterType::NoColor};
-
   static CSamusHud* g_SamusHud;
   static rstl::reserved_vector<bool, 4> BuildPlayerHasVisors(const CStateManager& mgr);
   static rstl::reserved_vector<bool, 4> BuildPlayerHasBeams(const CStateManager& mgr);

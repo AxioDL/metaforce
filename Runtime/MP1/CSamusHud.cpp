@@ -12,6 +12,7 @@
 #include "Runtime/World/CGameLight.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CScriptTrigger.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -23,8 +24,7 @@ CSamusHud::CSamusHud(CStateManager& stateMgr)
 : x8_targetingMgr(stateMgr)
 , x258_frmeHelmet(g_SimplePool->GetObj("FRME_Helmet"))
 , x268_frmeBaseHud(g_SimplePool->GetObj("FRME_BaseHud"))
-, x2e0_27_energyLow(stateMgr.GetPlayer().IsEnergyLow(stateMgr))
-, m_energyDrainFilter(g_tweakGui->GetEnergyDrainFilterAdditive() ? EFilterType::Add : EFilterType::Blend) {
+, x2e0_27_energyLow(stateMgr.GetPlayer().IsEnergyLow(stateMgr)) {
   x33c_lights = std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 1, true, 0, 0, 0.1f);
   x340_hudLights.resize(3, SCachedHudLight(zeus::skZero3f, zeus::skWhite, 0.f, 0.f, 0.f, 0.f));
   x46c_.resize(3);
@@ -1387,7 +1387,8 @@ void CSamusHud::DrawAttachedEnemyEffect(const CStateManager& mgr) {
 
   zeus::CColor filterColor = g_tweakGuiColors->GetEnergyDrainFilterColor();
   filterColor.a() *= alpha;
-  m_energyDrainFilter.draw(filterColor);
+  EFilterType filterType = g_tweakGui->GetEnergyDrainFilterAdditive() ? EFilterType::Add : EFilterType::Blend;
+  CCameraFilterPass::DrawFilter(filterType, EFilterShape::Fullscreen, filterColor, nullptr, 1.f);
 }
 
 void CSamusHud::Draw(const CStateManager& mgr, float alpha, CInGameGuiManager::EHelmetVisMode helmetVis, bool hudVis,
@@ -1408,7 +1409,8 @@ void CSamusHud::Draw(const CStateManager& mgr, float alpha, CInGameGuiManager::E
   if (helmetVis != CInGameGuiManager::EHelmetVisMode::ReducedUpdate &&
       helmetVis < CInGameGuiManager::EHelmetVisMode::HelmetOnly) {
     if (alpha < 1.f) {
-      m_cookieCutterStatic.draw(zeus::skWhite, 1.f - alpha);
+      CCameraFilterPass::DrawFilter(EFilterType::NoColor, EFilterShape::CookieCutterDepthRandomStatic, zeus::skWhite,
+                                    nullptr, 1.f - alpha);
     }
 
     if (x288_loadedSelectedHud) {
@@ -1447,8 +1449,10 @@ void CSamusHud::Draw(const CStateManager& mgr, float alpha, CInGameGuiManager::E
       }
       x2ac_radarIntf->Draw(mgr, t * alpha);
     }
-    // Depth read/write enable
+    g_Renderer->SetDepthReadWrite(true, true);
   }
+
+  // TODO timer stuff?
 }
 
 void CSamusHud::DrawHelmet(const CStateManager& mgr, float camYOff) {

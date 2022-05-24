@@ -36,23 +36,25 @@ void CScanDisplay::CDataDot::Update(float dt) {
 }
 
 void CScanDisplay::CDataDot::Draw(const zeus::CColor& col, float radius) {
-  if (x24_alpha == 0.f) {
+  if (x24_alpha == 0.f || x0_dotState == EDotState::Hidden) {
     return;
   }
 
-  if (x0_dotState != EDotState::Hidden) {
-    const zeus::CTransform xf = zeus::CTransform::Translate(xc_curPos.x(), 0.f, xc_curPos.y());
-    CGraphics::SetModelMatrix(xf);
-    zeus::CColor useColor = col;
-    useColor.a() *= x24_alpha;
-    const std::array<CTexturedQuadFilter::Vert, 4> verts{{
-        {{-radius, 0.f, radius}, {0.f, 1.f}},
-        {{-radius, 0.f, -radius}, {0.f, 0.f}},
-        {{radius, 0.f, radius}, {1.f, 1.f}},
-        {{radius, 0.f, -radius}, {1.f, 0.f}},
-    }};
-    m_quad.drawVerts(useColor, verts);
-  }
+  const zeus::CTransform xf = zeus::CTransform::Translate(xc_curPos.x(), 0.f, xc_curPos.y());
+  g_Renderer->SetModelMatrix(xf);
+  CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+  zeus::CColor useColor = col;
+  useColor.a() *= x24_alpha;
+  CGraphics::StreamColor(useColor);
+  CGraphics::StreamTexcoord(0.f, 1.f);
+  CGraphics::StreamVertex(-radius, 0.f, radius);
+  CGraphics::StreamTexcoord(0.f, 0.f);
+  CGraphics::StreamVertex(-radius, 0.f, -radius);
+  CGraphics::StreamTexcoord(1.f, 1.f);
+  CGraphics::StreamVertex(radius, 0.f, radius);
+  CGraphics::StreamTexcoord(1.f, 0.f);
+  CGraphics::StreamVertex(radius, 0.f, -radius);
+  CGraphics::StreamEnd();
 }
 
 void CScanDisplay::CDataDot::StartTransitionTo(const zeus::CVector2f& vec, float dur) {
@@ -444,10 +446,13 @@ void CScanDisplay::Draw() {
   if (!x0_dataDot.IsLoaded()) {
     return;
   }
+  SCOPED_GRAPHICS_DEBUG_GROUP("CScanDisplay::Draw", zeus::skGreen);
 
-  // No Z-test or write
+  g_Renderer->SetDepthReadWrite(false, false);
   g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
-  // Additive alpha
+  g_Renderer->SetBlendMode_AdditiveAlpha();
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+  x0_dataDot->Load(GX::TEXMAP0, EClampMode::Repeat);
 
   const float vpRatio = CGraphics::GetViewportHeight() / 480.f;
   for (CDataDot& dot : xbc_dataDots) {

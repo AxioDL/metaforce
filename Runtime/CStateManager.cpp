@@ -623,7 +623,7 @@ void CStateManager::DrawE3DeathEffect() {
   const float whiteAmt = zeus::clamp(0.f, 1.f - player.x9f4_deathTime / (0.05f * 6.f), 1.f);
   zeus::CColor color = zeus::skWhite;
   color.a() = whiteAmt;
-  m_deathWhiteout.draw(color);
+  CCameraFilterPass::DrawFilter(EFilterType::Add, EFilterShape::Fullscreen, color, nullptr, 1.f);
 }
 
 void CStateManager::DrawAdditionalFilters() {
@@ -633,7 +633,7 @@ void CStateManager::DrawAdditionalFilters() {
 
   zeus::CColor color = zeus::skWhite;
   color.a() = 1.f - xf0c_escapeTimer;
-  m_escapeWhiteout.draw(color);
+  CCameraFilterPass::DrawFilter(EFilterType::Add, EFilterShape::Fullscreen, color, nullptr, 1.f);
 }
 
 zeus::CFrustum CStateManager::SetupDrawFrustum(const SViewport& vp) const {
@@ -674,29 +674,10 @@ zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const {
   proj.setPersp(zeus::SProjPersp{fov, width / height, cam->GetNearClipDistance(), cam->GetFarClipDistance()});
   frustum.updatePlanes(camXf, proj);
   g_Renderer->SetClippingPlanes(frustum);
-  // g_Renderer->PrimColor(zeus::skWhite);
+  g_Renderer->PrimColor(zeus::skWhite);
   CGraphics::SetModelMatrix(zeus::CTransform());
   x87c_fluidPlaneManager->StartFrame(false);
   g_Renderer->SetDebugOption(IRenderer::EDebugOption::PVSState, int(EPVSVisSetState::NodeFound));
-  return frustum;
-}
-
-zeus::CFrustum CStateManager::SetupViewForCubeFaceDraw(const zeus::CVector3f& pos, int face) const {
-  const zeus::CTransform mainCamXf = x870_cameraManager->GetCurrentCameraTransform(*this);
-  const zeus::CTransform camXf = zeus::CTransform(mainCamXf.basis * CGraphics::skCubeBasisMats[face], pos);
-  g_Renderer->SetWorldViewpoint(camXf);
-  CCubeModel::SetNewPlayerPositionAndTime(x84c_player->GetTranslation(), CStopwatch::GetGlobalTimerObj());
-  constexpr float width = CUBEMAP_RES;
-  g_Renderer->SetViewport(0, 0, width, width);
-  CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
-  constexpr float fov = zeus::degToRad(90.f);
-  g_Renderer->SetPerspective(zeus::radToDeg(fov), width, width, 0.2f, 750.f);
-  zeus::CFrustum frustum;
-  zeus::CProjection proj;
-  proj.setPersp(zeus::SProjPersp{fov, 1.f, 0.2f, 750.f});
-  frustum.updatePlanes(camXf, proj);
-  g_Renderer->SetClippingPlanes(frustum);
-  CGraphics::SetModelMatrix(zeus::CTransform());
   return frustum;
 }
 
@@ -724,8 +705,6 @@ void CStateManager::DrawWorld() {
   const TAreaId visAreaId = GetVisAreaId();
 
   x850_world->TouchSky();
-
-  DrawWorldCubeFaces();
 
   const zeus::CFrustum frustum = SetupViewForDraw(CGraphics::g_Viewport);
   const zeus::CTransform backupViewMatrix = CGraphics::g_ViewMatrix;
@@ -981,120 +960,6 @@ void CStateManager::DrawWorld() {
   ResetViewAfterDraw(backupViewport, backupViewMatrix);
   DrawE3DeathEffect();
   DrawAdditionalFilters();
-}
-
-void CStateManager::DrawActorCubeFaces(CActor& actor, int& cubeInst) const {
-  //  if (!actor.m_reflectionCube ||
-  //      (!TCastToPtr<CPlayer>(actor) && (!actor.GetActive() || !actor.IsDrawEnabled() || actor.xe4_30_outOfFrustum)))
-  //    return;
-  //
-  //  const TAreaId visAreaId = actor.GetAreaIdAlways();
-  //  const SViewport backupVp = g_Viewport;
-  //
-  //  int areaCount = 0;
-  //  std::array<const CGameArea*, 10> areaArr;
-  //  for (const CGameArea& area : *x850_world) {
-  //    if (areaCount == 10) {
-  //      break;
-  //    }
-  //    auto occState = CGameArea::EOcclusionState::Occluded;
-  //    if (area.IsPostConstructed()) {
-  //      occState = area.GetOcclusionState();
-  //    }
-  //    if (occState == CGameArea::EOcclusionState::Visible) {
-  //      areaArr[areaCount++] = &area;
-  //    }
-  //  }
-  //
-  //  for (int f = 0; f < 6; ++f) {
-  //    SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CStateManager::DrawActorCubeFaces [{}] {} {} {}"), f,
-  //                                            actor.GetUniqueId(), actor.GetEditorId(), actor.GetName())
-  //                                    .c_str(),
-  //                                zeus::skOrange);
-  //    CGraphics::g_BooMainCommandQueue->setRenderTarget(actor.m_reflectionCube, f);
-  //    SetupViewForCubeFaceDraw(actor.GetRenderBounds().center(), f);
-  //    CGraphics::g_BooMainCommandQueue->clearTarget();
-  //
-  //    std::sort(areaArr.begin(), areaArr.begin() + areaCount, [visAreaId](const CGameArea* a, const CGameArea* b) {
-  //      if (a->x4_selfIdx == b->x4_selfIdx) {
-  //        return false;
-  //      }
-  //      if (visAreaId == a->x4_selfIdx) {
-  //        return false;
-  //      }
-  //      if (visAreaId == b->x4_selfIdx) {
-  //        return true;
-  //      }
-  //      return CGraphics::g_ViewPoint.dot(a->GetAABB().center()) > CGraphics::g_ViewPoint.dot(b->GetAABB().center());
-  //    });
-  //
-  //    int pvsCount = 0;
-  //    std::array<CPVSVisSet, 10> pvsArr;
-  //    for (auto area = areaArr.cbegin(); area != areaArr.cbegin() + areaCount; ++area) {
-  //      const CGameArea* areaPtr = *area;
-  //      CPVSVisSet& pvsSet = pvsArr[pvsCount++];
-  //      pvsSet.Reset(EPVSVisSetState::OutOfBounds);
-  //      GetVisSetForArea(areaPtr->x4_selfIdx, visAreaId, pvsSet);
-  //    }
-  //
-  //    for (int i = areaCount - 1; i >= 0; --i) {
-  //      const CGameArea& area = *areaArr[i];
-  //      SetupFogForArea(area);
-  //      g_Renderer->EnablePVS(pvsArr[i], area.x4_selfIdx);
-  //      g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
-  //      g_Renderer->UpdateAreaUniforms(area.x4_selfIdx, EWorldShadowMode::None, true, cubeInst * 6 + f);
-  //      g_Renderer->DrawUnsortedGeometry(area.x4_selfIdx, 0x2, 0x0);
-  //    }
-  //
-  //    if (!SetupFogForDraw()) {
-  //      g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
-  //    }
-  //
-  //    x850_world->DrawSky(zeus::CTransform::Translate(CGraphics::g_ViewPoint));
-  //
-  //    for (int i = 0; i < areaCount; ++i) {
-  //      const CGameArea& area = *areaArr[i];
-  //      CPVSVisSet& pvs = pvsArr[i];
-  //      SetupFogForArea(area);
-  //      g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
-  //      g_Renderer->EnablePVS(pvs, area.x4_selfIdx);
-  //      g_Renderer->DrawSortedGeometry(area.x4_selfIdx, 0x2, 0x0);
-  //    }
-  //  }
-  //
-  //  CGraphics::g_BooMainCommandQueue->generateMipmaps(actor.m_reflectionCube);
-  //
-  //  CBooRenderer::BindMainDrawTarget();
-  //  g_Renderer->SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
-  //
-  //  ++cubeInst;
-}
-
-void CStateManager::DrawWorldCubeFaces() const {
-  size_t areaCount = 0;
-  std::array<const CGameArea*, 10> areaArr;
-  for (const CGameArea& area : *x850_world) {
-    if (areaCount == areaArr.size()) {
-      break;
-    }
-    auto occState = CGameArea::EOcclusionState::Occluded;
-    if (area.IsPostConstructed()) {
-      occState = area.GetOcclusionState();
-    }
-    if (occState == CGameArea::EOcclusionState::Visible) {
-      areaArr[areaCount++] = &area;
-    }
-  }
-
-  for (size_t ai = 0; ai < areaCount; ++ai) {
-    const CGameArea& area = *areaArr[ai];
-    int cubeInst = 0;
-    for (CEntity* ent : *area.GetAreaObjects()) {
-      if (const TCastToPtr<CActor> actor = ent) {
-        DrawActorCubeFaces(*actor, cubeInst);
-      }
-    }
-  }
 }
 
 void CStateManager::SetupFogForArea3XRange(TAreaId area) const {
@@ -2490,7 +2355,7 @@ void CStateManager::FrameBegin(s32 frameCount) {
   x8d4_inputFrameIdx = frameCount;
   CTexture::SetCurrentFrameCount(frameCount);
   CGraphicsPalette::SetCurrentFrameCount(frameCount);
-  //SwapOutTexturesToARAM(2, 0x180000);
+  // SwapOutTexturesToARAM(2, 0x180000);
 }
 
 void CStateManager::InitializeState(CAssetId mlvlId, TAreaId aid, CAssetId mreaId) {

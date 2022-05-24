@@ -1386,44 +1386,29 @@ void CThardus::RenderFlare(const CStateManager& mgr, float t) {
   if (!x91c_flareTexture) {
     return;
   }
-
-  if (!m_flareFilter) {
-    m_flareFilter.emplace(EFilterType::Add, x91c_flareTexture);
-  }
+  x91c_flareTexture->Load(GX::TEXMAP0, EClampMode::Repeat);
 
   const float scale = 30.f * t;
   zeus::CVector3f offset = scale * CGraphics::g_ViewMatrix.basis[2];
   zeus::CVector3f max = x92c_currentRockPos + (scale * CGraphics::g_ViewMatrix.basis[0]);
   zeus::CVector3f min = x92c_currentRockPos - (scale * CGraphics::g_ViewMatrix.basis[0]);
-  CGraphics::SetModelMatrix(zeus::CTransform());
-  const std::array<CTexturedQuadFilter::Vert, 4> verts{{
-      {{max.x() + offset.x(), max.y() + offset.y(), max.z() + offset.z()}, {0.f, 1.f}},
-      {{min.x() + offset.x(), min.y() + offset.y(), min.z() + offset.z()}, {0.f, 0.f}},
-      {{max.x() - offset.x(), max.y() - offset.y(), max.z() - offset.z()}, {1.f, 1.f}},
-      {{min.x() - offset.x(), min.y() - offset.y(), min.z() - offset.z()}, {1.f, 0.f}},
-  }};
-
-  m_flareFilter->drawVerts({t, t}, verts);
-}
-
-#if 0
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  CGraphics::SetModelMatrix({});
   CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::One, ERglLogicOp::Clear);
-  CGraphics::SetTevOp(0, CGraphics::sTevPass805a5ebc);
-  CGraphics::SetTevOp(1, CGraphics::skPassThru);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
   CGraphics::SetDepthWriteMode(false, ERglEnum::Always, false);
-  CGraphics::StreamColor(zeus::CColor(f1, f1));
-  CGraphics::StreamBegin(0xa0);
-  CGraphics::StreamTexCoord(0.f, 0.f);
+  CGraphics::StreamColor({t, t});
+  CGraphics::StreamBegin(GX::TRIANGLEFAN);
+  CGraphics::StreamTexcoord(0.f, 0.f);
   CGraphics::StreamVertex(min + offset);
-  CGraphics::StreamTexCoord(1.f, 0.f);
+  CGraphics::StreamTexcoord(1.f, 0.f);
   CGraphics::StreamVertex(min - offset);
-  CGraphics::StreamTexCoord(1.f, 1.f);
+  CGraphics::StreamTexcoord(1.f, 1.f);
   CGraphics::StreamVertex(max - offset);
-  CGraphics::StreamTexCoord(0.f, 1.f);
+  CGraphics::StreamTexcoord(0.f, 1.f);
   CGraphics::StreamVertex(max + offset);
   CGraphics::StreamEnd();
-#endif
+}
 
 zeus::CVector3f CThardus::sub801de550(CStateManager& mgr) {
 
