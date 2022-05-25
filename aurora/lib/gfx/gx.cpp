@@ -891,12 +891,22 @@ void populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive) n
   }
   config.shaderConfig.tevStageCount = g_gxState.numTevStages;
   for (u8 i = 0; i < g_gxState.numChans; ++i) {
-    config.shaderConfig.colorChannels[i] = g_gxState.colorChannelConfig[i];
+    const auto& cc = g_gxState.colorChannelConfig[i];
+    if (g_gxState.colorChannelState[i].lightState.any() && cc.lightingEnabled) {
+      config.shaderConfig.colorChannels[i] = cc;
+    } else {
+      // Only matSrc matters when lighting disabled
+      config.shaderConfig.colorChannels[i] = {
+          .matSrc = cc.matSrc,
+      };
+    }
   }
   for (u8 i = 0; i < g_gxState.numTexGens; ++i) {
     config.shaderConfig.tcgs[i] = g_gxState.tcgs[i];
   }
-  config.shaderConfig.alphaCompare = g_gxState.alphaCompare;
+  if (g_gxState.alphaCompare) {
+    config.shaderConfig.alphaCompare = g_gxState.alphaCompare;
+  }
   config.shaderConfig.indexedAttributeCount =
       std::count_if(config.shaderConfig.vtxAttrs.begin(), config.shaderConfig.vtxAttrs.end(),
                     [](const auto type) { return type == GX::INDEX8 || type == GX::INDEX16; });
@@ -904,8 +914,12 @@ void populate_pipeline_config(PipelineConfig& config, GX::Primitive primitive) n
     const auto& bind = g_gxState.textures[i];
     TextureConfig texConfig{};
     if (bind.texObj.ref) {
-      texConfig.copyFmt = bind.texObj.ref->gxFormat;
-      texConfig.loadFmt = bind.texObj.fmt;
+      if (requires_copy_conversion(bind.texObj)) {
+        texConfig.copyFmt = bind.texObj.ref->gxFormat;
+      }
+      if (requires_load_conversion(bind.texObj)) {
+        texConfig.loadFmt = bind.texObj.fmt;
+      }
       texConfig.renderTex = bind.texObj.ref->isRenderTexture;
     }
     config.shaderConfig.textureConfig[i] = texConfig;
@@ -934,8 +948,8 @@ Range build_uniform(const ShaderInfo& info) noexcept {
     buf.append(&g_gxState.mvInv, 64);
     buf.append(&g_gxState.proj, 64);
   }
-  for (int i = 0; i < info.usesTevReg.size(); ++i) {
-    if (!info.usesTevReg.test(i)) {
+  for (int i = 0; i < info.loadsTevReg.size(); ++i) {
+    if (!info.loadsTevReg.test(i)) {
       continue;
     }
     buf.append(&g_gxState.colorRegs[i], 16);
@@ -950,6 +964,9 @@ Range build_uniform(const ShaderInfo& info) noexcept {
     if (g_gxState.colorChannelConfig[i].lightingEnabled) {
       int addedLights = 0;
       const auto& lightState = g_gxState.colorChannelState[i].lightState;
+      u32 state = lightState.to_ulong();
+      buf.append(&lightState, sizeof(u32));
+      buf.append_zeroes(12); // alignment
       for (int li = 0; li < lightState.size(); ++li) {
         if (!lightState.test(li)) {
           continue;

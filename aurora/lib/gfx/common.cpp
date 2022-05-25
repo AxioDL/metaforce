@@ -754,8 +754,7 @@ const wgpu::Sampler& sampler_ref(const wgpu::SamplerDescriptor& descriptor) {
 }
 
 uint32_t align_uniform(uint32_t value) {
-  const auto uniform_alignment = g_cachedLimits.limits.minUniformBufferOffsetAlignment;
-  return ALIGN(value, uniform_alignment);
+  return ALIGN(value, g_cachedLimits.limits.minUniformBufferOffsetAlignment);
 }
 
 void push_debug_group(zstring_view label) noexcept {

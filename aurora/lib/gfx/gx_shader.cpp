@@ -7,6 +7,7 @@
 
 constexpr bool EnableNormalVisualization = false;
 constexpr bool EnableDebugPrints = true;
+constexpr bool UsePerPixelLighting = true;
 
 namespace aurora::gfx::gx {
 using namespace fmt::literals;
@@ -36,25 +37,25 @@ static void color_arg_reg_info(GX::TevColorArg arg, const TevStage& stage, Shade
   case GX::CC_CPREV:
   case GX::CC_APREV:
     if (!info.writesTevReg.test(GX::TEVPREV)) {
-      info.usesTevReg.set(GX::TEVPREV);
+      info.loadsTevReg.set(GX::TEVPREV);
     }
     break;
   case GX::CC_C0:
   case GX::CC_A0:
     if (!info.writesTevReg.test(GX::TEVREG0)) {
-      info.usesTevReg.set(GX::TEVREG0);
+      info.loadsTevReg.set(GX::TEVREG0);
     }
     break;
   case GX::CC_C1:
   case GX::CC_A1:
     if (!info.writesTevReg.test(GX::TEVREG1)) {
-      info.usesTevReg.set(GX::TEVREG1);
+      info.loadsTevReg.set(GX::TEVREG1);
     }
     break;
   case GX::CC_C2:
   case GX::CC_A2:
     if (!info.writesTevReg.test(GX::TEVREG2)) {
-      info.usesTevReg.set(GX::TEVREG2);
+      info.loadsTevReg.set(GX::TEVREG2);
     }
     break;
   case GX::CC_TEXC:
@@ -299,22 +300,22 @@ static void alpha_arg_reg_info(GX::TevAlphaArg arg, const TevStage& stage, Shade
   switch (arg) {
   case GX::CA_APREV:
     if (!info.writesTevReg.test(GX::TEVPREV)) {
-      info.usesTevReg.set(GX::TEVPREV);
+      info.loadsTevReg.set(GX::TEVPREV);
     }
     break;
   case GX::CA_A0:
     if (!info.writesTevReg.test(GX::TEVREG0)) {
-      info.usesTevReg.set(GX::TEVREG0);
+      info.loadsTevReg.set(GX::TEVREG0);
     }
     break;
   case GX::CA_A1:
     if (!info.writesTevReg.test(GX::TEVREG1)) {
-      info.usesTevReg.set(GX::TEVREG1);
+      info.loadsTevReg.set(GX::TEVREG1);
     }
     break;
   case GX::CA_A2:
     if (!info.writesTevReg.test(GX::TEVREG2)) {
-      info.usesTevReg.set(GX::TEVREG2);
+      info.loadsTevReg.set(GX::TEVREG2);
     }
     break;
   case GX::CA_TEXA:
@@ -636,16 +637,16 @@ ShaderInfo build_shader_info(const ShaderConfig& config) noexcept {
     if (!info.writesTevReg.test(stage.alphaOp.outReg)) {
       // If we're writing alpha to a register that's not been
       // written to in the shader, load from uniform buffer
-      info.usesTevReg.set(stage.alphaOp.outReg);
+      info.loadsTevReg.set(stage.alphaOp.outReg);
       info.writesTevReg.set(stage.alphaOp.outReg);
     }
   }
-  info.uniformSize += info.usesTevReg.count() * 16;
+  info.uniformSize += info.loadsTevReg.count() * 16;
   for (int i = 0; i < info.sampledColorChannels.size(); ++i) {
     if (info.sampledColorChannels.test(i)) {
       info.uniformSize += 32;
       if (config.colorChannels[i].lightingEnabled) {
-        info.uniformSize += (80 * GX::MaxLights);
+        info.uniformSize += 16 + (80 * GX::MaxLights);
       }
     }
   }
@@ -883,7 +884,8 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
       if (stage.colorOp.clamp) {
         op = fmt::format(FMT_STRING("clamp({}, vec3<f32>(0.0), vec3<f32>(1.0))"), op);
       }
-      fragmentFn += fmt::format(FMT_STRING("\n    // TEV stage {2}\n    {0} = vec4<f32>({1}, {0}.a);"), outReg, op, idx);
+      fragmentFn +=
+          fmt::format(FMT_STRING("\n    // TEV stage {2}\n    {0} = vec4<f32>({1}, {0}.a);"), outReg, op, idx);
     }
     {
       std::string outReg;
@@ -914,14 +916,14 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
       fragmentFn += fmt::format(FMT_STRING("\n    {0} = {1};"), outReg, op);
     }
   }
-  if (info.usesTevReg.test(0)) {
+  if (info.loadsTevReg.test(0)) {
     uniBufAttrs += "\n    tevprev: vec4<f32>,";
     fragmentFnPre += "\n    var prev = ubuf.tevprev;";
   } else {
     fragmentFnPre += "\n    var prev: vec4<f32>;";
   }
-  for (int i = 1 /* Skip TEVPREV */; i < info.usesTevReg.size(); ++i) {
-    if (info.usesTevReg.test(i)) {
+  for (int i = 1 /* Skip TEVPREV */; i < info.loadsTevReg.size(); ++i) {
+    if (info.loadsTevReg.test(i)) {
       uniBufAttrs += fmt::format(FMT_STRING("\n    tevreg{}: vec4<f32>,"), i - 1);
       fragmentFnPre += fmt::format(FMT_STRING("\n    var tevreg{0} = ubuf.tevreg{0};"), i - 1);
     } else if (info.writesTevReg.test(i)) {
@@ -949,11 +951,18 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
             "    cos_att: vec3<f32>,\n"
             "    dist_att: vec3<f32>,\n"
             "};";
+        if (UsePerPixelLighting) {
+          vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) mv_pos: vec3<f32>,"), vtxOutIdx++);
+          vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) mv_nrm: vec3<f32>,"), vtxOutIdx++);
+          vtxXfrAttrs += fmt::format(FMT_STRING(R"""(
+    out.mv_pos = mv_pos;
+    out.mv_nrm = mv_nrm;)"""));
+        }
         addedLightStruct = true;
       }
 
+      uniBufAttrs += fmt::format(FMT_STRING("\n    lightState{}: u32,"), i);
       uniBufAttrs += fmt::format(FMT_STRING("\n    lights{}: array<Light, {}>,"), i, GX::MaxLights);
-      vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>,"), vtxOutIdx++, i);
 
       std::string ambSrc, matSrc, lightAttnFn, lightDiffFn;
       if (cc.ambSrc == GX::SRC_VTX) {
@@ -982,16 +991,33 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
       if (diffFn == GX::DF_NONE) {
         lightDiffFn = "1.0";
       } else if (diffFn == GX::DF_SIGN) {
-        lightDiffFn = "dot(ldir, mv_nrm)";
+        if (UsePerPixelLighting) {
+          lightDiffFn = "dot(ldir, in.mv_nrm)";
+        } else {
+          lightDiffFn = "dot(ldir, mv_nrm)";
+        }
       } else if (diffFn == GX::DF_CLAMP) {
-        lightDiffFn = "max(0.0, dot(ldir, mv_nrm))";
+        if (UsePerPixelLighting) {
+          lightDiffFn = "max(0.0, dot(ldir, in.mv_nrm))";
+        } else {
+          lightDiffFn = "max(0.0, dot(ldir, mv_nrm))";
+        }
       }
-      vtxXfrAttrs += fmt::format(FMT_STRING(R"""(
+      std::string outVar, posVar;
+      if (UsePerPixelLighting) {
+        outVar = fmt::format(FMT_STRING("rast{}"), i);
+        posVar = "in.mv_pos";
+      } else {
+        outVar = fmt::format(FMT_STRING("out.cc{}"), i);
+        posVar = "mv_pos";
+      }
+      auto lightFunc = fmt::format(FMT_STRING(R"""(
     {{
       var lighting = {5};
-      for (var i = 0; i < {1}; i = i + 1) {{
+      for (var i = 0u; i < {1}u; i++) {{
+          if ((ubuf.lightState{0} & (1u << i)) == 0u) {{ continue; }}
           var light = ubuf.lights{0}[i];
-          var ldir = light.pos - mv_pos;
+          var ldir = light.pos - {7};
           var dist2 = dot(ldir, ldir);
           var dist = sqrt(dist2);
           ldir = ldir / dist;
@@ -999,10 +1025,17 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
           var diff = {3};
           lighting = lighting + (attn * diff * light.color);
       }}
-      out.cc{0} = {4} * clamp(lighting, vec4<f32>(0.0), vec4<f32>(1.0));
+      {6} = {4} * clamp(lighting, vec4<f32>(0.0), vec4<f32>(1.0));
     }})"""),
-                                 i, GX::MaxLights, lightAttnFn, lightDiffFn, matSrc, ambSrc);
-      fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
+                                   i, GX::MaxLights, lightAttnFn, lightDiffFn, matSrc, ambSrc, outVar, posVar);
+      if (UsePerPixelLighting) {
+        fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{}: vec4<f32>;"), i);
+        fragmentFnPre += lightFunc;
+      } else {
+        vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>,"), vtxOutIdx++, i);
+        vtxXfrAttrs += lightFunc;
+        fragmentFnPre += fmt::format(FMT_STRING("\n    var rast{0} = in.cc{0};"), i);
+      }
     } else if (cc.matSrc == GX::SRC_VTX) {
       vtxOutAttrs += fmt::format(FMT_STRING("\n    @location({}) cc{}: vec4<f32>,"), vtxOutIdx++, i);
       vtxXfrAttrs += fmt::format(FMT_STRING("\n    out.cc{} = {};"), i, vtx_attr(config, GX::Attr(GX::VA_CLR0 + i)));

@@ -80,9 +80,7 @@ struct TextureBind {
 
   TextureBind() noexcept = default;
   TextureBind(GXTexObj obj) noexcept : texObj(std::move(obj)) {}
-  void reset() noexcept {
-    texObj.ref.reset();
-  };
+  void reset() noexcept { texObj.ref.reset(); };
   [[nodiscard]] wgpu::SamplerDescriptor get_descriptor() const noexcept;
   operator bool() const noexcept { return texObj.ref.operator bool(); }
 };
@@ -144,7 +142,7 @@ struct AlphaCompare {
   GX::Compare comp1 = GX::ALWAYS;
   u32 ref1;
   bool operator==(const AlphaCompare& other) const = default;
-  operator bool() const { return *this != AlphaCompare{}; }
+  operator bool() const { return comp0 != GX::ALWAYS || comp1 != GX::ALWAYS; }
 };
 static_assert(std::has_unique_object_representations_v<AlphaCompare>);
 struct IndTexMtxInfo {
@@ -202,6 +200,41 @@ static inline Mat4x4<float> get_combined_matrix() noexcept { return g_gxState.pr
 void shutdown() noexcept;
 const TextureBind& get_texture(GX::TexMapID id) noexcept;
 
+static inline bool requires_copy_conversion(const GXTexObj& obj) {
+  if (!obj.ref) {
+    return false;
+  }
+  if (obj.ref->isRenderTexture) {
+    return true;
+  }
+  switch (obj.ref->gxFormat) {
+    // case GX::TF_RGB565:
+    // case GX::TF_I4:
+    // case GX::TF_I8:
+  case GX::TF_C4:
+  case GX::TF_C8:
+  case GX::TF_C14X2:
+    return true;
+  default:
+    return false;
+  }
+}
+static inline bool requires_load_conversion(const GXTexObj& obj) {
+  if (!obj.ref) {
+    return false;
+  }
+  switch (obj.fmt) {
+  case GX::TF_I4:
+  case GX::TF_I8:
+  case GX::TF_C4:
+  case GX::TF_C8:
+  case GX::TF_C14X2:
+    return true;
+  default:
+    return false;
+  }
+}
+
 struct TextureConfig {
   GX::TextureFormat copyFmt = InvalidTextureFormat; // Underlying texture format
   GX::TextureFormat loadFmt = InvalidTextureFormat; // Texture format being bound
@@ -257,7 +290,7 @@ struct ShaderInfo {
   std::bitset<MaxTextures> sampledTextures;
   std::bitset<MaxKColors> sampledKColors;
   std::bitset<MaxColorChannels> sampledColorChannels;
-  std::bitset<MaxTevRegs> usesTevReg;
+  std::bitset<MaxTevRegs> loadsTevReg;
   std::bitset<MaxTevRegs> writesTevReg;
   std::bitset<MaxTexMtx> usesTexMtx;
   std::bitset<MaxPTTexMtx> usesPTTexMtx;
