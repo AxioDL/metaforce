@@ -149,9 +149,15 @@ function(add_runtime_common_library name)
 endfunction()
 
 set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
-set(RUNTIME_LIBRARIES amuse zeus nod NESEmulator libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore imgui aurora SDL2-static
+set(DISCORD_RPC_LIBRARY "")
+if (NOT GEKKO AND NOT NX AND NOT IOS AND NOT TVOS)
+    set(DISCORD_RPC_LIBRARY "discord-rpc")
+endif()
+set(RUNTIME_LIBRARIES amuse zeus nod NESEmulator libjpeg-turbo jbus kabufuda logvisor OptickCore imgui aurora SDL2-static
     boo # TODO move audiodev
+    ${DISCORD_RPC_LIBRARY}
     ${ZLIB_LIBRARIES}
+    SDL2main
     )
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
@@ -229,6 +235,44 @@ if (TARGET nativefiledialog)
 endif()
 target_compile_definitions(metaforce PUBLIC "-DMETAFORCE_TARGET_BYTE_ORDER=__BYTE_ORDER__")
 
+if (APPLE)
+    if (TVOS)
+        set(RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/platforms/tvos)
+        set(INFO_PLIST ${RESOURCE_DIR}/Info.plist.in)
+        file(GLOB_RECURSE RESOURCE_FILES "${RESOURCE_DIR}/Base.lproj/*")
+        list(APPEND RESOURCE_FILES ${RESOURCE_DIR}/Assets.car)
+    elseif (IOS)
+        set(RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/platforms/ios)
+        set(INFO_PLIST ${RESOURCE_DIR}/Info.plist.in)
+        message("Using INFO_PLIST ${INFO_PLIST}")
+        file(GLOB_RECURSE RESOURCE_FILES "${RESOURCE_DIR}/Base.lproj/*")
+        list(APPEND RESOURCE_FILES
+            ${RESOURCE_DIR}/Assets.car
+            ${RESOURCE_DIR}/AppIcon60x60@2x.png
+            ${RESOURCE_DIR}/AppIcon76x76@2x~ipad.png)
+    else ()
+        set(RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/platforms/macos)
+        set(INFO_PLIST ${RESOURCE_DIR}/Info.plist.in)
+        set(RESOURCE_FILES ${RESOURCE_DIR}/mainicon.icns)
+    endif ()
+    target_sources(metaforce PRIVATE ${INFO_PLIST} ${RESOURCE_FILES})
+    # Add to resources, preserving directory structure
+    foreach (FILE ${RESOURCE_FILES})
+        file(RELATIVE_PATH NEW_FILE "${RESOURCE_DIR}" ${FILE})
+        get_filename_component(NEW_FILE_PATH ${NEW_FILE} DIRECTORY)
+        set_property(SOURCE ${FILE} PROPERTY MACOSX_PACKAGE_LOCATION "Resources/${NEW_FILE_PATH}")
+        source_group("Resources/${NEW_FILE_PATH}" FILES "${FILE}")
+    endforeach ()
+    set_target_properties(
+        metaforce PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST ${INFO_PLIST}
+        MACOSX_BUNDLE_BUNDLE_NAME Metaforce
+        MACOSX_BUNDLE_GUI_IDENTIFIER dev.test.metaforce
+        MACOSX_BUNDLE_BUNDLE_VERSION "${METAFORCE_VERSION_STRING}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${METAFORCE_SHORT_VERSION_STRING}"
+    )
+endif ()
 if (WINDOWS_STORE)
     set_property(TARGET metaforce PROPERTY VS_WINRT_COMPONENT TRUE)
     # This should match the Package.appxmanifest

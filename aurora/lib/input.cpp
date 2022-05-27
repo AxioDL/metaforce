@@ -134,6 +134,11 @@ Sint32 add_controller(Sint32 which) noexcept {
     controller.m_index = which;
     controller.m_vid = SDL_GameControllerGetVendor(ctrl);
     controller.m_pid = SDL_GameControllerGetProduct(ctrl);
+    if (controller.m_vid == 0x05ac /* USB_VENDOR_APPLE */ && controller.m_pid == 3) {
+      // Ignore Apple TV remote
+      SDL_GameControllerClose(ctrl);
+      return -1;
+    }
     controller.m_isGameCube = controller.m_vid == 0x057E && controller.m_pid == 0x0337;
     controller.m_hasRumble = (SDL_GameControllerHasRumble(ctrl) != 0u);
     Sint32 instance = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(ctrl));

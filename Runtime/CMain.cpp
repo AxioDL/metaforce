@@ -28,6 +28,7 @@
 //#include <fenv.h>
 //#pragma STDC FENV_ACCESS ON
 
+#include <SDL_main.h>
 #include <aurora/aurora.hpp>
 
 using namespace std::literals;
@@ -183,6 +184,9 @@ public:
     m_voiceEngine->setVolume(0.7f);
     m_amuseAllocWrapper.emplace(*m_voiceEngine);
 
+#if TARGET_OS_IOS || TARGET_OS_TV
+    m_deferredProject = std::string{m_fileMgr.getStoreRoot()} + "game.iso";
+#else
     for (const auto& str : aurora::get_args()) {
       auto arg = static_cast<std::string>(str);
       if (m_deferredProject.empty() && !arg.starts_with('-') && !arg.starts_with('+'))
@@ -190,6 +194,7 @@ public:
       else if (arg == "--no-sound")
         m_voiceEngine->setVolume(0.f);
     }
+#endif
   }
 
   void initialize() {
@@ -210,14 +215,6 @@ public:
     /* Ping the watchdog to let it know we're still alive */
     CInfiniteLoopDetector::UpdateWatchDog(std::chrono::system_clock::now());
 #endif
-    if (auto* input = g_InputGenerator) {
-      if (!m_deferredControllers.empty()) {
-        for (const auto which : m_deferredControllers) {
-          //input->controllerAdded(which);
-        }
-        m_deferredControllers.clear();
-      }
-    }
 
     if (!m_projectInitialized && !m_deferredProject.empty()) {
       if (CDvdFile::Initialize(m_deferredProject)) {
@@ -327,31 +324,13 @@ public:
 
   void onAppDisplayScaleChanged(float scale) noexcept override { ImGuiEngine_Initialize(scale); }
 
-  void onControllerButton(uint32_t idx, aurora::ControllerButton button, bool pressed) noexcept override {
-    if (auto* input = g_InputGenerator) {
-      //input->controllerButton(idx, button, pressed);
-    }
-  }
+  void onControllerButton(uint32_t idx, aurora::ControllerButton button, bool pressed) noexcept override {}
 
-  void onControllerAxis(uint32_t idx, aurora::ControllerAxis axis, int16_t value) noexcept override {
-    if (auto* input = g_InputGenerator) {
-      //input->controllerAxis(idx, axis, value);
-    }
-  }
+  void onControllerAxis(uint32_t idx, aurora::ControllerAxis axis, int16_t value) noexcept override {}
 
-  void onControllerAdded(uint32_t which) noexcept override {
-    if (auto* input = g_InputGenerator) {
-      //input->controllerAdded(which);
-    } else {
-      m_deferredControllers.emplace_back(which);
-    }
-  }
+  void onControllerAdded(uint32_t which) noexcept override { m_imGuiConsole.ControllerAdded(which); }
 
-  void onControllerRemoved(uint32_t which) noexcept override {
-    if (auto* input = g_InputGenerator) {
-      //input->controllerRemoved(which);
-    }
-  }
+  void onControllerRemoved(uint32_t which) noexcept override { m_imGuiConsole.ControllerRemoved(which); }
 
   void onAppExiting() noexcept override {
     m_imGuiConsole.Shutdown();
@@ -570,7 +549,7 @@ int main(int argc, char** argv) {
       .width = icon.width,
       .height = icon.height,
   };
-  aurora::app_run(std::move(app), std::move(data), argc, argv);
+  aurora::app_run(std::move(app), std::move(data), argc, argv, fileMgr.getStoreRoot());
   return 0;
 }
 #endif

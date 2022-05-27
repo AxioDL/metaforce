@@ -16,6 +16,7 @@ static logvisor::Module Log("aurora");
 // TODO: Move global state to a class/struct?
 static std::unique_ptr<AppDelegate> g_AppDelegate;
 static std::vector<std::string> g_Args;
+std::string g_configPath;
 
 // SDL
 static SDL_Window* g_window;
@@ -222,7 +223,12 @@ static bool poll_events() noexcept {
 }
 
 static SDL_Window* create_window(wgpu::BackendType type) {
-  Uint32 flags = SDL_WINDOW_HIDDEN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
+  Uint32 flags = SDL_WINDOW_ALLOW_HIGHDPI;
+#if TARGET_OS_IOS || TARGET_OS_TV
+  flags |= SDL_WINDOW_FULLSCREEN;
+#else
+  flags |= SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE;
+#endif
   switch (type) {
 #ifdef DAWN_ENABLE_BACKEND_VULKAN
   case wgpu::BackendType::Vulkan:
@@ -245,12 +251,13 @@ static SDL_Window* create_window(wgpu::BackendType type) {
   return SDL_CreateWindow("Metaforce", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 960, flags);
 }
 
-void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv) noexcept {
+void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv, std::string_view configPath) noexcept {
   g_AppDelegate = std::move(app);
   /* Lets gather arguments skipping the program filename */
   for (size_t i = 1; i < argc; ++i) {
     g_Args.emplace_back(argv[i]);
   }
+  g_configPath = configPath;
 
   if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
     Log.report(logvisor::Fatal, FMT_STRING("Error initializing SDL: {}"), SDL_GetError());
@@ -363,7 +370,11 @@ std::vector<std::string> get_args() noexcept { return g_Args; }
 WindowSize get_window_size() noexcept {
   int width, height, fb_w, fb_h;
   SDL_GetWindowSize(g_window, &width, &height);
+#if DAWN_ENABLE_BACKEND_METAL
+  SDL_Metal_GetDrawableSize(g_window, &fb_w, &fb_h);
+#else
   SDL_GL_GetDrawableSize(g_window, &fb_w, &fb_h);
+#endif
   float scale = static_cast<float>(fb_w) / static_cast<float>(width);
 #ifndef __APPLE__
   if (SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(g_window), nullptr, &scale, nullptr) == 0) {

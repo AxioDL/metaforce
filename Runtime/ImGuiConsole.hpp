@@ -14,6 +14,10 @@
 
 #include <zeus/CEulerAngles.hpp>
 
+#if __APPLE__
+#include <TargetConditionals.h>
+#endif
+
 namespace metaforce {
 void ImGuiStringViewText(std::string_view text);
 void ImGuiTextCenter(std::string_view text);
@@ -34,6 +38,13 @@ struct ImGuiEntityEntry {
   [[nodiscard]] CActor* AsActor() const { return isActor ? static_cast<CActor*>(ent) : nullptr; }
 };
 
+struct Toast {
+  std::string message;
+  float remain;
+  float current = 0.f;
+  Toast(std::string message, float duration) noexcept : message(std::move(message)), remain(duration) {}
+};
+
 class ImGuiConsole {
 public:
   static std::set<TUniqueId> inspectingEntities;
@@ -49,6 +60,9 @@ public:
 
   static void BeginEntityRow(const ImGuiEntityEntry& entry);
   static void EndEntityRow(const ImGuiEntityEntry& entry);
+
+  void ControllerAdded(uint32_t idx);
+  void ControllerRemoved(uint32_t idx);
 
 private:
   CVarManager& m_cvarMgr;
@@ -77,7 +91,11 @@ private:
 
   // Debug overlays
   bool m_frameCounter = m_cvarCommons.m_debugOverlayShowFrameCounter->toBoolean();
+#if TARGET_OS_TV
+  bool m_frameRate = true;
+#else
   bool m_frameRate = m_cvarCommons.m_debugOverlayShowFramerate->toBoolean();
+#endif
   bool m_inGameTime = m_cvarCommons.m_debugOverlayShowInGameTime->toBoolean();
   bool m_roomTimer = m_cvarCommons.m_debugOverlayShowRoomTimer->toBoolean();
   bool m_playerInfo = m_cvarCommons.m_debugOverlayPlayerInfo->toBoolean();
@@ -87,7 +105,11 @@ private:
   bool m_randomStats = m_cvarCommons.m_debugOverlayShowRandomStats->toBoolean();
   bool m_resourceStats = m_cvarCommons.m_debugOverlayShowResourceStats->toBoolean();
   bool m_showInput = m_cvarCommons.m_debugOverlayShowInput->toBoolean();
+#if TARGET_OS_IOS
+  bool m_pipelineInfo = false;
+#else
   bool m_pipelineInfo = true; // TODO cvar
+#endif
   bool m_developer = m_cvarMgr.findCVar("developer")->toBoolean();
   bool m_cheats = m_cvarMgr.findCVar("cheats")->toBoolean();
   bool m_isInitialized = false;
@@ -97,7 +119,7 @@ private:
   const void* m_currentRoom = nullptr;
   double m_lastRoomTime = 0.f;
   double m_currentRoomStart = 0.f;
-  float m_menuHintTime = 5.f;
+  std::deque<Toast> m_toasts;
   std::string m_controllerName;
   u32 m_whichController = -1;
 
@@ -114,7 +136,7 @@ private:
   void ShowItemsWindow();
   void ShowLayersWindow();
   void ShowConsoleVariablesWindow();
-  void ShowMenuHint();
+  void ShowToasts();
   void ShowInputViewer();
   void SetOverlayWindowLocation(int corner) const;
   void ShowCornerContextMenu(int& corner, int avoidCorner) const;

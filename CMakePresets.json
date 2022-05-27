@@ -220,6 +220,52 @@
       ]
     },
     {
+      "name": "ios-default",
+      "displayName": "iOS",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "ios.toolchain.cmake",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install",
+        "PLATFORM": "OS64",
+        "DEPLOYMENT_TARGET": "13.0",
+        "ENABLE_BITCODE": {
+          "type": "BOOL",
+          "value": false
+        }
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [
+            "macOS"
+          ]
+        }
+      }
+    },
+    {
+      "name": "tvos-default",
+      "displayName": "tvOS",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "ios.toolchain.cmake",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install",
+        "PLATFORM": "TVOS",
+        "DEPLOYMENT_TARGET": "14.5",
+        "ENABLE_BITCODE": {
+          "type": "BOOL",
+          "value": false
+        }
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [
+            "macOS"
+          ]
+        }
+      }
+    },
+    {
       "name": "x-linux-ci",
       "hidden": true,
       "inherits": [
@@ -260,7 +306,11 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER_LAUNCHER": "buildcache",
         "CMAKE_CXX_COMPILER_LAUNCHER": "buildcache",
-        "CMAKE_OSX_ARCHITECTURES": "arm64;x86_64"
+        "CMAKE_OSX_ARCHITECTURES": "arm64;x86_64",
+        "IMGUI_USE_FREETYPE": {
+          "type": "BOOL",
+          "value": false
+        }
       }
     },
     {
@@ -344,6 +394,24 @@
       "configurePreset": "macos-default-relwithdebinfo",
       "description": "macOS release build with debug info",
       "displayName": "macOS RelWithDebInfo"
+    },
+    {
+      "name": "ios-default",
+      "configurePreset": "ios-default",
+      "description": "iOS release build with debug info",
+      "displayName": "iOS RelWithDebInfo",
+      "targets": [
+        "metaforce"
+      ]
+    },
+    {
+      "name": "tvos-default",
+      "configurePreset": "tvos-default",
+      "description": "tvOS release build with debug info",
+      "displayName": "tvOS RelWithDebInfo",
+      "targets": [
+        "metaforce"
+      ]
     },
     {
       "name": "windows-msvc-debug",

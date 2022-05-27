@@ -372,8 +372,8 @@ bool initialize(SDL_Window* window, wgpu::BackendType backendType) {
         .height = size.fb_height,
         .colorFormat = swapChainFormat,
         .depthFormat = wgpu::TextureFormat::Depth32Float,
-        .msaaSamples = 4,
-        .textureAnistropy = 16,
+        .msaaSamples = 1,
+        .textureAnisotropy = 16,
     };
     create_copy_pipeline();
     resize_swapchain(size.fb_width, size.fb_height);

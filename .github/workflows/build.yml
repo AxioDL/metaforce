@@ -46,7 +46,7 @@ jobs:
           sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
           sudo apt-get -y install ninja-build clang lld libcurl4-openssl-dev intel-oneapi-ipp-devel \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
-            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev qt5-default libfreetype-dev \
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev libfreetype-dev \
             libxinerama-dev libxcursor-dev python3-markupsafe libgtk-3-dev
 
           yarn global add @sentry/cli
@@ -90,7 +90,6 @@ jobs:
     runs-on: macos-11
 
     env:
-      Qt_VERSION: 5.15.2
       IPP_VERSION: 2021.2.0.192
       BUILDCACHE_DIR: ${{github.workspace}}/.buildcache
 
@@ -104,14 +103,8 @@ jobs:
         run: |
           brew update
           brew upgrade --formula
-          brew install ninja graphicsmagick imagemagick
-          yarn global add create-dmg
-          pip3 install markupsafe==2.0.1
-
-          # universal qt5 from macports
-          curl -LSfs https://axiodl.com/files/qt-$Qt_VERSION.mpkg -o /tmp/qt-$Qt_VERSION.mpkg
-          sudo installer -pkg /tmp/qt-$Qt_VERSION.mpkg -target /
-          echo /opt/local/libexec/qt5/bin >> $GITHUB_PATH
+          brew install ninja
+          pip3 install markupsafe
 
           # setup buildcache
           curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-macos.zip -o /tmp/buildcache-macos.zip
@@ -144,6 +137,52 @@ jobs:
 
       - name: Print buildcache stats
         run: buildcache -s
+
+  build-ios:
+    name: Build iOS
+    runs-on: macos-11
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew upgrade --formula
+          brew install ninja
+          pip3 install markupsafe
+
+      - name: Configure CMake
+        run: cmake --preset ios-default
+
+      - name: Build
+        run: cmake --build --preset ios-default
+
+  build-tvos:
+    name: Build tvOS
+    runs-on: macos-11
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew upgrade --formula
+          brew install ninja
+          pip3 install markupsafe
+
+      - name: Configure CMake
+        run: cmake --preset tvos-default
+
+      - name: Build
+        run: cmake --build --preset tvos-default
 
   build-windows:
     name: Build Windows (${{matrix.name}} x86_64)
@@ -192,7 +231,7 @@ jobs:
       - name: Install dependencies
         run: |
           choco install ninja vulkan-sdk
-          pip install markupsafe==2.0.1
+          pip install markupsafe
 
           # set up buildcache
           $TempDir = "$env:RUNNER_WORKSPACE\temp"

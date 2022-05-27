@@ -170,17 +170,26 @@ void write_texture(const TextureRef& ref, ArrayRef<uint8_t> data) noexcept {
                  data.size());
       unreachable();
     }
-    auto dstView = wgpu::ImageCopyTexture{
+//    auto dstView = wgpu::ImageCopyTexture{
+//        .texture = ref.texture,
+//        .mipLevel = mip,
+//    };
+//    const auto range = push_texture_data(data.data() + offset, dataSize, bytesPerRow, heightBlocks);
+//    const auto dataLayout = wgpu::TextureDataLayout{
+//        .offset = range.offset,
+//        .bytesPerRow = bytesPerRow,
+//        .rowsPerImage = heightBlocks,
+//    };
+//    g_textureUploads.emplace_back(dataLayout, std::move(dstView), physicalSize);
+    const auto dstView = wgpu::ImageCopyTexture{
         .texture = ref.texture,
         .mipLevel = mip,
     };
-    const auto range = push_texture_data(data.data() + offset, dataSize, bytesPerRow, heightBlocks);
     const auto dataLayout = wgpu::TextureDataLayout{
-        .offset = range.offset,
         .bytesPerRow = bytesPerRow,
         .rowsPerImage = heightBlocks,
     };
-    g_textureUploads.emplace_back(dataLayout, std::move(dstView), physicalSize);
+    g_queue.WriteTexture(&dstView, data.data() + offset, dataSize, &dataLayout, &physicalSize);
     offset += dataSize;
   }
   if (data.size() != UINT32_MAX && offset < data.size()) {

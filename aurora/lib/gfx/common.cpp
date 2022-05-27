@@ -8,9 +8,13 @@
 #include <absl/container/flat_hash_map.h>
 #include <condition_variable>
 #include <deque>
+#include <fstream>
 #include <logvisor/logvisor.hpp>
 #include <thread>
-#include <fstream>
+
+namespace aurora {
+extern std::string g_configPath;
+} // namespace aurora
 
 namespace aurora::gfx {
 static logvisor::Module Log("aurora::gfx");
@@ -22,11 +26,11 @@ using gpu::g_queue;
 std::vector<std::string> g_debugGroupStack;
 #endif
 
-constexpr uint64_t UniformBufferSize = 3145728; // 3mb
-constexpr uint64_t VertexBufferSize = 3145728;  // 3mb
-constexpr uint64_t IndexBufferSize = 1048576;   // 1mb
-constexpr uint64_t StorageBufferSize = 8388608; // 8mb
-constexpr uint64_t TextureUploadSize = 8388608; // 8mb
+constexpr uint64_t UniformBufferSize = 3145728;  // 3mb
+constexpr uint64_t VertexBufferSize = 3145728;   // 3mb
+constexpr uint64_t IndexBufferSize = 1048576;    // 1mb
+constexpr uint64_t StorageBufferSize = 8388608;  // 8mb
+constexpr uint64_t TextureUploadSize = 25165824; // 24mb
 
 constexpr uint64_t StagingBufferSize =
     UniformBufferSize + VertexBufferSize + IndexBufferSize + StorageBufferSize + TextureUploadSize;
@@ -346,7 +350,8 @@ void initialize() {
 
   {
     // Load serialized pipeline cache
-    std::ifstream file("pipeline_cache.bin", std::ios::in | std::ios::binary | std::ios::ate);
+    std::string path = g_configPath + "pipeline_cache.bin";
+    std::ifstream file(path, std::ios::in | std::ios::binary | std::ios::ate);
     if (file) {
       const size_t size = file.tellg();
       file.seekg(0, std::ios::beg);
@@ -415,7 +420,7 @@ void shutdown() {
 
   {
     // Write serialized pipelines to file
-    std::ofstream file("pipeline_cache.bin", std::ios::out | std::ios::trunc | std::ios::binary);
+    std::ofstream file(g_configPath + "pipeline_cache.bin", std::ios::out | std::ios::trunc | std::ios::binary);
     if (file) {
       file.write(reinterpret_cast<const char*>(&g_serializedPipelineCount), sizeof(g_serializedPipelineCount));
       file.write(reinterpret_cast<const char*>(g_serializedPipelines.data()), g_serializedPipelines.size());

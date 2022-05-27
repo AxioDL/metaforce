@@ -21,7 +21,7 @@ struct GraphicsConfig {
   wgpu::TextureFormat colorFormat;
   wgpu::TextureFormat depthFormat;
   uint32_t msaaSamples;
-  uint16_t textureAnistropy;
+  uint16_t textureAnisotropy;
 };
 struct TextureWithSampler {
   wgpu::Texture texture;

@@ -242,7 +242,7 @@ struct AppDelegate {
   virtual void onControllerAxis(uint32_t which, ControllerAxis axis, int16_t value) noexcept = 0;
 };
 
-void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv) noexcept;
+void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv, std::string_view configPath) noexcept;
 [[nodiscard]] std::vector<std::string> get_args() noexcept;
 [[nodiscard]] WindowSize get_window_size() noexcept;
 void set_window_title(zstring_view title) noexcept;

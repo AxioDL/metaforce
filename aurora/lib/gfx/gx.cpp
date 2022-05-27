@@ -1346,14 +1346,13 @@ static std::pair<wgpu::FilterMode, wgpu::FilterMode> wgpu_filter_mode(GXTexFilte
   }
 }
 static u16 wgpu_aniso(GXAnisotropy aniso) {
-  // TODO use config values?
   switch (aniso) {
   case GX_ANISO_1:
     return 1;
   case GX_ANISO_2:
-    return 2;
+    return std::max<u16>(g_graphicsConfig.textureAnisotropy / 2, 1);
   case GX_ANISO_4:
-    return 4;
+    return std::max<u16>(g_graphicsConfig.textureAnisotropy, 1);
   default:
     Log.report(logvisor::Fatal, FMT_STRING("invalid aniso mode {}"), aniso);
     unreachable();

@@ -6,7 +6,7 @@
 #include <absl/container/flat_hash_map.h>
 
 constexpr bool EnableNormalVisualization = false;
-constexpr bool EnableDebugPrints = true;
+constexpr bool EnableDebugPrints = false;
 constexpr bool UsePerPixelLighting = true;
 
 namespace aurora::gfx::gx {

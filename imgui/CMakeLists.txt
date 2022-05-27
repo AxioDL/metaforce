@@ -21,7 +21,9 @@ target_link_libraries(imgui PRIVATE aurora zeus logvisor ${ZLIB_LIBRARIES})
 
 # Optional, replaces stb_freetype if available
 find_package(Freetype)
-if (FREETYPE_FOUND)
+# Permit disabling for macOS universal builds
+option(IMGUI_USE_FREETYPE "Enable freetype with imgui" ON)
+if (FREETYPE_FOUND AND IMGUI_USE_FREETYPE)
   target_sources(imgui PRIVATE ../extern/imgui/misc/freetype/imgui_freetype.cpp)
   target_compile_definitions(imgui PRIVATE IMGUI_ENABLE_FREETYPE)
   target_link_libraries(imgui PRIVATE Freetype::Freetype)

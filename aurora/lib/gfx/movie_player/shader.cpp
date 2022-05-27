@@ -79,7 +79,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
       .magFilter = wgpu::FilterMode::Linear,
       .minFilter = wgpu::FilterMode::Linear,
       .mipmapFilter = wgpu::FilterMode::Linear,
-      .maxAnisotropy = g_graphicsConfig.textureAnistropy,
+      .maxAnisotropy = 1,
   };
   auto sampler = g_device.CreateSampler(&samplerDescriptor);
 

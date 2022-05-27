@@ -516,36 +516,36 @@ void CMoviePlayer::DrawFrame(const zeus::CVector3f& v1, const zeus::CVector3f& v
   CGraphics::SetUseVideoFilter(xf4_26_fieldFlip);
 
   /* Correct movie aspect ratio */
-  //  float hPad, vPad;
-  //  if (CGraphics::GetViewportAspect() >= 1.78f) {
-  //    hPad = 1.78f / CGraphics::GetViewportAspect();
-  //    vPad = 1.78f / 1.33f;
-  //  } else {
-  //    hPad = 1.f;
-  //    vPad = CGraphics::GetViewportAspect() / 1.33f;
-  //  }
-  //
-  //  /* draw appropriate field */
-  //  CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
-  //  aurora::gfx::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0], tex.U, tex.V, hPad, vPad);
+  float hPad, vPad;
+  if (CGraphics::GetViewportAspect() >= 1.78f) {
+    hPad = 1.78f / CGraphics::GetViewportAspect();
+    vPad = 1.78f / 1.33f;
+  } else {
+    hPad = 1.f;
+    vPad = CGraphics::GetViewportAspect() / 1.33f;
+  }
 
-  MyTHPGXYuv2RgbSetup(CGraphics::g_LastFrameUsedAbove, xf4_26_fieldFlip);
-  uintptr_t planeSize = x6c_videoInfo.width * x6c_videoInfo.height;
-  uintptr_t planeSizeQuarter = planeSize / 4;
-  MyTHPYuv2RgbTextureSetup(m_yuvBuf.get(), m_yuvBuf.get() + planeSize, m_yuvBuf.get() + planeSize + planeSizeQuarter,
-                           x6c_videoInfo.width, x6c_videoInfo.height);
+  /* draw appropriate field */
+  CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
+  aurora::gfx::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0], tex.U, tex.V, hPad, vPad);
 
-  CGX::Begin(GX::TRIANGLEFAN, GX::VTXFMT7, 4);
-  GXPosition3f32(v1);
-  GXTexCoord2f32(0.f, 0.f);
-  GXPosition3f32(v3);
-  GXTexCoord2f32(0.f, 1.f);
-  GXPosition3f32(v4);
-  GXTexCoord2f32(1.f, 1.f);
-  GXPosition3f32(v2);
-  GXTexCoord2f32(1.f, 0.f);
-  CGX::End();
-  MyTHPGXRestore();
+//  MyTHPGXYuv2RgbSetup(CGraphics::g_LastFrameUsedAbove, xf4_26_fieldFlip);
+//  uintptr_t planeSize = x6c_videoInfo.width * x6c_videoInfo.height;
+//  uintptr_t planeSizeQuarter = planeSize / 4;
+//  MyTHPYuv2RgbTextureSetup(m_yuvBuf.get(), m_yuvBuf.get() + planeSize, m_yuvBuf.get() + planeSize + planeSizeQuarter,
+//                           x6c_videoInfo.width, x6c_videoInfo.height);
+//
+//  CGX::Begin(GX::TRIANGLEFAN, GX::VTXFMT7, 4);
+//  GXPosition3f32(v1);
+//  GXTexCoord2f32(0.f, 0.f);
+//  GXPosition3f32(v3);
+//  GXTexCoord2f32(0.f, 1.f);
+//  GXPosition3f32(v4);
+//  GXTexCoord2f32(1.f, 1.f);
+//  GXPosition3f32(v2);
+//  GXTexCoord2f32(1.f, 0.f);
+//  CGX::End();
+//  MyTHPGXRestore();
 
   /* ensure second field is being displayed by VI to signal advance
    * (faked in metaforce with continuous xor) */
@@ -655,29 +655,29 @@ void CMoviePlayer::DecodeFromRead(const void* data) {
       tjDecompressToYUV(TjHandle, (u8*)inptr, frameHeader.imageSize, m_yuvBuf.get(), 0);
       inptr += frameHeader.imageSize;
 
-      //      uintptr_t planeSize = x6c_videoInfo.width * x6c_videoInfo.height;
-      //      uintptr_t planeSizeHalf = planeSize / 2;
-      //      uintptr_t planeSizeQuarter = planeSizeHalf / 2;
+      uintptr_t planeSize = x6c_videoInfo.width * x6c_videoInfo.height;
+      uintptr_t planeSizeHalf = planeSize / 2;
+      uintptr_t planeSizeQuarter = planeSizeHalf / 2;
 
-      //      if (m_deinterlace) {
-      //        /* Deinterlace into 2 discrete 60-fps half-res textures */
-      //        auto buffer = std::make_unique<u8[]>(planeSizeHalf);
-      //        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
-      //          memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2),
-      //                 x6c_videoInfo.width);
-      //        }
-      //        aurora::gfx::write_texture(*tex.Y[0], {buffer.get(), planeSizeHalf});
-      //        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
-      //          memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2 + 1),
-      //                 x6c_videoInfo.width);
-      //        }
-      //        aurora::gfx::write_texture(*tex.Y[1], {buffer.get(), planeSizeHalf});
-      //      } else {
-      //        /* Direct planar load */
-      //        aurora::gfx::write_texture(*tex.Y[0], {m_yuvBuf.get(), planeSize});
-      //      }
-      //      aurora::gfx::write_texture(*tex.U, {m_yuvBuf.get() + planeSize, planeSizeQuarter});
-      //      aurora::gfx::write_texture(*tex.V, {m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter});
+      if (m_deinterlace) {
+        /* Deinterlace into 2 discrete 60-fps half-res textures */
+        auto buffer = std::make_unique<u8[]>(planeSizeHalf);
+        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
+          memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2),
+                 x6c_videoInfo.width);
+        }
+        aurora::gfx::write_texture(*tex.Y[0], {buffer.get(), planeSizeHalf});
+        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
+          memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2 + 1),
+                 x6c_videoInfo.width);
+        }
+        aurora::gfx::write_texture(*tex.Y[1], {buffer.get(), planeSizeHalf});
+      } else {
+        /* Direct planar load */
+        aurora::gfx::write_texture(*tex.Y[0], {m_yuvBuf.get(), planeSize});
+      }
+      aurora::gfx::write_texture(*tex.U, {m_yuvBuf.get() + planeSize, planeSizeQuarter});
+      aurora::gfx::write_texture(*tex.V, {m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter});
 
       break;
     }
