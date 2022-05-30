@@ -314,6 +314,11 @@ void CTextExecuteBuffer::AddLineExtraSpace(s32 space) {
   x18_textState.x78_extraLineSpace = space;
 }
 
+void CTextExecuteBuffer::AddCharacterExtraSpace(s32 space) {
+  x0_instList.emplace(x0_instList.cend(), std::make_shared<CCharacterExtraSpaceInstruction>(space));
+  x18_textState.x48_extraCharacterSpace = space;
+}
+
 void CTextExecuteBuffer::AddLineSpacing(float spacing) {
   x0_instList.emplace(x0_instList.cend(), std::make_shared<CLineSpacingInstruction>(spacing));
   x18_textState.x74_lineSpacing = spacing;

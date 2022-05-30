@@ -5,9 +5,9 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
-#include "Runtime/Graphics/Shaders/CTextSupportShader.hpp"
 #include "Runtime/GuiSys/CFontImageDef.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
+#include "Runtime/GuiSys/CRasterFont.hpp"
 
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
@@ -15,9 +15,7 @@
 #include <zeus/CVector2i.hpp>
 
 namespace metaforce {
-class CGlyph;
 class CGraphicsPalette;
-class CRasterFont;
 class CTextExecuteBuffer;
 
 using CTextColor = zeus::CColor;
@@ -38,6 +36,23 @@ public:
   };
   enum class EMode { AllocTally, BufferFill };
 
+  struct SFontPalette {
+    EFontMode x0_mode;
+    std::array<u8, 8> x4_colorPal;
+    std::unique_ptr<CGraphicsPalette> xc_layer1Pal;
+    std::unique_ptr<CGraphicsPalette> x14_layer2Pal;
+    std::unique_ptr<CGraphicsPalette> x1c_layer3Pal;
+    std::unique_ptr<CGraphicsPalette> x24_layer4Pal;
+
+    SFontPalette(EFontMode mode, std::unique_ptr<CGraphicsPalette>&& pal1, std::unique_ptr<CGraphicsPalette>&& pal2,
+                 std::unique_ptr<CGraphicsPalette>&& pal3, std::unique_ptr<CGraphicsPalette>&& pal4)
+    : x0_mode(mode)
+    , xc_layer1Pal(std::move(pal1))
+    , x14_layer2Pal(std::move(pal2))
+    , x1c_layer3Pal(std::move(pal3))
+    , x24_layer4Pal(std::move(pal4)) {}
+  };
+
 private:
   EMode x0_mode;
   std::vector<TToken<CRasterFont>> x4_fonts;
@@ -50,7 +65,7 @@ private:
   s8 x4d_activePalette = -1;
   s8 x4e_queuedFont = -1;
   s8 x4f_queuedPalette = -1;
-  rstl::reserved_vector<std::unique_ptr<CGraphicsPalette>, 64> x50_palettes;
+  rstl::reserved_vector<SFontPalette, 64> x50_palettes;
   s32 x254_nextPalette = 0;
 
 public:
@@ -67,8 +82,8 @@ public:
   [[nodiscard]] u32 GetCurLen();
   void VerifyBuffer();
   int GetMatchingPaletteIndex(const CGraphicsPalette& palette);
-  [[nodiscard]] CGraphicsPalette* GetNextAvailablePalette();
-  void AddPaletteChange(const CGraphicsPalette& palette);
+  [[nodiscard]] SFontPalette* GetNextAvailablePalette();
+  void AddPaletteChange(const CGraphicsPalette& palette, EFontMode mode);
   void SetMode(EMode mode);
   void Render(const CTextColor& col, float time);
   void AddImage(const zeus::CVector2i& offset, const CFontImageDef& image);

@@ -43,41 +43,25 @@ void CFontRenderState::RefreshPalette() {
   RefreshColor(EColorType::Background);
 }
 
-void CFontRenderState::RefreshColor(EColorType tp) {
-  switch (tp) {
-  case EColorType::Main:
-    if (!x48_font)
-      return;
-    switch (x48_font->GetMode()) {
-    case EColorType::Main:
-    case EColorType::Outline:
-      if (!x64_colorOverrides[0]) {
-        x0_drawStrOpts.x4_colors[0] = ConvertToTextureSpace(x54_colors[0]);
-      }
-      break;
-    default:
-      break;
+void CFontRenderState::RefreshColor(EColorType color) {
+  if (color == EColorType::Geometry && !x64_colorOverrides[2]) {
+    x0_drawStrOpts.x4_colors[2] = ConvertToTextureSpace(x54_colors[2]);
+  } else if (color == EColorType::Main && IsFinishedLoading() && !x48_font.IsNull()) {
+    const auto mode = x48_font->GetMode();
+    if (mode == EFontMode::OneLayerOutline && !x64_colorOverrides[0]) {
+      x0_drawStrOpts.x4_colors[0] = ConvertToTextureSpace(x54_colors[0]);
+    } else if (mode == EFontMode::OneLayer && !x64_colorOverrides[0]) {
+      x0_drawStrOpts.x4_colors[0] = ConvertToTextureSpace(x54_colors[0]);
     }
-    break;
-  case EColorType::Outline:
-    if (!x48_font)
-      return;
-    if (x64_colorOverrides[1])
-      return;
-    if (x48_font->GetMode() == EColorType::Outline)
+  } else if (color == EColorType::Outline && IsFinishedLoading() && !x48_font.IsNull() && !x64_colorOverrides[1]) {
+    if (x48_font->GetMode() == EFontMode::OneLayerOutline) {
       x0_drawStrOpts.x4_colors[1] = ConvertToTextureSpace(x54_colors[1]);
-    break;
-  case EColorType::Geometry:
-    if (!x64_colorOverrides[2])
-      x0_drawStrOpts.x4_colors[2] = ConvertToTextureSpace(x54_colors[2]);
-    break;
-  case EColorType::Foreground:
+    }
+  } else if (color == EColorType::Background) {
+    RefreshColor(EColorType::Outline);
+  } else if (color == EColorType::Foreground) {
     RefreshColor(EColorType::Main);
     RefreshColor(EColorType::Geometry);
-    break;
-  case EColorType::Background:
-    RefreshColor(EColorType::Outline);
-    break;
   }
 }
 

@@ -34,16 +34,6 @@ public:
 
   enum class EBlackKey { Zero, One };
 
-  enum class EFontType {
-    None = -1,
-    OneLayer = 0,        /* Fill bit0 */
-    OneLayerOutline = 1, /* Fill bit0, Outline bit1 */
-    FourLayers = 2,
-    TwoLayersOutlines = 3, /* Fill bit0/2, Outline bit1/3 */
-    TwoLayers = 4,         /* Fill bit0/1 and copied to bit2/3 */
-    TwoLayersOutlines2 = 8 /* Fill bit2/3, Outline bit0/1 */
-  };
-
 private:
   static bool sMangleMips;
   static u32 sCurrentFrameCount;

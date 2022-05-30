@@ -78,7 +78,7 @@ void CTextRenderBuffer::SetMode(EMode mode) { x0_mode = mode; }
 
 int CTextRenderBuffer::GetMatchingPaletteIndex(const CGraphicsPalette& palette) {
   for (int i = 0; i < x50_palettes.size(); ++i) {
-    if (memcmp(x50_palettes[i]->GetPaletteData(), palette.GetPaletteData(), 8) == 0) {
+    if (memcmp(x50_palettes[i].x4_colorPal.data(), palette.GetPaletteData(), 8) == 0) {
       return i;
     }
   }
@@ -86,14 +86,17 @@ int CTextRenderBuffer::GetMatchingPaletteIndex(const CGraphicsPalette& palette) 
   return -1;
 }
 
-CGraphicsPalette* CTextRenderBuffer::GetNextAvailablePalette() {
+CTextRenderBuffer::SFontPalette* CTextRenderBuffer::GetNextAvailablePalette() {
   if (x254_nextPalette < 64) {
-    x50_palettes.push_back(std::make_unique<CGraphicsPalette>(EPaletteFormat::RGB5A3, 4));
+    x50_palettes.emplace_back(EFontMode::None, std::make_unique<CGraphicsPalette>(EPaletteFormat::RGB5A3, 16),
+                              std::make_unique<CGraphicsPalette>(EPaletteFormat::RGB5A3, 16),
+                              std::make_unique<CGraphicsPalette>(EPaletteFormat::RGB5A3, 16),
+                              std::make_unique<CGraphicsPalette>(EPaletteFormat::RGB5A3, 16));
   } else {
     x254_nextPalette = 0;
   }
   ++x254_nextPalette;
-  return x50_palettes[x254_nextPalette - 1].get();
+  return &x50_palettes[x254_nextPalette - 1];
 }
 
 u32 CTextRenderBuffer::GetCurLen() {
@@ -102,6 +105,12 @@ u32 CTextRenderBuffer::GetCurLen() {
 }
 
 void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
+  constexpr std::array skVtxDesc{
+      GX::VtxDescList{GX::VA_POS, GX::DIRECT},
+      GX::VtxDescList{GX::VA_TEX0, GX::DIRECT},
+      GX::VtxDescList{},
+  };
+
   x4c_activeFont = -1;
   x4d_activePalette = -1;
   CMemoryInStream in(x34_bytecode.data(), x44_blobSize);
@@ -117,20 +126,41 @@ void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
           x4e_queuedFont = -1;
         }
       }
-      if (x4f_queuedPalette != -1) {
-        x50_palettes[x4f_queuedPalette]->Load();
-        x4f_queuedPalette = -1;
-      }
-
       s16 offX = in.ReadShort();
       s16 offY = in.ReadShort();
       char16_t chr = in.ReadShort();
       zeus::CColor chrColor(static_cast<zeus::Comp32>(in.ReadLong()));
       if (x4c_activeFont != -1) {
         auto font = x4_fonts[x4c_activeFont];
-        if (font && font->GetGlyph(chr) != nullptr) {
+        if (font) {
           const auto* glyph = font->GetGlyph(chr);
+          if (glyph == nullptr) {
+            continue;
+          }
+          const auto layer = glyph->GetLayer();
+          s32 paletteIdx = x4f_queuedPalette;
+          if (paletteIdx != -1 || layer != -1) {
+            if (paletteIdx == -1) {
+              paletteIdx = x4d_activePalette;
+            }
+            if (paletteIdx != -1) {
+              if (layer == 0) {
+                x50_palettes[paletteIdx].xc_layer1Pal->Load();
+              } else if (glyph->GetLayer() == 1) {
+                x50_palettes[paletteIdx].x14_layer2Pal->Load();
+              } else if (glyph->GetLayer() == 2) {
+                x50_palettes[paletteIdx].x1c_layer3Pal->Load();
+              } else if (glyph->GetLayer() == 3) {
+                x50_palettes[paletteIdx].x24_layer4Pal->Load();
+              }
+              x4f_queuedPalette = -1;
+            }
+          }
+
           CGX::SetTevKColor(GX::KCOLOR0, chrColor * color);
+          CGX::SetVtxDescv(skVtxDesc.data());
+          CGX::SetNumChans(0);
+          CGX::SetNumTexGens(1);
           CGX::Begin(GX::TRIANGLESTRIP, GX::VTXFMT0, 4);
           {
             GXPosition3f32(offX, 0.f, offY);
@@ -164,11 +194,6 @@ void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
         CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_TEXC, GX::CC_KONST, GX::CC_ZERO);
         CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_TEXA, GX::CA_KONST, GX::CA_ZERO);
         CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
-        constexpr std::array skVtxDesc{
-            GX::VtxDescList{GX::VA_POS, GX::DIRECT},
-            GX::VtxDescList{GX::VA_TEX0, GX::DIRECT},
-            GX::VtxDescList{},
-        };
         CGX::SetVtxDescv(skVtxDesc.data());
         CGX::SetNumChans(0);
         CGX::SetNumTexGens(1);
@@ -197,24 +222,57 @@ void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
   }
 }
 
-void CTextRenderBuffer::AddPaletteChange(const CGraphicsPalette& palette) {
-  if (x0_mode == EMode::BufferFill) {
-    {
-      u8* buf = GetOutStream();
-      CMemoryStreamOut out(buf, GetCurLen());
-      s32 paletteIndex = GetMatchingPaletteIndex(palette);
-      if (paletteIndex == -1) {
-        GetNextAvailablePalette();
-        paletteIndex = x254_nextPalette - 1;
-        CGraphicsPalette* destPalette = x50_palettes[x254_nextPalette - 1].get();
-        u16* data = destPalette->Lock();
-        memcpy(data, palette.GetPaletteData(), 8);
-        destPalette->UnLock();
+void SetFontPalette(EFontMode mode, u32 layer, CGraphicsPalette& layerPal, const CGraphicsPalette& colorPal) {
+  u16* layerLut = layerPal.Lock();
+  const u16* colorLut = colorPal.GetPaletteData();
+  if (mode == EFontMode::OneLayer || mode == EFontMode::OneLayerOutline) {
+    memcpy(layerLut, colorLut, 8);
+  } else {
+    u32 layerOffset = layer * 2;
+    for (u32 i = 0; i < 16; ++i) {
+      if (mode == EFontMode::TwoLayersOutlines) {
+        u32 uVar1 = (i & 2) << layerOffset;
+        if ((i & 1) << layerOffset == 0) {
+          if ((-uVar1 | uVar1) < 0) {
+            *layerLut = colorLut[2];
+          } else {
+            *layerLut = colorLut[0];
+          }
+        } else {
+          *layerLut = colorLut[1];
+        }
+      } else if (mode == EFontMode::FourLayers) {
+        if ((i >> (layer & 0x3f) & 1) == 0) {
+          *layerLut = colorLut[0];
+        } else {
+          *layerLut = colorLut[1];
+        }
       }
-      out.WriteUint8(static_cast<u8>(Command::PaletteChange));
-      out.WriteUint8(paletteIndex);
-      x48_curBytecodeOffset += out.GetNumWrites();
+      ++layerLut;
     }
+  }
+
+  layerPal.UnLock();
+}
+
+void CTextRenderBuffer::AddPaletteChange(const CGraphicsPalette& palette, EFontMode mode) {
+  if (x0_mode == EMode::BufferFill) {
+    CMemoryStreamOut out(GetOutStream(), GetCurLen(), CMemoryStreamOut::EOwnerShip::NotOwned, 64);
+    s32 paletteIndex = GetMatchingPaletteIndex(palette);
+    if (paletteIndex == -1) {
+      GetNextAvailablePalette();
+      paletteIndex = x254_nextPalette - 1;
+      x50_palettes[paletteIndex].x0_mode = mode;
+      auto& destPalette = x50_palettes[x254_nextPalette - 1];
+      memcpy(destPalette.x4_colorPal.data(), palette.GetPaletteData(), 8);
+      SetFontPalette(mode, 0, *destPalette.xc_layer1Pal, palette);
+      SetFontPalette(mode, 1, *destPalette.x14_layer2Pal, palette);
+      SetFontPalette(mode, 2, *destPalette.x1c_layer3Pal, palette);
+      SetFontPalette(mode, 3, *destPalette.x24_layer4Pal, palette);
+    }
+    out.WriteUint8(static_cast<u8>(Command::PaletteChange));
+    out.WriteUint8(paletteIndex);
+    x48_curBytecodeOffset += out.GetNumWrites();
   } else {
     x44_blobSize += 2;
   }
@@ -245,7 +303,7 @@ void CTextRenderBuffer::AddImage(const zeus::CVector2i& offset, const CFontImage
 
 void CTextRenderBuffer::AddCharacter(const zeus::CVector2i& offset, char16_t ch, const CTextColor& color) {
   if (x0_mode == EMode::BufferFill) {
-    CMemoryStreamOut out(GetOutStream(), GetCurLen());
+    CMemoryStreamOut out(GetOutStream(), GetCurLen(), CMemoryStreamOut::EOwnerShip::NotOwned, 64);
     x24_primOffsets.reserve(x24_primOffsets.size() + 1);
     u32 primCap = x24_primOffsets.capacity();
     if (x24_primOffsets.capacity() <= x24_primOffsets.size()) {
@@ -265,7 +323,7 @@ void CTextRenderBuffer::AddCharacter(const zeus::CVector2i& offset, char16_t ch,
 
 void CTextRenderBuffer::AddFontChange(const TToken<CRasterFont>& font) {
   if (x0_mode == EMode::BufferFill) {
-    CMemoryStreamOut out(GetOutStream(), GetCurLen());
+    CMemoryStreamOut out(GetOutStream(), GetCurLen(), CMemoryStreamOut::EOwnerShip::NotOwned, 64);
     u32 fontCount = x4_fonts.size();
     bool found = false;
     u8 fontIndex = 0;

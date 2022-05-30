@@ -58,6 +58,7 @@ public:
   void AddVerticalJustification(EVerticalJustification vjust);
   void AddJustification(EJustification just);
   void AddLineExtraSpace(s32 space);
+  void AddCharacterExtraSpace(s32 space);
   void AddLineSpacing(float spacing);
   void AddRemoveColorOverride(int idx);
   void AddColorOverride(int idx, const CTextColor& color);

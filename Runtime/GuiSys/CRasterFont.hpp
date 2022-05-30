@@ -16,7 +16,23 @@ class CDrawStringOptions;
 class CTextRenderBuffer;
 class IObjectStore;
 
-enum class EColorType { Main, Outline, Geometry, Foreground, Background };
+enum class EFontMode {
+  None = -1,
+  OneLayer = 0,        /* Fill bit0 */
+  OneLayerOutline = 1, /* Fill bit0, Outline bit1 */
+  FourLayers = 2,
+  TwoLayersOutlines = 3, /* Fill bit0/2, Outline bit1/3 */
+  TwoLayers = 4,         /* Fill bit0/1 and copied to bit2/3 */
+  TwoLayersOutlines2 = 8 /* Fill bit2/3, Outline bit0/1 */
+};
+
+enum class EColorType {
+  Main,
+  Outline,
+  Geometry,
+  Foreground,
+  Background,
+};
 
 /* NOTE: Is this a good place for CGlyph and CKernPair? */
 class CGlyph {
@@ -100,7 +116,7 @@ class CRasterFont {
   s32 x8_monoHeight = 16;
   std::vector<std::pair<char16_t, CGlyph>> xc_glyphs;
   std::vector<CKernPair> x1c_kerning;
-  CTexture::EFontType x2c_mode = CTexture::EFontType::OneLayer;
+  EFontMode x2c_mode = EFontMode::OneLayer;
   CFontInfo x30_fontInfo;
   TLockedToken<CTexture> x80_texture;
   s32 x8c_baseline;
@@ -113,20 +129,8 @@ public:
 
   s32 GetMonoWidth() const { return x4_monoWidth; }
   s32 GetMonoHeight() const { return x8_monoHeight; }
-  EColorType GetMode() const {
-    switch (x2c_mode) {
-    case CTexture::EFontType::OneLayer:
-    case CTexture::EFontType::TwoLayers:
-    case CTexture::EFontType::FourLayers:
-      return EColorType::Main;
-    case CTexture::EFontType::OneLayerOutline:
-    case CTexture::EFontType::TwoLayersOutlines:
-    case CTexture::EFontType::TwoLayersOutlines2:
-      return EColorType::Outline;
-    default:
-      return EColorType::Main;
-    }
-  }
+  EFontMode GetMode() const { return x2c_mode; }
+
   s32 GetLineMargin() const { return x90_lineMargin; }
   s32 GetCarriageAdvance() const { return GetLineMargin() + GetMonoHeight(); }
 

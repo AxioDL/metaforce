@@ -36,7 +36,7 @@ CRasterFont::CRasterFont(metaforce::CInputStream& in, metaforce::IObjectStore& s
   u32 txtrId = (version == 5 ? in.ReadLongLong() : in.ReadLong());
   x30_fontInfo = CFontInfo(tmp1, tmp2, tmp3, tmp4, name.c_str());
   x80_texture = store.GetObj({FOURCC('TXTR'), txtrId});
-  x2c_mode = CTexture::EFontType(in.ReadLong());
+  x2c_mode = EFontMode(in.ReadLong());
 
   u32 glyphCount = in.ReadLong();
   xc_glyphs.reserve(glyphCount);
@@ -160,7 +160,7 @@ void CRasterFont::DrawString(const CDrawStringOptions& opts, int x, int y, int& 
     data[2] = bswap16(opts.x4_colors[1].toRGB5A3());
     data[3] = bswap16(zeus::CColor(0.f, 0.f, 0.f, 0.f).toRGB5A3());
     pal.UnLock();
-    renderBuf->AddPaletteChange(pal);
+    renderBuf->AddPaletteChange(pal, GetMode());
   }
 
   SinglePassDrawString(opts, x, y, xout, yout, renderBuf, str, len);

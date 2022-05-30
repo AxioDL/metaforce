@@ -175,6 +175,8 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer() {
                                x14_props.x8_vertJustification);
   g_TextExecuteBuf->AddColor(EColorType::Main, x24_fontColor);
   g_TextExecuteBuf->AddColor(EColorType::Outline, x28_outlineColor);
+  g_TextExecuteBuf->AddCharacterExtraSpace(x34_characterExtraSpace);
+  g_TextExecuteBuf->AddLineExtraSpace(x38_lineExtraSpace);
 
   std::u16string initStr;
   if (x5c_fontId.IsValid())

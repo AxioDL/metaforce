@@ -49,12 +49,22 @@ void CLineExtraSpaceInstruction::PageInvoke(CFontRenderState& state, CTextRender
   Invoke(state, buf);
 }
 
-void CLineInstruction::TestLargestFont(s32 w, s32 h, s32 b) {
-  if (!x18_largestMonoBaseline)
-    x18_largestMonoBaseline = b;
+void CCharacterExtraSpaceInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const {
+  state.x48_extraCharacterSpace = x4_extraSpace;
+}
 
-  if (x14_largestMonoWidth < w)
+void CCharacterExtraSpaceInstruction::PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const {
+  Invoke(state, buf);
+}
+
+void CLineInstruction::TestLargestFont(s32 w, s32 h, s32 b) {
+  if (!x18_largestMonoBaseline) {
+    x18_largestMonoBaseline = b;
+  }
+
+  if (x14_largestMonoWidth < w) {
     x14_largestMonoWidth = w;
+  }
 
   if (x10_largestMonoHeight < h) {
     x10_largestMonoHeight = h;

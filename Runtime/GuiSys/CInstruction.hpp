@@ -60,6 +60,13 @@ public:
   void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
 
+class CCharacterExtraSpaceInstruction : public CInstruction {
+  s32 x4_extraSpace;
+public:
+  explicit CCharacterExtraSpaceInstruction(s32 extraSpace) : x4_extraSpace(extraSpace) {}
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+};
 class CLineInstruction : public CInstruction {
   friend class CTextExecuteBuffer;
   friend class CTextInstruction;

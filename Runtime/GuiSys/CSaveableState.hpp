@@ -16,6 +16,7 @@ class CSaveableState {
   friend class CFontInstruction;
   friend class CGuiTextSupport;
   friend class CLineExtraSpaceInstruction;
+  friend class CCharacterExtraSpaceInstruction;
   friend class CLineSpacingInstruction;
   friend class CRemoveColorOverrideInstruction;
   friend class CTextExecuteBuffer;
@@ -24,6 +25,7 @@ class CSaveableState {
 
 protected:
   CDrawStringOptions x0_drawStrOpts;
+  s32 x48_extraCharacterSpace;
   TLockedToken<CRasterFont> x48_font;
   std::vector<CTextColor> x54_colors;
   std::vector<bool> x64_colorOverrides;
