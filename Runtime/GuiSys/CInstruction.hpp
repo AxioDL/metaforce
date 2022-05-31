@@ -62,6 +62,7 @@ public:
 
 class CCharacterExtraSpaceInstruction : public CInstruction {
   s32 x4_extraSpace;
+
 public:
   explicit CCharacterExtraSpaceInstruction(s32 extraSpace) : x4_extraSpace(extraSpace) {}
   void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
@@ -87,8 +88,8 @@ class CLineInstruction : public CInstruction {
   bool x30_imageBaseline;
 
 public:
-  CLineInstruction(EJustification just, EVerticalJustification vjust, bool imageBaseline)
-  : x28_just(just), x2c_vjust(vjust), x30_imageBaseline(imageBaseline) {}
+  CLineInstruction(s32 wordCount, int x, int y, EJustification just, EVerticalJustification vjust, bool imageBaseline)
+  : x4_wordCount(wordCount), x8_curX(x), xc_curY(y), x28_just(just), x2c_vjust(vjust), x30_imageBaseline(imageBaseline) {}
   void TestLargestFont(s32 w, s32 h, s32 b);
   void TestLargestImage(s32 w, s32 h, s32 b);
   void InvokeLTR(CFontRenderState& state) const;

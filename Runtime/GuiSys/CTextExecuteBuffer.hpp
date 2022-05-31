@@ -22,7 +22,6 @@ class CTextExecuteBuffer {
   using InstList = std::list<std::shared_ptr<CInstruction>>;
 
   InstList x0_instList;
-  u32 x14_ = 0;
   CSaveableState x18_textState;
   CBlockInstruction* xa0_curBlock = nullptr;
   CLineInstruction* xa4_curLine = nullptr;
@@ -34,7 +33,6 @@ class CTextExecuteBuffer {
   s32 xbc_spaceDistance = 0;
   bool xc0_imageBaseline = false;
   std::list<CSaveableState> xc4_stateStack;
-  u32 xd8_ = 0;
 
 public:
   CTextExecuteBuffer() : xa8_curWordIt{x0_instList.begin()} {}
@@ -51,8 +49,8 @@ public:
   void MoveWordLTR();
   void StartNewLine();
   void StartNewWord();
-  void TerminateLine();
-  void TerminateLineLTR();
+  void TerminateLine(bool b);
+  void TerminateLineLTR(bool b);
   void AddPopState();
   void AddPushState();
   void AddVerticalJustification(EVerticalJustification vjust);

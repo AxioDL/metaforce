@@ -12,7 +12,7 @@
 namespace metaforce {
 
 CTextRenderBuffer CTextExecuteBuffer::BuildRenderBuffer(CGuiWidget::EGuiModelDrawFlags df) const {
-  CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally);//, df);
+  CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally); //, df);
 
   {
     CFontRenderState rendState;
@@ -35,7 +35,7 @@ CTextRenderBuffer CTextExecuteBuffer::BuildRenderBufferPage(InstList::const_iter
                                                             InstList::const_iterator pgStart,
                                                             InstList::const_iterator pgEnd,
                                                             CGuiWidget::EGuiModelDrawFlags df) const {
-  CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally);//, df);
+  CTextRenderBuffer ret(CTextRenderBuffer::EMode::AllocTally); //, df);
 
   {
     CFontRenderState rendState;
@@ -71,7 +71,7 @@ std::list<CTextRenderBuffer> CTextExecuteBuffer::BuildRenderBufferPages(const ze
   std::list<CTextRenderBuffer> ret;
 
   for (auto it = x0_instList.begin(); it != x0_instList.end();) {
-    CTextRenderBuffer rbuf(CTextRenderBuffer::EMode::AllocTally);//, df);
+    CTextRenderBuffer rbuf(CTextRenderBuffer::EMode::AllocTally); //, df);
 
     {
       CFontRenderState rstate;
@@ -220,12 +220,13 @@ void CTextExecuteBuffer::MoveWordLTR() {
   xa4_curLine->xc_curY = std::min(xa4_curLine->xc_curY, xb8_curWordY);
   xbc_spaceDistance = 0;
   --xa4_curLine->x4_wordCount;
-  TerminateLineLTR();
+  TerminateLineLTR(false);
 
   xa4_curLine = static_cast<CLineInstruction*>(
       x0_instList
-          .emplace(xa8_curWordIt, std::make_shared<CLineInstruction>(x18_textState.x80_just, x18_textState.x84_vjust,
-                                                                     xc0_imageBaseline))
+          .emplace(xa8_curWordIt,
+                   std::make_shared<CLineInstruction>(1, xb4_curWordX, xb8_curWordY, x18_textState.x80_just,
+                                                      x18_textState.x84_vjust, xc0_imageBaseline))
           ->get());
 
   // Dunno what's up with this in the original; seems fine without
@@ -235,12 +236,13 @@ void CTextExecuteBuffer::MoveWordLTR() {
 }
 
 void CTextExecuteBuffer::StartNewLine() {
-  if (xa4_curLine)
-    TerminateLine();
+  if (xa4_curLine) {
+    TerminateLine(true);
+  }
 
   xa8_curWordIt = x0_instList.emplace(
       x0_instList.cend(),
-      std::make_shared<CLineInstruction>(x18_textState.x80_just, x18_textState.x84_vjust, xc0_imageBaseline));
+      std::make_shared<CLineInstruction>(0, 0, 0, x18_textState.x80_just, x18_textState.x84_vjust, xc0_imageBaseline));
   xa4_curLine = static_cast<CLineInstruction*>(xa8_curWordIt->get());
   xbc_spaceDistance = 0;
 
@@ -257,17 +259,21 @@ void CTextExecuteBuffer::StartNewWord() {
   ++xa4_curLine->x4_wordCount;
 }
 
-void CTextExecuteBuffer::TerminateLine() {
+void CTextExecuteBuffer::TerminateLine(bool b) {
   if (xa0_curBlock->x14_dir == ETextDirection::Horizontal)
-    TerminateLineLTR();
+    TerminateLineLTR(b);
 }
 
-void CTextExecuteBuffer::TerminateLineLTR() {
-  if (!xa4_curLine->xc_curY /*&& x18_textState.IsFinishedLoading()*/) {
+void CTextExecuteBuffer::TerminateLineLTR(bool b) {
+  if (!xa4_curLine->xc_curY && x18_textState.IsFinishedLoading()) {
     xa4_curLine->xc_curY = std::max(xa4_curLine->GetHeight(), x18_textState.x48_font->GetCarriageAdvance());
   }
+  bool b2 = true;
+  if (xa0_curBlock->x1c_vertJustification != EVerticalJustification::Full && !b) {
+    b2 = false;
+  }
 
-  if (xa0_curBlock->x1c_vertJustification == EVerticalJustification::Full) {
+  if (b2) {
     xa0_curBlock->x30_lineY += xa4_curLine->xc_curY;
   } else {
     xa0_curBlock->x30_lineY += x18_textState.x78_extraLineSpace + xa4_curLine->xc_curY * x18_textState.x74_lineSpacing;
@@ -293,19 +299,17 @@ void CTextExecuteBuffer::AddPushState() {
 
 void CTextExecuteBuffer::AddVerticalJustification(EVerticalJustification vjust) {
   x18_textState.x84_vjust = vjust;
-  if (!xa4_curLine)
+  if (xa4_curLine == nullptr || xa4_curLine->x8_curX != 0) {
     return;
-  if (xa4_curLine->x8_curX)
-    return;
+  }
   xa4_curLine->x2c_vjust = vjust;
 }
 
 void CTextExecuteBuffer::AddJustification(EJustification just) {
   x18_textState.x80_just = just;
-  if (!xa4_curLine)
+  if (xa4_curLine == nullptr || xa4_curLine->x8_curX != 0) {
     return;
-  if (xa4_curLine->x8_curX)
-    return;
+  }
   xa4_curLine->x28_just = just;
 }
 
@@ -372,7 +376,7 @@ void CTextExecuteBuffer::AddFont(const TToken<CRasterFont>& font) {
 
 void CTextExecuteBuffer::EndBlock() {
   if (xa4_curLine)
-    TerminateLine();
+    TerminateLine(false);
   xa4_curLine = nullptr;
   xa0_curBlock = nullptr;
 }

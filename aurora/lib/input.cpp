@@ -103,7 +103,7 @@ static std::optional<std::string> remap_controller_layout(std::string_view mappi
     Log.report(logvisor::Error, FMT_STRING("Controller has unsupported layout: {}"), mapping);
     return {};
   }
-  for (const auto [k, v] : entries) {
+  for (auto [k, v] : entries) {
     newMapping.push_back(',');
     newMapping.append(k);
     newMapping.push_back(':');
