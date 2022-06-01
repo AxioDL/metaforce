@@ -1750,13 +1750,13 @@ void ImGuiConsole::ShowPipelineProgress() {
 void ImGuiConsole::ControllerAdded(uint32_t idx) {
   const char* name = PADGetName(idx);
   if (name != nullptr) {
-    m_toasts.emplace_back(fmt::format("Controller {} ({}) connected", idx, name), 5.f);
+    m_toasts.emplace_back(fmt::format(FMT_STRING("Controller {} ({}) connected"), idx, name), 5.f);
   } else {
-    m_toasts.emplace_back(fmt::format("Controller {} connected", idx), 5.f);
+    m_toasts.emplace_back(fmt::format(FMT_STRING("Controller {} connected"), idx), 5.f);
   }
 }
 
 void ImGuiConsole::ControllerRemoved(uint32_t idx) {
-  m_toasts.emplace_back(fmt::format("Controller {} disconnected", idx), 5.f);
+  m_toasts.emplace_back(fmt::format(FMT_STRING("Controller {} disconnected"), idx), 5.f);
 }
 } // namespace metaforce

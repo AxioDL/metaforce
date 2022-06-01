@@ -195,6 +195,8 @@ public:
         m_voiceEngine->setVolume(0.f);
     }
 #endif
+
+    m_voiceEngine->startPump();
   }
 
   void initialize() {
@@ -273,8 +275,14 @@ public:
 
     if (g_mainMP1) {
       m_imGuiConsole.PreUpdate();
+      if (m_voiceEngine) {
+        m_voiceEngine->lockPump();
+      }
       if (g_mainMP1->Proc(dt)) {
         return false;
+      }
+      if (m_voiceEngine) {
+        m_voiceEngine->unlockPump();
       }
       m_imGuiConsole.PostUpdate();
     } else {
@@ -334,13 +342,16 @@ public:
 
   void onAppExiting() noexcept override {
     m_imGuiConsole.Shutdown();
+    if (m_voiceEngine) {
+      m_voiceEngine->stopPump();
+    }
     if (g_mainMP1) {
       g_mainMP1->Shutdown();
     }
     g_mainMP1.reset();
     m_cvarManager.serialize();
-    m_voiceEngine.reset();
     m_amuseAllocWrapper.reset();
+    m_voiceEngine.reset();
     CDvdFile::Shutdown();
   }
 
