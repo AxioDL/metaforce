@@ -38,6 +38,15 @@ else ()
   include(athena/atdna/atdnaHelpers.cmake)
 endif ()
 
+if (WIN32)
+  set(SDL_LIBC ON CACHE BOOL "Use the system C library" FORCE)
+endif ()
+add_subdirectory(../extern/SDL SDL2 EXCLUDE_FROM_ALL)
+if (NOT MSVC)
+  target_compile_options(SDL2-static PRIVATE -Wno-implicit-fallthrough -Wno-shadow)
+endif ()
+
+# boo must come after SDL2
 add_subdirectory(boo EXCLUDE_FROM_ALL)
 add_subdirectory(nod EXCLUDE_FROM_ALL)
 # amuse must come after athena/atdna, boo and nod
@@ -88,14 +97,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   target_compile_definitions(nativefiledialog INTERFACE NATIVEFILEDIALOG_SUPPORTED)
 else ()
   message(WARNING "nativefiledialog unsupported for ${CMAKE_SYSTEM_NAME}")
-endif ()
-
-if (WIN32)
-  set(SDL_LIBC ON CACHE BOOL "Use the system C library" FORCE)
-endif ()
-add_subdirectory(../extern/SDL SDL2 EXCLUDE_FROM_ALL)
-if (NOT MSVC)
-  target_compile_options(SDL2-static PRIVATE -Wno-implicit-fallthrough -Wno-shadow)
 endif ()
 
 # Enable MoltenVK
