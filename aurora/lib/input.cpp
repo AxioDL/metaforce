@@ -5,6 +5,7 @@
 #include "magic_enum.hpp"
 
 #include <SDL_haptic.h>
+#include <SDL_version.h>
 
 #include <absl/container/btree_map.h>
 #include <absl/container/flat_hash_map.h>
@@ -103,7 +104,7 @@ static std::optional<std::string> remap_controller_layout(std::string_view mappi
     Log.report(logvisor::Error, FMT_STRING("Controller has unsupported layout: {}"), mapping);
     return {};
   }
-  for (const auto [k, v] : entries) {
+  for (auto [k, v] : entries) {
     newMapping.push_back(',');
     newMapping.append(k);
     newMapping.push_back(':');
@@ -140,7 +141,11 @@ Sint32 add_controller(Sint32 which) noexcept {
       return -1;
     }
     controller.m_isGameCube = controller.m_vid == 0x057E && controller.m_pid == 0x0337;
+#if SDL_VERSION_ATLEAST(2, 0, 18)
     controller.m_hasRumble = (SDL_GameControllerHasRumble(ctrl) != 0u);
+#else
+    controller.m_hasRumble = true;
+#endif
     Sint32 instance = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(ctrl));
     g_GameControllers[instance] = controller;
     return instance;

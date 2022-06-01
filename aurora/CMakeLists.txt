@@ -17,7 +17,10 @@ add_library(aurora STATIC
 target_compile_definitions(aurora PRIVATE IMGUI_USER_CONFIG="imconfig_user.h") # IMGUI_USE_WCHAR32
 target_include_directories(aurora PUBLIC include ../)
 target_include_directories(aurora PRIVATE ../imgui ../extern/imgui)
-target_link_libraries(aurora PRIVATE dawn_native dawncpp webgpu_dawn zeus logvisor SDL2-static xxhash
+if(NOT TARGET SDL2::SDL2-static)
+  find_package(SDL2 REQUIRED)
+endif()
+target_link_libraries(aurora PRIVATE dawn_native dawncpp webgpu_dawn zeus logvisor SDL2::SDL2-static xxhash
     absl::btree absl::flat_hash_map)
 if (DAWN_ENABLE_VULKAN)
   target_compile_definitions(aurora PRIVATE DAWN_ENABLE_BACKEND_VULKAN)
@@ -35,4 +38,8 @@ endif ()
 if (DAWN_ENABLE_DESKTOP_GL)
   target_compile_definitions(aurora PRIVATE DAWN_ENABLE_BACKEND_OPENGL DAWN_ENABLE_BACKEND_DESKTOP_GL)
   target_sources(aurora PRIVATE lib/dawn/OpenGLBinding.cpp)
+endif ()
+if (DAWN_ENABLE_NULL)
+  target_compile_definitions(aurora PRIVATE DAWN_ENABLE_BACKEND_NULL)
+  target_sources(aurora PRIVATE lib/dawn/NullBinding.cpp)
 endif ()

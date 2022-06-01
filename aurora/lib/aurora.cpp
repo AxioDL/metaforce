@@ -65,7 +65,9 @@ static bool poll_events() noexcept {
         break;
       }
       case SDL_WINDOWEVENT_EXPOSED:
+#if SDL_VERSION_ATLEAST(2, 0, 18)
       case SDL_WINDOWEVENT_DISPLAY_CHANGED:
+#endif
       case SDL_WINDOWEVENT_RESIZED:
       case SDL_WINDOWEVENT_SIZE_CHANGED:
       case SDL_WINDOWEVENT_MINIMIZED:
@@ -224,7 +226,7 @@ static bool poll_events() noexcept {
 
 static SDL_Window* create_window(wgpu::BackendType type) {
   Uint32 flags = SDL_WINDOW_ALLOW_HIGHDPI;
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || defined(__SWITCH__)
   flags |= SDL_WINDOW_FULLSCREEN;
 #else
   flags |= SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE;
@@ -267,9 +269,12 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv,
 #if !defined(_WIN32) && !defined(__APPLE__)
   SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
 #endif
-  SDL_SetHint(SDL_HINT_JOYSTICK_GAMECUBE_RUMBLE_BRAKE, "1");
-
+#if SDL_VERSION_ATLEAST(2, 0, 18)
   SDL_SetHint(SDL_HINT_SCREENSAVER_INHIBIT_ACTIVITY_NAME, "Metaforce");
+#endif
+#ifdef SDL_HINT_JOYSTICK_GAMECUBE_RUMBLE_BRAKE
+  SDL_SetHint(SDL_HINT_JOYSTICK_GAMECUBE_RUMBLE_BRAKE, "1");
+#endif
 
   SDL_DisableScreenSaver();
   /* TODO: Make this an option rather than hard coding it */
@@ -292,8 +297,23 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv,
     unreachable();
   }
   set_window_icon(std::move(icon));
-  SDL_ShowWindow(g_window);
 
+  // Initialize SDL_Renderer for ImGui when we can't use a Dawn backend
+  SDL_Renderer* renderer = nullptr;
+  if (gpu::g_backendType == wgpu::BackendType::Null) {
+    const auto flags = SDL_RENDERER_PRESENTVSYNC;
+    renderer = SDL_CreateRenderer(g_window, -1, flags | SDL_RENDERER_ACCELERATED);
+    if (renderer == nullptr) {
+      // Attempt fallback to SW renderer
+      renderer = SDL_CreateRenderer(g_window, -1, flags);
+    }
+    if (renderer == nullptr) {
+      Log.report(logvisor::Fatal, FMT_STRING("Failed to initialize SDL renderer: {}"), SDL_GetError());
+      unreachable();
+    }
+  }
+
+  SDL_ShowWindow(g_window);
   gfx::initialize();
 
   imgui::create_context();
@@ -301,7 +321,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv,
   Log.report(logvisor::Info, FMT_STRING("Using framebuffer size {}x{} scale {}"), size.fb_width, size.fb_height,
              size.scale);
   g_AppDelegate->onImGuiInit(size.scale);
-  imgui::initialize(g_window);
+  imgui::initialize(g_window, renderer);
   g_AppDelegate->onImGuiAddTextures();
 
   g_AppDelegate->onAppLaunched();
@@ -360,6 +380,9 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv,
   imgui::shutdown();
   gfx::shutdown();
   gpu::shutdown();
+  if (renderer != nullptr) {
+    SDL_DestroyRenderer(renderer);
+  }
   SDL_DestroyWindow(g_window);
   SDL_EnableScreenSaver();
   SDL_Quit();

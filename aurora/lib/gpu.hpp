@@ -47,6 +47,9 @@ constexpr std::array PreferredBackendOrder{
 #ifdef DAWN_ENABLE_BACKEND_OPENGLES
     wgpu::BackendType::OpenGLES,
 #endif
+#ifdef DAWN_ENABLE_BACKEND_NULL
+    wgpu::BackendType::Null,
+#endif
 };
 
 extern wgpu::Device g_device;

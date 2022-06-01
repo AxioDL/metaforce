@@ -9,6 +9,7 @@
 #include <dawn/webgpu_cpp.h>
 
 #include "../extern/imgui/backends/imgui_impl_sdl.cpp"
+#include "../extern/imgui/backends/imgui_impl_sdlrenderer.cpp"
 #include "../extern/imgui/backends/imgui_impl_wgpu.cpp"
 
 namespace aurora::imgui {
@@ -29,17 +30,27 @@ void create_context() noexcept {
   io.LogFilename = g_imguiLog.c_str();
 }
 
-void initialize(SDL_Window* window) noexcept {
-  ImGui_ImplSDL2_Init(window, nullptr);
+static bool g_useSdlRenderer = false;
+void initialize(SDL_Window* window, SDL_Renderer* renderer) noexcept {
+  ImGui_ImplSDL2_Init(window, renderer);
 #ifdef __APPLE__
   // Disable MouseCanUseGlobalState for scaling purposes
   ImGui_ImplSDL2_GetBackendData()->MouseCanUseGlobalState = false;
 #endif
-  ImGui_ImplWGPU_Init(g_device.Get(), 1, static_cast<WGPUTextureFormat>(gpu::g_graphicsConfig.colorFormat));
+  g_useSdlRenderer = renderer != nullptr;
+  if (g_useSdlRenderer) {
+    ImGui_ImplSDLRenderer_Init(renderer);
+  } else {
+    ImGui_ImplWGPU_Init(g_device.Get(), 1, static_cast<WGPUTextureFormat>(gpu::g_graphicsConfig.colorFormat));
+  }
 }
 
 void shutdown() noexcept {
-  ImGui_ImplWGPU_Shutdown();
+  if (g_useSdlRenderer) {
+    ImGui_ImplSDLRenderer_Shutdown();
+  } else {
+    ImGui_ImplWGPU_Shutdown();
+  }
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
 }
@@ -49,8 +60,7 @@ void process_event(const SDL_Event& event) noexcept {
   if (event.type == SDL_MOUSEMOTION) {
     auto& io = ImGui::GetIO();
     // Scale up mouse coordinates
-    io.AddMousePosEvent(static_cast<float>(event.motion.x) * g_scale,
-                        static_cast<float>(event.motion.y) * g_scale);
+    io.AddMousePosEvent(static_cast<float>(event.motion.x) * g_scale, static_cast<float>(event.motion.y) * g_scale);
     return;
   }
 #endif
@@ -58,15 +68,19 @@ void process_event(const SDL_Event& event) noexcept {
 }
 
 void new_frame(const WindowSize& size) noexcept {
-  if (g_scale != size.scale) {
-    if (g_scale > 0.f) {
-      // TODO wgpu backend bug: doesn't clear bind groups on invalidate
-      g_resources.ImageBindGroups.Clear();
-      ImGui_ImplWGPU_CreateDeviceObjects();
+  if (g_useSdlRenderer) {
+    ImGui_ImplSDLRenderer_NewFrame();
+  } else {
+    if (g_scale != size.scale) {
+      if (g_scale > 0.f) {
+        // TODO wgpu backend bug: doesn't clear bind groups on invalidate
+        g_resources.ImageBindGroups.Clear();
+        ImGui_ImplWGPU_CreateDeviceObjects();
+      }
+      g_scale = size.scale;
     }
-    g_scale = size.scale;
+    ImGui_ImplWGPU_NewFrame();
   }
-  ImGui_ImplWGPU_NewFrame();
   ImGui_ImplSDL2_NewFrame();
 
   // Render at full DPI
@@ -80,10 +94,24 @@ void render(const wgpu::RenderPassEncoder& pass) noexcept {
   auto* data = ImGui::GetDrawData();
   // io.DisplayFramebufferScale is informational; we're rendering at full DPI
   data->FramebufferScale = {1.f, 1.f};
-  ImGui_ImplWGPU_RenderDrawData(data, pass.Get());
+  if (g_useSdlRenderer) {
+    SDL_Renderer* renderer = ImGui_ImplSDLRenderer_GetBackendData()->SDLRenderer;
+    SDL_RenderClear(renderer);
+    ImGui_ImplSDLRenderer_RenderDrawData(data);
+    SDL_RenderPresent(renderer);
+  } else {
+    ImGui_ImplWGPU_RenderDrawData(data, pass.Get());
+  }
 }
 
 ImTextureID add_texture(uint32_t width, uint32_t height, ArrayRef<uint8_t> data) noexcept {
+  if (g_useSdlRenderer) {
+    SDL_Renderer* renderer = ImGui_ImplSDLRenderer_GetBackendData()->SDLRenderer;
+    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, width, height);
+    SDL_UpdateTexture(texture, nullptr, data.data(), width * 4);
+    SDL_SetTextureScaleMode(texture, SDL_ScaleModeLinear);
+    return texture;
+  }
   const auto size = wgpu::Extent3D{
       .width = width,
       .height = height,

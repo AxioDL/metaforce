@@ -1,5 +1,6 @@
 #pragma once
 
+struct SDL_Renderer;
 struct SDL_Window;
 union SDL_Event;
 
@@ -13,7 +14,7 @@ struct WindowSize;
 
 namespace aurora::imgui {
 void create_context() noexcept;
-void initialize(SDL_Window* window) noexcept;
+void initialize(SDL_Window* window, SDL_Renderer* renderer) noexcept;
 void shutdown() noexcept;
 
 void process_event(const SDL_Event& event) noexcept;

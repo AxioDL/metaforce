@@ -265,7 +265,7 @@ const stream::State& get_state() {
 }
 template <>
 void push_draw_command(stream::DrawData data) {
-  push_draw_command({.type = ShaderType::Stream, .stream = data});
+  push_draw_command(ShaderDrawCommand{.type = ShaderType::Stream, .stream = data});
 }
 template <>
 PipelineRef pipeline_ref(stream::PipelineConfig config) {
@@ -274,7 +274,7 @@ PipelineRef pipeline_ref(stream::PipelineConfig config) {
 
 template <>
 void push_draw_command(model::DrawData data) {
-  push_draw_command({.type = ShaderType::Model, .model = data});
+  push_draw_command(ShaderDrawCommand{.type = ShaderType::Model, .model = data});
 }
 template <>
 PipelineRef pipeline_ref(model::PipelineConfig config) {

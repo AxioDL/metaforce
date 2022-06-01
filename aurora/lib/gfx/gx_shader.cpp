@@ -29,6 +29,8 @@ static inline std::string_view chan_comp(GX::TevColorChan chan) noexcept {
     return "b";
   case GX::CH_ALPHA:
     return "a";
+  default:
+    return "?";
   }
 }
 
@@ -116,26 +118,6 @@ static void color_arg_reg_info(GX::TevColorArg arg, const TevStage& stage, Shade
 
 static bool formatHasAlpha(GX::TextureFormat format) {
   switch (format) {
-  case GX::TF_I4:
-  case GX::TF_I8:
-  case GX::TF_RGB565:
-  case GX::TF_C4:
-  case GX::TF_C8:
-  case GX::TF_C14X2:
-  case GX::TF_Z8:
-  case GX::TF_Z16:
-  case GX::TF_Z24X8:
-  case GX::CTF_R4:
-  case GX::CTF_R8:
-  case GX::CTF_G8:
-  case GX::CTF_B8:
-  case GX::CTF_RG8:
-  case GX::CTF_GB8:
-  case GX::CTF_Z4:
-  case GX::CTF_Z8M:
-  case GX::CTF_Z8L:
-  case GX::CTF_Z16L:
-    return false;
   case GX::TF_IA4:
   case GX::TF_IA8:
   case GX::TF_RGB5A3:
@@ -146,6 +128,8 @@ static bool formatHasAlpha(GX::TextureFormat format) {
   case GX::CTF_YUVA8:
   case GX::CTF_A8:
     return true;
+  default:
+    return false;
   }
 }
 

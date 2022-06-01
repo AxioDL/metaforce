@@ -13,6 +13,9 @@
 #include <SDL_video.h>
 #include <dawn/native/OpenGLBackend.h>
 #endif
+#if defined(DAWN_ENABLE_BACKEND_NULL)
+#include <dawn/native/NullBackend.h>
+#endif
 
 namespace aurora::gpu::utils {
 
@@ -69,6 +72,11 @@ bool DiscoverAdapter(dawn::native::Instance* instance, SDL_Window* window, wgpu:
       return instance->DiscoverAdapters(&adapterOptions);
     }
   }
+#endif
+#if defined(DAWN_ENABLE_BACKEND_NULL)
+  case wgpu::BackendType::Null:
+    instance->DiscoverDefaultAdapters();
+    return true;
 #endif
   default:
     return false;
