@@ -273,11 +273,10 @@ void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::C
 
   if (lineColor.a()) {
     bool draw2 = lineWidth > 1.f;
-    u32 outlineCount = *reinterpret_cast<u32*>(&x1c_outlineOffset);
+    u32 outlineCount = *reinterpret_cast<const u32*>(x1c_outlineOffset);
 #if METAFORCE_TARGET_BYTE_ORDER == __ORDER_LITTLE_ENDIAN__
     outlineCount = CBasics::SwapBytes(outlineCount);
 #endif
-
 
     std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
     zeus::CColor color = lineColor;
