@@ -153,11 +153,11 @@ set(DISCORD_RPC_LIBRARY "")
 if (NOT GEKKO AND NOT NX AND NOT IOS AND NOT TVOS)
     set(DISCORD_RPC_LIBRARY "discord-rpc")
 endif()
-set(RUNTIME_LIBRARIES amuse zeus nod NESEmulator libjpeg-turbo jbus kabufuda logvisor OptickCore imgui aurora SDL2-static
+set(RUNTIME_LIBRARIES amuse zeus nod NESEmulator libjpeg-turbo jbus kabufuda logvisor OptickCore imgui aurora
     boo # TODO move audiodev
     ${DISCORD_RPC_LIBRARY}
     ${ZLIB_LIBRARIES}
-    SDL2main
+    SDL2::SDL2-static SDL2::SDL2main
     )
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})

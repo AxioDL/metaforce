@@ -312,8 +312,6 @@
         "macos-default-relwithdebinfo"
       ],
       "cacheVariables": {
-        "CMAKE_C_COMPILER_LAUNCHER": "buildcache",
-        "CMAKE_CXX_COMPILER_LAUNCHER": "buildcache",
         "CMAKE_OSX_ARCHITECTURES": "arm64;x86_64",
         "IMGUI_USE_FREETYPE": {
           "type": "BOOL",

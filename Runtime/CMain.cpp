@@ -343,6 +343,7 @@ public:
   void onAppExiting() noexcept override {
     m_imGuiConsole.Shutdown();
     if (m_voiceEngine) {
+      m_voiceEngine->unlockPump();
       m_voiceEngine->stopPump();
     }
     if (g_mainMP1) {
@@ -488,6 +489,11 @@ public:
 } // namespace metaforce
 
 static void SetupBasics(bool logging) {
+#if _WIN32
+  if (logging && GetFileType(GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN)
+    logvisor::CreateWin32Console();
+#endif
+
   auto result = zeus::validateCPU();
   if (!result.first) {
 #if _WIN32 && !WINDOWS_STORE
@@ -524,6 +530,7 @@ static bool IsClientLoggingEnabled(int argc, char** argv) {
 
 #if !WINDOWS_STORE
 int main(int argc, char** argv) {
+
   // TODO: This seems to fix a lot of weird issues with rounding
   //  but breaks animations, need to research why this is the case
   //  for now it's disabled
@@ -562,32 +569,5 @@ int main(int argc, char** argv) {
   };
   aurora::app_run(std::move(app), std::move(data), argc, argv, fileMgr.getStoreRoot());
   return 0;
-}
-#endif
-
-#if WINDOWS_STORE
-#include "boo/UWPViewProvider.hpp"
-using namespace Windows::ApplicationModel::Core;
-
-[Platform::MTAThread] int WINAPIV main(Platform::Array<Platform::String ^> ^ params) {
-  SetupBasics(false);
-  metaforce::Application appCb;
-  auto viewProvider = ref new boo::ViewProvider(appCb, "metaforce", "Metaforce", "metaforce", params, false);
-  CoreApplication::Run(viewProvider);
-  return 0;
-}
-
-#elif _WIN32
-#include <shellapi.h>
-#include <nowide/args.hpp>
-
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int) {
-  int argc = 0;
-  char** argv = nullptr;
-  nowide::args _(argc, argv);
-  const DWORD outType = GetFileType(GetStdHandle(STD_ERROR_HANDLE));
-  if (IsClientLoggingEnabled(argc, argv) && outType == FILE_TYPE_UNKNOWN)
-    logvisor::CreateWin32Console();
-  return main(argc, argv);
 }
 #endif
