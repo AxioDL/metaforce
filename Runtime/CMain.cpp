@@ -21,6 +21,7 @@
 #define NOMINMAX
 #endif
 #include <Windows.h>
+#include <shellapi.h>
 #endif
 
 #include "../version.h"
