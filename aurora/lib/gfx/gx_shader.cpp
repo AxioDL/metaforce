@@ -1215,18 +1215,17 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
     fragmentFn += "\n    prev = vec4<f32>(in.nrm, prev.a);";
   }
 
-  const auto shaderSource =
-      fmt::format(FMT_STRING(R"""({uniformPre}
+  const auto shaderSource = fmt::format(FMT_STRING(R"""({10}
 struct Uniform {{
     pos_mtx: mat4x3<f32>,
     nrm_mtx: mat4x3<f32>,
-    proj: mat4x4<f32>,{uniBufAttrs}
+    proj: mat4x4<f32>,{0}
 }};
 @group(0) @binding(0)
-var<uniform> ubuf: Uniform;{uniformBindings}{sampBindings}{texBindings}
+var<uniform> ubuf: Uniform;{3}{1}{2}
 
 struct VertexOutput {{
-    @builtin(position) pos: vec4<f32>,{vtxOutAttrs}
+    @builtin(position) pos: vec4<f32>,{4}
 }};
 
 fn intensityF32(rgb: vec3<f32>) -> f32 {{
@@ -1274,21 +1273,19 @@ fn textureSamplePaletteRGB(tex: texture_2d<f32>, samp: sampler, uv: vec2<f32>, t
 }}
 
 @stage(vertex)
-fn vs_main({vtxInAttrs}
+fn vs_main({5}
 ) -> VertexOutput {{
-    var out: VertexOutput;{vtxXfrAttrsPre}{vtxXfrAttrs}
+    var out: VertexOutput;{9}{6}
     return out;
 }}
 
 @stage(fragment)
-fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {{{fragmentFnPre}{fragmentFn}
+fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {{{8}{7}
     return prev;
 }}
 )"""),
-                  "uniBufAttrs"_a = uniBufAttrs, "sampBindings"_a = sampBindings, "texBindings"_a = texBindings,
-                  "vtxOutAttrs"_a = vtxOutAttrs, "vtxInAttrs"_a = vtxInAttrs, "vtxXfrAttrs"_a = vtxXfrAttrs,
-                  "fragmentFn"_a = fragmentFn, "fragmentFnPre"_a = fragmentFnPre, "vtxXfrAttrsPre"_a = vtxXfrAttrsPre,
-                  "uniformBindings"_a = uniformBindings, "uniformPre"_a = uniformPre);
+                                        uniBufAttrs, sampBindings, texBindings, uniformBindings, vtxOutAttrs,
+                                        vtxInAttrs, vtxXfrAttrs, fragmentFn, fragmentFnPre, vtxXfrAttrsPre, uniformPre);
   if (EnableDebugPrints) {
     Log.report(logvisor::Info, FMT_STRING("Generated shader: {}"), shaderSource);
   }

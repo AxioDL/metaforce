@@ -136,6 +136,7 @@ jobs:
         run: cmake --build --preset x-macos-ci
 
       - name: Print buildcache stats
+        if: 'false' # temporarily disabled
         run: buildcache -s
 
   build-ios:
