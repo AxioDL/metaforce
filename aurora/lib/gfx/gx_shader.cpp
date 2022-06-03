@@ -1084,12 +1084,10 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
     // } else {
     uvIn = fmt::format(FMT_STRING("in.tex{0}_uv"), stage.texCoordId);
     // }
-    if (texConfig.loadFmt == GX::TF_C4 || texConfig.loadFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2) {
-      bool isPaletted =
-          texConfig.copyFmt == GX::TF_C4 || texConfig.copyFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2;
+    if (is_palette_format(texConfig.loadFmt)) {
       fragmentFnPre +=
           fmt::format(FMT_STRING("\n    var sampled{0} = textureSamplePalette{3}(tex{1}, tex{1}_samp, {2}, tlut{1});"),
-                      i, stage.texMapId, uvIn, isPaletted ? ""sv : "RGB"sv);
+                      i, stage.texMapId, uvIn, is_palette_format(texConfig.copyFmt) ? ""sv : "RGB"sv);
     } else {
       fragmentFnPre += fmt::format(
           FMT_STRING("\n    var sampled{0} = textureSampleBias(tex{1}, tex{1}_samp, {2}, ubuf.tex{1}_lod);"), i,
@@ -1171,12 +1169,10 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
                                 texBindIdx, i);
 
     const auto& texConfig = config.textureConfig[i];
-    if (texConfig.loadFmt == GX::TF_C4 || texConfig.loadFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2) {
-      bool isPaletted =
-          texConfig.copyFmt == GX::TF_C4 || texConfig.copyFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2;
+    if (is_palette_format(texConfig.loadFmt)) {
       texBindings += fmt::format(FMT_STRING("\n@group(2) @binding({})\n"
                                             "var tex{}: texture_2d<{}>;"),
-                                 texBindIdx, i, isPaletted ? "i32"sv : "f32"sv);
+                                 texBindIdx, i, is_palette_format(texConfig.copyFmt) ? "i32"sv : "f32"sv);
       ++texBindIdx;
       texBindings += fmt::format(FMT_STRING("\n@group(2) @binding({})\n"
                                             "var tlut{}: texture_2d<f32>;"),

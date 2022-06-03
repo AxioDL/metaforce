@@ -1117,7 +1117,7 @@ GXBindGroups build_bind_groups(const ShaderInfo& info, const ShaderConfig& confi
     ++textureCount;
     // Load palette
     const auto& texConfig = config.textureConfig[i];
-    if (texConfig.loadFmt == GX::TF_C4 || texConfig.loadFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2) {
+    if (is_palette_format(texConfig.loadFmt)) {
       u32 tlut = tex.texObj.tlut;
       if (tlut < GX_TLUT0 || tlut > GX_TLUT7) {
         Log.report(logvisor::Fatal, FMT_STRING("tlut out of bounds {}"), tlut);
@@ -1234,22 +1234,23 @@ GXBindGroupLayouts build_bind_group_layouts(const ShaderInfo& info, const Shader
     if (!info.sampledTextures.test(i)) {
       continue;
     }
+    const auto& texConfig = config.textureConfig[i];
+    bool copyAsPalette = is_palette_format(texConfig.copyFmt);
+    bool loadAsPalette = is_palette_format(texConfig.loadFmt);
     samplerEntries[numSamplers] = {
         .binding = numSamplers,
         .visibility = wgpu::ShaderStage::Fragment,
-        .sampler = {.type = wgpu::SamplerBindingType::Filtering},
+        .sampler = {.type = copyAsPalette && loadAsPalette ? wgpu::SamplerBindingType::NonFiltering
+                                                           : wgpu::SamplerBindingType::Filtering},
     };
     ++numSamplers;
-    const auto& texConfig = config.textureConfig[i];
-    if (texConfig.loadFmt == GX::TF_C4 || texConfig.loadFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2) {
-      bool isPaletted =
-          texConfig.copyFmt == GX::TF_C4 || texConfig.copyFmt == GX::TF_C8 || texConfig.loadFmt == GX::TF_C14X2;
+    if (loadAsPalette) {
       textureEntries[numTextures] = {
           .binding = numTextures,
           .visibility = wgpu::ShaderStage::Fragment,
           .texture =
               {
-                  .sampleType = isPaletted ? wgpu::TextureSampleType::Sint : wgpu::TextureSampleType::Float,
+                  .sampleType = copyAsPalette ? wgpu::TextureSampleType::Sint : wgpu::TextureSampleType::Float,
                   .viewDimension = wgpu::TextureViewDimension::e2D,
               },
       };
@@ -1359,10 +1360,22 @@ static u16 wgpu_aniso(GXAnisotropy aniso) {
   }
 }
 wgpu::SamplerDescriptor TextureBind::get_descriptor() const noexcept {
+  if (requires_copy_conversion(texObj) && is_palette_format(texObj.ref->gxFormat)) {
+    return {
+        .label = "Generated Non-Filtering Sampler",
+        .addressModeU = wgpu_address_mode(texObj.wrapS),
+        .addressModeV = wgpu_address_mode(texObj.wrapT),
+        .addressModeW = wgpu::AddressMode::Repeat,
+        .magFilter = wgpu::FilterMode::Nearest,
+        .minFilter = wgpu::FilterMode::Nearest,
+        .mipmapFilter = wgpu::FilterMode::Nearest,
+        .maxAnisotropy = 1,
+    };
+  }
   const auto [minFilter, mipFilter] = wgpu_filter_mode(texObj.minFilter);
   const auto [magFilter, _] = wgpu_filter_mode(texObj.magFilter);
   return {
-      .label = "Generated Sampler",
+      .label = "Generated Filtering Sampler",
       .addressModeU = wgpu_address_mode(texObj.wrapS),
       .addressModeV = wgpu_address_mode(texObj.wrapT),
       .addressModeW = wgpu::AddressMode::Repeat,

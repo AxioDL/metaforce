@@ -234,6 +234,9 @@ static inline bool requires_load_conversion(const GXTexObj& obj) {
     return false;
   }
 }
+static inline bool is_palette_format(GX::TextureFormat fmt) {
+  return fmt == GX::TF_C4 || fmt == GX::TF_C8 || fmt == GX::TF_C14X2;
+}
 
 struct TextureConfig {
   GX::TextureFormat copyFmt = InvalidTextureFormat; // Underlying texture format
