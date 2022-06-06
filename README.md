@@ -77,6 +77,10 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
       libudev-dev libpng-dev libncurses5-dev cmake libx11-xcb-dev python3 python-is-python3 \
       qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libclang-dev
       ```
+       * Optional Ubuntu 22.04+ packages (currently only needed for amuse-gui, can be ignored)
+         ```
+         libqt6svg6-dev libqt6core5compat6-dev
+         ```
      * Arch Linux packages
        ```
        base-devel cmake ninja llvm vulkan-headers python3 qt6 clang lld alsa-lib libpulse libxrandr
