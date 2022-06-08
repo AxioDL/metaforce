@@ -313,8 +313,7 @@ static void pipeline_worker() {
 
 void initialize() {
   // No async pipelines for OpenGL (ES)
-  if (gpu::g_backendType != wgpu::BackendType::OpenGL && gpu::g_backendType != wgpu::BackendType::OpenGLES &&
-      gpu::g_backendType != wgpu::BackendType::Vulkan) {
+  if (gpu::g_backendType != wgpu::BackendType::OpenGL && gpu::g_backendType != wgpu::BackendType::OpenGLES) {
     g_pipelineThread = std::thread(pipeline_worker);
     g_hasPipelineThread = true;
   }
