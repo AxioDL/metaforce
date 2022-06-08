@@ -240,7 +240,7 @@ static void device_callback(WGPURequestDeviceStatus status, WGPUDevice device, c
   *static_cast<bool*>(userdata) = true;
 }
 
-bool initialize(SDL_Window* window, wgpu::BackendType backendType) {
+bool initialize(SDL_Window* window, wgpu::BackendType backendType, uint32_t msaa, uint16_t aniso) {
   if (!g_Instance) {
     Log.report(logvisor::Info, FMT_STRING("Creating Dawn instance"));
     g_Instance = std::make_unique<dawn::native::Instance>();
@@ -343,6 +343,7 @@ bool initialize(SDL_Window* window, wgpu::BackendType backendType) {
     }
     g_device.SetUncapturedErrorCallback(&error_callback, nullptr);
   }
+  g_device.SetDeviceLostCallback(nullptr, nullptr);
   g_queue = g_device.GetQueue();
 
   g_BackendBinding =
@@ -372,8 +373,8 @@ bool initialize(SDL_Window* window, wgpu::BackendType backendType) {
         .height = size.fb_height,
         .colorFormat = swapChainFormat,
         .depthFormat = wgpu::TextureFormat::Depth32Float,
-        .msaaSamples = 1,
-        .textureAnisotropy = 16,
+        .msaaSamples = msaa,
+        .textureAnisotropy = aniso,
     };
     create_copy_pipeline();
     resize_swapchain(size.fb_width, size.fb_height);

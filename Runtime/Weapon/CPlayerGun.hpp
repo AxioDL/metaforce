@@ -31,6 +31,8 @@ namespace metaforce {
 struct CFinalInput;
 
 class CPlayerGun {
+  // For ImGuiEntitySupport
+  friend class CPlayer;
 public:
   static float skTractorBeamFactor;
   enum class EMissileMode { Inactive, Active };

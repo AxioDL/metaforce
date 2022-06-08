@@ -1,10 +1,12 @@
 #include <aurora/aurora.hpp>
+
 #include "gfx/common.hpp"
 #include "gfx/gx.hpp"
 #include "gpu.hpp"
 #include "input.hpp"
 #include "imgui.hpp"
 
+#include <algorithm>
 #include <SDL.h>
 #include <imgui.h>
 #include <logvisor/logvisor.hpp>
@@ -253,7 +255,29 @@ static SDL_Window* create_window(wgpu::BackendType type) {
   return SDL_CreateWindow("Metaforce", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 960, flags);
 }
 
-void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv, std::string_view configPath) noexcept {
+wgpu::BackendType to_wgpu_backend(Backend backend) {
+  switch (backend) {
+  case Backend::WebGPU:
+    return wgpu::BackendType::WebGPU;
+  case Backend::D3D11:
+    return wgpu::BackendType::D3D11;
+  case Backend::D3D12:
+    return wgpu::BackendType::D3D12;
+  case Backend::Metal:
+    return wgpu::BackendType::Metal;
+  case Backend::Vulkan:
+    return wgpu::BackendType::Vulkan;
+  case Backend::OpenGL:
+    return wgpu::BackendType::OpenGL;
+  case Backend::OpenGLES:
+    return wgpu::BackendType::OpenGLES;
+  default:
+  case Backend::Null:
+    return wgpu::BackendType::Null;
+  }
+}
+void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv, std::string_view configPath,
+             Backend desiredBackend, uint32_t msaa, uint16_t aniso) noexcept {
   g_AppDelegate = std::move(app);
   /* Lets gather arguments skipping the program filename */
   for (size_t i = 1; i < argc; ++i) {
@@ -280,18 +304,31 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv,
   /* TODO: Make this an option rather than hard coding it */
   SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 
-  for (const auto backendType : gpu::PreferredBackendOrder) {
-    auto* window = create_window(backendType);
-    if (window == nullptr) {
-      continue;
+  /* Attempt to create a window using the calling application's desired backend */
+  if (desiredBackend != Backend::Invalid) {
+    auto wgpuBackend = to_wgpu_backend(desiredBackend);
+    g_window = create_window(wgpuBackend);
+    if (g_window != nullptr && !gpu::initialize(g_window, wgpuBackend, msaa, aniso)) {
+      g_window = nullptr;
+      SDL_DestroyWindow(g_window);
     }
-    g_window = window;
-    if (gpu::initialize(window, backendType)) {
-      break;
-    }
-    g_window = nullptr;
-    SDL_DestroyWindow(window);
   }
+
+  if (g_window == nullptr) {
+    for (const auto backendType : gpu::PreferredBackendOrder) {
+      auto* window = create_window(backendType);
+      if (window == nullptr) {
+        continue;
+      }
+      g_window = window;
+      if (gpu::initialize(window, backendType, msaa, aniso)) {
+        break;
+      }
+      g_window = nullptr;
+      SDL_DestroyWindow(window);
+    }
+  }
+
   if (g_window == nullptr) {
     Log.report(logvisor::Fatal, FMT_STRING("Error creating window: {}"), SDL_GetError());
     unreachable();
@@ -437,6 +474,55 @@ Backend get_backend() noexcept {
 }
 
 std::string_view get_backend_string() noexcept { return magic_enum::enum_name(gpu::g_backendType); }
+
+Backend translate_backend(std::string_view backend) {
+  if (backend.empty()) {
+    return Backend::Invalid;
+  }
+  std::string tmp = backend.data();
+  std::transform(tmp.begin(), tmp.end(), tmp.begin(), [](unsigned char c) { return std::tolower(c); });
+#if DAWN_ENABLE_BACKEND_WEBGPU
+  if (tmp == "webgpu" || tmp == "wgpu") {
+    return Backend::WebGPU;
+  }
+#endif
+#if DAWN_ENABLE_BACKEND_D3D11
+  if (tmp == "d3d11") {
+    return Backend::D3D11;
+  }
+#endif
+#if DAWN_ENABLE_BACKEND_D3D12
+  if (tmp == "d3d12") {
+    return Backend::D3D12;
+  }
+#endif
+#if DAWN_ENABLE_BACKEND_METAL
+  if (tmp == "metal") {
+    return Backend::Metal;
+  }
+#endif
+#if DAWN_ENABLE_BACKEND_DESKTOP_GL || DAWN_ENABLE_BACKEND_OPENGL
+  if (tmp == "gl" || tmp == "opengl") {
+    return Backend::OpenGL;
+  }
+#endif
+#if DAWN_ENABLE_BACKEND_OPENGLES
+  if (tmp == "gles" || tmp == "opengles") {
+    return Backend::OpenGLES;
+  }
+#endif
+#if DAWN_ENABLE_BACKEND_VULKAN
+  if (tmp == "vulkan") {
+    return Backend::Vulkan;
+  }
+#endif
+#if DAWN_ENABLE_BACKEND_NULL
+  if (tmp == "null") {
+    return Backend::Null;
+  }
+#endif
+  return Backend::Invalid;
+}
 
 void set_fullscreen(bool fullscreen) noexcept {
   SDL_SetWindowFullscreen(g_window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);

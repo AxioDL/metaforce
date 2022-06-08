@@ -568,7 +568,9 @@ int main(int argc, char** argv) {
       .width = icon.width,
       .height = icon.height,
   };
-  aurora::app_run(std::move(app), std::move(data), argc, argv, fileMgr.getStoreRoot());
+  aurora::app_run(std::move(app), std::move(data), argc, argv, fileMgr.getStoreRoot(),
+                  aurora::translate_backend(cvarCmns.getGraphicsApi()), cvarCmns.getSamples(),
+                  cvarCmns.getAnisotropy());
   return 0;
 }
 #endif

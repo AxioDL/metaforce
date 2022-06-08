@@ -313,7 +313,8 @@ static void pipeline_worker() {
 
 void initialize() {
   // No async pipelines for OpenGL (ES)
-  if (gpu::g_backendType != wgpu::BackendType::OpenGL && gpu::g_backendType != wgpu::BackendType::OpenGLES) {
+  if (gpu::g_backendType != wgpu::BackendType::OpenGL && gpu::g_backendType != wgpu::BackendType::OpenGLES &&
+      gpu::g_backendType != wgpu::BackendType::Vulkan) {
     g_pipelineThread = std::thread(pipeline_worker);
     g_hasPipelineThread = true;
   }
@@ -758,9 +759,7 @@ const wgpu::Sampler& sampler_ref(const wgpu::SamplerDescriptor& descriptor) {
   return it->second;
 }
 
-uint32_t align_uniform(uint32_t value) {
-  return ALIGN(value, g_cachedLimits.limits.minUniformBufferOffsetAlignment);
-}
+uint32_t align_uniform(uint32_t value) { return ALIGN(value, g_cachedLimits.limits.minUniformBufferOffsetAlignment); }
 
 void push_debug_group(zstring_view label) noexcept {
 #ifdef AURORA_GFX_DEBUG_GROUPS

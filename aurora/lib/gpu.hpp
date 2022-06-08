@@ -63,7 +63,7 @@ extern TextureWithSampler g_depthBuffer;
 extern wgpu::RenderPipeline g_CopyPipeline;
 extern wgpu::BindGroup g_CopyBindGroup;
 
-bool initialize(SDL_Window* window, wgpu::BackendType backendType);
+bool initialize(SDL_Window* window, wgpu::BackendType backendType, uint32_t msaa, uint16_t aniso);
 void shutdown();
 void resize_swapchain(uint32_t width, uint32_t height);
 TextureWithSampler create_render_texture(bool multisampled);

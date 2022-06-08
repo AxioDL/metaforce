@@ -434,7 +434,7 @@ void CVar::dispatch() {
 bool isReal(std::string_view v) {
   char* p;
   std::strtod(v.data(), &p);
-  return *p == 0;
+  return p != nullptr && *p == 0;
 }
 bool isReal(const std::vector<std::string>& v) {
   for (auto& s : v) {
@@ -455,10 +455,10 @@ bool CVar::isValidInput(std::string_view input) const {
   }
   case EType::Signed:
     std::strtol(input.data(), &p, 0);
-    return p == nullptr;
+    return p != nullptr && *p == 0;
   case EType::Unsigned:
     std::strtoul(input.data(), &p, 0);
-    return p == nullptr;
+    return p != nullptr && *p == 0;
   case EType::Real: {
     bool size = parts.size() == 1;
     bool ret = isReal(input);

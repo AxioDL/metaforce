@@ -751,7 +751,20 @@ IMGUI_ENTITY_INSPECT(MP1::CBouncyGrenade, CPhysicsActor, BouncyGrenade, {})
 IMGUI_ENTITY_INSPECT(CCollisionActor, CPhysicsActor, CollisionActor, {})
 IMGUI_ENTITY_INSPECT(MP1::CGrenadeLauncher, CPhysicsActor, GrenadeLauncher, {})
 IMGUI_ENTITY_INSPECT(MP1::CMetroidPrimeExo::CPhysicsDummy, CPhysicsActor, MetroidPrimeExoPhysicsDummy, {})
-IMGUI_ENTITY_INSPECT(CPlayer, CPhysicsActor, Player, {})
+IMGUI_ENTITY_INSPECT(CPlayer, CPhysicsActor, Player, {
+  if (ImGui::CollapsingHeader("Player Gun")) {
+    auto* gun = GetPlayerGun();
+    ImGui::Text("Last Fire Button States: 0x%08X", gun->x2ec_lastFireButtonStates);
+    ImGui::Text("Pressed Fire Button States: 0x%08X", gun->x2f0_pressedFireButtonStates);
+    ImGui::Text("Fire Button States: 0x%08X", gun->x2f4_fireButtonStates);
+    ImGui::Text("State Flags: 0x%08X", gun->x2f8_stateFlags);
+    ImGui::Text("Fidget Anim Bits: 0x%08X", gun->x2fc_fidgetAnimBits);
+    ImGui::Text("Remaining Missiles: %i", gun->x300_remainingMissiles);
+    ImGui::Text("Bomb Count: %i", gun->x308_bombCount);
+    ImGui::Text("Current Beam: %s", magic_enum::enum_name(gun->x310_currentBeam).data());
+    ImGui::Text("Next Beam: %s", magic_enum::enum_name(gun->x314_nextBeam).data());
+  }
+})
 IMGUI_ENTITY_INSPECT(CScriptActor, CPhysicsActor, ScriptActor, {
   if (ImGui::Button("Edit Damage Vulnerability")) {
     m_editingDamageVulnerability = true;
