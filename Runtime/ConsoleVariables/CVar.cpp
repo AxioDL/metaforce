@@ -400,6 +400,8 @@ void CVar::clearModified() {
     m_flags &= ~EFlags::Modified;
 }
 
+void CVar::forceClearModified() { m_flags &= ~EFlags::Modified; }
+
 void CVar::setModified() { m_flags |= EFlags::Modified; }
 
 void CVar::unlock() {
@@ -506,4 +508,4 @@ void CVar::init(EFlags flags, bool removeColor) {
   }
 }
 
-} // namespace hecl
+} // namespace metaforce

@@ -426,6 +426,9 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
       sortedList.reserve(cvars.size());
 
       for (auto* cvar : cvars) {
+        if (cvar->isHidden()) {
+          continue;
+        }
         if (!m_cvarFiltersText.empty()) {
           if (ContainsCaseInsensitive(magic_enum::enum_name(cvar->type()), m_cvarFiltersText) ||
               ContainsCaseInsensitive(cvar->name(), m_cvarFiltersText)) {
@@ -451,6 +454,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
         }
 
         for (auto* cv : sortedList) {
+          bool modified = cv->isModified();
           ImGui::PushID(cv);
           ImGui::TableNextRow();
           // Name
@@ -468,6 +472,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
               bool b = cv->toBoolean();
               if (ImGui::Checkbox("", &b)) {
                 cv->fromBoolean(b);
+                modified = true;
               }
               break;
             }
@@ -475,6 +480,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
               float f = cv->toReal();
               if (ImGui::DragFloat("", &f)) {
                 cv->fromReal(f);
+                modified = true;
               }
               break;
             }
@@ -482,6 +488,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
               std::array<s32, 1> i{cv->toSigned()};
               if (ImGui::DragScalar("", ImGuiDataType_S32, i.data(), i.size())) {
                 cv->fromInteger(i[0]);
+                modified = true;
               }
               break;
             }
@@ -489,6 +496,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
               std::array<u32, 1> i{cv->toUnsigned()};
               if (ImGui::DragScalar("", ImGuiDataType_U32, i.data(), i.size())) {
                 cv->fromInteger(i[0]);
+                modified = true;
               }
               break;
             }
@@ -497,6 +505,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
               strcpy(buf, cv->value().c_str());
               if (ImGui::InputText("", buf, 4096, ImGuiInputTextFlags_EnterReturnsTrue)) {
                 cv->fromLiteral(buf);
+                modified = true;
               }
               break;
             }
@@ -507,6 +516,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
                 vec.x() = scalars[0];
                 vec.y() = scalars[1];
                 cv->fromVec2f(vec);
+                modified = true;
               }
               break;
             }
@@ -517,6 +527,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
                 vec.x() = scalars[0];
                 vec.y() = scalars[1];
                 cv->fromVec2d(vec);
+                modified = true;
               }
               break;
             }
@@ -529,12 +540,14 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
                   vec.y() = scalars[1];
                   vec.z() = scalars[2];
                   cv->fromVec3f(vec);
+                  modified = true;
                 }
               } else if (ImGui::DragScalarN("", ImGuiDataType_Float, scalars.data(), scalars.size(), 0.1f)) {
                 vec.x() = scalars[0];
                 vec.y() = scalars[1];
                 vec.z() = scalars[2];
                 cv->fromVec3f(vec);
+                modified = true;
               }
               break;
             }
@@ -549,12 +562,14 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
                   vec.y() = scalars[1];
                   vec.z() = scalars[2];
                   cv->fromVec3d(vec);
+                  modified = true;
                 }
               } else if (ImGui::DragScalarN("", ImGuiDataType_Double, scalars.data(), scalars.size(), 0.1f)) {
                 vec.x() = scalars[0];
                 vec.y() = scalars[1];
                 vec.z() = scalars[2];
                 cv->fromVec3d(vec);
+                modified = true;
               }
               break;
             }
@@ -568,6 +583,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
                   vec.z() = scalars[2];
                   vec.w() = scalars[2];
                   cv->fromVec4f(vec);
+                  modified = true;
                 }
               } else if (ImGui::DragScalarN("", ImGuiDataType_Float, scalars.data(), scalars.size(), 0.1f)) {
                 vec.x() = scalars[0];
@@ -575,6 +591,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
                 vec.z() = scalars[2];
                 vec.w() = scalars[2];
                 cv->fromVec4f(vec);
+                modified = true;
               }
               break;
             }
@@ -590,6 +607,7 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
                   vec.z() = scalars[2];
                   vec.w() = scalars[2];
                   cv->fromVec4d(vec);
+                  modified = true;
                 }
               } else if (ImGui::DragScalarN("", ImGuiDataType_Double, scalars.data(), scalars.size(), 0.1f)) {
                 vec.x() = scalars[0];
@@ -597,12 +615,16 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
                 vec.z() = scalars[2];
                 vec.w() = scalars[2];
                 cv->fromVec4d(vec);
+                modified = true;
               }
               break;
             }
             default:
               ImGui::Text("lawl wut? Please contact a developer, your copy of Metaforce is cursed!");
               break;
+            }
+            if (modified && cv->modificationRequiresRestart()) {
+              ImGui::Text("Restart required for value to take affect!");
             }
             if (ImGui::IsItemHovered()) {
               std::string sv(cv->defaultValue());

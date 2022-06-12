@@ -156,6 +156,7 @@ private:
   CVar(std::string_view name, std::string_view help, EType type) : m_help(help), m_type(type) { m_name = name; }
   void dispatch();
   void clearModified();
+  void forceClearModified();
   void setModified();
   std::string m_help;
   EType m_type;

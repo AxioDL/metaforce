@@ -123,9 +123,15 @@ void CVarManager::deserialize(CVar* cvar) {
       std::find_if(container.cbegin(), container.cend(), [&cvar](const auto& c) { return c.m_name == cvar->name(); });
   if (serialized != container.cend()) {
     if (cvar->m_value != serialized->m_value) {
-      CVarUnlocker lc(cvar);
-      cvar->fromLiteralToType(serialized->m_value);
-      cvar->m_wasDeserialized = true;
+      {
+        CVarUnlocker lc(cvar);
+        cvar->fromLiteralToType(serialized->m_value);
+        cvar->m_wasDeserialized = true;
+      }
+      if (cvar->modificationRequiresRestart()) {
+        cvar->dispatch();
+        cvar->forceClearModified();
+      }
     }
   }
 }
@@ -316,8 +322,10 @@ void CVarManager::restoreDeveloper(bool oldDeveloper) {
 }
 void CVarManager::proc() {
   for (const auto& [name, cvar] : m_cvars) {
-    if (cvar->isModified() && !cvar->modificationRequiresRestart()) {
+    if (cvar->isModified()) {
       cvar->dispatch();
+    }
+    if (cvar->isModified() && !cvar->modificationRequiresRestart()) {
       // Clear the modified flag now that we've informed everyone we've changed
       cvar->clearModified();
     }
