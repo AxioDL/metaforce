@@ -37,8 +37,8 @@ enum class EGameplayResult { None, Win, Lose, Playing };
 class IMain {
 public:
   virtual ~IMain() = default;
-  virtual void Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr,
-                    boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) = 0;
+  virtual std::string Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IAudioVoiceEngine* voiceEngine,
+                           amuse::IBackendVoiceAllocator& backend) = 0;
   virtual void Draw() = 0;
   virtual bool Proc(float dt) = 0;
   virtual void Shutdown() = 0;

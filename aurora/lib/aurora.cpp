@@ -48,6 +48,24 @@ static void set_window_icon(Icon icon) noexcept {
   SDL_FreeSurface(iconSurface);
 }
 
+static bool g_paused = false;
+
+static void resize_swapchain(bool force) noexcept {
+  const auto size = get_window_size();
+  if (!force && size == g_windowSize) {
+    return;
+  }
+  if (size.scale != g_windowSize.scale) {
+    if (g_windowSize.scale > 0.f) {
+      Log.report(logvisor::Info, FMT_STRING("Display scale changed to {}"), size.scale);
+    }
+    g_AppDelegate->onAppDisplayScaleChanged(size.scale);
+  }
+  g_windowSize = size;
+  gpu::resize_swapchain(size.fb_width, size.fb_height);
+  g_AppDelegate->onAppWindowResized(size);
+}
+
 static bool poll_events() noexcept {
   SDL_Event event;
   while (SDL_PollEvent(&event) != 0) {
@@ -56,69 +74,22 @@ static bool poll_events() noexcept {
     switch (event.type) {
     case SDL_WINDOWEVENT: {
       switch (event.window.event) {
-      case SDL_WINDOWEVENT_SHOWN: {
+      case SDL_WINDOWEVENT_MINIMIZED: {
+        // Android/iOS: Application backgrounded
+        g_paused = true;
         break;
       }
-      case SDL_WINDOWEVENT_HIDDEN: {
+      case SDL_WINDOWEVENT_RESTORED: {
+        // Android/iOS: Application focused
+        g_paused = false;
         break;
       }
       case SDL_WINDOWEVENT_MOVED: {
         g_AppDelegate->onAppWindowMoved(event.window.data1, event.window.data2);
         break;
       }
-      case SDL_WINDOWEVENT_EXPOSED:
-#if SDL_VERSION_ATLEAST(2, 0, 18)
-      case SDL_WINDOWEVENT_DISPLAY_CHANGED:
-#endif
-      case SDL_WINDOWEVENT_RESIZED:
-      case SDL_WINDOWEVENT_SIZE_CHANGED:
-      case SDL_WINDOWEVENT_MINIMIZED:
-      case SDL_WINDOWEVENT_MAXIMIZED: {
-        const auto size = get_window_size();
-        if (size == g_windowSize) {
-          break;
-        }
-        if (size.scale != g_windowSize.scale) {
-          if (g_windowSize.scale > 0.f) {
-            Log.report(logvisor::Info, FMT_STRING("Display scale changed to {}"), size.scale);
-          }
-          g_AppDelegate->onAppDisplayScaleChanged(size.scale);
-        }
-        g_windowSize = size;
-        gpu::resize_swapchain(size.fb_width, size.fb_height);
-        g_AppDelegate->onAppWindowResized(size);
-        break;
-      }
-      case SDL_WINDOWEVENT_RESTORED: {
-        // TODO: handle restored event
-        break;
-      }
-      case SDL_WINDOWEVENT_ENTER: {
-        // TODO: handle enter event (mouse focus)
-        break;
-      }
-      case SDL_WINDOWEVENT_LEAVE: {
-        // TODO: handle leave event (mouse focus)
-        break;
-      }
-      case SDL_WINDOWEVENT_FOCUS_GAINED: {
-        // TODO: handle focus gained event
-        break;
-      }
-      case SDL_WINDOWEVENT_FOCUS_LOST: {
-        // TODO: handle focus lost event
-        break;
-      }
-      case SDL_WINDOWEVENT_CLOSE: {
-        // TODO: handle window close event
-        break;
-      }
-      case SDL_WINDOWEVENT_TAKE_FOCUS: {
-        // TODO: handle take focus event
-        break;
-      }
-      case SDL_WINDOWEVENT_HIT_TEST: {
-        // TODO: handle hit test?
+      case SDL_WINDOWEVENT_SIZE_CHANGED: {
+        resize_swapchain(false);
         break;
       }
       }
@@ -156,6 +127,12 @@ static bool poll_events() noexcept {
       break;
     }
     case SDL_KEYDOWN: {
+      // ALT+ENTER for fullscreen toggle
+      if (event.key.repeat == 0u && event.key.keysym.scancode == SDL_SCANCODE_RETURN &&
+          (event.key.keysym.mod & (KMOD_RALT | KMOD_LALT)) != 0u) {
+        set_fullscreen(!is_fullscreen());
+        break;
+      }
       if (!ImGui::GetIO().WantCaptureKeyboard) {
         SpecialKey specialKey{};
         ModifierKey modifierKey{};
@@ -226,12 +203,15 @@ static bool poll_events() noexcept {
   return true;
 }
 
-static SDL_Window* create_window(wgpu::BackendType type) {
+static SDL_Window* create_window(wgpu::BackendType type, bool fullscreen) {
   Uint32 flags = SDL_WINDOW_ALLOW_HIGHDPI;
-#if TARGET_OS_IOS || TARGET_OS_TV || defined(__SWITCH__)
+#if TARGET_OS_IOS || TARGET_OS_TV
   flags |= SDL_WINDOW_FULLSCREEN;
 #else
   flags |= SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE;
+  if (fullscreen) {
+    flags |= SDL_WINDOW_FULLSCREEN;
+  }
 #endif
   switch (type) {
 #ifdef DAWN_ENABLE_BACKEND_VULKAN
@@ -252,7 +232,13 @@ static SDL_Window* create_window(wgpu::BackendType type) {
   default:
     break;
   }
-  return SDL_CreateWindow("Metaforce", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 960, flags);
+  return SDL_CreateWindow("Metaforce", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280,
+#ifdef __SWITCH__
+                          720,
+#else
+                          960,
+#endif
+                          flags);
 }
 
 wgpu::BackendType to_wgpu_backend(Backend backend) {
@@ -272,12 +258,11 @@ wgpu::BackendType to_wgpu_backend(Backend backend) {
   case Backend::OpenGLES:
     return wgpu::BackendType::OpenGLES;
   default:
-  case Backend::Null:
     return wgpu::BackendType::Null;
   }
 }
 void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv, std::string_view configPath,
-             Backend desiredBackend, uint32_t msaa, uint16_t aniso) noexcept {
+             Backend desiredBackend, uint32_t msaa, uint16_t aniso, bool fullscreen) noexcept {
   g_AppDelegate = std::move(app);
   /* Lets gather arguments skipping the program filename */
   for (size_t i = 1; i < argc; ++i) {
@@ -307,7 +292,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv,
   /* Attempt to create a window using the calling application's desired backend */
   if (desiredBackend != Backend::Invalid) {
     auto wgpuBackend = to_wgpu_backend(desiredBackend);
-    g_window = create_window(wgpuBackend);
+    g_window = create_window(wgpuBackend, fullscreen);
     if (g_window != nullptr && !gpu::initialize(g_window, wgpuBackend, msaa, aniso)) {
       g_window = nullptr;
       SDL_DestroyWindow(g_window);
@@ -316,7 +301,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv,
 
   if (g_window == nullptr) {
     for (const auto backendType : gpu::PreferredBackendOrder) {
-      auto* window = create_window(backendType);
+      auto* window = create_window(backendType, fullscreen);
       if (window == nullptr) {
         continue;
       }
@@ -365,12 +350,22 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv,
   g_AppDelegate->onAppWindowResized(size);
 
   while (poll_events()) {
+    if (g_paused) {
+      continue;
+    }
+
     imgui::new_frame(g_windowSize);
     if (!g_AppDelegate->onAppIdle(ImGui::GetIO().DeltaTime)) {
       break;
     }
 
     const wgpu::TextureView view = g_swapChain.GetCurrentTextureView();
+    if (!view) {
+      ImGui::EndFrame();
+      // Force swapchain recreation
+      resize_swapchain(true);
+      continue;
+    }
     gfx::begin_frame();
     g_AppDelegate->onAppDraw();
 
@@ -421,6 +416,7 @@ void app_run(std::unique_ptr<AppDelegate> app, Icon icon, int argc, char** argv,
     SDL_DestroyRenderer(renderer);
   }
   SDL_DestroyWindow(g_window);
+  g_window = nullptr;
   SDL_EnableScreenSaver();
   SDL_Quit();
 }
@@ -468,14 +464,39 @@ Backend get_backend() noexcept {
     return Backend::OpenGL;
   case wgpu::BackendType::OpenGLES:
     return Backend::OpenGLES;
+  case wgpu::BackendType::Null:
+    return Backend::Null;
   default:
     return Backend::Invalid;
   }
 }
 
+std::vector<Backend> get_available_backends() noexcept {
+  return {
+#ifdef DAWN_ENABLE_BACKEND_D3D12
+      Backend::D3D12,
+#endif
+#ifdef DAWN_ENABLE_BACKEND_METAL
+      Backend::Metal,
+#endif
+#ifdef DAWN_ENABLE_BACKEND_VULKAN
+      Backend::Vulkan,
+#endif
+#ifdef DAWN_ENABLE_BACKEND_DESKTOP_GL
+      Backend::OpenGL,
+#endif
+#ifdef DAWN_ENABLE_BACKEND_OPENGLES
+      Backend::OpenGLES,
+#endif
+#ifdef DAWN_ENABLE_BACKEND_NULL
+      Backend::Null,
+#endif
+  };
+}
+
 std::string_view get_backend_string() noexcept { return magic_enum::enum_name(gpu::g_backendType); }
 
-Backend translate_backend(std::string_view backend) {
+Backend backend_from_string(std::string_view backend) {
   if (backend.empty()) {
     return Backend::Invalid;
   }
@@ -524,9 +545,34 @@ Backend translate_backend(std::string_view backend) {
   return Backend::Invalid;
 }
 
+std::string_view backend_to_string(Backend backend) {
+  switch (backend) {
+  case Backend::Null:
+    return "null"sv;
+  case Backend::WebGPU:
+    return "webgpu"sv;
+  case Backend::D3D11:
+    return "d3d11"sv;
+  case Backend::D3D12:
+    return "d3d12"sv;
+  case Backend::Metal:
+    return "metal"sv;
+  case Backend::Vulkan:
+    return "vulkan"sv;
+  case Backend::OpenGL:
+    return "opengl"sv;
+  case Backend::OpenGLES:
+    return "opengles"sv;
+  case Backend::Invalid:
+    return "auto";
+  }
+}
+
 void set_fullscreen(bool fullscreen) noexcept {
   SDL_SetWindowFullscreen(g_window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
+
+bool is_fullscreen() noexcept { return (SDL_GetWindowFlags(g_window) & SDL_WINDOW_FULLSCREEN) != 0u; }
 
 uint32_t get_which_controller_for_player(int32_t index) noexcept { return input::get_instance_for_player(index); }
 int32_t get_controller_player_index(uint32_t instance) noexcept { return input::player_index(instance); }

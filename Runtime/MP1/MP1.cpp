@@ -240,6 +240,8 @@ CMain::CMain(IFactory* resFactory, CSimplePool* resStore)
   g_Main = this;
 }
 
+CMain::~CMain() { g_Main = nullptr; }
+
 void CMain::RegisterResourceTweaks() {}
 
 void CGameGlobalObjects::AddPaksAndFactories() {
@@ -516,15 +518,14 @@ void CMain::HandleDiscordErrored(int errorCode, const char* message) {
   DiscordLog.report(logvisor::Error, FMT_STRING("Discord Error: {}"), message);
 }
 
-void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IAudioVoiceEngine* voiceEngine,
-                 amuse::IBackendVoiceAllocator& backend) {
-  InitializeDiscord();
+std::string CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IAudioVoiceEngine* voiceEngine,
+                        amuse::IBackendVoiceAllocator& backend) {
   m_cvarMgr = cvarMgr;
 
   {
-    const auto discInfo = CDvdFile::DiscInfo();
+    auto discInfo = CDvdFile::DiscInfo();
     if (discInfo.gameId[4] != '0' || discInfo.gameId[5] != '1') {
-      Log.report(logvisor::Fatal, FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
+      return fmt::format(FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
     }
     if (strncmp(discInfo.gameId.data(), "GM8", 3) == 0) {
       m_version.game = EGame::MetroidPrime1;
@@ -545,7 +546,7 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
       m_version.game = EGame::MetroidPrimeTrilogy;
       m_version.platform = EPlatform::Wii;
     } else {
-      Log.report(logvisor::Fatal, FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
+      return fmt::format(FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
     }
     switch (discInfo.gameId[3]) {
     case 'E':
@@ -562,13 +563,13 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
       m_version.region = ERegion::PAL;
       break;
     default:
-      Log.report(logvisor::Fatal, FMT_STRING("Unknown region {}"), discInfo.gameId[3]);
+      return fmt::format(FMT_STRING("Unknown region {}"), discInfo.gameId[3]);
     }
     m_version.gameTitle = std::move(discInfo.gameTitle);
   }
 
   if (m_version.game != EGame::MetroidPrime1 && m_version.game != EGame::MetroidPrimeTrilogy) {
-    Log.report(logvisor::Fatal, FMT_STRING("Unsupported game {}"), magic_enum::enum_name(m_version.game));
+    return fmt::format(FMT_STRING("Unsupported game {}"), magic_enum::enum_name(m_version.game));
   }
 
   {
@@ -580,19 +581,20 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
     }
     CDvdFile file(dolFile);
     if (!file) {
-      Log.report(logvisor::Fatal, FMT_STRING("Failed to open {}"), dolFile);
+      return fmt::format(FMT_STRING("Failed to open {}"), dolFile);
     }
     std::unique_ptr<u8[]> buf = std::make_unique<u8[]>(file.Length());
     u32 readLen = file.SyncRead(buf.get(), file.Length());
     const char* buildInfo = static_cast<char*>(memmem(buf.get(), readLen, "MetroidBuildInfo", 16)) + 19;
     if (buildInfo == nullptr) {
-      Log.report(logvisor::Fatal, FMT_STRING("Failed to locate MetroidBuildInfo"));
+      return fmt::format(FMT_STRING("Failed to locate MetroidBuildInfo"));
     }
     m_version.version = buildInfo;
   }
   MainLog.report(logvisor::Level::Info, FMT_STRING("Loading data from {} {} ({})"), GetGameTitle(),
                  magic_enum::enum_name(GetRegion()), GetVersionString());
 
+  InitializeDiscord();
   if (m_version.game == EGame::MetroidPrimeTrilogy) {
     CDvdFile::SetRootDirectory("MP1");
   } else if (m_version.platform == EPlatform::Wii) {
@@ -657,6 +659,7 @@ void CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IA
   x164_archSupport->PreloadAudio();
   std::srand(static_cast<u32>(CBasics::GetTime()));
   // g_TweakManager->ReadFromMemoryCard("AudioTweaks");
+  return {};
 }
 
 bool CMain::Proc(float dt) {

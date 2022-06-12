@@ -153,7 +153,6 @@ private:
   CVarManager& m_cvarManager;
   CVarCommons& m_cvarCommons;
   ImGuiConsole m_imGuiConsole;
-  std::string m_errorString;
 
   std::string m_deferredProject;
   bool m_projectInitialized = false;
@@ -166,7 +165,7 @@ private:
   bool m_fullscreenToggleRequested = false;
   bool m_quitRequested = false;
   using delta_clock = std::chrono::high_resolution_clock;
-  std::chrono::time_point<delta_clock> m_prevFrameTime;
+  delta_clock::time_point m_prevFrameTime;
 
   std::vector<u32> m_deferredControllers; // used to capture controllers added before CInputGenerator
                                           // is built, i.e during initialization
@@ -224,9 +223,9 @@ public:
         m_projectInitialized = true;
       } else {
         Log.report(logvisor::Error, FMT_STRING("Failed to open disc image '{}'"), m_deferredProject);
-        m_errorString = fmt::format(FMT_STRING("Failed to open disc image '{}'"), m_deferredProject);
-        m_deferredProject.clear();
+        m_imGuiConsole.m_errorString = fmt::format(FMT_STRING("Failed to open disc image '{}'"), m_deferredProject);
       }
+      m_deferredProject.clear();
     }
 
     const auto targetFrameTime = getTargetFrameTime();
@@ -266,7 +265,14 @@ public:
 
     if (!g_mainMP1 && m_projectInitialized) {
       g_mainMP1.emplace(nullptr, nullptr);
-      g_mainMP1->Init(m_fileMgr, &m_cvarManager, m_voiceEngine.get(), *m_amuseAllocWrapper);
+      auto result = g_mainMP1->Init(m_fileMgr, &m_cvarManager, m_voiceEngine.get(), *m_amuseAllocWrapper);
+      if (!result.empty()) {
+        Log.report(logvisor::Error, FMT_STRING("{}"), result);
+        m_imGuiConsole.m_errorString = result;
+        g_mainMP1.reset();
+        CDvdFile::Shutdown();
+        m_projectInitialized = false;
+      }
     }
 
     float dt = 1 / 60.f;
@@ -274,8 +280,8 @@ public:
       dt = std::min(realDt, 1 / 30.f);
     }
 
+    m_imGuiConsole.PreUpdate();
     if (g_mainMP1) {
-      m_imGuiConsole.PreUpdate();
       if (m_voiceEngine) {
         m_voiceEngine->lockPump();
       }
@@ -285,15 +291,15 @@ public:
       if (m_voiceEngine) {
         m_voiceEngine->unlockPump();
       }
-      m_imGuiConsole.PostUpdate();
-    } else {
-      auto result = m_imGuiConsole.ShowAboutWindow(false, m_errorString, true);
-      if (result) {
-        m_deferredProject = std::move(*result);
-      }
+    }
+    m_imGuiConsole.PostUpdate();
+    if (!g_mainMP1 && m_imGuiConsole.m_gameDiscSelected) {
+      std::optional<std::string> result;
+      m_imGuiConsole.m_gameDiscSelected.swap(result);
+      m_deferredProject = std::move(*result);
     }
 
-    if (m_quitRequested) {
+    if (m_quitRequested || m_imGuiConsole.m_quitRequested || m_cvarManager.restartRequired()) {
       if (g_mainMP1) {
         g_mainMP1->Quit();
       } else {
@@ -489,7 +495,7 @@ public:
 
 } // namespace metaforce
 
-static void SetupBasics(bool logging) {
+static void SetupBasics() {
 #if _WIN32
   if (logging && GetFileType(GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN)
     logvisor::CreateWin32Console();
@@ -509,10 +515,6 @@ static void SetupBasics(bool logging) {
     exit(1);
   }
 
-  logvisor::RegisterStandardExceptions();
-  if (logging)
-    logvisor::RegisterConsoleLogger();
-
 #if SENTRY_ENABLED
   FileStoreManager fileMgr{"sentry-native-metaforce"};
   std::string cacheDir{fileMgr.getStoreRoot()};
@@ -531,7 +533,6 @@ static bool IsClientLoggingEnabled(int argc, char** argv) {
 
 #if !WINDOWS_STORE
 int main(int argc, char** argv) {
-
   // TODO: This seems to fix a lot of weird issues with rounding
   //  but breaks animations, need to research why this is the case
   //  for now it's disabled
@@ -541,36 +542,49 @@ int main(int argc, char** argv) {
     return 100;
   }
 
-  SetupBasics(IsClientLoggingEnabled(argc, argv));
+  SetupBasics();
   metaforce::FileStoreManager fileMgr{"AxioDL", "metaforce"};
-  metaforce::CVarManager cvarMgr{fileMgr};
-  metaforce::CVarCommons cvarCmns{cvarMgr};
 
   std::vector<std::string> args;
-  for (int i = 1; i < argc; ++i)
+  for (int i = 1; i < argc; ++i) {
     args.emplace_back(argv[i]);
-  cvarMgr.parseCommandLine(args);
-
-  std::string logFile = cvarCmns.getLogFile();
-  std::string logFilePath;
-  if (!logFile.empty()) {
-    std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    char buf[100];
-    std::strftime(buf, 100, "%Y-%m-%d_%H-%M-%S", std::localtime(&time));
-    logFilePath = fmt::format(FMT_STRING("{}/{}-{}"), fileMgr.getStoreRoot(), buf, logFile);
-    logvisor::RegisterFileLogger(logFilePath.c_str());
   }
 
-  auto app = std::make_unique<metaforce::Application>(fileMgr, cvarMgr, cvarCmns);
-  auto icon = metaforce::GetIcon();
-  auto data = aurora::Icon{
-      .data = std::move(icon.data),
-      .width = icon.width,
-      .height = icon.height,
-  };
-  aurora::app_run(std::move(app), std::move(data), argc, argv, fileMgr.getStoreRoot(),
-                  aurora::translate_backend(cvarCmns.getGraphicsApi()), cvarCmns.getSamples(),
-                  cvarCmns.getAnisotropy());
+  bool restart = false;
+  do {
+    metaforce::CVarManager cvarMgr{fileMgr};
+    metaforce::CVarCommons cvarCmns{cvarMgr};
+    if (!restart) {
+      cvarMgr.parseCommandLine(args);
+
+      // TODO add clear loggers func to logvisor so we can recreate loggers on restart
+      logvisor::RegisterStandardExceptions();
+      if (IsClientLoggingEnabled(argc, argv)) {
+        logvisor::RegisterConsoleLogger();
+      }
+
+      std::string logFile = cvarCmns.getLogFile();
+      std::string logFilePath;
+      if (!logFile.empty()) {
+        std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        char buf[100];
+        std::strftime(buf, 100, "%Y-%m-%d_%H-%M-%S", std::localtime(&time));
+        logFilePath = fmt::format(FMT_STRING("{}/{}-{}"), fileMgr.getStoreRoot(), buf, logFile);
+        logvisor::RegisterFileLogger(logFilePath.c_str());
+      }
+    }
+    auto app = std::make_unique<metaforce::Application>(fileMgr, cvarMgr, cvarCmns);
+    auto icon = metaforce::GetIcon();
+    auto data = aurora::Icon{
+        .data = std::move(icon.data),
+        .width = icon.width,
+        .height = icon.height,
+    };
+    aurora::app_run(std::move(app), std::move(data), argc, argv, fileMgr.getStoreRoot(),
+                    aurora::backend_from_string(cvarCmns.getGraphicsApi()), cvarCmns.getSamples(),
+                    cvarCmns.getAnisotropy(), cvarCmns.getFullscreen());
+    restart = cvarMgr.restartRequired();
+  } while (restart);
   return 0;
 }
 #endif

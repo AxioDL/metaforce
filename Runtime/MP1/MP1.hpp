@@ -236,6 +236,7 @@ private:
 
 public:
   CMain(IFactory* resFactory, CSimplePool* resStore);
+  ~CMain();
   void RegisterResourceTweaks();
   void AddWorldPaks();
   void AddOverridePaks();
@@ -251,8 +252,8 @@ public:
 
   // int RsMain(int argc, char** argv, boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator&
   // backend);
-  void Init(const FileStoreManager& storeMgr, CVarManager* cvarManager, boo::IAudioVoiceEngine* voiceEngine,
-            amuse::IBackendVoiceAllocator& backend) override;
+  std::string Init(const FileStoreManager& storeMgr, CVarManager* cvarManager, boo::IAudioVoiceEngine* voiceEngine,
+                   amuse::IBackendVoiceAllocator& backend) override;
   bool Proc(float dt) override;
   void Draw() override;
   void Shutdown() override;

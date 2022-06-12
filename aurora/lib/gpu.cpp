@@ -245,9 +245,10 @@ bool initialize(SDL_Window* window, wgpu::BackendType backendType, uint32_t msaa
     Log.report(logvisor::Info, FMT_STRING("Creating Dawn instance"));
     g_Instance = std::make_unique<dawn::native::Instance>();
   }
-#ifndef NDEBUG
+  Log.report(logvisor::Info, FMT_STRING("Attempting to initialize {}"), magic_enum::enum_name(backendType));
+#if 0
   // D3D12's debug layer is very slow
-//  g_Instance->EnableBackendValidation(backendType != wgpu::BackendType::D3D12);
+  g_Instance->EnableBackendValidation(backendType != wgpu::BackendType::D3D12);
 #endif
   if (!utils::DiscoverAdapter(g_Instance.get(), window, backendType)) {
     return false;

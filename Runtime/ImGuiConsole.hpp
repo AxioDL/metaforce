@@ -51,18 +51,20 @@ public:
   static std::array<ImGuiEntityEntry, kMaxEntities> entities;
   static ImGuiPlayerLoadouts loadouts;
 
-  ImGuiConsole(CVarManager& cvarMgr, CVarCommons& cvarCommons) : m_cvarMgr(cvarMgr), m_cvarCommons(cvarCommons) {}
+  ImGuiConsole(CVarManager& cvarMgr, CVarCommons& cvarCommons);
   void PreUpdate();
   void PostUpdate();
   void Shutdown();
-  std::optional<std::string> ShowAboutWindow(bool canClose, std::string_view errorString = ""sv,
-                                             bool preLaunch = false);
 
   static void BeginEntityRow(const ImGuiEntityEntry& entry);
   static void EndEntityRow(const ImGuiEntityEntry& entry);
 
   void ControllerAdded(uint32_t idx);
   void ControllerRemoved(uint32_t idx);
+
+  std::optional<std::string> m_errorString;
+  std::optional<std::string> m_gameDiscSelected;
+  bool m_quitRequested = false;
 
 private:
   CVarManager& m_cvarMgr;
@@ -75,6 +77,7 @@ private:
   bool m_showLayersWindow = false;
   bool m_showConsoleVariablesWindow = false;
   bool m_showPlayerTransformEditor = false;
+  bool m_showPreLaunchSettingsWindow = false;
   std::optional<zeus::CVector3f> m_savedLocation;
   std::optional<zeus::CEulerAngles> m_savedRotation;
 
@@ -113,6 +116,7 @@ private:
   bool m_developer = m_cvarMgr.findCVar("developer")->toBoolean();
   bool m_cheats = m_cvarMgr.findCVar("cheats")->toBoolean();
   bool m_isInitialized = false;
+  bool m_isLaunchInitialized = false;
 
   int m_debugOverlayCorner = 2; // bottom-left
   int m_inputOverlayCorner = 3; // bottom-right
@@ -126,7 +130,8 @@ private:
   bool m_controllerConfigVisible = false;
   ImGuiControllerConfig m_controllerConfig;
 
-  void ShowAppMainMenuBar(bool canInspect);
+  void ShowAboutWindow(bool preLaunch);
+  void ShowAppMainMenuBar(bool canInspect, bool preLaunch);
   void ShowMenuGame();
   bool ShowEntityInfoWindow(TUniqueId uid);
   void ShowInspectWindow(bool* isOpen);
@@ -142,5 +147,6 @@ private:
   void ShowCornerContextMenu(int& corner, int avoidCorner) const;
   void ShowPlayerTransformEditor();
   void ShowPipelineProgress();
+  void ShowPreLaunchSettingsWindow();
 };
 } // namespace metaforce

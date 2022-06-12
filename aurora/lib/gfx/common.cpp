@@ -313,7 +313,10 @@ static void pipeline_worker() {
 
 void initialize() {
   // No async pipelines for OpenGL (ES)
-  if (gpu::g_backendType != wgpu::BackendType::OpenGL && gpu::g_backendType != wgpu::BackendType::OpenGLES) {
+  if (gpu::g_backendType == wgpu::BackendType::OpenGL || gpu::g_backendType == wgpu::BackendType::OpenGLES) {
+    g_hasPipelineThread = false;
+  } else {
+    g_pipelineThreadEnd = false;
     g_pipelineThread = std::thread(pipeline_worker);
     g_hasPipelineThread = true;
   }
@@ -425,21 +428,30 @@ void shutdown() {
       file.write(reinterpret_cast<const char*>(&g_serializedPipelineCount), sizeof(g_serializedPipelineCount));
       file.write(reinterpret_cast<const char*>(g_serializedPipelines.data()), g_serializedPipelines.size());
     }
+    g_serializedPipelines.clear();
+    g_serializedPipelineCount = 0;
   }
 
   gx::shutdown();
 
   g_resolvedTextures.clear();
+  g_textureUploads.clear();
   g_cachedBindGroups.clear();
   g_cachedSamplers.clear();
   g_pipelines.clear();
+  g_queuedPipelines.clear();
   g_vertexBuffer = {};
   g_uniformBuffer = {};
   g_indexBuffer = {};
   g_storageBuffer = {};
   g_stagingBuffers.fill({});
+  g_renderPasses.clear();
+  g_currentRenderPass = 0;
 
   g_state = {};
+
+  queuedPipelines = 0;
+  createdPipelines = 0;
 }
 
 static size_t currentStagingBuffer = 0;

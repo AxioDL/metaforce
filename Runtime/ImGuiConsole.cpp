@@ -41,6 +41,9 @@ std::array<ImGuiEntityEntry, kMaxEntities> ImGuiConsole::entities;
 std::set<TUniqueId> ImGuiConsole::inspectingEntities;
 ImGuiPlayerLoadouts ImGuiConsole::loadouts;
 
+ImGuiConsole::ImGuiConsole(CVarManager& cvarMgr, CVarCommons& cvarCommons)
+: m_cvarMgr(cvarMgr), m_cvarCommons(cvarCommons) {}
+
 void ImGuiStringViewText(std::string_view text) {
   // begin()/end() do not work on MSVC
   ImGui::TextUnformatted(text.data(), text.data() + text.size());
@@ -137,8 +140,10 @@ static void Warp(const CAssetId worldId, TAreaId aId) {
 }
 
 void ImGuiConsole::ShowMenuGame() {
-  m_paused = g_Main->IsPaused();
-  if (ImGui::MenuItem("Paused", "F5", &m_paused)) {
+  if (g_Main != nullptr) {
+    m_paused = g_Main->IsPaused();
+  }
+  if (ImGui::MenuItem("Paused", "F5", &m_paused, g_Main != nullptr)) {
     g_Main->SetPaused(m_paused);
   }
   if (ImGui::MenuItem("Step Frame", "F6", &m_stepFrame, m_paused)) {
@@ -159,7 +164,7 @@ void ImGuiConsole::ShowMenuGame() {
     ImGui::EndMenu();
   }
   if (ImGui::MenuItem("Quit", "Alt+F4")) {
-    g_Main->Quit();
+    m_quitRequested = true;
   }
 }
 
@@ -640,12 +645,10 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
   ImGui::End();
 }
 
-std::optional<std::string> ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString, bool preLaunch) {
-  std::optional<std::string> result{};
-
+void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
   // Center window
   ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-  ImGui::SetNextWindowPos(center, canClose ? ImGuiCond_Appearing : ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+  ImGui::SetNextWindowPos(center, preLaunch ? ImGuiCond_Always : ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
   ImVec4& windowBg = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
   ImGui::PushStyleColor(ImGuiCol_TitleBg, windowBg);
@@ -654,10 +657,10 @@ std::optional<std::string> ImGuiConsole::ShowAboutWindow(bool canClose, std::str
   bool* open = nullptr;
   ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoNav |
                            ImGuiWindowFlags_NoSavedSettings;
-  if (canClose) {
-    open = &m_showAboutWindow;
-  } else {
+  if (preLaunch) {
     flags |= ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove;
+  } else {
+    open = &m_showAboutWindow;
   }
   if (ImGui::Begin("About", open, flags)) {
     float iconSize = 128.f * aurora::get_window_size().scale;
@@ -670,12 +673,16 @@ std::optional<std::string> ImGuiConsole::ShowAboutWindow(bool canClose, std::str
     const ImVec2& padding = ImGui::GetStyle().WindowPadding;
     ImGui::Dummy(padding);
     if (preLaunch) {
+      if (ImGuiButtonCenter("Settings")) {
+        m_showPreLaunchSettingsWindow = true;
+      }
+      ImGui::Dummy(padding);
 #ifdef NATIVEFILEDIALOG_SUPPORTED
       if (ImGuiButtonCenter("Select Game Disc")) {
         nfdchar_t* outPath = nullptr;
         nfdresult_t nfdResult = NFD_OpenDialog(nullptr, nullptr, &outPath);
         if (nfdResult == NFD_OKAY) {
-          result = outPath;
+          m_gameDiscSelected = outPath;
           free(outPath);
         } else if (nfdResult != NFD_CANCEL) {
           Log.report(logvisor::Error, FMT_STRING("nativefiledialog error: {}"), NFD_GetError());
@@ -684,9 +691,9 @@ std::optional<std::string> ImGuiConsole::ShowAboutWindow(bool canClose, std::str
       ImGui::Dummy(padding);
 #endif
     }
-    if (!errorString.empty()) {
+    if (m_errorString) {
       ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{0.77f, 0.12f, 0.23f, 1.f});
-      ImGuiTextCenter(errorString);
+      ImGuiTextCenter(*m_errorString);
       ImGui::PopStyleColor();
       ImGui::Dummy(padding);
     }
@@ -764,7 +771,6 @@ std::optional<std::string> ImGuiConsole::ShowAboutWindow(bool canClose, std::str
   }
   ImGui::End();
   ImGui::PopStyleColor(2);
-  return result;
 }
 
 static std::string BytesToString(size_t bytes) {
@@ -932,7 +938,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       ImGuiStringViewText(
           fmt::format(FMT_STRING("CRandom16::Next calls: {}\n"), metaforce::CRandom16::GetNumNextCalls()));
     }
-    if (m_resourceStats) {
+    if (m_resourceStats && g_SimplePool != nullptr) {
       if (hasPrevious) {
         ImGui::Separator();
       }
@@ -1168,7 +1174,7 @@ void ImGuiConsole::SetOverlayWindowLocation(int corner) const {
   ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, windowPosPivot);
 }
 
-void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
+void ImGuiConsole::ShowAppMainMenuBar(bool canInspect, bool preLaunch) {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("Game")) {
       ShowMenuGame();
@@ -1221,7 +1227,7 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
     }
     ImGui::Spacing();
     if (ImGui::BeginMenu("Help")) {
-      ImGui::MenuItem("About", nullptr, &m_showAboutWindow);
+      ImGui::MenuItem("About", nullptr, &m_showAboutWindow, !preLaunch);
       ImGui::Separator();
       if (ImGui::BeginMenu("ImGui")) {
         if (ImGui::MenuItem("Clear Settings")) {
@@ -1240,6 +1246,7 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
 
 void ImGuiConsole::PreUpdate() {
   OPTICK_EVENT();
+  bool preLaunch = g_Main == nullptr;
   if (!m_isInitialized) {
     m_isInitialized = true;
     m_cvarCommons.m_debugOverlayShowFrameCounter->addListener([this](CVar* c) { m_frameCounter = c->toBoolean(); });
@@ -1255,33 +1262,38 @@ void ImGuiConsole::PreUpdate() {
     m_cvarCommons.m_debugOverlayShowInput->addListener([this](CVar* c) { m_showInput = c->toBoolean(); });
     m_cvarMgr.findCVar("developer")->addListener([this](CVar* c) { m_developer = c->toBoolean(); });
     m_cvarMgr.findCVar("cheats")->addListener([this](CVar* c) { m_cheats = c->toBoolean(); });
+  }
+  if (!preLaunch && !m_isLaunchInitialized) {
     if (m_developer) {
       m_toasts.emplace_back("Press ` to toggle menu"s, 5.f);
     }
+    m_isLaunchInitialized = true;
   }
-  // We ned to make sure we have a valid CRandom16 at all times, so lets do that here
+  // We need to make sure we have a valid CRandom16 at all times, so let's do that here
   if (g_StateManager != nullptr && g_StateManager->GetActiveRandom() == nullptr) {
     g_StateManager->SetActiveRandomToDefault();
   }
 
-  if (ImGui::IsKeyReleased(ImGuiKey_GraveAccent)) {
-    m_isVisible ^= 1;
-  }
-  if (m_stepFrame) {
-    g_Main->SetPaused(true);
-    m_stepFrame = false;
-  }
-  if (m_paused && !m_stepFrame && ImGui::IsKeyPressed(ImGuiKey_F6)) {
-    g_Main->SetPaused(false);
-    m_stepFrame = true;
-  }
-  if (ImGui::IsKeyReleased(ImGuiKey_F5)) {
-    m_paused ^= 1;
-    g_Main->SetPaused(m_paused);
+  if (!preLaunch) {
+    if (ImGui::IsKeyReleased(ImGuiKey_GraveAccent)) {
+      m_isVisible ^= 1;
+    }
+    if (m_stepFrame) {
+      g_Main->SetPaused(true);
+      m_stepFrame = false;
+    }
+    if (m_paused && !m_stepFrame && ImGui::IsKeyPressed(ImGuiKey_F6)) {
+      g_Main->SetPaused(false);
+      m_stepFrame = true;
+    }
+    if (ImGui::IsKeyReleased(ImGuiKey_F5)) {
+      m_paused ^= 1;
+      g_Main->SetPaused(m_paused);
+    }
   }
   bool canInspect = g_StateManager != nullptr && g_StateManager->GetObjectList();
-  if (m_isVisible) {
-    ShowAppMainMenuBar(canInspect);
+  if (preLaunch || m_isVisible) {
+    ShowAppMainMenuBar(canInspect, preLaunch);
   }
   ShowToasts();
   if (canInspect && (m_showInspectWindow || !inspectingEntities.empty())) {
@@ -1304,8 +1316,8 @@ void ImGuiConsole::PreUpdate() {
   if (canInspect && m_showLayersWindow) {
     ShowLayersWindow();
   }
-  if (m_showAboutWindow) {
-    ShowAboutWindow(true);
+  if (preLaunch || m_showAboutWindow) {
+    ShowAboutWindow(preLaunch);
   }
   if (m_showDemoWindow) {
     ImGui::ShowDemoWindow(&m_showDemoWindow);
@@ -1318,6 +1330,9 @@ void ImGuiConsole::PreUpdate() {
   ShowPlayerTransformEditor();
   ShowPipelineProgress();
   m_controllerConfig.show(m_controllerConfigVisible);
+  if (preLaunch && m_showPreLaunchSettingsWindow) {
+    ShowPreLaunchSettingsWindow();
+  }
 }
 
 void ImGuiConsole::PostUpdate() {
@@ -1345,7 +1360,7 @@ void ImGuiConsole::PostUpdate() {
 
   // Always calculate room time regardless of if the overlay is displayed, this allows us have an accurate display if
   // the user chooses to display it later on during gameplay
-  if (g_StateManager && m_currentRoom != g_StateManager->GetCurrentArea()) {
+  if (g_StateManager != nullptr && m_currentRoom != g_StateManager->GetCurrentArea()) {
     const double igt = g_GameState->GetTotalPlayTime();
     m_currentRoom = static_cast<const void*>(g_StateManager->GetCurrentArea());
     m_lastRoomTime = igt - m_currentRoomStart;
@@ -1780,5 +1795,67 @@ void ImGuiConsole::ControllerAdded(uint32_t idx) {
 
 void ImGuiConsole::ControllerRemoved(uint32_t idx) {
   m_toasts.emplace_back(fmt::format(FMT_STRING("Controller {} disconnected"), idx), 5.f);
+}
+
+static void ImGuiCVarCheckbox(CVarManager& mgr, std::string_view cvarName, const char* label, bool* ptr = nullptr) {
+  auto* cvar = mgr.findOrMakeCVar(cvarName, ""sv, false, CVar::EFlags::Game | CVar::EFlags::Archive);
+  if (cvar != nullptr) {
+    bool value = cvar->toBoolean();
+    bool modified = false;
+    if (ptr == nullptr) {
+      modified = ImGui::Checkbox(label, &value);
+    } else {
+      modified = ImGui::Checkbox(label, ptr);
+      value = *ptr;
+    }
+    if (modified) {
+      cvar->unlock();
+      cvar->fromBoolean(value);
+      cvar->lock();
+    }
+  }
+}
+
+void ImGuiConsole::ShowPreLaunchSettingsWindow() {
+  if (ImGui::Begin("Settings", &m_showPreLaunchSettingsWindow, ImGuiWindowFlags_AlwaysAutoResize)) {
+    if (ImGui::BeginTabBar("Settings")) {
+      if (ImGui::BeginTabItem("Graphics")) {
+        static auto AvailableBackends = aurora::get_available_backends();
+        ImGuiStringViewText(fmt::format(FMT_STRING("Current backend: {}"), aurora::get_backend_string()));
+        auto desiredBackend = static_cast<int>(aurora::Backend::Invalid);
+        if (auto* cvar = m_cvarMgr.findCVar("graphicsApi")) {
+          bool valid = false;
+          const auto name = cvar->toLiteral(&valid);
+          if (valid) {
+            desiredBackend = static_cast<int>(aurora::backend_from_string(name));
+          }
+        }
+        bool modified = false;
+        modified = ImGui::RadioButton("Auto", &desiredBackend, static_cast<int>(aurora::Backend::Invalid));
+        for (const auto& item : AvailableBackends) {
+          modified = ImGui::RadioButton(magic_enum::enum_name(item).data(), &desiredBackend, static_cast<int>(item)) ||
+                     modified;
+        }
+        if (modified) {
+          m_cvarCommons.m_graphicsApi->fromLiteral(
+              aurora::backend_to_string(static_cast<aurora::Backend>(desiredBackend)));
+        }
+        ImGuiCVarCheckbox(m_cvarMgr, "fullscreen", "Fullscreen");
+        ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("Game")) {
+        ImGuiCVarCheckbox(m_cvarMgr, "tweak.game.SplashScreensDisabled", "Skip Splash Screens");
+        ImGuiCVarCheckbox(m_cvarMgr, "developer", "Developer Mode", &m_developer);
+        ImGuiCVarCheckbox(m_cvarMgr, "cheats", "Enable Cheats", &m_cheats);
+        ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("Experimental")) {
+        ImGuiCVarCheckbox(m_cvarMgr, "variableDt", "Variable Delta Time (broken)");
+        ImGui::EndTabItem();
+      }
+      ImGui::EndTabBar();
+    }
+  }
+  ImGui::End();
 }
 } // namespace metaforce
