@@ -221,6 +221,7 @@ public:
     if (!m_projectInitialized && !m_deferredProject.empty()) {
       if (CDvdFile::Initialize(m_deferredProject)) {
         m_projectInitialized = true;
+        m_cvarCommons.m_lastDiscPath->fromLiteral(m_deferredProject);
       } else {
         Log.report(logvisor::Error, FMT_STRING("Failed to open disc image '{}'"), m_deferredProject);
         m_imGuiConsole.m_errorString = fmt::format(FMT_STRING("Failed to open disc image '{}'"), m_deferredProject);
@@ -272,6 +273,7 @@ public:
         g_mainMP1.reset();
         CDvdFile::Shutdown();
         m_projectInitialized = false;
+        m_cvarCommons.m_lastDiscPath->fromLiteral(""sv);
       }
     }
 

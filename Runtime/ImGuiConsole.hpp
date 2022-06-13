@@ -91,6 +91,7 @@ private:
   std::string m_inspectFilterText;
   std::string m_layersFilterText;
   std::string m_cvarFiltersText;
+  std::string m_lastDiscPath = m_cvarCommons.m_lastDiscPath->toLiteral();
 
   // Debug overlays
   bool m_frameCounter = m_cvarCommons.m_debugOverlayShowFrameCounter->toBoolean();
@@ -108,6 +109,11 @@ private:
   bool m_randomStats = m_cvarCommons.m_debugOverlayShowRandomStats->toBoolean();
   bool m_resourceStats = m_cvarCommons.m_debugOverlayShowResourceStats->toBoolean();
   bool m_showInput = m_cvarCommons.m_debugOverlayShowInput->toBoolean();
+  bool m_drawAiPath = m_cvarCommons.m_debugToolDrawAiPath->toBoolean();
+  bool m_drawCollisionActors = m_cvarCommons.m_debugToolDrawCollisionActors->toBoolean();
+  bool m_drawPlatformCollision = m_cvarCommons.m_debugToolDrawPlatformCollision->toBoolean();
+  bool m_drawMazePath = m_cvarCommons.m_debugToolDrawMazePath->toBoolean();
+  bool m_drawLighting = m_cvarCommons.m_debugToolDrawLighting->toBoolean();
 #if TARGET_OS_IOS
   bool m_pipelineInfo = false;
 #else
@@ -118,8 +124,8 @@ private:
   bool m_isInitialized = false;
   bool m_isLaunchInitialized = false;
 
-  int m_debugOverlayCorner = 2; // bottom-left
-  int m_inputOverlayCorner = 3; // bottom-right
+  int m_debugOverlayCorner = m_cvarCommons.m_debugOverlayCorner->toSigned();
+  int m_inputOverlayCorner = m_cvarCommons.m_debugInputOverlayCorner->toSigned();
   const void* m_currentRoom = nullptr;
   double m_lastRoomTime = 0.f;
   double m_currentRoomStart = 0.f;
@@ -144,7 +150,7 @@ private:
   void ShowToasts();
   void ShowInputViewer();
   void SetOverlayWindowLocation(int corner) const;
-  void ShowCornerContextMenu(int& corner, int avoidCorner) const;
+  bool ShowCornerContextMenu(int& corner, int avoidCorner) const;
   void ShowPlayerTransformEditor();
   void ShowPipelineProgress();
   void ShowPreLaunchSettingsWindow();

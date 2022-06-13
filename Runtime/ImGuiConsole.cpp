@@ -149,7 +149,7 @@ void ImGuiConsole::ShowMenuGame() {
   if (ImGui::MenuItem("Step Frame", "F6", &m_stepFrame, m_paused)) {
     g_Main->SetPaused(false);
   }
-  if (ImGui::BeginMenu("Warp", g_StateManager != nullptr && g_ResFactory != nullptr &&
+  if (ImGui::BeginMenu("Warp", m_cheats && g_StateManager != nullptr && g_ResFactory != nullptr &&
                                    g_ResFactory->GetResLoader() != nullptr)) {
     for (const auto& world : ListWorlds()) {
       if (ImGui::BeginMenu(world.first.c_str())) {
@@ -676,9 +676,9 @@ void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
       if (ImGuiButtonCenter("Settings")) {
         m_showPreLaunchSettingsWindow = true;
       }
-      ImGui::Dummy(padding);
 #ifdef NATIVEFILEDIALOG_SUPPORTED
-      if (ImGuiButtonCenter("Select Game Disc")) {
+      ImGui::Dummy(padding);
+      if (ImGuiButtonCenter("Select Game")) {
         nfdchar_t* outPath = nullptr;
         nfdresult_t nfdResult = NFD_OpenDialog(nullptr, nullptr, &outPath);
         if (nfdResult == NFD_OKAY) {
@@ -688,8 +688,13 @@ void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
           Log.report(logvisor::Error, FMT_STRING("nativefiledialog error: {}"), NFD_GetError());
         }
       }
-      ImGui::Dummy(padding);
 #endif
+      if (!m_lastDiscPath.empty()) {
+        if (ImGuiButtonCenter("Load Previous Game")) {
+          m_gameDiscSelected = m_lastDiscPath;
+        }
+      }
+      ImGui::Dummy(padding);
     }
     if (m_errorString) {
       ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{0.77f, 0.12f, 0.23f, 1.f});
@@ -794,8 +799,7 @@ void ImGuiConsole::ShowDebugOverlay() {
   }
   ImGuiIO& io = ImGui::GetIO();
   ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
-                                 ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
-                                 ImGuiWindowFlags_NoNav;
+                                 ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
   if (m_debugOverlayCorner != -1) {
     SetOverlayWindowLocation(m_debugOverlayCorner);
     windowFlags |= ImGuiWindowFlags_NoMove;
@@ -946,7 +950,7 @@ void ImGuiConsole::ShowDebugOverlay() {
 
       ImGuiStringViewText(fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects()));
     }
-    if (m_pipelineInfo) {
+    if (m_pipelineInfo && m_developer) {
       if (hasPrevious) {
         ImGui::Separator();
       }
@@ -966,7 +970,9 @@ void ImGuiConsole::ShowDebugOverlay() {
                                       BytesToString(aurora::gfx::g_lastVertSize + aurora::gfx::g_lastUniformSize +
                                                     aurora::gfx::g_lastIndexSize + aurora::gfx::g_lastStorageSize)));
     }
-    ShowCornerContextMenu(m_debugOverlayCorner, m_inputOverlayCorner);
+    if (ShowCornerContextMenu(m_debugOverlayCorner, m_inputOverlayCorner)) {
+      m_cvarCommons.m_debugOverlayCorner->fromInteger(m_debugOverlayCorner);
+    }
   }
   ImGui::End();
 }
@@ -995,8 +1001,7 @@ void ImGuiConsole::ShowInputViewer() {
   // Code -stolen- borrowed from Practice Mod
   ImGuiIO& io = ImGui::GetIO();
   ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
-                                 ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
-                                 ImGuiWindowFlags_NoNav;
+                                 ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
   if (m_inputOverlayCorner != -1) {
     SetOverlayWindowLocation(m_inputOverlayCorner);
     windowFlags |= ImGuiWindowFlags_NoMove;
@@ -1134,30 +1139,39 @@ void ImGuiConsole::ShowInputViewer() {
     }
 
     ImGui::Dummy(zeus::CVector2f(270, 130) * scale);
-    ShowCornerContextMenu(m_inputOverlayCorner, m_debugOverlayCorner);
+    if (ShowCornerContextMenu(m_inputOverlayCorner, m_debugOverlayCorner)) {
+      m_cvarCommons.m_debugInputOverlayCorner->fromInteger(m_inputOverlayCorner);
+    }
   }
   ImGui::End();
 }
 
-void ImGuiConsole::ShowCornerContextMenu(int& corner, int avoidCorner) const {
+bool ImGuiConsole::ShowCornerContextMenu(int& corner, int avoidCorner) const {
+  bool result = false;
   if (ImGui::BeginPopupContextWindow()) {
     if (ImGui::MenuItem("Custom", nullptr, corner == -1)) {
       corner = -1;
+      result = true;
     }
     if (ImGui::MenuItem("Top-left", nullptr, corner == 0, avoidCorner != 0)) {
       corner = 0;
+      result = true;
     }
     if (ImGui::MenuItem("Top-right", nullptr, corner == 1, avoidCorner != 1)) {
       corner = 1;
+      result = true;
     }
     if (ImGui::MenuItem("Bottom-left", nullptr, corner == 2, avoidCorner != 2)) {
       corner = 2;
+      result = true;
     }
     if (ImGui::MenuItem("Bottom-right", nullptr, corner == 3, avoidCorner != 3)) {
       corner = 3;
+      result = true;
     }
     ImGui::EndPopup();
   }
+  return result;
 }
 
 void ImGuiConsole::SetOverlayWindowLocation(int corner) const {
@@ -1174,6 +1188,21 @@ void ImGuiConsole::SetOverlayWindowLocation(int corner) const {
   ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, windowPosPivot);
 }
 
+static void ImGuiCVarMenuItem(const char* name, CVar* cvar, bool& value) {
+  if (cvar == nullptr) {
+    return;
+  }
+  if (ImGui::MenuItem(name, nullptr, &value)) {
+    cvar->fromBoolean(value);
+  }
+  if (ImGui::IsItemHovered()) {
+    std::string tooltip{cvar->rawHelp()};
+    if (!tooltip.empty()) {
+      ImGui::SetTooltip("%s", tooltip.c_str());
+    }
+  }
+}
+
 void ImGuiConsole::ShowAppMainMenuBar(bool canInspect, bool preLaunch) {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("Game")) {
@@ -1181,62 +1210,53 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect, bool preLaunch) {
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Tools")) {
-      ImGui::MenuItem("Player Transform", nullptr, &m_showPlayerTransformEditor, canInspect && m_developer);
-      ImGui::MenuItem("Inspect", nullptr, &m_showInspectWindow, canInspect && m_developer);
-      ImGui::MenuItem("Items", nullptr, &m_showItemsWindow, canInspect && m_developer && m_cheats);
-      ImGui::MenuItem("Layers", nullptr, &m_showLayersWindow, canInspect && m_developer);
-      ImGui::MenuItem("Console Variables", nullptr, &m_showConsoleVariablesWindow);
       ImGui::MenuItem("Controller Config", nullptr, &m_controllerConfigVisible);
-      ImGui::EndMenu();
-    }
-    if (ImGui::BeginMenu("Debug")) {
-      if (ImGui::MenuItem("Frame Counter", nullptr, &m_frameCounter)) {
-        m_cvarCommons.m_debugOverlayShowFrameCounter->fromBoolean(m_frameCounter);
-      }
-      if (ImGui::MenuItem("Frame Rate", nullptr, &m_frameRate)) {
-        m_cvarCommons.m_debugOverlayShowFramerate->fromBoolean(m_frameRate);
-      }
-      if (ImGui::MenuItem("In-Game Time", nullptr, &m_inGameTime)) {
-        m_cvarCommons.m_debugOverlayShowInGameTime->fromBoolean(m_inGameTime);
-      }
-      if (ImGui::MenuItem("Room Timer", nullptr, &m_roomTimer)) {
-        m_cvarCommons.m_debugOverlayShowRoomTimer->fromBoolean(m_roomTimer);
-      }
-      if (ImGui::MenuItem("Player Info", nullptr, &m_playerInfo)) {
-        m_cvarCommons.m_debugOverlayPlayerInfo->fromBoolean(m_playerInfo);
-      }
-      if (ImGui::MenuItem("World Info", nullptr, &m_worldInfo)) {
-        m_cvarCommons.m_debugOverlayWorldInfo->fromBoolean(m_worldInfo);
-      }
-      if (ImGui::MenuItem("Area Info", nullptr, &m_areaInfo)) {
-        m_cvarCommons.m_debugOverlayAreaInfo->fromBoolean(m_areaInfo);
-      }
-      if (ImGui::MenuItem("Layer Info", nullptr, &m_layerInfo)) {
-        m_cvarCommons.m_debugOverlayLayerInfo->fromBoolean(m_layerInfo);
-      }
-      if (ImGui::MenuItem("Random Stats", nullptr, &m_randomStats)) {
-        m_cvarCommons.m_debugOverlayShowRandomStats->fromBoolean(m_randomStats);
-      }
-      if (ImGui::MenuItem("Resource Stats", nullptr, &m_resourceStats)) {
-        m_cvarCommons.m_debugOverlayShowResourceStats->fromBoolean(m_resourceStats);
-      }
-      if (ImGui::MenuItem("Show Input", nullptr, &m_showInput)) {
-        m_cvarCommons.m_debugOverlayShowInput->fromBoolean(m_showInput);
+      ImGui::MenuItem("Items", nullptr, &m_showItemsWindow, canInspect && m_cheats);
+      if (m_developer) {
+        ImGui::Separator();
+        ImGui::MenuItem("Console Variables", nullptr, &m_showConsoleVariablesWindow);
+        ImGui::MenuItem("Inspect", nullptr, &m_showInspectWindow, canInspect);
+        ImGui::MenuItem("Layers", nullptr, &m_showLayersWindow, canInspect);
+        ImGui::MenuItem("Player Transform", nullptr, &m_showPlayerTransformEditor, canInspect && m_cheats);
       }
       ImGui::EndMenu();
     }
-    ImGui::Spacing();
+    if (ImGui::BeginMenu("Overlays")) {
+      ImGuiCVarMenuItem("Frame Counter", m_cvarCommons.m_debugOverlayShowFrameCounter, m_frameCounter);
+      ImGuiCVarMenuItem("Frame Rate", m_cvarCommons.m_debugOverlayShowFramerate, m_frameRate);
+      ImGuiCVarMenuItem("In-Game Time", m_cvarCommons.m_debugOverlayShowInGameTime, m_inGameTime);
+      ImGuiCVarMenuItem("Room Timer", m_cvarCommons.m_debugOverlayShowRoomTimer, m_roomTimer);
+      ImGuiCVarMenuItem("Player Info", m_cvarCommons.m_debugOverlayPlayerInfo, m_playerInfo);
+      ImGuiCVarMenuItem("World Info", m_cvarCommons.m_debugOverlayWorldInfo, m_worldInfo);
+      ImGuiCVarMenuItem("Area Info", m_cvarCommons.m_debugOverlayAreaInfo, m_areaInfo);
+      ImGuiCVarMenuItem("Layer Info", m_cvarCommons.m_debugOverlayLayerInfo, m_layerInfo);
+      ImGuiCVarMenuItem("Random Stats", m_cvarCommons.m_debugOverlayShowRandomStats, m_randomStats);
+      ImGuiCVarMenuItem("Resource Stats", m_cvarCommons.m_debugOverlayShowResourceStats, m_resourceStats);
+      ImGuiCVarMenuItem("Show Input", m_cvarCommons.m_debugOverlayShowInput, m_showInput);
+#if 0 // Currently unimplemented
+      ImGui::Separator();
+      ImGuiCVarMenuItem("Draw AI Paths", m_cvarCommons.m_debugToolDrawAiPath, m_drawAiPath);
+      ImGuiCVarMenuItem("Draw Lighting", m_cvarCommons.m_debugToolDrawLighting, m_drawLighting);
+      ImGuiCVarMenuItem("Draw Collision Actors", m_cvarCommons.m_debugToolDrawCollisionActors, m_drawCollisionActors);
+      ImGuiCVarMenuItem("Draw Maze Path", m_cvarCommons.m_debugToolDrawMazePath, m_drawMazePath);
+      ImGuiCVarMenuItem("Draw Platform Collision", m_cvarCommons.m_debugToolDrawPlatformCollision,
+                        m_drawPlatformCollision);
+#endif
+      ImGui::EndMenu();
+    }
     if (ImGui::BeginMenu("Help")) {
       ImGui::MenuItem("About", nullptr, &m_showAboutWindow, !preLaunch);
-      ImGui::Separator();
-      if (ImGui::BeginMenu("ImGui")) {
-        if (ImGui::MenuItem("Clear Settings")) {
-          ImGui::ClearIniSettings();
-        }
+      if (m_developer) {
+        ImGui::Separator();
+        if (ImGui::BeginMenu("ImGui")) {
+          if (ImGui::MenuItem("Clear Settings")) {
+            ImGui::ClearIniSettings();
+          }
 #ifndef NDEBUG
-        ImGui::MenuItem("Show Demo", nullptr, &m_showDemoWindow);
+          ImGui::MenuItem("Show Demo", nullptr, &m_showDemoWindow);
 #endif
-        ImGui::EndMenu();
+          ImGui::EndMenu();
+        }
       }
       ImGui::EndMenu();
     }
@@ -1260,6 +1280,16 @@ void ImGuiConsole::PreUpdate() {
     m_cvarCommons.m_debugOverlayShowRandomStats->addListener([this](CVar* c) { m_randomStats = c->toBoolean(); });
     m_cvarCommons.m_debugOverlayShowResourceStats->addListener([this](CVar* c) { m_resourceStats = c->toBoolean(); });
     m_cvarCommons.m_debugOverlayShowInput->addListener([this](CVar* c) { m_showInput = c->toBoolean(); });
+    m_cvarCommons.m_debugToolDrawAiPath->addListener([this](CVar* c) { m_drawAiPath = c->toBoolean(); });
+    m_cvarCommons.m_debugToolDrawCollisionActors->addListener(
+        [this](CVar* c) { m_drawCollisionActors = c->toBoolean(); });
+    m_cvarCommons.m_debugToolDrawPlatformCollision->addListener(
+        [this](CVar* c) { m_drawPlatformCollision = c->toBoolean(); });
+    m_cvarCommons.m_debugToolDrawMazePath->addListener([this](CVar* c) { m_drawMazePath = c->toBoolean(); });
+    m_cvarCommons.m_debugToolDrawLighting->addListener([this](CVar* c) { m_drawLighting = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayCorner->addListener([this](CVar* c) { m_debugOverlayCorner = c->toSigned(); });
+    m_cvarCommons.m_debugInputOverlayCorner->addListener([this](CVar* c) { m_inputOverlayCorner = c->toSigned(); });
+    m_cvarCommons.m_lastDiscPath->addListener([this](CVar* c) { m_lastDiscPath = c->toLiteral(); });
     m_cvarMgr.findCVar("developer")->addListener([this](CVar* c) { m_developer = c->toBoolean(); });
     m_cvarMgr.findCVar("cheats")->addListener([this](CVar* c) { m_cheats = c->toBoolean(); });
   }
@@ -1808,6 +1838,11 @@ static void ImGuiCVarCheckbox(CVarManager& mgr, std::string_view cvarName, const
       modified = ImGui::Checkbox(label, ptr);
       value = *ptr;
     }
+    // Kinda useless for these tbh
+    // std::string tooltip{cvar->rawHelp()};
+    // if (!tooltip.empty() && ImGui::IsItemHovered()) {
+    //   ImGui::SetTooltip("%s", tooltip.c_str());
+    // }
     if (modified) {
       cvar->unlock();
       cvar->fromBoolean(value);
@@ -1845,8 +1880,10 @@ void ImGuiConsole::ShowPreLaunchSettingsWindow() {
       }
       if (ImGui::BeginTabItem("Game")) {
         ImGuiCVarCheckbox(m_cvarMgr, "tweak.game.SplashScreensDisabled", "Skip Splash Screens");
-        ImGuiCVarCheckbox(m_cvarMgr, "developer", "Developer Mode", &m_developer);
         ImGuiCVarCheckbox(m_cvarMgr, "cheats", "Enable Cheats", &m_cheats);
+        if (m_cheats) {
+          ImGuiCVarCheckbox(m_cvarMgr, "developer", "Developer Mode", &m_developer);
+        }
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem("Experimental")) {

@@ -27,7 +27,6 @@ struct CVarCommons {
   CVar* m_texAnisotropy = nullptr;
   CVar* m_deepColor = nullptr;
   CVar* m_variableDt = nullptr;
-  CVar* m_lazyCommitResources = nullptr;
 
   CVar* m_debugOverlayPlayerInfo = nullptr;
   CVar* m_debugOverlayWorldInfo = nullptr;
@@ -40,12 +39,15 @@ struct CVarCommons {
   CVar* m_debugOverlayShowRandomStats = nullptr;
   CVar* m_debugOverlayShowRoomTimer = nullptr;
   CVar* m_debugOverlayShowInput = nullptr;
+  CVar* m_debugOverlayCorner = nullptr;
+  CVar* m_debugInputOverlayCorner = nullptr;
   CVar* m_debugToolDrawAiPath = nullptr;
   CVar* m_debugToolDrawLighting = nullptr;
   CVar* m_debugToolDrawCollisionActors = nullptr;
   CVar* m_debugToolDrawMazePath = nullptr;
   CVar* m_debugToolDrawPlatformCollision = nullptr;
   CVar* m_logFile = nullptr;
+  CVar* m_lastDiscPath = nullptr;
 
   CVarCommons(CVarManager& manager);
 

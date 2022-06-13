@@ -19,8 +19,6 @@ CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
                                      CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::ModifyRestart);
   m_variableDt = m_mgr.findOrMakeCVar("variableDt", "Enable variable delta time (experimental)", false,
                                       (CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::ModifyRestart));
-  m_lazyCommitResources = m_mgr.findOrMakeCVar("lazyCommitResources"sv, "Enable lazy commiting resources to GPU", true,
-                                               (CVar::EFlags::System | CVar::EFlags::Archive));
 
   m_debugOverlayPlayerInfo = m_mgr.findOrMakeCVar(
       "debugOverlay.playerInfo"sv, "Displays information about the player, such as location and orientation"sv, false,
@@ -53,8 +51,14 @@ CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
   m_debugOverlayShowRandomStats =
       m_mgr.findOrMakeCVar("debugOverlay.showRandomStats", "Displays the current number of random calls per frame"sv,
                            false, CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
-  m_debugOverlayShowInput = m_mgr.findOrMakeCVar("debugOverlay.showInput"sv, "Displays user input"sv, false,
+  m_debugOverlayShowInput = m_mgr.findOrMakeCVar("debugOverlay.showInput"sv, "Displays controller input"sv, false,
                                                  CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
+  m_debugOverlayCorner =
+      m_mgr.findOrMakeCVar("debugOverlay.overlayCorner"sv, "ImGui debug overlay corner"sv, 2 /* bottom-left */,
+                           CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::Hidden);
+  m_debugInputOverlayCorner =
+      m_mgr.findOrMakeCVar("debugOverlay.inputOverlayCorner"sv, "ImGui input overlay corner"sv, 3 /* bottom-right */,
+                           CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::Hidden);
   m_debugToolDrawAiPath =
       m_mgr.findOrMakeCVar("debugTool.drawAiPath", "Draws the selected paths of any AI in the room"sv, false,
                            CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
@@ -70,7 +74,8 @@ CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
                            CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
   m_logFile = m_mgr.findOrMakeCVar("logFile"sv, "Any log prints will be stored to this file upon exit"sv, "app.log"sv,
                                    CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::ModifyRestart);
-
+  m_lastDiscPath = m_mgr.findOrMakeCVar("lastDiscPath"sv, "Most recently loaded disc image path"sv, ""sv,
+                                        CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::Hidden);
   m_instance = this;
 }
 
