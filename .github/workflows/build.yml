@@ -85,6 +85,17 @@ jobs:
       - name: Print buildcache stats
         run: buildcache -s
 
+      - name: Generate AppImage
+        run: ci/build-appimage.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.preset}}-x86_64
+          path: |
+            build/install/Metaforce-*.AppImage
+            build/install/debug.tar.*
+
   build-macos:
     name: Build macOS (AppleClang universal)
     runs-on: macos-11
@@ -103,7 +114,8 @@ jobs:
         run: |
           brew update
           brew upgrade --formula
-          brew install ninja
+          brew install ninja graphicsmagick imagemagick
+          yarn global add create-dmg
           pip3 install markupsafe
 
           # setup buildcache
@@ -138,6 +150,29 @@ jobs:
       - name: Print buildcache stats
         if: 'false' # temporarily disabled
         run: buildcache -s
+
+      - name: Import signing certificate
+        uses: devbotsxyz/xcode-import-certificate@master
+        with:
+          certificate-data: ${{secrets.MACOS_CERTIFICATE_DATA}}
+          certificate-passphrase: ${{secrets.MACOS_CERTIFICATE_PASSWORD}}
+          keychain-password: ${{secrets.MACOS_KEYCHAIN_PASSWORD}}
+
+      - name: Deploy & codesign application
+        env:
+          ASC_USERNAME: ${{secrets.MACOS_ASC_USERNAME}}
+          ASC_PASSWORD: ${{secrets.MACOS_ASC_PASSWORD}}
+          ASC_TEAM_ID: ${{secrets.MACOS_ASC_TEAM_ID}}
+          CODESIGN_IDENT: ${{secrets.MACOS_CODESIGN_IDENT}}
+        run: ci/build-dmg.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-universal
+          path: |
+            build/install/Metaforce *.dmg
+            build/install/debug.tar.*
 
   build-ios:
     name: Build iOS
@@ -263,3 +298,11 @@ jobs:
 
       - name: Print buildcache stats
         run: buildcache -s
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-win32-clang-x86_64
+          path: |
+            ${{env.BUILD_DIR}}/install/*.exe
+            ${{env.BUILD_DIR}}/install/debug.7z
