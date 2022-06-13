@@ -551,6 +551,9 @@ int main(int argc, char** argv) {
     args.emplace_back(argv[i]);
   }
 
+  // FIXME: logvisor needs to copy this
+  std::string logFilePath;
+
   bool restart = false;
   do {
     metaforce::CVarManager cvarMgr{fileMgr};
@@ -572,7 +575,6 @@ int main(int argc, char** argv) {
       }
 
       std::string logFile = cvarCmns.getLogFile();
-      std::string logFilePath;
       if (!logFile.empty()) {
         std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         char buf[100];
