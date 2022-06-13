@@ -513,8 +513,7 @@ static void SetupBasics() {
   }
 
 #if SENTRY_ENABLED
-  FileStoreManager fileMgr{"sentry-native-metaforce"};
-  std::string cacheDir{fileMgr.getStoreRoot()};
+  std::string cacheDir{metaforce::FileStoreManager::instance()->getStoreRoot()};
   logvisor::RegisterSentry("metaforce", METAFORCE_WC_DESCRIBE, cacheDir.c_str());
 #endif
 }
@@ -543,8 +542,8 @@ int main(int argc, char** argv) {
     return 100;
   }
 
-  SetupBasics();
   metaforce::FileStoreManager fileMgr{"AxioDL", "metaforce"};
+  SetupBasics();
 
   std::vector<std::string> args;
   for (int i = 1; i < argc; ++i) {

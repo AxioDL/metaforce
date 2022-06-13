@@ -1,3 +1,3 @@
 #!/bin/bash -ex
-cd build/install/Metaforce.app/Contents/MacOS
-sentry-cli upload-dif --org axiodl --project metaforce metaforce{,.dSYM} --include-sources
+cd build/install
+sentry-cli upload-dif --org axiodl --project metaforce metaforce.app/Contents/MacOS/metaforce metaforce.dSYM --include-sources
