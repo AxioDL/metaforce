@@ -73,7 +73,7 @@ struct Command {
       uint32_t y;
       uint32_t w;
       uint32_t h;
-      auto operator<=>(const SetScissorCommand&) const = default;
+      bool operator==(const SetScissorCommand&) const = default;
     } setScissor;
     ShaderDrawCommand draw;
   } data;

@@ -3,8 +3,6 @@
 #include "Graphics/GX.hpp"
 #include "RetroTypes.hpp"
 
-#include <compare>
-
 namespace metaforce {
 enum class ERglTevStage : std::underlying_type_t<GX::TevStageID> {
   Stage0 = GX::TEVSTAGE0,
@@ -45,7 +43,7 @@ struct CTevOp {
   , xc_scale(static_cast<GX::TevScale>(compressedDesc >> 6 & 3))
   , x10_regId(static_cast<GX::TevRegID>(compressedDesc >> 9 & 3)) {}
 
-  auto operator<=>(const CTevOp&) const = default;
+  bool operator==(const CTevOp&) const = default;
 };
 struct ColorPass {
   GX::TevColorArg x0_a;
@@ -61,7 +59,7 @@ struct ColorPass {
   , x8_c(static_cast<GX::TevColorArg>(compressedDesc >> 10 & 0x1F))
   , xc_d(static_cast<GX::TevColorArg>(compressedDesc >> 15 & 0x1F)) {}
 
-  auto operator<=>(const ColorPass&) const = default;
+  bool operator==(const ColorPass&) const = default;
 };
 struct AlphaPass {
   GX::TevAlphaArg x0_a;
@@ -77,7 +75,7 @@ struct AlphaPass {
   , x8_c(static_cast<GX::TevAlphaArg>(compressedDesc >> 10 & 0x1F))
   , xc_d(static_cast<GX::TevAlphaArg>(compressedDesc >> 15 & 0x1F)) {}
 
-  auto operator<=>(const AlphaPass&) const = default;
+  bool operator==(const AlphaPass&) const = default;
 };
 class CTevPass {
   u32 x0_id;
@@ -98,7 +96,7 @@ public:
 
   void Execute(ERglTevStage stage) const;
 
-  auto operator<=>(const CTevPass&) const = default;
+  bool operator==(const CTevPass&) const = default;
 };
 
 extern const CTevPass skPassThru;

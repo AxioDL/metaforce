@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <compare>
 #include <type_traits>
 #include <vector>
 
@@ -501,7 +500,7 @@ public:
   [[nodiscard]] constexpr bool IsSet(Flags<BitType> const bit) const noexcept { return bool(*this & bit); }
 
   // relational operators
-  auto operator<=>(Flags<BitType> const&) const noexcept = default;
+  bool operator==(Flags<BitType> const&) const noexcept = default;
 
   // logical operator
   constexpr bool operator!() const noexcept { return !m_mask; }

@@ -498,11 +498,6 @@ public:
 } // namespace metaforce
 
 static void SetupBasics() {
-#if _WIN32
-  if (logging && GetFileType(GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN)
-    logvisor::CreateWin32Console();
-#endif
-
   auto result = zeus::validateCPU();
   if (!result.first) {
 #if _WIN32 && !WINDOWS_STORE
@@ -533,6 +528,10 @@ static bool IsClientLoggingEnabled(int argc, char** argv) {
   return false;
 }
 
+static void SetupLogging() {
+
+}
+
 #if !WINDOWS_STORE
 int main(int argc, char** argv) {
   // TODO: This seems to fix a lot of weird issues with rounding
@@ -556,12 +555,19 @@ int main(int argc, char** argv) {
   do {
     metaforce::CVarManager cvarMgr{fileMgr};
     metaforce::CVarCommons cvarCmns{cvarMgr};
+
     if (!restart) {
       cvarMgr.parseCommandLine(args);
 
       // TODO add clear loggers func to logvisor so we can recreate loggers on restart
+      bool logging = IsClientLoggingEnabled(argc, argv);
+#if _WIN32
+      if (logging && GetFileType(GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN) {
+        logvisor::CreateWin32Console();
+      }
+#endif
       logvisor::RegisterStandardExceptions();
-      if (IsClientLoggingEnabled(argc, argv)) {
+      if (logging) {
         logvisor::RegisterConsoleLogger();
       }
 
@@ -575,6 +581,7 @@ int main(int argc, char** argv) {
         logvisor::RegisterFileLogger(logFilePath.c_str());
       }
     }
+
     auto app = std::make_unique<metaforce::Application>(fileMgr, cvarMgr, cvarCmns);
     auto icon = metaforce::GetIcon();
     auto data = aurora::Icon{
