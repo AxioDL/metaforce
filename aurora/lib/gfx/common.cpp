@@ -71,6 +71,7 @@ struct Command {
         return left == rhs.left && top == rhs.top && width == rhs.width && height == rhs.height && znear == rhs.znear &&
                zfar == rhs.zfar;
       }
+      bool operator!=(const SetViewportCommand& rhs) const { return !(*this == rhs); }
     } setViewport;
     struct SetScissorCommand {
       uint32_t x;
@@ -81,6 +82,7 @@ struct Command {
       bool operator==(const SetScissorCommand& rhs) const {
         return x == rhs.x && y == rhs.y && w == rhs.w && h == rhs.h;
       }
+      bool operator!=(const SetScissorCommand& rhs) const { return !(*this == rhs); }
     } setScissor;
     ShaderDrawCommand draw;
   } data;
@@ -229,8 +231,11 @@ void set_scissor(uint32_t x, uint32_t y, uint32_t w, uint32_t h) noexcept {
   }
 }
 
-bool operator==(const wgpu::Extent3D& lhs, const wgpu::Extent3D& rhs) {
+static inline bool operator==(const wgpu::Extent3D& lhs, const wgpu::Extent3D& rhs) {
   return lhs.width == rhs.width && lhs.height == rhs.height && lhs.depthOrArrayLayers == rhs.depthOrArrayLayers;
+}
+static inline bool operator!=(const wgpu::Extent3D& lhs, const wgpu::Extent3D& rhs) {
+  return !(lhs == rhs);
 }
 
 void resolve_color(const ClipRect& rect, uint32_t bind, GX::TextureFormat fmt, bool clear_depth) noexcept {
