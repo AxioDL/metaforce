@@ -268,10 +268,7 @@ bool initialize(SDL_Window* window, wgpu::BackendType backendType, uint32_t msaa
       };
       const auto typeItA = std::find(PreferredTypeOrder.begin(), PreferredTypeOrder.end(), propertiesA.adapterType);
       const auto typeItB = std::find(PreferredTypeOrder.begin(), PreferredTypeOrder.end(), propertiesB.adapterType);
-      if (typeItA == PreferredTypeOrder.end() && typeItB != PreferredTypeOrder.end()) {
-        return -1;
-      }
-      return static_cast<int>(typeItA - typeItB);
+      return typeItA < typeItB;
     });
     const auto adapterIt = std::find_if(adapters.begin(), adapters.end(), [=](const auto& adapter) -> bool {
       wgpu::AdapterProperties properties;
