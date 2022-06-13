@@ -175,7 +175,7 @@ jobs:
             build/install/debug.tar.*
 
   build-ios:
-    name: Build iOS
+    name: Build iOS (AppleClang arm64)
     runs-on: macos-11
 
     steps:
@@ -195,10 +195,21 @@ jobs:
         run: cmake --preset ios-default
 
       - name: Build
-        run: cmake --build --preset ios-default
+        run: cmake --build --preset ios-default --target install
+
+      - name: Generate IPA
+        run: ci/build-ipa.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-ios-appleclang-arm64
+          path: |
+            build/install/Metaforce.ipa
+            build/install/debug.tar.*
 
   build-tvos:
-    name: Build tvOS
+    name: Build tvOS (AppleClang arm64)
     runs-on: macos-11
 
     steps:
@@ -218,7 +229,18 @@ jobs:
         run: cmake --preset tvos-default
 
       - name: Build
-        run: cmake --build --preset tvos-default
+        run: cmake --build --preset tvos-default --target install
+
+      - name: Generate IPA
+        run: ci/build-ipa.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-tvos-appleclang-arm64
+          path: |
+            build/install/Metaforce.ipa
+            build/install/debug.tar.*
 
   build-windows:
     name: Build Windows (${{matrix.name}} x86_64)
@@ -302,7 +324,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: metaforce-${{env.METAFORCE_VERSION}}-win32-clang-x86_64
+          name: metaforce-${{env.METAFORCE_VERSION}}-win32-${{matrix.preset}}-x86_64
           path: |
             ${{env.BUILD_DIR}}/install/*.exe
             ${{env.BUILD_DIR}}/install/debug.7z

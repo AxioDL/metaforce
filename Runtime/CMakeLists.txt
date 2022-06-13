@@ -244,7 +244,6 @@ if (APPLE)
     elseif (IOS)
         set(RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/platforms/ios)
         set(INFO_PLIST ${RESOURCE_DIR}/Info.plist.in)
-        message("Using INFO_PLIST ${INFO_PLIST}")
         file(GLOB_RECURSE RESOURCE_FILES "${RESOURCE_DIR}/Base.lproj/*")
         list(APPEND RESOURCE_FILES
             ${RESOURCE_DIR}/Assets.car
@@ -255,7 +254,7 @@ if (APPLE)
         set(INFO_PLIST ${RESOURCE_DIR}/Info.plist.in)
         set(RESOURCE_FILES ${RESOURCE_DIR}/mainicon.icns)
     endif ()
-    target_sources(metaforce PRIVATE ${INFO_PLIST} ${RESOURCE_FILES})
+    target_sources(metaforce PRIVATE ${RESOURCE_FILES})
     # Add to resources, preserving directory structure
     foreach (FILE ${RESOURCE_FILES})
         file(RELATIVE_PATH NEW_FILE "${RESOURCE_DIR}" ${FILE})
@@ -268,9 +267,10 @@ if (APPLE)
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_INFO_PLIST ${INFO_PLIST}
         MACOSX_BUNDLE_BUNDLE_NAME Metaforce
-        MACOSX_BUNDLE_GUI_IDENTIFIER dev.test.metaforce
+        MACOSX_BUNDLE_GUI_IDENTIFIER com.axiodl.Metaforce
         MACOSX_BUNDLE_BUNDLE_VERSION "${METAFORCE_VERSION_STRING}"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${METAFORCE_SHORT_VERSION_STRING}"
+        OUTPUT_NAME Metaforce
     )
 endif ()
 if (WINDOWS_STORE)
