@@ -26,7 +26,8 @@ struct TevPass {
   Arg b = Default;
   Arg c = Default;
   Arg d = Default;
-  bool operator==(const TevPass&) const = default;
+
+  bool operator==(const TevPass& rhs) const { return memcmp(this, &rhs, sizeof(*this)) == 0; }
 };
 static_assert(std::has_unique_object_representations_v<TevPass<GX::TevColorArg, GX::CC_ZERO>>);
 static_assert(std::has_unique_object_representations_v<TevPass<GX::TevAlphaArg, GX::CA_ZERO>>);
@@ -39,7 +40,8 @@ struct TevOp {
   u8 _p1 = 0;
   u8 _p2 = 0;
   u8 _p3 = 0;
-  bool operator==(const TevOp&) const = default;
+
+  bool operator==(const TevOp& rhs) const { return memcmp(this, &rhs, sizeof(*this)) == 0; }
 };
 static_assert(std::has_unique_object_representations_v<TevOp>);
 struct TevStage {
@@ -65,7 +67,8 @@ struct TevStage {
   bool indTexAddPrev = false;
   u8 _p1 = 0;
   u8 _p2 = 0;
-  bool operator==(const TevStage&) const = default;
+
+  bool operator==(const TevStage& rhs) const { return memcmp(this, &rhs, sizeof(*this)) == 0; }
 };
 static_assert(std::has_unique_object_representations_v<TevStage>);
 struct IndStage {
@@ -94,7 +97,8 @@ struct ColorChannelConfig {
   u8 _p1 = 0;
   u8 _p2 = 0;
   u8 _p3 = 0;
-  bool operator==(const ColorChannelConfig&) const = default;
+
+  bool operator==(const ColorChannelConfig& rhs) const { return memcmp(this, &rhs, sizeof(*this)) == 0; }
 };
 static_assert(std::has_unique_object_representations_v<ColorChannelConfig>);
 // For uniform generation
@@ -115,7 +119,8 @@ struct TcgConfig {
   u8 _p1 = 0;
   u8 _p2 = 0;
   u8 _p3 = 0;
-  bool operator==(const TcgConfig&) const = default;
+
+  bool operator==(const TcgConfig& rhs) const { return memcmp(this, &rhs, sizeof(*this)) == 0; }
 };
 static_assert(std::has_unique_object_representations_v<TcgConfig>);
 struct FogState {
@@ -125,14 +130,20 @@ struct FogState {
   float nearZ = 0.f;
   float farZ = 0.f;
   zeus::CColor color;
+
+  bool operator==(const FogState& rhs) const {
+    return type == rhs.type && startZ == rhs.startZ && endZ == rhs.endZ && nearZ == rhs.nearZ && farZ == rhs.farZ &&
+           color == rhs.color;
+  }
 };
 struct TevSwap {
   GX::TevColorChan red = GX::CH_RED;
   GX::TevColorChan green = GX::CH_GREEN;
   GX::TevColorChan blue = GX::CH_BLUE;
   GX::TevColorChan alpha = GX::CH_ALPHA;
-  bool operator==(const TevSwap&) const = default;
-  operator bool() const { return *this != TevSwap{}; }
+
+  bool operator==(const TevSwap& rhs) const { return memcmp(this, &rhs, sizeof(*this)) == 0; }
+  explicit operator bool() const { return *this != TevSwap{}; }
 };
 static_assert(std::has_unique_object_representations_v<TevSwap>);
 struct AlphaCompare {
@@ -141,8 +152,9 @@ struct AlphaCompare {
   GX::AlphaOp op = GX::AOP_AND;
   GX::Compare comp1 = GX::ALWAYS;
   u32 ref1;
-  bool operator==(const AlphaCompare& other) const = default;
-  operator bool() const { return comp0 != GX::ALWAYS || comp1 != GX::ALWAYS; }
+
+  bool operator==(const AlphaCompare& rhs) const { return memcmp(this, &rhs, sizeof(*this)) == 0; }
+  explicit operator bool() const { return comp0 != GX::ALWAYS || comp1 != GX::ALWAYS; }
 };
 static_assert(std::has_unique_object_representations_v<AlphaCompare>);
 struct IndTexMtxInfo {
@@ -245,8 +257,10 @@ struct TextureConfig {
   u8 _p1 = 0;
   u8 _p2 = 0;
   u8 _p3 = 0;
-  bool operator==(const TextureConfig&) const = default;
+
+  bool operator==(const TextureConfig& rhs) const { return memcmp(this, &rhs, sizeof(*this)) == 0; }
 };
+static_assert(std::has_unique_object_representations_v<TextureConfig>);
 struct ShaderConfig {
   GX::FogType fogType;
   std::array<GX::AttrType, MaxVtxAttr> vtxAttrs;
@@ -258,7 +272,8 @@ struct ShaderConfig {
   AlphaCompare alphaCompare;
   u32 indexedAttributeCount = 0;
   std::array<TextureConfig, MaxTextures> textureConfig;
-  bool operator==(const ShaderConfig&) const = default;
+
+  bool operator==(const ShaderConfig& rhs) const { return memcmp(this, &rhs, sizeof(*this)) == 0; }
 };
 static_assert(std::has_unique_object_representations_v<ShaderConfig>);
 

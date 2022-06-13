@@ -71,7 +71,7 @@ TextureWithSampler create_render_texture(bool multisampled);
 
 namespace aurora::gpu::utils {
 template <auto N>
-static consteval std::array<wgpu::VertexAttribute, N>
+static constexpr std::array<wgpu::VertexAttribute, N>
 make_vertex_attributes(std::array<wgpu::VertexFormat, N> formats) {
   std::array<wgpu::VertexAttribute, N> attributes;
   uint64_t offset = 0;

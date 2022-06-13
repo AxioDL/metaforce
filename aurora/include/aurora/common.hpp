@@ -18,7 +18,7 @@ struct Vec2 {
   constexpr Vec2(T x, T y) : x(x), y(y) {}
   constexpr Vec2(const zeus::CVector2f& vec) : x(vec.x()), y(vec.y()) {}
 
-  bool operator==(const Vec2&) const = default;
+  bool operator==(const Vec2& rhs) const { return x == rhs.x && y == rhs.y; }
 };
 template <typename T>
 struct Vec3 {
@@ -31,7 +31,7 @@ struct Vec3 {
   constexpr Vec3(const zeus::CVector3f& vec) : x(vec.x()), y(vec.y()), z(vec.z()) {}
   operator zeus::CVector3f() const { return {x, y, z}; }
 
-  bool operator==(const Vec3&) const = default;
+  bool operator==(const Vec3& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
 };
 template <typename T>
 struct Vec4 {
@@ -45,7 +45,7 @@ struct Vec4 {
   constexpr Vec4(const zeus::CVector4f& vec) : x(vec.x()), y(vec.y()), z(vec.z()), w(vec.w()) {}
   constexpr Vec4(const zeus::CColor& color) : x(color.r()), y(color.g()), z(color.b()), w(color.a()) {}
 
-  bool operator==(const Vec4&) const = default;
+  bool operator==(const Vec4& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w; }
 };
 template <typename T>
 struct Mat3x2 {
@@ -56,7 +56,7 @@ struct Mat3x2 {
   constexpr Mat3x2() = default;
   constexpr Mat3x2(const Vec2<T>& m0, const Vec2<T>& m1, const Vec2<T>& m2) : m0(m0), m1(m1), m2(m2) {}
 
-  bool operator==(const Mat3x2&) const = default;
+  bool operator==(const Mat3x2& rhs) const { return m0 == rhs.m0 && m1 == rhs.m1 && m2 == rhs.m2; }
 };
 template <typename T>
 struct Mat4x2 {
@@ -69,7 +69,7 @@ struct Mat4x2 {
   constexpr Mat4x2(const Vec2<T>& m0, const Vec2<T>& m1, const Vec2<T>& m2, const Vec2<T>& m3)
   : m0(m0), m1(m1), m2(m2), m3(m3) {}
 
-  bool operator==(const Mat4x2&) const = default;
+  bool operator==(const Mat4x2& rhs) const { return m0 == rhs.m0 && m1 == rhs.m1 && m2 == rhs.m2 && m3 == rhs.m3; }
 };
 template <typename T>
 struct Mat4x4 {
@@ -84,7 +84,7 @@ struct Mat4x4 {
   constexpr Mat4x4(const zeus::CMatrix4f& m) : m0(m[0]), m1(m[1]), m2(m[2]), m3(m[3]) {}
   constexpr Mat4x4(const zeus::CTransform& m) : Mat4x4(m.toMatrix4f()) {}
 
-  bool operator==(const Mat4x4&) const = default;
+  bool operator==(const Mat4x4& rhs) const { return m0 == rhs.m0 && m1 == rhs.m1 && m2 == rhs.m2 && m3 == rhs.m3; }
 };
 constexpr Mat4x4<float> Mat4x4_Identity{
     Vec4<float>{1.f, 0.f, 0.f, 0.f},
@@ -500,7 +500,7 @@ public:
   [[nodiscard]] constexpr bool IsSet(Flags<BitType> const bit) const noexcept { return bool(*this & bit); }
 
   // relational operators
-  bool operator==(Flags<BitType> const&) const noexcept = default;
+  bool operator==(Flags<BitType> const& rhs) const noexcept { return m_mask == rhs.m_mask; }
 
   // logical operator
   constexpr bool operator!() const noexcept { return !m_mask; }

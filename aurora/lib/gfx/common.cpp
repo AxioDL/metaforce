@@ -66,14 +66,21 @@ struct Command {
       float height;
       float znear;
       float zfar;
-      bool operator==(const SetViewportCommand& rhs) const = default;
+
+      bool operator==(const SetViewportCommand& rhs) const {
+        return left == rhs.left && top == rhs.top && width == rhs.width && height == rhs.height && znear == rhs.znear &&
+               zfar == rhs.zfar;
+      }
     } setViewport;
     struct SetScissorCommand {
       uint32_t x;
       uint32_t y;
       uint32_t w;
       uint32_t h;
-      bool operator==(const SetScissorCommand&) const = default;
+
+      bool operator==(const SetScissorCommand& rhs) const {
+        return x == rhs.x && y == rhs.y && w == rhs.w && h == rhs.h;
+      }
     } setScissor;
     ShaderDrawCommand draw;
   } data;

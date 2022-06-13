@@ -147,7 +147,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 }
 
 wgpu::RenderPipeline create_pipeline(const State& state, [[maybe_unused]] const PipelineConfig& config) {
-  const auto attributes =
+  constexpr auto attributes =
       make_vertex_attributes(std::array{wgpu::VertexFormat::Float32x3, wgpu::VertexFormat::Float32x2});
   const std::array vertexBuffers{make_vertex_buffer_layout(sizeof(Vert), attributes)};
   const auto depthStencil = wgpu::DepthStencilState{
