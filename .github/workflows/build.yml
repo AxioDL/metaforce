@@ -49,9 +49,6 @@ jobs:
             libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev libfreetype-dev \
             libxinerama-dev libxcursor-dev python3-markupsafe libgtk-3-dev
 
-          yarn global add @sentry/cli
-          echo "$(yarn global bin)" >> $GITHUB_PATH
-
           # setup buildcache
           curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-linux.tar.gz | tar xz -C "$RUNNER_WORKSPACE"
           echo "$RUNNER_WORKSPACE"/buildcache/bin >> $GITHUB_PATH
