@@ -642,7 +642,7 @@ enum LightID : u32 {
   MAX_LIGHT = 0x100,
   LIGHT_NULL = 0x000,
 };
-constexpr u8 MaxLights = std::bit_width<std::underlying_type_t<LightID>>(MAX_LIGHT) - 1;
+constexpr u8 MaxLights = 8;
 using LightMask = std::bitset<MaxLights>;
 
 enum FogType {

@@ -143,7 +143,7 @@ struct TevSwap {
   GX::TevColorChan alpha = GX::CH_ALPHA;
 
   bool operator==(const TevSwap& rhs) const { return memcmp(this, &rhs, sizeof(*this)) == 0; }
-  explicit operator bool() const { return *this != TevSwap{}; }
+  explicit operator bool() const { return !(*this == TevSwap{}); }
 };
 static_assert(std::has_unique_object_representations_v<TevSwap>);
 struct AlphaCompare {
