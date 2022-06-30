@@ -468,6 +468,7 @@ void CCubeRenderer::DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
           continue;
         }
 
+        model->SetArraysCurrent();
         for (const auto* surf = model->GetFirstUnsortedSurface(); surf != nullptr; surf = surf->GetNextSurface()) {
           model->DrawSurface(*surf, flags);
         }
@@ -478,6 +479,7 @@ void CCubeRenderer::DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
     }
   }
 
+  SetupCGraphicsState();
   x318_30_inAreaDraw = false;
 }
 
