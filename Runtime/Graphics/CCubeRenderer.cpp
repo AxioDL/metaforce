@@ -222,24 +222,17 @@ void CCubeRenderer::GenerateFogVolumeRampTex() {
 
 void CCubeRenderer::GenerateSphereRampTex() {
   u8* data = x220_sphereRamp.Lock();
-  u32 offset = 0;
-  for (u32 y = 0; y < 32; ++y) {
-    s32 iVar3 = y >> 0x1f;
-    u8* row = data + offset;
-    for (u32 x = 0; x < 32; ++x) {
-      // TODO actually figure out what this is doing
-      const u32 vx =
-          ((static_cast<s32>(y) >> 2) + static_cast<u32>(y < 0 && (y & 3) != 0)) * 4 + (static_cast<s32>(x) >> 3);
-      const u32 vy = ((iVar3 * 4 | (y * 0x40000000 + iVar3) >> 0x1e) - iVar3) * 8 + (x & 7);
+  const size_t height = x220_sphereRamp.GetHeight();
+  const size_t width = x220_sphereRamp.GetWidth();
+  const float halfRes = height / 2.f;
+  for (size_t y = 0; y < height; ++y) {
+    for (size_t x = 0; x < width; ++x) {
       const zeus::CVector2f vec{
-          static_cast<float>(vx) / 15.5f - 1.f,
-          static_cast<float>(vy) / 15.5f - 1.f,
+          (static_cast<float>(x) - halfRes) / halfRes,
+          (static_cast<float>(y) - halfRes) / halfRes,
       };
-      const auto mag = vec.magnitude();
-      *row = static_cast<u8>(255.f * std::clamp(-(mag * mag - 1.f), 0.f, 1.f));
-      ++row;
+      data[y * height + x] = 255 - zeus::clamp(0.f, vec.canBeNormalized() ? vec.magnitude() : 0.f, 1.f) * 255;
     }
-    offset += 32;
   }
   x220_sphereRamp.UnLock();
 }

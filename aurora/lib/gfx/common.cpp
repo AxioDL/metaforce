@@ -572,8 +572,8 @@ void render(wgpu::CommandEncoder& cmd) {
     };
     const wgpu::RenderPassDepthStencilAttachment depthStencilAttachment{
         .view = gpu::g_depthBuffer.view,
-        .depthLoadOp = wgpu::LoadOp::Clear,
-        .depthStoreOp = wgpu::StoreOp::Discard,
+        .depthLoadOp = passInfo.clear ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load,
+        .depthStoreOp = wgpu::StoreOp::Store,
         .depthClearValue = 1.f,
     };
     const auto label = fmt::format(FMT_STRING("Render pass {}"), i);

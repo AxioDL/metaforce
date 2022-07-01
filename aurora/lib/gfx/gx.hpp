@@ -253,7 +253,7 @@ static inline bool is_palette_format(GX::TextureFormat fmt) {
 struct TextureConfig {
   GX::TextureFormat copyFmt = InvalidTextureFormat; // Underlying texture format
   GX::TextureFormat loadFmt = InvalidTextureFormat; // Texture format being bound
-  bool renderTex = false;                           // Perform conversion / flip UVs
+  bool renderTex = false;                           // Perform conversion
   u8 _p1 = 0;
   u8 _p2 = 0;
   u8 _p3 = 0;
@@ -312,7 +312,7 @@ struct ShaderInfo {
   std::bitset<MaxTevRegs> writesTevReg;
   std::bitset<MaxTexMtx> usesTexMtx;
   std::bitset<MaxPTTexMtx> usesPTTexMtx;
-  std::array<GX::TexGenType, MaxTexMtx> texMtxTypes;
+  std::array<GX::TexGenType, MaxTexMtx> texMtxTypes{};
   u32 uniformSize = 0;
   bool usesFog : 1 = false;
 };

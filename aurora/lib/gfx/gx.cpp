@@ -695,7 +695,7 @@ static inline wgpu::BlendState to_blend_state(GX::BlendMode mode, GX::BlendFacto
   case GX::BM_NONE:
     colorBlendComponent = {
         .operation = wgpu::BlendOperation::Add,
-        .srcFactor = wgpu::BlendFactor::Src,
+        .srcFactor = wgpu::BlendFactor::One,
         .dstFactor = wgpu::BlendFactor::Zero,
     };
     break;
@@ -709,8 +709,8 @@ static inline wgpu::BlendState to_blend_state(GX::BlendMode mode, GX::BlendFacto
   case GX::BM_SUBTRACT:
     colorBlendComponent = {
         .operation = wgpu::BlendOperation::ReverseSubtract,
-        .srcFactor = wgpu::BlendFactor::Src,
-        .dstFactor = wgpu::BlendFactor::Dst,
+        .srcFactor = wgpu::BlendFactor::One,
+        .dstFactor = wgpu::BlendFactor::One,
     };
     break;
   case GX::BM_LOGIC:
@@ -725,7 +725,7 @@ static inline wgpu::BlendState to_blend_state(GX::BlendMode mode, GX::BlendFacto
     case GX::LO_COPY:
       colorBlendComponent = {
           .operation = wgpu::BlendOperation::Add,
-          .srcFactor = wgpu::BlendFactor::Src,
+          .srcFactor = wgpu::BlendFactor::One,
           .dstFactor = wgpu::BlendFactor::Zero,
       };
       break;
@@ -733,28 +733,7 @@ static inline wgpu::BlendState to_blend_state(GX::BlendMode mode, GX::BlendFacto
       colorBlendComponent = {
           .operation = wgpu::BlendOperation::Add,
           .srcFactor = wgpu::BlendFactor::Zero,
-          .dstFactor = wgpu::BlendFactor::Dst,
-      };
-      break;
-    case GX::LO_INV:
-      colorBlendComponent = {
-          .operation = wgpu::BlendOperation::Add,
-          .srcFactor = wgpu::BlendFactor::Zero,
-          .dstFactor = wgpu::BlendFactor::OneMinusDst,
-      };
-      break;
-    case GX::LO_INVCOPY:
-      colorBlendComponent = {
-          .operation = wgpu::BlendOperation::Add,
-          .srcFactor = wgpu::BlendFactor::OneMinusSrc,
-          .dstFactor = wgpu::BlendFactor::Zero,
-      };
-      break;
-    case GX::LO_SET:
-      colorBlendComponent = {
-          .operation = wgpu::BlendOperation::Add,
-          .srcFactor = wgpu::BlendFactor::One,
-          .dstFactor = wgpu::BlendFactor::Zero,
+          .dstFactor = wgpu::BlendFactor::One,
       };
       break;
     default:
@@ -768,7 +747,7 @@ static inline wgpu::BlendState to_blend_state(GX::BlendMode mode, GX::BlendFacto
   }
   wgpu::BlendComponent alphaBlendComponent{
       .operation = wgpu::BlendOperation::Add,
-      .srcFactor = wgpu::BlendFactor::SrcAlpha,
+      .srcFactor = wgpu::BlendFactor::One,
       .dstFactor = wgpu::BlendFactor::Zero,
   };
   if (dstAlpha != UINT32_MAX) {

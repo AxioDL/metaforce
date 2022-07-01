@@ -130,7 +130,8 @@ public:
                         const zeus::CColor& addColor, float t);
   void DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf, CTexture& tex, const zeus::CColor& addColor,
                         float t);
-  void ThermalDraw(const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags);
+  static void ThermalDraw(CSkinnedModel& model, const zeus::CColor& mulColor, const zeus::CColor& addColor,
+                          const CModelFlags& flags);
 
   CAnimData* GetAnimationData() { return x10_animData.get(); }
   const CAnimData* GetAnimationData() const { return x10_animData.get(); }

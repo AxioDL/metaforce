@@ -160,8 +160,7 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
       Log.report(logvisor::Fatal, FMT_STRING("invalid texture {} for stage {}"), stage.texMapId, stageIdx);
       unreachable();
     }
-    const auto swap = config.tevSwapTable[stage.tevSwapTex];
-    // TODO check for CH_ALPHA + config.texHasAlpha
+    const auto& swap = config.tevSwapTable[stage.tevSwapTex];
     return fmt::format(FMT_STRING("sampled{}.{}{}{}"), stageIdx, chan_comp(swap.red), chan_comp(swap.green),
                        chan_comp(swap.blue));
   }
@@ -173,7 +172,7 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
       Log.report(logvisor::Fatal, FMT_STRING("invalid texture {} for stage {}"), stage.texMapId, stageIdx);
       unreachable();
     }
-    const auto swap = config.tevSwapTable[stage.tevSwapTex];
+    const auto& swap = config.tevSwapTable[stage.tevSwapTex];
     return fmt::format(FMT_STRING("vec3<f32>(sampled{}.{})"), stageIdx, chan_comp(swap.alpha));
   }
   case GX::CC_RASC: {
@@ -187,7 +186,7 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
       unreachable();
     }
     u32 idx = stage.channelId - GX::COLOR0A0;
-    const auto swap = config.tevSwapTable[stage.tevSwapRas];
+    const auto& swap = config.tevSwapTable[stage.tevSwapRas];
     return fmt::format(FMT_STRING("rast{}.{}{}{}"), idx, chan_comp(swap.red), chan_comp(swap.green),
                        chan_comp(swap.blue));
   }
@@ -202,7 +201,7 @@ static std::string color_arg_reg(GX::TevColorArg arg, size_t stageIdx, const Sha
       unreachable();
     }
     u32 idx = stage.channelId - GX::COLOR0A0;
-    const auto swap = config.tevSwapTable[stage.tevSwapRas];
+    const auto& swap = config.tevSwapTable[stage.tevSwapRas];
     return fmt::format(FMT_STRING("vec3<f32>(rast{}.{})"), idx, chan_comp(swap.alpha));
   }
   case GX::CC_ONE:
@@ -371,7 +370,7 @@ static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const Sha
       Log.report(logvisor::Fatal, FMT_STRING("invalid texture {} for stage {}"), stage.texMapId, stageIdx);
       unreachable();
     }
-    const auto swap = config.tevSwapTable[stage.tevSwapTex];
+    const auto& swap = config.tevSwapTable[stage.tevSwapTex];
     return fmt::format(FMT_STRING("sampled{}.{}"), stageIdx, chan_comp(swap.alpha));
   }
   case GX::CA_RASA: {
@@ -385,7 +384,7 @@ static std::string alpha_arg_reg(GX::TevAlphaArg arg, size_t stageIdx, const Sha
       unreachable();
     }
     u32 idx = stage.channelId - GX::COLOR0A0;
-    const auto swap = config.tevSwapTable[stage.tevSwapRas];
+    const auto& swap = config.tevSwapTable[stage.tevSwapRas];
     return fmt::format(FMT_STRING("rast{}.{}"), idx, chan_comp(swap.alpha));
   }
   case GX::CA_KONST: {
@@ -560,7 +559,7 @@ static inline std::string texture_conversion(const TextureConfig& tex, u32 stage
   case GX::TF_I4:
   case GX::TF_I8:
     // FIXME HACK
-    if (tex.loadFmt != GX::TF_C4 && tex.loadFmt != GX::TF_C8 && tex.loadFmt != GX::TF_C14X2) {
+    if (!is_palette_format(tex.loadFmt)) {
       // Perform intensity conversion
       out += fmt::format(FMT_STRING("\n    sampled{0} = vec4<f32>(intensityF32(sampled{0}.rgb), 0.f, 0.f, 1.f);"),
                          stageIdx);
@@ -1076,18 +1075,29 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const ShaderInfo& in
         || !info.sampledTextures.test(stage.texMapId)) {
       continue;
     }
-    std::string uvIn;
+    std::string uvIn = fmt::format(FMT_STRING("in.tex{0}_uv"), stage.texCoordId);
     const auto& texConfig = config.textureConfig[stage.texMapId];
-    // TODO
-    // if (texConfig.flipUV) {
-    //   uvIn = fmt::format(FMT_STRING("vec2<f32>(in.tex{0}_uv.x, -in.tex{0}_uv.y)"), stage.texCoordId);
-    // } else {
-    uvIn = fmt::format(FMT_STRING("in.tex{0}_uv"), stage.texCoordId);
-    // }
     if (is_palette_format(texConfig.loadFmt)) {
+      std::string_view suffix;
+      if (!is_palette_format(texConfig.copyFmt)) {
+        switch (texConfig.loadFmt) {
+        case GX::TF_C4:
+          suffix = "I4"sv;
+          break;
+//        case GX::TF_C8:
+//          suffix = "I8";
+//          break;
+//        case GX::TF_C14X2:
+//          suffix = "I14X2";
+//          break;
+        default:
+          Log.report(logvisor::Fatal, FMT_STRING("Unsupported palette format {}"), texConfig.loadFmt);
+          unreachable();
+        }
+      }
       fragmentFnPre +=
           fmt::format(FMT_STRING("\n    var sampled{0} = textureSamplePalette{3}(tex{1}, tex{1}_samp, {2}, tlut{1});"),
-                      i, stage.texMapId, uvIn, is_palette_format(texConfig.copyFmt) ? ""sv : "RGB"sv);
+                      i, stage.texMapId, uvIn, suffix);
     } else {
       fragmentFnPre += fmt::format(
           FMT_STRING("\n    var sampled{0} = textureSampleBias(tex{1}, tex{1}_samp, {2}, ubuf.tex{1}_lod);"), i,
@@ -1233,8 +1243,8 @@ fn intensityF32(rgb: vec3<f32>) -> f32 {{
     // https://github.com/dolphin-emu/dolphin/blob/4cd48e609c507e65b95bca5afb416b59eaf7f683/Source/Core/VideoCommon/TextureConverterShaderGen.cpp#L237-L241
     return dot(rgb, vec3(0.257, 0.504, 0.098)) + 16.0 / 255.0;
 }}
-fn intensityI32(rgb: vec3<f32>) -> i32 {{
-    return i32(dot(rgb, vec3(0.257, 0.504, 0.098)) * 255.f);
+fn intensityI4(rgb: vec3<f32>) -> i32 {{
+    return i32(intensityF32(rgb) * 16.f);
 }}
 fn textureSamplePalette(tex: texture_2d<i32>, samp: sampler, uv: vec2<f32>, tlut: texture_2d<f32>) -> vec4<f32> {{
     // Gather index values
@@ -1250,16 +1260,16 @@ fn textureSamplePalette(tex: texture_2d<i32>, samp: sampler, uv: vec2<f32>, tlut
     var t1 = mix(c0, c1, f.x);
     return mix(t0, t1, f.y);
 }}
-fn textureSamplePaletteRGB(tex: texture_2d<f32>, samp: sampler, uv: vec2<f32>, tlut: texture_2d<f32>) -> vec4<f32> {{
+fn textureSamplePaletteI4(tex: texture_2d<f32>, samp: sampler, uv: vec2<f32>, tlut: texture_2d<f32>) -> vec4<f32> {{
     // Gather RGB channels
     var iR = textureGather(0, tex, samp, uv);
     var iG = textureGather(1, tex, samp, uv);
     var iB = textureGather(2, tex, samp, uv);
     // Perform intensity conversion
-    var i0 = intensityI32(vec3<f32>(iR[0], iG[0], iB[0]));
-    var i1 = intensityI32(vec3<f32>(iR[1], iG[1], iB[1]));
-    var i2 = intensityI32(vec3<f32>(iR[2], iG[2], iB[2]));
-    var i3 = intensityI32(vec3<f32>(iR[3], iG[3], iB[3]));
+    var i0 = intensityI4(vec3<f32>(iR[0], iG[0], iB[0]));
+    var i1 = intensityI4(vec3<f32>(iR[1], iG[1], iB[1]));
+    var i2 = intensityI4(vec3<f32>(iR[2], iG[2], iB[2]));
+    var i3 = intensityI4(vec3<f32>(iR[3], iG[3], iB[3]));
     // Load palette colors
     var c0 = textureLoad(tlut, vec2<i32>(i0, 0), 0);
     var c1 = textureLoad(tlut, vec2<i32>(i1, 0), 0);

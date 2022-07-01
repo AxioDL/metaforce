@@ -294,7 +294,7 @@ void CModelData::RenderThermal(const zeus::CTransform& xf, const zeus::CColor& m
   if (x10_animData) {
     CSkinnedModel& model = PickAnimatedModel(EWhichModel::ThermalHot);
     x10_animData->SetupRender(model, nullptr, nullptr);
-    ThermalDraw(mulColor, addColor, flags);
+    ThermalDraw(model, mulColor, addColor, flags);
   } else {
     auto& model = PickStaticModel(EWhichModel::ThermalHot);
     g_Renderer->DrawThermalModel(*model, mulColor, addColor, {}, {}, flags);
@@ -444,6 +444,11 @@ void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf,
   }
 }
 
-void CModelData::ThermalDraw(const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags) {}
+void CModelData::ThermalDraw(CSkinnedModel& model, const zeus::CColor& mulColor, const zeus::CColor& addColor,
+                             const CModelFlags& flags) {
+  model.DoDrawCallback([&](auto positions, auto normals) {
+    g_Renderer->DrawThermalModel(*model.GetModel(), mulColor, addColor, positions, normals, flags);
+  });
+}
 
 } // namespace metaforce
