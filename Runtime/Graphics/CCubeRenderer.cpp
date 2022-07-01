@@ -440,7 +440,7 @@ void CCubeRenderer::DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   constexpr CModelFlags flags{0, 0, 3, zeus::skWhite};
 
   for (CAreaListItem& item : x1c_areaListItems) {
-    if (areaIdx != -1 || item.x18_areaIdx == areaIdx) {
+    if (areaIdx == -1 || item.x18_areaIdx == areaIdx) {
       CPVSVisSet* pvs = xc8_pvs ? &*xc8_pvs : nullptr;
       if (xe0_pvsAreaIdx != item.x18_areaIdx) {
         pvs = nullptr;
