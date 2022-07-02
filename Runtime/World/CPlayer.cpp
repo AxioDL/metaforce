@@ -1401,9 +1401,7 @@ void CPlayer::RenderGun(const CStateManager& mgr, const zeus::CVector3f& pos) co
   if ((mgr.GetCameraManager()->IsInFirstPersonCamera() && x2f4_cameraState == EPlayerCameraState::FirstPerson) ||
       (x2f8_morphBallState == EPlayerMorphBallState::Morphing &&
        x498_gunHolsterState == EGunHolsterState::Holstering)) {
-    // CBooModel::SetReflectionCube(m_reflectionCube);
     CModelFlags flags(5, 0, 3, zeus::CColor(1.f, x494_gunAlpha));
-    // flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
     x490_gun->Render(mgr, pos, flags);
   }
 }
@@ -1564,6 +1562,7 @@ void CPlayer::RenderReflectedPlayer(CStateManager& mgr) {
 }
 
 void CPlayer::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPlayer::PreRender", zeus::skBlue);
   if (x2f8_morphBallState == EPlayerMorphBallState::Morphed) {
     SetCalculateLighting(false);
     x768_morphball->PreRender(mgr, frustum);

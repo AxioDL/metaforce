@@ -4,6 +4,7 @@
 #include "Runtime/Character/CPrimitive.hpp"
 #include "Runtime/Camera/CGameCamera.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"
+#include "Runtime/Graphics/CGX.hpp"
 #include "Runtime/Input/ControlMapper.hpp"
 #include "Runtime/MP1/CSamusHud.hpp"
 #include "Runtime/MP1/World/CMetroid.hpp"
@@ -2054,6 +2055,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
 }
 
 void CPlayerGun::PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerGun::PreRender", zeus::skBlue);
   const CPlayerState& playerState = *mgr.GetPlayerState();
   if (playerState.GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan)
     return;
@@ -2131,40 +2133,122 @@ zeus::CVector3f CPlayerGun::ConvertToScreenSpace(const zeus::CVector3f& pos, con
 
 void CPlayerGun::CopyScreenTex() {
   // Copy lower right quadrant to gpCopyTexBuf as RGBA8
-  // TODO CGraphics::ResolveSpareTexture(CGraphics::g_Viewport);
+  // GXSetTexCopySrc(320, 224, 320, 224);
+  // GXSetTexCopyDst(320, 224, GX::TF_RGBA8, false);
+  // GXCopyTex(sSpareTextureData, false);
+  // GXPixModeSync();
+  SViewport viewport = CGraphics::g_Viewport;
+  viewport.x8_width /= 2;
+  viewport.xc_height /= 2;
+  viewport.x0_left = viewport.x8_width;
+  viewport.x4_top = viewport.xc_height;
+  viewport.x10_halfWidth *= 0.5f;
+  viewport.x14_halfHeight *= 0.5f;
+  CGraphics::ResolveSpareTexture(viewport, 2, GX::TF_RGBA8, false);
 }
 
 void CPlayerGun::DrawScreenTex(float z) {
   // Use CopyScreenTex rendering to draw over framebuffer pixels in front of `z`
   // This is accomplished using orthographic projection quad with sweeping `y` coordinates
   // Depth is set to GEQUAL to obscure pixels in front rather than behind
-
-  // TODO
-  // m_screenQuad.draw(zeus::skWhite, 1.f, CTexturedQuadFilter::DefaultRect, z);
+  const auto backupViewMatrix = CGraphics::g_ViewMatrix;
+  const auto backupProjectionState = CGraphics::GetProjectionState();
+  g_Renderer->SetViewportOrtho(false, -1.f, 1.f);
+  g_Renderer->SetBlendMode_AlphaBlended();
+  CGraphics::SetDepthWriteMode(true, ERglEnum::GEqual, true);
+  CGraphics::LoadDolphinSpareTexture(2, GX::TF_RGBA8, GX::TEXMAP7);
+  constexpr std::array vtxDescList{
+      GX::VtxDescList{GX::VA_POS, GX::DIRECT},
+      GX::VtxDescList{GX::VA_TEX0, GX::DIRECT},
+      GX::VtxDescList{},
+  };
+  CGX::SetVtxDescv(vtxDescList.data());
+  CGX::SetNumChans(0);
+  CGX::SetNumTexGens(1);
+  CGX::SetNumTevStages(1);
+  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP7, GX::COLOR_NULL);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX::SRC_REG, GX::SRC_REG, {}, GX::DF_NONE, GX::AF_NONE);
+  CGX::Begin(GX::TRIANGLESTRIP, GX::VTXFMT0, 4);
+  GXPosition3f32(CGraphics::g_Viewport.x10_halfWidth, z, 0.f);
+  GXTexCoord2f32(0.f, 1.f);
+  GXPosition3f32(CGraphics::g_Viewport.x8_width, z, 0.f);
+  GXTexCoord2f32(1.f, 1.f);
+  GXPosition3f32(CGraphics::g_Viewport.x10_halfWidth, z, CGraphics::g_Viewport.x14_halfHeight);
+  GXTexCoord2f32(0.f, 0.f);
+  GXPosition3f32(CGraphics::g_Viewport.x8_width, z, CGraphics::g_Viewport.x14_halfHeight);
+  GXTexCoord2f32(1.f, 0.f);
+  CGX::End();
+  CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
+  CGraphics::SetViewPointMatrix(backupViewMatrix);
+  CGraphics::SetProjectionState(backupProjectionState);
 }
 
 void CPlayerGun::DrawClipCube(const zeus::CAABox& aabb) {
   // Render AABB as completely transparent object, only modifying Z-buffer
-  // AABB has already been set in constructor (since it's constant)
+  const zeus::CColor color{1.f, 0.f};
+  g_Renderer->SetBlendMode_AlphaBlended();
+  CGraphics::SetCullMode(ERglCullMode::None);
 
-  // TODO
-  // m_aaboxShader.draw(zeus::skClear);
+  g_Renderer->BeginTriangleStrip(4);
+  g_Renderer->PrimColor(color);
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.max.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.min.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.max.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.min.y(), aabb.max.z()});
+  g_Renderer->EndPrimitive();
+
+  g_Renderer->BeginTriangleStrip(4);
+  g_Renderer->PrimColor(color);
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.max.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.max.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.max.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.max.y(), aabb.max.z()});
+  g_Renderer->EndPrimitive();
+
+  g_Renderer->BeginTriangleStrip(4);
+  g_Renderer->PrimColor(color);
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.max.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.min.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.max.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.min.y(), aabb.max.z()});
+  g_Renderer->EndPrimitive();
+
+  g_Renderer->BeginTriangleStrip(4);
+  g_Renderer->PrimColor(color);
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.min.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.min.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.min.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.min.y(), aabb.max.z()});
+  g_Renderer->EndPrimitive();
+
+  g_Renderer->BeginTriangleStrip(4);
+  g_Renderer->PrimColor(color);
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.min.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.min.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.max.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.max.y(), aabb.max.z()});
+  g_Renderer->EndPrimitive();
+
+  g_Renderer->BeginTriangleStrip(4);
+  g_Renderer->PrimColor(color);
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.min.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.min.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.max.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.max.y(), aabb.min.z()});
+  g_Renderer->EndPrimitive();
+
+  CGraphics::SetCullMode(ERglCullMode::Front);
 }
 
 void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerGun::Render", zeus::skMagenta);
 
   CGraphics::CProjectionState projState = CGraphics::GetProjectionState();
-  CModelFlags useFlags = flags;
-  if (x0_lights.HasShadowLight()) {
-    // TODO
-    // useFlags.m_extendedShader = EExtendedShader::LightingCubeReflectionWorldShadow;
-  }
-  CModelFlags beamFlags = useFlags;
+  CModelFlags beamFlags = flags;
   if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal) {
     beamFlags = kThermalFlags[size_t(x310_currentBeam)];
   } else if (x835_26_phazonBeamMorphing) {
-    beamFlags.x4_color = zeus::CColor::lerp(zeus::skWhite, zeus::skBlack, x39c_phazonMorphT);
+    beamFlags = CModelFlags{1, 0, 3, zeus::CColor::lerp(zeus::skWhite, zeus::skBlack, x39c_phazonMorphT)};
   }
 
   const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
@@ -2211,7 +2295,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
                                      ? kHandThermalFlag
                                      : kHandHoloFlag);
     }
-    DrawArm(mgr, pos, useFlags);
+    DrawArm(mgr, pos, flags);
     x72c_currentBeam->Draw(drawSuitArm, mgr, offsetWorldXf, beamFlags, &x0_lights);
     x82c_shadow->DisableModelProjectedShadow();
     break;
@@ -2241,7 +2325,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
       x72c_currentBeam->DrawHologram(mgr, offsetWorldXf, CModelFlags(0, 0, 3, zeus::skWhite));
       if (x0_lights.HasShadowLight())
         x82c_shadow->EnableModelProjectedShadow(offsetWorldXf, x0_lights.GetShadowLightArrIndex(), 2.15f);
-      DrawArm(mgr, pos, useFlags);
+      DrawArm(mgr, pos, flags);
       x82c_shadow->DisableModelProjectedShadow();
     }
     break;
