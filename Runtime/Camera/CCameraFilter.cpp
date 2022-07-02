@@ -1,10 +1,11 @@
 #include "Runtime/Camera/CCameraFilter.hpp"
 
+#include "Runtime/CDvdFile.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"
-#include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CGX.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
 
 #include <algorithm>
 #include <zeus/CColor.hpp>
@@ -132,6 +133,7 @@ void CCameraFilterPass::DrawFilter(EFilterType type, EFilterShape shape, const z
 }
 
 void CCameraFilterPass::DrawFullScreenColoredQuad(const zeus::CColor& color) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CCameraFilterPass::DrawFullScreenColoredQuad", zeus::skBlue);
   const auto [lt, rb] = g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
   g_Renderer->SetDepthReadWrite(false, false);
   g_Renderer->BeginTriangleStrip(4);
@@ -178,6 +180,7 @@ void CCameraFilterPass::DrawFilterShape(EFilterShape shape, const zeus::CColor& 
 }
 
 void CCameraFilterPass::DrawFullScreenTexturedQuadQuarters(const zeus::CColor& color, CTexture* tex, float lod) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CCameraFilterPass::DrawFullScreenTexturedQuadQuarters", zeus::skBlue);
   const auto [lt, rb] = g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
   CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
   CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
@@ -204,6 +207,7 @@ void CCameraFilterPass::DrawFullScreenTexturedQuadQuarters(const zeus::CColor& c
 }
 
 void CCameraFilterPass::DrawFullScreenTexturedQuad(const zeus::CColor& color, CTexture* tex, float lod) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CCameraFilterPass::DrawFullScreenTexturedQuad", zeus::skBlue);
   const float u = 0.5f - 0.5f * lod;
   const float v = 0.5f + 0.5f * lod;
   const auto [lt, rb] = g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
@@ -227,7 +231,44 @@ void CCameraFilterPass::DrawFullScreenTexturedQuad(const zeus::CColor& color, CT
 }
 
 void CCameraFilterPass::DrawRandomStatic(const zeus::CColor& color, float alpha, bool cookieCutterDepth) {
-  // TODO
+  // TODO this shouldn't be here
+  static CTexture m_randomStatic{ETexelFormat::IA4, 640, 448, 1, "Camera Random Static"};
+
+  SCOPED_GRAPHICS_DEBUG_GROUP("CCameraFilterPass::DrawRandomStatic", zeus::skBlue);
+  const auto [lb, rt] = g_Renderer->SetViewportOrtho(true, 0.f, 1.f);
+  if (cookieCutterDepth) {
+    CGraphics::SetAlphaCompare(ERglAlphaFunc::GEqual, static_cast<u8>((1.f - alpha) * 255.f), ERglAlphaOp::And,
+                               ERglAlphaFunc::Always, 0);
+    g_Renderer->SetDepthReadWrite(true, true);
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+  } else {
+    g_Renderer->SetDepthReadWrite(false, false);
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a6038);
+    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+  }
+
+  // Upload random static texture (game reads from .text)
+  const u8* buf = CDvdFile::GetDolBuf() + 0x4f60;
+  u8* out = m_randomStatic.Lock();
+  memcpy(out, buf + ROUND_UP_32(rand() & 0x7fff), m_randomStatic.GetMemoryAllocated());
+  m_randomStatic.UnLock();
+  m_randomStatic.Load(GX::TEXMAP0, EClampMode::Clamp);
+
+  CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+  CGraphics::StreamColor(color);
+  CGraphics::StreamTexcoord(0.f, 1.f);
+  CGraphics::StreamVertex(lb.x() - 1.f, 0.01f, rt.y() + 1.f);
+  CGraphics::StreamTexcoord(0.f, 0.f);
+  CGraphics::StreamVertex(lb.x() - 1.f, 0.01f, lb.y() - 1.f);
+  CGraphics::StreamTexcoord(1.f, 1.f);
+  CGraphics::StreamVertex(rt.x() + 1.f, 0.01f, rt.y() + 1.f);
+  CGraphics::StreamTexcoord(1.f, 0.f);
+  CGraphics::StreamVertex(rt.x() + 1.f, 0.01f, lb.y() - 1.f);
+  CGraphics::StreamEnd();
+  if (cookieCutterDepth) {
+    CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
+  }
 }
 
 void CCameraFilterPass::DrawScanLines(const zeus::CColor& color, bool even) {

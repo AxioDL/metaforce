@@ -232,17 +232,17 @@ void CCubeMaterial::SetCurrentBlack() {
   } else {
     CGX::SetBlendMode(GX::BM_BLEND, GX::BL_ONE, GX::BL_ZERO, GX::LO_CLEAR);
   }
-//  CGX::SetVtxDescv_Compressed(vatFlags);
-//  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO /* ? CC_ONE */);
-//  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO /* ? CA_KONST */);
-//  CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_1);
-//  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_POS, GX::IDENTITY, false, GX::PTIDENTITY);
-//  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
-//  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR_NULL);
-//  CGX::SetNumTevStages(1);
-//  CGX::SetNumChans(0);
-//  CGX::SetNumTexGens(1);
-//  CGX::SetNumIndStages(0);
+  CGX::SetVtxDescv_Compressed(vatFlags);
+  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO /* ? CC_ONE */);
+  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO /* ? CA_KONST */);
+  CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_1);
+  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_POS, GX::IDENTITY, false, GX::PTIDENTITY);
+  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
+  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR_NULL);
+  CGX::SetNumTevStages(1);
+  CGX::SetNumChans(0);
+  CGX::SetNumTexGens(1);
+  CGX::SetNumIndStages(0);
 }
 
 void CCubeMaterial::SetupBlendMode(u32 blendFactors, const CModelFlags& flags, bool alphaTest) {
