@@ -880,7 +880,37 @@ void CCubeRenderer::DrawModelDisintegrate(CModel& model, CTexture& tex, const ze
   CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD1, GX::TEXMAP0, GX::COLOR_NULL);
   CGX::SetTevKColorSel(GX::TEVSTAGE1, GX::TEV_KCSEL_K0);
   CGX::SetTevKColor(GX::KCOLOR0, color);
-  // TODO
+  const auto bounds = model.GetInstance().GetBounds();
+  const auto rotation = zeus::CTransform::RotateX(zeus::degToRad(-45.f));
+  const auto transformedBounds = bounds.getTransformedAABox(rotation);
+  const auto xf = zeus::CTransform::Scale(5.f / (transformedBounds.max - transformedBounds.min)) *
+                  zeus::CTransform::Translate(-transformedBounds.min) * rotation;
+  const zeus::CTransform ptTex1{
+      zeus::CMatrix3f{
+          1.f, 1.f, 0.f,
+          0.f, 0.f, 1.f,
+          0.f, 0.f, 0.f,
+      },
+      zeus::CVector3f{t * -0.85f - 0.15f, -(1.f - t) * 6.f + 1.f, 1.f},
+  };
+  const zeus::CTransform ptTex0{
+      zeus::CMatrix3f{
+          1.f, 1.f, 0.f,
+          0.f, 0.f, 1.f,
+          0.f, 0.f, 0.f,
+      },
+      zeus::CVector3f{t, ptTex1.origin.y(), 1.f},
+  };
+  GXLoadTexMtxImm(&xf, GX::TEXMTX0, GX::MTX3x4);
+  GXLoadTexMtxImm(&ptTex0, GX::PTTEXMTX0, GX::MTX3x4);
+  GXLoadTexMtxImm(&ptTex1, GX::PTTEXMTX1, GX::MTX3x4);
+  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX3x4, GX::TG_POS, GX::TEXMTX0, false, GX::PTTEXMTX0);
+  CGX::SetTexCoordGen(GX::TEXCOORD1, GX::TG_MTX3x4, GX::TG_POS, GX::TEXMTX0, false, GX::PTTEXMTX1);
+  CGX::SetAlphaCompare(GX::GREATER, 0, GX::AOP_AND, GX::ALWAYS, 0);
+  CGX::SetZMode(true, GX::LEQUAL, true);
+  model.UpdateLastFrame();
+  model.GetInstance().DrawFlat(positions, normals, ESurfaceSelection::All);
+  CGX::SetAlphaCompare(GX::ALWAYS, 0, GX::AOP_AND, GX::ALWAYS, 0);
 }
 
 void CCubeRenderer::DrawModelFlat(CModel& model, const CModelFlags& flags, bool unsortedOnly, TConstVectorRef positions,

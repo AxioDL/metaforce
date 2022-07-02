@@ -634,8 +634,8 @@ ShaderInfo build_shader_info(const ShaderConfig& config) noexcept {
     }
   }
   info.uniformSize += info.sampledKColors.count() * 16;
-  for (int i = 0; i < info.sampledTextures.size(); ++i) {
-    if (!info.sampledTextures.test(i)) {
+  for (int i = 0; i < info.sampledTexCoords.size(); ++i) {
+    if (!info.sampledTexCoords.test(i)) {
       continue;
     }
     const auto& tcg = config.tcgs[i];
