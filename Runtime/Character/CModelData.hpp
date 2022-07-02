@@ -121,6 +121,7 @@ public:
   void Render(const CStateManager& stateMgr, const zeus::CTransform& xf, const CActorLights* lights,
               const CModelFlags& drawFlags);
   void Render(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights, const CModelFlags& drawFlags);
+  void FlatDraw(EWhichModel which, const zeus::CTransform& xf, bool unsortedOnly, const CModelFlags& flags);
 
   void MultiLightingDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
                          const zeus::CColor& alphaColor, const zeus::CColor& additiveColor);

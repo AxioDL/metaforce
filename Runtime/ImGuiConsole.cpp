@@ -941,6 +941,7 @@ void ImGuiConsole::ShowDebugOverlay() {
 
       ImGuiStringViewText(
           fmt::format(FMT_STRING("CRandom16::Next calls: {}\n"), metaforce::CRandom16::GetNumNextCalls()));
+      ImGuiStringViewText(fmt::format(FMT_STRING("CRandom16::LastSeed: 0x{:08X}\n"), CRandom16::GetLastSeed()));
     }
     if (m_resourceStats && g_SimplePool != nullptr) {
       if (hasPrevious) {

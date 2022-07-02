@@ -7,6 +7,7 @@
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 #include "Runtime/Graphics/CVertexMorphEffect.hpp"
 #include "Runtime/Weapon/CEnergyProjectile.hpp"
@@ -503,17 +504,15 @@ void CGunWeapon::DrawHologram(const CStateManager& mgr, const zeus::CTransform& 
   // TODO
   if (x218_29_drawHologram) {
     CModelFlags useFlags = flags;
-    // useFlags.m_extendedShader = EExtendedShader::Flat;
-    x60_holoModelData->Render(CModelData::EWhichModel::Normal, xf, nullptr, useFlags);
+    x60_holoModelData->FlatDraw(CModelData::EWhichModel::Normal, xf, false, useFlags);
   } else {
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x10_solidModelData->GetScale()));
-    // CGraphics::DisableAllLights();
-    // g_Renderer->SetAmbientColor(zeus::skWhite);
+    CGraphics::DisableAllLights();
+    g_Renderer->SetAmbientColor(zeus::skWhite);
     CSkinnedModel& model = *x60_holoModelData->GetAnimationData()->GetModelData();
-    // model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
     x10_solidModelData->GetAnimationData()->Render(model, flags, nullptr, nullptr);
-    // g_Renderer->SetAmbientColor(zeus::skWhite);
-    // CGraphics::DisableAllLights();
+    g_Renderer->SetAmbientColor(zeus::skWhite);
+    CGraphics::DisableAllLights();
   }
 }
 

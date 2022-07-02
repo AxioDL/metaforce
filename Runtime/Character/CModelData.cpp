@@ -360,6 +360,21 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf, const CAc
   x14_24_renderSorted = false;
 }
 
+void CModelData::FlatDraw(EWhichModel which, const zeus::CTransform& xf, bool unsortedOnly, const CModelFlags& flags) {
+  g_Renderer->SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
+  CGraphics::DisableAllLights();
+  if (!x10_animData) {
+    g_Renderer->DrawModelFlat(*PickStaticModel(which), flags, unsortedOnly, nullptr, nullptr);
+  } else {
+    auto model = PickAnimatedModel(which);
+    x10_animData->SetupRender(model, nullptr, nullptr);
+    model.DoDrawCallback([=](TConstVectorRef positions, TConstVectorRef normals) {
+      auto m = model.GetModel();
+      g_Renderer->DrawModelFlat(*m, flags, unsortedOnly, positions, normals);
+    });
+  }
+}
+
 void CModelData::MultiLightingDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
                                    const zeus::CColor& alphaColor, const zeus::CColor& additiveColor) {
   CModel* model = nullptr;
