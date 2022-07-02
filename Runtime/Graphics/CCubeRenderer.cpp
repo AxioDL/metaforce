@@ -217,7 +217,23 @@ void CCubeRenderer::GenerateReflectionTex() {
 }
 
 void CCubeRenderer::GenerateFogVolumeRampTex() {
-  // TODO
+  constexpr double fogVolFar = 750.0;
+  constexpr double fogVolNear = 0.2;
+  u8* data = x1b8_fogVolumeRamp.Lock();
+  u16 height = x1b8_fogVolumeRamp.GetHeight();
+  u16 width = x1b8_fogVolumeRamp.GetWidth();
+  for (size_t y = 0; y < height; ++y) {
+    for (size_t x = 0; x < width; ++x) {
+      const int tmp = int(y << 16 | x << 8 | 0x7f);
+      const double a =
+          zeus::clamp(0.0,
+                      (-150.0 / (tmp / double(0xffffff) * (fogVolFar - fogVolNear) - fogVolFar) - fogVolNear) * 3.0 /
+                          (fogVolFar - fogVolNear),
+                      1.0);
+      data[y * width + x] = (a * a + a) / 2.0;
+    }
+  }
+  x1b8_fogVolumeRamp.UnLock();
 }
 
 void CCubeRenderer::GenerateSphereRampTex() {
@@ -231,7 +247,7 @@ void CCubeRenderer::GenerateSphereRampTex() {
           (static_cast<float>(x) - halfRes) / halfRes,
           (static_cast<float>(y) - halfRes) / halfRes,
       };
-      data[y * height + x] = 255 - zeus::clamp(0.f, vec.canBeNormalized() ? vec.magnitude() : 0.f, 1.f) * 255;
+      data[y * width + x] = 255 - zeus::clamp(0.f, vec.canBeNormalized() ? vec.magnitude() : 0.f, 1.f) * 255;
     }
   }
   x220_sphereRamp.UnLock();
@@ -255,7 +271,7 @@ void CCubeRenderer::ReallyDrawPhazonSuitEffect(const zeus::CColor& modColor, CTe
   // TODO
 }
 
-void CCubeRenderer::DoPhazonSuitIndirectAlphaBlur(float blurRadius, float f2, const TLockedToken<CTexture>& indTex) {
+void CCubeRenderer::DoPhazonSuitIndirectAlphaBlur(float blurRadius, float f2) {
   // TODO
 }
 
@@ -526,7 +542,33 @@ void CCubeRenderer::RenderBucketItems(const CAreaListItem* item) {
 }
 
 void CCubeRenderer::PostRenderFogs() {
-  // TODO
+  for (const auto& warp : x2c4_spaceWarps) {
+    ReallyDrawSpaceWarp(warp.first, warp.second);
+  }
+  x2c4_spaceWarps.clear();
+
+  x2ac_fogVolumes.sort([](const CFogVolumeListItem& a, const CFogVolumeListItem& b) {
+    zeus::CAABox aabbA = a.x34_aabb.getTransformedAABox(a.x0_transform);
+    bool insideA =
+        aabbA.pointInside(zeus::CVector3f(CGraphics::g_ViewPoint.x(), CGraphics::g_ViewPoint.y(), aabbA.min.z()));
+
+    zeus::CAABox aabbB = b.x34_aabb.getTransformedAABox(b.x0_transform);
+    bool insideB =
+        aabbB.pointInside(zeus::CVector3f(CGraphics::g_ViewPoint.x(), CGraphics::g_ViewPoint.y(), aabbB.min.z()));
+
+    if (insideA != insideB) {
+      return insideA;
+    }
+
+    float dotA = aabbA.furthestPointAlongVector(CGraphics::g_ViewMatrix.basis[1]).dot(CGraphics::g_ViewMatrix.basis[1]);
+    float dotB = aabbB.furthestPointAlongVector(CGraphics::g_ViewMatrix.basis[1]).dot(CGraphics::g_ViewMatrix.basis[1]);
+    return dotA < dotB;
+  });
+  for (const CFogVolumeListItem& fog : x2ac_fogVolumes) {
+    CGraphics::SetModelMatrix(fog.x0_transform);
+    ReallyRenderFogVolume(fog.x30_color, fog.x34_aabb, fog.x4c_model.GetObj(), fog.x5c_skinnedModel);
+  }
+  x2ac_fogVolumes.clear();
 }
 
 void CCubeRenderer::SetModelMatrix(const zeus::CTransform& xf) { CGraphics::SetModelMatrix(xf); }
@@ -714,11 +756,12 @@ void CCubeRenderer::BeginScene() {
     }
   }
 
+  x318_27_currentRGBA6 = x318_26_requestRGBA6;
   if (!x318_31_persistRGBA6) {
     x318_26_requestRGBA6 = false;
   }
 
-  // GXSetPixelFmt(x318_26_requestRGBA6, GX_ZC_LINEAR);
+  // GXSetPixelFmt(x318_27_currentRGBA6, GX_ZC_LINEAR);
   GXSetAlphaUpdate(true);
   GXSetDstAlpha(true, 0.f);
   CGraphics::BeginScene();
@@ -808,7 +851,9 @@ void CCubeRenderer::CacheReflection(IRenderer::TReflectionCallback cb, void* ctx
 }
 
 void CCubeRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength) {
-  // TODO
+  if (pt.z() < 1.f) {
+    ReallyDrawSpaceWarp(pt, strength);
+  }
 }
 
 void CCubeRenderer::DrawThermalModel(CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,
@@ -868,7 +913,8 @@ void CCubeRenderer::DrawModelFlat(CModel& model, const CModelFlags& flags, bool 
 }
 
 void CCubeRenderer::SetWireframeFlags(s32 flags) {
-  // TODO
+  CCubeModel::SetModelWireframe((flags & 0x1) != 0);
+  x318_25_drawWireframe = (flags & 0x2) != 0;
 }
 
 void CCubeRenderer::SetWorldFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) {
@@ -877,7 +923,9 @@ void CCubeRenderer::SetWorldFog(ERglFogMode mode, float startz, float endz, cons
 
 void CCubeRenderer::RenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
                                     const TLockedToken<CModel>* model, const CSkinnedModel* sModel) {
-  // TODO
+  if (!x318_28_disableFog) {
+    x2ac_fogVolumes.emplace_back(CGraphics::g_GXModelMatrix, color, aabb, model, sModel);
+  }
 }
 
 void CCubeRenderer::SetThermal(bool thermal, float level, const zeus::CColor& color) {
@@ -1112,13 +1160,37 @@ void CCubeRenderer::PrepareDynamicLights(const std::vector<CLight>& lights) {
 }
 
 void CCubeRenderer::AllocatePhazonSuitMaskTexture() {
-  // TODO
+  x318_26_requestRGBA6 = true;
+  if (!x314_phazonSuitMask) {
+    x314_phazonSuitMask = std::make_unique<CTexture>(ETexelFormat::I8, CGraphics::GetViewportWidth() / 4,
+                                                     CGraphics::GetViewportHeight() / 4, 1, "Phazon Suit Mask"sv);
+  }
+  x310_phazonSuitMaskCountdown = 2;
 }
 
 void CCubeRenderer::DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectMod,
                                                  const TLockedToken<CTexture>& indTex, const zeus::CColor& indirectMod,
                                                  float blurRadius, float scale, float offX, float offY) {
-  // TODO
+  if (x318_27_currentRGBA6 && x310_phazonSuitMaskCountdown != 0) {
+    const auto backupViewMatrix = CGraphics::g_ViewMatrix;
+    const auto backupProjectionState = CGraphics::GetProjectionState();
+    if (!x314_phazonSuitMask || x314_phazonSuitMask->GetWidth() != CGraphics::GetViewportWidth() / 4 ||
+        x314_phazonSuitMask->GetHeight() != CGraphics::GetViewportHeight() / 4) {
+      return;
+    }
+    DoPhazonSuitIndirectAlphaBlur(blurRadius, blurRadius);
+    // TODO copy into x314_phazonSuitMask
+    if (indTex) {
+      ReallyDrawPhazonSuitIndirectEffect(zeus::skWhite, *x314_phazonSuitMask, const_cast<CTexture&>(*indTex),
+                                         indirectMod, scale, offX, offY);
+    } else {
+      ReallyDrawPhazonSuitEffect(nonIndirectMod, *x314_phazonSuitMask);
+    }
+    // TODO unlock x314
+    CGraphics::SetViewPointMatrix(backupViewMatrix);
+    CGraphics::SetProjectionState(backupProjectionState);
+    x310_phazonSuitMaskCountdown = 2;
+  }
   GXSetDstAlpha(false, 0.f);
 }
 
@@ -1132,15 +1204,21 @@ CCubeRenderer::FindStaticGeometry(const std::vector<CMetroidModelInstance>* geom
                       [&](const CAreaListItem& item) { return item.x0_geometry == geometry; });
 }
 
-void CCubeRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const {}
+void CCubeRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const {
+  // TODO
+}
+
 s32 CCubeRenderer::DrawOverlappingWorldModelIDs(s32 alphaVal, const std::vector<u32>& modelBits,
                                                 const zeus::CAABox& aabb) {
   SetupRendererStates(true);
-
+  // TODO
   return 0;
 }
+
 void CCubeRenderer::DrawOverlappingWorldModelShadows(s32 alphaVal, const std::vector<u32>& modelBits,
-                                                     const zeus::CAABox& aabb, float alpha) {}
+                                                     const zeus::CAABox& aabb, float alpha) {
+  // TODO
+}
 
 void CCubeRenderer::SetupCGraphicsState() {
   CGraphics::DisableAllLights();
@@ -1193,6 +1271,16 @@ void CCubeRenderer::DoThermalModelDraw(CCubeModel& model, const zeus::CColor& mu
   CGX::SetZMode(flags.x2_flags.IsSet(CModelFlagBits::DepthTest), GX::LEQUAL,
                 flags.x2_flags.IsSet(CModelFlagBits::DepthUpdate));
   model.DrawFlat(positions, normals,
-                 flags.x2_flags.IsSet(CModelFlagBits::Unknown1) ? ESurfaceSelection::Unsorted : ESurfaceSelection::All);
+                 flags.x2_flags.IsSet(CModelFlagBits::ThermalUnsortedOnly) ? ESurfaceSelection::Unsorted
+                                                                           : ESurfaceSelection::All);
+}
+
+void CCubeRenderer::ReallyDrawSpaceWarp(const zeus::CVector3f& pt, float strength) {
+  // TODO
+}
+
+void CCubeRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const CModel* model,
+                                          const CSkinnedModel* sModel) {
+  // TODO
 }
 } // namespace metaforce

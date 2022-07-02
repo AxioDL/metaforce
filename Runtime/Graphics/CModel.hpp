@@ -20,7 +20,7 @@ enum class CModelFlagBits : u16 {
   DepthGreater = 0x8,
   DepthNonInclusive = 0x10,
   DrawNormal = 0x20,
-  Unknown1 = 0x40,
+  ThermalUnsortedOnly = 0x40,
 };
 using CModelFlagsFlags = Flags<CModelFlagBits>;
 

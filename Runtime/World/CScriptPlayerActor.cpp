@@ -386,7 +386,6 @@ void CScriptPlayerActor::PreRender(CStateManager& mgr, const zeus::CFrustum& fru
   if (x2e8_suitRes.GetCharacterNodeId() == 3) {
     g_Renderer->AllocatePhazonSuitMaskTexture();
   }
-  // TODO xb4_drawFlags.m_extendedShader = EExtendedShader::LightingCubeReflection;
   CScriptActor::PreRender(mgr, frustum);
 }
 

@@ -21,13 +21,14 @@ void CMorphBallShadow::GatherAreas(const CStateManager& mgr) {
 }
 
 void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateManager& mgr, CPlayer& player) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CMorphBallShadow::RenderIdBuffer", zeus::skBlue);
   xb8_shadowVolume = aabb;
   x0_actors.clear();
   x18_areas.clear();
   x30_worldModelBits.clear();
   g_Renderer->x318_26_requestRGBA6 = true;
 
-  if (!g_Renderer->x318_27_currentRGBA6) {
+  if (true /* TODO */ || !g_Renderer->x318_27_currentRGBA6) {
     xd0_hasIds = false;
     return;
   }

@@ -1616,6 +1616,7 @@ void CMorphBall::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
     return;
   }
 
+  SCOPED_GRAPHICS_DEBUG_GROUP("CMorphBall::PreRender", zeus::skBlue);
   x0_player.GetActorLights()->SetFindShadowLight(x1e44_damageEffect < 0.25f);
   x0_player.GetActorLights()->SetShadowDynamicRangeThreshold(0.05f);
   x0_player.GetActorLights()->SetDirty();

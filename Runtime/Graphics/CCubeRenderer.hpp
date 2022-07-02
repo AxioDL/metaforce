@@ -102,7 +102,10 @@ private:
   void ReallyDrawPhazonSuitIndirectEffect(const zeus::CColor& vertColor, CTexture& maskTex, CTexture& indTex,
                                           const zeus::CColor& modColor, float scale, float offX, float offY);
   void ReallyDrawPhazonSuitEffect(const zeus::CColor& modColor, CTexture& maskTex);
-  void DoPhazonSuitIndirectAlphaBlur(float blurRadius, float f2, const TLockedToken<CTexture>& indTex);
+  void DoPhazonSuitIndirectAlphaBlur(float blurRadius, float f2);
+  void ReallyDrawSpaceWarp(const zeus::CVector3f& pt, float strength);
+  void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const CModel* model,
+                             const CSkinnedModel* sModel);
 
 public:
   CCubeRenderer(IObjectStore& store, IFactory& resFac);
