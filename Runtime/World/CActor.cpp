@@ -91,11 +91,11 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     }
     break;
   }
-  case EScriptObjectMessage::UpdateSplashInhabitant: // 37
+  case EScriptObjectMessage::AddSplashInhabitant: // 37
     SetInFluid(true, uid);
     break;
   case EScriptObjectMessage::RemoveSplashInhabitant: // 39
-    SetInFluid(false, kInvalidUniqueId);
+    SetInFluid(false, uid);
     break;
   case EScriptObjectMessage::InitializedInArea: // 35
   {
