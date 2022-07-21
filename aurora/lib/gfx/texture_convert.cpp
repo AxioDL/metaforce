@@ -15,30 +15,17 @@ struct DXT1Block {
   std::array<u8, 4> lines;
 };
 
-/* GX uses this upsampling technique to extract full 8-bit range */
-constexpr u8 Convert3To8(u8 v) {
-  /* Swizzle bits: 00000123 -> 12312312 */
-  return static_cast<u8>((u32{v} << 5) | (u32{v} << 2) | (u32{v} >> 1));
+// http://www.mindcontrol.org/~hplus/graphics/expand-bits.html
+template <u8 v>
+constexpr u8 ExpandTo8(u8 n) {
+  if constexpr (v == 3) {
+    return (n << (8 - 3)) | (n << (8 - 6)) | (n >> (9 - 8));
+  } else {
+    return (n << (8 - v)) | (n >> ((v * 2) - 8));
+  }
 }
 
-constexpr u8 Convert4To8(u8 v) {
-  /* Swizzle bits: 00001234 -> 12341234 */
-  return static_cast<u8>((u32{v} << 4) | u32{v});
-}
-
-constexpr u8 Convert5To8(u8 v) {
-  /* Swizzle bits: 00012345 -> 12345123 */
-  return static_cast<u8>((u32{v} << 3) | (u32{v} >> 2));
-}
-
-constexpr u8 Convert6To8(u8 v) {
-  /* Swizzle bits: 00123456 -> 12345612 */
-  return static_cast<u8>((u32{v} << 2) | (u32{v} >> 4));
-}
-
-constexpr u8 S3TCBlend(u8 a_, u8 b_) {
-  u32 a = a_;
-  u32 b = b_;
+constexpr u8 S3TCBlend(u32 a, u32 b) {
   return static_cast<u8>((((a << 1) + a) + ((b << 2) + b)) >> 3);
 }
 
@@ -103,7 +90,7 @@ static ByteBuffer BuildI4FromGCN(uint32_t width, uint32_t height, uint32_t mips,
         for (uint32_t y = 0; y < std::min(h, 8u); ++y) {
           u8* target = targetMip + (baseY + y) * w + baseX;
           for (uint32_t x = 0; x < std::min(w, 8u); ++x) {
-            target[x] = Convert4To8(in[x / 2] >> ((x & 1) ? 0 : 4) & 0xf);
+            target[x] = ExpandTo8<4>(in[x / 2] >> ((x & 1) ? 0 : 4) & 0xf);
           }
           in += std::min<size_t>(w / 4, 4);
         }
@@ -123,11 +110,11 @@ static ByteBuffer BuildI4FromGCN(uint32_t width, uint32_t height, uint32_t mips,
 
 static ByteBuffer BuildI8FromGCN(uint32_t width, uint32_t height, uint32_t mips, ArrayRef<uint8_t> data) {
   const size_t texelCount = ComputeMippedTexelCount(width, height, mips);
-  ByteBuffer buf{sizeof(RGBA8) * texelCount};
+  ByteBuffer buf{texelCount};
 
   uint32_t w = width;
   uint32_t h = height;
-  auto* targetMip = reinterpret_cast<RGBA8*>(buf.data());
+  auto* targetMip = buf.data();
   const uint8_t* in = data.data();
   for (uint32_t mip = 0; mip < mips; ++mip) {
     const uint32_t bwidth = (w + 7) / 8;
@@ -137,14 +124,10 @@ static ByteBuffer BuildI8FromGCN(uint32_t width, uint32_t height, uint32_t mips,
       for (uint32_t bx = 0; bx < bwidth; ++bx) {
         const uint32_t baseX = bx * 8;
         for (uint32_t y = 0; y < 4; ++y) {
-          RGBA8* target = targetMip + (baseY + y) * w + baseX;
+          u8* target = targetMip + (baseY + y) * w + baseX;
           const auto n = std::min(w, 8u);
           for (size_t x = 0; x < n; ++x) {
-            const auto v = in[x];
-            target[x].r = v;
-            target[x].g = v;
-            target[x].b = v;
-            target[x].a = v;
+            target[x] = in[x];
           }
           in += n;
         }
@@ -181,11 +164,11 @@ ByteBuffer BuildIA4FromGCN(uint32_t width, uint32_t height, uint32_t mips, Array
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           const auto n = std::min(w, 8u);
           for (size_t x = 0; x < n; ++x) {
-            const u8 intensity = Convert4To8(in[x] >> 4 & 0xf);
+            const u8 intensity = ExpandTo8<4>(in[x] & 0xf);
             target[x].r = intensity;
             target[x].g = intensity;
             target[x].b = intensity;
-            target[x].a = Convert4To8(in[x] & 0xf);
+            target[x].a = ExpandTo8<4>(in[x] >> 4);
           }
           in += n;
         }
@@ -337,9 +320,9 @@ ByteBuffer BuildRGB565FromGCN(uint32_t width, uint32_t height, uint32_t mips, Ar
           RGBA8* target = targetMip + (baseY + y) * w + baseX;
           for (size_t x = 0; x < std::min(4u, w); ++x) {
             const auto texel = bswap16(in[x]);
-            target[x].r = Convert5To8(texel >> 11 & 0x1f);
-            target[x].g = Convert6To8(texel >> 5 & 0x3f);
-            target[x].b = Convert5To8(texel & 0x1f);
+            target[x].r = ExpandTo8<5>(texel >> 11 & 0x1f);
+            target[x].g = ExpandTo8<6>(texel >> 5 & 0x3f);
+            target[x].b = ExpandTo8<5>(texel & 0x1f);
             target[x].a = 0xff;
           }
           in += 4;
@@ -378,15 +361,15 @@ ByteBuffer BuildRGB5A3FromGCN(uint32_t width, uint32_t height, uint32_t mips, Ar
           for (size_t x = 0; x < std::min(4u, w); ++x) {
             const auto texel = bswap16(in[x]);
             if ((texel & 0x8000) != 0) {
-              target[x].r = Convert5To8(texel >> 10 & 0x1f);
-              target[x].g = Convert5To8(texel >> 5 & 0x1f);
-              target[x].b = Convert5To8(texel & 0x1f);
+              target[x].r = ExpandTo8<5>(texel >> 10 & 0x1f);
+              target[x].g = ExpandTo8<5>(texel >> 5 & 0x1f);
+              target[x].b = ExpandTo8<5>(texel & 0x1f);
               target[x].a = 0xff;
             } else {
-              target[x].r = Convert4To8(texel >> 8 & 0xf);
-              target[x].g = Convert4To8(texel >> 4 & 0xf);
-              target[x].b = Convert4To8(texel & 0xf);
-              target[x].a = Convert3To8(texel >> 12 & 0x7);
+              target[x].r = ExpandTo8<4>(texel >> 8 & 0xf);
+              target[x].g = ExpandTo8<4>(texel >> 4 & 0xf);
+              target[x].b = ExpandTo8<4>(texel & 0xf);
+              target[x].a = ExpandTo8<3>(texel >> 12 & 0x7);
             }
           }
           in += 4;
@@ -518,14 +501,14 @@ ByteBuffer BuildRGBA8FromCMPR(u32 width, u32 height, u32 mips, ArrayRef<u8> data
             // Fill in first two colors in color table.
             std::array<u8, 16> color_table{};
 
-            color_table[0] = Convert5To8(static_cast<u8>((color1 >> 11) & 0x1F));
-            color_table[1] = Convert6To8(static_cast<u8>((color1 >> 5) & 0x3F));
-            color_table[2] = Convert5To8(static_cast<u8>(color1 & 0x1F));
+            color_table[0] = ExpandTo8<5>(static_cast<u8>((color1 >> 11) & 0x1F));
+            color_table[1] = ExpandTo8<6>(static_cast<u8>((color1 >> 5) & 0x3F));
+            color_table[2] = ExpandTo8<5>(static_cast<u8>(color1 & 0x1F));
             color_table[3] = 0xFF;
 
-            color_table[4] = Convert5To8(static_cast<u8>((color2 >> 11) & 0x1F));
-            color_table[5] = Convert6To8(static_cast<u8>((color2 >> 5) & 0x3F));
-            color_table[6] = Convert5To8(static_cast<u8>(color2 & 0x1F));
+            color_table[4] = ExpandTo8<5>(static_cast<u8>((color2 >> 11) & 0x1F));
+            color_table[5] = ExpandTo8<6>(static_cast<u8>((color2 >> 5) & 0x3F));
+            color_table[6] = ExpandTo8<5>(static_cast<u8>(color2 & 0x1F));
             color_table[7] = 0xFF;
             if (color1 > color2) {
               // Predict gradients.
@@ -589,8 +572,7 @@ ByteBuffer convert_texture(GX::TextureFormat format, uint32_t width, uint32_t he
   case GX::TF_I4:
     return BuildI4FromGCN(width, height, mips, data);
   case GX::TF_I8:
-    // No conversion
-    return {};
+    return BuildI8FromGCN(width, height, mips, data);
   case GX::TF_IA4:
     return BuildIA4FromGCN(width, height, mips, data);
   case GX::TF_IA8:
