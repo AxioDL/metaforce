@@ -2,12 +2,13 @@
 
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
-#include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/MP1/World/CSpacePirate.hpp"
 #include "Runtime/Weapon/CEnergyProjectile.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
+#include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CExplosion.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
 #include "Runtime/World/CPlayer.hpp"
@@ -312,6 +313,7 @@ CFlyingPirate::CFlyingPirate(TUniqueId uid, std::string_view name, const CEntity
 , x6a0_25_isAquaPirate(x568_data.x8_type == EFlyingPirateType::AquaPirate)
 , x6a8_pathFindSearch(nullptr, x6a0_25_isAquaPirate ? 2 : 3, pInfo.GetHalfExtent(), pInfo.GetHeight(),
                       pInfo.GetPathfindingIndex())
+, x794_initialHealth(pInfo.GetHealthInfo().GetHP())
 , x7a0_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
                     EBoneTrackingFlags::None)
 , x7ec_burstFire(skBursts.data(), 0) {
@@ -555,8 +557,9 @@ bool CFlyingPirate::CanFireMissiles(CStateManager& mgr) {
 }
 
 void CFlyingPirate::CheckForProjectiles(CStateManager& mgr) {
-  if (!x6a0_29_checkForProjectiles)
+  if (!x6a0_29_checkForProjectiles) {
     return;
+  }
 
   const zeus::CVector3f& playerPos = mgr.GetPlayer().GetTranslation();
   const zeus::CAABox box(playerPos - 5.f, playerPos + 5.f);
@@ -581,16 +584,18 @@ void CFlyingPirate::CheckForProjectiles(CStateManager& mgr) {
       } else {
         x6a0_30_ = true;
       }
-      if (x6a0_30_)
+      if (x6a0_30_) {
         break;
+      }
     }
   }
   x6a0_29_checkForProjectiles = false;
 }
 
 bool CFlyingPirate::CoverCheck(CStateManager& mgr, float) {
-  if (0.f < x888_)
+  if (0.f < x888_) {
     return false;
+  }
   x888_ = 10.f;
   return mgr.GetActiveRandom()->Range(0.f, 100.f) < x568_data.xcc_coverCheckChance;
 }
@@ -598,7 +603,7 @@ bool CFlyingPirate::CoverCheck(CStateManager& mgr, float) {
 bool CFlyingPirate::CoverFind(CStateManager& mgr, float) {
   float closestMag = x568_data.x0_maxCoverDistance * x568_data.x0_maxCoverDistance;
   CScriptCoverPoint* closest = nullptr;
-  for (const auto entity : *mgr.ObjectListById(EGameObjectList::PlatformAndDoor)) {
+  for (auto* const entity : *mgr.ObjectListById(EGameObjectList::PlatformAndDoor)) {
     if (TCastToPtr<CScriptCoverPoint> cover = entity) {
       if (cover->GetActive() && cover->ShouldLandHere() && !cover->GetInUse(x8_uid) &&
           cover->GetAreaIdAlways() == x4_areaId) {
@@ -665,10 +670,9 @@ void CFlyingPirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& nod
     if (pInfo.Token().IsLoaded() && mgr.CanCreateProjectile(x8_uid, EWeaponType::AI, 16)) {
       const zeus::CTransform xf = GetLctrTransform(node.GetLocatorName());
       TUniqueId target = x6a1_26_isAttackingObject ? x85c_attackObjectId : mgr.GetPlayer().GetUniqueId();
-      CEnergyProjectile* projectile =
-          new CEnergyProjectile(true, pInfo.Token(), EWeaponType::AI, xf, EMaterialTypes::Character, pInfo.GetDamage(),
-                                mgr.AllocateUniqueId(), x4_areaId, x8_uid, target, EProjectileAttrib::None, false,
-                                zeus::skOne3f, std::nullopt, -1, false);
+      auto* projectile = new CEnergyProjectile(true, pInfo.Token(), EWeaponType::AI, xf, EMaterialTypes::Character,
+                                               pInfo.GetDamage(), mgr.AllocateUniqueId(), x4_areaId, x8_uid, target,
+                                               EProjectileAttrib::None, false, zeus::skOne3f, std::nullopt, -1, false);
       mgr.AddObject(projectile);
       if (!x6a1_26_isAttackingObject) {
         projectile->SetCameraShake(
@@ -684,9 +688,9 @@ void CFlyingPirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& nod
 }
 
 void CFlyingPirate::Enraged(CStateManager& mgr, EStateMsg msg, float arg) {
-  if (msg != EStateMsg::Update)
+  if (msg != EStateMsg::Update) {
     return;
-
+  }
   x87c_ = (arg * arg * x568_data.xc4_) * zeus::skUp;
   x898_ = 1.f;
   x870_ += x87c_;
@@ -710,9 +714,9 @@ void CFlyingPirate::Explode(CStateManager& mgr, EStateMsg msg, float) {
 }
 
 void CFlyingPirate::MassiveDeath(CStateManager& mgr) {
-  CExplosion* explosion = new CExplosion(
-      static_cast<const TLockedToken<CGenDescription>>(x568_data.x90_particleGenDesc), mgr.AllocateUniqueId(), true,
-      {x4_areaId, CEntity::NullConnectionList}, "", GetTransform(), 0, zeus::CVector3f(1.5f), zeus::skWhite);
+  auto* explosion = new CExplosion(static_cast<const TLockedToken<CGenDescription>>(x568_data.x90_particleGenDesc),
+                                   mgr.AllocateUniqueId(), true, {x4_areaId, CEntity::NullConnectionList}, "",
+                                   GetTransform(), 0, zeus::CVector3f(1.5f), zeus::skWhite);
   mgr.AddObject(explosion);
   mgr.ApplyDamageToWorld(x8_uid, *this, GetTranslation(), x568_data.x9c_dInfo,
                          CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
@@ -764,9 +768,10 @@ pas::EStepDirection CFlyingPirate::GetDodgeDirection(CStateManager& mgr, float a
   bool canDodgeUp = true;
   bool canDodgeDown = true;
   pas::EStepDirection direction = pas::EStepDirection::Invalid;
-  for (const auto entity : *mgr.ObjectListById(EGameObjectList::AiWaypoint)) {
-    if (entity == this)
+  for (auto* const entity : *mgr.ObjectListById(EGameObjectList::AiWaypoint)) {
+    if (entity == this) {
       continue;
+    }
     if (TCastToPtr<CPhysicsActor> actor = entity) {
       const zeus::CVector3f dist = actor->GetTranslation() - GetTranslation();
       float distMagSquared = dist.magSquared();
@@ -863,6 +868,7 @@ void CFlyingPirate::GetUp(CStateManager& mgr, EStateMsg msg, float) {
       CPathFindSearch::EResult result = x6a8_pathFindSearch.Search(GetTranslation(), GetTranslation());
       if (result == CPathFindSearch::EResult::NoSourcePoint) {
         x401_30_pendingDeath = true;
+        return;
       }
     }
     TryCommand(mgr, pas::EAnimationState::Getup, &CPatterned::TryGetUp, 0);
@@ -1098,8 +1104,9 @@ void CFlyingPirate::PathFind(CStateManager& mgr, EStateMsg msg, float arg) {
 }
 
 void CFlyingPirate::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
-  if (!x6a0_27_canPatrol)
+  if (!x6a0_27_canPatrol) {
     return;
+  }
 
   CPatterned::Patrol(mgr, msg, arg);
   if (msg == EStateMsg::Activate) {
@@ -1234,8 +1241,9 @@ bool CFlyingPirate::ShouldAttack(CStateManager& mgr, float) {
 }
 
 bool CFlyingPirate::ShouldDodge(CStateManager& mgr, float) {
-  if (x6a1_28_ || x6a1_25_)
+  if (x6a1_28_ || x6a1_25_) {
     return false;
+  }
   return 0.f < (GetTargetPos(mgr) - GetTranslation()).dot(GetTransform().frontVector()) &&
          (x854_ < 0.33f || x858_ < 0.33f) && x7d8_ < 0.5f;
 }
@@ -1265,8 +1273,9 @@ bool CFlyingPirate::ShouldMove(CStateManager& mgr, float) {
 }
 
 bool CFlyingPirate::ShouldRetreat(CStateManager& mgr, float) {
-  if (!x6a2_28_)
+  if (!x6a2_28_) {
     return false;
+  }
 
   TUniqueId id = GetWaypointForState(mgr, EScriptObjectState::Patrol, EScriptObjectMessage::Follow);
   TCastToPtr<CScriptWaypoint> waypoint = mgr.ObjectById(id);
@@ -1290,8 +1299,9 @@ bool CFlyingPirate::ShouldRetreat(CStateManager& mgr, float) {
 }
 
 bool CFlyingPirate::ShouldSpecialAttack(CStateManager& mgr, float) {
-  if (x3fc_flavor != EFlavorType::One || x85c_attackObjectId == kInvalidUniqueId || x860_ > 0.f)
+  if (x3fc_flavor != EFlavorType::One || x85c_attackObjectId == kInvalidUniqueId || x860_ > 0.f) {
     return false;
+  }
 
   x860_ = 15.f * mgr.GetActiveRandom()->Float() + 15.f;
   if (!mgr.GetPlayer().CheckOrbitDisableSourceList()) {
@@ -1322,7 +1332,7 @@ bool CFlyingPirate::Stuck(CStateManager& mgr, float arg) {
 
 void CFlyingPirate::UpdateLandingSmoke(CStateManager& mgr, bool active) {
   if (active) {
-    if (x684_particleGens.size()) {
+    if (!x684_particleGens.empty()) {
       const zeus::CVector3f& origin = GetTranslation();
       float particleLevel = origin.z() - 5.f;
       CScriptCoverPoint* const cover = GetCoverPoint(mgr, x6a4_currentCoverPoint);
@@ -1407,7 +1417,7 @@ void CFlyingPirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
     x2dc_destObj = GetWaypointForState(mgr, EScriptObjectState::Attack, EScriptObjectMessage::Follow);
     if (x2dc_destObj != kInvalidUniqueId) {
       if (TCastToPtr<CScriptWaypoint> waypoint = mgr.ObjectById(x2dc_destObj)) {
-        x30c_behaviourOrient = EBehaviourOrient(waypoint->GetBehaviourOrient());
+        x30c_behaviourOrient = static_cast<EBehaviourOrient>(waypoint->GetBehaviourOrient());
         x3b0_moveSpeed = waypoint->GetSpeed();
       }
     }
@@ -1439,7 +1449,7 @@ void CFlyingPirate::Taunt(CStateManager& mgr, EStateMsg msg, float) {
     const TUniqueId playerUid = mgr.GetPlayer().GetUniqueId();
     x7a0_boneTracking.SetTarget(playerUid);
     bool foundPirate = false;
-    for (const auto obj : *mgr.ObjectListById(EGameObjectList::AiWaypoint)) {
+    for (auto* const obj : *mgr.ObjectListById(EGameObjectList::AiWaypoint)) {
       if (const CSpacePirate* const pirate = CPatterned::CastTo<CSpacePirate>(obj)) {
         if (pirate->GetEnableAim() && pirate->IsAlive() && pirate->GetAreaIdAlways() == x4_areaId &&
             (pirate->GetTranslation() - GetTranslation()).magSquared() <
@@ -1581,7 +1591,7 @@ void CFlyingPirate::Think(float dt, CStateManager& mgr) {
             const zeus::CVector3f dist =
                 (GetBoundingBox().center() - mgr.GetPlayer().GetAimPosition(mgr, 0.f)).normalized();
             if (dist.magSquared() < 0.9f) {
-              for (const auto obj : *mgr.ObjectListById(EGameObjectList::AiWaypoint)) {
+              for (auto* const obj : *mgr.ObjectListById(EGameObjectList::AiWaypoint)) {
                 if (const auto* pirate = CPatterned::CastTo<const CSpacePirate>(obj)) {
                   if (pirate->GetEnableAim() && pirate->GetAreaIdAlways() == x4_areaId) {
                     x7e4_ += 0.2f;

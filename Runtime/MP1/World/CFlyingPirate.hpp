@@ -171,7 +171,7 @@ private:
   CPathFindSearch x6a8_pathFindSearch;
   float x78c_ = 0.f; // not initialized in constructor?
   int x790_ = 0;
-  int x794_health;
+  float x794_initialHealth;
   CSegId x798_headSegId;
   int x79c_ = -1;
   CBoneTracking x7a0_boneTracking;
