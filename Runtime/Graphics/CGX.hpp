@@ -3,7 +3,6 @@
 #include "Graphics/GX.hpp"
 #include "RetroTypes.hpp"
 
-#include <aurora/model.hpp>
 #include <zeus/CColor.hpp>
 
 namespace metaforce::CGX {
@@ -338,8 +337,8 @@ static inline void SetTevIndirect(GX::TevStageID stageId, GX::IndTexStageID indS
   GXSetTevIndirect(stageId, indStage, fmt, biasSel, mtxSel, wrapS, wrapT, addPrev, indLod, alphaSel);
 }
 
-static inline void SetTevIndWarp(GX::TevStageID stageId, GX::IndTexStageID indStage, GXBool signedOffset, GXBool replaceMode,
-                   GX::IndTexMtxID mtxSel) noexcept {
+static inline void SetTevIndWarp(GX::TevStageID stageId, GX::IndTexStageID indStage, GXBool signedOffset,
+                                 GXBool replaceMode, GX::IndTexMtxID mtxSel) noexcept {
   // TODO
   GXSetTevIndWarp(stageId, indStage, signedOffset, replaceMode, mtxSel);
 }
@@ -434,6 +433,28 @@ static inline void SetZMode(GXBool compareEnable, GX::Compare func, GXBool updat
   if (flags != state) {
     state = flags;
     GXSetZMode(compareEnable, func, updateEnable);
+  }
+}
+
+static inline void GetFog(GX::FogType* fogType, float* fogStartZ, float* fogEndZ, float* fogNearZ, float* fogFarZ,
+                          GXColor* fogColor) {
+  if (fogType != nullptr) {
+    *fogType = sGXState.x53_fogType;
+  }
+  if (fogStartZ != nullptr) {
+    *fogStartZ = sGXState.x24c_fogStartZ;
+  }
+  if (fogEndZ != nullptr) {
+    *fogEndZ = sGXState.x250_fogEndZ;
+  }
+  if (fogNearZ != nullptr) {
+    *fogNearZ = sGXState.x254_fogNearZ;
+  }
+  if (fogFarZ != nullptr) {
+    *fogFarZ = sGXState.x258_fogFarZ;
+  }
+  if (fogColor != nullptr) {
+    *fogColor = sGXState.x25c_fogColor;
   }
 }
 } // namespace metaforce::CGX

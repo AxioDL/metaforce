@@ -136,7 +136,7 @@ void CMorphBallShadow::Render(const CStateManager& mgr, float alpha) {
   }
 
   CGraphics::SetModelMatrix(zeus::CTransform());
-  g_Renderer->DrawOverlappingWorldModelShadows(alphaVal, x30_worldModelBits, xb8_shadowVolume, alpha);
+  g_Renderer->DrawOverlappingWorldModelShadows(alphaVal, x30_worldModelBits, xb8_shadowVolume);
 }
 
 } // namespace metaforce

@@ -272,6 +272,7 @@ void CCameraFilterPass::DrawRandomStatic(const zeus::CColor& color, float alpha,
 }
 
 void CCameraFilterPass::DrawScanLines(const zeus::CColor& color, bool even) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CCameraFilterPass::DrawScanLines", zeus::skBlue);
   const auto [lt, rb] = g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
   g_Renderer->SetDepthReadWrite(false, false);
   g_Renderer->SetModelMatrix({});
@@ -282,7 +283,18 @@ void CCameraFilterPass::DrawScanLines(const zeus::CColor& color, bool even) {
 }
 
 void CCameraFilterPass::DrawWideScreen(const zeus::CColor& color, CTexture* tex, float lod) {
-  // TODO
+  SCOPED_GRAPHICS_DEBUG_GROUP("CCameraFilterPass::DrawWideScreen", zeus::skBlue);
+  //  const auto vp = g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
+  //  float f = -((vp.second.x() - vp.first.x()) * 0.0625f * 9.f - (vp.second.y() - vp.first.y())) * 0.5f;
+  //  g_Renderer->SetDepthReadWrite(false, false);
+  //  g_Renderer->SetModelMatrix({});
+  //  if (tex != nullptr) {
+  //    tex->Load(GX::TEXMAP0, EClampMode::Repeat);
+  //  }
+  //  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+  //  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+  //  CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+  //  float x = rand() % 4000;
 }
 
 void CCameraBlurPass::Draw(bool clearDepth) {

@@ -1235,19 +1235,135 @@ CCubeRenderer::FindStaticGeometry(const std::vector<CMetroidModelInstance>* geom
 }
 
 void CCubeRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const {
-  // TODO
+  u32 bitmapWords = 0;
+  for (const CAreaListItem& item : x1c_areaListItems) {
+    if (item.x4_octTree != nullptr) {
+      bitmapWords += item.x4_octTree->x14_bitmapWordCount;
+    }
+  }
+
+  if (bitmapWords == 0u) {
+    modelBits.clear();
+    return;
+  }
+
+  modelBits.clear();
+  modelBits.resize(bitmapWords);
+
+  u32 curWord = 0;
+  for (const CAreaListItem& item : x1c_areaListItems) {
+    if (item.x4_octTree == nullptr) {
+      continue;
+    }
+
+    item.x4_octTree->FindOverlappingModels(modelBits.data() + curWord, aabb);
+
+    u32 wordModel = 0;
+    for (u32 i = 0; i < item.x4_octTree->x14_bitmapWordCount; ++i, wordModel += 32) {
+      u32& word = modelBits[curWord + i];
+      if (word == 0) {
+        continue;
+      }
+      for (u32 j = 0; j < 32; ++j) {
+        if (((1U << j) & word) != 0) {
+          const zeus::CAABox& modelAABB = (*item.x10_models)[wordModel + j]->GetBounds();
+          if (!modelAABB.intersects(aabb)) {
+            word &= ~(1U << j);
+          }
+        }
+      }
+    }
+
+    curWord += item.x4_octTree->x14_bitmapWordCount;
+  }
 }
 
 s32 CCubeRenderer::DrawOverlappingWorldModelIDs(s32 alphaVal, const std::vector<u32>& modelBits,
                                                 const zeus::CAABox& aabb) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CCubeRenderer::DrawOverlappingWorldModelIDs", zeus::skGrey);
   SetupRendererStates(true);
-  // TODO
-  return 0;
+
+  constexpr CModelFlags flags{0, 0, 3, zeus::skWhite};
+
+  u32 curWord = 0;
+  for (const CAreaListItem& item : x1c_areaListItems) {
+    if (item.x4_octTree == nullptr) {
+      continue;
+    }
+
+    u32 wordModel = 0;
+    for (u32 i = 0; i < item.x4_octTree->x14_bitmapWordCount; ++i, wordModel += 32) {
+      const u32& word = modelBits[curWord + i];
+      if (word == 0) {
+        continue;
+      }
+      for (u32 j = 0; j < 32; ++j) {
+        if (((1U << j) & word) != 0) {
+          if (alphaVal > 255) {
+            SetupCGraphicsState();
+            return alphaVal;
+          }
+
+          auto& model = *(*item.x10_models)[wordModel + j];
+          GXSetDstAlpha(true, alphaVal);
+          CCubeMaterial::KillCachedViewDepState();
+          model.SetArraysCurrent();
+          for (const auto* surf = model.GetFirstUnsortedSurface(); surf != nullptr; surf = surf->GetNextSurface()) {
+            if (surf->GetBounds().intersects(aabb)) {
+              model.DrawSurface(*surf, flags);
+            }
+          }
+          alphaVal += 4;
+        }
+      }
+    }
+
+    curWord += item.x4_octTree->x14_bitmapWordCount;
+  }
+
+  SetupCGraphicsState();
+  return alphaVal;
 }
 
 void CCubeRenderer::DrawOverlappingWorldModelShadows(s32 alphaVal, const std::vector<u32>& modelBits,
-                                                     const zeus::CAABox& aabb, float alpha) {
-  // TODO
+                                                     const zeus::CAABox& aabb) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawOverlappingWorldModelShadows", zeus::skGrey);
+
+  u32 curWord = 0;
+  for (const CAreaListItem& item : x1c_areaListItems) {
+    if (item.x4_octTree == nullptr) {
+      continue;
+    }
+
+    u32 wordModel = 0;
+    for (u32 i = 0; i < item.x4_octTree->x14_bitmapWordCount; ++i, wordModel += 32) {
+      const u32& word = modelBits[curWord + i];
+      if (word == 0) {
+        continue;
+      }
+      for (u32 j = 0; j < 32; ++j) {
+        if (((1U << j) & word) != 0) {
+          if (alphaVal > 255) {
+            return;
+          }
+
+          auto& model = *(*item.x10_models)[wordModel + j];
+          CGX::SetTevKColor(GX::KCOLOR0, zeus::CColor{0.f, static_cast<float>(alphaVal) / 255.f});
+          model.SetArraysCurrent();
+          for (const auto* surf = model.GetFirstUnsortedSurface(); surf != nullptr; surf = surf->GetNextSurface()) {
+            if (surf->GetBounds().intersects(aabb)) {
+              const auto& material = model.GetMaterialByIndex(surf->GetMaterialIndex());
+              CGX::SetVtxDescv_Compressed(material.GetVertexDesc());
+              CGX::CallDisplayList(surf->GetDisplayList(), surf->GetDisplayListSize());
+            }
+          }
+          alphaVal += 4;
+        }
+      }
+    }
+
+    curWord += item.x4_octTree->x14_bitmapWordCount;
+  }
 }
 
 void CCubeRenderer::SetupCGraphicsState() {
@@ -1306,7 +1422,70 @@ void CCubeRenderer::DoThermalModelDraw(CCubeModel& model, const zeus::CColor& mu
 }
 
 void CCubeRenderer::ReallyDrawSpaceWarp(const zeus::CVector3f& pt, float strength) {
-  // TODO
+  return; // TODO
+
+  float vpLeft = static_cast<float>(CGraphics::GetViewportLeft());
+  float vpTop = static_cast<float>(CGraphics::GetViewportTop());
+  float vpHalfWidth = static_cast<float>(CGraphics::GetViewportWidth() / 2);
+  float vpHalfHeight = static_cast<float>(CGraphics::GetViewportHeight() / 2);
+  float local_100 = vpLeft + vpHalfWidth * pt.x() + vpHalfWidth;
+  float local_fc = vpTop + vpHalfHeight * -pt.y() + vpHalfHeight;
+  zeus::CVector2i CStack264{static_cast<s32>(local_100) & ~3, static_cast<s32>(local_fc) & ~3};
+  auto v2right = CStack264 - zeus::CVector2i{96, 96};
+  auto v2left = CStack264 + zeus::CVector2i{96, 96};
+  zeus::CVector2f uv1min{0.f, 0.f};
+  zeus::CVector2f uv1max{1.f, 1.f};
+
+  s32 aleft = CGraphics::GetViewportLeft() & ~3;
+  s32 atop = CGraphics::GetViewportTop() & ~3;
+  s32 aright = (CGraphics::GetViewportLeft() + CGraphics::GetViewportWidth() + 3) & ~3;
+  s32 abottom = (CGraphics::GetViewportTop() + CGraphics::GetViewportHeight() + 3) & ~3;
+  if (v2right.x < aleft) {
+    uv1min.x() = static_cast<float>(aleft - v2right.x) * 0.005208333f;
+    v2right.x = aleft;
+  }
+  if (v2right.y < atop) {
+    uv1min.y() = static_cast<float>(atop - v2right.x) * 0.005208333f;
+    v2right.y = atop;
+  }
+  if (v2left.x > aright) {
+    uv1max.x() = 1.f - static_cast<float>(v2left.x - aright) * 0.005208333f;
+    v2left.x = aright;
+  }
+  if (v2left.y > abottom) {
+    uv1max.y() = 1.f - static_cast<float>(v2left.y - abottom) * 0.005208333f;
+    v2left.y = abottom;
+  }
+  const auto v2sub = v2left - v2right;
+  if (v2sub.x > 0 && v2sub.y > 0) {
+    GX::FogType fogType;
+    float fogStartZ;
+    float fogEndZ;
+    float fogNearZ;
+    float fogFarZ;
+    GXColor fogColor;
+    CGX::GetFog(&fogType, &fogStartZ, &fogEndZ, &fogNearZ, &fogFarZ, &fogColor);
+    CGX::SetFog(GX::FOG_NONE, fogStartZ, fogEndZ, fogNearZ, fogFarZ, fogColor);
+    //    GXSetTexCopySrc(v2right.x, v2right.y, v2sub.x, v2sub.y);
+    //    GXSetTexCopyDst(v2sub.x, v2sub.y, GX::TF_RGBA8, false);
+    //    GXCopyTex(sSpareTextureData, false);
+    //    GXPixModeSync();
+    CGraphics::ResolveSpareTexture(
+        SViewport{
+            .x0_left = static_cast<u32>(v2right.x),
+            .x4_top = static_cast<u32>(v2right.y),
+            .x8_width = static_cast<u32>(v2sub.x),
+            .xc_height = static_cast<u32>(v2sub.y),
+        },
+        1, GX::TF_RGBA8);
+    CGraphics::LoadDolphinSpareTexture(1, GX::TF_RGBA8, GX::TEXMAP7);
+    x150_reflectionTex.Load(GX::TEXMAP1, EClampMode::Clamp);
+    CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_TEXC);
+    CGX::SetTevColorOp(GX::TEVSTAGE0, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, true, GX::TEVPREV);
+    CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX3x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
+    CGX::SetTexCoordGen(GX::TEXCOORD1, GX::TG_MTX3x4, GX::TG_TEX1, GX::IDENTITY, false, GX::PTIDENTITY);
+    CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP7, GX::COLOR_NULL);
+  }
 }
 
 void CCubeRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const CModel* model,

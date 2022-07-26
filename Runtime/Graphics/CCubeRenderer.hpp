@@ -212,8 +212,7 @@ public:
   std::list<CAreaListItem>::iterator FindStaticGeometry(const std::vector<CMetroidModelInstance>* geometry);
   void FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const;
   s32 DrawOverlappingWorldModelIDs(s32 alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb);
-  void DrawOverlappingWorldModelShadows(s32 alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb,
-                                        float alpha);
+  void DrawOverlappingWorldModelShadows(s32 alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb);
   void RenderBucketItems(const CAreaListItem* lights);
   void DrawRenderBucketsDebug() {}
 
