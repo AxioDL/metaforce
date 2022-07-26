@@ -70,11 +70,7 @@
       ],
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
-        "CMAKE_CXX_COMPILER": "clang++",
-        "USE_LTO": {
-          "type": "BOOL",
-          "value": true
-        }
+        "CMAKE_CXX_COMPILER": "clang++"
       }
     },
     {
@@ -91,7 +87,13 @@
       "inherits": [
         "relwithdebinfo",
         "linux-clang"
-      ]
+      ],
+      "cacheVariables": {
+        "USE_LTO": {
+          "type": "BOOL",
+          "value": true
+        }
+      }
     },
     {
       "name": "linux-clang-debug-asan",
