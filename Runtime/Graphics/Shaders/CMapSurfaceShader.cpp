@@ -18,8 +18,8 @@ void CMapSurfaceShader::Shutdown() {
 //  s_Pipeline.reset();
 }
 
-CMapSurfaceShader::CMapSurfaceShader(aurora::ArrayRef<zeus::CVector3f> vbo,
-                                     aurora::ArrayRef<uint16_t> ibo)
+CMapSurfaceShader::CMapSurfaceShader(std::vector<zeus::CVector3f> vbo,
+                                     std::vector<uint16_t> ibo)
 //: m_vbo(vbo), m_ibo(ibo)
 {
 //  m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);

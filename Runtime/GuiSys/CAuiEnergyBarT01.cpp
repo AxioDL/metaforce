@@ -112,8 +112,8 @@ void CAuiEnergyBarT01::Draw(const CGuiWidgetDrawParms& drawParms) {
     if (barOffT != barMaxT) {
       CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
       CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
-      xbc_tex->Load(GX::TEXMAP0, EClampMode::Repeat);
-      CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+      xbc_tex->Load(GX_TEXMAP0, EClampMode::Repeat);
+      CGraphics::StreamBegin(GX_TRIANGLESTRIP);
       CGraphics::StreamColor(useCol);
       auto coords = xd8_coordFunc(barOffT);
       while (barOffT < barMaxT) {

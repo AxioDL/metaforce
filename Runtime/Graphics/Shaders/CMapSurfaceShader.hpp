@@ -22,8 +22,8 @@ class CMapSurfaceShader {
 public:
   static void Initialize();
   static void Shutdown();
-  CMapSurfaceShader(aurora::ArrayRef<zeus::CVector3f> vbo,
-                    aurora::ArrayRef<uint16_t> ibo);
+  CMapSurfaceShader(std::vector<zeus::CVector3f> vbo,
+                    std::vector<uint16_t> ibo);
   void draw(const zeus::CColor& color, u32 start, u32 count);
 };
 

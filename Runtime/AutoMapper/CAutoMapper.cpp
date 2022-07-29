@@ -788,10 +788,10 @@ void CAutoMapper::SetShouldRotatingSoundBePlaying(bool shouldBePlaying) {
 void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, CStateManager& mgr) {
   zeus::CMatrix3f camRot = xa8_renderStates[0].x8_camOrientation.toTransform().buildMatrix3f();
   if (x1bc_state == EAutoMapperState::MapScreen) {
-    if ((input.PA() || input.PSpecialKey(aurora::SpecialKey::Enter)) && x328_ == 0 && HasCurrentMapUniverseWorld())
+    if ((input.PA() || input.PSpecialKey(ESpecialKey::Enter)) && x328_ == 0 && HasCurrentMapUniverseWorld())
       BeginMapperStateTransition(EAutoMapperState::MapScreenUniverse, mgr);
   } else if (x1bc_state == EAutoMapperState::MapScreenUniverse &&
-             (input.PA() || input.PSpecialKey(aurora::SpecialKey::Enter))) {
+             (input.PA() || input.PSpecialKey(ESpecialKey::Enter))) {
     const CMapUniverse::CMapWorldData& mapuWld = x8_mapu->GetMapWorldData(x9c_worldIdx);
     zeus::CVector3f pointLocal = mapuWld.GetWorldTransform().inverse() * xa8_renderStates[0].x20_areaPoint;
     if (mapuWld.GetWorldAssetId() != g_GameState->CurrentWorldAssetId()) {
@@ -806,7 +806,7 @@ void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, CStateManager&
   }
 
   x2f4_aButtonPos = 0;
-  if (input.PA() || input.PSpecialKey(aurora::SpecialKey::Enter))
+  if (input.PA() || input.PSpecialKey(ESpecialKey::Enter))
     x2f4_aButtonPos = 1;
 
   if (IsInPlayerControlState()) {
@@ -1083,8 +1083,8 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
     }
   }
 
-  if (input.PZ() || input.PSpecialKey(aurora::SpecialKey::Tab) || input.PB() ||
-      input.PSpecialKey(aurora::SpecialKey::Esc)) {
+  if (input.PZ() || input.PSpecialKey(ESpecialKey::Tab) || input.PB() ||
+      input.PSpecialKey(ESpecialKey::Esc)) {
     if (x328_ == 0) {
       if (CanLeaveMapScreenInternal(mgr)) {
         LeaveMapScreen(mgr);

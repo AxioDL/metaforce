@@ -198,7 +198,7 @@ CFluidPlaneShader::CFluidPlaneShader(EFluidType type, const TLockedToken<CTextur
                                      const TLockedToken<CTexture>& patternTex2, const TLockedToken<CTexture>& colorTex,
                                      const TLockedToken<CTexture>& bumpMap, const TLockedToken<CTexture>& envMap,
                                      const TLockedToken<CTexture>& envBumpMap, const TLockedToken<CTexture>& lightmap,
-                                     const aurora::gfx::TextureHandle& rippleMap, bool doubleLightmapBlend,
+                                     CTexture& rippleMap, bool doubleLightmapBlend,
                                      bool additive, u32 maxVertCount)
 : m_patternTex1(patternTex1)
 , m_patternTex2(patternTex2)
@@ -207,10 +207,11 @@ CFluidPlaneShader::CFluidPlaneShader(EFluidType type, const TLockedToken<CTextur
 , m_envMap(envMap)
 , m_envBumpMap(envBumpMap)
 , m_lightmap(lightmap)
-, m_rippleMap(rippleMap) {
+//, m_rippleMap(rippleMap)
+{
   SFluidPlaneShaderInfo shaderInfo(type, m_patternTex1.HasReference(), m_patternTex2.HasReference(),
                                    m_colorTex.HasReference(), m_bumpMap.HasReference(), m_envMap.HasReference(),
-                                   m_envBumpMap.HasReference(), m_lightmap.HasReference(), m_rippleMap.operator bool(),
+                                   m_envBumpMap.HasReference(), m_lightmap.HasReference(), false/*m_rippleMap.operator bool()*/,
                                    doubleLightmapBlend, additive);
 //  m_pipelines = _cache.GetOrBuildShader(shaderInfo);
   PrepareBinding(maxVertCount);

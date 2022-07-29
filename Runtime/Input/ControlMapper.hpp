@@ -126,7 +126,7 @@ constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionL
   return ControlMapper::EKBMFunctionList(static_cast<T>(a) + static_cast<T>(b));
 }
 
-constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionList a, aurora::SpecialKey b) {
+constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionList a, ESpecialKey b) {
   using T = std::underlying_type_t<ControlMapper::EKBMFunctionList>;
   return ControlMapper::EKBMFunctionList(static_cast<T>(a) + static_cast<T>(b));
 }

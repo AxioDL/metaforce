@@ -29,7 +29,7 @@ CHudRadarInterface::CHudRadarInterface(CGuiFrame& baseHud, CStateManager& stateM
 void CHudRadarInterface::DoDrawRadarPaint(float radius) {
   radius *= 4.f;
 
-  CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+  CGraphics::StreamBegin(GX_TRIANGLESTRIP);
   CGraphics::StreamTexcoord(0.f, 1.f);
   CGraphics::StreamVertex(-radius, 0.f, radius);
   CGraphics::StreamTexcoord(0.f, 0.f);
@@ -124,7 +124,7 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) {
 
   g_Renderer->SetModelMatrix(drawParms.x3c_postTranslate);
   g_Renderer->SetBlendMode_AdditiveAlpha();
-  x0_txtrRadarPaint->Load(GX::TEXMAP0, EClampMode::Repeat);
+  x0_txtrRadarPaint->Load(GX_TEXMAP0, EClampMode::Repeat);
   CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
   g_Renderer->SetDepthReadWrite(false, false);
   zeus::CColor playerColor = g_tweakGuiColors->GetRadarPlayerPaintColor();

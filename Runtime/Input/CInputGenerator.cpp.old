@@ -69,7 +69,7 @@ void CInputGenerator::controllerRemoved(uint32_t which) noexcept {
   (*it) = SAuroraControllerState();
 }
 
-void CInputGenerator::controllerButton(uint32_t which, aurora::ControllerButton button, bool pressed) noexcept {
+void CInputGenerator::controllerButton(uint32_t which, EControllerButton button, bool pressed) noexcept {
   s32 player = aurora::get_controller_player_index(which);
   if (player < 0) {
     return;
@@ -77,24 +77,24 @@ void CInputGenerator::controllerButton(uint32_t which, aurora::ControllerButton 
   m_state[player].m_btns.set(size_t(button), pressed);
 }
 
-void CInputGenerator::controllerAxis(uint32_t which, aurora::ControllerAxis axis, int16_t value) noexcept {
+void CInputGenerator::controllerAxis(uint32_t which, EControllerAxis axis, int16_t value) noexcept {
   s32 player = aurora::get_controller_player_index(which);
   if (player < 0) {
     return;
   }
 
   switch (axis) {
-  case aurora::ControllerAxis::LeftY:
-  case aurora::ControllerAxis::RightY:
+  case EControllerAxis::LeftY:
+  case EControllerAxis::RightY:
     /* Value is inverted compared to what we expect on the Y axis */
     value = int16_t(-(value + 1));
     [[fallthrough]];
-  case aurora::ControllerAxis::LeftX:
-  case aurora::ControllerAxis::RightX:
+  case EControllerAxis::LeftX:
+  case EControllerAxis::RightX:
     value /= int16_t(256);
     break;
-  case aurora::ControllerAxis::TriggerLeft:
-  case aurora::ControllerAxis::TriggerRight:
+  case EControllerAxis::TriggerLeft:
+  case EControllerAxis::TriggerRight:
     value /= int16_t(128);
     break;
   default:

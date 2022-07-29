@@ -177,12 +177,12 @@ void CCubeModel::DrawNormal(TConstVectorRef positions, TConstVectorRef normals, 
   CGX::SetNumIndStages(0);
   CGX::SetNumTevStages(1);
   CGX::SetNumTexGens(1); // TODO should this be 0?
-  CGX::SetZMode(true, GX::LEQUAL, true);
-  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR_NULL);
-  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO);
-  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
-  CGX::SetBlendMode(GX::BM_BLEND, GX::BL_ZERO, GX::BL_ONE, GX::LO_CLEAR);
+  CGX::SetZMode(true, GX_LEQUAL, true);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR_NULL);
+  CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO);
+  CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
+  CGX::SetBlendMode(GX_BM_BLEND, GX_BL_ZERO, GX_BL_ONE, GX_LO_CLEAR);
   DrawFlat(positions, normals, surfaces);
 }
 
@@ -259,8 +259,8 @@ void CCubeModel::EnableShadowMaps(const CTexture& shadowTex, const zeus::CTransf
 void CCubeModel::DisableShadowMaps() { sRenderModelShadow = false; }
 
 void CCubeModel::SetArraysCurrent() {
-  CGX::SetArray(GX::VA_POS, x0_modelInstance.GetVertexPointer(), true);
-  CGX::SetArray(GX::VA_NRM, x0_modelInstance.GetNormalPointer(), true);
+  CGX::SetArray(GX_VA_POS, x0_modelInstance.GetVertexPointer(), true);
+  CGX::SetArray(GX_VA_NRM, x0_modelInstance.GetNormalPointer(), true);
   SetStaticArraysCurrent();
 }
 
@@ -280,8 +280,8 @@ void CCubeModel::SetRenderModelBlack(bool v) {
 }
 
 void CCubeModel::SetSkinningArraysCurrent(TConstVectorRef positions, TConstVectorRef normals) {
-  CGX::SetArray(GX::VA_POS, positions, false);
-  CGX::SetArray(GX::VA_NRM, normals, false);
+  CGX::SetArray(GX_VA_POS, positions, false);
+  CGX::SetArray(GX_VA_NRM, normals, false);
   // colors unused
   SetStaticArraysCurrent();
 }
@@ -294,22 +294,29 @@ void CCubeModel::SetStaticArraysCurrent() {
     sUsingPackedLightmaps = false;
   }
   if (sUsingPackedLightmaps) {
-    CGX::SetArray(GX::VA_TEX0, packedTexCoords, true);
+    CGX::SetArray(GX_VA_TEX0, packedTexCoords, true);
   } else {
-    CGX::SetArray(GX::VA_TEX0, texCoords, true);
+    CGX::SetArray(GX_VA_TEX0, texCoords, true);
   }
-  // TexCoord1 is currently used for all remaining
-  CGX::SetArray(GX::VA_TEX1, texCoords, true);
+  for (int i = GX_VA_TEX1; i <= GX_VA_TEX7; ++i) {
+    CGX::SetArray(static_cast<GXAttr>(i), texCoords, true);
+  }
   CCubeMaterial::KillCachedViewDepState();
 }
 
 void CCubeModel::SetUsingPackedLightmaps(bool v) {
   sUsingPackedLightmaps = v;
   if (v) {
-    CGX::SetArray(GX::VA_TEX0, x0_modelInstance.GetPackedTCPointer(), true);
+    CGX::SetArray(GX_VA_TEX0, x0_modelInstance.GetPackedTCPointer(), true);
   } else {
-    CGX::SetArray(GX::VA_TEX0, x0_modelInstance.GetTCPointer(), true);
+    CGX::SetArray(GX_VA_TEX0, x0_modelInstance.GetTCPointer(), true);
   }
 }
 
+template <>
+aurora::Vec2<float> cinput_stream_helper(CInputStream& in) {
+  float x = in.ReadFloat();
+  float y = in.ReadFloat();
+  return {x, y};
+}
 } // namespace metaforce

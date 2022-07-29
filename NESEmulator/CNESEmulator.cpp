@@ -604,9 +604,9 @@ void CNESEmulator::ProcessUserInput(const CFinalInput& input, int) {
 
   if (GetPasswordEntryState() != EPasswordEntryState::NotPasswordScreen) {
     // Don't swap A/B
-    inValReads[BUTTON_A] = input.DA() || input.DSpecialKey(aurora::SpecialKey::Enter) ||
+    inValReads[BUTTON_A] = input.DA() || input.DSpecialKey(ESpecialKey::Enter) ||
                            input.DMouseButton(EMouseButton::Primary);
-    inValReads[BUTTON_B] = input.DB() || input.DSpecialKey(aurora::SpecialKey::Esc);
+    inValReads[BUTTON_B] = input.DB() || input.DSpecialKey(ESpecialKey::Esc);
   } else {
     // Prime controls (B jumps, A shoots)
     inValReads[BUTTON_B] = input.DA() || input.DY() || input.DMouseButton(EMouseButton::Primary);
@@ -617,8 +617,8 @@ void CNESEmulator::ProcessUserInput(const CFinalInput& input, int) {
   inValReads[BUTTON_DOWN] = input.DDPDown() || input.DLADown();
   inValReads[BUTTON_LEFT] = input.DDPLeft() || input.DLALeft();
   inValReads[BUTTON_RIGHT] = input.DDPRight() || input.DLARight();
-  inValReads[BUTTON_SELECT] = input.DZ() || input.DSpecialKey(aurora::SpecialKey::Tab);
-  inValReads[BUTTON_START] = input.DStart() || input.DSpecialKey(aurora::SpecialKey::Esc);
+  inValReads[BUTTON_SELECT] = input.DZ() || input.DSpecialKey(ESpecialKey::Tab);
+  inValReads[BUTTON_START] = input.DStart() || input.DSpecialKey(ESpecialKey::Esc);
 }
 
 bool CNESEmulator::CheckForGameOver(const u8* vram, u8* passwordOut) {

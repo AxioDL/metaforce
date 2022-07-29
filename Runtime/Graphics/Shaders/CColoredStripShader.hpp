@@ -32,7 +32,7 @@ public:
   };
   static void Initialize();
   static void Shutdown();
-  CColoredStripShader(size_t maxVerts, Mode mode, aurora::gfx::TextureHandle tex);
+  CColoredStripShader(size_t maxVerts, Mode mode, CTexture& tex);
   void draw(const zeus::CColor& color, size_t numVerts, const Vert* verts);
 };
 

@@ -6,7 +6,7 @@
 #include <magic_enum.hpp>
 
 namespace metaforce {
-static std::array<CTexture*, GX::MAX_TEXMAP> sLoadedTextures{};
+static std::array<CTexture*, GX_MAX_TEXMAP> sLoadedTextures{};
 
 CTexture::CTexture(ETexelFormat fmt, u16 w, u16 h, s32 mips, std::string_view label)
 : x0_fmt(fmt)
@@ -21,7 +21,7 @@ CTexture::CTexture(ETexelFormat fmt, u16 w, u16 h, s32 mips, std::string_view la
 }
 
 CTexture::CTexture(CInputStream& in, std::string_view label, EAutoMipmap automip, EBlackKey blackKey)
-: x0_fmt(ETexelFormat(in.ReadLong()))
+: x0_fmt(static_cast<ETexelFormat>(in.ReadLong()))
 , x4_w(in.ReadShort())
 , x6_h(in.ReadShort())
 , x8_mips(in.ReadLong())
@@ -64,6 +64,8 @@ CTexture::CTexture(CInputStream& in, std::string_view label, EAutoMipmap automip
   InitTextureObjs();
 }
 
+CTexture::~CTexture() { GXDestroyTexObj(&x20_texObj); }
+
 u8* CTexture::Lock() {
   xa_24_locked = true;
   return GetBitMapData(0);
@@ -78,7 +80,7 @@ void CTexture::UnLock() {
   m_needsTexObjDataLoad = true;
 }
 
-void CTexture::Load(GX::TexMapID id, EClampMode clamp) {
+void CTexture::Load(GXTexMapID id, EClampMode clamp) {
   if (sLoadedTextures[id] != this || xa_29_canLoadObj) {
     auto* data = /*x44_aramToken.GetMRAMSafe() */ x44_aramToken_x4_buff.get();
     CountMemory();
@@ -104,7 +106,7 @@ void CTexture::Load(GX::TexMapID id, EClampMode clamp) {
   }
 }
 
-void CTexture::LoadMipLevel(float lod, GX::TexMapID id, EClampMode clamp) {
+void CTexture::LoadMipLevel(float lod, GXTexMapID id, EClampMode clamp) {
   // auto image_ptr = /*x44_aramToken.GetMRAMSafe() */ x44_aramToken_x4_buff.get();
   // u32 width = x4_w;
   // u32 height = x6_h;
@@ -154,16 +156,16 @@ u8* CTexture::GetBitMapData(s32 mip) const { return const_cast<u8*>(GetConstBitM
 void CTexture::InitBitmapBuffers(ETexelFormat fmt, u16 width, u16 height, s32 mips) {
   switch (fmt) {
   case ETexelFormat::I4:
-    x18_gxFormat = GX::TF_I4;
+    x18_gxFormat = GX_TF_I4;
     break;
   case ETexelFormat::I8:
-    x18_gxFormat = GX::TF_I8;
+    x18_gxFormat = GX_TF_I8;
     break;
   case ETexelFormat::IA4:
-    x18_gxFormat = GX::TF_IA4;
+    x18_gxFormat = GX_TF_IA4;
     break;
   case ETexelFormat::IA8:
-    x18_gxFormat = GX::TF_IA8;
+    x18_gxFormat = GX_TF_IA8;
     break;
   case ETexelFormat::C4:
     x1c_gxCIFormat = GX_TF_C4;
@@ -175,16 +177,23 @@ void CTexture::InitBitmapBuffers(ETexelFormat fmt, u16 width, u16 height, s32 mi
     x1c_gxCIFormat = GX_TF_C14X2;
     break;
   case ETexelFormat::RGB565:
-    x18_gxFormat = GX::TF_RGB565;
+    x18_gxFormat = GX_TF_RGB565;
     break;
   case ETexelFormat::RGB5A3:
-    x18_gxFormat = GX::TF_RGB5A3;
+    x18_gxFormat = GX_TF_RGB5A3;
     break;
   case ETexelFormat::RGBA8:
-    x18_gxFormat = GX::TF_RGBA8;
+    x18_gxFormat = GX_TF_RGBA8;
     break;
   case ETexelFormat::CMPR:
-    x18_gxFormat = GX::TF_CMPR;
+    x18_gxFormat = GX_TF_CMPR;
+    break;
+  // Metaforce additions
+  case ETexelFormat::R8PC:
+    x18_gxFormat = GX_TF_R8_PC;
+    break;
+  case ETexelFormat::RGBA8PC:
+    x18_gxFormat = GX_TF_RGBA8_PC;
     break;
   default:
     break;
@@ -192,7 +201,7 @@ void CTexture::InitBitmapBuffers(ETexelFormat fmt, u16 width, u16 height, s32 mi
 
   u32 format = (x0_fmt == ETexelFormat::C4 || x0_fmt == ETexelFormat::C8 || x0_fmt == ETexelFormat::C14X2)
                    ? u32(x1c_gxCIFormat)
-                   : u32(x18_gxFormat);
+                   : x18_gxFormat;
   xc_memoryAllocated = GXGetTexBufferSize(width, height, format, mips > 1, mips > 1 ? 11 : 0);
   x44_aramToken_x4_buff = std::make_unique<u8[]>(xc_memoryAllocated);
   /*x44_aramToken.PostConstruct(buf, xc_memoryAllocated, 1);*/
@@ -268,8 +277,7 @@ bool CTexture::sMangleMips = false;
 u32 CTexture::sCurrentFrameCount = 0;
 u32 CTexture::sTotalAllocatedMemory = 0;
 
-void CTexture::InvalidateTexMap(GX::TexMapID id) {
-  // TODO: can we unbind in GX?
+void CTexture::InvalidateTexMap(GXTexMapID id) {
   sLoadedTextures[id] = nullptr;
 }
 

@@ -125,7 +125,7 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
       if (input.ControllerIdx() == 0) {
         const CEntity* cam = x14_stateManager->GetCameraManager()->GetCurrentCamera(*x14_stateManager);
         TCastToConstPtr<CCinematicCamera> cineCam = cam;
-        if (input.PStart() || input.PSpecialKey(aurora::SpecialKey::Esc)) {
+        if (input.PStart() || input.PSpecialKey(ESpecialKey::Esc)) {
           if (cineCam && x14_stateManager->GetSkipCinematicSpecialFunction() != kInvalidUniqueId) {
             CMidiManager::StopAll();
             x28_skippedCineCam = cineCam->GetUniqueId();
@@ -134,7 +134,7 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
           } else if (!cineCam) {
             x14_stateManager->DeferStateTransition(EStateManagerTransition::PauseGame);
           }
-        } else if ((input.PZ() || input.PSpecialKey(aurora::SpecialKey::Tab)) && !cineCam &&
+        } else if ((input.PZ() || input.PSpecialKey(ESpecialKey::Tab)) && !cineCam &&
                    x14_stateManager->CanShowMapScreen()) {
           x14_stateManager->DeferStateTransition(EStateManagerTransition::MapScreen);
         }

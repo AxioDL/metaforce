@@ -99,7 +99,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
                                   ERglLogicOp::Clear);
           CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::skPassThru);
           CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
-          CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+          CGraphics::StreamBegin(GX_TRIANGLESTRIP);
           CGraphics::StreamColor(1.f, 1.f, 1.f, 0.25f);
           CGraphics::StreamVertex(-extent, 0.f, extent);
           CGraphics::StreamVertex(extent, 0.f, extent);

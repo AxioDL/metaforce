@@ -26,7 +26,7 @@ public:
   static void Initialize();
   static void Shutdown();
   static void BuildShaderDataBinding(CLineRenderer& renderer,
-                                     const aurora::gfx::TextureHandle& texture, bool additive, bool zTest,
+                                     CTexture& texture, bool additive, bool zTest,
                                      bool zGEqual);
 };
 

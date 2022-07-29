@@ -42,18 +42,12 @@
 	path = extern/zeus
 	url = ../zeus.git
 	branch = master
-[submodule "extern/imgui"]
-	path = extern/imgui
-	url = https://github.com/ocornut/imgui.git
-[submodule "extern/SDL"]
-	path = extern/SDL
-	url = https://github.com/libsdl-org/SDL.git
-[submodule "extern/dawn"]
-	path = extern/dawn
-	url = https://github.com/encounter/dawn-cmake.git
 [submodule "extern/nativefiledialog"]
 	path = extern/nativefiledialog
 	url = https://github.com/mlabbe/nativefiledialog.git
 [submodule "extern/optick"]
 	path = extern/optick
 	url = https://github.com/AxioDL/optick.git
+[submodule "extern/aurora"]
+	path = extern/aurora
+	url = https://github.com/encounter/aurora.git

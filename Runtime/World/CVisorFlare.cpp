@@ -128,7 +128,7 @@ void CVisorFlare::Render(const zeus::CVector3f& pos, const CStateManager& mgr) c
         }
       }
       if (item.GetTexture()) {
-        item.GetTexture()->Load(GX::TEXMAP0, EClampMode::Repeat);
+        item.GetTexture()->Load(GX_TEXMAP0, EClampMode::Repeat);
         float f1;
         if (zeus::close_enough(acos, 0.f)) {
           f1 = 0.f;
@@ -149,31 +149,31 @@ void CVisorFlare::Render(const zeus::CVector3f& pos, const CStateManager& mgr) c
 
 void CVisorFlare::SetupRenderState(const CStateManager& mgr) const {
   if (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot) {
-    CGX::SetBlendMode(GX::BM_BLEND, GX::BL_ONE, GX::BL_ONE, GX::LO_CLEAR);
-    CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
-    CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
-    CGX::SetAlphaCompare(GX::ALWAYS, 0, GX::AOP_OR, GX::ALWAYS, 0);
-    GXSetTevSwapMode(GX::TEVSTAGE0, GX::TEV_SWAP0, GX::TEV_SWAP1);
-    CGX::SetTevKColorSel(GX::TEVSTAGE0, GX::TEV_KCSEL_K0_A);
-    CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_K0_A);
-    CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_TEXC, GX::CC_KONST, GX::CC_ZERO);
-    CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_TEXA, GX::CA_KONST, GX::CA_ZERO);
+    CGX::SetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ONE, GX_LO_CLEAR);
+    CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
+    CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+    CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
+    GXSetTevSwapMode(GX_TEVSTAGE0, GX_TEV_SWAP0, GX_TEV_SWAP1);
+    CGX::SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K0_A);
+    CGX::SetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_K0_A);
+    CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, GX_CC_ZERO);
+    CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_KONST, GX_CA_ZERO);
     CGX::SetNumTexGens(1);
     CGX::SetNumChans(0);
-    CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
+    CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
     if (x0_blendMode == EBlendMode::Blend) {
-      CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE1);
-      CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
-      CGX::SetTevColorIn(GX::TEVSTAGE1, GX::CC_ZERO, GX::CC_TEXA, GX::CC_CPREV, GX::CC_ZERO);
-      CGX::SetTevAlphaIn(GX::TEVSTAGE1, GX::CA_ZERO, GX::CA_TEXA, GX::CA_APREV, GX::CA_ZERO);
+      CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE1);
+      CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+      CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_TEXA, GX_CC_CPREV, GX_CC_ZERO);
+      CGX::SetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_TEXA, GX_CA_APREV, GX_CA_ZERO);
       CGX::SetNumTevStages(2);
     } else if (x0_blendMode == EBlendMode::Additive) {
       CGX::SetNumTevStages(1);
     }
     constexpr std::array vtxDescList{
-        GX::VtxDescList{GX::VA_POS, GX::DIRECT},
-        GX::VtxDescList{GX::VA_TEX0, GX::DIRECT},
-        GX::VtxDescList{},
+        GXVtxDescList{GX_VA_POS, GX_DIRECT},
+        GXVtxDescList{GX_VA_TEX0, GX_DIRECT},
+        GXVtxDescList{GX_VA_NULL, GX_NONE},
     };
     CGX::SetVtxDescv(vtxDescList.data());
   } else {
@@ -189,15 +189,15 @@ void CVisorFlare::SetupRenderState(const CStateManager& mgr) const {
 
 void CVisorFlare::ResetTevSwapMode(const CStateManager& mgr) const {
   if (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot) {
-    GXSetTevSwapMode(GX::TEVSTAGE0, GX::TEV_SWAP0, GX::TEV_SWAP0);
+    GXSetTevSwapMode(GX_TEVSTAGE0, GX_TEV_SWAP0, GX_TEV_SWAP0);
   }
 }
 
 void CVisorFlare::DrawDirect(const zeus::CColor& color, float f1, float f2) const {
   zeus::CColor kcolor = color;
-  kcolor.a() *= x24_;
-  CGX::SetTevKColor(GX::KCOLOR0, kcolor);
-  CGX::Begin(GX::TRIANGLESTRIP, GX::VTXFMT0, 4);
+  kcolor.a() *= x24_; // TODO i think this is wrong
+  CGX::SetTevKColor(GX_KCOLOR0, kcolor);
+  CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
   GXPosition3f32(f1 - f2, 0.f, f2 + f1);
   GXTexCoord2f32(0.f, 1.f);
   GXPosition3f32(f2 + f1, 0.f, f2 - f1);
@@ -210,7 +210,7 @@ void CVisorFlare::DrawDirect(const zeus::CColor& color, float f1, float f2) cons
 }
 
 void CVisorFlare::DrawStreamed(const zeus::CColor& color, float f1, float f2) const {
-  CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+  CGraphics::StreamBegin(GX_TRIANGLESTRIP);
   zeus::CColor kcolor = color;
   kcolor.a() *= x24_;
   CGraphics::StreamColor(kcolor);

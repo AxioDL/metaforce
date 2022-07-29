@@ -72,13 +72,13 @@ void CSplashScreen::Draw() {
   auto& tex = *x28_texture.GetObj();
   const auto width = tex.GetWidth();
   const auto height = tex.GetHeight();
-  tex.Load(GX::TEXMAP0, EClampMode::Clamp);
+  tex.Load(GX_TEXMAP0, EClampMode::Clamp);
   if (x14_which == ESplashScreen::Nintendo || x14_which == ESplashScreen::Retro) {
     const auto x = static_cast<float>(133 - (width - 376) / 2);
     const auto y = static_cast<float>(170 - (height - 104) / 2);
     CGraphics::SetOrtho(-10.f, 650.f, -5.5f, 484.5f, -1.f, 1.f);
     CGraphics::SetCullMode(ERglCullMode::None);
-    CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+    CGraphics::StreamBegin(GX_TRIANGLESTRIP);
     CGraphics::StreamColor(color);
     CGraphics::StreamTexcoord(0.f, 0.f);
     CGraphics::StreamVertex({x, 0.f, y + static_cast<float>(height)});

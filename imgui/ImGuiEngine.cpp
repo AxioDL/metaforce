@@ -1,6 +1,6 @@
 #include "ImGuiEngine.hpp"
 
-#include <aurora/imgui.hpp>
+#include <aurora/imgui.h>
 
 #include "Runtime/Streams/CMemoryInStream.hpp"
 #include "Runtime/Streams/CZipInputStream.hpp"
@@ -150,6 +150,6 @@ Icon GetIcon() {
 
 void ImGuiEngine_AddTextures() {
   auto icon = GetIcon();
-  ImGuiEngine::metaforceIcon = aurora::imgui::add_texture(icon.width, icon.height, {icon.data.get(), icon.size});
+  ImGuiEngine::metaforceIcon = aurora_imgui_add_texture(icon.width, icon.height, icon.data.get());
 }
 } // namespace metaforce

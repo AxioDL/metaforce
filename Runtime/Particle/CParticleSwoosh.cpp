@@ -306,10 +306,10 @@ int CParticleSwoosh::WrapIndex(int i) const {
 
 void CParticleSwoosh::RenderNSidedSpline() {
   if (x1c_desc->x44_29_WIRE) {
-    x1bc_prim = GX::LINES;
+    x1bc_prim = GX_LINES;
     m_lineRenderer->Reset();
   } else {
-    x1bc_prim = GX::QUADS;
+    x1bc_prim = GX_QUADS;
   }
 
   bool cros = x1c_desc->x44_25_CROS;
@@ -444,7 +444,7 @@ void CParticleSwoosh::RenderNSidedSpline() {
           const auto v2 = GetSplinePoint(x16c_p0[otherK], x17c_p1[otherK], x18c_p2[otherK], x19c_p3[otherK], t1);
           const auto v3 = GetSplinePoint(x16c_p0[k], x17c_p1[k], x18c_p2[k], x19c_p3[k], t1);
 
-          if (x1bc_prim == GX::LINES) {
+          if (x1bc_prim == GX_LINES) {
             m_lineRenderer->AddVertex(v0, color, 1.f);
             m_lineRenderer->AddVertex(v1, color, 1.f);
             m_lineRenderer->AddVertex(v1, color, 1.f);
@@ -457,7 +457,7 @@ void CParticleSwoosh::RenderNSidedSpline() {
             m_lineRenderer->AddVertex(v3, color, 1.f);
             m_lineRenderer->AddVertex(v3, color, 1.f);
             m_lineRenderer->AddVertex(v0, color, 1.f);
-          } else if (x1bc_prim == GX::QUADS) {
+          } else if (x1bc_prim == GX_QUADS) {
             m_cachedVerts.push_back({v0, {x1d4_uvs.xMin, x1d4_uvs.yMin}, color});
             m_cachedVerts.push_back({v1, {x1d4_uvs.xMin, x1d4_uvs.yMax}, color});
             m_cachedVerts.push_back({v2, {x1d4_uvs.xMax, x1d4_uvs.yMin}, color});
@@ -478,7 +478,7 @@ void CParticleSwoosh::RenderNSidedSpline() {
     }
   }
 
-  if (x1bc_prim == GX::LINES) {
+  if (x1bc_prim == GX_LINES) {
     // m_lineRenderer->Render(g_Renderer->IsThermalVisorHotPass());
   }
 }

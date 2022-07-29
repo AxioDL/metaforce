@@ -91,7 +91,7 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
   u32 numFloatUVs = CBasics::SwapBytes(*secSizeCur) / 8;
   auto floatUVs = StreamFromPartData(dataCur, secSizeCur);
   for (u32 i = 0; i < numFloatUVs; ++i) {
-    m_floatUVs.emplace_back(floatUVs.Get<zeus::CVector2f>());
+    m_floatUVs.emplace_back(floatUVs.Get<aurora::Vec2<float>>());
   }
 
   if ((flags & 4) != 0) {

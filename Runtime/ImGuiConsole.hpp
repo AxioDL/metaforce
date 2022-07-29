@@ -116,8 +116,12 @@ private:
   bool m_drawLighting = m_cvarCommons.m_debugToolDrawLighting->toBoolean();
 #if TARGET_OS_IOS
   bool m_pipelineInfo = false;
+  bool m_drawCallInfo = false;
+  bool m_bufferInfo = false;
 #else
   bool m_pipelineInfo = true; // TODO cvar
+  bool m_drawCallInfo = true; // TODO cvar
+  bool m_bufferInfo = true; // TODO cvar
 #endif
   bool m_developer = m_cvarMgr.findCVar("developer")->toBoolean();
   bool m_cheats = m_cvarMgr.findCVar("cheats")->toBoolean();

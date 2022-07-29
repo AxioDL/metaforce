@@ -446,7 +446,7 @@ void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category, in
   if (options.second[option].option != EGameOption::RestoreDefaults)
     return;
 
-  if (!forceRestore && !input.PA() && !input.PSpecialKey(aurora::SpecialKey::Enter))
+  if (!forceRestore && !input.PA() && !input.PSpecialKey(ESpecialKey::Enter))
     return;
 
   if (frontend) {

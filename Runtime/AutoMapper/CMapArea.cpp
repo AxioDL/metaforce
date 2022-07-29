@@ -197,10 +197,10 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
     CMemoryInStream r(x18_surfOffset, INT_MAX, CMemoryInStream::EOwnerShip::NotOwned);
     u32 primCount = r.ReadLong();
     for (u32 i = 0; i < primCount; ++i) {
-      GX::Primitive prim = GX::Primitive(r.ReadLong());
+      GXPrimitive prim = GXPrimitive(r.ReadLong());
       u32 count = r.ReadLong();
       switch (prim) {
-      case GX::Primitive::TRIANGLES: {
+      case GX_TRIANGLES: {
         for (u32 v = 0; v < count; v += 3) {
           if (!start) {
             index.push_back(index.back());
@@ -216,7 +216,7 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
         }
         break;
       }
-      case GX::Primitive::TRIANGLESTRIP: {
+      case GX_TRIANGLESTRIP: {
         if (!start) {
           index.push_back(index.back());
           index.push_back(r.ReadUint8());
@@ -231,7 +231,7 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
           index.push_back(index.back());
         break;
       }
-      case GX::Primitive::TRIANGLEFAN: {
+      case GX_TRIANGLEFAN: {
         u8 firstVert = r.ReadUint8();
         if (!start) {
           index.push_back(index.back());

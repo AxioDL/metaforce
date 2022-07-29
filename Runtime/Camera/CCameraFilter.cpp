@@ -112,7 +112,7 @@ void CCameraFilterPass::DrawFilter(EFilterType type, EFilterShape shape, const z
     g_Renderer->SetBlendMode_AdditiveAlpha();
     break;
   case EFilterType::Subtract:
-    CGX::SetBlendMode(GX::BM_SUBTRACT, GX::BL_ONE, GX::BL_ONE, GX::LO_CLEAR);
+    CGX::SetBlendMode(GX_BM_SUBTRACT, GX_BL_ONE, GX_BL_ONE, GX_LO_CLEAR);
     break;
   case EFilterType::Blend:
     g_Renderer->SetBlendMode_AlphaBlended();
@@ -186,12 +186,12 @@ void CCameraFilterPass::DrawFullScreenTexturedQuadQuarters(const zeus::CColor& c
   CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
   g_Renderer->SetDepthReadWrite(false, false);
   if (tex != nullptr) {
-    tex->Load(GX::TEXMAP0, EClampMode::Repeat);
+    tex->Load(GX_TEXMAP0, EClampMode::Repeat);
   }
   CGraphics::SetCullMode(ERglCullMode::None);
   for (int i = 0; i < 4; ++i) {
     g_Renderer->SetModelMatrix(zeus::CTransform::Scale((i & 1) != 0 ? 1.f : -1.f, 0.f, (i & 2) != 0 ? 1.f : -1.f));
-    CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+    CGraphics::StreamBegin(GX_TRIANGLESTRIP);
     CGraphics::StreamColor(color);
     CGraphics::StreamTexcoord(lod, lod);
     CGraphics::StreamVertex(lt.x(), 0.f, rb.y());
@@ -213,11 +213,11 @@ void CCameraFilterPass::DrawFullScreenTexturedQuad(const zeus::CColor& color, CT
   const auto [lt, rb] = g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
   g_Renderer->SetDepthReadWrite(false, false);
   if (tex != nullptr) {
-    tex->Load(GX::TEXMAP0, EClampMode::Repeat);
+    tex->Load(GX_TEXMAP0, EClampMode::Repeat);
   }
   CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
   CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
-  CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+  CGraphics::StreamBegin(GX_TRIANGLESTRIP);
   CGraphics::StreamColor(color);
   CGraphics::StreamTexcoord(u, v);
   CGraphics::StreamVertex(lt.x() - 1.f, 0.f, 1.f + rb.y());
@@ -253,9 +253,9 @@ void CCameraFilterPass::DrawRandomStatic(const zeus::CColor& color, float alpha,
   u8* out = m_randomStatic.Lock();
   memcpy(out, buf + ROUND_UP_32(rand() & 0x7fff), m_randomStatic.GetMemoryAllocated());
   m_randomStatic.UnLock();
-  m_randomStatic.Load(GX::TEXMAP0, EClampMode::Clamp);
+  m_randomStatic.Load(GX_TEXMAP0, EClampMode::Clamp);
 
-  CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+  CGraphics::StreamBegin(GX_TRIANGLESTRIP);
   CGraphics::StreamColor(color);
   CGraphics::StreamTexcoord(0.f, 1.f);
   CGraphics::StreamVertex(lb.x() - 1.f, 0.01f, rt.y() + 1.f);
@@ -289,11 +289,11 @@ void CCameraFilterPass::DrawWideScreen(const zeus::CColor& color, CTexture* tex,
   //  g_Renderer->SetDepthReadWrite(false, false);
   //  g_Renderer->SetModelMatrix({});
   //  if (tex != nullptr) {
-  //    tex->Load(GX::TEXMAP0, EClampMode::Repeat);
+  //    tex->Load(GX_TEXMAP0, EClampMode::Repeat);
   //  }
   //  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
   //  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
-  //  CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+  //  CGraphics::StreamBegin(GX_TRIANGLESTRIP);
   //  float x = rand() % 4000;
 }
 

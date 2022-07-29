@@ -51,7 +51,7 @@ public:
 //  hecl::UniformBufferPool<SDrawUniform>::Token m_uniformBuf;
 //  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_shaderBind;
 
-  CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const aurora::gfx::TextureHandle& texture, bool additive,
+  CLineRenderer(EPrimitiveMode mode, u32 maxVerts, u32 texture, bool additive,
                 bool zTest = false, bool zGEqual = false);
   CLineRenderer(CLineRenderer&&) = default;
 

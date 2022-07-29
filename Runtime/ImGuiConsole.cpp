@@ -1,3 +1,10 @@
+#include <zeus/CVector2f.hpp>
+#define IM_VEC2_CLASS_EXTRA                                                                                            \
+  ImVec2(const zeus::CVector2f& v) {                                                                                   \
+    x = v.x();                                                                                                         \
+    y = v.y();                                                                                                         \
+  }                                                                                                                    \
+  operator zeus::CVector2f() const { return zeus::CVector2f{x, y}; }
 #include "ImGuiConsole.hpp"
 
 #include "../version.h"
@@ -26,6 +33,8 @@ namespace aurora::gfx {
 extern std::atomic_uint32_t queuedPipelines;
 extern std::atomic_uint32_t createdPipelines;
 
+extern size_t g_drawCallCount;
+extern size_t g_mergedDrawCallCount;
 extern size_t g_lastVertSize;
 extern size_t g_lastUniformSize;
 extern size_t g_lastIndexSize;
@@ -138,6 +147,8 @@ static void Warp(const CAssetId worldId, TAreaId aId) {
     // TODO(encounter): warp from menu?
   }
 }
+
+static inline float GetScale() { return ImGui::GetIO().DisplayFramebufferScale.x; }
 
 void ImGuiConsole::ShowMenuGame() {
   if (g_Main != nullptr) {
@@ -273,7 +284,7 @@ static void RenderEntityColumns(const ImGuiEntityEntry& entry) {
 }
 
 void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
-  float initialWindowSize = 400.f * aurora::get_window_size().scale;
+  float initialWindowSize = 400.f * GetScale();
   ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize * 1.5f}, ImGuiCond_FirstUseEver);
 
   if (ImGui::Begin("Inspect", isOpen)) {
@@ -393,7 +404,7 @@ bool ImGuiConsole::ShowEntityInfoWindow(TUniqueId uid) {
 
 void ImGuiConsole::ShowConsoleVariablesWindow() {
   // For some reason the window shows up tiny without this
-  float initialWindowSize = 350.f * aurora::get_window_size().scale;
+  float initialWindowSize = 350.f * GetScale();
   ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize}, ImGuiCond_FirstUseEver);
   if (ImGui::Begin("Console Variables", &m_showConsoleVariablesWindow)) {
     if (ImGui::Button("Clear")) {
@@ -663,7 +674,7 @@ void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
     open = &m_showAboutWindow;
   }
   if (ImGui::Begin("About", open, flags)) {
-    float iconSize = 128.f * aurora::get_window_size().scale;
+    float iconSize = 128.f * GetScale();
     ImGui::SameLine(ImGui::GetWindowSize().x / 2 - iconSize + (iconSize / 2));
     ImGui::Image(ImGuiEngine::metaforceIcon, ImVec2{iconSize, iconSize});
     ImGui::PushFont(ImGuiEngine::fontLarge);
@@ -794,7 +805,7 @@ static std::string BytesToString(size_t bytes) {
 
 void ImGuiConsole::ShowDebugOverlay() {
   if (!m_frameCounter && !m_frameRate && !m_inGameTime && !m_roomTimer && !m_playerInfo && !m_areaInfo &&
-      !m_worldInfo && !m_randomStats && !m_resourceStats && !m_pipelineInfo) {
+      !m_worldInfo && !m_randomStats && !m_resourceStats && !m_pipelineInfo && !m_drawCallInfo && !m_bufferInfo) {
     return;
   }
   ImGuiIO& io = ImGui::GetIO();
@@ -957,17 +968,33 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      ImGuiStringViewText(fmt::format(FMT_STRING("Queued pipelines: {}\n"), aurora::gfx::queuedPipelines));
-      ImGuiStringViewText(fmt::format(FMT_STRING("Done pipelines:   {}\n"), aurora::gfx::createdPipelines));
+      ImGuiStringViewText(fmt::format(FMT_STRING("Queued pipelines:  {}\n"), aurora::gfx::queuedPipelines));
+      ImGuiStringViewText(fmt::format(FMT_STRING("Done pipelines:    {}\n"), aurora::gfx::createdPipelines));
+    }
+    if (m_drawCallInfo && m_developer) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      hasPrevious = true;
+
+      ImGuiStringViewText(fmt::format(FMT_STRING("Draw call count:   {}\n"), aurora::gfx::g_drawCallCount));
+      ImGuiStringViewText(fmt::format(FMT_STRING("Merged draw calls: {}\n"), aurora::gfx::g_mergedDrawCallCount));
+    }
+    if (m_bufferInfo && m_developer) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      hasPrevious = true;
+
       ImGuiStringViewText(
-          fmt::format(FMT_STRING("Vertex size:      {}\n"), BytesToString(aurora::gfx::g_lastVertSize)));
+          fmt::format(FMT_STRING("Vertex size:       {}\n"), BytesToString(aurora::gfx::g_lastVertSize)));
       ImGuiStringViewText(
-          fmt::format(FMT_STRING("Uniform size:     {}\n"), BytesToString(aurora::gfx::g_lastUniformSize)));
+          fmt::format(FMT_STRING("Uniform size:      {}\n"), BytesToString(aurora::gfx::g_lastUniformSize)));
       ImGuiStringViewText(
-          fmt::format(FMT_STRING("Index size:       {}\n"), BytesToString(aurora::gfx::g_lastIndexSize)));
+          fmt::format(FMT_STRING("Index size:        {}\n"), BytesToString(aurora::gfx::g_lastIndexSize)));
       ImGuiStringViewText(
-          fmt::format(FMT_STRING("Storage size:     {}\n"), BytesToString(aurora::gfx::g_lastStorageSize)));
-      ImGuiStringViewText(fmt::format(FMT_STRING("Total:            {}\n"),
+          fmt::format(FMT_STRING("Storage size:      {}\n"), BytesToString(aurora::gfx::g_lastStorageSize)));
+      ImGuiStringViewText(fmt::format(FMT_STRING("Total:             {}\n"),
                                       BytesToString(aurora::gfx::g_lastVertSize + aurora::gfx::g_lastUniformSize +
                                                     aurora::gfx::g_lastIndexSize + aurora::gfx::g_lastStorageSize)));
     }
@@ -993,10 +1020,13 @@ void ImGuiConsole::ShowInputViewer() {
     return;
   }
 
-  u32 thisWhich = aurora::get_which_controller_for_player(input.ControllerIdx());
+  u32 thisWhich = input.ControllerIdx();
   if (m_whichController != thisWhich) {
-    m_controllerName = static_cast<std::string>(aurora::get_controller_name(thisWhich));
-    m_whichController = thisWhich;
+    const char* name = PADGetName(thisWhich);
+    if (name != nullptr) {
+      m_controllerName = name;
+      m_whichController = thisWhich;
+    }
   }
 
   // Code -stolen- borrowed from Practice Mod
@@ -1009,7 +1039,7 @@ void ImGuiConsole::ShowInputViewer() {
   }
   ImGui::SetNextWindowBgAlpha(0.65f);
   if (ImGui::Begin("Input Overlay", nullptr, windowFlags)) {
-    float scale = aurora::get_window_size().scale;
+    float scale = GetScale();
     if (!m_controllerName.empty()) {
       TextCenter(m_controllerName);
       ImGui::Separator();
@@ -1614,7 +1644,7 @@ void ImGuiConsole::ShowItemsWindow() {
 
 void ImGuiConsole::ShowLayersWindow() {
   // For some reason the window shows up tiny without this
-  float initialWindowSize = 350.f * aurora::get_window_size().scale;
+  float initialWindowSize = 350.f * GetScale();
   ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize}, ImGuiCond_FirstUseEver);
 
   if (ImGui::Begin("Layers", &m_showLayersWindow)) {
@@ -1856,26 +1886,28 @@ void ImGuiConsole::ShowPreLaunchSettingsWindow() {
   if (ImGui::Begin("Settings", &m_showPreLaunchSettingsWindow, ImGuiWindowFlags_AlwaysAutoResize)) {
     if (ImGui::BeginTabBar("Settings")) {
       if (ImGui::BeginTabItem("Graphics")) {
-        static auto AvailableBackends = aurora::get_available_backends();
-        ImGuiStringViewText(fmt::format(FMT_STRING("Current backend: {}"), aurora::get_backend_string()));
-        auto desiredBackend = static_cast<int>(aurora::Backend::Invalid);
-        if (auto* cvar = m_cvarMgr.findCVar("graphicsApi")) {
-          bool valid = false;
-          const auto name = cvar->toLiteral(&valid);
-          if (valid) {
-            desiredBackend = static_cast<int>(aurora::backend_from_string(name));
-          }
-        }
-        bool modified = false;
-        modified = ImGui::RadioButton("Auto", &desiredBackend, static_cast<int>(aurora::Backend::Invalid));
-        for (const auto& item : AvailableBackends) {
-          modified = ImGui::RadioButton(magic_enum::enum_name(item).data(), &desiredBackend, static_cast<int>(item)) ||
-                     modified;
-        }
-        if (modified) {
-          m_cvarCommons.m_graphicsApi->fromLiteral(
-              aurora::backend_to_string(static_cast<aurora::Backend>(desiredBackend)));
-        }
+        // TODO
+        //        static auto AvailableBackends = aurora::get_available_backends();
+        //        ImGuiStringViewText(fmt::format(FMT_STRING("Current backend: {}"), aurora::get_backend_string()));
+        //        auto desiredBackend = static_cast<int>(aurora::Backend::Invalid);
+        //        if (auto* cvar = m_cvarMgr.findCVar("graphicsApi")) {
+        //          bool valid = false;
+        //          const auto name = cvar->toLiteral(&valid);
+        //          if (valid) {
+        //            desiredBackend = static_cast<int>(aurora::backend_from_string(name));
+        //          }
+        //        }
+        //        bool modified = false;
+        //        modified = ImGui::RadioButton("Auto", &desiredBackend, static_cast<int>(aurora::Backend::Invalid));
+        //        for (const auto& item : AvailableBackends) {
+        //          modified = ImGui::RadioButton(magic_enum::enum_name(item).data(), &desiredBackend,
+        //          static_cast<int>(item)) ||
+        //                     modified;
+        //        }
+        //        if (modified) {
+        //          m_cvarCommons.m_graphicsApi->fromLiteral(
+        //              aurora::backend_to_string(static_cast<aurora::Backend>(desiredBackend)));
+        //        }
         ImGuiCVarCheckbox(m_cvarMgr, "fullscreen", "Fullscreen");
         ImGui::EndTabItem();
       }

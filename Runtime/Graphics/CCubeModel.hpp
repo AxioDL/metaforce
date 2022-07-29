@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <aurora/math.hpp>
 
 #include "CStopwatch.hpp"
 #include "CToken.hpp"
@@ -138,4 +139,7 @@ private:
   static GX::LightMask sChannel0DisableLightMask;
   static GX::LightMask sChannel1EnableLightMask;
 };
+
+template <>
+aurora::Vec2<float> cinput_stream_helper(CInputStream& in);
 } // namespace metaforce

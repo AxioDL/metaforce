@@ -1386,7 +1386,7 @@ void CThardus::RenderFlare(const CStateManager& mgr, float t) {
   if (!x91c_flareTexture) {
     return;
   }
-  x91c_flareTexture->Load(GX::TEXMAP0, EClampMode::Repeat);
+  x91c_flareTexture->Load(GX_TEXMAP0, EClampMode::Repeat);
 
   const float scale = 30.f * t;
   zeus::CVector3f offset = scale * CGraphics::g_ViewMatrix.basis[2];
@@ -1398,7 +1398,7 @@ void CThardus::RenderFlare(const CStateManager& mgr, float t) {
   CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
   CGraphics::SetDepthWriteMode(false, ERglEnum::Always, false);
   CGraphics::StreamColor({t, t});
-  CGraphics::StreamBegin(GX::TRIANGLEFAN);
+  CGraphics::StreamBegin(GX_TRIANGLEFAN);
   CGraphics::StreamTexcoord(0.f, 0.f);
   CGraphics::StreamVertex(min + offset);
   CGraphics::StreamTexcoord(1.f, 0.f);

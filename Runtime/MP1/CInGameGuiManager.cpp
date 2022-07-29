@@ -596,7 +596,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
       float xT = 1.f - zeus::clamp(0.f, (stateMgr.GetPlayer().GetDeathTime() - xStart) / 0.5f, 1.f);
       float colT = 1.f - zeus::clamp(0.f, (stateMgr.GetPlayer().GetDeathTime() - colStart) / 0.5f, 1.f);
       SClipScreenRect rect(CGraphics::g_Viewport);
-      CGraphics::ResolveSpareTexture(rect, 0, GX::TF_RGB565);
+      CGraphics::ResolveSpareTexture(rect, 0, GX_TF_RGB565);
       CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, zeus::skBlack, nullptr, 1.f);
       float z = 0.5f * (zT * zT * zT * zT * zT * (CGraphics::GetViewportHeight() - 12.f) + 12.f);
       float x = 0.5f * (xT * (CGraphics::GetViewportWidth() - 12.f) + 12.f);

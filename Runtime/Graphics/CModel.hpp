@@ -9,6 +9,7 @@
 #include "Graphics/CCubeSurface.hpp"
 #include "Graphics/CTexture.hpp"
 #include "IObjectStore.hpp"
+#include "Flags.hpp"
 
 namespace metaforce {
 class CCubeMaterial;

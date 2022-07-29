@@ -27,8 +27,8 @@ public:
     struct Instance {
       CMapSurfaceShader m_surfacePrims;
       std::vector<CLineRenderer> m_linePrims;
-      Instance(aurora::ArrayRef<zeus::CVector3f> vbo,
-               aurora::ArrayRef<u16> ibo)
+      Instance(std::vector<zeus::CVector3f> vbo,
+               std::vector<u16> ibo)
       : m_surfacePrims(vbo, ibo) {}
       Instance(Instance&&) = default;
       Instance& operator=(Instance&&) = default;

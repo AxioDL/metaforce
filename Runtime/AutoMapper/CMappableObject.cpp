@@ -112,19 +112,19 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
   SCOPED_GRAPHICS_DEBUG_GROUP("CMappableObject::Draw", zeus::skCyan);
   if (IsDoorType(x0_type)) {
     std::pair<zeus::CColor, zeus::CColor> colors = GetDoorColors(curArea, mwInfo, alpha);
-    if (m_doorSurface) // TODO
-    for (int s = 0; s < 6; ++s) {
-      DoorSurface& ds = *m_doorSurface;
-      ds.m_surface.draw(colors.first, s * 4, 4);
-      CLineRenderer& line = ds.m_outline;
-      const u16* baseIdx = &skDoorIndices[s * 4];
-      line.Reset();
-      line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
-      line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
-      line.AddVertex(skDoorVerts[baseIdx[3]], colors.second, 1.f);
-      line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
-      line.Render();
-    }
+    // TODO
+//    for (int s = 0; s < 6; ++s) {
+//      DoorSurface& ds = *m_doorSurface;
+//      ds.m_surface.draw(colors.first, s * 4, 4);
+//      CLineRenderer& line = ds.m_outline;
+//      const u16* baseIdx = &skDoorIndices[s * 4];
+//      line.Reset();
+//      line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
+//      line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
+//      line.AddVertex(skDoorVerts[baseIdx[3]], colors.second, 1.f);
+//      line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
+//      line.Render();
+//    }
   } else {
     CAssetId iconRes;
     zeus::CColor iconColor = zeus::skWhite;
@@ -184,16 +184,16 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
 void CMappableObject::DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, float alpha, int surfIdx,
                                       bool needsVtxLoad) {
   std::pair<zeus::CColor, zeus::CColor> colors = GetDoorColors(curArea, mwInfo, alpha);
-  DoorSurface& ds = *m_doorSurface;
-  ds.m_surface.draw(colors.first, surfIdx * 4, 4);
-  CLineRenderer& line = ds.m_outline;
-  const u16* baseIdx = &skDoorIndices[surfIdx * 4];
-  line.Reset();
-  line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
-  line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
-  line.AddVertex(skDoorVerts[baseIdx[3]], colors.second, 1.f);
-  line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
-  line.Render();
+//  DoorSurface& ds = *m_doorSurface;
+//  ds.m_surface.draw(colors.first, surfIdx * 4, 4);
+//  CLineRenderer& line = ds.m_outline;
+//  const u16* baseIdx = &skDoorIndices[surfIdx * 4];
+//  line.Reset();
+//  line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
+//  line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
+//  line.AddVertex(skDoorVerts[baseIdx[3]], colors.second, 1.f);
+//  line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
+//  line.Render();
 }
 
 zeus::CVector3f CMappableObject::BuildSurfaceCenterPoint(int surfIdx) const {

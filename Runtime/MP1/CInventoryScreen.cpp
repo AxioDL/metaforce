@@ -141,7 +141,7 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
     if (input.PStart()) {
       x19c_samusDoll->BeginViewInterpolate(false);
       x198_26_exitPauseScreen = true;
-    } else if (input.PB() || input.PSpecialKey(aurora::SpecialKey::Esc)) {
+    } else if (input.PB() || input.PSpecialKey(ESpecialKey::Esc)) {
       x19c_samusDoll->BeginViewInterpolate(false);
     }
   }
@@ -220,7 +220,7 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
         if (input.PLAUp() || m_bodyUpClicked)
           newPage = std::max(oldPage - 1, 0);
         else if (input.PLADown() || m_bodyDownClicked ||
-                 ((input.PA() || input.PSpecialKey(aurora::SpecialKey::Enter) || m_bodyClicked) && !lastPage))
+                 ((input.PA() || input.PSpecialKey(ESpecialKey::Enter) || m_bodyClicked) && !lastPage))
           newPage = std::min(oldPage + 1, totalCount - 1);
         x174_textpane_body->TextSupport().SetPage(newPage);
         if (oldPage != newPage)
@@ -233,8 +233,8 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
       }
       if (!x1ac_textLeaveRequested)
         x1ac_textLeaveRequested =
-            input.PB() || input.PSpecialKey(aurora::SpecialKey::Esc) ||
-            ((input.PA() || m_bodyClicked || input.PSpecialKey(aurora::SpecialKey::Enter)) && lastPage);
+            input.PB() || input.PSpecialKey(ESpecialKey::Esc) ||
+            ((input.PA() || m_bodyClicked || input.PSpecialKey(ESpecialKey::Enter)) && lastPage);
       x1ad_textViewing = !x1ac_textLeaveRequested;
     } else {
       x198_29_pulseTextArrowBottom = false;

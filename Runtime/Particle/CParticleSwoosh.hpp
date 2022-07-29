@@ -78,7 +78,7 @@ private:
   int x1b0_SPLN = 0;
   int x1b4_LENG = 0;
   int x1b8_SIDE = 0;
-  GX::Primitive x1bc_prim{};
+  GXPrimitive x1bc_prim{};
   CRandom16 x1c0_rand;
   float x1c4_ = 0.f;
   float x1c8_ = 0.f;

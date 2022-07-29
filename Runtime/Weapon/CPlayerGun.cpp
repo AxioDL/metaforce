@@ -2134,7 +2134,7 @@ zeus::CVector3f CPlayerGun::ConvertToScreenSpace(const zeus::CVector3f& pos, con
 void CPlayerGun::CopyScreenTex() {
   // Copy lower right quadrant to gpCopyTexBuf as RGBA8
   // GXSetTexCopySrc(320, 224, 320, 224);
-  // GXSetTexCopyDst(320, 224, GX::TF_RGBA8, false);
+  // GXSetTexCopyDst(320, 224, GX_TF_RGBA8, false);
   // GXCopyTex(sSpareTextureData, false);
   // GXPixModeSync();
   SViewport viewport = CGraphics::g_Viewport;
@@ -2144,7 +2144,7 @@ void CPlayerGun::CopyScreenTex() {
   viewport.x4_top = viewport.xc_height;
   viewport.x10_halfWidth *= 0.5f;
   viewport.x14_halfHeight *= 0.5f;
-  CGraphics::ResolveSpareTexture(viewport, 2, GX::TF_RGBA8, false);
+  CGraphics::ResolveSpareTexture(viewport, 2, GX_TF_RGBA8, false);
 }
 
 void CPlayerGun::DrawScreenTex(float z) {
@@ -2156,19 +2156,19 @@ void CPlayerGun::DrawScreenTex(float z) {
   g_Renderer->SetViewportOrtho(false, -1.f, 1.f);
   g_Renderer->SetBlendMode_AlphaBlended();
   CGraphics::SetDepthWriteMode(true, ERglEnum::GEqual, true);
-  CGraphics::LoadDolphinSpareTexture(2, GX::TF_RGBA8, GX::TEXMAP7);
+  CGraphics::LoadDolphinSpareTexture(2, GX_TF_RGBA8, GX_TEXMAP7);
   constexpr std::array vtxDescList{
-      GX::VtxDescList{GX::VA_POS, GX::DIRECT},
-      GX::VtxDescList{GX::VA_TEX0, GX::DIRECT},
-      GX::VtxDescList{},
+      GXVtxDescList{GX_VA_POS, GX_DIRECT},
+      GXVtxDescList{GX_VA_TEX0, GX_DIRECT},
+      GXVtxDescList{GX_VA_NULL, GX_NONE},
   };
   CGX::SetVtxDescv(vtxDescList.data());
   CGX::SetNumChans(0);
   CGX::SetNumTexGens(1);
   CGX::SetNumTevStages(1);
-  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP7, GX::COLOR_NULL);
-  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX::SRC_REG, GX::SRC_REG, {}, GX::DF_NONE, GX::AF_NONE);
-  CGX::Begin(GX::TRIANGLESTRIP, GX::VTXFMT0, 4);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP7, GX_COLOR_NULL);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX_SRC_REG, GX_SRC_REG, {}, GX_DF_NONE, GX_AF_NONE);
+  CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
   GXPosition3f32(CGraphics::g_Viewport.x10_halfWidth, z, 0.f);
   GXTexCoord2f32(0.f, 1.f);
   GXPosition3f32(CGraphics::g_Viewport.x8_width, z, 0.f);

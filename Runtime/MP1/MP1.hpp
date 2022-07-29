@@ -90,6 +90,7 @@ public:
     g_SimplePool = xcc_simplePool;
     g_CharFactoryBuilder = &xec_charFactoryBuilder;
     g_AiFuncMap = &x110_aiFuncMap;
+    CGraphics::Startup(); // TODO CGraphicsSys
     x134_gameState = std::make_unique<CGameState>();
     g_GameState = x134_gameState.get();
     g_TweakManager = &x150_tweakManager;
@@ -124,45 +125,11 @@ class CGameArchitectureSupport {
   EAudioLoadStatus x88_audioLoadStatus = EAudioLoadStatus::Uninitialized;
   std::vector<TToken<CAudioGroupSet>> x8c_pendingAudioGroups;
 
-  aurora::WindowSize m_windowRect;
-  bool m_rectIsDirty = false;
-
   void destroyed() { x4_archQueue.Push(MakeMsg::CreateRemoveAllIOWins(EArchMsgTarget::IOWinManager)); }
-
-  void resized(const aurora::WindowSize& rect) {
-    m_windowRect = rect;
-    m_rectIsDirty = true;
-  }
 
 public:
   CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend);
   ~CGameArchitectureSupport();
-
-  void mouseDown(const SWindowCoord& coord, EMouseButton button, EModifierKey mods) {
-    // x30_inputGenerator.mouseDown(coord, button, mods);
-  }
-  void mouseUp(const SWindowCoord& coord, EMouseButton button, EModifierKey mods) {
-    // x30_inputGenerator.mouseUp(coord, button, mods);
-  }
-  void mouseMove(const SWindowCoord& coord) {
-    // x30_inputGenerator.mouseMove(coord);
-  }
-  void scroll(const SWindowCoord& coord, const SScrollDelta& scroll) {
-    // x30_inputGenerator.scroll(coord, scroll);
-  }
-  void charKeyDown(uint8_t charCode, aurora::ModifierKey mods, bool isRepeat);
-  void charKeyUp(uint8_t charCode, aurora::ModifierKey mods) {
-    // x30_inputGenerator.charKeyUp(charCode, mods);
-  }
-  void specialKeyDown(aurora::SpecialKey key, aurora::ModifierKey mods, bool isRepeat);
-
-  void specialKeyUp(aurora::SpecialKey key, aurora::ModifierKey mods);
-  void modKeyDown(aurora::ModifierKey mod, bool isRepeat) {
-    // x30_inputGenerator.modKeyDown(mod, isRepeat);
-  }
-  void modKeyUp(aurora::ModifierKey mod) {
-    // x30_inputGenerator.modKeyUp(mod);
-  }
 
   void PreloadAudio();
   bool LoadAudio();
@@ -170,12 +137,6 @@ public:
   void UpdateTicks(float dt);
   void Update(float dt);
   void Draw();
-
-  bool isRectDirty() const { return m_rectIsDirty; }
-  const aurora::WindowSize& getWindowRect() {
-    m_rectIsDirty = false;
-    return m_windowRect;
-  }
 
   CIOWinManager& GetIOWinManager() { return x58_ioWinManager; }
 };
@@ -252,12 +213,11 @@ public:
 
   // int RsMain(int argc, char** argv, boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator&
   // backend);
-  std::string Init(const FileStoreManager& storeMgr, CVarManager* cvarManager, boo::IAudioVoiceEngine* voiceEngine,
-                   amuse::IBackendVoiceAllocator& backend) override;
+  std::string Init(int argc, char** argv, const FileStoreManager& storeMgr, CVarManager* cvarManager,
+                   boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) override;
   bool Proc(float dt) override;
   void Draw() override;
   void Shutdown() override;
-  //  boo::IWindow* GetMainWindow() const override;
 
   void MemoryCardInitializePump();
 

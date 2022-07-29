@@ -80,8 +80,8 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, CTexture& tex, in
     if ((x14c_deResFactor == 0.f && alpha == 1.f) || tex.GetNumberOfMipMaps() == 1) {
       CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
       CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
-      tex.LoadMipLevel(0.f, GX::TEXMAP0, EClampMode::Repeat);
-      CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+      tex.LoadMipLevel(0.f, GX_TEXMAP0, EClampMode::Repeat);
+      CGraphics::StreamBegin(GX_TRIANGLESTRIP);
       CGraphics::StreamColor(useColor);
       for (u32 i = 0; i < useUVs->size(); ++i) {
         CGraphics::StreamTexcoord((*useUVs)[i] + xd0_uvBias0);
@@ -101,41 +101,41 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, CTexture& tex, in
 
       float rgba1 = (fadeFactor - static_cast<float>(mip1));
       float rgba2 = 1.f - rgba1;
-      tex.LoadMipLevel(mip1, GX::TexMapID::TEXMAP0, EClampMode::Repeat);
-      tex.LoadMipLevel(mip2, GX::TexMapID::TEXMAP1, EClampMode::Repeat);
-      std::array<GX::VtxDescList, 3> list{{
-          {GX::VA_POS, GX::DIRECT},
-          {GX::VA_TEX0, GX::DIRECT},
-          GX::VtxDescList{},
+      tex.LoadMipLevel(mip1, GX_TEXMAP0, EClampMode::Repeat);
+      tex.LoadMipLevel(mip2, GX_TEXMAP1, EClampMode::Repeat);
+      std::array<GXVtxDescList, 3> list{{
+          {GX_VA_POS, GX_DIRECT},
+          {GX_VA_TEX0, GX_DIRECT},
+          {GX_VA_NULL, GX_NONE},
       }};
 
       CGX::SetVtxDescv(list.data());
       CGX::SetNumChans(0);
       CGX::SetNumTexGens(2);
       CGX::SetNumTevStages(2);
-      GX::TevStageID stage = GX::TEVSTAGE0;
-      while (stage < GX::TEVSTAGE2) {
-        GX::TevColorArg colorD = stage == GX::TEVSTAGE0 ? GX::CC_ZERO : GX::CC_CPREV;
-        CGX::SetTevColorIn(stage, GX::CC_ZERO, GX::CC_TEXC, GX::CC_KONST, colorD);
-        GX::TevAlphaArg alphaD = stage == GX::TEVSTAGE0 ? GX::CA_ZERO : GX::CA_APREV;
-        CGX::SetTevAlphaIn(stage, GX::CA_ZERO, GX::CA_TEXA, GX::CA_KONST, alphaD);
-        CGX::SetTevColorOp(stage, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, true, GX::TEVPREV);
-        CGX::SetTevAlphaOp(stage, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, true, GX::TEVPREV);
-        stage = static_cast<GX::TevStageID>(stage + GX::TEVSTAGE1);
+      GXTevStageID stage = GX_TEVSTAGE0;
+      while (stage < GX_TEVSTAGE2) {
+        GXTevColorArg colorD = stage == GX_TEVSTAGE0 ? GX_CC_ZERO : GX_CC_CPREV;
+        CGX::SetTevColorIn(stage, GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, colorD);
+        GXTevAlphaArg alphaD = stage == GX_TEVSTAGE0 ? GX_CA_ZERO : GX_CA_APREV;
+        CGX::SetTevAlphaIn(stage, GX_CA_ZERO, GX_CA_TEXA, GX_CA_KONST, alphaD);
+        CGX::SetTevColorOp(stage, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+        CGX::SetTevAlphaOp(stage, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+        stage = static_cast<GXTevStageID>(stage + GX_TEVSTAGE1);
       }
-      CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_K0_A);
-      CGX::SetTevKColorSel(GX::TEVSTAGE0, GX::TEV_KCSEL_K0);
-      CGX::SetTevKAlphaSel(GX::TEVSTAGE1, GX::TEV_KASEL_K1_A);
-      CGX::SetTevKColorSel(GX::TEVSTAGE1, GX::TEV_KCSEL_K1);
+      CGX::SetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_K0_A);
+      CGX::SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K0);
+      CGX::SetTevKAlphaSel(GX_TEVSTAGE1, GX_TEV_KASEL_K1_A);
+      CGX::SetTevKColorSel(GX_TEVSTAGE1, GX_TEV_KCSEL_K1);
       zeus::CColor col1 = useColor * zeus::CColor(rgba2, rgba2, rgba2, rgba2);
       zeus::CColor col2 = useColor * zeus::CColor(rgba1, rgba1, rgba1, rgba1);
-      CGX::SetTevKColor(GX::KCOLOR0, col1);
-      CGX::SetTevKColor(GX::KCOLOR1, col2);
-      CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
-      CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD1, GX::TEXMAP1, GX::COLOR_NULL);
-      CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
-      CGX::SetTexCoordGen(GX::TEXCOORD1, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
-      CGX::Begin(GX::Primitive::TRIANGLESTRIP, GX::VTXFMT0, 4);
+      CGX::SetTevKColor(GX_KCOLOR0, col1);
+      CGX::SetTevKColor(GX_KCOLOR1, col2);
+      CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+      CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD1, GX_TEXMAP1, GX_COLOR_NULL);
+      CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+      CGX::SetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+      CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
       for (u32 idx = 0; const auto& coord : xe0_coords) {
         GXPosition3f32(coord);
         GXTexCoord2f32((*useUVs)[idx] + xd0_uvBias0);
@@ -146,8 +146,8 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, CTexture& tex, in
   } else {
     CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5fec);
     CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
-    tex.Load(GX::TEXMAP0, EClampMode::Repeat);
-    CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+    tex.Load(GX_TEXMAP0, EClampMode::Repeat);
+    CGraphics::StreamBegin(GX_TRIANGLESTRIP);
     CGraphics::StreamColor(useColor);
     for (u32 i = 0; i < useUVs->size(); ++i) {
       CGraphics::StreamTexcoord((*useUVs)[i]);

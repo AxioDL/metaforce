@@ -145,75 +145,75 @@ constexpr std::array<FloatReturnFn, 24> skAnalogFuncs{
 };
 
 constexpr std::array<ControlMapper::EKBMFunctionList, 70> skKBMMapping{
-    ControlMapper::EKBMFunctionList::KeyPress + 'w',                              // Forward,
-    ControlMapper::EKBMFunctionList::KeyPress + 's',                              // Backward,
-    ControlMapper::EKBMFunctionList::KeyPress + 'a',                              // TurnLeft,
-    ControlMapper::EKBMFunctionList::KeyPress + 'd',                              // TurnRight,
-    ControlMapper::EKBMFunctionList::KeyPress + 'a',                              // StrafeLeft,
-    ControlMapper::EKBMFunctionList::KeyPress + 'd',                              // StrafeRight,
-    ControlMapper::EKBMFunctionList::KeyPress + 'a',                              // LookLeft,
-    ControlMapper::EKBMFunctionList::KeyPress + 'd',                              // LookRight,
-    ControlMapper::EKBMFunctionList::KeyPress + 's',                              // LookUp,
-    ControlMapper::EKBMFunctionList::KeyPress + 'w',                              // LookDown,
-    ControlMapper::EKBMFunctionList::KeyPress + ' ',                              // JumpOrBoost = 10,
-    ControlMapper::EKBMFunctionList::MousePress + EMouseButton::Primary,          // FireOrBomb = 11,
-    ControlMapper::EKBMFunctionList::MousePress + EMouseButton::Secondary,        // MissileOrPowerBomb = 12,
-    ControlMapper::EKBMFunctionList::KeyPress + 'c',                              // Morph,
-    ControlMapper::EKBMFunctionList::None,                                        // AimUp,
-    ControlMapper::EKBMFunctionList::None,                                        // AimDown,
-    ControlMapper::EKBMFunctionList::None,                                        // CycleBeamUp,
-    ControlMapper::EKBMFunctionList::None,                                        // CycleBeamDown,
-    ControlMapper::EKBMFunctionList::None,                                        // CycleItem,
-    ControlMapper::EKBMFunctionList::KeyPress + '1',                              // PowerBeam,
-    ControlMapper::EKBMFunctionList::KeyPress + '3',                              // IceBeam,
-    ControlMapper::EKBMFunctionList::KeyPress + '2',                              // WaveBeam,
-    ControlMapper::EKBMFunctionList::KeyPress + '4',                              // PlasmaBeam,
-    ControlMapper::EKBMFunctionList::None,                                        // ToggleHolster = 23,
-    ControlMapper::EKBMFunctionList::None,                                        // OrbitClose,
-    ControlMapper::EKBMFunctionList::KeyPress + 'q',                              // OrbitFar,
-    ControlMapper::EKBMFunctionList::KeyPress + 'q',                              // OrbitObject,
-    ControlMapper::EKBMFunctionList::None,                                        // OrbitSelect,
-    ControlMapper::EKBMFunctionList::None,                                        // OrbitConfirm,
-    ControlMapper::EKBMFunctionList::KeyPress + 'a',                              // OrbitLeft,
-    ControlMapper::EKBMFunctionList::KeyPress + 'd',                              // OrbitRight,
-    ControlMapper::EKBMFunctionList::KeyPress + 'w',                              // OrbitUp,
-    ControlMapper::EKBMFunctionList::KeyPress + 's',                              // OrbitDown,
-    ControlMapper::EKBMFunctionList::KeyPress + 'e',                              // LookHold1,
-    ControlMapper::EKBMFunctionList::None,                                        // LookHold2,
-    ControlMapper::EKBMFunctionList::None,                                        // LookZoomIn,
-    ControlMapper::EKBMFunctionList::None,                                        // LookZoomOut,
-    ControlMapper::EKBMFunctionList::None,                                        // AimHold,
-    ControlMapper::EKBMFunctionList::KeyPress + 's',                              // MapCircleUp,
-    ControlMapper::EKBMFunctionList::KeyPress + 'w',                              // MapCircleDown,
-    ControlMapper::EKBMFunctionList::KeyPress + 'a',                              // MapCircleLeft,
-    ControlMapper::EKBMFunctionList::KeyPress + 'd',                              // MapCircleRight,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + aurora::SpecialKey::Up,    // MapMoveForward,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + aurora::SpecialKey::Down,  // MapMoveBack,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + aurora::SpecialKey::Left,  // MapMoveLeft,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + aurora::SpecialKey::Right, // MapMoveRight,
-    ControlMapper::EKBMFunctionList::KeyPress + 'e',                              // MapZoomIn,
-    ControlMapper::EKBMFunctionList::KeyPress + 'q',                              // MapZoomOut,
-    ControlMapper::EKBMFunctionList::KeyPress + 'e',                              // SpiderBall,
-    ControlMapper::EKBMFunctionList::KeyPress + 'q',                              // ChaseCamera,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + aurora::SpecialKey::Right, // XrayVisor = 50,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + aurora::SpecialKey::Down,  // ThermoVisor = 51,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + aurora::SpecialKey::Left,  // InviroVisor = 52,
-    ControlMapper::EKBMFunctionList::SpecialKeyPress + aurora::SpecialKey::Up,    // NoVisor = 53,
-    ControlMapper::EKBMFunctionList::None,                                        // VisorMenu,
-    ControlMapper::EKBMFunctionList::None,                                        // VisorUp,
-    ControlMapper::EKBMFunctionList::None,                                        // VisorDown,
-    ControlMapper::EKBMFunctionList::KeyPress + 'e',                              // ShowCrosshairs,
-    ControlMapper::EKBMFunctionList::None,                                        // UNKNOWN
-    ControlMapper::EKBMFunctionList::None,                                        // UseSheild = 0x3B,
-    ControlMapper::EKBMFunctionList::KeyPress + 'q',                              // ScanItem = 0x3C,
-    ControlMapper::EKBMFunctionList::None,                                        // UNKNOWN
-    ControlMapper::EKBMFunctionList::None,                                        // UNKNOWN
-    ControlMapper::EKBMFunctionList::None,                                        // UNKNOWN
-    ControlMapper::EKBMFunctionList::None,                                        // UNKNOWN
-    ControlMapper::EKBMFunctionList::KeyPress + 'q',                              // PreviousPauseScreen = 0x41,
-    ControlMapper::EKBMFunctionList::KeyPress + 'e',                              // NextPauseScreen = 0x42,
-    ControlMapper::EKBMFunctionList::None,                                        // UNKNOWN,
-    ControlMapper::EKBMFunctionList::None,                                        // None,
+    ControlMapper::EKBMFunctionList::KeyPress + 'w',                       // Forward,
+    ControlMapper::EKBMFunctionList::KeyPress + 's',                       // Backward,
+    ControlMapper::EKBMFunctionList::KeyPress + 'a',                       // TurnLeft,
+    ControlMapper::EKBMFunctionList::KeyPress + 'd',                       // TurnRight,
+    ControlMapper::EKBMFunctionList::KeyPress + 'a',                       // StrafeLeft,
+    ControlMapper::EKBMFunctionList::KeyPress + 'd',                       // StrafeRight,
+    ControlMapper::EKBMFunctionList::KeyPress + 'a',                       // LookLeft,
+    ControlMapper::EKBMFunctionList::KeyPress + 'd',                       // LookRight,
+    ControlMapper::EKBMFunctionList::KeyPress + 's',                       // LookUp,
+    ControlMapper::EKBMFunctionList::KeyPress + 'w',                       // LookDown,
+    ControlMapper::EKBMFunctionList::KeyPress + ' ',                       // JumpOrBoost = 10,
+    ControlMapper::EKBMFunctionList::MousePress + EMouseButton::Primary,   // FireOrBomb = 11,
+    ControlMapper::EKBMFunctionList::MousePress + EMouseButton::Secondary, // MissileOrPowerBomb = 12,
+    ControlMapper::EKBMFunctionList::KeyPress + 'c',                       // Morph,
+    ControlMapper::EKBMFunctionList::None,                                 // AimUp,
+    ControlMapper::EKBMFunctionList::None,                                 // AimDown,
+    ControlMapper::EKBMFunctionList::None,                                 // CycleBeamUp,
+    ControlMapper::EKBMFunctionList::None,                                 // CycleBeamDown,
+    ControlMapper::EKBMFunctionList::None,                                 // CycleItem,
+    ControlMapper::EKBMFunctionList::KeyPress + '1',                       // PowerBeam,
+    ControlMapper::EKBMFunctionList::KeyPress + '3',                       // IceBeam,
+    ControlMapper::EKBMFunctionList::KeyPress + '2',                       // WaveBeam,
+    ControlMapper::EKBMFunctionList::KeyPress + '4',                       // PlasmaBeam,
+    ControlMapper::EKBMFunctionList::None,                                 // ToggleHolster = 23,
+    ControlMapper::EKBMFunctionList::None,                                 // OrbitClose,
+    ControlMapper::EKBMFunctionList::KeyPress + 'q',                       // OrbitFar,
+    ControlMapper::EKBMFunctionList::KeyPress + 'q',                       // OrbitObject,
+    ControlMapper::EKBMFunctionList::None,                                 // OrbitSelect,
+    ControlMapper::EKBMFunctionList::None,                                 // OrbitConfirm,
+    ControlMapper::EKBMFunctionList::KeyPress + 'a',                       // OrbitLeft,
+    ControlMapper::EKBMFunctionList::KeyPress + 'd',                       // OrbitRight,
+    ControlMapper::EKBMFunctionList::KeyPress + 'w',                       // OrbitUp,
+    ControlMapper::EKBMFunctionList::KeyPress + 's',                       // OrbitDown,
+    ControlMapper::EKBMFunctionList::KeyPress + 'e',                       // LookHold1,
+    ControlMapper::EKBMFunctionList::None,                                 // LookHold2,
+    ControlMapper::EKBMFunctionList::None,                                 // LookZoomIn,
+    ControlMapper::EKBMFunctionList::None,                                 // LookZoomOut,
+    ControlMapper::EKBMFunctionList::None,                                 // AimHold,
+    ControlMapper::EKBMFunctionList::KeyPress + 's',                       // MapCircleUp,
+    ControlMapper::EKBMFunctionList::KeyPress + 'w',                       // MapCircleDown,
+    ControlMapper::EKBMFunctionList::KeyPress + 'a',                       // MapCircleLeft,
+    ControlMapper::EKBMFunctionList::KeyPress + 'd',                       // MapCircleRight,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + ESpecialKey::Up,    // MapMoveForward,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + ESpecialKey::Down,  // MapMoveBack,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + ESpecialKey::Left,  // MapMoveLeft,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + ESpecialKey::Right, // MapMoveRight,
+    ControlMapper::EKBMFunctionList::KeyPress + 'e',                       // MapZoomIn,
+    ControlMapper::EKBMFunctionList::KeyPress + 'q',                       // MapZoomOut,
+    ControlMapper::EKBMFunctionList::KeyPress + 'e',                       // SpiderBall,
+    ControlMapper::EKBMFunctionList::KeyPress + 'q',                       // ChaseCamera,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + ESpecialKey::Right, // XrayVisor = 50,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + ESpecialKey::Down,  // ThermoVisor = 51,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + ESpecialKey::Left,  // InviroVisor = 52,
+    ControlMapper::EKBMFunctionList::SpecialKeyPress + ESpecialKey::Up,    // NoVisor = 53,
+    ControlMapper::EKBMFunctionList::None,                                 // VisorMenu,
+    ControlMapper::EKBMFunctionList::None,                                 // VisorUp,
+    ControlMapper::EKBMFunctionList::None,                                 // VisorDown,
+    ControlMapper::EKBMFunctionList::KeyPress + 'e',                       // ShowCrosshairs,
+    ControlMapper::EKBMFunctionList::None,                                 // UNKNOWN
+    ControlMapper::EKBMFunctionList::None,                                 // UseSheild = 0x3B,
+    ControlMapper::EKBMFunctionList::KeyPress + 'q',                       // ScanItem = 0x3C,
+    ControlMapper::EKBMFunctionList::None,                                 // UNKNOWN
+    ControlMapper::EKBMFunctionList::None,                                 // UNKNOWN
+    ControlMapper::EKBMFunctionList::None,                                 // UNKNOWN
+    ControlMapper::EKBMFunctionList::None,                                 // UNKNOWN
+    ControlMapper::EKBMFunctionList::KeyPress + 'q',                       // PreviousPauseScreen = 0x41,
+    ControlMapper::EKBMFunctionList::KeyPress + 'e',                       // NextPauseScreen = 0x42,
+    ControlMapper::EKBMFunctionList::None,                                 // UNKNOWN,
+    ControlMapper::EKBMFunctionList::None,                                 // None,
     ControlMapper::EKBMFunctionList::None,
 };
 
@@ -307,10 +307,10 @@ static float KBToWASDY(const CKeyboardMouseControllerData& data) {
 
 static float KBToArrowsX(const CKeyboardMouseControllerData& data) {
   float retval = 0.0;
-  if (data.m_specialKeys[size_t(aurora::SpecialKey::Left)]) {
+  if (data.m_specialKeys[size_t(ESpecialKey::Left)]) {
     retval -= 1.0;
   }
-  if (data.m_specialKeys[size_t(aurora::SpecialKey::Right)]) {
+  if (data.m_specialKeys[size_t(ESpecialKey::Right)]) {
     retval += 1.0;
   }
   return retval;
@@ -318,10 +318,10 @@ static float KBToArrowsX(const CKeyboardMouseControllerData& data) {
 
 static float KBToArrowsY(const CKeyboardMouseControllerData& data) {
   float retval = 0.0;
-  if (data.m_specialKeys[size_t(aurora::SpecialKey::Down)]) {
+  if (data.m_specialKeys[size_t(ESpecialKey::Down)]) {
     retval -= 1.0;
   }
-  if (data.m_specialKeys[size_t(aurora::SpecialKey::Up)]) {
+  if (data.m_specialKeys[size_t(ESpecialKey::Up)]) {
     retval += 1.0;
   }
   return retval;

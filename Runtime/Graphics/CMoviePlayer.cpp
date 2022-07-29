@@ -16,18 +16,21 @@ static void MyTHPYuv2RgbTextureSetup(void* dataY, void* dataU, void* dataV, u16 
   GXTexObj texV;
   GXTexObj texU;
   GXTexObj texY;
-  GXInitTexObj(&texY, dataY, width, height, GX::TF_I8, GX_CLAMP, GX_CLAMP, false);
+  GXInitTexObj(&texY, dataY, width, height, GX_TF_R8_PC, GX_CLAMP, GX_CLAMP, false);
   GXInitTexObjLOD(&texY, GX_NEAR, GX_NEAR, 0.0, 0.0, 0.0, false, false, GX_ANISO_1);
-  GXLoadTexObj(&texY, GX::TEXMAP0);
-  GXInitTexObj(&texU, dataU, width / 2, height / 2, GX::TF_I8, GX_CLAMP, GX_CLAMP, false);
+  GXLoadTexObj(&texY, GX_TEXMAP0);
+  GXInitTexObj(&texU, dataU, width / 2, height / 2, GX_TF_R8_PC, GX_CLAMP, GX_CLAMP, false);
   GXInitTexObjLOD(&texU, GX_NEAR, GX_NEAR, 0.0, 0.0, 0.0, false, false, GX_ANISO_1);
-  GXLoadTexObj(&texU, GX::TEXMAP1);
-  GXInitTexObj(&texV, dataV, width / 2, height / 2, GX::TF_I8, GX_CLAMP, GX_CLAMP, false);
+  GXLoadTexObj(&texU, GX_TEXMAP1);
+  GXInitTexObj(&texV, dataV, width / 2, height / 2, GX_TF_R8_PC, GX_CLAMP, GX_CLAMP, false);
   GXInitTexObjLOD(&texV, GX_NEAR, GX_NEAR, 0.0, 0.0, 0.0, false, false, GX_ANISO_1);
-  GXLoadTexObj(&texV, GX::TEXMAP2);
-  CTexture::InvalidateTexMap(GX::TEXMAP0);
-  CTexture::InvalidateTexMap(GX::TEXMAP1);
-  CTexture::InvalidateTexMap(GX::TEXMAP2);
+  GXLoadTexObj(&texV, GX_TEXMAP2);
+  CTexture::InvalidateTexMap(GX_TEXMAP0);
+  CTexture::InvalidateTexMap(GX_TEXMAP1);
+  CTexture::InvalidateTexMap(GX_TEXMAP2);
+  GXDestroyTexObj(&texV);
+  GXDestroyTexObj(&texU);
+  GXDestroyTexObj(&texY);
 }
 
 const std::array<u8, 32> InterlaceTex{
@@ -35,85 +38,86 @@ const std::array<u8, 32> InterlaceTex{
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 static void MyTHPGXYuv2RgbSetup(bool interlaced2ndFrame, bool fieldFlip) {
-  CGX::SetZMode(true, GX::ALWAYS, false);
-  CGX::SetBlendMode(GX::BM_NONE, GX::BL_ONE, GX::BL_ZERO, GX::LO_CLEAR);
+  CGX::SetZMode(true, GX_ALWAYS, false);
+  CGX::SetBlendMode(GX_BM_NONE, GX_BL_ONE, GX_BL_ZERO, GX_LO_CLEAR);
   CGX::SetNumChans(0);
-  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
-  CGX::SetTexCoordGen(GX::TEXCOORD1, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+  CGX::SetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
   if (!fieldFlip) {
     CGX::SetNumTexGens(3);
-    CGX::SetTexCoordGen(GX::TEXCOORD2, GX::TG_MTX2x4, GX::TG_POS, GX::TEXMTX0, false, GX::PTIDENTITY);
+    CGX::SetTexCoordGen(GX_TEXCOORD2, GX_TG_MTX2x4, GX_TG_POS, GX_TEXMTX0, false, GX_PTIDENTITY);
     aurora::Mat4x2<float> mtx;
     mtx.m0.x = 0.125f;
     mtx.m2.y = 0.25f;
     if (interlaced2ndFrame) {
       mtx.m3.y = 0.25f;
     }
-    GXLoadTexMtxImm(&mtx, GX::TEXMTX0, GX::MTX2x4);
+    GXLoadTexMtxImm(&mtx, GX_TEXMTX0, GX_MTX2x4);
     GXTexObj texObj;
-    GXInitTexObj(&texObj, InterlaceTex.data(), 8, 4, GX::TF_I8, GX_REPEAT, GX_REPEAT, false);
+    GXInitTexObj(&texObj, InterlaceTex.data(), 8, 4, GX_TF_I8, GX_REPEAT, GX_REPEAT, false);
     GXInitTexObjLOD(&texObj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
-    GXLoadTexObj(&texObj, GX::TEXMAP3);
-    CTexture::InvalidateTexMap(GX::TEXMAP3);
-    CGX::SetTevOrder(GX::TEVSTAGE4, GX::TEXCOORD2, GX::TEXMAP3, GX::COLOR_NULL);
-    CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE4);
-    CGX::SetTevColorIn(GX::TEVSTAGE4, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_CPREV);
-    CGX::SetTevAlphaIn(GX::TEVSTAGE4, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_TEXA);
-    CGX::SetAlphaCompare(GX::LESS, 128, GX::AOP_AND, GX::ALWAYS, 0);
+    GXLoadTexObj(&texObj, GX_TEXMAP3);
+    GXDestroyTexObj(&texObj);
+    CTexture::InvalidateTexMap(GX_TEXMAP3);
+    CGX::SetTevOrder(GX_TEVSTAGE4, GX_TEXCOORD2, GX_TEXMAP3, GX_COLOR_NULL);
+    CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE4);
+    CGX::SetTevColorIn(GX_TEVSTAGE4, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_CPREV);
+    CGX::SetTevAlphaIn(GX_TEVSTAGE4, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_TEXA);
+    CGX::SetAlphaCompare(GX_LESS, 128, GX_AOP_AND, GX_ALWAYS, 0);
     CGX::SetNumTevStages(5);
   } else {
     CGX::SetNumTexGens(2);
     CGX::SetNumTevStages(4);
   }
   constexpr std::array vtxDescList{
-      GX::VtxDescList{GX::VA_POS, GX::DIRECT},
-      GX::VtxDescList{GX::VA_TEX0, GX::DIRECT},
-      GX::VtxDescList{},
+      GXVtxDescList{GX_VA_POS, GX_DIRECT},
+      GXVtxDescList{GX_VA_TEX0, GX_DIRECT},
+      GXVtxDescList{GX_VA_NULL, GX_NONE},
   };
   CGX::SetVtxDescv(vtxDescList.data());
   GXSetColorUpdate(true);
   GXSetAlphaUpdate(false);
   GXInvalidateTexAll();
-  GXSetVtxAttrFmt(GX::VTXFMT7, GX::VA_POS, GX::CLR_RGBA, GX::F32, 0);
-  GXSetVtxAttrFmt(GX::VTXFMT7, GX::VA_TEX0, GX::CLR_RGBA, GX::RGBX8, 0);
-  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD1, GX::TEXMAP1, GX::COLOR_NULL);
-  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_TEXC, GX::CC_KONST, GX::CC_C0);
-  CGX::SetTevColorOp(GX::TEVSTAGE0, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, false, GX::TEVPREV);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_TEXA, GX::CA_KONST, GX::CA_A0);
-  CGX::SetTevAlphaOp(GX::TEVSTAGE0, GX::TEV_SUB, GX::TB_ZERO, GX::CS_SCALE_1, false, GX::TEVPREV);
-  CGX::SetTevKColorSel(GX::TEVSTAGE0, GX::TEV_KCSEL_K0);
-  CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_K0_A);
-  CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD1, GX::TEXMAP2, GX::COLOR_NULL);
-  CGX::SetTevColorIn(GX::TEVSTAGE1, GX::CC_ZERO, GX::CC_TEXC, GX::CC_KONST, GX::CC_CPREV);
-  CGX::SetTevColorOp(GX::TEVSTAGE1, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_2, false, GX::TEVPREV);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE1, GX::CA_ZERO, GX::CA_TEXA, GX::CA_KONST, GX::CA_APREV);
-  CGX::SetTevAlphaOp(GX::TEVSTAGE1, GX::TEV_SUB, GX::TB_ZERO, GX::CS_SCALE_1, false, GX::TEVPREV);
-  CGX::SetTevKColorSel(GX::TEVSTAGE1, GX::TEV_KCSEL_K1);
-  CGX::SetTevKAlphaSel(GX::TEVSTAGE1, GX::TEV_KASEL_K1_A);
-  CGX::SetTevOrder(GX::TEVSTAGE2, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
-  CGX::SetTevColorIn(GX::TEVSTAGE2, GX::CC_ZERO, GX::CC_TEXC, GX::CC_ONE, GX::CC_CPREV);
-  CGX::SetTevColorOp(GX::TEVSTAGE2, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, true, GX::TEVPREV);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE2, GX::CA_TEXA, GX::CA_ZERO, GX::CA_ZERO, GX::CA_APREV);
-  CGX::SetTevAlphaOp(GX::TEVSTAGE2, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, true, GX::TEVPREV);
-  CGX::SetTevOrder(GX::TEVSTAGE3, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR_NULL);
-  CGX::SetTevColorIn(GX::TEVSTAGE3, GX::CC_APREV, GX::CC_CPREV, GX::CC_KONST, GX::CC_ZERO);
-  CGX::SetTevColorOp(GX::TEVSTAGE3, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, true, GX::TEVPREV);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE3, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO);
-  CGX::SetTevAlphaOp(GX::TEVSTAGE3, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, true, GX::TEVPREV);
-  CGX::SetTevKColorSel(GX::TEVSTAGE3, GX::TEV_KCSEL_K2);
-  GXSetTevColorS10(GX::TEVREG0, 0xffa60000ff8e0087u);
-  CGX::SetTevKColor(GX::KCOLOR0, zeus::Comp32(0x0000e258));
-  CGX::SetTevKColor(GX::KCOLOR1, zeus::Comp32(0xb30000b6));
-  CGX::SetTevKColor(GX::KCOLOR2, zeus::Comp32(0xff00ff80));
+  GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_POS, GX_CLR_RGBA, GX_F32, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_TEX0, GX_CLR_RGBA, GX_RGBX8, 0);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD1, GX_TEXMAP1, GX_COLOR_NULL);
+  CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, GX_CC_C0);
+  CGX::SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, false, GX_TEVPREV);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_KONST, GX_CA_A0);
+  CGX::SetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_SUB, GX_TB_ZERO, GX_CS_SCALE_1, false, GX_TEVPREV);
+  CGX::SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K0);
+  CGX::SetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_K0_A);
+  CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD1, GX_TEXMAP2, GX_COLOR_NULL);
+  CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, GX_CC_CPREV);
+  CGX::SetTevColorOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_2, false, GX_TEVPREV);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_TEXA, GX_CA_KONST, GX_CA_APREV);
+  CGX::SetTevAlphaOp(GX_TEVSTAGE1, GX_TEV_SUB, GX_TB_ZERO, GX_CS_SCALE_1, false, GX_TEVPREV);
+  CGX::SetTevKColorSel(GX_TEVSTAGE1, GX_TEV_KCSEL_K1);
+  CGX::SetTevKAlphaSel(GX_TEVSTAGE1, GX_TEV_KASEL_K1_A);
+  CGX::SetTevOrder(GX_TEVSTAGE2, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+  CGX::SetTevColorIn(GX_TEVSTAGE2, GX_CC_ZERO, GX_CC_TEXC, GX_CC_ONE, GX_CC_CPREV);
+  CGX::SetTevColorOp(GX_TEVSTAGE2, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE2, GX_CA_TEXA, GX_CA_ZERO, GX_CA_ZERO, GX_CA_APREV);
+  CGX::SetTevAlphaOp(GX_TEVSTAGE2, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+  CGX::SetTevOrder(GX_TEVSTAGE3, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR_NULL);
+  CGX::SetTevColorIn(GX_TEVSTAGE3, GX_CC_APREV, GX_CC_CPREV, GX_CC_KONST, GX_CC_ZERO);
+  CGX::SetTevColorOp(GX_TEVSTAGE3, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE3, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO);
+  CGX::SetTevAlphaOp(GX_TEVSTAGE3, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+  CGX::SetTevKColorSel(GX_TEVSTAGE3, GX_TEV_KCSEL_K2);
+  GXSetTevColorS10(GX_TEVREG0, GXColorS10{-90, 0, -114, 135});
+  CGX::SetTevKColor(GX_KCOLOR0, GXColor{0x00, 0x00, 0xe2, 0x58});
+  CGX::SetTevKColor(GX_KCOLOR1, GXColor{0xb3, 0x00, 0x00, 0xb6});
+  CGX::SetTevKColor(GX_KCOLOR2, GXColor{0xff, 0x00, 0xff, 0x80});
 }
 static void MyTHPGXRestore() {
-  CGX::SetZMode(true, GX::ALWAYS, false);
-  CGX::SetBlendMode(GX::BM_NONE, GX::BL_ONE, GX::BL_ZERO, GX::LO_SET);
+  CGX::SetZMode(true, GX_ALWAYS, false);
+  CGX::SetBlendMode(GX_BM_NONE, GX_BL_ONE, GX_BL_ZERO, GX_LO_SET);
   CGX::SetNumTexGens(1);
   CGX::SetNumChans(0);
   CGX::SetNumTevStages(1);
-  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
-  CGX::SetAlphaCompare(GX::ALWAYS, 0, GX::AOP_AND, GX::ALWAYS, 0);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+  CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
 }
 
 /* used in the original to look up fixed-point dividends on a
@@ -295,25 +299,28 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
   x80_textures.reserve(3);
   for (int i = 0; i < 3; ++i) {
     CTHPTextureSet& set = x80_textures.emplace_back();
-    if (deinterlace) {
-      /* metaforce addition: this way interlaced THPs don't look horrible */
-      set.Y[0] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1, GX::TF_I8,
-                                                     fmt::format(FMT_STRING("Movie {} Texture Set {} Y[0]"), path, i));
-      set.Y[1] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1, GX::TF_I8,
-                                                     fmt::format(FMT_STRING("Movie {} Texture Set {} Y[1]"), path, i));
-      set.U = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX::TF_I8,
-                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
-      set.V = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX::TF_I8,
-                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
-    } else {
-      /* normal progressive presentation */
-      set.Y[0] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height, 1, GX::TF_I8,
-                                                     fmt::format(FMT_STRING("Movie {} Texture Set {} Y"), path, i));
-      set.U = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX::TF_I8,
-                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
-      set.V = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX::TF_I8,
-                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
-    }
+    //    if (deinterlace) {
+    //      /* metaforce addition: this way interlaced THPs don't look horrible */
+    //      set.Y[0] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1, GX_TF_I8,
+    //                                                     fmt::format(FMT_STRING("Movie {} Texture Set {} Y[0]"), path,
+    //                                                     i));
+    //      set.Y[1] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1, GX_TF_I8,
+    //                                                     fmt::format(FMT_STRING("Movie {} Texture Set {} Y[1]"), path,
+    //                                                     i));
+    //      set.U = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX_TF_I8,
+    //                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
+    //      set.V = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX_TF_I8,
+    //                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
+    //    } else {
+    //      /* normal progressive presentation */
+    //      set.Y[0] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height, 1, GX_TF_I8,
+    //                                                     fmt::format(FMT_STRING("Movie {} Texture Set {} Y"), path,
+    //                                                     i));
+    //      set.U = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX_TF_I8,
+    //                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} U"), path, i));
+    //      set.V = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX_TF_I8,
+    //                                                  fmt::format(FMT_STRING("Movie {} Texture Set {} V"), path, i));
+    //    }
     if (xf4_25_hasAudio)
       set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);
   }
@@ -485,22 +492,22 @@ bool CMoviePlayer::DrawVideo() {
   const s32 vr = vpLeft + vpWidth + centerX;
   const s32 vb = vpTop + vpHeight + centerY;
   const s32 vt = vpTop - centerY;
-  aurora::Vec3<float> v1;
-  aurora::Vec3<float> v2;
-  aurora::Vec3<float> v3;
-  aurora::Vec3<float> v4;
-  v1.x = vl;
-  v1.y = 0.0;
-  v1.z = vb;
-  v2.x = vr;
-  v2.y = 0.0;
-  v2.z = vb;
-  v3.x = vl;
-  v3.y = 0.0;
-  v3.z = vt;
-  v4.x = vr;
-  v4.y = 0.0;
-  v4.z = vt;
+  zeus::CVector3f v1;
+  zeus::CVector3f v2;
+  zeus::CVector3f v3;
+  zeus::CVector3f v4;
+  v1.x() = vl;
+  v1.y() = 0.0;
+  v1.z() = vb;
+  v2.x() = vr;
+  v2.y() = 0.0;
+  v2.z() = vb;
+  v3.x() = vl;
+  v3.y() = 0.0;
+  v3.z() = vt;
+  v4.x() = vr;
+  v4.y() = 0.0;
+  v4.z() = vt;
 
   DrawFrame(v1, v2, v3, v4);
   return true;
@@ -525,27 +532,27 @@ void CMoviePlayer::DrawFrame(const zeus::CVector3f& v1, const zeus::CVector3f& v
     vPad = CGraphics::GetViewportAspect() / 1.33f;
   }
 
-  /* draw appropriate field */
-  CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
-  aurora::gfx::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0], tex.U, tex.V, hPad, vPad);
+  //  /* draw appropriate field */
+  //  CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
+  //  aurora::gfx::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0], tex.U, tex.V, hPad, vPad);
 
-//  MyTHPGXYuv2RgbSetup(CGraphics::g_LastFrameUsedAbove, xf4_26_fieldFlip);
-//  uintptr_t planeSize = x6c_videoInfo.width * x6c_videoInfo.height;
-//  uintptr_t planeSizeQuarter = planeSize / 4;
-//  MyTHPYuv2RgbTextureSetup(m_yuvBuf.get(), m_yuvBuf.get() + planeSize, m_yuvBuf.get() + planeSize + planeSizeQuarter,
-//                           x6c_videoInfo.width, x6c_videoInfo.height);
-//
-//  CGX::Begin(GX::TRIANGLEFAN, GX::VTXFMT7, 4);
-//  GXPosition3f32(v1);
-//  GXTexCoord2f32(0.f, 0.f);
-//  GXPosition3f32(v3);
-//  GXTexCoord2f32(0.f, 1.f);
-//  GXPosition3f32(v4);
-//  GXTexCoord2f32(1.f, 1.f);
-//  GXPosition3f32(v2);
-//  GXTexCoord2f32(1.f, 0.f);
-//  CGX::End();
-//  MyTHPGXRestore();
+  MyTHPGXYuv2RgbSetup(CGraphics::g_LastFrameUsedAbove, xf4_26_fieldFlip);
+  uintptr_t planeSize = x6c_videoInfo.width * x6c_videoInfo.height;
+  uintptr_t planeSizeQuarter = planeSize / 4;
+  MyTHPYuv2RgbTextureSetup(m_yuvBuf.get(), m_yuvBuf.get() + planeSize, m_yuvBuf.get() + planeSize + planeSizeQuarter,
+                           x6c_videoInfo.width, x6c_videoInfo.height);
+
+  CGX::Begin(GX_TRIANGLEFAN, GX_VTXFMT7, 4);
+  GXPosition3f32(v1);
+  GXTexCoord2f32(0.f, 0.f);
+  GXPosition3f32(v3);
+  GXTexCoord2f32(0.f, 1.f);
+  GXPosition3f32(v4);
+  GXTexCoord2f32(1.f, 1.f);
+  GXPosition3f32(v2);
+  GXTexCoord2f32(1.f, 0.f);
+  CGX::End();
+  MyTHPGXRestore();
 
   /* ensure second field is being displayed by VI to signal advance
    * (faked in metaforce with continuous xor) */
@@ -659,25 +666,25 @@ void CMoviePlayer::DecodeFromRead(const void* data) {
       uintptr_t planeSizeHalf = planeSize / 2;
       uintptr_t planeSizeQuarter = planeSizeHalf / 2;
 
-      if (m_deinterlace) {
-        /* Deinterlace into 2 discrete 60-fps half-res textures */
-        auto buffer = std::make_unique<u8[]>(planeSizeHalf);
-        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
-          memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2),
-                 x6c_videoInfo.width);
-        }
-        aurora::gfx::write_texture(*tex.Y[0], {buffer.get(), planeSizeHalf});
-        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
-          memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2 + 1),
-                 x6c_videoInfo.width);
-        }
-        aurora::gfx::write_texture(*tex.Y[1], {buffer.get(), planeSizeHalf});
-      } else {
-        /* Direct planar load */
-        aurora::gfx::write_texture(*tex.Y[0], {m_yuvBuf.get(), planeSize});
-      }
-      aurora::gfx::write_texture(*tex.U, {m_yuvBuf.get() + planeSize, planeSizeQuarter});
-      aurora::gfx::write_texture(*tex.V, {m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter});
+      //      if (m_deinterlace) {
+      //        /* Deinterlace into 2 discrete 60-fps half-res textures */
+      //        auto buffer = std::make_unique<u8[]>(planeSizeHalf);
+      //        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
+      //          memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2),
+      //                 x6c_videoInfo.width);
+      //        }
+      //        aurora::gfx::write_texture(*tex.Y[0], {buffer.get(), planeSizeHalf});
+      //        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
+      //          memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2 + 1),
+      //                 x6c_videoInfo.width);
+      //        }
+      //        aurora::gfx::write_texture(*tex.Y[1], {buffer.get(), planeSizeHalf});
+      //      } else {
+      //        /* Direct planar load */
+      //        aurora::gfx::write_texture(*tex.Y[0], {m_yuvBuf.get(), planeSize});
+      //      }
+      //      aurora::gfx::write_texture(*tex.U, {m_yuvBuf.get() + planeSize, planeSizeQuarter});
+      //      aurora::gfx::write_texture(*tex.V, {m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter});
 
       break;
     }

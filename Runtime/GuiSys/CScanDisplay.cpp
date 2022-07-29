@@ -42,7 +42,7 @@ void CScanDisplay::CDataDot::Draw(const zeus::CColor& col, float radius) {
 
   const zeus::CTransform xf = zeus::CTransform::Translate(xc_curPos.x(), 0.f, xc_curPos.y());
   g_Renderer->SetModelMatrix(xf);
-  CGraphics::StreamBegin(GX::TRIANGLESTRIP);
+  CGraphics::StreamBegin(GX_TRIANGLESTRIP);
   zeus::CColor useColor = col;
   useColor.a() *= x24_alpha;
   CGraphics::StreamColor(useColor);
@@ -84,7 +84,7 @@ void CScanDisplay::ProcessInput(const CFinalInput& input) {
     return;
 
   if (xc_state == EScanState::DownloadComplete && x1a4_xAlpha == 0.f) {
-    if (input.PA() || input.PSpecialKey(aurora::SpecialKey::Enter) || input.PMouseButton(EMouseButton::Primary)) {
+    if (input.PA() || input.PSpecialKey(ESpecialKey::Enter) || input.PMouseButton(EMouseButton::Primary)) {
       if (xa8_message->TextSupport().GetCurTime() < xa8_message->TextSupport().GetTotalAnimationTime()) {
         xa8_message->TextSupport().SetCurTime(xa8_message->TextSupport().GetTotalAnimationTime());
       } else {
@@ -96,7 +96,7 @@ void CScanDisplay::ProcessInput(const CFinalInput& input) {
   } else if (xc_state == EScanState::ViewingScan) {
     int oldCounter = x1ac_pageCounter;
     int totalPages = xac_scrollMessage->TextSupport().GetTotalPageCount();
-    if ((input.PA() || input.PSpecialKey(aurora::SpecialKey::Enter) || input.PMouseButton(EMouseButton::Primary)) &&
+    if ((input.PA() || input.PSpecialKey(ESpecialKey::Enter) || input.PMouseButton(EMouseButton::Primary)) &&
         totalPages != -1) {
       CGuiTextSupport& supp = !x1ac_pageCounter ? xa8_message->TextSupport() : xac_scrollMessage->TextSupport();
       if (supp.GetCurTime() < supp.GetTotalAnimationTime())
@@ -452,7 +452,7 @@ void CScanDisplay::Draw() {
   g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
   g_Renderer->SetBlendMode_AdditiveAlpha();
   CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
-  x0_dataDot->Load(GX::TEXMAP0, EClampMode::Repeat);
+  x0_dataDot->Load(GX_TEXMAP0, EClampMode::Repeat);
 
   const float vpRatio = CGraphics::GetViewportHeight() / 480.f;
   for (CDataDot& dot : xbc_dataDots) {

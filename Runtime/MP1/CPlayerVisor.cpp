@@ -353,7 +353,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   rect.x8_top = int((CGraphics::GetViewportHeight() - vpH) / 2.f);
   rect.xc_width = int(vpW);
   rect.x10_height = int(vpH);
-  CGraphics::ResolveSpareTexture(rect, 0, GX::TF_RGB565);
+  CGraphics::ResolveSpareTexture(rect, 0, GX_TF_RGB565);
 
   {
     SCOPED_GRAPHICS_DEBUG_GROUP("x64_scanDim Draw", zeus::skMagenta);
@@ -366,7 +366,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   const zeus::CTransform seventeenScale = zeus::CTransform::Scale(17.f * vpScale, 1.f, 17.f * vpScale);
   const zeus::CTransform mm = seventeenScale * windowScale;
   g_Renderer->SetModelMatrix(mm);
-  CGraphics::LoadDolphinSpareTexture(0, GX::TF_RGB565, GX::TEXMAP0);
+  CGraphics::LoadDolphinSpareTexture(0, GX_TF_RGB565, GX_TEXMAP0);
 
   if (x108_newScanPane) {
     SCOPED_GRAPHICS_DEBUG_GROUP("x108_newScanPane Draw", zeus::skMagenta);

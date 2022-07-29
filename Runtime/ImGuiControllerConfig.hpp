@@ -3,7 +3,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/Streams/CInputStream.hpp"
 #include "Runtime/Streams/COutputStream.hpp"
-#include "aurora/pad.hpp"
+#include <dolphin/pad.h>
 
 #include <array>
 #include <chrono>

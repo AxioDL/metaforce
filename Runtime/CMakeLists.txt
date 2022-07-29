@@ -153,11 +153,11 @@ set(DISCORD_RPC_LIBRARY "")
 if (NOT GEKKO AND NOT NX AND NOT IOS AND NOT TVOS)
     set(DISCORD_RPC_LIBRARY "discord-rpc")
 endif()
-set(RUNTIME_LIBRARIES amuse zeus nod NESEmulator libjpeg-turbo jbus kabufuda logvisor OptickCore imgui aurora
+set(RUNTIME_LIBRARIES amuse zeus nod NESEmulator libjpeg-turbo jbus kabufuda logvisor OptickCore
+    imgui_support aurora::aurora SDL2::SDL2-static SDL2::SDL2main
     boo # TODO move audiodev
     ${DISCORD_RPC_LIBRARY}
     ${ZLIB_LIBRARIES}
-    SDL2::SDL2-static SDL2::SDL2main
     )
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
@@ -229,7 +229,7 @@ add_executable(metaforce CMain.cpp ${PLAT_SRCS}
     ImGuiControllerConfig.hpp ImGuiControllerConfig.cpp
     ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp)
 # RUNTIME_LIBRARIES repeated here for link ordering
-target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS})
+target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS} aurora::main)
 if (TARGET nativefiledialog)
     target_link_libraries(metaforce PRIVATE nativefiledialog)
 endif()

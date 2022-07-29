@@ -18,7 +18,7 @@ u32 CGraphics::g_FlippingState;
 bool CGraphics::g_LastFrameUsedAbove = false;
 bool CGraphics::g_InterruptLastFrameUsedAbove = false;
 GX::LightMask CGraphics::g_LightActive{};
-std::array<GX::LightObj, GX::MaxLights> CGraphics::g_LightObjs;
+std::array<GXLightObj, GX::MaxLights> CGraphics::g_LightObjs;
 std::array<ELightType, GX::MaxLights> CGraphics::g_LightTypes;
 zeus::CTransform CGraphics::g_GXModelView;
 zeus::CTransform CGraphics::g_GXModelViewInvXpose;
@@ -59,8 +59,8 @@ const std::array<zeus::CMatrix3f, 6> CGraphics::skCubeBasisMats{{
 }};
 
 // Stream API
-static EStreamFlags sStreamFlags;
-static GX::Primitive sStreamPrimitive;
+static u32 sStreamFlags;
+static GXPrimitive sStreamPrimitive;
 static u32 sVerticesCount;
 static zeus::CColor sQueuedColor;
 // Originally writes directly to GX FIFO
@@ -80,7 +80,7 @@ void CGraphics::DisableAllLights() {
 }
 
 void CGraphics::LoadLight(ERglLight light, const CLight& info) {
-  const auto lightId = static_cast<GX::LightID>(1 << light);
+  const auto lightId = static_cast<GXLightID>(1 << light);
 
   auto& obj = g_LightObjs[light];
   zeus::CVector3f pos = info.GetPosition();
@@ -97,7 +97,7 @@ void CGraphics::LoadLight(ERglLight light, const CLight& info) {
     GXInitLightDir(&obj, dir.x(), dir.y(), dir.z());
     GXInitLightAttn(&obj, 1.f, 0.f, 0.f, info.GetAttenuationConstant(), info.GetAttenuationLinear(),
                     info.GetAttenuationQuadratic());
-    GXInitLightSpot(&obj, info.GetSpotCutoff(), GX::SP_COS2);
+    GXInitLightSpot(&obj, info.GetSpotCutoff(), GX_SP_COS2);
   } else if (type == ELightType::Custom) {
     pos = g_CameraMatrix * pos;
     GXInitLightPos(&obj, pos.x(), pos.y(), pos.z());
@@ -114,8 +114,8 @@ void CGraphics::LoadLight(ERglLight light, const CLight& info) {
   }
 
   g_LightTypes[light] = type;
-  GX::Color col(info.GetColor().r(), info.GetColor().g(), info.GetColor().b());
-  GXInitLightColor(&obj, col);
+  zeus::CColor col(info.GetColor().r(), info.GetColor().g(), info.GetColor().b());
+  GXInitLightColor(&obj, to_gx_color(col));
   GXLoadLightObjImm(&obj, lightId);
 }
 
@@ -130,9 +130,9 @@ void CGraphics::EnableLight(ERglLight light) {
 void CGraphics::SetLightState(GX::LightMask lightState) {
   g_LightActive = lightState;
   const bool hasLights = lightState.any();
-  CGX::SetChanCtrl(CGX::EChannelId::Channel0, hasLights, GX::SRC_REG,
-                   sStreamFlags & EStreamFlagBits::fHasColor ? GX::SRC_VTX : GX::SRC_REG, lightState,
-                   hasLights ? GX::DF_CLAMP : GX::DF_NONE, hasLights ? GX::AF_SPOT : GX::AF_NONE);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, hasLights, GX_SRC_REG,
+                   sStreamFlags & 2 /* fHasColor */ ? GX_SRC_VTX : GX_SRC_REG, lightState,
+                   hasLights ? GX_DF_CLAMP : GX_DF_NONE, hasLights ? GX_AF_SPOT : GX_AF_NONE);
 }
 
 void CGraphics::SetAmbientColor(const zeus::CColor& col) {
@@ -141,21 +141,21 @@ void CGraphics::SetAmbientColor(const zeus::CColor& col) {
 }
 
 void CGraphics::SetFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) {
-  CGX::SetFog(GX::FogType(mode), startz, endz, g_Proj.x14_near, g_Proj.x18_far, color);
+  CGX::SetFog(GXFogType(mode), startz, endz, g_Proj.x14_near, g_Proj.x18_far, to_gx_color(color));
 }
 
 void CGraphics::SetDepthWriteMode(bool compare_enable, ERglEnum comp, bool update_enable) {
   g_depthFunc = comp;
-  CGX::SetZMode(compare_enable, GX::Compare(comp), update_enable);
+  CGX::SetZMode(compare_enable, GXCompare(comp), update_enable);
 }
 
 void CGraphics::SetBlendMode(ERglBlendMode mode, ERglBlendFactor src, ERglBlendFactor dst, ERglLogicOp op) {
-  CGX::SetBlendMode(GX::BlendMode(mode), GX::BlendFactor(src), GX::BlendFactor(dst), GX::LogicOp(op));
+  CGX::SetBlendMode(GXBlendMode(mode), GXBlendFactor(src), GXBlendFactor(dst), GXLogicOp(op));
 }
 
 void CGraphics::SetCullMode(ERglCullMode mode) {
   g_cullMode = mode;
-  GXSetCullMode(GX::CullMode(mode));
+  GXSetCullMode(GXCullMode(mode));
 }
 
 void CGraphics::BeginScene() {
@@ -163,7 +163,7 @@ void CGraphics::BeginScene() {
 }
 
 void CGraphics::EndScene() {
-  CGX::SetZMode(true, GX::LEQUAL, true);
+  CGX::SetZMode(true, GX_LEQUAL, true);
 
   /* Spinwait until g_NumBreakpointsWaiting is 0 */
   /* ++g_NumBreakpointsWaiting; */
@@ -190,10 +190,10 @@ void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::
   const auto oldLights = g_LightActive;
   SetOrtho(-g_Viewport.x10_halfWidth, g_Viewport.x10_halfWidth, g_Viewport.x14_halfHeight, -g_Viewport.x14_halfHeight,
            -1.f, -10.f);
-  GXLoadPosMtxImm({}, GX::PNMTX0);
+  GXLoadPosMtxImm({}, GX_PNMTX0);
   DisableAllLights();
   SetCullMode(ERglCullMode::None);
-  tex.Load(GX::TEXMAP0, EClampMode::Repeat);
+  tex.Load(GX_TEXMAP0, EClampMode::Repeat);
 
   //  float hPad, vPad;
   //  if (CGraphics::GetViewportAspect() >= 1.78f) {
@@ -213,7 +213,7 @@ void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::
   float y1 = scaledY - g_Viewport.x14_halfHeight;
   float x2 = x1 + scaledW;
   float y2 = y1 + scaledH;
-  StreamBegin(GX::TRIANGLESTRIP);
+  StreamBegin(GX_TRIANGLESTRIP);
   StreamColor(col);
   StreamTexcoord(0.f, 0.f);
   StreamVertex(x1, y1, 1.f);
@@ -240,8 +240,8 @@ void CGraphics::DoRender2D(const CTexture& tex, s32 x, s32 y, s32 w1, s32 w2, s3
 void CGraphics::EndRender2D(bool v) {}
 
 void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1) {
-  CGX::SetAlphaCompare(static_cast<GX::Compare>(comp0), ref0, static_cast<GX::AlphaOp>(op),
-                       static_cast<GX::Compare>(comp1), ref1);
+  CGX::SetAlphaCompare(static_cast<GXCompare>(comp0), ref0, static_cast<GXAlphaOp>(op), static_cast<GXCompare>(comp1),
+                       ref1);
 }
 
 void CGraphics::SetViewPointMatrix(const zeus::CTransform& xf) {
@@ -259,12 +259,12 @@ void CGraphics::SetViewMatrix() {
   else
     g_GXModelView = g_CameraMatrix * g_GXModelMatrix;
   /* Load position matrix */
-  GXLoadPosMtxImm(g_GXModelView, GX::PNMTX0);
+  GXLoadPosMtxImm(&g_GXModelView, GX_PNMTX0);
   /* Inverse-transpose */
   g_GXModelViewInvXpose = g_GXModelView.inverse();
   g_GXModelViewInvXpose.basis.transpose();
   /* Load normal matrix */
-  GXLoadNrmMtxImm(g_GXModelViewInvXpose, GX::PNMTX0);
+  GXLoadNrmMtxImm(&g_GXModelViewInvXpose, GX_PNMTX0);
 }
 
 void CGraphics::SetModelMatrix(const zeus::CTransform& xf) {
@@ -316,7 +316,7 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix() {
     return {
         2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f,
         2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
-        0.f, 0.f, -fpn / fmn, -2.f * g_Proj.x18_far * g_Proj.x14_near / fmn,
+        0.f, 0.f, -g_Proj.x14_near / fmn, -(g_Proj.x18_far * g_Proj.x14_near) / fmn,
         0.f, 0.f, -1.f, 0.f,
     };
     // clang-format on
@@ -330,7 +330,7 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix() {
     return {
         2.f / rml, 0.f, 0.f, -rpl / rml,
         0.f, 2.f / tmb, 0.f, -tpb / tmb,
-        0.f, 0.f, -1.f / fmn, -g_Proj.x14_near / fmn,
+        0.f, 0.f, -1.f / fmn, -g_Proj.x18_far / fmn,
         0.f, 0.f, 0.f, 1.f
     };
     // clang-format on
@@ -375,10 +375,10 @@ void CGraphics::FlushProjection() {
   const auto mtx = GetPerspectiveProjectionMatrix();
   if (g_Proj.x0_persp) {
     // Convert and load persp
-    GXSetProjection(mtx, GX::PERSPECTIVE);
+    GXSetProjection(&mtx, GX_PERSPECTIVE);
   } else {
     // Convert and load ortho
-    GXSetProjection(mtx, GX::ORTHOGRAPHIC);
+    GXSetProjection(&mtx, GX_ORTHOGRAPHIC);
   }
 }
 
@@ -521,14 +521,14 @@ void CGraphics::SetUseVideoFilter(bool filter) {
 
 void CGraphics::SetClearColor(const zeus::CColor& color) {
   g_ClearColor = color;
-  GXSetCopyClear(color, g_ClearDepthValue);
+  GXSetCopyClear(to_gx_color(color), g_ClearDepthValue);
 }
 
 void CGraphics::SetCopyClear(const zeus::CColor& color, float depth) {
   g_ClearColor = color;
   g_ClearDepthValue = depth; // 1.6777215E7 * depth; Metroid Prime needed this to convert float [0,1] depth into 24 bit
                              // range, we no longer have this requirement
-  GXSetCopyClear(g_ClearColor, g_ClearDepthValue);
+  GXSetCopyClear(to_gx_color(g_ClearColor), g_ClearDepthValue);
 }
 
 void CGraphics::SetIsBeginSceneClearFb(bool clear) { g_IsBeginSceneClearFb = clear; }
@@ -537,19 +537,19 @@ void CGraphics::SetTevOp(ERglTevStage stage, const CTevCombiners::CTevPass& pass
   CTevCombiners::SetupPass(stage, pass);
 }
 
-void CGraphics::StreamBegin(GX::Primitive primitive) {
+void CGraphics::StreamBegin(GXPrimitive primitive) {
   // Originally ResetVertexDataStream(true);
   sQueuedVertices.clear();
   sQueuedVertices.emplace_back(sQueuedColor);
   sVerticesCount = 0;
   // End
-  sStreamFlags = EStreamFlagBits::fHasColor;
+  sStreamFlags = 2;
   sStreamPrimitive = primitive;
 }
 
 void CGraphics::StreamNormal(const zeus::CVector3f& nrm) {
   sQueuedVertices.back().normal = nrm;
-  sStreamFlags |= EStreamFlagBits::fHasNormal;
+  sStreamFlags |= 1;
 }
 
 void CGraphics::StreamColor(const zeus::CColor& color) {
@@ -558,12 +558,12 @@ void CGraphics::StreamColor(const zeus::CColor& color) {
   } else {
     sQueuedColor = color;
   }
-  sStreamFlags |= EStreamFlagBits::fHasColor;
+  sStreamFlags |= 2;
 }
 
 void CGraphics::StreamTexcoord(const zeus::CVector2f& uv) {
   sQueuedVertices.back().texCoord = uv;
-  sStreamFlags |= EStreamFlagBits::fHasTexture;
+  sStreamFlags |= 4;
 }
 
 void CGraphics::StreamVertex(const zeus::CVector3f& pos) {
@@ -589,35 +589,36 @@ void CGraphics::UpdateVertexDataStream() {
 }
 
 void CGraphics::FlushStream() {
-  std::array<GX::VtxDescList, 5> vtxDescList{};
+  std::array<GXVtxDescList, 5> vtxDescList{};
   size_t idx = 0;
-  vtxDescList[idx++] = {GX::VA_POS, GX::DIRECT};
-  if (sStreamFlags & EStreamFlagBits::fHasNormal) {
-    vtxDescList[idx++] = {GX::VA_NRM, GX::DIRECT};
+  vtxDescList[idx++] = {GX_VA_POS, GX_DIRECT};
+  if (sStreamFlags & 1) {
+    vtxDescList[idx++] = {GX_VA_NRM, GX_DIRECT};
   }
-  if (sStreamFlags & EStreamFlagBits::fHasColor) {
-    vtxDescList[idx++] = {GX::VA_CLR0, GX::DIRECT};
+  if (sStreamFlags & 2) {
+    vtxDescList[idx++] = {GX_VA_CLR0, GX_DIRECT};
   }
-  if (sStreamFlags & EStreamFlagBits::fHasTexture) {
-    vtxDescList[idx++] = {GX::VA_TEX0, GX::DIRECT};
+  if (sStreamFlags & 4) {
+    vtxDescList[idx++] = {GX_VA_TEX0, GX_DIRECT};
   }
+  vtxDescList[idx] = {GX_VA_NULL, GX_NONE};
   CGX::SetVtxDescv(vtxDescList.data());
   SetTevStates(sStreamFlags);
   FullRender();
 }
 
 void CGraphics::FullRender() {
-  CGX::Begin(sStreamPrimitive, GX::VTXFMT0, sVerticesCount);
+  CGX::Begin(sStreamPrimitive, GX_VTXFMT0, sVerticesCount);
   for (size_t i = 0; i < sVerticesCount; ++i) {
     const auto& item = sQueuedVertices[i];
     GXPosition3f32(item.vertex);
-    if (sStreamFlags & EStreamFlagBits::fHasNormal) {
+    if (sStreamFlags & 1) {
       GXNormal3f32(item.normal);
     }
-    if (sStreamFlags & EStreamFlagBits::fHasColor) {
+    if (sStreamFlags & 2) {
       GXColor4f32(item.color);
     }
-    if (sStreamFlags & EStreamFlagBits::fHasTexture) {
+    if (sStreamFlags & 4) {
       GXTexCoord2f32(item.texCoord);
     }
   }
@@ -638,7 +639,7 @@ void CGraphics::ResetVertexDataStream(bool end) {
   }
 }
 
-void CGraphics::DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
+void CGraphics::DrawPrimitive(GXPrimitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
                               const zeus::CColor& col, s32 numVerts) {
   StreamBegin(primitive);
   StreamColor(col);
@@ -649,25 +650,25 @@ void CGraphics::DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* po
   StreamEnd();
 }
 
-void CGraphics::SetTevStates(EStreamFlags flags) noexcept {
-  if (flags & EStreamFlagBits::fHasTexture) {
+void CGraphics::SetTevStates(u32 flags) noexcept {
+  if (flags & 4 /* fHasTexture */) {
     CGX::SetNumTexGens(1); // sTextureUsed & 3?
-    CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR0A0);
-    CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD1, GX::TEXMAP1, GX::COLOR0A0);
+    CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+    CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD1, GX_TEXMAP1, GX_COLOR0A0);
   } else {
     CGX::SetNumTexGens(0);
     CGX::SetNumTevStages(1);
-    CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
-    CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
+    CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
+    CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
   }
   CGX::SetNumChans(1);
   CGX::SetNumIndStages(0);
-  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
-  CGX::SetTexCoordGen(GX::TEXCOORD1, GX::TG_MTX2x4, GX::TG_TEX1, GX::IDENTITY, false, GX::PTIDENTITY);
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+  CGX::SetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX2x4, GX_TG_TEX1, GX_IDENTITY, false, GX_PTIDENTITY);
   const bool hasLights = g_LightActive.any();
-  CGX::SetChanCtrl(CGX::EChannelId::Channel0, hasLights, GX::SRC_REG,
-                   flags & EStreamFlagBits::fHasColor ? GX::SRC_VTX : GX::SRC_REG, g_LightActive,
-                   hasLights ? GX::DF_CLAMP : GX::DF_NONE, hasLights ? GX::AF_SPOT : GX::AF_NONE);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, hasLights, GX_SRC_REG,
+                   flags & 2 /* fHasColor */ ? GX_SRC_VTX : GX_SRC_REG, g_LightActive,
+                   hasLights ? GX_DF_CLAMP : GX_DF_NONE, hasLights ? GX_AF_SPOT : GX_AF_NONE);
   CGX::FlushState(); // normally would be handled in FullRender TODO
 }
 
@@ -715,22 +716,22 @@ void CGraphics::SetDefaultVtxAttrFmt() {
   // Unneeded, all attributes are expected to be full floats
   // Left here for reference
 
-  GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
-  GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
-  GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
-  GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_NRM, GX::NRM_XYZ, GX::F32, 0);
-  GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_NRM, GX::NRM_XYZ, GX::S16, 14);
-  GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_NRM, GX::NRM_XYZ, GX::S16, 14);
-  GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
-  GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
-  GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
-  GXSetVtxAttrFmt(GX::VTXFMT0, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
-  GXSetVtxAttrFmt(GX::VTXFMT1, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
-  GXSetVtxAttrFmt(GX::VTXFMT2, GX::VA_TEX0, GX::TEX_ST, GX::U16, 15);
-  for (GX::Attr attr = GX::VA_TEX1; attr <= GX::VA_TEX7; attr = GX::Attr(attr + 1)) {
-    GXSetVtxAttrFmt(GX::VTXFMT0, attr, GX::TEX_ST, GX::F32, 0);
-    GXSetVtxAttrFmt(GX::VTXFMT1, attr, GX::TEX_ST, GX::F32, 0);
-    GXSetVtxAttrFmt(GX::VTXFMT2, attr, GX::TEX_ST, GX::F32, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT1, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT2, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_NRM_XYZ, GX_F32, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT1, GX_VA_NRM, GX_NRM_XYZ, GX_S16, 14);
+  GXSetVtxAttrFmt(GX_VTXFMT2, GX_VA_NRM, GX_NRM_XYZ, GX_S16, 14);
+  GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT1, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT2, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT1, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT2, GX_VA_TEX0, GX_TEX_ST, GX_U16, 15);
+  for (GXAttr attr = GX_VA_TEX1; attr <= GX_VA_TEX7; attr = GXAttr(attr + 1)) {
+    GXSetVtxAttrFmt(GX_VTXFMT0, attr, GX_TEX_ST, GX_F32, 0);
+    GXSetVtxAttrFmt(GX_VTXFMT1, attr, GX_TEX_ST, GX_F32, 0);
+    GXSetVtxAttrFmt(GX_VTXFMT2, attr, GX_TEX_ST, GX_F32, 0);
   }
 }
 

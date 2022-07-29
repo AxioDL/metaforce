@@ -56,10 +56,10 @@ CFinalInput::CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData&
 , x23_enableAnaRightYP(DRAUp() && !prevInput.DRAUp())
 , x24_anaLeftTriggerP(DLTrigger() && !prevInput.DLTrigger())
 , x28_anaRightTriggerP(DRTrigger() && !prevInput.DRTrigger())
-, x2c_b31_DPUp(data.m_specialKeys[size_t(aurora::SpecialKey::Up)])
-, x2d_b24_DPRight(data.m_specialKeys[size_t(aurora::SpecialKey::Right)])
-, x2d_b25_DPDown(data.m_specialKeys[size_t(aurora::SpecialKey::Down)])
-, x2d_b26_DPLeft(data.m_specialKeys[size_t(aurora::SpecialKey::Left)])
+, x2c_b31_DPUp(data.m_specialKeys[size_t(ESpecialKey::Up)])
+, x2d_b24_DPRight(data.m_specialKeys[size_t(ESpecialKey::Right)])
+, x2d_b25_DPDown(data.m_specialKeys[size_t(ESpecialKey::Down)])
+, x2d_b26_DPLeft(data.m_specialKeys[size_t(ESpecialKey::Left)])
 , x2d_b28_PA(DA() && !prevInput.DA())
 , x2d_b29_PB(DB() && !prevInput.DB())
 , x2d_b30_PX(DX() && !prevInput.DX())
@@ -316,11 +316,11 @@ static void pad_clamptrigger(int16_t& trigger) {
 }
 
 void SAuroraControllerState::clamp() {
-  pad_clampstick(m_axes[size_t(aurora::ControllerAxis::LeftX)], m_axes[size_t(aurora::ControllerAxis::LeftY)],
+  pad_clampstick(m_axes[size_t(EControllerAxis::LeftX)], m_axes[size_t(EControllerAxis::LeftY)],
                  pad_clampregion[3], pad_clampregion[4], pad_clampregion[2]);
-  pad_clampstick(m_axes[size_t(aurora::ControllerAxis::RightX)], m_axes[size_t(aurora::ControllerAxis::RightY)],
+  pad_clampstick(m_axes[size_t(EControllerAxis::RightX)], m_axes[size_t(EControllerAxis::RightY)],
                  pad_clampregion[6], pad_clampregion[7], pad_clampregion[5]);
-  pad_clamptrigger(m_axes[size_t(aurora::ControllerAxis::TriggerLeft)]);
-  pad_clamptrigger(m_axes[size_t(aurora::ControllerAxis::TriggerRight)]);
+  pad_clamptrigger(m_axes[size_t(EControllerAxis::TriggerLeft)]);
+  pad_clamptrigger(m_axes[size_t(EControllerAxis::TriggerRight)]);
 }
 } // namespace metaforce

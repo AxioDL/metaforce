@@ -9,6 +9,24 @@
 #include "GX.hpp"
 
 namespace metaforce {
+enum class ETexelFormat {
+  Invalid = -1,
+  I4 = 0,
+  I8 = 1,
+  IA4 = 2,
+  IA8 = 3,
+  C4 = 4,
+  C8 = 5,
+  C14X2 = 6,
+  RGB565 = 7,
+  RGB5A3 = 8,
+  RGBA8 = 9,
+  CMPR = 10,
+  // Metaforce addition: non-converting formats
+  RGBA8PC = 11,
+  R8PC = 12,
+};
+
 enum class EClampMode : std::underlying_type_t<GXTexWrapMode> {
   Clamp = GX_CLAMP,
   Repeat = GX_REPEAT,
@@ -63,7 +81,7 @@ private:
   u32 xc_memoryAllocated = 0;
   std::unique_ptr<CGraphicsPalette> x10_graphicsPalette;
   std::unique_ptr<CDumpedBitmapDataReloader> x14_bitmapReloader;
-  GX::TextureFormat x18_gxFormat = GX::TF_RGB565;
+  u32 x18_gxFormat = GX_TF_RGB565;
   GXCITexFmt x1c_gxCIFormat = GX_TF_C8;
   GXTexObj x20_texObj;
   EClampMode x40_clampMode = EClampMode::Repeat;
@@ -86,6 +104,7 @@ public:
   CTexture(ETexelFormat fmt, u16 w, u16 h, s32 mips, std::string_view label);
   CTexture(CInputStream& in, std::string_view label, EAutoMipmap automip = EAutoMipmap::Zero,
            EBlackKey blackKey = EBlackKey::Zero);
+  ~CTexture();
 
   [[nodiscard]] ETexelFormat GetTextureFormat() const { return x0_fmt; }
   [[nodiscard]] u16 GetWidth() const { return x4_w; }
@@ -97,8 +116,8 @@ public:
   [[nodiscard]] bool HasPalette() const { return x10_graphicsPalette != nullptr; }
   [[nodiscard]] u8* Lock();
   void UnLock();
-  void Load(GX::TexMapID id, EClampMode clamp);
-  void LoadMipLevel(float lod, GX::TexMapID id, EClampMode clamp); // was an s32 mip parameter, adjusted to use lod
+  void Load(GXTexMapID id, EClampMode clamp);
+  void LoadMipLevel(float lod, GXTexMapID id, EClampMode clamp); // was an s32 mip parameter, adjusted to use lod
   // void UnloadBitmapData(u32) const;
   // void TryReloadBitmapData(CResFactory&) const;
   // void LoadToMRAM() const;
@@ -112,7 +131,7 @@ public:
     return x0_fmt == ETexelFormat::C4 || x0_fmt == ETexelFormat::C8 || x0_fmt == ETexelFormat::C14X2;
   }
 
-  static void InvalidateTexMap(GX::TexMapID id);
+  static void InvalidateTexMap(GXTexMapID id);
   static void SetMangleMips(bool b) { sMangleMips = b; }
   static void SetCurrentFrameCount(u32 frameCount) { sCurrentFrameCount = frameCount; }
 };

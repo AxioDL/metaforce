@@ -222,18 +222,6 @@ CGameArchitectureSupport::~CGameArchitectureSupport() {
   CStreamAudioManager::Shutdown();
 }
 
-void CGameArchitectureSupport::charKeyDown(uint8_t charCode, aurora::ModifierKey mods, bool isRepeat) {
-  // x30_inputGenerator.charKeyDown(charCode, mods, isRepeat);
-}
-
-void CGameArchitectureSupport::specialKeyDown(aurora::SpecialKey key, aurora::ModifierKey mods, bool isRepeat) {
-  // x30_inputGenerator.specialKeyDown(key, mods, isRepeat);
-}
-
-void CGameArchitectureSupport::specialKeyUp(aurora::SpecialKey key, aurora::ModifierKey mods) {
-  // x30_inputGenerator.specialKeyUp(key, mods);
-}
-
 CMain::CMain(IFactory* resFactory, CSimplePool* resStore)
 : xe4_gameplayResult(EGameplayResult::Playing)
 , x128_globalObjects(std::make_unique<CGameGlobalObjects>(resFactory, resStore)) {
@@ -518,8 +506,8 @@ void CMain::HandleDiscordErrored(int errorCode, const char* message) {
   DiscordLog.report(logvisor::Error, FMT_STRING("Discord Error: {}"), message);
 }
 
-std::string CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, boo::IAudioVoiceEngine* voiceEngine,
-                        amuse::IBackendVoiceAllocator& backend) {
+std::string CMain::Init(int argc, char** argv, const FileStoreManager& storeMgr, CVarManager* cvarMgr,
+                        boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) {
   m_cvarMgr = cvarMgr;
 
   {
@@ -607,11 +595,11 @@ std::string CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, 
   x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
   AddWorldPaks();
 
-  auto args = aurora::get_args();
-  for (auto it = args.begin(); it != args.end(); ++it) {
-    if (*it == "--warp" && args.end() - it >= 3) {
-      const char* worldIdxStr = (*(it + 1)).c_str();
-      const char* areaIdxStr = (*(it + 2)).c_str();
+  for (int i = 1; i < argc; ++i) {
+    std::string arg = argv[i];
+    if (arg == "--warp" && i < argc - 2) {
+      const char* worldIdxStr = argv[i + 1];
+      const char* areaIdxStr = argv[i + 2];
 
       char* endptr = nullptr;
       m_warpWorldIdx = TAreaId(strtoul(worldIdxStr, &endptr, 0));
@@ -636,8 +624,8 @@ std::string CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, 
         break;
       }
 
-      while (args.end() - it >= 4) {
-        const char* layerStr = (*(it + 3)).c_str();
+      while (i < argc - 3) {
+        const char* layerStr = argv[i + 3];
         if (!(layerStr[0] == '0' && layerStr[1] == 'x') && (layerStr[0] == '0' || layerStr[0] == '1')) {
           for (const auto* cur = layerStr; *cur != '\0'; ++cur)
             if (*cur == '1')
@@ -645,7 +633,7 @@ std::string CMain::Init(const FileStoreManager& storeMgr, CVarManager* cvarMgr, 
         } else if (layerStr[0] == '0' && layerStr[1] == 'x') {
           m_warpMemoryRelays.emplace_back(TAreaId(strtoul(layerStr + 2, nullptr, 16)));
         }
-        ++it;
+        ++i;
       }
 
       SetFlowState(EClientFlowStates::StateSetter);

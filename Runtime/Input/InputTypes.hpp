@@ -1,18 +1,17 @@
 #pragma once
-#include "Runtime/Input/PAD.hpp"
-
+#include <dolphin/pad.h>
 
 namespace metaforce {
 enum class EIOPort {
-  Player1,
-  Player2,
-  Player3,
-  Player4,
+  Player1 = PAD_CHAN0,
+  Player2 = PAD_CHAN1,
+  Player3 = PAD_CHAN2,
+  Player4 = PAD_CHAN3,
 };
 
 enum class EMotorState {
-  Stop = 0,
-  Rumble = 1,
-  StopHard = 2,
+  Stop = PAD_MOTOR_STOP,
+  Rumble = PAD_MOTOR_RUMBLE,
+  StopHard = PAD_MOTOR_STOP_HARD,
 };
 } // namespace metaforce

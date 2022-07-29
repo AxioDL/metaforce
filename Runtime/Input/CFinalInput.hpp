@@ -12,8 +12,8 @@ struct SAuroraControllerState {
   u32 m_which = -1;
   bool m_isGamecube = false;
   bool m_hasRumble = false;
-  std::array<int16_t, size_t(aurora::ControllerAxis::MAX)> m_axes{};
-  std::bitset<size_t(aurora::ControllerButton::MAX)> m_btns{};
+  std::array<int16_t, size_t(EControllerAxis::MAX)> m_axes{};
+  std::bitset<size_t(EControllerButton::MAX)> m_btns{};
 
   SAuroraControllerState() = default;
   SAuroraControllerState(uint32_t which, bool isGamecube, bool hasRumble)
@@ -68,7 +68,7 @@ struct CFinalInput {
   std::optional<CKeyboardMouseControllerData> m_kbm;
 
   std::array<bool, 256> m_PCharKeys{};
-  std::array<bool, size_t(aurora::SpecialKey::MAX)> m_PSpecialKeys{};
+  std::array<bool, size_t(ESpecialKey::MAX)> m_PSpecialKeys{};
   std::array<bool, 6> m_PMouseButtons{};
 
 
@@ -162,13 +162,13 @@ struct CFinalInput {
   void InitializeAnalog(float leftDiv, float rightDiv);
 
   bool PKey(char k) const { return m_kbm && m_PCharKeys[size_t(k)]; }
-  bool PSpecialKey(aurora::SpecialKey k) const { return m_kbm && m_PSpecialKeys[size_t(k)]; }
+  bool PSpecialKey(ESpecialKey k) const { return m_kbm && m_PSpecialKeys[size_t(k)]; }
   bool PMouseButton(EMouseButton k) const { return m_kbm && m_PMouseButtons[size_t(k)]; }
   bool DKey(char k) const { return m_kbm && m_kbm->m_charKeys[size_t(k)]; }
-  bool DSpecialKey(aurora::SpecialKey k) const { return m_kbm && m_kbm->m_specialKeys[size_t(k)]; }
+  bool DSpecialKey(ESpecialKey k) const { return m_kbm && m_kbm->m_specialKeys[size_t(k)]; }
   bool DMouseButton(EMouseButton k) const { return m_kbm && m_kbm->m_mouseButtons[size_t(k)]; }
   float AKey(char k) const { return DKey(k) ? 1.f : 0.f; }
-  float ASpecialKey(aurora::SpecialKey k) const { return DSpecialKey(k) ? 1.f : 0.f; }
+  float ASpecialKey(ESpecialKey k) const { return DSpecialKey(k) ? 1.f : 0.f; }
   float AMouseButton(EMouseButton k) const { return DMouseButton(k) ? 1.f : 0.f; }
 
   const std::optional<CKeyboardMouseControllerData>& GetKBM() const { return m_kbm; }

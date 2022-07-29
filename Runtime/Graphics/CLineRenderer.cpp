@@ -20,7 +20,7 @@ void CLineRenderer::Shutdown() {
 //hecl::VertexBufferPool<CLineRenderer::SDrawVertNoTex> CLineRenderer::s_vertPoolNoTex = {};
 //hecl::UniformBufferPool<CLineRenderer::SDrawUniform> CLineRenderer::s_uniformPool = {};
 
-CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const aurora::gfx::TextureHandle& texture,
+CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, u32 texture,
                              bool additive, bool zTest, bool zGEqual)
 : m_mode(mode), m_maxVerts(maxVerts) {
   OPTICK_EVENT();

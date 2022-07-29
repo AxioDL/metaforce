@@ -210,26 +210,26 @@ bool CRasterFont::IsFinishedLoading() const {
 }
 
 void CRasterFont::SetupRenderState() {
-  static const GX::VtxDescList skDescList[3] = {
-    {GX::VA_POS, GX::DIRECT},
-    {GX::VA_TEX0, GX::DIRECT},
-    {GX::VA_NULL, GX::NONE}
+  constexpr std::array skDescList = {
+      GXVtxDescList{GX_VA_POS, GX_DIRECT},
+      GXVtxDescList{GX_VA_TEX0, GX_DIRECT},
+      GXVtxDescList{GX_VA_NULL, GX_NONE},
   };
 
-  x80_texture->Load(GX::TEXMAP0, EClampMode::Clamp);
-  CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_K0_A);
-  CGX::SetTevKColorSel(GX::TEVSTAGE0, GX::TEV_KCSEL_K0);
-  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_TEXC, GX::CC_KONST, GX::CC_ZERO);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_TEXA, GX::CA_KONST, GX::CA_ZERO);
-  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
-  CGX::SetTevDirect(GX::TEVSTAGE0);
-  CGX::SetVtxDescv(skDescList);
+  x80_texture->Load(GX_TEXMAP0, EClampMode::Clamp);
+  CGX::SetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_K0_A);
+  CGX::SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K0);
+  CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, GX_CC_ZERO);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_KONST, GX_CA_ZERO);
+  CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
+  CGX::SetTevDirect(GX_TEVSTAGE0);
+  CGX::SetVtxDescv(skDescList.data());
   CGX::SetNumChans(0);
   CGX::SetNumTexGens(1);
   CGX::SetNumTevStages(1);
   CGX::SetNumIndStages(0);
-  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
-  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
 }
 std::unique_ptr<IObj> FRasterFontFactory([[maybe_unused]] const SObjectTag& tag, CInputStream& in,
                                          const CVParamTransfer& vparms, [[maybe_unused]] CObjectReference* selfRef) {

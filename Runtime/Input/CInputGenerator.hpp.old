@@ -42,9 +42,9 @@ public:
 
   void controllerRemoved(uint32_t which) noexcept;
 
-  void controllerButton(uint32_t which, aurora::ControllerButton button, bool pressed) noexcept;
+  void controllerButton(uint32_t which, EControllerButton button, bool pressed) noexcept;
 
-  void controllerAxis(uint32_t which, aurora::ControllerAxis axis, int16_t value) noexcept;
+  void controllerAxis(uint32_t which, EControllerAxis axis, int16_t value) noexcept;
 
 
   /* Keyboard and mouse events are delivered on the main game
@@ -74,8 +74,8 @@ public:
       return;
     m_data.m_charKeys[charCode] = false;
   }
-  void specialKeyDown(aurora::SpecialKey key, aurora::ModifierKey, bool) { m_data.m_specialKeys[size_t(key)] = true; }
-  void specialKeyUp(aurora::SpecialKey key, aurora::ModifierKey) { m_data.m_specialKeys[size_t(key)] = false; }
+  void specialKeyDown(ESpecialKey key, aurora::ModifierKey, bool) { m_data.m_specialKeys[size_t(key)] = true; }
+  void specialKeyUp(ESpecialKey key, aurora::ModifierKey) { m_data.m_specialKeys[size_t(key)] = false; }
   void modKeyDown(aurora::ModifierKey mod, bool) { m_data.m_modMask = m_data.m_modMask | mod; }
   void modKeyUp(aurora::ModifierKey mod) { m_data.m_modMask = m_data.m_modMask & ~mod; }
 

@@ -54,7 +54,7 @@ void CLineRendererShaders::Shutdown() {
 }
 
 void CLineRendererShaders::BuildShaderDataBinding(CLineRenderer& renderer,
-                                                  const aurora::gfx::TextureHandle& texture, bool additive,
+                                                  CTexture& texture, bool additive,
                                                   bool zTest, bool zGEqual) {
 //  std::array<boo::ObjToken<boo::IShaderPipeline>, 2>* pipeline = nullptr;
 //

@@ -33,11 +33,11 @@ public:
   enum class EDrawableSorting { SortedCallback, UnsortedCallback };
   enum class EDebugOption { Invalid = -1, PVSMode, PVSState, FogDisabled };
   enum class EPrimitiveType {
-    Triangles = GX::TRIANGLES,
-    TriangleFan = GX::TRIANGLEFAN,
-    TriangleStrip = GX::TRIANGLESTRIP,
-    Lines = GX::LINES,
-    LineStrip = GX::LINESTRIP,
+    Triangles = GX_TRIANGLES,
+    TriangleFan = GX_TRIANGLEFAN,
+    TriangleStrip = GX_TRIANGLESTRIP,
+    Lines = GX_LINES,
+    LineStrip = GX_LINESTRIP,
   };
 
   virtual ~IRenderer() = default;

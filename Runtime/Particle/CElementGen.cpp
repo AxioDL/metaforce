@@ -913,27 +913,27 @@ void CElementGen::RenderModels() {
       CParticle& target = x30_particles[0];
       int partFrame = x74_curFrame - target.x28_startFrame;
       cachedTex = texr->GetValueTexture(partFrame).GetObj();
-      cachedTex->Load(GX::TEXMAP0, EClampMode::Repeat);
+      cachedTex->Load(GX_TEXMAP0, EClampMode::Repeat);
 
       CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
       if (moveRedToAlphaBuffer) {
-        CGX::SetTevColorIn(GX::TEVSTAGE1, GX::CC_ZERO, GX::CC_CPREV, GX::CC_APREV, GX::CC_ZERO);
-        CGX::SetTevAlphaIn(GX::TEVSTAGE1, GX::CA_ZERO, GX::CA_TEXA, GX::CA_APREV, GX::CA_ZERO);
-        CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE1);
-        CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
-        GXSetTevSwapMode(GX::TEVSTAGE1, GX::TEV_SWAP0, GX::TEV_SWAP1);
+        CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_CPREV, GX_CC_APREV, GX_CC_ZERO);
+        CGX::SetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_TEXA, GX_CA_APREV, GX_CA_ZERO);
+        CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE1);
+        CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+        GXSetTevSwapMode(GX_TEVSTAGE1, GX_TEV_SWAP0, GX_TEV_SWAP1);
         CGX::SetNumTevStages(2);
         constexpr std::array vtxDescList{
-            GX::VtxDescList{GX::VA_POS, GX::DIRECT},
-            GX::VtxDescList{GX::VA_CLR0, GX::DIRECT},
-            GX::VtxDescList{GX::VA_TEX0, GX::DIRECT},
-            GX::VtxDescList{},
+            GXVtxDescList{GX_VA_POS, GX_DIRECT},
+            GXVtxDescList{GX_VA_CLR0, GX_DIRECT},
+            GXVtxDescList{GX_VA_TEX0, GX_DIRECT},
+            GXVtxDescList{GX_VA_NULL, GX_NONE},
         };
         CGX::SetVtxDescv(vtxDescList.data());
         CGX::SetChanCtrl(CGX::EChannelId::Channel0, {});
         CGX::SetNumChans(1);
-        CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
-        CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR0A0);
+        CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+        CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
         CGX::SetNumTexGens(1);
       } else {
         CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
@@ -1036,7 +1036,7 @@ void CElementGen::RenderModels() {
 
     if (desc->x45_24_x31_26_PMUS) {
       if (moveRedToAlphaBuffer) {
-        CGX::Begin(GX::QUADS, GX::VTXFMT0, 4);
+        CGX::Begin(GX_QUADS, GX_VTXFMT0, 4);
         GXPosition3f32(0.5f, 0.f, 0.5f);
         GXColor4f32(col);
         GXTexCoord2f32(uvs.xMax, uvs.yMax);
@@ -1051,7 +1051,7 @@ void CElementGen::RenderModels() {
         GXTexCoord2f32(uvs.xMax, uvs.yMin);
         CGX::End();
       } else {
-        CGraphics::StreamBegin(GX::QUADS);
+        CGraphics::StreamBegin(GX_QUADS);
         CGraphics::StreamColor(col);
         CGraphics::StreamTexcoord(uvs.xMax, uvs.yMax);
         CGraphics::StreamVertex(0.5f, 0.f, 0.5f);
@@ -1087,7 +1087,7 @@ void CElementGen::RenderModels() {
   CGraphics::SetCullMode(ERglCullMode::Front);
   CTevCombiners::ResetStates();
   if (moveRedToAlphaBuffer) {
-    GXSetTevSwapMode(GX::TEVSTAGE1, GX::TEV_SWAP0, GX::TEV_SWAP0);
+    GXSetTevSwapMode(GX_TEVSTAGE1, GX_TEV_SWAP0, GX_TEV_SWAP0);
   }
   CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
 }
@@ -1132,7 +1132,7 @@ void CElementGen::RenderLines() {
     CParticle& target = x30_particles[0];
     int partFrame = x74_curFrame - target.x28_startFrame;
     cachedTex = texr->GetValueTexture(partFrame).GetObj();
-    cachedTex->Load(GX::TEXMAP0, EClampMode::Repeat);
+    cachedTex->Load(GX_TEXMAP0, EClampMode::Repeat);
 
     /* Set TEXC * RASC */
 
@@ -1162,7 +1162,7 @@ void CElementGen::RenderLines() {
     if (!constTexr) {
       CTexture* tex = texr->GetValueTexture(partFrame).GetObj();
       if (tex != cachedTex) {
-        tex->Load(GX::TEXMAP0, EClampMode::Repeat);
+        tex->Load(GX_TEXMAP0, EClampMode::Repeat);
         cachedTex = tex;
       }
     }
@@ -1253,7 +1253,7 @@ void CElementGen::RenderParticles() {
     CParticle& target = x30_particles[0];
     int partFrame = x74_curFrame - target.x28_startFrame;
     cachedTex = texr->GetValueTexture(partFrame).GetObj();
-    cachedTex->Load(GX::TEXMAP0, EClampMode::Repeat);
+    cachedTex->Load(GX_TEXMAP0, EClampMode::Repeat);
 
     CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
     if (hasModuColor) {
@@ -1271,46 +1271,46 @@ void CElementGen::RenderParticles() {
   }
 
   constexpr std::array vtxDescList{
-      GX::VtxDescList{GX::VA_POS, GX::DIRECT},
-      GX::VtxDescList{GX::VA_CLR0, GX::DIRECT},
-      GX::VtxDescList{GX::VA_TEX0, GX::DIRECT},
-      GX::VtxDescList{},
+      GXVtxDescList{GX_VA_POS, GX_DIRECT},
+      GXVtxDescList{GX_VA_CLR0, GX_DIRECT},
+      GXVtxDescList{GX_VA_TEX0, GX_DIRECT},
+      GXVtxDescList{GX_VA_NULL, GX_NONE},
   };
   CGX::SetVtxDescv(vtxDescList.data());
-  GX::TevStageID nextStage;
+  GXTevStageID nextStage;
   if (hasModuColor) {
     CGX::SetNumChans(2);
-    nextStage = GX::TEVSTAGE2;
-    CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR1A1);
+    nextStage = GX_TEVSTAGE2;
+    CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR1A1);
     CGX::SetChanAmbColor(CGX::EChannelId::Channel1, zeus::skBlack);
     CGX::SetChanMatColor(CGX::EChannelId::Channel1, x338_moduColor);
     CGX::SetChanCtrl(CGX::EChannelId::Channel1, {});
   } else {
     CGX::SetNumChans(1);
-    nextStage = GX::TEVSTAGE1;
+    nextStage = GX_TEVSTAGE1;
   }
 
   bool moveRedToAlphaBuffer = sMoveRedToAlphaBuffer;
   if (g_subtractBlend) {
     CGraphics::SetDepthWriteMode(x26c_28_zTest, ERglEnum::LEqual, false);
-    CGX::SetBlendMode(GX::BM_SUBTRACT, GX::BL_ONE, GX::BL_ZERO, GX::LO_CLEAR);
+    CGX::SetBlendMode(GX_BM_SUBTRACT, GX_BL_ONE, GX_BL_ZERO, GX_LO_CLEAR);
     if (moveRedToAlphaBuffer) {
-      CGX::SetTevColorIn(nextStage, GX::CC_ZERO, GX::CC_CPREV, GX::CC_APREV, GX::CC_ZERO);
-      CGX::SetTevAlphaIn(nextStage, GX::CA_ZERO, GX::CA_TEXA, GX::CA_APREV, GX::CA_ZERO);
+      CGX::SetTevColorIn(nextStage, GX_CC_ZERO, GX_CC_CPREV, GX_CC_APREV, GX_CC_ZERO);
+      CGX::SetTevAlphaIn(nextStage, GX_CA_ZERO, GX_CA_TEXA, GX_CA_APREV, GX_CA_ZERO);
       CGX::SetStandardTevColorAlphaOp(nextStage);
-      CGX::SetTevOrder(nextStage, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
-      GXSetTevSwapMode(nextStage, GX::TEV_SWAP0, GX::TEV_SWAP1);
-      nextStage = GX::TevStageID(nextStage + 1);
+      CGX::SetTevOrder(nextStage, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+      GXSetTevSwapMode(nextStage, GX_TEV_SWAP0, GX_TEV_SWAP1);
+      nextStage = GXTevStageID(nextStage + 1);
     }
   } else if (moveRedToAlphaBuffer) {
     CGraphics::SetDepthWriteMode(x26c_28_zTest, ERglEnum::LEqual, false);
     CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::One, ERglLogicOp::Clear);
-    CGX::SetTevColorIn(nextStage, GX::CC_ZERO, GX::CC_CPREV, GX::CC_APREV, GX::CC_ZERO);
-    CGX::SetTevAlphaIn(nextStage, GX::CA_ZERO, GX::CA_TEXA, GX::CA_APREV, GX::CA_ZERO);
+    CGX::SetTevColorIn(nextStage, GX_CC_ZERO, GX_CC_CPREV, GX_CC_APREV, GX_CC_ZERO);
+    CGX::SetTevAlphaIn(nextStage, GX_CA_ZERO, GX_CA_TEXA, GX_CA_APREV, GX_CA_ZERO);
     CGX::SetStandardTevColorAlphaOp(nextStage);
-    CGX::SetTevOrder(nextStage, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
-    GXSetTevSwapMode(nextStage, GX::TEV_SWAP0, GX::TEV_SWAP1);
-    nextStage = GX::TevStageID(nextStage + 1);
+    CGX::SetTevOrder(nextStage, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+    GXSetTevSwapMode(nextStage, GX_TEV_SWAP0, GX_TEV_SWAP1);
+    nextStage = GXTevStageID(nextStage + 1);
   } else if (x26c_26_AAPH) {
     CGraphics::SetDepthWriteMode(x26c_28_zTest, ERglEnum::LEqual, false);
     CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
@@ -1321,22 +1321,22 @@ void CElementGen::RenderParticles() {
   }
   CGX::SetNumTevStages(nextStage);
   CGX::SetNumTexGens(1);
-  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR0A0);
-  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX::SRC_REG, GX::SRC_VTX, {}, GX::DF_NONE, GX::AF_NONE);
-  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
-  GXSetVtxAttrFmt(GX::VTXFMT6, GX::VA_POS, GX::POS_XYZ, GX::F32, 0);
-  GXSetVtxAttrFmt(GX::VTXFMT6, GX::VA_CLR0, GX::CLR_RGBA, GX::RGBA8, 0);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX_SRC_REG, GX_SRC_VTX, {}, GX_DF_NONE, GX_AF_NONE);
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+  GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
   if (constUVs) {
-    GXSetVtxAttrFmt(GX::VTXFMT6, GX::VA_TEX0, GX::TEX_ST, GX::RGBA8, 1);
+    GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_TEX0, GX_TEX_ST, GX_RGBA8, 1);
   } else {
-    GXSetVtxAttrFmt(GX::VTXFMT6, GX::VA_TEX0, GX::TEX_ST, GX::F32, 0);
+    GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
   }
 
   int mbspVal = std::max(1, x270_MBSP);
   if (x26c_30_MBLR) {
-    CGX::Begin(GX::QUADS, GX::VTXFMT6, mbspVal * x30_particles.size() * 4);
+    CGX::Begin(GX_QUADS, GX_VTXFMT6, mbspVal * x30_particles.size() * 4);
   } else {
-    CGX::Begin(GX::QUADS, GX::VTXFMT6, mbspVal * 4);
+    CGX::Begin(GX_QUADS, GX_VTXFMT6, mbspVal * 4);
   }
 
   std::vector<CParticleListItem> sortItems;
@@ -1629,7 +1629,7 @@ void CElementGen::RenderParticles() {
 
   CGX::End();
   if (moveRedToAlphaBuffer) {
-    GXSetTevSwapMode(GX::TevStageID(nextStage - 1), GX::TEV_SWAP0, GX::TEV_SWAP0);
+    GXSetTevSwapMode(GXTevStageID(nextStage - 1), GX_TEV_SWAP0, GX_TEV_SWAP0);
   }
   CGraphics::SetCullMode(ERglCullMode::Front);
   CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
@@ -1668,7 +1668,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
   CParticle& firstParticle = x30_particles[0];
   int partFrame = x74_curFrame - firstParticle.x28_startFrame;
   CTexture* cachedTex = texr->GetValueTexture(partFrame).GetObj();
-  cachedTex->Load(GX::TEXMAP0, EClampMode::Repeat);
+  cachedTex->Load(GX_TEXMAP0, EClampMode::Repeat);
 
   SUVElementSet uvs = {0.f, 0.f, 1.f, 1.f};
   bool constTexr = texr->HasConstantTexture();
@@ -1677,7 +1677,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
 
   CUVElement* tind = desc->x58_x44_TIND.get();
   CTexture* cachedIndTex = tind->GetValueTexture(partFrame).GetObj();
-  cachedIndTex->Load(GX::TEXMAP2, EClampMode::Repeat);
+  cachedIndTex->Load(GX_TEXMAP2, EClampMode::Repeat);
 
   SUVElementSet uvsInd = {0.f, 0.f, 1.f, 1.f};
   bool constIndTexr = tind->HasConstantTexture();
@@ -1724,7 +1724,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
     if (!constTexr) {
       CTexture* tex = texr->GetValueTexture(thisPartFrame).GetObj();
       if (tex != cachedTex) {
-        tex->Load(GX::TEXMAP0, EClampMode::Repeat);
+        tex->Load(GX_TEXMAP0, EClampMode::Repeat);
         cachedTex = tex;
       }
     }
@@ -1732,7 +1732,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
     if (!constIndTexr) {
       CTexture* tex = tind->GetValueTexture(thisPartFrame).GetObj();
       if (tex != cachedIndTex) {
-        tex->Load(GX::TEXMAP2, EClampMode::Repeat);
+        tex->Load(GX_TEXMAP2, EClampMode::Repeat);
         cachedIndTex = tex;
       }
     }

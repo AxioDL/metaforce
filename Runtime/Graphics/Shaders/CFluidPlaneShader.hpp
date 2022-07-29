@@ -106,7 +106,7 @@ private:
   TLockedToken<CTexture> m_envMap;
   TLockedToken<CTexture> m_envBumpMap;
   TLockedToken<CTexture> m_lightmap;
-  aurora::gfx::TextureHandle m_rippleMap;
+//  aurora::gfx::TextureHandle m_rippleMap;
 //  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
 //  boo::ObjToken<boo::IGraphicsBufferD> m_pvbo;
 //  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
@@ -145,7 +145,7 @@ public:
                     const TLockedToken<CTexture>& patternTex2, const TLockedToken<CTexture>& colorTex,
                     const TLockedToken<CTexture>& bumpMap, const TLockedToken<CTexture>& envMap,
                     const TLockedToken<CTexture>& envBumpMap, const TLockedToken<CTexture>& lightmap,
-                    const aurora::gfx::TextureHandle& rippleMap, bool doubleLightmapBlend, bool additive,
+                    CTexture& rippleMap, bool doubleLightmapBlend, bool additive,
                     u32 maxVertCount);
   CFluidPlaneShader(const TLockedToken<CTexture>& patternTex1, const TLockedToken<CTexture>& patternTex2,
                     const TLockedToken<CTexture>& colorTex, u32 maxVertCount);

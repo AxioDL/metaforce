@@ -1,11 +1,9 @@
 #include "Runtime/ImGuiControllerConfig.hpp"
 
+#include "Runtime/RetroTypes.hpp"
 #include "Runtime/Streams/CFileOutStream.hpp"
 #include "Runtime/Streams/ContainerReaders.hpp"
 #include "Runtime/Streams/ContainerWriters.hpp"
-
-#include "aurora/pad.hpp"
-#include "aurora/aurora.hpp"
 
 #include <imgui.h>
 

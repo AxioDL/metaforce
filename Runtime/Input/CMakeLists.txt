@@ -1,5 +1,4 @@
 set(INPUT_SOURCES
-        PAD.hpp
         IController.hpp DolphinIController.cpp
         CControllerAxis.hpp
         CControllerButton.hpp

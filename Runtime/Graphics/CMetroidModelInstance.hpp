@@ -9,6 +9,7 @@
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CTransform.hpp>
+#include <aurora/math.hpp>
 
 namespace metaforce {
 class CCubeSurface;
@@ -45,5 +46,4 @@ public:
   [[nodiscard]] const std::vector<aurora::Vec2<float>>* GetTCPointer() const { return &x6c_texCoords; }
   [[nodiscard]] const std::vector<aurora::Vec2<float>>* GetPackedTCPointer() const { return &x70_packedTexCoords; }
 };
-
 } // namespace metaforce

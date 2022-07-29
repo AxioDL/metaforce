@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Runtime/Input/IController.hpp"
-
+#include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {
 

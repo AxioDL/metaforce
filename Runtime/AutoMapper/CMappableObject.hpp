@@ -58,14 +58,14 @@ private:
   u32 xc_;
   zeus::CTransform x10_transform;
 
-  struct DoorSurface {
-    CMapSurfaceShader m_surface;
-    CLineRenderer m_outline;
-    explicit DoorSurface()
-    : m_surface(skDoorVerts, skDoorIndices)
-    , m_outline(CLineRenderer::EPrimitiveMode::LineLoop, 5, {}, false, false, true) {}
-  };
-  std::optional<DoorSurface> m_doorSurface;
+//  struct DoorSurface {
+//    CMapSurfaceShader m_surface;
+//    CLineRenderer m_outline;
+//    explicit DoorSurface()
+//    : m_surface(skDoorVerts, skDoorIndices)
+//    , m_outline(CLineRenderer::EPrimitiveMode::LineLoop, 5, {}, false, false, true) {}
+//  };
+//  std::optional<DoorSurface> m_doorSurface;
 
   zeus::CTransform AdjustTransformForType() const;
   std::pair<zeus::CColor, zeus::CColor> GetDoorColors(int idx, const CMapWorldInfo& mwInfo, float alpha) const;
@@ -83,7 +83,7 @@ public:
   bool IsDoorConnectedToVisitedArea(const CStateManager&) const;
   bool IsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& mwInfo) const;
   bool GetIsSeen() const;
-  void CreateDoorSurface() { m_doorSurface.emplace(); }
+//  void CreateDoorSurface() { m_doorSurface.emplace(); }
 
   static void ReadAutoMapperTweaks(const ITweakAutoMapper&);
   static bool GetTweakIsMapVisibilityCheat();

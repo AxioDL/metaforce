@@ -32,7 +32,7 @@ void CSimpleShadow::Render(TLockedToken<CTexture>& tex) {
 
   CGraphics::DisableAllLights();
   CGraphics::SetModelMatrix(x0_xf);
-  tex->Load(GX::TEXMAP0, EClampMode::Repeat);
+  tex->Load(GX_TEXMAP0, EClampMode::Repeat);
 
   CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
   CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
@@ -40,7 +40,7 @@ void CSimpleShadow::Render(TLockedToken<CTexture>& tex) {
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, false);
   CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
                           ERglLogicOp::Clear);
-  CGraphics::StreamBegin(GX::QUADS);
+  CGraphics::StreamBegin(GX_QUADS);
   float radius = x34_radius * x30_scale;
   CGraphics::StreamColor(zeus::CColor{1.f, x3c_heightAlpha * x38_userAlpha});
   CGraphics::StreamTexcoord(0.f, 0.f);

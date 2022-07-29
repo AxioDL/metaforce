@@ -29,8 +29,8 @@
 //#include <fenv.h>
 //#pragma STDC FENV_ACCESS ON
 
-#include <SDL_main.h>
-#include <aurora/aurora.hpp>
+#include <aurora/event.h>
+#include <aurora/main.h>
 
 using namespace std::literals;
 
@@ -147,8 +147,10 @@ static std::string CPUFeatureString(const zeus::CPUInfo& cpuInf) {
   return features;
 }
 
-struct Application : aurora::AppDelegate {
+struct Application {
 private:
+  int m_argc;
+  char** m_argv;
   FileStoreManager& m_fileMgr;
   CVarManager& m_cvarManager;
   CVarCommons& m_cvarCommons;
@@ -171,14 +173,20 @@ private:
                                           // is built, i.e during initialization
 
 public:
-  Application(FileStoreManager& fileMgr, CVarManager& cvarMgr, CVarCommons& cvarCmns)
-  : m_fileMgr(fileMgr), m_cvarManager(cvarMgr), m_cvarCommons(cvarCmns), m_imGuiConsole(cvarMgr, cvarCmns) {}
+  Application(int argc, char** argv, FileStoreManager& fileMgr, CVarManager& cvarMgr, CVarCommons& cvarCmns)
+  : m_argc(argc)
+  , m_argv(argv)
+  , m_fileMgr(fileMgr)
+  , m_cvarManager(cvarMgr)
+  , m_cvarCommons(cvarCmns)
+  , m_imGuiConsole(cvarMgr, cvarCmns) {}
 
-  void onAppLaunched() noexcept override {
+  void onAppLaunched() noexcept {
     initialize();
 
-    auto backend = static_cast<std::string>(aurora::get_backend_string());
-    aurora::set_window_title(fmt::format(FMT_STRING("Metaforce {} [{}]"), METAFORCE_WC_DESCRIBE, backend));
+    // TODO
+    // auto backend = static_cast<std::string>(aurora::get_backend_string());
+    // aurora::set_window_title(fmt::format(FMT_STRING("Metaforce {} [{}]"), METAFORCE_WC_DESCRIBE, backend));
 
     m_voiceEngine = boo::NewAudioVoiceEngine("metaforce", "Metaforce");
     m_voiceEngine->setVolume(0.7f);
@@ -187,8 +195,8 @@ public:
 #if TARGET_OS_IOS || TARGET_OS_TV
     m_deferredProject = std::string{m_fileMgr.getStoreRoot()} + "game.iso";
 #else
-    for (const auto& str : aurora::get_args()) {
-      auto arg = static_cast<std::string>(str);
+    for (int i = 1; i < m_argc; ++i) {
+      std::string arg = m_argv[i];
       if (m_deferredProject.empty() && !arg.starts_with('-') && !arg.starts_with('+'))
         m_deferredProject = arg;
       else if (arg == "--no-sound")
@@ -202,17 +210,13 @@ public:
   void initialize() {
     zeus::detectCPU();
 
-    for (const auto& str : aurora::get_args()) {
-      auto arg = static_cast<std::string>(str);
-    }
-
     const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
     Log.report(logvisor::Info, FMT_STRING("CPU Name: {}"), cpuInf.cpuBrand);
     Log.report(logvisor::Info, FMT_STRING("CPU Vendor: {}"), cpuInf.cpuVendor);
     Log.report(logvisor::Info, FMT_STRING("CPU Features: {}"), CPUFeatureString(cpuInf));
   }
 
-  bool onAppIdle(float realDt) noexcept override {
+  bool onAppIdle(float realDt) noexcept {
 #ifdef NDEBUG
     /* Ping the watchdog to let it know we're still alive */
     CInfiniteLoopDetector::UpdateWatchDog(std::chrono::system_clock::now());
@@ -258,7 +262,8 @@ public:
 
     // Check if the user has modified the fullscreen CVar, if so set fullscreen state accordingly
     if (m_cvarCommons.m_fullscreen->isModified()) {
-      aurora::set_fullscreen(m_cvarCommons.getFullscreen());
+      // TODO
+      // aurora::set_fullscreen(m_cvarCommons.getFullscreen());
     }
 
     // Let CVarManager inform all CVar listeners of the CVar's state and clear all mdoified flags if necessary
@@ -266,7 +271,8 @@ public:
 
     if (!g_mainMP1 && m_projectInitialized) {
       g_mainMP1.emplace(nullptr, nullptr);
-      auto result = g_mainMP1->Init(m_fileMgr, &m_cvarManager, m_voiceEngine.get(), *m_amuseAllocWrapper);
+      auto result =
+          g_mainMP1->Init(m_argc, m_argv, m_fileMgr, &m_cvarManager, m_voiceEngine.get(), *m_amuseAllocWrapper);
       if (!result.empty()) {
         Log.report(logvisor::Error, FMT_STRING("{}"), result);
         m_imGuiConsole.m_errorString = result;
@@ -311,7 +317,7 @@ public:
     return true;
   }
 
-  void onAppDraw() noexcept override {
+  void onAppDraw() noexcept {
     OPTICK_EVENT("Draw");
     if (g_Renderer != nullptr) {
       g_Renderer->BeginScene();
@@ -322,7 +328,7 @@ public:
     }
   }
 
-  void onAppPostDraw() noexcept override {
+  void onAppPostDraw() noexcept {
     OPTICK_EVENT("PostDraw");
     if (m_voiceEngine) {
       m_voiceEngine->pumpAndMixVoices();
@@ -331,25 +337,17 @@ public:
     ++logvisor::FrameIndex;
   }
 
-  void onAppWindowResized(const aurora::WindowSize& size) noexcept override {
+  void onAppWindowResized(const AuroraWindowSize& size) noexcept {
     CGraphics::SetViewportResolution({static_cast<s32>(size.fb_width), static_cast<s32>(size.fb_height)});
   }
 
-  void onAppWindowMoved(std::int32_t x, std::int32_t y) noexcept override {
-    // TODO: implement this
-  }
+  void onAppDisplayScaleChanged(float scale) noexcept { ImGuiEngine_Initialize(scale); }
 
-  void onAppDisplayScaleChanged(float scale) noexcept override { ImGuiEngine_Initialize(scale); }
+  void onControllerAdded(uint32_t which) noexcept { m_imGuiConsole.ControllerAdded(which); }
 
-  void onControllerButton(uint32_t idx, aurora::ControllerButton button, bool pressed) noexcept override {}
+  void onControllerRemoved(uint32_t which) noexcept { m_imGuiConsole.ControllerRemoved(which); }
 
-  void onControllerAxis(uint32_t idx, aurora::ControllerAxis axis, int16_t value) noexcept override {}
-
-  void onControllerAdded(uint32_t which) noexcept override { m_imGuiConsole.ControllerAdded(which); }
-
-  void onControllerRemoved(uint32_t which) noexcept override { m_imGuiConsole.ControllerRemoved(which); }
-
-  void onAppExiting() noexcept override {
+  void onAppExiting() noexcept {
     m_imGuiConsole.Shutdown();
     if (m_voiceEngine) {
       m_voiceEngine->unlockPump();
@@ -365,127 +363,9 @@ public:
     CDvdFile::Shutdown();
   }
 
-  void onCharKeyDown(uint8_t code, aurora::ModifierKey mods, bool isRepeat) noexcept override {
-    if (g_mainMP1) {
-      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->charKeyDown(code, mods, isRepeat);
-      }
-    }
-  }
+  void onImGuiInit(float scale) noexcept { ImGuiEngine_Initialize(scale); }
 
-  void onCharKeyUp(uint8_t code, aurora::ModifierKey mods) noexcept override {
-    if (g_mainMP1) {
-      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->charKeyUp(code, mods);
-      }
-    }
-  }
-
-  void onSpecialKeyDown(aurora::SpecialKey key, aurora::ModifierKey mods, bool isRepeat) noexcept override {
-    if (g_mainMP1) {
-      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->specialKeyDown(key, mods, isRepeat);
-      }
-    }
-    if (True(mods & (aurora::ModifierKey::LeftAlt | aurora::ModifierKey::RightAlt))) {
-      if (key == aurora::SpecialKey::Enter) {
-        m_fullscreenToggleRequested = true;
-      } else if (key == aurora::SpecialKey::F4) {
-        m_quitRequested = true;
-      }
-    }
-  }
-
-  void onSpecialKeyUp(aurora::SpecialKey key, aurora::ModifierKey mods) noexcept override {
-    if (g_mainMP1) {
-      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->specialKeyUp(key, mods);
-      }
-    }
-  }
-
-  void onTextInput(const std::string& text) noexcept override {}
-
-  void onModifierKeyDown(aurora::ModifierKey mods, bool isRepeat) noexcept override {}
-  void onModifierKeyUp(aurora::ModifierKey mods) noexcept override {}
-
-  void onMouseMove(int32_t x, int32_t y, int32_t xrel, int32_t yrel, aurora::MouseButton state) noexcept override {
-    if (g_mainMP1) {
-      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        as->mouseMove(SWindowCoord{.pixel = {x, y}});
-      }
-    }
-  }
-
-  void onMouseButtonDown(int32_t x, int32_t y, aurora::MouseButton button, int32_t clicks) noexcept override {
-    if (g_mainMP1) {
-      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        EMouseButton asBtn;
-        switch (button) {
-        case aurora::MouseButton::None:
-          asBtn = EMouseButton::None;
-          break;
-        case aurora::MouseButton::Primary:
-          asBtn = EMouseButton::Primary;
-          break;
-        case aurora::MouseButton::Middle:
-          asBtn = EMouseButton::Middle;
-          break;
-        case aurora::MouseButton::Secondary:
-          asBtn = EMouseButton::Secondary;
-          break;
-        case aurora::MouseButton::Aux1:
-          asBtn = EMouseButton::Aux1;
-          break;
-        case aurora::MouseButton::Aux2:
-          asBtn = EMouseButton::Aux2;
-          break;
-        }
-        as->mouseDown(SWindowCoord{.pixel = {x, y}}, asBtn, {});
-      }
-    }
-  }
-
-  void onMouseButtonUp(int32_t x, int32_t y, aurora::MouseButton button) noexcept override {
-    if (g_mainMP1) {
-      if (MP1::CGameArchitectureSupport* as = g_mainMP1->GetArchSupport()) {
-        EMouseButton asBtn;
-        switch (button) {
-        case aurora::MouseButton::None:
-          asBtn = EMouseButton::None;
-          break;
-        case aurora::MouseButton::Primary:
-          asBtn = EMouseButton::Primary;
-          break;
-        case aurora::MouseButton::Middle:
-          asBtn = EMouseButton::Middle;
-          break;
-        case aurora::MouseButton::Secondary:
-          asBtn = EMouseButton::Secondary;
-          break;
-        case aurora::MouseButton::Aux1:
-          asBtn = EMouseButton::Aux1;
-          break;
-        case aurora::MouseButton::Aux2:
-          asBtn = EMouseButton::Aux2;
-          break;
-        }
-        as->mouseUp(SWindowCoord{.pixel = {x, y}}, asBtn, {});
-      }
-    }
-  }
-
-  void onImGuiInit(float scale) noexcept override { ImGuiEngine_Initialize(scale); }
-
-  void onImGuiAddTextures() noexcept override { ImGuiEngine_AddTextures(); }
-
-  [[nodiscard]] std::string getGraphicsApi() const { return m_cvarCommons.getGraphicsApi(); }
-
-  [[nodiscard]] uint32_t getSamples() const { return m_cvarCommons.getSamples(); }
-
-  [[nodiscard]] uint32_t getAnisotropy() const { return m_cvarCommons.getAnisotropy(); }
-
-  [[nodiscard]] bool getDeepColor() const { return m_cvarCommons.getDeepColor(); }
+  void onImGuiAddTextures() noexcept { ImGuiEngine_AddTextures(); }
 
   [[nodiscard]] std::chrono::nanoseconds getTargetFrameTime() const {
     if (m_cvarCommons.getVariableFrameTime()) {
@@ -527,9 +407,31 @@ static bool IsClientLoggingEnabled(int argc, char** argv) {
   return false;
 }
 
-static void SetupLogging() {
+static void SetupLogging() {}
 
+static std::unique_ptr<metaforce::Application> g_app;
+static bool g_paused;
+
+static void aurora_log_callback(AuroraLogLevel level, const char* message, unsigned int len) {
+  logvisor::Level severity = logvisor::Fatal;
+  switch (level) {
+  case LOG_DEBUG:
+  case LOG_INFO:
+    severity = logvisor::Info;
+    break;
+  case LOG_WARNING:
+    severity = logvisor::Warning;
+    break;
+  case LOG_ERROR:
+    severity = logvisor::Error;
+    break;
+  default:
+    break;
+  }
+  metaforce::Log.report(severity, FMT_STRING("{}"), message);
 }
+
+static void aurora_imgui_init_callback(const AuroraWindowSize* size) { g_app->onImGuiInit(size->scale); }
 
 #if !WINDOWS_STORE
 int main(int argc, char** argv) {
@@ -549,6 +451,8 @@ int main(int argc, char** argv) {
   for (int i = 1; i < argc; ++i) {
     args.emplace_back(argv[i]);
   }
+
+  auto icon = metaforce::GetIcon();
 
   // FIXME: logvisor needs to copy this
   std::string logFilePath;
@@ -583,16 +487,72 @@ int main(int argc, char** argv) {
       }
     }
 
-    auto app = std::make_unique<metaforce::Application>(fileMgr, cvarMgr, cvarCmns);
-    auto icon = metaforce::GetIcon();
-    auto data = aurora::Icon{
-        .data = std::move(icon.data),
-        .width = icon.width,
-        .height = icon.height,
+    g_app = std::make_unique<metaforce::Application>(argc, argv, fileMgr, cvarMgr, cvarCmns);
+    std::string configPath{fileMgr.getStoreRoot()};
+    const AuroraConfig config{
+        .appName = "Metaforce",
+        .configPath = configPath.c_str(),
+        // .desiredBackend = TODO
+        .msaa = cvarCmns.getSamples(),
+        .maxTextureAnisotropy = static_cast<uint16_t>(cvarCmns.getAnisotropy()),
+        .startFullscreen = cvarCmns.getFullscreen(),
+        .iconRGBA8 = icon.data.get(),
+        .iconWidth = icon.width,
+        .iconHeight = icon.height,
+        .logCallback = aurora_log_callback,
+        .imGuiInitCallback = aurora_imgui_init_callback,
     };
-    aurora::app_run(std::move(app), std::move(data), argc, argv, fileMgr.getStoreRoot(),
-                    aurora::backend_from_string(cvarCmns.getGraphicsApi()), cvarCmns.getSamples(),
-                    cvarCmns.getAnisotropy(), cvarCmns.getFullscreen());
+    const auto info = aurora_initialize(argc, argv, &config);
+    g_app->onImGuiAddTextures();
+    g_app->onAppLaunched();
+    g_app->onAppWindowResized(info.windowSize);
+    while (true) {
+      const auto* event = aurora_update();
+      bool exiting = false;
+      while (event != nullptr && event->type != AURORA_NONE) {
+        switch (event->type) {
+        case AURORA_EXIT:
+          exiting = true;
+          break;
+        case AURORA_WINDOW_RESIZED:
+          g_app->onAppWindowResized(event->windowSize);
+          break;
+        case AURORA_CONTROLLER_ADDED:
+          g_app->onControllerAdded(event->controller);
+          break;
+        case AURORA_CONTROLLER_REMOVED:
+          g_app->onControllerRemoved(event->controller);
+          break;
+        case AURORA_PAUSED:
+          g_paused = true;
+          break;
+        case AURORA_UNPAUSED:
+          g_paused = false;
+          break;
+        default:
+          break;
+        }
+        if (exiting) {
+          break;
+        }
+        ++event;
+      }
+      if (exiting) {
+        break;
+      }
+      if (g_paused) {
+        continue;
+      }
+      g_app->onAppIdle(1.f / 60.f /* TODO */);
+      aurora_begin_frame();
+      g_app->onAppDraw();
+      aurora_end_frame();
+      g_app->onAppPostDraw();
+    }
+    g_app->onAppExiting();
+    aurora_shutdown();
+    g_app.reset();
+
     restart = cvarMgr.restartRequired();
   } while (restart);
   return 0;

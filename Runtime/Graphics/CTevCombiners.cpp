@@ -6,15 +6,15 @@ namespace metaforce::CTevCombiners {
 u32 CTevPass::sNextUniquePass = 0;
 
 void CTevPass::Execute(ERglTevStage stage) const {
-  const auto stageId = GX::TevStageID(stage);
+  const auto stageId = GXTevStageID(stage);
   CGX::SetTevColorIn(stageId, x4_colorPass.x0_a, x4_colorPass.x4_b, x4_colorPass.x8_c, x4_colorPass.xc_d);
   CGX::SetTevAlphaIn(stageId, x14_alphaPass.x0_a, x14_alphaPass.x4_b, x14_alphaPass.x8_c, x14_alphaPass.xc_d);
   CGX::SetTevColorOp(stageId, x24_colorOp.x4_op, x24_colorOp.x8_bias, x24_colorOp.xc_scale, x24_colorOp.x0_clamp,
                      x24_colorOp.x10_regId);
   CGX::SetTevAlphaOp(stageId, x38_alphaOp.x4_op, x38_alphaOp.x8_bias, x38_alphaOp.xc_scale, x38_alphaOp.x0_clamp,
                      x38_alphaOp.x10_regId);
-  CGX::SetTevKColorSel(stageId, GX::TevKColorSel::TEV_KCSEL_8_8);
-  CGX::SetTevKAlphaSel(stageId, GX::TevKAlphaSel::TEV_KASEL_8_8);
+  CGX::SetTevKColorSel(stageId, GX_TEV_KCSEL_8_8);
+  CGX::SetTevKAlphaSel(stageId, GX_TEV_KASEL_8_8);
 }
 
 constexpr u32 maxTevPasses = 2;
@@ -22,52 +22,52 @@ static u32 sNumEnabledPasses;
 static std::array<bool, maxTevPasses> sValidPasses;
 
 const CTevPass skPassThru{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA},
+    {GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_RASC},
+    {GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_RASA},
 };
 const CTevPass sTevPass804bfcc0{
-    {GX::TevColorArg::CC_C0, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA},
+    {GX_CC_C0, GX_CC_TEXC, GX_CC_RASC, GX_CC_ZERO},
+    {GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_RASA},
 };
 const CTevPass sTevPass804bfe68{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_CPREV, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_APREV, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_ZERO},
+    {GX_CC_ZERO, GX_CC_CPREV, GX_CC_RASC, GX_CC_ZERO},
+    {GX_CA_ZERO, GX_CA_APREV, GX_CA_RASA, GX_CA_ZERO},
 };
 const CTevPass sTevPass805a5698{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_C0, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_A0, GX::TevAlphaArg::CA_ZERO},
+    {GX_CC_ZERO, GX_CC_RASC, GX_CC_C0, GX_CC_ZERO},
+    {GX_CA_ZERO, GX_CA_RASA, GX_CA_A0, GX_CA_ZERO},
 };
 const CTevPass sTevPass805a5e70{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_C0},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_A0},
+    {GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_C0},
+    {GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_A0},
 };
 const CTevPass sTevPass805a5ebc{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_TEXA, GX::TevAlphaArg::CA_ZERO},
+    {GX_CC_ZERO, GX_CC_RASC, GX_CC_TEXC, GX_CC_ZERO},
+    {GX_CA_ZERO, GX_CA_RASA, GX_CA_TEXA, GX_CA_ZERO},
 };
 const CTevPass sTevPass805a5f08{
-    {GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_TEXA, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_RASA},
+    {GX_CC_RASC, GX_CC_TEXC, GX_CC_TEXA, GX_CC_ZERO},
+    {GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_RASA},
 };
 const CTevPass sTevPass805a5f54{
-    {GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_ONE, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_TEXA, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_ZERO},
+    {GX_CC_RASC, GX_CC_ONE, GX_CC_TEXC, GX_CC_ZERO},
+    {GX_CA_ZERO, GX_CA_TEXA, GX_CA_RASA, GX_CA_ZERO},
 };
 const CTevPass sTevPass805a5fa0{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_TEXC},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_TEXA},
+    {GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_TEXC},
+    {GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_TEXA},
 };
 const CTevPass sTevPass805a5fec{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_RASC},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_TEXA, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_ZERO},
+    {GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_RASC},
+    {GX_CA_ZERO, GX_CA_TEXA, GX_CA_RASA, GX_CA_ZERO},
 };
 const CTevPass sTevPass805a6038{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_TEXC, GX::TevColorArg::CC_RASC, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_KONST, GX::TevAlphaArg::CA_RASA, GX::TevAlphaArg::CA_ZERO},
+    {GX_CC_ZERO, GX_CC_TEXC, GX_CC_RASC, GX_CC_ZERO},
+    {GX_CA_ZERO, GX_CA_KONST, GX_CA_RASA, GX_CA_ZERO},
 };
 const CTevPass sTevPass805a6084{
-    {GX::TevColorArg::CC_ZERO, GX::TevColorArg::CC_CPREV, GX::TevColorArg::CC_APREV, GX::TevColorArg::CC_ZERO},
-    {GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_ZERO, GX::TevAlphaArg::CA_APREV},
+    {GX_CC_ZERO, GX_CC_CPREV, GX_CC_APREV, GX_CC_ZERO},
+    {GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_APREV},
 };
 
 void Init() {

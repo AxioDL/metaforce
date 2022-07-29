@@ -130,8 +130,8 @@ void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
         auto font = x4_fonts[x4c_activeFont];
         if (font && font->GetGlyph(chr) != nullptr) {
           const auto* glyph = font->GetGlyph(chr);
-          CGX::SetTevKColor(GX::KCOLOR0, chrColor * color);
-          CGX::Begin(GX::TRIANGLESTRIP, GX::VTXFMT0, 4);
+          CGX::SetTevKColor(GX_KCOLOR0, chrColor * color);
+          CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
           {
             GXPosition3f32(offX, 0.f, offY);
             GXTexCoord2f32(glyph->GetStartU(), glyph->GetStartV());
@@ -153,30 +153,30 @@ void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
       auto imageDef = x14_images[imageIdx];
       auto tex = imageDef.x4_texs[static_cast<u32>(time * imageDef.x0_fps) % imageDef.x4_texs.size()];
       if (tex) {
-        tex->Load(GX::TEXMAP0, EClampMode::Clamp);
+        tex->Load(GX_TEXMAP0, EClampMode::Clamp);
         float width = imageDef.x4_texs.front()->GetWidth() * imageDef.x14_cropFactor.x();
         float height = imageDef.x4_texs.front()->GetHeight() * imageDef.x14_cropFactor.y();
         float cropXHalf = imageDef.x14_cropFactor.x() * 0.5f;
         float cropYHalf = imageDef.x14_cropFactor.y() * 0.5f;
 
-        CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_K0_A);
-        CGX::SetTevKColorSel(GX::TEVSTAGE0, GX::TEV_KCSEL_K0);
-        CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_TEXC, GX::CC_KONST, GX::CC_ZERO);
-        CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_TEXA, GX::CA_KONST, GX::CA_ZERO);
-        CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
+        CGX::SetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_K0_A);
+        CGX::SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K0);
+        CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, GX_CC_ZERO);
+        CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_KONST, GX_CA_ZERO);
+        CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
         constexpr std::array skVtxDesc{
-            GX::VtxDescList{GX::VA_POS, GX::DIRECT},
-            GX::VtxDescList{GX::VA_TEX0, GX::DIRECT},
-            GX::VtxDescList{},
+            GXVtxDescList{GX_VA_POS, GX_DIRECT},
+            GXVtxDescList{GX_VA_TEX0, GX_DIRECT},
+            GXVtxDescList{GX_VA_NULL, GX_NONE},
         };
         CGX::SetVtxDescv(skVtxDesc.data());
         CGX::SetNumChans(0);
         CGX::SetNumTexGens(1);
         CGX::SetNumTevStages(1);
-        CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
-        CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
-        CGX::SetTevKColor(GX::KCOLOR0, imageColor * color);
-        CGX::Begin(GX::TRIANGLESTRIP, GX::VTXFMT0, 4);
+        CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+        CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+        CGX::SetTevKColor(GX_KCOLOR0, imageColor * color);
+        CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
         {
           GXPosition3f32(offX, 0.f, offY);
           GXTexCoord2f32(0.5f - cropXHalf, 0.5f + cropYHalf);

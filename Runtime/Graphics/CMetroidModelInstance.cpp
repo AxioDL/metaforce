@@ -47,7 +47,7 @@ CMetroidModelInstance::CMetroidModelInstance(std::pair<const u8*, u32> modelHead
     u32 numTexCoords = texCoords.second / 8;
     CMemoryInStream stream{texCoords.first, texCoords.second};
     for (u32 i = 0; i < numTexCoords; ++i) {
-      x6c_texCoords.emplace_back(stream.Get<zeus::CVector2f>());
+      x6c_texCoords.emplace_back(stream.Get<aurora::Vec2<float>>());
     }
   }
   {

@@ -15,7 +15,6 @@
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector2i.hpp>
 
-#include <aurora/gfx.hpp>
 #include <optick.h>
 
 using frame_clock = std::chrono::high_resolution_clock;
@@ -25,108 +24,108 @@ class CTexture;
 extern CVar* g_disableLighting;
 class CTimeProvider;
 
-enum class ERglCullMode : std::underlying_type_t<GX::CullMode> {
-  None = GX::CULL_NONE,
-  Front = GX::CULL_FRONT,
-  Back = GX::CULL_BACK,
-  All = GX::CULL_ALL,
+enum class ERglCullMode : std::underlying_type_t<GXCullMode> {
+  None = GX_CULL_NONE,
+  Front = GX_CULL_FRONT,
+  Back = GX_CULL_BACK,
+  All = GX_CULL_ALL,
 };
 
-enum class ERglBlendMode : std::underlying_type_t<GX::BlendMode> {
-  None = GX::BM_NONE,
-  Blend = GX::BM_BLEND,
-  Logic = GX::BM_LOGIC,
-  Subtract = GX::BM_SUBTRACT,
-  Max = GX::MAX_BLENDMODE,
+enum class ERglBlendMode : std::underlying_type_t<GXBlendMode> {
+  None = GX_BM_NONE,
+  Blend = GX_BM_BLEND,
+  Logic = GX_BM_LOGIC,
+  Subtract = GX_BM_SUBTRACT,
+  Max = GX_MAX_BLENDMODE,
 };
 
-enum class ERglBlendFactor : std::underlying_type_t<GX::BlendFactor> {
-  Zero = GX::BL_ZERO,
-  One = GX::BL_ONE,
-  SrcColor = GX::BL_SRCCLR,
-  InvSrcColor = GX::BL_INVSRCCLR,
-  SrcAlpha = GX::BL_SRCALPHA,
-  InvSrcAlpha = GX::BL_INVSRCALPHA,
-  DstAlpha = GX::BL_DSTALPHA,
-  InvDstAlpha = GX::BL_INVDSTALPHA,
-  DstColor = GX::BL_DSTCLR,
-  InvDstColor = GX::BL_INVDSTCLR,
+enum class ERglBlendFactor : std::underlying_type_t<GXBlendFactor> {
+  Zero = GX_BL_ZERO,
+  One = GX_BL_ONE,
+  SrcColor = GX_BL_SRCCLR,
+  InvSrcColor = GX_BL_INVSRCCLR,
+  SrcAlpha = GX_BL_SRCALPHA,
+  InvSrcAlpha = GX_BL_INVSRCALPHA,
+  DstAlpha = GX_BL_DSTALPHA,
+  InvDstAlpha = GX_BL_INVDSTALPHA,
+  DstColor = GX_BL_DSTCLR,
+  InvDstColor = GX_BL_INVDSTCLR,
 };
 
-enum class ERglLogicOp : std::underlying_type_t<GX::LogicOp> {
-  Clear = GX::LO_CLEAR,
-  And = GX::LO_AND,
-  RevAnd = GX::LO_REVAND,
-  Copy = GX::LO_COPY,
-  InvAnd = GX::LO_INVAND,
-  NoOp = GX::LO_NOOP,
-  Xor = GX::LO_XOR,
-  Or = GX::LO_OR,
-  Nor = GX::LO_NOR,
-  Equiv = GX::LO_EQUIV,
-  Inv = GX::LO_INV,
-  RevOr = GX::LO_REVOR,
-  InvCopy = GX::LO_INVCOPY,
-  InvOr = GX::LO_INVOR,
-  NAnd = GX::LO_NAND,
-  Set = GX::LO_SET,
+enum class ERglLogicOp : std::underlying_type_t<GXLogicOp> {
+  Clear = GX_LO_CLEAR,
+  And = GX_LO_AND,
+  RevAnd = GX_LO_REVAND,
+  Copy = GX_LO_COPY,
+  InvAnd = GX_LO_INVAND,
+  NoOp = GX_LO_NOOP,
+  Xor = GX_LO_XOR,
+  Or = GX_LO_OR,
+  Nor = GX_LO_NOR,
+  Equiv = GX_LO_EQUIV,
+  Inv = GX_LO_INV,
+  RevOr = GX_LO_REVOR,
+  InvCopy = GX_LO_INVCOPY,
+  InvOr = GX_LO_INVOR,
+  NAnd = GX_LO_NAND,
+  Set = GX_LO_SET,
 };
 
-enum class ERglAlphaFunc : std::underlying_type_t<GX::Compare> {
-  Never = GX::NEVER,
-  Less = GX::LESS,
-  Equal = GX::EQUAL,
-  LEqual = GX::LEQUAL,
-  Greater = GX::GREATER,
-  NEqual = GX::NEQUAL,
-  GEqual = GX::GEQUAL,
-  Always = GX::ALWAYS,
+enum class ERglAlphaFunc : std::underlying_type_t<GXCompare> {
+  Never = GX_NEVER,
+  Less = GX_LESS,
+  Equal = GX_EQUAL,
+  LEqual = GX_LEQUAL,
+  Greater = GX_GREATER,
+  NEqual = GX_NEQUAL,
+  GEqual = GX_GEQUAL,
+  Always = GX_ALWAYS,
 };
 
-enum class ERglAlphaOp : std::underlying_type_t<GX::AlphaOp> {
-  And = GX::AOP_AND,
-  Or = GX::AOP_OR,
-  Xor = GX::AOP_XOR,
-  XNor = GX::AOP_XNOR,
-  Max = GX::MAX_ALPHAOP,
+enum class ERglAlphaOp : std::underlying_type_t<GXAlphaOp> {
+  And = GX_AOP_AND,
+  Or = GX_AOP_OR,
+  Xor = GX_AOP_XOR,
+  XNor = GX_AOP_XNOR,
+  Max = GX_MAX_ALPHAOP,
 };
 
-enum class ERglEnum : std::underlying_type_t<GX::Compare> {
-  Never = GX::NEVER,
-  Less = GX::LESS,
-  Equal = GX::EQUAL,
-  LEqual = GX::LEQUAL,
-  Greater = GX::GREATER,
-  NEqual = GX::NEQUAL,
-  GEqual = GX::GEQUAL,
-  Always = GX::ALWAYS,
+enum class ERglEnum : std::underlying_type_t<GXCompare> {
+  Never = GX_NEVER,
+  Less = GX_LESS,
+  Equal = GX_EQUAL,
+  LEqual = GX_LEQUAL,
+  Greater = GX_GREATER,
+  NEqual = GX_NEQUAL,
+  GEqual = GX_GEQUAL,
+  Always = GX_ALWAYS,
 };
 
 using ERglLight = u8;
 
-enum class ERglTexOffset : std::underlying_type_t<GX::TexOffset> {
-  Zero = GX::TO_ZERO,
-  Sixteenth = GX::TO_SIXTEENTH,
-  Eighth = GX::TO_EIGHTH,
-  Fourth = GX::TO_FOURTH,
-  Half = GX::TO_HALF,
-  One = GX::TO_ONE,
+enum class ERglTexOffset : std::underlying_type_t<GXTexOffset> {
+  Zero = GX_TO_ZERO,
+  Sixteenth = GX_TO_SIXTEENTH,
+  Eighth = GX_TO_EIGHTH,
+  Fourth = GX_TO_FOURTH,
+  Half = GX_TO_HALF,
+  One = GX_TO_ONE,
 };
 
-enum class ERglFogMode : std::underlying_type_t<GX::FogType> {
-  None = GX::FOG_NONE,
+enum class ERglFogMode : std::underlying_type_t<GXFogType> {
+  None = GX_FOG_NONE,
 
-  PerspLin = GX::FOG_PERSP_LIN,
-  PerspExp = GX::FOG_PERSP_EXP,
-  PerspExp2 = GX::FOG_ORTHO_EXP2,
-  PerspRevExp = GX::FOG_PERSP_REVEXP,
-  PerspRevExp2 = GX::FOG_PERSP_REVEXP2,
+  PerspLin = GX_FOG_PERSP_LIN,
+  PerspExp = GX_FOG_PERSP_EXP,
+  PerspExp2 = GX_FOG_ORTHO_EXP2,
+  PerspRevExp = GX_FOG_PERSP_REVEXP,
+  PerspRevExp2 = GX_FOG_PERSP_REVEXP2,
 
-  OrthoLin = GX::FOG_ORTHO_LIN,
-  OrthoExp = GX::FOG_ORTHO_EXP,
-  OrthoExp2 = GX::FOG_ORTHO_EXP2,
-  OrthoRevExp = GX::FOG_ORTHO_REVEXP,
-  OrthoRevExp2 = GX::FOG_ORTHO_REVEXP2,
+  OrthoLin = GX_FOG_ORTHO_LIN,
+  OrthoExp = GX_FOG_ORTHO_EXP,
+  OrthoExp2 = GX_FOG_ORTHO_EXP2,
+  OrthoRevExp = GX_FOG_ORTHO_REVEXP,
+  OrthoRevExp2 = GX_FOG_ORTHO_REVEXP2,
 };
 
 struct SViewport {
@@ -165,13 +164,13 @@ struct SClipScreenRect {
   , x20_uvYMin(uvYMin)
   , x24_uvYMax(uvYMax) {}
 
-  SClipScreenRect(const aurora::gfx::ClipRect& rect) {
-    x4_left = rect.x;
-    x8_top = rect.y;
-    xc_width = rect.width;
-    x10_height = rect.height;
-    x14_dstWidth = rect.width;
-  }
+//  SClipScreenRect(const aurora::gfx::ClipRect& rect) {
+//    x4_left = rect.x;
+//    x8_top = rect.y;
+//    xc_width = rect.width;
+//    x10_height = rect.height;
+//    x14_dstWidth = rect.width;
+//  }
 
   SClipScreenRect(const SViewport& vp) {
     x4_left = vp.x0_left;
@@ -214,7 +213,7 @@ public:
   static bool g_LastFrameUsedAbove;
   static bool g_InterruptLastFrameUsedAbove;
   static GX::LightMask g_LightActive;
-  static std::array<GX::LightObj, GX::MaxLights> g_LightObjs;
+  static std::array<GXLightObj, GX::MaxLights> g_LightObjs;
   static std::array<ELightType, GX::MaxLights> g_LightTypes;
   static zeus::CTransform g_GXModelView;
   static zeus::CTransform g_GXModelViewInvXpose;
@@ -309,31 +308,33 @@ public:
 
   static const std::array<zeus::CMatrix3f, 6> skCubeBasisMats;
 
-  static void ResolveSpareTexture(const SClipScreenRect& rect, int bindIdx, GX::TextureFormat format,
-                                  bool clearDepth = false) {
-    aurora::gfx::resolve_color({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx, format,
-                               clearDepth);
+  static void ResolveSpareTexture(const SClipScreenRect& rect, int bindIdx, GXTexFmt format, bool clearDepth = false) {
+    // TODO
+//    aurora::gfx::resolve_color({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx, format,
+//                               clearDepth);
   }
-  static void LoadDolphinSpareTexture(int bindIdx, GX::TextureFormat format, GX::TexMapID id) {
-    GXTexObj obj;
-    GXInitTexObjResolved(&obj, bindIdx, format, GX_CLAMP, GX_CLAMP, GX_TLUT0);
-    GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
-    GXLoadTexObj(&obj, id);
+  static void LoadDolphinSpareTexture(int bindIdx, GXTexFmt format, GXTexMapID id) {
+    // TODO
+//    GXTexObj obj;
+//    GXInitTexObjResolved(&obj, bindIdx, format, GX_CLAMP, GX_CLAMP, GX_TLUT0);
+//    GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
+//    GXLoadTexObj(&obj, id);
   }
-  static void LoadDolphinSpareTexture(int bindIdx, GXCITexFmt format, GXTlut tlut, GX::TexMapID id) {
-    GXTexObj obj;
-    GXInitTexObjResolved(&obj, bindIdx, static_cast<GX::TextureFormat>(format), GX_CLAMP, GX_CLAMP, tlut);
-    GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
-    GXLoadTexObj(&obj, id);
+  static void LoadDolphinSpareTexture(int bindIdx, GXCITexFmt format, GXTlut tlut, GXTexMapID id) {
+    // TODO
+//    GXTexObj obj;
+//    GXInitTexObjResolved(&obj, bindIdx, static_cast<GXTexFmt>(format), GX_CLAMP, GX_CLAMP, tlut);
+//    GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
+//    GXLoadTexObj(&obj, id);
   }
   static void ResolveSpareDepth(const SClipScreenRect& rect, int bindIdx = 0) {
     // aurora::gfx::resolve_depth({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx);
   }
 
   static void ResetGfxStates() noexcept;
-  static void SetTevStates(EStreamFlags flags) noexcept;
+  static void SetTevStates(u32 flags) noexcept;
   static void SetTevOp(ERglTevStage stage, const CTevCombiners::CTevPass& pass);
-  static void StreamBegin(GX::Primitive primitive);
+  static void StreamBegin(GXPrimitive primitive);
   static void StreamNormal(const zeus::CVector3f& nrm);
   static void StreamColor(const zeus::CColor& color);
   static inline void StreamColor(float r, float g, float b, float a) { StreamColor({r, g, b, a}); }
@@ -347,7 +348,7 @@ public:
   static void ResetVertexDataStream(bool end);
   static void FlushStream();
   static void FullRender();
-  static void DrawPrimitive(GX::Primitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
+  static void DrawPrimitive(GXPrimitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
                             const zeus::CColor& col, s32 numVerts);
   static void SetLineWidth(float width, ERglTexOffset offs);
 };
@@ -386,9 +387,13 @@ public:
 };
 
 #ifdef AURORA_GFX_DEBUG_GROUPS
+struct ScopedDebugGroup {
+  inline ScopedDebugGroup(const char* label) noexcept { push_debug_group(label); }
+  inline ~ScopedDebugGroup() noexcept { pop_debug_group(); }
+};
 #define SCOPED_GRAPHICS_DEBUG_GROUP(name, ...)                                                                         \
   OPTICK_EVENT_DYNAMIC(name);                                                                                          \
-  aurora::gfx::ScopedDebugGroup _GfxDbg_{name}
+  ScopedDebugGroup _GfxDbg_ { name }
 #else
 #define SCOPED_GRAPHICS_DEBUG_GROUP(name, ...) OPTICK_EVENT_DYNAMIC(name)
 #endif

@@ -91,11 +91,11 @@ void COmegaPirate::CFlash::Render(CStateManager& mgr) {
   if (xf0_thermalSpot == nullptr || !xe8_thermalSpotToken) {
     return;
   }
-  xf0_thermalSpot->Load(GX::TEXMAP0, EClampMode::Repeat);
+  xf0_thermalSpot->Load(GX_TEXMAP0, EClampMode::Repeat);
 
   float sizeMul = 35.f;
   if (visor == CPlayerState::EPlayerVisor::XRay) {
-    CGX::SetBlendMode(GX::BM_SUBTRACT, GX::BL_ONE, GX::BL_ZERO, GX::LO_CLEAR);
+    CGX::SetBlendMode(GX_BM_SUBTRACT, GX_BL_ONE, GX_BL_ZERO, GX_LO_CLEAR);
     sizeMul = 60.f;
   } else {
     CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
@@ -111,7 +111,7 @@ void COmegaPirate::CFlash::Render(CStateManager& mgr) {
   CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
   CGraphics::SetDepthWriteMode(false, ERglEnum::Always, false);
   CGraphics::StreamColor(zeus::CColor{1.f, std::min(1.f, size)});
-  CGraphics::StreamBegin(GX::TRIANGLEFAN);
+  CGraphics::StreamBegin(GX_TRIANGLEFAN);
   CGraphics::StreamTexcoord(0.f, 0.f);
   CGraphics::StreamVertex(rvS + upVec);
   CGraphics::StreamTexcoord(1.f, 0.f);

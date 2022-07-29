@@ -16,6 +16,8 @@
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/CDvdFile.hpp"
 
+#include <utility>
+
 namespace metaforce {
 static logvisor::Module Log("CCubeRenderer");
 
@@ -792,22 +794,22 @@ void CCubeRenderer::SetDebugOption(IRenderer::EDebugOption option, s32 value) {
 
 void CCubeRenderer::BeginPrimitive(IRenderer::EPrimitiveType type, s32 nverts) {
   constexpr std::array vtxDescList{
-      GX::VtxDescList{GX::VA_POS, GX::DIRECT},
-      GX::VtxDescList{GX::VA_NRM, GX::DIRECT},
-      GX::VtxDescList{GX::VA_CLR0, GX::DIRECT},
-      GX::VtxDescList{},
+      GXVtxDescList{GX_VA_POS, GX_DIRECT},
+      GXVtxDescList{GX_VA_NRM, GX_DIRECT},
+      GXVtxDescList{GX_VA_CLR0, GX_DIRECT},
+      GXVtxDescList{GX_VA_NULL, GX_NONE},
   };
-  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX::SRC_REG, GX::SRC_VTX, {}, GX::DF_NONE, GX::AF_NONE);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX_SRC_REG, GX_SRC_VTX, {}, GX_DF_NONE, GX_AF_NONE);
   CGX::SetNumChans(1);
   CGX::SetNumTexGens(0);
   CGX::SetNumTevStages(1);
-  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR0A0);
-  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_RASC);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_RASA);
-  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
+  CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_RASC);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_RASA);
+  CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
   x18_primVertCount = nverts;
   CGX::SetVtxDescv(vtxDescList.data());
-  CGX::Begin(GX::Primitive(type), GX::VTXFMT0, nverts);
+  CGX::Begin(GXPrimitive(type), GX_VTXFMT0, nverts);
 }
 
 void CCubeRenderer::BeginLines(s32 nverts) { BeginPrimitive(EPrimitiveType::Lines, nverts); }
@@ -864,22 +866,22 @@ void CCubeRenderer::DrawThermalModel(CModel& model, const zeus::CColor& multCol,
 
 void CCubeRenderer::DrawModelDisintegrate(CModel& model, CTexture& tex, const zeus::CColor& color,
                                           TConstVectorRef positions, TConstVectorRef normals, float t) {
-  tex.Load(GX::TEXMAP0, EClampMode::Clamp);
+  tex.Load(GX_TEXMAP0, EClampMode::Clamp);
   CGX::SetNumIndStages(0);
   CGX::SetNumTevStages(2);
   CGX::SetNumTexGens(2);
   CGX::SetNumChans(0);
-  CGX::SetBlendMode(GX::BM_BLEND, GX::BL_SRCALPHA, GX::BL_INVSRCALPHA, GX::LO_CLEAR);
-  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
-  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE1);
-  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_TEXC);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_TEXA);
-  CGX::SetTevColorIn(GX::TEVSTAGE1, GX::CC_ZERO, GX::CC_TEXC, GX::CC_CPREV, GX::CC_KONST);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE1, GX::CA_ZERO, GX::CA_TEXA, GX::CA_APREV, GX::CA_ZERO);
-  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
-  CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD1, GX::TEXMAP0, GX::COLOR_NULL);
-  CGX::SetTevKColorSel(GX::TEVSTAGE1, GX::TEV_KCSEL_K0);
-  CGX::SetTevKColor(GX::KCOLOR0, color);
+  CGX::SetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
+  CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
+  CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE1);
+  CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_TEXC);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_TEXA);
+  CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_TEXC, GX_CC_CPREV, GX_CC_KONST);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_TEXA, GX_CA_APREV, GX_CA_ZERO);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+  CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD1, GX_TEXMAP0, GX_COLOR_NULL);
+  CGX::SetTevKColorSel(GX_TEVSTAGE1, GX_TEV_KCSEL_K0);
+  CGX::SetTevKColor(GX_KCOLOR0, color);
   const auto bounds = model.GetInstance().GetBounds();
   const auto rotation = zeus::CTransform::RotateX(zeus::degToRad(-45.f));
   const auto transformedBounds = bounds.getTransformedAABox(rotation);
@@ -901,43 +903,43 @@ void CCubeRenderer::DrawModelDisintegrate(CModel& model, CTexture& tex, const ze
       },
       zeus::CVector3f{t, ptTex1.origin.y(), 1.f},
   };
-  GXLoadTexMtxImm(&xf, GX::TEXMTX0, GX::MTX3x4);
-  GXLoadTexMtxImm(&ptTex0, GX::PTTEXMTX0, GX::MTX3x4);
-  GXLoadTexMtxImm(&ptTex1, GX::PTTEXMTX1, GX::MTX3x4);
-  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX3x4, GX::TG_POS, GX::TEXMTX0, false, GX::PTTEXMTX0);
-  CGX::SetTexCoordGen(GX::TEXCOORD1, GX::TG_MTX3x4, GX::TG_POS, GX::TEXMTX0, false, GX::PTTEXMTX1);
-  CGX::SetAlphaCompare(GX::GREATER, 0, GX::AOP_AND, GX::ALWAYS, 0);
-  CGX::SetZMode(true, GX::LEQUAL, true);
+  GXLoadTexMtxImm(&xf, GX_TEXMTX0, GX_MTX3x4);
+  GXLoadTexMtxImm(&ptTex0, GX_PTTEXMTX0, GX_MTX3x4);
+  GXLoadTexMtxImm(&ptTex1, GX_PTTEXMTX1, GX_MTX3x4);
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_POS, GX_TEXMTX0, false, GX_PTTEXMTX0);
+  CGX::SetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX3x4, GX_TG_POS, GX_TEXMTX0, false, GX_PTTEXMTX1);
+  CGX::SetAlphaCompare(GX_GREATER, 0, GX_AOP_AND, GX_ALWAYS, 0);
+  CGX::SetZMode(true, GX_LEQUAL, true);
   model.UpdateLastFrame();
   model.GetInstance().DrawFlat(positions, normals, ESurfaceSelection::All);
-  CGX::SetAlphaCompare(GX::ALWAYS, 0, GX::AOP_AND, GX::ALWAYS, 0);
+  CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
 }
 
 void CCubeRenderer::DrawModelFlat(CModel& model, const CModelFlags& flags, bool unsortedOnly, TConstVectorRef positions,
                                   TConstVectorRef normals) {
   if (flags.x0_blendMode >= 7) {
-    CGX::SetBlendMode(GX::BM_BLEND, GX::BL_SRCALPHA, GX::BL_ONE, GX::LO_CLEAR);
+    CGX::SetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
   } else if (flags.x0_blendMode >= 5) {
-    CGX::SetBlendMode(GX::BM_BLEND, GX::BL_SRCALPHA, GX::BL_INVSRCALPHA, GX::LO_CLEAR);
+    CGX::SetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
   } else {
-    CGX::SetBlendMode(GX::BM_BLEND, GX::BL_ONE, GX::BL_ZERO, GX::LO_CLEAR);
+    CGX::SetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ZERO, GX_LO_CLEAR);
   }
-  CGX::SetZMode(true, flags.x2_flags & CModelFlagBits::DepthTest ? GX::LEQUAL : GX::ALWAYS,
+  CGX::SetZMode(true, flags.x2_flags & CModelFlagBits::DepthTest ? GX_LEQUAL : GX_ALWAYS,
                 flags.x2_flags.IsSet(CModelFlagBits::DepthUpdate));
   CGX::SetNumTevStages(1);
   CGX::SetNumTexGens(1);
   CGX::SetNumChans(0);
   CGX::SetNumIndStages(0);
-  CGX::SetAlphaCompare(GX::ALWAYS, 0, GX::AOP_AND, GX::ALWAYS, 0);
-  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_KONST);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_KONST);
-  CGX::SetTevKColor(GX::KCOLOR0, flags.x4_color);
-  CGX::SetTevKColorSel(GX::TEVSTAGE0, GX::TEV_KCSEL_K0);
-  CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_K0_A);
-  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD_NULL, GX::TEXMAP_NULL, GX::COLOR_NULL);
-  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
-  CGX::SetTevDirect(GX::TEVSTAGE0);
-  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX2x4, GX::TG_POS, GX::IDENTITY, false, GX::PTIDENTITY);
+  CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
+  CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_KONST);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_KONST);
+  CGX::SetTevKColor(GX_KCOLOR0, flags.x4_color);
+  CGX::SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K0);
+  CGX::SetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_K0_A);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR_NULL);
+  CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
+  CGX::SetTevDirect(GX_TEVSTAGE0);
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_POS, GX_IDENTITY, false, GX_PTIDENTITY);
   model.UpdateLastFrame();
   model.GetInstance().DrawFlat(positions, normals, unsortedOnly ? ESurfaceSelection::Unsorted : ESurfaceSelection::All);
 }
@@ -979,28 +981,29 @@ void CCubeRenderer::DoThermalBlendCold() {
   const auto width = CGraphics::GetViewportWidth();
   const auto top = CGraphics::GetViewportTop();
   const auto left = CGraphics::GetViewportLeft();
-  CGX::SetZMode(true, GX::LEQUAL, false);
+  CGX::SetZMode(true, GX_LEQUAL, false);
   // GXSetTexCopySrc(left, top, width, height);
-  // GXSetTexCopyDst(width, height, GX::TF_I4, false);
+  // GXSetTexCopyDst(width, height, GX_TF_I4, false);
   // GXCopyTex(sSpareTextureData, true);
-  CGraphics::ResolveSpareTexture(
-      aurora::gfx::ClipRect{
-          .x = static_cast<int32_t>(left),
-          .y = static_cast<int32_t>(top),
-          .width = static_cast<int32_t>(width),
-          .height = static_cast<int32_t>(height),
-      },
-      0, GX::TF_I4);
-  // CGraphics::LoadDolphinSpareTexture(width, height, GX::TF_I4, nullptr, GX::TEXMAP7);
-  CGraphics::LoadDolphinSpareTexture(0, GX::TF_I4, GX::TEXMAP7);
+  // TODO TODO TODO
+//  CGraphics::ResolveSpareTexture(
+//      aurora::gfx::ClipRect{
+//          .x = static_cast<int32_t>(left),
+//          .y = static_cast<int32_t>(top),
+//          .width = static_cast<int32_t>(width),
+//          .height = static_cast<int32_t>(height),
+//      },
+//      0, GX_TF_I4);
+  // CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_I4, nullptr, GX_TEXMAP7);
+  CGraphics::LoadDolphinSpareTexture(0, GX_TF_I4, GX_TEXMAP7);
 
   // Upload random static texture (game reads from .text)
   const u8* buf = CDvdFile::GetDolBuf() + 0x4f60;
   u8* out = m_thermalRandomStatic.Lock();
   memcpy(out, buf + ROUND_UP_32(x2a8_thermalRand.Next()), m_thermalRandomStatic.GetMemoryAllocated());
   m_thermalRandomStatic.UnLock();
-  m_thermalRandomStatic.Load(GX::TEXMAP0, EClampMode::Clamp);
-  m_thermalRandomStatic.Load(GX::TEXMAP1, EClampMode::Clamp);
+  m_thermalRandomStatic.Load(GX_TEXMAP0, EClampMode::Clamp);
+  m_thermalRandomStatic.Load(GX_TEXMAP1, EClampMode::Clamp);
 
   // Configure indirect texturing
   const float level = std::clamp(x2f0_thermalVisorLevel * 0.5f, 0.f, 0.5f);
@@ -1009,10 +1012,10 @@ void CCubeRenderer::DoThermalBlendCold() {
       aurora::Vec2{0.f, 0.f},
       aurora::Vec2{0.f, level},
   };
-  GXSetIndTexMtx(GX::ITM_0, &mtx, -2);
-  CGX::SetTevIndirect(GX::TEVSTAGE0, GX::INDTEXSTAGE0, GX::ITF_8, GX::ITB_STU, GX::ITM_0, GX::ITW_OFF, GX::ITW_OFF,
-                      false, false, GX::ITBA_OFF);
-  GXSetIndTexOrder(GX::INDTEXSTAGE0, GX::TEXCOORD0, GX::TEXMAP0);
+  GXSetIndTexMtx(GX_ITM_0, &mtx, -2);
+  CGX::SetTevIndirect(GX_TEVSTAGE0, GX_INDTEXSTAGE0, GX_ITF_8, GX_ITB_STU, GX_ITM_0, GX_ITW_OFF, GX_ITW_OFF, false,
+                      false, GX_ITBA_OFF);
+  GXSetIndTexOrder(GX_INDTEXSTAGE0, GX_TEXCOORD0, GX_TEXMAP0);
 
   // Configure register colors
   const auto color0 = zeus::CColor::lerp(x2f4_thermColor, zeus::skWhite, x2f8_thermColdScale);
@@ -1028,40 +1031,40 @@ void CCubeRenderer::DoThermalBlendCold() {
     cFac = (x2f8_thermColdScale - 0.25f) * 4.f / 3.f;
   }
   const zeus::CColor color2{cFac, cFac};
-  GXSetTevColor(GX::TEVREG0, color0);
-  GXSetTevColor(GX::TEVREG1, color1);
-  GXSetTevColor(GX::TEVREG2, color2);
+  GXSetTevColor(GX_TEVREG0, to_gx_color(color0));
+  GXSetTevColor(GX_TEVREG1, to_gx_color(color1));
+  GXSetTevColor(GX_TEVREG2, to_gx_color(color2));
 
   // Configure TEV stage 0
-  GXSetTevSwapMode(GX::TEVSTAGE0, GX::TEV_SWAP0, GX::TEV_SWAP1);
-  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_TEXC, GX::CC_C0, GX::CC_C2);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_TEXA, GX::CA_A1, GX::CA_A2);
-  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
-  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP7, GX::COLOR_NULL);
+  GXSetTevSwapMode(GX_TEVSTAGE0, GX_TEV_SWAP0, GX_TEV_SWAP1);
+  CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_C0, GX_CC_C2);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_A1, GX_CA_A2);
+  CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP7, GX_COLOR_NULL);
 
   // Configure TEV stage 1
-  GXSetTevSwapMode(GX::TEVSTAGE1, GX::TEV_SWAP0, GX::TEV_SWAP1);
-  CGX::SetTevColorIn(GX::TEVSTAGE1, GX::CC_ZERO, GX::CC_TEXC, GX::CC_C1, GX::CC_CPREV);
-  CGX::SetTevColorOp(GX::TEVSTAGE1, GX::TEV_SUB, GX::TB_ZERO, GX::CS_SCALE_1, true, GX::TEVPREV);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE1, GX::CA_ZERO, GX::CA_A1, GX::CA_TEXA, GX::CA_APREV);
-  CGX::SetTevAlphaOp(GX::TEVSTAGE1, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_4, true, GX::TEVPREV);
-  CGX::SetTevOrder(GX::TEVSTAGE1, GX::TEXCOORD0, GX::TEXMAP1, GX::COLOR_NULL);
+  GXSetTevSwapMode(GX_TEVSTAGE1, GX_TEV_SWAP0, GX_TEV_SWAP1);
+  CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_TEXC, GX_CC_C1, GX_CC_CPREV);
+  CGX::SetTevColorOp(GX_TEVSTAGE1, GX_TEV_SUB, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_A1, GX_CA_TEXA, GX_CA_APREV);
+  CGX::SetTevAlphaOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_4, true, GX_TEVPREV);
+  CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD0, GX_TEXMAP1, GX_COLOR_NULL);
 
   // Configure everything else
-  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX3x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
-  CGX::SetAlphaCompare(GX::ALWAYS, 0, GX::AOP_AND, GX::ALWAYS, 0);
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+  CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
   CGX::SetNumTevStages(2);
   CGX::SetNumTexGens(1);
   CGX::SetNumChans(0);
   CGX::SetNumIndStages(1);
-  CGX::SetZMode(false, GX::ALWAYS, false);
+  CGX::SetZMode(false, GX_ALWAYS, false);
   constexpr std::array vtxDescList{
-      GX::VtxDescList{GX::VA_POS, GX::DIRECT},
-      GX::VtxDescList{GX::VA_TEX0, GX::DIRECT},
-      GX::VtxDescList{},
+      GXVtxDescList{GX_VA_POS, GX_DIRECT},
+      GXVtxDescList{GX_VA_TEX0, GX_DIRECT},
+      GXVtxDescList{GX_VA_NULL, GX_NONE},
   };
   CGX::SetVtxDescv(vtxDescList.data());
-  CGX::SetBlendMode(GX::BM_NONE, GX::BL_ONE, GX::BL_ZERO, GX::LO_CLEAR);
+  CGX::SetBlendMode(GX_BM_NONE, GX_BL_ONE, GX_BL_ZERO, GX_LO_CLEAR);
 
   // Backup & set viewport/projection
   const auto backupViewMatrix = CGraphics::g_ViewMatrix;
@@ -1072,7 +1075,7 @@ void CCubeRenderer::DoThermalBlendCold() {
   GXPixModeSync();
 
   // Draw
-  CGX::Begin(GX::TRIANGLEFAN, GX::VTXFMT0, 4);
+  CGX::Begin(GX_TRIANGLEFAN, GX_VTXFMT0, 4);
   GXPosition3f32(0.f, 0.5f, 0.f);
   GXTexCoord2f32(0.f, 0.f);
   GXPosition3f32(0.f, 0.5f, static_cast<float>(height));
@@ -1084,10 +1087,10 @@ void CCubeRenderer::DoThermalBlendCold() {
   CGX::End();
 
   // Cleanup
-  GXSetTevSwapMode(GX::TEVSTAGE0, GX::TEV_SWAP0, GX::TEV_SWAP0);
-  GXSetTevSwapMode(GX::TEVSTAGE1, GX::TEV_SWAP0, GX::TEV_SWAP0);
+  GXSetTevSwapMode(GX_TEVSTAGE0, GX_TEV_SWAP0, GX_TEV_SWAP0);
+  GXSetTevSwapMode(GX_TEVSTAGE1, GX_TEV_SWAP0, GX_TEV_SWAP0);
   CGX::SetNumIndStages(0);
-  CGX::SetTevDirect(GX::TEVSTAGE0);
+  CGX::SetTevDirect(GX_TEVSTAGE0);
   GXSetDstAlpha(false, 255);
   CGraphics::SetProjectionState(backupProjectionState);
   CGraphics::SetViewPointMatrix(backupViewMatrix);
@@ -1104,31 +1107,31 @@ void CCubeRenderer::DoThermalBlendHot() {
   const auto width = CGraphics::GetViewportWidth();
   const auto top = CGraphics::GetViewportTop();
   const auto left = CGraphics::GetViewportLeft();
-  CGX::SetZMode(true, GX::LEQUAL, true);
+  CGX::SetZMode(true, GX_LEQUAL, true);
   // GXSetTexCopySrc(left, top, width, height);
-  // GXSetTexCopyDst(width, height, GX::TF_I4, false);
+  // GXSetTexCopyDst(width, height, GX_TF_I4, false);
   // GXCopyTex(sSpareTextureData, false);
-  CGraphics::ResolveSpareTexture(CGraphics::g_Viewport, 0, GX::TF_I4);
+  CGraphics::ResolveSpareTexture(CGraphics::g_Viewport, 0, GX_TF_I4);
   x288_thermoPalette.Load();
-  // CGraphics::LoadDolphinSpareTexture(width, height, GX::TF_C4, GX::TLUT0, nullptr, GX::TEXMAP7);
-  CGraphics::LoadDolphinSpareTexture(0, GX_TF_C4, GX_TLUT0, GX::TEXMAP7);
-  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_TEXA, GX::CC_TEXC, GX::CC_ZERO);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_ZERO, GX::CA_ZERO, GX::CA_TEXA);
-  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
-  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP7, GX::COLOR_NULL);
-  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX3x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
-  CGX::SetAlphaCompare(GX::ALWAYS, 0, GX::AOP_AND, GX::ALWAYS, 0);
+  // CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_C4, GX::TLUT0, nullptr, GX_TEXMAP7);
+  CGraphics::LoadDolphinSpareTexture(0, GX_TF_C4, GX_TLUT0, GX_TEXMAP7);
+  CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXA, GX_CC_TEXC, GX_CC_ZERO);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_TEXA);
+  CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP7, GX_COLOR_NULL);
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+  CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
   CGX::SetNumTevStages(1);
   CGX::SetNumTexGens(1);
   CGX::SetNumChans(0);
-  CGX::SetZMode(false, GX::LEQUAL, false);
+  CGX::SetZMode(false, GX_LEQUAL, false);
   constexpr std::array vtxDescList{
-      GX::VtxDescList{GX::VA_POS, GX::DIRECT},
-      GX::VtxDescList{GX::VA_TEX0, GX::DIRECT},
-      GX::VtxDescList{},
+      GXVtxDescList{GX_VA_POS, GX_DIRECT},
+      GXVtxDescList{GX_VA_TEX0, GX_DIRECT},
+      GXVtxDescList{GX_VA_NULL, GX_NONE},
   };
   CGX::SetVtxDescv(vtxDescList.data());
-  CGX::SetBlendMode(GX::BM_BLEND, GX::BL_DSTALPHA, GX::BL_INVDSTALPHA, GX::LO_CLEAR);
+  CGX::SetBlendMode(GX_BM_BLEND, GX_BL_DSTALPHA, GX_BL_INVDSTALPHA, GX_LO_CLEAR);
 
   // Backup & set viewport/projection
   const auto backupViewMatrix = CGraphics::g_ViewMatrix;
@@ -1139,7 +1142,7 @@ void CCubeRenderer::DoThermalBlendHot() {
   GXPixModeSync();
 
   // Draw
-  CGX::Begin(GX::TRIANGLEFAN, GX::VTXFMT0, 4);
+  CGX::Begin(GX_TRIANGLEFAN, GX_VTXFMT0, 4);
   GXPosition3f32(0.f, 0.5f, 0.f);
   GXTexCoord2f32(0.f, 0.f);
   GXPosition3f32(0.f, 0.5f, static_cast<float>(height));
@@ -1152,7 +1155,7 @@ void CCubeRenderer::DoThermalBlendHot() {
 
   // Cleanup
   CGX::SetNumIndStages(0);
-  CGX::SetTevDirect(GX::TEVSTAGE0);
+  CGX::SetTevDirect(GX_TEVSTAGE0);
   GXSetAlphaUpdate(true);
   CGraphics::SetProjectionState(backupProjectionState);
   CGraphics::SetViewPointMatrix(backupViewMatrix);
@@ -1165,7 +1168,7 @@ u32 CCubeRenderer::GetStaticWorldDataSize() {
   return 0;
 }
 
-void CCubeRenderer::SetGXRegister1Color(const zeus::CColor& color) { GXSetTevColor(GX::TevRegID::TEVREG1, color); }
+void CCubeRenderer::SetGXRegister1Color(const zeus::CColor& color) { GXSetTevColor(GX_TEVREG1, to_gx_color(color)); }
 
 void CCubeRenderer::SetWorldLightFadeLevel(float level) { x2fc_tevReg1Color = zeus::CColor(level, level, level, 1.f); }
 
@@ -1348,7 +1351,7 @@ void CCubeRenderer::DrawOverlappingWorldModelShadows(s32 alphaVal, const std::ve
           }
 
           auto& model = *(*item.x10_models)[wordModel + j];
-          CGX::SetTevKColor(GX::KCOLOR0, zeus::CColor{0.f, static_cast<float>(alphaVal) / 255.f});
+          CGX::SetTevKColor(GX_KCOLOR0, zeus::CColor{0.f, static_cast<float>(alphaVal) / 255.f});
           model.SetArraysCurrent();
           for (const auto* surf = model.GetFirstUnsortedSurface(); surf != nullptr; surf = surf->GetNextSurface()) {
             if (surf->GetBounds().intersects(aabb)) {
@@ -1373,8 +1376,7 @@ void CCubeRenderer::SetupCGraphicsState() {
   CGraphics::SetAmbientColor({0.4f});
   CGX::SetChanMatColor(CGX::EChannelId::Channel0, zeus::skWhite);
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
-  CGX::SetChanCtrl(CGX::EChannelId::Channel1, false, GX::SRC_REG, GX::SRC_REG, GX::LIGHT_NULL, GX::DF_NONE,
-                   GX::AF_NONE);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel1, false, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
   CCubeMaterial::EnsureTevsDirect();
 }
 
@@ -1384,7 +1386,7 @@ void CCubeRenderer::SetupRendererStates(bool depthWrite) {
   CGraphics::SetAmbientColor(zeus::skClear);
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, depthWrite);
   CCubeMaterial::ResetCachedMaterials();
-  GXSetTevColor(GX::TEVREG1, x2fc_tevReg1Color);
+  GXSetTevColor(GX_TEVREG1, to_gx_color(x2fc_tevReg1Color));
 }
 
 constexpr zeus::CTransform MvPostXf{
@@ -1395,26 +1397,26 @@ constexpr zeus::CTransform MvPostXf{
 void CCubeRenderer::DoThermalModelDraw(CCubeModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,
                                        TConstVectorRef positions, TConstVectorRef normals, const CModelFlags& flags) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CCubeRenderer::DoThermalModelDraw", zeus::skBlue);
-  CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX3x4, GX::TG_NRM, GX::TEXMTX0, true, GX::PTTEXMTX0);
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_NRM, GX_TEXMTX0, true, GX_PTTEXMTX0);
   CGX::SetNumTexGens(1);
   CGX::SetNumChans(0);
-  x220_sphereRamp.Load(GX::TEXMAP0, EClampMode::Clamp);
+  x220_sphereRamp.Load(GX_TEXMAP0, EClampMode::Clamp);
   zeus::CTransform xf = CGraphics::g_ViewMatrix.inverse().multiplyIgnoreTranslation(CGraphics::g_GXModelMatrix);
   xf.origin.zeroOut();
-  GXLoadTexMtxImm(&xf, GX::TEXMTX0, GX::MTX3x4);
-  GXLoadTexMtxImm(&MvPostXf, GX::PTTEXMTX0, GX::MTX3x4);
-  CGX::SetStandardTevColorAlphaOp(GX::TEVSTAGE0);
-  CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_C0, GX::CC_TEXC, GX::CC_KONST);
-  CGX::SetTevAlphaIn(GX::TEVSTAGE0, GX::CA_ZERO, GX::CA_TEXA, GX::CA_A0, GX::CA_KONST);
-  CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP0, GX::COLOR_NULL);
+  GXLoadTexMtxImm(&xf, GX_TEXMTX0, GX_MTX3x4);
+  GXLoadTexMtxImm(&MvPostXf, GX_PTTEXMTX0, GX_MTX3x4);
+  CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
+  CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_C0, GX_CC_TEXC, GX_CC_KONST);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_A0, GX_CA_KONST);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
   CGX::SetNumTevStages(1);
-  CGX::SetTevKColor(GX::KCOLOR0, addCol);
-  CGX::SetTevKColorSel(GX::TEVSTAGE0, GX::TEV_KCSEL_K0);
-  CGX::SetTevKAlphaSel(GX::TEVSTAGE0, GX::TEV_KASEL_K0_A);
-  GXSetTevColor(GX::TEVREG0, multCol);
-  CGX::SetAlphaCompare(GX::ALWAYS, 0, GX::AOP_OR, GX::ALWAYS, 0);
-  CGX::SetBlendMode(GX::BM_BLEND, GX::BL_ONE, GX::BL_ONE, GX::LO_CLEAR);
-  CGX::SetZMode(flags.x2_flags.IsSet(CModelFlagBits::DepthTest), GX::LEQUAL,
+  CGX::SetTevKColor(GX_KCOLOR0, addCol);
+  CGX::SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K0);
+  CGX::SetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_K0_A);
+  GXSetTevColor(GX_TEVREG0, to_gx_color(multCol));
+  CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
+  CGX::SetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ONE, GX_LO_CLEAR);
+  CGX::SetZMode(flags.x2_flags.IsSet(CModelFlagBits::DepthTest), GX_LEQUAL,
                 flags.x2_flags.IsSet(CModelFlagBits::DepthUpdate));
   model.DrawFlat(positions, normals,
                  flags.x2_flags.IsSet(CModelFlagBits::ThermalUnsortedOnly) ? ESurfaceSelection::Unsorted
@@ -1458,16 +1460,16 @@ void CCubeRenderer::ReallyDrawSpaceWarp(const zeus::CVector3f& pt, float strengt
   }
   const auto v2sub = v2left - v2right;
   if (v2sub.x > 0 && v2sub.y > 0) {
-    GX::FogType fogType;
+    GXFogType fogType;
     float fogStartZ;
     float fogEndZ;
     float fogNearZ;
     float fogFarZ;
     GXColor fogColor;
     CGX::GetFog(&fogType, &fogStartZ, &fogEndZ, &fogNearZ, &fogFarZ, &fogColor);
-    CGX::SetFog(GX::FOG_NONE, fogStartZ, fogEndZ, fogNearZ, fogFarZ, fogColor);
+    CGX::SetFog(GX_FOG_NONE, fogStartZ, fogEndZ, fogNearZ, fogFarZ, fogColor);
     //    GXSetTexCopySrc(v2right.x, v2right.y, v2sub.x, v2sub.y);
-    //    GXSetTexCopyDst(v2sub.x, v2sub.y, GX::TF_RGBA8, false);
+    //    GXSetTexCopyDst(v2sub.x, v2sub.y, GX_TF_RGBA8, false);
     //    GXCopyTex(sSpareTextureData, false);
     //    GXPixModeSync();
     CGraphics::ResolveSpareTexture(
@@ -1477,14 +1479,14 @@ void CCubeRenderer::ReallyDrawSpaceWarp(const zeus::CVector3f& pt, float strengt
             .x8_width = static_cast<u32>(v2sub.x),
             .xc_height = static_cast<u32>(v2sub.y),
         },
-        1, GX::TF_RGBA8);
-    CGraphics::LoadDolphinSpareTexture(1, GX::TF_RGBA8, GX::TEXMAP7);
-    x150_reflectionTex.Load(GX::TEXMAP1, EClampMode::Clamp);
-    CGX::SetTevColorIn(GX::TEVSTAGE0, GX::CC_ZERO, GX::CC_ZERO, GX::CC_ZERO, GX::CC_TEXC);
-    CGX::SetTevColorOp(GX::TEVSTAGE0, GX::TEV_ADD, GX::TB_ZERO, GX::CS_SCALE_1, true, GX::TEVPREV);
-    CGX::SetTexCoordGen(GX::TEXCOORD0, GX::TG_MTX3x4, GX::TG_TEX0, GX::IDENTITY, false, GX::PTIDENTITY);
-    CGX::SetTexCoordGen(GX::TEXCOORD1, GX::TG_MTX3x4, GX::TG_TEX1, GX::IDENTITY, false, GX::PTIDENTITY);
-    CGX::SetTevOrder(GX::TEVSTAGE0, GX::TEXCOORD0, GX::TEXMAP7, GX::COLOR_NULL);
+        1, GX_TF_RGBA8);
+    CGraphics::LoadDolphinSpareTexture(1, GX_TF_RGBA8, GX_TEXMAP7);
+    x150_reflectionTex.Load(GX_TEXMAP1, EClampMode::Clamp);
+    CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_TEXC);
+    CGX::SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+    CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+    CGX::SetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX3x4, GX_TG_TEX1, GX_IDENTITY, false, GX_PTIDENTITY);
+    CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP7, GX_COLOR_NULL);
   }
 }
 

@@ -93,22 +93,22 @@ void CParticleElectric::SetupLineGXMaterial() {
 
 void CParticleElectric::DrawLineStrip(const std::vector<zeus::CVector3f>& verts, float width,
                                       const zeus::CColor& color) {
-  const size_t useIdx = m_nextLineRenderer;
-  if (++m_nextLineRenderer > m_lineRenderers.size()) {
-    m_lineRenderers.resize(m_nextLineRenderer);
-  }
-  if (!m_lineRenderers[useIdx]) {
-    m_lineRenderers[useIdx] = std::make_unique<CLineRenderer>(CLineRenderer::EPrimitiveMode::LineStrip, x150_SSEG,
-                                                              aurora::gfx::TextureHandle{}, true, true);
-  }
-  CLineRenderer& renderer = *m_lineRenderers[useIdx];
-  const zeus::CColor useColor = x1b8_moduColor * color;
-
-  renderer.Reset();
-  for (const zeus::CVector3f& vert : verts) {
-    renderer.AddVertex(vert, useColor, width);
-  }
-  renderer.Render(); // g_Renderer->IsThermalVisorHotPass()
+//  const size_t useIdx = m_nextLineRenderer;
+//  if (++m_nextLineRenderer > m_lineRenderers.size()) {
+//    m_lineRenderers.resize(m_nextLineRenderer);
+//  }
+//  if (!m_lineRenderers[useIdx]) {
+//    m_lineRenderers[useIdx] = std::make_unique<CLineRenderer>(CLineRenderer::EPrimitiveMode::LineStrip, x150_SSEG,
+//                                                              aurora::gfx::TextureHandle{}, true, true);
+//  }
+//  CLineRenderer& renderer = *m_lineRenderers[useIdx];
+//  const zeus::CColor useColor = x1b8_moduColor * color;
+//
+//  renderer.Reset();
+//  for (const zeus::CVector3f& vert : verts) {
+//    renderer.AddVertex(vert, useColor, width);
+//  }
+//  renderer.Render(); // g_Renderer->IsThermalVisorHotPass()
 }
 
 void CParticleElectric::RenderLines() {

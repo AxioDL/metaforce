@@ -365,7 +365,6 @@ if(NOT TARGET atdna)
 endif()
 
 add_subdirectory(NESEmulator EXCLUDE_FROM_ALL)
-add_subdirectory(aurora)
 add_subdirectory(Runtime)
 add_subdirectory(gbalink EXCLUDE_FROM_ALL)
 
