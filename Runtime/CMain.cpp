@@ -2,13 +2,13 @@
 #include <string_view>
 #include <numeric>
 #include <iostream>
-#include "Runtime/CInfiniteLoopDetector.hpp"
 
 #include "ImGuiEngine.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/MP1/MP1.hpp"
 #include "Runtime/ConsoleVariables/FileStoreManager.hpp"
 #include "Runtime/ConsoleVariables/CVarManager.hpp"
+#include "Runtime/CInfiniteLoopDetector.hpp"
 #include "amuse/BooBackend.hpp"
 
 #include "logvisor/logvisor.hpp"
@@ -26,11 +26,12 @@
 
 #include "../version.h"
 
-//#include <fenv.h>
-//#pragma STDC FENV_ACCESS ON
+// #include <fenv.h>
+// #pragma STDC FENV_ACCESS ON
 
 #include <aurora/event.h>
 #include <aurora/main.h>
+#include <dolphin/vi.h>
 
 using namespace std::literals;
 
@@ -181,12 +182,36 @@ public:
   , m_cvarCommons(cvarCmns)
   , m_imGuiConsole(cvarMgr, cvarCmns) {}
 
-  void onAppLaunched() noexcept {
+  void onAppLaunched(const AuroraInfo& info) noexcept {
     initialize();
 
-    // TODO
-    // auto backend = static_cast<std::string>(aurora::get_backend_string());
-    // aurora::set_window_title(fmt::format(FMT_STRING("Metaforce {} [{}]"), METAFORCE_WC_DESCRIBE, backend));
+    std::string_view backend;
+    switch (info.backend) {
+    case BACKEND_D3D12:
+      backend = "D3D12"sv;
+      break;
+    case BACKEND_METAL:
+      backend = "Metal"sv;
+      break;
+    case BACKEND_VULKAN:
+      backend = "Vulkan"sv;
+      break;
+    case BACKEND_OPENGL:
+      backend = "OpenGL"sv;
+      break;
+    case BACKEND_OPENGLES:
+      backend = "OpenGL ES"sv;
+      break;
+    case BACKEND_WEBGPU:
+      backend = "WebGPU"sv;
+      break;
+    case BACKEND_NULL:
+      backend = "Null"sv;
+      break;
+    default:
+      break;
+    }
+    VISetWindowTitle(fmt::format(FMT_STRING("Metaforce {} [{}]"), METAFORCE_WC_DESCRIBE, backend).c_str());
 
     m_voiceEngine = boo::NewAudioVoiceEngine("metaforce", "Metaforce");
     m_voiceEngine->setVolume(0.7f);
@@ -214,6 +239,16 @@ public:
     Log.report(logvisor::Info, FMT_STRING("CPU Name: {}"), cpuInf.cpuBrand);
     Log.report(logvisor::Info, FMT_STRING("CPU Vendor: {}"), cpuInf.cpuVendor);
     Log.report(logvisor::Info, FMT_STRING("CPU Features: {}"), CPUFeatureString(cpuInf));
+  }
+
+  void onSdlEvent(const SDL_Event& event) noexcept {
+    switch (event.type) {
+    case SDL_KEYDOWN:
+      // Toggle fullscreen on ALT+ENTER
+      if (event.key.keysym.sym == SDLK_RETURN && (event.key.keysym.mod & KMOD_ALT) != 0u && event.key.repeat == 0u) {
+        m_cvarCommons.m_fullscreen->fromBoolean(!m_cvarCommons.m_fullscreen->toBoolean());
+      }
+    }
   }
 
   bool onAppIdle(float realDt) noexcept {
@@ -262,8 +297,7 @@ public:
 
     // Check if the user has modified the fullscreen CVar, if so set fullscreen state accordingly
     if (m_cvarCommons.m_fullscreen->isModified()) {
-      // TODO
-      // aurora::set_fullscreen(m_cvarCommons.getFullscreen());
+      VISetWindowFullscreen(m_cvarCommons.getFullscreen());
     }
 
     // Let CVarManager inform all CVar listeners of the CVar's state and clear all mdoified flags if necessary
@@ -504,7 +538,7 @@ int main(int argc, char** argv) {
     };
     const auto info = aurora_initialize(argc, argv, &config);
     g_app->onImGuiAddTextures();
-    g_app->onAppLaunched();
+    g_app->onAppLaunched(info);
     g_app->onAppWindowResized(info.windowSize);
     while (true) {
       const auto* event = aurora_update();
@@ -513,6 +547,9 @@ int main(int argc, char** argv) {
         switch (event->type) {
         case AURORA_EXIT:
           exiting = true;
+          break;
+        case AURORA_SDL_EVENT:
+          g_app->onSdlEvent(event->sdl);
           break;
         case AURORA_WINDOW_RESIZED:
           g_app->onAppWindowResized(event->windowSize);
