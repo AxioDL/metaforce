@@ -190,7 +190,7 @@ void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::
   const auto oldLights = g_LightActive;
   SetOrtho(-g_Viewport.x10_halfWidth, g_Viewport.x10_halfWidth, g_Viewport.x14_halfHeight, -g_Viewport.x14_halfHeight,
            -1.f, -10.f);
-  GXLoadPosMtxImm({}, GX_PNMTX0);
+  GXLoadPosMtxImm(&zeus::skIdentityMatrix4f, GX_PNMTX0);
   DisableAllLights();
   SetCullMode(ERglCullMode::None);
   tex.Load(GX_TEXMAP0, EClampMode::Repeat);
@@ -272,11 +272,6 @@ void CGraphics::SetModelMatrix(const zeus::CTransform& xf) {
   g_GXModelMatrix = xf;
   SetViewMatrix();
 }
-
-constexpr zeus::CMatrix4f PlusOneZ(1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f, 1.f);
-
-constexpr zeus::CMatrix4f VulkanCorrect(1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 0.f, 0.f, 0.f, 0.5f, 0.5f + FLT_EPSILON,
-                                        0.f, 0.f, 0.f, 1.f);
 
 zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect, float znear, float zfar) {
   CProjectionState st;

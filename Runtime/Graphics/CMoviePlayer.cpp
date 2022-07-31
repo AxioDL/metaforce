@@ -78,8 +78,8 @@ static void MyTHPGXYuv2RgbSetup(bool interlaced2ndFrame, bool fieldFlip) {
   GXSetColorUpdate(true);
   GXSetAlphaUpdate(false);
   GXInvalidateTexAll();
-  GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_POS, GX_CLR_RGBA, GX_F32, 0);
-  GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_TEX0, GX_CLR_RGBA, GX_RGBX8, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_TEX0, GX_TEX_ST, GX_U16, 0);
   CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD1, GX_TEXMAP1, GX_COLOR_NULL);
   CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, GX_CC_C0);
   CGX::SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, false, GX_TEVPREV);
@@ -484,8 +484,15 @@ bool CMoviePlayer::DrawVideo() {
   const s32 vpWidth = CGraphics::GetViewportWidth();
   const s32 vpTop = CGraphics::GetViewportTop();
   const s32 vpLeft = CGraphics::GetViewportLeft();
+#ifdef AURORA
+  // Scale to full size, maintaining aspect ratio
+  float vidAspect = static_cast<float>(x6c_videoInfo.width) / static_cast<float>(x6c_videoInfo.height);
+  const s32 vidWidth = vpHeight * vidAspect;
+  const s32 vidHeight = vpHeight;
+#else
   const s32 vidWidth = x6c_videoInfo.width;
   const s32 vidHeight = x6c_videoInfo.height;
+#endif
   const s32 centerX = (vidWidth - vpWidth) / 2;
   const s32 centerY = (vidHeight - vpHeight) / 2;
   const s32 vl = vpLeft - centerX;
