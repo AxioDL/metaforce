@@ -700,11 +700,17 @@ void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
         }
       }
 #endif
+#ifdef EMSCRIPTEN
+      if (ImGuiButtonCenter("Load Game")) {
+        m_gameDiscSelected = "game.iso";
+      }
+#else
       if (!m_lastDiscPath.empty()) {
         if (ImGuiButtonCenter("Load Previous Game")) {
           m_gameDiscSelected = m_lastDiscPath;
         }
       }
+#endif
       ImGui::Dummy(padding);
     }
     if (m_errorString) {
@@ -828,7 +834,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      ImGuiStringViewText(fmt::format(FMT_STRING("FPS: {}\n"), metaforce::CGraphics::GetFPS()));
+      ImGuiStringViewText(fmt::format(FMT_STRING("FPS: {:.1f}\n"), io.Framerate));
     }
     if (m_inGameTime && g_GameState != nullptr) {
       if (hasPrevious) {

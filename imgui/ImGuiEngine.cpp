@@ -1,6 +1,7 @@
 #include "ImGuiEngine.hpp"
 
 #include <aurora/imgui.h>
+#include <cmath>
 
 #include "Runtime/Streams/CMemoryInStream.hpp"
 #include "Runtime/Streams/CZipInputStream.hpp"

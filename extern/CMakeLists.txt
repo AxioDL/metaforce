@@ -1,5 +1,5 @@
 option(BUILD_ATHENA "Build Athena libraries from source" ON)
-if (WIN32 OR APPLE)
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows OR CMAKE_HOST_SYSTEM_NAME STREQUAL Darwin)
   # Default to binary atdna on Windows & macOS
   option(BUILD_ATDNA "Build atdna utility from source (requires LLVM)" OFF)
 else ()
@@ -8,7 +8,7 @@ endif ()
 
 if (NOT BUILD_ATDNA)
   set(ATHENA_BASE_URL "https://github.com/libAthena/athena/releases/download/latest")
-  if (WIN32)
+  if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
     set(ATHENA_EXT 7z)
   else ()
     set(ATHENA_EXT tar.gz)

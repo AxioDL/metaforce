@@ -367,6 +367,9 @@ public:
     if (m_voiceEngine) {
       m_voiceEngine->pumpAndMixVoices();
     }
+#ifdef EMSCRIPTEN
+    CDvdFile::DoWork();
+#endif
     CGraphics::TickRenderTimings();
     ++logvisor::FrameIndex;
   }
@@ -433,12 +436,16 @@ static void SetupBasics() {
 }
 
 static bool IsClientLoggingEnabled(int argc, char** argv) {
+#ifdef EMSCRIPTEN
+  return true;
+#else
   for (int i = 1; i < argc; ++i) {
     if (!strncmp(argv[i], "-l", 2)) {
       return true;
     }
   }
   return false;
+#endif
 }
 
 static void SetupLogging() {}

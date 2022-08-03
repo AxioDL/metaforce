@@ -15,6 +15,10 @@
 #include <nod/nod.hpp>
 #include <nod/DiscBase.hpp>
 
+#ifndef EMSCRIPTEN
+#define HAS_DVD_THREAD
+#endif
+
 namespace metaforce {
 
 enum class ESeekOrigin { Begin = 0, Cur = 1, End = 2 };
@@ -33,11 +37,13 @@ class CDvdFile {
   friend class CFileDvdRequest;
   static std::unique_ptr<nod::DiscBase> m_DvdRoot;
   //  static std::unordered_map<std::string, std::string> m_caseInsensitiveMap;
+#ifdef HAS_DVD_THREAD
   static std::thread m_WorkerThread;
   static std::mutex m_WorkerMutex;
   static std::condition_variable m_WorkerCV;
   static std::mutex m_WaitMutex;
   static std::atomic_bool m_WorkerRun;
+#endif
   static std::vector<std::shared_ptr<IDvdRequest>> m_RequestQueue;
   static std::string m_rootDirectory;
   static std::unique_ptr<u8[]> m_dolBuf;
@@ -57,6 +63,7 @@ public:
   static void SetRootDirectory(const std::string_view& rootDir);
   static void Shutdown();
   static u8* GetDolBuf() { return m_dolBuf.get(); }
+  static void DoWork();
 
   CDvdFile(std::string_view path);
   operator bool() const { return m_reader.operator bool(); }

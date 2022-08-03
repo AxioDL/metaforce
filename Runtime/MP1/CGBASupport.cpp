@@ -5,20 +5,31 @@
 #include "Runtime/CBasics.hpp"
 #include "Runtime/CDvdRequest.hpp"
 
+#ifndef EMSCRIPTEN
+#define ENABLE_JBUS
+#endif
+
+#ifdef ENABLE_JBUS
 #include <jbus/Endpoint.hpp>
 #include <jbus/Listener.hpp>
+#endif
 
 namespace metaforce::MP1 {
 
+#ifdef ENABLE_JBUS
 static jbus::Listener g_JbusListener;
 static std::unique_ptr<jbus::Endpoint> g_JbusEndpoint;
+#endif
 
 void CGBASupport::Initialize() {
+#ifdef ENABLE_JBUS
   jbus::Initialize();
   g_JbusListener.start();
+#endif
 }
 
 void CGBASupport::GlobalPoll() {
+#ifdef ENABLE_JBUS
   if (g_JbusEndpoint && !g_JbusEndpoint->connected())
     g_JbusEndpoint.reset();
   if (!g_JbusEndpoint) {
@@ -26,6 +37,7 @@ void CGBASupport::GlobalPoll() {
     if (g_JbusEndpoint)
       g_JbusEndpoint->setChan(3);
   }
+#endif
 }
 
 CGBASupport::CGBASupport() : CDvdFile("client_pad.bin") {
@@ -56,6 +68,7 @@ u8 CGBASupport::CalculateFusionJBusChecksum(const u8* data, size_t len) {
 }
 
 bool CGBASupport::PollResponse() {
+#ifdef ENABLE_JBUS
   if (!g_JbusEndpoint)
     return false;
 
@@ -127,10 +140,13 @@ bool CGBASupport::PollResponse() {
   if (x44_fusionLinked && (bytes[2] & 0x1) != 0)
     x45_fusionBeat = true;
 
+#endif
   return true;
 }
 
+#ifdef ENABLE_JBUS
 static void JoyBootDone(jbus::ThreadLocalEndpoint& endpoint, jbus::EJoyReturn status) {}
+#endif
 
 void CGBASupport::Update(float dt) {
   switch (x34_phase) {
@@ -144,6 +160,7 @@ void CGBASupport::Update(float dt) {
     [[fallthrough]];
 
   case EPhase::PollProbe:
+#ifdef ENABLE_JBUS
     /* SIProbe poll normally occurs here with 4 second timeout */
     if (!g_JbusEndpoint) {
       x34_phase = EPhase::Failed;
@@ -151,17 +168,23 @@ void CGBASupport::Update(float dt) {
     }
     x40_siChan = g_JbusEndpoint->getChan();
     x34_phase = EPhase::StartJoyBusBoot;
+#endif
     [[fallthrough]];
 
   case EPhase::StartJoyBusBoot:
+#ifdef ENABLE_JBUS
     x34_phase = EPhase::PollJoyBusBoot;
     if (!g_JbusEndpoint || g_JbusEndpoint->GBAJoyBootAsync(x40_siChan * 2, 2, x2c_buffer.get(), x28_fileSize,
                                                            &x3c_status, JoyBootDone) != jbus::GBA_READY) {
       x34_phase = EPhase::Failed;
     }
+#else
+    x34_phase = EPhase::Failed;
+#endif
     break;
 
   case EPhase::PollJoyBusBoot:
+#ifdef ENABLE_JBUS
     u8 percent;
     if (g_JbusEndpoint && g_JbusEndpoint->GBAGetProcessStatus(percent) == jbus::GBA_BUSY)
       break;
@@ -171,9 +194,13 @@ void CGBASupport::Update(float dt) {
     }
     x38_timeout = 4.f;
     x34_phase = EPhase::DataTransfer;
+#else
+    x34_phase = EPhase::Failed;
+#endif
     break;
 
   case EPhase::DataTransfer:
+#ifdef ENABLE_JBUS
     if (PollResponse()) {
       x34_phase = EPhase::Complete;
       break;
@@ -181,6 +208,9 @@ void CGBASupport::Update(float dt) {
     x38_timeout = std::max(0.f, x38_timeout - dt);
     if (x38_timeout == 0.f)
       x34_phase = EPhase::Failed;
+#else
+    x34_phase = EPhase::Failed;
+#endif
     break;
 
   default:

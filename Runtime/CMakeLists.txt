@@ -154,7 +154,7 @@ if (NOT GEKKO AND NOT NX AND NOT IOS AND NOT TVOS)
     set(DISCORD_RPC_LIBRARY "discord-rpc")
 endif()
 set(RUNTIME_LIBRARIES amuse zeus nod NESEmulator libjpeg-turbo jbus kabufuda logvisor OptickCore
-    imgui_support aurora::aurora SDL2::SDL2-static SDL2::SDL2main
+    imgui_support aurora::aurora
     boo # TODO move audiodev
     ${DISCORD_RPC_LIBRARY}
     ${ZLIB_LIBRARIES}
@@ -277,4 +277,7 @@ if (WINDOWS_STORE)
     set_property(TARGET metaforce PROPERTY VS_WINRT_COMPONENT TRUE)
     # This should match the Package.appxmanifest
     set_property(TARGET metaforce PROPERTY VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION "10.0.14393.0")
+endif ()
+if (EMSCRIPTEN)
+    target_link_options(metaforce PRIVATE -sTOTAL_MEMORY=268435456 -sALLOW_MEMORY_GROWTH --preload-file "${CMAKE_SOURCE_DIR}/files@/")
 endif ()
