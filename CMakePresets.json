@@ -138,7 +138,11 @@
           "type": "FILEPATH",
           "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
         },
-        "VCPKG_TARGET_TRIPLET": "x64-windows-static"
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+        "VCPKG_SETUP_CMAKE_PROGRAM_PATH": {
+          "type": "BOOL",
+          "value": false
+        }
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
