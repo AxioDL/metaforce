@@ -61,6 +61,7 @@ public:
 
   void ControllerAdded(uint32_t idx);
   void ControllerRemoved(uint32_t idx);
+  void ToggleVisible();
 
   std::optional<std::string> m_errorString;
   std::optional<std::string> m_gameDiscSelected;

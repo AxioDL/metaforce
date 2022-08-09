@@ -1301,6 +1301,12 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect, bool preLaunch) {
   }
 }
 
+void ImGuiConsole::ToggleVisible() {
+  if (g_Main != nullptr) {
+    m_isVisible ^= 1;
+  }
+}
+
 void ImGuiConsole::PreUpdate() {
   OPTICK_EVENT();
   bool preLaunch = g_Main == nullptr;
@@ -1332,7 +1338,7 @@ void ImGuiConsole::PreUpdate() {
   }
   if (!preLaunch && !m_isLaunchInitialized) {
     if (m_developer) {
-      m_toasts.emplace_back("Press ` to toggle menu"s, 5.f);
+      m_toasts.emplace_back("Press Left Alt to toggle menu"s, 5.f);
     }
     m_isLaunchInitialized = true;
   }
@@ -1342,9 +1348,6 @@ void ImGuiConsole::PreUpdate() {
   }
 
   if (!preLaunch) {
-    if (ImGui::IsKeyReleased(ImGuiKey_GraveAccent)) {
-      m_isVisible ^= 1;
-    }
     if (m_stepFrame) {
       g_Main->SetPaused(true);
       m_stepFrame = false;

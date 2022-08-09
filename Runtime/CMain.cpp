@@ -168,6 +168,7 @@ private:
   bool m_firstFrame = true;
   bool m_fullscreenToggleRequested = false;
   bool m_quitRequested = false;
+  bool m_lAltHeld = false;
   using delta_clock = std::chrono::high_resolution_clock;
   delta_clock::time_point m_prevFrameTime;
 
@@ -220,9 +221,16 @@ public:
   void onSdlEvent(const SDL_Event& event) noexcept {
     switch (event.type) {
     case SDL_KEYDOWN:
+      m_lAltHeld = event.key.keysym.sym == SDLK_LALT;
       // Toggle fullscreen on ALT+ENTER
       if (event.key.keysym.sym == SDLK_RETURN && (event.key.keysym.mod & KMOD_ALT) != 0u && event.key.repeat == 0u) {
         m_cvarCommons.m_fullscreen->fromBoolean(!m_cvarCommons.m_fullscreen->toBoolean());
+      }
+      break;
+    case SDL_KEYUP:
+      if (m_lAltHeld && event.key.keysym.sym == SDLK_LALT) {
+        m_imGuiConsole.ToggleVisible();
+        m_lAltHeld = false;
       }
     }
   }
