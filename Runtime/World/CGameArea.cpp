@@ -917,16 +917,18 @@ void CGameArea::PostConstructArea() {
   /* Lights section */
   if (header.version > 6) {
     CMemoryInStream r(secIt->first, secIt->second, CMemoryInStream::EOwnerShip::NotOwned);
-    u32 magic = r.ReadLong();
-    if (magic == 0xBABEDEAD) {
-      u32 aCount = r.ReadLong();
-      x12c_postConstructed->x60_lightsA.reserve(aCount);
-      x12c_postConstructed->x70_gfxLightsA.reserve(aCount);
-      for (u32 i = 0; i < aCount; ++i) {
-        x12c_postConstructed->x60_lightsA.emplace_back(r);
-        x12c_postConstructed->x70_gfxLightsA.push_back(x12c_postConstructed->x60_lightsA.back().GetAsCGraphicsLight());
-      }
+    u32 aCount = r.ReadLong();
+    if (aCount == 0xBABEDEAD) {
+      aCount = r.ReadLong();
+    }
+    x12c_postConstructed->x60_lightsA.reserve(aCount);
+    x12c_postConstructed->x70_gfxLightsA.reserve(aCount);
+    for (u32 i = 0; i < aCount; ++i) {
+      x12c_postConstructed->x60_lightsA.emplace_back(r);
+      x12c_postConstructed->x70_gfxLightsA.push_back(x12c_postConstructed->x60_lightsA.back().GetAsCGraphicsLight());
+    }
 
+    if (aCount == 0xBABEDEAD) {
       u32 bCount = r.ReadLong();
       x12c_postConstructed->x80_lightsB.reserve(bCount);
       x12c_postConstructed->x90_gfxLightsB.reserve(bCount);
@@ -934,6 +936,11 @@ void CGameArea::PostConstructArea() {
         x12c_postConstructed->x80_lightsB.emplace_back(r);
         x12c_postConstructed->x90_gfxLightsB.push_back(x12c_postConstructed->x80_lightsB.back().GetAsCGraphicsLight());
       }
+    }
+
+    if (x12c_postConstructed->x80_lightsB.empty()) {
+      x12c_postConstructed->x80_lightsB = x12c_postConstructed->x60_lightsA;
+      x12c_postConstructed->x90_gfxLightsB = x12c_postConstructed->x70_gfxLightsA;
     }
 
     ++secIt;
