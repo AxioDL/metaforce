@@ -186,33 +186,8 @@ public:
   void onAppLaunched(const AuroraInfo& info) noexcept {
     initialize();
 
-    std::string_view backend;
-    switch (info.backend) {
-    case BACKEND_D3D12:
-      backend = "D3D12"sv;
-      break;
-    case BACKEND_METAL:
-      backend = "Metal"sv;
-      break;
-    case BACKEND_VULKAN:
-      backend = "Vulkan"sv;
-      break;
-    case BACKEND_OPENGL:
-      backend = "OpenGL"sv;
-      break;
-    case BACKEND_OPENGLES:
-      backend = "OpenGL ES"sv;
-      break;
-    case BACKEND_WEBGPU:
-      backend = "WebGPU"sv;
-      break;
-    case BACKEND_NULL:
-      backend = "Null"sv;
-      break;
-    default:
-      break;
-    }
-    VISetWindowTitle(fmt::format(FMT_STRING("Metaforce {} [{}]"), METAFORCE_WC_DESCRIBE, backend).c_str());
+    VISetWindowTitle(
+        fmt::format(FMT_STRING("Metaforce {} [{}]"), METAFORCE_WC_DESCRIBE, backend_name(info.backend)).c_str());
 
     m_voiceEngine = boo::NewAudioVoiceEngine("metaforce", "Metaforce");
     m_voiceEngine->setVolume(0.7f);
@@ -449,8 +424,6 @@ static bool IsClientLoggingEnabled(int argc, char** argv) {
 #endif
 }
 
-static void SetupLogging() {}
-
 static std::unique_ptr<metaforce::Application> g_app;
 static SDL_Window* g_window;
 static bool g_paused;
@@ -539,7 +512,7 @@ int main(int argc, char** argv) {
     const AuroraConfig config{
         .appName = "Metaforce",
         .configPath = configPath.c_str(),
-        // .desiredBackend = TODO
+        .desiredBackend = metaforce::backend_from_string(cvarCmns.getGraphicsApi()),
         .msaa = cvarCmns.getSamples(),
         .maxTextureAnisotropy = static_cast<uint16_t>(cvarCmns.getAnisotropy()),
         .startFullscreen = cvarCmns.getFullscreen(),
@@ -554,7 +527,7 @@ int main(int argc, char** argv) {
     g_app->onImGuiAddTextures();
     g_app->onAppLaunched(info);
     g_app->onAppWindowResized(info.windowSize);
-    while (true) {
+    while (!cvarMgr.restartRequired()) {
       const auto* event = aurora_update();
       bool exiting = false;
       while (event != nullptr && event->type != AURORA_NONE) {

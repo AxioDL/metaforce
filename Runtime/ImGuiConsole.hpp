@@ -159,4 +159,8 @@ private:
   void ShowPipelineProgress();
   void ShowPreLaunchSettingsWindow();
 };
+
+AuroraBackend backend_from_string(const std::string& str);
+std::string_view backend_to_string(AuroraBackend backend);
+std::string_view backend_name(AuroraBackend backend);
 } // namespace metaforce
