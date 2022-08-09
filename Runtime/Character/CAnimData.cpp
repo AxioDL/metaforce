@@ -51,6 +51,7 @@ CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAn
 , xd8_modelData(std::move(model))
 , xfc_animCtx(ctx.lock())
 , x100_animMgr(std::move(animMgr))
+, x108_aabb()
 , x1d8_selfId(id)
 , x1fc_transMgr(std::move(transMgr))
 , x204_charIdx(charIdx)
@@ -68,7 +69,10 @@ CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAn
   g_SoundPOINodes.resize(20);
   g_TransientInt32POINodes.resize(16);
 
-  x108_aabb = xd8_modelData->GetModel()->GetAABB();
+  xd8_modelData->CalculateDefault();
+  for (const auto& item : *xd8_modelData->GetModel()->GetPositions()) {
+    x108_aabb.accumulateBounds(item);
+  }
   x120_particleDB.CacheParticleDesc(xc_charInfo.GetParticleResData());
 
   CHierarchyPoseBuilder pb(CLayoutDescription{xcc_layoutData});
@@ -799,10 +803,12 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
 
 void CAnimData::SetXRayModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules) {
   xf4_xrayModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo());
+  xf4_xrayModel->CalculateDefault();
 }
 
 void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules) {
   xf8_infraModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo());
+  xf4_xrayModel->CalculateDefault();
 }
 
 void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, CVertexMorphEffect* morphEffect,
@@ -885,9 +891,10 @@ zeus::CAABox CAnimData::GetBoundingBox() const {
 
 void CAnimData::SubstituteModelData(const TCachedToken<CSkinnedModel>& model) {
   xd8_modelData = model;
-  // TODO
-  // xd8_modelData.CalculateDefault();
-  // x108_aabb = xd8_modelData->GetBounds();
+  x108_aabb = {};
+  for (const auto& item : *xd8_modelData->GetModel()->GetPositions()) {
+    x108_aabb.accumulateBounds(item);
+  }
 }
 
 void CAnimData::SetParticleCEXTValue(std::string_view name, int idx, float value) {

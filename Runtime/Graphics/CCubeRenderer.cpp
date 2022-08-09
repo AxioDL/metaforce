@@ -982,20 +982,10 @@ void CCubeRenderer::DoThermalBlendCold() {
   const auto top = CGraphics::GetViewportTop();
   const auto left = CGraphics::GetViewportLeft();
   CGX::SetZMode(true, GX_LEQUAL, false);
-  // GXSetTexCopySrc(left, top, width, height);
-  // GXSetTexCopyDst(width, height, GX_TF_I4, false);
-  // GXCopyTex(sSpareTextureData, true);
-  // TODO TODO TODO
-//  CGraphics::ResolveSpareTexture(
-//      aurora::gfx::ClipRect{
-//          .x = static_cast<int32_t>(left),
-//          .y = static_cast<int32_t>(top),
-//          .width = static_cast<int32_t>(width),
-//          .height = static_cast<int32_t>(height),
-//      },
-//      0, GX_TF_I4);
-  // CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_I4, nullptr, GX_TEXMAP7);
-  CGraphics::LoadDolphinSpareTexture(0, GX_TF_I4, GX_TEXMAP7);
+  GXSetTexCopySrc(left, top, width, height);
+  GXSetTexCopyDst(width, height, GX_TF_I4, false);
+  GXCopyTex(CGraphics::sSpareTextureData, true);
+  CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_I4, nullptr, GX_TEXMAP7);
 
   // Upload random static texture (game reads from .text)
   const u8* buf = CDvdFile::GetDolBuf() + 0x4f60;
@@ -1108,13 +1098,11 @@ void CCubeRenderer::DoThermalBlendHot() {
   const auto top = CGraphics::GetViewportTop();
   const auto left = CGraphics::GetViewportLeft();
   CGX::SetZMode(true, GX_LEQUAL, true);
-  // GXSetTexCopySrc(left, top, width, height);
-  // GXSetTexCopyDst(width, height, GX_TF_I4, false);
-  // GXCopyTex(sSpareTextureData, false);
-  CGraphics::ResolveSpareTexture(CGraphics::g_Viewport, 0, GX_TF_I4);
+  GXSetTexCopySrc(left, top, width, height);
+  GXSetTexCopyDst(width, height, GX_TF_I4, false);
+  GXCopyTex(CGraphics::sSpareTextureData, false);
   x288_thermoPalette.Load();
-  // CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_C4, GX::TLUT0, nullptr, GX_TEXMAP7);
-  CGraphics::LoadDolphinSpareTexture(0, GX_TF_C4, GX_TLUT0, GX_TEXMAP7);
+  CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_C4, GX_TLUT0, nullptr, GX_TEXMAP7);
   CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXA, GX_CC_TEXC, GX_CC_ZERO);
   CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_TEXA);
   CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
@@ -1468,19 +1456,11 @@ void CCubeRenderer::ReallyDrawSpaceWarp(const zeus::CVector3f& pt, float strengt
     GXColor fogColor;
     CGX::GetFog(&fogType, &fogStartZ, &fogEndZ, &fogNearZ, &fogFarZ, &fogColor);
     CGX::SetFog(GX_FOG_NONE, fogStartZ, fogEndZ, fogNearZ, fogFarZ, fogColor);
-    //    GXSetTexCopySrc(v2right.x, v2right.y, v2sub.x, v2sub.y);
-    //    GXSetTexCopyDst(v2sub.x, v2sub.y, GX_TF_RGBA8, false);
-    //    GXCopyTex(sSpareTextureData, false);
-    //    GXPixModeSync();
-    CGraphics::ResolveSpareTexture(
-        SViewport{
-            .x0_left = static_cast<u32>(v2right.x),
-            .x4_top = static_cast<u32>(v2right.y),
-            .x8_width = static_cast<u32>(v2sub.x),
-            .xc_height = static_cast<u32>(v2sub.y),
-        },
-        1, GX_TF_RGBA8);
-    CGraphics::LoadDolphinSpareTexture(1, GX_TF_RGBA8, GX_TEXMAP7);
+    GXSetTexCopySrc(v2right.x, v2right.y, v2sub.x, v2sub.y);
+    GXSetTexCopyDst(v2sub.x, v2sub.y, GX_TF_RGBA8, false);
+    GXCopyTex(CGraphics::sSpareTextureData, false);
+    GXPixModeSync();
+    CGraphics::LoadDolphinSpareTexture(v2sub.x, v2sub.y, GX_TF_RGBA8, nullptr, GX_TEXMAP7);
     x150_reflectionTex.Load(GX_TEXMAP1, EClampMode::Clamp);
     CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_TEXC);
     CGX::SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);

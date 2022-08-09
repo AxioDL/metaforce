@@ -57,6 +57,8 @@ const std::array<zeus::CMatrix3f, 6> CGraphics::skCubeBasisMats{{
     /* Forward */
     {-1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, -1.f},
 }};
+// We don't actually store anything here
+u8 CGraphics::sSpareTextureData[] = {0};
 
 // Stream API
 static u32 sStreamFlags;
@@ -732,5 +734,42 @@ void CGraphics::SetDefaultVtxAttrFmt() {
 
 void CGraphics::ResetGfxStates() noexcept {
   // sRenderState.x0_ = 0;
+}
+
+void CGraphics::LoadDolphinSpareTexture(int width, int height, GXTexFmt format, void* data, GXTexMapID id) {
+  void* ptr = static_cast<void*>(sSpareTextureData);
+  if (data != nullptr) {
+    ptr = data;
+  }
+  GXTexObj obj;
+  GXInitTexObj(&obj, ptr, width, height, format, GX_CLAMP, GX_CLAMP, false);
+  GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.0, 0.0, 0.0, false, false, GX_ANISO_1);
+  GXLoadTexObj(&obj, id);
+  // CTexture::InvalidateTexmap(id);
+  if (id == GX_TEXMAP7) {
+    // GXInvalidateTexRegion(...);
+  }
+#ifdef AURORA
+  GXDestroyTexObj(&obj);
+#endif
+}
+
+void CGraphics::LoadDolphinSpareTexture(int width, int height, GXCITexFmt format, GXTlut tlut, void* data,
+                                        GXTexMapID id) {
+  void* ptr = static_cast<void*>(sSpareTextureData);
+  if (data != nullptr) {
+    ptr = data;
+  }
+  GXTexObj obj;
+  GXInitTexObjCI(&obj, ptr, width, height, format, GX_CLAMP, GX_CLAMP, false, tlut);
+  GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.0, 0.0, 0.0, false, false, GX_ANISO_1);
+  GXLoadTexObj(&obj, id);
+  // CTexture::InvalidateTexmap(id);
+  if (id == GX_TEXMAP7) {
+    // GXInvalidateTexRegion(...);
+  }
+#ifdef AURORA
+  GXDestroyTexObj(&obj);
+#endif
 }
 } // namespace metaforce

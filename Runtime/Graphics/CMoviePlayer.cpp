@@ -28,9 +28,11 @@ static void MyTHPYuv2RgbTextureSetup(void* dataY, void* dataU, void* dataV, u16 
   CTexture::InvalidateTexMap(GX_TEXMAP0);
   CTexture::InvalidateTexMap(GX_TEXMAP1);
   CTexture::InvalidateTexMap(GX_TEXMAP2);
+#ifdef AURORA
   GXDestroyTexObj(&texV);
   GXDestroyTexObj(&texU);
   GXDestroyTexObj(&texY);
+#endif
 }
 
 const std::array<u8, 32> InterlaceTex{
@@ -57,7 +59,9 @@ static void MyTHPGXYuv2RgbSetup(bool interlaced2ndFrame, bool fieldFlip) {
     GXInitTexObj(&texObj, InterlaceTex.data(), 8, 4, GX_TF_I8, GX_REPEAT, GX_REPEAT, false);
     GXInitTexObjLOD(&texObj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
     GXLoadTexObj(&texObj, GX_TEXMAP3);
+#ifdef AURORA
     GXDestroyTexObj(&texObj);
+#endif
     CTexture::InvalidateTexMap(GX_TEXMAP3);
     CGX::SetTevOrder(GX_TEVSTAGE4, GX_TEXCOORD2, GX_TEXMAP3, GX_COLOR_NULL);
     CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE4);

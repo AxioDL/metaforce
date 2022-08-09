@@ -30,6 +30,10 @@ struct SSkinningWorkspace {
     m_vertexWorkspace.reserve(rules.GetVertexCount());
     m_normalWorkspace.reserve(rules.GetNormalCount());
   }
+  void Clear() {
+    m_vertexWorkspace.clear();
+    m_normalWorkspace.clear();
+  }
   [[nodiscard]] bool IsEmpty() const { return m_vertexWorkspace.empty() || m_normalWorkspace.empty(); }
 };
 
@@ -69,6 +73,9 @@ public:
   void Draw(TConstVectorRef verts, TConstVectorRef normals, const CModelFlags& drawFlags);
   void Draw(const CModelFlags& drawFlags);
   void DoDrawCallback(const FCustomDraw& func) const;
+  void CalculateDefault();
+  // Originally returns cloned vertex workspace, with arg for cloned normal workspace
+  SSkinningWorkspace CloneWorkspace();
 
   static void SetPointGeneratorFunc(FPointGenerator func) { g_PointGenFunc = std::move(func); }
   static void ClearPointGeneratorFunc() { g_PointGenFunc = nullptr; }

@@ -117,7 +117,7 @@ public:
   [[nodiscard]] u8* Lock();
   void UnLock();
   void Load(GXTexMapID id, EClampMode clamp);
-  void LoadMipLevel(float lod, GXTexMapID id, EClampMode clamp); // was an s32 mip parameter, adjusted to use lod
+  void LoadMipLevel(s32 mip, GXTexMapID id, EClampMode clamp);
   // void UnloadBitmapData(u32) const;
   // void TryReloadBitmapData(CResFactory&) const;
   // void LoadToMRAM() const;

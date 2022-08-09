@@ -96,9 +96,10 @@ private:
   CHealthInfo x3bc_hInfo;
   CDamageVulnerability x3c4_dVuln;
   s32 x42c_lockOnIdx = -1;
-  /* Used to be position and normal array pointers */
-  // rstl::reserved_vector<std::unique_ptr<float[]>, 10> x430_;
-  // rstl::reserved_vector<std::unique_ptr<float[]>, 10> x484_;
+  mutable rstl::reserved_vector<SSkinningWorkspace, 10> x430_workspaces;
+  // Originally:
+  // rstl::reserved_vector<rstl::auto_ptr<float[]>, 10> x430_posWorkspaces;
+  // rstl::reserved_vector<float[], 10> x484_nrmWorkspaces;
   rstl::reserved_vector<std::shared_ptr<CModelData>, 10> x4b0_modelDatas;
   CModelData::EWhichModel x4dc_whichModel = CModelData::EWhichModel::Normal;
   std::vector<CRepulsor> x4e0_doorRepulsors;

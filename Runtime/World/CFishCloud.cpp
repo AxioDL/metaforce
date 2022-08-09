@@ -509,8 +509,10 @@ void CFishCloud::Think(float dt, CStateManager& mgr) {
 void CFishCloud::CreatePartitionList() { xf8_boidPartitionLists.reserve(343); }
 
 void CFishCloud::AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which) {
+  x178_workspaces.clear();
   int idx = 0;
   for (auto& m : x1b0_models) {
+    x178_workspaces.emplace_back(m->PickAnimatedModel(which).CloneWorkspace());
     m->EnableLooping(true);
     m->AdvanceAnimation(m->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv) * 0.25f * float(idx), mgr,
                         x4_areaId, true);
@@ -569,24 +571,22 @@ void CFishCloud::RenderBoid(int idx, const CBoid& boid, u32& drawMask, bool ther
   const u32 modelIndex = idx & 0x3;
   CModelData& mData = *x1b0_models[modelIndex];
   CSkinnedModel& model = mData.PickAnimatedModel(CModelData::EWhichModel::Normal);
-  // TODO this whole function
-  // if (!model.GetModel()->TryLockTextures()) {
-  //  return;
-  // }
 
   const u32 thisDrawMask = 1u << modelIndex;
   if ((drawMask & thisDrawMask) != 0) {
     drawMask &= ~thisDrawMask;
     mData.GetAnimationData()->BuildPose();
+    model.Calculate(mData.GetAnimationData()->GetPose(), nullptr, nullptr, &x178_workspaces[modelIndex]);
   }
 
-  // model.GetModelInst()->SetAmbientColor(zeus::skWhite);
   CGraphics::SetModelMatrix(zeus::lookAt(boid.x0_pos, boid.x0_pos + boid.xc_vel));
+  const auto* positions = &x178_workspaces[modelIndex].m_vertexWorkspace;
+  const auto* normals = &x178_workspaces[modelIndex].m_normalWorkspace;
   if (thermalHot) {
     constexpr CModelFlags thermFlags(0, 0, 3, zeus::skWhite);
-    mData.RenderThermal(zeus::skWhite, zeus::CColor(0.f, 0.25f), thermFlags);
+    CModelData::ThermalDraw(model, positions, normals, zeus::skWhite, zeus::CColor(0.f, 0.25f), thermFlags);
   } else {
-    mData.GetAnimationData()->Render(model, flags, nullptr, nullptr);
+    model.Draw(positions, normals, flags);
   }
 }
 
@@ -609,7 +609,8 @@ void CFishCloud::Render(CStateManager& mgr) {
   AddParticlesToRenderer();
 
   if (x250_27_validModel) {
-    // Ambient white
+    g_Renderer->SetAmbientColor(zeus::skWhite);
+    CGraphics::DisableAllLights();
     int idx = 0;
     u32 drawMask = 0xffffffff;
     for (const auto& b : xe8_boids) {
@@ -619,7 +620,8 @@ void CFishCloud::Render(CStateManager& mgr) {
       ++idx;
     }
   } else {
-    CGraphics::SetModelMatrix(zeus::CTransform());
+    g_Renderer->SetAmbientColor(zeus::skWhite);
+    g_Renderer->SetModelMatrix({});
     for (const auto& b : xe8_boids) {
       if (b.x20_active) {
         x64_modelData->SetScale(zeus::CVector3f(b.x18_scale));

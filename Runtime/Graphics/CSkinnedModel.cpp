@@ -1,6 +1,7 @@
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 
 #include "Runtime/Character/CSkinRules.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CVertexMorphEffect.hpp"
 
 #include <logvisor/logvisor.hpp>
@@ -45,6 +46,8 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose, CVertexMorphEffect*
     }
     AllocateStorage();
     workspace = &m_workspace;
+  } else {
+    workspace->Reset(*x10_skinRules);
   }
 
   x10_skinRules->BuildAccumulatedTransforms(pose, *x1c_layoutInfo);
@@ -92,6 +95,10 @@ void CSkinnedModel::DoDrawCallback(const FCustomDraw& func) const {
     // PostDrawFunc();
   }
 }
+
+void CSkinnedModel::CalculateDefault() { m_workspace.Clear(); }
+
+SSkinningWorkspace CSkinnedModel::CloneWorkspace() { return m_workspace; }
 
 CSkinnedModelWithAvgNormals::CSkinnedModelWithAvgNormals(IObjectStore& store, CAssetId model, CAssetId skinRules,
                                                          CAssetId layoutInfo)

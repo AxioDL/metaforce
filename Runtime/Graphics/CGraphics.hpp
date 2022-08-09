@@ -15,6 +15,7 @@
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector2i.hpp>
 
+#include <aurora/aurora.h>
 #include <optick.h>
 
 using frame_clock = std::chrono::high_resolution_clock;
@@ -164,14 +165,6 @@ struct SClipScreenRect {
   , x20_uvYMin(uvYMin)
   , x24_uvYMax(uvYMax) {}
 
-//  SClipScreenRect(const aurora::gfx::ClipRect& rect) {
-//    x4_left = rect.x;
-//    x8_top = rect.y;
-//    xc_width = rect.width;
-//    x10_height = rect.height;
-//    x14_dstWidth = rect.width;
-//  }
-
   SClipScreenRect(const SViewport& vp) {
     x4_left = vp.x0_left;
     x8_top = vp.x4_top;
@@ -307,29 +300,10 @@ public:
   static float GetCroppedViewportUVYMax() { return g_CroppedViewport.x24_uvYMax; }
 
   static const std::array<zeus::CMatrix3f, 6> skCubeBasisMats;
+  static u8 sSpareTextureData[];
 
-  static void ResolveSpareTexture(const SClipScreenRect& rect, int bindIdx, GXTexFmt format, bool clearDepth = false) {
-    // TODO
-//    aurora::gfx::resolve_color({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx, format,
-//                               clearDepth);
-  }
-  static void LoadDolphinSpareTexture(int bindIdx, GXTexFmt format, GXTexMapID id) {
-    // TODO
-//    GXTexObj obj;
-//    GXInitTexObjResolved(&obj, bindIdx, format, GX_CLAMP, GX_CLAMP, GX_TLUT0);
-//    GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
-//    GXLoadTexObj(&obj, id);
-  }
-  static void LoadDolphinSpareTexture(int bindIdx, GXCITexFmt format, GXTlut tlut, GXTexMapID id) {
-    // TODO
-//    GXTexObj obj;
-//    GXInitTexObjResolved(&obj, bindIdx, static_cast<GXTexFmt>(format), GX_CLAMP, GX_CLAMP, tlut);
-//    GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
-//    GXLoadTexObj(&obj, id);
-  }
-  static void ResolveSpareDepth(const SClipScreenRect& rect, int bindIdx = 0) {
-    // aurora::gfx::resolve_depth({rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height}, bindIdx);
-  }
+  static void LoadDolphinSpareTexture(int width, int height, GXTexFmt format, void* data, GXTexMapID id);
+  static void LoadDolphinSpareTexture(int width, int height, GXCITexFmt format, GXTlut tlut, void* data, GXTexMapID id);
 
   static void ResetGfxStates() noexcept;
   static void SetTevStates(u32 flags) noexcept;

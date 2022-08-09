@@ -281,11 +281,6 @@ void CModelData::Touch(EWhichModel which, int shaderIdx) {
 
 void CModelData::Touch(const CStateManager& stateMgr, int shaderIdx) { Touch(GetRenderingModel(stateMgr), shaderIdx); }
 
-void CModelData::RenderThermal(const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags) {
-  // TODO float* params and xc_
-  // g_Renderer->DrawThermalModel(xc_, mulColor, addColor, nullptr, nullptr, flags);
-}
-
 void CModelData::RenderThermal(const zeus::CTransform& xf, const zeus::CColor& mulColor, const zeus::CColor& addColor,
                                const CModelFlags& flags) {
   CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
@@ -464,6 +459,11 @@ void CModelData::ThermalDraw(CSkinnedModel& model, const zeus::CColor& mulColor,
   model.DoDrawCallback([&](auto positions, auto normals) {
     g_Renderer->DrawThermalModel(*model.GetModel(), mulColor, addColor, positions, normals, flags);
   });
+}
+
+void CModelData::ThermalDraw(CSkinnedModel& model, TConstVectorRef positions, TConstVectorRef normals,
+                             const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags) {
+  g_Renderer->DrawThermalModel(*model.GetModel(), mulColor, addColor, positions, normals, flags);
 }
 
 } // namespace metaforce

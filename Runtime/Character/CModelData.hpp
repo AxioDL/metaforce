@@ -60,7 +60,6 @@ public:
 class CModelData {
   friend class CActor;
   zeus::CVector3f x0_scale;
-  bool xc_ = false;
   std::unique_ptr<CAnimData> x10_animData;
   bool x14_24_renderSorted : 1 = false;
   bool x14_25_sortThermal : 1 = false;
@@ -113,7 +112,6 @@ public:
   void RenderParticles(const zeus::CFrustum& frustum) const;
   void Touch(EWhichModel, int shaderIdx);
   void Touch(const CStateManager& stateMgr, int shaderIdx);
-  void RenderThermal(const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags);
   void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& mulColor, const zeus::CColor& addColor,
                      const CModelFlags& flags);
   void RenderUnsortedParts(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights,
@@ -133,6 +131,8 @@ public:
                         float t);
   static void ThermalDraw(CSkinnedModel& model, const zeus::CColor& mulColor, const zeus::CColor& addColor,
                           const CModelFlags& flags);
+  static void ThermalDraw(CSkinnedModel& model, TConstVectorRef positions, TConstVectorRef normals,
+                          const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags);
 
   CAnimData* GetAnimationData() { return x10_animData.get(); }
   const CAnimData* GetAnimationData() const { return x10_animData.get(); }

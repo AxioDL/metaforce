@@ -2133,18 +2133,12 @@ zeus::CVector3f CPlayerGun::ConvertToScreenSpace(const zeus::CVector3f& pos, con
 
 void CPlayerGun::CopyScreenTex() {
   // Copy lower right quadrant to gpCopyTexBuf as RGBA8
-  // GXSetTexCopySrc(320, 224, 320, 224);
-  // GXSetTexCopyDst(320, 224, GX_TF_RGBA8, false);
-  // GXCopyTex(sSpareTextureData, false);
-  // GXPixModeSync();
-  SViewport viewport = CGraphics::g_Viewport;
-  viewport.x8_width /= 2;
-  viewport.xc_height /= 2;
-  viewport.x0_left = viewport.x8_width;
-  viewport.x4_top = viewport.xc_height;
-  viewport.x10_halfWidth *= 0.5f;
-  viewport.x14_halfHeight *= 0.5f;
-  CGraphics::ResolveSpareTexture(viewport, 2, GX_TF_RGBA8, false);
+  u16 width = CGraphics::g_Viewport.x8_width / 2;
+  u16 height = CGraphics::g_Viewport.xc_height / 2;
+  GXSetTexCopySrc(width, height, width, height);
+  GXSetTexCopyDst(width, height, GX_TF_RGBA8, false);
+  GXCopyTex(CGraphics::sSpareTextureData, false);
+  GXPixModeSync();
 }
 
 void CPlayerGun::DrawScreenTex(float z) {
@@ -2156,7 +2150,9 @@ void CPlayerGun::DrawScreenTex(float z) {
   g_Renderer->SetViewportOrtho(false, -1.f, 1.f);
   g_Renderer->SetBlendMode_AlphaBlended();
   CGraphics::SetDepthWriteMode(true, ERglEnum::GEqual, true);
-  CGraphics::LoadDolphinSpareTexture(2, GX_TF_RGBA8, GX_TEXMAP7);
+  u16 width = CGraphics::g_Viewport.x8_width / 2;
+  u16 height = CGraphics::g_Viewport.xc_height / 2;
+  CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_RGBA8, nullptr, GX_TEXMAP7);
   constexpr std::array vtxDescList{
       GXVtxDescList{GX_VA_POS, GX_DIRECT},
       GXVtxDescList{GX_VA_TEX0, GX_DIRECT},

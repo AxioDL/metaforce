@@ -80,7 +80,7 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, CTexture& tex, in
     if ((x14c_deResFactor == 0.f && alpha == 1.f) || tex.GetNumberOfMipMaps() == 1) {
       CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
       CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
-      tex.LoadMipLevel(0.f, GX_TEXMAP0, EClampMode::Repeat);
+      tex.LoadMipLevel(0, GX_TEXMAP0, EClampMode::Repeat);
       CGraphics::StreamBegin(GX_TRIANGLESTRIP);
       CGraphics::StreamColor(useColor);
       for (u32 i = 0; i < useUVs->size(); ++i) {

@@ -75,9 +75,10 @@ class CFishCloud : public CActor {
   zeus::CColor x16c_color;
   float x170_weaponKillRadius;
   float x174_containmentRadius;
-  /* Used to be position and normal arrays */
-  // rstl::reserved_vector<std::unique_ptr<float[]>, 4> x178_;
-  // rstl::reserved_vector<std::unique_ptr<float[]>, 4> x19c_;
+  mutable rstl::reserved_vector<SSkinningWorkspace, 4> x178_workspaces;
+  // Originally:
+  // rstl::reserved_vector<rstl::auto_ptr<float[]>, 4> x178_posWorkspaces;
+  // rstl::reserved_vector<float[], 4> x19c_nrmWorkspaces;
   rstl::reserved_vector<std::shared_ptr<CModelData>, 4> x1b0_models;
   rstl::reserved_vector<TLockedToken<CGenDescription>, 4> x1c4_particleDescs;
   rstl::reserved_vector<std::unique_ptr<CElementGen>, 4> x1f8_particleGens;

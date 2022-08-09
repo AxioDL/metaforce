@@ -106,29 +106,32 @@ void CTexture::Load(GXTexMapID id, EClampMode clamp) {
   }
 }
 
-void CTexture::LoadMipLevel(float lod, GXTexMapID id, EClampMode clamp) {
-  // auto image_ptr = /*x44_aramToken.GetMRAMSafe() */ x44_aramToken_x4_buff.get();
-  // u32 width = x4_w;
-  // u32 height = x6_h;
-  // u32 iVar15 = 0;
-  // u32 offset = 0;
-  // if (mip > 0) {
-  //   for (u32 i = 0; i < mip; ++i) {
-  //     offset += ROUND_UP_32(x9_bitsPerPixel * (ROUND_UP_4(width) * ROUND_UP_4(height)));
-  //     width /= 2;
-  //     height /= 2;
-  //   }
-  // }
+void CTexture::LoadMipLevel(s32 mip, GXTexMapID id, EClampMode clamp) {
+  auto* image_ptr = /*x44_aramToken.GetMRAMSafe() */ x44_aramToken_x4_buff.get();
+  u32 width = x4_w;
+  u32 height = x6_h;
+  u32 iVar15 = 0;
+  u32 offset = 0;
+  if (mip > 0) {
+    for (u32 i = 0; i < mip; ++i) {
+      offset += ROUND_UP_32(x9_bitsPerPixel * (ROUND_UP_4(width) * ROUND_UP_4(height)));
+      width /= 2;
+      height /= 2;
+    }
+  }
 
-  // TODO
-  // GXTexObj texObj;
-  // GXInitTexObj(&texObj, image_ptr + offset, width, height, x18_gxFormat);
-  // GXInitTexObjLOD(&texObj, GX_LINEAR, GX_LINEAR, 0.f, 1.f, 0.f, false, false, GX_ANISO_1);
-  // if (HasPalette()) {
-  //   x10_graphicsPalette->Load();
-  //   xa_25_canLoadPalette = false;
-  // }
-  // GXLoadTexObj(&x20_texObj, id);
+  GXTexObj texObj;
+  const auto wrap = static_cast<GXTexWrapMode>(clamp);
+  GXInitTexObj(&texObj, image_ptr + offset, width, height, x18_gxFormat, wrap, wrap, false);
+  GXInitTexObjLOD(&texObj, GX_LINEAR, GX_LINEAR, 0.f, 1.f, 0.f, false, false, GX_ANISO_1);
+  if (HasPalette()) {
+    x10_graphicsPalette->Load();
+    xa_25_canLoadPalette = false;
+  }
+  GXLoadTexObj(&texObj, id);
+#ifdef AURORA
+  GXDestroyTexObj(&texObj);
+#endif
   x64_frameAllocated = sCurrentFrameCount;
   sLoadedTextures[id] = nullptr;
 }
@@ -277,9 +280,7 @@ bool CTexture::sMangleMips = false;
 u32 CTexture::sCurrentFrameCount = 0;
 u32 CTexture::sTotalAllocatedMemory = 0;
 
-void CTexture::InvalidateTexMap(GXTexMapID id) {
-  sLoadedTextures[id] = nullptr;
-}
+void CTexture::InvalidateTexMap(GXTexMapID id) { sLoadedTextures[id] = nullptr; }
 
 CFactoryFnReturn FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                  CObjectReference* selfRef) {

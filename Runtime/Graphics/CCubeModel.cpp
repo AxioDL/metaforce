@@ -176,7 +176,7 @@ void CCubeModel::DrawFlat(TConstVectorRef positions, TConstVectorRef normals, ES
 void CCubeModel::DrawNormal(TConstVectorRef positions, TConstVectorRef normals, ESurfaceSelection surfaces) {
   CGX::SetNumIndStages(0);
   CGX::SetNumTevStages(1);
-  CGX::SetNumTexGens(1); // TODO should this be 0?
+  CGX::SetNumTexGens(1);
   CGX::SetZMode(true, GX_LEQUAL, true);
   CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR_NULL);
   CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO);

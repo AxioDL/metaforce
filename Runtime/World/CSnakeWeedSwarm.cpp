@@ -80,8 +80,10 @@ CSnakeWeedSwarm::CSnakeWeedSwarm(TUniqueId uid, bool active, std::string_view na
 void CSnakeWeedSwarm::Accept(metaforce::IVisitor& visitor) { visitor.Visit(this); }
 
 void CSnakeWeedSwarm::AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which) {
+  x178_workspaces.clear();
   for (int i = 0; i < x1b0_modelData.size(); ++i) {
     auto& modelData = *x1b0_modelData[i];
+    x178_workspaces.emplace_back(modelData.PickAnimatedModel(which).CloneWorkspace());
     modelData.EnableLooping(true);
     const float dt = modelData.GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv) * (i * 0.25f);
     modelData.AdvanceAnimation(dt, mgr, x4_areaId, true);
@@ -413,16 +415,17 @@ void CSnakeWeedSwarm::RenderBoid(u32 idx, const CBoid& boid, u32& posesToBuild) 
   auto& modelData = *x1b0_modelData[modelIdx];
   auto& model = modelData.PickAnimatedModel(x1c4_which);
   auto& animData = *modelData.GetAnimationData();
+  auto& workspace = x178_workspaces[modelIdx];
   if (posesToBuild & 1 << modelIdx) {
     posesToBuild &= ~(1 << modelIdx);
     animData.BuildPose();
-    model.Calculate(animData.GetPose(), nullptr, nullptr, nullptr); // TODO x178_workspaces[modelIdx]
+    model.Calculate(animData.GetPose(), nullptr, nullptr, &workspace);
   }
   CGraphics::SetModelMatrix(
       zeus::CTransform::Translate(boid.GetPosition() - zeus::CVector3f(0.f, 0.f, boid.GetZOffset())) *
       zeus::CTransform::Scale(boid.GetScale()));
   constexpr CModelFlags useFlags{0, 0, 3, zeus::skWhite};
-  animData.Render(model, useFlags, nullptr, nullptr);
+  model.Draw(&workspace.m_vertexWorkspace, &workspace.m_normalWorkspace, useFlags);
 }
 
 void CSnakeWeedSwarm::ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& mgr) {

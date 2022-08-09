@@ -11,6 +11,7 @@
 #include "Runtime/Collision/CMaterialList.hpp"
 #include "Runtime/Collision/CMetroidAreaCollider.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"
+#include "Runtime/Graphics/CGX.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 #include "Runtime/Graphics/CVertexMorphEffect.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
@@ -119,15 +120,15 @@ CWallCrawlerSwarm::CWallCrawlerSwarm(
 void CWallCrawlerSwarm::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CWallCrawlerSwarm::AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichModel which) {
-  // x430_.clear();
+  x430_workspaces.clear();
   for (size_t i = 0; i < 9; ++i) {
-    // x430_.push_back(x4b0_[i]->PickAnimatedModel(which).Clone());
+    x430_workspaces.emplace_back(x4b0_modelDatas[i]->PickAnimatedModel(which).CloneWorkspace());
     x4b0_modelDatas[i]->EnableLooping(true);
     x4b0_modelDatas[i]->AdvanceAnimation(x4b0_modelDatas[i]->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv) *
                                              (float(i) * 0.0625f),
                                          mgr, x4_areaId, true);
   }
-  // x430_.push_back(x4b0_.back()->PickAnimatedModel(which).Clone());
+  x430_workspaces.emplace_back(x4b0_modelDatas.back()->PickAnimatedModel(which).CloneWorkspace());
   x4dc_whichModel = which;
 }
 
@@ -1021,13 +1022,7 @@ void CWallCrawlerSwarm::HardwareLight(const CStateManager& mgr, const zeus::CAAB
   lights.SetFindShadowLight(false);
   lights.BuildAreaLightList(mgr, *mgr.GetWorld()->GetAreaAlways(x4_areaId), aabb);
   lights.BuildDynamicLightList(mgr, aabb);
-  // TODO
-//  for (const auto& m : x4b0_modelDatas) {
-//    lights.ActivateLights(*m->PickAnimatedModel(x4dc_whichModel).GetModelInst());
-//    if (const auto iceModel = m->GetAnimationData()->GetIceModel()) {
-//      lights.ActivateLights(*iceModel->GetModelInst());
-//    }
-//  }
+  lights.ActivateLights();
 }
 
 void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool thermalHot, const CModelFlags& flags) const {
@@ -1042,27 +1037,24 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
 
   CModelData& mData = *x4b0_modelDatas[modelIndex];
   CSkinnedModel& model = mData.PickAnimatedModel(x4dc_whichModel);
-  // TODO
-//  if (!model.GetModelInst()->TryLockTextures()) {
-//    return;
-//  }
 
   const u32 thisDrawMask = 1u << modelIndex;
-  if (drawMask & thisDrawMask) {
+  if ((drawMask & thisDrawMask) != 0u) {
     drawMask &= ~thisDrawMask;
     mData.GetAnimationData()->BuildPose();
+    model.Calculate(mData.GetAnimationData()->GetPose(), nullptr, nullptr, &x430_workspaces[modelIndex]);
   }
 
-  // model.GetModelInst()->SetAmbientColor(boid->x40_ambientLighting);
-  CGraphics::SetModelMatrix(boid->GetTransform());
+  g_Renderer->SetAmbientColor(boid->x40_ambientLighting);
+  g_Renderer->SetModelMatrix(boid->GetTransform());
+
+  const auto* positions = &x430_workspaces[modelIndex].m_vertexWorkspace;
+  const auto* normals = &x430_workspaces[modelIndex].m_normalWorkspace;
   if (boid->x48_timeToDie > 0.f && !thermalHot) {
     constexpr CModelFlags useFlags(0, 0, 3, zeus::skWhite);
-    mData.GetAnimationData()->Render(model, useFlags, nullptr, nullptr);
+    model.Draw(positions, normals, useFlags);
     if (auto iceModel = mData.GetAnimationData()->GetIceModel()) {
-//      if (!iceModel->GetModelInst()->TryLockTextures()) {
-//        return;
-//      }
-//      iceModel->GetModelInst()->SetAmbientColor(zeus::skWhite);
+      g_Renderer->SetAmbientColor(zeus::skWhite);
       const float alpha = 1.f - boid->x48_timeToDie;
       const zeus::CColor color(1.f, alpha > 0.f ? boid->x48_timeToDie : 1.f);
       const CModelFlags iceFlags(5, 0, 3, color);
@@ -1070,9 +1062,9 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
     }
   } else if (thermalHot) {
     constexpr CModelFlags thermFlags(5, 0, 3, zeus::skWhite);
-    mData.RenderThermal(zeus::skWhite, zeus::CColor(0.f, 0.25f), thermFlags);
+    CModelData::ThermalDraw(model, positions, normals, zeus::skWhite, zeus::CColor(0.f, 0.25f), thermFlags);
   } else {
-    mData.GetAnimationData()->Render(model, flags, nullptr, nullptr);
+    model.Draw(positions, normals, flags);
   }
 }
 
@@ -1084,7 +1076,8 @@ void CWallCrawlerSwarm::Render(CStateManager& mgr) {
   const bool r24 = x560_24_enableLighting;
   const bool r23 = x560_25_useSoftwareLight;
   if (!r24) {
-    // Ambient 50% grey
+    CGraphics::DisableAllLights();
+    g_Renderer->SetAmbientColor(zeus::CColor{0.5f, 1.f});
   }
 
   const bool thermalHot = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot;
@@ -1092,6 +1085,7 @@ void CWallCrawlerSwarm::Render(CStateManager& mgr) {
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
     flags = CModelFlags(5, 0, 3, zeus::CColor(1.f, 0.3f));
   }
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, CGraphics::g_LightActive);
 
   for (int r27 = 0; r27 < 5; ++r27) {
     for (int r28 = 0; r28 < 5; ++r28) {
@@ -1142,6 +1136,7 @@ void CWallCrawlerSwarm::Render(CStateManager& mgr) {
       RenderBoid(b, drawMask, thermalHot, flags);
     }
   }
+  CGraphics::DisableAllLights();
   DrawTouchBounds();
 }
 
@@ -1236,8 +1231,8 @@ void CWallCrawlerSwarm::ApplyRadiusDamage(const zeus::CVector3f& pos, const CDam
   }
 }
 
-void CWallCrawlerSwarm::FreezeCollision(CMarkerGrid const &grid) {
-  for (CBoid &boid : x108_boids) {
+void CWallCrawlerSwarm::FreezeCollision(CMarkerGrid const& grid) {
+  for (CBoid& boid : x108_boids) {
     if (!boid.x80_24_active) {
       continue;
     }

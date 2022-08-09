@@ -55,6 +55,7 @@ int CPlayerVisor::FindCachedInactiveScanTarget(TUniqueId uid) const {
 }
 
 bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerVisor::DrawScanObjectIndicators", zeus::skMagenta);
   if (!x124_scanIconNoncritical.IsLoaded() || !x130_scanIconCritical.IsLoaded())
     return false;
   if (!x114_scanShield.IsLoaded())
@@ -348,12 +349,11 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   float vpH = 152.218f * x48_interpWindowDims.y() * divisor;
   vpH = zeus::clamp(0.f, vpH, 448.f) * vpScale;
 
-  SClipScreenRect rect;
-  rect.x4_left = int((CGraphics::GetViewportWidth() - vpW) / 2.f);
-  rect.x8_top = int((CGraphics::GetViewportHeight() - vpH) / 2.f);
-  rect.xc_width = int(vpW);
-  rect.x10_height = int(vpH);
-  CGraphics::ResolveSpareTexture(rect, 0, GX_TF_RGB565);
+  GXSetTexCopySrc(int((CGraphics::GetViewportWidth() - vpW) / 2.f), int((CGraphics::GetViewportHeight() - vpH) / 2.f),
+                  vpW, vpH);
+  GXSetTexCopyDst(vpW, vpH, GX_TF_RGB565, false);
+  GXCopyTex(CGraphics::sSpareTextureData, false);
+  GXPixModeSync();
 
   {
     SCOPED_GRAPHICS_DEBUG_GROUP("x64_scanDim Draw", zeus::skMagenta);
@@ -366,7 +366,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   const zeus::CTransform seventeenScale = zeus::CTransform::Scale(17.f * vpScale, 1.f, 17.f * vpScale);
   const zeus::CTransform mm = seventeenScale * windowScale;
   g_Renderer->SetModelMatrix(mm);
-  CGraphics::LoadDolphinSpareTexture(0, GX_TF_RGB565, GX_TEXMAP0);
+  CGraphics::LoadDolphinSpareTexture(vpW, vpH, GX_TF_RGB565, CGraphics::sSpareTextureData, GX_TEXMAP0);
 
   if (x108_newScanPane) {
     SCOPED_GRAPHICS_DEBUG_GROUP("x108_newScanPane Draw", zeus::skMagenta);
