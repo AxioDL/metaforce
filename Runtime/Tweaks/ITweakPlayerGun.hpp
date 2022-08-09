@@ -6,20 +6,15 @@ namespace metaforce {
 /* Same as CDamageInfo */
 struct SShotParam {
   u32 x0_weaponType = -1;
-  bool x4_24_charged : 1;
-  bool x4_25_combo : 1;
-  bool x4_26_instaKill : 1;
+  bool x4_24_charged : 1 = false;
+  bool x4_25_combo : 1 = false;
+  bool x4_26_instaKill : 1 = false;
   float x8_damage = 0.f;
   float xc_radiusDamage = 0.f;
   float x10_radius = 0.f;
   float x14_knockback = 0.f;
-  bool x18_24_noImmunity : 1;
-  SShotParam() {
-    x4_24_charged = false;
-    x4_25_combo = false;
-    x4_26_instaKill = false;
-    x18_24_noImmunity = false;
-  }
+  bool x18_24_noImmunity : 1 = false;
+  SShotParam() = default;
   explicit SShotParam(CInputStream& in);
 };
 
