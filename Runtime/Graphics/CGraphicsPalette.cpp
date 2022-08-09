@@ -19,6 +19,12 @@ CGraphicsPalette::CGraphicsPalette(CInputStream& in) : x0_fmt(EPaletteFormat(in.
   // DCFlushRange(xc_entries.get(), x8_entryCount * 2);
 }
 
+CGraphicsPalette::~CGraphicsPalette() {
+#ifdef AURORA
+  GXDestroyTlutObj(&x10_tlutObj);
+#endif
+}
+
 void CGraphicsPalette::Load() {
   GXLoadTlut(&x10_tlutObj, GX_TLUT0);
   x4_frameLoaded = sCurrentFrameCount;
