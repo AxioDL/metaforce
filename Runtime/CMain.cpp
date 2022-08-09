@@ -32,6 +32,7 @@
 #include <aurora/event.h>
 #include <aurora/main.h>
 #include <dolphin/vi.h>
+#include <SDL_messagebox.h>
 
 using namespace std::literals;
 
@@ -451,6 +452,7 @@ static bool IsClientLoggingEnabled(int argc, char** argv) {
 static void SetupLogging() {}
 
 static std::unique_ptr<metaforce::Application> g_app;
+static SDL_Window* g_window;
 static bool g_paused;
 
 static void aurora_log_callback(AuroraLogLevel level, const char* message, unsigned int len) {
@@ -468,6 +470,10 @@ static void aurora_log_callback(AuroraLogLevel level, const char* message, unsig
     break;
   default:
     break;
+  }
+  if (level == LOG_FATAL) {
+    auto msg = fmt::format(FMT_STRING("Metaforce encountered an internal error:\n\n{}"), message);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Metaforce", msg.c_str(), g_window);
   }
   metaforce::Log.report(severity, FMT_STRING("{}"), message);
 }
@@ -544,6 +550,7 @@ int main(int argc, char** argv) {
         .imGuiInitCallback = aurora_imgui_init_callback,
     };
     const auto info = aurora_initialize(argc, argv, &config);
+    g_window = info.window;
     g_app->onImGuiAddTextures();
     g_app->onAppLaunched(info);
     g_app->onAppWindowResized(info.windowSize);
