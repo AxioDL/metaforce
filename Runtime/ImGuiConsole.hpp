@@ -61,6 +61,7 @@ public:
 
   void ControllerAdded(uint32_t idx);
   void ControllerRemoved(uint32_t idx);
+  void ToggleVisible();
 
   std::optional<std::string> m_errorString;
   std::optional<std::string> m_gameDiscSelected;
@@ -159,4 +160,8 @@ private:
   void ShowPipelineProgress();
   void ShowPreLaunchSettingsWindow();
 };
+
+AuroraBackend backend_from_string(const std::string& str);
+std::string_view backend_to_string(AuroraBackend backend);
+std::string_view backend_name(AuroraBackend backend);
 } // namespace metaforce

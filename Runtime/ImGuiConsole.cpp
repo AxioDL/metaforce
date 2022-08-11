@@ -1301,6 +1301,12 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect, bool preLaunch) {
   }
 }
 
+void ImGuiConsole::ToggleVisible() {
+  if (g_Main != nullptr) {
+    m_isVisible ^= 1;
+  }
+}
+
 void ImGuiConsole::PreUpdate() {
   OPTICK_EVENT();
   bool preLaunch = g_Main == nullptr;
@@ -1332,7 +1338,7 @@ void ImGuiConsole::PreUpdate() {
   }
   if (!preLaunch && !m_isLaunchInitialized) {
     if (m_developer) {
-      m_toasts.emplace_back("Press ` to toggle menu"s, 5.f);
+      m_toasts.emplace_back("Press Left Alt to toggle menu"s, 5.f);
     }
     m_isLaunchInitialized = true;
   }
@@ -1342,9 +1348,6 @@ void ImGuiConsole::PreUpdate() {
   }
 
   if (!preLaunch) {
-    if (ImGui::IsKeyReleased(ImGuiKey_GraveAccent)) {
-      m_isVisible ^= 1;
-    }
     if (m_stepFrame) {
       g_Main->SetPaused(true);
       m_stepFrame = false;
@@ -1892,28 +1895,27 @@ void ImGuiConsole::ShowPreLaunchSettingsWindow() {
   if (ImGui::Begin("Settings", &m_showPreLaunchSettingsWindow, ImGuiWindowFlags_AlwaysAutoResize)) {
     if (ImGui::BeginTabBar("Settings")) {
       if (ImGui::BeginTabItem("Graphics")) {
-        // TODO
-        //        static auto AvailableBackends = aurora::get_available_backends();
-        //        ImGuiStringViewText(fmt::format(FMT_STRING("Current backend: {}"), aurora::get_backend_string()));
-        //        auto desiredBackend = static_cast<int>(aurora::Backend::Invalid);
-        //        if (auto* cvar = m_cvarMgr.findCVar("graphicsApi")) {
-        //          bool valid = false;
-        //          const auto name = cvar->toLiteral(&valid);
-        //          if (valid) {
-        //            desiredBackend = static_cast<int>(aurora::backend_from_string(name));
-        //          }
-        //        }
-        //        bool modified = false;
-        //        modified = ImGui::RadioButton("Auto", &desiredBackend, static_cast<int>(aurora::Backend::Invalid));
-        //        for (const auto& item : AvailableBackends) {
-        //          modified = ImGui::RadioButton(magic_enum::enum_name(item).data(), &desiredBackend,
-        //          static_cast<int>(item)) ||
-        //                     modified;
-        //        }
-        //        if (modified) {
-        //          m_cvarCommons.m_graphicsApi->fromLiteral(
-        //              aurora::backend_to_string(static_cast<aurora::Backend>(desiredBackend)));
-        //        }
+        size_t backendCount = 0;
+        const auto* backends = aurora_get_available_backends(&backendCount);
+        ImGuiStringViewText(fmt::format(FMT_STRING("Current backend: {}"), backend_name(aurora_get_backend())));
+        auto desiredBackend = static_cast<int>(BACKEND_AUTO);
+        if (auto* cvar = m_cvarMgr.findCVar("graphicsApi")) {
+          bool valid = false;
+          const auto name = cvar->toLiteral(&valid);
+          if (valid) {
+            desiredBackend = static_cast<int>(backend_from_string(name));
+          }
+        }
+        bool modified = false;
+        modified = ImGui::RadioButton("Auto", &desiredBackend, static_cast<int>(BACKEND_AUTO));
+        for (size_t i = 0; i < backendCount; ++i, ++backends) {
+          const auto backend = *backends;
+          modified =
+              ImGui::RadioButton(backend_name(backend).data(), &desiredBackend, static_cast<int>(backend)) || modified;
+        }
+        if (modified) {
+          m_cvarCommons.m_graphicsApi->fromLiteral(backend_to_string(static_cast<AuroraBackend>(desiredBackend)));
+        }
         ImGuiCVarCheckbox(m_cvarMgr, "fullscreen", "Fullscreen");
         ImGui::EndTabItem();
       }
@@ -1933,5 +1935,79 @@ void ImGuiConsole::ShowPreLaunchSettingsWindow() {
     }
   }
   ImGui::End();
+}
+
+static bool eq(std::string_view a, std::string_view b) {
+  if (a.size() != b.size()) {
+    return false;
+  }
+  return std::equal(a.begin(), a.end(), b.begin(), b.end(), [](char a, char b) { return tolower(a) == b; });
+}
+
+AuroraBackend backend_from_string(const std::string& str) {
+  if (eq(str, "d3d12"sv) || eq(str, "d3d"sv)) {
+    return BACKEND_D3D12;
+  }
+  if (eq(str, "metal"sv)) {
+    return BACKEND_METAL;
+  }
+  if (eq(str, "vulkan"sv) || eq(str, "vk"sv)) {
+    return BACKEND_VULKAN;
+  }
+  if (eq(str, "opengl"sv) || eq(str, "gl"sv)) {
+    return BACKEND_OPENGL;
+  }
+  if (eq(str, "opengles"sv) || eq(str, "gles"sv)) {
+    return BACKEND_OPENGLES;
+  }
+  if (eq(str, "webgpu"sv) || eq(str, "wgpu"sv)) {
+    return BACKEND_WEBGPU;
+  }
+  if (eq(str, "null"sv) || eq(str, "none"sv)) {
+    return BACKEND_NULL;
+  }
+  return BACKEND_AUTO;
+}
+
+std::string_view backend_to_string(AuroraBackend backend) {
+  switch (backend) {
+  default:
+    return "auto"sv;
+  case BACKEND_D3D12:
+    return "d3d12"sv;
+  case BACKEND_METAL:
+    return "metal"sv;
+  case BACKEND_VULKAN:
+    return "vulkan"sv;
+  case BACKEND_OPENGL:
+    return "opengl"sv;
+  case BACKEND_OPENGLES:
+    return "opengles"sv;
+  case BACKEND_WEBGPU:
+    return "webgpu"sv;
+  case BACKEND_NULL:
+    return "null"sv;
+  }
+}
+
+std::string_view backend_name(AuroraBackend backend) {
+  switch (backend) {
+  default:
+    return "Auto"sv;
+  case BACKEND_D3D12:
+    return "D3D12"sv;
+  case BACKEND_METAL:
+    return "Metal"sv;
+  case BACKEND_VULKAN:
+    return "Vulkan"sv;
+  case BACKEND_OPENGL:
+    return "OpenGL"sv;
+  case BACKEND_OPENGLES:
+    return "OpenGL ES"sv;
+  case BACKEND_WEBGPU:
+    return "WebGPU"sv;
+  case BACKEND_NULL:
+    return "Null"sv;
+  }
 }
 } // namespace metaforce

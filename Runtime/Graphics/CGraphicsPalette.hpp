@@ -27,6 +27,7 @@ class CGraphicsPalette {
 public:
   explicit CGraphicsPalette(EPaletteFormat fmt, int count);
   explicit CGraphicsPalette(CInputStream& in);
+  ~CGraphicsPalette();
 
   u16* Lock() {
     x1c_locked = true;
