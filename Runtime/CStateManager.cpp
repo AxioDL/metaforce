@@ -81,7 +81,7 @@ CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& mailbox, const
   x88c_rumbleManager = &x86c_stateManagerContainer->xf250_rumbleManager;
 
   g_Renderer->SetDrawableCallback(&CStateManager::RendererDrawCallback, this);
-  x908_loaderCount = int(EScriptObjectType::ScriptObjectTypeMAX);
+  x90c_loaderFuncs.resize(int(EScriptObjectType::ScriptObjectTypeMAX));
   x90c_loaderFuncs[size_t(EScriptObjectType::Actor)] = ScriptLoader::LoadActor;
   x90c_loaderFuncs[size_t(EScriptObjectType::Waypoint)] = ScriptLoader::LoadWaypoint;
   x90c_loaderFuncs[size_t(EScriptObjectType::Door)] = ScriptLoader::LoadDoor;

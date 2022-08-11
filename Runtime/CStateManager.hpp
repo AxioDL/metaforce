@@ -157,10 +157,7 @@ private:
   CRandom16 x8fc_random;
   CRandom16* x900_activeRandom = nullptr;
   EGameState x904_gameState = EGameState::Running;
-  u32 x908_loaderCount = 0;
-  std::array<FScriptLoader, size_t(EScriptObjectType::ScriptObjectTypeMAX)> x90c_loaderFuncs{};
-
-  bool xab0_worldLoaded = false;
+  rstl::reserved_vector<FScriptLoader, size_t(EScriptObjectType::ScriptObjectTypeMAX)> x90c_loaderFuncs;
 
   enum class EInitPhase { LoadWorld, LoadFirstArea, Done } xb3c_initPhase = EInitPhase::LoadWorld;
 
