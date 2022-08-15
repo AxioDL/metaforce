@@ -60,6 +60,8 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
     x98_scanObjectInfo = g_SimplePool->GetObj(SObjectTag{FOURCC('SCAN'), params.x40_scanParms.GetScanId()});
 }
 
+CActor::~CActor() { RemoveEmitter(); }
+
 void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   switch (msg) {
   case EScriptObjectMessage::Activate: {
