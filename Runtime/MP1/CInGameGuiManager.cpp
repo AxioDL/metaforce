@@ -475,8 +475,8 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
   if (x1d8_onScreenTexAlpha > 0.f && x1dc_onScreenTexTok.IsLoaded()) {
     g_Renderer->SetDepthReadWrite(false, false);
     g_Renderer->SetBlendMode_AlphaBlended();
-    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
-    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
     int w = x1c4_onScreenTex.x4_origin.x;
     int h = x1c4_onScreenTex.x4_origin.y;
     int x = CGraphics::GetViewportLeft() + (CGraphics::GetViewportWidth() - w) / 2 + x1c4_onScreenTex.xc_extent.x;

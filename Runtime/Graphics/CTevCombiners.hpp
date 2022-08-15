@@ -103,18 +103,18 @@ public:
   }
 };
 
-extern const CTevPass skPassThru;
-extern const CTevPass sTevPass804bfcc0;
-extern const CTevPass sTevPass804bfe68;
-extern const CTevPass sTevPass805a5698;
-extern const CTevPass sTevPass805a5e70;
-extern const CTevPass sTevPass805a5ebc;
-extern const CTevPass sTevPass805a5f08;
-extern const CTevPass sTevPass805a5f54;
-extern const CTevPass sTevPass805a5fa0;
-extern const CTevPass sTevPass805a5fec;
-extern const CTevPass sTevPass805a6038;
-extern const CTevPass sTevPass805a6084;
+extern const CTevPass kEnvPassthru;
+// TODO move below to CGraphics
+extern const CTevPass kEnvBlendCTandCConCF;
+extern const CTevPass kEnvModulateConstColor;
+extern const CTevPass kEnvConstColor;
+extern const CTevPass kEnvModulate;
+extern const CTevPass kEnvDecal;
+extern const CTevPass kEnvBlend;
+extern const CTevPass kEnvReplace;
+extern const CTevPass kEnvModulateAlpha;
+extern const CTevPass kEnvModulateColor;
+extern const CTevPass kEnvModulateColorByAlpha;
 
 void Init();
 void SetupPass(ERglTevStage stage, const CTevPass& pass);

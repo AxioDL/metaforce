@@ -125,7 +125,7 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) {
   g_Renderer->SetModelMatrix(drawParms.x3c_postTranslate);
   g_Renderer->SetBlendMode_AdditiveAlpha();
   x0_txtrRadarPaint->Load(GX_TEXMAP0, EClampMode::Repeat);
-  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
   g_Renderer->SetDepthReadWrite(false, false);
   zeus::CColor playerColor = g_tweakGuiColors->GetRadarPlayerPaintColor();
   playerColor.a() *= alpha;

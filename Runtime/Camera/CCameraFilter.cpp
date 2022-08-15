@@ -182,8 +182,8 @@ void CCameraFilterPass::DrawFilterShape(EFilterShape shape, const zeus::CColor& 
 void CCameraFilterPass::DrawFullScreenTexturedQuadQuarters(const zeus::CColor& color, CTexture* tex, float lod) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CCameraFilterPass::DrawFullScreenTexturedQuadQuarters", zeus::skBlue);
   const auto [lt, rb] = g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
-  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
-  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   g_Renderer->SetDepthReadWrite(false, false);
   if (tex != nullptr) {
     tex->Load(GX_TEXMAP0, EClampMode::Repeat);
@@ -215,8 +215,8 @@ void CCameraFilterPass::DrawFullScreenTexturedQuad(const zeus::CColor& color, CT
   if (tex != nullptr) {
     tex->Load(GX_TEXMAP0, EClampMode::Repeat);
   }
-  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
-  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   CGraphics::StreamBegin(GX_TRIANGLESTRIP);
   CGraphics::StreamColor(color);
   CGraphics::StreamTexcoord(u, v);
@@ -240,12 +240,12 @@ void CCameraFilterPass::DrawRandomStatic(const zeus::CColor& color, float alpha,
     CGraphics::SetAlphaCompare(ERglAlphaFunc::GEqual, static_cast<u8>((1.f - alpha) * 255.f), ERglAlphaOp::And,
                                ERglAlphaFunc::Always, 0);
     g_Renderer->SetDepthReadWrite(true, true);
-    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
-    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   } else {
     g_Renderer->SetDepthReadWrite(false, false);
-    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a6038);
-    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulateColor);
+    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   }
 
   // Upload random static texture (game reads from .text)

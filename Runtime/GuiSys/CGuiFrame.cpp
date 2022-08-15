@@ -128,7 +128,7 @@ void CGuiFrame::Draw(const CGuiWidgetDrawParms& parms) const {
   CGraphics::SetAmbientColor(zeus::skWhite);
   DisableLights();
   x14_camera->Draw(parms);
-  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
   CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
                           ERglLogicOp::Clear);
 

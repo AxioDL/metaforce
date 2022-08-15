@@ -78,8 +78,8 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, CTexture& tex, in
 
   if (!noBlur) {
     if ((x14c_deResFactor == 0.f && alpha == 1.f) || tex.GetNumberOfMipMaps() == 1) {
-      CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
-      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+      CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
       tex.LoadMipLevel(0, GX_TEXMAP0, EClampMode::Repeat);
       CGraphics::StreamBegin(GX_TRIANGLESTRIP);
       CGraphics::StreamColor(useColor);
@@ -144,8 +144,8 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, CTexture& tex, in
       CGX::End();
     }
   } else {
-    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5fec);
-    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulateAlpha);
+    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
     tex.Load(GX_TEXMAP0, EClampMode::Repeat);
     CGraphics::StreamBegin(GX_TRIANGLESTRIP);
     CGraphics::StreamColor(useColor);

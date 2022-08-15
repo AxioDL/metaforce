@@ -74,8 +74,8 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
         CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
                                 ERglLogicOp::Clear);
-        CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::skPassThru);
-        CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+        CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvPassthru);
+        CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
         g_Renderer->BeginTriangleStrip(4);
         g_Renderer->PrimVertex({-extent, 0.f, extent});
         g_Renderer->PrimVertex({extent, 0.f, extent});
@@ -97,8 +97,8 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
           CGraphics::SetDepthWriteMode(false, ERglEnum::LEqual, false);
           CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
                                   ERglLogicOp::Clear);
-          CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::skPassThru);
-          CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+          CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvPassthru);
+          CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
           CGraphics::StreamBegin(GX_TRIANGLESTRIP);
           CGraphics::StreamColor(1.f, 1.f, 1.f, 0.25f);
           CGraphics::StreamVertex(-extent, 0.f, extent);
@@ -114,8 +114,8 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
           CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
                                   ERglLogicOp::Clear);
           CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
-          CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
-          CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+          CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+          CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
           CGraphics::Render2D(*x0_texture, 0, x0_texture->GetWidth() * 2, x0_texture->GetHeight() * 2,
                               x0_texture->GetWidth() * -2, zeus::CColor{1.f, 0.85f});
           CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);

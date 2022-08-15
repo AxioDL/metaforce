@@ -182,8 +182,8 @@ void CVisorFlare::SetupRenderState(const CStateManager& mgr) const {
     } else if (x0_blendMode == EBlendMode::Additive) {
       g_Renderer->SetBlendMode_AdditiveAlpha();
     }
-    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
-    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   }
 }
 

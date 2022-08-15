@@ -451,7 +451,7 @@ void CScanDisplay::Draw() {
   g_Renderer->SetDepthReadWrite(false, false);
   g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
   g_Renderer->SetBlendMode_AdditiveAlpha();
-  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
   x0_dataDot->Load(GX_TEXMAP0, EClampMode::Repeat);
 
   const float vpRatio = CGraphics::GetViewportHeight() / 480.f;

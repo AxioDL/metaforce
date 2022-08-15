@@ -21,51 +21,47 @@ constexpr u32 maxTevPasses = 2;
 static u32 sNumEnabledPasses;
 static std::array<bool, maxTevPasses> sValidPasses;
 
-const CTevPass skPassThru{
+const CTevPass kEnvPassthru{
     {GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_RASC},
     {GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_RASA},
 };
-const CTevPass sTevPass804bfcc0{
+const CTevPass kEnvBlendCTandCConCF{
     {GX_CC_C0, GX_CC_TEXC, GX_CC_RASC, GX_CC_ZERO},
     {GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_RASA},
 };
-const CTevPass sTevPass804bfe68{
-    {GX_CC_ZERO, GX_CC_CPREV, GX_CC_RASC, GX_CC_ZERO},
-    {GX_CA_ZERO, GX_CA_APREV, GX_CA_RASA, GX_CA_ZERO},
-};
-const CTevPass sTevPass805a5698{
+const CTevPass kEnvModulateConstColor{
     {GX_CC_ZERO, GX_CC_RASC, GX_CC_C0, GX_CC_ZERO},
     {GX_CA_ZERO, GX_CA_RASA, GX_CA_A0, GX_CA_ZERO},
 };
-const CTevPass sTevPass805a5e70{
+const CTevPass kEnvConstColor{
     {GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_C0},
     {GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_A0},
 };
-const CTevPass sTevPass805a5ebc{
+const CTevPass kEnvModulate{
     {GX_CC_ZERO, GX_CC_RASC, GX_CC_TEXC, GX_CC_ZERO},
     {GX_CA_ZERO, GX_CA_RASA, GX_CA_TEXA, GX_CA_ZERO},
 };
-const CTevPass sTevPass805a5f08{
+const CTevPass kEnvDecal{
     {GX_CC_RASC, GX_CC_TEXC, GX_CC_TEXA, GX_CC_ZERO},
     {GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_RASA},
 };
-const CTevPass sTevPass805a5f54{
+const CTevPass kEnvBlend{
     {GX_CC_RASC, GX_CC_ONE, GX_CC_TEXC, GX_CC_ZERO},
     {GX_CA_ZERO, GX_CA_TEXA, GX_CA_RASA, GX_CA_ZERO},
 };
-const CTevPass sTevPass805a5fa0{
+const CTevPass kEnvReplace{
     {GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_TEXC},
     {GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_TEXA},
 };
-const CTevPass sTevPass805a5fec{
+const CTevPass kEnvModulateAlpha{
     {GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_RASC},
     {GX_CA_ZERO, GX_CA_TEXA, GX_CA_RASA, GX_CA_ZERO},
 };
-const CTevPass sTevPass805a6038{
+const CTevPass kEnvModulateColor{
     {GX_CC_ZERO, GX_CC_TEXC, GX_CC_RASC, GX_CC_ZERO},
     {GX_CA_ZERO, GX_CA_KONST, GX_CA_RASA, GX_CA_ZERO},
 };
-const CTevPass sTevPass805a6084{
+const CTevPass kEnvModulateColorByAlpha{
     {GX_CC_ZERO, GX_CC_CPREV, GX_CC_APREV, GX_CC_ZERO},
     {GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_APREV},
 };
@@ -81,7 +77,7 @@ void Init() {
 }
 
 void SetupPass(ERglTevStage stage, const CTevPass& pass) {
-  if (pass == skPassThru) {
+  if (pass == kEnvPassthru) {
     DeletePass(stage);
     return;
   }
@@ -92,7 +88,7 @@ void SetupPass(ERglTevStage stage, const CTevPass& pass) {
 }
 
 void DeletePass(ERglTevStage stage) {
-  SetPassCombiners(stage, skPassThru);
+  SetPassCombiners(stage, kEnvPassthru);
   sValidPasses[static_cast<size_t>(stage)] = false;
   RecomputePasses();
 }
@@ -109,7 +105,7 @@ void RecomputePasses() {
 
 void ResetStates() {
   sValidPasses.fill(false);
-  skPassThru.Execute(ERglTevStage::Stage0);
+  kEnvPassthru.Execute(ERglTevStage::Stage0);
   sNumEnabledPasses = 1;
   CGX::SetNumTevStages(1);
 }

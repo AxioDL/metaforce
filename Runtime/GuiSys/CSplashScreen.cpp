@@ -66,8 +66,8 @@ void CSplashScreen::Draw() {
   CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
   g_Renderer->SetModelMatrix({});
   CGraphics::SetViewPointMatrix({});
-  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
-  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   g_Renderer->SetBlendMode_AlphaBlended();
   auto& tex = *x28_texture.GetObj();
   const auto width = tex.GetWidth();

@@ -34,8 +34,8 @@ void CSimpleShadow::Render(TLockedToken<CTexture>& tex) {
   CGraphics::SetModelMatrix(x0_xf);
   tex->Load(GX_TEXMAP0, EClampMode::Repeat);
 
-  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
-  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, false);
   CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,

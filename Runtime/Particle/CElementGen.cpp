@@ -915,7 +915,7 @@ void CElementGen::RenderModels() {
       cachedTex = texr->GetValueTexture(partFrame).GetObj();
       cachedTex->Load(GX_TEXMAP0, EClampMode::Repeat);
 
-      CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+      CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
       if (moveRedToAlphaBuffer) {
         CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_CPREV, GX_CC_APREV, GX_CC_ZERO);
         CGX::SetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_TEXA, GX_CA_APREV, GX_CA_ZERO);
@@ -936,14 +936,14 @@ void CElementGen::RenderModels() {
         CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
         CGX::SetNumTexGens(1);
       } else {
-        CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+        CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
       }
 
       texConst = texr->HasConstantTexture();
       texr->GetValueUV(partFrame, uvs);
     } else {
-      CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::skPassThru);
-      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+      CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvPassthru);
+      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
     }
   }
 
@@ -1255,19 +1255,23 @@ void CElementGen::RenderParticles() {
     cachedTex = texr->GetValueTexture(partFrame).GetObj();
     cachedTex->Load(GX_TEXMAP0, EClampMode::Repeat);
 
-    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
     if (hasModuColor) {
       /* Add RASC * PREVC pass for MODU color loaded into channel mat-color */
-      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::sTevPass804bfe68);
+      static const CTevCombiners::CTevPass kEnvModuColor{
+          {GX_CC_ZERO, GX_CC_CPREV, GX_CC_RASC, GX_CC_ZERO},
+          {GX_CA_ZERO, GX_CA_APREV, GX_CA_RASA, GX_CA_ZERO},
+      };
+      CGraphics::SetTevOp(ERglTevStage::Stage1, kEnvModuColor);
     } else {
-      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
     }
 
     texr->GetValueUV(partFrame, uvs);
     constUVs = texr->HasConstantUV();
   } else {
-    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::skPassThru);
-    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvPassthru);
+    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   }
 
   constexpr std::array vtxDescList{

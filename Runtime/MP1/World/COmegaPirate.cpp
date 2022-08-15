@@ -107,8 +107,8 @@ void COmegaPirate::CFlash::Render(CStateManager& mgr) {
   const auto rvS = GetTranslation() - rightVec;
   const auto rvP = GetTranslation() + rightVec;
   CGraphics::SetModelMatrix(zeus::CTransform());
-  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
-  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   CGraphics::SetDepthWriteMode(false, ERglEnum::Always, false);
   CGraphics::StreamColor(zeus::CColor{1.f, std::min(1.f, size)});
   CGraphics::StreamBegin(GX_TRIANGLEFAN);

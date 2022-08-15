@@ -1823,8 +1823,8 @@ void CFrontEndUI::Draw() {
 
     if (x64_pressStartAlpha > 0.f && x38_pressStart.IsLoaded()) {
       /* Render "Press Start" */
-      CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::sTevPass805a5ebc);
-      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::skPassThru);
+      CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
       g_Renderer->SetBlendMode_AdditiveAlpha();
       g_Renderer->SetDepthReadWrite(false, false);
       const auto width = x38_pressStart->GetWidth();
