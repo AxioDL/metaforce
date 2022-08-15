@@ -123,8 +123,6 @@ void CActor::PreRender(CStateManager& mgr, const zeus::CFrustum& planes) {
 
   xe4_30_outOfFrustum = !planes.aabbFrustumTest(x9c_renderBounds);
   if (!xe4_30_outOfFrustum) {
-    xe7_28_worldLightingDirty = true;
-
     bool lightsDirty = false;
     if (xe4_29_actorLightsDirty) {
       xe4_29_actorLightsDirty = false;
