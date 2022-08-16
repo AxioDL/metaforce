@@ -532,7 +532,7 @@ void CTryclops::DragBomb(CStateManager& mgr, const zeus::CTransform& xf) {
 
 void CTryclops::ApplySeparation(CStateManager& mgr) {
   for (CEntity* ent : mgr.GetAiWaypointObjectList()) {
-    if (TCastToPtr<CAi> ai = ent) {
+    if (TCastToPtr<CPatterned> ai = ent) {
       if (ai == this || ai->GetAreaIdAlways() != GetAreaId()) {
         continue;
       }

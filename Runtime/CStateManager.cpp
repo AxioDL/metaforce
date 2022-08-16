@@ -1470,7 +1470,7 @@ void CStateManager::InitScriptObjects(const std::vector<TEditorId>& ids) {
 
 void CStateManager::InformListeners(const zeus::CVector3f& pos, EListenNoiseType type) {
   for (CEntity* ent : GetListeningAiObjectList()) {
-    if (const TCastToPtr<CAi> ai = ent) {
+    if (const TCastToPtr<CPatterned> ai = ent) {
       if (!ai->GetActive()) {
         continue;
       }
@@ -1506,7 +1506,7 @@ void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const
     return;
   }
 
-  const TCastToPtr<CAi> ai = actor;
+  const TCastToPtr<CPatterned> ai = actor;
   if (!ai && hInfo->GetHP() <= 0.f) {
     if (dampedPower > hInfo->GetKnockbackResistance()) {
       if (const TCastToPtr<CPhysicsActor> physActor = actor) {
@@ -2219,7 +2219,7 @@ void CStateManager::MoveActors(float dt) {
       continue;
     }
 
-    if (const TCastToPtr<CAi> ai = physActor) {
+    if (const TCastToPtr<CPatterned> ai = physActor) {
       bool doThink = !xf94_29_cinematicPause;
       if (doThink && ai->GetAreaIdAlways() != kInvalidAreaId) {
         const CGameArea* area = x850_world->GetAreaAlways(ai->GetAreaIdAlways());
@@ -2311,7 +2311,7 @@ void CStateManager::Think(float dt) {
     }
   } else {
     for (CEntity* ent : GetAllObjectList()) {
-      if (const TCastToPtr<CAi> ai = ent) {
+      if (const TCastToPtr<CPatterned> ai = ent) {
         bool doThink = !xf94_29_cinematicPause;
         if (doThink && ai->GetAreaIdAlways() != kInvalidAreaId) {
           const CGameArea* area = x850_world->GetAreaAlways(ai->GetAreaIdAlways());

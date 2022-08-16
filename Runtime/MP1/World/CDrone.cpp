@@ -1104,7 +1104,7 @@ void CDrone::UpdateLasers(CStateManager& mgr, float dt) {
         CSfxManager::AddEmitter(x7cc_laserSfx, result.GetPoint(), zeus::skZero3f, true, false, 127, GetAreaIdAlways());
       }
     }
-    if (id != GetUniqueId() && TCastToPtr<CAi>{mgr.ObjectById(id)}) {
+    if (id != GetUniqueId() && TCastToPtr<CPatterned>{mgr.ObjectById(id)}) {
       x834_31_attackOver = true;
       float rem = GetModelData()->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv);
       UpdateAnimation(rem, mgr, true);

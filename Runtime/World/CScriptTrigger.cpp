@@ -244,7 +244,7 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
       } else if (pl->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed) {
         testFlags |= ETriggerFlags::DetectMorphedPlayer;
       }
-    } else if (TCastToPtr<CAi>(act)) {
+    } else if (TCastToPtr<CPatterned>(act)) {
       testFlags |= ETriggerFlags::DetectAI;
     } else if (TCastToPtr<CGameProjectile>(act)) {
       testFlags |= ETriggerFlags::DetectProjectiles1 | ETriggerFlags::DetectProjectiles2 |

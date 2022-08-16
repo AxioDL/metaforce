@@ -603,9 +603,9 @@ bool CMetroidPrimeEssence::sub8027e870(const zeus::CTransform& xf, CStateManager
 
 void CMetroidPrimeEssence::KillAiInArea(CStateManager& mgr) {
   for (auto* ent : mgr.GetListeningAiObjectList()) {
-    if (TCastToPtr<CAi> ai = ent) {
+    if (TCastToPtr<CPatterned> ai = ent) {
       if (ai != this && ai->GetActive() && ai->GetAreaIdAlways() == GetAreaIdAlways()) {
-        static_cast<CPatterned*>(ai.GetPtr())->MassiveDeath(mgr);
+        ai->MassiveDeath(mgr);
       }
     }
   }
@@ -614,7 +614,7 @@ void CMetroidPrimeEssence::KillAiInArea(CStateManager& mgr) {
 void CMetroidPrimeEssence::CountListeningAi(CStateManager& mgr) {
   x6e0_ = 0;
   for (auto* ent : mgr.GetListeningAiObjectList()) {
-    if (TCastToPtr<CAi> ai = ent) {
+    if (TCastToPtr<CPatterned> ai = ent) {
       if (ai != this && ai->GetActive() && ai->GetAreaIdAlways() == GetAreaIdAlways()) {
         ++x6e4_;
       }

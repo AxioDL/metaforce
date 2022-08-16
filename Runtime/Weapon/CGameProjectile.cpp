@@ -407,7 +407,7 @@ CProjectileTouchResult CGameProjectile::CanCollideWithGameObject(CActor& act, CS
       return {kInvalidUniqueId, std::nullopt};
     } else if (xf8_filter.GetExcludeList().Intersection(act.GetMaterialList())) {
       return {kInvalidUniqueId, std::nullopt};
-    } else if (TCastToPtr<CAi> ai = act) {
+    } else if (TCastToPtr<CPatterned> ai = act) {
       if (!ai->CanBeShot(mgr, int(xe8_projectileAttribs))) {
         return {kInvalidUniqueId, std::nullopt};
       }

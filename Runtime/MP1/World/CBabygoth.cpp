@@ -396,7 +396,7 @@ void CBabygoth::RemoveFromTeam(CStateManager& mgr) {
 
 void CBabygoth::ApplySeparationBehavior(CStateManager& mgr) {
   for (CEntity* ent : mgr.GetListeningAiObjectList()) {
-    if (TCastToPtr<CAi> ai = ent) {
+    if (TCastToPtr<CPatterned> ai = ent) {
       if (ai.GetPtr() != this && GetAreaIdAlways() == ai->GetAreaIdAlways()) {
         zeus::CVector3f sep = x45c_steeringBehaviors.Separation(*this, ai->GetTranslation(), 15.f);
         if (!sep.isZero()) {
@@ -1099,7 +1099,7 @@ bool CBabygoth::Leash(CStateManager& mgr, float) {
 
 bool CBabygoth::IsDestinationObstructed(const CStateManager& mgr) const {
   for (const CEntity* obj : mgr.GetListeningAiObjectList()) {
-    if (const TCastToConstPtr<CAi> ai = obj) {
+    if (const TCastToConstPtr<CPatterned> ai = obj) {
       if (ai->GetAreaIdAlways() == GetAreaIdAlways()) {
         if ((x8b8_backupDestPos - ai->GetTranslation()).magSquared() <= 10.f) {
           return true;

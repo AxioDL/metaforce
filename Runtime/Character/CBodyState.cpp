@@ -1536,7 +1536,7 @@ pas::EAnimationState CBSWallHang::GetBodyStateTransition(float dt, const CBodyCo
 }
 
 void CBSWallHang::FixInPlace(CBodyController& bc) {
-  if (const TCastToPtr<CAi> ai = bc.GetOwner()) {
+  if (const TCastToPtr<CPatterned> ai = bc.GetOwner()) {
     ai->SetConstantForce(zeus::skZero3f);
     ai->SetVelocityWR(zeus::skZero3f);
   }

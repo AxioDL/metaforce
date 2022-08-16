@@ -77,7 +77,7 @@ void CCameraManager::EnterCinematic(CStateManager& mgr) {
     } else if (const TCastToConstPtr<CWeapon> weap = ent) {
       if (weap->GetActive()) {
         if (False(weap->GetAttribField() & EProjectileAttrib::KeepInCinematic)) {
-          if (TCastToConstPtr<CAi>(mgr.GetObjectById(weap->GetOwnerId())) ||
+          if (TCastToConstPtr<CPatterned>(mgr.GetObjectById(weap->GetOwnerId())) ||
               TCastToConstPtr<CPlayer>(mgr.GetObjectById(weap->GetOwnerId())))
             mgr.FreeScriptObject(weap->GetUniqueId());
         }
