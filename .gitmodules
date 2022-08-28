@@ -42,9 +42,9 @@
 	path = extern/zeus
 	url = ../zeus.git
 	branch = master
-[submodule "extern/nativefiledialog"]
-	path = extern/nativefiledialog
-	url = https://github.com/mlabbe/nativefiledialog.git
+[submodule "extern/nativefiledialog-extended"]
+	path = extern/nativefiledialog-extended
+	url = https://github.com/btzy/nativefiledialog-extended.git
 [submodule "extern/optick"]
 	path = extern/optick
 	url = https://github.com/AxioDL/optick.git

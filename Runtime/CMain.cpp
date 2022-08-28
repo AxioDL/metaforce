@@ -242,6 +242,7 @@ public:
 #endif
 
     if (!m_projectInitialized && !m_deferredProject.empty()) {
+      Log.report(logvisor::Info, FMT_STRING("Loading game from '{}'"), m_deferredProject);
       if (CDvdFile::Initialize(m_deferredProject)) {
         m_projectInitialized = true;
         m_cvarCommons.m_lastDiscPath->fromLiteral(m_deferredProject);

@@ -17,7 +17,7 @@
 #include "ImGuiEngine.hpp"
 #include "magic_enum.hpp"
 #ifdef NATIVEFILEDIALOG_SUPPORTED
-#include "nfd.h"
+#include <nfd.hpp>
 #endif
 
 #include <cstdarg>
@@ -51,7 +51,9 @@ std::set<TUniqueId> ImGuiConsole::inspectingEntities;
 ImGuiPlayerLoadouts ImGuiConsole::loadouts;
 
 ImGuiConsole::ImGuiConsole(CVarManager& cvarMgr, CVarCommons& cvarCommons)
-: m_cvarMgr(cvarMgr), m_cvarCommons(cvarCommons) {}
+: m_cvarMgr(cvarMgr), m_cvarCommons(cvarCommons) {
+  NFD::Init();
+}
 
 void ImGuiStringViewText(std::string_view text) {
   // begin()/end() do not work on MSVC
@@ -690,13 +692,12 @@ void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
 #ifdef NATIVEFILEDIALOG_SUPPORTED
       ImGui::Dummy(padding);
       if (ImGuiButtonCenter("Select Game")) {
-        nfdchar_t* outPath = nullptr;
-        nfdresult_t nfdResult = NFD_OpenDialog(nullptr, nullptr, &outPath);
+        NFD::UniquePathU8 outPath;
+        nfdresult_t nfdResult = NFD::OpenDialog(outPath, nullptr, 0, nullptr);
         if (nfdResult == NFD_OKAY) {
-          m_gameDiscSelected = outPath;
-          free(outPath);
+          m_gameDiscSelected = outPath.get();
         } else if (nfdResult != NFD_CANCEL) {
-          Log.report(logvisor::Error, FMT_STRING("nativefiledialog error: {}"), NFD_GetError());
+          Log.report(logvisor::Error, FMT_STRING("nativefiledialog error: {}"), NFD::GetError());
         }
       }
 #endif
@@ -1441,6 +1442,7 @@ void ImGuiConsole::PostUpdate() {
 void ImGuiConsole::Shutdown() {
   dummyWorlds.clear();
   stringTables.clear();
+  NFD::Quit();
 }
 
 static constexpr std::array GeneralItems{
