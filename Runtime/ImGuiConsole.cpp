@@ -52,7 +52,9 @@ ImGuiPlayerLoadouts ImGuiConsole::loadouts;
 
 ImGuiConsole::ImGuiConsole(CVarManager& cvarMgr, CVarCommons& cvarCommons)
 : m_cvarMgr(cvarMgr), m_cvarCommons(cvarCommons) {
+#ifdef NATIVEFILEDIALOG_SUPPORTED
   NFD::Init();
+#endif
 }
 
 void ImGuiStringViewText(std::string_view text) {
@@ -1442,7 +1444,9 @@ void ImGuiConsole::PostUpdate() {
 void ImGuiConsole::Shutdown() {
   dummyWorlds.clear();
   stringTables.clear();
+#ifdef NATIVEFILEDIALOG_SUPPORTED
   NFD::Quit();
+#endif
 }
 
 static constexpr std::array GeneralItems{
