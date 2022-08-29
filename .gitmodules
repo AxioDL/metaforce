@@ -44,10 +44,13 @@
 	branch = master
 [submodule "extern/nativefiledialog-extended"]
 	path = extern/nativefiledialog-extended
-	url = https://github.com/btzy/nativefiledialog-extended.git
+	url = https://github.com/encounter/nativefiledialog-extended.git
+	branch = nfd-install-option
 [submodule "extern/optick"]
 	path = extern/optick
 	url = https://github.com/AxioDL/optick.git
+	branch = master
 [submodule "extern/aurora"]
 	path = extern/aurora
 	url = https://github.com/encounter/aurora.git
+	branch = main
