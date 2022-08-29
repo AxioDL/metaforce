@@ -114,7 +114,7 @@ void CTexture::LoadMipLevel(s32 mip, GXTexMapID id, EClampMode clamp) {
   u32 offset = 0;
   if (mip > 0) {
     for (u32 i = 0; i < mip; ++i) {
-      offset += ROUND_UP_32(x9_bitsPerPixel * (ROUND_UP_4(width) * ROUND_UP_4(height)));
+      offset += ROUND_UP_32((x9_bitsPerPixel * (ROUND_UP_4(width) * ROUND_UP_4(height))) / 8);
       width /= 2;
       height /= 2;
     }
@@ -123,7 +123,7 @@ void CTexture::LoadMipLevel(s32 mip, GXTexMapID id, EClampMode clamp) {
   GXTexObj texObj;
   const auto wrap = static_cast<GXTexWrapMode>(clamp);
   GXInitTexObj(&texObj, image_ptr + offset, width, height, x18_gxFormat, wrap, wrap, false);
-  GXInitTexObjLOD(&texObj, GX_LINEAR, GX_LINEAR, 0.f, 1.f, 0.f, false, false, GX_ANISO_1);
+  GXInitTexObjLOD(&texObj, GX_LINEAR, GX_LINEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
   if (HasPalette()) {
     x10_graphicsPalette->Load();
     xa_25_canLoadPalette = false;
