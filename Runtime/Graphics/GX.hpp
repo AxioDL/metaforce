@@ -19,6 +19,9 @@ constexpr GXColor GX_CLEAR{0, 0, 0, 0};
 inline bool operator==(const GXColor& lhs, const GXColor& rhs) noexcept {
   return lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b && lhs.a == rhs.a;
 }
+inline bool operator!=(const GXColor& lhs, const GXColor& rhs) noexcept {
+  return !(lhs == rhs);
+}
 
 static inline void GXPosition3f32(const zeus::CVector3f& v) { GXPosition3f32(v.x(), v.y(), v.z()); }
 static inline void GXNormal3f32(const zeus::CVector3f& v) { GXNormal3f32(v.x(), v.y(), v.z()); }
