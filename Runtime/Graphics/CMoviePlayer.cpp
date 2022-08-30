@@ -547,7 +547,7 @@ void CMoviePlayer::DrawFrame(const zeus::CVector3f& v1, const zeus::CVector3f& v
   //  CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
   //  aurora::gfx::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0], tex.U, tex.V, hPad, vPad);
 
-  MyTHPGXYuv2RgbSetup(CGraphics::g_LastFrameUsedAbove, xf4_26_fieldFlip);
+  MyTHPGXYuv2RgbSetup(true /*CGraphics::g_LastFrameUsedAbove*/, xf4_26_fieldFlip);
   uintptr_t planeSize = x6c_videoInfo.width * x6c_videoInfo.height;
   uintptr_t planeSizeQuarter = planeSize / 4;
   MyTHPYuv2RgbTextureSetup(m_yuvBuf.get(), m_yuvBuf.get() + planeSize, m_yuvBuf.get() + planeSize + planeSizeQuarter,
