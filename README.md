@@ -79,7 +79,7 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
       ```
        * Optional Ubuntu 22.04+ packages (currently only needed for amuse-gui, can be ignored)
          ```
-         libqt6svg6-dev libqt6core5compat6-dev
+         libqt6svg6-dev libqt6core5compat6-dev qt6-tools-dev-tools
          ```
      * Arch Linux packages
        ```
