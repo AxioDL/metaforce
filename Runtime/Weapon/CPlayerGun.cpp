@@ -733,9 +733,11 @@ void CPlayerGun::ReturnToRestPose() {
 }
 
 void CPlayerGun::ResetIdle(CStateManager& mgr) {
+  CFidget::EState fidgetState = x3a4_fidget.GetState();
+  x370_gunMotionSpeedMult = 1.f;
   x550_camBob.SetState(CPlayerCameraBob::ECameraBobState::GunFireNoBob, mgr);
-  if (x3a4_fidget.GetState() != CFidget::EState::NoFidget) {
-    if (x3a4_fidget.GetState() == CFidget::EState::Loading)
+  if (fidgetState != CFidget::EState::NoFidget) {
+    if (fidgetState == CFidget::EState::Loading)
       UnLoadFidget();
     ReturnArmAndGunToDefault(mgr, true);
   }
@@ -1423,20 +1425,25 @@ void CPlayerGun::ActivateCombo(CStateManager& mgr) {
 }
 
 void CPlayerGun::ProcessChargeState(u32 releasedStates, u32 pressedStates, CStateManager& mgr, float dt) {
-  if ((releasedStates & 0x1) != 0)
+  if ((releasedStates & 0x1) != 0) {
     ResetCharged(dt, mgr);
+    return;
+  }
   if ((pressedStates & 0x1) != 0) {
     if (x32c_chargePhase == EChargePhase::NotCharging && (pressedStates & 0x1) != 0 &&
-        x348_chargeCooldownTimer == 0.f && x832_28_readyForShot) {
+        x348_chargeCooldownTimer == 0.f && x832_28_readyForShot == 1) {
       UpdateNormalShotCycle(dt, mgr);
       x32c_chargePhase = EChargePhase::ChargeRequested;
     }
-  } else if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::Missiles) && (pressedStates & 0x2) != 0) {
-    if (x32c_chargePhase >= EChargePhase::FxGrown) {
-      if (mgr.GetPlayerState()->HasPowerUp(skBeamComboArr[size_t(x310_currentBeam)]))
-        ActivateCombo(mgr);
-    } else if (x32c_chargePhase == EChargePhase::NotCharging) {
-      FireSecondary(dt, mgr);
+  } else {
+    const auto& state = mgr.GetPlayerState();
+    if (state->HasPowerUp(CPlayerState::EItemType::Missiles) && (pressedStates & 0x2) != 0) {
+      if (x32c_chargePhase >= EChargePhase::FxGrown) {
+        if (state->HasPowerUp(skBeamComboArr[size_t(x310_currentBeam)]))
+          ActivateCombo(mgr);
+      } else if (x32c_chargePhase == EChargePhase::NotCharging) {
+        FireSecondary(dt, mgr);
+      }
     }
   }
 }
@@ -1473,12 +1480,18 @@ void CPlayerGun::UpdateNormalShotCycle(float dt, CStateManager& mgr) {
 }
 
 void CPlayerGun::ProcessNormalState(u32 releasedStates, u32 pressedStates, CStateManager& mgr, float dt) {
-  if ((releasedStates & 0x1) != 0)
+  if ((releasedStates & 0x1) != 0) {
     ResetNormal(mgr);
-  if ((pressedStates & 0x1) != 0 && x348_chargeCooldownTimer == 0.f && x832_28_readyForShot)
+    return;
+  }
+
+  if ((pressedStates & 0x1) != 0 && x348_chargeCooldownTimer == 0.f && x832_28_readyForShot == 1) {
     UpdateNormalShotCycle(dt, mgr);
-  else if ((pressedStates & 0x2) != 0)
+    return;
+  }
+  if ((pressedStates & 0x2) != 0) {
     FireSecondary(dt, mgr);
+  }
 }
 
 void CPlayerGun::UpdateWeaponFire(float dt, const CPlayerState& playerState, CStateManager& mgr) {
