@@ -73,7 +73,7 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
     if (x26c_lifeTime < 2.f) {
       alpha = 1.f - (x26c_lifeTime / x270_curTime);
     } else if ((x26c_lifeTime - x270_curTime) < 2.f) {
-      alpha = (x26c_lifeTime - x270_curTime) * 0.5f;
+      alpha = (x26c_lifeTime - x270_curTime) / 2.f;
     }
 
     drawFlags = CModelFlags(5, 0, 1, zeus::CColor(1.f, alpha));
@@ -163,7 +163,7 @@ void CScriptPickup::Touch(CActor& act, CStateManager& mgr) {
     if (x258_itemType == CPlayerState::EItemType::PowerBombs &&
         g_GameState->SystemOptions().GetShowPowerBombAmmoMessage()) {
       g_GameState->SystemOptions().IncrementPowerBombAmmoCount();
-      MP1::CSamusHud::DisplayHudMemo(g_MainStringTable->GetString(109), {0.5f, true, false, false});
+      MP1::CSamusHud::DisplayHudMemo(g_MainStringTable->GetString(109), {5.f, true, false, false});
     }
   }
 }
