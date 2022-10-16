@@ -384,7 +384,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
         break;
       }
       ERumbleFxId rumbFx = fxTranslation[rumbFxIdx];
-      uint param3 = x104_float3;
+      u32 param3 = x104_float3;
       if ((param3 & 1) != 0) {
         mgr.GetRumbleManager().Rumble(mgr, rumbFx, 1.f, ERumblePriority::One);
       } else {
