@@ -35,6 +35,9 @@ void CScriptTimer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CS
       StartTiming(true);
     } else if (msg == EScriptObjectMessage::Reset) {
       Reset(stateMgr);
+      if (x41_autoStart) {
+        StartTiming(true);
+      }
     } else if (msg == EScriptObjectMessage::StopAndReset) {
       Reset(stateMgr);
       StartTiming(false);
