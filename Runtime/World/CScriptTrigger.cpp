@@ -233,8 +233,10 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
     auto testFlags = ETriggerFlags::None;
     const TCastToPtr<CPlayer> pl(act);
     if (pl) {
-      if (x128_forceMagnitude > 0.f && True(x12c_flags & ETriggerFlags::DetectPlayer) &&
-          mgr.GetLastTriggerId() == kInvalidUniqueId) {
+      if (x128_forceMagnitude > 0.f && True(x12c_flags & ETriggerFlags::DetectPlayer)) {
+        if (mgr.GetLastTriggerId() != kInvalidUniqueId) {
+          return;
+        }
         mgr.SetLastTriggerId(x8_uid);
       }
 
