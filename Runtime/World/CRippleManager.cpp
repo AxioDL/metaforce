@@ -38,7 +38,8 @@ void CRippleManager::AddRipple(const CRipple& ripple) {
 
   if (oldestRipple != x4_ripples.end()) {
     *oldestRipple = ripple;
-    x0_maxTimeFalloff = std::max(x0_maxTimeFalloff, ripple.GetTimeFalloff());
+    oldestRipple->SetTime(0.f);
+    SetMaxTimeFalloff(std::max(GetMaxTimeFalloff(), ripple.GetTimeFalloff()));
   }
 }
 
