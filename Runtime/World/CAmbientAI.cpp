@@ -29,31 +29,36 @@ void CAmbientAI::Think(float dt, CStateManager& mgr) {
   if (!GetActive())
     return;
 
-  if (GetModelData() && GetModelData()->GetAnimationData()) {
-    bool hasAnimTime = GetModelData()->GetAnimationData()->IsAnimTimeRemaining(dt - FLT_EPSILON, "Whole Body"sv);
+  if (GetModelData() && GetModelData()->GetAnimationData() != nullptr) {
+    bool hasAnimTime = GetModelData()->GetAnimationData()->IsAnimTimeRemaining(
+        dt - FLT_EPSILON, "Whole Body"sv);
     bool isLooping = GetModelData()->GetIsLoop();
 
     if (hasAnimTime || isLooping) {
       x2e8_25_animating = true;
-      SAdvancementDeltas deltas = UpdateAnimation(dt, mgr, x2e8_25_animating);
+      SAdvancementDeltas deltas = UpdateAnimation(dt, mgr, true);
       MoveToOR(deltas.x0_posDelta, dt);
       RotateToOR(deltas.xc_rotDelta, dt);
     }
 
-    if (!hasAnimTime || (x2e8_25_animating && !isLooping)) {
+    if (hasAnimTime) {
+    } else if (x2e8_25_animating && !isLooping) {
       SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
       x2e8_25_animating = false;
     }
   }
 
-  bool inAlertRange = (mgr.GetPlayer().GetTranslation() - GetTranslation()).magnitude() < x2d4_alertRange;
-  bool inImpactRange = (mgr.GetPlayer().GetTranslation() - GetTranslation()).magnitude() < x2d8_impactRange;
+  bool inAlertRange =
+      (mgr.GetPlayer().GetTranslation() - GetTranslation()).magnitude() < x2d4_alertRange;
+  bool inImpactRange =
+      (mgr.GetPlayer().GetTranslation() - GetTranslation()).magnitude() < x2d8_impactRange;
 
   switch (x2d0_animState) {
   case EAnimationState::Ready: {
     if (inAlertRange) {
       x2d0_animState = EAnimationState::Alert;
-      GetModelData()->GetAnimationData()->SetAnimation(CAnimPlaybackParms(x2e0_alertAnim, -1, 1.f, true), false);
+      GetModelData()->GetAnimationData()->SetAnimation(CAnimPlaybackParms(x2e0_alertAnim, -1, 1.f, true),
+                                                 false);
       GetModelData()->EnableLooping(true);
       RandomizePlaybackRate(mgr);
     }
@@ -62,11 +67,13 @@ void CAmbientAI::Think(float dt, CStateManager& mgr) {
   case EAnimationState::Alert: {
     if (!inAlertRange) {
       x2d0_animState = EAnimationState::Ready;
-      GetModelData()->GetAnimationData()->SetAnimation(CAnimPlaybackParms(x2dc_defaultAnim, -1, 1.f, true), false);
+      GetModelData()->GetAnimationData()->SetAnimation(
+          CAnimPlaybackParms(x2dc_defaultAnim, -1, 1.f, true), false);
       GetModelData()->EnableLooping(true);
       RandomizePlaybackRate(mgr);
     } else if (inImpactRange) {
       SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
+      RemoveEmitter();
       SetActive(false);
     }
     break;
@@ -74,7 +81,8 @@ void CAmbientAI::Think(float dt, CStateManager& mgr) {
   case EAnimationState::Impact: {
     if (!x2e8_25_animating) {
       x2d0_animState = EAnimationState::Ready;
-      GetModelData()->GetAnimationData()->SetAnimation(CAnimPlaybackParms(x2dc_defaultAnim, -1, 1.f, true), false);
+      GetModelData()->GetAnimationData()->SetAnimation(
+          CAnimPlaybackParms(x2dc_defaultAnim, -1, 1.f, true), false);
       GetModelData()->EnableLooping(true);
       RandomizePlaybackRate(mgr);
     }
@@ -82,14 +90,15 @@ void CAmbientAI::Think(float dt, CStateManager& mgr) {
   }
   }
 
-  if (!x2e8_24_dead) {
-    CHealthInfo* hInfo = HealthInfo(mgr);
-    if (hInfo->GetHP() <= 0.f) {
-      x2e8_24_dead = true;
-      SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
-      RemoveEmitter();
-      SetActive(false);
-    }
+  if (x2e8_24_dead) {
+    return;
+  }
+  CHealthInfo* hInfo = HealthInfo(mgr);
+  if (hInfo->GetHP() <= 0.f) {
+    x2e8_24_dead = true;
+    SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
+    RemoveEmitter();
+    SetActive(false);
   }
 }
 
@@ -106,6 +115,9 @@ void CAmbientAI::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     x260_healthInfo = x258_initialHealthInfo;
     break;
   }
+  case EScriptObjectMessage::InitializedInArea:
+    RandomizePlaybackRate(mgr);
+    break;
   case EScriptObjectMessage::Damage: {
     if (GetActive()) {
       x2d0_animState = EAnimationState::Impact;
@@ -115,9 +127,6 @@ void CAmbientAI::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     }
     break;
   }
-  case EScriptObjectMessage::InitializedInArea:
-    RandomizePlaybackRate(mgr);
-    break;
   default:
     break;
   }
