@@ -83,18 +83,19 @@ void CVisorFlare::Render(const zeus::CVector3f& pos, const CStateManager& mgr) c
   }
   SCOPED_GRAPHICS_DEBUG_GROUP("CVisorFlare::Render", zeus::skGrey);
 
-  u32 type;
-  const auto visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
-  if (visor == CPlayerState::EPlayerVisor::Thermal) {
-    type = x2c_w1;
-  } else if (visor == CPlayerState::EPlayerVisor::XRay) {
+  switch (mgr.GetPlayerState()->GetActiveVisor(mgr)) {
+  case CPlayerState::EPlayerVisor::Combat:
+    if (x30_w2 != 0)
+      return;
+    break;
+  case CPlayerState::EPlayerVisor::Thermal:
+    if (x2c_w1 != 0)
+      return;
+    break;
+  default:
     return;
-  } else {
-    type = x30_w2;
   }
-  if (type != 0) {
-    return;
-  }
+
 
   CGraphics::DisableAllLights();
   g_Renderer->SetDepthReadWrite(false, false);
