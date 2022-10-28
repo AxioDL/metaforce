@@ -209,7 +209,7 @@ pas::EAnimationState CBSDie::UpdateBody(float dt, CBodyController& bc, CStateMan
 void CBSFall::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCKnockDownCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown));
   zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetHitDirection());
-  zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.z());
+  zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.x());
   angle.makeRel();
   const CPASAnimParmData parms(pas::EAnimationState::Fall, CPASAnimParm::FromReal32(angle.asDegrees()),
                                CPASAnimParm::FromEnum(s32(cmd->GetHitSeverity())));
