@@ -1408,10 +1408,11 @@ pas::EAnimationState CBSScripted::GetBodyStateTransition(float dt, const CBodyCo
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Scripted)) {
     return pas::EAnimationState::Scripted;
   }
-  if (x4_24_loopAnim && bc.GetCommandMgr().GetCmd(EBodyStateCmd::ExitState)) {
-    return pas::EAnimationState::Locomotion;
-  }
-  if (bc.IsAnimationOver()) {
+  if (x4_24_loopAnim) {
+    if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::ExitState)) {
+      return pas::EAnimationState::Locomotion;
+    }
+  } else if (bc.IsAnimationOver()) {
     return pas::EAnimationState::Locomotion;
   }
   return pas::EAnimationState::Invalid;
