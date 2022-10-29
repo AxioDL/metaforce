@@ -87,7 +87,7 @@ void CMetaree::Flee(CStateManager& mgr, EStateMsg msg, float) {
     ApplyImpulseWR(5.f * (GetMass() * (x590_projectileDelta * zeus::CVector3f{1.f, 1.f, 0.f})), zeus::CAxisAngle());
 
     SetMomentumWR({0.f, 0.f, -GetGravityConstant() * GetMass()});
-    SetTranslation(GetTranslation());
+    SetTransform(zeus::CTransform::Translate(GetTranslation()));
     x5a8_ = 0;
   } else if (msg == EStateMsg::Update) {
     if (x5a8_ != 0) {
