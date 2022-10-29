@@ -152,7 +152,7 @@ class CRESineWave : public CRealElement {
 
 public:
   CRESineWave(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b, std::unique_ptr<CRealElement>&& c)
-  : x4_frequency(std::move(a)), x8_amplitude(std::move(b)), xc_phase(std::move(c)) {}
+  : x4_frequency(std::move(b)), x8_amplitude(std::move(c)), xc_phase(std::move(a)) {}
   bool GetValue(int frame, float& valOut) const override;
 };
 

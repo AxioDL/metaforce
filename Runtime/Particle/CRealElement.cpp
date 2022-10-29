@@ -71,10 +71,11 @@ bool CREConstant::GetValue([[maybe_unused]] int frame, float& valOut) const {
 bool CRETimeChain::GetValue(int frame, float& valOut) const {
   int v;
   xc_swFrame->GetValue(frame, v);
-  if (frame >= v)
-    return x8_b->GetValue(frame, valOut);
-  else
+  if (frame < v) {
     return x4_a->GetValue(frame, valOut);
+  } else {
+    return x8_b->GetValue(frame - v, valOut);
+  }
 }
 
 bool CREAdd::GetValue(int frame, float& valOut) const {
@@ -109,11 +110,11 @@ bool CREInitialRandom::GetValue(int frame, float& valOut) const {
 }
 
 bool CRERandom::GetValue(int frame, float& valOut) const {
-  float a, b;
-  x4_min->GetValue(frame, a);
-  x8_max->GetValue(frame, b);
-  float rand = CRandom16::GetRandomNumber()->Float();
-  valOut = b * rand + a * (1.0f - rand);
+  float min;
+  float max;
+  x4_min->GetValue(frame, min);
+  x8_max->GetValue(frame, max);
+  valOut = (max - min) * CRandom16::GetRandomNumber()->Float() + min;
   return false;
 }
 
@@ -177,10 +178,11 @@ bool CRESineWave::GetValue(int frame, float& valOut) const {
 }
 
 bool CREInitialSwitch::GetValue(int frame, float& valOut) const {
-  if (frame == 0)
-    x4_a->GetValue(frame, valOut);
-  else
-    x8_b->GetValue(frame, valOut);
+  if (frame == 0) {
+    x4_a->GetValue(0, valOut);
+  } else {
+    x8_b->GetValue(frame - 1, valOut);
+  }
   return false;
 }
 
@@ -199,7 +201,7 @@ bool CRECompareEquals::GetValue(int frame, float& valOut) const {
   float a, b;
   x4_a->GetValue(frame, a);
   x8_b->GetValue(frame, b);
-  if (std::fabs(a - b) < 0.00001f)
+  if (zeus::close_enough(a, b))
     xc_c->GetValue(frame, valOut);
   else
     x10_d->GetValue(frame, valOut);
