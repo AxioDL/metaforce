@@ -72,10 +72,11 @@ bool CCEFastConstant::GetValue([[maybe_unused]] int frame, zeus::CColor& valOut)
 bool CCETimeChain::GetValue(int frame, zeus::CColor& valOut) const {
   int v;
   xc_swFrame->GetValue(frame, v);
-  if (frame >= v)
-    return x8_b->GetValue(frame, valOut);
-  else
+  if (frame < v) {
     return x4_a->GetValue(frame, valOut);
+  } else {
+    return x8_b->GetValue(frame - v, valOut);
+  }
 }
 
 bool CCEFadeEnd::GetValue(int frame, zeus::CColor& valOut) const {
