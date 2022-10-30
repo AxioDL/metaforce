@@ -17,7 +17,7 @@ namespace metaforce::MP1 {
 
 constexpr std::array<SSphereJointInfo, 2> skSphereJoints{{
     {"Head_1", 1.5f},
-    {"Tail_1", 1.5f},
+    {"Tail_5", 1.5f},
 }};
 
 constexpr std::array<SOBBJointInfo, 13> skOBBJoints{{
