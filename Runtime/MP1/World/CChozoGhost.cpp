@@ -275,6 +275,9 @@ void CChozoGhost::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
           LaunchProjectile(xf, mgr, 5, EProjectileAttrib::DamageFalloff | EProjectileAttrib::StaticInterference, true,
                            {x640_projectileVisor}, x650_sound_ProjectileVisor, false, zeus::skOne3f);
       if (proj) {
+        if (GetProjectileInfo()->GetProjectileSpeed() > 0.f) {
+          proj->SetDamageFalloffSpeed(80.f / GetProjectileInfo()->GetProjectileSpeed());
+        }
         proj->AddAttrib(EProjectileAttrib::BigStrike);
         proj->SetDamageDuration(x62c_);
         proj->AddAttrib(EProjectileAttrib::StaticInterference);
