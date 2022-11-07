@@ -56,7 +56,7 @@ s32 CGSComboFire::SetAnim(CAnimData& data, s32 gunId, s32 loopState, CStateManag
     x0_delay = delay;
     x8_cueAnimId = anim.second;
   } else {
-    data.EnableLooping(loopState == 1);
+    data.EnableLooping(useLoopState == 1);
     CAnimPlaybackParms aparms(anim.second, -1, 1.f, true);
     data.SetAnimation(aparms, false);
   }
