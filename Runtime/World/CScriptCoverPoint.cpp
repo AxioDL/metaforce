@@ -75,7 +75,7 @@ float CScriptCoverPoint::GetSinSqVerticalAngle() const { return xf0_sinVerticalA
 void CScriptCoverPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, uid, mgr);
 
-  if (msg == EScriptObjectMessage::WorldInitialized) {
+  if (msg == EScriptObjectMessage::InitializedInArea) {
     for (const SConnection& con : x20_conns)
       if (con.x0_state == EScriptObjectState::Retreat) {
         xfc_retreating = mgr.GetIdForScript(con.x8_objId);

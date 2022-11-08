@@ -29,11 +29,11 @@ void CScriptShadowProjector::Think(float dt, CStateManager& mgr) {
     return;
   }
 
-  xfc_opacity = (x100_opacityRecip * xfc_opacity) - dt;
-  if (dt > 0.f) {
+  xfc_opacity = -(x100_opacityRecip * dt - xfc_opacity);
+  if (xfc_opacity > 0.f) {
     return;
   }
-
+  xfc_opacity = 0.f;
   x108_projectedShadow.reset();
 
   x110_25_shadowInvalidated = false;
@@ -50,41 +50,44 @@ void CScriptShadowProjector::CreateProjectedShadow() {
 
 void CScriptShadowProjector::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, uid, mgr);
-  if (msg == EScriptObjectMessage::Decrement) {
-    if (x110_24_persistent) {
-      return;
-    }
 
-    if (xfc_opacity <= 0.f) {
-      return;
-    }
-
-    x110_25_shadowInvalidated = true;
-  } else if (msg == EScriptObjectMessage::InitializedInArea) {
+  switch (msg) {
+  case EScriptObjectMessage::InitializedInArea:
     for (const SConnection& conn : x20_conns) {
       if (conn.x0_state != EScriptObjectState::Play) {
         continue;
       }
-
       const CActor* act = TCastToConstPtr<CActor>(mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId)));
-      if (!act) {
-        continue;
+      if (act) {
+        const CModelData* mData = act->GetModelData();
+        if (mData && (mData->GetAnimationData() || mData->HasNormalModel())) {
+          x104_target = act->GetUniqueId();
+          break;
+        }
       }
-
-      const CModelData* mData = act->GetModelData();
-      if (!mData || (!mData->GetAnimationData() && !mData->GetNormalModel())) {
-        continue;
-      }
-
-      x104_target = act->GetUniqueId();
     }
     if (x104_target == kInvalidUniqueId) {
       mgr.FreeScriptObject(GetUniqueId());
-    } else {
-      CreateProjectedShadow();
+      break;
     }
-  } else if (msg == EScriptObjectMessage::Activate) {
+    [[fallthrough]];
+  case EScriptObjectMessage::Deactivate:
+  case EScriptObjectMessage::Activate:
     CreateProjectedShadow();
+    break;
+
+  case EScriptObjectMessage::Decrement:
+    if (!GetActive()) {
+      return;
+    }
+
+    if (xfc_opacity > 0.f) {
+      x110_25_shadowInvalidated = true;
+    }
+    break;
+
+  default:
+    break;
   }
 }
 
