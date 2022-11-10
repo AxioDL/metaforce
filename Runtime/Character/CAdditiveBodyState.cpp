@@ -24,8 +24,8 @@ void CABSAim::Start(CBodyController& bc, CStateManager& mgr) {
   const CAnimData& animData = *bc.GetOwner().GetModelData()->GetAnimationData();
   x28_hWeight = -animData.GetAdditiveAnimationWeight(x8_anims[0]);
   x28_hWeight += animData.GetAdditiveAnimationWeight(x8_anims[1]);
-  x30_vWeight = -animData.GetAdditiveAnimationWeight(x8_anims[2]);
-  x30_vWeight += animData.GetAdditiveAnimationWeight(x8_anims[3]);
+  x30_vWeight = -animData.GetAdditiveAnimationWeight(x8_anims[3]);
+  x30_vWeight += animData.GetAdditiveAnimationWeight(x8_anims[2]);
 
   x4_needsIdle = false;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::AdditiveIdle))
