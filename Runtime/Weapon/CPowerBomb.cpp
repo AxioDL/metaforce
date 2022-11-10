@@ -28,7 +28,7 @@ CPowerBomb::CPowerBomb(const TToken<CGenDescription>& particle, TUniqueId uid, T
 , x164_radiusIncrement(dInfo.GetRadius() / 2.5f)
 , x168_particle(std::make_unique<CElementGen>(particle))
 , x16c_radius(dInfo.GetRadius()) {
-  x168_particle->SetGlobalTranslation(GetTranslation());
+  x168_particle->SetGlobalTranslation(xf.GetTranslation());
 }
 
 void CPowerBomb::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -36,15 +36,17 @@ void CPowerBomb::Accept(IVisitor& visitor) { visitor.Visit(this); }
 void CPowerBomb::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   if (msg == EScriptObjectMessage::Registered) {
     mgr.AddWeaponId(xec_ownerId, xf0_weaponType);
+    x110_origDamageInfo.SetRadius(0.f);
+
     if (mgr.GetPlayerState()->IsPlayerAlive()) {
       CSfxManager::AddEmitter(SFXsfx0710, GetTranslation(), {}, true, false, 0x7f, -1);
       mgr.InformListeners(GetTranslation(), EListenNoiseType::BombExplode);
     } else {
-      auto handle = CSfxManager::AddEmitter(SFXsfx073F, GetTranslation(), {}, true, false, 0x7f, -1);
+      auto handle = CSfxManager::SfxStart(SFXsfx073F, 0x7f, 0x40, false, 0xFF, false, -1);
       mgr.Player()->ApplySubmergedPitchBend(handle);
     }
   } else if (msg == EScriptObjectMessage::Deleted) {
-    if (x15c_curTime > 0.7f)
+    if (x15c_curTime <= 7.0f)
       mgr.GetCameraFilterPass(6).DisableFilter(0.f);
 
     mgr.RemoveWeaponId(xec_ownerId, xf0_weaponType);
