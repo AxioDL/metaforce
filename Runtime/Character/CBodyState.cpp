@@ -586,6 +586,7 @@ void CBSLoopAttack::Start(CBodyController& bc, CStateManager& mgr) {
   xc_25_advance = false;
 
   if (bc.GetLocomotionType() == pas::ELocomotionType::Crouch) {
+    x4_state = pas::ELoopState::Loop;
     const CPASAnimParmData parms(pas::EAnimationState::LoopAttack, CPASAnimParm::FromEnum(s32(x4_state)),
                                  CPASAnimParm::FromEnum(s32(x8_loopAttackType)));
     bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
