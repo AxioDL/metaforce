@@ -14,8 +14,10 @@ CGameCubeDoll::CGameCubeDoll() {
 }
 
 void CGameCubeDoll::UpdateActorLights() {
-  x8_lights[0] = CLight::BuildDirectional((zeus::skForward + zeus::skRight * 0.25f + zeus::skDown * 0.1f).normalized(),
-                                          zeus::skWhite);
+  // Game calculates that and does nothing
+  // (zeus::skForward + zeus::skRight * 0.25f + zeus::skDown * 0.1f).normalized();
+
+  x8_lights[0] = CLight::BuildDirectional(zeus::skForward, zeus::skWhite);
   x18_actorLights->BuildFakeLightList(x8_lights, zeus::CColor(0.25f, 1.f));
 }
 
@@ -38,6 +40,7 @@ void CGameCubeDoll::Draw(float alpha) {
                             zeus::CTransform::Scale(0.2f));
   CModelFlags flags(5, 0, 3, zeus::CColor(1.f, alpha * x1c_fader));
   x0_model->Draw(flags);
+  CGraphics::DisableAllLights();
 }
 
 void CGameCubeDoll::Touch() {
