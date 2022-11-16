@@ -256,8 +256,8 @@ jobs:
         include:
           - name: MSVC
             preset: msvc
-          - name: Clang
-            preset: clang
+          #- name: Clang
+          #  preset: clang
 
     steps:
       - uses: actions/checkout@v2
