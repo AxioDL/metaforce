@@ -28,7 +28,7 @@ CPowerBomb::CPowerBomb(const TToken<CGenDescription>& particle, TUniqueId uid, T
 , x164_radiusIncrement(dInfo.GetRadius() / 2.5f)
 , x168_particle(std::make_unique<CElementGen>(particle))
 , x16c_radius(dInfo.GetRadius()) {
-  x168_particle->SetGlobalTranslation(xf.GetTranslation());
+  x168_particle->SetGlobalTranslation(xf.origin); //.GetTranslation());
 }
 
 void CPowerBomb::Accept(IVisitor& visitor) { visitor.Visit(this); }

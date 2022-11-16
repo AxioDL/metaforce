@@ -475,7 +475,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
 }
 
 void CCameraManager::ThinkCameras(float dt, CStateManager& mgr) {
-  CGameCameraList gcList = mgr.GetCameraObjectList();
+  CGameCameraList& gcList = mgr.GetCameraObjectList();
 
   for (CEntity* ent : gcList) {
     if (const TCastToPtr<CGameCamera> gc = ent) {
