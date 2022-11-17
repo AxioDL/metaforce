@@ -67,8 +67,10 @@ void CSimpleShadow::Calculate(const zeus::CAABox& aabb, const zeus::CTransform& 
   }
 
   if (height > 0.1f + halfHeight) {
-    TUniqueId cid = kInvalidUniqueId;
     EntityList nearList;
+    mgr.BuildNearList(nearList, pos, zeus::skDown, x40_maxObjHeight, CMaterialFilter::MakeInclude(CMaterialList(EMaterialTypes::Floor)), nullptr);
+    
+    TUniqueId cid = kInvalidUniqueId;
     CRayCastResult resD = CGameCollision::RayDynamicIntersection(mgr, cid, pos, zeus::skDown, x40_maxObjHeight,
                                                                  CMaterialFilter::skPassEverything, nearList);
     if (resD.IsValid() && resD.GetT() < height) {

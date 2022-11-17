@@ -29,7 +29,7 @@ public:
   bool Valid() const { return x48_24_collision; }
   zeus::CAABox GetMaxShadowBox(const zeus::CAABox& aabb) const;
   zeus::CAABox GetBounds() const;
-  void SetAlwaysCalculateRadius(bool) { x48_25_alwaysCalculateRadius = true; }
+  void SetAlwaysCalculateRadius(bool b) { x48_25_alwaysCalculateRadius = b; }
   float GetMaxObjectHeight() const { return x40_maxObjHeight; }
   void SetUserAlpha(float a) { x38_userAlpha = a; }
   const zeus::CTransform& GetTransform() const { return x0_xf; }
