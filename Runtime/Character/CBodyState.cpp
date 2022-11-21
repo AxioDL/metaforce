@@ -716,7 +716,8 @@ void CBSLoopReaction::Start(CBodyController& bc, CStateManager& mgr) {
     x4_state = pas::ELoopState::Loop;
     const CPASAnimParmData loopParms(pas::EAnimationState::LoopReaction, CPASAnimParm::FromEnum(s32(x8_reactionType)),
                                      CPASAnimParm::FromEnum(s32(x4_state)));
-    bc.LoopBestAnimation(loopParms, *mgr.GetActiveRandom());
+    // Intentionally using parms instead of loopParms
+    bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
   }
 }
 
