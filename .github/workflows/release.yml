@@ -1,13 +1,14 @@
 name: Release
 
-on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - '*.json'
-      - '*.md'
-      - '*LICENSE'
+on: workflow_dispatch
+#on:
+#  push:
+#    branches:
+#      - main
+#    paths-ignore:
+#      - '*.json'
+#      - '*.md'
+#      - '*LICENSE'
 
 env:
   BUILDCACHE_VERSION: v0.27.3
