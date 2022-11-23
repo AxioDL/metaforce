@@ -1,21 +1,24 @@
-## Metaforce
-#### Formerly known as URDE
+## Metaforce [![Build Status]][actions] [![Discord Badge]][discord]
 
-**Status:** Metroid Prime 1 In-Game (all retail GC & Wii versions)
+[Build Status]: https://github.com/AxioDL/metaforce/actions/workflows/build.yml/badge.svg
+[actions]: https://github.com/AxioDL/metaforce/actions
+[Discord Badge]: https://dcbadge.vercel.app/api/server/AMBVFuf?style=flat
+[discord]: https://discord.gg/AMBVFuf
 
-**Official Discord Channel:** https://discord.gg/AMBVFuf
+A reverse-engineered, native reimplementation of Metroid Prime.
 
-![Metaforce screenshot](assets/metaforce-screen1.png)
-
-
-### Download
 This project is currently in **alpha** state.  
 Builds are currently unavailable while the project undergoes large changes.
 
+Separately, a [matching decompilation](https://github.com/PrimeDecomp/prime) of Metroid Prime is currently underway. Contributions are welcome.  
+Progress on the decompilation benefits Metaforce with bug fixes and new implementations.
+
+![Metaforce screenshot](assets/metaforce-screen1.png)
+
 ### Platform Support
-* Windows 10 (64-bit, D3D11 / Vulkan)
+* Windows 10+ (64-bit, D3D12 / Vulkan / OpenGL)
 * macOS 10.15+ (Metal)
-* Linux (Vulkan)
+* Linux (Vulkan / OpenGL)
     * Follow [this guide](https://github.com/lutris/docs/blob/master/InstallingDrivers.md) to set up Vulkan & appropriate drivers for your distro.
 
 ### Usage
