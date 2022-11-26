@@ -1413,7 +1413,7 @@ CFlaahgraPlants::CFlaahgraPlants(const TToken<CGenDescription>& genDesc, const C
   xe8_elementGen->SetOrientation(xf.getRotation());
   xe8_elementGen->SetTranslation(xf.origin);
   xe8_elementGen->SetModelsUseLights(true);
-  x110_aabox = {x130_obbox.calculateAABox(xf)};
+  x110_aabox = {x130_obbox.calculateAABox()};
 }
 
 void CFlaahgraPlants::Accept(IVisitor& visitor) { visitor.Visit(this); }
