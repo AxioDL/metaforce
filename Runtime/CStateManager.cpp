@@ -534,6 +534,8 @@ void CStateManager::BuildDynamicLightListForWorld() {
   }
 
   x8e0_dynamicLights.clear();
+  x8e0_dynamicLights.reserve(GetLightObjectList().size());
+
   for (const CEntity* ent : GetLightObjectList()) {
     const auto& light = static_cast<const CGameLight&>(*ent);
     if (light.GetActive()) {
@@ -543,7 +545,18 @@ void CStateManager::BuildDynamicLightListForWorld() {
       }
     }
   }
+  
+  std::sort(x8e0_dynamicLights.begin(), x8e0_dynamicLights.end(), [](const CLight& a, const CLight& b) {
+    if (b.GetPriority() > a.GetPriority()) {
+      return true;
+    } else if (b.GetPriority() == a.GetPriority()) {
+      return a.GetIntensity() > b.GetIntensity();
+    } else {
+      return false;
+    }
+  });
 }
+
 void CStateManager::DrawDebugStuff() const {
   if (com_developer != nullptr && !com_developer->toBoolean()) {
     return;

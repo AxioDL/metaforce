@@ -90,6 +90,7 @@ public:
 
   ELightType GetType() const { return x1c_type; }
   u32 GetId() const { return x40_lightId; }
+  u32 GetPriority() const { return x3c_priority; }
   float GetIntensity() const;
   float GetRadius() const;
   const zeus::CColor& GetColor() const { return x18_color; }
