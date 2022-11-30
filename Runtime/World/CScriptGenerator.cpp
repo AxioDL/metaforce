@@ -35,8 +35,11 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sende
       }
 
       const TUniqueId uid = stateMgr.GetIdForScript(conn.x8_objId);
-      if (stateMgr.GetObjectById(uid) != nullptr) {
-        follows.push_back(uid);
+      if (uid != kInvalidUniqueId) {
+        const CEntity* ent = stateMgr.GetObjectById(uid);
+        if (ent && ent->GetActive()) {
+          follows.push_back(uid);
+        }
       }
     }
 
@@ -82,6 +85,7 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sende
       for (u32 j = 0; j < activates.size(); ++j) {
         if (TCastToConstPtr<CScriptSound>(stateMgr.GetObjectById(activates[j].first))) {
           activatesRand = j;
+          break;
         }
       }
 
