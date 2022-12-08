@@ -51,6 +51,11 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view n
   if (xe8_function == ESpecialFunction::HUDTarget) {
     x1c8_touchBounds = {-1.f, 1.f};
   }
+  // Set this as internal archivable so it can be serialized if the player sets it in the configuration
+  m_cvRef.emplace(&m_canSkipCutscenes,
+                  CVarManager::instance()->findOrMakeCVar(
+                      "enableCutsceneSkip"sv, "Enable skipping of all cutscenes", false,
+                      CVar::EFlags::Cheat | CVar::EFlags::Game | CVar::EFlags::InternalArchivable));
 }
 
 void CScriptSpecialFunction::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -923,7 +928,7 @@ void CScriptSpecialFunction::ThinkSaveStation(float, CStateManager& mgr) {
 }
 
 void CScriptSpecialFunction::ThinkRainSimulator(float, CStateManager& mgr) {
-  if ((static_cast< float >(mgr.GetInputFrameIdx() % 3600)) / 3600.f < 0.5f) {
+  if ((static_cast<float>(mgr.GetInputFrameIdx() % 3600)) / 3600.f < 0.5f) {
     SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
   } else {
     SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
@@ -986,7 +991,7 @@ void CScriptSpecialFunction::ThinkPlayerInArea(float dt, CStateManager& mgr) {
 }
 
 bool CScriptSpecialFunction::ShouldSkipCinematic(CStateManager& stateMgr) const {
-  if (com_developer->toBoolean()) {
+  if (m_canSkipCutscenes) {
     return true;
   }
   return g_GameState->SystemOptions().GetCinematicState(stateMgr.GetWorld()->IGetWorldAssetId(), GetEditorId());

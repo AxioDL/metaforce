@@ -8,6 +8,8 @@
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CDamageInfo.hpp"
 
+#include "Runtime/ConsoleVariables/CVar.hpp"
+
 #include <zeus/CColor.hpp>
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
@@ -111,6 +113,9 @@ private:
   bool x1e5_25_playerInArea : 1 = false;
   bool x1e5_26_displayBillboard : 1 = false;
   TLockedToken<CTexture> x1e8_; // Used to be optional
+  std::optional<CVarValueReference<bool>> m_cvRef;
+  bool m_canSkipCutscenes = false;
+
 public:
   DEFINE_ENTITY
   CScriptSpecialFunction(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, ESpecialFunction,

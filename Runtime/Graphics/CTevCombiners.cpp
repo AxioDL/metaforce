@@ -99,8 +99,10 @@ bool SetPassCombiners(ERglTevStage stage, const CTevPass& pass) {
 }
 
 void RecomputePasses() {
-  sNumEnabledPasses = 1 - static_cast<int>(sValidPasses[maxTevPasses - 1]);
-  CGX::SetNumTevStages(sNumEnabledPasses);
+  u8 tmp = static_cast<u8>((sValidPasses[maxTevPasses - 1] != 0));
+  tmp++;
+  sNumEnabledPasses = tmp;
+  CGX::SetNumTevStages(tmp);
 }
 
 void ResetStates() {
