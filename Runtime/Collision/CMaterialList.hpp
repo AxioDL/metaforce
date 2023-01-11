@@ -124,13 +124,7 @@ public:
   constexpr bool HasMaterial(EMaterialTypes type) const noexcept { return (x0_list & (u64{1} << u64(type))) != 0; }
 
   constexpr bool SharesMaterials(const CMaterialList& other) const noexcept {
-    for (u32 i = 0; i < 64; i++) {
-      if ((x0_list & (u64{1} << i)) != 0 && (other.x0_list & (u64{1} << i)) != 0) {
-        return true;
-      }
-    }
-
-    return false;
+    return (other.x0_list & x0_list) ? true : false;
   }
 
   constexpr u64 Intersection(const CMaterialList& other) const noexcept { return other.x0_list & x0_list; }

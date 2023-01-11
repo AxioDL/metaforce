@@ -14,16 +14,19 @@ float CPlayerCameraBob::kMaxOrbitBobScale = 0.8f;
 float CPlayerCameraBob::kSlowSpeedPeriodScale = 0.3f;
 float CPlayerCameraBob::kTargetMagnitudeTrackingRate = 0.1f;
 float CPlayerCameraBob::kLandingBobSpringConstant = 150.f;
+float lbl_805A7398 = -30.f;
+float lbl_805A739C = -35.f;
 float CPlayerCameraBob::kLandingBobSpringConstant2 = 40.f;
-float CPlayerCameraBob::kViewWanderRadius = 2.9f;
+float lbl_805A73A4 = 80.f;
+float CPlayerCameraBob::kViewWanderRadius = 0.03f;
 float CPlayerCameraBob::kViewWanderSpeedMin = 0.1f;
 float CPlayerCameraBob::kViewWanderSpeedMax = 0.3f;
 float CPlayerCameraBob::kViewWanderRollVariation = 0.3f;
 float CPlayerCameraBob::kGunBobMagnitude = 0.3f;
 float CPlayerCameraBob::kHelmetBobMagnitude = 2.f;
-const float CPlayerCameraBob::kLandingBobDamping = 2.f * std::sqrt(150.f);
-const float CPlayerCameraBob::kLandingBobDamping2 = 4.f * std::sqrt(40.f);
-const float CPlayerCameraBob::kCameraDamping = 6.f * std::sqrt(80.f);
+const float CPlayerCameraBob::kLandingBobDamping = 2.f * std::sqrt(kLandingBobSpringConstant);
+const float CPlayerCameraBob::kLandingBobDamping2 = 4.f * std::sqrt(kLandingBobSpringConstant2);
+const float CPlayerCameraBob::kCameraDamping = 6.f * std::sqrt(lbl_805A73A4);
 
 CPlayerCameraBob::CPlayerCameraBob(ECameraBobType type, const zeus::CVector2f& vec, float bobPeriod)
 : x0_type(type), x4_vec(vec), xc_bobPeriod(bobPeriod) {
@@ -65,8 +68,8 @@ void CPlayerCameraBob::SetState(CPlayerCameraBob::ECameraBobState state, CStateM
   x24_curState = state;
   if (x20_oldState == ECameraBobState::InAir) {
     x28_applyLandingTrans = true;
-    x68_playerPeakFallVel = std::max(x68_playerPeakFallVel, -35.f);
-    x29_hardLand = x68_playerPeakFallVel < -30.f;
+    x68_playerPeakFallVel = std::max(x68_playerPeakFallVel, lbl_805A739C);
+    x29_hardLand = x68_playerPeakFallVel < lbl_805A7398;
     if (x29_hardLand)
       x74_camVelocity += x68_playerPeakFallVel;
     x6c_landingVelocity += x68_playerPeakFallVel;
@@ -130,7 +133,7 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr) {
 
     x6c_landingVelocity += dt * (-(landDampen * x6c_landingVelocity) - landSpring * x70_landingTranslation);
     x70_landingTranslation += x6c_landingVelocity * dt;
-    x74_camVelocity += dt * (-(kCameraDamping * x74_camVelocity) - 80.f * x78_camTranslation);
+    x74_camVelocity += dt * (-(kCameraDamping * x74_camVelocity) - lbl_805A73A4 * x78_camTranslation);
     x78_camTranslation += x74_camVelocity * dt;
 
     if (std::fabs(x6c_landingVelocity) < 0.005f && std::fabs(x70_landingTranslation) < 0.005f &&
