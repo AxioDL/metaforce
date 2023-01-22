@@ -294,6 +294,7 @@ void CVarManager::parseCommandLine(const std::vector<std::string>& args) {
         cv->fromLiteralToType(cvarValue);
       }
       cv->m_wasDeserialized = true;
+      cv->forceClearModified();
       CStringExtras::ToLower(cvarName);
       if (developerName == cvarName)
         /* Make sure we're not overriding developer mode when we restore */
@@ -301,7 +302,10 @@ void CVarManager::parseCommandLine(const std::vector<std::string>& args) {
     } else {
       /* Unable to find an existing CVar, let's defer for the time being 8 */
       CStringExtras::ToLower(cvarName);
-      m_deferedCVars.insert_or_assign(std::move(cvarName), std::move(cvarValue));
+      if (cvarValue.empty()) {
+        cvarValue = "true";
+      }
+      m_deferedCVars.insert(std::make_pair<std::string, std::string>(std::move(cvarName), std::move(cvarValue)));
     }
   }
 

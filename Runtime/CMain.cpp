@@ -490,10 +490,9 @@ int main(int argc, char** argv) {
   do {
     metaforce::CVarManager cvarMgr{fileMgr};
     metaforce::CVarCommons cvarCmns{cvarMgr};
+    cvarMgr.parseCommandLine(args);
 
     if (!restart) {
-      cvarMgr.parseCommandLine(args);
-
       // TODO add clear loggers func to logvisor so we can recreate loggers on restart
       bool logging = IsClientLoggingEnabled(argc, argv);
 #if _WIN32
