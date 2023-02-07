@@ -58,7 +58,7 @@ void CExplosion::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
   CActor::AcceptScriptMsg(msg, sender, mgr);
 
   if (xec_explosionLight != kInvalidUniqueId)
-    mgr.SendScriptMsgAlways(sender, xec_explosionLight, msg);
+    mgr.SendScriptMsgAlways(xec_explosionLight, sender, msg);
 }
 
 void CExplosion::Think(float dt, CStateManager& mgr) {
