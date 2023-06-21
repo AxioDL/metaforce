@@ -3704,7 +3704,7 @@ CEntity* ScriptLoader::LoadMetroidPrimeStage1(CStateManager& mgr, CInputStream& 
   CHealthInfo hInfo1(in);
   CHealthInfo hInfo2(in);
   u32 w3 = in.ReadLong();
-  rstl::reserved_vector<MP1::SPrimeExoRoomParameters, 4> roomParms;
+  rstl::reserved_vector<MP1::CMetroidPrimeAttackWeights, 4> roomParms;
   for (int i = 0; i < 4; ++i)
     roomParms.emplace_back(in);
   u32 w4 = in.ReadLong();

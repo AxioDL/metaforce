@@ -161,7 +161,7 @@ public:
   bool IsElitePirate() const override { return false; }
   void SetupHealthInfo(CStateManager& mgr) override;
   void SetLaunchersActive(CStateManager& mgr, bool val) override;
-  SShockWaveData GetShockWaveData() const override {
+  CShockWaveInfo GetShockWaveData() const override {
     return {GetData().GetShockwaveParticleDescId(), GetData().GetShockwaveDamageInfo(), 24.78255f,
             GetData().GetShockwaveWeaponDescId(), GetData().GetShockwaveElectrocuteSfxId()};
   }

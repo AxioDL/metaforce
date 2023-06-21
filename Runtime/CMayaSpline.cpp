@@ -222,7 +222,7 @@ float CMayaSpline::EvaluateAtUnclamped(float time) {
     }
     return EvaluateInfinities(time, true);
   } else if (x8_knots[lastIdx].GetTime() >= time) {
-    bool bVar2 = false;
+    bVar2 = false;
     s32 local_68 = -1;
     s32 iVar1 = x24_chachedKnotIndex;
     if (iVar1 != -1) {

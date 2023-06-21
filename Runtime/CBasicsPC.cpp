@@ -360,4 +360,18 @@ void CBasics::MakeDir(const char* dir) {
 #endif
 }
 
+bool CBasics::IsDir(const char* path) {
+  Sstat  theStat;
+  Stat(path, &theStat);
+
+  return S_ISDIR(theStat.st_mode);
+}
+
+bool CBasics::IsFile(const char* path) {
+  Sstat  theStat;
+  Stat(path, &theStat);
+
+  return S_ISREG(theStat.st_mode);
+}
+
 } // namespace metaforce

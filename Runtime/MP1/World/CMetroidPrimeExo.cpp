@@ -271,7 +271,7 @@ SPrimeExoParameters::SPrimeExoParameters(CInputStream& in)
 , xa28_particle4(in.Get<CAssetId>())
 , xa2c_(LoadPrimeStruct6s(in)) {}
 
-SPrimeExoRoomParameters::SPrimeExoRoomParameters(CInputStream& in) {
+CMetroidPrimeAttackWeights::CMetroidPrimeAttackWeights(CInputStream& in) {
   u32 propCount = std::min(14, in.ReadLong());
   for (u32 i = 0; i < propCount; ++i) {
     x0_.push_back(in.ReadFloat());
@@ -1292,7 +1292,7 @@ void CMetroidPrimeExo::sub802759a8(CStateManager& mgr, u32 w1) {
   }
 }
 
-float CMetroidPrimeExo::sub80275b04(const SPrimeExoRoomParameters& roomParms, int w2) {
+float CMetroidPrimeExo::sub80275b04(const CMetroidPrimeAttackWeights& roomParms, int w2) {
   float dVar1 = 0.f;
   if (!zeus::close_enough(0.f, x1258_[w2])) {
     const float tmpFloat = roomParms.GetFloatValue(w2);

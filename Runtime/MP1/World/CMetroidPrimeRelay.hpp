@@ -26,7 +26,7 @@ class CMetroidPrimeRelay : public CEntity {
   u32 xcac_w3;
   u32 xcb0_w4;
   u32 xcb4_w5;
-  rstl::reserved_vector<SPrimeExoRoomParameters, 4> xcb8_roomParms;
+  rstl::reserved_vector<CMetroidPrimeAttackWeights, 4> xcb8_roomParms;
 
   void ForwardMessageToMetroidPrimeExo(EScriptObjectMessage msg, CStateManager& mgr);
   void GetOrBuildMetroidPrimeExo(CStateManager& mgr);
@@ -36,7 +36,7 @@ public:
   CMetroidPrimeRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
                      const zeus::CTransform& xf, const zeus::CVector3f& scale, SPrimeExoParameters&& parms, float f1,
                      float f2, float f3, u32 w1, bool b1, u32 w2, const CHealthInfo& hInfo1, const CHealthInfo& hInfo2,
-                     u32 w3, u32 w4, u32 w5, rstl::reserved_vector<SPrimeExoRoomParameters, 4>&& roomParms);
+                     u32 w3, u32 w4, u32 w5, rstl::reserved_vector<CMetroidPrimeAttackWeights, 4>&& roomParms);
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   [[nodiscard]] TUniqueId GetMetroidPrimeExoId() const { return x34_mpUid; }
@@ -52,7 +52,7 @@ public:
   [[nodiscard]] u32 Get_xcac() const { return xcac_w3; }
   [[nodiscard]] u32 Get_xcb0() const { return xcb0_w4; }
   [[nodiscard]] u32 Get_xcb4() const { return xcb4_w5; }
-  [[nodiscard]] rstl::reserved_vector<SPrimeExoRoomParameters, 4> GetRoomParameters() const { return xcb8_roomParms; }
+  [[nodiscard]] rstl::reserved_vector<CMetroidPrimeAttackWeights, 4> GetRoomParameters() const { return xcb8_roomParms; }
 };
 
 } // namespace metaforce::MP1

@@ -179,7 +179,7 @@ void CMetroidPrimeEssence::DoUserAnimEvent(CStateManager& mgr, const CInt32POINo
 
   switch (type) {
   case EUserEventType::EggLay: {
-    if (x70e_29_ && x6d8_ != 0 && x6e4_ < x6f8_) {
+    if (x70e_29_ && x6d8_ != 0 && x6e4_spawnedAiCount < x6f8_maxSpawnedCount) {
       const float ang1 = zeus::degToRad(22.5f) * mgr.GetActiveRandom()->Range(-1, 1);
       const float ang2 = zeus::degToRad(45.0f) * mgr.GetActiveRandom()->Range(-1, 1);
       zeus::CVector3f pos =
@@ -203,9 +203,9 @@ void CMetroidPrimeEssence::DoUserAnimEvent(CStateManager& mgr, const CInt32POINo
     return;
   }
   case EUserEventType::BeginAction: {
-    SShockWaveData data(x660_, x698_, 2.f, x664_, x70c_);
+    CShockWaveInfo data(x660_, x698_, 2.f, x664_, x70c_);
     data.SetSpeedIncrease(180.f);
-    DropShockwave(mgr, data);
+    CreateShockWave(mgr, data);
     ShakeCamera(mgr, 1.f);
     return;
   }
@@ -290,7 +290,7 @@ void CMetroidPrimeEssence::Skid(CStateManager& mgr, EStateMsg msg, float dt) {
 
 void CMetroidPrimeEssence::FadeIn(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
-    x6f8_ = sub8027d428();
+    x6f8_maxSpawnedCount = GetMaxSpawnCount(mgr);
     x32c_animState = EAnimState::Ready;
     x70e_24_ = true;
   } else if (msg == EStateMsg::Update) {
@@ -537,7 +537,7 @@ void CMetroidPrimeEssence::ShakeCamera(CStateManager& mgr, float f1) {
   mgr.GetCameraManager()->AddCameraShaker(CCameraShakeData(0.5f, mag), true);
 }
 
-void CMetroidPrimeEssence::DropShockwave(CStateManager& mgr, const SShockWaveData& shockWaveData) {
+void CMetroidPrimeEssence::CreateShockWave(CStateManager& mgr, const CShockWaveInfo& shockWaveData) {
   CRayCastResult res = RayStaticIntersection(mgr);
   if (res.IsInvalid()) {
     return;
@@ -616,7 +616,7 @@ void CMetroidPrimeEssence::CountListeningAi(CStateManager& mgr) {
   for (auto* ent : mgr.GetListeningAiObjectList()) {
     if (TCastToPtr<CPatterned> ai = ent) {
       if (ai != this && ai->GetActive() && ai->GetAreaIdAlways() == GetAreaIdAlways()) {
-        ++x6e4_;
+        ++x6e4_spawnedAiCount;
       }
     }
   }

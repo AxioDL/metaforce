@@ -14,7 +14,7 @@
 
 namespace metaforce::MP1 {
 CShockWave::CShockWave(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
-                       TUniqueId parent, const SShockWaveData& data, float minActiveTime, float knockback)
+                       TUniqueId parent, const CShockWaveInfo& data, float minActiveTime, float knockback)
 : CActor(uid, true, name, info, xf, CModelData::CModelDataNull(), {EMaterialTypes::Projectile},
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_parentId(parent)
@@ -148,7 +148,7 @@ void CShockWave::Touch(CActor& actor, CStateManager& mgr) {
   if (isPlayer && (x164_timeSinceHitPlayerInAir >= 0.1333f || x168_timeSinceHitPlayer >= 0.2666f)) {
     return;
   }
-  if (!IsHit(actor.GetUniqueId())) {
+  if (!WasAlreadyDamaged(actor.GetUniqueId())) {
     mgr.ApplyDamage(GetUniqueId(), actor.GetUniqueId(), GetUniqueId(), damageInfo,
                     CMaterialFilter::MakeInclude({EMaterialTypes::Solid}), zeus::skZero3f);
     if (isPlayer && x974_electricDesc) {
@@ -172,7 +172,7 @@ void CShockWave::Touch(CActor& actor, CStateManager& mgr) {
   }
 }
 
-bool CShockWave::IsHit(TUniqueId id) const {
+bool CShockWave::WasAlreadyDamaged(TUniqueId id) const {
   return std::find(x170_hitIds.begin(), x170_hitIds.end(), id) != x170_hitIds.end();
 }
 } // namespace metaforce::MP1

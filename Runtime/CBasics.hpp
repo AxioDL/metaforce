@@ -66,6 +66,8 @@ public:
   static void Swap8Bytes(u8* v);
   static int RecursiveMakeDir(const char* dir);
   static void MakeDir(const char* dir);
+  static bool IsDir(const char* path);
+  static bool IsFile(const char* path);
   static int Stat(const char* path, Sstat* statOut);
 };
 

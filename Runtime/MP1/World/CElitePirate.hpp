@@ -196,7 +196,7 @@ public:
   virtual bool IsElitePirate() const { return true; }
   virtual void SetupHealthInfo(CStateManager& mgr);
   virtual void SetLaunchersActive(CStateManager& mgr, bool val);
-  virtual SShockWaveData GetShockWaveData() const {
+  virtual CShockWaveInfo GetShockWaveData() const {
     return {x5d8_data.GetShockwaveParticleDescId(), x5d8_data.GetShockwaveDamageInfo(), 16.5217f,
             x5d8_data.GetShockwaveWeaponDescId(), x5d8_data.GetShockwaveElectrocuteSfxId()};
   }
