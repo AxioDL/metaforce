@@ -2,10 +2,6 @@
 	path = extern/nod
 	url = ../nod.git
 	branch = master
-[submodule "extern/amuse"]
-	path = extern/amuse
-	url = ../amuse.git
-	branch = master
 [submodule "extern/kabufuda"]
 	path = extern/kabufuda
 	url = ../kabufuda.git

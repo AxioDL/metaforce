@@ -90,10 +90,9 @@ constexpr std::array<AudioGroupInfo, 5> StaticAudioGroups{{
 }};
 } // Anonymous namespace
 
-CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine,
-                                                   amuse::IBackendVoiceAllocator& backend)
+CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent)
 : m_parent(parent)
-, x0_audioSys(voiceEngine, backend, 0, 0, 0, 0, 0)
+, x0_audioSys(0, 0, 0, 0, 0)
 , x30_inputGenerator(/*osCtx, */ g_tweakPlayer->GetLeftLogicalThreshold(), g_tweakPlayer->GetRightLogicalThreshold())
 , x44_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero) {
   auto* m = static_cast<CMain*>(g_Main);
@@ -506,8 +505,7 @@ void CMain::HandleDiscordErrored(int errorCode, const char* message) {
   DiscordLog.report(logvisor::Error, FMT_STRING("Discord Error: {}"), message);
 }
 
-std::string CMain::Init(int argc, char** argv, const FileStoreManager& storeMgr, CVarManager* cvarMgr,
-                        boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) {
+std::string CMain::Init(int argc, char** argv, const FileStoreManager& storeMgr, CVarManager* cvarMgr) {
   m_cvarMgr = cvarMgr;
 
   {
@@ -642,7 +640,7 @@ std::string CMain::Init(int argc, char** argv, const FileStoreManager& storeMgr,
   }
 
   FillInAssetIDs();
-  x164_archSupport = std::make_unique<CGameArchitectureSupport>(*this, voiceEngine, backend);
+  x164_archSupport = std::make_unique<CGameArchitectureSupport>(*this);
   g_archSupport = x164_archSupport.get();
   x164_archSupport->PreloadAudio();
   std::srand(static_cast<u32>(CBasics::GetTime()));

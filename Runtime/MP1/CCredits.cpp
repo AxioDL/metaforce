@@ -109,20 +109,20 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
   }
   case 1: {
     if (!x28_) {
-      x28_ = std::make_unique<CMoviePlayer>("Video/creditBG.thp", 0.f, true, true);
+      //x28_ = std::make_unique<CMoviePlayer>("Video/creditBG.thp", 0.f, true, true);
     }
     x14_ = 2;
     break;
   }
   case 2: {
     if (!x2c_) {
-      x2c_ = std::make_unique<CStaticAudioPlayer>("Audio/ending3.rsf", 0, 0x5d7c00);
+      //x2c_ = std::make_unique<CStaticAudioPlayer>("Audio/ending3.rsf", 0, 0x5d7c00);
     }
     if (!x2c_->IsReady()) {
       return EMessageReturn::Exit;
     }
     x2c_->SetVolume(1.f);
-    x2c_->StartMixing();
+    //x2c_->StartMixing();
     x14_ = 3;
   }
     [[fallthrough]];

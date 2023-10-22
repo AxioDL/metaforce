@@ -3,7 +3,7 @@
 #include <cstring>
 
 namespace metaforce {
-
+/*
 amuse::AudioGroupData CAudioGroupSet::LoadData() {
   const auto readU32 = [](const u8* ptr) {
     uint32_t value;
@@ -30,8 +30,8 @@ amuse::AudioGroupData CAudioGroupSet::LoadData() {
 
   return {proj, projLen, pool, poolLen, sdir, sdirLen, samp, sampLen, amuse::GCNDataTag{}};
 }
-
-CAudioGroupSet::CAudioGroupSet(std::unique_ptr<u8[]>&& in) : m_buffer(std::move(in)), m_data(LoadData()) {}
+*/
+CAudioGroupSet::CAudioGroupSet(std::unique_ptr<u8[]>&& in) : m_buffer(std::move(in)) {}
 
 CFactoryFnReturn FAudioGroupSetDataFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
                                            const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef) {

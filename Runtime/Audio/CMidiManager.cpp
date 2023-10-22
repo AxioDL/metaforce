@@ -12,14 +12,14 @@ void CMidiManager::StopAll() {
 }
 
 void CMidiManager::Stop(const CMidiHandle& handle, float fadeTime) {
-  handle->GetAudioSysHandle()->stopSong(fadeTime);
-  m_MidiWrappers.erase(handle);
+//  handle->GetAudioSysHandle()->stopSong(fadeTime);
+//  m_MidiWrappers.erase(handle);
 }
 
 std::unordered_set<CMidiHandle>::iterator CMidiManager::Stop(std::unordered_set<CMidiHandle>::iterator handle,
                                                              float fadeTime) {
-  const CMidiHandle& h = *handle;
-  h->GetAudioSysHandle()->stopSong(fadeTime);
+//  const CMidiHandle& h = *handle;
+//  h->GetAudioSysHandle()->stopSong(fadeTime);
   return m_MidiWrappers.erase(handle);
 }
 
@@ -29,10 +29,10 @@ CMidiHandle CMidiManager::Play(const CMidiData& data, float fadeTime, bool stopE
       it = Stop(it, fadeTime);
 
   CMidiHandle handle = *m_MidiWrappers.insert(std::make_shared<CMidiWrapper>()).first;
-  handle->SetAudioSysHandle(
-      CAudioSys::GetAmuseEngine().seqPlay(data.GetGroupId(), data.GetSetupId(), data.GetArrData()));
-  handle->GetAudioSysHandle()->setVolume(volume, fadeTime);
-  handle->SetSongId(data.GetSetupId());
+//  handle->SetAudioSysHandle(
+//      CAudioSys::GetAmuseEngine().seqPlay(data.GetGroupId(), data.GetSetupId(), data.GetArrData()));
+//  handle->GetAudioSysHandle()->setVolume(volume, fadeTime);
+//  handle->SetSongId(data.GetSetupId());
   return handle;
 }
 

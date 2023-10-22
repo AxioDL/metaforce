@@ -9,7 +9,7 @@
 #include "Runtime/ConsoleVariables/FileStoreManager.hpp"
 #include "Runtime/ConsoleVariables/CVarManager.hpp"
 #include "Runtime/CInfiniteLoopDetector.hpp"
-#include "amuse/BooBackend.hpp"
+//#include "amuse/BooBackend.hpp"
 
 #include "logvisor/logvisor.hpp"
 
@@ -160,8 +160,8 @@ private:
 
   std::string m_deferredProject;
   bool m_projectInitialized = false;
-  std::optional<amuse::BooBackendVoiceAllocator> m_amuseAllocWrapper;
-  std::unique_ptr<boo::IAudioVoiceEngine> m_voiceEngine;
+  //std::optional<amuse::BooBackendVoiceAllocator> m_amuseAllocWrapper;
+  //std::unique_ptr<boo::IAudioVoiceEngine> m_voiceEngine;
 
   Limiter m_limiter{};
 
@@ -190,9 +190,9 @@ public:
     VISetWindowTitle(
         fmt::format(FMT_STRING("Metaforce {} [{}]"), METAFORCE_WC_DESCRIBE, backend_name(info.backend)).c_str());
 
-    m_voiceEngine = boo::NewAudioVoiceEngine("metaforce", "Metaforce");
-    m_voiceEngine->setVolume(0.7f);
-    m_amuseAllocWrapper.emplace(*m_voiceEngine);
+//    m_voiceEngine = boo::NewAudioVoiceEngine("metaforce", "Metaforce");
+//    m_voiceEngine->setVolume(0.7f);
+//    m_amuseAllocWrapper.emplace(*m_voiceEngine);
 
 #if TARGET_OS_IOS || TARGET_OS_TV
     m_deferredProject = std::string{m_fileMgr.getStoreRoot()} + "game.iso";
@@ -202,12 +202,13 @@ public:
       std::string arg = m_argv[i];
       if (m_deferredProject.empty() && !arg.starts_with('-') && !arg.starts_with('+') && CBasics::IsDir(arg.c_str()))
         m_deferredProject = arg;
-      else if (arg == "--no-sound")
-        m_voiceEngine->setVolume(0.f);
+      else if (arg == "--no-sound") {
+        // m_voiceEngine->setVolume(0.f);
+      }
     }
 #endif
 
-    m_voiceEngine->startPump();
+    //m_voiceEngine->startPump();
   }
 
   void initialize() {
@@ -292,7 +293,7 @@ public:
     if (!g_mainMP1 && m_projectInitialized) {
       g_mainMP1.emplace(nullptr, nullptr);
       auto result =
-          g_mainMP1->Init(m_argc, m_argv, m_fileMgr, &m_cvarManager, m_voiceEngine.get(), *m_amuseAllocWrapper);
+          g_mainMP1->Init(m_argc, m_argv, m_fileMgr, &m_cvarManager);
       if (!result.empty()) {
         Log.report(logvisor::Error, FMT_STRING("{}"), result);
         m_imGuiConsole.m_errorString = result;
@@ -310,15 +311,15 @@ public:
 
     m_imGuiConsole.PreUpdate();
     if (g_mainMP1) {
-      if (m_voiceEngine) {
-        m_voiceEngine->lockPump();
-      }
+//      if (m_voiceEngine) {
+//        m_voiceEngine->lockPump();
+//      }
       if (g_mainMP1->Proc(dt)) {
         return false;
       }
-      if (m_voiceEngine) {
-        m_voiceEngine->unlockPump();
-      }
+//      if (m_voiceEngine) {
+//        m_voiceEngine->unlockPump();
+//      }
     }
     m_imGuiConsole.PostUpdate();
     if (!g_mainMP1 && m_imGuiConsole.m_gameDiscSelected) {
@@ -350,9 +351,9 @@ public:
 
   void onAppPostDraw() noexcept {
     OPTICK_EVENT("PostDraw");
-    if (m_voiceEngine) {
-      m_voiceEngine->pumpAndMixVoices();
-    }
+//    if (m_voiceEngine) {
+//      m_voiceEngine->pumpAndMixVoices();
+//    }
 #ifdef EMSCRIPTEN
     CDvdFile::DoWork();
 #endif
@@ -372,17 +373,17 @@ public:
 
   void onAppExiting() noexcept {
     m_imGuiConsole.Shutdown();
-    if (m_voiceEngine) {
-      m_voiceEngine->unlockPump();
-      m_voiceEngine->stopPump();
-    }
+//    if (m_voiceEngine) {
+//      m_voiceEngine->unlockPump();
+//      m_voiceEngine->stopPump();
+//    }
     if (g_mainMP1) {
       g_mainMP1->Shutdown();
     }
     g_mainMP1.reset();
     m_cvarManager.serialize();
-    m_amuseAllocWrapper.reset();
-    m_voiceEngine.reset();
+//    m_amuseAllocWrapper.reset();
+//    m_voiceEngine.reset();
     CDvdFile::Shutdown();
   }
 

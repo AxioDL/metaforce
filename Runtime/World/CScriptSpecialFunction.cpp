@@ -320,7 +320,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
     }
     case ESpecialFunction::EndGame: {
       if (msg == EScriptObjectMessage::Action) {
-        switch (GetSpecialEnding(mgr)) {
+        switch (ClassifyEnding(mgr)) {
         case 0:
           g_Main->SetFlowState(EClientFlowStates::WinBad);
           break;
@@ -492,7 +492,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
       break;
     }
     case ESpecialFunction::Ending: {
-      if (msg == EScriptObjectMessage::Action && GetSpecialEnding(mgr) == u32(xfc_float1)) {
+      if (msg == EScriptObjectMessage::Action && ClassifyEnding(mgr) == u32(xfc_float1)) {
         SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
       }
       break;
@@ -1006,7 +1006,7 @@ void CScriptSpecialFunction::DeleteEmitter(CSfxHandle& handle) {
   handle = CSfxHandle();
 }
 
-u32 CScriptSpecialFunction::GetSpecialEnding(const CStateManager& mgr) const {
+u32 CScriptSpecialFunction::ClassifyEnding(const CStateManager& mgr) const {
   const int rate = (mgr.GetPlayerState()->CalculateItemCollectionRate() * 100) / mgr.GetPlayerState()->GetPickupTotal();
   int result;
   if (rate < 75) {

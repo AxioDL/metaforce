@@ -4,8 +4,8 @@
 #include "Runtime/CMainFlowBase.hpp"
 #include "Runtime/ConsoleVariables/FileStoreManager.hpp"
 
-#include <amuse/amuse.hpp>
-#include <boo/audiodev/IAudioVoiceEngine.hpp>
+//#include <amuse/amuse.hpp>
+//#include <boo/audiodev/IAudioVoiceEngine.hpp>
 
 namespace metaforce {
 class Console;
@@ -37,8 +37,7 @@ enum class EGameplayResult { None, Win, Lose, Playing };
 class IMain {
 public:
   virtual ~IMain() = default;
-  virtual std::string Init(int argc, char** argv, const FileStoreManager& storeMgr, CVarManager* cvarMgr,
-                           boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) = 0;
+  virtual std::string Init(int argc, char** argv, const FileStoreManager& storeMgr, CVarManager* cvarMgr) = 0;
   virtual void Draw() = 0;
   virtual bool Proc(float dt) = 0;
   virtual void Shutdown() = 0;

@@ -163,6 +163,8 @@
 #include "imgui.h"
 #include "magic_enum.hpp"
 
+#include <cinttypes>
+
 #define IMGUI_ENTITY_INSPECT(CLS, PARENT, NAME, ...)                                                                   \
   std::string_view CLS::ImGuiType() { return #NAME; }                                                                  \
   void CLS::ImGuiInspect() {                                                                                           \

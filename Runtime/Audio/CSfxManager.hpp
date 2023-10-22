@@ -90,7 +90,7 @@ public:
     virtual void Stop() = 0;
     virtual bool Ready() = 0;
     virtual ESfxAudibility GetAudible(const zeus::CVector3f&) = 0;
-    virtual amuse::ObjToken<amuse::Voice> GetVoice() const = 0;
+    //virtual amuse::ObjToken<amuse::Voice> GetVoice() const = 0;
     virtual u16 GetSfxId() const = 0;
     virtual void UpdateEmitterSilent() = 0;
     virtual void UpdateEmitter() = 0;
@@ -116,7 +116,7 @@ public:
   class CSfxEmitterWrapper : public CBaseSfxWrapper {
     float x1a_reverb = 0.0f;
     CAudioSys::C3DEmitterParmData x24_parmData;
-    amuse::ObjToken<amuse::Emitter> x50_emitterHandle;
+    //amuse::ObjToken<amuse::Emitter> x50_emitterHandle;
     bool x54_ready = true;
     float x55_cachedMaxVol = 0.0f;
 
@@ -126,14 +126,14 @@ public:
     void Stop() override;
     bool Ready() override;
     ESfxAudibility GetAudible(const zeus::CVector3f&) override;
-    amuse::ObjToken<amuse::Voice> GetVoice() const override { return x50_emitterHandle->getVoice(); }
+    //amuse::ObjToken<amuse::Voice> GetVoice() const override { return x50_emitterHandle->getVoice(); }
     u16 GetSfxId() const override;
     void UpdateEmitterSilent() override;
     void UpdateEmitter() override;
     void SetReverb(float rev) override;
     CAudioSys::C3DEmitterParmData& GetEmitterData() { return x24_parmData; }
 
-    amuse::ObjToken<amuse::Emitter> GetHandle() const { return x50_emitterHandle; }
+    //amuse::ObjToken<amuse::Emitter> GetHandle() const { return x50_emitterHandle; }
 
     CSfxEmitterWrapper(bool looped, s16 prio, const CAudioSys::C3DEmitterParmData& data,
                        /*const CSfxHandle& handle,*/ bool useAcoustics, TAreaId area)
@@ -144,7 +144,7 @@ public:
 
   class CSfxWrapper : public CBaseSfxWrapper {
     u16 x18_sfxId;
-    amuse::ObjToken<amuse::Voice> x1c_voiceHandle;
+    //amuse::ObjToken<amuse::Voice> x1c_voiceHandle;
     float x20_vol;
     float x22_pan;
     bool x24_ready = true;
@@ -155,7 +155,7 @@ public:
     void Stop() override;
     bool Ready() override;
     ESfxAudibility GetAudible(const zeus::CVector3f&) override { return ESfxAudibility::Aud3; }
-    amuse::ObjToken<amuse::Voice> GetVoice() const override { return x1c_voiceHandle; }
+//    amuse::ObjToken<amuse::Voice> GetVoice() const override { return x1c_voiceHandle; }
     u16 GetSfxId() const override;
     void UpdateEmitterSilent() override;
     void UpdateEmitter() override;
@@ -178,7 +178,7 @@ public:
   static float m_reverbAmount;
   static EAuxEffect m_activeEffect;
   static EAuxEffect m_nextEffect;
-  static amuse::ObjToken<amuse::Listener> m_listener;
+  //static amuse::ObjToken<amuse::Listener> m_listener;
 
   static u16 kMaxPriority;
   static u16 kMedPriority;
@@ -222,10 +222,10 @@ public:
   static void StopAndRemoveAllEmitters();
   static void DisableAuxCallback();
   static void EnableAuxCallback();
-  static void PrepareDelayCallback(const amuse::EffectDelayInfo& info);
-  static void PrepareReverbStdCallback(const amuse::EffectReverbStdInfo& info);
-  static void PrepareChorusCallback(const amuse::EffectChorusInfo& info);
-  static void PrepareReverbHiCallback(const amuse::EffectReverbHiInfo& info);
+//  static void PrepareDelayCallback(const amuse::EffectDelayInfo& info);
+//  static void PrepareReverbStdCallback(const amuse::EffectReverbStdInfo& info);
+//  static void PrepareChorusCallback(const amuse::EffectChorusInfo& info);
+//  static void PrepareReverbHiCallback(const amuse::EffectReverbHiInfo& info);
   static void DisableAuxProcessing();
 
   static void SetActiveAreas(const rstl::reserved_vector<TAreaId, 10>& areas);

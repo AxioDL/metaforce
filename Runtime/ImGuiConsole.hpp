@@ -2,6 +2,7 @@
 
 #include <set>
 #include <string_view>
+#include <deque>
 
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CActor.hpp"

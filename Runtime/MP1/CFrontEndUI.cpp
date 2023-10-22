@@ -1643,12 +1643,12 @@ CFrontEndUI::CFrontEndUI() : CIOWin("FrontEndUI") {
 
 CFrontEndUI::~CFrontEndUI() {
   if (x14_phase >= EPhase::DisplayFrontEnd) {
-    CAudioSys::RemoveAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
+    //CAudioSys::RemoveAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
   }
 }
 
 void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue) {
-  xf4_curAudio->StopMixing();
+  //xf4_curAudio->StopMixing();
   queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, std::make_shared<CSlideShow>()));
 }
 
@@ -1771,9 +1771,9 @@ void CFrontEndUI::CompleteStateTransition() {
   case EScreen::FileSelect:
     SetCurrentMovie(EMenuMovie::FileSelectLoop);
     if (oldScreen == EScreen::Title) {
-      xf4_curAudio->StopMixing();
-      xf4_curAudio = xd8_audio2.get();
-      xf4_curAudio->StartMixing();
+      //xf4_curAudio->StopMixing();
+      //xf4_curAudio = xd8_audio2.get();
+      //xf4_curAudio->StartMixing();
     }
     if (xdc_saveUI)
       xdc_saveUI->ResetCardDriver();
@@ -2046,7 +2046,7 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
         StartStateTransition(EScreen::FileSelect);
         return;
       case SFusionBonusFrame::EAction::PlayNESMetroid:
-        xf4_curAudio->StopMixing();
+        //xf4_curAudio->StopMixing();
         xec_emuFrme = std::make_unique<SNesEmulatorFrame>();
         if (xdc_saveUI)
           xdc_saveUI->SetInGame(true);
@@ -2119,9 +2119,9 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
       }
       xe8_frontendNoCardFrme = std::make_unique<SFrontEndFrame>(x1c_rndB);
       x38_pressStart.GetObj();
-      CAudioSys::AddAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
-      xd4_audio1 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_1.rsf", 416480, 1973664);
-      xd8_audio2 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_2.rsf", 273556, 1636980);
+      //CAudioSys::AddAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
+//      xd4_audio1 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_1.rsf", 416480, 1973664);
+//      xd8_audio2 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_2.rsf", 273556, 1636980);
       x14_phase = EPhase::LoadFrames;
     }
     if (x14_phase == EPhase::LoadDeps)
@@ -2136,8 +2136,8 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
     if (!xd4_audio1->IsReady() || !xd8_audio2->IsReady() || !xe0_frontendCardFrme->PumpLoad() ||
         !xe8_frontendNoCardFrme->PumpLoad() || !xdc_saveUI->PumpLoad())
       return EMessageReturn::Exit;
-    xf4_curAudio = xd4_audio1.get();
-    xf4_curAudio->StartMixing();
+//    xf4_curAudio = xd4_audio1.get();
+//    xf4_curAudio->StartMixing();
     x14_phase = EPhase::LoadMovies;
     [[fallthrough]];
 
@@ -2178,7 +2178,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
         xec_emuFrme.reset();
         if (xdc_saveUI)
           xdc_saveUI->SetInGame(false);
-        xf4_curAudio->StartMixing();
+        //xf4_curAudio->StartMixing();
       }
       break;
     }
@@ -2186,7 +2186,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
     if (xd2_deferSlideShow) {
       /* Start mixing slideshow music */
       xd2_deferSlideShow = false;
-      xf4_curAudio->StartMixing();
+      //xf4_curAudio->StartMixing();
       if (xdc_saveUI)
         xdc_saveUI->ResetCardDriver();
     }

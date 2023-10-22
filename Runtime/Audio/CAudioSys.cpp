@@ -69,16 +69,12 @@ void CAudioSys::SysUnloadAudioGroupSet(std::string_view name) {
 bool CAudioSys::SysIsGroupSetLoaded(std::string_view name) { return FindGroupSet(name).operator bool(); }
 
 void CAudioSys::SysAddGroupIntoAmuse(std::string_view name) {
-  if (auto set = FindGroupSet(name))
-    AddAudioGroup(set->GetAudioGroupData());
 }
 
 void CAudioSys::SysRemoveGroupFromAmuse(std::string_view name) {
-  if (auto set = FindGroupSet(name))
-    RemoveAudioGroup(set->GetAudioGroupData());
 }
 
-void CAudioSys::_UpdateVolume() { GetAmuseEngine().setVolume(s_MasterVol * s_SfxVol); }
+void CAudioSys::_UpdateVolume() {  }
 
 void CAudioSys::SysSetVolume(u8 volume) {
   s_MasterVol = volume / 127.f;

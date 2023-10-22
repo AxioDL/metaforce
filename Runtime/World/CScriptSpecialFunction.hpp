@@ -147,7 +147,7 @@ public:
   bool ShouldSkipCinematic(CStateManager& stateMgr) const;
 
   void DeleteEmitter(CSfxHandle& handle);
-  u32 GetSpecialEnding(const CStateManager&) const;
+  u32 ClassifyEnding(const CStateManager& mgr) const;
   void AddOrUpdateEmitter(float pitch, CSfxHandle& handle, u16 id, const zeus::CVector3f& pos, float vol);
 };
 } // namespace metaforce

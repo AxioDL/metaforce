@@ -128,7 +128,7 @@ class CGameArchitectureSupport {
   void destroyed() { x4_archQueue.Push(MakeMsg::CreateRemoveAllIOWins(EArchMsgTarget::IOWinManager)); }
 
 public:
-  CGameArchitectureSupport(CMain& parent, boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend);
+  CGameArchitectureSupport(CMain& parent);
   ~CGameArchitectureSupport();
 
   void PreloadAudio();
@@ -213,8 +213,7 @@ public:
 
   // int RsMain(int argc, char** argv, boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator&
   // backend);
-  std::string Init(int argc, char** argv, const FileStoreManager& storeMgr, CVarManager* cvarManager,
-                   boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) override;
+  std::string Init(int argc, char** argv, const FileStoreManager& storeMgr, CVarManager* cvarManager) override;
   bool Proc(float dt) override;
   void Draw() override;
   void Shutdown() override;

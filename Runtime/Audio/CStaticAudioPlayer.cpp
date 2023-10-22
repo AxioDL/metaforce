@@ -7,37 +7,37 @@ namespace metaforce {
 
 #define RSF_BUFFER_SIZE 0x20000
 
-CStaticAudioPlayer::CStaticAudioPlayer(boo::IAudioVoiceEngine& engine, std::string_view path, int loopStart,
-                                       int loopEnd)
-: x0_path(path)
-, x1c_loopStartSamp(loopStart & 0xfffffffe)
-, x20_loopEndSamp(loopEnd & 0xfffffffe)
-, m_voiceCallback(*this)
-, m_voice(engine.allocateNewStereoVoice(32000, &m_voiceCallback)) {
-  // These are mixed directly into boo voice engine instead
-  // x28_dmaLeft.reset(new u8[640]);
-  // x30_dmaRight.reset(new u8[640]);
-
-  CDvdFile file(path);
-  x10_rsfRem = file.Length();
-  x14_rsfLength = x10_rsfRem;
-
-  u32 bufCount = (x10_rsfRem + RSF_BUFFER_SIZE - 1) / RSF_BUFFER_SIZE;
-  x48_buffers.reserve(bufCount);
-  x38_dvdRequests.reserve(bufCount);
-
-  for (int remBytes = x10_rsfRem; remBytes > 0; remBytes -= RSF_BUFFER_SIZE) {
-    u32 thisSz = RSF_BUFFER_SIZE;
-    if (remBytes < RSF_BUFFER_SIZE)
-      thisSz = ROUND_UP_32(remBytes);
-
-    x48_buffers.emplace_back(new u8[thisSz]);
-    x38_dvdRequests.push_back(file.AsyncRead(x48_buffers.back().get(), thisSz));
-  }
-
-  g72x_init_state(&x58_leftState);
-  g72x_init_state(&x8c_rightState);
-}
+//CStaticAudioPlayer::CStaticAudioPlayer(boo::IAudioVoiceEngine& engine, std::string_view path, int loopStart,
+//                                       int loopEnd)
+//: x0_path(path)
+//, x1c_loopStartSamp(loopStart & 0xfffffffe)
+//, x20_loopEndSamp(loopEnd & 0xfffffffe)
+//, m_voiceCallback(*this)
+//, m_voice(engine.allocateNewStereoVoice(32000, &m_voiceCallback)) {
+//  // These are mixed directly into boo voice engine instead
+//  // x28_dmaLeft.reset(new u8[640]);
+//  // x30_dmaRight.reset(new u8[640]);
+//
+//  CDvdFile file(path);
+//  x10_rsfRem = file.Length();
+//  x14_rsfLength = x10_rsfRem;
+//
+//  u32 bufCount = (x10_rsfRem + RSF_BUFFER_SIZE - 1) / RSF_BUFFER_SIZE;
+//  x48_buffers.reserve(bufCount);
+//  x38_dvdRequests.reserve(bufCount);
+//
+//  for (int remBytes = x10_rsfRem; remBytes > 0; remBytes -= RSF_BUFFER_SIZE) {
+//    u32 thisSz = RSF_BUFFER_SIZE;
+//    if (remBytes < RSF_BUFFER_SIZE)
+//      thisSz = ROUND_UP_32(remBytes);
+//
+//    x48_buffers.emplace_back(new u8[thisSz]);
+//    x38_dvdRequests.push_back(file.AsyncRead(x48_buffers.back().get(), thisSz));
+//  }
+//
+//  g72x_init_state(&x58_leftState);
+//  g72x_init_state(&x8c_rightState);
+//}
 
 bool CStaticAudioPlayer::IsReady() {
   if (x38_dvdRequests.size())

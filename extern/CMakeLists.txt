@@ -46,10 +46,7 @@ set(AURORA_NATIVE_MATRIX ON CACHE BOOL "Assume OpenGL-layout matrices, disables 
 add_subdirectory(aurora)
 
 # boo must come after SDL2
-add_subdirectory(boo EXCLUDE_FROM_ALL)
 add_subdirectory(nod EXCLUDE_FROM_ALL)
-# amuse must come after athena/atdna, boo and nod
-add_subdirectory(amuse EXCLUDE_FROM_ALL)
 
 if (NOT GEKKO AND NOT NX AND NOT IOS AND NOT TVOS)
   set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc)

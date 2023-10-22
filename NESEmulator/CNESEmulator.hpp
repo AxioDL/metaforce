@@ -3,7 +3,6 @@
 #include "RetroTypes.hpp"
 #include "zeus/CColor.hpp"
 //#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
-#include "boo/audiodev/IAudioVoice.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
@@ -15,7 +14,7 @@ namespace MP1 {
 
 #define NUM_AUDIO_BUFFERS 4
 
-class CNESEmulator final : public boo::IAudioVoiceCallback {
+class CNESEmulator final {
 public:
   enum class EPasswordEntryState { NotPasswordScreen, NotEntered, Entered };
 
@@ -47,7 +46,7 @@ private:
   uint32_t m_procBufs = NUM_AUDIO_BUFFERS;
   uint32_t m_posInHeadBuf = 0;
   uint32_t m_posInTailBuf = 0;
-  boo::ObjToken<boo::IAudioVoice> m_booVoice;
+  //boo::ObjToken<boo::IAudioVoice> m_booVoice;
 
   // void* x4_loadBuf;
   // void* x8_rom;
@@ -82,8 +81,8 @@ public:
   EPasswordEntryState GetPasswordEntryState() const { return x34_passwordEntryState; }
 
   int audioUpdate();
-  void preSupplyAudio(boo::IAudioVoice& voice, double dt) {}
-  size_t supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data);
+  //void preSupplyAudio(boo::IAudioVoice& voice, double dt) {}
+  //size_t supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data);
 };
 
 } // namespace MP1
