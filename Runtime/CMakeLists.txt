@@ -154,7 +154,7 @@ if (NOT GEKKO AND NOT NX AND NOT IOS AND NOT TVOS)
     set(DISCORD_RPC_LIBRARY "discord-rpc")
 endif()
 set(RUNTIME_LIBRARIES zeus nod NESEmulator libjpeg-turbo jbus kabufuda logvisor OptickCore
-    imgui_support
+    imgui_support aurora::aurora
     ${DISCORD_RPC_LIBRARY}
     ${ZLIB_LIBRARIES}
     )
