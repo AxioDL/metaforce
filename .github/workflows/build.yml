@@ -18,7 +18,7 @@ env:
 jobs:
   build-linux:
     name: Build Linux (${{matrix.name}} x86_64)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     env:
       BUILDCACHE_DIR: ${{github.workspace}}/.buildcache
@@ -95,7 +95,7 @@ jobs:
 
   build-macos:
     name: Build macOS (AppleClang universal)
-    runs-on: macos-11
+    runs-on: macos-latest
 
     env:
       IPP_VERSION: 2021.2.0.192
@@ -173,7 +173,7 @@ jobs:
 
   build-ios:
     name: Build iOS (AppleClang arm64)
-    runs-on: macos-11
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -207,7 +207,7 @@ jobs:
 
   build-tvos:
     name: Build tvOS (AppleClang arm64)
-    runs-on: macos-11
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -241,7 +241,7 @@ jobs:
 
   build-windows:
     name: Build Windows (${{matrix.name}} x86_64)
-    runs-on: windows-2019
+    runs-on: windows-latest
 
     env:
       Qt_VERSION: 5.15.2
