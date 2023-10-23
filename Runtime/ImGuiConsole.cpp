@@ -813,11 +813,11 @@ static std::string BytesToString(size_t bytes) {
 }
 
 void ImGuiConsole::ShowDebugOverlay() {
-  if (!m_developer) {
+  if (!m_developer && !m_frameCounter && !m_frameRate && !m_inGameTime && !m_roomTimer) {
     return;
   }
-  if (!m_frameCounter && !m_frameRate && !m_inGameTime && !m_roomTimer && !m_playerInfo && !m_areaInfo &&
-      !m_worldInfo && !m_randomStats && !m_resourceStats && !m_pipelineInfo && !m_drawCallInfo && !m_bufferInfo) {
+  if (!m_playerInfo && !m_areaInfo && !m_worldInfo && !m_randomStats && !m_resourceStats && !m_pipelineInfo &&
+      !m_drawCallInfo && !m_bufferInfo) {
     return;
   }
   ImGuiIO& io = ImGui::GetIO();
@@ -1058,7 +1058,8 @@ void ImGuiConsole::ShowInputViewer() {
   ImGui::SetNextWindowBgAlpha(0.65f);
   if (ImGui::Begin("Input Overlay", nullptr, windowFlags)) {
     /* If the position has changed and we're not in a corner, grab it and store it */
-    if (m_inputOverlayCorner == -1 && (ImGui::GetWindowPos().x != m_inputOverlayPos.x() || ImGui::GetWindowPos().y != m_inputOverlayPos.y())) {
+    if (m_inputOverlayCorner == -1 &&
+        (ImGui::GetWindowPos().x != m_inputOverlayPos.x() || ImGui::GetWindowPos().y != m_inputOverlayPos.y())) {
       m_inputOverlayPos = ImGui::GetWindowPos();
       m_cvarCommons.m_debugInputOverlayPos->fromVec2f(m_inputOverlayPos);
     }
