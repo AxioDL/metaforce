@@ -867,7 +867,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       ImGuiStringViewText(fmt::format(FMT_STRING("Room Time: {:7.3f} / {:5d} | Last Room:{:7.3f} / {:5d}\n"),
                                       currentRoomTime, curFrames, m_lastRoomTime, lastFrames));
     }
-    if (m_playerInfo && g_StateManager != nullptr && g_StateManager->Player() != nullptr) {
+    if (m_playerInfo && g_StateManager != nullptr && g_StateManager->Player() != nullptr && m_developer) {
       if (hasPrevious) {
         ImGui::Separator();
       }
@@ -890,7 +890,7 @@ void ImGuiConsole::ShowDebugOverlay() {
                       pl.GetVelocity().y(), pl.GetVelocity().z(), camXf.origin.x(), camXf.origin.y(), camXf.origin.z(),
                       zeus::radToDeg(camQ.roll()), zeus::radToDeg(camQ.pitch()), zeus::radToDeg(camQ.yaw())));
     }
-    if (m_worldInfo && g_StateManager != nullptr) {
+    if (m_worldInfo && g_StateManager != nullptr && m_developer) {
       if (hasPrevious) {
         ImGui::Separator();
       }
@@ -900,7 +900,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       ImGuiStringViewText(
           fmt::format(FMT_STRING("World Asset ID: 0x{}, Name: {}\n"), g_GameState->CurrentWorldAssetId(), name));
     }
-    if (m_areaInfo && g_StateManager != nullptr) {
+    if (m_areaInfo && g_StateManager != nullptr && m_developer) {
       const metaforce::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
       if (g_StateManager->GetWorld() != nullptr && g_StateManager->GetWorld()->DoesAreaExist(aId)) {
         if (hasPrevious) {
@@ -926,7 +926,7 @@ void ImGuiConsole::ShowDebugOverlay() {
                         pArea->GetAreaAssetId(), ImGuiLoadStringTable(stringId, 0), pArea->GetAreaId(), layerBits));
       }
     }
-    if (m_layerInfo && g_StateManager != nullptr) {
+    if (m_layerInfo && g_StateManager != nullptr && m_developer) {
       const metaforce::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
       const auto* world = g_StateManager->GetWorld();
       if (world != nullptr && world->DoesAreaExist(aId) && world->GetWorldLayers()) {
@@ -956,7 +956,7 @@ void ImGuiConsole::ShowDebugOverlay() {
         }
       }
     }
-    if (m_randomStats) {
+    if (m_randomStats && m_developer) {
       if (hasPrevious) {
         ImGui::Separator();
       }
