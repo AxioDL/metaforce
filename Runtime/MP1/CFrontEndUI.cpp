@@ -2133,7 +2133,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
       return EMessageReturn::Exit;
     }
     /* Poll loading music and FRME resources */
-    if (!xd4_audio1->IsReady() || !xd8_audio2->IsReady() || !xe0_frontendCardFrme->PumpLoad() ||
+    if (/*!xd4_audio1->IsReady() || !xd8_audio2->IsReady() || */ !xe0_frontendCardFrme->PumpLoad() ||
         !xe8_frontendNoCardFrme->PumpLoad() || !xdc_saveUI->PumpLoad())
       return EMessageReturn::Exit;
 //    xf4_curAudio = xd4_audio1.get();
