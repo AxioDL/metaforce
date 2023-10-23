@@ -51,6 +51,15 @@ CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
   m_debugOverlayShowRandomStats =
       m_mgr.findOrMakeCVar("debugOverlay.showRandomStats", "Displays the current number of random calls per frame"sv,
                            false, CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
+  m_debugOverlayPipelineInfo =
+      m_mgr.findOrMakeCVar("debugOverlay.pipelineInfo"sv, "Displays the current pipeline memory usage per frame"sv,
+                           false, CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
+  m_debugOverlayDrawCallInfo =
+      m_mgr.findOrMakeCVar("debugOverlay.drawCallInfo"sv, "Displays the current number of draw calls per frame"sv,
+                           false, CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
+  m_debugOverlayBufferInfo =
+      m_mgr.findOrMakeCVar("debugOverlay.bufferInfo"sv, "Displays the current buffer memory usage per frame"sv,
+                           false, CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
   m_debugOverlayShowInput = m_mgr.findOrMakeCVar("debugOverlay.showInput"sv, "Displays controller input"sv, false,
                                                  CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
   m_debugOverlayCorner =
@@ -60,7 +69,8 @@ CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
       m_mgr.findOrMakeCVar("debugOverlay.inputOverlayCorner"sv, "ImGui input overlay corner"sv, 3 /* bottom-right */,
                            CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::Hidden);
   m_debugInputOverlayPos =
-      m_mgr.findOrMakeCVar("debugOverlay.inputOverlayPosition"sv, "ImGui custom input overlay position"sv, zeus::CVector2f{0.f, 0.f} /* uninitialized */,
+      m_mgr.findOrMakeCVar("debugOverlay.inputOverlayPosition"sv, "ImGui custom input overlay position"sv,
+                           zeus::CVector2f{0.f, 0.f} /* uninitialized */,
                            CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::Hidden);
 
   m_debugToolDrawAiPath =

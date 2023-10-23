@@ -38,6 +38,9 @@ struct CVarCommons {
   CVar* m_debugOverlayShowResourceStats = nullptr;
   CVar* m_debugOverlayShowRandomStats = nullptr;
   CVar* m_debugOverlayShowRoomTimer = nullptr;
+  CVar* m_debugOverlayPipelineInfo = nullptr;
+  CVar* m_debugOverlayDrawCallInfo = nullptr;
+  CVar* m_debugOverlayBufferInfo = nullptr;
   CVar* m_debugOverlayShowInput = nullptr;
   CVar* m_debugOverlayCorner = nullptr;
   CVar* m_debugInputOverlayCorner = nullptr;

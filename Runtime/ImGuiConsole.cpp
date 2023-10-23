@@ -813,6 +813,9 @@ static std::string BytesToString(size_t bytes) {
 }
 
 void ImGuiConsole::ShowDebugOverlay() {
+  if (!m_developer) {
+    return;
+  }
   if (!m_frameCounter && !m_frameRate && !m_inGameTime && !m_roomTimer && !m_playerInfo && !m_areaInfo &&
       !m_worldInfo && !m_randomStats && !m_resourceStats && !m_pipelineInfo && !m_drawCallInfo && !m_bufferInfo) {
     return;
@@ -1283,6 +1286,9 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect, bool preLaunch) {
       ImGuiCVarMenuItem("Area Info", m_cvarCommons.m_debugOverlayAreaInfo, m_areaInfo);
       ImGuiCVarMenuItem("Layer Info", m_cvarCommons.m_debugOverlayLayerInfo, m_layerInfo);
       ImGuiCVarMenuItem("Random Stats", m_cvarCommons.m_debugOverlayShowRandomStats, m_randomStats);
+      ImGuiCVarMenuItem("Draw Call Info", m_cvarCommons.m_debugOverlayDrawCallInfo, m_drawCallInfo);
+      ImGuiCVarMenuItem("Pipeline Info", m_cvarCommons.m_debugOverlayPipelineInfo, m_pipelineInfo);
+      ImGuiCVarMenuItem("Buffer Info", m_cvarCommons.m_debugOverlayBufferInfo, m_bufferInfo);
       ImGuiCVarMenuItem("Resource Stats", m_cvarCommons.m_debugOverlayShowResourceStats, m_resourceStats);
       ImGuiCVarMenuItem("Show Input", m_cvarCommons.m_debugOverlayShowInput, m_showInput);
 #if 0 // Currently unimplemented

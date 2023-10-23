@@ -121,9 +121,9 @@ private:
   bool m_drawCallInfo = false;
   bool m_bufferInfo = false;
 #else
-  bool m_pipelineInfo = true; // TODO cvar
-  bool m_drawCallInfo = true; // TODO cvar
-  bool m_bufferInfo = true; // TODO cvar
+  bool m_pipelineInfo = m_cvarCommons.m_debugOverlayPipelineInfo->toBoolean(); // TODO cvar
+  bool m_drawCallInfo = m_cvarCommons.m_debugOverlayDrawCallInfo->toBoolean(); // TODO cvar
+  bool m_bufferInfo = m_cvarCommons.m_debugOverlayBufferInfo->toBoolean(); // TODO cvar
 #endif
   bool m_developer = m_cvarMgr.findCVar("developer")->toBoolean();
   bool m_cheats = m_cvarMgr.findCVar("cheats")->toBoolean();
