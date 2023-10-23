@@ -41,6 +41,7 @@ struct CVarCommons {
   CVar* m_debugOverlayShowInput = nullptr;
   CVar* m_debugOverlayCorner = nullptr;
   CVar* m_debugInputOverlayCorner = nullptr;
+  CVar* m_debugInputOverlayPos = nullptr;
   CVar* m_debugToolDrawAiPath = nullptr;
   CVar* m_debugToolDrawLighting = nullptr;
   CVar* m_debugToolDrawCollisionActors = nullptr;

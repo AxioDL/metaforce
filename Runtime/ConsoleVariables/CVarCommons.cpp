@@ -59,6 +59,10 @@ CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
   m_debugInputOverlayCorner =
       m_mgr.findOrMakeCVar("debugOverlay.inputOverlayCorner"sv, "ImGui input overlay corner"sv, 3 /* bottom-right */,
                            CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::Hidden);
+  m_debugInputOverlayPos =
+      m_mgr.findOrMakeCVar("debugOverlay.inputOverlayPosition"sv, "ImGui custom input overlay position"sv, zeus::CVector2f{0.f, 0.f} /* uninitialized */,
+                           CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::Hidden);
+
   m_debugToolDrawAiPath =
       m_mgr.findOrMakeCVar("debugTool.drawAiPath", "Draws the selected paths of any AI in the room"sv, false,
                            CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);

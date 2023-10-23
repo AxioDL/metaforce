@@ -1046,8 +1046,20 @@ void ImGuiConsole::ShowInputViewer() {
     SetOverlayWindowLocation(m_inputOverlayCorner);
     windowFlags |= ImGuiWindowFlags_NoMove;
   }
+
+  if (m_initialInputOverlayDraw && m_inputOverlayCorner == -1) {
+    ImGui::SetNextWindowPos(m_inputOverlayPos);
+    m_initialInputOverlayDraw = false;
+  }
+
   ImGui::SetNextWindowBgAlpha(0.65f);
   if (ImGui::Begin("Input Overlay", nullptr, windowFlags)) {
+    /* If the position has changed and we're not in a corner, grab it and store it */
+    if (m_inputOverlayCorner == -1 && (ImGui::GetWindowPos().x != m_inputOverlayPos.x() || ImGui::GetWindowPos().y != m_inputOverlayPos.y())) {
+      m_inputOverlayPos = ImGui::GetWindowPos();
+      m_cvarCommons.m_debugInputOverlayPos->fromVec2f(m_inputOverlayPos);
+    }
+
     float scale = GetScale();
     if (!m_controllerName.empty()) {
       TextCenter(m_controllerName);
