@@ -26,10 +26,6 @@
 	path = extern/athena
 	url = ../../libAthena/athena.git
 	branch = master
-[submodule "extern/boo"]
-	path = extern/boo
-	url = ../boo.git
-	branch = master
 [submodule "extern/libjpeg-turbo"]
 	path = extern/libjpeg-turbo
 	url = ../libjpeg-turbo.git
