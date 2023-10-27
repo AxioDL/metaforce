@@ -8,7 +8,7 @@
 #include <vector>
 namespace metaforce {
 namespace StoreCVar {
-enum class EType : uint32_t { Boolean, Signed, Unsigned, Real, Literal, Vec2f, Vec2d, Vec3f, Vec3d, Vec4f, Vec4d };
+enum class EType : uint32_t { Boolean, Signed, Unsigned, Real, Literal, Vec2i, Vec2f, Vec2d, Vec3f, Vec3d, Vec4f, Vec4d };
 enum class EFlags {
   None = 0,
   System = (1 << 0),
@@ -53,6 +53,7 @@ public:
   using EFlags = StoreCVar::EFlags;
 
   CVar(std::string_view name, std::string_view value, std::string_view help, EFlags flags);
+  CVar(std::string_view name, const zeus::CVector2i& value, std::string_view help, EFlags flags);
   CVar(std::string_view name, const zeus::CVector2f& value, std::string_view help, EFlags flags);
   CVar(std::string_view name, const zeus::CVector2d& value, std::string_view help, EFlags flags);
   CVar(std::string_view name, const zeus::CVector3f& value, std::string_view help, EFlags flags);
@@ -72,6 +73,7 @@ public:
 
   template <typename T>
   inline bool toValue(T& value) const;
+  zeus::CVector2i toVec2i(bool* isValid = nullptr) const;
   zeus::CVector2f toVec2f(bool* isValid = nullptr) const;
   zeus::CVector2d toVec2d(bool* isValid = nullptr) const;
   zeus::CVector3f toVec3f(bool* isValid = nullptr) const;
@@ -88,6 +90,7 @@ public:
   inline bool fromValue(T value) {
     return false;
   }
+  bool fromVec2i(const zeus::CVector2i& val);
   bool fromVec2f(const zeus::CVector2f& val);
   bool fromVec2d(const zeus::CVector2d& val);
   bool fromVec3f(const zeus::CVector3f& val);
@@ -101,6 +104,7 @@ public:
   bool fromLiteral(std::string_view val);
   bool fromLiteralToType(std::string_view val);
 
+  bool isVec2i() const { return m_type == EType::Vec2i; }
   bool isVec2f() const { return m_type == EType::Vec2f; }
   bool isVec2d() const { return m_type == EType::Vec2d; }
   bool isVec3f() const { return m_type == EType::Vec3f; }

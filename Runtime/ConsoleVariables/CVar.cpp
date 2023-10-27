@@ -20,6 +20,12 @@ CVar::CVar(std::string_view name, std::string_view value, std::string_view help,
   init(flags);
 }
 
+CVar::CVar(std::string_view name, const zeus::CVector2i& value, std::string_view help, EFlags flags)
+: CVar(name, help, EType::Vec2i) {
+  fromVec2i(value);
+  init(flags);
+}
+
 CVar::CVar(std::string_view name, const zeus::CVector2f& value, std::string_view help, EFlags flags)
 : CVar(name, help, EType::Vec2f) {
   fromVec2f(value);
@@ -83,6 +89,23 @@ CVar::CVar(std::string_view name, uint32_t value, std::string_view help, CVar::E
 std::string CVar::help() const {
   return m_help + (m_defaultValue.empty() ? "" : "\ndefault: " + m_defaultValue) + (isReadOnly() ? " [ReadOnly]" : "");
 }
+
+zeus::CVector2i CVar::toVec2i(bool* isValid) const {
+  if (m_type != EType::Vec2i) {
+    if (isValid != nullptr)
+      *isValid = false;
+
+    return {};
+  }
+
+  if (isValid != nullptr)
+    *isValid = true;
+
+  std::array<int, 2> f;
+  std::sscanf(m_value.c_str(), "%i %i", &f[0], &f[1]);
+  return {f[0], f[1]};
+}
+
 
 zeus::CVector2f CVar::toVec2f(bool* isValid) const {
   if (m_type != EType::Vec2f) {
@@ -240,6 +263,15 @@ std::string CVar::toLiteral(bool* isValid) const {
 
   // Even if it's not a literal, it's still safe to return
   return m_value;
+}
+
+bool CVar::fromVec2i(const zeus::CVector2i& val) {
+  if (!safeToModify(EType::Vec2i))
+    return false;
+
+  m_value.assign(fmt::format(FMT_STRING("{} {}"), val.x, val.y));
+  m_flags |= EFlags::Modified;
+  return true;
 }
 
 bool CVar::fromVec2f(const zeus::CVector2f& val) {
@@ -433,6 +465,20 @@ void CVar::dispatch() {
   }
 }
 
+bool isInt(std::string_view v) {
+  char* p;
+  std::strtol(v.data(), &p, 10);
+  return p != nullptr && *p == 0;
+}
+
+bool isInt(const std::vector<std::string>& v) {
+  for (auto& s : v) {
+    if (!isInt(s))
+      return false;
+  }
+  return true;
+}
+
 bool isReal(std::string_view v) {
   char* p;
   std::strtod(v.data(), &p);
@@ -468,6 +514,8 @@ bool CVar::isValidInput(std::string_view input) const {
   }
   case EType::Literal:
     return true;
+  case EType::Vec2i:
+    return parts.size() == 2 && isInt(parts);
   case EType::Vec2f:
   case EType::Vec2d:
     return parts.size() == 2 && isReal(parts);

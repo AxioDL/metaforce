@@ -37,6 +37,10 @@ public:
   CVarManager(FileStoreManager& store, bool useBinary = false);
   ~CVarManager();
 
+  CVar* newCVar(std::string_view name, std::string_view help, const  zeus::CVector2i& value, CVar::EFlags flags) {
+    return _newCVar<const zeus::CVector2i>(name, help, value, flags);
+  }
+
   CVar* newCVar(std::string_view name, std::string_view help, const  zeus::CVector2f& value, CVar::EFlags flags) {
     return _newCVar<const zeus::CVector2f>(name, help, value, flags);
   }

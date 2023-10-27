@@ -27,6 +27,8 @@ struct CVarCommons {
   CVar* m_texAnisotropy = nullptr;
   CVar* m_deepColor = nullptr;
   CVar* m_variableDt = nullptr;
+  CVar* m_windowSize = nullptr;
+  CVar* m_windowPos = nullptr;
 
   CVar* m_debugOverlayPlayerInfo = nullptr;
   CVar* m_debugOverlayWorldInfo = nullptr;
@@ -68,6 +70,8 @@ struct CVarCommons {
   void setSamples(uint32_t v) { m_drawSamples->fromInteger(std::max(uint32_t(1), v)); }
 
   uint32_t getAnisotropy() const { return std::max(1u, uint32_t(m_texAnisotropy->toUnsigned())); }
+  zeus::CVector2i getWindowSize() const { return m_windowSize->toVec2i(); }
+  zeus::CVector2i getWindowPos() const { return m_windowPos->toVec2i(); }
 
   void setAnisotropy(uint32_t v) { m_texAnisotropy->fromInteger(std::max(1u, v)); }
 

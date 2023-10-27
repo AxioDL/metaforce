@@ -362,7 +362,17 @@ public:
   }
 
   void onAppWindowResized(const AuroraWindowSize& size) noexcept {
+    if (size.width != m_cvarCommons.getWindowSize().x || size.height != m_cvarCommons.getWindowSize().y) {
+      m_cvarCommons.m_windowSize->fromVec2i(zeus::CVector2i(size.width, size.height));
+    }
+
     CGraphics::SetViewportResolution({static_cast<s32>(size.fb_width), static_cast<s32>(size.fb_height)});
+  }
+
+  void onAppWindowMoved(const AuroraWindowPos& pos) {
+    if (pos.x > 0 && pos.y > 0 && (pos.x != m_cvarCommons.getWindowPos().x || pos.y != m_cvarCommons.getWindowPos().y)) {
+      m_cvarCommons.m_windowPos->fromVec2i(zeus::CVector2i(pos.x, pos.y));
+    }
   }
 
   void onAppDisplayScaleChanged(float scale) noexcept { ImGuiEngine_Initialize(scale); }
@@ -519,6 +529,8 @@ int main(int argc, char** argv) {
 
     g_app = std::make_unique<metaforce::Application>(argc, argv, fileMgr, cvarMgr, cvarCmns);
     std::string configPath{fileMgr.getStoreRoot()};
+
+
     const AuroraConfig config{
         .appName = "Metaforce",
         .configPath = configPath.c_str(),
@@ -526,6 +538,10 @@ int main(int argc, char** argv) {
         .msaa = cvarCmns.getSamples(),
         .maxTextureAnisotropy = static_cast<uint16_t>(cvarCmns.getAnisotropy()),
         .startFullscreen = cvarCmns.getFullscreen(),
+        .windowPosX = cvarCmns.getWindowPos().x,
+        .windowPosY =  cvarCmns.getWindowPos().y,
+        .windowWidth = static_cast<uint>(cvarCmns.getWindowSize().x < 0 ? 0 : cvarCmns.getWindowSize().x),
+        .windowHeight = static_cast<uint>(cvarCmns.getWindowSize().y < 0 ? 0 : cvarCmns.getWindowSize().y),
         .iconRGBA8 = icon.data.get(),
         .iconWidth = icon.width,
         .iconHeight = icon.height,
@@ -550,6 +566,9 @@ int main(int argc, char** argv) {
           break;
         case AURORA_WINDOW_RESIZED:
           g_app->onAppWindowResized(event->windowSize);
+          break;
+        case AURORA_WINDOW_MOVED:
+          g_app->onAppWindowMoved(event->windowPos);
           break;
         case AURORA_CONTROLLER_ADDED:
           g_app->onControllerAdded(event->controller);

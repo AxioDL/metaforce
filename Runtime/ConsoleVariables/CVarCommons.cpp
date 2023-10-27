@@ -19,6 +19,10 @@ CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
                                      CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::ModifyRestart);
   m_variableDt = m_mgr.findOrMakeCVar("variableDt", "Enable variable delta time (experimental)", false,
                                       (CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::ModifyRestart));
+  m_windowSize = m_mgr.findOrMakeCVar("windowSize", "Stores the last known window size", zeus::CVector2i(1280, 960),
+                                      (CVar::EFlags::System | CVar::EFlags::Archive));
+  m_windowPos = m_mgr.findOrMakeCVar("windowPos", "Stores the last known window position", zeus::CVector2i(-1, -1),
+                                      (CVar::EFlags::System | CVar::EFlags::Archive));
 
   m_debugOverlayPlayerInfo = m_mgr.findOrMakeCVar(
       "debugOverlay.playerInfo"sv, "Displays information about the player, such as location and orientation"sv, false,
@@ -58,8 +62,8 @@ CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
       m_mgr.findOrMakeCVar("debugOverlay.drawCallInfo"sv, "Displays the current number of draw calls per frame"sv,
                            false, CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
   m_debugOverlayBufferInfo =
-      m_mgr.findOrMakeCVar("debugOverlay.bufferInfo"sv, "Displays the current buffer memory usage per frame"sv,
-                           false, CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
+      m_mgr.findOrMakeCVar("debugOverlay.bufferInfo"sv, "Displays the current buffer memory usage per frame"sv, false,
+                           CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
   m_debugOverlayShowInput = m_mgr.findOrMakeCVar("debugOverlay.showInput"sv, "Displays controller input"sv, false,
                                                  CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
   m_debugOverlayCorner =
