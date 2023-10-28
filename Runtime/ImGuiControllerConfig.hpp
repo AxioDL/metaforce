@@ -3,6 +3,8 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/Streams/CInputStream.hpp"
 #include "Runtime/Streams/COutputStream.hpp"
+
+#include "imgui.h"
 #include <dolphin/pad.h>
 
 #include <array>
@@ -31,7 +33,7 @@ class ImGuiControllerConfig {
     std::vector<std::pair<u16, u16>> vidPids;
     std::string atlasFile; // Path to atlas relative to controller definition
     std::vector<Button> buttons;
-
+    ImTextureID atlasId;
     ControllerAtlas() = default;
     explicit ControllerAtlas(CInputStream& in);
     void PutTo(COutputStream& out) const;

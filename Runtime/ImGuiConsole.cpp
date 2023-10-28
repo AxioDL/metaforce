@@ -1050,20 +1050,8 @@ void ImGuiConsole::ShowInputViewer() {
     windowFlags |= ImGuiWindowFlags_NoMove;
   }
 
-  if (m_initialInputOverlayDraw && m_inputOverlayCorner == -1) {
-    ImGui::SetNextWindowPos(m_inputOverlayPos);
-    m_initialInputOverlayDraw = false;
-  }
-
   ImGui::SetNextWindowBgAlpha(0.65f);
   if (ImGui::Begin("Input Overlay", nullptr, windowFlags)) {
-    /* If the position has changed and we're not in a corner, grab it and store it */
-    if (m_inputOverlayCorner == -1 &&
-        (ImGui::GetWindowPos().x != m_inputOverlayPos.x() || ImGui::GetWindowPos().y != m_inputOverlayPos.y())) {
-      m_inputOverlayPos = ImGui::GetWindowPos();
-      m_cvarCommons.m_debugInputOverlayPos->fromVec2f(m_inputOverlayPos);
-    }
-
     float scale = GetScale();
     if (!m_controllerName.empty()) {
       TextCenter(m_controllerName);
@@ -1893,7 +1881,7 @@ void ImGuiConsole::ControllerRemoved(uint32_t idx) {
 }
 
 static void ImGuiCVarCheckbox(CVarManager& mgr, std::string_view cvarName, const char* label, bool* ptr = nullptr) {
-  auto* cvar = mgr.findOrMakeCVar(cvarName, ""sv, false, CVar::EFlags::Game | CVar::EFlags::Archive);
+  auto* cvar = mgr.findCVar(cvarName);
   if (cvar != nullptr) {
     bool value = cvar->toBoolean();
     bool modified = false;
@@ -1945,6 +1933,7 @@ void ImGuiConsole::ShowPreLaunchSettingsWindow() {
         ImGui::EndTabItem();
       }
       if (ImGui::BeginTabItem("Game")) {
+        ImGuiCVarCheckbox(m_cvarMgr, "allowJoystickInBackground", "Enable Background Joystick Input");
         ImGuiCVarCheckbox(m_cvarMgr, "tweak.game.SplashScreensDisabled", "Skip Splash Screens");
         ImGuiCVarCheckbox(m_cvarMgr, "cheats", "Enable Cheats", &m_cheats);
         if (m_cheats) {

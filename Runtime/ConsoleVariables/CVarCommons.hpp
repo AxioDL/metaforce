@@ -22,6 +22,7 @@ using namespace std::literals;
 struct CVarCommons {
   CVarManager& m_mgr;
   CVar* m_fullscreen = nullptr;
+  CVar* m_allowJoystickInBackground = nullptr;
   CVar* m_graphicsApi = nullptr;
   CVar* m_drawSamples = nullptr;
   CVar* m_texAnisotropy = nullptr;
@@ -46,7 +47,6 @@ struct CVarCommons {
   CVar* m_debugOverlayShowInput = nullptr;
   CVar* m_debugOverlayCorner = nullptr;
   CVar* m_debugInputOverlayCorner = nullptr;
-  CVar* m_debugInputOverlayPos = nullptr;
   CVar* m_debugToolDrawAiPath = nullptr;
   CVar* m_debugToolDrawLighting = nullptr;
   CVar* m_debugToolDrawCollisionActors = nullptr;
@@ -58,6 +58,7 @@ struct CVarCommons {
   CVarCommons(CVarManager& manager);
 
   bool getFullscreen() const { return m_fullscreen->toBoolean(); }
+  bool getAllowJoystickInBackground() const { return m_allowJoystickInBackground->toBoolean(); }
 
   void setFullscreen(bool b) { m_fullscreen->fromBoolean(b); }
 

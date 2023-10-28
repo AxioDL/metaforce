@@ -132,8 +132,6 @@ private:
 
   int m_debugOverlayCorner = m_cvarCommons.m_debugOverlayCorner->toSigned();
   int m_inputOverlayCorner = m_cvarCommons.m_debugInputOverlayCorner->toSigned();
-  zeus::CVector2f m_inputOverlayPos = m_cvarCommons.m_debugInputOverlayPos->toVec2f();
-  bool m_initialInputOverlayDraw = true;
   const void* m_currentRoom = nullptr;
   double m_lastRoomTime = 0.f;
   double m_currentRoomStart = 0.f;

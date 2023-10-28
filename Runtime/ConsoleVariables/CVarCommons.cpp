@@ -8,6 +8,9 @@ CVarCommons* m_instance = nullptr;
 CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
   m_fullscreen = m_mgr.findOrMakeCVar("fullscreen"sv, "Start in fullscreen"sv, false,
                                       CVar::EFlags::System | CVar::EFlags::Archive);
+  m_allowJoystickInBackground =
+      m_mgr.findOrMakeCVar("allowJoystickInBackground"sv, "Enable joystick input while window does not have focus"sv,
+                           true, CVar::EFlags::System | CVar::EFlags::Archive);
   m_graphicsApi = m_mgr.findOrMakeCVar("graphicsApi"sv, "API to use for rendering graphics"sv, DEFAULT_GRAPHICS_API,
                                        CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::ModifyRestart);
   m_drawSamples = m_mgr.findOrMakeCVar("drawSamples"sv, "Number of MSAA samples to use for render targets"sv, 1,
@@ -22,7 +25,7 @@ CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
   m_windowSize = m_mgr.findOrMakeCVar("windowSize", "Stores the last known window size", zeus::CVector2i(1280, 960),
                                       (CVar::EFlags::System | CVar::EFlags::Archive));
   m_windowPos = m_mgr.findOrMakeCVar("windowPos", "Stores the last known window position", zeus::CVector2i(-1, -1),
-                                      (CVar::EFlags::System | CVar::EFlags::Archive));
+                                     (CVar::EFlags::System | CVar::EFlags::Archive));
 
   m_debugOverlayPlayerInfo = m_mgr.findOrMakeCVar(
       "debugOverlay.playerInfo"sv, "Displays information about the player, such as location and orientation"sv, false,
@@ -71,10 +74,6 @@ CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
                            CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::Hidden);
   m_debugInputOverlayCorner =
       m_mgr.findOrMakeCVar("debugOverlay.inputOverlayCorner"sv, "ImGui input overlay corner"sv, 3 /* bottom-right */,
-                           CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::Hidden);
-  m_debugInputOverlayPos =
-      m_mgr.findOrMakeCVar("debugOverlay.inputOverlayPosition"sv, "ImGui custom input overlay position"sv,
-                           zeus::CVector2f{0.f, 0.f} /* uninitialized */,
                            CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::Hidden);
 
   m_debugToolDrawAiPath =

@@ -538,6 +538,7 @@ int main(int argc, char** argv) {
         .msaa = cvarCmns.getSamples(),
         .maxTextureAnisotropy = static_cast<uint16_t>(cvarCmns.getAnisotropy()),
         .startFullscreen = cvarCmns.getFullscreen(),
+        .allowJoystickBackgroundEvents = cvarCmns.getAllowJoystickInBackground(),
         .windowPosX = cvarCmns.getWindowPos().x,
         .windowPosY =  cvarCmns.getWindowPos().y,
         .windowWidth = static_cast<uint>(cvarCmns.getWindowSize().x < 0 ? 0 : cvarCmns.getWindowSize().x),
