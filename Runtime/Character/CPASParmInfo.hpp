@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Character/CPASAnimParm.hpp"
 
 namespace metaforce {

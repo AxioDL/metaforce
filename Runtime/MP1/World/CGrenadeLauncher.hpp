@@ -29,10 +29,10 @@ private:
 
 public:
   explicit SGrenadeTrajectoryInfo(CInputStream& in)
-  : x0_velocityMin(in.readFloatBig())
-  , x4_velocityMax(in.readFloatBig())
-  , x8_angleMin(zeus::degToRad(in.readFloatBig()))
-  , xc_angleMax(zeus::degToRad(in.readFloatBig())) {}
+  : x0_velocityMin(in.ReadFloat())
+  , x4_velocityMax(in.ReadFloat())
+  , x8_angleMin(zeus::degToRad(in.ReadFloat()))
+  , xc_angleMax(zeus::degToRad(in.ReadFloat())) {}
 
   [[nodiscard]] float GetVelocityMin() const { return x0_velocityMin; }
   [[nodiscard]] float GetVelocityMax() const { return x4_velocityMax; }

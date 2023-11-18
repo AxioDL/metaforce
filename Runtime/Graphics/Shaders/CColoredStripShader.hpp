@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include "Runtime/Graphics/CGraphics.hpp"
 
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
@@ -16,13 +16,13 @@ private:
     zeus::CMatrix4f m_matrix;
     zeus::CColor m_color;
   };
-  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+//  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
   Uniform m_uniform;
 
-  void BuildResources(boo::IGraphicsDataFactory::Context& ctx, size_t maxVerts, Mode mode,
-                      boo::ObjToken<boo::ITexture> tex);
+//  void BuildResources(boo::IGraphicsDataFactory::Context& ctx, size_t maxVerts, Mode mode,
+//                      boo::ObjToken<boo::ITexture> tex);
 
 public:
   struct Vert {
@@ -32,9 +32,7 @@ public:
   };
   static void Initialize();
   static void Shutdown();
-  CColoredStripShader(size_t maxVerts, Mode mode, boo::ObjToken<boo::ITexture> tex);
-  CColoredStripShader(boo::IGraphicsDataFactory::Context& ctx, size_t maxVerts, Mode mode,
-                      boo::ObjToken<boo::ITexture> tex);
+  CColoredStripShader(size_t maxVerts, Mode mode, CTexture& tex);
   void draw(const zeus::CColor& color, size_t numVerts, const Vert* verts);
 };
 

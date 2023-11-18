@@ -5,29 +5,29 @@
 namespace metaforce {
 
 CPFNode::CPFNode(CMemoryInStream& in) {
-  x0_position.readBig(in);
-  xc_normal.readBig(in);
+  x0_position = in.Get<zeus::CVector3f>();
+  xc_normal = in.Get<zeus::CVector3f>();
 }
 
 CPFLink::CPFLink(CMemoryInStream& in) {
-  x0_node = in.readUint32Big();
-  x4_region = in.readUint32Big();
-  x8_2dWidth = in.readFloatBig();
-  xc_oo2dWidth = in.readFloatBig();
+  x0_node = in.ReadLong();
+  x4_region = in.ReadLong();
+  x8_2dWidth = in.ReadFloat();
+  xc_oo2dWidth = in.ReadFloat();
 }
 
 CPFRegion::CPFRegion(CMemoryInStream& in) {
-  x0_numNodes = in.readUint32Big();
-  x4_startNode = reinterpret_cast<CPFNode*>(in.readUint32Big());
-  x8_numLinks = in.readUint32Big();
-  xc_startLink = reinterpret_cast<CPFLink*>(in.readUint32Big());
-  x10_flags = in.readUint32Big();
-  x14_height = in.readFloatBig();
-  x18_normal.readBig(in);
-  x24_regionIdx = in.readUint32Big();
-  x28_centroid.readBig(in);
-  x34_aabb.readBoundingBoxBig(in);
-  x4c_regionData = reinterpret_cast<CPFRegionData*>(in.readUint32Big());
+  x0_numNodes = in.ReadLong();
+  x4_startNode = reinterpret_cast<CPFNode*>(in.ReadLong());
+  x8_numLinks = in.ReadLong();
+  xc_startLink = reinterpret_cast<CPFLink*>(in.ReadLong());
+  x10_flags = in.ReadLong();
+  x14_height = in.ReadFloat();
+  x18_normal = in.Get<zeus::CVector3f>();
+  x24_regionIdx = in.ReadLong();
+  x28_centroid = in.Get<zeus::CVector3f>();
+  x34_aabb = in.Get<zeus::CAABox>();
+  x4c_regionData = reinterpret_cast<CPFRegionData*>(in.ReadLong());
 }
 
 const CPFLink* CPFRegion::GetPathLink() const { return &xc_startLink[x4c_regionData->GetPathLink()]; }

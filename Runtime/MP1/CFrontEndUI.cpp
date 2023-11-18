@@ -56,7 +56,7 @@ struct FEMovie {
   bool loop;
 };
 
-constexpr std::array<FEMovie, 9> FEMovies{{
+constexpr std::array<FEMovie, 8> FEMovies{{
     {"Video/00_first_start.thp", false},
     {"Video/01_startloop.thp", true},
     {"Video/02_start_fileselect_A.thp", false},
@@ -65,10 +65,9 @@ constexpr std::array<FEMovie, 9> FEMovies{{
     {"Video/06_fileselect_GBA.thp", false},
     {"Video/07_GBAloop.thp", true},
     {"Video/08_GBA_fileselect.thp", false},
-    {"Video/08_GBA_fileselect.thp", false},
 }};
 
-constexpr SObjectTag g_DefaultWorldTag = {FOURCC('MLVL'), 0x158efe17};
+constexpr SObjectTag g_DefaultWorldTag = {FOURCC('MLVL'), 0x158efe17u};
 
 constexpr std::array<float, 3> AudioFadeTimeA{
     0.44f,
@@ -114,8 +113,7 @@ void CFrontEndUI::PlayAdvanceSfx() {
   CSfxManager::SfxStart(SFXfnt_advance_R, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
-CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveGameScreen* sui, u32 rnd, CFrontEndUITouchBar& touchBar)
-: x0_rnd(rnd), x4_saveUI(sui), m_touchBar(touchBar) {
+CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveGameScreen* sui, u32 rnd) : x0_rnd(rnd), x4_saveUI(sui) {
   x10_frme = g_SimplePool->GetObj("FRME_NewFileSelect");
 }
 
@@ -219,8 +217,7 @@ void CFrontEndUI::SNewFileSelectFrame::Update(float dt) {
   x1c_loadedFrame->Update(dt);
 }
 
-CFrontEndUI::SNewFileSelectFrame::EAction
-CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input, CFrontEndUITouchBar::EAction tbAction) {
+CFrontEndUI::SNewFileSelectFrame::EAction CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input) {
   xc_action = EAction::None;
 
   if (x8_subMenu != ESubMenu::EraseGamePopup)
@@ -234,46 +231,6 @@ CFrontEndUI::SNewFileSelectFrame::ProcessUserInput(const CFinalInput& input, CFr
 
   if (x10c_saveReady) {
     x1c_loadedFrame->ProcessUserInput(input);
-    if (x8_subMenu == ESubMenu::Root || x8_subMenu == ESubMenu::EraseGame) {
-      if (m_touchBar.GetPhase() != CFrontEndUITouchBar::EPhase::FileSelect)
-        HandleActiveChange(x20_tablegroup_fileselect);
-
-      if (tbAction >= CFrontEndUITouchBar::EAction::FileA && tbAction <= CFrontEndUITouchBar::EAction::ImageGallery) {
-        x20_tablegroup_fileselect->SetUserSelection(int(tbAction) - int(CFrontEndUITouchBar::EAction::FileA));
-        HandleActiveChange(x20_tablegroup_fileselect);
-        DoFileMenuAdvance(x20_tablegroup_fileselect);
-      } else if (tbAction == CFrontEndUITouchBar::EAction::Back) {
-        DoFileMenuCancel(x20_tablegroup_fileselect);
-      }
-    } else if (x8_subMenu == ESubMenu::EraseGamePopup) {
-      if (m_touchBar.GetPhase() != CFrontEndUITouchBar::EPhase::EraseBack)
-        HandleActiveChange(x40_tablegroup_popup);
-
-      if (tbAction != CFrontEndUITouchBar::EAction::None) {
-        if (tbAction == CFrontEndUITouchBar::EAction::Confirm)
-          x40_tablegroup_popup->SetUserSelection(1);
-        else
-          x40_tablegroup_popup->SetUserSelection(0);
-        HandleActiveChange(x40_tablegroup_popup);
-        DoPopupAdvance(x40_tablegroup_popup);
-      }
-    } else if (x8_subMenu == ESubMenu::NewGamePopup) {
-      if (m_touchBar.GetPhase() != CFrontEndUITouchBar::EPhase::StartOptions)
-        HandleActiveChange(x40_tablegroup_popup);
-
-      if (tbAction == CFrontEndUITouchBar::EAction::Back) {
-        DoPopupCancel(x40_tablegroup_popup);
-      } else if (tbAction != CFrontEndUITouchBar::EAction::None) {
-        if (tbAction == CFrontEndUITouchBar::EAction::Options)
-          x40_tablegroup_popup->SetUserSelection(1);
-        else if (tbAction == CFrontEndUITouchBar::EAction::Start || tbAction == CFrontEndUITouchBar::EAction::Hard)
-          x40_tablegroup_popup->SetUserSelection(0);
-        else if (tbAction == CFrontEndUITouchBar::EAction::Normal)
-          x40_tablegroup_popup->SetUserSelection(2);
-        HandleActiveChange(x40_tablegroup_popup);
-        DoPopupAdvance(x40_tablegroup_popup);
-      }
-    }
   }
 
   if (x10d_needsEraseToggle) {
@@ -309,25 +266,6 @@ void CFrontEndUI::SNewFileSelectFrame::HandleActiveChange(CGuiTableGroup* active
   if (active == x20_tablegroup_fileselect) {
     x24_model_erase->SetLocalTransform(zeus::CTransform::Translate(
         zeus::CVector3f{0.f, 0.f, active->GetUserSelection() * x104_rowPitch} + xf8_model_erase_position));
-
-    /* Set Touch Bar contents here */
-    std::array<CFrontEndUITouchBar::SFileSelectDetail, 3> tbDetails{};
-    for (size_t i = 0; i < tbDetails.size(); ++i) {
-      if (const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(int(i))) {
-        tbDetails[i].state =
-            data->x20_hardMode ? CFrontEndUITouchBar::EFileState::Hard : CFrontEndUITouchBar::EFileState::Normal;
-        tbDetails[i].percent = data->x18_itemPercent;
-      }
-    }
-    m_touchBar.SetFileSelectPhase(tbDetails.data(), x8_subMenu == ESubMenu::EraseGame,
-                                  CSlideShow::SlideShowGalleryFlags());
-  } else if (active == x40_tablegroup_popup) {
-    if (x8_subMenu == ESubMenu::EraseGamePopup)
-      m_touchBar.SetPhase(CFrontEndUITouchBar::EPhase::EraseBack);
-    else if (x8_subMenu == ESubMenu::NewGamePopup)
-      m_touchBar.SetStartOptionsPhase(g_GameState->SystemOptions().GetPlayerBeatNormalMode());
-    else
-      m_touchBar.SetPhase(CFrontEndUITouchBar::EPhase::None);
   }
 
   if (x8_subMenu == ESubMenu::Root || x8_subMenu == ESubMenu::NewGamePopup)
@@ -683,7 +621,6 @@ void CFrontEndUI::SNewFileSelectFrame::DoFileMenuAdvance(CGuiTableGroup* caller)
       }
     } else {
       if (x4_saveUI->GetGameData(userSel)) {
-        m_touchBar.SetPhase(CFrontEndUITouchBar::EPhase::None);
         x4_saveUI->StartGame(userSel);
       } else
         x10e_needsNewToggle = true;
@@ -713,10 +650,12 @@ void CFrontEndUI::SNewFileSelectFrame::StartTextAnimating(CGuiTextPane* text, st
   text->TextSupport().SetTypeWriteEffectOptions(true, 0.1f, chRate);
 }
 
-CFrontEndUI::SFusionBonusFrame::SFusionBonusFrame(CFrontEndUITouchBar& touchBar) : m_touchBar(touchBar) {
-  x4_gbaSupport = std::make_unique<CGBASupport>();
-  xc_gbaScreen = g_SimplePool->GetObj("FRME_GBAScreen");
-  x18_gbaLink = g_SimplePool->GetObj("FRME_GBALink");
+CFrontEndUI::SFusionBonusFrame::SFusionBonusFrame() {
+  if (!g_Main->IsTrilogy()) {
+    x4_gbaSupport = std::make_unique<CGBASupport>();
+    xc_gbaScreen = g_SimplePool->GetObj("FRME_GBAScreen");
+    x18_gbaLink = g_SimplePool->GetObj("FRME_GBALink");
+  }
 }
 
 void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SetUIText(EUIType tp) {
@@ -829,8 +768,7 @@ void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SetUIText(EUIType tp) {
 }
 
 CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EAction
-CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::ProcessUserInput(const CFinalInput& input, bool linkInProgress,
-                                                                CFrontEndUITouchBar::EAction tbAction) {
+CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::ProcessUserInput(const CFinalInput& input, bool linkInProgress) {
   if (linkInProgress != x40_linkInProgress) {
     x40_linkInProgress = linkInProgress;
     SetUIText(x0_uiType);
@@ -844,12 +782,10 @@ CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::ProcessUserInput(const CFinalInpu
   case EUIType::LinkFailed:
   case EUIType::LinkCompleteOrLinking:
   case EUIType::TurnOffGBA:
-    if (input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || input.PMouseButton(boo::EMouseButton::Primary) ||
-        tbAction == CFrontEndUITouchBar::EAction::Confirm) {
+    if (input.PA() || input.PSpecialKey(ESpecialKey::Enter) || input.PMouseButton(EMouseButton::Primary)) {
       PlayAdvanceSfx();
       SetUIText(NextLinkUI[size_t(x0_uiType)]);
-    } else if (input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
-               tbAction == CFrontEndUITouchBar::EAction::Back) {
+    } else if (input.PB() || input.PSpecialKey(ESpecialKey::Esc)) {
       const EUIType prevUi = PrevLinkUI[size_t(x0_uiType)];
       if (prevUi == EUIType::Empty) {
         break;
@@ -1024,9 +960,8 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveGameScreen* saveUI) {
   x30_textpane_instructions.SetPairText(instructionStr);
 }
 
-CFrontEndUI::SFusionBonusFrame::EAction
-CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSaveGameScreen* sui,
-                                                 CFrontEndUITouchBar::EAction tbAction) {
+CFrontEndUI::SFusionBonusFrame::EAction CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input,
+                                                                                         CSaveGameScreen* sui) {
   x8_action = EAction::None;
 
   if (sui)
@@ -1034,10 +969,7 @@ CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSave
 
   if (x38_lastDoDraw) {
     if (x0_gbaLinkFrame) {
-      if (m_touchBar.GetPhase() != CFrontEndUITouchBar::EPhase::ProceedBack)
-        m_touchBar.SetPhase(CFrontEndUITouchBar::EPhase::ProceedBack);
-
-      SGBALinkFrame::EAction action = x0_gbaLinkFrame->ProcessUserInput(input, sui, tbAction);
+      SGBALinkFrame::EAction action = x0_gbaLinkFrame->ProcessUserInput(input, sui);
       if (action != SGBALinkFrame::EAction::None) {
         x0_gbaLinkFrame.reset();
         if (action == SGBALinkFrame::EAction::Complete) {
@@ -1049,49 +981,11 @@ CFrontEndUI::SFusionBonusFrame::ProcessUserInput(const CFinalInput& input, CSave
       }
     } else if (x24_loadedFrame) {
       CFinalInput useInput = input;
-      if (input.PZ() || input.PKey('\t')) {
+      if (input.PZ() || input.PSpecialKey(ESpecialKey::Tab)) {
         useInput.x2d_b28_PA = true;
         m_gbaOverride = true;
       }
-
-      bool showFusionSuit = (g_GameState->SystemOptions().GetPlayerLinkedFusion() &&
-                             g_GameState->SystemOptions().GetPlayerBeatNormalMode()) ||
-                            m_gbaOverride;
-      if (m_touchBar.GetPhase() != CFrontEndUITouchBar::EPhase::FusionBonus) {
-        m_touchBar.SetFusionBonusPhase(showFusionSuit && g_GameState->SystemOptions().GetPlayerFusionSuitActive());
-      }
-
       x24_loadedFrame->ProcessUserInput(useInput);
-
-      switch (tbAction) {
-      case CFrontEndUITouchBar::EAction::NESMetroid:
-        x28_tablegroup_options->SetUserSelection(0);
-        ResetCompletionFlags();
-        SetTableColors(x28_tablegroup_options);
-        DoAdvance(x28_tablegroup_options);
-        break;
-      case CFrontEndUITouchBar::EAction::FusionSuit:
-        x28_tablegroup_options->SetUserSelection(1);
-        ResetCompletionFlags();
-        SetTableColors(x28_tablegroup_options);
-        if (showFusionSuit) {
-          if (x2c_tablegroup_fusionsuit->GetUserSelection() == 1) {
-            x2c_tablegroup_fusionsuit->SetUserSelection(0);
-            DoSelectionChange(x2c_tablegroup_fusionsuit, 0);
-          } else {
-            x2c_tablegroup_fusionsuit->SetUserSelection(1);
-            DoSelectionChange(x2c_tablegroup_fusionsuit, 1);
-          }
-        } else {
-          DoAdvance(x28_tablegroup_options);
-        }
-        break;
-      case CFrontEndUITouchBar::EAction::Back:
-        DoCancel(x28_tablegroup_options);
-        break;
-      default:
-        break;
-      }
     }
   }
 
@@ -1124,7 +1018,6 @@ void CFrontEndUI::SFusionBonusFrame::DoSelectionChange(CGuiTableGroup* caller, i
     bool fusionActive = x2c_tablegroup_fusionsuit->GetUserSelection() == 1;
     g_GameState->SystemOptions().SetPlayerFusionSuitActive(fusionActive);
     g_GameState->GetPlayerState()->SetIsFusionEnabled(fusionActive);
-    m_touchBar.SetFusionBonusPhase(g_GameState->SystemOptions().GetPlayerFusionSuitActive());
   }
   SetTableColors(caller);
 }
@@ -1254,39 +1147,9 @@ void CFrontEndUI::SFrontEndFrame::Update(float dt) {
   x14_loadedFrme->Update(dt);
 }
 
-CFrontEndUI::SFrontEndFrame::EAction
-CFrontEndUI::SFrontEndFrame::ProcessUserInput(const CFinalInput& input, CFrontEndUITouchBar::EAction tbAction) {
-  if (m_touchBar.GetPhase() != CFrontEndUITouchBar::EPhase::NoCardSelect)
-    m_touchBar.SetNoCardSelectPhase(CSlideShow::SlideShowGalleryFlags());
-
+CFrontEndUI::SFrontEndFrame::EAction CFrontEndUI::SFrontEndFrame::ProcessUserInput(const CFinalInput& input) {
   x4_action = EAction::None;
   x14_loadedFrme->ProcessUserInput(input);
-
-  switch (tbAction) {
-  case CFrontEndUITouchBar::EAction::Start:
-    x18_tablegroup_mainmenu->SetUserSelection(0);
-    HandleActiveChange(x18_tablegroup_mainmenu);
-    DoAdvance(x18_tablegroup_mainmenu);
-    break;
-  case CFrontEndUITouchBar::EAction::FusionBonus:
-    x18_tablegroup_mainmenu->SetUserSelection(1);
-    HandleActiveChange(x18_tablegroup_mainmenu);
-    DoAdvance(x18_tablegroup_mainmenu);
-    break;
-  case CFrontEndUITouchBar::EAction::Options:
-    x18_tablegroup_mainmenu->SetUserSelection(2);
-    HandleActiveChange(x18_tablegroup_mainmenu);
-    DoAdvance(x18_tablegroup_mainmenu);
-    break;
-  case CFrontEndUITouchBar::EAction::ImageGallery:
-    x18_tablegroup_mainmenu->SetUserSelection(3);
-    HandleActiveChange(x18_tablegroup_mainmenu);
-    DoAdvance(x18_tablegroup_mainmenu);
-    break;
-  default:
-    break;
-  }
-
   return x4_action;
 }
 
@@ -1327,8 +1190,7 @@ void CFrontEndUI::SFrontEndFrame::DoAdvance(CGuiTableGroup* caller) {
   }
 }
 
-CFrontEndUI::SFrontEndFrame::SFrontEndFrame(u32 rnd, CFrontEndUITouchBar& touchBar)
-: x0_rnd(rnd), m_touchBar(touchBar) {
+CFrontEndUI::SFrontEndFrame::SFrontEndFrame(u32 rnd) : x0_rnd(rnd) {
   x8_frme = g_SimplePool->GetObj("FRME_FrontEndPL");
 }
 
@@ -1376,7 +1238,7 @@ void CFrontEndUI::SNesEmulatorFrame::ProcessUserInput(const CFinalInput& input, 
   switch (x0_mode) {
   case EMode::Emulator:
     x4_nesEmu->ProcessUserInput(input, 4);
-    if ((input.ControllerIdx() == 0 && input.PL()) || input.PSpecialKey(boo::ESpecialKey::Esc))
+    if ((input.ControllerIdx() == 0 && input.PL()) || input.PSpecialKey(ESpecialKey::Esc))
       SetMode(EMode::QuitNESMetroid);
     break;
   case EMode::SaveProgress:
@@ -1480,7 +1342,7 @@ void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveGameScreen* saveUi) const {
   if (x10_remTime <= 0.f)
     return;
   if (xc_textSupport->GetIsTextSupportFinishedLoading()) {
-    float aspect = g_Viewport.aspect / 1.33f;
+    float aspect = CGraphics::GetViewportAspect() / 1.33f;
     CGraphics::SetOrtho(-320.f * aspect, 320.f * aspect, 240.f, -240.f, -4096.f, 4096.f);
     CGraphics::SetViewPointMatrix(zeus::CTransform());
     CGraphics::SetModelMatrix(zeus::CTransform::Translate(-220.f, 0.f, -200.f));
@@ -1500,7 +1362,6 @@ void CFrontEndUI::SOptionsFrontEndFrame::DoSliderChange(CGuiSliderGroup* caller,
     const auto& optionCategory = GameOptionsRegistry[leftSel];
     const SGameOption& option = optionCategory.second[rightSel];
     CGameOptions::SetOption(option.option, caller->GetGurVal());
-    m_touchBarValueDirty = true;
   }
 }
 
@@ -1530,12 +1391,11 @@ void CFrontEndUI::SOptionsFrontEndFrame::DoMenuSelectionChange(CGuiTableGroup* c
       const auto& optionCategory = GameOptionsRegistry[leftSel];
       const SGameOption& option = optionCategory.second[rightSel];
       CGameOptions::SetOption(option.option, caller->GetUserSelection());
-      m_touchBarValueDirty = true;
       CSfxManager::SfxStart(SFXfnt_enum_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 
       if (option.option == EGameOption::Rumble && caller->GetUserSelection() > 0) {
         x40_rumbleGen.HardStopAll();
-        x40_rumbleGen.Rumble(RumbleFxTable[size_t(ERumbleFxId::PlayerBump)], 1.f, ERumblePriority::One, EIOPort::Zero);
+        x40_rumbleGen.Rumble(RumbleFxTable[size_t(ERumbleFxId::PlayerBump)], 1.f, ERumblePriority::One, EIOPort::Player1);
       }
     }
   }
@@ -1708,7 +1568,6 @@ bool CFrontEndUI::SOptionsFrontEndFrame::PumpLoad() {
     return false;
   x1c_loadedFrame = x4_frme.GetObj();
   x20_loadedPauseStrg = x10_pauseScreen.GetObj();
-  m_touchBar = NewGameOptionsTouchBar();
   FinishedLoading();
   return true;
 }
@@ -1718,7 +1577,7 @@ bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& inp
   if (sui)
     sui->ProcessUserInput(input);
   if (x1c_loadedFrame && x134_24_visible) {
-    if ((input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc)) && x24_tablegroup_leftmenu->GetIsActive()) {
+    if ((input.PB() || input.PSpecialKey(ESpecialKey::Esc)) && x24_tablegroup_leftmenu->GetIsActive()) {
       x134_25_exitOptions = true;
       CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     } else {
@@ -1726,66 +1585,6 @@ bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& inp
       int leftSel = x24_tablegroup_leftmenu->GetUserSelection();
       int rightSel = x28_tablegroup_rightmenu->GetUserSelection();
       CGameOptions::TryRestoreDefaults(input, leftSel, rightSel, true, false);
-
-      CGameOptionsTouchBar::EAction tbAction = m_touchBar->PopAction();
-      if (x28_tablegroup_rightmenu->GetIsActive()) {
-        if (tbAction == CGameOptionsTouchBar::EAction::Advance && !m_touchBarInValue) {
-          int value;
-          m_touchBar->GetSelection(leftSel, rightSel, value);
-          x28_tablegroup_rightmenu->SetUserSelection(rightSel);
-          SetTableColors(x28_tablegroup_rightmenu);
-          HandleRightSelectionChange();
-          const auto& optionCategory = GameOptionsRegistry[leftSel];
-          const SGameOption& option = optionCategory.second[rightSel];
-          if (option.type != EOptionType::RestoreDefaults) {
-            m_touchBarInValue = true;
-            m_touchBarValueDirty = true;
-          } else {
-            CGameOptions::TryRestoreDefaults(input, leftSel, rightSel, true, true);
-          }
-        } else if (tbAction == CGameOptionsTouchBar::EAction::Back) {
-          if (m_touchBarInValue)
-            m_touchBarInValue = false;
-          else
-            DoMenuCancel(x28_tablegroup_rightmenu);
-        } else if (tbAction == CGameOptionsTouchBar::EAction::ValueChange) {
-          int value;
-          m_touchBar->GetSelection(leftSel, rightSel, value);
-          const auto& optionCategory = GameOptionsRegistry[leftSel];
-          const SGameOption& option = optionCategory.second[rightSel];
-          CGameOptions::SetOption(option.option, value);
-          if (option.type != EOptionType::Float)
-            m_touchBarValueDirty = true;
-          HandleRightSelectionChange();
-        } else {
-          if (m_touchBarInValue) {
-            if (m_touchBarValueDirty) {
-              const auto& optionCategory = GameOptionsRegistry[leftSel];
-              const SGameOption& option = optionCategory.second[rightSel];
-              int value = CGameOptions::GetOption(option.option);
-              m_touchBar->SetSelection(leftSel, rightSel, value);
-              m_touchBarValueDirty = false;
-            }
-          } else {
-            m_touchBar->SetSelection(leftSel, -1, -1);
-          }
-        }
-      } else {
-        if (tbAction == CGameOptionsTouchBar::EAction::Advance) {
-          int value;
-          m_touchBar->GetSelection(leftSel, rightSel, value);
-          x24_tablegroup_leftmenu->SetUserSelection(leftSel);
-          SetTableColors(x24_tablegroup_leftmenu);
-          SetRightUIText();
-          DoLeftMenuAdvance(x24_tablegroup_leftmenu);
-        }
-        if (tbAction == CGameOptionsTouchBar::EAction::Back) {
-          x134_25_exitOptions = true;
-          CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-        } else {
-          m_touchBar->SetSelection(-1, -1, -1);
-        }
-      }
     }
   }
   return !x134_25_exitOptions;
@@ -1840,19 +1639,16 @@ CFrontEndUI::CFrontEndUI() : CIOWin("FrontEndUI") {
 
   for (int i = 0; CDvdFile::FileExists(GetAttractMovieFileName(i)); ++i)
     ++xc0_attractCount;
-
-  m_touchBar = NewFrontEndUITouchBar();
-  m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
 }
 
 CFrontEndUI::~CFrontEndUI() {
   if (x14_phase >= EPhase::DisplayFrontEnd) {
-    CAudioSys::RemoveAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
+    //CAudioSys::RemoveAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
   }
 }
 
 void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue) {
-  xf4_curAudio->StopMixing();
+  //xf4_curAudio->StopMixing();
   queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, std::make_shared<CSlideShow>()));
 }
 
@@ -1872,19 +1668,20 @@ void CFrontEndUI::SetCurrentMovie(EMenuMovie movie) {
   }
 
   StopAttractMovie();
+  if (!g_Main->IsTrilogy()) {
+    if (xb8_curMovie != EMenuMovie::Stopped) {
+      xcc_curMoviePtr->SetPlayMode(CMoviePlayer::EPlayMode::Stopped);
+      xcc_curMoviePtr->Rewind();
+    }
 
-  if (xb8_curMovie != EMenuMovie::Stopped) {
-    xcc_curMoviePtr->SetPlayMode(CMoviePlayer::EPlayMode::Stopped);
-    xcc_curMoviePtr->Rewind();
-  }
+    xb8_curMovie = movie;
 
-  xb8_curMovie = movie;
-
-  if (xb8_curMovie != EMenuMovie::Stopped) {
-    xcc_curMoviePtr = x70_menuMovies[size_t(xb8_curMovie)].get();
-    xcc_curMoviePtr->SetPlayMode(CMoviePlayer::EPlayMode::Playing);
-  } else {
-    xcc_curMoviePtr = nullptr;
+    if (xb8_curMovie != EMenuMovie::Stopped) {
+      xcc_curMoviePtr = x70_menuMovies[size_t(xb8_curMovie)].get();
+      xcc_curMoviePtr->SetPlayMode(CMoviePlayer::EPlayMode::Playing);
+    } else {
+      xcc_curMoviePtr = nullptr;
+    }
   }
 }
 
@@ -1909,15 +1706,15 @@ void CFrontEndUI::StartStateTransition(EScreen screen) {
     if (screen != EScreen::FileSelect)
       break;
     SetCurrentMovie(EMenuMovie::StartFileSelectA);
-    SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
+    SetFadeBlackTimer(!g_Main->IsTrilogy() ? xcc_curMoviePtr->GetTotalSeconds() : 5);
     break;
   case EScreen::FileSelect:
     if (screen == EScreen::ToPlayGame) {
       SetCurrentMovie(EMenuMovie::FileSelectPlayGameA);
-      SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
+      SetFadeBlackTimer(!g_Main->IsTrilogy() ? xcc_curMoviePtr->GetTotalSeconds() : 5);
     } else if (screen == EScreen::FusionBonus) {
       SetCurrentMovie(EMenuMovie::FileSelectGBA);
-      SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
+      SetFadeBlackTimer(!g_Main->IsTrilogy() ? xcc_curMoviePtr->GetTotalSeconds() : 5);
       CSfxManager::SfxStart(SFXfnt_tofusion_L, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
       CSfxManager::SfxStart(SFXfnt_tofusion_R, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
@@ -1925,10 +1722,10 @@ void CFrontEndUI::StartStateTransition(EScreen screen) {
   case EScreen::FusionBonus:
     if (screen == EScreen::ToPlayGame) {
       SetCurrentMovie(EMenuMovie::GBAFileSelectB);
-      SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
+      SetFadeBlackTimer(!g_Main->IsTrilogy() ? xcc_curMoviePtr->GetTotalSeconds() : 5);
     } else if (screen == EScreen::FileSelect) {
       SetCurrentMovie(EMenuMovie::GBAFileSelectA);
-      SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
+      SetFadeBlackTimer(!g_Main->IsTrilogy() ? xcc_curMoviePtr->GetTotalSeconds() : 5);
       CSfxManager::SfxStart(SFXfnt_fromfusion_L, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
       CSfxManager::SfxStart(SFXfnt_fromfusion_R, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
@@ -1941,7 +1738,7 @@ void CFrontEndUI::StartStateTransition(EScreen screen) {
   case EScreen::OpenCredits:
   case EScreen::Title:
     SetCurrentMovie(EMenuMovie::FirstStart);
-    SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
+    SetFadeBlackTimer(!g_Main->IsTrilogy() ? xcc_curMoviePtr->GetTotalSeconds() : 5);
     break;
   case EScreen::AttractMovie:
     StartAttractMovie();
@@ -1974,9 +1771,9 @@ void CFrontEndUI::CompleteStateTransition() {
   case EScreen::FileSelect:
     SetCurrentMovie(EMenuMovie::FileSelectLoop);
     if (oldScreen == EScreen::Title) {
-      xf4_curAudio->StopMixing();
-      xf4_curAudio = xd8_audio2.get();
-      xf4_curAudio->StartMixing();
+      //xf4_curAudio->StopMixing();
+      //xf4_curAudio = xd8_audio2.get();
+      //xf4_curAudio->StartMixing();
     }
     if (xdc_saveUI)
       xdc_saveUI->ResetCardDriver();
@@ -2006,23 +1803,9 @@ void CFrontEndUI::Draw() {
   if (xec_emuFrme) {
     xec_emuFrme->Draw(xdc_saveUI.get());
   } else {
-    // g_Renderer->SetDepthReadWrite(false, false);
-    g_Renderer->SetViewportOrtho(false, -4096.f, 4096.f);
-
-    /* Correct movie aspect ratio */
-    float hPad, vPad;
-    if (g_Viewport.aspect >= 1.78f) {
-      hPad = 1.78f / g_Viewport.aspect;
-      vPad = 1.78f / 1.33f;
-    } else {
-      hPad = 1.f;
-      vPad = g_Viewport.aspect / 1.33f;
-    }
-
-    if (xcc_curMoviePtr && xcc_curMoviePtr->GetIsFullyCached()) {
+    if ((xcc_curMoviePtr != nullptr)) {
       /* Render movie */
-      xcc_curMoviePtr->SetFrame({-hPad, vPad, 0.f}, {-hPad, -vPad, 0.f}, {hPad, -vPad, 0.f}, {hPad, vPad, 0.f});
-      xcc_curMoviePtr->DrawFrame();
+      xcc_curMoviePtr->DrawVideo();
     }
 
     if (x50_curScreen == EScreen::FileSelect && x54_nextScreen == EScreen::FileSelect) {
@@ -2038,15 +1821,16 @@ void CFrontEndUI::Draw() {
       xe4_fusionBonusFrme->Draw();
     }
 
-    if (x64_pressStartAlpha > 0.f && x38_pressStart.IsLoaded() && m_pressStartQuad) {
+    if (x64_pressStartAlpha > 0.f && x38_pressStart.IsLoaded()) {
       /* Render "Press Start" */
-      const zeus::CRectangle rect(0.5f - x38_pressStart->GetWidth() / 2.f / 640.f * hPad,
-                                  0.5f + (x38_pressStart->GetHeight() / 2.f - 240.f + 72.f) / 480.f * vPad,
-                                  x38_pressStart->GetWidth() / 640.f * hPad,
-                                  x38_pressStart->GetHeight() / 480.f * vPad);
-      zeus::CColor color = zeus::skWhite;
-      color.a() = x64_pressStartAlpha;
-      m_pressStartQuad->draw(color, 1.f, rect);
+      CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
+      g_Renderer->SetBlendMode_AdditiveAlpha();
+      g_Renderer->SetDepthReadWrite(false, false);
+      const auto width = x38_pressStart->GetWidth();
+      const auto height = x38_pressStart->GetHeight();
+      CGraphics::Render2D(*x38_pressStart, 320 - width / 2, 72 - height / 2, width, height,
+                          zeus::CColor{1.f, x64_pressStartAlpha});
     }
 
     if (xc0_attractCount > 0) {
@@ -2057,7 +1841,7 @@ void CFrontEndUI::Draw() {
         /* To black */
         zeus::CColor color = zeus::skBlack;
         color.a() = 1.f - x58_fadeBlackTimer;
-        m_fadeToBlack.draw(color);
+        CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, color, nullptr, 1.f);
       }
     }
 
@@ -2067,12 +1851,12 @@ void CFrontEndUI::Draw() {
         /* To black */
         zeus::CColor color = zeus::skBlack;
         color.a() = zeus::clamp(0.f, 1.f - x58_fadeBlackTimer, 1.f);
-        m_fadeToBlack.draw(color);
+        CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, color, nullptr, 1.f);
       } else if (x50_curScreen == EScreen::Title && x54_nextScreen == EScreen::Title) {
         /* From black with 30-sec skip to title */
         zeus::CColor color = zeus::skBlack;
         color.a() = 1.f - zeus::clamp(0.f, 30.f - x58_fadeBlackTimer, 1.f);
-        m_fadeToBlack.draw(color);
+        CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, color, nullptr, 1.f);
       }
     }
 
@@ -2122,15 +1906,15 @@ bool CFrontEndUI::PumpLoad() {
   if (!x44_frontendAudioGrp.IsLoaded())
     return false;
 
-  /* Ready to construct texture quads */
-  m_pressStartQuad.emplace(EFilterType::Add, x38_pressStart);
-
   return true;
 }
 
 bool CFrontEndUI::PumpMovieLoad() {
   /* Prepare all FrontEnd movies and pause each */
   if (xd1_moviesLoaded) {
+    return true;
+  }
+  if (g_Main->IsTrilogy()) {
     return true;
   }
 
@@ -2153,8 +1937,10 @@ bool CFrontEndUI::PumpMovieLoad() {
       }
     }
 
-    x70_menuMovies[i] = std::make_unique<CMoviePlayer>(path.c_str(), 0.05f, movie.loop, false);
-    x70_menuMovies[i]->SetPlayMode(CMoviePlayer::EPlayMode::Stopped);
+    if (CDvdFile::FileExists(path)) {
+      x70_menuMovies[i] = std::make_unique<CMoviePlayer>(path.c_str(), 0.05f, movie.loop, false);
+      x70_menuMovies[i]->SetPlayMode(CMoviePlayer::EPlayMode::Stopped);
+    }
     return false;
   }
 
@@ -2178,23 +1964,18 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
   if (x14_phase != EPhase::DisplayFrontEnd || input.ControllerIdx() != 0)
     return;
 
-  /* Pop most recent action from Touch Bar */
-  CFrontEndUITouchBar::EAction touchBarAction = m_touchBar->PopAction();
-
   if (x50_curScreen != x54_nextScreen) {
     if (x54_nextScreen == EScreen::AttractMovie &&
-        (input.PStart() || input.PA() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
-         input.PSpecialKey(boo::ESpecialKey::Enter) || input.PMouseButton(boo::EMouseButton::Primary) ||
-         touchBarAction == CFrontEndUITouchBar::EAction::Start)) {
+        (input.PStart() || input.PA() || input.PSpecialKey(ESpecialKey::Esc) ||
+         input.PSpecialKey(ESpecialKey::Enter) || input.PMouseButton(EMouseButton::Primary))) {
       /* Player wants to return to opening credits from attract movie */
       SetFadeBlackTimer(std::min(1.f, x58_fadeBlackTimer));
       PlayAdvanceSfx();
       return;
     }
 
-    if (input.PA() || input.PStart() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
-        input.PSpecialKey(boo::ESpecialKey::Enter) || input.PMouseButton(boo::EMouseButton::Primary) ||
-        touchBarAction == CFrontEndUITouchBar::EAction::Start) {
+    if (input.PA() || input.PStart() || input.PSpecialKey(ESpecialKey::Esc) ||
+        input.PSpecialKey(ESpecialKey::Enter) || input.PMouseButton(EMouseButton::Primary)) {
       if (x50_curScreen == EScreen::OpenCredits && x54_nextScreen == EScreen::Title && x58_fadeBlackTimer > 1.f) {
         /* Player is too impatient to view opening credits */
         xd0_playerSkipToTitle = true;
@@ -2204,14 +1985,12 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
     }
   } else {
     if (x50_curScreen == EScreen::Title) {
-      if (input.PStart() || input.PA() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
-          input.PSpecialKey(boo::ESpecialKey::Enter) || input.PMouseButton(boo::EMouseButton::Primary) ||
-          touchBarAction == CFrontEndUITouchBar::EAction::Start) {
+      if (input.PStart() || input.PA() || input.PSpecialKey(ESpecialKey::Esc) ||
+          input.PSpecialKey(ESpecialKey::Enter) || input.PMouseButton(EMouseButton::Primary)) {
         if (x58_fadeBlackTimer < 30.f - g_tweakGame->GetPressStartDelay()) {
           /* Proceed to file select UI */
           CSfxManager::SfxStart(FETransitionBackSFX[x18_rndA][0], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
           CSfxManager::SfxStart(FETransitionBackSFX[x18_rndA][1], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-          m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
           StartStateTransition(EScreen::FileSelect);
           return;
         }
@@ -2222,22 +2001,18 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
         if (xf0_optionsFrme->ProcessUserInput(input, xdc_saveUI.get()))
           return;
         /* Exit options UI */
-        m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
         xf0_optionsFrme.reset();
         return;
       } else if (xe0_frontendCardFrme) {
         /* Control FrontEnd with memory card */
-        switch (xe0_frontendCardFrme->ProcessUserInput(input, touchBarAction)) {
+        switch (xe0_frontendCardFrme->ProcessUserInput(input)) {
         case SNewFileSelectFrame::EAction::FusionBonus:
-          m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
           StartStateTransition(EScreen::FusionBonus);
           return;
         case SNewFileSelectFrame::EAction::GameOptions:
-          m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
           xf0_optionsFrme = std::make_unique<SOptionsFrontEndFrame>();
           return;
         case SNewFileSelectFrame::EAction::SlideShow:
-          m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
           xd2_deferSlideShow = true;
           StartSlideShow(queue);
           return;
@@ -2246,20 +2021,17 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
         }
       } else {
         /* Control FrontEnd without memory card */
-        switch (xe8_frontendNoCardFrme->ProcessUserInput(input, touchBarAction)) {
+        switch (xe8_frontendNoCardFrme->ProcessUserInput(input)) {
         case SFrontEndFrame::EAction::FusionBonus:
-          m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
           StartStateTransition(EScreen::FusionBonus);
           return;
         case SFrontEndFrame::EAction::GameOptions:
-          m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
           xf0_optionsFrme = std::make_unique<SOptionsFrontEndFrame>();
           return;
         case SFrontEndFrame::EAction::StartGame:
           TransitionToGame();
           return;
         case SFrontEndFrame::EAction::SlideShow:
-          m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
           xd2_deferSlideShow = true;
           StartSlideShow(queue);
           return;
@@ -2269,14 +2041,12 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
       }
     } else if (x50_curScreen == EScreen::FusionBonus && x54_nextScreen == EScreen::FusionBonus) {
       /* Control Fusion bonus UI */
-      switch (xe4_fusionBonusFrme->ProcessUserInput(input, xdc_saveUI.get(), touchBarAction)) {
+      switch (xe4_fusionBonusFrme->ProcessUserInput(input, xdc_saveUI.get())) {
       case SFusionBonusFrame::EAction::GoBack:
-        m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
         StartStateTransition(EScreen::FileSelect);
         return;
       case SFusionBonusFrame::EAction::PlayNESMetroid:
-        m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
-        xf4_curAudio->StopMixing();
+        //xf4_curAudio->StopMixing();
         xec_emuFrme = std::make_unique<SNesEmulatorFrame>();
         if (xdc_saveUI)
           xdc_saveUI->SetInGame(true);
@@ -2298,7 +2068,6 @@ void CFrontEndUI::TransitionToGame() {
   CSfxManager::SfxStart(sfx[1], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 
   x14_phase = EPhase::ToPlayGame;
-  m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
   StartStateTransition(EScreen::ToPlayGame);
 }
 
@@ -2344,13 +2113,15 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
   case EPhase::LoadDeps:
     /* Poll loading DGRP resources */
     if (PumpLoad()) {
-      xe0_frontendCardFrme = std::make_unique<SNewFileSelectFrame>(xdc_saveUI.get(), x1c_rndB, *m_touchBar);
-      xe4_fusionBonusFrme = std::make_unique<SFusionBonusFrame>(*m_touchBar);
-      xe8_frontendNoCardFrme = std::make_unique<SFrontEndFrame>(x1c_rndB, *m_touchBar);
+      xe0_frontendCardFrme = std::make_unique<SNewFileSelectFrame>(xdc_saveUI.get(), x1c_rndB);
+      if (!g_Main->IsTrilogy()) {
+        xe4_fusionBonusFrme = std::make_unique<SFusionBonusFrame>();
+      }
+      xe8_frontendNoCardFrme = std::make_unique<SFrontEndFrame>(x1c_rndB);
       x38_pressStart.GetObj();
-      CAudioSys::AddAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
-      xd4_audio1 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_1.rsf", 416480, 1973664);
-      xd8_audio2 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_2.rsf", 273556, 1636980);
+      //CAudioSys::AddAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
+//      xd4_audio1 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_1.rsf", 416480, 1973664);
+//      xd8_audio2 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_2.rsf", 273556, 1636980);
       x14_phase = EPhase::LoadFrames;
     }
     if (x14_phase == EPhase::LoadDeps)
@@ -2358,12 +2129,15 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
     [[fallthrough]];
 
   case EPhase::LoadFrames:
-    /* Poll loading music and FRME resources */
-    if (!xd4_audio1->IsReady() || !xd8_audio2->IsReady() || !xe0_frontendCardFrme->PumpLoad() ||
-        !xe4_fusionBonusFrme->PumpLoad() || !xe8_frontendNoCardFrme->PumpLoad() || !xdc_saveUI->PumpLoad())
+    if (!g_Main->IsTrilogy() && !xe4_fusionBonusFrme->PumpLoad()) {
       return EMessageReturn::Exit;
-    xf4_curAudio = xd4_audio1.get();
-    xf4_curAudio->StartMixing();
+    }
+    /* Poll loading music and FRME resources */
+    if (/*!xd4_audio1->IsReady() || !xd8_audio2->IsReady() || */ !xe0_frontendCardFrme->PumpLoad() ||
+        !xe8_frontendNoCardFrme->PumpLoad() || !xdc_saveUI->PumpLoad())
+      return EMessageReturn::Exit;
+//    xf4_curAudio = xd4_audio1.get();
+//    xf4_curAudio->StartMixing();
     x14_phase = EPhase::LoadMovies;
     [[fallthrough]];
 
@@ -2374,8 +2148,12 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
       /* Prime first frame of movies */
       UpdateMovies(dt);
 
-      moviesReady = std::all_of(x70_menuMovies.cbegin(), x70_menuMovies.cend(),
-                                [](const auto& movie) { return movie->GetIsFullyCached(); });
+      if (!g_Main->IsTrilogy()) {
+        moviesReady = std::all_of(x70_menuMovies.cbegin(), x70_menuMovies.cend(),
+                                  [](const auto& movie) { return movie->GetIsFullyCached(); });
+      } else {
+        moviesReady = true;
+      }
     } else {
       moviesReady = false;
     }
@@ -2383,7 +2161,6 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
     if (moviesReady) {
       /* Ready to display FrontEnd */
       x14_phase = EPhase::DisplayFrontEnd;
-      m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::PressStart);
       StartStateTransition(EScreen::Title);
     } else {
       return EMessageReturn::Exit;
@@ -2401,7 +2178,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
         xec_emuFrme.reset();
         if (xdc_saveUI)
           xdc_saveUI->SetInGame(false);
-        xf4_curAudio->StartMixing();
+        //xf4_curAudio->StartMixing();
       }
       break;
     }
@@ -2409,7 +2186,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
     if (xd2_deferSlideShow) {
       /* Start mixing slideshow music */
       xd2_deferSlideShow = false;
-      xf4_curAudio->StartMixing();
+      //xf4_curAudio->StartMixing();
       if (xdc_saveUI)
         xdc_saveUI->ResetCardDriver();
     }
@@ -2484,15 +2261,23 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
 
     if (x50_curScreen == EScreen::Title && x54_nextScreen == EScreen::FileSelect) {
       /* Fade out title music */
-      x68_musicVol =
-          1.f - zeus::clamp(0.f, (xcc_curMoviePtr->GetPlayedSeconds() - AudioFadeTimeA[x18_rndA]) / 2.5f, 1.f);
+      if (!g_Main->IsTrilogy()) {
+        x68_musicVol =
+            1.f - zeus::clamp(0.f, (xcc_curMoviePtr->GetPlayedSeconds() - AudioFadeTimeA[x18_rndA]) / 2.5f, 1.f);
+      } else {
+        x68_musicVol -= dt;
+      }
     } else if (x54_nextScreen == EScreen::ToPlayGame) {
       /* Fade out menu music */
-      float delay = AudioFadeTimeB[x1c_rndB];
-      x68_musicVol =
-          1.f -
-          zeus::clamp(0.f, (xcc_curMoviePtr->GetPlayedSeconds() - delay) / (xcc_curMoviePtr->GetTotalSeconds() - delay),
-                      1.f);
+      if (!g_Main->IsTrilogy()) {
+        float delay = AudioFadeTimeB[x1c_rndB];
+        x68_musicVol =
+            1.f -
+            zeus::clamp(
+                0.f, (xcc_curMoviePtr->GetPlayedSeconds() - delay) / (xcc_curMoviePtr->GetTotalSeconds() - delay), 1.f);
+      } else {
+        x68_musicVol -= dt;
+      }
     } else {
       /* Full music volume */
       x68_musicVol = 1.f;

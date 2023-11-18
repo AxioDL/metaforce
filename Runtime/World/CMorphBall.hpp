@@ -170,7 +170,6 @@ private:
   static zeus::CVector3f TransformSpiderBallForcesXY(const zeus::CVector2f& forces, CStateManager& mgr);
   static zeus::CVector3f TransformSpiderBallForcesXZ(const zeus::CVector2f& forces, CStateManager& mgr);
   void ResetSpiderBallForces();
-  static void PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
 
 public:
   CMorphBall(CPlayer& player, float radius);

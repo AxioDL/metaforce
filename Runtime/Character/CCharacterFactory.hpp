@@ -10,6 +10,7 @@
 #include "Runtime/IFactory.hpp"
 #include "Runtime/IObjFactory.hpp"
 #include "Runtime/Character/CAnimationSet.hpp"
+#include "Runtime/Character/CCharacterInfo.hpp"
 
 namespace metaforce {
 class CAdditiveAnimationInfo;
@@ -18,7 +19,6 @@ class CAnimCharacterSet;
 class CAnimData;
 class CAnimationManager;
 class CCharLayoutInfo;
-class CCharacterInfo;
 class CSimplePool;
 class CTransitionDatabaseGame;
 class CTransitionManager;
@@ -68,7 +68,7 @@ public:
   CCharacterFactory(CSimplePool& store, const CAnimCharacterSet& ancs, CAssetId);
 
   std::unique_ptr<CAnimData> CreateCharacter(int charIdx, bool loop, const TLockedToken<CCharacterFactory>& factory,
-                                             int defaultAnim, int drawInsts);
+                                             int defaultAnim);
   CAssetId GetEventResourceIdForAnimResourceId(CAssetId animId) const;
 
   const CCharacterInfo& GetCharInfo(int charIdx) const { return x4_charInfoDB[charIdx]; }

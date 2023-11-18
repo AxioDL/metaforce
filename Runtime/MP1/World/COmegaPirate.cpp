@@ -6,7 +6,8 @@
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
+#include "Runtime/Graphics/CGX.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CScriptEffect.hpp"
@@ -42,9 +43,7 @@ COmegaPirate::CFlash::CFlash(TUniqueId uid, const CEntityInfo& info, const zeus:
                              TLockedToken<CTexture>& thermalSpot, float delay)
 : CActor(uid, true, "Omega Pirate Flash", info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(), {},
          CActorParameters::None(), kInvalidUniqueId)
-, xf4_delay(delay)
-, m_thermalSpotAdd(EFilterType::Add, thermalSpot)
-, m_thermalSpotSubtract(EFilterType::Subtract, thermalSpot) {}
+, xf4_delay(delay) {}
 
 void COmegaPirate::CFlash::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
@@ -77,9 +76,9 @@ void COmegaPirate::CFlash::Think(float dt, CStateManager& mgr) {
 
 void COmegaPirate::CFlash::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   mgr.RenderLast(GetUniqueId());
-  // if (xf0_thermalSpot == nullptr && xe8_thermalSpotToken.IsLocked() && xe8_thermalSpotToken.HasReference()) {
-  //   xf0_thermalSpot = xe8_thermalSpotToken.GetObj();
-  // }
+  if (xf0_thermalSpot == nullptr && xe8_thermalSpotToken.IsLocked() && xe8_thermalSpotToken.HasReference()) {
+    xf0_thermalSpot = xe8_thermalSpotToken.GetObj();
+  }
 }
 
 void COmegaPirate::CFlash::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {}
@@ -89,18 +88,17 @@ void COmegaPirate::CFlash::Render(CStateManager& mgr) {
   if (visor == CPlayerState::EPlayerVisor::Thermal) {
     return;
   }
+  if (xf0_thermalSpot == nullptr || !xe8_thermalSpotToken) {
+    return;
+  }
+  xf0_thermalSpot->Load(GX_TEXMAP0, EClampMode::Repeat);
 
   float sizeMul = 35.f;
-  CTexturedQuadFilter* filter = nullptr;
   if (visor == CPlayerState::EPlayerVisor::XRay) {
-    // CGraphics::SetBlendMode(ERglBlendMode::Subtract, ERglBlendFactor::One, ERglBlendFactor::Zero,
-    // ERglLogicOp::Clear);
-    filter = &m_thermalSpotSubtract;
+    CGX::SetBlendMode(GX_BM_SUBTRACT, GX_BL_ONE, GX_BL_ZERO, GX_LO_CLEAR);
     sizeMul = 60.f;
   } else {
-    // CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One,
-    // ERglLogicOp::Clear);
-    filter = &m_thermalSpotAdd;
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
   }
 
   float size = xfc_size * sizeMul;
@@ -109,13 +107,20 @@ void COmegaPirate::CFlash::Render(CStateManager& mgr) {
   const auto rvS = GetTranslation() - rightVec;
   const auto rvP = GetTranslation() + rightVec;
   CGraphics::SetModelMatrix(zeus::CTransform());
-  const std::array<CTexturedQuadFilter::Vert, 4> verts{{
-      {rvS + upVec, {0.f, 0.f}},
-      {rvP + upVec, {0.f, 1.f}},
-      {rvS - upVec, {1.f, 0.f}},
-      {rvP - upVec, {1.f, 1.f}},
-  }};
-  filter->drawVerts(zeus::CColor{1.f, std::min(1.f, size)}, verts);
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+  CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
+  CGraphics::SetDepthWriteMode(false, ERglEnum::Always, false);
+  CGraphics::StreamColor(zeus::CColor{1.f, std::min(1.f, size)});
+  CGraphics::StreamBegin(GX_TRIANGLEFAN);
+  CGraphics::StreamTexcoord(0.f, 0.f);
+  CGraphics::StreamVertex(rvS + upVec);
+  CGraphics::StreamTexcoord(1.f, 0.f);
+  CGraphics::StreamVertex(rvP + upVec);
+  CGraphics::StreamTexcoord(1.f, 1.f);
+  CGraphics::StreamVertex(rvP - upVec);
+  CGraphics::StreamTexcoord(0.f, 1.f);
+  CGraphics::StreamVertex(rvS - upVec);
+  CGraphics::StreamEnd();
 }
 
 COmegaPirate::COmegaPirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -124,7 +129,7 @@ COmegaPirate::COmegaPirate(TUniqueId uid, std::string_view name, const CEntityIn
                            CAssetId skeletonLayoutInfoId)
 : CElitePirate(uid, name, info, xf, std::move(mData), pInfo, actParms, data)
 , x9d0_initialScale(GetModelData()->GetScale())
-, x9f0_skeletonModel(*g_SimplePool, skeletonModelId, skeletonSkinRulesId, skeletonLayoutInfoId, 0, 0)
+, x9f0_skeletonModel(*g_SimplePool, skeletonModelId, skeletonSkinRulesId, skeletonLayoutInfoId)
 , xb70_thermalSpot(g_SimplePool->GetObj("Thermal_Spot_2"sv)) {
   x9a4_scriptWaypointPlatforms.reserve(3);
   x9b8_scriptEffects.reserve(24);
@@ -643,7 +648,7 @@ void COmegaPirate::Render(CStateManager& mgr) {
 
   if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay && xa2c_skeletonAlpha > 0.f) {
     const CModelFlags flags{5, 0, 3, zeus::CColor{1.f, xa2c_skeletonAlpha}};
-    animData->Render(x9f0_skeletonModel, flags, std::nullopt, nullptr);
+    animData->Render(x9f0_skeletonModel, flags, nullptr, nullptr);
   }
   if (x9a0_visible) {
     bool isXRay = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay;
@@ -651,7 +656,7 @@ void COmegaPirate::Render(CStateManager& mgr) {
       g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
       const CModelFlags flags{5, 0, 1, zeus::CColor{1.f, 0.2f}};
       auto& model = *animData->GetModelData().GetObj();
-      animData->Render(model, flags, std::nullopt, nullptr);
+      animData->Render(model, flags, nullptr, nullptr);
     }
     CPatterned::Render(mgr);
     if (isXRay) {

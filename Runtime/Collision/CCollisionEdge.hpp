@@ -16,8 +16,8 @@ public:
   [[nodiscard]] constexpr u16 GetVertIndex2() const noexcept { return x2_index2; }
 
   constexpr void swapBig() noexcept {
-    x0_index1 = hecl::SBig(x0_index1);
-    x2_index2 = hecl::SBig(x2_index2);
+    x0_index1 = SBig(x0_index1);
+    x2_index2 = SBig(x2_index2);
   }
 };
 } // namespace metaforce

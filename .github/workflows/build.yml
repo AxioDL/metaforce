@@ -2,8 +2,8 @@ name: Build
 
 on:
   push:
-    branches-ignore:
-      - main
+#    branches-ignore:
+#      - main
     paths-ignore:
       - '*.json'
       - '*.md'
@@ -18,7 +18,7 @@ env:
 jobs:
   build-linux:
     name: Build Linux (${{matrix.name}} x86_64)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     env:
       BUILDCACHE_DIR: ${{github.workspace}}/.buildcache
@@ -46,10 +46,8 @@ jobs:
           sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
           sudo apt-get -y install ninja-build clang lld libcurl4-openssl-dev intel-oneapi-ipp-devel \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
-            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev qt5-default
-
-          yarn global add @sentry/cli
-          echo "$(yarn global bin)" >> $GITHUB_PATH
+            libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev libfreetype-dev \
+            libxinerama-dev libxcursor-dev python3-markupsafe libgtk-3-dev
 
           # setup buildcache
           curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-linux.tar.gz | tar xz -C "$RUNNER_WORKSPACE"
@@ -84,12 +82,22 @@ jobs:
       - name: Print buildcache stats
         run: buildcache -s
 
+      - name: Generate AppImage
+        run: ci/build-appimage.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.preset}}-x86_64
+          path: |
+            build/install/Metaforce-*.AppImage
+            build/install/debug.tar.*
+
   build-macos:
     name: Build macOS (AppleClang universal)
-    runs-on: macos-11
+    runs-on: macos-latest
 
     env:
-      Qt_VERSION: 5.15.2
       IPP_VERSION: 2021.2.0.192
       BUILDCACHE_DIR: ${{github.workspace}}/.buildcache
 
@@ -105,11 +113,7 @@ jobs:
           brew upgrade --formula
           brew install ninja graphicsmagick imagemagick
           yarn global add create-dmg
-
-          # universal qt5 from macports
-          curl -LSfs https://axiodl.com/files/qt-$Qt_VERSION.mpkg -o /tmp/qt-$Qt_VERSION.mpkg
-          sudo installer -pkg /tmp/qt-$Qt_VERSION.mpkg -target /
-          echo /opt/local/libexec/qt5/bin >> $GITHUB_PATH
+          pip3 install markupsafe
 
           # setup buildcache
           curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-macos.zip -o /tmp/buildcache-macos.zip
@@ -141,11 +145,103 @@ jobs:
         run: cmake --build --preset x-macos-ci
 
       - name: Print buildcache stats
+        if: 'false' # temporarily disabled
         run: buildcache -s
+
+      - name: Import signing certificate
+        uses: devbotsxyz/xcode-import-certificate@master
+        with:
+          certificate-data: ${{secrets.MACOS_CERTIFICATE_DATA}}
+          certificate-passphrase: ${{secrets.MACOS_CERTIFICATE_PASSWORD}}
+          keychain-password: ${{secrets.MACOS_KEYCHAIN_PASSWORD}}
+
+      - name: Deploy & codesign application
+        env:
+          ASC_USERNAME: ${{secrets.MACOS_ASC_USERNAME}}
+          ASC_PASSWORD: ${{secrets.MACOS_ASC_PASSWORD}}
+          ASC_TEAM_ID: ${{secrets.MACOS_ASC_TEAM_ID}}
+          CODESIGN_IDENT: ${{secrets.MACOS_CODESIGN_IDENT}}
+        run: ci/build-dmg.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-universal
+          path: |
+            build/install/Metaforce *.dmg
+            build/install/debug.tar.*
+
+  build-ios:
+    name: Build iOS (AppleClang arm64)
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew upgrade --formula
+          brew install ninja
+          pip3 install markupsafe
+
+      - name: Configure CMake
+        run: cmake --preset ios-default
+
+      - name: Build
+        run: cmake --build --preset ios-default --target install
+
+      - name: Generate IPA
+        run: ci/build-ipa.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-ios-appleclang-arm64
+          path: |
+            build/install/Metaforce.ipa
+            build/install/debug.tar.*
+
+  build-tvos:
+    name: Build tvOS (AppleClang arm64)
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew upgrade --formula
+          brew install ninja
+          pip3 install markupsafe
+
+      - name: Configure CMake
+        run: cmake --preset tvos-default
+
+      - name: Build
+        run: cmake --build --preset tvos-default --target install
+
+      - name: Generate IPA
+        run: ci/build-ipa.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-tvos-appleclang-arm64
+          path: |
+            build/install/Metaforce.ipa
+            build/install/debug.tar.*
 
   build-windows:
     name: Build Windows (${{matrix.name}} x86_64)
-    runs-on: windows-2019
+    runs-on: windows-latest
 
     env:
       Qt_VERSION: 5.15.2
@@ -158,11 +254,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Disabled due to memory constraints
-#          - name: MSVC
-#            preset: msvc
-          - name: Clang
-            preset: clang
+          - name: MSVC
+            preset: msvc
+          #- name: Clang
+          #  preset: clang
 
     steps:
       - uses: actions/checkout@v2
@@ -191,6 +286,7 @@ jobs:
       - name: Install dependencies
         run: |
           choco install ninja vulkan-sdk
+          pip install markupsafe
 
           # set up buildcache
           $TempDir = "$env:RUNNER_WORKSPACE\temp"
@@ -221,3 +317,11 @@ jobs:
 
       - name: Print buildcache stats
         run: buildcache -s
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: metaforce-${{env.METAFORCE_VERSION}}-win32-${{matrix.preset}}-x86_64
+          path: |
+            ${{env.BUILD_DIR}}/install/*.exe
+            ${{env.BUILD_DIR}}/install/debug.7z

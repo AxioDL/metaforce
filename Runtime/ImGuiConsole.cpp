@@ -1,14 +1,26 @@
+#include <zeus/CVector2f.hpp>
+#define IM_VEC2_CLASS_EXTRA                                                                                            \
+  ImVec2(const zeus::CVector2f& v) {                                                                                   \
+    x = v.x();                                                                                                         \
+    y = v.y();                                                                                                         \
+  }                                                                                                                    \
+  operator zeus::CVector2f() const { return zeus::CVector2f{x, y}; }
 #include "ImGuiConsole.hpp"
 
 #include "../version.h"
 #include "MP1/MP1.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/World/CPlayer.hpp"
 #include "Runtime/ImGuiEntitySupport.hpp"
+#include "Runtime/World/CPlayer.hpp"
 
 #include "ImGuiEngine.hpp"
 #include "magic_enum.hpp"
+#ifdef NATIVEFILEDIALOG_SUPPORTED
+#include <nfd.hpp>
+#endif
+
+#include <cstdarg>
 
 #include <zeus/CEulerAngles.hpp>
 
@@ -17,13 +29,33 @@ namespace ImGui {
 void ClearIniSettings();
 } // namespace ImGui
 
+namespace aurora::gfx {
+extern std::atomic_uint32_t queuedPipelines;
+extern std::atomic_uint32_t createdPipelines;
+
+extern size_t g_drawCallCount;
+extern size_t g_mergedDrawCallCount;
+extern size_t g_lastVertSize;
+extern size_t g_lastUniformSize;
+extern size_t g_lastIndexSize;
+extern size_t g_lastStorageSize;
+} // namespace aurora::gfx
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
+static logvisor::Module Log{"Console"};
 
 std::array<ImGuiEntityEntry, kMaxEntities> ImGuiConsole::entities;
 std::set<TUniqueId> ImGuiConsole::inspectingEntities;
 ImGuiPlayerLoadouts ImGuiConsole::loadouts;
+
+ImGuiConsole::ImGuiConsole(CVarManager& cvarMgr, CVarCommons& cvarCommons)
+: m_cvarMgr(cvarMgr), m_cvarCommons(cvarCommons) {
+#ifdef NATIVEFILEDIALOG_SUPPORTED
+  NFD::Init();
+#endif
+}
 
 void ImGuiStringViewText(std::string_view text) {
   // begin()/end() do not work on MSVC
@@ -32,9 +64,17 @@ void ImGuiStringViewText(std::string_view text) {
 
 void ImGuiTextCenter(std::string_view text) {
   ImGui::NewLine();
-  float fontSize = ImGui::GetFontSize() * float(text.size()) / 2;
+  float fontSize = ImGui::CalcTextSize(text.data(), text.data() + text.size()).x;
   ImGui::SameLine(ImGui::GetWindowSize().x / 2 - fontSize + fontSize / 2);
   ImGuiStringViewText(text);
+}
+
+bool ImGuiButtonCenter(std::string_view text) {
+  ImGui::NewLine();
+  float fontSize = ImGui::CalcTextSize(text.data(), text.data() + text.size()).x;
+  fontSize += ImGui::GetStyle().FramePadding.x;
+  ImGui::SameLine(ImGui::GetWindowSize().x / 2 - fontSize + fontSize / 2);
+  return ImGui::Button(text.data());
 }
 
 static std::unordered_map<CAssetId, std::unique_ptr<CDummyWorld>> dummyWorlds;
@@ -47,7 +87,7 @@ std::string ImGuiLoadStringTable(CAssetId stringId, int idx) {
   if (!stringTables.contains(stringId)) {
     stringTables[stringId] = g_SimplePool->GetObj(SObjectTag{SBIG('STRG'), stringId});
   }
-  return hecl::Char16ToUTF8(stringTables[stringId].GetObj()->GetString(idx));
+  return CStringExtras::ConvertToUTF8(stringTables[stringId].GetObj()->GetString(idx));
 }
 
 static bool ContainsCaseInsensitive(std::string_view str, std::string_view val) {
@@ -112,15 +152,19 @@ static void Warp(const CAssetId worldId, TAreaId aId) {
   }
 }
 
+static inline float GetScale() { return ImGui::GetIO().DisplayFramebufferScale.x; }
+
 void ImGuiConsole::ShowMenuGame() {
-  m_paused = g_Main->IsPaused();
-  if (ImGui::MenuItem("Paused", "F5", &m_paused)) {
+  if (g_Main != nullptr) {
+    m_paused = g_Main->IsPaused();
+  }
+  if (ImGui::MenuItem("Paused", "F5", &m_paused, g_Main != nullptr)) {
     g_Main->SetPaused(m_paused);
   }
   if (ImGui::MenuItem("Step Frame", "F6", &m_stepFrame, m_paused)) {
     g_Main->SetPaused(false);
   }
-  if (ImGui::BeginMenu("Warp", g_StateManager != nullptr && g_ResFactory != nullptr &&
+  if (ImGui::BeginMenu("Warp", m_cheats && g_StateManager != nullptr && g_ResFactory != nullptr &&
                                    g_ResFactory->GetResLoader() != nullptr)) {
     for (const auto& world : ListWorlds()) {
       if (ImGui::BeginMenu(world.first.c_str())) {
@@ -135,7 +179,7 @@ void ImGuiConsole::ShowMenuGame() {
     ImGui::EndMenu();
   }
   if (ImGui::MenuItem("Quit", "Alt+F4")) {
-    g_Main->Quit();
+    m_quitRequested = true;
   }
 }
 
@@ -244,7 +288,7 @@ static void RenderEntityColumns(const ImGuiEntityEntry& entry) {
 }
 
 void ImGuiConsole::ShowInspectWindow(bool* isOpen) {
-  float initialWindowSize = 400.f * ImGui::GetIO().DisplayFramebufferScale.x;
+  float initialWindowSize = 400.f * GetScale();
   ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize * 1.5f}, ImGuiCond_FirstUseEver);
 
   if (ImGui::Begin("Inspect", isOpen)) {
@@ -364,7 +408,7 @@ bool ImGuiConsole::ShowEntityInfoWindow(TUniqueId uid) {
 
 void ImGuiConsole::ShowConsoleVariablesWindow() {
   // For some reason the window shows up tiny without this
-  float initialWindowSize = 350.f * ImGui::GetIO().DisplayFramebufferScale.x;
+  float initialWindowSize = 350.f * GetScale();
   ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize}, ImGuiCond_FirstUseEver);
   if (ImGui::Begin("Console Variables", &m_showConsoleVariablesWindow)) {
     if (ImGui::Button("Clear")) {
@@ -372,14 +416,14 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
     }
     ImGui::SameLine();
     ImGui::InputText("Filter", &m_cvarFiltersText);
-    auto cvars = m_cvarMgr.cvars(hecl::CVar::EFlags::Any & ~hecl::CVar::EFlags::Hidden);
+    auto cvars = m_cvarMgr.cvars(CVar::EFlags::Any & ~CVar::EFlags::Hidden);
     if (ImGui::Button("Reset to defaults")) {
       for (auto* cv : cvars) {
         if (cv->name() == "developer" || cv->name() == "cheats") {
           // don't reset developer or cheats to default
           continue;
         }
-        hecl::CVarUnlocker l(cv);
+        CVarUnlocker l(cv);
         cv->fromLiteralToType(cv->defaultValue());
       }
     }
@@ -398,10 +442,13 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
       bool hasSortSpec = sortSpecs != nullptr &&
                          // no multi-sort
                          sortSpecs->SpecsCount == 1;
-      std::vector<hecl::CVar*> sortedList;
+      std::vector<CVar*> sortedList;
       sortedList.reserve(cvars.size());
 
       for (auto* cvar : cvars) {
+        if (cvar->isHidden()) {
+          continue;
+        }
         if (!m_cvarFiltersText.empty()) {
           if (ContainsCaseInsensitive(magic_enum::enum_name(cvar->type()), m_cvarFiltersText) ||
               ContainsCaseInsensitive(cvar->name(), m_cvarFiltersText)) {
@@ -415,18 +462,19 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
       if (hasSortSpec) {
         const auto& spec = sortSpecs->Specs[0];
         if (spec.ColumnUserID == 'name') {
-          std::sort(sortedList.begin(), sortedList.end(), [&](hecl::CVar* a, hecl::CVar* b) {
+          std::sort(sortedList.begin(), sortedList.end(), [&](CVar* a, CVar* b) {
             int compare = a->name().compare(b->name());
             return spec.SortDirection == ImGuiSortDirection_Ascending ? compare < 0 : compare > 0;
           });
         } else if (spec.ColumnUserID == 'val') {
-          std::sort(sortedList.begin(), sortedList.end(), [&](hecl::CVar* a, hecl::CVar* b) {
+          std::sort(sortedList.begin(), sortedList.end(), [&](CVar* a, CVar* b) {
             int compare = a->value().compare(b->value());
             return spec.SortDirection == ImGuiSortDirection_Ascending ? compare < 0 : compare > 0;
           });
         }
 
         for (auto* cv : sortedList) {
+          bool modified = cv->isModified();
           ImGui::PushID(cv);
           ImGui::TableNextRow();
           // Name
@@ -440,145 +488,163 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
           // Value
           if (ImGui::TableNextColumn()) {
             switch (cv->type()) {
-            case hecl::CVar::EType::Boolean: {
+            case CVar::EType::Boolean: {
               bool b = cv->toBoolean();
               if (ImGui::Checkbox("", &b)) {
                 cv->fromBoolean(b);
+                modified = true;
               }
               break;
             }
-            case hecl::CVar::EType::Real: {
+            case CVar::EType::Real: {
               float f = cv->toReal();
               if (ImGui::DragFloat("", &f)) {
                 cv->fromReal(f);
+                modified = true;
               }
               break;
             }
-            case hecl::CVar::EType::Signed: {
+            case CVar::EType::Signed: {
               std::array<s32, 1> i{cv->toSigned()};
               if (ImGui::DragScalar("", ImGuiDataType_S32, i.data(), i.size())) {
                 cv->fromInteger(i[0]);
+                modified = true;
               }
               break;
             }
-            case hecl::CVar::EType::Unsigned: {
+            case CVar::EType::Unsigned: {
               std::array<u32, 1> i{cv->toUnsigned()};
               if (ImGui::DragScalar("", ImGuiDataType_U32, i.data(), i.size())) {
                 cv->fromInteger(i[0]);
+                modified = true;
               }
               break;
             }
-            case hecl::CVar::EType::Literal: {
+            case CVar::EType::Literal: {
               char buf[4096];
               strcpy(buf, cv->value().c_str());
               if (ImGui::InputText("", buf, 4096, ImGuiInputTextFlags_EnterReturnsTrue)) {
                 cv->fromLiteral(buf);
+                modified = true;
               }
               break;
             }
-            case hecl::CVar::EType::Vec2f: {
+            case CVar::EType::Vec2f: {
               auto vec = cv->toVec2f();
-              std::array<float, 2> scalars = {vec.simd[0], vec.simd[1]};
+              std::array<float, 2> scalars = {vec.x(), vec.y()};
               if (ImGui::DragScalarN("", ImGuiDataType_Float, scalars.data(), scalars.size(), 0.1f)) {
-                vec.simd[0] = scalars[0];
-                vec.simd[1] = scalars[1];
+                vec.x() = scalars[0];
+                vec.y() = scalars[1];
                 cv->fromVec2f(vec);
+                modified = true;
               }
               break;
             }
-            case hecl::CVar::EType::Vec2d: {
+            case CVar::EType::Vec2d: {
               auto vec = cv->toVec2d();
-              std::array<double, 2> scalars = {vec.simd[0], vec.simd[1]};
+              std::array<double, 2> scalars = {vec.x(), vec.y()};
               if (ImGui::DragScalarN("", ImGuiDataType_Double, scalars.data(), scalars.size(), 0.1f)) {
-                vec.simd[0] = scalars[0];
-                vec.simd[1] = scalars[1];
+                vec.x() = scalars[0];
+                vec.y() = scalars[1];
                 cv->fromVec2d(vec);
+                modified = true;
               }
               break;
             }
-            case hecl::CVar::EType::Vec3f: {
+            case CVar::EType::Vec3f: {
               auto vec = cv->toVec3f();
-              std::array<float, 3> scalars = {vec.simd[0], vec.simd[1]};
+              std::array<float, 3> scalars = {vec.x(), vec.y(), vec.z()};
               if (cv->isColor()) {
                 if (ImGui::ColorEdit3("", scalars.data())) {
-                  vec.simd[0] = scalars[0];
-                  vec.simd[1] = scalars[1];
-                  vec.simd[2] = scalars[2];
+                  vec.x() = scalars[0];
+                  vec.y() = scalars[1];
+                  vec.z() = scalars[2];
                   cv->fromVec3f(vec);
+                  modified = true;
                 }
               } else if (ImGui::DragScalarN("", ImGuiDataType_Float, scalars.data(), scalars.size(), 0.1f)) {
-                vec.simd[0] = scalars[0];
-                vec.simd[1] = scalars[1];
-                vec.simd[2] = scalars[2];
+                vec.x() = scalars[0];
+                vec.y() = scalars[1];
+                vec.z() = scalars[2];
                 cv->fromVec3f(vec);
+                modified = true;
               }
               break;
             }
-            case hecl::CVar::EType::Vec3d: {
+            case CVar::EType::Vec3d: {
               auto vec = cv->toVec3d();
-              std::array<double, 3> scalars = {vec.simd[0], vec.simd[1], vec.simd[2]};
+              std::array<double, 3> scalars = {vec.x(), vec.y(), vec.z()};
               if (cv->isColor()) {
                 std::array<float, 3> color{static_cast<float>(scalars[0]), static_cast<float>(scalars[1]),
                                            static_cast<float>(scalars[2])};
                 if (ImGui::ColorEdit3("", color.data())) {
-                  vec.simd[0] = color[0];
-                  vec.simd[1] = color[1];
-                  vec.simd[2] = color[2];
+                  vec.x() = scalars[0];
+                  vec.y() = scalars[1];
+                  vec.z() = scalars[2];
                   cv->fromVec3d(vec);
+                  modified = true;
                 }
               } else if (ImGui::DragScalarN("", ImGuiDataType_Double, scalars.data(), scalars.size(), 0.1f)) {
-                vec.simd[0] = scalars[0];
-                vec.simd[1] = scalars[1];
-                vec.simd[2] = scalars[2];
+                vec.x() = scalars[0];
+                vec.y() = scalars[1];
+                vec.z() = scalars[2];
                 cv->fromVec3d(vec);
+                modified = true;
               }
               break;
             }
-            case hecl::CVar::EType::Vec4f: {
+            case CVar::EType::Vec4f: {
               auto vec = cv->toVec4f();
-              std::array<float, 4> scalars = {vec.simd[0], vec.simd[1], vec.simd[2], vec.simd[3]};
+              std::array<float, 4> scalars = {vec.x(), vec.y(), vec.z(), vec.w()};
               if (cv->isColor()) {
                 if (ImGui::ColorEdit4("", scalars.data())) {
-                  vec.simd[0] = scalars[0];
-                  vec.simd[1] = scalars[1];
-                  vec.simd[2] = scalars[2];
-                  vec.simd[3] = scalars[3];
+                  vec.x() = scalars[0];
+                  vec.y() = scalars[1];
+                  vec.z() = scalars[2];
+                  vec.w() = scalars[2];
                   cv->fromVec4f(vec);
+                  modified = true;
                 }
               } else if (ImGui::DragScalarN("", ImGuiDataType_Float, scalars.data(), scalars.size(), 0.1f)) {
-                vec.simd[0] = scalars[0];
-                vec.simd[1] = scalars[1];
-                vec.simd[2] = scalars[2];
-                vec.simd[3] = scalars[3];
+                vec.x() = scalars[0];
+                vec.y() = scalars[1];
+                vec.z() = scalars[2];
+                vec.w() = scalars[2];
                 cv->fromVec4f(vec);
+                modified = true;
               }
               break;
             }
-            case hecl::CVar::EType::Vec4d: {
+            case CVar::EType::Vec4d: {
               auto vec = cv->toVec4d();
-              std::array<double, 4> scalars = {vec.simd[0], vec.simd[1], vec.simd[2], vec.simd[3]};
+              std::array<double, 4> scalars = {vec.x(), vec.y(), vec.z(), vec.w()};
               if (cv->isColor()) {
                 std::array<float, 4> color{static_cast<float>(scalars[0]), static_cast<float>(scalars[1]),
                                            static_cast<float>(scalars[2]), static_cast<float>(scalars[3])};
                 if (ImGui::ColorEdit4("", color.data())) {
-                  vec.simd[0] = color[0];
-                  vec.simd[1] = color[1];
-                  vec.simd[2] = color[2];
-                  vec.simd[3] = color[3];
+                  vec.x() = scalars[0];
+                  vec.y() = scalars[1];
+                  vec.z() = scalars[2];
+                  vec.w() = scalars[2];
                   cv->fromVec4d(vec);
+                  modified = true;
                 }
               } else if (ImGui::DragScalarN("", ImGuiDataType_Double, scalars.data(), scalars.size(), 0.1f)) {
-                vec.simd[0] = scalars[0];
-                vec.simd[1] = scalars[1];
-                vec.simd[2] = scalars[2];
-                vec.simd[3] = scalars[3];
+                vec.x() = scalars[0];
+                vec.y() = scalars[1];
+                vec.z() = scalars[2];
+                vec.w() = scalars[2];
                 cv->fromVec4d(vec);
+                modified = true;
               }
               break;
             }
             default:
               ImGui::Text("lawl wut? Please contact a developer, your copy of Metaforce is cursed!");
               break;
+            }
+            if (modified && cv->modificationRequiresRestart()) {
+              ImGui::Text("Restart required for value to take affect!");
             }
             if (ImGui::IsItemHovered()) {
               std::string sv(cv->defaultValue());
@@ -594,10 +660,10 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
   ImGui::End();
 }
 
-void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) {
+void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
   // Center window
   ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-  ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+  ImGui::SetNextWindowPos(center, preLaunch ? ImGuiCond_Always : ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
   ImVec4& windowBg = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
   ImGui::PushStyleColor(ImGuiCol_TitleBg, windowBg);
@@ -606,28 +672,57 @@ void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) 
   bool* open = nullptr;
   ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoNav |
                            ImGuiWindowFlags_NoSavedSettings;
-  if (canClose) {
-    open = &m_showAboutWindow;
-  } else {
+  if (preLaunch) {
     flags |= ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove;
+  } else {
+    open = &m_showAboutWindow;
   }
   if (ImGui::Begin("About", open, flags)) {
-    float iconSize = 128.f * ImGui::GetIO().DisplayFramebufferScale.x;
+    float iconSize = 128.f * GetScale();
     ImGui::SameLine(ImGui::GetWindowSize().x / 2 - iconSize + (iconSize / 2));
-    ImGui::Image(ImGuiUserTextureID_MetaforceIcon, ImVec2{iconSize, iconSize});
+    ImGui::Image(ImGuiEngine::metaforceIcon, ImVec2{iconSize, iconSize});
     ImGui::PushFont(ImGuiEngine::fontLarge);
     ImGuiTextCenter("Metaforce");
     ImGui::PopFont();
     ImGuiTextCenter(METAFORCE_WC_DESCRIBE);
     const ImVec2& padding = ImGui::GetStyle().WindowPadding;
     ImGui::Dummy(padding);
-    if (!errorString.empty()) {
+    if (preLaunch) {
+      if (ImGuiButtonCenter("Settings")) {
+        m_showPreLaunchSettingsWindow = true;
+      }
+#ifdef NATIVEFILEDIALOG_SUPPORTED
+      ImGui::Dummy(padding);
+      if (ImGuiButtonCenter("Select Game")) {
+        NFD::UniquePathU8 outPath;
+        nfdresult_t nfdResult = NFD::OpenDialog(outPath, nullptr, 0, nullptr);
+        if (nfdResult == NFD_OKAY) {
+          m_gameDiscSelected = outPath.get();
+        } else if (nfdResult != NFD_CANCEL) {
+          Log.report(logvisor::Error, FMT_STRING("nativefiledialog error: {}"), NFD::GetError());
+        }
+      }
+#endif
+#ifdef EMSCRIPTEN
+      if (ImGuiButtonCenter("Load Game")) {
+        m_gameDiscSelected = "game.iso";
+      }
+#else
+      if (!m_lastDiscPath.empty()) {
+        if (ImGuiButtonCenter("Load Previous Game")) {
+          m_gameDiscSelected = m_lastDiscPath;
+        }
+      }
+#endif
+      ImGui::Dummy(padding);
+    }
+    if (m_errorString) {
       ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{0.77f, 0.12f, 0.23f, 1.f});
-      ImGuiTextCenter(errorString);
+      ImGuiTextCenter(*m_errorString);
       ImGui::PopStyleColor();
       ImGui::Dummy(padding);
     }
-    ImGuiTextCenter("2015-2021");
+    ImGuiTextCenter("2015-2022");
     ImGui::BeginGroup();
     ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 200));
     ImGuiStringViewText("Development & Research");
@@ -647,7 +742,7 @@ void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) 
     ImGuiStringViewText("Contributions");
     ImGui::PopStyleColor();
     ImGuiStringViewText("Darkszero (Profiling)");
-    ImGuiStringViewText("shio (Flamethrower)");
+    ImGuiStringViewText("shio (Weapons)");
     ImGui::EndGroup();
     ImGui::Dummy(padding);
     ImGui::Separator();
@@ -703,15 +798,31 @@ void ImGuiConsole::ShowAboutWindow(bool canClose, std::string_view errorString) 
   ImGui::PopStyleColor(2);
 }
 
+static std::string BytesToString(size_t bytes) {
+  constexpr std::array suffixes{"B"sv, "KB"sv, "MB"sv, "GB"sv, "TB"sv, "PB"sv, "EB"sv};
+  u32 s = 0;
+  auto count = static_cast<double>(bytes);
+  while (count >= 1024.0 && s < 7) {
+    s++;
+    count /= 1024.0;
+  }
+  if (count - floor(count) == 0.0) {
+    return fmt::format(FMT_STRING("{}{}"), static_cast<size_t>(count), suffixes[s]);
+  }
+  return fmt::format(FMT_STRING("{:.1f}{}"), count, suffixes[s]);
+}
+
 void ImGuiConsole::ShowDebugOverlay() {
-  if (!m_frameCounter && !m_frameRate && !m_inGameTime && !m_roomTimer && !m_playerInfo && !m_areaInfo &&
-      !m_worldInfo && !m_randomStats && !m_resourceStats) {
+  if (!m_developer && !m_frameCounter && !m_frameRate && !m_inGameTime && !m_roomTimer) {
+    return;
+  }
+  if (!m_playerInfo && !m_areaInfo && !m_worldInfo && !m_randomStats && !m_resourceStats && !m_pipelineInfo &&
+      !m_drawCallInfo && !m_bufferInfo) {
     return;
   }
   ImGuiIO& io = ImGui::GetIO();
   ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
-                                 ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
-                                 ImGuiWindowFlags_NoNav;
+                                 ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
   if (m_debugOverlayCorner != -1) {
     SetOverlayWindowLocation(m_debugOverlayCorner);
     windowFlags |= ImGuiWindowFlags_NoMove;
@@ -729,7 +840,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      ImGuiStringViewText(fmt::format(FMT_STRING("FPS: {}\n"), metaforce::CGraphics::GetFPS()));
+      ImGuiStringViewText(fmt::format(FMT_STRING("FPS: {:.1f}\n"), io.Framerate));
     }
     if (m_inGameTime && g_GameState != nullptr) {
       if (hasPrevious) {
@@ -756,7 +867,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       ImGuiStringViewText(fmt::format(FMT_STRING("Room Time: {:7.3f} / {:5d} | Last Room:{:7.3f} / {:5d}\n"),
                                       currentRoomTime, curFrames, m_lastRoomTime, lastFrames));
     }
-    if (m_playerInfo && g_StateManager != nullptr && g_StateManager->Player() != nullptr) {
+    if (m_playerInfo && g_StateManager != nullptr && g_StateManager->Player() != nullptr && m_developer) {
       if (hasPrevious) {
         ImGui::Separator();
       }
@@ -779,7 +890,7 @@ void ImGuiConsole::ShowDebugOverlay() {
                       pl.GetVelocity().y(), pl.GetVelocity().z(), camXf.origin.x(), camXf.origin.y(), camXf.origin.z(),
                       zeus::radToDeg(camQ.roll()), zeus::radToDeg(camQ.pitch()), zeus::radToDeg(camQ.yaw())));
     }
-    if (m_worldInfo && g_StateManager != nullptr) {
+    if (m_worldInfo && g_StateManager != nullptr && m_developer) {
       if (hasPrevious) {
         ImGui::Separator();
       }
@@ -789,7 +900,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       ImGuiStringViewText(
           fmt::format(FMT_STRING("World Asset ID: 0x{}, Name: {}\n"), g_GameState->CurrentWorldAssetId(), name));
     }
-    if (m_areaInfo && g_StateManager != nullptr) {
+    if (m_areaInfo && g_StateManager != nullptr && m_developer) {
       const metaforce::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
       if (g_StateManager->GetWorld() != nullptr && g_StateManager->GetWorld()->DoesAreaExist(aId)) {
         if (hasPrevious) {
@@ -815,7 +926,7 @@ void ImGuiConsole::ShowDebugOverlay() {
                         pArea->GetAreaAssetId(), ImGuiLoadStringTable(stringId, 0), pArea->GetAreaId(), layerBits));
       }
     }
-    if (m_layerInfo && g_StateManager != nullptr) {
+    if (m_layerInfo && g_StateManager != nullptr && m_developer) {
       const metaforce::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
       const auto* world = g_StateManager->GetWorld();
       if (world != nullptr && world->DoesAreaExist(aId) && world->GetWorldLayers()) {
@@ -845,7 +956,7 @@ void ImGuiConsole::ShowDebugOverlay() {
         }
       }
     }
-    if (m_randomStats) {
+    if (m_randomStats && m_developer) {
       if (hasPrevious) {
         ImGui::Separator();
       }
@@ -853,8 +964,9 @@ void ImGuiConsole::ShowDebugOverlay() {
 
       ImGuiStringViewText(
           fmt::format(FMT_STRING("CRandom16::Next calls: {}\n"), metaforce::CRandom16::GetNumNextCalls()));
+      ImGuiStringViewText(fmt::format(FMT_STRING("CRandom16::LastSeed: 0x{:08X}\n"), CRandom16::GetLastSeed()));
     }
-    if (m_resourceStats) {
+    if (m_resourceStats && g_SimplePool != nullptr) {
       if (hasPrevious) {
         ImGui::Separator();
       }
@@ -862,9 +974,53 @@ void ImGuiConsole::ShowDebugOverlay() {
 
       ImGuiStringViewText(fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects()));
     }
-    ShowCornerContextMenu(m_debugOverlayCorner, m_inputOverlayCorner);
+    if (m_pipelineInfo && m_developer) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      hasPrevious = true;
+
+      ImGuiStringViewText(fmt::format(FMT_STRING("Queued pipelines:  {}\n"), aurora::gfx::queuedPipelines));
+      ImGuiStringViewText(fmt::format(FMT_STRING("Done pipelines:    {}\n"), aurora::gfx::createdPipelines));
+    }
+    if (m_drawCallInfo && m_developer) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      hasPrevious = true;
+
+      ImGuiStringViewText(fmt::format(FMT_STRING("Draw call count:   {}\n"), aurora::gfx::g_drawCallCount));
+      ImGuiStringViewText(fmt::format(FMT_STRING("Merged draw calls: {}\n"), aurora::gfx::g_mergedDrawCallCount));
+    }
+    if (m_bufferInfo && m_developer) {
+      if (hasPrevious) {
+        ImGui::Separator();
+      }
+      hasPrevious = true;
+
+      ImGuiStringViewText(
+          fmt::format(FMT_STRING("Vertex size:       {}\n"), BytesToString(aurora::gfx::g_lastVertSize)));
+      ImGuiStringViewText(
+          fmt::format(FMT_STRING("Uniform size:      {}\n"), BytesToString(aurora::gfx::g_lastUniformSize)));
+      ImGuiStringViewText(
+          fmt::format(FMT_STRING("Index size:        {}\n"), BytesToString(aurora::gfx::g_lastIndexSize)));
+      ImGuiStringViewText(
+          fmt::format(FMT_STRING("Storage size:      {}\n"), BytesToString(aurora::gfx::g_lastStorageSize)));
+      ImGuiStringViewText(fmt::format(FMT_STRING("Total:             {}\n"),
+                                      BytesToString(aurora::gfx::g_lastVertSize + aurora::gfx::g_lastUniformSize +
+                                                    aurora::gfx::g_lastIndexSize + aurora::gfx::g_lastStorageSize)));
+    }
+    if (ShowCornerContextMenu(m_debugOverlayCorner, m_inputOverlayCorner)) {
+      m_cvarCommons.m_debugOverlayCorner->fromInteger(m_debugOverlayCorner);
+    }
   }
   ImGui::End();
+}
+void TextCenter(const std::string& text) {
+  float font_size = ImGui::GetFontSize() * text.size() / 2;
+  ImGui::SameLine(ImGui::GetWindowSize().x / 2 - font_size + (font_size / 2));
+
+  ImGui::TextUnformatted(text.c_str());
 }
 
 void ImGuiConsole::ShowInputViewer() {
@@ -872,24 +1028,38 @@ void ImGuiConsole::ShowInputViewer() {
     return;
   }
   auto input = g_InputGenerator->GetLastInput();
-  if (input.x4_controllerIdx != 0) {
+  if (input.ControllerIdx() != 0) {
     return;
   }
+
+  u32 thisWhich = input.ControllerIdx();
+  if (m_whichController != thisWhich) {
+    const char* name = PADGetName(thisWhich);
+    if (name != nullptr) {
+      m_controllerName = name;
+      m_whichController = thisWhich;
+    }
+  }
+
   // Code -stolen- borrowed from Practice Mod
   ImGuiIO& io = ImGui::GetIO();
   ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
-                                 ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
-                                 ImGuiWindowFlags_NoNav;
+                                 ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
   if (m_inputOverlayCorner != -1) {
     SetOverlayWindowLocation(m_inputOverlayCorner);
     windowFlags |= ImGuiWindowFlags_NoMove;
   }
+
   ImGui::SetNextWindowBgAlpha(0.65f);
   if (ImGui::Begin("Input Overlay", nullptr, windowFlags)) {
+    float scale = GetScale();
+    if (!m_controllerName.empty()) {
+      TextCenter(m_controllerName);
+      ImGui::Separator();
+    }
     ImDrawList* dl = ImGui::GetWindowDrawList();
     zeus::CVector2f p = ImGui::GetCursorScreenPos();
 
-    float scale = ImGui::GetIO().DisplayFramebufferScale.x;
     float leftStickRadius = 30 * scale;
     p = p + zeus::CVector2f{20, 20} * scale; // Pad p so we don't clip outside our rect
     zeus::CVector2f leftStickCenter = p + zeus::CVector2f(30, 45) * scale;
@@ -923,22 +1093,22 @@ void ImGuiConsole::ShowInputViewer() {
 
     // left stick
     {
-      dl->AddCircleFilled(leftStickCenter, leftStickRadius, stickGray, 8);
       float x = input.ALeftX();
       float y = -input.ALeftY();
-      dl->AddCircleFilled(leftStickCenter + (zeus::CVector2f{x, y} * leftStickRadius), leftStickRadius / 3, red);
+      dl->AddCircleFilled(leftStickCenter, leftStickRadius, stickGray, 8);
       dl->AddLine(leftStickCenter, leftStickCenter + zeus::CVector2f(x * leftStickRadius, y * leftStickRadius),
                   IM_COL32(255, 244, 0, 255), 1.5f);
+      dl->AddCircleFilled(leftStickCenter + (zeus::CVector2f{x, y} * leftStickRadius), leftStickRadius / 3, red);
     }
 
     // right stick
     {
-      dl->AddCircleFilled(rightStickCenter, rightStickRadius, stickGray, 8);
       float x = input.ARightX();
       float y = -input.ARightY();
-      dl->AddCircleFilled(rightStickCenter + (zeus::CVector2f{x, y} * rightStickRadius), rightStickRadius / 3, red);
+      dl->AddCircleFilled(rightStickCenter, rightStickRadius, stickGray, 8);
       dl->AddLine(rightStickCenter, rightStickCenter + zeus::CVector2f(x * rightStickRadius, y * rightStickRadius),
                   IM_COL32(255, 244, 0, 255), 1.5f);
+      dl->AddCircleFilled(rightStickCenter + (zeus::CVector2f{x, y} * rightStickRadius), rightStickRadius / 3, red);
     }
 
     // dpad
@@ -999,44 +1169,53 @@ void ImGuiConsole::ShowInputViewer() {
       float halfTriggerWidth = triggerWidth / 2;
       zeus::CVector2f lStart = lCenter - zeus::CVector2f(halfTriggerWidth, 0);
       zeus::CVector2f lEnd = lCenter + zeus::CVector2f(halfTriggerWidth, triggerHeight);
-      float lValue = triggerWidth * input.ALTrigger();
+      float lValue = triggerWidth * std::min(1.f, input.ALTrigger());
 
       dl->AddRectFilled(lStart, lStart + zeus::CVector2f(lValue, triggerHeight), input.DL() ? red : stickGray);
       dl->AddRectFilled(lStart + zeus::CVector2f(lValue, 0), lEnd, darkGray);
 
       zeus::CVector2f rStart = rCenter - zeus::CVector2f(halfTriggerWidth, 0);
       zeus::CVector2f rEnd = rCenter + zeus::CVector2f(halfTriggerWidth, triggerHeight);
-      float rValue = triggerWidth * input.ARTrigger();
+      float rValue = triggerWidth * std::min(1.f, input.ARTrigger());
 
       dl->AddRectFilled(rEnd - zeus::CVector2f(rValue, triggerHeight), rEnd, input.DR() ? red : stickGray);
       dl->AddRectFilled(rStart, rEnd - zeus::CVector2f(rValue, 0), darkGray);
     }
 
     ImGui::Dummy(zeus::CVector2f(270, 130) * scale);
-    ShowCornerContextMenu(m_inputOverlayCorner, m_debugOverlayCorner);
+    if (ShowCornerContextMenu(m_inputOverlayCorner, m_debugOverlayCorner)) {
+      m_cvarCommons.m_debugInputOverlayCorner->fromInteger(m_inputOverlayCorner);
+    }
   }
   ImGui::End();
 }
 
-void ImGuiConsole::ShowCornerContextMenu(int& corner, int avoidCorner) const {
+bool ImGuiConsole::ShowCornerContextMenu(int& corner, int avoidCorner) const {
+  bool result = false;
   if (ImGui::BeginPopupContextWindow()) {
     if (ImGui::MenuItem("Custom", nullptr, corner == -1)) {
       corner = -1;
+      result = true;
     }
     if (ImGui::MenuItem("Top-left", nullptr, corner == 0, avoidCorner != 0)) {
       corner = 0;
+      result = true;
     }
     if (ImGui::MenuItem("Top-right", nullptr, corner == 1, avoidCorner != 1)) {
       corner = 1;
+      result = true;
     }
     if (ImGui::MenuItem("Bottom-left", nullptr, corner == 2, avoidCorner != 2)) {
       corner = 2;
+      result = true;
     }
     if (ImGui::MenuItem("Bottom-right", nullptr, corner == 3, avoidCorner != 3)) {
       corner = 3;
+      result = true;
     }
     ImGui::EndPopup();
   }
+  return result;
 }
 
 void ImGuiConsole::SetOverlayWindowLocation(int corner) const {
@@ -1053,68 +1232,78 @@ void ImGuiConsole::SetOverlayWindowLocation(int corner) const {
   ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, windowPosPivot);
 }
 
-void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
+static void ImGuiCVarMenuItem(const char* name, CVar* cvar, bool& value) {
+  if (cvar == nullptr) {
+    return;
+  }
+  if (ImGui::MenuItem(name, nullptr, &value)) {
+    cvar->fromBoolean(value);
+  }
+  if (ImGui::IsItemHovered()) {
+    std::string tooltip{cvar->rawHelp()};
+    if (!tooltip.empty()) {
+      ImGui::SetTooltip("%s", tooltip.c_str());
+    }
+  }
+}
+
+void ImGuiConsole::ShowAppMainMenuBar(bool canInspect, bool preLaunch) {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("Game")) {
       ShowMenuGame();
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Tools")) {
-      ImGui::MenuItem("Player Transform", nullptr, &m_showPlayerTransformEditor, canInspect && m_developer);
-      ImGui::MenuItem("Inspect", nullptr, &m_showInspectWindow, canInspect && m_developer);
-      ImGui::MenuItem("Items", nullptr, &m_showItemsWindow, canInspect && m_developer && m_cheats);
-      ImGui::MenuItem("Layers", nullptr, &m_showLayersWindow, canInspect && m_developer);
-      ImGui::MenuItem("Console Variables", nullptr, &m_showConsoleVariablesWindow);
-      ImGui::EndMenu();
-    }
-    if (ImGui::BeginMenu("Debug")) {
-      if (ImGui::MenuItem("Frame Counter", nullptr, &m_frameCounter)) {
-        m_cvarCommons.m_debugOverlayShowFrameCounter->fromBoolean(m_frameCounter);
-      }
-      if (ImGui::MenuItem("Frame Rate", nullptr, &m_frameRate)) {
-        m_cvarCommons.m_debugOverlayShowFramerate->fromBoolean(m_frameRate);
-      }
-      if (ImGui::MenuItem("In-Game Time", nullptr, &m_inGameTime)) {
-        m_cvarCommons.m_debugOverlayShowInGameTime->fromBoolean(m_inGameTime);
-      }
-      if (ImGui::MenuItem("Room Timer", nullptr, &m_roomTimer)) {
-        m_cvarCommons.m_debugOverlayShowRoomTimer->fromBoolean(m_roomTimer);
-      }
-      if (ImGui::MenuItem("Player Info", nullptr, &m_playerInfo)) {
-        m_cvarCommons.m_debugOverlayPlayerInfo->fromBoolean(m_playerInfo);
-      }
-      if (ImGui::MenuItem("World Info", nullptr, &m_worldInfo)) {
-        m_cvarCommons.m_debugOverlayWorldInfo->fromBoolean(m_worldInfo);
-      }
-      if (ImGui::MenuItem("Area Info", nullptr, &m_areaInfo)) {
-        m_cvarCommons.m_debugOverlayAreaInfo->fromBoolean(m_areaInfo);
-      }
-      if (ImGui::MenuItem("Layer Info", nullptr, &m_layerInfo)) {
-        m_cvarCommons.m_debugOverlayLayerInfo->fromBoolean(m_layerInfo);
-      }
-      if (ImGui::MenuItem("Random Stats", nullptr, &m_randomStats)) {
-        m_cvarCommons.m_debugOverlayShowRandomStats->fromBoolean(m_randomStats);
-      }
-      if (ImGui::MenuItem("Resource Stats", nullptr, &m_resourceStats)) {
-        m_cvarCommons.m_debugOverlayShowResourceStats->fromBoolean(m_resourceStats);
-      }
-      if (ImGui::MenuItem("Show Input", nullptr, &m_showInput)) {
-        m_cvarCommons.m_debugOverlayShowInput->fromBoolean(m_showInput);
+      ImGui::MenuItem("Controller Config", nullptr, &m_controllerConfigVisible);
+      ImGui::MenuItem("Items", nullptr, &m_showItemsWindow, canInspect && m_cheats);
+      if (m_developer) {
+        ImGui::Separator();
+        ImGui::MenuItem("Console Variables", nullptr, &m_showConsoleVariablesWindow);
+        ImGui::MenuItem("Inspect", nullptr, &m_showInspectWindow, canInspect);
+        ImGui::MenuItem("Layers", nullptr, &m_showLayersWindow, canInspect);
+        ImGui::MenuItem("Player Transform", nullptr, &m_showPlayerTransformEditor, canInspect && m_cheats);
       }
       ImGui::EndMenu();
     }
-    ImGui::Spacing();
-    if (ImGui::BeginMenu("Help")) {
-      ImGui::MenuItem("About", nullptr, &m_showAboutWindow);
+    if (ImGui::BeginMenu("Overlays")) {
+      ImGuiCVarMenuItem("Frame Counter", m_cvarCommons.m_debugOverlayShowFrameCounter, m_frameCounter);
+      ImGuiCVarMenuItem("Frame Rate", m_cvarCommons.m_debugOverlayShowFramerate, m_frameRate);
+      ImGuiCVarMenuItem("In-Game Time", m_cvarCommons.m_debugOverlayShowInGameTime, m_inGameTime);
+      ImGuiCVarMenuItem("Room Timer", m_cvarCommons.m_debugOverlayShowRoomTimer, m_roomTimer);
+      ImGuiCVarMenuItem("Player Info", m_cvarCommons.m_debugOverlayPlayerInfo, m_playerInfo);
+      ImGuiCVarMenuItem("World Info", m_cvarCommons.m_debugOverlayWorldInfo, m_worldInfo);
+      ImGuiCVarMenuItem("Area Info", m_cvarCommons.m_debugOverlayAreaInfo, m_areaInfo);
+      ImGuiCVarMenuItem("Layer Info", m_cvarCommons.m_debugOverlayLayerInfo, m_layerInfo);
+      ImGuiCVarMenuItem("Random Stats", m_cvarCommons.m_debugOverlayShowRandomStats, m_randomStats);
+      ImGuiCVarMenuItem("Draw Call Info", m_cvarCommons.m_debugOverlayDrawCallInfo, m_drawCallInfo);
+      ImGuiCVarMenuItem("Pipeline Info", m_cvarCommons.m_debugOverlayPipelineInfo, m_pipelineInfo);
+      ImGuiCVarMenuItem("Buffer Info", m_cvarCommons.m_debugOverlayBufferInfo, m_bufferInfo);
+      ImGuiCVarMenuItem("Resource Stats", m_cvarCommons.m_debugOverlayShowResourceStats, m_resourceStats);
+      ImGuiCVarMenuItem("Show Input", m_cvarCommons.m_debugOverlayShowInput, m_showInput);
+#if 0 // Currently unimplemented
       ImGui::Separator();
-      if (ImGui::BeginMenu("ImGui")) {
-        if (ImGui::MenuItem("Clear Settings")) {
-          ImGui::ClearIniSettings();
-        }
-#ifndef NDEBUG
-        ImGui::MenuItem("Show Demo", nullptr, &m_showDemoWindow);
+      ImGuiCVarMenuItem("Draw AI Paths", m_cvarCommons.m_debugToolDrawAiPath, m_drawAiPath);
+      ImGuiCVarMenuItem("Draw Lighting", m_cvarCommons.m_debugToolDrawLighting, m_drawLighting);
+      ImGuiCVarMenuItem("Draw Collision Actors", m_cvarCommons.m_debugToolDrawCollisionActors, m_drawCollisionActors);
+      ImGuiCVarMenuItem("Draw Maze Path", m_cvarCommons.m_debugToolDrawMazePath, m_drawMazePath);
+      ImGuiCVarMenuItem("Draw Platform Collision", m_cvarCommons.m_debugToolDrawPlatformCollision,
+                        m_drawPlatformCollision);
 #endif
-        ImGui::EndMenu();
+      ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("Help")) {
+      ImGui::MenuItem("About", nullptr, &m_showAboutWindow, !preLaunch);
+      if (m_developer) {
+        ImGui::Separator();
+        if (ImGui::BeginMenu("ImGui")) {
+          if (ImGui::MenuItem("Clear Settings")) {
+            ImGui::ClearIniSettings();
+          }
+#ifndef NDEBUG
+          ImGui::MenuItem("Show Demo", nullptr, &m_showDemoWindow);
+#endif
+          ImGui::EndMenu();
+        }
       }
       ImGui::EndMenu();
     }
@@ -1122,53 +1311,71 @@ void ImGuiConsole::ShowAppMainMenuBar(bool canInspect) {
   }
 }
 
-s32 TranslateBooSpecialKey(boo::ESpecialKey key) { return 256 + static_cast<int>(key); }
+void ImGuiConsole::ToggleVisible() {
+  if (g_Main != nullptr) {
+    m_isVisible ^= 1;
+  }
+}
+
 void ImGuiConsole::PreUpdate() {
   OPTICK_EVENT();
+  bool preLaunch = g_Main == nullptr;
   if (!m_isInitialized) {
     m_isInitialized = true;
-    m_cvarCommons.m_debugOverlayShowFrameCounter->addListener(
-        [this](hecl::CVar* c) { m_frameCounter = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayShowFramerate->addListener([this](hecl::CVar* c) { m_frameRate = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayShowInGameTime->addListener([this](hecl::CVar* c) { m_inGameTime = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayShowRoomTimer->addListener([this](hecl::CVar* c) { m_roomTimer = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayPlayerInfo->addListener([this](hecl::CVar* c) { m_playerInfo = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayWorldInfo->addListener([this](hecl::CVar* c) { m_worldInfo = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayAreaInfo->addListener([this](hecl::CVar* c) { m_areaInfo = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayLayerInfo->addListener([this](hecl::CVar* c) { m_layerInfo = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayShowRandomStats->addListener([this](hecl::CVar* c) { m_randomStats = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayShowResourceStats->addListener(
-        [this](hecl::CVar* c) { m_resourceStats = c->toBoolean(); });
-    m_cvarCommons.m_debugOverlayShowInput->addListener([this](hecl::CVar* c) { m_showInput = c->toBoolean(); });
-    m_cvarMgr.findCVar("developer")->addListener([this](hecl::CVar* c) { m_developer = c->toBoolean(); });
-    m_cvarMgr.findCVar("cheats")->addListener([this](hecl::CVar* c) { m_cheats = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowFrameCounter->addListener([this](CVar* c) { m_frameCounter = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowFramerate->addListener([this](CVar* c) { m_frameRate = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowInGameTime->addListener([this](CVar* c) { m_inGameTime = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowRoomTimer->addListener([this](CVar* c) { m_roomTimer = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayPlayerInfo->addListener([this](CVar* c) { m_playerInfo = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayWorldInfo->addListener([this](CVar* c) { m_worldInfo = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayAreaInfo->addListener([this](CVar* c) { m_areaInfo = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayLayerInfo->addListener([this](CVar* c) { m_layerInfo = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowRandomStats->addListener([this](CVar* c) { m_randomStats = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowResourceStats->addListener([this](CVar* c) { m_resourceStats = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayShowInput->addListener([this](CVar* c) { m_showInput = c->toBoolean(); });
+    m_cvarCommons.m_debugToolDrawAiPath->addListener([this](CVar* c) { m_drawAiPath = c->toBoolean(); });
+    m_cvarCommons.m_debugToolDrawCollisionActors->addListener(
+        [this](CVar* c) { m_drawCollisionActors = c->toBoolean(); });
+    m_cvarCommons.m_debugToolDrawPlatformCollision->addListener(
+        [this](CVar* c) { m_drawPlatformCollision = c->toBoolean(); });
+    m_cvarCommons.m_debugToolDrawMazePath->addListener([this](CVar* c) { m_drawMazePath = c->toBoolean(); });
+    m_cvarCommons.m_debugToolDrawLighting->addListener([this](CVar* c) { m_drawLighting = c->toBoolean(); });
+    m_cvarCommons.m_debugOverlayCorner->addListener([this](CVar* c) { m_debugOverlayCorner = c->toSigned(); });
+    m_cvarCommons.m_debugInputOverlayCorner->addListener([this](CVar* c) { m_inputOverlayCorner = c->toSigned(); });
+    m_cvarCommons.m_lastDiscPath->addListener([this](CVar* c) { m_lastDiscPath = c->toLiteral(); });
+    m_cvarMgr.findCVar("developer")->addListener([this](CVar* c) { m_developer = c->toBoolean(); });
+    m_cvarMgr.findCVar("cheats")->addListener([this](CVar* c) { m_cheats = c->toBoolean(); });
   }
-  // We ned to make sure we have a valid CRandom16 at all times, so lets do that here
+  if (!preLaunch && !m_isLaunchInitialized) {
+    if (m_developer) {
+      m_toasts.emplace_back("Press Left Alt to toggle menu"s, 5.f);
+    }
+    m_isLaunchInitialized = true;
+  }
+  // We need to make sure we have a valid CRandom16 at all times, so let's do that here
   if (g_StateManager != nullptr && g_StateManager->GetActiveRandom() == nullptr) {
     g_StateManager->SetActiveRandomToDefault();
   }
 
-  if (ImGui::IsKeyReleased('`')) {
-    m_isVisible ^= 1;
-  }
-  if (m_stepFrame) {
-    g_Main->SetPaused(true);
-    m_stepFrame = false;
-  }
-  if (m_paused && !m_stepFrame && ImGui::IsKeyPressed(TranslateBooSpecialKey(boo::ESpecialKey::F6))) {
-    g_Main->SetPaused(false);
-    m_stepFrame = true;
-  }
-  if (ImGui::IsKeyReleased(TranslateBooSpecialKey(boo::ESpecialKey::F5))) {
-    m_paused ^= 1;
-    g_Main->SetPaused(m_paused);
+  if (!preLaunch) {
+    if (m_stepFrame) {
+      g_Main->SetPaused(true);
+      m_stepFrame = false;
+    }
+    if (m_paused && !m_stepFrame && ImGui::IsKeyPressed(ImGuiKey_F6)) {
+      g_Main->SetPaused(false);
+      m_stepFrame = true;
+    }
+    if (ImGui::IsKeyReleased(ImGuiKey_F5)) {
+      m_paused ^= 1;
+      g_Main->SetPaused(m_paused);
+    }
   }
   bool canInspect = g_StateManager != nullptr && g_StateManager->GetObjectList();
-  if (m_isVisible) {
-    ShowAppMainMenuBar(canInspect);
-  } else if (m_developer) {
-    ShowMenuHint();
+  if (preLaunch || m_isVisible) {
+    ShowAppMainMenuBar(canInspect, preLaunch);
   }
+  ShowToasts();
   if (canInspect && (m_showInspectWindow || !inspectingEntities.empty())) {
     UpdateEntityEntries();
     if (m_showInspectWindow) {
@@ -1189,8 +1396,8 @@ void ImGuiConsole::PreUpdate() {
   if (canInspect && m_showLayersWindow) {
     ShowLayersWindow();
   }
-  if (m_showAboutWindow) {
-    ShowAboutWindow(true);
+  if (preLaunch || m_showAboutWindow) {
+    ShowAboutWindow(preLaunch);
   }
   if (m_showDemoWindow) {
     ImGui::ShowDemoWindow(&m_showDemoWindow);
@@ -1201,6 +1408,11 @@ void ImGuiConsole::PreUpdate() {
   ShowDebugOverlay();
   ShowInputViewer();
   ShowPlayerTransformEditor();
+  ShowPipelineProgress();
+  m_controllerConfig.show(m_controllerConfigVisible);
+  if (preLaunch && m_showPreLaunchSettingsWindow) {
+    ShowPreLaunchSettingsWindow();
+  }
 }
 
 void ImGuiConsole::PostUpdate() {
@@ -1228,7 +1440,7 @@ void ImGuiConsole::PostUpdate() {
 
   // Always calculate room time regardless of if the overlay is displayed, this allows us have an accurate display if
   // the user chooses to display it later on during gameplay
-  if (g_StateManager && m_currentRoom != g_StateManager->GetCurrentArea()) {
+  if (g_StateManager != nullptr && m_currentRoom != g_StateManager->GetCurrentArea()) {
     const double igt = g_GameState->GetTotalPlayTime();
     m_currentRoom = static_cast<const void*>(g_StateManager->GetCurrentArea());
     m_lastRoomTime = igt - m_currentRoomStart;
@@ -1239,6 +1451,9 @@ void ImGuiConsole::PostUpdate() {
 void ImGuiConsole::Shutdown() {
   dummyWorlds.clear();
   stringTables.clear();
+#ifdef NATIVEFILEDIALOG_SUPPORTED
+  NFD::Quit();
+#endif
 }
 
 static constexpr std::array GeneralItems{
@@ -1451,7 +1666,7 @@ void ImGuiConsole::ShowItemsWindow() {
 
 void ImGuiConsole::ShowLayersWindow() {
   // For some reason the window shows up tiny without this
-  float initialWindowSize = 350.f * ImGui::GetIO().DisplayFramebufferScale.x;
+  float initialWindowSize = 350.f * GetScale();
   ImGui::SetNextWindowSize(ImVec2{initialWindowSize, initialWindowSize}, ImGuiCond_FirstUseEver);
 
   if (ImGui::Begin("Layers", &m_showLayersWindow)) {
@@ -1519,11 +1734,14 @@ void ImGuiConsole::ShowLayersWindow() {
   ImGui::End();
 }
 
-void ImGuiConsole::ShowMenuHint() {
-  if (m_menuHintTime <= 0.f) {
+void ImGuiConsole::ShowToasts() {
+  if (m_toasts.empty()) {
     return;
   }
-  m_menuHintTime -= ImGui::GetIO().DeltaTime;
+  auto& toast = m_toasts.front();
+  const float dt = ImGui::GetIO().DeltaTime;
+  toast.remain -= dt;
+  toast.current += dt;
 
   const ImGuiViewport* viewport = ImGui::GetMainViewport();
   const ImVec2 workPos = viewport->WorkPos;
@@ -1532,7 +1750,7 @@ void ImGuiConsole::ShowMenuHint() {
   const ImVec2 windowPos{workPos.x + workSize.x / 2, workPos.y + workSize.y - padding};
   ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always, ImVec2{0.5f, 1.f});
 
-  const float alpha = std::min(m_menuHintTime, 1.f);
+  const float alpha = std::min({toast.remain, toast.current, 1.f});
   ImGui::SetNextWindowBgAlpha(alpha * 0.65f);
   ImVec4 textColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
   textColor.w *= alpha;
@@ -1540,14 +1758,18 @@ void ImGuiConsole::ShowMenuHint() {
   borderColor.w *= alpha;
   ImGui::PushStyleColor(ImGuiCol_Text, textColor);
   ImGui::PushStyleColor(ImGuiCol_Border, borderColor);
-  if (ImGui::Begin("Menu Hint", nullptr,
+  if (ImGui::Begin("Toast", nullptr,
                    ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
                        ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav |
                        ImGuiWindowFlags_NoMove)) {
-    ImGuiStringViewText("Press ` to toggle menu"sv);
+    ImGuiStringViewText(toast.message);
   }
   ImGui::End();
   ImGui::PopStyleColor(2);
+
+  if (toast.remain <= 0.f) {
+    m_toasts.pop_front();
+  }
 }
 
 void ImGuiConsole::ShowPlayerTransformEditor() {
@@ -1616,5 +1838,190 @@ void ImGuiConsole::ShowPlayerTransformEditor() {
     }
   }
   ImGui::End();
+}
+
+void ImGuiConsole::ShowPipelineProgress() {
+  const u32 queuedPipelines = aurora::gfx::queuedPipelines;
+  if (queuedPipelines == 0) {
+    return;
+  }
+  const u32 createdPipelines = aurora::gfx::createdPipelines;
+  const u32 totalPipelines = queuedPipelines + createdPipelines;
+
+  const auto* viewport = ImGui::GetMainViewport();
+  const auto padding = viewport->WorkPos.y + 10.f;
+  const auto halfWidth = viewport->GetWorkCenter().x;
+  ImGui::SetNextWindowPos(ImVec2{halfWidth, padding}, ImGuiCond_Always, ImVec2{0.5f, 0.f});
+  ImGui::SetNextWindowSize(ImVec2{halfWidth, 0.f}, ImGuiCond_Always);
+  ImGui::SetNextWindowBgAlpha(0.65f);
+  ImGui::Begin("Pipelines", nullptr,
+               ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMove |
+                   ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing);
+  const auto percent = static_cast<float>(createdPipelines) / static_cast<float>(totalPipelines);
+  const auto progressStr = fmt::format(FMT_STRING("Processing pipelines: {} / {}"), createdPipelines, totalPipelines);
+  const auto textSize = ImGui::CalcTextSize(progressStr.data(), progressStr.data() + progressStr.size());
+  ImGui::NewLine();
+  ImGui::SameLine(ImGui::GetWindowWidth() / 2.f - textSize.x + textSize.x / 2.f);
+  ImGuiStringViewText(progressStr);
+  ImGui::ProgressBar(percent);
+  ImGui::End();
+}
+
+void ImGuiConsole::ControllerAdded(uint32_t idx) {
+  const char* name = PADGetName(idx);
+  if (name != nullptr) {
+    m_toasts.emplace_back(fmt::format(FMT_STRING("Controller {} ({}) connected"), idx, name), 5.f);
+  } else {
+    m_toasts.emplace_back(fmt::format(FMT_STRING("Controller {} connected"), idx), 5.f);
+  }
+}
+
+void ImGuiConsole::ControllerRemoved(uint32_t idx) {
+  m_toasts.emplace_back(fmt::format(FMT_STRING("Controller {} disconnected"), idx), 5.f);
+}
+
+static void ImGuiCVarCheckbox(CVarManager& mgr, std::string_view cvarName, const char* label, bool* ptr = nullptr) {
+  auto* cvar = mgr.findCVar(cvarName);
+  if (cvar != nullptr) {
+    bool value = cvar->toBoolean();
+    bool modified = false;
+    if (ptr == nullptr) {
+      modified = ImGui::Checkbox(label, &value);
+    } else {
+      modified = ImGui::Checkbox(label, ptr);
+      value = *ptr;
+    }
+    // Kinda useless for these tbh
+    // std::string tooltip{cvar->rawHelp()};
+    // if (!tooltip.empty() && ImGui::IsItemHovered()) {
+    //   ImGui::SetTooltip("%s", tooltip.c_str());
+    // }
+    if (modified) {
+      cvar->unlock();
+      cvar->fromBoolean(value);
+      cvar->lock();
+    }
+  }
+}
+
+void ImGuiConsole::ShowPreLaunchSettingsWindow() {
+  if (ImGui::Begin("Settings", &m_showPreLaunchSettingsWindow, ImGuiWindowFlags_AlwaysAutoResize)) {
+    if (ImGui::BeginTabBar("Settings")) {
+      if (ImGui::BeginTabItem("Graphics")) {
+        size_t backendCount = 0;
+        const auto* backends = aurora_get_available_backends(&backendCount);
+        ImGuiStringViewText(fmt::format(FMT_STRING("Current backend: {}"), backend_name(aurora_get_backend())));
+        auto desiredBackend = static_cast<int>(BACKEND_AUTO);
+        if (auto* cvar = m_cvarMgr.findCVar("graphicsApi")) {
+          bool valid = false;
+          const auto name = cvar->toLiteral(&valid);
+          if (valid) {
+            desiredBackend = static_cast<int>(backend_from_string(name));
+          }
+        }
+        bool modified = false;
+        modified = ImGui::RadioButton("Auto", &desiredBackend, static_cast<int>(BACKEND_AUTO));
+        for (size_t i = 0; i < backendCount; ++i, ++backends) {
+          const auto backend = *backends;
+          modified =
+              ImGui::RadioButton(backend_name(backend).data(), &desiredBackend, static_cast<int>(backend)) || modified;
+        }
+        if (modified) {
+          m_cvarCommons.m_graphicsApi->fromLiteral(backend_to_string(static_cast<AuroraBackend>(desiredBackend)));
+        }
+        ImGuiCVarCheckbox(m_cvarMgr, "fullscreen", "Fullscreen");
+        ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("Game")) {
+        ImGuiCVarCheckbox(m_cvarMgr, "allowJoystickInBackground", "Enable Background Joystick Input");
+        ImGuiCVarCheckbox(m_cvarMgr, "tweak.game.SplashScreensDisabled", "Skip Splash Screens");
+        ImGuiCVarCheckbox(m_cvarMgr, "cheats", "Enable Cheats", &m_cheats);
+        if (m_cheats) {
+          ImGuiCVarCheckbox(m_cvarMgr, "developer", "Developer Mode", &m_developer);
+        }
+        ImGui::EndTabItem();
+      }
+      if (ImGui::BeginTabItem("Experimental")) {
+        ImGuiCVarCheckbox(m_cvarMgr, "variableDt", "Variable Delta Time (broken)");
+        ImGui::EndTabItem();
+      }
+      ImGui::EndTabBar();
+    }
+  }
+  ImGui::End();
+}
+
+static bool eq(std::string_view a, std::string_view b) {
+  if (a.size() != b.size()) {
+    return false;
+  }
+  return std::equal(a.begin(), a.end(), b.begin(), b.end(), [](char a, char b) { return tolower(a) == b; });
+}
+
+AuroraBackend backend_from_string(const std::string& str) {
+  if (eq(str, "d3d12"sv) || eq(str, "d3d"sv)) {
+    return BACKEND_D3D12;
+  }
+  if (eq(str, "metal"sv)) {
+    return BACKEND_METAL;
+  }
+  if (eq(str, "vulkan"sv) || eq(str, "vk"sv)) {
+    return BACKEND_VULKAN;
+  }
+  if (eq(str, "opengl"sv) || eq(str, "gl"sv)) {
+    return BACKEND_OPENGL;
+  }
+  if (eq(str, "opengles"sv) || eq(str, "gles"sv)) {
+    return BACKEND_OPENGLES;
+  }
+  if (eq(str, "webgpu"sv) || eq(str, "wgpu"sv)) {
+    return BACKEND_WEBGPU;
+  }
+  if (eq(str, "null"sv) || eq(str, "none"sv)) {
+    return BACKEND_NULL;
+  }
+  return BACKEND_AUTO;
+}
+
+std::string_view backend_to_string(AuroraBackend backend) {
+  switch (backend) {
+  default:
+    return "auto"sv;
+  case BACKEND_D3D12:
+    return "d3d12"sv;
+  case BACKEND_METAL:
+    return "metal"sv;
+  case BACKEND_VULKAN:
+    return "vulkan"sv;
+  case BACKEND_OPENGL:
+    return "opengl"sv;
+  case BACKEND_OPENGLES:
+    return "opengles"sv;
+  case BACKEND_WEBGPU:
+    return "webgpu"sv;
+  case BACKEND_NULL:
+    return "null"sv;
+  }
+}
+
+std::string_view backend_name(AuroraBackend backend) {
+  switch (backend) {
+  default:
+    return "Auto"sv;
+  case BACKEND_D3D12:
+    return "D3D12"sv;
+  case BACKEND_METAL:
+    return "Metal"sv;
+  case BACKEND_VULKAN:
+    return "Vulkan"sv;
+  case BACKEND_OPENGL:
+    return "OpenGL"sv;
+  case BACKEND_OPENGLES:
+    return "OpenGL ES"sv;
+  case BACKEND_WEBGPU:
+    return "WebGPU"sv;
+  case BACKEND_NULL:
+    return "Null"sv;
+  }
 }
 } // namespace metaforce

@@ -1,27 +1,31 @@
 set(GRAPHICS_SOURCES
         IRenderer.hpp
         IWeaponRenderer.hpp IWeaponRenderer.cpp
-        CBooRenderer.hpp CBooRenderer.cpp
+        CCubeMaterial.cpp CCubeMaterial.hpp
+        CCubeModel.cpp CCubeModel.hpp
+        CCubeRenderer.cpp CCubeRenderer.hpp
+        CCubeSurface.cpp CCubeSurface.hpp
         CDrawable.hpp
         CDrawablePlaneObject.hpp
         CLineRenderer.hpp CLineRenderer.cpp
-        CMetroidModelInstance.hpp
+        CMetroidModelInstance.cpp CMetroidModelInstance.hpp
         CLight.hpp CLight.cpp
-        CTexture.hpp CTextureBoo.cpp
-        CModel.hpp CModelBoo.cpp
+        CTevCombiners.cpp CTevCombiners.hpp
+        CTexture.hpp CTexture.cpp
+        CModel.cpp CModel.hpp
         CSkinnedModel.hpp CSkinnedModel.cpp
         CVertexMorphEffect.hpp CVertexMorphEffect.cpp
         CMoviePlayer.hpp CMoviePlayer.cpp
-        CGraphicsPalette.hpp
+        CGraphicsPalette.hpp CGraphicsPalette.cpp
+        CGX.hpp CGX.cpp
         CPVSVisSet.hpp CPVSVisSet.cpp
         CPVSVisOctree.hpp CPVSVisOctree.cpp
         CPVSAreaSet.hpp CPVSAreaSet.cpp
         CGraphics.hpp CGraphics.cpp
         CSimpleShadow.hpp CSimpleShadow.cpp
         CRainSplashGenerator.hpp CRainSplashGenerator.cpp
+        CFont.hpp CFont.cpp
         Shaders/CLineRendererShaders.hpp Shaders/CLineRendererShaders.cpp
-        Shaders/CTexturedQuadFilter.hpp Shaders/CTexturedQuadFilter.cpp
-        Shaders/CColoredQuadFilter.hpp Shaders/CColoredQuadFilter.cpp
         Shaders/CColoredStripShader.hpp Shaders/CColoredStripShader.cpp
         Shaders/CModelShaders.hpp Shaders/CModelShaders.cpp
         Shaders/CThermalColdFilter.hpp Shaders/CThermalColdFilter.cpp

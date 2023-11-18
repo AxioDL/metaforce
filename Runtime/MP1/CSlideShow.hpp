@@ -10,7 +10,6 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 
 #include <zeus/CColor.hpp>
@@ -27,7 +26,6 @@ public:
     u32 x4_ = -1;
     u32 x8_ = -1;
 
-    std::optional<CTexturedQuadFilterAlpha> m_texQuad;
     zeus::CVector2f x18_vpOffset;
     zeus::CVector2f x20_vpSize;
     zeus::CVector2f x28_canvasSize;
@@ -35,8 +33,6 @@ public:
 
     explicit SSlideData(CSlideShow& parent) : x0_parent(parent) { x30_mulColor.a() = 0.f; }
 
-    void SetTexture(const TLockedToken<CTexture>& tex) { m_texQuad.emplace(EFilterType::Blend, tex); }
-    bool IsLoaded() const { return m_texQuad && m_texQuad->GetTex().IsLoaded(); }
     void Draw();
   };
 

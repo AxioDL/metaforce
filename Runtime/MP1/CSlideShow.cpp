@@ -30,7 +30,7 @@ CSlideShow::CSlideShow() : CIOWin("SlideShow"), x130_(g_tweakSlideShow->GetX54()
 
   xf8_stickTextures.reserve(18);
   x108_buttonTextures.reserve(8);
-  SObjectTag txtrTag(FOURCC('TXTR'), 0);
+  SObjectTag txtrTag(FOURCC('TXTR'), CAssetId());
   for (const auto& lStickId : g_tweakPlayerRes->x24_lStick) {
     txtrTag.id = lStickId;
     xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));
@@ -120,15 +120,16 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg, CA
 }
 
 void CSlideShow::SSlideData::Draw() {
-  if (!IsLoaded()) {
-    return;
-  }
-
-  const zeus::CRectangle rect;
-  m_texQuad->draw(x30_mulColor, 1.f, rect);
-
-  const zeus::CVector2f centeredOffset((x28_canvasSize.x() - m_texQuad->GetTex()->GetWidth()) * 0.5f,
-                                       (x28_canvasSize.y() - m_texQuad->GetTex()->GetHeight()) * 0.5f);
+  // TODO
+//  if (!IsLoaded()) {
+//    return;
+//  }
+//
+//  const zeus::CRectangle rect;
+//  m_texQuad->draw(x30_mulColor, 1.f, rect);
+//
+//  const zeus::CVector2f centeredOffset((x28_canvasSize.x() - m_texQuad->GetTex()->GetWidth()) * 0.5f,
+//                                       (x28_canvasSize.y() - m_texQuad->GetTex()->GetHeight()) * 0.5f);
 }
 
 void CSlideShow::Draw() {

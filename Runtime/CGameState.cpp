@@ -4,7 +4,7 @@
 #include "Runtime/CWorldSaveGameInfo.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/MP1/MP1.hpp"
 
 #include <zeus/Math.hpp>
@@ -23,32 +23,32 @@ union BitsToDouble {
   double doub;
 };
 
-CScriptLayerManager::CScriptLayerManager(CBitStreamReader& reader, const CWorldSaveGameInfo& saveWorld) {
-  const u32 bitCount = reader.ReadEncoded(10);
-  x10_saveLayers.reserve(bitCount);
+CScriptLayerManager::CScriptLayerManager(CInputStream& reader, const CWorldSaveGameInfo& saveWorld) {
+  const u32 bitCount = reader.ReadBits(10);
+  x10_saveLayers.Reserve(bitCount);
 
   for (u32 i = 0; i < bitCount; ++i) {
-    const bool bit = reader.ReadEncoded(1) != 0;
+    const bool bit = reader.ReadBits(1) != 0;
     if (bit) {
-      x10_saveLayers.setBit(i);
+      x10_saveLayers.SetBit(i);
     } else {
-      x10_saveLayers.unsetBit(i);
+      x10_saveLayers.UnsetBit(i);
     }
   }
 }
 
-void CScriptLayerManager::PutTo(CBitStreamWriter& writer) const {
+void CScriptLayerManager::PutTo(COutputStream& writer) const {
   u32 totalLayerCount = 0;
   for (size_t i = 0; i < x0_areaLayers.size(); ++i) {
     totalLayerCount += GetAreaLayerCount(s32(i)) - 1;
   }
 
-  writer.WriteEncoded(totalLayerCount, 10);
+  writer.WriteBits(totalLayerCount, 10);
 
   for (size_t i = 0; i < x0_areaLayers.size(); ++i) {
     const u32 count = GetAreaLayerCount(s32(i));
     for (u32 l = 1; l < count; ++l) {
-      writer.WriteEncoded(IsLayerActive(s32(i), s32(l)), 1);
+      writer.WriteBits(static_cast<u32>(IsLayerActive(s32(i), s32(l))), 1);
     }
   }
 }
@@ -59,19 +59,20 @@ void CScriptLayerManager::InitializeWorldLayers(const std::vector<CWorldLayers::
   }
 
   x0_areaLayers = layers;
-  if (x10_saveLayers.getBitCount() == 0) {
+  if (x10_saveLayers.GetBitCount() == 0) {
     return;
   }
 
   u32 a = 0;
   u32 b = 0;
   for (const CWorldLayers::Area& area : x0_areaLayers) {
-    for (u32 l = 1; l < area.m_layerCount; ++l)
-      SetLayerActive(a, l, x10_saveLayers.getBit(b++));
+    for (u32 l = 1; l < area.m_layerCount; ++l) {
+      SetLayerActive(a, l, x10_saveLayers.GetBit(b++));
+    }
     ++a;
   }
 
-  x10_saveLayers.clear();
+  x10_saveLayers.Clear();
 }
 
 CWorldState::CWorldState(CAssetId id) : x0_mlvlId(id), x4_areaId(0) {
@@ -81,40 +82,38 @@ CWorldState::CWorldState(CAssetId id) : x0_mlvlId(id), x4_areaId(0) {
   x14_layerState = std::make_shared<CScriptLayerManager>();
 }
 
-CWorldState::CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CWorldSaveGameInfo& saveWorld)
-: x0_mlvlId(mlvlId) {
-  x4_areaId = TAreaId(reader.ReadEncoded(32));
-  x10_desiredAreaAssetId = u32(reader.ReadEncoded(32));
+CWorldState::CWorldState(CInputStream& reader, CAssetId mlvlId, const CWorldSaveGameInfo& saveWorld)
+: x0_mlvlId(mlvlId), x4_areaId(TAreaId(reader.ReadBits(32))), x10_desiredAreaAssetId(reader.ReadBits(32)) {
   x8_mailbox = std::make_shared<CScriptMailbox>(reader, saveWorld);
   xc_mapWorldInfo = std::make_shared<CMapWorldInfo>(reader, saveWorld, mlvlId);
   x14_layerState = std::make_shared<CScriptLayerManager>(reader, saveWorld);
 }
 
-void CWorldState::PutTo(CBitStreamWriter& writer, const CWorldSaveGameInfo& savw) const {
-  writer.WriteEncoded(x4_areaId, 32);
-  writer.WriteEncoded(u32(x10_desiredAreaAssetId.Value()), 32);
+void CWorldState::PutTo(COutputStream& writer, const CWorldSaveGameInfo& savw) const {
+  writer.WriteBits(x4_areaId, 32);
+  writer.WriteBits(u32(x10_desiredAreaAssetId.Value()), 32);
   x8_mailbox->PutTo(writer, savw);
   xc_mapWorldInfo->PutTo(writer, savw, x0_mlvlId);
   x14_layerState->PutTo(writer);
 }
 
 CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data) {
-  CBitStreamReader stream(data, 4096);
+  CMemoryInStream stream(data, 4096, CMemoryInStream::EOwnerShip::NotOwned);
   GameFileStateInfo ret;
 
   for (u32 i = 0; i < 128; i++) {
-    stream.ReadEncoded(8);
+    stream.ReadBits(8);
   }
-  ret.x14_timestamp = stream.ReadEncoded(32);
+  ret.x14_timestamp = stream.ReadBits(32);
 
-  ret.x20_hardMode = stream.ReadEncoded(1) != 0;
-  stream.ReadEncoded(1);
-  const CAssetId origMLVL = u32(stream.ReadEncoded(32));
+  ret.x20_hardMode = stream.ReadBits(1) != 0;
+  stream.ReadBits(1);
+  const CAssetId origMLVL = u32(stream.ReadBits(32));
   ret.x8_mlvlId = origMLVL;
 
   BitsToDouble conv;
-  conv.low = stream.ReadEncoded(32);
-  conv.high = stream.ReadEncoded(32);
+  conv.low = stream.ReadBits(32);
+  conv.high = stream.ReadBits(32);
   ret.x0_playTime = conv.doub;
 
   CPlayerState playerState(stream);
@@ -122,7 +121,7 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data) {
   ret.xc_health = playerState.GetHealthInfo().GetHP();
 
   u32 itemPercent;
-  if (origMLVL == 0x158EFE17)
+  if (origMLVL == 0x158EFE17u)
     itemPercent = 0;
   else
     itemPercent = playerState.CalculateItemCollectionRate() * 100 / playerState.GetPickupTotal();
@@ -148,24 +147,24 @@ CGameState::CGameState() {
   }
 }
 
-CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx) : x20c_saveFileIdx(saveIdx) {
+CGameState::CGameState(CInputStream& stream, u32 saveIdx) : x20c_saveFileIdx(saveIdx) {
   x9c_transManager = std::make_shared<CWorldTransManager>();
   x228_24_hardMode = false;
   x228_25_initPowerupsAtFirstSpawn = true;
 
   for (bool& value : x0_) {
-    value = stream.ReadEncoded(8) != 0;
+    value = stream.ReadBits(8) != 0;
   }
-  stream.ReadEncoded(32);
+  stream.ReadBits(32);
 
-  x228_24_hardMode = stream.ReadEncoded(1) != 0;
-  x228_25_initPowerupsAtFirstSpawn = stream.ReadEncoded(1) != 0;
-  x84_mlvlId = u32(stream.ReadEncoded(32));
+  x228_24_hardMode = stream.ReadBits(1) != 0;
+  x228_25_initPowerupsAtFirstSpawn = stream.ReadBits(1) != 0;
+  x84_mlvlId = u32(stream.ReadBits(32));
   MP1::CMain::EnsureWorldPakReady(x84_mlvlId);
 
   BitsToDouble conv;
-  conv.low = stream.ReadEncoded(32);
-  conv.high = stream.ReadEncoded(32);
+  conv.low = stream.ReadBits(32);
+  conv.high = stream.ReadBits(32);
   xa0_playTime = conv.doub;
 
   x98_playerState = std::make_shared<CPlayerState>(stream);
@@ -185,7 +184,7 @@ CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx) : x20c_saveFileIdx
   WriteBackupBuf();
 }
 
-void CGameState::ReadPersistentOptions(CBitStreamReader& r) { xa8_systemOptions = CPersistentOptions(r); }
+void CGameState::ReadPersistentOptions(CInputStream& r) { xa8_systemOptions = r.Get<CPersistentOptions>(); }
 
 void CGameState::ImportPersistentOptions(const CPersistentOptions& opts) {
   if (opts.xd0_24_fusionLinked)
@@ -212,24 +211,24 @@ void CGameState::ExportPersistentOptions(CPersistentOptions& opts) const {
 
 void CGameState::WriteBackupBuf() {
   x218_backupBuf.resize(940);
-  CBitStreamWriter w(x218_backupBuf.data(), 940);
+  CMemoryStreamOut w(x218_backupBuf.data(), 940);
   PutTo(w);
 }
 
-void CGameState::PutTo(CBitStreamWriter& writer) {
+void CGameState::PutTo(COutputStream& writer) {
   for (const bool value : x0_) {
-    writer.WriteEncoded(u32(value), 8);
+    writer.WriteBits(u32(value), 8);
   }
 
-  writer.WriteEncoded(CBasics::GetTime() / CBasics::TICKS_PER_SECOND, 32);
-  writer.WriteEncoded(x228_24_hardMode, 1);
-  writer.WriteEncoded(x228_25_initPowerupsAtFirstSpawn, 1);
-  writer.WriteEncoded(u32(x84_mlvlId.Value()), 32);
+  writer.WriteBits(CBasics::GetTime() / CBasics::TICKS_PER_SECOND, 32);
+  writer.WriteBits(x228_24_hardMode, 1);
+  writer.WriteBits(x228_25_initPowerupsAtFirstSpawn, 1);
+  writer.WriteBits(u32(x84_mlvlId.Value()), 32);
 
   BitsToDouble conv;
   conv.doub = xa0_playTime;
-  writer.WriteEncoded(conv.low, 32);
-  writer.WriteEncoded(conv.high, 32);
+  writer.WriteBits(conv.low, 32);
+  writer.WriteBits(conv.high, 32);
 
   x98_playerState->PutTo(writer);
   x17c_gameOptions.PutTo(writer);

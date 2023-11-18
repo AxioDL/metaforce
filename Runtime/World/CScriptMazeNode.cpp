@@ -107,7 +107,7 @@ void CScriptMazeNode::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
           std::any_of(x12c_puddleObjectIds.cbegin(), x12c_puddleObjectIds.cend(), [=](auto v) { return v == uid; })) {
         for (const auto& id : x12c_puddleObjectIds) {
           if (auto* ent = mgr.ObjectById(id)) {
-            if (ent->GetActive()) {
+            if (!ent->GetActive()) {
               mgr.SendScriptMsg(ent, GetUniqueId(), EScriptObjectMessage::Activate);
             } else {
               mgr.FreeScriptObject(ent->GetUniqueId());
@@ -200,7 +200,7 @@ void CScriptMazeNode::LoadMazeSeeds() {
   const std::unique_ptr<u8[]> buf = g_ResFactory->LoadResourceSync(*tag);
   CMemoryInStream in(buf.get(), resSize);
   for (auto& seed : sMazeSeeds) {
-    seed = in.readInt32Big();
+    seed = in.ReadInt32();
   }
 }
 

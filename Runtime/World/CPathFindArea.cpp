@@ -1,5 +1,7 @@
 #include "Runtime/World/CPathFindArea.hpp"
 
+#include <logvisor/logvisor.hpp>
+
 #include "Runtime/CToken.hpp"
 #include "Runtime/IVParamObj.hpp"
 
@@ -8,13 +10,13 @@ namespace metaforce {
 static logvisor::Module Log("CPathFindArea");
 
 CPFAreaOctree::CPFAreaOctree(CMemoryInStream& in) {
-  x0_isLeaf = in.readUint32Big();
-  x4_aabb.readBoundingBoxBig(in);
-  x1c_center.readBig(in);
+  x0_isLeaf = in.ReadLong();
+  x4_aabb = in.Get<zeus::CAABox>();
+  x1c_center = in.Get<zeus::CVector3f>();
   for (auto& ptr : x28_children)
-    ptr = reinterpret_cast<CPFAreaOctree*>(in.readUint32Big());
-  x48_regions.set_size(in.readUint32Big());
-  x48_regions.set_data(reinterpret_cast<CPFRegion**>(in.readUint32Big()));
+    ptr = reinterpret_cast<CPFAreaOctree*>(in.ReadLong());
+  x48_regions.set_size(in.ReadLong());
+  x48_regions.set_data(reinterpret_cast<CPFRegion**>(in.ReadLong()));
 }
 
 void CPFAreaOctree::Fixup(CPFArea& area) {
@@ -46,8 +48,9 @@ u32 CPFAreaOctree::GetChildIndex(const zeus::CVector3f& point) const {
 }
 
 rstl::prereserved_vector<CPFRegion*>* CPFAreaOctree::GetRegionList(const zeus::CVector3f& point) {
-  if (x0_isLeaf)
+  if (x0_isLeaf != 0u) {
     return &x48_regions;
+  }
   return x28_children[GetChildIndex(point)]->GetRegionList(point);
 }
 
@@ -87,8 +90,9 @@ void CPFOpenList::Clear() {
 void CPFOpenList::Push(CPFRegion* reg) {
   x0_bitSet.Add(reg->GetIndex());
   CPFRegion* other = x40_region.Data()->GetOpenMore();
-  while (other != &x40_region && reg->Data()->GetCost() > other->Data()->GetCost())
+  while (other != &x40_region && reg->Data()->GetCost() > other->Data()->GetCost()) {
     other = other->Data()->GetOpenMore();
+  }
   other->Data()->GetOpenLess()->Data()->SetOpenMore(reg);
   reg->Data()->SetOpenLess(other->Data()->GetOpenLess());
   other->Data()->SetOpenLess(reg);
@@ -121,21 +125,21 @@ bool CPFOpenList::Test(const CPFRegion* reg) const { return x0_bitSet.Test(reg->
 CPFArea::CPFArea(std::unique_ptr<u8[]>&& buf, u32 len) {
   CMemoryInStream r(buf.get(), len);
 
-  u32 version = r.readUint32Big();
+  u32 version = r.ReadLong();
   if (version != 4)
     Log.report(logvisor::Fatal, FMT_STRING("Unexpected PATH version {}, should be 4"), version);
 
-  u32 numNodes = r.readUint32Big();
+  u32 numNodes = r.ReadLong();
   x140_nodes.reserve(numNodes);
   for (u32 i = 0; i < numNodes; ++i)
     x140_nodes.emplace_back(r);
 
-  u32 numLinks = r.readUint32Big();
+  u32 numLinks = r.ReadLong();
   x148_links.reserve(numLinks);
   for (u32 i = 0; i < numLinks; ++i)
     x148_links.emplace_back(r);
 
-  u32 numRegions = r.readUint32Big();
+  u32 numRegions = r.ReadLong();
   x150_regions.reserve(numRegions);
   for (u32 i = 0; i < numRegions; ++i)
     x150_regions.emplace_back(r);
@@ -152,22 +156,24 @@ CPFArea::CPFArea(std::unique_ptr<u8[]>&& buf, u32 len) {
   u32 numBitfieldWords = (numRegions * (numRegions - 1) / 2 + 31) / 32;
   x168_connectionsGround.reserve(numBitfieldWords);
   for (u32 i = 0; i < numBitfieldWords; ++i)
-    x168_connectionsGround.push_back(r.readUint32Big());
+    x168_connectionsGround.push_back(r.ReadLong());
   x170_connectionsFlyers.reserve(numBitfieldWords);
   for (u32 i = 0; i < numBitfieldWords; ++i)
-    x170_connectionsFlyers.push_back(r.readUint32Big());
+    x170_connectionsFlyers.push_back(r.ReadLong());
 
-  r.seek(((((numRegions * numRegions) + 31) / 32) - numBitfieldWords) * 2 * sizeof(u32));
+  for (u32 i = 0; i < ((((numRegions * numRegions) + 31) / 32) - numBitfieldWords) * 2 * sizeof(u32); ++i) {
+    r.ReadChar();
+  }
 
-  u32 numRegionLookups = r.readUint32Big();
+  u32 numRegionLookups = r.ReadLong();
   x160_octreeRegionLookup.reserve(numRegionLookups);
   for (u32 i = 0; i < numRegionLookups; ++i)
-    x160_octreeRegionLookup.push_back(reinterpret_cast<CPFRegion*>(r.readUint32Big()));
+    x160_octreeRegionLookup.push_back(reinterpret_cast<CPFRegion*>(r.ReadLong()));
 
   for (CPFRegion*& rl : x160_octreeRegionLookup)
     rl = &x150_regions[reinterpret_cast<uintptr_t>(rl)];
 
-  u32 numOctreeNodes = r.readUint32Big();
+  u32 numOctreeNodes = r.ReadLong();
   x158_octree.reserve(numOctreeNodes);
   for (u32 i = 0; i < numOctreeNodes; ++i)
     x158_octree.emplace_back(r);

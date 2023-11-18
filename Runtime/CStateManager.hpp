@@ -18,7 +18,6 @@
 #include "Runtime/Camera/CCameraManager.hpp"
 #include "Runtime/Camera/CCameraShakeData.hpp"
 #include "Runtime/GameObjectLists.hpp"
-#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Runtime/Input/CFinalInput.hpp"
 #include "Runtime/Input/CRumbleManager.hpp"
 #include "Runtime/Weapon/CWeaponMgr.hpp"
@@ -158,10 +157,7 @@ private:
   CRandom16 x8fc_random;
   CRandom16* x900_activeRandom = nullptr;
   EGameState x904_gameState = EGameState::Running;
-  u32 x908_loaderCount = 0;
-  std::array<FScriptLoader, size_t(EScriptObjectType::ScriptObjectTypeMAX)> x90c_loaderFuncs{};
-
-  bool xab0_worldLoaded = false;
+  rstl::reserved_vector<FScriptLoader, size_t(EScriptObjectType::ScriptObjectTypeMAX)> x90c_loaderFuncs;
 
   enum class EInitPhase { LoadWorld, LoadFirstArea, Done } xb3c_initPhase = EInitPhase::LoadWorld;
 
@@ -170,8 +166,8 @@ private:
   CFinalInput xb54_finalInput;
 
   static constexpr size_t numCameraPasses = 9;
-  std::array<CCameraFilterPassPoly, numCameraPasses> xb84_camFilterPasses; // size: 0x2c
-  std::array<CCameraBlurPass, numCameraPasses> xd14_camBlurPasses;         // size: 0x34
+  std::array<CCameraFilterPass, numCameraPasses> xb84_camFilterPasses; // size: 0x2c
+  std::array<CCameraBlurPass, numCameraPasses> xd14_camBlurPasses;     // size: 0x34
 
   s32 xeec_hintIdx = -1;
   u32 xef0_hintPeriods = 0;
@@ -211,13 +207,11 @@ private:
   bool xf94_29_cinematicPause : 1 = false;
   bool xf94_30_fullThreat : 1 = false;
 
-  CColoredQuadFilter m_deathWhiteout{EFilterType::Add};
-  CColoredQuadFilter m_escapeWhiteout{EFilterType::Add};
   bool m_warping = false;
   std::map<TEditorId, std::set<SConnection>> m_incomingConnections;
 
   bool m_logScripting = false;
-  std::optional<hecl::CVarValueReference<bool>> m_logScriptingReference;
+  std::optional<CVarValueReference<bool>> m_logScriptingReference;
   void UpdateThermalVisor();
   static void RendererDrawCallback(void*, void*, int);
 
@@ -258,11 +252,8 @@ public:
   void DrawAdditionalFilters();
   zeus::CFrustum SetupDrawFrustum(const SViewport& vp) const;
   zeus::CFrustum SetupViewForDraw(const SViewport& vp) const;
-  zeus::CFrustum SetupViewForCubeFaceDraw(const zeus::CVector3f& pos, int face) const;
   void ResetViewAfterDraw(const SViewport& backupViewport, const zeus::CTransform& backupViewMatrix) const;
   void DrawWorld();
-  void DrawActorCubeFaces(CActor& actor, int& cubeInst) const;
-  void DrawWorldCubeFaces() const;
   void SetupFogForArea3XRange(TAreaId area) const;
   void SetupFogForArea(TAreaId area) const;
   void SetupFogForAreaNonCurrent(TAreaId area) const;
@@ -385,8 +376,8 @@ public:
   void ClearActiveRandom() { x900_activeRandom = nullptr; }
   CRumbleManager& GetRumbleManager() { return *x88c_rumbleManager; }
   const CRumbleManager& GetRumbleManager() const { return *x88c_rumbleManager; }
-  CCameraFilterPassPoly& GetCameraFilterPass(int idx) { return xb84_camFilterPasses[idx]; }
-  const CCameraFilterPassPoly& GetCameraFilterPass(int idx) const { return xb84_camFilterPasses[idx]; }
+  CCameraFilterPass& GetCameraFilterPass(int idx) { return xb84_camFilterPasses[idx]; }
+  const CCameraFilterPass& GetCameraFilterPass(int idx) const { return xb84_camFilterPasses[idx]; }
   CCameraBlurPass& GetCameraBlurPass(int idx) { return xd14_camBlurPasses[idx]; }
   const CCameraBlurPass& GetCameraBlurPass(int idx) const { return xd14_camBlurPasses[idx]; }
 

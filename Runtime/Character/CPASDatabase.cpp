@@ -17,9 +17,9 @@ void CPASDatabase::AddAnimState(CPASAnimState&& state) {
 }
 
 CPASDatabase::CPASDatabase(CInputStream& in) {
-  in.readUint32Big();
-  u32 animStateCount = in.readUint32Big();
-  u32 defaultState = in.readUint32Big();
+  in.ReadLong();
+  u32 animStateCount = in.ReadLong();
+  u32 defaultState = in.ReadLong();
 
   x0_states.reserve(animStateCount);
   for (u32 i = 0; i < animStateCount; ++i) {

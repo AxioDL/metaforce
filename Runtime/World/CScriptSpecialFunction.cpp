@@ -11,7 +11,7 @@
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/Camera/CCameraManager.hpp"
 #include "Runtime/Character/CModelData.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CPlayer.hpp"
@@ -20,7 +20,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-#include <hecl/CVarManager.hpp>
+#include "ConsoleVariables/CVarManager.hpp"
 
 namespace metaforce {
 
@@ -51,6 +51,11 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view n
   if (xe8_function == ESpecialFunction::HUDTarget) {
     x1c8_touchBounds = {-1.f, 1.f};
   }
+  // Set this as internal archivable so it can be serialized if the player sets it in the configuration
+  m_cvRef.emplace(&m_canSkipCutscenes,
+                  CVarManager::instance()->findOrMakeCVar(
+                      "enableCutsceneSkip"sv, "Enable skipping of all cutscenes", false,
+                      CVar::EFlags::Cheat | CVar::EFlags::Game | CVar::EFlags::InternalArchivable));
 }
 
 void CScriptSpecialFunction::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -315,7 +320,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
     }
     case ESpecialFunction::EndGame: {
       if (msg == EScriptObjectMessage::Action) {
-        switch (GetSpecialEnding(mgr)) {
+        switch (ClassifyEnding(mgr)) {
         case 0:
           g_Main->SetFlowState(EClientFlowStates::WinBad);
           break;
@@ -375,19 +380,29 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
       }
       break;
     }
-    case ESpecialFunction::RumbleEffect:
-      if (msg == EScriptObjectMessage::Action) {
-        const s32 rumbFx = s32(x100_float2);
-
-        // Retro originally did not check the upper bounds, this could potentially cause a crash
-        // with some runtimes, so let's make sure we're not out of bounds in either direction.
-        if (rumbFx < 0 || rumbFx >= 6) {
-          break;
+    case ESpecialFunction::RumbleEffect: {
+      if (msg != EScriptObjectMessage::Action) {
+        break;
+      }
+      int rumbFxIdx = int(x100_float2);
+      if (rumbFxIdx < 0 || rumbFxIdx >= fxTranslation.size()) {
+        break;
+      }
+      ERumbleFxId rumbFx = fxTranslation[rumbFxIdx];
+      u32 param3 = x104_float3;
+      if ((param3 & 1) != 0) {
+        mgr.GetRumbleManager().Rumble(mgr, rumbFx, 1.f, ERumblePriority::One);
+      } else {
+        zeus::CVector3f pos = GetTranslation();
+        if ((param3 & 2) != 0) {
+          if (const CActor* act = TCastToConstPtr<CActor>(mgr.GetObjectById(uid))) {
+            pos = act->GetTranslation();
+          }
         }
-
-        mgr.GetRumbleManager().Rumble(mgr, fxTranslation[rumbFx], 1.f, ERumblePriority::One);
+        mgr.GetRumbleManager().Rumble(mgr, pos, rumbFx, xfc_float1, ERumblePriority::One);
       }
       break;
+    }
     case ESpecialFunction::InventoryActivator: {
       if (msg == EScriptObjectMessage::Action && mgr.GetPlayerState()->HasPowerUp(x1c4_item)) {
         SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
@@ -477,7 +492,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
       break;
     }
     case ESpecialFunction::Ending: {
-      if (msg == EScriptObjectMessage::Action && GetSpecialEnding(mgr) == u32(xfc_float1)) {
+      if (msg == EScriptObjectMessage::Action && ClassifyEnding(mgr) == u32(xfc_float1)) {
         SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
       }
       break;
@@ -506,11 +521,12 @@ void CScriptSpecialFunction::PreRender(CStateManager&, const zeus::CFrustum& fru
   if (x1e4_30_ == val) {
     return;
   }
-  if (!val) {
-    x1e4_29_frustumExited = true;
-  } else {
+  if (val) {
     x1e4_28_frustumEntered = true;
+  } else {
+    x1e4_29_frustumExited = true;
   }
+  x1e4_30_ = val;
 }
 
 void CScriptSpecialFunction::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) {
@@ -525,7 +541,7 @@ void CScriptSpecialFunction::AddToRenderer(const zeus::CFrustum&, CStateManager&
 
 void CScriptSpecialFunction::Render(CStateManager& mgr) {
   if (xe8_function == ESpecialFunction::FogVolume) {
-    const float z = mgr.IntegrateVisorFog(xfc_float1 * std::sin(CGraphics::GetSecondsMod900()));
+    const float z = mgr.IntegrateVisorFog(xfc_float1 * std::sin(CGraphics::GetSecondsMod900() * x100_float2));
     if (z > 0.f) {
       zeus::CVector3f max = GetTranslation() + x10c_vector3f;
       max.z() += z;
@@ -634,6 +650,10 @@ void CScriptSpecialFunction::ThinkPlayerFollowLocator(float, CStateManager& mgr)
     const auto search = mgr.GetIdListForScript(conn.x8_objId);
     for (auto it = search.first; it != search.second; ++it) {
       if (const TCastToConstPtr<CActor> act = mgr.GetObjectById(it->second)) {
+        if (!act->GetModelData() || !act->GetModelData()->HasAnimData()) {
+          continue;
+        }
+
         const zeus::CTransform xf = act->GetTransform() * act->GetLocatorTransform(xec_locatorName);
         CPlayer& pl = mgr.GetPlayer();
         pl.SetTransform(xf);
@@ -832,10 +852,9 @@ void CScriptSpecialFunction::ThinkObjectFollowObject(float, CStateManager& mgr) 
 }
 
 void CScriptSpecialFunction::ThinkChaffTarget(float dt, CStateManager& mgr) {
-  const zeus::CAABox box(5.f - GetTranslation(), 5.f + GetTranslation());
+  const zeus::CAABox box(GetTranslation() - 5.f, GetTranslation() + 5.f);
   EntityList nearList;
   mgr.BuildNearList(nearList, box, CMaterialFilter::MakeInclude({EMaterialTypes::Projectile}), nullptr);
-  CCameraFilterPassPoly& filter = mgr.GetCameraFilterPass(7);
 
   for (const auto& uid : nearList) {
     if (const TCastToPtr<CEnergyProjectile> proj = mgr.ObjectById(uid)) {
@@ -843,6 +862,9 @@ void CScriptSpecialFunction::ThinkChaffTarget(float dt, CStateManager& mgr) {
         proj->Set3d0_26(true);
         if (mgr.GetPlayer().GetAreaIdAlways() == GetAreaIdAlways()) {
           mgr.GetPlayer().SetHudDisable(x100_float2, 0.5f, 2.5f);
+          x194_ = xfc_float1;
+
+          auto& filter = mgr.GetCameraFilterPass(7);
           filter.SetFilter(EFilterType::Blend, EFilterShape::Fullscreen, 0.f, zeus::skWhite, CAssetId());
           filter.DisableFilter(0.1f);
         }
@@ -859,7 +881,7 @@ void CScriptSpecialFunction::ThinkChaffTarget(float dt, CStateManager& mgr) {
 
     mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), intfMag, .5f);
 
-    if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Scan) {
+    if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Thermal) {
       mgr.GetPlayer().AddOrbitDisableSource(mgr, GetUniqueId());
     } else {
       mgr.GetPlayer().RemoveOrbitDisableSource(GetUniqueId());
@@ -906,7 +928,7 @@ void CScriptSpecialFunction::ThinkSaveStation(float, CStateManager& mgr) {
 }
 
 void CScriptSpecialFunction::ThinkRainSimulator(float, CStateManager& mgr) {
-  if ((float(mgr.GetInputFrameIdx()) / 3600.f) < 0.5f) {
+  if ((static_cast<float>(mgr.GetInputFrameIdx() % 3600)) / 3600.f < 0.5f) {
     SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
   } else {
     SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
@@ -969,29 +991,33 @@ void CScriptSpecialFunction::ThinkPlayerInArea(float dt, CStateManager& mgr) {
 }
 
 bool CScriptSpecialFunction::ShouldSkipCinematic(CStateManager& stateMgr) const {
-  if (hecl::com_developer->toBoolean()) {
+  if (m_canSkipCutscenes) {
     return true;
   }
   return g_GameState->SystemOptions().GetCinematicState(stateMgr.GetWorld()->IGetWorldAssetId(), GetEditorId());
 }
 
-void CScriptSpecialFunction::DeleteEmitter(const CSfxHandle& handle) {
+void CScriptSpecialFunction::DeleteEmitter(CSfxHandle& handle) {
   if (!handle) {
     return;
   }
 
   CSfxManager::RemoveEmitter(handle);
+  handle = CSfxHandle();
 }
 
-u32 CScriptSpecialFunction::GetSpecialEnding(const CStateManager& mgr) const {
-  const u32 rate = (mgr.GetPlayerState()->CalculateItemCollectionRate() * 100) / mgr.GetPlayerState()->GetPickupTotal();
+u32 CScriptSpecialFunction::ClassifyEnding(const CStateManager& mgr) const {
+  const int rate = (mgr.GetPlayerState()->CalculateItemCollectionRate() * 100) / mgr.GetPlayerState()->GetPickupTotal();
+  int result;
   if (rate < 75) {
-    return 0;
+    result = 0;
+  } else {
+    result = 2;
+    if (rate < 100) {
+      result = 1;
+    }
   }
-  if (rate < 100) {
-    return 1;
-  }
-  return 2;
+  return result;
 }
 
 void CScriptSpecialFunction::AddOrUpdateEmitter(float pitch, CSfxHandle& handle, u16 id, const zeus::CVector3f& pos,

@@ -1,13 +1,13 @@
 #include "Runtime/Weapon/CBomb.hpp"
 
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/World/CGameLight.hpp"
 #include "Runtime/World/CMorphBall.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
-#include "DataSpec/DNAMP1/SFX/Weapons.h"
+#include "Audio/SFX/Weapons.h"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 

@@ -37,9 +37,6 @@ class CCredits : public CIOWin {
   void DrawText();
   static void DrawText(CGuiTextSupport&, const zeus::CVector3f& translation);
 
-  CCameraFilterPassPoly m_videoFilter;
-  CCameraFilterPassPoly m_textFilter;
-
 public:
   CCredits();
   EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) override;

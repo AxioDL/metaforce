@@ -23,6 +23,7 @@
 #include "Runtime/Character/CTransitionManager.hpp"
 #include "Runtime/Character/IAnimReader.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
+#include "Runtime/Graphics/CGX.hpp"
 
 #include <logvisor/logvisor.hpp>
 
@@ -41,23 +42,22 @@ void CAnimData::InitializeCache() {}
 
 CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAnim, int charIdx, bool loop,
                      TLockedToken<CCharLayoutInfo> layout, TToken<CSkinnedModel> model,
-                     const std::optional<TToken<CMorphableSkinnedModel>>& iceModel,
+                     const std::optional<TToken<CSkinnedModelWithAvgNormals>>& iceModel,
                      const std::weak_ptr<CAnimSysContext>& ctx, std::shared_ptr<CAnimationManager> animMgr,
-                     std::shared_ptr<CTransitionManager> transMgr, TLockedToken<CCharacterFactory> charFactory,
-                     int drawInstCount)
+                     std::shared_ptr<CTransitionManager> transMgr, TLockedToken<CCharacterFactory> charFactory)
 : x0_charFactory(charFactory)
 , xc_charInfo(character)
 , xcc_layoutData(layout)
 , xd8_modelData(std::move(model))
 , xfc_animCtx(ctx.lock())
 , x100_animMgr(std::move(animMgr))
+, x108_aabb()
 , x1d8_selfId(id)
 , x1fc_transMgr(std::move(transMgr))
 , x204_charIdx(charIdx)
 , x208_defaultAnim(defaultAnim)
 , x224_pose(layout->GetSegIdList().GetList().size())
-, x2fc_poseBuilder(CLayoutDescription{layout})
-, m_drawInstCount(drawInstCount) {
+, x2fc_poseBuilder(CLayoutDescription{layout}) {
   x220_25_loop = loop;
 
   if (iceModel)
@@ -69,7 +69,10 @@ CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAn
   g_SoundPOINodes.resize(20);
   g_TransientInt32POINodes.resize(16);
 
-  x108_aabb = xd8_modelData->GetModel()->GetAABB();
+  xd8_modelData->CalculateDefault();
+  for (const auto& item : *xd8_modelData->GetModel()->GetPositions()) {
+    x108_aabb.accumulateBounds(item);
+  }
   x120_particleDB.CacheParticleDesc(xc_charInfo.GetParticleResData());
 
   CHierarchyPoseBuilder pb(CLayoutDescription{xcc_layoutData});
@@ -260,7 +263,7 @@ std::shared_ptr<CAnimationManager> CAnimData::GetAnimationManager() { return x10
 
 void CAnimData::SetPhase(float ph) { x1f8_animRoot->VSetPhase(ph); }
 
-void CAnimData::Touch(const CSkinnedModel& model, int shadIdx) const { model.GetModelInst()->Touch(shadIdx); }
+void CAnimData::Touch(CSkinnedModel& model, int shadIdx) const { model.GetModel()->Touch(shadIdx); }
 
 SAdvancementDeltas CAnimData::GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const {
   return x1f8_animRoot->VGetAdvancementResults(a, b).x8_deltas;
@@ -457,7 +460,7 @@ zeus::CTransform CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* 
   if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildTransform(id, ret);
   } else {
-    ret.setRotation(x224_pose.GetTransformMinusOffset(id));
+    ret.setRotation(x224_pose.GetRotation(id));
     ret.origin = x224_pose.GetOffset(id);
   }
   return ret;
@@ -485,7 +488,7 @@ float CAnimData::GetAnimationDuration(int animIn) const {
   std::set<CPrimitive> prims;
   anim->GetUniquePrimitives(prims);
 
-  SObjectTag tag{FOURCC('ANIM'), 0};
+  SObjectTag tag{FOURCC('ANIM'), {}};
   float durAccum = 0.f;
   for (const CPrimitive& prim : prims) {
     tag.id = prim.GetAnimResId();
@@ -545,23 +548,25 @@ void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time) {
 
 void CAnimData::RenderAuxiliary(const zeus::CFrustum& frustum) const { x120_particleDB.AddToRendererClipped(frustum); }
 
-void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags,
-                       const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
-  SetupRender(model, drawFlags, morphEffect, morphMagnitudes);
+void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags, CVertexMorphEffect* morphEffect,
+                       TConstVectorRef averagedNormals) {
+  SetupRender(model, morphEffect, averagedNormals);
   DrawSkinnedModel(model, drawFlags);
 }
 
-void CAnimData::SetupRender(CSkinnedModel& model, const CModelFlags& drawFlags,
-                            const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
+void CAnimData::SetupRender(CSkinnedModel& model, CVertexMorphEffect* morphEffect, TConstVectorRef averagedNormals) {
   OPTICK_EVENT();
   if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildNoScale(x224_pose);
     x220_30_poseBuilt = true;
   }
-  PoseSkinnedModel(model, x224_pose, drawFlags, morphEffect, morphMagnitudes);
+  PoseSkinnedModel(model, x224_pose, morphEffect, averagedNormals);
 }
 
-void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) { model.Draw(flags); }
+void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) {
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, CGraphics::g_LightActive);
+  model.Draw(flags);
+}
 
 void CAnimData::PreRender() {
   if (!x220_31_poseCached) {
@@ -588,7 +593,7 @@ void CAnimData::PrimitiveSetToTokenVector(const std::set<CPrimitive>& primSet, s
                                           bool preLock) {
   tokensOut.reserve(primSet.size());
 
-  SObjectTag tag{FOURCC('ANIM'), 0};
+  SObjectTag tag{FOURCC('ANIM'), {}};
   for (const CPrimitive& prim : primSet) {
     tag.id = prim.GetAnimResId();
     tokensOut.push_back(g_SimplePool->GetObj(tag));
@@ -797,17 +802,18 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
 }
 
 void CAnimData::SetXRayModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules) {
-  xf4_xrayModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo(), 0, m_drawInstCount);
+  xf4_xrayModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo());
+  xf4_xrayModel->CalculateDefault();
 }
 
 void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules) {
-  xf8_infraModel =
-      std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo(), 0, m_drawInstCount);
+  xf8_infraModel = std::make_shared<CSkinnedModel>(model, skinRules, xd8_modelData->GetLayoutInfo());
+  xf4_xrayModel->CalculateDefault();
 }
 
-void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
-                                 const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
-  model.Calculate(pose, drawFlags, morphEffect, morphMagnitudes);
+void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, CVertexMorphEffect* morphEffect,
+                                 TConstVectorRef averagedNormals) {
+  model.Calculate(pose, morphEffect, averagedNormals, nullptr);
 }
 
 void CAnimData::AdvanceParticles(const zeus::CTransform& xf, float dt, const zeus::CVector3f& vec,
@@ -820,7 +826,7 @@ float CAnimData::GetAverageVelocity(int animIn) const {
   std::set<CPrimitive> prims;
   anim->GetUniquePrimitives(prims);
 
-  SObjectTag tag{FOURCC('ANIM'), 0};
+  SObjectTag tag{FOURCC('ANIM'), {}};
   float velAccum = 0.f;
   float durAccum = 0.f;
   for (const CPrimitive& prim : prims) {
@@ -885,7 +891,10 @@ zeus::CAABox CAnimData::GetBoundingBox() const {
 
 void CAnimData::SubstituteModelData(const TCachedToken<CSkinnedModel>& model) {
   xd8_modelData = model;
-  x108_aabb = xd8_modelData->GetModel()->GetAABB();
+  x108_aabb = {};
+  for (const auto& item : *xd8_modelData->GetModel()->GetPositions()) {
+    x108_aabb.accumulateBounds(item);
+  }
 }
 
 void CAnimData::SetParticleCEXTValue(std::string_view name, int idx, float value) {

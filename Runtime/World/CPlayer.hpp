@@ -151,7 +151,7 @@ private:
   ESurfaceRestraints x2ac_surfaceRestraint = ESurfaceRestraints::Normal;
   u32 x2b0_outOfWaterTicks = 2;
   rstl::reserved_vector<float, 6> x2b4_accelerationTable;
-  u32 x2d0_curAcceleration = 3;
+  u32 x2d0_curAcceleration = 1;
   float x2d4_accelerationChangeTimer = 0.f;
   zeus::CAABox x2d8_fpBounds;
   float x2f0_ballTransHeight = 0.f;

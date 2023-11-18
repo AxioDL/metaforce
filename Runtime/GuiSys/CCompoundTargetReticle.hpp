@@ -133,7 +133,7 @@ private:
   SScanReticuleRenderer m_scanRetRenderer;
 
   void DrawGrapplePoint(const CScriptGrapplePoint& point, float t, const CStateManager& mgr, const zeus::CMatrix3f& rot,
-                        bool zEqual) const;
+                        bool zEqual);
 
 public:
   explicit CCompoundTargetReticle(const CStateManager&);
@@ -146,10 +146,10 @@ public:
   void UpdateNextLockOnGroup(float, const CStateManager&);
   void UpdateOrbitZoneGroup(float, const CStateManager&);
   void Draw(const CStateManager&, bool hideLockon);
-  void DrawGrappleGroup(const zeus::CMatrix3f& rot, const CStateManager&, bool) const;
-  void DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager&) const;
+  void DrawGrappleGroup(const zeus::CMatrix3f& rot, const CStateManager&, bool);
+  void DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager&);
   void DrawNextLockOnGroup(const zeus::CMatrix3f& rot, const CStateManager&);
-  void DrawOrbitZoneGroup(const zeus::CMatrix3f& rot, const CStateManager&) const;
+  void DrawOrbitZoneGroup(const zeus::CMatrix3f& rot, const CStateManager&);
   void UpdateTargetParameters(CTargetReticleRenderState&, const CStateManager&);
   float CalculateRadiusWorld(const CActor&, const CStateManager&) const;
   zeus::CVector3f CalculatePositionWorld(const CActor&, const CStateManager&) const;

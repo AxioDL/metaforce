@@ -19,7 +19,7 @@ void CStaticInterference::RemoveSource(TUniqueId id) {
 
 void CStaticInterference::Update(CStateManager&, float dt) {
   std::vector<CStaticInterferenceSource> newSources;
-  newSources.reserve(x0_sources.size());
+  newSources.reserve(x0_sources.capacity());
   for (CStaticInterferenceSource& src : x0_sources) {
     if (src.x8_timeLeft >= 0.f) {
       src.x8_timeLeft -= dt;

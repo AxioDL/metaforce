@@ -97,4 +97,11 @@ void CWeapon::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
   }
 }
 
+void CWeapon::SetDamageFalloffSpeed(float d) {
+  if (d <= 0.f) {
+    return;
+  }
+
+  x14c_damageFalloffSpeed = 1.f / d;
+}
 } // namespace metaforce

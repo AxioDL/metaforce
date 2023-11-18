@@ -7,6 +7,7 @@
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 #include "Runtime/Graphics/CVertexMorphEffect.hpp"
 #include "Runtime/Weapon/CEnergyProjectile.hpp"
@@ -250,10 +251,6 @@ void CGunWeapon::TouchHolo(const CStateManager& mgr) {
     x60_holoModelData->Touch(mgr, 0);
 }
 
-void CGunWeapon::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  static_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
-}
-
 void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
                       const CActorLights* lights) {
   if (!x218_26_loaded)
@@ -262,7 +259,8 @@ void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CT
   zeus::CTransform armXf = xf * x10_solidModelData->GetScaledLocatorTransform("elbow");
 
   if (x1bc_rainSplashGenerator && x1bc_rainSplashGenerator->IsRaining())
-    CSkinnedModel::SetPointGeneratorFunc(x1bc_rainSplashGenerator, PointGenerator);
+    CSkinnedModel::SetPointGeneratorFunc(
+        [&](const auto& workspace) { x1bc_rainSplashGenerator->GeneratePoints(workspace); });
 
   if (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot && x200_beamId != CPlayerState::EBeamId::Ice) {
     /* Hot Draw */
@@ -503,19 +501,18 @@ void CGunWeapon::DrawHologram(const CStateManager& mgr, const zeus::CTransform& 
   if (!x218_26_loaded)
     return;
 
+  // TODO
   if (x218_29_drawHologram) {
     CModelFlags useFlags = flags;
-    useFlags.m_extendedShader = EExtendedShader::Flat;
-    x60_holoModelData->Render(CModelData::EWhichModel::Normal, xf, nullptr, useFlags);
+    x60_holoModelData->FlatDraw(CModelData::EWhichModel::Normal, xf, false, useFlags);
   } else {
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x10_solidModelData->GetScale()));
-    // CGraphics::DisableAllLights();
-    // g_Renderer->SetAmbientColor(zeus::skWhite);
+    CGraphics::DisableAllLights();
+    g_Renderer->SetAmbientColor(zeus::skWhite);
     CSkinnedModel& model = *x60_holoModelData->GetAnimationData()->GetModelData();
-    model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
-    x10_solidModelData->GetAnimationData()->Render(model, flags, std::nullopt, nullptr);
-    // g_Renderer->SetAmbientColor(zeus::skWhite);
-    // CGraphics::DisableAllLights();
+    x10_solidModelData->GetAnimationData()->Render(model, flags, nullptr, nullptr);
+    g_Renderer->SetAmbientColor(zeus::skWhite);
+    CGraphics::DisableAllLights();
   }
 }
 
@@ -565,11 +562,11 @@ CDamageInfo CGunWeapon::GetDamageInfo(CStateManager& mgr, EChargeState chargeSta
     return GetShotDamageInfo(wInfo.x4_normal, mgr);
   } else {
     SShotParam param = wInfo.x20_charged;
-    param.damage *= chargeFactor;
-    param.radiusDamage *= chargeFactor;
-    param.radius *= chargeFactor;
-    param.knockback *= chargeFactor;
-    param.noImmunity = false;
+    param.x8_damage *= chargeFactor;
+    param.xc_radiusDamage *= chargeFactor;
+    param.x10_radius *= chargeFactor;
+    param.x14_knockback *= chargeFactor;
+    param.x18_24_noImmunity = false;
     return GetShotDamageInfo(param, mgr);
   }
 }

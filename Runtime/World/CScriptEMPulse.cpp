@@ -3,7 +3,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/World/CActorParameters.hpp"
@@ -78,17 +78,18 @@ void CScriptEMPulse::Touch(CActor& act, CStateManager& mgr) {
 
   if (const TCastToPtr<CPlayer> pl = act) {
     const zeus::CVector3f posDiff = GetTranslation() - pl->GetTranslation();
-    if (posDiff.magnitude() < xec_finalRadius) {
-      const float dur =
-          ((1.f - (posDiff.magnitude() / xec_finalRadius)) * (xfc_ - xf8_interferenceDur)) + xf8_interferenceDur;
-      const float mag =
-          ((1.f - (posDiff.magnitude() / xec_finalRadius)) * (x104_ - xf8_interferenceDur)) + x100_interferenceMag;
+    const float diffMagnitude = posDiff.magnitude();
+    if (diffMagnitude < xec_finalRadius) {
+      const float multi = 1.f - (diffMagnitude / xec_finalRadius);
+      const float dur = (multi * (xfc_ - xf8_interferenceDur)) + xf8_interferenceDur;
+      const float mag = (multi * (x104_ - x100_interferenceMag)) + x100_interferenceMag;
 
       if (dur > pl->GetStaticTimer()) {
         pl->SetHudDisable(dur, 0.5f, 2.5f);
-      } else {
-        mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), mag, dur);
+        pl->SetOrbitRequestForTarget(mgr.GetPlayer().GetOrbitTargetId(),
+                                     CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
       }
+      mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), mag, dur);
     }
   }
 }

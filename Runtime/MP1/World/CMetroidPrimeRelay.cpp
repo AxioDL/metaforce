@@ -10,7 +10,7 @@ CMetroidPrimeRelay::CMetroidPrimeRelay(TUniqueId uid, std::string_view name, con
                                        const zeus::CTransform& xf, const zeus::CVector3f& scale,
                                        SPrimeExoParameters&& parms, float f1, float f2, float f3, u32 w1, bool b1,
                                        u32 w2, const CHealthInfo& hInfo1, const CHealthInfo& hInfo2, u32 w3, u32 w4,
-                                       u32 w5, rstl::reserved_vector<SPrimeExoRoomParameters, 4>&& roomParms)
+                                       u32 w5, rstl::reserved_vector<CMetroidPrimeAttackWeights, 4>&& roomParms)
 : CEntity(uid, info, active, name)
 , x38_xf(xf)
 , x68_scale(scale)

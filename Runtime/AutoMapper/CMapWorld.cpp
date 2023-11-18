@@ -274,13 +274,13 @@ CMapWorld::CMapAreaData::CMapAreaData(CAssetId areaRes, EMapAreaList list, CMapA
 
 CMapWorld::CMapWorld(CInputStream& in) {
   x10_listHeads.resize(3);
-  in.readUint32Big();
-  in.readUint32Big();
-  u32 areaCount = in.readUint32Big();
+  in.ReadLong();
+  in.ReadLong();
+  u32 areaCount = in.ReadLong();
   x0_areas.reserve(areaCount);
   x20_traversed.resize(areaCount);
   for (u32 i = 0; i < areaCount; ++i) {
-    CAssetId mapaId = in.readUint32Big();
+    CAssetId mapaId = in.Get<CAssetId>();
     x0_areas.emplace_back(mapaId, EMapAreaList::Unloaded, x0_areas.empty() ? nullptr : &x0_areas.back());
   }
   x10_listHeads[2] = &x0_areas.back();

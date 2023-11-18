@@ -8,7 +8,7 @@ static logvisor::Module Log("CResLoader");
 CResLoader::CResLoader() { x48_curPak = x18_pakLoadedList.end(); }
 
 const std::vector<CAssetId>* CResLoader::GetTagListForFile(std::string_view name) const {
-  const std::string namePak = std::string(name).append(".upak");
+  const std::string namePak = std::string(name).append(".pak");
   for (const std::unique_ptr<CPakFile>& pak : x18_pakLoadedList) {
     if (CStringExtras::CompareCaseInsensitive(namePak, pak->x18_path)) {
       return &pak->GetDepList();
@@ -18,7 +18,7 @@ const std::vector<CAssetId>* CResLoader::GetTagListForFile(std::string_view name
 }
 
 void CResLoader::AddPakFileAsync(std::string_view name, bool buildDepList, bool worldPak, bool override) {
-  const std::string namePak = std::string(name).append(".upak");
+  const std::string namePak = std::string(name).append(".pak");
   if (CDvdFile::FileExists(namePak)) {
     x30_pakLoadingList.emplace_back(std::make_unique<CPakFile>(namePak, buildDepList, worldPak, override));
     ++x44_pakLoadingCount;
@@ -44,7 +44,8 @@ std::unique_ptr<CInputStream> CResLoader::LoadNewResourcePartSync(const SObjectT
 
   CPakFile* const file = FindResourceForLoad(tag);
   file->SyncSeekRead(buf, length, ESeekOrigin::Begin, x50_cachedResInfo->GetOffset() + offset);
-  return std::make_unique<athena::io::MemoryReader>(buf, length, !extBuf);
+  return std::make_unique<CMemoryInStream>(
+      buf, length, extBuf == nullptr ? CMemoryInStream::EOwnerShip::Owned : CMemoryInStream::EOwnerShip::NotOwned);
 }
 
 void CResLoader::LoadMemResourceSync(const SObjectTag& tag, std::unique_ptr<u8[]>& bufOut, int* sizeOut) {
@@ -57,9 +58,10 @@ void CResLoader::LoadMemResourceSync(const SObjectTag& tag, std::unique_ptr<u8[]
 
 std::unique_ptr<CInputStream> CResLoader::LoadResourceFromMemorySync(const SObjectTag& tag, const void* buf) {
   FindResourceForLoad(tag);
-  std::unique_ptr<CInputStream> newStrm = std::make_unique<athena::io::MemoryReader>(buf, x50_cachedResInfo->GetSize());
+  std::unique_ptr<CInputStream> newStrm =
+      std::make_unique<CMemoryInStream>(buf, x50_cachedResInfo->GetSize(), CMemoryInStream::EOwnerShip::NotOwned);
   if (x50_cachedResInfo->IsCompressed()) {
-    newStrm->readUint32Big();
+    newStrm->ReadLong();
     newStrm = std::make_unique<CZipInputStream>(std::move(newStrm));
   }
   return newStrm;
@@ -77,9 +79,10 @@ std::unique_ptr<CInputStream> CResLoader::LoadNewResourceSync(const SObjectTag& 
     file->SyncSeekRead(buf, resSz, ESeekOrigin::Begin, x50_cachedResInfo->GetOffset());
 
     const bool takeOwnership = extBuf == nullptr;
-    std::unique_ptr<CInputStream> newStrm = std::make_unique<athena::io::MemoryReader>(buf, resSz, takeOwnership);
+    std::unique_ptr<CInputStream> newStrm = std::make_unique<CMemoryInStream>(
+        buf, resSz, takeOwnership ? CMemoryInStream::EOwnerShip::Owned : CMemoryInStream::EOwnerShip::NotOwned);
     if (x50_cachedResInfo->IsCompressed()) {
-      newStrm->readUint32Big();
+      newStrm->ReadLong();
       newStrm = std::make_unique<CZipInputStream>(std::move(newStrm));
     }
 
@@ -116,7 +119,7 @@ std::unique_ptr<u8[]> CResLoader::LoadNewResourcePartSync(const metaforce::SObje
 }
 
 void CResLoader::GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const {
-  std::string path = std::string(pakName) + ".upak";
+  std::string path = std::string(pakName) + ".pak";
 
   for (const std::unique_ptr<CPakFile>& file : m_overridePakList) {
     if (_GetTagListForFile(out, path, file))

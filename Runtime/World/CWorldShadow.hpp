@@ -1,19 +1,17 @@
 #pragma once
 
 #include "Runtime/RetroTypes.hpp"
-#include "Runtime/Graphics/Shaders/CWorldShadowShader.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
-#define CWORLDSHADOW_FEEDBACK 0
-
 namespace metaforce {
 class CStateManager;
 
 class CWorldShadow {
-  CWorldShadowShader m_shader;
+  std::unique_ptr<CTexture> x0_texture;
   zeus::CTransform x4_view;
   zeus::CTransform x34_model;
   float x64_objHalfExtent = 1.f;
@@ -22,9 +20,7 @@ class CWorldShadow {
   TAreaId x80_aid = kInvalidAreaId;
   s32 x84_lightIdx = -1;
   bool x88_blurReset = true;
-#if CWORLDSHADOW_FEEDBACK
-  std::optional<CTexturedQuadFilter> m_feedback;
-#endif
+
 public:
   CWorldShadow(u32 w, u32 h, bool rgba8);
   void EnableModelProjectedShadow(const zeus::CTransform& pos, s32 lightIdx, float f1);

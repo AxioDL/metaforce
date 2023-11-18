@@ -7,67 +7,153 @@
 
 namespace metaforce {
 
-hecl::ProjectPath CDvdFile::m_DvdRoot;
-std::unordered_map<std::string, std::string> CDvdFile::m_caseInsensitiveMap;
+std::unique_ptr<nod::DiscBase> CDvdFile::m_DvdRoot;
+// std::unordered_map<std::string, std::string> CDvdFile::m_caseInsensitiveMap;
 
 class CFileDvdRequest : public IDvdRequest {
-  std::shared_ptr<athena::io::FileReader> m_reader;
+  std::shared_ptr<nod::IPartReadStream> m_reader;
+  uint64_t m_begin;
+  uint64_t m_size;
+
   void* m_buf;
   u32 m_len;
   ESeekOrigin m_whence;
   int m_offset;
+
+#ifdef HAS_DVD_THREAD
   std::atomic_bool m_cancel = {false};
   std::atomic_bool m_complete = {false};
+#else
+  bool m_cancel = false;
+  bool m_complete = false;
+#endif
   std::function<void(u32)> m_callback;
 
 public:
   ~CFileDvdRequest() override { CFileDvdRequest::PostCancelRequest(); }
 
   void WaitUntilComplete() override {
+#ifdef HAS_DVD_THREAD
     while (!m_complete.load() && !m_cancel.load()) {
       std::unique_lock lk{CDvdFile::m_WaitMutex};
     }
+#else
+    if (!m_complete && !m_cancel) {
+      CDvdFile::DoWork();
+    }
+#endif
   }
-  bool IsComplete() override { return m_complete.load(); }
+  bool IsComplete() override {
+#ifdef HAS_DVD_THREAD
+    return m_complete.load();
+#else
+    if (!m_complete) {
+      CDvdFile::DoWork();
+    }
+    return m_complete;
+#endif
+  }
   void PostCancelRequest() override {
+#ifdef HAS_DVD_THREAD
     if (m_complete.load() || m_cancel.load()) {
       return;
     }
     std::unique_lock waitlk{CDvdFile::m_WaitMutex};
     m_cancel.store(true);
+#else
+    m_cancel = true;
+#endif
   }
 
   [[nodiscard]] EMediaType GetMediaType() const override { return EMediaType::File; }
 
   CFileDvdRequest(CDvdFile& file, void* buf, u32 len, ESeekOrigin whence, int off, std::function<void(u32)>&& cb)
-  : m_reader(file.m_reader), m_buf(buf), m_len(len), m_whence(whence), m_offset(off), m_callback(std::move(cb)) {}
+  : m_reader(file.m_reader)
+  , m_begin(file.m_begin)
+  , m_size(file.m_size)
+  , m_buf(buf)
+  , m_len(len)
+  , m_whence(whence)
+  , m_offset(off)
+  , m_callback(std::move(cb)) {}
 
   void DoRequest() {
+#ifdef HAS_DVD_THREAD
     if (m_cancel.load()) {
       return;
     }
-    u32 readLen;
+#else
+    if (m_cancel) {
+      return;
+    }
+#endif
+    u32 readLen = 0;
     if (m_whence == ESeekOrigin::Cur && m_offset == 0) {
-      readLen = m_reader->readBytesToBuf(m_buf, m_len);
+      readLen = m_reader->read(m_buf, m_len);
     } else {
-      m_reader->seek(m_offset, athena::SeekOrigin(m_whence));
-      readLen = m_reader->readBytesToBuf(m_buf, m_len);
+      int seek = 0;
+      int64_t offset = m_offset;
+      switch (m_whence) {
+      case ESeekOrigin::Begin: {
+        seek = SEEK_SET;
+        offset += int64_t(m_begin);
+        break;
+      }
+      case ESeekOrigin::End: {
+        seek = SEEK_SET;
+        offset += int64_t(m_begin) + int64_t(m_size);
+        break;
+      }
+      case ESeekOrigin::Cur: {
+        seek = SEEK_CUR;
+        break;
+      }
+      };
+      m_reader->seek(offset, seek);
+      readLen = m_reader->read(m_buf, m_len);
     }
     if (m_callback) {
       m_callback(readLen);
     }
+#ifdef HAS_DVD_THREAD
     m_complete.store(true);
+#else
+    m_complete = true;
+#endif
   }
 };
 
+#ifdef HAS_DVD_THREAD
 std::thread CDvdFile::m_WorkerThread;
 std::mutex CDvdFile::m_WorkerMutex;
 std::condition_variable CDvdFile::m_WorkerCV;
 std::mutex CDvdFile::m_WaitMutex;
 std::atomic_bool CDvdFile::m_WorkerRun = {false};
+#endif
 std::vector<std::shared_ptr<IDvdRequest>> CDvdFile::m_RequestQueue;
+std::string CDvdFile::m_rootDirectory;
+std::unique_ptr<u8[]> CDvdFile::m_dolBuf;
+
+CDvdFile::CDvdFile(std::string_view path) : x18_path(path) {
+  auto* node = ResolvePath(path);
+  if (node != nullptr && node->getKind() == nod::Node::Kind::File) {
+    m_reader = node->beginReadStream();
+    m_begin = m_reader->position();
+    m_size = node->size();
+  }
+}
+
+// single-threaded hack
+void CDvdFile::DoWork() {
+  for (std::shared_ptr<IDvdRequest>& req : m_RequestQueue) {
+    auto& concreteReq = static_cast<CFileDvdRequest&>(*req);
+    concreteReq.DoRequest();
+  }
+  m_RequestQueue.clear();
+}
 
 void CDvdFile::WorkerProc() {
+#ifdef HAS_DVD_THREAD
   logvisor::RegisterThreadName("CDvdFile");
   OPTICK_THREAD("CDvdFile");
 
@@ -91,57 +177,105 @@ void CDvdFile::WorkerProc() {
     }
     m_WorkerCV.wait(lk);
   }
+#endif
 }
 
 std::shared_ptr<IDvdRequest> CDvdFile::AsyncSeekRead(void* buf, u32 len, ESeekOrigin whence, int off,
                                                      std::function<void(u32)>&& cb) {
   std::shared_ptr<IDvdRequest> ret = std::make_shared<CFileDvdRequest>(*this, buf, len, whence, off, std::move(cb));
+#ifdef HAS_DVD_THREAD
   std::unique_lock lk{m_WorkerMutex};
+#endif
   m_RequestQueue.emplace_back(ret);
+#ifdef HAS_DVD_THREAD
   lk.unlock();
   m_WorkerCV.notify_one();
+#endif
   return ret;
 }
 
-hecl::ProjectPath CDvdFile::ResolvePath(std::string_view path) {
-  auto start = path.begin();
-  while (*start == '/') {
-    ++start;
+u32 CDvdFile::SyncSeekRead(void* buf, u32 len, ESeekOrigin whence, int offset) {
+  int seek = 0;
+  switch (whence) {
+  case ESeekOrigin::Begin: {
+    seek = SEEK_SET;
+    offset += int64_t(m_begin);
+    break;
   }
-  std::string lowerChStr(start, path.end());
-  std::transform(lowerChStr.begin(), lowerChStr.end(), lowerChStr.begin(), ::tolower);
-  auto search = m_caseInsensitiveMap.find(lowerChStr);
-  if (search == m_caseInsensitiveMap.end()) {
-    return {};
+  case ESeekOrigin::End: {
+    seek = SEEK_SET;
+    offset += int64_t(m_begin) + int64_t(m_size);
+    break;
   }
-  return hecl::ProjectPath(m_DvdRoot, search->second);
+  case ESeekOrigin::Cur: {
+    seek = SEEK_CUR;
+    break;
+  }
+  };
+  m_reader->seek(offset, seek);
+  return m_reader->read(buf, len);
 }
 
-void CDvdFile::RecursiveBuildCaseInsensitiveMap(const hecl::ProjectPath& path, std::string::size_type prefixLen) {
-  for (const auto& p : path.enumerateDir()) {
-    if (p.m_isDir) {
-      RecursiveBuildCaseInsensitiveMap(hecl::ProjectPath(path, p.m_name), prefixLen);
+nod::Node* CDvdFile::ResolvePath(std::string_view path) {
+  if (!m_DvdRoot) {
+    return nullptr;
+  }
+  if (path.starts_with('/')) {
+    path.remove_prefix(1);
+  }
+  std::string prefixedPath;
+  if (!m_rootDirectory.empty()) {
+    prefixedPath = m_rootDirectory;
+    prefixedPath += '/';
+    prefixedPath += path;
+    path = prefixedPath;
+  }
+  auto* node = &m_DvdRoot->getDataPartition()->getFSTRoot();
+  while (node != nullptr && !path.empty()) {
+    std::string component;
+    auto end = path.find('/');
+    if (end != std::string_view::npos) {
+      component = path.substr(0, end);
+      path.remove_prefix(component.size() + 1);
     } else {
-      hecl::ProjectPath ch(path, p.m_name);
-      std::string chStr(ch.getAbsolutePath().begin() + prefixLen, ch.getAbsolutePath().end());
-      std::string lowerChStr(chStr);
-      hecl::ToLower(lowerChStr);
-      m_caseInsensitiveMap[lowerChStr] = chStr;
+      component = path;
+      path.remove_prefix(component.size());
+    }
+    std::transform(component.begin(), component.end(), component.begin(), ::tolower);
+    auto* tmpNode = node;
+    node = nullptr;
+    for (auto& item : *tmpNode) {
+      const auto name = item.getName();
+      if (std::equal(component.begin(), component.end(), name.begin(), name.end(),
+                     [](char a, char b) { return a == tolower(b); })) {
+        node = &item;
+        break;
+      }
     }
   }
+  return node;
 }
 
-void CDvdFile::Initialize(const hecl::ProjectPath& path) {
-  m_DvdRoot = path;
-  RecursiveBuildCaseInsensitiveMap(path, path.getAbsolutePath().length() + 1);
+bool CDvdFile::Initialize(const std::string_view& path) {
+#ifdef HAS_DVD_THREAD
   if (m_WorkerRun.load()) {
-    return;
+    return true;
   }
+#endif
+  m_DvdRoot = nod::OpenDiscFromImage(path);
+  if (!m_DvdRoot) {
+    return false;
+  }
+  m_dolBuf = m_DvdRoot->getDataPartition()->getDOLBuf();
+#ifdef HAS_DVD_THREAD
   m_WorkerRun.store(true);
   m_WorkerThread = std::thread(WorkerProc);
+#endif
+  return true;
 }
 
 void CDvdFile::Shutdown() {
+#ifdef HAS_DVD_THREAD
   if (!m_WorkerRun.load()) {
     return;
   }
@@ -150,7 +284,22 @@ void CDvdFile::Shutdown() {
   if (m_WorkerThread.joinable()) {
     m_WorkerThread.join();
   }
+#endif
   m_RequestQueue.clear();
 }
+
+SDiscInfo CDvdFile::DiscInfo() {
+  SDiscInfo out{};
+  if (!m_DvdRoot) {
+    return out;
+  }
+  const auto& header = m_DvdRoot->getHeader();
+  std::memcpy(out.gameId.data(), header.m_gameID, sizeof(header.m_gameID));
+  out.version = header.m_discVersion;
+  out.gameTitle = header.m_gameTitle;
+  return out;
+}
+
+void CDvdFile::SetRootDirectory(const std::string_view& rootDir) { m_rootDirectory = rootDir; }
 
 } // namespace metaforce

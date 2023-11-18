@@ -3,7 +3,7 @@
 #include <array>
 #include <vector>
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CVector2f.hpp>
@@ -21,9 +21,9 @@ public:
   };
 
 private:
-  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+//  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
   const CTexture* m_tex = nullptr;
   size_t m_maxInsts = 0;
 

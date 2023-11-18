@@ -156,7 +156,7 @@ void CBeetle::Render(CStateManager& mgr) {
     if (x428_damageCooldownTimer >= 0.f && x42c_color.a() == 1.f) {
       if (x5ac_tailModel) {
         CModelFlags flags(2, 0, 3, zeus::skWhite);
-        flags.addColor = x42c_color;
+        // TODO flags.addColor = x42c_color;
         x5ac_tailModel->Render(mgr, tailXf, x90_actorLights.get(), flags);
       }
     } else if (x5ac_tailModel) {

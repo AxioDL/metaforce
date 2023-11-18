@@ -1,21 +1,20 @@
 #include "Runtime/MP1/CCredits.hpp"
+
 #include "Runtime/CArchitectureMessage.hpp"
 #include "Runtime/CArchitectureQueue.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CMoviePlayer.hpp"
-#include "Runtime/GuiSys/CRasterFont.hpp"
-#include "Runtime/GuiSys/CStringTable.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
 #include "Runtime/Input/CFinalInput.hpp"
 #include "Runtime/MP1/CPlayMovie.hpp"
-#include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/CSimplePool.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
 
 namespace metaforce::MP1 {
-namespace {
-logvisor::Module Log("CCredits");
-}
+static logvisor::Module Log("CCredits");
+
 CCredits::CCredits()
 : CIOWin("Credits")
 , x18_creditsTable(g_SimplePool->GetObj(g_tweakGui->GetCreditsTable()))
@@ -61,7 +60,7 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
                                   g_ResFactory->GetResourceIdByName(g_tweakGui->GetCreditsFont())->id,
                                   CGuiTextProperties(true, true, EJustification::Center, EVerticalJustification::Top),
                                   g_tweakGui->GetCreditsTextFontColor(), g_tweakGui->GetCreditsTextBorderColor(),
-                                  zeus::skWhite, g_Viewport.x8_width - 64, 0, g_SimplePool,
+                                  zeus::skWhite, CGraphics::GetViewportWidth() - 64, 0, g_SimplePool,
                                   CGuiWidget::EGuiModelDrawFlags::Alpha),
                               zeus::CVector2i(0, 0));
         x30_text.back().first->SetText(x18_creditsTable->GetString(i));
@@ -97,12 +96,12 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
       auto bounds = text->GetBounds();
       offset.y = (bounds.second.y - bounds.first.y);
       offset.x = scaleY;
-      text->SetExtentX(g_Viewport.x8_width - 1280);
+      text->SetExtentX(CGraphics::GetViewportWidth() - 1280);
       text->SetExtentY((bounds.second.y - bounds.first.y));
       scaleY += (bounds.second.y - bounds.first.y);
     }
 
-    x4c_ = float(scaleY + g_Viewport.xc_height - 896); // * 0.5f;
+    x4c_ = float(scaleY + CGraphics::GetViewportHeight() - 896); // * 0.5f;
     const float divVal = std::max(g_tweakGui->x310_, g_tweakGui->x30c_);
     x50_ = x4c_ / (g_tweakGui->x308_ - divVal);
     x14_ = 1;
@@ -110,26 +109,24 @@ CIOWin::EMessageReturn CCredits::Update(float dt, CArchitectureQueue& queue) {
   }
   case 1: {
     if (!x28_) {
-      x28_ = std::make_unique<CMoviePlayer>("Video/creditBG.thp", 0.f, true, true);
+      //x28_ = std::make_unique<CMoviePlayer>("Video/creditBG.thp", 0.f, true, true);
     }
     x14_ = 2;
     break;
   }
   case 2: {
     if (!x2c_) {
-      x2c_ = std::make_unique<CStaticAudioPlayer>("Audio/ending3.rsf", 0, 0x5d7c00);
+      //x2c_ = std::make_unique<CStaticAudioPlayer>("Audio/ending3.rsf", 0, 0x5d7c00);
     }
     if (!x2c_->IsReady()) {
       return EMessageReturn::Exit;
     }
     x2c_->SetVolume(1.f);
-    x2c_->StartMixing();
+    //x2c_->StartMixing();
     x14_ = 3;
   }
     [[fallthrough]];
   case 3: {
-    m_videoFilter.Update(dt);
-    m_textFilter.Update(dt);
     // if (!x28_->PumpIndexLoad())
     //    break;
     x28_->Update(dt);
@@ -199,41 +196,26 @@ CIOWin::EMessageReturn CCredits::ProcessUserInput(const CFinalInput& input) {
   }
   return EMessageReturn::Exit;
 }
+
 void CCredits::DrawVideo() {
-  /* Correct movie aspect ratio */
-  float hPad, vPad;
-  if (g_Viewport.aspect >= 1.78f) {
-    hPad = 1.78f / g_Viewport.aspect;
-    vPad = 1.78f / 1.33f;
-  } else {
-    hPad = 1.f;
-    vPad = g_Viewport.aspect / 1.33f;
-  }
-
-  if (x28_ && x28_->GetIsFullyCached()) {
-    /* Render movie */
-    x28_->SetFrame({-hPad, vPad, 0.f}, {-hPad, -vPad, 0.f}, {hPad, -vPad, 0.f}, {hPad, vPad, 0.f});
-    x28_->DrawFrame();
-    if (x5c_27_ || x5c_28_) {
-      float alpha = x58_ / g_tweakGui->x310_;
-      if (x5c_27_) {
-        alpha = 1.f - alpha;
-      }
-
-      alpha = zeus::clamp(0.f, alpha, 1.f);
-      zeus::CColor filterCol = zeus::skBlack;
-      filterCol.a() = alpha;
-      m_videoFilter.SetFilter(EFilterType::Blend, EFilterShape::Fullscreen, 1.f, filterCol, {});
-      m_videoFilter.Draw();
+  /* Render movie */
+  if (x28_ && x28_->DrawVideo() && (x5c_27_ || x5c_28_)) {
+    float alpha = x58_ / g_tweakGui->x310_;
+    if (x5c_27_) {
+      alpha = 1.f - alpha;
     }
+
+    alpha = zeus::clamp(0.f, alpha, 1.f);
+    zeus::CColor filterCol = zeus::skBlack;
+    filterCol.a() = alpha;
+    CCameraFilterPass::DrawFilter(EFilterType::Blend, EFilterShape::Fullscreen, filterCol, nullptr, 1.f);
   }
 }
 
 void CCredits::DrawText() {
-  float width = 896.f * g_Viewport.aspect;
+  float width = 896.f * CGraphics::GetViewportAspect();
   CGraphics::SetOrtho(0.f, width, 896.f, 0.f, -4096.f, 4096.f);
-  auto region =
-      std::make_pair<zeus::CVector2f, zeus::CVector2f>(zeus::CVector2f{0.f, 0.f}, zeus::CVector2f{width, 896.f});
+  auto region = std::make_pair(zeus::CVector2f{0.f, 0.f}, zeus::CVector2f{width, 896.f});
   CGraphics::SetViewPointMatrix(zeus::CTransform());
   CGraphics::SetModelMatrix(zeus::CTransform::Translate((width - 1280.f) / 2.f, 0.f, 896.f));
   float dVar5 = (x48_ - (region.second.y() - region.first.y()));
@@ -242,14 +224,14 @@ void CCredits::DrawText() {
       DrawText(*text, {0.5f * (region.second.x() - text->GetExtentX()), 0.f, x48_ - offset.x});
     }
   }
-  m_textFilter.SetFilter(EFilterType::Multiply, EFilterShape::CinemaBars, 1.f, zeus::skBlack, {});
-  m_textFilter.Draw();
+  CCameraFilterPass::DrawFilter(EFilterType::Multiply, EFilterShape::CinemaBars, zeus::skBlack, nullptr, 1.f);
 }
 
 void CCredits::DrawText(CGuiTextSupport& text, const zeus::CVector3f& translation) {
-  // auto region = g_Renderer->SetViewportOrtho(false, -4096, 4096);
-  zeus::CTransform xf = zeus::CTransform::Translate(translation);
-  g_Renderer->SetModelMatrix(xf);
+  CGraphics::SetCullMode(ERglCullMode::None);
+  g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
+  g_Renderer->SetModelMatrix(zeus::CTransform::Translate(translation));
+  g_Renderer->SetDepthReadWrite(false, false);
   text.Render();
 }
 

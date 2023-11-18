@@ -4,8 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include "DataSpec/DNACommon/GX.hpp"
-
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CLineRenderer.hpp"
@@ -80,7 +78,7 @@ private:
   int x1b0_SPLN = 0;
   int x1b4_LENG = 0;
   int x1b8_SIDE = 0;
-  GX::Primitive x1bc_prim{};
+  GXPrimitive x1bc_prim{};
   CRandom16 x1c0_rand;
   float x1c4_ = 0.f;
   float x1c8_ = 0.f;
@@ -104,9 +102,9 @@ private:
   float x208_maxRadius = 0.f;
   zeus::CColor x20c_moduColor = zeus::skWhite;
 
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_dataBind;
-  boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_dataBind;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
   std::unique_ptr<CLineRenderer> m_lineRenderer;
   std::vector<CParticleSwooshShaders::Vert> m_cachedVerts;
 
@@ -138,7 +136,7 @@ public:
   CSwooshDescription* GetDesc() { return x1c_desc.GetObj(); }
 
   bool Update(double) override;
-  void Render(const CActorLights* = nullptr) override;
+  void Render() override;
   void SetOrientation(const zeus::CTransform&) override;
   void SetTranslation(const zeus::CVector3f&) override;
   void SetGlobalOrientation(const zeus::CTransform&) override;

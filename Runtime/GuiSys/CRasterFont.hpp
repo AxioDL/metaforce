@@ -6,7 +6,7 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/GCNTypes.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 
 #include <zeus/CVector2i.hpp>
@@ -148,9 +148,11 @@ public:
                   const char16_t* str, int len) const;
   const CGlyph* GetGlyph(char16_t chr) const { return InternalGetGlyph(chr); }
   void GetSize(const CDrawStringOptions& opts, int& width, int& height, const char16_t* str, int len) const;
-  const boo::ObjToken<boo::ITexture>& GetTexture() { return x80_texture->GetFontTexture(x2c_mode); }
+  CTexture& GetTexture() { return *x80_texture; }
 
   bool IsFinishedLoading() const;
+
+  void SetupRenderState();
 };
 
 std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,

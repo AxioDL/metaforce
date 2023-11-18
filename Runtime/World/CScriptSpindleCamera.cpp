@@ -12,12 +12,12 @@
 namespace metaforce {
 
 SSpindleProperty::SSpindleProperty(CInputStream& in) {
-  x4_input = ESpindleInput(in.readUint32Big());
+  x4_input = ESpindleInput(in.ReadLong());
   x0_flags = ScriptLoader::LoadParameterFlags(in);
-  x8_lowOut = in.readFloatBig();
-  xc_highOut = in.readFloatBig();
-  x10_lowIn = in.readFloatBig();
-  x14_highIn = in.readFloatBig();
+  x8_lowOut = in.ReadFloat();
+  xc_highOut = in.ReadFloat();
+  x10_lowIn = in.ReadFloat();
+  x14_highIn = in.ReadFloat();
   switch (x4_input) {
   case ESpindleInput::HintBallAngle:
   case ESpindleInput::HintBallRightAngle:

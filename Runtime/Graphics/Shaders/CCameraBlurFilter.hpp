@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <zeus/CVector4f.hpp>
 
 namespace metaforce {
@@ -12,9 +12,9 @@ class CCameraBlurFilter {
     float m_opacity = 1.f;
   };
 
-  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+//  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
   Uniform m_uniform;
 
 public:

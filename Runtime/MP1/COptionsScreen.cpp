@@ -85,7 +85,7 @@ void COptionsScreen::OnEnumChanged(CGuiTableGroup* caller, int oldSel) {
 
   if (opt == EGameOption::Rumble && caller->GetUserSelection() > 0) {
     x1a8_rumble.HardStopAll();
-    x1a8_rumble.Rumble(RumbleFxTable[size_t(ERumbleFxId::PlayerBump)], 1.f, ERumblePriority::One, EIOPort::Zero);
+    x1a8_rumble.Rumble(RumbleFxTable[size_t(ERumbleFxId::PlayerBump)], 1.f, ERumblePriority::One, EIOPort::Player1);
   }
 
   CPauseScreenBase::UpdateSideTable(caller);
@@ -153,7 +153,7 @@ void COptionsScreen::ProcessControllerInput(const CFinalInput& input) {
     CGameOptions::TryRestoreDefaults(input, x70_tablegroup_leftlog->GetUserSelection(), x1c_rightSel, false,
                                      rightClicked);
     if (x70_tablegroup_leftlog->GetUserSelection() == 4 &&
-        (input.PA() || leftClicked || input.PSpecialKey(boo::ESpecialKey::Enter)))
+        (input.PA() || leftClicked || input.PSpecialKey(ESpecialKey::Enter)))
       x19c_quitGame = std::make_unique<CQuitGameScreen>(EQuitType::QuitGame);
   } else {
     CPauseScreenBase::ResetMouseState();

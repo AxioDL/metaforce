@@ -81,7 +81,7 @@ static bool g_RippleMapSetup = false;
 std::array<std::array<u8, 64>, 64> CFluidPlaneManager::RippleValues{};
 std::array<u8, 64> CFluidPlaneManager::RippleMins{};
 std::array<u8, 64> CFluidPlaneManager::RippleMaxs{};
-boo::ObjToken<boo::ITextureS> CFluidPlaneManager::RippleMapTex;
+GXTexObj CFluidPlaneManager::RippleMapTex;
 
 void CFluidPlaneManager::SetupRippleMap() {
   if (g_RippleMapSetup) {
@@ -135,11 +135,9 @@ void CFluidPlaneManager::SetupRippleMap() {
     curX += (1.f / 63.f);
   }
 
-  CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx) {
-    RippleMapTex = ctx.newStaticTexture(64, 64, 1, boo::TextureFormat::I8, boo::TextureClampMode::ClampToBlack,
-                                        RippleValues.data(), 64 * 64);
-    return true;
-  } BooTrace);
+  GXInitTexObj(&RippleMapTex, RippleValues.data(), 64, 64, GX_TF_R8_PC, GX_REPEAT, GX_REPEAT, false);
 }
+
+void CFluidPlaneManager::Shutdown() { GXDestroyTexObj(&RippleMapTex); }
 
 } // namespace metaforce

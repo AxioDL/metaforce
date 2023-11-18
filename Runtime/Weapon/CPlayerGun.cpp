@@ -3,7 +3,8 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/Character/CPrimitive.hpp"
 #include "Runtime/Camera/CGameCamera.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
+#include "Runtime/Graphics/CGX.hpp"
 #include "Runtime/Input/ControlMapper.hpp"
 #include "Runtime/MP1/CSamusHud.hpp"
 #include "Runtime/MP1/World/CMetroid.hpp"
@@ -124,7 +125,7 @@ float CPlayerGun::CMotionState::gGunExtendDistance = 0.125f;
 float CPlayerGun::skTractorBeamFactor = 0.5f / CPlayerState::GetMissileComboChargeFactor();
 
 CPlayerGun::CPlayerGun(TUniqueId playerId)
-: x0_lights(8, zeus::CVector3f{-30.f, 0.f, 30.f}, 4, 4, false, false, false, 0.1f)
+: x0_lights(8, zeus::skZero3f, 4, 4, false, false, false, 0.1f)
 , x538_playerId(playerId)
 , x550_camBob(CPlayerCameraBob::ECameraBobType::One, CPlayerCameraBob::GetCameraBobExtent(),
               CPlayerCameraBob::GetCameraBobPeriod())
@@ -175,8 +176,6 @@ CPlayerGun::CPlayerGun(TUniqueId playerId)
   x550_camBob.SetPlayerVelocity(zeus::skZero3f);
   x550_camBob.SetBobMagnitude(0.f);
   x550_camBob.SetBobTimeScale(0.f);
-
-  m_aaboxShader.setAABB(x6c8_hologramClipCube);
 }
 
 void CPlayerGun::InitBeamData() {
@@ -734,9 +733,11 @@ void CPlayerGun::ReturnToRestPose() {
 }
 
 void CPlayerGun::ResetIdle(CStateManager& mgr) {
+  CFidget::EState fidgetState = x3a4_fidget.GetState();
+  x370_gunMotionSpeedMult = 1.f;
   x550_camBob.SetState(CPlayerCameraBob::ECameraBobState::GunFireNoBob, mgr);
-  if (x3a4_fidget.GetState() != CFidget::EState::NoFidget) {
-    if (x3a4_fidget.GetState() == CFidget::EState::Loading)
+  if (fidgetState != CFidget::EState::NoFidget) {
+    if (fidgetState == CFidget::EState::Loading)
       UnLoadFidget();
     ReturnArmAndGunToDefault(mgr, true);
   }
@@ -1424,20 +1425,25 @@ void CPlayerGun::ActivateCombo(CStateManager& mgr) {
 }
 
 void CPlayerGun::ProcessChargeState(u32 releasedStates, u32 pressedStates, CStateManager& mgr, float dt) {
-  if ((releasedStates & 0x1) != 0)
+  if ((releasedStates & 0x1) != 0) {
     ResetCharged(dt, mgr);
+    return;
+  }
   if ((pressedStates & 0x1) != 0) {
     if (x32c_chargePhase == EChargePhase::NotCharging && (pressedStates & 0x1) != 0 &&
-        x348_chargeCooldownTimer == 0.f && x832_28_readyForShot) {
+        x348_chargeCooldownTimer == 0.f && x832_28_readyForShot == 1) {
       UpdateNormalShotCycle(dt, mgr);
       x32c_chargePhase = EChargePhase::ChargeRequested;
     }
-  } else if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::Missiles) && (pressedStates & 0x2) != 0) {
-    if (x32c_chargePhase >= EChargePhase::FxGrown) {
-      if (mgr.GetPlayerState()->HasPowerUp(skBeamComboArr[size_t(x310_currentBeam)]))
-        ActivateCombo(mgr);
-    } else if (x32c_chargePhase == EChargePhase::NotCharging) {
-      FireSecondary(dt, mgr);
+  } else {
+    const auto& state = mgr.GetPlayerState();
+    if (state->HasPowerUp(CPlayerState::EItemType::Missiles) && (pressedStates & 0x2) != 0) {
+      if (x32c_chargePhase >= EChargePhase::FxGrown) {
+        if (state->HasPowerUp(skBeamComboArr[size_t(x310_currentBeam)]))
+          ActivateCombo(mgr);
+      } else if (x32c_chargePhase == EChargePhase::NotCharging) {
+        FireSecondary(dt, mgr);
+      }
     }
   }
 }
@@ -1474,12 +1480,18 @@ void CPlayerGun::UpdateNormalShotCycle(float dt, CStateManager& mgr) {
 }
 
 void CPlayerGun::ProcessNormalState(u32 releasedStates, u32 pressedStates, CStateManager& mgr, float dt) {
-  if ((releasedStates & 0x1) != 0)
+  if ((releasedStates & 0x1) != 0) {
     ResetNormal(mgr);
-  if ((pressedStates & 0x1) != 0 && x348_chargeCooldownTimer == 0.f && x832_28_readyForShot)
+    return;
+  }
+
+  if ((pressedStates & 0x1) != 0 && x348_chargeCooldownTimer == 0.f && x832_28_readyForShot == 1) {
     UpdateNormalShotCycle(dt, mgr);
-  else if ((pressedStates & 0x2) != 0)
+    return;
+  }
+  if ((pressedStates & 0x2) != 0) {
     FireSecondary(dt, mgr);
+  }
 }
 
 void CPlayerGun::UpdateWeaponFire(float dt, const CPlayerState& playerState, CStateManager& mgr) {
@@ -2056,6 +2068,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
 }
 
 void CPlayerGun::PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerGun::PreRender", zeus::skBlue);
   const CPlayerState& playerState = *mgr.GetPlayerState();
   if (playerState.GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan)
     return;
@@ -2133,35 +2146,118 @@ zeus::CVector3f CPlayerGun::ConvertToScreenSpace(const zeus::CVector3f& pos, con
 
 void CPlayerGun::CopyScreenTex() {
   // Copy lower right quadrant to gpCopyTexBuf as RGBA8
-  CGraphics::ResolveSpareTexture(g_Viewport);
+  u16 width = CGraphics::g_Viewport.x8_width / 2;
+  u16 height = CGraphics::g_Viewport.xc_height / 2;
+  GXSetTexCopySrc(width, height, width, height);
+  GXSetTexCopyDst(width, height, GX_TF_RGBA8, false);
+  GXCopyTex(CGraphics::sSpareTextureData, false);
+  GXPixModeSync();
 }
 
 void CPlayerGun::DrawScreenTex(float z) {
   // Use CopyScreenTex rendering to draw over framebuffer pixels in front of `z`
   // This is accomplished using orthographic projection quad with sweeping `y` coordinates
   // Depth is set to GEQUAL to obscure pixels in front rather than behind
-  m_screenQuad.draw(zeus::skWhite, 1.f, CTexturedQuadFilter::DefaultRect, z);
+  const auto backupViewMatrix = CGraphics::g_ViewMatrix;
+  const auto backupProjectionState = CGraphics::GetProjectionState();
+  g_Renderer->SetViewportOrtho(false, -1.f, 1.f);
+  g_Renderer->SetBlendMode_AlphaBlended();
+  CGraphics::SetDepthWriteMode(true, ERglEnum::GEqual, true);
+  u16 width = CGraphics::g_Viewport.x8_width / 2;
+  u16 height = CGraphics::g_Viewport.xc_height / 2;
+  CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_RGBA8, nullptr, GX_TEXMAP7);
+  constexpr std::array vtxDescList{
+      GXVtxDescList{GX_VA_POS, GX_DIRECT},
+      GXVtxDescList{GX_VA_TEX0, GX_DIRECT},
+      GXVtxDescList{GX_VA_NULL, GX_NONE},
+  };
+  CGX::SetVtxDescv(vtxDescList.data());
+  CGX::SetNumChans(0);
+  CGX::SetNumTexGens(1);
+  CGX::SetNumTevStages(1);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP7, GX_COLOR_NULL);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX_SRC_REG, GX_SRC_REG, {}, GX_DF_NONE, GX_AF_NONE);
+  CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
+  GXPosition3f32(CGraphics::g_Viewport.x10_halfWidth, z, 0.f);
+  GXTexCoord2f32(0.f, 1.f);
+  GXPosition3f32(CGraphics::g_Viewport.x8_width, z, 0.f);
+  GXTexCoord2f32(1.f, 1.f);
+  GXPosition3f32(CGraphics::g_Viewport.x10_halfWidth, z, CGraphics::g_Viewport.x14_halfHeight);
+  GXTexCoord2f32(0.f, 0.f);
+  GXPosition3f32(CGraphics::g_Viewport.x8_width, z, CGraphics::g_Viewport.x14_halfHeight);
+  GXTexCoord2f32(1.f, 0.f);
+  CGX::End();
+  CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
+  CGraphics::SetViewPointMatrix(backupViewMatrix);
+  CGraphics::SetProjectionState(backupProjectionState);
 }
 
 void CPlayerGun::DrawClipCube(const zeus::CAABox& aabb) {
   // Render AABB as completely transparent object, only modifying Z-buffer
-  // AABB has already been set in constructor (since it's constant)
-  m_aaboxShader.draw(zeus::skClear);
+  const zeus::CColor color{1.f, 0.f};
+  g_Renderer->SetBlendMode_AlphaBlended();
+  CGraphics::SetCullMode(ERglCullMode::None);
+
+  g_Renderer->BeginTriangleStrip(4);
+  g_Renderer->PrimColor(color);
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.max.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.min.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.max.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.min.y(), aabb.max.z()});
+  g_Renderer->EndPrimitive();
+
+  g_Renderer->BeginTriangleStrip(4);
+  g_Renderer->PrimColor(color);
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.max.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.max.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.max.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.max.y(), aabb.max.z()});
+  g_Renderer->EndPrimitive();
+
+  g_Renderer->BeginTriangleStrip(4);
+  g_Renderer->PrimColor(color);
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.max.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.min.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.max.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.min.y(), aabb.max.z()});
+  g_Renderer->EndPrimitive();
+
+  g_Renderer->BeginTriangleStrip(4);
+  g_Renderer->PrimColor(color);
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.min.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.min.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.min.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.min.y(), aabb.max.z()});
+  g_Renderer->EndPrimitive();
+
+  g_Renderer->BeginTriangleStrip(4);
+  g_Renderer->PrimColor(color);
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.min.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.min.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.max.y(), aabb.max.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.max.y(), aabb.max.z()});
+  g_Renderer->EndPrimitive();
+
+  g_Renderer->BeginTriangleStrip(4);
+  g_Renderer->PrimColor(color);
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.min.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.min.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.min.x(), aabb.max.y(), aabb.min.z()});
+  g_Renderer->PrimVertex(zeus::CVector3f{aabb.max.x(), aabb.max.y(), aabb.min.z()});
+  g_Renderer->EndPrimitive();
+
+  CGraphics::SetCullMode(ERglCullMode::Front);
 }
 
 void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerGun::Render", zeus::skMagenta);
 
   CGraphics::CProjectionState projState = CGraphics::GetProjectionState();
-  CModelFlags useFlags = flags;
-  if (x0_lights.HasShadowLight()) {
-    useFlags.m_extendedShader = EExtendedShader::LightingCubeReflectionWorldShadow;
-  }
-  CModelFlags beamFlags = useFlags;
+  CModelFlags beamFlags = flags;
   if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal) {
     beamFlags = kThermalFlags[size_t(x310_currentBeam)];
   } else if (x835_26_phazonBeamMorphing) {
-    beamFlags.x4_color = zeus::CColor::lerp(zeus::skWhite, zeus::skBlack, x39c_phazonMorphT);
+    beamFlags = CModelFlags{1, 0, 3, zeus::CColor::lerp(zeus::skWhite, zeus::skBlack, x39c_phazonMorphT)};
   }
 
   const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
@@ -2208,7 +2304,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
                                      ? kHandThermalFlag
                                      : kHandHoloFlag);
     }
-    DrawArm(mgr, pos, useFlags);
+    DrawArm(mgr, pos, flags);
     x72c_currentBeam->Draw(drawSuitArm, mgr, offsetWorldXf, beamFlags, &x0_lights);
     x82c_shadow->DisableModelProjectedShadow();
     break;
@@ -2238,7 +2334,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
       x72c_currentBeam->DrawHologram(mgr, offsetWorldXf, CModelFlags(0, 0, 3, zeus::skWhite));
       if (x0_lights.HasShadowLight())
         x82c_shadow->EnableModelProjectedShadow(offsetWorldXf, x0_lights.GetShadowLightArrIndex(), 2.15f);
-      DrawArm(mgr, pos, useFlags);
+      DrawArm(mgr, pos, flags);
       x82c_shadow->DisableModelProjectedShadow();
     }
     break;

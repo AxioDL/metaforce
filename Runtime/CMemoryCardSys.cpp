@@ -6,8 +6,8 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
-#include <hecl/CVar.hpp>
-#include <hecl/CVarManager.hpp>
+#include "ConsoleVariables/CVar.hpp"
+#include "ConsoleVariables/CVarManager.hpp"
 
 namespace metaforce {
 namespace {
@@ -16,8 +16,8 @@ using ECardResult = kabufuda::ECardResult;
 static std::string g_CardImagePaths[2] = {};
 static kabufuda::Card g_CardStates[2] = {kabufuda::Card{"GM8E", "01"}, kabufuda::Card{"GM8E", "01"}};
 // static kabufuda::ECardResult g_OpResults[2] = {};
-hecl::CVar* mc_dolphinAPath = nullptr;
-hecl::CVar* mc_dolphinBPath = nullptr;
+CVar* mc_dolphinAPath = nullptr;
+CVar* mc_dolphinBPath = nullptr;
 } // namespace
 CSaveWorldIntermediate::CSaveWorldIntermediate(CAssetId mlvl, CAssetId savw) : x0_mlvlId(mlvl), x8_savwId(savw) {
   if (!savw.IsValid())
@@ -71,12 +71,12 @@ const CSaveWorldMemory& CMemoryCardSys::GetSaveWorldMemory(CAssetId wldId) const
 }
 
 CMemoryCardSys::CMemoryCardSys() {
-  mc_dolphinAPath = hecl::CVarManager::instance()->findOrMakeCVar(
+  mc_dolphinAPath = CVarManager::instance()->findOrMakeCVar(
       "memcard.PathA"sv, "Path to the memory card image for SlotA"sv, ""sv,
-      (hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::System | hecl::CVar::EFlags::ModifyRestart));
-  mc_dolphinBPath = hecl::CVarManager::instance()->findOrMakeCVar(
+      (CVar::EFlags::Archive | CVar::EFlags::System | CVar::EFlags::ModifyRestart));
+  mc_dolphinBPath = CVarManager::instance()->findOrMakeCVar(
       "memcard.PathB"sv, "Path to the memory card image for SlotB"sv, ""sv,
-      (hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::System | hecl::CVar::EFlags::ModifyRestart));
+      (CVar::EFlags::Archive | CVar::EFlags::System | CVar::EFlags::ModifyRestart));
   x0_hints = g_SimplePool->GetObj("HINT_Hints");
   xc_memoryWorlds.reserve(16);
   x1c_worldInter.emplace();
@@ -171,38 +171,39 @@ std::pair<CAssetId, TAreaId> CMemoryCardSys::GetAreaAndWorldIdForSaveId(s32 save
 
 void CMemoryCardSys::CCardFileInfo::LockBannerToken(CAssetId bannerTxtr, CSimplePool& sp) {
   x3c_bannerTex = bannerTxtr;
-  x40_bannerTok.emplace(sp.GetObj({FOURCC('TXTR'), bannerTxtr}, m_texParam));
+  x40_bannerTok.emplace(sp.GetObj({FOURCC('TXTR'), bannerTxtr}));
 }
 
-CMemoryCardSys::CCardFileInfo::Icon::Icon(CAssetId id, kabufuda::EAnimationSpeed speed, CSimplePool& sp,
-                                          const CVParamTransfer& cv)
-: x0_id(id), x4_speed(speed), x8_tex(sp.GetObj({FOURCC('TXTR'), id}, cv)) {}
+CMemoryCardSys::CCardFileInfo::Icon::Icon(CAssetId id, kabufuda::EAnimationSpeed speed, CSimplePool& sp)
+: x0_id(id), x4_speed(speed), x8_tex(sp.GetObj({FOURCC('TXTR'), id})) {}
 
 void CMemoryCardSys::CCardFileInfo::LockIconToken(CAssetId iconTxtr, kabufuda::EAnimationSpeed speed, CSimplePool& sp) {
-  x50_iconToks.emplace_back(iconTxtr, speed, sp, m_texParam);
+  x50_iconToks.emplace_back(iconTxtr, speed, sp);
 }
 
 u32 CMemoryCardSys::CCardFileInfo::CalculateBannerDataSize() const {
   u32 ret = 68;
   if (x3c_bannerTex.IsValid()) {
-    if ((*x40_bannerTok)->GetMemoryCardTexelFormat() == ETexelFormat::RGB5A3)
+    if ((*x40_bannerTok)->GetTextureFormat() == ETexelFormat::RGB5A3) {
       ret = 6212;
-    else
+    } else {
       ret = 3652;
+    }
   }
 
   bool paletteTex = false;
   for (const Icon& icon : x50_iconToks) {
-    if (icon.x8_tex->GetMemoryCardTexelFormat() == ETexelFormat::RGB5A3)
+    if (icon.x8_tex->GetTextureFormat() == ETexelFormat::RGB5A3) {
       ret += 2048;
-    else {
+    } else {
       ret += 1024;
       paletteTex = true;
     }
   }
 
-  if (paletteTex)
+  if (paletteTex) {
     ret += 512;
+  }
 
   return ret;
 }
@@ -215,53 +216,56 @@ void CMemoryCardSys::CCardFileInfo::BuildCardBuffer() {
   u32 bannerSz = CalculateBannerDataSize();
   x104_cardBuffer.resize((bannerSz + xf4_saveBuffer.size() + 8191) & ~8191);
 
-  CMemoryOutStream w(x104_cardBuffer.data(), x104_cardBuffer.size());
-  w.writeUint32Big(0);
-  char comment[64];
-  std::memset(comment, 0, std::size(comment));
-  std::strncpy(comment, x28_comment.data(), std::size(comment) - 1);
-  w.writeBytes(comment, 64);
-  WriteBannerData(w);
-  WriteIconData(w);
+  {
+    CMemoryStreamOut w(x104_cardBuffer.data(), x104_cardBuffer.size(), CMemoryStreamOut::EOwnerShip::NotOwned);
+    w.WriteLong(0);
+    char comment[64];
+    std::memset(comment, 0, std::size(comment));
+    std::strncpy(comment, x28_comment.data(), std::size(comment) - 1);
+    w.Put(reinterpret_cast<const u8*>(comment), 64);
+    WriteBannerData(w);
+    WriteIconData(w);
+  }
   memmove(x104_cardBuffer.data() + bannerSz, xf4_saveBuffer.data(), xf4_saveBuffer.size());
   reinterpret_cast<u32&>(*x104_cardBuffer.data()) =
-      hecl::SBig(CCRC32::Calculate(x104_cardBuffer.data() + 4, x104_cardBuffer.size() - 4));
+      CBasics::SwapBytes(CCRC32::Calculate(x104_cardBuffer.data() + 4, x104_cardBuffer.size() - 4));
 
   xf4_saveBuffer.clear();
 }
 
-void CMemoryCardSys::CCardFileInfo::WriteBannerData(CMemoryOutStream& out) const {
+void CMemoryCardSys::CCardFileInfo::WriteBannerData(COutputStream& out) const {
   if (x3c_bannerTex.IsValid()) {
     const TLockedToken<CTexture>& tex = *x40_bannerTok;
-    u32 bufSz;
-    ETexelFormat fmt;
-    std::unique_ptr<u8[]> palette;
-    std::unique_ptr<u8[]> texels = tex->BuildMemoryCardTex(bufSz, fmt, palette);
-
-    if (fmt == ETexelFormat::RGB5A3)
-      out.writeBytes(texels.get(), 6144);
-    else
-      out.writeBytes(texels.get(), 3072);
-
-    if (fmt == ETexelFormat::C8)
-      out.writeBytes(palette.get(), 512);
+    const auto format = tex->GetTextureFormat();
+    const auto* texels = tex->GetConstBitMapData(0);
+    if (format == ETexelFormat::RGB5A3) {
+      out.Put(texels, 6144);
+    } else {
+      out.Put(texels, 3072);
+    }
+    if (format == ETexelFormat::C8) {
+      out.Put(reinterpret_cast<const u8*>(tex->GetPalette()->GetPaletteData()), 512);
+    }
   }
 }
 
-void CMemoryCardSys::CCardFileInfo::WriteIconData(CMemoryOutStream& out) const {
-  std::unique_ptr<u8[]> palette;
+void CMemoryCardSys::CCardFileInfo::WriteIconData(COutputStream& out) const {
+  const u8* palette = nullptr;
   for (const Icon& icon : x50_iconToks) {
-    u32 bufSz;
-    ETexelFormat fmt;
-    std::unique_ptr<u8[]> texels = icon.x8_tex->BuildMemoryCardTex(bufSz, fmt, palette);
-
-    if (fmt == ETexelFormat::RGB5A3)
-      out.writeBytes(texels.get(), 2048);
-    else
-      out.writeBytes(texels.get(), 1024);
+    const auto format = icon.x8_tex->GetTextureFormat();
+    const auto* texels = icon.x8_tex->GetConstBitMapData(0);
+    if (format == ETexelFormat::RGB5A3) {
+      out.Put(texels, 2048);
+    } else {
+      out.Put(texels, 1024);
+    }
+    if (format == ETexelFormat::C8) {
+      palette = reinterpret_cast<const u8*>(icon.x8_tex->GetPalette()->GetPaletteData());
+    }
   }
-  if (palette)
-    out.writeBytes(palette.get(), 512);
+  if (palette != nullptr) {
+    out.Put(palette, 512);
+  }
 }
 
 ECardResult CMemoryCardSys::CCardFileInfo::PumpCardTransfer() {
@@ -292,26 +296,29 @@ ECardResult CMemoryCardSys::CCardFileInfo::PumpCardTransfer() {
 
 ECardResult CMemoryCardSys::CCardFileInfo::GetStatus(kabufuda::CardStat& stat) const {
   ECardResult result = CMemoryCardSys::GetStatus(m_handle.slot, m_handle.getFileNo(), stat);
-  if (result != ECardResult::READY)
+  if (result != ECardResult::READY) {
     return result;
+  }
 
   stat.SetCommentAddr(4);
   stat.SetIconAddr(68);
 
   kabufuda::EImageFormat bannerFmt;
   if (x3c_bannerTex.IsValid()) {
-    if ((*x40_bannerTok)->GetMemoryCardTexelFormat() == ETexelFormat::RGB5A3)
+    if ((*x40_bannerTok)->GetTextureFormat() == ETexelFormat::RGB5A3) {
       bannerFmt = kabufuda::EImageFormat::RGB5A3;
-    else
+    } else {
       bannerFmt = kabufuda::EImageFormat::C8;
-  } else
+    }
+  } else {
     bannerFmt = kabufuda::EImageFormat::None;
+  }
   stat.SetBannerFormat(bannerFmt);
 
   int idx = 0;
   for (const Icon& icon : x50_iconToks) {
-    stat.SetIconFormat(icon.x8_tex->GetMemoryCardTexelFormat() == ETexelFormat::RGB5A3 ? kabufuda::EImageFormat::RGB5A3
-                                                                                       : kabufuda::EImageFormat::C8,
+    stat.SetIconFormat(icon.x8_tex->GetTextureFormat() == ETexelFormat::RGB5A3 ? kabufuda::EImageFormat::RGB5A3
+                                                                               : kabufuda::EImageFormat::C8,
                        idx);
     stat.SetIconSpeed(icon.x4_speed, idx);
     ++idx;
@@ -340,7 +347,7 @@ std::string CMemoryCardSys::_GetDolphinCardPath(kabufuda::ECardSlot slot) {
   return g_CardImagePaths[static_cast<u32>(slot)];
 }
 
-void CMemoryCardSys::_ResolveDolphinCardPath(const hecl::CVar* cv, kabufuda::ECardSlot slot) {
+void CMemoryCardSys::_ResolveDolphinCardPath(const CVar* cv, kabufuda::ECardSlot slot) {
   if (cv != nullptr && cv->toLiteral().empty()) {
     g_CardImagePaths[int(slot)] = ResolveDolphinCardPath(slot);
   } else if (cv != nullptr) {
@@ -555,9 +562,8 @@ void CMemoryCardSys::CommitToDisk(kabufuda::ECardSlot port) {
 }
 
 bool CMemoryCardSys::CreateDolphinCard(kabufuda::ECardSlot slot) {
-  std::string path =
-      _CreateDolphinCard(slot, slot == kabufuda::ECardSlot::SlotA ? mc_dolphinAPath->hasDefaultValue()
-                                                                  : mc_dolphinBPath->hasDefaultValue());
+  std::string path = _CreateDolphinCard(slot, slot == kabufuda::ECardSlot::SlotA ? mc_dolphinAPath->hasDefaultValue()
+                                                                                 : mc_dolphinBPath->hasDefaultValue());
   if (CardProbe(slot).x0_error != ECardResult::READY) {
     return false;
   }

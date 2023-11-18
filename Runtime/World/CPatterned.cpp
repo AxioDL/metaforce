@@ -19,14 +19,14 @@
 #include "Runtime/World/CScriptWaypoint.hpp"
 #include "Runtime/World/CStateMachine.hpp"
 
-#include <hecl/CVarManager.hpp>
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 #include <cmath>
 
 namespace metaforce {
 namespace {
-hecl::CVar* cv_disableAi = nullptr;
+CVar* cv_disableAi = nullptr;
 } // namespace
 
 constexpr CMaterialList skPatternedGroundMaterialList(EMaterialTypes::Character, EMaterialTypes::Solid,
@@ -123,7 +123,7 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     if (HasModelData() && GetModelData()->HasAnimData() && GetModelData()->GetAnimationData()->GetIceModel()) {
       const auto& baseAABB = GetBaseBoundingBox();
       float diagExtent = (baseAABB.max - baseAABB.min).magnitude() * 0.5f;
-      x510_vertexMorph = std::make_shared<CVertexMorphEffect>(zeus::skRight, zeus::CVector3f{}, diagExtent, 0.f,
+      x510_vertexMorph = std::make_shared<CVertexMorphEffect>(zeus::skRight, zeus::CVector3f{}, 0.f, diagExtent,
                                                               *mgr.GetActiveRandom());
     }
 
@@ -1651,11 +1651,11 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
     }
 
     if (x401_29_laggedBurnDeath) {
-      int stripedAlpha = 255;
+      u32 stripedAlpha = 255;
       if (alpha > 127) {
-        stripedAlpha = (alpha - 128) * 2;
+        stripedAlpha = u32(alpha) * 2;
       }
-      xb4_drawFlags = CModelFlags(3, 0, 3, zeus::CColor(0.f, float(stripedAlpha * stripedAlpha) / 65025.f));
+      xb4_drawFlags = CModelFlags(3, 0, 3, zeus::CColor(0.f, float((stripedAlpha * stripedAlpha) >> 8) / 255.f));
     } else if (x401_28_burning) {
       xb4_drawFlags = CModelFlags(5, 0, 3, zeus::CColor(0.f, 1.f));
     } else {
@@ -1667,10 +1667,8 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
     if (col.r() != 0.f || col.g() != 0.f || col.b() != 0.f) {
       /* Being damaged */
       zeus::CColor col2 = col;
-      col2.a() = float(alpha) / 255.f;
-      xb4_drawFlags = CModelFlags(2, 0, 3, zeus::skWhite);
-      /* Make color additive */
-      xb4_drawFlags.addColor = col2;
+      col2.a() = 1.f;
+      xb4_drawFlags = CModelFlags(2, 0, 3, col2);
     } else {
       xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
     }
@@ -1697,8 +1695,8 @@ void CPatterned::RenderIceModelWithFlags(const CModelFlags& flags) const {
   CModelFlags useFlags = flags;
   useFlags.x1_matSetIdx = 0;
   CAnimData* animData = x64_modelData->GetAnimationData();
-  if (CMorphableSkinnedModel* iceModel = animData->GetIceModel().GetObj()) {
-    animData->Render(*iceModel, useFlags, {*x510_vertexMorph}, iceModel->GetMorphMagnitudes());
+  if (CSkinnedModelWithAvgNormals* iceModel = animData->GetIceModel().GetObj()) {
+    animData->Render(*iceModel, useFlags, x510_vertexMorph.get(), iceModel->GetAveragedNormals());
   }
 }
 
@@ -1713,7 +1711,7 @@ void CPatterned::Render(CStateManager& mgr) {
       (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot && x402_31_thawed) ||
       mgr.GetThermalDrawFlag() == EThermalDrawFlag::Bypass) {
     if (x401_28_burning) {
-      const CTexture* ashy = mgr.GetActorModelParticles()->GetAshyTexture(*this);
+      CTexture* ashy = mgr.GetActorModelParticles()->GetAshyTexture(*this);
       u8 alpha = GetModelAlphau8(mgr);
       if (ashy != nullptr && ((!x401_29_laggedBurnDeath && alpha <= 255) || alpha <= 127)) {
         if (xe5_31_pointGeneratorParticles) {
@@ -1830,8 +1828,8 @@ bool CPatterned::ApplyBoneTracking() const {
 
 void CPatterned::Initialize() {
   if (cv_disableAi == nullptr) {
-    cv_disableAi = hecl::CVarManager::instance()->findOrMakeCVar("disableAi"sv, "Disables AI state machines", false,
-                                                                 hecl::CVar::EFlags::Cheat | hecl::CVar::EFlags::Game);
+    cv_disableAi = CVarManager::instance()->findOrMakeCVar("disableAi"sv, "Disables AI state machines", false,
+                                                           CVar::EFlags::Cheat | CVar::EFlags::Game);
   }
 }
 

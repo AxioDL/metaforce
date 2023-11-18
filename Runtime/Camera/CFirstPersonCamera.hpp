@@ -17,7 +17,7 @@ class CFirstPersonCamera : public CGameCamera {
   bool x1c6_24_deferBallTransitionProcessing : 1 = false;
   zeus::CVector3f x1c8_closeInVec;
   float x1d4_closeInTimer = 0.f;
-  void _fovListener(hecl::CVar* cv);
+  void _fovListener(CVar* cv);
 
 public:
   DEFINE_ENTITY

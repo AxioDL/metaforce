@@ -1,4 +1,5 @@
 #include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
 
 #include "Runtime/CSimplePool.hpp"
 
@@ -6,23 +7,23 @@ namespace metaforce {
 static TLockedToken<std::vector<u16>> mpSfxTranslationTableTok;
 std::vector<u16>* CSfxManager::mpSfxTranslationTable = nullptr;
 
-static amuse::EffectReverbHiInfo s_ReverbHiQueued;
-static amuse::EffectChorusInfo s_ChorusQueued;
-static amuse::EffectReverbStdInfo s_ReverbStdQueued;
-static amuse::EffectDelayInfo s_DelayQueued;
-
-static amuse::EffectReverbHi* s_ReverbHiState = nullptr;
-static amuse::EffectChorus* s_ChorusState = nullptr;
-static amuse::EffectReverbStd* s_ReverbStdState = nullptr;
-static amuse::EffectDelay* s_DelayState = nullptr;
+//static amuse::EffectReverbHiInfo s_ReverbHiQueued;
+//static amuse::EffectChorusInfo s_ChorusQueued;
+//static amuse::EffectReverbStdInfo s_ReverbStdQueued;
+//static amuse::EffectDelayInfo s_DelayQueued;
+//
+//static amuse::EffectReverbHi* s_ReverbHiState = nullptr;
+//static amuse::EffectChorus* s_ChorusState = nullptr;
+//static amuse::EffectReverbStd* s_ReverbStdState = nullptr;
+//static amuse::EffectDelay* s_DelayState = nullptr;
 
 CFactoryFnReturn FAudioTranslationTableFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                                CObjectReference* selfRef) {
   std::unique_ptr<std::vector<u16>> obj = std::make_unique<std::vector<u16>>();
-  u32 count = in.readUint32Big();
+  u32 count = in.ReadLong();
   obj->reserve(count);
   for (u32 i = 0; i < count; ++i)
-    obj->push_back(in.readUint16Big());
+    obj->push_back(in.ReadShort());
   return TToken<std::vector<u16>>::GetIObjObjectFor(std::move(obj));
 }
 
@@ -35,7 +36,7 @@ bool CSfxManager::m_auxProcessingEnabled = false;
 float CSfxManager::m_reverbAmount = 1.f;
 CSfxManager::EAuxEffect CSfxManager::m_activeEffect = CSfxManager::EAuxEffect::None;
 CSfxManager::EAuxEffect CSfxManager::m_nextEffect = CSfxManager::EAuxEffect::None;
-amuse::ObjToken<amuse::Listener> CSfxManager::m_listener;
+//amuse::ObjToken<amuse::Listener> CSfxManager::m_listener;
 
 u16 CSfxManager::kMaxPriority;
 u16 CSfxManager::kMedPriority;
@@ -53,27 +54,27 @@ bool CSfxManager::LoadTranslationTable(CSimplePool* pool, const SObjectTag* tag)
 }
 
 bool CSfxManager::CSfxWrapper::IsPlaying() const {
-  if (CBaseSfxWrapper::IsPlaying() && x1c_voiceHandle)
-    return x1c_voiceHandle->state() == amuse::VoiceState::Playing;
+//  if (CBaseSfxWrapper::IsPlaying() && x1c_voiceHandle)
+//    return x1c_voiceHandle->state() == amuse::VoiceState::Playing;
   return false;
 }
 
 void CSfxManager::CSfxWrapper::Play() {
-  x1c_voiceHandle = CAudioSys::GetAmuseEngine().fxStart(x18_sfxId, x20_vol, x22_pan);
-  if (x1c_voiceHandle) {
-    if (CSfxManager::IsAuxProcessingEnabled() && UseAcoustics())
-      x1c_voiceHandle->setReverbVol(m_reverbAmount);
-    SetPlaying(true);
-  }
+//  x1c_voiceHandle = CAudioSys::GetAmuseEngine().fxStart(x18_sfxId, x20_vol, x22_pan);
+//  if (x1c_voiceHandle) {
+//    if (CSfxManager::IsAuxProcessingEnabled() && UseAcoustics())
+//      x1c_voiceHandle->setReverbVol(m_reverbAmount);
+//    SetPlaying(true);
+//  }
   x24_ready = false;
 }
 
 void CSfxManager::CSfxWrapper::Stop() {
-  if (x1c_voiceHandle) {
-    x1c_voiceHandle->keyOff();
-    SetPlaying(false);
-    x1c_voiceHandle.reset();
-  }
+//  if (x1c_voiceHandle) {
+//    x1c_voiceHandle->keyOff();
+//    SetPlaying(false);
+//    x1c_voiceHandle.reset();
+//  }
 }
 
 bool CSfxManager::CSfxWrapper::Ready() {
@@ -85,25 +86,25 @@ bool CSfxManager::CSfxWrapper::Ready() {
 u16 CSfxManager::CSfxWrapper::GetSfxId() const { return x18_sfxId; }
 
 void CSfxManager::CSfxWrapper::UpdateEmitterSilent() {
-  if (x1c_voiceHandle)
-    x1c_voiceHandle->setVolume(1.f / 127.f);
+//  if (x1c_voiceHandle)
+//    x1c_voiceHandle->setVolume(1.f / 127.f);
 }
 
 void CSfxManager::CSfxWrapper::UpdateEmitter() {
-  if (x1c_voiceHandle)
-    x1c_voiceHandle->setVolume(x20_vol);
+//  if (x1c_voiceHandle)
+//    x1c_voiceHandle->setVolume(x20_vol);
 }
 
 void CSfxManager::CSfxWrapper::SetReverb(float rev) {
-  if (x1c_voiceHandle && IsAuxProcessingEnabled() && UseAcoustics())
-    x1c_voiceHandle->setReverbVol(rev);
+//  if (x1c_voiceHandle && IsAuxProcessingEnabled() && UseAcoustics())
+//    x1c_voiceHandle->setReverbVol(rev);
 }
 
 bool CSfxManager::CSfxEmitterWrapper::IsPlaying() const {
   if (IsLooped())
     return CBaseSfxWrapper::IsPlaying();
-  if (CBaseSfxWrapper::IsPlaying() && x50_emitterHandle)
-    return x50_emitterHandle->getVoice()->state() == amuse::VoiceState::Playing;
+//  if (CBaseSfxWrapper::IsPlaying() && x50_emitterHandle)
+//    return x50_emitterHandle->getVoice()->state() == amuse::VoiceState::Playing;
   return false;
 }
 
@@ -113,23 +114,23 @@ void CSfxManager::CSfxEmitterWrapper::Play() {
   else
     x1a_reverb = 0.f;
 
-  zeus::simd_floats pos(x24_parmData.x0_pos.mSimd);
-  zeus::simd_floats dir(x24_parmData.xc_dir.mSimd);
-  x50_emitterHandle = CAudioSys::GetAmuseEngine().addEmitter(
-      pos.data(), dir.data(), x24_parmData.x18_maxDist, x24_parmData.x1c_distComp, x24_parmData.x24_sfxId,
-      x24_parmData.x27_minVol, x24_parmData.x26_maxVol, (x24_parmData.x20_flags & 0x8) != 0);
-
-  if (x50_emitterHandle)
-    SetPlaying(true);
+//  zeus::simd_floats pos(x24_parmData.x0_pos.mSimd);
+//  zeus::simd_floats dir(x24_parmData.xc_dir.mSimd);
+//  x50_emitterHandle = CAudioSys::GetAmuseEngine().addEmitter(
+//      pos.data(), dir.data(), x24_parmData.x18_maxDist, x24_parmData.x1c_distComp, x24_parmData.x24_sfxId,
+//      x24_parmData.x27_minVol, x24_parmData.x26_maxVol, (x24_parmData.x20_flags & 0x8) != 0);
+//
+//  if (x50_emitterHandle)
+//    SetPlaying(true);
   x54_ready = false;
 }
 
 void CSfxManager::CSfxEmitterWrapper::Stop() {
-  if (x50_emitterHandle) {
-    x50_emitterHandle->getVoice()->keyOff();
-    SetPlaying(false);
-    x50_emitterHandle.reset();
-  }
+//  if (x50_emitterHandle) {
+//    x50_emitterHandle->getVoice()->keyOff();
+//    SetPlaying(false);
+//    x50_emitterHandle.reset();
+//  }
 }
 
 bool CSfxManager::CSfxEmitterWrapper::Ready() {
@@ -153,22 +154,22 @@ CSfxManager::ESfxAudibility CSfxManager::CSfxEmitterWrapper::GetAudible(const ze
 u16 CSfxManager::CSfxEmitterWrapper::GetSfxId() const { return x24_parmData.x24_sfxId; }
 
 void CSfxManager::CSfxEmitterWrapper::UpdateEmitterSilent() {
-  if (x50_emitterHandle) {
-    zeus::simd_floats pos(x24_parmData.x0_pos.mSimd);
-    zeus::simd_floats dir(x24_parmData.xc_dir.mSimd);
-    x50_emitterHandle->setVectors(pos.data(), dir.data());
-    x50_emitterHandle->setMaxVol(1.f / 127.f);
-  }
+//  if (x50_emitterHandle) {
+//    zeus::simd_floats pos(x24_parmData.x0_pos.mSimd);
+//    zeus::simd_floats dir(x24_parmData.xc_dir.mSimd);
+//    x50_emitterHandle->setVectors(pos.data(), dir.data());
+//    x50_emitterHandle->setMaxVol(1.f / 127.f);
+//  }
   x55_cachedMaxVol = x24_parmData.x26_maxVol;
 }
 
 void CSfxManager::CSfxEmitterWrapper::UpdateEmitter() {
-  if (x50_emitterHandle) {
-    zeus::simd_floats pos(x24_parmData.x0_pos.mSimd);
-    zeus::simd_floats dir(x24_parmData.xc_dir.mSimd);
-    x50_emitterHandle->setVectors(pos.data(), dir.data());
-    x50_emitterHandle->setMaxVol(x55_cachedMaxVol);
-  }
+//  if (x50_emitterHandle) {
+//    zeus::simd_floats pos(x24_parmData.x0_pos.mSimd);
+//    zeus::simd_floats dir(x24_parmData.xc_dir.mSimd);
+//    x50_emitterHandle->setVectors(pos.data(), dir.data());
+//    x50_emitterHandle->setMaxVol(x55_cachedMaxVol);
+//  }
 }
 
 void CSfxManager::CSfxEmitterWrapper::SetReverb(float rev) {
@@ -237,26 +238,26 @@ void CSfxManager::TurnOffChannel(ESfxChannels chan) {
 void CSfxManager::AddListener(ESfxChannels channel, const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                               const zeus::CVector3f& heading, const zeus::CVector3f& up, float frontRadius,
                               float surroundRadius, float soundSpeed, u32 flags /* 0x1 for doppler */, float vol) {
-  if (m_listener)
-    CAudioSys::GetAmuseEngine().removeListener(m_listener.get());
-  zeus::simd_floats p(pos.mSimd);
-  zeus::simd_floats d(dir.mSimd);
-  zeus::simd_floats h(heading.mSimd);
-  zeus::simd_floats u(up.mSimd);
-  m_listener = CAudioSys::GetAmuseEngine().addListener(p.data(), d.data(), h.data(), u.data(), frontRadius,
-                                                       surroundRadius, soundSpeed, vol);
+//  if (m_listener)
+//    CAudioSys::GetAmuseEngine().removeListener(m_listener.get());
+//  zeus::simd_floats p(pos.mSimd);
+//  zeus::simd_floats d(dir.mSimd);
+//  zeus::simd_floats h(heading.mSimd);
+//  zeus::simd_floats u(up.mSimd);
+//  m_listener = CAudioSys::GetAmuseEngine().addListener(p.data(), d.data(), h.data(), u.data(), frontRadius,
+//                                                       surroundRadius, soundSpeed, vol);
 }
 
 void CSfxManager::UpdateListener(const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeus::CVector3f& heading,
                                  const zeus::CVector3f& up, float vol) {
-  if (m_listener) {
-    zeus::simd_floats p(pos.mSimd);
-    zeus::simd_floats d(dir.mSimd);
-    zeus::simd_floats h(heading.mSimd);
-    zeus::simd_floats u(up.mSimd);
-    m_listener->setVectors(p.data(), d.data(), h.data(), u.data());
-    m_listener->setVolume(vol);
-  }
+//  if (m_listener) {
+//    zeus::simd_floats p(pos.mSimd);
+//    zeus::simd_floats d(dir.mSimd);
+//    zeus::simd_floats h(heading.mSimd);
+//    zeus::simd_floats u(up.mSimd);
+//    m_listener->setVectors(p.data(), d.data(), h.data(), u.data());
+//    m_listener->setVolume(vol);
+//  }
 }
 
 s16 CSfxManager::GetRank(CBaseSfxWrapper* sfx) {
@@ -303,10 +304,10 @@ void CSfxManager::PitchBend(const CSfxHandle& handle, float pitch) {
     return;
   if (!handle->IsPlaying())
     CSfxManager::Update(0.f);
-  if (handle->IsPlaying()) {
-    m_doUpdate = true;
-    handle->GetVoice()->setPitchWheel(pitch);
-  }
+//  if (handle->IsPlaying()) {
+//    m_doUpdate = true;
+//    handle->GetVoice()->setPitchWheel(pitch);
+//  }
 }
 
 void CSfxManager::SfxVolume(const CSfxHandle& handle, float vol) {
@@ -316,15 +317,15 @@ void CSfxManager::SfxVolume(const CSfxHandle& handle, float vol) {
     CSfxWrapper& wrapper = static_cast<CSfxWrapper&>(*handle);
     wrapper.SetVolume(vol);
   }
-  if (handle->IsPlaying())
-    handle->GetVoice()->setVolume(vol);
+//  if (handle->IsPlaying())
+//    handle->GetVoice()->setVolume(vol);
 }
 
 void CSfxManager::SfxSpan(const CSfxHandle& handle, float span) {
   if (!handle)
     return;
-  if (handle->IsPlaying())
-    handle->GetVoice()->setSurroundPan(span);
+//  if (handle->IsPlaying())
+//    handle->GetVoice()->setSurroundPan(span);
 }
 
 u16 CSfxManager::TranslateSFXID(u16 id) {
@@ -379,16 +380,16 @@ void CSfxManager::UpdateEmitter(const CSfxHandle& handle, const zeus::CVector3f&
                                 float maxVol) {
   if (!handle || !handle->IsEmitter() || !handle->IsPlaying())
     return;
-  m_doUpdate = true;
-  CSfxEmitterWrapper& emitter = static_cast<CSfxEmitterWrapper&>(*handle);
-  emitter.GetEmitterData().x0_pos = pos;
-  emitter.GetEmitterData().xc_dir = dir;
-  emitter.GetEmitterData().x26_maxVol = maxVol;
-  amuse::Emitter& h = *emitter.GetHandle();
-  zeus::simd_floats p(pos.mSimd);
-  zeus::simd_floats d(dir.mSimd);
-  h.setVectors(p.data(), d.data());
-  h.setMaxVol(maxVol);
+//  m_doUpdate = true;
+//  CSfxEmitterWrapper& emitter = static_cast<CSfxEmitterWrapper&>(*handle);
+//  emitter.GetEmitterData().x0_pos = pos;
+//  emitter.GetEmitterData().xc_dir = dir;
+//  emitter.GetEmitterData().x26_maxVol = maxVol;
+//  amuse::Emitter& h = *emitter.GetHandle();
+//  zeus::simd_floats p(pos.mSimd);
+//  zeus::simd_floats d(dir.mSimd);
+//  h.setVectors(p.data(), d.data());
+//  h.setMaxVol(maxVol);
 }
 
 CSfxHandle CSfxManager::AddEmitter(u16 id, const zeus::CVector3f& pos, const zeus::CVector3f& dir, bool useAcoustics,
@@ -458,84 +459,84 @@ void CSfxManager::EnableAuxCallback() {
   if (m_activeEffect != EAuxEffect::None)
     DisableAuxCallback();
 
-  auto studio = CAudioSys::GetAmuseEngine().getDefaultStudio();
-  amuse::Submix& smix = studio->getAuxA();
-
-  m_activeEffect = m_nextEffect;
-  switch (m_activeEffect) {
-  case EAuxEffect::ReverbHi:
-    s_ReverbHiState = &smix.makeReverbHi(s_ReverbHiQueued);
-    break;
-  case EAuxEffect::Chorus:
-    s_ChorusState = &smix.makeChorus(s_ChorusQueued);
-    break;
-  case EAuxEffect::ReverbStd:
-    s_ReverbStdState = &smix.makeReverbStd(s_ReverbStdQueued);
-    break;
-  case EAuxEffect::Delay:
-    s_DelayState = &smix.makeDelay(s_DelayQueued);
-    break;
-  default:
-    break;
-  }
+//  auto studio = CAudioSys::GetAmuseEngine().getDefaultStudio();
+//  amuse::Submix& smix = studio->getAuxA();
+//
+//  m_activeEffect = m_nextEffect;
+//  switch (m_activeEffect) {
+//  case EAuxEffect::ReverbHi:
+//    s_ReverbHiState = &smix.makeReverbHi(s_ReverbHiQueued);
+//    break;
+//  case EAuxEffect::Chorus:
+//    s_ChorusState = &smix.makeChorus(s_ChorusQueued);
+//    break;
+//  case EAuxEffect::ReverbStd:
+//    s_ReverbStdState = &smix.makeReverbStd(s_ReverbStdQueued);
+//    break;
+//  case EAuxEffect::Delay:
+//    s_DelayState = &smix.makeDelay(s_DelayQueued);
+//    break;
+//  default:
+//    break;
+//  }
 
   m_auxProcessingEnabled = true;
 }
 
-void CSfxManager::PrepareDelayCallback(const amuse::EffectDelayInfo& info) {
-  DisableAuxProcessing();
-  s_DelayQueued = info;
-  m_nextEffect = EAuxEffect::Delay;
-  if (m_reverbAmount == 0.f)
-    EnableAuxCallback();
-}
-
-void CSfxManager::PrepareReverbStdCallback(const amuse::EffectReverbStdInfo& info) {
-  DisableAuxProcessing();
-  s_ReverbStdQueued = info;
-  m_nextEffect = EAuxEffect::ReverbStd;
-  if (m_reverbAmount == 0.f)
-    EnableAuxCallback();
-}
-
-void CSfxManager::PrepareChorusCallback(const amuse::EffectChorusInfo& info) {
-  DisableAuxProcessing();
-  s_ChorusQueued = info;
-  m_nextEffect = EAuxEffect::Chorus;
-  if (m_reverbAmount == 0.f)
-    EnableAuxCallback();
-}
-
-void CSfxManager::PrepareReverbHiCallback(const amuse::EffectReverbHiInfo& info) {
-  DisableAuxProcessing();
-  s_ReverbHiQueued = info;
-  m_nextEffect = EAuxEffect::ReverbHi;
-  if (m_reverbAmount == 0.f)
-    EnableAuxCallback();
-}
+//void CSfxManager::PrepareDelayCallback(const amuse::EffectDelayInfo& info) {
+//  DisableAuxProcessing();
+//  s_DelayQueued = info;
+//  m_nextEffect = EAuxEffect::Delay;
+//  if (m_reverbAmount == 0.f)
+//    EnableAuxCallback();
+//}
+//
+//void CSfxManager::PrepareReverbStdCallback(const amuse::EffectReverbStdInfo& info) {
+//  DisableAuxProcessing();
+//  s_ReverbStdQueued = info;
+//  m_nextEffect = EAuxEffect::ReverbStd;
+//  if (m_reverbAmount == 0.f)
+//    EnableAuxCallback();
+//}
+//
+//void CSfxManager::PrepareChorusCallback(const amuse::EffectChorusInfo& info) {
+//  DisableAuxProcessing();
+//  s_ChorusQueued = info;
+//  m_nextEffect = EAuxEffect::Chorus;
+//  if (m_reverbAmount == 0.f)
+//    EnableAuxCallback();
+//}
+//
+//void CSfxManager::PrepareReverbHiCallback(const amuse::EffectReverbHiInfo& info) {
+//  DisableAuxProcessing();
+//  s_ReverbHiQueued = info;
+//  m_nextEffect = EAuxEffect::ReverbHi;
+//  if (m_reverbAmount == 0.f)
+//    EnableAuxCallback();
+//}
 
 void CSfxManager::DisableAuxCallback() {
-  auto studio = CAudioSys::GetAmuseEngine().getDefaultStudio();
-  studio->getAuxA().clearEffects();
-
-  switch (m_activeEffect) {
-  case EAuxEffect::ReverbHi:
-    s_ReverbHiState = nullptr;
-    break;
-  case EAuxEffect::Chorus:
-    s_ChorusState = nullptr;
-    break;
-  case EAuxEffect::ReverbStd:
-    s_ReverbStdState = nullptr;
-    break;
-  case EAuxEffect::Delay:
-    s_DelayState = nullptr;
-    break;
-  default:
-    break;
-  }
-
-  m_activeEffect = EAuxEffect::None;
+//  auto studio = CAudioSys::GetAmuseEngine().getDefaultStudio();
+//  studio->getAuxA().clearEffects();
+//
+//  switch (m_activeEffect) {
+//  case EAuxEffect::ReverbHi:
+//    s_ReverbHiState = nullptr;
+//    break;
+//  case EAuxEffect::Chorus:
+//    s_ChorusState = nullptr;
+//    break;
+//  case EAuxEffect::ReverbStd:
+//    s_ReverbStdState = nullptr;
+//    break;
+//  case EAuxEffect::Delay:
+//    s_DelayState = nullptr;
+//    break;
+//  default:
+//    break;
+//  }
+//
+//  m_activeEffect = EAuxEffect::None;
 }
 
 void CSfxManager::DisableAuxProcessing() {

@@ -1,5 +1,9 @@
 set(INPUT_SOURCES
-        IController.hpp
+        IController.hpp DolphinIController.cpp
+        CControllerAxis.hpp
+        CControllerButton.hpp
+        CControllerGamepadData.hpp CControllerGamepadData.cpp
+        CDolphinController.hpp CDolphinController.cpp
         CKeyboardMouseController.hpp
         ControlMapper.hpp ControlMapper.cpp
         CInputGenerator.hpp CInputGenerator.cpp

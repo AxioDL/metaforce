@@ -9,7 +9,6 @@
 #include "Runtime/CPlayerState.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/rstl.hpp"
 #include "Runtime/Character/CAnimCharacterSet.hpp"
 #include "Runtime/Collision/CMaterialList.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
@@ -19,6 +18,7 @@
 #include "Runtime/Weapon/CWeaponMgr.hpp"
 #include "Runtime/Weapon/WeaponCommon.hpp"
 #include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/rstl.hpp"
 
 #include <zeus/CVector3f.hpp>
 
@@ -28,10 +28,6 @@ class CActorLights;
 struct CModelFlags;
 
 enum class EChargeState { Normal, Charged };
-
-using SWeaponInfo = DataSpec::SWeaponInfo;
-using SShotParam = DataSpec::SShotParam;
-using SChargedShotParam = DataSpec::SChargedShotParam;
 
 class CVelocityInfo {
   friend class CGunWeapon;
@@ -105,8 +101,6 @@ protected:
   void LoadFxIdle(float dt, CStateManager& mgr);
   void LockTokens(CStateManager& mgr);
   void UnlockTokens();
-
-  static void PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
 
 public:
   CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId playerId, EMaterialTypes playerMaterial,

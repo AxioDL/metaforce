@@ -5,15 +5,12 @@
 
 #include "Runtime/CDvdFile.hpp"
 #include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
 
-#include <boo/IWindow.hpp>
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
-
-extern zeus::CMatrix4f g_PlatformMatrix;
 
 class CMoviePlayer : public CDvdFile {
 public:
@@ -72,13 +69,12 @@ private:
   };
 
   struct CTHPTextureSet {
-    boo::ObjToken<boo::ITextureD> Y[2];
-    boo::ObjToken<boo::ITextureD> U;
-    boo::ObjToken<boo::ITextureD> V;
+    std::array<GXTexObj, 2> Y;
+    GXTexObj U;
+    GXTexObj V;
     u32 playedSamples = 0;
     u32 audioSamples = 0;
     std::unique_ptr<s16[]> audioBuf;
-    boo::ObjToken<boo::IShaderDataBinding> binding[2];
   };
   std::vector<CTHPTextureSet> x80_textures;
   std::unique_ptr<uint8_t[]> x90_requestBuf;
@@ -110,36 +106,14 @@ private:
   u32 xfc_fieldIndex = 0;
 
   std::unique_ptr<uint8_t[]> m_yuvBuf;
+  float m_hpad;
+  float m_vpad;
 
-  struct TexShaderVert {
-    zeus::CVector3f m_pos;
-    zeus::CVector2f m_uv;
-  };
-  struct ViewBlock {
-    zeus::CMatrix4f m_mv;
-    zeus::CColor m_color = zeus::skWhite;
-    void setViewRect(const boo::SWindowRect& root, const boo::SWindowRect& sub) {
-      m_mv[0][0] = 2.0f / root.size[0];
-      m_mv[1][1] = 2.0f / root.size[1];
-      m_mv[3][0] = sub.location[0] * m_mv[0][0] - 1.0f;
-      m_mv[3][1] = sub.location[1] * m_mv[1][1] - 1.0f;
-    }
-    void finalAssign(const ViewBlock& other) {
-      m_mv = g_PlatformMatrix * other.m_mv;
-      m_color = other.m_color;
-    }
-  };
-
-  ViewBlock m_viewVertBlock;
-  boo::ObjToken<boo::IGraphicsBufferD> m_blockBuf;
-  boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
-
-  TexShaderVert m_frame[4];
+  void DecodeFromRead(const void* data);
+  void PostDVDReadRequestIfNeeded();
+  void ReadCompleted();
 
   static u32 THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo);
-  void DecodeFromRead(const void* data);
-  void ReadCompleted();
-  void PostDVDReadRequestIfNeeded();
 
 public:
   CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bool deinterlace);
@@ -162,12 +136,14 @@ public:
   float GetPlayedSeconds() const { return xdc_frameRem + xe8_curSeconds; }
   float GetTotalSeconds() const { return xe4_totalSeconds; }
   void SetPlayMode(EPlayMode mode) { xe0_playMode = mode; }
-  void SetFrame(const zeus::CVector3f& a, const zeus::CVector3f& b, const zeus::CVector3f& c, const zeus::CVector3f& d);
-  void DrawFrame();
+  bool DrawVideo();
+  void DrawFrame(const zeus::CVector3f& v1, const zeus::CVector3f& v2, const zeus::CVector3f& v3,
+                 const zeus::CVector3f& v4);
   void Update(float dt);
-  std::pair<u32, u32> GetVideoDimensions() const { return {x6c_videoInfo.width, x6c_videoInfo.height}; }
+  u32 GetWidth() const { return x6c_videoInfo.width; }
+  u32 GetHeight() const { return x6c_videoInfo.width; }
 
-  static void Initialize(boo::IGraphicsDataFactory* factory);
+  static void Initialize();
   static void Shutdown();
 };
 

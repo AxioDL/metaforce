@@ -32,9 +32,9 @@ CGuiTableGroup::CGuiTableGroup(const CGuiWidgetParms& parms, int elementCount, i
 , xd0_selectWraparound(selectWraparound) {}
 
 void CGuiTableGroup::ProcessUserInput(const CFinalInput& input) {
-  if (input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter)) {
+  if (input.PA() || input.PSpecialKey(ESpecialKey::Enter)) {
     DoAdvance();
-  } else if (input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc)) {
+  } else if (input.PB() || input.PSpecialKey(ESpecialKey::Esc)) {
     DoCancel();
   } else {
     bool decrement;
@@ -207,21 +207,21 @@ void CGuiTableGroup::DoIncrement() {
 std::shared_ptr<CGuiWidget> CGuiTableGroup::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
   CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
 
-  int elementCount = in.readInt16Big();
-  in.readInt16Big();
-  in.readUint32Big();
-  int defaultSel = in.readInt16Big();
-  in.readInt16Big();
-  bool selectWraparound = in.readBool();
-  in.readBool();
-  in.readFloatBig();
-  in.readFloatBig();
-  in.readBool();
-  in.readFloatBig();
-  in.readInt16Big();
-  in.readInt16Big();
-  in.readInt16Big();
-  in.readInt16Big();
+  int elementCount = in.ReadInt16();
+  in.ReadInt16();
+  in.ReadLong();
+  int defaultSel = in.ReadInt16();
+  in.ReadInt16();
+  bool selectWraparound = in.ReadBool();
+  in.ReadBool();
+  in.ReadFloat();
+  in.ReadFloat();
+  in.ReadBool();
+  in.ReadFloat();
+  in.ReadInt16();
+  in.ReadInt16();
+  in.ReadInt16();
+  in.ReadInt16();
 
   std::shared_ptr<CGuiWidget> ret = std::make_shared<CGuiTableGroup>(parms, elementCount, defaultSel, selectWraparound);
   ret->ParseBaseInfo(frame, in, parms);

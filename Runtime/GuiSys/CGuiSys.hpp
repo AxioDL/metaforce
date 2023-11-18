@@ -5,10 +5,8 @@
 #include <unordered_set>
 #include <vector>
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/GuiSys/CSaveableState.hpp"
-
-#include <hecl/hecl.hpp>
 
 namespace metaforce {
 class CGuiFrame;
@@ -36,7 +34,7 @@ private:
   std::unordered_set<CGuiFrame*> m_registeredFrames;
 
   static std::shared_ptr<CGuiWidget> CreateWidgetInGame(FourCC type, CInputStream& in, CGuiFrame* frame,
-                                                        CSimplePool* sp);
+                                                        CSimplePool* sp, u32 version);
 
 public:
   CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode);

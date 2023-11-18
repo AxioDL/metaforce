@@ -69,17 +69,18 @@ void CRumbleGenerator::Update(float dt) {
         }
       }
     }
-    if (updated)
-      g_InputGenerator->ControlAllMotors(xe0_commandArray);
+    if (updated) {
+      PADControlAllMotors(reinterpret_cast<const u32*>(xe0_commandArray.data()));
+    }
   }
 }
 
 void CRumbleGenerator::HardStopAll() {
   static constexpr std::array HardStopCommands{
-      EMotorState::StopHard,
-      EMotorState::StopHard,
-      EMotorState::StopHard,
-      EMotorState::StopHard,
+      (u32)EMotorState::StopHard,
+      (u32)EMotorState::StopHard,
+      (u32)EMotorState::StopHard,
+      (u32)EMotorState::StopHard,
   };
 
   xc0_periodTime.fill(0.0f);
@@ -89,7 +90,8 @@ void CRumbleGenerator::HardStopAll() {
     voice.HardReset();
   }
 
-  g_InputGenerator->ControlAllMotors(HardStopCommands);
+  // TODO(phil): switch this to g_InputGenerator->GetContoller()->SetMotorState?
+  PADControlAllMotors(static_cast<const u32*>(HardStopCommands.data()));
 }
 
 s16 CRumbleGenerator::Rumble(const SAdsrData& adsr, float gain, ERumblePriority prio, EIOPort port) {

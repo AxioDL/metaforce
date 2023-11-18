@@ -3,7 +3,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/GuiSys/CAuiImagePane.hpp"
 #include "Runtime/GuiSys/CGuiCamera.hpp"
@@ -36,23 +36,25 @@ void CScanDisplay::CDataDot::Update(float dt) {
 }
 
 void CScanDisplay::CDataDot::Draw(const zeus::CColor& col, float radius) {
-  if (x24_alpha == 0.f) {
+  if (x24_alpha == 0.f || x0_dotState == EDotState::Hidden) {
     return;
   }
 
-  if (x0_dotState != EDotState::Hidden) {
-    const zeus::CTransform xf = zeus::CTransform::Translate(xc_curPos.x(), 0.f, xc_curPos.y());
-    CGraphics::SetModelMatrix(xf);
-    zeus::CColor useColor = col;
-    useColor.a() *= x24_alpha;
-    const std::array<CTexturedQuadFilter::Vert, 4> verts{{
-        {{-radius, 0.f, radius}, {0.f, 1.f}},
-        {{-radius, 0.f, -radius}, {0.f, 0.f}},
-        {{radius, 0.f, radius}, {1.f, 1.f}},
-        {{radius, 0.f, -radius}, {1.f, 0.f}},
-    }};
-    m_quad.drawVerts(useColor, verts);
-  }
+  const zeus::CTransform xf = zeus::CTransform::Translate(xc_curPos.x(), 0.f, xc_curPos.y());
+  g_Renderer->SetModelMatrix(xf);
+  CGraphics::StreamBegin(GX_TRIANGLESTRIP);
+  zeus::CColor useColor = col;
+  useColor.a() *= x24_alpha;
+  CGraphics::StreamColor(useColor);
+  CGraphics::StreamTexcoord(0.f, 1.f);
+  CGraphics::StreamVertex(-radius, 0.f, radius);
+  CGraphics::StreamTexcoord(0.f, 0.f);
+  CGraphics::StreamVertex(-radius, 0.f, -radius);
+  CGraphics::StreamTexcoord(1.f, 1.f);
+  CGraphics::StreamVertex(radius, 0.f, radius);
+  CGraphics::StreamTexcoord(1.f, 0.f);
+  CGraphics::StreamVertex(radius, 0.f, -radius);
+  CGraphics::StreamEnd();
 }
 
 void CScanDisplay::CDataDot::StartTransitionTo(const zeus::CVector2f& vec, float dur) {
@@ -82,7 +84,7 @@ void CScanDisplay::ProcessInput(const CFinalInput& input) {
     return;
 
   if (xc_state == EScanState::DownloadComplete && x1a4_xAlpha == 0.f) {
-    if (input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || input.PMouseButton(boo::EMouseButton::Primary)) {
+    if (input.PA() || input.PSpecialKey(ESpecialKey::Enter) || input.PMouseButton(EMouseButton::Primary)) {
       if (xa8_message->TextSupport().GetCurTime() < xa8_message->TextSupport().GetTotalAnimationTime()) {
         xa8_message->TextSupport().SetCurTime(xa8_message->TextSupport().GetTotalAnimationTime());
       } else {
@@ -94,7 +96,7 @@ void CScanDisplay::ProcessInput(const CFinalInput& input) {
   } else if (xc_state == EScanState::ViewingScan) {
     int oldCounter = x1ac_pageCounter;
     int totalPages = xac_scrollMessage->TextSupport().GetTotalPageCount();
-    if ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || input.PMouseButton(boo::EMouseButton::Primary)) &&
+    if ((input.PA() || input.PSpecialKey(ESpecialKey::Enter) || input.PMouseButton(EMouseButton::Primary)) &&
         totalPages != -1) {
       CGuiTextSupport& supp = !x1ac_pageCounter ? xa8_message->TextSupport() : xac_scrollMessage->TextSupport();
       if (supp.GetCurTime() < supp.GetTotalAnimationTime())
@@ -381,7 +383,7 @@ void CScanDisplay::Update(float dt, float scanningTime) {
     case CDataDot::EDotState::Hold: {
       float tmp = dot.GetTransitionFactor();
       if (tmp == 0.f) {
-        float vpRatio = g_Viewport.xc_height / 480.f;
+        float vpRatio = CGraphics::GetViewportHeight() / 480.f;
         float posRand = g_tweakGui->GetScanDataDotPosRandMagnitude() * vpRatio;
         float durMin = dot.GetDotState() == CDataDot::EDotState::Hold ? g_tweakGui->GetScanDataDotHoldDurationMin()
                                                                       : g_tweakGui->GetScanDataDotSeekDurationMin();
@@ -403,8 +405,8 @@ void CScanDisplay::Update(float dt, float scanningTime) {
     case CDataDot::EDotState::Done: {
       const zeus::CVector3f& panePos = x170_paneStates[i].second->GetWorldPosition();
       zeus::CVector3f screenPos = xa0_selHud.GetFrameCamera()->ConvertToScreenSpace(panePos);
-      zeus::CVector2f viewportCoords(screenPos.x() * g_Viewport.x8_width * 0.5f,
-                                     screenPos.y() * g_Viewport.xc_height * 0.5f);
+      zeus::CVector2f viewportCoords(screenPos.x() * CGraphics::GetViewportWidth() * 0.5f,
+                                     screenPos.y() * CGraphics::GetViewportHeight() * 0.5f);
       dot.SetDestPosition(viewportCoords);
       break;
     }
@@ -444,12 +446,15 @@ void CScanDisplay::Draw() {
   if (!x0_dataDot.IsLoaded()) {
     return;
   }
+  SCOPED_GRAPHICS_DEBUG_GROUP("CScanDisplay::Draw", zeus::skGreen);
 
-  // No Z-test or write
+  g_Renderer->SetDepthReadWrite(false, false);
   g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
-  // Additive alpha
+  g_Renderer->SetBlendMode_AdditiveAlpha();
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+  x0_dataDot->Load(GX_TEXMAP0, EClampMode::Repeat);
 
-  const float vpRatio = g_Viewport.xc_height / 480.f;
+  const float vpRatio = CGraphics::GetViewportHeight() / 480.f;
   for (CDataDot& dot : xbc_dataDots) {
     dot.Draw(g_tweakGuiColors->GetScanDataDotColor(), g_tweakGui->GetScanDataDotRadius() * vpRatio);
   }

@@ -490,7 +490,7 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
   std::array<float, 4> dirs{};
   bool mouseHeld = false;
   if (const auto& kbm = input.GetKBM()) {
-    if (kbm->m_mouseButtons[size_t(boo::EMouseButton::Primary)]) {
+    if (kbm->m_mouseButtons[size_t(EMouseButton::Primary)]) {
       mouseHeld = true;
       if (float(m_mouseDelta.x()) < 0.f)
         dirs[3] = -m_mouseDelta.x();
@@ -662,8 +662,7 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
 
   bool mouseHeld = false;
   if (const auto& kbm = input.GetKBM()) {
-    if (kbm->m_mouseButtons[size_t(boo::EMouseButton::Middle)] ||
-        kbm->m_mouseButtons[size_t(boo::EMouseButton::Secondary)]) {
+    if (kbm->m_mouseButtons[size_t(EMouseButton::Middle)] || kbm->m_mouseButtons[size_t(EMouseButton::Secondary)]) {
       mouseHeld = true;
       if (float(m_mouseDelta.x()) < 0.f)
         right += -m_mouseDelta.x();
@@ -789,10 +788,10 @@ void CAutoMapper::SetShouldRotatingSoundBePlaying(bool shouldBePlaying) {
 void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, CStateManager& mgr) {
   zeus::CMatrix3f camRot = xa8_renderStates[0].x8_camOrientation.toTransform().buildMatrix3f();
   if (x1bc_state == EAutoMapperState::MapScreen) {
-    if ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter)) && x328_ == 0 && HasCurrentMapUniverseWorld())
+    if ((input.PA() || input.PSpecialKey(ESpecialKey::Enter)) && x328_ == 0 && HasCurrentMapUniverseWorld())
       BeginMapperStateTransition(EAutoMapperState::MapScreenUniverse, mgr);
   } else if (x1bc_state == EAutoMapperState::MapScreenUniverse &&
-             (input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter))) {
+             (input.PA() || input.PSpecialKey(ESpecialKey::Enter))) {
     const CMapUniverse::CMapWorldData& mapuWld = x8_mapu->GetMapWorldData(x9c_worldIdx);
     zeus::CVector3f pointLocal = mapuWld.GetWorldTransform().inverse() * xa8_renderStates[0].x20_areaPoint;
     if (mapuWld.GetWorldAssetId() != g_GameState->CurrentWorldAssetId()) {
@@ -807,7 +806,7 @@ void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, CStateManager&
   }
 
   x2f4_aButtonPos = 0;
-  if (input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter))
+  if (input.PA() || input.PSpecialKey(ESpecialKey::Enter))
     x2f4_aButtonPos = 1;
 
   if (IsInPlayerControlState()) {
@@ -821,7 +820,7 @@ void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, CStateManager&
       } else {
         m_mouseDelta = mouseCoord - *m_lastMouseCoord;
         m_lastMouseCoord.emplace(mouseCoord);
-        m_mouseDelta.x() *= g_Viewport.aspect;
+        m_mouseDelta.x() *= CGraphics::GetViewportAspect();
         m_mouseDelta *= 100.f;
       }
     }
@@ -902,14 +901,14 @@ std::pair<int, int> CAutoMapper::FindClosestVisibleWorld(const zeus::CVector3f& 
 }
 
 zeus::CVector2i CAutoMapper::GetMiniMapViewportSize() {
-  float scaleX = g_Viewport.x8_width / 640.f;
-  float scaleY = g_Viewport.xc_height / 480.f;
+  float scaleX = CGraphics::GetViewportWidth() / 640.f;
+  float scaleY = CGraphics::GetViewportHeight() / 480.f;
   return {int(scaleX * g_tweakAutoMapper->GetMiniMapViewportWidth()),
           int(scaleY * g_tweakAutoMapper->GetMiniMapViewportHeight())};
 }
 
 zeus::CVector2i CAutoMapper::GetMapScreenViewportSize() {
-  return {int(g_Viewport.x8_width), int(g_Viewport.xc_height)};
+  return {int(CGraphics::GetViewportWidth()), int(CGraphics::GetViewportHeight())};
 }
 
 float CAutoMapper::GetMapAreaMaxDrawDepth(const CStateManager&, TAreaId aid) const {
@@ -1084,7 +1083,8 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
     }
   }
 
-  if (input.PZ() || input.PKey('\t') || input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc)) {
+  if (input.PZ() || input.PSpecialKey(ESpecialKey::Tab) || input.PB() ||
+      input.PSpecialKey(ESpecialKey::Esc)) {
     if (x328_ == 0) {
       if (CanLeaveMapScreenInternal(mgr)) {
         LeaveMapScreen(mgr);
@@ -1170,7 +1170,7 @@ void CAutoMapper::Update(float dt, CStateManager& mgr) {
   x320_bottomPanePos = std::max(0.f, std::min(x320_bottomPanePos, 1.f));
 
   if (x30c_basewidget_leftPane) {
-    float vpAspectRatio = std::max(1.78f, g_Viewport.aspect);
+    float vpAspectRatio = std::max(1.78f, CGraphics::GetViewportAspect());
     x30c_basewidget_leftPane->SetLocalTransform(
         zeus::CTransform::Translate(x318_leftPanePos * vpAspectRatio * -9.f, 0.f, 0.f) *
         x30c_basewidget_leftPane->GetTransform());
@@ -1444,23 +1444,23 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
       zeus::CColor modColor = g_tweakAutoMapper->GetMiniMapSamusModColor();
       modColor.a() *= colorAlpha;
       CModelFlags flags(5, 0, 8 | 1, modColor); /* Depth GEqual */
-      flags.m_extendedShader = EExtendedShader::DepthGEqualNoZWrite;
+      // flags.m_extendedShader = EExtendedShader::DepthGEqualNoZWrite;
       x30_miniMapSamus->Draw(flags);
     }
     if (IsInMapperState(EAutoMapperState::MapScreen)) {
       CAssetId wldMlvl = x24_world->IGetWorldAssetId();
       const CMapWorld* mw = x24_world->IGetMapWorld();
-      std::vector<CTexturedQuadFilter>& hintBeaconFilters = m_hintBeaconFilters;
-      if (hintBeaconFilters.size() < x1f8_hintLocations.size()) {
-        hintBeaconFilters.reserve(x1f8_hintLocations.size());
-        for (u32 i = hintBeaconFilters.size(); i < x1f8_hintLocations.size(); ++i)
-          hintBeaconFilters.emplace_back(EFilterType::Add, x3c_hintBeacon);
-      }
+//      std::vector<CTexturedQuadFilter>& hintBeaconFilters = m_hintBeaconFilters;
+//      if (hintBeaconFilters.size() < x1f8_hintLocations.size()) {
+//        hintBeaconFilters.reserve(x1f8_hintLocations.size());
+//        for (u32 i = hintBeaconFilters.size(); i < x1f8_hintLocations.size(); ++i)
+//          hintBeaconFilters.emplace_back(EFilterType::Add, x3c_hintBeacon);
+//      }
       auto locIt = x1f8_hintLocations.cbegin();
-      auto filterIt = hintBeaconFilters.begin();
-      for (; locIt != x1f8_hintLocations.cend(); ++locIt, ++filterIt) {
+//      auto filterIt = hintBeaconFilters.begin();
+      for (; locIt != x1f8_hintLocations.cend(); ++locIt/*, ++filterIt*/) {
         const SAutoMapperHintLocation& loc = *locIt;
-        CTexturedQuadFilter& filter = *filterIt;
+//        CTexturedQuadFilter& filter = *filterIt;
         if (loc.x8_worldId != wldMlvl)
           continue;
         const CMapArea* mapa = mw->GetMapArea(loc.xc_areaId);
@@ -1475,12 +1475,12 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
           beaconAlpha = loc.x4_beaconAlpha;
         }
         if (beaconAlpha > 0.f) {
-          constexpr std::array<CTexturedQuadFilter::Vert, 4> verts{{
-              {{-4.f, -8.f, 8.f}, {0.f, 1.f}},
-              {{-4.f, -8.f, 0.f}, {0.f, 0.f}},
-              {{4.f, -8.f, 8.f}, {1.f, 1.f}},
-              {{4.f, -8.f, 0.f}, {1.f, 0.f}},
-          }};
+//          constexpr std::array<CTexturedQuadFilter::Vert, 4> verts{{
+//              {{-4.f, -8.f, 8.f}, {0.f, 1.f}},
+//              {{-4.f, -8.f, 0.f}, {0.f, 0.f}},
+//              {{4.f, -8.f, 8.f}, {1.f, 1.f}},
+//              {{4.f, -8.f, 0.f}, {1.f, 0.f}},
+//          }};
           float colorAlpha = beaconAlpha;
           if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
           } else {
@@ -1489,7 +1489,8 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
           colorAlpha *= mapAlpha;
           zeus::CColor color = zeus::skWhite;
           color.a() = colorAlpha;
-          filter.drawVerts(color, verts);
+          // TODO
+//          filter.drawVerts(color, verts);
         }
       }
     }
@@ -1604,7 +1605,7 @@ CAssetId CAutoMapper::GetAreaHintDescriptionString(CAssetId mreaId) {
       }
     }
   }
-  return -1;
+  return {};
 }
 
 void CAutoMapper::OnNewInGameGuiState(EInGameGuiState state, CStateManager& mgr) {

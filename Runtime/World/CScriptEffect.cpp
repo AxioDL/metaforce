@@ -249,18 +249,16 @@ void CScriptEffect::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& 
 }
 
 void CScriptEffect::Render(CStateManager& mgr) {
-  /* The following code is kept for reference, this is now performed in CElementGen
-  if (x138_actorLights)
-  x138_actorLights->ActivateLights();
-  */
+  if (x138_actorLights) {
+    x138_actorLights->ActivateLights();
+  }
   if (x104_particleSystem && x104_particleSystem->GetParticleCountAll() > 0) {
     g_NumParticlesRendered += x104_particleSystem->GetParticleCountAll();
-    x104_particleSystem->Render(x138_actorLights.get());
+    x104_particleSystem->Render();
   }
-
   if (xf4_electric && xf4_electric->GetParticleCount() > 0) {
     g_NumParticlesRendered += xf4_electric->GetParticleCount();
-    xf4_electric->Render(x138_actorLights.get());
+    xf4_electric->Render();
   }
 }
 
@@ -348,14 +346,12 @@ void CScriptEffect::CalculateRenderBounds() {
   }
 
   if (particleBounds || electricBounds) {
-    zeus::CAABox renderBounds = zeus::CAABox();
+    zeus::CAABox renderBounds;
     if (particleBounds) {
-      renderBounds.accumulateBounds(particleBounds->min);
-      renderBounds.accumulateBounds(particleBounds->max);
+      renderBounds.accumulateBounds(*particleBounds);
     }
     if (electricBounds) {
-      renderBounds.accumulateBounds(electricBounds->min);
-      renderBounds.accumulateBounds(electricBounds->max);
+      renderBounds.accumulateBounds(*electricBounds);
     }
     x9c_renderBounds = renderBounds;
     x111_26_canRender = true;

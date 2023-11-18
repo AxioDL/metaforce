@@ -77,7 +77,7 @@ void CCameraManager::EnterCinematic(CStateManager& mgr) {
     } else if (const TCastToConstPtr<CWeapon> weap = ent) {
       if (weap->GetActive()) {
         if (False(weap->GetAttribField() & EProjectileAttrib::KeepInCinematic)) {
-          if (TCastToConstPtr<CAi>(mgr.GetObjectById(weap->GetOwnerId())) ||
+          if (TCastToConstPtr<CPatterned>(mgr.GetObjectById(weap->GetOwnerId())) ||
               TCastToConstPtr<CPlayer>(mgr.GetObjectById(weap->GetOwnerId())))
             mgr.FreeScriptObject(weap->GetUniqueId());
         }
@@ -475,7 +475,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
 }
 
 void CCameraManager::ThinkCameras(float dt, CStateManager& mgr) {
-  CGameCameraList gcList = mgr.GetCameraObjectList();
+  CGameCameraList& gcList = mgr.GetCameraObjectList();
 
   for (CEntity* ent : gcList) {
     if (const TCastToPtr<CGameCamera> gc = ent) {

@@ -8,23 +8,25 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
 
+#include <logvisor/logvisor.hpp>
+
 namespace metaforce {
 static logvisor::Module Log("metaforce::CParticleDataFactory");
 
-float CParticleDataFactory::GetReal(CInputStream& in) { return in.readFloatBig(); }
+float CParticleDataFactory::GetReal(CInputStream& in) { return in.ReadFloat(); }
 
-s32 CParticleDataFactory::GetInt(CInputStream& in) { return in.readInt32Big(); }
+s32 CParticleDataFactory::GetInt(CInputStream& in) { return in.ReadInt32(); }
 
 bool CParticleDataFactory::GetBool(CInputStream& in) {
   FourCC cid = GetClassID(in);
   if (cid != FOURCC('CNST'))
     Log.report(logvisor::Fatal, FMT_STRING("bool element does not begin with CNST"));
-  return in.readBool();
+  return in.ReadBool();
 }
 
 FourCC CParticleDataFactory::GetClassID(CInputStream& in) {
   u32 val = 0;
-  in.readBytesToBuf(&val, 4);
+  in.Get(reinterpret_cast<u8*>(&val), 4);
   return val;
 }
 
@@ -32,16 +34,16 @@ SParticleModel CParticleDataFactory::GetModel(CInputStream& in, CSimplePool* res
   FourCC clsId = GetClassID(in);
   if (clsId == SBIG('NONE'))
     return {};
-  CAssetId id = in.readUint32Big();
+  CAssetId id = in.Get<CAssetId>();
   if (!id.IsValid())
     return {};
-  return {resPool->GetObj({FOURCC('CMDL'), id}), true};
+  return resPool->GetObj({FOURCC('CMDL'), id});
 }
 
 SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(CAssetId res, CSimplePool* resPool,
                                                                 const std::vector<CAssetId>& tracker) {
   if (std::count(tracker.cbegin(), tracker.cend(), res) == 0)
-    return {resPool->GetObj({FOURCC('PART'), res}), true};
+    return resPool->GetObj({FOURCC('PART'), res});
   return {};
 }
 
@@ -50,7 +52,7 @@ SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(CInputStream& in
   FourCC clsId = GetClassID(in);
   if (clsId == SBIG('NONE'))
     return {};
-  CAssetId id = in.readUint32Big();
+  CAssetId id = in.Get<CAssetId>();
   if (!id.IsValid())
     return {};
   return GetChildGeneratorDesc(id, resPool, tracker);
@@ -60,46 +62,67 @@ SSwooshGeneratorDesc CParticleDataFactory::GetSwooshGeneratorDesc(CInputStream& 
   FourCC clsId = GetClassID(in);
   if (clsId == SBIG('NONE'))
     return {};
-  CAssetId id = in.readUint32Big();
+  CAssetId id = in.Get<CAssetId>();
   if (!id.IsValid())
     return {};
-  return {resPool->GetObj({FOURCC('SWHC'), id}), true};
+  return resPool->GetObj({FOURCC('SWHC'), id});
 }
 
 SElectricGeneratorDesc CParticleDataFactory::GetElectricGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
   FourCC clsId = GetClassID(in);
   if (clsId == SBIG('NONE'))
     return {};
-  CAssetId id = in.readUint32Big();
+  CAssetId id = in.Get<CAssetId>();
   if (!id.IsValid())
     return {};
-  return {resPool->GetObj({FOURCC('ELSC'), id}), true};
+  return resPool->GetObj({FOURCC('ELSC'), id});
+}
+
+static std::unique_ptr<CTexture> CreateTexture(u32 value) {
+  auto tex = std::make_unique<CTexture>(ETexelFormat::RGBA8, 4, 4, 1, "CUVElement Fallback Texture"sv);
+  auto* data = reinterpret_cast<u32*>(tex->Lock());
+  for (int i = 0; i < 4 * 4; ++i) {
+    data[i] = value;
+  }
+  tex->UnLock();
+  return tex;
 }
 
 std::unique_ptr<CUVElement> CParticleDataFactory::GetTextureElement(CInputStream& in, CSimplePool* resPool) {
   FourCC clsId = GetClassID(in);
   switch (clsId.toUint32()) {
   case SBIG('CNST'): {
-    FourCC subId = GetClassID(in);
-    if (subId == SBIG('NONE'))
-      return nullptr;
-    CAssetId id = in.readUint32Big();
-    TToken<CTexture> txtr = resPool->GetObj({FOURCC('TXTR'), id});
+    CAssetId id;
+    const auto subId = GetClassID(in);
+    if (subId != SBIG('NONE')) {
+      id = in.Get<CAssetId>();
+    }
+    TToken<CTexture> txtr;
+    if (id.IsValid()) {
+      txtr = resPool->GetObj({FOURCC('TXTR'), id});
+    } else {
+      txtr = CreateTexture(0xFFFFFFFF);
+    }
     return std::make_unique<CUVEConstant>(std::move(txtr));
   }
   case SBIG('ATEX'): {
-    const FourCC subId = GetClassID(in);
-    if (subId == SBIG('NONE')) {
-      return nullptr;
+    CAssetId id;
+    const auto subId = GetClassID(in);
+    if (subId != SBIG('NONE')) {
+      id = in.Get<CAssetId>();
     }
-    const CAssetId id = in.readUint32Big();
     auto a = GetIntElement(in);
     auto b = GetIntElement(in);
     auto c = GetIntElement(in);
     auto d = GetIntElement(in);
     auto e = GetIntElement(in);
     const bool f = GetBool(in);
-    TToken<CTexture> txtr = resPool->GetObj({FOURCC('TXTR'), id});
+    TToken<CTexture> txtr;
+    if (id.IsValid()) {
+      txtr = resPool->GetObj({FOURCC('TXTR'), id});
+    } else {
+      txtr = CreateTexture(0xFFFFFFFF);
+    }
     return std::make_unique<CUVEAnimTexture>(std::move(txtr), std::move(std::move(a)), std::move(b), std::move(c),
                                              std::move(d), std::move(e), f);
   }
@@ -706,7 +729,7 @@ std::unique_ptr<CIntElement> CParticleDataFactory::GetIntElement(CInputStream& i
 std::unique_ptr<CGenDescription> CParticleDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
   std::vector<CAssetId> tracker;
   tracker.reserve(8);
-  return CreateGeneratorDescription(in, tracker, 0, resPool);
+  return CreateGeneratorDescription(in, tracker, {}, resPool);
 }
 
 std::unique_ptr<CGenDescription> CParticleDataFactory::CreateGeneratorDescription(CInputStream& in,
@@ -907,21 +930,15 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
     case SBIG('SSPO'):
       fillDesc->xe8_xd4_SSPO = GetVectorElement(in);
       break;
-    case SBIG('TEXR'): {
-      std::unique_ptr<CUVElement> tex(GetTextureElement(in, resPool));
-      if (tex->GetValueTexture(0))
-        fillDesc->x54_x40_TEXR = std::move(tex);
+    case SBIG('TEXR'):
+      fillDesc->x54_x40_TEXR = GetTextureElement(in, resPool);
       break;
-    }
     case SBIG('SSWH'):
       fillDesc->xd4_xc0_SSWH = GetSwooshGeneratorDesc(in, resPool);
       break;
-    case SBIG('TIND'): {
-      std::unique_ptr<CUVElement> tex(GetTextureElement(in, resPool));
-      if (tex->GetValueTexture(0))
-        fillDesc->x58_x44_TIND = std::move(tex);
+    case SBIG('TIND'):
+      fillDesc->x58_x44_TIND = GetTextureElement(in, resPool);
       break;
-    }
     case SBIG('VMD4'):
       fillDesc->x45_29_x31_31_VMD4 = GetBool(in);
       break;
@@ -986,13 +1003,13 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
       fillDesc->xec_xd8_SELC = GetElectricGeneratorDesc(in, resPool);
       break;
     default: {
-      Log.report(logvisor::Fatal, FMT_STRING("Unknown GPSM class {} @{}"), clsId, in.position());
+      Log.report(logvisor::Fatal, FMT_STRING("Unknown GPSM class {} @{}"), clsId, in.GetReadPosition());
       return false;
     }
     }
     clsId = GetClassID(in);
   }
-
+#if 0
   /* Now for our custom additions, if available */
   if (!in.atEnd() && (in.position() + 4) < in.length()) {
     clsId = GetClassID(in);
@@ -1010,24 +1027,17 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
       clsId = GetClassID(in);
     }
   }
+#endif
+
   return true;
 }
 
 void CParticleDataFactory::LoadGPSMTokens(CGenDescription* desc) {
-  if (desc->x5c_x48_PMDL.m_found)
-    desc->x5c_x48_PMDL.m_model = desc->x5c_x48_PMDL.m_token.GetObj();
-
-  if (desc->x8c_x78_ICTS.m_found)
-    desc->x8c_x78_ICTS.m_gen = desc->x8c_x78_ICTS.m_token.GetObj();
-
-  if (desc->xa4_x90_IDTS.m_found)
-    desc->xa4_x90_IDTS.m_gen = desc->xa4_x90_IDTS.m_token.GetObj();
-
-  if (desc->xb8_xa4_IITS.m_found)
-    desc->xb8_xa4_IITS.m_gen = desc->xb8_xa4_IITS.m_token.GetObj();
-
-  if (desc->xd4_xc0_SSWH.m_found)
-    desc->xd4_xc0_SSWH.m_swoosh = desc->xd4_xc0_SSWH.m_token.GetObj();
+  desc->x5c_x48_PMDL.Load();
+  desc->x8c_x78_ICTS.Load();
+  desc->xa4_x90_IDTS.Load();
+  desc->xb8_xa4_IITS.Load();
+  desc->xd4_xc0_SSWH.Load();
 }
 
 CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,

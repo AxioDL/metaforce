@@ -51,7 +51,7 @@ CBallCamera::CBallCamera(TUniqueId uid, TUniqueId watchedId, const zeus::CTransf
                         g_tweakBall->GetBallCameraSpringTardis())
 , x228_ballCameraCentroidSpring(g_tweakBall->GetBallCameraCentroidSpringConstant(),
                                 g_tweakBall->GetBallCameraCentroidSpringMax(),
-                                g_tweakBall->GetBallCameraCentroidSpringTardis())
+                                g_tweakBall->GetBallCameraCentroidSpringTardis() * 1.1f)
 , x23c_ballCameraLookAtSpring(g_tweakBall->GetBallCameraLookAtSpringConstant(),
                               g_tweakBall->GetBallCameraLookAtSpringMax(),
                               g_tweakBall->GetBallCameraLookAtSpringTardis())

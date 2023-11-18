@@ -10,6 +10,7 @@
 #include "Runtime/GuiSys/CRasterFont.hpp"
 #include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
 #include "Runtime/GuiSys/CTextParser.hpp"
+#include "Runtime/CStringExtras.hpp"
 
 namespace metaforce {
 
@@ -69,7 +70,7 @@ float CGuiTextSupport::GetCurrentAnimationOverAge() const {
   float ret = 0.f;
   if (const CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
     if (x50_typeEnable) {
-      if (x40_primStartTimes.size()) {
+      if (!x40_primStartTimes.empty()) {
         const auto& lastTime = x40_primStartTimes.back();
         ret = std::max(ret, (buf->GetPrimitiveCount() - lastTime.second) / x58_chRate + lastTime.first);
       } else {
@@ -127,7 +128,7 @@ void CGuiTextSupport::SetTypeWriteEffectOptions(bool enable, float chFadeTime, f
           break;
         }
 
-        buf->SetPrimitiveOpacity(i, std::min(std::max(0.f, (x3c_curTime - chStartTime) / x54_chFadeTime), 1.f));
+        //buf->SetPrimitiveOpacity(i, std::min(std::max(0.f, (x3c_curTime - chStartTime) / x54_chFadeTime), 1.f));
         chStartTime += 1.f / x58_chRate;
       }
     }
@@ -148,8 +149,11 @@ void CGuiTextSupport::Update(float dt) {
           break;
         }
 
-        buf->SetPrimitiveOpacity(i, std::min(std::max(0.f, (x3c_curTime - chStartTime) / x54_chFadeTime), 1.f));
+        auto primitive = buf->GetPrimitive(i);
+        float alpha = std::clamp((x3c_curTime - chStartTime) / x54_chFadeTime, 0.f, 1.f);
         chStartTime += 1.f / x58_chRate;
+        primitive.x0_color1 = zeus::CColor{alpha, alpha};
+        buf->SetPrimitive(primitive, i);
       }
     }
     x3c_curTime += dt;
@@ -183,9 +187,11 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer() {
 }
 
 bool CGuiTextSupport::CheckAndRebuildRenderBuffer() {
-  if (x308_multipageFlag || x60_renderBuf)
-    if (!x308_multipageFlag || x2ec_renderBufferPages.size())
+  if (x308_multipageFlag || x60_renderBuf) {
+    if (!x308_multipageFlag || x2ec_renderBufferPages.size()) {
       return true;
+    }
+  }
 
   CheckAndRebuildTextBuffer();
   x2bc_assets = g_TextExecuteBuf->GetAssets();
@@ -271,7 +277,9 @@ void CGuiTextSupport::SetText(std::u16string_view str, bool multipage) {
   x304_pageCounter = 0;
 }
 
-void CGuiTextSupport::SetText(std::string_view str, bool multipage) { SetText(hecl::UTF8ToChar16(str), multipage); }
+void CGuiTextSupport::SetText(std::string_view str, bool multipage) {
+  SetText(CStringExtras::ConvertToUNICODE(str), multipage);
+}
 
 bool CGuiTextSupport::_GetIsTextSupportFinishedLoading() {
   for (CToken& tok : x2bc_assets) {

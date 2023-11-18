@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Runtime/CToken.hpp"
-
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include "Runtime/Graphics/CGraphics.hpp"
 
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
@@ -18,7 +17,7 @@ enum class EFilterType;
 
 class CTexturedQuadFilter {
 public:
-  enum class ZTest { None, LEqual, GEqual, GEqualZWrite };
+  enum class ZTest { Never, Less, Equal, LEqual, Greater, NEqual, GEqual, Always };
 
 protected:
   struct Uniform {
@@ -27,15 +26,15 @@ protected:
     float m_lod = 0.f;
   };
   TLockedToken<CTexture> m_tex;
-  boo::ObjToken<boo::ITexture> m_booTex;
-  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+  aurora::gfx::TextureHandle m_booTex;
+  //  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+  //  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+  //  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
   Uniform m_uniform;
-  ZTest m_zTest;
+  ERglEnum m_zTest;
   bool m_flipRect = false;
 
-  explicit CTexturedQuadFilter(const boo::ObjToken<boo::ITexture>& tex);
+  explicit CTexturedQuadFilter(const aurora::gfx::TextureHandle& tex);
 
 public:
   struct Vert {
@@ -45,8 +44,9 @@ public:
   static void Initialize();
   static void Shutdown();
   static constexpr zeus::CRectangle DefaultRect{0.f, 0.f, 1.f, 1.f};
-  explicit CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ZTest zTest = ZTest::None);
-  explicit CTexturedQuadFilter(EFilterType type, const boo::ObjToken<boo::ITexture>& tex, ZTest zTest = ZTest::None);
+  explicit CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture> tex, ERglEnum zTest = ERglEnum::Never);
+  explicit CTexturedQuadFilter(EFilterType type, const aurora::gfx::TextureHandle& tex,
+                               ERglEnum zTest = ERglEnum::Never);
   CTexturedQuadFilter(const CTexturedQuadFilter&) = delete;
   CTexturedQuadFilter& operator=(const CTexturedQuadFilter&) = delete;
   CTexturedQuadFilter(CTexturedQuadFilter&&) = default;
@@ -56,7 +56,7 @@ public:
   void drawVerts(const zeus::CColor& color, std::array<Vert, 4> verts, float lod = 0.f);
   void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t);
   const TLockedToken<CTexture>& GetTex() const { return m_tex; }
-  const boo::ObjToken<boo::ITexture>& GetBooTex() const { return m_booTex; }
+  const aurora::gfx::TextureHandle& GetBooTex() const { return m_booTex; }
 };
 
 class CTexturedQuadFilterAlpha : public CTexturedQuadFilter {
@@ -64,7 +64,7 @@ public:
   static void Initialize();
   static void Shutdown();
   explicit CTexturedQuadFilterAlpha(EFilterType type, TLockedToken<CTexture> tex);
-  explicit CTexturedQuadFilterAlpha(EFilterType type, const boo::ObjToken<boo::ITexture>& tex);
+  explicit CTexturedQuadFilterAlpha(EFilterType type, const aurora::gfx::TextureHandle& tex);
 };
 
 } // namespace metaforce

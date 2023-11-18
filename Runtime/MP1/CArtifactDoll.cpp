@@ -7,7 +7,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
 #include <zeus/CColor.hpp>
@@ -31,18 +31,18 @@ constexpr std::array ArtifactPieceModels{
 };
 
 constexpr std::array<CAssetId, 12> ArtifactHeadScans{
-    0x32C9DDCE, // Truth
-    0xB45DAF60, // Strength
-    0x7F017CC5, // Elder
-    0x62044C7D, // Wild
-    0xA9589FD8, // Lifegiver
-    0x2FCCED76, // Warrior
-    0xE4903ED3, // Chozo
-    0x15C68C06, // Nature
-    0xDE9A5FA3, // Sun
-    0xFBBE9D9A, // World
-    0x30E24E3F, // Spirit
-    0xB6763C91  // Newborn
+    0x32C9DDCEu, // Truth
+    0xB45DAF60u, // Strength
+    0x7F017CC5u, // Elder
+    0x62044C7Du, // Wild
+    0xA9589FD8u, // Lifegiver
+    0x2FCCED76u, // Warrior
+    0xE4903ED3u, // Chozo
+    0x15C68C06u, // Nature
+    0xDE9A5FA3u, // Sun
+    0xFBBE9D9Au, // World
+    0x30E24E3Fu, // Spirit
+    0xB6763C91u  // Newborn
 };
 
 constexpr zeus::CColor ArtifactPreColor{0.4f, 0.68f, 0.88f, 0.8f};
@@ -70,7 +70,7 @@ int CArtifactDoll::GetArtifactHeadScanIndex(CAssetId scanId) {
 
 CAssetId CArtifactDoll::GetArtifactHeadScanFromItemType(CPlayerState::EItemType item) {
   if (item < CPlayerState::EItemType::Truth || item > CPlayerState::EItemType::Newborn) {
-    return -1;
+    return {};
   }
 
   return ArtifactHeadScans[size_t(item) - 29];
@@ -94,7 +94,7 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
   SCOPED_GRAPHICS_DEBUG_GROUP("CArtifactDoll::Draw", zeus::skPurple);
 
   alpha *= x24_fader;
-  g_Renderer->SetPerspective(55.f, g_Viewport.x8_width, g_Viewport.xc_height, 0.2f, 4096.f);
+  g_Renderer->SetPerspective(55.f, CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(), 0.2f, 4096.f);
   CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(0.f, -10.f, 0.f));
 
   float angle = CGraphics::GetSecondsMod900() * 2.f * M_PIF * 0.25f;
@@ -125,14 +125,14 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
     }
 
     CModelFlags flags(7, 0, 3, zeus::CColor(1.f, 0.f));
-    flags.m_extendedShader = EExtendedShader::SolidColorFrontfaceCullLEqualAlphaOnly;
-    x20_actorLights->ActivateLights(model->GetInstance());
+    // flags.m_extendedShader = EExtendedShader::SolidColorFrontfaceCullLEqualAlphaOnly;
+    x20_actorLights->ActivateLights();
     model->Draw(flags);
 
     flags.x4_color = color;
     flags.x4_color.a() *= alpha;
-    flags.m_extendedShader = EExtendedShader::ForcedAdditive;
-    model->Draw(flags);
+    // flags.m_extendedShader = EExtendedShader::ForcedAdditive;
+    model->Draw({8, 0, 1, flags.x4_color});
   }
 }
 

@@ -14,7 +14,6 @@ set(CHARACTER_SOURCES
         CTransitionDatabaseGame.hpp CTransitionDatabaseGame.cpp
         CHierarchyPoseBuilder.hpp CHierarchyPoseBuilder.cpp
         CPoseAsTransforms.hpp CPoseAsTransforms.cpp
-        CSkinBank.hpp CSkinBank.cpp
         CCharLayoutInfo.hpp CCharLayoutInfo.cpp
         CLayoutDescription.hpp
         CSegIdList.hpp CSegIdList.cpp

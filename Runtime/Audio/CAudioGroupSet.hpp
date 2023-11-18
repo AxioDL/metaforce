@@ -5,11 +5,11 @@
 
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/IObj.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-#include <amuse/AudioGroupData.hpp>
+//#include <amuse/AudioGroupData.hpp>
 
 namespace metaforce {
 
@@ -17,12 +17,12 @@ class CAudioGroupSet {
   std::unique_ptr<u8[]> m_buffer;
   std::string x10_baseName;
   std::string x20_name;
-  amuse::AudioGroupData m_data;
-  amuse::AudioGroupData LoadData();
+//  amuse::AudioGroupData m_data;
+//  amuse::AudioGroupData LoadData();
 
 public:
   explicit CAudioGroupSet(std::unique_ptr<u8[]>&& in);
-  const amuse::AudioGroupData& GetAudioGroupData() const { return m_data; }
+  //const amuse::AudioGroupData& GetAudioGroupData() const { return m_data; }
   std::string_view GetName() const { return x20_name; }
 };
 

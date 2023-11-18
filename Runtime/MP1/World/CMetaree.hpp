@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataSpec/DNAMP1/SFX/Metaree.h"
+#include "Audio/SFX/Metaree.h"
 
 #include "Runtime/World/CDamageInfo.hpp"
 #include "Runtime/World/CPatterned.hpp"

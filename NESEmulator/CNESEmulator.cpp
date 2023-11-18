@@ -1,5 +1,4 @@
 #include "CNESEmulator.hpp"
-#include "CNESShader.hpp"
 #include "CGameState.hpp"
 #include "Input/CFinalInput.hpp"
 #include "logvisor/logvisor.hpp"
@@ -260,36 +259,36 @@ void CNESEmulator::InitializeEmulator() {
   // mainLoopRuns = nesPAL ? DOTS*ppuCycleTimer : DOTS*ppuCycleTimer;
   // mainLoopPos = mainLoopRuns;
 
-  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    // Nearest-neighbor FTW!
-    m_texture = ctx.newDynamicTexture(VISIBLE_DOTS, linesToDraw, boo::TextureFormat::RGBA8,
-                                      boo::TextureClampMode::ClampToEdgeNearest);
-    if (ctx.platform() == boo::IGraphicsDataFactory::Platform::OpenGL) {
-      Vert verts[4] = {
-          {{-1.f, -1.f, 0.f}, {0.f, 1.f}},
-          {{-1.f, 1.f, 0.f}, {0.f, 0.f}},
-          {{1.f, -1.f, 0.f}, {1.f, 1.f}},
-          {{1.f, 1.f, 0.f}, {1.f, 0.f}},
-      };
-      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
-    } else {
-      Vert verts[4] = {
-          {{-1.f, 1.f, 0.f}, {0.f, 1.f}},
-          {{-1.f, -1.f, 0.f}, {0.f, 0.f}},
-          {{1.f, 1.f, 0.f}, {1.f, 1.f}},
-          {{1.f, -1.f, 0.f}, {1.f, 0.f}},
-      };
-      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
-    }
-    m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-    m_shadBind = CNESShader::BuildShaderDataBinding(ctx, m_vbo, m_uniBuf, m_texture);
-    return true;
-  } BooTrace);
+//  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
+//    // Nearest-neighbor FTW!
+//    m_texture = ctx.newDynamicTexture(VISIBLE_DOTS, linesToDraw, boo::TextureFormat::RGBA8,
+//                                      boo::TextureClampMode::ClampToEdgeNearest);
+//    if (ctx.platform() == boo::IGraphicsDataFactory::Platform::OpenGL) {
+//      Vert verts[4] = {
+//          {{-1.f, -1.f, 0.f}, {0.f, 1.f}},
+//          {{-1.f, 1.f, 0.f}, {0.f, 0.f}},
+//          {{1.f, -1.f, 0.f}, {1.f, 1.f}},
+//          {{1.f, 1.f, 0.f}, {1.f, 0.f}},
+//      };
+//      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
+//    } else {
+//      Vert verts[4] = {
+//          {{-1.f, 1.f, 0.f}, {0.f, 1.f}},
+//          {{-1.f, -1.f, 0.f}, {0.f, 0.f}},
+//          {{1.f, 1.f, 0.f}, {1.f, 1.f}},
+//          {{1.f, -1.f, 0.f}, {1.f, 0.f}},
+//      };
+//      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
+//    }
+//    m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
+//    m_shadBind = CNESShader::BuildShaderDataBinding(ctx, m_vbo, m_uniBuf, m_texture);
+//    return true;
+//  } BooTrace);
 
   // double useFreq = 223740;
   double useFreq = apuGetFrequency();
-  m_booVoice = CAudioSys::GetVoiceEngine()->allocateNewStereoVoice(useFreq, this);
-  m_booVoice->start();
+  //m_booVoice = CAudioSys::GetVoiceEngine()->allocateNewStereoVoice(useFreq, this);
+  //m_booVoice->start();
   uint32_t apuBufSz = apuGetMaxBufSize();
   m_audioBufBlock.reset(new u8[apuBufSz * NUM_AUDIO_BUFFERS]);
   memset(m_audioBufBlock.get(), 0, apuBufSz * NUM_AUDIO_BUFFERS);
@@ -302,8 +301,8 @@ void CNESEmulator::InitializeEmulator() {
 void CNESEmulator::DeinitializeEmulator() {
   // printf("\n");
   emuRenderFrame = false;
-  m_booVoice->stop();
-  m_booVoice.reset();
+  //m_booVoice->stop();
+  //m_booVoice.reset();
   apuDeinitBufs();
   if (emuNesROM != NULL) {
     if (!nesEmuNSFPlayback && (audioExpansion & EXP_FDS)) {
@@ -346,63 +345,63 @@ CNESEmulator::~CNESEmulator() {
 }
 
 int CNESEmulator::audioUpdate() {
-  int origProcBufs = m_procBufs;
-
-  uint8_t* data = apuGetBuf();
-  if (data != NULL && m_procBufs) {
-    uint32_t apuBufSz = apuGetMaxBufSize();
-    uint32_t remBytes = apuGetBufSize();
-    while (remBytes != 0) {
-      size_t thisBytes = std::min(remBytes, apuBufSz - m_posInHeadBuf);
-      memmove(m_audioBufs[m_headBuf] + m_posInHeadBuf, data, thisBytes);
-      data += thisBytes;
-      m_posInHeadBuf += thisBytes;
-      if (m_posInHeadBuf == apuBufSz) {
-        m_posInHeadBuf = 0;
-        --m_procBufs;
-        ++m_headBuf;
-        if (m_headBuf == NUM_AUDIO_BUFFERS)
-          m_headBuf = 0;
-        // printf("PUSH\n");
-      }
-      remBytes -= thisBytes;
-    }
-  }
-
-  // if (!origProcBufs)
-  // printf("OVERRUN\n");
-
-  return origProcBufs;
+//  int origProcBufs = m_procBufs;
+//
+//  uint8_t* data = apuGetBuf();
+//  if (data != NULL && m_procBufs) {
+//    uint32_t apuBufSz = apuGetMaxBufSize();
+//    uint32_t remBytes = apuGetBufSize();
+//    while (remBytes != 0) {
+//      size_t thisBytes = std::min(remBytes, apuBufSz - m_posInHeadBuf);
+//      memmove(m_audioBufs[m_headBuf] + m_posInHeadBuf, data, thisBytes);
+//      data += thisBytes;
+//      m_posInHeadBuf += thisBytes;
+//      if (m_posInHeadBuf == apuBufSz) {
+//        m_posInHeadBuf = 0;
+//        --m_procBufs;
+//        ++m_headBuf;
+//        if (m_headBuf == NUM_AUDIO_BUFFERS)
+//          m_headBuf = 0;
+//        // printf("PUSH\n");
+//      }
+//      remBytes -= thisBytes;
+//    }
+//  }
+//
+//  // if (!origProcBufs)
+//  // printf("OVERRUN\n");
+//
+//  return origProcBufs;
 }
 
 static constexpr uint32_t AudioFrameSz = 2 * sizeof(int16_t);
 
-size_t CNESEmulator::supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data) {
-  uint32_t remFrames = uint32_t(frames);
-  while (remFrames) {
-    if (m_posInTailBuf == apuGetMaxBufSize()) {
-      ++m_tailBuf;
-      if (m_tailBuf == NUM_AUDIO_BUFFERS)
-        m_tailBuf = 0;
-      m_posInTailBuf = 0;
-      ++m_procBufs;
-      // printf("POP\n");
-    }
-
-    if (m_procBufs == NUM_AUDIO_BUFFERS) {
-      memset(data, 0, remFrames * AudioFrameSz);
-      // printf("UNDERRUN\n");
-      return frames;
-    }
-
-    size_t copySz = std::min(apuGetMaxBufSize() - m_posInTailBuf, remFrames * AudioFrameSz);
-    memmove(data, m_audioBufs[m_tailBuf] + m_posInTailBuf, copySz);
-    data += copySz / sizeof(int16_t);
-    m_posInTailBuf += copySz;
-    remFrames -= copySz / AudioFrameSz;
-  }
-  return frames;
-}
+//size_t CNESEmulator::supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data) {
+//  uint32_t remFrames = uint32_t(frames);
+//  while (remFrames) {
+//    if (m_posInTailBuf == apuGetMaxBufSize()) {
+//      ++m_tailBuf;
+//      if (m_tailBuf == NUM_AUDIO_BUFFERS)
+//        m_tailBuf = 0;
+//      m_posInTailBuf = 0;
+//      ++m_procBufs;
+//      // printf("POP\n");
+//    }
+//
+//    if (m_procBufs == NUM_AUDIO_BUFFERS) {
+//      memset(data, 0, remFrames * AudioFrameSz);
+//      // printf("UNDERRUN\n");
+//      return frames;
+//    }
+//
+//    size_t copySz = std::min(apuGetMaxBufSize() - m_posInTailBuf, remFrames * AudioFrameSz);
+//    memmove(data, m_audioBufs[m_tailBuf] + m_posInTailBuf, copySz);
+//    data += copySz / sizeof(int16_t);
+//    m_posInTailBuf += copySz;
+//    remFrames -= copySz / AudioFrameSz;
+//  }
+//  return frames;
+//}
 
 void CNESEmulator::NesEmuMainLoop(bool forceDraw) {
   // int start = GetTickCount();
@@ -413,7 +412,8 @@ void CNESEmulator::NesEmuMainLoop(bool forceDraw) {
       emuMainTimesSkipped++;
 #endif
       // printf("LC RENDER: %d\n", loopCount);
-      m_texture->load(textureImage, visibleImg);
+      // TODO TODO
+//      m_texture->load(textureImage, visibleImg);
       emuRenderFrame = false;
       break;
     }
@@ -604,12 +604,12 @@ void CNESEmulator::ProcessUserInput(const CFinalInput& input, int) {
 
   if (GetPasswordEntryState() != EPasswordEntryState::NotPasswordScreen) {
     // Don't swap A/B
-    inValReads[BUTTON_A] = input.DA() || input.DSpecialKey(boo::ESpecialKey::Enter) ||
-                           input.DMouseButton(boo::EMouseButton::Primary);
-    inValReads[BUTTON_B] = input.DB() || input.DSpecialKey(boo::ESpecialKey::Esc);
+    inValReads[BUTTON_A] = input.DA() || input.DSpecialKey(ESpecialKey::Enter) ||
+                           input.DMouseButton(EMouseButton::Primary);
+    inValReads[BUTTON_B] = input.DB() || input.DSpecialKey(ESpecialKey::Esc);
   } else {
     // Prime controls (B jumps, A shoots)
-    inValReads[BUTTON_B] = input.DA() || input.DY() || input.DMouseButton(boo::EMouseButton::Primary);
+    inValReads[BUTTON_B] = input.DA() || input.DY() || input.DMouseButton(EMouseButton::Primary);
     inValReads[BUTTON_A] = input.DB() || input.DX() || input.DKey(' ');
   }
 
@@ -617,8 +617,8 @@ void CNESEmulator::ProcessUserInput(const CFinalInput& input, int) {
   inValReads[BUTTON_DOWN] = input.DDPDown() || input.DLADown();
   inValReads[BUTTON_LEFT] = input.DDPLeft() || input.DLALeft();
   inValReads[BUTTON_RIGHT] = input.DDPRight() || input.DLARight();
-  inValReads[BUTTON_SELECT] = input.DZ() || input.DKey('\t');
-  inValReads[BUTTON_START] = input.DStart() || input.DSpecialKey(boo::ESpecialKey::Esc);
+  inValReads[BUTTON_SELECT] = input.DZ() || input.DSpecialKey(ESpecialKey::Tab);
+  inValReads[BUTTON_START] = input.DStart() || input.DSpecialKey(ESpecialKey::Esc);
 }
 
 bool CNESEmulator::CheckForGameOver(const u8* vram, u8* passwordOut) {
@@ -766,14 +766,14 @@ void CNESEmulator::Draw(const zeus::CColor& mulColor, bool filtering) {
   if (!EmulatorInst)
     return;
 
-  float widthFac = NESAspect / g_Viewport.aspect;
+  float widthFac = NESAspect / CGraphics::GetViewportAspect();
 
   Uniform uniform = {zeus::CMatrix4f{}, mulColor};
   uniform.m_matrix[0][0] = widthFac;
-  m_uniBuf->load(&uniform, sizeof(Uniform));
-
-  CGraphics::SetShaderDataBinding(m_shadBind);
-  CGraphics::DrawArray(0, 4);
+//  m_uniBuf->load(&uniform, sizeof(Uniform));
+//
+//  CGraphics::SetShaderDataBinding(m_shadBind);
+//  CGraphics::DrawArray(0, 4);
 }
 
 void CNESEmulator::LoadPassword(const u8* state) {

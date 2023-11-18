@@ -7,10 +7,9 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
+#include "Runtime/Graphics/CCubeSurface.hpp"
 #include "Runtime/World/CScriptAreaAttributes.hpp"
-
-#include "DataSpec/DNAMP1/MREA.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -20,28 +19,28 @@ static logvisor::Module Log("CGameArea");
 
 CAreaRenderOctTree::CAreaRenderOctTree(const u8* buf) : x0_buf(buf) {
   CMemoryInStream r(x0_buf + 8, INT32_MAX);
-  x8_bitmapCount = r.readUint32Big();
-  xc_meshCount = r.readUint32Big();
-  x10_nodeCount = r.readUint32Big();
+  x8_bitmapCount = r.ReadLong();
+  xc_meshCount = r.ReadLong();
+  x10_nodeCount = r.ReadLong();
   x14_bitmapWordCount = (xc_meshCount + 31) / 32;
-  x18_aabb.readBoundingBoxBig(r);
+  x18_aabb = r.Get<zeus::CAABox>();
 
   x30_bitmaps = reinterpret_cast<const u32*>(x0_buf + 64);
   u32 wc = x14_bitmapWordCount * x8_bitmapCount;
   for (u32 i = 0; i < wc; ++i)
-    const_cast<u32*>(x30_bitmaps)[i] = hecl::SBig(x30_bitmaps[i]);
+    const_cast<u32*>(x30_bitmaps)[i] = CBasics::SwapBytes(x30_bitmaps[i]);
 
   x34_indirectionTable = x30_bitmaps + wc;
   x38_entries = reinterpret_cast<const u8*>(x34_indirectionTable + x10_nodeCount);
   for (u32 i = 0; i < x10_nodeCount; ++i) {
-    const_cast<u32*>(x34_indirectionTable)[i] = hecl::SBig(x34_indirectionTable[i]);
+    const_cast<u32*>(x34_indirectionTable)[i] = CBasics::SwapBytes(x34_indirectionTable[i]);
     Node* n = reinterpret_cast<Node*>(const_cast<u8*>(x38_entries) + x34_indirectionTable[i]);
-    n->x0_bitmapIdx = hecl::SBig(n->x0_bitmapIdx);
-    n->x2_flags = hecl::SBig(n->x2_flags);
+    n->x0_bitmapIdx = CBasics::SwapBytes(n->x0_bitmapIdx);
+    n->x2_flags = CBasics::SwapBytes(n->x2_flags);
     if (n->x2_flags) {
       u32 childCount = n->GetChildCount();
       for (u32 c = 0; c < childCount; ++c)
-        n->x4_children[c] = hecl::SBig(n->x4_children[c]);
+        n->x4_children[c] = CBasics::SwapBytes(n->x4_children[c]);
     }
   }
 }
@@ -239,10 +238,10 @@ void CGameArea::CAreaFog::DisableFog() { x0_fogMode = ERglFogMode::None; }
 
 static std::vector<SObjectTag> ReadDependencyList(CInputStream& in) {
   std::vector<SObjectTag> ret;
-  const u32 count = in.readUint32Big();
+  const u32 count = in.ReadLong();
   ret.reserve(count);
   for (u32 i = 0; i < count; ++i) {
-    ret.emplace_back().readMLVL(in);
+    ret.emplace_back().ReadMLVL(in);
   }
   return ret;
 }
@@ -258,7 +257,7 @@ std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& 
   }
 
   CMemoryInStream r(data.get() + 4, 96 - 4);
-  u32 version = r.readUint32Big();
+  u32 version = r.ReadLong();
   if ((version & 0x10000) == 0) {
     Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-URDE MREA"));
   }
@@ -270,17 +269,17 @@ std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& 
     return {};
   }
 
-  header.xf.read34RowMajor(r);
-  header.modelCount = r.readUint32Big();
-  header.secCount = r.readUint32Big();
-  header.geomSecIdx = r.readUint32Big();
-  header.sclySecIdx = r.readUint32Big();
-  header.collisionSecIdx = r.readUint32Big();
-  header.unkSecIdx = r.readUint32Big();
-  header.lightSecIdx = r.readUint32Big();
-  header.visiSecIdx = r.readUint32Big();
-  header.pathSecIdx = r.readUint32Big();
-  header.arotSecIdx = r.readUint32Big();
+  header.xf = r.Get<zeus::CTransform>();
+  header.modelCount = r.ReadLong();
+  header.secCount = r.ReadLong();
+  header.geomSecIdx = r.ReadLong();
+  header.sclySecIdx = r.ReadLong();
+  header.collisionSecIdx = r.ReadLong();
+  header.unkSecIdx = r.ReadLong();
+  header.lightSecIdx = r.ReadLong();
+  header.visiSecIdx = r.ReadLong();
+  header.pathSecIdx = r.ReadLong();
+  header.arotSecIdx = r.ReadLong();
 
   u32 dataLen = ROUND_UP_32(header.secCount * 4);
 
@@ -291,7 +290,7 @@ std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& 
   std::vector<u32> secSizes(header.secCount);
   u32 lastSize;
   for (u32 i = 0; i < header.secCount; ++i) {
-    lastSize = r.readUint32Big();
+    lastSize = r.ReadLong();
     secSizes.push_back(lastSize);
   }
 
@@ -300,32 +299,31 @@ std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& 
 }
 
 CDummyGameArea::CDummyGameArea(CInputStream& in, int idx, int mlvlVersion) {
-  x8_nameSTRG = in.readUint32Big();
-  x14_transform.read34RowMajor(in);
-  zeus::CAABox aabb;
-  aabb.readBoundingBoxBig(in);
-  xc_mrea = in.readUint32Big();
+  x8_nameSTRG = in.Get<CAssetId>();
+  x14_transform = in.Get<zeus::CTransform>();
+  zeus::CAABox aabb = in.Get<zeus::CAABox>();
+  xc_mrea = in.Get<CAssetId>();
   if (mlvlVersion > 15) {
-    x10_areaId = in.readUint32Big();
+    x10_areaId = in.ReadLong();
   } else {
     x10_areaId = -1;
   }
 
-  u32 attachAreaCount = in.readUint32Big();
+  u32 attachAreaCount = in.ReadLong();
   x44_attachedAreaIndices.reserve(attachAreaCount);
   for (u32 i = 0; i < attachAreaCount; ++i)
-    x44_attachedAreaIndices.push_back(in.readUint16Big());
+    x44_attachedAreaIndices.push_back(in.ReadShort());
 
   ::metaforce::ReadDependencyList(in);
   ::metaforce::ReadDependencyList(in);
 
   if (mlvlVersion > 13) {
-    u32 depCount = in.readUint32Big();
+    u32 depCount = in.ReadLong();
     for (u32 i = 0; i < depCount; ++i)
-      in.readUint32Big();
+      in.ReadLong();
   }
 
-  u32 dockCount = in.readUint32Big();
+  u32 dockCount = in.ReadLong();
   x54_docks.reserve(dockCount);
   for (u32 i = 0; i < dockCount; ++i)
     x54_docks.emplace_back(in, x14_transform);
@@ -350,21 +348,21 @@ CAssetId CDummyGameArea::IGetStringTableAssetId() const { return x8_nameSTRG; }
 const zeus::CTransform& CDummyGameArea::IGetTM() const { return x14_transform; }
 
 CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(idx) {
-  x8_nameSTRG = in.readUint32Big();
-  xc_transform.read34RowMajor(in);
+  x8_nameSTRG = in.Get<CAssetId>();
+  xc_transform = in.Get<zeus::CTransform>();
   x3c_invTransform = xc_transform.inverse();
-  x6c_aabb.readBoundingBoxBig(in);
+  x6c_aabb = in.Get<zeus::CAABox>();
 
-  x84_mrea = in.readUint32Big();
+  x84_mrea = in.Get<CAssetId>();
   if (mlvlVersion > 15)
-    x88_areaId = in.readUint32Big();
+    x88_areaId = in.ReadLong();
   else
     x88_areaId = INT_MAX;
 
-  const u32 attachedCount = in.readUint32Big();
+  const u32 attachedCount = in.ReadLong();
   x8c_attachedAreaIndices.reserve(attachedCount);
   for (u32 i = 0; i < attachedCount; ++i) {
-    x8c_attachedAreaIndices.emplace_back(in.readUint16Big());
+    x8c_attachedAreaIndices.emplace_back(in.ReadShort());
   }
 
   x9c_deps1 = metaforce::ReadDependencyList(in);
@@ -374,14 +372,14 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(id
   x6c_aabb = aabb;
 
   if (mlvlVersion > 13) {
-    const u32 depCount = in.readUint32Big();
+    const u32 depCount = in.ReadLong();
     xbc_layerDepOffsets.reserve(depCount);
     for (u32 i = 0; i < depCount; ++i) {
-      xbc_layerDepOffsets.emplace_back(in.readUint32Big());
+      xbc_layerDepOffsets.emplace_back(in.ReadLong());
     }
   }
 
-  const u32 dockCount = in.readUint32Big();
+  const u32 dockCount = in.ReadLong();
   xcc_docks.reserve(dockCount);
   for (u32 i = 0; i < dockCount; ++i) {
     xcc_docks.emplace_back(in, xc_transform);
@@ -393,36 +391,6 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(id
     xec_totalResourcesSize += g_ResFactory->ResourceSize(*tok.GetObjectTag());
 
   xec_totalResourcesSize += g_ResFactory->ResourceSize(SObjectTag{FOURCC('MREA'), x84_mrea});
-}
-
-CGameArea::CGameArea(CAssetId mreaId) : x84_mrea(mreaId), xf0_25_active{false} {
-  while (StartStreamingMainArea())
-    for (auto& req : xf8_loadTransactions)
-      req->WaitUntilComplete();
-
-  SMREAHeader header = VerifyHeader();
-  x12c_postConstructed->x4c_insts.resize(header.modelCount);
-
-  FillInStaticGeometry(false);
-
-  CBooModel::SetDummyTextures(true);
-  CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp.get(), zeus::CTransform());
-  CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
-  zeus::CTransform backupViewPoint = CGraphics::g_ViewMatrix;
-  zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;
-  CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(0.f, -2048.f, 0.f));
-  CGraphics::SetOrtho(-2048.f, 2048.f, 2048.f, -2048.f, 0.f, 4096.f);
-  CModelFlags defaultFlags;
-  for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts) {
-    CGraphics::SetModelMatrix(zeus::CTransform::Translate(-inst.x34_aabb.center()));
-    inst.m_instance->UpdateUniformData(defaultFlags, nullptr, nullptr);
-    inst.m_instance->WarmupDrawSurfaces();
-  }
-  CGraphics::SetProjectionState(backupProj);
-  CGraphics::SetViewPointMatrix(backupViewPoint);
-  CGraphics::SetModelMatrix(backupModel);
-  CBooModel::DisableShadowMaps();
-  CBooModel::SetDummyTextures(false);
 }
 
 CGameArea::~CGameArea() {
@@ -540,7 +508,7 @@ void CGameArea::PingOcclusionState() {
     bool unloaded = true;
     bool transferred = true;
 #if 0
-        unloaded = UnloadAllloadedTextures();
+        unloaded = UnloadAllLoadedTextures();
         transferred = TransferTokens();
 #endif
     if (unloaded && transferred)
@@ -658,7 +626,7 @@ void CGameArea::AddStaticGeometry() {
       FillInStaticGeometry();
     g_Renderer->AddStaticGeometry(&x12c_postConstructed->x4c_insts,
                                   x12c_postConstructed->xc_octTree ? &*x12c_postConstructed->xc_octTree : nullptr,
-                                  x4_selfIdx, &x12c_postConstructed->m_materialSet);
+                                  x4_selfIdx);
   }
 }
 
@@ -718,7 +686,7 @@ bool CGameArea::StartStreamingMainArea() {
     u32 totalSz = 0;
     u32 secCount = GetNumPartSizes();
     for (u32 i = 0; i < secCount; ++i)
-      totalSz += hecl::SBig(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
+      totalSz += CBasics::SwapBytes(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
 
     AllocNewAreaData(x128_mreaDataOffset, totalSz);
 
@@ -728,7 +696,7 @@ bool CGameArea::StartStreamingMainArea() {
 
     u32 curOff = 0;
     for (u32 i = 0; i < secCount; ++i) {
-      u32 size = hecl::SBig(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
+      u32 size = CBasics::SwapBytes(reinterpret_cast<u32*>(x110_mreaSecBufs[1].first.get())[i]);
       m_resolvedBufs.emplace_back(x110_mreaSecBufs[2].first.get() + curOff, size);
       curOff += size;
     }
@@ -754,7 +722,7 @@ void CGameArea::ReloadAllUnloadedTextures() {}
 u32 CGameArea::GetNumPartSizes() const {
   u32 value{};
   std::memcpy(&value, x110_mreaSecBufs[0].first.get() + 60, sizeof(u32));
-  return hecl::SBig(value);
+  return CBasics::SwapBytes(value);
 }
 
 void CGameArea::AllocNewAreaData(int offset, int size) {
@@ -917,23 +885,19 @@ std::pair<const u8*, u32> CGameArea::GetLayerScriptBuffer(int layer) const {
 void CGameArea::PostConstructArea() {
   SMREAHeader header = VerifyHeader();
 
-  auto secIt = m_resolvedBufs.begin() + 2;
-
   /* Materials */
-  ++secIt;
-
-  u32 sec = 3;
+  x12c_postConstructed->x10ec_firstMatSection = 2;
 
   /* Models */
+  auto secIt = m_resolvedBufs.begin() + 3;
   x12c_postConstructed->x4c_insts.resize(header.modelCount);
   for (u32 i = 0; i < header.modelCount; ++i) {
-    u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>((secIt + 4)->first));
-    secIt += 5 + surfCount;
-    sec += 5 + surfCount;
+    u32 surfCount = CBasics::SwapBytes(*reinterpret_cast<const u32*>((secIt + 6)->first));
+    secIt += 7 + surfCount;
   }
 
   /* Render octree */
-  if (header.version == 15 && header.arotSecIdx != -1) {
+  if (header.version > 14 && header.arotSecIdx != -1) {
     x12c_postConstructed->xc_octTree.emplace(secIt->first);
     ++secIt;
   }
@@ -944,11 +908,7 @@ void CGameArea::PostConstructArea() {
   ++secIt;
 
   /* Collision section */
-  std::unique_ptr<CAreaOctTree> collision = CAreaOctTree::MakeFromMemory(secIt->first, secIt->second);
-  if (collision) {
-    x12c_postConstructed->x0_collision = std::move(collision);
-    x12c_postConstructed->x8_collisionSize = secIt->second;
-  }
+  x12c_postConstructed->x0_collision = CAreaOctTree::MakeFromMemory(secIt->first, secIt->second);
   ++secIt;
 
   /* Unknown section */
@@ -956,18 +916,21 @@ void CGameArea::PostConstructArea() {
 
   /* Lights section */
   if (header.version > 6) {
-    athena::io::MemoryReader r(secIt->first, secIt->second);
-    u32 magic = r.readUint32Big();
+    CMemoryInStream r(secIt->first, secIt->second, CMemoryInStream::EOwnerShip::NotOwned);
+    u32 magic = r.ReadLong();
+    u32 aCount = magic;
     if (magic == 0xBABEDEAD) {
-      u32 aCount = r.readUint32Big();
-      x12c_postConstructed->x60_lightsA.reserve(aCount);
-      x12c_postConstructed->x70_gfxLightsA.reserve(aCount);
-      for (u32 i = 0; i < aCount; ++i) {
-        x12c_postConstructed->x60_lightsA.emplace_back(r);
-        x12c_postConstructed->x70_gfxLightsA.push_back(x12c_postConstructed->x60_lightsA.back().GetAsCGraphicsLight());
-      }
+      aCount = r.ReadLong();
+    }
+    x12c_postConstructed->x60_lightsA.reserve(aCount);
+    x12c_postConstructed->x70_gfxLightsA.reserve(aCount);
+    for (u32 i = 0; i < aCount; ++i) {
+      x12c_postConstructed->x60_lightsA.emplace_back(r);
+      x12c_postConstructed->x70_gfxLightsA.push_back(x12c_postConstructed->x60_lightsA.back().GetAsCGraphicsLight());
+    }
 
-      u32 bCount = r.readUint32Big();
+    if (magic == 0xBABEDEAD) {
+      u32 bCount = r.ReadLong();
       x12c_postConstructed->x80_lightsB.reserve(bCount);
       x12c_postConstructed->x90_gfxLightsB.reserve(bCount);
       for (u32 i = 0; i < bCount; ++i) {
@@ -976,20 +939,27 @@ void CGameArea::PostConstructArea() {
       }
     }
 
+    if (x12c_postConstructed->x80_lightsB.empty()) {
+      x12c_postConstructed->x80_lightsB = x12c_postConstructed->x60_lightsA;
+      x12c_postConstructed->x90_gfxLightsB = x12c_postConstructed->x70_gfxLightsA;
+    }
+
     ++secIt;
   }
 
   /* PVS section */
   if (header.version > 7) {
-    athena::io::MemoryReader r(secIt->first, secIt->second);
-    u32 magic = r.readUint32Big();
-    if (magic == 'VISI') {
-      x12c_postConstructed->x10a8_pvsVersion = r.readUint32Big();
-      if (x12c_postConstructed->x10a8_pvsVersion == 2) {
-        x12c_postConstructed->x1108_29_pvsHasActors = r.readBool();
-        x12c_postConstructed->x1108_30_ = r.readBool();
-        x12c_postConstructed->xa0_pvs =
-            std::make_unique<CPVSAreaSet>(secIt->first + r.position(), secIt->second - r.position());
+    CMemoryInStream r(secIt->first, secIt->second, CMemoryInStream::EOwnerShip::NotOwned);
+    if (secIt->second > 0) { // TODO this works around CMemoryInStream inf loop on 0 len
+      u32 magic = r.ReadLong();
+      if (magic == 'VISI') {
+        x12c_postConstructed->x10a8_pvsVersion = r.ReadLong();
+        if (x12c_postConstructed->x10a8_pvsVersion == 2) {
+          x12c_postConstructed->x1108_29_pvsHasActors = r.ReadBool();
+          x12c_postConstructed->x1108_30_ = r.ReadBool();
+          x12c_postConstructed->xa0_pvs =
+              std::make_unique<CPVSAreaSet>(secIt->first + r.GetReadPosition(), secIt->second - r.GetReadPosition());
+        }
       }
     }
 
@@ -998,8 +968,8 @@ void CGameArea::PostConstructArea() {
 
   /* Pathfinding section */
   if (header.version > 9) {
-    athena::io::MemoryReader r(secIt->first, secIt->second);
-    CAssetId pathId = r.readUint32Big();
+    CMemoryInStream r(secIt->first, secIt->second, CMemoryInStream::EOwnerShip::NotOwned);
+    CAssetId pathId = r.Get<CAssetId>();
     x12c_postConstructed->x10ac_pathToken = g_SimplePool->GetObj(SObjectTag{FOURCC('PATH'), pathId});
     x12c_postConstructed->x10bc_pathArea = x12c_postConstructed->x10ac_pathToken.GetObj();
     x12c_postConstructed->x10bc_pathArea->SetTransform(xc_transform);
@@ -1010,23 +980,24 @@ void CGameArea::PostConstructArea() {
   x12c_postConstructed->x10c4_areaFog = std::make_unique<CAreaFog>();
 
   /* URDE addition: preemptively fill in area models so shaders may be polled for completion */
-  if (!x12c_postConstructed->x1108_25_modelsConstructed)
-    FillInStaticGeometry();
+//  if (!x12c_postConstructed->x1108_25_modelsConstructed)
+//    FillInStaticGeometry();
 
   xf0_24_postConstructed = true;
 
   /* Resolve layer pointers */
-  if (x12c_postConstructed->x10c8_sclyBuf) {
-    athena::io::MemoryReader r(x12c_postConstructed->x10c8_sclyBuf, x12c_postConstructed->x10d0_sclySize);
-    hecl::DNAFourCC magic;
-    magic.read(r);
+  if (x12c_postConstructed->x10c8_sclyBuf != nullptr) {
+    CMemoryInStream r(x12c_postConstructed->x10c8_sclyBuf, x12c_postConstructed->x10d0_sclySize,
+                      CMemoryInStream::EOwnerShip::NotOwned);
+    FourCC magic;
+    r.Get(reinterpret_cast<u8*>(&magic), 4);
     if (magic == FOURCC('SCLY')) {
-      r.readUint32Big();
-      u32 layerCount = r.readUint32Big();
+      r.ReadLong();
+      u32 layerCount = r.ReadLong();
       x12c_postConstructed->x110c_layerPtrs.resize(layerCount);
       for (u32 l = 0; l < layerCount; ++l)
-        x12c_postConstructed->x110c_layerPtrs[l].second = r.readUint32Big();
-      const u8* ptr = x12c_postConstructed->x10c8_sclyBuf + r.position();
+        x12c_postConstructed->x110c_layerPtrs[l].second = r.ReadLong();
+      const u8* ptr = x12c_postConstructed->x10c8_sclyBuf + r.GetReadPosition();
       for (u32 l = 0; l < layerCount; ++l) {
         x12c_postConstructed->x110c_layerPtrs[l].first = ptr;
         ptr += x12c_postConstructed->x110c_layerPtrs[l].second;
@@ -1035,80 +1006,40 @@ void CGameArea::PostConstructArea() {
   }
 }
 
-void CGameArea::FillInStaticGeometry(bool textures) {
-  if (!x12c_postConstructed->x4c_insts.empty())
-    for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts)
-      inst.Clear();
+void CGameArea::FillInStaticGeometry() {
+  u32 start = x12c_postConstructed->x10ec_firstMatSection;
+  x12c_postConstructed->x10d4_firstMatPtr = x110_mreaSecBufs[start].first.get();
 
-  /* Materials */
-  SShader& matSet = x12c_postConstructed->m_materialSet;
-  auto secIt = m_resolvedBufs.begin() + 2;
-  {
-    athena::io::MemoryReader r(secIt->first, secIt->second);
-    matSet.m_matSet.read(r);
-    if (textures)
-      CBooModel::MakeTexturesFromMats(matSet.m_matSet, matSet.x0_textures, *g_SimplePool);
-    matSet.InitializeLayout(nullptr);
-    ++secIt;
+  // Clear the instances without resizing
+  if (!x12c_postConstructed->x4c_insts.empty()) {
+    for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts) {
+      inst = {};
+    }
   }
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    /* Reserve extra buffers for 16 cubemaps and shadow rendering */
-    matSet.m_geomLayout->ReserveSharedBuffers(ctx, 96 + int(EWorldShadowMode::MAX));
-
-    /* Models */
-    for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts) {
-      {
-        DataSpec::DNAMP1::MREA::MeshHeader header;
-        athena::io::MemoryReader r(secIt->first, secIt->second);
-        header.read(r);
-        inst.x0_visorFlags = header.visorFlags.flags;
-        inst.x4_xf = header.xfMtx;
-        inst.x34_aabb = zeus::CAABox(header.aabb[0], header.aabb[1]);
-        ++secIt;
+  auto iter = m_resolvedBufs.begin() + start + 1;
+  for (auto& inst : x12c_postConstructed->x4c_insts) {
+    auto modelHeader = *iter++;
+    auto positions = *iter++;
+    auto normals = *iter++;
+    auto colors = *iter++;
+    auto texCoords = *iter++;
+    auto packedTexCoords = *iter++;
+    u32 surfaceCount = CBasics::SwapBytes(*reinterpret_cast<const u32*>(iter++->first));
+    if (surfaceCount != 0) {
+      std::vector<CCubeSurface> surfaces;
+      surfaces.reserve(surfaceCount);
+      for (int idx = 0; idx < surfaceCount; ++idx) {
+        auto [ptr, len] = *iter++;
+        surfaces.emplace_back(ptr, len);
       }
-
-      {
-        athena::io::MemoryReader r(secIt->first, secIt->second);
-        inst.m_hmdlMeta.read(r);
-      }
-      ++secIt;
-
-      boo::ObjToken<boo::IGraphicsBufferS> vbo;
-      boo::ObjToken<boo::IGraphicsBufferS> ibo;
-      vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, secIt->first, inst.m_hmdlMeta.vertStride,
-                                inst.m_hmdlMeta.vertCount);
-      ++secIt;
-      ibo = ctx.newStaticBuffer(boo::BufferUse::Index, secIt->first, 4, inst.m_hmdlMeta.indexCount);
-      ++secIt;
-
-      const u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(secIt->first));
-      inst.m_surfaces.reserve(surfCount);
-      inst.m_shaders.reserve(surfCount);
-      ++secIt;
-      for (u32 j = 0; j < surfCount; ++j) {
-        CBooSurface& surf = inst.m_surfaces.emplace_back();
-        surf.selfIdx = j;
-        athena::io::MemoryReader r(secIt->first, secIt->second);
-        surf.m_data.read(r);
-        ++secIt;
-      }
-
-      TToken<CModel> nullModel;
-      inst.m_instance = std::make_unique<CBooModel>(nullModel, nullptr, &inst.m_surfaces, matSet, vbo, ibo,
-                                                    inst.x34_aabb, static_cast<u8>(inst.x0_visorFlags), 0);
+      inst = CMetroidModelInstance{
+          modelHeader,     x12c_postConstructed->x10d4_firstMatPtr,
+          positions,       normals,
+          colors,          texCoords,
+          packedTexCoords, std::move(surfaces),
+      };
     }
-
-    return true;
-  } BooTrace);
-
-  for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts) {
-    for (CBooSurface& surf : inst.m_surfaces) {
-      auto& shad = inst.m_shaders[surf.m_data.matIdx];
-      if (!shad)
-        shad = matSet.BuildShader(inst.m_hmdlMeta, matSet.m_matSet.materials[surf.m_data.matIdx]);
-    }
-    inst.m_instance->RemapMaterialData(matSet, inst.m_shaders);
   }
 
   x12c_postConstructed->x1108_25_modelsConstructed = true;
@@ -1158,11 +1089,10 @@ SMREAHeader CGameArea::VerifyHeader() const {
   }
 
   CMemoryInStream r(x110_mreaSecBufs[0].first.get() + 4, x110_mreaSecBufs[0].second - 4);
-  u32 version = r.readUint32Big();
-  if ((version & 0x10000) == 0) {
-    Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-URDE MREA"));
+  u32 version = r.ReadLong();
+  if ((version & 0x10000) != 0) {
+    Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-retail MREA"));
   }
-  version &= ~0x10000;
 
   SMREAHeader header;
   header.version = (version >= 12 && version <= 15) ? version : 0;
@@ -1170,17 +1100,17 @@ SMREAHeader CGameArea::VerifyHeader() const {
     return {};
   }
 
-  header.xf.read34RowMajor(r);
-  header.modelCount = r.readUint32Big();
-  header.secCount = r.readUint32Big();
-  header.geomSecIdx = r.readUint32Big();
-  header.sclySecIdx = r.readUint32Big();
-  header.collisionSecIdx = r.readUint32Big();
-  header.unkSecIdx = r.readUint32Big();
-  header.lightSecIdx = r.readUint32Big();
-  header.visiSecIdx = r.readUint32Big();
-  header.pathSecIdx = r.readUint32Big();
-  header.arotSecIdx = r.readUint32Big();
+  header.xf = r.Get<zeus::CTransform>();
+  header.modelCount = r.ReadLong();
+  header.secCount = r.ReadLong();
+  header.geomSecIdx = r.ReadLong();
+  header.sclySecIdx = r.ReadLong();
+  header.collisionSecIdx = r.ReadLong();
+  header.unkSecIdx = r.ReadLong();
+  header.lightSecIdx = r.ReadLong();
+  header.visiSecIdx = r.ReadLong();
+  header.pathSecIdx = r.ReadLong();
+  header.arotSecIdx = r.ReadLong();
 
   return header;
 }
@@ -1202,10 +1132,6 @@ void CGameArea::SetAreaAttributes(const CScriptAreaAttributes* areaAttributes) {
 
 bool CGameArea::CAreaObjectList::IsQualified(const CEntity& ent) const {
   return (ent.GetAreaIdAlways() == x200c_areaIdx);
-}
-void CGameArea::WarmupShaders(const SObjectTag& mreaTag) {
-  // Calling this version of the constructor performs warmup implicitly
-  [[maybe_unused]] CGameArea area(mreaTag.id);
 }
 
 void CGameArea::DebugDraw() {

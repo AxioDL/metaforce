@@ -4,7 +4,7 @@
 
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Weapon/CProjectileWeapon.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CWorld.hpp"
@@ -184,9 +184,9 @@ void CPhazonBeam::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::C
   bool drawIndirect = visor == CPlayerState::EPlayerVisor::Combat || visor == CPlayerState::EPlayerVisor::Scan;
 
   if (drawIndirect) {
-    CGraphics::ResolveSpareTexture(g_Viewport);
+    // TODO CGraphics::ResolveSpareTexture(CGraphics::g_Viewport);
     CModelFlags tmpFlags = flags;
-    tmpFlags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
+    // TODO tmpFlags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
     CGunWeapon::Draw(drawSuitArm, mgr, xf, tmpFlags, lights);
   }
 

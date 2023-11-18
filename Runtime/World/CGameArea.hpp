@@ -15,7 +15,8 @@
 #include "Runtime/World/CWorldLight.hpp"
 #include "Runtime/World/IGameArea.hpp"
 #include "Runtime/Character/CModelData.hpp"
-#include <hecl/ClientProcess.hpp>
+
+#include <list>
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
@@ -25,6 +26,8 @@
 namespace metaforce {
 class CStateManager;
 class CScriptAreaAttributes;
+
+// Metaforce addition: store byte-swapped data for later use
 struct SMREAHeader {
   u32 version = 0;
   zeus::CTransform xf;
@@ -196,11 +199,9 @@ public:
   };
 
   struct CPostConstructed {
-    std::unique_ptr<CAreaOctTree> x0_collision;
-    u32 x8_collisionSize = 0;
+    std::unique_ptr<CAreaOctTree> x0_collision; // was rstl::optional_object<CAreaOctTree*>
     std::optional<CAreaRenderOctTree> xc_octTree;
     std::vector<CMetroidModelInstance> x4c_insts;
-    SShader m_materialSet{0};
     // std::unique_ptr<from unknown, pointless MREA section> x5c_;
     std::vector<CWorldLight> x60_lightsA;
     std::vector<CLight> x70_gfxLightsA;
@@ -219,15 +220,15 @@ public:
     CPFArea* x10bc_pathArea = nullptr;
     std::unique_ptr<CAreaObjectList> x10c0_areaObjs;
     std::unique_ptr<CAreaFog> x10c4_areaFog;
-    const u8* x10c8_sclyBuf = nullptr;
+    const u8* x10c8_sclyBuf = nullptr; // was rstl::optional_object<void*>
     u32 x10d0_sclySize = 0;
-    u32 x10d4_ = 0;
+    const u8* x10d4_firstMatPtr = nullptr;
     const CScriptAreaAttributes* x10d8_areaAttributes = nullptr;
     EOcclusionState x10dc_occlusionState = EOcclusionState::Occluded;
     u32 x10e0_ = 0;
     float x10e4_occludedTime = 5.f;
     u32 x10e8_ = -1;
-    u32 x10ec_ = 0;
+    u32 x10ec_firstMatSection = 0;
     // std::vector<CAramToken> x10f0_tokens;
     u32 x1100_ = 0;
     u32 x1104_ = 0;
@@ -254,7 +255,7 @@ public:
 
 private:
   std::vector<std::pair<std::unique_ptr<u8[]>, int>> x110_mreaSecBufs;
-  std::vector<std::pair<const u8*, int>> m_resolvedBufs;
+  std::vector<std::pair<const u8*, u32>> m_resolvedBufs;
   u32 x124_secCount = 0;
   u32 x128_mreaDataOffset = 0;
   std::unique_ptr<CPostConstructed> x12c_postConstructed;
@@ -274,7 +275,6 @@ private:
 
 public:
   explicit CGameArea(CInputStream& in, int idx, int mlvlVersion);
-  explicit CGameArea(CAssetId mreaId); // Warmup constructor
   ~CGameArea();
 
   bool IsFinishedOccluding() const;
@@ -326,7 +326,7 @@ public:
   void LoadScriptObjects(CStateManager& mgr);
   std::pair<const u8*, u32> GetLayerScriptBuffer(int layer) const;
   void PostConstructArea();
-  void FillInStaticGeometry(bool textures = true);
+  void FillInStaticGeometry();
   void VerifyTokenList(CStateManager& stateMgr);
   void ClearTokenList();
   u32 GetPreConstructedSize() const;
@@ -365,7 +365,6 @@ public:
 
   CGameArea* GetNext() const { return x130_next; }
 
-  static void WarmupShaders(const SObjectTag& mreaTag);
   void DebugDraw();
   void DebugDrawLight(const CLight& light);
 };

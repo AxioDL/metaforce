@@ -99,7 +99,7 @@ void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& p
         switch (info.GetParentedMode()) {
         case CParticleData::EParentedMode::Initial: {
           if (info.GetIsGrabInitialData()) {
-            zeus::CTransform segXf((info.GetFlags() & 0x10) ? zeus::CMatrix3f() : pose.GetTransformMinusOffset(segId),
+            zeus::CTransform segXf((info.GetFlags() & 0x10) ? zeus::CMatrix3f() : pose.GetRotation(segId),
                                    off * scale);
             zeus::CTransform compXf = xf * segXf;
             info.SetCurTransform(compXf.getRotation());
@@ -125,7 +125,7 @@ void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& p
             info.SetIsGrabInitialData(false);
           }
 
-          zeus::CTransform segXf(pose.GetTransformMinusOffset(segId), off * scale);
+          zeus::CTransform segXf(pose.GetRotation(segId), off * scale);
           zeus::CTransform compXf = xf * segXf;
 
           if (info.GetParentedMode() == CParticleData::EParentedMode::ContinuousEmitter) {

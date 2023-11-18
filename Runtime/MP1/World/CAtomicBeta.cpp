@@ -35,9 +35,9 @@ CAtomicBeta::CAtomicBeta(TUniqueId uid, std::string_view name, const CEntityInfo
 , x608_(g_SimplePool->GetObj({SBIG('WPSC'), weaponId}))
 , x610_projectileDamage(dInfo)
 , x62c_beamParticle(particleId)
-, x630_(f1)
+, x630_beamFadeSpeed(f1)
 , x634_beamRadius(beamRadius)
-, x638_(f3)
+, x638_beamDamageInterval(f3)
 , x644_(CSfxManager::TranslateSFXID(sId1))
 , x646_(CSfxManager::TranslateSFXID(sId2))
 , x648_(CSfxManager::TranslateSFXID(sId3)) {
@@ -47,7 +47,8 @@ CAtomicBeta::CAtomicBeta(TUniqueId uid, std::string_view name, const CEntityInfo
 }
 
 void CAtomicBeta::CreateBeams(CStateManager& mgr) {
-  const SElectricBeamInfo beamInfo{x600_electricWeapon, 50.f, x634_beamRadius, 10.f, x62c_beamParticle, x630_, x638_};
+  const SElectricBeamInfo beamInfo{x600_electricWeapon, 50.f, x634_beamRadius, 10.f, x62c_beamParticle,
+                                   x630_beamFadeSpeed, x638_beamDamageInterval};
 
   for (size_t i = 0; i < kBombCount; ++i) {
     const TUniqueId id = mgr.AllocateUniqueId();

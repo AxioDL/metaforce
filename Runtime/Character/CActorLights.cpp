@@ -4,7 +4,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Camera/CFirstPersonCamera.hpp"
 #include "Runtime/Collision/CGameCollision.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/World/CExplosion.hpp"
 #include "Runtime/World/CGameArea.hpp"
@@ -135,7 +135,7 @@ void CActorLights::AddOverflowToLights(const CLight& light, const zeus::CColor& 
 }
 
 void CActorLights::MoveAmbienceToLights(const zeus::CColor& color) {
-  if (x298_29_ambienceGenerated) {
+  if (x298_29_ambienceGenerated || x0_areaLights.empty()) {
     x288_ambientColor += color * 0.333333f;
     x288_ambientColor.a() = 1.f;
     return;
@@ -187,6 +187,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
     /* Early return if not ready for update */
     if (mgr.GetInputFrameIdx() - x2a4_lastUpdateFrame < x2a8_areaUpdateFramePeriod)
       return false;
+    x2a4_lastUpdateFrame = mgr.GetInputFrameIdx();
     vec = aabb.center() + x2ac_actorPosBias;
     if (x2d4_worldLightingLevel == worldLightingLevel)
       if ((x2c0_lastActorPos - vec).magSquared() < x2cc_actorPositionDeltaUpdateThreshold)
@@ -243,19 +244,13 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
       x288_ambientColor = light.GetNormalIndependentLightingAtPoint(vec);
     } else {
       EPVSVisSetState visible = EPVSVisSetState::OutOfBounds;
-      if (area.GetAreaVisSet()) {
-        if (lightIt->DoesCastShadows()) {
-          u32 pvsIdx;
-          if (use2ndLayer)
-            pvsIdx = area.Get2ndPVSLightFeature(lightIdx);
-          else
-            pvsIdx = area.Get1stPVSLightFeature(lightIdx);
-          visible = sets[0].GetVisible(pvsIdx);
-          if (visible != EPVSVisSetState::OutOfBounds)
-            visible = std::max(visible, sets[1].GetVisible(pvsIdx));
-          if (visible != EPVSVisSetState::OutOfBounds)
-            visible = std::max(visible, sets[2].GetVisible(pvsIdx));
-        }
+      if (area.GetAreaVisSet() && lightIt->DoesCastShadows()) {
+        u32 pvsIdx = use2ndLayer ? area.Get2ndPVSLightFeature(lightIdx) : area.Get1stPVSLightFeature(lightIdx);
+        visible = sets[0].GetVisible(pvsIdx);
+        if (visible != EPVSVisSetState::OutOfBounds)
+          visible = std::max(visible, sets[1].GetVisible(pvsIdx));
+        if (visible != EPVSVisSetState::OutOfBounds)
+          visible = std::max(visible, sets[2].GetVisible(pvsIdx));
       }
       if (visible != EPVSVisSetState::EndOfTree) {
         zeus::CSphere sphere(light.GetPosition(), light.GetRadius() * 2.f);
@@ -435,52 +430,54 @@ void CActorLights::BuildDynamicLightList(const CStateManager& mgr, const zeus::C
 std::vector<CLight> CActorLights::BuildLightVector() const {
   std::vector<CLight> lights;
 
-  if (x0_areaLights.size()) {
-    if (x2dc_brightLightLag && x299_25_useBrightLightLag) {
+  if (!x0_areaLights.empty()) {
+    if (x2dc_brightLightLag != 0 && x299_25_useBrightLightLag) {
       CLight overrideLight = x0_areaLights[0];
       overrideLight.SetColor(overrideLight.GetColor() * (1.f - x2dc_brightLightLag / 15.f));
       lights.push_back(overrideLight);
-    } else
+    } else {
       lights.push_back(x0_areaLights[0]);
+    }
 
     for (auto it = x0_areaLights.begin() + 1; it != x0_areaLights.end(); ++it) {
       lights.push_back(*it);
     }
-
-    if (x29c_shadowLightArrIdx > 0) {
-      /* Ensure shadow light comes first for shader extension */
-      std::swap(lights[0], lights[x29c_shadowLightArrIdx]);
-    }
   }
 
-  for (const CLight& light : x144_dynamicLights)
+  for (const CLight& light : x144_dynamicLights) {
     lights.push_back(light);
-
-  zeus::CColor ambColor = x288_ambientColor;
-  ambColor.a() = 1.f;
-  lights.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, ambColor));
+  }
 
   return lights;
 }
 
-void CActorLights::ActivateLights(CBooModel& model) const {
-  std::vector<CLight> lights;
-
+void CActorLights::ActivateLights() const {
   if (x298_28_inArea) {
     if (!x298_26_hasAreaLights || x299_26_ambientOnly) {
-      // g_Renderer->SetAmbientColor(zeus::skWhite);
-      lights.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, zeus::skWhite));
-      model.ActivateLights(lights);
+      g_Renderer->SetAmbientColor(zeus::skWhite);
+      CGraphics::DisableAllLights();
       return;
     }
   }
+  auto ambient = x288_ambientColor;
+  ambient.a() = 1.f;
+  g_Renderer->SetAmbientColor(ambient);
 
-  lights = BuildLightVector();
-  model.ActivateLights(lights);
+  const auto lights = BuildLightVector();
+  if (lights.empty()) {
+    CGraphics::DisableAllLights();
+  } else {
+    for (ERglLight idx = 0; const auto& item : lights) {
+      CGraphics::LoadLight(idx, item);
+      idx++;
+    }
+    // Sets n LSB to 1
+    CGraphics::SetLightState(static_cast<ERglLight>((1 << lights.size()) + 255));
+  }
 
   if (x298_31_disableWorldLights) {
-    zeus::CColor color(x2d4_worldLightingLevel);
-    g_Renderer->SetGXRegister1Color(color);
+    g_Renderer->SetAmbientColor(zeus::skBlack);
+    g_Renderer->SetGXRegister1Color({x2d4_worldLightingLevel});
   }
 }
 

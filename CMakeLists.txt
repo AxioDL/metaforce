@@ -50,7 +50,7 @@ endif ()
 
 if (METAFORCE_WC_DESCRIBE)
   string(REGEX REPLACE "v([0-9]+)\.([0-9]+)\.([0-9]+)\-([0-9]+).*" "\\1.\\2.\\3.\\4" METAFORCE_VERSION_STRING "${METAFORCE_WC_DESCRIBE}")
-  string(REGEX REPLACE "v([0-9]+)\.([0-9]+)\.([0-9]+).*" "\\1.\\2.\\3" METAFORCE_VERSION_STRING "${METAFORCE_VERSION_STRING}")
+  string(REGEX REPLACE "v([0-9]+)\.([0-9]+)\.([0-9]+).*" "\\1.\\2.\\3" METAFORCE_SHORT_VERSION_STRING "${METAFORCE_WC_DESCRIBE}")
 else ()
   set(METAFORCE_WC_DESCRIBE "UNKNOWN-VERSION")
   set(METAFORCE_VERSION_STRING "0.0.0")
@@ -64,20 +64,36 @@ if(DEFINED ENV{GITHUB_ENV})
 endif()
 message(STATUS "Metaforce version set to ${METAFORCE_WC_DESCRIBE}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-project(metaforce LANGUAGES C CXX ASM VERSION ${METAFORCE_VERSION_STRING})
+if(APPLE)
+  set(EXTRA_LANGUAGES OBJC)
+endif()
+project(metaforce LANGUAGES C CXX ASM ${EXTRA_LANGUAGES} VERSION ${METAFORCE_VERSION_STRING})
+if (APPLE AND NOT TVOS AND CMAKE_SYSTEM_NAME STREQUAL tvOS)
+  # ios.toolchain.cmake hack for SDL
+  set(TVOS ON)
+  set(IOS OFF)
+endif ()
+if (EMSCRIPTEN)
+  set(CMAKE_EXECUTABLE_SUFFIX .html)
+endif ()
 
 string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" ATHENA_ARCH)
 string(TOLOWER "${CMAKE_HOST_SYSTEM_PROCESSOR}" ATHENA_HOST_ARCH)
+string(TOLOWER "${CMAKE_HOST_SYSTEM_NAME}" HOST_PLATFORM_NAME)
+string(TOLOWER "${CMAKE_SYSTEM_NAME}" PLATFORM_NAME)
 set(ATHENA_EXTENSION "tar.gz")
-if (CMAKE_SYSTEM_NAME STREQUAL Darwin)
-  set(PLATFORM_NAME macos)
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL Darwin)
+  set(HOST_PLATFORM_NAME macos)
   set(ATHENA_ARCH universal)
   set(ATHENA_HOST_ARCH universal)
+elseif (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+  set(HOST_PLATFORM_NAME win32)
+  set(ATHENA_EXTENSION ".7z")
+endif ()
+if (CMAKE_SYSTEM_NAME STREQUAL Darwin)
+  set(PLATFORM_NAME macos)
 elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
   set(PLATFORM_NAME win32)
-  set(ATHENA_EXTENSION ".7z")
-elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(PLATFORM_NAME linux)
 endif ()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries)
@@ -87,15 +103,6 @@ if(APPLE AND NOT CMAKE_OSX_SYSROOT)
   execute_process(COMMAND xcrun --sdk macosx --show-sdk-path
                   OUTPUT_VARIABLE CMAKE_OSX_SYSROOT
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif()
-
-option(METAFORCE_CROSSCOMPILING "Don't build tools; attempt package import" OFF)
-if (METAFORCE_CROSSCOMPILING)
-  set(CMAKE_CROSSCOMPILING On)
-endif()
-
-if(CMAKE_CROSSCOMPILING)
-  set(HAVE_WORDS_BIGENDIAN_EXITCODE 0 CACHE INTEGER "Makes soxr happy" FORCE)
 endif()
 
 # MSVC has a "latest" flag, which always uses the newest standard
@@ -109,9 +116,6 @@ endif()
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force shared libs off" FORCE)
 set(BUILD_STATIC_LIBS ON CACHE BOOL "Force static libs on" FORCE)
-
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/extern/sanitizers-cmake/cmake")
-find_package(Sanitizers)
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64)
   set(METAFORCE_VECTOR_ISA "sse41" CACHE STRING "Vector ISA to build for (sse2, sse3, sse41, avx, avx2)")
@@ -240,15 +244,20 @@ else()
     add_compile_options(-fno-asynchronous-unwind-tables)
   endif()
 
-  if(METAFORCE_MSAN)
+  if (METAFORCE_ASAN)
+    add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++> -fsanitize=address
+        -fsanitize-address-use-after-scope)
+    add_link_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++> -fsanitize=address
+        -fsanitize-address-use-after-scope)
+  elseif(METAFORCE_MSAN)
     add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-stdlib=libc++> -fsanitize=memory
                         -fsanitize-memory-track-origins -fsanitize-recover=all)
   endif()
   add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
                       $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
-                      -Wall -Wno-multichar -Werror=implicit-fallthrough
+                      -Wall -Wno-multichar
                       -Wno-unused-variable -Wno-unused-result -Wno-unused-but-set-variable
-                      -Wno-unused-function -Wno-sign-compare -Wno-unknown-pragmas -Werror)
+                      -Wno-unused-function -Wno-sign-compare -Wno-unknown-pragmas)
   # doesn't work with generator expression in add_compile_options?
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     add_compile_options(-Wno-unknown-warning-option -Wno-unused-private-field)
@@ -259,10 +268,6 @@ else()
   if(APPLE)
     add_compile_options(-Wno-error=deprecated-declarations
                         $<$<CONFIG:Release>:-flto=thin>)
-    if (METAFORCE_ASAN)
-      add_compile_options(-fsanitize=address -fsanitize-address-use-after-scope)
-      add_link_options(-fsanitize=address -fsanitize-address-use-after-scope)
-    endif ()
   endif()
 
 endif()
@@ -341,161 +346,18 @@ if(USE_LD_GOLD)
   endif()
 endif()
 
-# Add discord-rpc here
-if(NOT GEKKO AND NOT NX)
-  set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/discord-rpc)
-  if (NOT CMAKE_INSTALL_LIBDIR)
-    set(CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/fake-prefix)
-  endif()
-  add_subdirectory(extern/discord-rpc/src EXCLUDE_FROM_ALL)
-  target_include_directories(discord-rpc PRIVATE extern/rapidjson/include PUBLIC extern/discord-rpc/include)
-  if (APPLE)
-    # remove their nasty hack
-    get_target_property(DISCORD_LINK_LIBRARIES discord-rpc INTERFACE_LINK_LIBRARIES)
-    list(REMOVE_ITEM DISCORD_LINK_LIBRARIES "-framework AppKit, -mmacosx-version-min=10.10")
-    set_target_properties(discord-rpc PROPERTIES INTERFACE_LINK_LIBRARIES "${DISCORD_LINK_LIBRARIES}")
-  endif ()
-  if (UNIX)
-    # remove another nasty hack
-    get_target_property(DISCORD_COMPILE_OPTIONS discord-rpc COMPILE_OPTIONS)
-    list(REMOVE_ITEM DISCORD_COMPILE_OPTIONS "-g")
-    set_target_properties(discord-rpc PROPERTIES COMPILE_OPTIONS "${DISCORD_COMPILE_OPTIONS}")
-  endif ()
-endif()
-
-if (NOT WIN32)
-  find_package(ZLIB REQUIRED)
-  set(ZLIB_LIBRARIES ZLIB::ZLIB CACHE STRING "zlib libraries" FORCE)
-endif()
-
-option(BUILD_ATHENA "Build Athena libraries from source" ON)
-if (WIN32 OR APPLE)
-  # Default to binary atdna on Windows & macOS
-  option(BUILD_ATDNA "Build atdna utility from source (requires LLVM)" OFF)
-else ()
-  option(BUILD_ATDNA "Build atdna utility from source (requires LLVM)" ON)
-endif ()
-
-if (NOT BUILD_ATDNA)
-  set(ATHENA_BASE_URL "https://github.com/libAthena/athena/releases/download/latest")
-  if (WIN32)
-    set(ATHENA_EXT 7z)
-  else()
-    set(ATHENA_EXT tar.gz)
-  endif()
-  include(FetchContent)
-  FetchContent_Declare(athena-host
-      URL "${ATHENA_BASE_URL}/athena-${PLATFORM_NAME}-${ATHENA_HOST_ARCH}.${ATHENA_EXT}")
-  message(STATUS "Fetching atdna host binary")
-  FetchContent_Populate(athena-host)
-  include(${athena-host_SOURCE_DIR}/lib/cmake/atdna/atdnaConfig.cmake)
-endif ()
-
-if (BUILD_ATHENA OR BUILD_ATDNA)
-  add_subdirectory(extern/athena EXCLUDE_FROM_ALL)
-else()
-  if (ATHENA_ARCH STREQUAL ATHENA_HOST_ARCH)
-    set(athena_SOURCE_DIR "${athena-host_SOURCE_DIR}")
-  else()
-    FetchContent_Declare(athena
-        URL "${ATHENA_BASE_URL}/athena-${PLATFORM_NAME}-${ATHENA_ARCH}.tar.gz")
-    FetchContent_Populate(athena)
-  endif()
-  include(${athena_SOURCE_DIR}/lib/cmake/athena/AthenaConfig.cmake)
-  include(${athena_SOURCE_DIR}/lib/cmake/lzokay/lzokayConfig.cmake)
-  add_library(lzokay ALIAS lzokay::lzokay)
-  include(extern/athena/atdna/atdnaHelpers.cmake)
-endif()
-
-set(DATA_SPEC_LIBS RetroDataSpec AssetNameMap)
-set(HECL_DATASPEC_DECLS
-"/* RetroCommon specs */
-namespace DataSpec
-{
-    extern hecl::Database::DataSpecEntry SpecEntMP1;
-    extern hecl::Database::DataSpecEntry SpecEntMP1PC;
-    extern hecl::Database::DataSpecEntry SpecEntMP1ORIG;
-    extern hecl::Database::DataSpecEntry SpecEntMP2;
-    extern hecl::Database::DataSpecEntry SpecEntMP2PC;
-    extern hecl::Database::DataSpecEntry SpecEntMP2ORIG;
-    extern hecl::Database::DataSpecEntry SpecEntMP3;
-    extern hecl::Database::DataSpecEntry SpecEntMP3PC;
-    extern hecl::Database::DataSpecEntry SpecEntMP3ORIG;
-}")
-set(HECL_DATASPEC_PUSHES
-"    /* RetroCommon */
-    hecl::Database::DATA_SPEC_REGISTRY.reserve(9);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1PC);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP1ORIG);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2PC);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP2ORIG);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);
-    hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3ORIG);")
-
-add_subdirectory(extern/nod EXCLUDE_FROM_ALL)
-add_subdirectory(extern/boo EXCLUDE_FROM_ALL)
+find_package(ZLIB REQUIRED)
+set(ZLIB_LIBRARIES ZLIB::ZLIB CACHE STRING "zlib libraries" FORCE)
 
 include(ExternalProject)
-ExternalProject_Add(shaderc
-    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/hecl/shaderc"
+ExternalProject_Add(bintoc
+    SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/bintoc"
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
     INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install)
+include(${CMAKE_CURRENT_LIST_DIR}/bintoc/bintocHelpers.cmake)
 
-function(shaderc out)
-  if(IS_ABSOLUTE ${out})
-    set(theOut ${out})
-  else()
-    set(theOut ${CMAKE_CURRENT_BINARY_DIR}/${out})
-  endif()
-  unset(theInsList)
-  foreach(in ${ARGN})
-    if(IS_ABSOLUTE ${in})
-      list(APPEND theInsList ${in})
-    else()
-      list(APPEND theInsList ${CMAKE_CURRENT_SOURCE_DIR}/${in})
-    endif()
-  endforeach()
-  get_filename_component(outDir ${theOut} DIRECTORY)
-  file(MAKE_DIRECTORY ${outDir})
-  file(RELATIVE_PATH outRel ${CMAKE_BINARY_DIR} ${theOut})
-  ExternalProject_Get_Property(shaderc INSTALL_DIR)
-  add_custom_command(OUTPUT ${theOut}.cpp ${theOut}.hpp
-      COMMAND "${INSTALL_DIR}/bin/shaderc" ARGS -o ${theOut} ${theInsList}
-      DEPENDS ${theInsList} shaderc
-      COMMENT "Compiling shader ${outRel}.shader")
-endfunction()
-
-include(hecl/ApplicationTools.cmake)
-add_subdirectory(Shaders)
+add_subdirectory(extern)
 add_subdirectory(imgui)
-add_subdirectory(extern/libSquish EXCLUDE_FROM_ALL)
-add_subdirectory(extern/libpng EXCLUDE_FROM_ALL)
-add_subdirectory(extern/libjpeg-turbo EXCLUDE_FROM_ALL)
-add_subdirectory(hecl EXCLUDE_FROM_ALL)
-add_subdirectory(extern/zeus EXCLUDE_FROM_ALL)
-target_include_directories(hecl-full PRIVATE ${CMAKE_SOURCE_DIR})
-target_include_directories(hecl-light PRIVATE ${CMAKE_SOURCE_DIR})
-target_link_libraries(hecl-full PRIVATE zeus nod)
-target_link_libraries(hecl-light PRIVATE zeus nod)
-
-bintoc(CModelShaders.common.glsl.cpp Shaders/CModelShaders.common.glsl CMODELSHADERS_COMMON_GLSL)
-bintoc(CModelShaders.vert.glsl.cpp Shaders/CModelShaders.vert.glsl CMODELSHADERS_VERT_GLSL)
-bintoc(CModelShaders.frag.glsl.cpp Shaders/CModelShaders.frag.glsl CMODELSHADERS_FRAG_GLSL)
-bintoc(CModelShaders.common.hlsl.cpp Shaders/CModelShaders.common.hlsl CMODELSHADERS_COMMON_HLSL)
-bintoc(CModelShaders.vert.hlsl.cpp Shaders/CModelShaders.vert.hlsl CMODELSHADERS_VERT_HLSL)
-bintoc(CModelShaders.frag.hlsl.cpp Shaders/CModelShaders.frag.hlsl CMODELSHADERS_FRAG_HLSL)
-bintoc(CModelShaders.common.metal.cpp Shaders/CModelShaders.common.metal CMODELSHADERS_COMMON_METAL)
-bintoc(CModelShaders.vert.metal.cpp Shaders/CModelShaders.vert.metal CMODELSHADERS_VERT_METAL)
-bintoc(CModelShaders.frag.metal.cpp Shaders/CModelShaders.frag.metal CMODELSHADERS_FRAG_METAL)
-add_library(CModelShaders
-    CModelShaders.common.glsl.cpp CModelShaders.vert.glsl.cpp CModelShaders.frag.glsl.cpp
-    CModelShaders.common.hlsl.cpp CModelShaders.vert.hlsl.cpp CModelShaders.frag.hlsl.cpp
-    CModelShaders.common.metal.cpp CModelShaders.vert.metal.cpp CModelShaders.frag.metal.cpp)
-target_link_libraries(CModelShaders PUBLIC zeus)
-target_link_libraries(shader_CModelShaders PUBLIC CModelShaders)
 
 if(NOT TARGET atdna)
   # Import native atdna if cross-compiling
@@ -505,86 +367,64 @@ if(NOT TARGET atdna)
   endif()
 endif()
 
-add_subdirectory(extern/amuse EXCLUDE_FROM_ALL)
-if (NOT CMAKE_CROSSCOMPILING)
-  add_subdirectory(assetnameparser EXCLUDE_FROM_ALL)
-endif ()
-add_compile_definitions(URDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
-add_subdirectory(DataSpec)
-add_subdirectory(extern/kabufuda EXCLUDE_FROM_ALL)
-
-add_subdirectory(extern/jbus EXCLUDE_FROM_ALL)
-set(JBUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/jbus/include)
-
 add_subdirectory(NESEmulator EXCLUDE_FROM_ALL)
 add_subdirectory(Runtime)
-add_subdirectory(mpcksum EXCLUDE_FROM_ALL)
 add_subdirectory(gbalink EXCLUDE_FROM_ALL)
-add_subdirectory(visigen)
-
-add_dependencies(hecl visigen)
-
-if (NOT WINDOWS_STORE AND NOT NX)
-  if (APPLE AND EXISTS /opt/local/libexec/qt5)
-    # macports qt5 (build with +universal)
-    set(Qt5Widgets_DIR /opt/local/libexec/qt5)
-  elseif (APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
-    set(QT_HOMEBREW_PATH /usr/local/opt/qt)
-  elseif (APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL arm64)
-    set(QT_HOMEBREW_PATH /opt/homebrew/opt/qt)
-  else ()
-    set(QT_HOMEBREW_PATH "")
-  endif ()
-
-  find_package(Qt6Widgets QUIET PATHS ${QT_HOMEBREW_PATH})
-  find_package(Qt5Widgets QUIET PATHS ${QT_HOMEBREW_PATH})
-  if (Qt6Widgets_FOUND)
-    message(STATUS "Qt6 found, metaforce-gui will be built")
-    add_subdirectory(metaforce-gui)
-  elseif(Qt5Widgets_FOUND)
-    message(STATUS "Qt5 found, metaforce-gui will be built")
-    add_subdirectory(metaforce-gui)
-  else()
-    message(STATUS "Qt5-6 not found, metaforce-gui will not be built")
-  endif()
-endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_BINARY_DIR}/version.h)
 
 # Packaging logic
-list(APPEND BINARY_TARGETS metaforce hecl visigen)
-set(DSYM_ONLY_TARGETS "")
+function(get_target_output_name target result_var)
+  get_target_property(output_name ${target} OUTPUT_NAME)
+  if (output_name STREQUAL "output_name-NOTFOUND")
+    set(${result_var} "${target}" PARENT_SCOPE)
+  else ()
+    set(${result_var} "${output_name}" PARENT_SCOPE)
+  endif ()
+endfunction()
+function(get_target_prefix target result_var)
+  set(${result_var} "" PARENT_SCOPE)
+  if (APPLE)
+    # Have to recreate some bundle logic here, since CMake can't tell us
+    get_target_property(is_bundle ${target} MACOSX_BUNDLE)
+    if (is_bundle)
+      get_target_output_name(${target} output_name)
+      if (CMAKE_SYSTEM_NAME STREQUAL Darwin)
+        set(${result_var} "${output_name}.app/Contents/MacOS/" PARENT_SCOPE)
+      else ()
+        set(${result_var} "${output_name}.app/" PARENT_SCOPE)
+      endif ()
+    endif ()
+  endif ()
+endfunction()
+list(APPEND BINARY_TARGETS metaforce)
+set(EXTRA_TARGETS "")
 if (TARGET crashpad_handler)
-  list(APPEND BINARY_TARGETS crashpad_handler)
+  list(APPEND EXTRA_TARGETS crashpad_handler)
 endif ()
 set(BIN_PREFIX "${CMAKE_INSTALL_PREFIX}")
-if (TARGET metaforce-gui)
-  if (APPLE)
-    # app bundle already has all needed binaries
-    install(TARGETS metaforce-gui DESTINATION ${BIN_PREFIX})
-    list(APPEND DSYM_ONLY_TARGETS metaforce-gui)
-    # we have to rename here, cmake is inflexible about bundle naming
-    install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND rm -fr Metaforce.app)")
-    install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND mv metaforce-gui.app Metaforce.app)")
-    set(BIN_PREFIX "${BIN_PREFIX}/Metaforce.app/Contents/MacOS")
-  else()
-    list(APPEND BINARY_TARGETS metaforce-gui)
-  endif ()
-endif ()
-install(TARGETS ${BINARY_TARGETS} DESTINATION ${BIN_PREFIX})
+install(TARGETS ${BINARY_TARGETS} ${EXTRA_TARGETS} DESTINATION ${BIN_PREFIX})
 if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
-  foreach (target IN LISTS BINARY_TARGETS DSYM_ONLY_TARGETS)
+  set(DEBUG_FILES_LIST "")
+  foreach (target IN LISTS BINARY_TARGETS EXTRA_TARGETS)
+    get_target_output_name(${target} output_name)
     if (WIN32)
       install(FILES $<TARGET_PDB_FILE:${target}> DESTINATION ${BIN_PREFIX} OPTIONAL)
     elseif (APPLE)
-      install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND dsymutil ${target})")
-      install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND strip -S ${target})")
+      get_target_prefix(${target} target_prefix)
+      install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND rm -fr \"$<TARGET_FILE_NAME:${target}>.dSYM\")")
+      install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND dsymutil \"${target_prefix}$<TARGET_FILE_NAME:${target}>\")")
+      install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND strip -S \"${target_prefix}$<TARGET_FILE_NAME:${target}>\")")
+      if (NOT target_prefix STREQUAL "")
+        install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND mv \"${target_prefix}$<TARGET_FILE_NAME:${target}>.dSYM\" .)")
+      endif ()
     elseif (UNIX)
-      install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND objcopy --only-keep-debug ${target} ${target}.dbg)")
-      install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND objcopy --strip-debug --add-gnu-debuglink=${target}.dbg ${target})")
+      get_target_prefix(${target} target_prefix)
+      install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND objcopy --only-keep-debug \"${target_prefix}$<TARGET_FILE_NAME:${target}>\" \"${target_prefix}$<TARGET_FILE_NAME:${target}>.dbg\")")
+      install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND objcopy --strip-debug --add-gnu-debuglink=$<TARGET_FILE_NAME:${target}>.dbg \"${target_prefix}$<TARGET_FILE_NAME:${target}>\")")
     endif ()
+    list(APPEND DEBUG_FILES_LIST "${output_name}")
   endforeach ()
-  set(DEBUG_FILES_LIST ${BINARY_TARGETS} ${DSYM_ONLY_TARGETS})
   if (WIN32)
     list(TRANSFORM DEBUG_FILES_LIST APPEND ".pdb")
     list(JOIN DEBUG_FILES_LIST " " DEBUG_FILES)
@@ -599,3 +439,13 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug OR CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
     install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND tar -I \"xz -9 -T0\" -cvf \"${CMAKE_INSTALL_PREFIX}/debug.tar.xz\" ${DEBUG_FILES})")
   endif ()
 endif ()
+foreach (target IN LISTS BINARY_TARGETS)
+  get_target_prefix(${target} target_prefix)
+  foreach (extra_target IN LISTS EXTRA_TARGETS)
+    get_target_prefix(${extra_target} extra_prefix)
+    if (NOT "${target_prefix}" STREQUAL "${extra_prefix}")
+      # Copy extra target to target prefix
+      install(CODE "execute_process(WORKING_DIRECTORY \"${BIN_PREFIX}\" COMMAND cp \"${extra_prefix}$<TARGET_FILE_NAME:${extra_target}>\" \"${target_prefix}$<TARGET_FILE_NAME:${extra_target}>\")")
+    endif ()
+  endforeach ()
+endforeach ()

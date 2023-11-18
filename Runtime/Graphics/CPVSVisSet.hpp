@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Runtime/RetroTypes.hpp"
+
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -21,6 +22,7 @@ public:
   EPVSVisSetState GetVisible(u32 idx) const;
   void SetFromMemory(u32 numBits, u32 numLights, const u8* leafPtr);
   void SetTestPoint(const CPVSVisOctree& octree, const zeus::CVector3f&);
+  void SetState(EPVSVisSetState state) { x0_state = state; }
 };
 
 } // namespace metaforce

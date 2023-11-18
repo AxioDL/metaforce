@@ -88,7 +88,7 @@ void CCollisionResponseData::AddParticleSystemToResponse(EWeaponCollisionRespons
                                                          CSimplePool* resPool) {
   const auto i = size_t(type);
   const std::vector<CAssetId> tracker(8);
-  x0_generators[i].emplace(CPF::GetChildGeneratorDesc(in, resPool, tracker).m_token);
+  x0_generators[i] = CPF::GetChildGeneratorDesc(in, resPool, tracker).x0_res;
 }
 
 bool CCollisionResponseData::CheckAndAddDecalToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool) {
@@ -100,7 +100,7 @@ bool CCollisionResponseData::CheckAndAddDecalToResponse(FourCC clsId, CInputStre
         return true;
       }
 
-      const CAssetId id{u64(in.readUint32Big())};
+      const CAssetId id = in.Get<CAssetId>();
       if (!id.IsValid()) {
         return true;
       }

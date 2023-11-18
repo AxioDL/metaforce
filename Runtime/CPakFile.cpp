@@ -26,19 +26,19 @@ const SObjectTag* CPakFile::GetResIdByName(std::string_view name) const {
   return nullptr;
 }
 
-void CPakFile::LoadResourceTable(athena::io::MemoryReader& r) {
+void CPakFile::LoadResourceTable(CInputStream& r) {
   x74_resList.reserve(
       std::max(size_t(64), size_t(ROUND_UP_32(x4c_resTableCount * sizeof(SResInfo)) + sizeof(SResInfo) - 1)) /
       sizeof(SResInfo));
   if (x28_24_buildDepList)
     x64_depList.reserve(x4c_resTableCount);
   for (u32 i = 0; i < x4c_resTableCount; ++i) {
-    u32 flags = r.readUint32Big();
+    u32 flags = r.ReadLong();
     FourCC fcc;
-    r.readBytesToBuf(&fcc, 4);
-    CAssetId id = r.readUint32Big();
-    u32 size = r.readUint32Big();
-    u32 offset = r.readUint32Big();
+    r.ReadBytes(reinterpret_cast<u8*>(&fcc), 4);
+    CAssetId id = r.Get<CAssetId>();
+    u32 size = r.ReadLong();
+    u32 offset = r.ReadLong();
     if (fcc == FOURCC('MLVL'))
       m_mlvlId = id;
     x74_resList.emplace_back(id, fcc, offset, size, flags);
@@ -50,7 +50,8 @@ void CPakFile::LoadResourceTable(athena::io::MemoryReader& r) {
 
 void CPakFile::DataLoad() {
   x30_dvdReq.reset();
-  athena::io::MemoryReader r(x38_headerData.data() + x48_resTableOffset, x38_headerData.size() - x48_resTableOffset);
+  CMemoryInStream r(x38_headerData.data() + x48_resTableOffset, x38_headerData.size() - x48_resTableOffset,
+                    CMemoryInStream::EOwnerShip::NotOwned);
   LoadResourceTable(r);
   x2c_asyncLoadPhase = EAsyncPhase::Loaded;
   if (x28_26_worldPak) {
@@ -60,28 +61,27 @@ void CPakFile::DataLoad() {
 }
 
 void CPakFile::InitialHeaderLoad() {
-  athena::io::MemoryReader r(x38_headerData.data(), x38_headerData.size());
+  CMemoryInStream r(x38_headerData.data(), x38_headerData.size(), CMemoryInStream::EOwnerShip::NotOwned);
   x30_dvdReq.reset();
-  u32 version = r.readUint32Big();
-  if (version != 0x80030005) {
+  u32 version = r.ReadLong();
+  if (version != 0x00030005) {
     Log.report(logvisor::Fatal,
                FMT_STRING("{}: Incompatible pak file version -- Current version is {:08X}, you're using {:08X}"),
-               GetPath(), 0x80030005, version);
+               GetPath(), 0x00030005, version);
     return;
   }
 
-  r.readUint32Big();
-  u32 nameCount = r.readUint32Big();
+  r.ReadLong();
+  u32 nameCount = r.ReadLong();
   x54_nameList.reserve(nameCount);
   for (u32 i = 0; i < nameCount; ++i) {
     SObjectTag tag(r);
-    u32 nameLen = r.readUint32Big();
-    auto name = r.readString(nameLen);
+    auto name = CStringExtras::ReadString(r);
     x54_nameList.emplace_back(name, tag);
   }
 
-  x4c_resTableCount = r.readUint32Big();
-  x48_resTableOffset = u32(r.position());
+  x4c_resTableCount = r.ReadLong();
+  x48_resTableOffset = u32(r.GetReadPosition());
   x2c_asyncLoadPhase = EAsyncPhase::DataLoad;
   u32 newSize = ROUND_UP_32(x4c_resTableCount * 20 + x48_resTableOffset);
   u32 origSize = u32(x38_headerData.size());

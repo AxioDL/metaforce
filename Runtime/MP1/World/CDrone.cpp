@@ -17,7 +17,7 @@
 #include "Runtime/World/CTeamAiMgr.hpp"
 #include "Runtime/World/CWorld.hpp"
 
-#include "DataSpec/DNAMP1/SFX/Drones.h"
+#include "Audio/SFX/Drones.h"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -934,8 +934,8 @@ void CDrone::SetVisorFlareEnabled(CStateManager& mgr, bool activate) {
     x57a_visorFlareId = mgr.AllocateUniqueId();
     flare = new CScriptVisorFlare(x57a_visorFlareId, "DroneVisorFlare"sv,
                                   CEntityInfo{GetAreaIdAlways(), CEntity::NullConnectionList}, activate,
-                                  GetLctrTransform("Beacon_LCTR"sv).origin, CVisorFlare::EBlendMode::Zero, true, 0.1f,
-                                  1.f, 2.f, 0, 0, x57c_flares);
+                                  GetLctrTransform("Beacon_LCTR"sv).origin, CVisorFlare::EBlendMode::Additive, true,
+                                  0.1f, 1.f, 2.f, 0, 0, x57c_flares);
     mgr.AddObject(flare);
   }
   mgr.SendScriptMsg(flare, GetUniqueId(), activate ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate);
@@ -1104,7 +1104,7 @@ void CDrone::UpdateLasers(CStateManager& mgr, float dt) {
         CSfxManager::AddEmitter(x7cc_laserSfx, result.GetPoint(), zeus::skZero3f, true, false, 127, GetAreaIdAlways());
       }
     }
-    if (id != GetUniqueId() && TCastToPtr<CAi>{mgr.ObjectById(id)}) {
+    if (id != GetUniqueId() && TCastToPtr<CPatterned>{mgr.ObjectById(id)}) {
       x834_31_attackOver = true;
       float rem = GetModelData()->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv);
       UpdateAnimation(rem, mgr, true);

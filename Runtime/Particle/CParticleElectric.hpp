@@ -112,7 +112,7 @@ public:
   explicit CParticleElectric(const TToken<CElectricDescription>& desc);
 
   bool Update(double) override;
-  void Render(const CActorLights* lights = nullptr) override;
+  void Render() override;
   void SetOrientation(const zeus::CTransform& orientation) override;
   void SetTranslation(const zeus::CVector3f& translation) override;
   void SetGlobalOrientation(const zeus::CTransform& orientation) override;

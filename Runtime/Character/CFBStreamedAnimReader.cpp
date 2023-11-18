@@ -139,7 +139,7 @@ void CFBStreamedAnimReaderTotals::IncrementInto(CBitLevelLoader& loader, const C
       if (tCount) {
         cumulativesOut[4] = cumulativesIn[4] + loader.LoadSigned(*reinterpret_cast<const u8*>(chans + 2));
         cumulativesOut[5] = cumulativesIn[5] + loader.LoadSigned(*reinterpret_cast<const u8*>(chans + 5));
-        cumulativesOut[6] = cumulativesIn[5] + loader.LoadSigned(*reinterpret_cast<const u8*>(chans + 8));
+        cumulativesOut[6] = cumulativesIn[6] + loader.LoadSigned(*reinterpret_cast<const u8*>(chans + 8));
         chans += 9;
       }
     }

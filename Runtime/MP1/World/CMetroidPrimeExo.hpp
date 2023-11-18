@@ -82,9 +82,9 @@ struct SPrimeExoParameters {
   explicit SPrimeExoParameters(CInputStream& in);
 };
 
-struct SPrimeExoRoomParameters {
+struct CMetroidPrimeAttackWeights {
   rstl::reserved_vector<float, 14> x0_;
-  explicit SPrimeExoRoomParameters(CInputStream& in);
+  explicit CMetroidPrimeAttackWeights(CInputStream& in);
 
   float GetFloatValue(size_t idx) const { return x0_[idx]; }
 };
@@ -191,7 +191,7 @@ class CMetroidPrimeExo : public CPatterned {
   float x1084_ = 0.f;
   float x1088_ = 0.f;
   CCameraShakeData x108c_;
-  rstl::reserved_vector<SPrimeExoRoomParameters, 4> x1160_;
+  rstl::reserved_vector<CMetroidPrimeAttackWeights, 4> x1160_;
   s32 x1254_ = -1;
   rstl::reserved_vector<float, 14> x1258_;
   CCameraShakeData x1294_;
@@ -222,7 +222,7 @@ class CMetroidPrimeExo : public CPatterned {
   void UpdateTimers(float mgr);
   void sub80275800(CStateManager& mgr);
   void sub802759a8(CStateManager& mgr, u32 w1);
-  float sub80275b04(const SPrimeExoRoomParameters& roomParms, int w2);
+  float sub80275b04(const CMetroidPrimeAttackWeights& roomParms, int w2);
   void sub80275b68();
   void sub80275c60(CStateManager& mgr, int w1);
   bool sub80275d68(int w1);

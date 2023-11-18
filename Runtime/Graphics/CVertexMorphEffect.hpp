@@ -5,6 +5,7 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/Character/CPoseAsTransforms.hpp"
+#include "Runtime/Graphics/CCubeModel.hpp"
 
 #include <zeus/CUnitVector.hpp>
 #include <zeus/CVector3f.hpp>
@@ -12,26 +13,25 @@
 namespace metaforce {
 class CRandom16;
 class CSkinRules;
+struct SSkinningWorkspace;
 
 class CVertexMorphEffect {
-  zeus::CUnitVector3f x0_;
-  float xc_ = 0.f;
-  float x10_ = 0.f;
-  float x14_ = 0.f;
-  float x18_ = 0.f;
-  float x1c_ = 0.f;
+  zeus::CUnitVector3f x0_dir;
+  zeus::CVector3f xc_pos;
+  float x18_duration;
+  float x1c_elapsed = 0.f;
   float x20_diagExtent;
   CRandom16& x24_random;
-  std::vector<u32> x28_;
-  std::vector<u32> x38_;
+  std::vector<u32> x28_indices;
+  std::vector<float> x38_floats;
 
 public:
-  CVertexMorphEffect(const zeus::CUnitVector3f& v1, const zeus::CVector3f& v2, float diagExtent, float f2,
+  CVertexMorphEffect(const zeus::CUnitVector3f& dir, const zeus::CVector3f& pos, float duration, float diagExtent,
                      CRandom16& random);
-  void MorphVertices(std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn, const float* magnitudes,
-                     const TLockedToken<CSkinRules>& skinRules, const CPoseAsTransforms& pose) const;
-  void Reset(const zeus::CVector3f& dir, const zeus::CVector3f& pos, float duration) {}
-  void Update(float) {}
+  void MorphVertices(SSkinningWorkspace& workspace, TConstVectorRef averagedNormals,
+                     TLockedToken<CSkinRules>& skinRules, const CPoseAsTransforms& pose, u32 vertexCount);
+  void Reset(const zeus::CVector3f& dir, const zeus::CVector3f& pos, float duration);
+  void Update(float dt);
 };
 
 } // namespace metaforce

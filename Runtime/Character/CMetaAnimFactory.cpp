@@ -9,7 +9,7 @@
 namespace metaforce {
 
 std::shared_ptr<IMetaAnim> CMetaAnimFactory::CreateMetaAnim(CInputStream& in) {
-  EMetaAnimType type = EMetaAnimType(in.readUint32Big());
+  EMetaAnimType type = EMetaAnimType(in.ReadLong());
 
   switch (type) {
   case EMetaAnimType::Play:

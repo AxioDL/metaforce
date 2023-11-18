@@ -13,6 +13,8 @@
 #define METAFORCE_DLPACKAGE "metaforce-@METAFORCE_WC_DESCRIBE@-@PLATFORM_NAME@-x86_64-@METAFORCE_VECTOR_ISA@"
 #elif defined(__aarch64__) || defined(_M_ARM64)
 #define METAFORCE_DLPACKAGE "metaforce-@METAFORCE_WC_DESCRIBE@-@PLATFORM_NAME@-arm64"
+#elif defined(EMSCRIPTEN)
+#define METAFORCE_DLPACKAGE "metaforce-@METAFORCE_WC_DESCRIBE@-@PLATFORM_NAME@-wasm"
 #endif
 
 #endif

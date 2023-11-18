@@ -24,29 +24,19 @@ add_subdirectory(Particle)
 
 if (WIN32)
     list(APPEND PLAT_SRCS CMemoryCardSysWin.cpp)
-elseif (APPLE)
-    list(APPEND PLAT_SRCS CMemoryCardSysOSX.cpp)
 else ()
     list(APPEND PLAT_SRCS CMemoryCardSysNix.cpp)
 endif ()
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
 add_custom_command(OUTPUT TCastTo.hpp TCastTo.cpp DEPENDS MkCastTo.py
-        COMMAND python ARGS ${CMAKE_CURRENT_SOURCE_DIR}/MkCastTo.py
+        COMMAND ${Python3_EXECUTABLE} ARGS ${CMAKE_CURRENT_SOURCE_DIR}/MkCastTo.py
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generating cast functions")
 
 add_subdirectory(MP1)
 add_subdirectory(MP2)
 add_subdirectory(MP3)
-
-if (APPLE)
-    set_source_files_properties(MP1/CFrontEndUITouchBarMac.mm
-            MP1/CSaveGameScreenTouchBarMac.mm
-            CGameOptionsTouchBarMac.mm
-            PROPERTIES COMPILE_FLAGS -fobjc-arc)
-    bintoc(startButton.cpp Resources/startButton@2x.png START_BUTTON_2X)
-    list(APPEND PLAT_SRCS startButton.cpp CGameOptionsTouchBarMac.mm)
-endif ()
 
 set(CAST_TO_SOURCES
         MkCastTo.py
@@ -70,9 +60,37 @@ set(RUNTIME_SOURCES_B
         ${PARTICLE_SOURCES}
         ${WORLD_SOURCES}
         ${WEAPON_SOURCES}
-        ITweak.hpp
+        CInfiniteLoopDetector.hpp CInfiniteLoopDetector.cpp
+        ConsoleVariables/FileStoreManager.hpp ConsoleVariables/FileStoreManager.cpp
+        ConsoleVariables/CVar.hpp ConsoleVariables/CVar.cpp
+        ConsoleVariables/CVarManager.hpp ConsoleVariables/CVarManager.cpp
+        ConsoleVariables/CVarCommons.hpp ConsoleVariables/CVarCommons.cpp
+        Tweaks/ITweak.hpp
+        Tweaks/ITweakAutoMapper.hpp
+        Tweaks/ITweakBall.hpp
+        Tweaks/ITweakGame.hpp
+        Tweaks/ITweakGui.hpp
+        Tweaks/ITweakGuiColors.hpp
+        Tweaks/ITweakGunRes.hpp
+        Tweaks/ITweakParticle.hpp
+        Tweaks/ITweakPlayer.hpp
+        Tweaks/ITweakPlayerControl.hpp
+        Tweaks/ITweakPlayerGun.hpp Tweaks/ITweakPlayerGun.cpp
+        Tweaks/ITweakPlayerRes.hpp
+        Tweaks/ITweakSlideShow.hpp
+        Tweaks/ITweakTargeting.hpp
         IMain.hpp
-        CStopwatch.hpp
+        CStopwatch.hpp CStopwatch.cpp
+        Streams/IOStreams.hpp Streams/IOStreams.cpp
+        Streams/CMemoryStreamOut.hpp Streams/CMemoryStreamOut.cpp
+        Streams/CInputStream.hpp Streams/CInputStream.cpp
+        Streams/COutputStream.hpp Streams/COutputStream.cpp
+        Streams/CMemoryInStream.hpp
+        Streams/CZipInputStream.hpp Streams/CZipInputStream.cpp
+        Streams/ContainerReaders.hpp
+        Streams/CTextInStream.hpp Streams/CTextInStream.cpp
+        Streams/CTextOutStream.hpp Streams/CTextOutStream.cpp
+        Streams/CFileOutStream.hpp Streams/CFileOutStream.cpp
         CGameAllocator.hpp CGameAllocator.cpp
         CMemoryCardSys.hpp CMemoryCardSys.cpp
         CScannableObjectInfo.hpp CScannableObjectInfo.cpp
@@ -93,7 +111,6 @@ set(RUNTIME_SOURCES_B
         IObjectStore.hpp
         CSimplePool.hpp CSimplePool.cpp
         CGameOptions.hpp CGameOptions.cpp
-        CGameOptionsTouchBar.hpp CGameOptionsTouchBar.cpp
         CStaticInterference.hpp CStaticInterference.cpp
         CCRC32.hpp CCRC32.cpp
         IFactory.hpp
@@ -109,8 +126,7 @@ set(RUNTIME_SOURCES_B
         CToken.hpp CToken.cpp
         CFactoryMgr.hpp CFactoryMgr.cpp
         CPakFile.hpp CPakFile.cpp
-        CStringExtras.hpp
-        IOStreams.hpp IOStreams.cpp
+        CStringExtras.hpp CStringExtras.cpp
         CMainFlowBase.hpp CMainFlowBase.cpp
         CMFGameBase.hpp
         CInGameTweakManagerBase.hpp
@@ -121,22 +137,27 @@ set(RUNTIME_SOURCES_B
         GCNTypes.hpp
         CTextureCache.hpp CTextureCache.cpp
         CMayaSpline.hpp CMayaSpline.cpp
+        ImGuiPlayerLoadouts.hpp ImGuiPlayerLoadouts.cpp
         ${PLAT_SRCS})
 
 function(add_runtime_common_library name)
     add_library(${name} ${ARGN})
-    if (COMMAND add_sanitizers)
-        add_sanitizers(${name})
-    endif ()
-
+    target_compile_definitions(${name} PUBLIC "-DMETAFORCE_TARGET_BYTE_ORDER=__BYTE_ORDER__")
     if (WINDOWS_STORE)
         set_property(TARGET ${name} PROPERTY VS_WINRT_COMPONENT TRUE)
     endif ()
 endfunction()
 
-set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-set(RUNTIME_LIBRARIES ${HECL_APPLICATION_REPS_TARGETS_LIST} RetroDataSpec AssetNameMapNull NESEmulator
-        libjpeg-turbo jbus kabufuda discord-rpc logvisor OptickCore imgui)
+set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+set(DISCORD_RPC_LIBRARY "")
+if (NOT GEKKO AND NOT NX AND NOT IOS AND NOT TVOS)
+    set(DISCORD_RPC_LIBRARY "discord-rpc")
+endif()
+set(RUNTIME_LIBRARIES zeus nod NESEmulator libjpeg-turbo jbus kabufuda logvisor OptickCore
+    imgui_support aurora::aurora
+    ${DISCORD_RPC_LIBRARY}
+    ${ZLIB_LIBRARIES}
+    )
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
 target_include_directories(RuntimeCommon PUBLIC ${RUNTIME_INCLUDES})
@@ -199,25 +220,63 @@ if (WIN32)
 elseif (APPLE)
     # nothing
 elseif (UNIX)
-    add_subdirectory(platforms/freedesktop)
-    declare_wmicon_target()
-    set(PLAT_SRCS mainicon_netwm.cpp)
     set(PLAT_LIBS rt)
 endif ()
 
-add_executable(metaforce CMain.cpp ${PLAT_SRCS} ImGuiConsole.hpp ImGuiConsole.cpp ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp) # ImGuiPlayerLoadouts.hpp
-# target_atdna(metaforce atdna_ImGuiPlayerLoadouts.cpp ImGuiPlayerLoadouts.hpp)
+add_executable(metaforce CMain.cpp ${PLAT_SRCS}
+    ImGuiConsole.hpp ImGuiConsole.cpp
+    ImGuiControllerConfig.hpp ImGuiControllerConfig.cpp
+    ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp)
 # RUNTIME_LIBRARIES repeated here for link ordering
-target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS})
+target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS} aurora::main)
+if (TARGET nfd)
+    target_link_libraries(metaforce PRIVATE nfd)
+endif()
+target_compile_definitions(metaforce PUBLIC "-DMETAFORCE_TARGET_BYTE_ORDER=__BYTE_ORDER__")
 
-if (COMMAND add_sanitizers)
-    add_sanitizers(metaforce)
+if (APPLE)
+    if (TVOS)
+        set(RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/platforms/tvos)
+        set(INFO_PLIST ${RESOURCE_DIR}/Info.plist.in)
+        file(GLOB_RECURSE RESOURCE_FILES "${RESOURCE_DIR}/Base.lproj/*")
+        list(APPEND RESOURCE_FILES ${RESOURCE_DIR}/Assets.car)
+    elseif (IOS)
+        set(RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/platforms/ios)
+        set(INFO_PLIST ${RESOURCE_DIR}/Info.plist.in)
+        file(GLOB_RECURSE RESOURCE_FILES "${RESOURCE_DIR}/Base.lproj/*")
+        list(APPEND RESOURCE_FILES
+            ${RESOURCE_DIR}/Assets.car
+            ${RESOURCE_DIR}/AppIcon60x60@2x.png
+            ${RESOURCE_DIR}/AppIcon76x76@2x~ipad.png)
+    else ()
+        set(RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/platforms/macos)
+        set(INFO_PLIST ${RESOURCE_DIR}/Info.plist.in)
+        set(RESOURCE_FILES ${RESOURCE_DIR}/mainicon.icns)
+    endif ()
+    target_sources(metaforce PRIVATE ${RESOURCE_FILES})
+    # Add to resources, preserving directory structure
+    foreach (FILE ${RESOURCE_FILES})
+        file(RELATIVE_PATH NEW_FILE "${RESOURCE_DIR}" ${FILE})
+        get_filename_component(NEW_FILE_PATH ${NEW_FILE} DIRECTORY)
+        set_property(SOURCE ${FILE} PROPERTY MACOSX_PACKAGE_LOCATION "Resources/${NEW_FILE_PATH}")
+        source_group("Resources/${NEW_FILE_PATH}" FILES "${FILE}")
+    endforeach ()
+    set_target_properties(
+        metaforce PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST ${INFO_PLIST}
+        MACOSX_BUNDLE_BUNDLE_NAME Metaforce
+        MACOSX_BUNDLE_GUI_IDENTIFIER com.axiodl.Metaforce
+        MACOSX_BUNDLE_BUNDLE_VERSION "${METAFORCE_VERSION_STRING}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${METAFORCE_SHORT_VERSION_STRING}"
+        OUTPUT_NAME Metaforce
+    )
 endif ()
-
-if (NOT WINDOWS_STORE)
-    add_dependencies(metaforce visigen hecl)
-else ()
+if (WINDOWS_STORE)
     set_property(TARGET metaforce PROPERTY VS_WINRT_COMPONENT TRUE)
     # This should match the Package.appxmanifest
     set_property(TARGET metaforce PROPERTY VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION "10.0.14393.0")
+endif ()
+if (EMSCRIPTEN)
+    target_link_options(metaforce PRIVATE -sTOTAL_MEMORY=268435456 -sALLOW_MEMORY_GROWTH --preload-file "${CMAKE_SOURCE_DIR}/files@/")
 endif ()

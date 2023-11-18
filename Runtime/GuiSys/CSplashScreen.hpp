@@ -3,7 +3,6 @@
 #include "Runtime/CIOWin.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 
 namespace metaforce {
 
@@ -19,7 +18,7 @@ private:
   // EProgressivePhase x20_progressivePhase = EProgressivePhase::Before;
   // bool x24_progressiveSelection = true;
   bool x25_textureLoaded = false;
-  CTexturedQuadFilterAlpha m_quad;
+  TLockedToken<CTexture> x28_texture;
 
 public:
   explicit CSplashScreen(ESplashScreen);

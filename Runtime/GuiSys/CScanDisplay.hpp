@@ -8,7 +8,6 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 
 #include <zeus/CColor.hpp>
 #include <zeus/CQuaternion.hpp>
@@ -40,10 +39,9 @@ public:
     float x20_remTime = 0.f;
     float x24_alpha = 0.f;
     float x28_desiredAlpha = 0.f;
-    CTexturedQuadFilter m_quad;
 
   public:
-    explicit CDataDot(const TLockedToken<CTexture>& dataDotTex) : m_quad(EFilterType::Add, dataDotTex) {}
+    explicit CDataDot(const TLockedToken<CTexture>& dataDotTex) {}
     void Update(float dt);
     void Draw(const zeus::CColor& color, float radius);
     float GetTransitionFactor() const { return x1c_transDur > 0.f ? x20_remTime / x1c_transDur : 0.f; }

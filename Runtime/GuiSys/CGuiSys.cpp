@@ -25,7 +25,7 @@ CTextExecuteBuffer* g_TextExecuteBuf = nullptr;
 CTextParser* g_TextParser = nullptr;
 
 std::shared_ptr<CGuiWidget> CGuiSys::CreateWidgetInGame(FourCC type, CInputStream& in, CGuiFrame* frame,
-                                                        CSimplePool* sp) {
+                                                        CSimplePool* sp, u32 version) {
   switch (type.toUint32()) {
   case SBIG('BWIG'):
     return CGuiWidget::Create(frame, in, sp);
@@ -50,7 +50,7 @@ std::shared_ptr<CGuiWidget> CGuiSys::CreateWidgetInGame(FourCC type, CInputStrea
   case SBIG('SLGP'):
     return CGuiSliderGroup::Create(frame, in, sp);
   case SBIG('TXPN'):
-    return CGuiTextPane::Create(frame, in, sp);
+    return CGuiTextPane::Create(frame, in, sp, version);
   case SBIG('ENRG'):
     return CAuiEnergyBarT01::Create(frame, in, sp);
   default:
@@ -76,17 +76,18 @@ void CGuiSys::OnViewportResize() {
 void CGuiSys::ViewportResizeFrame(CGuiFrame* frame) {
   if (frame->m_aspectConstraint > 0.f) {
     float hPad, vPad;
-    if (g_Viewport.aspect >= frame->m_aspectConstraint) {
-      hPad = frame->m_aspectConstraint / g_Viewport.aspect;
+    if (CGraphics::GetViewportAspect() >= frame->m_aspectConstraint) {
+      hPad = frame->m_aspectConstraint / CGraphics::GetViewportAspect();
       vPad = frame->m_aspectConstraint / 1.38f;
     } else {
       hPad = 1.f;
-      vPad = g_Viewport.aspect / 1.38f;
+      vPad = CGraphics::GetViewportAspect() / 1.38f;
     }
     frame->m_aspectTransform = zeus::CTransform::Scale({hPad, 1.f, vPad});
   } else if (frame->m_maxAspect > 0.f) {
-    if (g_Viewport.aspect > frame->m_maxAspect)
-      frame->m_aspectTransform = zeus::CTransform::Scale({frame->m_maxAspect / g_Viewport.aspect, 1.f, 1.f});
+    if (CGraphics::GetViewportAspect() > frame->m_maxAspect)
+      frame->m_aspectTransform =
+          zeus::CTransform::Scale({frame->m_maxAspect / CGraphics::GetViewportAspect(), 1.f, 1.f});
     else
       frame->m_aspectTransform = zeus::CTransform();
   }

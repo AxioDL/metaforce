@@ -1,110 +1,132 @@
 #pragma once
 
-#include <array>
-#include <vector>
-#include <chrono>
-#include "optick.h"
-
+#include "Runtime/ConsoleVariables/CVar.hpp"
+#include "Runtime/Graphics/CLight.hpp"
+#include "Runtime/Graphics/CTevCombiners.hpp"
+#include "Runtime/Graphics/GX.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-#include "DataSpec/DNACommon/GX.hpp"
-
-#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-
-#include <hecl/CVar.hpp>
-#include <hecl/Runtime.hpp>
+#include <array>
+#include <chrono>
+#include <vector>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CTransform.hpp>
-#include <zeus/CVector2i.hpp>
 #include <zeus/CVector2f.hpp>
+#include <zeus/CVector2i.hpp>
+
+#include <aurora/aurora.h>
+#include <optick.h>
 
 using frame_clock = std::chrono::high_resolution_clock;
 
 namespace metaforce {
-extern hecl::CVar* g_disableLighting;
-class CLight;
+class CTexture;
+extern CVar* g_disableLighting;
 class CTimeProvider;
 
-enum class ERglLight : u8 { Zero = 0, One, Two, Three, Four, Five, Six, Seven };
-
-enum class ERglLightBits : u8 {
-  None = 0,
-  Zero = 1,
-  One = 1 << 1,
-  Two = 1 << 2,
-  Three = 1 << 3,
-  Four = 1 << 4,
-  Five = 1 << 5,
-  Six = 1 << 6,
-  Seven = 1 << 7
-};
-ENABLE_BITWISE_ENUM(ERglLightBits)
-
-enum class ERglEnum { Never = 0, Less = 1, Equal = 2, LEqual = 3, Greater = 4, NEqual = 5, GEqual = 6, Always = 7 };
-
-enum class ERglBlendMode { None = 0, Blend = 1, Logic = 2, Subtract = 3 };
-
-enum class ERglBlendFactor {
-  Zero = 0,
-  One = 1,
-  SrcColor = 2,
-  InvSrcColor = 3,
-  SrcAlpha = 4,
-  InvSrcAlpha = 5,
-  DstAlpha = 6,
-  InvDstAlpha = 7
+enum class ERglCullMode : std::underlying_type_t<GXCullMode> {
+  None = GX_CULL_NONE,
+  Front = GX_CULL_FRONT,
+  Back = GX_CULL_BACK,
+  All = GX_CULL_ALL,
 };
 
-enum class ERglLogicOp {
-  Clear = 0,
-  And = 1,
-  RevAnd = 2,
-  Copy = 3,
-  InvAnd = 4,
-  NoOp = 5,
-  Xor = 6,
-  Or = 7,
-  Nor = 8,
-  Equiv = 9,
-  Inv = 10,
-  RevOr = 11,
-  InvCopy = 12,
-  InvOr = 13,
-  NAnd = 14,
-  Set = 15
+enum class ERglBlendMode : std::underlying_type_t<GXBlendMode> {
+  None = GX_BM_NONE,
+  Blend = GX_BM_BLEND,
+  Logic = GX_BM_LOGIC,
+  Subtract = GX_BM_SUBTRACT,
+  Max = GX_MAX_BLENDMODE,
 };
 
-enum class ERglCullMode { None = 0, Front = 1, Back = 2, All = 3 };
-
-enum class ERglAlphaFunc {
-  Never = 0,
-  Less = 1,
-  Equal = 2,
-  LEqual = 3,
-  Greater = 4,
-  NEqual = 5,
-  GEqual = 6,
-  Always = 7
+enum class ERglBlendFactor : std::underlying_type_t<GXBlendFactor> {
+  Zero = GX_BL_ZERO,
+  One = GX_BL_ONE,
+  SrcColor = GX_BL_SRCCLR,
+  InvSrcColor = GX_BL_INVSRCCLR,
+  SrcAlpha = GX_BL_SRCALPHA,
+  InvSrcAlpha = GX_BL_INVSRCALPHA,
+  DstAlpha = GX_BL_DSTALPHA,
+  InvDstAlpha = GX_BL_INVDSTALPHA,
+  DstColor = GX_BL_DSTCLR,
+  InvDstColor = GX_BL_INVDSTCLR,
 };
 
-enum class ERglAlphaOp { And = 0, Or = 1, Xor = 2, XNor = 3 };
+enum class ERglLogicOp : std::underlying_type_t<GXLogicOp> {
+  Clear = GX_LO_CLEAR,
+  And = GX_LO_AND,
+  RevAnd = GX_LO_REVAND,
+  Copy = GX_LO_COPY,
+  InvAnd = GX_LO_INVAND,
+  NoOp = GX_LO_NOOP,
+  Xor = GX_LO_XOR,
+  Or = GX_LO_OR,
+  Nor = GX_LO_NOR,
+  Equiv = GX_LO_EQUIV,
+  Inv = GX_LO_INV,
+  RevOr = GX_LO_REVOR,
+  InvCopy = GX_LO_INVCOPY,
+  InvOr = GX_LO_INVOR,
+  NAnd = GX_LO_NAND,
+  Set = GX_LO_SET,
+};
 
-enum class ERglFogMode : uint32_t {
-  None = 0x00,
+enum class ERglAlphaFunc : std::underlying_type_t<GXCompare> {
+  Never = GX_NEVER,
+  Less = GX_LESS,
+  Equal = GX_EQUAL,
+  LEqual = GX_LEQUAL,
+  Greater = GX_GREATER,
+  NEqual = GX_NEQUAL,
+  GEqual = GX_GEQUAL,
+  Always = GX_ALWAYS,
+};
 
-  PerspLin = 0x02,
-  PerspExp = 0x04,
-  PerspExp2 = 0x05,
-  PerspRevExp = 0x06,
-  PerspRevExp2 = 0x07,
+enum class ERglAlphaOp : std::underlying_type_t<GXAlphaOp> {
+  And = GX_AOP_AND,
+  Or = GX_AOP_OR,
+  Xor = GX_AOP_XOR,
+  XNor = GX_AOP_XNOR,
+  Max = GX_MAX_ALPHAOP,
+};
 
-  OrthoLin = 0x0A,
-  OrthoExp = 0x0C,
-  OrthoExp2 = 0x0D,
-  OrthoRevExp = 0x0E,
-  OrthoRevExp2 = 0x0F
+enum class ERglEnum : std::underlying_type_t<GXCompare> {
+  Never = GX_NEVER,
+  Less = GX_LESS,
+  Equal = GX_EQUAL,
+  LEqual = GX_LEQUAL,
+  Greater = GX_GREATER,
+  NEqual = GX_NEQUAL,
+  GEqual = GX_GEQUAL,
+  Always = GX_ALWAYS,
+};
+
+using ERglLight = u8;
+
+enum class ERglTexOffset : std::underlying_type_t<GXTexOffset> {
+  Zero = GX_TO_ZERO,
+  Sixteenth = GX_TO_SIXTEENTH,
+  Eighth = GX_TO_EIGHTH,
+  Fourth = GX_TO_FOURTH,
+  Half = GX_TO_HALF,
+  One = GX_TO_ONE,
+};
+
+enum class ERglFogMode : std::underlying_type_t<GXFogType> {
+  None = GX_FOG_NONE,
+
+  PerspLin = GX_FOG_PERSP_LIN,
+  PerspExp = GX_FOG_PERSP_EXP,
+  PerspExp2 = GX_FOG_ORTHO_EXP2,
+  PerspRevExp = GX_FOG_PERSP_REVEXP,
+  PerspRevExp2 = GX_FOG_PERSP_REVEXP2,
+
+  OrthoLin = GX_FOG_ORTHO_LIN,
+  OrthoExp = GX_FOG_ORTHO_EXP,
+  OrthoExp2 = GX_FOG_ORTHO_EXP2,
+  OrthoRevExp = GX_FOG_ORTHO_REVEXP,
+  OrthoRevExp2 = GX_FOG_ORTHO_REVEXP2,
 };
 
 struct SViewport {
@@ -116,8 +138,6 @@ struct SViewport {
   float x14_halfHeight;
   float aspect;
 };
-
-extern SViewport g_Viewport;
 
 struct SClipScreenRect {
   bool x0_valid = false;
@@ -145,38 +165,12 @@ struct SClipScreenRect {
   , x20_uvYMin(uvYMin)
   , x24_uvYMax(uvYMax) {}
 
-  SClipScreenRect(const boo::SWindowRect& rect) {
-    x4_left = rect.location[0];
-    x8_top = rect.location[1];
-    xc_width = rect.size[0];
-    x10_height = rect.size[1];
-    x14_dstWidth = rect.size[0];
-  }
-
   SClipScreenRect(const SViewport& vp) {
     x4_left = vp.x0_left;
     x8_top = vp.x4_top;
     xc_width = vp.x8_width;
     x10_height = vp.xc_height;
   }
-};
-
-enum class ETexelFormat {
-  I4 = 0,
-  I8 = 1,
-  IA4 = 2,
-  IA8 = 3,
-  C4 = 4,
-  C8 = 5,
-  C14X2 = 6,
-  RGB565 = 7,
-  RGB5A3 = 8,
-  RGBA8 = 9,
-  CMPR = 10,
-  RGBA8PC = 16,
-  C8PC = 17,
-  CMPRPC = 18,
-  CMPRPCA = 19,
 };
 
 #define DEPTH_FAR 1.f
@@ -190,47 +184,6 @@ enum class ETexelFormat {
 #define CUBEMAP_RES 256
 #define CUBEMAP_MIPS 6
 
-static s32 sNextUniquePass = 0;
-namespace CTevCombiners {
-struct CTevOp {
-  bool x0_clamp = true;
-  GX::TevOp x4_op = GX::TevOp::TEV_ADD;
-  GX::TevBias x8_bias = GX::TevBias::TB_ZERO;
-  GX::TevScale xc_scale = GX::TevScale::CS_SCALE_1;
-  GX::TevRegID xc_regId = GX::TevRegID::TEVPREV;
-};
-
-struct ColorPass {
-  GX::TevColorArg x0_a;
-  GX::TevColorArg x4_b;
-  GX::TevColorArg x8_c;
-  GX::TevColorArg xc_d;
-};
-struct AlphaPass {
-  GX::TevAlphaArg x0_a;
-  GX::TevAlphaArg x4_b;
-  GX::TevAlphaArg x8_c;
-  GX::TevAlphaArg xc_d;
-};
-
-class CTevPass {
-  u32 x0_id;
-  ColorPass x4_colorPass;
-  AlphaPass x14_alphaPass;
-  CTevOp x24_colorOp;
-  CTevOp x38_alphaOp;
-
-public:
-  CTevPass(const ColorPass& colPass, const AlphaPass& alphaPass, const CTevOp& colorOp = CTevOp(),
-           const CTevOp alphaOp = CTevOp())
-  : x0_id(++sNextUniquePass)
-  , x4_colorPass(colPass)
-  , x14_alphaPass(alphaPass)
-  , x24_colorOp(colorOp)
-  , x38_alphaOp(alphaOp) {}
-};
-}; // namespace CTevCombiners
-
 class CGraphics {
 public:
   struct CProjectionState {
@@ -243,26 +196,18 @@ public:
     float x18_far;
   };
 
-  struct CFogState {
-    zeus::CColor m_color;
-    float m_A = 0.f;
-    float m_B = 0.5f;
-    float m_C = 0.f;
-    ERglFogMode m_mode;
-  };
-
   static CProjectionState g_Proj;
   static zeus::CVector2f g_CachedDepthRange;
-  static CFogState g_Fog;
-  static std::array<zeus::CColor, 3> g_ColorRegs;
+  // static CFogState g_Fog;
+  static SViewport g_Viewport;
   static float g_ProjAspect;
-  static u32 g_NumLightsActive;
   static u32 g_NumBreakpointsWaiting;
   static u32 g_FlippingState;
   static bool g_LastFrameUsedAbove;
   static bool g_InterruptLastFrameUsedAbove;
-  static ERglLightBits g_LightActive;
-  static ERglLightBits g_LightsWereOn;
+  static GX::LightMask g_LightActive;
+  static std::array<GXLightObj, GX::MaxLights> g_LightObjs;
+  static std::array<ELightType, GX::MaxLights> g_LightTypes;
   static zeus::CTransform g_GXModelView;
   static zeus::CTransform g_GXModelViewInvXpose;
   static zeus::CTransform g_GXModelMatrix;
@@ -272,11 +217,21 @@ public:
   static zeus::CTransform g_CameraMatrix;
   static SClipScreenRect g_CroppedViewport;
   static bool g_IsGXModelMatrixIdentity;
+  static zeus::CColor g_ClearColor;
+  static float g_ClearDepthValue; // Was a 24bit value, we use a float range from [0,1]
+  static bool g_IsBeginSceneClearFb;
 
+  static ERglEnum g_depthFunc;
+  static ERglCullMode g_cullMode;
+
+  static void Startup();
+  static void InitGraphicsVariables();
+  static void InitGraphicsDefaults();
+  static void SetDefaultVtxAttrFmt();
   static void DisableAllLights();
   static void LoadLight(ERglLight light, const CLight& info);
   static void EnableLight(ERglLight light);
-  static void SetLightState(ERglLightBits lightState);
+  static void SetLightState(GX::LightMask lightState);
   static void SetAmbientColor(const zeus::CColor& col);
   static void SetFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color);
   static void SetDepthWriteMode(bool test, ERglEnum comp, bool write);
@@ -284,13 +239,17 @@ public:
   static void SetCullMode(ERglCullMode);
   static void BeginScene();
   static void EndScene();
+  static void Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::CColor& col);
+  static bool BeginRender2D(const CTexture& tex);
+  static void DoRender2D(const CTexture& tex, s32 x, s32 y, s32 w1, s32 w2, s32 w3, s32 w4, s32 w5,
+                         const zeus::CColor& col);
+  static void EndRender2D(bool v);
   static void SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1);
   static void SetViewPointMatrix(const zeus::CTransform& xf);
   static void SetViewMatrix();
   static void SetModelMatrix(const zeus::CTransform& xf);
-  static zeus::CMatrix4f CalculatePerspectiveMatrix(float fovy, float aspect, float znear, float zfar,
-                                                    bool forRenderer);
-  static zeus::CMatrix4f GetPerspectiveProjectionMatrix(bool forRenderer);
+  static zeus::CMatrix4f CalculatePerspectiveMatrix(float fovy, float aspect, float znear, float zfar);
+  static zeus::CMatrix4f GetPerspectiveProjectionMatrix();
   static const CProjectionState& GetProjectionState();
   static void SetProjectionState(const CProjectionState&);
   static void SetPerspective(float fovy, float aspect, float znear, float zfar);
@@ -299,8 +258,6 @@ public:
   static zeus::CVector2i ProjectPoint(const zeus::CVector3f& point);
   static SClipScreenRect ClipScreenRectFromMS(const zeus::CVector3f& p1, const zeus::CVector3f& p2);
   static SClipScreenRect ClipScreenRectFromVS(const zeus::CVector3f& p1, const zeus::CVector3f& p2);
-  static zeus::CVector3f ProjectModelPointToViewportSpace(const zeus::CVector3f& point);
-  static zeus::CVector3f ProjectModelPointToViewportSpace(const zeus::CVector3f& point, float& wOut);
 
   static void SetViewportResolution(const zeus::CVector2i& res);
   static void SetViewport(int leftOff, int bottomOff, int width, int height);
@@ -320,95 +277,54 @@ public:
   static u32 GetFrameCounter() { return g_FrameCounter; }
   static u32 GetFPS() { return g_Framerate; }
   static void UpdateFPSCounter();
-
-  static boo::IGraphicsDataFactory::Platform g_BooPlatform;
-  static const char* g_BooPlatformName;
-  static boo::IGraphicsDataFactory* g_BooFactory;
-  static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
-  static boo::ObjToken<boo::ITextureR> g_SpareTexture;
+  static void SetUseVideoFilter(bool);
+  static void SetClearColor(const zeus::CColor& color);
+  static void SetCopyClear(const zeus::CColor& color, float depth);
+  static void SetIsBeginSceneClearFb(bool clear);
+  static u32 GetViewportLeft() { return g_Viewport.x0_left; }
+  static u32 GetViewportTop() { return g_Viewport.x4_top; }
+  static u32 GetViewportWidth() { return g_Viewport.x8_width; }
+  static u32 GetViewportHeight() { return g_Viewport.xc_height; }
+  static float GetViewportHalfWidth() { return g_Viewport.x10_halfWidth; }
+  static float GetViewportHalfHeight() { return g_Viewport.x14_halfHeight; }
+  static float GetViewportAspect() { return g_Viewport.aspect; }
+  static bool IsCroppedViewportValid() { return g_CroppedViewport.x0_valid; }
+  static int GetCroppedViewportLeft() { return g_CroppedViewport.x4_left; }
+  static int GetCroppedViewportTop() { return g_CroppedViewport.x8_top; }
+  static int GetCroppedViewportWidth() { return g_CroppedViewport.xc_width; }
+  static int GetCroppedViewportHeight() { return g_CroppedViewport.x10_height; }
+  static float GetCroppedViewportDstWidth() { return g_CroppedViewport.x14_dstWidth; }
+  static float GetCroppedViewportUVXMin() { return g_CroppedViewport.x18_uvXMin; }
+  static float GetCroppedViewportUVXMax() { return g_CroppedViewport.x1c_uvXMax; }
+  static float GetCroppedViewportUVYMin() { return g_CroppedViewport.x20_uvYMin; }
+  static float GetCroppedViewportUVYMax() { return g_CroppedViewport.x24_uvYMax; }
 
   static const std::array<zeus::CMatrix3f, 6> skCubeBasisMats;
+  static u8 sSpareTextureData[];
 
-  static void InitializeBoo(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cc,
-                            const boo::ObjToken<boo::ITextureR>& spareTex) {
-    g_BooPlatform = factory->platform();
-    g_BooPlatformName = factory->platformName();
-    g_BooFactory = factory;
-    g_BooMainCommandQueue = cc;
-    g_SpareTexture = spareTex;
-  }
+  static void LoadDolphinSpareTexture(int width, int height, GXTexFmt format, void* data, GXTexMapID id);
+  static void LoadDolphinSpareTexture(int width, int height, GXCITexFmt format, GXTlut tlut, void* data, GXTexMapID id);
 
-  static void ShutdownBoo() {
-    g_BooFactory = nullptr;
-    g_BooMainCommandQueue = nullptr;
-    g_SpareTexture.reset();
-  }
-
-  static const char* PlatformName() { return g_BooPlatformName; }
-
-
-  static bool g_commitAsLazy;
-  static void SetCommitResourcesAsLazy(bool newStatus) {
-    if (newStatus != g_commitAsLazy) {
-      g_commitAsLazy = newStatus;
-      if (!newStatus && g_BooFactory) {
-        g_BooFactory->commitPendingTransaction();
-      }
-    }
-  }
-
-  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs) {
-    CommitResources(commitFunc __BooTraceArgsUse, g_commitAsLazy);
-  }
-
-  static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs, bool lazy) {
-    if (!g_BooFactory) {
-      return;
-    }
-    if (lazy) {
-      g_BooFactory->lazyCommitTransaction(commitFunc __BooTraceArgsUse);
-    } else {
-      g_BooFactory->commitTransaction(commitFunc __BooTraceArgsUse);
-    }
-  }
-
-  static void SetShaderDataBinding(const boo::ObjToken<boo::IShaderDataBinding>& binding) {
-    g_BooMainCommandQueue->setShaderDataBinding(binding);
-  }
-  static void ResolveSpareTexture(const SClipScreenRect& rect, int bindIdx = 0, bool clearDepth = false) {
-    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
-    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, true, false, clearDepth);
-  }
-  static void ResolveSpareDepth(const SClipScreenRect& rect, int bindIdx = 0) {
-    boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
-    g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, false, true);
-  }
-  static void DrawInstances(size_t start, size_t count, size_t instCount, size_t startInst = 0) {
-    g_BooMainCommandQueue->drawInstances(start, count, instCount, startInst);
-  }
-  static void DrawArray(size_t start, size_t count) { g_BooMainCommandQueue->draw(start, count); }
-  static void DrawArrayIndexed(size_t start, size_t count) { g_BooMainCommandQueue->drawIndexed(start, count); }
-
-  static const CTevCombiners::CTevPass sTevPass805a564c;
-  static const CTevCombiners::CTevPass sTevPass805a5698;
-
-  static const CTevCombiners::CTevPass sTevPass805a5e70;
-
-  static const CTevCombiners::CTevPass sTevPass805a5ebc;
-
-  static const CTevCombiners::CTevPass sTevPass805a5f08;
-
-  static const CTevCombiners::CTevPass sTevPass805a5f54;
-
-  static const CTevCombiners::CTevPass sTevPass805a5fa0;
-
-  static const CTevCombiners::CTevPass sTevPass804bfcc0;
-
-  static const CTevCombiners::CTevPass sTevPass805a5fec;
-
-  static const CTevCombiners::CTevPass sTevPass805a6038;
-
-  static const CTevCombiners::CTevPass sTevPass805a6084;
+  static void ResetGfxStates() noexcept;
+  static void SetTevStates(u32 flags) noexcept;
+  static void SetTevOp(ERglTevStage stage, const CTevCombiners::CTevPass& pass);
+  static void StreamBegin(GXPrimitive primitive);
+  static void StreamNormal(const zeus::CVector3f& nrm);
+  static void StreamColor(const zeus::CColor& color);
+  static inline void StreamColor(float r, float g, float b, float a) { StreamColor({r, g, b, a}); }
+  static void StreamTexcoord(const zeus::CVector2f& uv);
+  static inline void StreamTexcoord(float x, float y) { StreamTexcoord({x, y}); }
+  static void StreamVertex(const zeus::CVector3f& pos);
+  static inline void StreamVertex(float xyz) { StreamVertex({xyz, xyz, xyz}); }
+  static inline void StreamVertex(float x, float y, float z) { StreamVertex({x, y, z}); }
+  static void StreamEnd();
+  static void UpdateVertexDataStream();
+  static void ResetVertexDataStream(bool end);
+  static void FlushStream();
+  static void FullRender();
+  static void DrawPrimitive(GXPrimitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
+                            const zeus::CColor& col, s32 numVerts);
+  static void SetLineWidth(float width, ERglTexOffset offs);
 };
 
 template <class VTX>
@@ -441,25 +357,17 @@ public:
     m_vec.emplace_back(std::forward<_Args>(args)...);
   }
 
-  void Draw() const { CGraphics::DrawArray(m_start, m_vec.size() - m_start); }
+  //  void Draw() const { CGraphics::DrawArray(m_start, m_vec.size() - m_start); }
 };
 
-#ifdef BOO_GRAPHICS_DEBUG_GROUPS
-class GraphicsDebugGroup {
-  /* Stack only */
-  void* operator new(size_t);
-  void operator delete(void*);
-  void* operator new[](size_t);
-  void operator delete[](void*);
-
-public:
-  explicit GraphicsDebugGroup(const char* name, const zeus::CColor& color = zeus::skWhite) {
-    zeus::simd_floats f(color.mSimd);
-    CGraphics::g_BooMainCommandQueue->pushDebugGroup(name, f.array());
-  }
-  ~GraphicsDebugGroup() { CGraphics::g_BooMainCommandQueue->popDebugGroup(); }
+#ifdef AURORA_GFX_DEBUG_GROUPS
+struct ScopedDebugGroup {
+  inline ScopedDebugGroup(const char* label) noexcept { push_debug_group(label); }
+  inline ~ScopedDebugGroup() noexcept { pop_debug_group(); }
 };
-#define SCOPED_GRAPHICS_DEBUG_GROUP(...) GraphicsDebugGroup _GfxDbg_(__VA_ARGS__);
+#define SCOPED_GRAPHICS_DEBUG_GROUP(name, ...)                                                                         \
+  OPTICK_EVENT_DYNAMIC(name);                                                                                          \
+  ScopedDebugGroup _GfxDbg_ { name }
 #else
 #define SCOPED_GRAPHICS_DEBUG_GROUP(name, ...) OPTICK_EVENT_DYNAMIC(name)
 #endif

@@ -4,7 +4,7 @@
 #include <string_view>
 #include <vector>
 
-#include "DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
+#include "Runtime/Tweaks/ITweakPlayerGun.hpp"
 
 #include "Runtime/CPlayerState.hpp"
 #include "Runtime/RetroTypes.hpp"

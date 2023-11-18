@@ -187,31 +187,31 @@ constexpr std::array<std::pair<CPlayerState::EItemType, ControlMapper::ECommands
 }};
 
 CModelData MakePlayerAnimRes(CAssetId resId, const zeus::CVector3f& scale) {
-  return CModelData{CAnimRes(resId, 0, scale, 0, true), 1};
+  return CModelData{CAnimRes(resId, 0, scale, 0, true)};
 }
 
 uint32_t GetOrbitScreenBoxHalfExtentXScaled(int zone) {
-  return g_tweakPlayer->GetOrbitScreenBoxHalfExtentX(zone) * g_Viewport.x8_width / 640;
+  return g_tweakPlayer->GetOrbitScreenBoxHalfExtentX(zone) * CGraphics::GetViewportWidth() / 640;
 }
 
 uint32_t GetOrbitScreenBoxHalfExtentYScaled(int zone) {
-  return g_tweakPlayer->GetOrbitScreenBoxHalfExtentY(zone) * g_Viewport.xc_height / 448;
+  return g_tweakPlayer->GetOrbitScreenBoxHalfExtentY(zone) * CGraphics::GetViewportHeight() / 448;
 }
 
 uint32_t GetOrbitScreenBoxCenterXScaled(int zone) {
-  return g_tweakPlayer->GetOrbitScreenBoxCenterX(zone) * g_Viewport.x8_width / 640;
+  return g_tweakPlayer->GetOrbitScreenBoxCenterX(zone) * CGraphics::GetViewportWidth() / 640;
 }
 
 uint32_t GetOrbitScreenBoxCenterYScaled(int zone) {
-  return g_tweakPlayer->GetOrbitScreenBoxCenterY(zone) * g_Viewport.xc_height / 448;
+  return g_tweakPlayer->GetOrbitScreenBoxCenterY(zone) * CGraphics::GetViewportHeight() / 448;
 }
 
 uint32_t GetOrbitZoneIdealXScaled(int zone) {
-  return g_tweakPlayer->GetOrbitZoneIdealX(zone) * g_Viewport.x8_width / 640;
+  return g_tweakPlayer->GetOrbitZoneIdealX(zone) * CGraphics::GetViewportWidth() / 640;
 }
 
 uint32_t GetOrbitZoneIdealYScaled(int zone) {
-  return g_tweakPlayer->GetOrbitZoneIdealY(zone) * g_Viewport.xc_height / 448;
+  return g_tweakPlayer->GetOrbitZoneIdealY(zone) * CGraphics::GetViewportHeight() / 448;
 }
 } // Anonymous namespace
 
@@ -1401,9 +1401,7 @@ void CPlayer::RenderGun(const CStateManager& mgr, const zeus::CVector3f& pos) co
   if ((mgr.GetCameraManager()->IsInFirstPersonCamera() && x2f4_cameraState == EPlayerCameraState::FirstPerson) ||
       (x2f8_morphBallState == EPlayerMorphBallState::Morphing &&
        x498_gunHolsterState == EGunHolsterState::Holstering)) {
-    CBooModel::SetReflectionCube(m_reflectionCube);
     CModelFlags flags(5, 0, 3, zeus::CColor(1.f, x494_gunAlpha));
-    flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
     x490_gun->Render(mgr, pos, flags);
   }
 }
@@ -1418,7 +1416,7 @@ void CPlayer::Render(CStateManager& mgr) {
 
   if (x2f4_cameraState != EPlayerCameraState::FirstPerson && doRender) {
     SCOPED_GRAPHICS_DEBUG_GROUP("CPlayer::Render", zeus::skOrange);
-    CBooModel::SetReflectionCube(m_reflectionCube);
+    // CBooModel::SetReflectionCube(m_reflectionCube);
     bool doTransitionRender = false;
     bool doBallRender = false;
     switch (x2f8_morphBallState) {
@@ -1428,7 +1426,7 @@ void CPlayer::Render(CStateManager& mgr) {
       if (HasTransitionBeamModel()) {
         x7f0_ballTransitionBeamModel->Touch(mgr, 0);
         CModelFlags flags(0, 0, 3, zeus::skWhite);
-        flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+        // flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
         x7f0_ballTransitionBeamModel->Render(mgr, x7f4_gunWorldXf, x90_actorLights.get(), flags);
       }
       break;
@@ -1452,7 +1450,7 @@ void CPlayer::Render(CStateManager& mgr) {
       CPhysicsActor::Render(mgr);
       if (HasTransitionBeamModel()) {
         CModelFlags flags(5, 0, 3, zeus::CColor(1.f, x588_alpha));
-        flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+        // flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
         x7f0_ballTransitionBeamModel->Render(CModelData::EWhichModel::Normal, x7f4_gunWorldXf, x90_actorLights.get(),
                                              flags);
       }
@@ -1477,12 +1475,12 @@ void CPlayer::Render(CStateManager& mgr) {
         if (alpha != 0.f) {
           CModelData& data = *x730_transitionModels[i];
           CModelFlags flags(5, 0, 3, zeus::CColor(1.f, alpha));
-          flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+          // flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
           data.Render(CModelData::GetRenderingModel(mgr), *x658_transitionModelXfs.GetEntry(ni), x90_actorLights.get(),
                       flags);
           if (HasTransitionBeamModel()) {
             CModelFlags transFlags(5, 0, 3, zeus::CColor(1.f, alpha));
-            transFlags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+            // transFlags.m_extendedShader = EExtendedShader::LightingCubeReflection;
             x7f0_ballTransitionBeamModel->Render(CModelData::EWhichModel::Normal, *x594_transisionBeamXfs.GetEntry(ni),
                                                  x90_actorLights.get(), transFlags);
           }
@@ -1502,7 +1500,7 @@ void CPlayer::Render(CStateManager& mgr) {
         if (morphFactor > ballAlphaStart) {
           CModelFlags flags(5, u8(x768_morphball->GetMorphballModelShader()), 3,
                             zeus::CColor(1.f, ballAlphaMag * (morphFactor - ballAlphaStart)));
-          flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+          // flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
           x768_morphball->GetMorphballModelData().Render(mgr, x768_morphball->GetBallToWorld(), x90_actorLights.get(),
                                                          flags);
         }
@@ -1527,7 +1525,7 @@ void CPlayer::Render(CStateManager& mgr) {
             ballAlpha *= 0.5f;
             if (ballAlpha > 0.f) {
               CModelFlags flags(7, 0, 3, zeus::CColor(1.f, ballAlpha));
-              flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+              // flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
               x768_morphball->GetMorphballModelData().Render(
                   mgr,
                   x768_morphball->GetBallToWorld() * zeus::CTransform::RotateZ(theta) * zeus::CTransform::Scale(scale),
@@ -1564,6 +1562,7 @@ void CPlayer::RenderReflectedPlayer(CStateManager& mgr) {
 }
 
 void CPlayer::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPlayer::PreRender", zeus::skBlue);
   if (x2f8_morphBallState == EPlayerMorphBallState::Morphed) {
     SetCalculateLighting(false);
     x768_morphball->PreRender(mgr, frustum);
@@ -4138,8 +4137,8 @@ bool CPlayer::ValidateAimTargetId(TUniqueId uid, CStateManager& mgr) {
 
   if (act->GetMaterialList().HasMaterial(EMaterialTypes::Target) && uid != kInvalidUniqueId &&
       ValidateObjectForMode(uid, mgr)) {
-    const float vpWHalf = g_Viewport.x8_width / 2;
-    const float vpHHalf = g_Viewport.xc_height / 2;
+    const float vpWHalf = CGraphics::GetViewportWidth() / 2;
+    const float vpHHalf = CGraphics::GetViewportHeight() / 2;
     const zeus::CVector3f aimPos = act->GetAimPosition(mgr, 0.f);
     const zeus::CVector3f eyePos = GetEyePosition();
     zeus::CVector3f eyeToAim = aimPos - eyePos;
@@ -4249,8 +4248,8 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const EntityList& list, EPlayerZ
   float minEyeToAimMag = 10000.f;
   float minPosInBoxMagSq = 10000.f;
   TUniqueId bestId = kInvalidUniqueId;
-  const float vpWHalf = g_Viewport.x8_width / 2;
-  const float vpHHalf = g_Viewport.xc_height / 2;
+  const float vpWHalf = CGraphics::GetViewportWidth() / 2;
+  const float vpHHalf = CGraphics::GetViewportHeight() / 2;
   const float boxLeft = (GetOrbitZoneIdealXScaled(int(info)) - vpWHalf) / vpWHalf;
   const float boxTop = (GetOrbitZoneIdealYScaled(int(info)) - vpHHalf) / vpHHalf;
   const CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
@@ -4346,8 +4345,8 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids, EP
   float minEyeToOrbitMag = 10000.f;
   float minPosInBoxMagSq = 10000.f;
   TUniqueId bestId = kInvalidUniqueId;
-  const float vpWidthHalf = g_Viewport.x8_width / 2;
-  const float vpHeightHalf = g_Viewport.xc_height / 2;
+  const float vpWidthHalf = CGraphics::GetViewportWidth() / 2;
+  const float vpHeightHalf = CGraphics::GetViewportHeight() / 2;
   const float boxLeft = (GetOrbitZoneIdealXScaled(int(info)) - vpWidthHalf) / vpWidthHalf;
   const float boxTop = (GetOrbitZoneIdealYScaled(int(info)) - vpHeightHalf) / vpHeightHalf;
 
@@ -4497,8 +4496,8 @@ void CPlayer::FindOrbitableObjects(const EntityList& nearObjects, std::vector<TU
       }
       const zeus::CVector3f orbitPos = act->GetOrbitPosition(mgr);
       zeus::CVector3f screenPos = fpCam->ConvertToScreenSpace(orbitPos);
-      screenPos.x() = g_Viewport.x8_width * screenPos.x() / 2.f + g_Viewport.x8_width / 2.f;
-      screenPos.y() = g_Viewport.xc_height * screenPos.y() / 2.f + g_Viewport.xc_height / 2.f;
+      screenPos.x() = CGraphics::GetViewportWidth() * screenPos.x() / 2.f + CGraphics::GetViewportWidth() / 2.f;
+      screenPos.y() = CGraphics::GetViewportHeight() * screenPos.y() / 2.f + CGraphics::GetViewportHeight() / 2.f;
 
       bool pass = false;
       if (onScreenTest) {

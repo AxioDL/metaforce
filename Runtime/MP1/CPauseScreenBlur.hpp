@@ -3,8 +3,6 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
-#include "Runtime/Graphics/Shaders/CScanLinesFilter.hpp"
 #include "Runtime/MP1/CInGameGuiManagerCommon.hpp"
 
 namespace metaforce {
@@ -22,9 +20,6 @@ class CPauseScreenBlur {
   CCameraBlurPass x1c_camBlur;
   bool x50_24_blurring : 1 = false;
   bool x50_25_gameDraw : 1 = true;
-
-  CTexturedQuadFilter m_quarterFilter{EFilterType::Multiply, x4_mapLightQuarter};
-  CScanLinesFilterEven m_linesFilter{EFilterType::Multiply};
 
   void OnBlurComplete(bool);
   void SetState(EState state);

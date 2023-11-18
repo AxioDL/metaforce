@@ -125,7 +125,7 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
       if (input.ControllerIdx() == 0) {
         const CEntity* cam = x14_stateManager->GetCameraManager()->GetCurrentCamera(*x14_stateManager);
         TCastToConstPtr<CCinematicCamera> cineCam = cam;
-        if (input.PStart() || input.PSpecialKey(boo::ESpecialKey::Esc)) {
+        if (input.PStart() || input.PSpecialKey(ESpecialKey::Esc)) {
           if (cineCam && x14_stateManager->GetSkipCinematicSpecialFunction() != kInvalidUniqueId) {
             CMidiManager::StopAll();
             x28_skippedCineCam = cineCam->GetUniqueId();
@@ -134,7 +134,8 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
           } else if (!cineCam) {
             x14_stateManager->DeferStateTransition(EStateManagerTransition::PauseGame);
           }
-        } else if ((input.PZ() || input.PKey('\t')) && !cineCam && x14_stateManager->CanShowMapScreen()) {
+        } else if ((input.PZ() || input.PSpecialKey(ESpecialKey::Tab)) && !cineCam &&
+                   x14_stateManager->CanShowMapScreen()) {
           x14_stateManager->DeferStateTransition(EStateManagerTransition::MapScreen);
         }
       }
@@ -213,7 +214,8 @@ void CMFGame::Draw() {
 
   if (x1c_flowState == EGameFlowState::CinematicSkip) {
     const float c = std::min(1.f, 1.f - x20_cineSkipTime);
-    m_fadeToBlack.draw(zeus::CColor{c, c, c, c});
+    CCameraFilterPass::DrawFilter(EFilterType::Multiply, EFilterShape::Fullscreen, zeus::CColor{c, c, c, c}, nullptr,
+                                  1.f);
   }
 }
 
@@ -255,6 +257,7 @@ void CMFGame::EnterMapScreen() {
 }
 
 CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
+  CModel::DisableTextureTimeout();
   auto* m = static_cast<CMain*>(g_Main);
   switch (m->GetFlowState()) {
   case EClientFlowStates::Default:
@@ -273,10 +276,10 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
     break;
   }
 
-  if (g_GameState->CurrentWorldAssetId() == 0x158EFE17 && g_GameState->CurrentWorldState().GetCurrentAreaId() == 0) {
+  if (g_GameState->CurrentWorldAssetId() == 0x158EFE17u && g_GameState->CurrentWorldState().GetCurrentAreaId() == 0) {
     const SObjectTag* strgTag = g_ResFactory->GetResourceIdByName("STRG_IntroLevelLoad");
     if (strgTag)
-      g_GameState->GetWorldTransitionManager()->EnableTransition(-1, strgTag->id, 0, false, 0.1f, 16.f, 1.f);
+      g_GameState->GetWorldTransitionManager()->EnableTransition({}, strgTag->id, 0, false, 0.1f, 16.f, 1.f);
   }
 }
 
@@ -346,8 +349,8 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
 
     x1c_loadList.clear();
 
-    if (!CGraphics::g_BooFactory->areShadersReady())
-      return EMessageReturn::Exit;
+    //    if (!CGraphics::g_BooFactory->areShadersReady())
+    //      return EMessageReturn::Exit;
 
     wtMgr->StartTextFadeOut();
     x2c_25_transitionFinished = wtMgr->IsTransitionFinished();
@@ -357,6 +360,7 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
     if (x2c_25_transitionFinished) {
       queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 10, 1000,
                                             std::make_shared<CMFGame>(x14_stateMgr, x18_guiMgr, queue)));
+      CModel::EnableTextureTimeout();
       return EMessageReturn::RemoveIOWinAndExit;
     }
     break;

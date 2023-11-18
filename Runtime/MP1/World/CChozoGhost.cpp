@@ -15,14 +15,14 @@
 
 namespace metaforce::MP1 {
 CChozoGhost::CBehaveChance::CBehaveChance(CInputStream& in)
-: x0_propertyCount(in.readUint32Big())
-, x4_lurk(in.readFloatBig())
-, x8_taunt(in.readFloatBig())
-, xc_attack(in.readFloatBig())
-, x10_move(in.readFloatBig())
-, x14_lurkTime(in.readFloatBig())
-, x18_chargeAttack(x0_propertyCount < 6 ? 0.5f : in.readFloatBig() * .01f)
-, x1c_numBolts(x0_propertyCount < 7 ? 2 : in.readUint32Big()) {
+: x0_propertyCount(in.ReadLong())
+, x4_lurk(in.ReadFloat())
+, x8_taunt(in.ReadFloat())
+, xc_attack(in.ReadFloat())
+, x10_move(in.ReadFloat())
+, x14_lurkTime(in.ReadFloat())
+, x18_chargeAttack(x0_propertyCount < 6 ? 0.5f : in.ReadFloat() * .01f)
+, x1c_numBolts(x0_propertyCount < 7 ? 2 : in.ReadLong()) {
   float f2 = 1.f / (x10_move + xc_attack + x4_lurk + x8_taunt);
   x4_lurk *= f2;
   x8_taunt *= f2;
@@ -275,6 +275,9 @@ void CChozoGhost::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
           LaunchProjectile(xf, mgr, 5, EProjectileAttrib::DamageFalloff | EProjectileAttrib::StaticInterference, true,
                            {x640_projectileVisor}, x650_sound_ProjectileVisor, false, zeus::skOne3f);
       if (proj) {
+        if (GetProjectileInfo()->GetProjectileSpeed() > 0.f) {
+          proj->SetDamageFalloffSpeed(80.f / GetProjectileInfo()->GetProjectileSpeed());
+        }
         proj->AddAttrib(EProjectileAttrib::BigStrike);
         proj->SetDamageDuration(x62c_);
         proj->AddAttrib(EProjectileAttrib::StaticInterference);

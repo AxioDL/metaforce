@@ -34,8 +34,8 @@ constexpr std::array<SSphereJointInfo, 5> skSphereJointList{{
 }};
 
 CBabygothData::CBabygothData(CInputStream& in)
-: x0_fireballAttackTime(in.readFloatBig())
-, x4_fireballAttackTimeVariance(in.readFloatBig())
+: x0_fireballAttackTime(in.ReadFloat())
+, x4_fireballAttackTimeVariance(in.ReadFloat())
 , x8_fireballWeapon(in)
 , xc_fireballDamage(in)
 , x28_attackContactDamage(in)
@@ -46,20 +46,20 @@ CBabygothData::CBabygothData(CInputStream& in)
 , xd0_shellVulnerabilities(in)
 , x138_noShellModel(in)
 , x13c_noShellSkin(in)
-, x140_shellHitPoints(in.readFloatBig())
-, x144_shellCrackSfx(CSfxManager::TranslateSFXID(in.readUint32Big()))
+, x140_shellHitPoints(in.ReadFloat())
+, x144_shellCrackSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
 , x148_intermediateCrackParticle(in)
 , x14c_crackOneParticle(in)
 , x150_crackTwoParticle(in)
 , x154_destroyShellParticle(in)
-, x158_crackOneSfx(CSfxManager::TranslateSFXID(in.readUint32Big()))
-, x15a_crackTwoSfx(CSfxManager::TranslateSFXID(in.readUint32Big()))
-, x15c_destroyShellSfx(CSfxManager::TranslateSFXID(in.readUint32Big()))
-, x160_timeUntilAttack(in.readFloatBig())
-, x164_attackCooldownTime(in.readFloatBig())
-, x168_interestTime(in.readFloatBig())
+, x158_crackOneSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
+, x15a_crackTwoSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
+, x15c_destroyShellSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
+, x160_timeUntilAttack(in.ReadFloat())
+, x164_attackCooldownTime(in.ReadFloat())
+, x168_interestTime(in.ReadFloat())
 , x16c_flamePlayerSteamTxtr(in)
-, x170_flamePlayerHitSfx(CSfxManager::TranslateSFXID(in.readUint32Big()))
+, x170_flamePlayerHitSfx(CSfxManager::TranslateSFXID(in.ReadLong()))
 , x174_flamePlayerIceTxtr(in) {}
 
 CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -84,7 +84,7 @@ CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& in
   TLockedToken<CSkinRules> skin = g_SimplePool->GetObj({SBIG('CSKR'), babyData.x13c_noShellSkin});
   xa08_noShellModel =
       CToken(TObjOwnerDerivedFromIObj<CSkinnedModel>::GetNewDerivedObject(std::make_unique<CSkinnedModel>(
-          model, skin, x64_modelData->GetAnimationData()->GetModelData()->GetLayoutInfo(), 1, 1)));
+          model, skin, x64_modelData->GetAnimationData()->GetModelData()->GetLayoutInfo())));
   xa14_crackOneParticle = g_SimplePool->GetObj({SBIG('PART'), babyData.x14c_crackOneParticle});
   xa20_crackTwoParticle = g_SimplePool->GetObj({SBIG('PART'), babyData.x150_crackTwoParticle});
   xa2c_destroyShellParticle = g_SimplePool->GetObj({SBIG('PART'), babyData.x154_destroyShellParticle});
@@ -396,7 +396,7 @@ void CBabygoth::RemoveFromTeam(CStateManager& mgr) {
 
 void CBabygoth::ApplySeparationBehavior(CStateManager& mgr) {
   for (CEntity* ent : mgr.GetListeningAiObjectList()) {
-    if (TCastToPtr<CAi> ai = ent) {
+    if (TCastToPtr<CPatterned> ai = ent) {
       if (ai.GetPtr() != this && GetAreaIdAlways() == ai->GetAreaIdAlways()) {
         zeus::CVector3f sep = x45c_steeringBehaviors.Separation(*this, ai->GetTranslation(), 15.f);
         if (!sep.isZero()) {
@@ -1099,7 +1099,7 @@ bool CBabygoth::Leash(CStateManager& mgr, float) {
 
 bool CBabygoth::IsDestinationObstructed(const CStateManager& mgr) const {
   for (const CEntity* obj : mgr.GetListeningAiObjectList()) {
-    if (const TCastToConstPtr<CAi> ai = obj) {
+    if (const TCastToConstPtr<CPatterned> ai = obj) {
       if (ai->GetAreaIdAlways() == GetAreaIdAlways()) {
         if ((x8b8_backupDestPos - ai->GetTranslation()).magSquared() <= 10.f) {
           return true;

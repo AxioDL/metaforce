@@ -5,10 +5,9 @@
 #include <utility>
 
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CTransform.hpp>
@@ -18,9 +17,6 @@ class CMapWorldInfo;
 class CStateManager;
 
 class CMappableObject {
-  static boo::ObjToken<boo::IGraphicsBufferS> g_doorVbo;
-  static boo::ObjToken<boo::IGraphicsBufferS> g_doorIbo;
-
 public:
   enum class EMappableObjectType {
     BlueDoor = 0,
@@ -54,6 +50,7 @@ public:
 
 private:
   static std::array<zeus::CVector3f, 8> skDoorVerts;
+  static std::array<u16, 24> skDoorIndices;
 
   EMappableObjectType x0_type;
   EVisMode x4_visibilityMode;
@@ -61,15 +58,14 @@ private:
   u32 xc_;
   zeus::CTransform x10_transform;
 
-  struct DoorSurface {
-    CMapSurfaceShader m_surface;
-    CLineRenderer m_outline;
-    explicit DoorSurface(boo::IGraphicsDataFactory::Context& ctx)
-    : m_surface(ctx, g_doorVbo, g_doorIbo)
-    , m_outline(ctx, CLineRenderer::EPrimitiveMode::LineLoop, 5, nullptr, false, false, true) {}
-  };
-  std::optional<DoorSurface> m_doorSurface;
-  std::optional<CTexturedQuadFilter> m_texQuadFilter;
+//  struct DoorSurface {
+//    CMapSurfaceShader m_surface;
+//    CLineRenderer m_outline;
+//    explicit DoorSurface()
+//    : m_surface(skDoorVerts, skDoorIndices)
+//    , m_outline(CLineRenderer::EPrimitiveMode::LineLoop, 5, {}, false, false, true) {}
+//  };
+//  std::optional<DoorSurface> m_doorSurface;
 
   zeus::CTransform AdjustTransformForType() const;
   std::pair<zeus::CColor, zeus::CColor> GetDoorColors(int idx, const CMapWorldInfo& mwInfo, float alpha) const;
@@ -87,7 +83,7 @@ public:
   bool IsDoorConnectedToVisitedArea(const CStateManager&) const;
   bool IsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& mwInfo) const;
   bool GetIsSeen() const;
-  void CreateDoorSurface(boo::IGraphicsDataFactory::Context& ctx) { m_doorSurface.emplace(ctx); }
+//  void CreateDoorSurface() { m_doorSurface.emplace(); }
 
   static void ReadAutoMapperTweaks(const ITweakAutoMapper&);
   static bool GetTweakIsMapVisibilityCheat();

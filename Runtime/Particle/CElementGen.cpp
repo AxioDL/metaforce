@@ -2,7 +2,8 @@
 
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Character/CActorLights.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
+#include "Runtime/Graphics/CGX.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/Shaders/CElementGenShaders.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
@@ -19,11 +20,11 @@ namespace metaforce {
 namespace {
 logvisor::Module Log("metaforce::CElementGen");
 
-constexpr std::array ShadClsSizes{
-    sizeof(SParticleInstanceTex),
-    sizeof(SParticleInstanceIndTex),
-    sizeof(SParticleInstanceNoTex),
-};
+// constexpr std::array ShadClsSizes{
+//     sizeof(SParticleInstanceTex),
+//     sizeof(SParticleInstanceIndTex),
+//     sizeof(SParticleInstanceNoTex),
+// };
 } // Anonymous namespace
 
 u16 CElementGen::g_GlobalSeed = 99;
@@ -35,9 +36,9 @@ bool CElementGen::g_ParticleSystemInitialized = false;
 bool CElementGen::sMoveRedToAlphaBuffer = false;
 CParticle* CElementGen::g_currentParticle = nullptr;
 
-std::vector<SParticleInstanceTex> g_instTexData;
-std::vector<SParticleInstanceIndTex> g_instIndTexData;
-std::vector<SParticleInstanceNoTex> g_instNoTexData;
+// std::vector<SParticleInstanceTex> g_instTexData;
+// std::vector<SParticleInstanceIndTex> g_instIndTexData;
+// std::vector<SParticleInstanceNoTex> g_instNoTexData;
 
 void CElementGen::Initialize() {
   if (g_ParticleSystemInitialized)
@@ -209,21 +210,22 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
 
   if (x26c_31_LINE) {
     CUVElement* texr = desc->x54_x40_TEXR.get();
-    boo::ObjToken<boo::ITexture> tex;
-    if (texr)
-      tex = texr->GetValueTexture(0).GetObj()->GetBooTexture();
+    // TODO
+    //    aurora::gfx::TextureHandle tex;
+    //    if (texr)
+    //      tex = texr->GetValueTexture(0).GetObj()->GetTexture();
     int maxVerts = x90_MAXP;
-    m_lineRenderer.reset(
-        new CLineRenderer(CLineRenderer::EPrimitiveMode::Lines, maxVerts * 2, tex, x26c_26_AAPH, x26c_28_zTest));
+    //    m_lineRenderer.reset(
+    //        new CLineRenderer(CLineRenderer::EPrimitiveMode::Lines, maxVerts * 2, tex, x26c_26_AAPH, x26c_28_zTest));
   } else {
     m_shaderClass = CElementGenShaders::GetShaderClass(*this);
   }
 
   _RecreatePipelines();
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    CElementGenShaders::BuildShaderDataBinding(ctx, *this);
-    return true;
-  } BooTrace);
+  //  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+  //    CElementGenShaders::BuildShaderDataBinding(ctx, *this);
+  //    return true;
+  //  } BooTrace);
 }
 
 CElementGen::~CElementGen() {
@@ -259,17 +261,17 @@ void CElementGen::_RecreatePipelines() {
   size_t maxInsts = x26c_30_MBLR ? 2560 * 2 : 2560; // x26c_30_MBLR ? (x270_MBSP * x90_MAXP) : x90_MAXP;
   maxInsts = (maxInsts == 0 ? 256 : maxInsts);
 
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    if (!x26c_31_LINE) {
-      m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
-      m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
-    }
-    if (x28_loadedGenDesc->x45_24_x31_26_PMUS) {
-      m_instBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
-      m_uniformBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
-    }
-    return true;
-  } BooTrace);
+  //  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+  //    if (!x26c_31_LINE) {
+  //      m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
+  //      m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
+  //    }
+  //    if (x28_loadedGenDesc->x45_24_x31_26_PMUS) {
+  //      m_instBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Vertex, ShadClsSizes[size_t(m_shaderClass)], maxInsts);
+  //      m_uniformBufPmus = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
+  //    }
+  //    return true;
+  //  } BooTrace);
 }
 
 bool CElementGen::InternalUpdate(double dt) {
@@ -630,27 +632,27 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
   CGlobalRandom gr(x27c_randState);
 
   SChildGeneratorDesc& icts = desc->x8c_x78_ICTS;
-  if (icts.m_found && x84_prevFrame != x74_curFrame && x2a0_CSSD == x74_curFrame) {
+  if (icts && x84_prevFrame != x74_curFrame && x2a0_CSSD == x74_curFrame) {
     int ncsyVal = 1;
     if (CIntElement* ncsy = desc->x9c_x88_NCSY.get())
       ncsy->GetValue(x74_curFrame, ncsyVal);
 
-    CGenDescription* ictsDesc = icts.m_token.GetObj();
+    CGenDescription* ictsDesc = icts.GetObj();
     if (!(x26d_27_enableOPTS && ictsDesc->x45_31_x32_25_OPTS)) {
       x290_activePartChildren.reserve(ncsyVal + x290_activePartChildren.size());
       for (int i = 0; i < ncsyVal; ++i) {
-        std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(icts.m_token);
+        std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(*icts);
         x290_activePartChildren.emplace_back(std::move(chGen));
       }
     }
   }
 
   SChildGeneratorDesc& iits = desc->xb8_xa4_IITS;
-  if (iits.m_found && x84_prevFrame != x74_curFrame && x74_curFrame < x268_PSLT && x88_particleEmission == 1 &&
+  if (iits && x84_prevFrame != x74_curFrame && x74_curFrame < x268_PSLT && x88_particleEmission == 1 &&
       x74_curFrame >= x2a4_SISY && ((x74_curFrame - x2a4_SISY) % x2a8_PISY) == 0) {
-    CGenDescription* iitsDesc = iits.m_token.GetObj();
+    CGenDescription* iitsDesc = iits.GetObj();
     if (!(x26d_27_enableOPTS && iitsDesc->x45_31_x32_25_OPTS)) {
-      std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(iits.m_token);
+      std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(*iits);
       x290_activePartChildren.emplace_back(std::move(chGen));
     }
   }
@@ -677,24 +679,24 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
   }
 
   SChildGeneratorDesc& idts = desc->xa4_x90_IDTS;
-  if (idts.m_found && x74_curFrame == x268_PSLT && x84_prevFrame != x74_curFrame) {
+  if (idts && x74_curFrame == x268_PSLT && x84_prevFrame != x74_curFrame) {
     int ndsyVal = 1;
     if (CIntElement* ndsy = desc->xb4_xa0_NDSY.get())
       ndsy->GetValue(0, ndsyVal);
 
-    CGenDescription* idtsDesc = idts.m_token.GetObj();
+    CGenDescription* idtsDesc = idts.GetObj();
     if (!(x26d_27_enableOPTS && idtsDesc->x45_31_x32_25_OPTS)) {
       x290_activePartChildren.reserve(ndsyVal + x290_activePartChildren.size());
       for (int i = 0; i < ndsyVal; ++i) {
-        std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(idts.m_token);
+        std::unique_ptr<CParticleGen> chGen = ConstructChildParticleSystem(*idts);
         x290_activePartChildren.emplace_back(std::move(chGen));
       }
     }
   }
 
   SSwooshGeneratorDesc& sswh = desc->xd4_xc0_SSWH;
-  if (sswh.m_found && x84_prevFrame != x74_curFrame && x74_curFrame == x2ac_SSSD) {
-    std::unique_ptr<CParticleGen> sswhGen = std::make_unique<CParticleSwoosh>(sswh.m_token, 0);
+  if (sswh && x84_prevFrame != x74_curFrame && x74_curFrame == x2ac_SSSD) {
+    std::unique_ptr<CParticleGen> sswhGen = std::make_unique<CParticleSwoosh>(*sswh, 0);
     sswhGen->SetGlobalTranslation(xe8_globalTranslation);
     sswhGen->SetGlobalScale(x100_globalScale);
     sswhGen->SetLocalScale(x16c_localScale);
@@ -705,8 +707,8 @@ void CElementGen::UpdateChildParticleSystems(double dt) {
   }
 
   SElectricGeneratorDesc& selc = desc->xec_xd8_SELC;
-  if (selc.m_found && x84_prevFrame != x74_curFrame && x74_curFrame == x2bc_SESD) {
-    std::unique_ptr<CParticleGen> selcGen = std::make_unique<CParticleElectric>(selc.m_token);
+  if (selc && x84_prevFrame != x74_curFrame && x74_curFrame == x2bc_SESD) {
+    std::unique_ptr<CParticleGen> selcGen = std::make_unique<CParticleElectric>(*selc);
     selcGen->SetGlobalTranslation(xe8_globalTranslation);
     selcGen->SetGlobalScale(x100_globalScale);
     selcGen->SetLocalScale(x16c_localScale);
@@ -835,15 +837,7 @@ u32 CElementGen::GetSystemCount() const {
   return ret + (x25c_activeParticleCount != 0);
 }
 
-void CElementGen::Render(const CActorLights* actorLights) {
-  // Check to make sure our buffers are ready to render
-  if (!x26c_31_LINE && (!m_instBuf || !m_uniformBuf)) {
-    return;
-  }
-  if (x28_loadedGenDesc->x45_24_x31_26_PMUS && (!m_instBufPmus || !m_uniformBufPmus)) {
-    return;
-  }
-
+void CElementGen::Render() {
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::Render {}"), *x1c_genDesc.GetObjectTag()).c_str(),
                               zeus::skYellow);
 
@@ -853,38 +847,35 @@ void CElementGen::Render(const CActorLights* actorLights) {
   CGraphics::DisableAllLights();
 
   for (std::unique_ptr<CParticleGen>& child : x290_activePartChildren)
-    child->Render(actorLights);
+    child->Render();
 
   CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::instance()->m_currentParticleSystem;
   CParticleGlobals::SParticleSystem thisSystem{FOURCC('PART'), this};
   CParticleGlobals::instance()->m_currentParticleSystem = &thisSystem;
 
-  if (x30_particles.size()) {
-    SParticleModel& pmdl = desc->x5c_x48_PMDL;
-    if (pmdl.m_found || desc->x45_24_x31_26_PMUS)
-      RenderModels(actorLights);
-
-    if (x26c_31_LINE)
+  if (!x30_particles.empty()) {
+    if (desc->x5c_x48_PMDL || desc->x45_24_x31_26_PMUS) {
+      RenderModels();
+    }
+    if (x26c_31_LINE) {
       RenderLines();
-    else
+    } else {
       RenderParticles();
+    }
   }
 
   CParticleGlobals::instance()->m_currentParticleSystem = prevSystem;
 }
 
-void CElementGen::RenderModels(const CActorLights* actorLights) {
-  // Check to make sure our buffers are ready to render
-  if (!x26c_31_LINE && (!m_instBuf || !m_uniformBuf)) {
-    return;
-  }
-  if (x28_loadedGenDesc->x45_24_x31_26_PMUS && (!m_instBufPmus || !m_uniformBufPmus)) {
-    return;
-  }
+void CElementGen::RenderModels() {
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderModels")).c_str(), zeus::skYellow);
 
   CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
-  if (x26d_26_modelsUseLights)
+  if (x26d_26_modelsUseLights) {
     CGraphics::SetLightState(x274_backupLightActive);
+  } else {
+    CGraphics::SetAmbientColor(zeus::skWhite);
+  }
   CGlobalRandom gr(x27c_randState);
 
   CGenDescription* desc = x1c_genDesc.GetObj();
@@ -896,20 +887,24 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
   bool moveRedToAlphaBuffer = false;
 
   if (desc->x45_24_x31_26_PMUS) {
-    if (sMoveRedToAlphaBuffer && desc->x44_31_x31_25_PMAB && desc->x54_x40_TEXR)
+    if (sMoveRedToAlphaBuffer && desc->x44_31_x31_25_PMAB && desc->x54_x40_TEXR) {
       moveRedToAlphaBuffer = true;
+    }
 
     if (desc->x44_31_x31_25_PMAB) {
       CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, false);
-      if (moveRedToAlphaBuffer)
+      if (moveRedToAlphaBuffer) {
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::One, ERglLogicOp::Clear);
-      else
+      } else {
         CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One,
                                 ERglLogicOp::Clear);
+        CGraphics::SetAlphaCompare(ERglAlphaFunc::Greater, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
+      }
     } else {
       CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
       CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
                               ERglLogicOp::Clear);
+      CGraphics::SetAlphaCompare(ERglAlphaFunc::Greater, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
     }
 
     CGraphics::SetCullMode(ERglCullMode::None);
@@ -918,38 +913,38 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       CParticle& target = x30_particles[0];
       int partFrame = x74_curFrame - target.x28_startFrame;
       cachedTex = texr->GetValueTexture(partFrame).GetObj();
-      cachedTex->Load(0, CTexture::EClampMode::One);
-      /* Shade as TEXC * RASC and TEXA * RASA */
+      cachedTex->Load(GX_TEXMAP0, EClampMode::Repeat);
+
+      CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
       if (moveRedToAlphaBuffer) {
-        /* Color = Prev.rgb * Prev.a */
-        /* Alpha = Tex.r * Prev.a */
+        CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_CPREV, GX_CC_APREV, GX_CC_ZERO);
+        CGX::SetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_TEXA, GX_CA_APREV, GX_CA_ZERO);
+        CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE1);
+        CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+        GXSetTevSwapMode(GX_TEVSTAGE1, GX_TEV_SWAP0, GX_TEV_SWAP1);
+        CGX::SetNumTevStages(2);
+        constexpr std::array vtxDescList{
+            GXVtxDescList{GX_VA_POS, GX_DIRECT},
+            GXVtxDescList{GX_VA_CLR0, GX_DIRECT},
+            GXVtxDescList{GX_VA_TEX0, GX_DIRECT},
+            GXVtxDescList{GX_VA_NULL, GX_NONE},
+        };
+        CGX::SetVtxDescv(vtxDescList.data());
+        CGX::SetChanCtrl(CGX::EChannelId::Channel0, {});
+        CGX::SetNumChans(1);
+        CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+        CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+        CGX::SetNumTexGens(1);
+      } else {
+        CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
       }
+
       texConst = texr->HasConstantTexture();
       texr->GetValueUV(partFrame, uvs);
+    } else {
+      CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvPassthru);
+      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
     }
-
-    switch (m_shaderClass) {
-    case CElementGenShaders::EShaderClass::Tex:
-      g_instTexData.clear();
-      g_instTexData.reserve(x30_particles.size());
-      break;
-    case CElementGenShaders::EShaderClass::NoTex:
-      g_instNoTexData.clear();
-      g_instNoTexData.reserve(x30_particles.size());
-      break;
-    default:
-      Log.report(logvisor::Fatal, FMT_STRING("unexpected particle shader class"));
-      break;
-    }
-
-    SParticleUniforms uniformData = {CGraphics::GetPerspectiveProjectionMatrix(true), {1.f, 1.f, 1.f, 1.f}};
-
-    m_uniformBufPmus->load(&uniformData, sizeof(SParticleUniforms));
-
-    if (moveRedToAlphaBuffer)
-      CGraphics::SetShaderDataBinding(m_redToAlphaDataBindPmus[g_Renderer->IsThermalVisorHotPass()]);
-    else
-      CGraphics::SetShaderDataBinding(m_normalDataBindPmus[g_Renderer->IsThermalVisorHotPass()]);
   }
 
   zeus::CTransform orient = zeus::CTransform();
@@ -1040,54 +1035,44 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
     CGraphics::SetModelMatrix((x10c_globalScaleTransform * partTrans) * x178_localScaleTransform);
 
     if (desc->x45_24_x31_26_PMUS) {
-      if (!texConst) {
-        CTexture* tex = texr->GetValueTexture(x74_curFrame - particle.x28_startFrame).GetObj();
-        if (tex != cachedTex) {
-          tex->Load(0, CTexture::EClampMode::One);
-          cachedTex = tex;
-        }
-      }
-
-      switch (m_shaderClass) {
-      case CElementGenShaders::EShaderClass::Tex: {
-        SParticleInstanceTex& inst = g_instTexData.emplace_back();
-        inst.pos[0] = CGraphics::g_GXModelView * zeus::CVector3f{0.5f, 0.f, 0.5f};
-        inst.pos[1] = CGraphics::g_GXModelView * zeus::CVector3f{-0.5f, 0.f, 0.5f};
-        inst.pos[2] = CGraphics::g_GXModelView * zeus::CVector3f{0.5f, 0.f, -0.5f};
-        inst.pos[3] = CGraphics::g_GXModelView * zeus::CVector3f{-0.5f, 0.f, -0.5f};
-        inst.color = col;
-        inst.uvs[0] = {uvs.xMax, uvs.yMax};
-        inst.uvs[1] = {uvs.xMin, uvs.yMax};
-        inst.uvs[2] = {uvs.xMax, uvs.yMin};
-        inst.uvs[3] = {uvs.xMin, uvs.yMin};
-        break;
-      }
-      case CElementGenShaders::EShaderClass::NoTex: {
-        SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
-        inst.pos[0] = CGraphics::g_GXModelView * zeus::CVector3f{0.5f, 0.f, 0.5f};
-        inst.pos[1] = CGraphics::g_GXModelView * zeus::CVector3f{-0.5f, 0.f, 0.5f};
-        inst.pos[2] = CGraphics::g_GXModelView * zeus::CVector3f{0.5f, 0.f, -0.5f};
-        inst.pos[3] = CGraphics::g_GXModelView * zeus::CVector3f{-0.5f, 0.f, -0.5f};
-        inst.color = col;
-        break;
-      }
-      default:
-        break;
+      if (moveRedToAlphaBuffer) {
+        CGX::Begin(GX_QUADS, GX_VTXFMT0, 4);
+        GXPosition3f32(0.5f, 0.f, 0.5f);
+        GXColor4f32(col);
+        GXTexCoord2f32(uvs.xMax, uvs.yMax);
+        GXPosition3f32(-0.5f, 0.f, 0.5f);
+        GXColor4f32(col);
+        GXTexCoord2f32(uvs.xMin, uvs.yMax);
+        GXPosition3f32(-0.5f, 0.f, -0.5f);
+        GXColor4f32(col);
+        GXTexCoord2f32(uvs.xMin, uvs.yMin);
+        GXPosition3f32(0.5f, 0.f, -0.5f);
+        GXColor4f32(col);
+        GXTexCoord2f32(uvs.xMax, uvs.yMin);
+        CGX::End();
+      } else {
+        CGraphics::StreamBegin(GX_QUADS);
+        CGraphics::StreamColor(col);
+        CGraphics::StreamTexcoord(uvs.xMax, uvs.yMax);
+        CGraphics::StreamVertex(0.5f, 0.f, 0.5f);
+        CGraphics::StreamTexcoord(uvs.xMin, uvs.yMax);
+        CGraphics::StreamVertex(-0.5f, 0.f, 0.5f);
+        CGraphics::StreamTexcoord(uvs.xMin, uvs.yMin);
+        CGraphics::StreamVertex(-0.5f, 0.f, -0.5f);
+        CGraphics::StreamTexcoord(uvs.xMax, uvs.yMin);
+        CGraphics::StreamVertex(0.5f, 0.f, -0.5f);
+        CGraphics::StreamEnd();
       }
     } else {
-      CModel* model = desc->x5c_x48_PMDL.m_token.GetObj();
-      if (actorLights)
-        actorLights->ActivateLights(model->GetInstance());
+      CModel* model = desc->x5c_x48_PMDL.GetObj();
       if (g_subtractBlend) {
-        model->Draw({5, 0, 1, zeus::CColor(1.f, 0.5f)});
+        model->Draw({5, 0, 1, zeus::CColor{1.f, 0.5f}});
       } else if (desc->x44_31_x31_25_PMAB) {
-        CModelFlags flags{7, 0, 1, col};
-        flags.m_extendedShader = EExtendedShader::ForcedAdditiveNoZWrite;
-        model->Draw(flags);
+        model->Draw({7, 0, 1, col});
       } else if (1.f == col.a()) {
         model->Draw({0, 0, 3, zeus::skWhite});
       } else {
-        model->Draw({5, 0, 1, zeus::CColor(1.f, col.a())});
+        model->Draw({5, 0, 1, zeus::CColor{1.f, col.a()}});
       }
     }
 
@@ -1095,31 +1080,21 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       ++matrixIt;
   }
 
-  if (desc->x45_24_x31_26_PMUS) {
-    switch (m_shaderClass) {
-    case CElementGenShaders::EShaderClass::Tex:
-      m_instBufPmus->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
-      CGraphics::DrawInstances(0, 4, g_instTexData.size());
-      break;
-    case CElementGenShaders::EShaderClass::NoTex:
-      m_instBufPmus->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
-      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
-      break;
-    default:
-      break;
-    }
-  }
-
-  if (x26d_26_modelsUseLights)
+  if (x26d_26_modelsUseLights) {
     CGraphics::DisableAllLights();
+  }
 
   CGraphics::SetCullMode(ERglCullMode::Front);
+  CTevCombiners::ResetStates();
   if (moveRedToAlphaBuffer) {
-    /* Restore passthrough */
+    GXSetTevSwapMode(GX_TEVSTAGE1, GX_TEV_SWAP0, GX_TEV_SWAP0);
   }
+  CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
 }
 
 void CElementGen::RenderLines() {
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderLines")).c_str(), zeus::skYellow);
+
   CGenDescription* desc = x1c_genDesc.GetObj();
   CGlobalRandom gr(x27c_randState);
 
@@ -1157,7 +1132,7 @@ void CElementGen::RenderLines() {
     CParticle& target = x30_particles[0];
     int partFrame = x74_curFrame - target.x28_startFrame;
     cachedTex = texr->GetValueTexture(partFrame).GetObj();
-    cachedTex->Load(0, CTexture::EClampMode::One);
+    cachedTex->Load(GX_TEXMAP0, EClampMode::Repeat);
 
     /* Set TEXC * RASC */
 
@@ -1177,7 +1152,7 @@ void CElementGen::RenderLines() {
     constWidth = std::max(0.f, std::min(constWidth, 42.5f));
   }
 
-  m_lineRenderer->Reset();
+  // m_lineRenderer->Reset();
 
   for (auto& particle : x30_particles) {
     g_currentParticle = &particle;
@@ -1187,7 +1162,7 @@ void CElementGen::RenderLines() {
     if (!constTexr) {
       CTexture* tex = texr->GetValueTexture(partFrame).GetObj();
       if (tex != cachedTex) {
-        tex->Load(0, CTexture::EClampMode::One);
+        tex->Load(GX_TEXMAP0, EClampMode::Repeat);
         cachedTex = tex;
       }
     }
@@ -1204,30 +1179,30 @@ void CElementGen::RenderLines() {
     zeus::CVector3f p2 = systemCameraMatrix * (particle.x2c_lineLengthOrSize * dVec + particle.x4_pos);
 
     if (widtConst) {
-      m_lineRenderer->AddVertex(p1, particle.x34_color, constWidth, {uvs.xMin, uvs.yMin});
-      m_lineRenderer->AddVertex(p2, particle.x34_color, constWidth, {uvs.xMax, uvs.yMax});
+      // m_lineRenderer->AddVertex(p1, particle.x34_color, constWidth, {uvs.xMin, uvs.yMin});
+      // m_lineRenderer->AddVertex(p2, particle.x34_color, constWidth, {uvs.xMax, uvs.yMax});
     } else if (widt) {
       float width = 1.f;
       widt->GetValue(0, width);
       width = std::max(0.f, std::min(width, 42.5f));
-      m_lineRenderer->AddVertex(p1, particle.x34_color, width, {uvs.xMin, uvs.yMin});
-      m_lineRenderer->AddVertex(p2, particle.x34_color, width, {uvs.xMax, uvs.yMax});
+      // m_lineRenderer->AddVertex(p1, particle.x34_color, width, {uvs.xMin, uvs.yMin});
+      // m_lineRenderer->AddVertex(p2, particle.x34_color, width, {uvs.xMax, uvs.yMax});
     }
   }
 
-  m_lineRenderer->Render(g_Renderer->IsThermalVisorHotPass(), moduColor);
+  // m_lineRenderer->Render(g_Renderer->IsThermalVisorHotPass(), moduColor);
 }
 
 void CElementGen::RenderParticles() {
   CGenDescription* desc = x1c_genDesc.GetObj();
   CGlobalRandom gr(x27c_randState);
 
-  CUVElement* texr = desc->x54_x40_TEXR.get();
-  CUVElement* tind = desc->x58_x44_TIND.get();
-  if (texr && tind) {
+  if (IsIndirectTextured()) {
     RenderParticlesIndirectTexture();
     return;
   }
+
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderParticles")).c_str(), zeus::skYellow);
 
   CRealElement* size = desc->x4c_x38_SIZE.get();
   if (size && size->IsConstant()) {
@@ -1240,6 +1215,8 @@ void CElementGen::RenderParticles() {
     }
   }
 
+  bool hasModuColor = x338_moduColor != zeus::skWhite;
+  CGraphics::SetCullMode(ERglCullMode::None);
   zeus::CTransform systemModelMatrix(CGraphics::g_ViewMatrix);
   systemModelMatrix.origin.zeroOut();
   zeus::CTransform systemCameraMatrix = systemModelMatrix.inverse() * x22c_globalOrientation;
@@ -1251,31 +1228,120 @@ void CElementGen::RenderParticles() {
   else
     CGraphics::SetModelMatrix(systemModelMatrix);
 
-  CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
+  CGraphics::SetAlphaCompare(ERglAlphaFunc::Greater, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
 
   SUVElementSet uvs = {0.f, 0.f, 1.f, 1.f};
   bool constUVs = true;
   CTexture* cachedTex = nullptr;
 
-  SParticleUniforms uniformData = {
-      CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
+  auto* rota = x28_loadedGenDesc->x50_x3c_ROTA.get();
+  bool noRota = rota == nullptr;
+  if (rota != nullptr && rota->IsConstant()) {
+    float value = 1.f;
+    rota->GetValue(0, value);
+    if (value == 0.f) {
+      value = 1.f;
+      rota->GetValue(1, value);
+      if (value == 0.f) {
+        noRota = true;
+      }
+    }
+  }
 
-  if (texr) {
+  auto* texr = x28_loadedGenDesc->x54_x40_TEXR.get();
+  if (texr != nullptr) {
     CParticle& target = x30_particles[0];
     int partFrame = x74_curFrame - target.x28_startFrame;
     cachedTex = texr->GetValueTexture(partFrame).GetObj();
-    cachedTex->Load(0, CTexture::EClampMode::One);
+    cachedTex->Load(GX_TEXMAP0, EClampMode::Repeat);
 
-    if (x338_moduColor != zeus::skBlack) {
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+    if (hasModuColor) {
       /* Add RASC * PREVC pass for MODU color loaded into channel mat-color */
-      uniformData.moduColor = x338_moduColor;
+      static const CTevCombiners::CTevPass kEnvModuColor{
+          {GX_CC_ZERO, GX_CC_CPREV, GX_CC_RASC, GX_CC_ZERO},
+          {GX_CA_ZERO, GX_CA_APREV, GX_CA_RASA, GX_CA_ZERO},
+      };
+      CGraphics::SetTevOp(ERglTevStage::Stage1, kEnvModuColor);
+    } else {
+      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
     }
 
     texr->GetValueUV(partFrame, uvs);
     constUVs = texr->HasConstantUV();
+  } else {
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvPassthru);
+    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   }
 
-  m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
+  constexpr std::array vtxDescList{
+      GXVtxDescList{GX_VA_POS, GX_DIRECT},
+      GXVtxDescList{GX_VA_CLR0, GX_DIRECT},
+      GXVtxDescList{GX_VA_TEX0, GX_DIRECT},
+      GXVtxDescList{GX_VA_NULL, GX_NONE},
+  };
+  CGX::SetVtxDescv(vtxDescList.data());
+  GXTevStageID nextStage;
+  if (hasModuColor) {
+    CGX::SetNumChans(2);
+    nextStage = GX_TEVSTAGE2;
+    CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR1A1);
+    CGX::SetChanAmbColor(CGX::EChannelId::Channel1, zeus::skBlack);
+    CGX::SetChanMatColor(CGX::EChannelId::Channel1, x338_moduColor);
+    CGX::SetChanCtrl(CGX::EChannelId::Channel1, {});
+  } else {
+    CGX::SetNumChans(1);
+    nextStage = GX_TEVSTAGE1;
+  }
+
+  bool moveRedToAlphaBuffer = sMoveRedToAlphaBuffer;
+  if (g_subtractBlend) {
+    CGraphics::SetDepthWriteMode(x26c_28_zTest, ERglEnum::LEqual, false);
+    CGX::SetBlendMode(GX_BM_SUBTRACT, GX_BL_ONE, GX_BL_ZERO, GX_LO_CLEAR);
+    if (moveRedToAlphaBuffer) {
+      CGX::SetTevColorIn(nextStage, GX_CC_ZERO, GX_CC_CPREV, GX_CC_APREV, GX_CC_ZERO);
+      CGX::SetTevAlphaIn(nextStage, GX_CA_ZERO, GX_CA_TEXA, GX_CA_APREV, GX_CA_ZERO);
+      CGX::SetStandardTevColorAlphaOp(nextStage);
+      CGX::SetTevOrder(nextStage, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+      GXSetTevSwapMode(nextStage, GX_TEV_SWAP0, GX_TEV_SWAP1);
+      nextStage = GXTevStageID(nextStage + 1);
+    }
+  } else if (moveRedToAlphaBuffer) {
+    CGraphics::SetDepthWriteMode(x26c_28_zTest, ERglEnum::LEqual, false);
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::One, ERglLogicOp::Clear);
+    CGX::SetTevColorIn(nextStage, GX_CC_ZERO, GX_CC_CPREV, GX_CC_APREV, GX_CC_ZERO);
+    CGX::SetTevAlphaIn(nextStage, GX_CA_ZERO, GX_CA_TEXA, GX_CA_APREV, GX_CA_ZERO);
+    CGX::SetStandardTevColorAlphaOp(nextStage);
+    CGX::SetTevOrder(nextStage, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+    GXSetTevSwapMode(nextStage, GX_TEV_SWAP0, GX_TEV_SWAP1);
+    nextStage = GXTevStageID(nextStage + 1);
+  } else if (x26c_26_AAPH) {
+    CGraphics::SetDepthWriteMode(x26c_28_zTest, ERglEnum::LEqual, false);
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One, ERglLogicOp::Clear);
+  } else {
+    CGraphics::SetDepthWriteMode(x26c_28_zTest, ERglEnum::LEqual, x26c_27_ZBUF);
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
+                            ERglLogicOp::Clear);
+  }
+  CGX::SetNumTevStages(nextStage);
+  CGX::SetNumTexGens(1);
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX_SRC_REG, GX_SRC_VTX, {}, GX_DF_NONE, GX_AF_NONE);
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+  GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+  if (constUVs) {
+    GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_TEX0, GX_TEX_ST, GX_RGBA8, 1);
+  } else {
+    GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+  }
+
+  int mbspVal = std::max(1, x270_MBSP);
+  if (x26c_30_MBLR) {
+    CGX::Begin(GX_QUADS, GX_VTXFMT6, mbspVal * x30_particles.size() * 4);
+  } else {
+    CGX::Begin(GX_QUADS, GX_VTXFMT6, mbspVal * 4);
+  }
 
   std::vector<CParticleListItem> sortItems;
   if (desc->x44_28_x30_28_SORT) {
@@ -1294,70 +1360,21 @@ void CElementGen::RenderParticles() {
     });
   }
 
-  bool moveRedToAlphaBuffer = false;
-  if (sMoveRedToAlphaBuffer && x26c_26_AAPH)
-    moveRedToAlphaBuffer = true;
-
-  if (g_subtractBlend) {
-    // FIXME should there be NoTex specializations for RedToAlpha?
-    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
-      CGraphics::SetShaderDataBinding(m_redToAlphaSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
-    else
-      CGraphics::SetShaderDataBinding(m_normalSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
-  } else {
-    if (moveRedToAlphaBuffer && desc->x54_x40_TEXR)
-      CGraphics::SetShaderDataBinding(m_redToAlphaDataBind[g_Renderer->IsThermalVisorHotPass()]);
-    else
-      CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
-  }
-
-  int mbspVal = std::max(1, x270_MBSP);
-
   CParticleGlobals::instance()->SetEmitterTime(x74_curFrame);
   if (!x26c_30_MBLR) {
-#if 0
-        if (!desc->x44_28_x30_28_SORT && constUVs && !x26c_29_ORNT)
-        {
-            if (!desc->x50_x3c_ROTA)
-            {
-                if (!zeus::close_enough(x80_timeDeltaScale, 1.f))
-                {
-                    RenderBasicParticlesNoRotNoTS(systemCameraMatrix);
-                }
-                else
-                {
-                    RenderBasicParticlesNoRotTS(systemCameraMatrix);
-                }
-            }
-            else
-            {
-                if (!zeus::close_enough(x80_timeDeltaScale, 1.f))
-                {
-                    RenderBasicParticlesRotNoTS(systemCameraMatrix);
-                }
-                else
-                {
-                    RenderBasicParticlesRotTS(systemCameraMatrix);
-                }
-            }
+    if (!desc->x44_28_x30_28_SORT && constUVs && !x26c_29_ORNT) {
+      if (noRota) {
+        if (zeus::close_enough(x80_timeDeltaScale, 1.f)) {
+          RenderBasicParticlesNoRotNoTS(systemCameraMatrix);
+        } else {
+          RenderBasicParticlesNoRotTS(systemCameraMatrix);
         }
-#endif
-
-    switch (m_shaderClass) {
-    case CElementGenShaders::EShaderClass::Tex:
-      g_instTexData.clear();
-      g_instTexData.reserve(x30_particles.size());
-      break;
-    case CElementGenShaders::EShaderClass::NoTex:
-      g_instNoTexData.clear();
-      g_instNoTexData.reserve(x30_particles.size());
-      break;
-    default:
-      Log.report(logvisor::Fatal, FMT_STRING("unexpected particle shader class"));
-      break;
-    }
-
-    if (!x26c_29_ORNT) {
+      } else if (zeus::close_enough(x80_timeDeltaScale, 1.f)) {
+        RenderBasicParticlesRotNoTS(systemCameraMatrix);
+      } else {
+        RenderBasicParticlesRotTS(systemCameraMatrix);
+      }
+    } else if (!x26c_29_ORNT) {
       for (size_t i = 0; i < x30_particles.size(); ++i) {
         const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
         CParticle& particle = x30_particles[partIdx];
@@ -1372,75 +1389,42 @@ void CElementGen::RenderParticles() {
                       ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
         }
 
+        const float size = 0.5f * particle.x2c_lineLengthOrSize;
         if (!constUVs) {
           CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
           CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(partFrame);
           texr->GetValueUV(partFrame, uvs);
         }
 
-        const float size = 0.5f * particle.x2c_lineLengthOrSize;
-        if (0.f == particle.x30_lineWidthOrRota) {
-          switch (m_shaderClass) {
-          case CElementGenShaders::EShaderClass::Tex: {
-            SParticleInstanceTex& inst = g_instTexData.emplace_back();
-            inst.pos[0] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size, 1.f};
-            inst.pos[1] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() + size, 1.f};
-            inst.pos[2] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() - size, 1.f};
-            inst.pos[3] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() - size, 1.f};
-            inst.color = particle.x34_color;
-            inst.uvs[0] = {uvs.xMax, uvs.yMax};
-            inst.uvs[1] = {uvs.xMin, uvs.yMax};
-            inst.uvs[2] = {uvs.xMax, uvs.yMin};
-            inst.uvs[3] = {uvs.xMin, uvs.yMin};
-            break;
-          }
-          case CElementGenShaders::EShaderClass::NoTex: {
-            SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
-            inst.pos[0] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size, 1.f};
-            inst.pos[1] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() + size, 1.f};
-            inst.pos[2] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() - size, 1.f};
-            inst.pos[3] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() - size, 1.f};
-            inst.color = particle.x34_color;
-            break;
-          }
-          default:
-            break;
-          }
+        if (noRota) {
+          GXPosition3f32(viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size);
+          GXColor4f32(particle.x34_color);
+          GXTexCoord2f32(uvs.xMax, uvs.yMax);
+          GXPosition3f32(viewPoint.x() - size, viewPoint.y(), viewPoint.z() + size);
+          GXColor4f32(particle.x34_color);
+          GXTexCoord2f32(uvs.xMin, uvs.yMax);
+          GXPosition3f32(viewPoint.x() - size, viewPoint.y(), viewPoint.z() - size);
+          GXColor4f32(particle.x34_color);
+          GXTexCoord2f32(uvs.xMin, uvs.yMin);
+          GXPosition3f32(viewPoint.x() + size, viewPoint.y(), viewPoint.z() - size);
+          GXColor4f32(particle.x34_color);
+          GXTexCoord2f32(uvs.xMax, uvs.yMin);
         } else {
-          float theta = zeus::degToRad(particle.x30_lineWidthOrRota);
-          float sinT = std::sin(theta) * size;
-          float cosT = std::cos(theta) * size;
-
-          switch (m_shaderClass) {
-          case CElementGenShaders::EShaderClass::Tex: {
-            SParticleInstanceTex& inst = g_instTexData.emplace_back();
-            inst.pos[0] = zeus::CVector4f{viewPoint.x() + sinT + cosT, viewPoint.y(), viewPoint.z() + cosT - sinT, 1.f};
-            inst.pos[1] = zeus::CVector4f{viewPoint.x() + sinT - cosT, viewPoint.y(), viewPoint.z() + sinT + cosT, 1.f};
-            inst.pos[2] =
-                zeus::CVector4f{viewPoint.x() + (cosT - sinT), viewPoint.y(), viewPoint.z() + (-cosT - sinT), 1.f};
-            inst.pos[3] =
-                zeus::CVector4f{viewPoint.x() - (sinT + cosT), viewPoint.y(), viewPoint.z() - (cosT - sinT), 1.f};
-            inst.color = particle.x34_color;
-            inst.uvs[0] = {uvs.xMax, uvs.yMax};
-            inst.uvs[1] = {uvs.xMin, uvs.yMax};
-            inst.uvs[2] = {uvs.xMax, uvs.yMin};
-            inst.uvs[3] = {uvs.xMin, uvs.yMin};
-            break;
-          }
-          case CElementGenShaders::EShaderClass::NoTex: {
-            SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
-            inst.pos[0] = zeus::CVector4f{viewPoint.x() + sinT + cosT, viewPoint.y(), viewPoint.z() + cosT - sinT, 1.f};
-            inst.pos[1] = zeus::CVector4f{viewPoint.x() + sinT - cosT, viewPoint.y(), viewPoint.z() + sinT + cosT, 1.f};
-            inst.pos[2] =
-                zeus::CVector4f{viewPoint.x() + (cosT - sinT), viewPoint.y(), viewPoint.z() + (-cosT - sinT), 1.f};
-            inst.pos[3] =
-                zeus::CVector4f{viewPoint.x() - (sinT + cosT), viewPoint.y(), viewPoint.z() - (cosT - sinT), 1.f};
-            inst.color = particle.x34_color;
-            break;
-          }
-          default:
-            break;
-          }
+          const float theta = zeus::degToRad(particle.x30_lineWidthOrRota);
+          const float sinT = std::sin(theta) * size;
+          const float cosT = std::cos(theta) * size;
+          GXPosition3f32(viewPoint.x() + (sinT + cosT), viewPoint.y(), viewPoint.z() + (cosT - sinT));
+          GXColor4f32(particle.x34_color);
+          GXTexCoord2f32(uvs.xMax, uvs.yMax);
+          GXPosition3f32(viewPoint.x() + (sinT - cosT), viewPoint.y(), viewPoint.z() + (sinT + cosT));
+          GXColor4f32(particle.x34_color);
+          GXTexCoord2f32(uvs.xMin, uvs.yMax);
+          GXPosition3f32(viewPoint.x() - (sinT + cosT), viewPoint.y(), viewPoint.z() - (cosT - sinT));
+          GXColor4f32(particle.x34_color);
+          GXTexCoord2f32(uvs.xMin, uvs.yMin);
+          GXPosition3f32(viewPoint.x() + (-sinT + cosT), viewPoint.y(), viewPoint.z() + (-cosT - sinT));
+          GXColor4f32(particle.x34_color);
+          GXTexCoord2f32(uvs.xMax, uvs.yMin);
         }
       }
     } else {
@@ -1486,65 +1470,65 @@ void CElementGen::RenderParticles() {
           texr->GetValueUV(partFrame, uvs);
         }
 
-        switch (m_shaderClass) {
-        case CElementGenShaders::EShaderClass::Tex: {
-          SParticleInstanceTex& inst = g_instTexData.emplace_back();
-          viewPoint += rightVec * 0.5f;
-          inst.pos[0] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
-          inst.pos[1] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
-          viewPoint -= rightVec;
-          inst.pos[2] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
-          inst.pos[3] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
-          inst.color = particle.x34_color;
-          inst.uvs[0] = {uvs.xMax, uvs.yMax};
-          inst.uvs[1] = {uvs.xMin, uvs.yMax};
-          inst.uvs[2] = {uvs.xMax, uvs.yMin};
-          inst.uvs[3] = {uvs.xMin, uvs.yMin};
-          break;
-        }
-        case CElementGenShaders::EShaderClass::NoTex: {
-          SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
-          viewPoint += rightVec * 0.5f;
-          inst.pos[0] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
-          inst.pos[1] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
-          viewPoint -= rightVec;
-          inst.pos[2] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
-          inst.pos[3] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
-          inst.color = particle.x34_color;
-          break;
-        }
-        default:
-          break;
-        }
+//        switch (m_shaderClass) {
+//        case CElementGenShaders::EShaderClass::Tex: {
+//          SParticleInstanceTex& inst = g_instTexData.emplace_back();
+//          viewPoint += rightVec * 0.5f;
+//          inst.pos[0] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
+//          inst.pos[1] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
+//          viewPoint -= rightVec;
+//          inst.pos[2] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
+//          inst.pos[3] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
+//          inst.color = particle.x34_color;
+//          inst.uvs[0] = {uvs.xMax, uvs.yMax};
+//          inst.uvs[1] = {uvs.xMin, uvs.yMax};
+//          inst.uvs[2] = {uvs.xMax, uvs.yMin};
+//          inst.uvs[3] = {uvs.xMin, uvs.yMin};
+//          break;
+//        }
+//        case CElementGenShaders::EShaderClass::NoTex: {
+//          SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
+//          viewPoint += rightVec * 0.5f;
+//          inst.pos[0] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
+//          inst.pos[1] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
+//          viewPoint -= rightVec;
+//          inst.pos[2] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
+//          inst.pos[3] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
+//          inst.color = particle.x34_color;
+//          break;
+//        }
+//        default:
+//          break;
+//        }
       }
     }
 
     switch (m_shaderClass) {
     case CElementGenShaders::EShaderClass::Tex:
-      m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
-      CGraphics::DrawInstances(0, 4, g_instTexData.size());
+      //      m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
+      //      CGraphics::DrawInstances(0, 4, g_instTexData.size());
       break;
     case CElementGenShaders::EShaderClass::NoTex:
-      m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
-      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
+      //      m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
+      //      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
       break;
     default:
       break;
     }
   } else {
-    switch (m_shaderClass) {
-    case CElementGenShaders::EShaderClass::Tex:
-      g_instTexData.clear();
-      g_instTexData.reserve(x30_particles.size() * mbspVal);
-      break;
-    case CElementGenShaders::EShaderClass::NoTex:
-      g_instNoTexData.clear();
-      g_instNoTexData.reserve(x30_particles.size() * mbspVal);
-      break;
-    default:
-      Log.report(logvisor::Fatal, FMT_STRING("unexpected particle shader class"));
-      break;
-    }
+//    switch (m_shaderClass) {
+//    case CElementGenShaders::EShaderClass::Tex:
+//      g_instTexData.clear();
+//      g_instTexData.reserve(x30_particles.size() * mbspVal);
+//      break;
+//    case CElementGenShaders::EShaderClass::NoTex:
+//      g_instNoTexData.clear();
+//      g_instNoTexData.reserve(x30_particles.size() * mbspVal);
+//      break;
+//    default:
+//      Log.report(logvisor::Fatal, FMT_STRING("unexpected particle shader class"));
+//      break;
+//    }
     const float mbspFac = 1.f / float(mbspVal);
     for (size_t i = 0; i < x30_particles.size(); ++i) {
       const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
@@ -1568,32 +1552,32 @@ void CElementGen::RenderParticles() {
           vec += mbspVec;
           zeus::CVector3f vec2 = systemCameraMatrix * vec;
 
-          switch (m_shaderClass) {
-          case CElementGenShaders::EShaderClass::Tex: {
-            SParticleInstanceTex& inst = g_instTexData.emplace_back();
-            inst.pos[0] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() + size, 1.f};
-            inst.pos[1] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() + size, 1.f};
-            inst.pos[2] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() - size, 1.f};
-            inst.pos[3] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() - size, 1.f};
-            inst.color = particle.x34_color;
-            inst.uvs[0] = {uvs.xMax, uvs.yMax};
-            inst.uvs[1] = {uvs.xMin, uvs.yMax};
-            inst.uvs[2] = {uvs.xMax, uvs.yMin};
-            inst.uvs[3] = {uvs.xMin, uvs.yMin};
-            break;
-          }
-          case CElementGenShaders::EShaderClass::NoTex: {
-            SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
-            inst.pos[0] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() + size, 1.f};
-            inst.pos[1] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() + size, 1.f};
-            inst.pos[2] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() - size, 1.f};
-            inst.pos[3] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() - size, 1.f};
-            inst.color = particle.x34_color;
-            break;
-          }
-          default:
-            break;
-          }
+//          switch (m_shaderClass) {
+//          case CElementGenShaders::EShaderClass::Tex: {
+//            SParticleInstanceTex& inst = g_instTexData.emplace_back();
+//            inst.pos[0] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() + size, 1.f};
+//            inst.pos[1] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() + size, 1.f};
+//            inst.pos[2] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() - size, 1.f};
+//            inst.pos[3] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() - size, 1.f};
+//            inst.color = particle.x34_color;
+//            inst.uvs[0] = {uvs.xMax, uvs.yMax};
+//            inst.uvs[1] = {uvs.xMin, uvs.yMax};
+//            inst.uvs[2] = {uvs.xMax, uvs.yMin};
+//            inst.uvs[3] = {uvs.xMin, uvs.yMin};
+//            break;
+//          }
+//          case CElementGenShaders::EShaderClass::NoTex: {
+//            SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
+//            inst.pos[0] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() + size, 1.f};
+//            inst.pos[1] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() + size, 1.f};
+//            inst.pos[2] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() - size, 1.f};
+//            inst.pos[3] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() - size, 1.f};
+//            inst.color = particle.x34_color;
+//            break;
+//          }
+//          default:
+//            break;
+//          }
         }
       } else {
         float theta = zeus::degToRad(particle.x30_lineWidthOrRota);
@@ -1604,51 +1588,60 @@ void CElementGen::RenderParticles() {
           vec += mbspVec;
           zeus::CVector3f vec2 = systemCameraMatrix * vec;
 
-          switch (m_shaderClass) {
-          case CElementGenShaders::EShaderClass::Tex: {
-            SParticleInstanceTex& inst = g_instTexData.emplace_back();
-            inst.pos[0] = zeus::CVector4f{vec2.x() + sinT + cosT, vec2.y(), vec2.z() + cosT - sinT, 1.f};
-            inst.pos[1] = zeus::CVector4f{vec2.x() + sinT - cosT, vec2.y(), vec2.z() + sinT + cosT, 1.f};
-            inst.pos[2] = zeus::CVector4f{vec2.x() + (cosT - sinT), vec2.y(), vec2.z() + (-cosT - sinT), 1.f};
-            inst.pos[3] = zeus::CVector4f{vec2.x() - (sinT + cosT), vec2.y(), vec2.z() - (cosT - sinT), 1.f};
-            inst.color = particle.x34_color;
-            inst.uvs[0] = {uvs.xMax, uvs.yMax};
-            inst.uvs[1] = {uvs.xMin, uvs.yMax};
-            inst.uvs[2] = {uvs.xMax, uvs.yMin};
-            inst.uvs[3] = {uvs.xMin, uvs.yMin};
-            break;
-          }
-          case CElementGenShaders::EShaderClass::NoTex: {
-            SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
-            inst.pos[0] = zeus::CVector4f{vec2.x() + sinT + cosT, vec2.y(), vec2.z() + cosT - sinT, 1.f};
-            inst.pos[1] = zeus::CVector4f{vec2.x() + sinT - cosT, vec2.y(), vec2.z() + sinT + cosT, 1.f};
-            inst.pos[2] = zeus::CVector4f{vec2.x() + (cosT - sinT), vec2.y(), vec2.z() + (-cosT - sinT), 1.f};
-            inst.pos[3] = zeus::CVector4f{vec2.x() - (sinT + cosT), vec2.y(), vec2.z() - (cosT - sinT), 1.f};
-            inst.color = particle.x34_color;
-            break;
-          }
-          default:
-            break;
-          }
+//          switch (m_shaderClass) {
+//          case CElementGenShaders::EShaderClass::Tex: {
+//            SParticleInstanceTex& inst = g_instTexData.emplace_back();
+//            inst.pos[0] = zeus::CVector4f{vec2.x() + sinT + cosT, vec2.y(), vec2.z() + cosT - sinT, 1.f};
+//            inst.pos[1] = zeus::CVector4f{vec2.x() + sinT - cosT, vec2.y(), vec2.z() + sinT + cosT, 1.f};
+//            inst.pos[2] = zeus::CVector4f{vec2.x() + (cosT - sinT), vec2.y(), vec2.z() + (-cosT - sinT), 1.f};
+//            inst.pos[3] = zeus::CVector4f{vec2.x() - (sinT + cosT), vec2.y(), vec2.z() - (cosT - sinT), 1.f};
+//            inst.color = particle.x34_color;
+//            inst.uvs[0] = {uvs.xMax, uvs.yMax};
+//            inst.uvs[1] = {uvs.xMin, uvs.yMax};
+//            inst.uvs[2] = {uvs.xMax, uvs.yMin};
+//            inst.uvs[3] = {uvs.xMin, uvs.yMin};
+//            break;
+//          }
+//          case CElementGenShaders::EShaderClass::NoTex: {
+//            SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
+//            inst.pos[0] = zeus::CVector4f{vec2.x() + sinT + cosT, vec2.y(), vec2.z() + cosT - sinT, 1.f};
+//            inst.pos[1] = zeus::CVector4f{vec2.x() + sinT - cosT, vec2.y(), vec2.z() + sinT + cosT, 1.f};
+//            inst.pos[2] = zeus::CVector4f{vec2.x() + (cosT - sinT), vec2.y(), vec2.z() + (-cosT - sinT), 1.f};
+//            inst.pos[3] = zeus::CVector4f{vec2.x() - (sinT + cosT), vec2.y(), vec2.z() - (cosT - sinT), 1.f};
+//            inst.color = particle.x34_color;
+//            break;
+//          }
+//          default:
+//            break;
+//          }
         }
       }
     }
     switch (m_shaderClass) {
     case CElementGenShaders::EShaderClass::Tex:
-      m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
-      CGraphics::DrawInstances(0, 4, g_instTexData.size());
+      //      m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
+      //      CGraphics::DrawInstances(0, 4, g_instTexData.size());
       break;
     case CElementGenShaders::EShaderClass::NoTex:
-      m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
-      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
+      //      m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
+      //      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
       break;
     default:
       break;
     }
   }
+
+  CGX::End();
+  if (moveRedToAlphaBuffer) {
+    GXSetTevSwapMode(GXTevStageID(nextStage - 1), GX_TEV_SWAP0, GX_TEV_SWAP0);
+  }
+  CGraphics::SetCullMode(ERglCullMode::Front);
+  CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
 }
 
 void CElementGen::RenderParticlesIndirectTexture() {
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderParticlesIndirectTexture")).c_str(), zeus::skYellow);
+
   CGenDescription* desc = x1c_genDesc.GetObj();
 
   zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
@@ -1659,9 +1652,10 @@ void CElementGen::RenderParticlesIndirectTexture() {
       x178_localScaleTransform;
   CGraphics::SetModelMatrix(systemViewPointMatrix);
 
-  SParticleUniforms uniformData = {
-      CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
-  m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
+//  SParticleUniforms uniformData = {CGraphics::GetPerspectiveProjectionMatrix(/*true*/) *
+//                                       CGraphics::g_GXModelView.toMatrix4f(),
+//                                   {1.f, 1.f, 1.f, 1.f}};
+  //  m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
 
   CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
 
@@ -1678,7 +1672,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
   CParticle& firstParticle = x30_particles[0];
   int partFrame = x74_curFrame - firstParticle.x28_startFrame;
   CTexture* cachedTex = texr->GetValueTexture(partFrame).GetObj();
-  cachedTex->Load(0, CTexture::EClampMode::One);
+  cachedTex->Load(GX_TEXMAP0, EClampMode::Repeat);
 
   SUVElementSet uvs = {0.f, 0.f, 1.f, 1.f};
   bool constTexr = texr->HasConstantTexture();
@@ -1687,7 +1681,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
 
   CUVElement* tind = desc->x58_x44_TIND.get();
   CTexture* cachedIndTex = tind->GetValueTexture(partFrame).GetObj();
-  cachedIndTex->Load(2, CTexture::EClampMode::One);
+  cachedIndTex->Load(GX_TEXMAP2, EClampMode::Repeat);
 
   SUVElementSet uvsInd = {0.f, 0.f, 1.f, 1.f};
   bool constIndTexr = tind->HasConstantTexture();
@@ -1711,11 +1705,11 @@ void CElementGen::RenderParticlesIndirectTexture() {
     });
   }
 
-  g_instIndTexData.clear();
-  g_instIndTexData.reserve(x30_particles.size());
+//  g_instIndTexData.clear();
+//  g_instIndTexData.reserve(x30_particles.size());
 
-  if (!x30_particles.empty())
-    CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
+  //  if (!x30_particles.empty())
+  //    CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
 
   for (size_t i = 0; i < x30_particles.size(); ++i) {
     const int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : int(i);
@@ -1734,7 +1728,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
     if (!constTexr) {
       CTexture* tex = texr->GetValueTexture(thisPartFrame).GetObj();
       if (tex != cachedTex) {
-        tex->Load(0, CTexture::EClampMode::One);
+        tex->Load(GX_TEXMAP0, EClampMode::Repeat);
         cachedTex = tex;
       }
     }
@@ -1742,7 +1736,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
     if (!constIndTexr) {
       CTexture* tex = tind->GetValueTexture(thisPartFrame).GetObj();
       if (tex != cachedIndTex) {
-        tex->Load(2, CTexture::EClampMode::One);
+        tex->Load(GX_TEXMAP2, EClampMode::Repeat);
         cachedIndTex = tex;
       }
     }
@@ -1761,36 +1755,37 @@ void CElementGen::RenderParticlesIndirectTexture() {
     if (!clipRect.x0_valid)
       continue;
 
-    CGraphics::ResolveSpareTexture(clipRect);
+//    CGraphics::ResolveSpareTexture(clipRect);
 
-    SParticleInstanceIndTex& inst = g_instIndTexData.emplace_back();
-    inst.pos[0] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size, 1.f};
-    inst.pos[1] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() + size, 1.f};
-    inst.pos[2] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() - size, 1.f};
-    inst.pos[3] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() - size, 1.f};
-    inst.color = particle.x34_color;
-    inst.texrTindUVs[0] = zeus::CVector4f{uvs.xMax, uvs.yMax, uvsInd.xMax, uvsInd.yMax};
-    inst.texrTindUVs[1] = zeus::CVector4f{uvs.xMin, uvs.yMax, uvsInd.xMin, uvsInd.yMax};
-    inst.texrTindUVs[2] = zeus::CVector4f{uvs.xMax, uvs.yMin, uvsInd.xMax, uvsInd.yMin};
-    inst.texrTindUVs[3] = zeus::CVector4f{uvs.xMin, uvs.yMin, uvsInd.xMin, uvsInd.yMin};
-    switch (CGraphics::g_BooPlatform) {
-    case boo::IGraphicsDataFactory::Platform::OpenGL:
-      inst.sceneUVs =
-          zeus::CVector4f{clipRect.x18_uvXMin, clipRect.x24_uvYMax, clipRect.x1c_uvXMax, clipRect.x20_uvYMin};
-      break;
-    default:
-      inst.sceneUVs = zeus::CVector4f{clipRect.x18_uvXMin, 1.f - clipRect.x24_uvYMax, clipRect.x1c_uvXMax,
-                                      1.f - clipRect.x20_uvYMin};
-      break;
-    }
-    CGraphics::DrawInstances(0, 4, 1, g_instIndTexData.size() - 1);
+//    SParticleInstanceIndTex& inst = g_instIndTexData.emplace_back();
+//    inst.pos[0] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size, 1.f};
+//    inst.pos[1] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() + size, 1.f};
+//    inst.pos[2] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() - size, 1.f};
+//    inst.pos[3] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() - size, 1.f};
+//    inst.color = particle.x34_color;
+//    inst.texrTindUVs[0] = zeus::CVector4f{uvs.xMax, uvs.yMax, uvsInd.xMax, uvsInd.yMax};
+//    inst.texrTindUVs[1] = zeus::CVector4f{uvs.xMin, uvs.yMax, uvsInd.xMin, uvsInd.yMax};
+//    inst.texrTindUVs[2] = zeus::CVector4f{uvs.xMax, uvs.yMin, uvsInd.xMax, uvsInd.yMin};
+//    inst.texrTindUVs[3] = zeus::CVector4f{uvs.xMin, uvs.yMin, uvsInd.xMin, uvsInd.yMin};
+    //    switch (CGraphics::g_BooPlatform) {
+    //    case boo::IGraphicsDataFactory::Platform::OpenGL:
+    //      inst.sceneUVs =
+    //          zeus::CVector4f{clipRect.x18_uvXMin, clipRect.x24_uvYMax, clipRect.x1c_uvXMax, clipRect.x20_uvYMin};
+    //      break;
+    //    default:
+//    inst.sceneUVs =
+//        zeus::CVector4f{clipRect.x18_uvXMin, 1.f - clipRect.x24_uvYMax, clipRect.x1c_uvXMax, 1.f - clipRect.x20_uvYMin};
+    //      break;
+    //    }
+    //    CGraphics::DrawInstances(0, 4, 1, g_instIndTexData.size() - 1);
   }
 
-  if (g_instIndTexData.size()) {
-    m_instBuf->load(g_instIndTexData.data(), g_instIndTexData.size() * sizeof(SParticleInstanceIndTex));
+//  if (g_instIndTexData.size()) {
+    //    m_instBuf->load(g_instIndTexData.data(), g_instIndTexData.size() * sizeof(SParticleInstanceIndTex));
+    // TODO! this looks like a bug
     // CGraphics::SetShaderDataBinding(m_normalDataBind);
     // CGraphics::DrawInstances(0, 4, g_instIndTexData.size());
-  }
+//  }
 }
 
 void CElementGen::SetOrientation(const zeus::CTransform& orientation) {
@@ -1953,4 +1948,85 @@ void CElementGen::Reset() {
 
 void CElementGen::SetMoveRedToAlphaBuffer(bool move) { sMoveRedToAlphaBuffer = move; }
 
+void CElementGen::RenderBasicParticlesNoRotNoTS(const zeus::CTransform& xf) noexcept {
+  for (const auto& particle : x30_particles) {
+    const auto pos = xf * particle.x4_pos;
+    const auto size = 0.5f * particle.x2c_lineLengthOrSize;
+    GXPosition3f32(pos.x() + size, pos.y(), pos.z() + size);
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(1.f, 1.f);
+    GXPosition3f32(pos.x() - size, pos.y(), pos.z() + size);
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(0.f, 1.f);
+    GXPosition3f32(pos.x() - size, pos.y(), pos.z() - size);
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(0.f, 0.f);
+    GXPosition3f32(pos.x() + size, pos.y(), pos.z() - size);
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(1.f, 0.f);
+  }
+}
+
+void CElementGen::RenderBasicParticlesNoRotTS(const zeus::CTransform& xf) noexcept {
+  for (const auto& particle : x30_particles) {
+    const auto pos = xf * (x80_timeDeltaScale * (particle.x4_pos - particle.x10_prevPos) + particle.x10_prevPos);
+    const auto size = 0.5f * particle.x2c_lineLengthOrSize;
+    GXPosition3f32(pos.x() + size, pos.y(), pos.z() + size);
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(1.f, 1.f);
+    GXPosition3f32(pos.x() - size, pos.y(), pos.z() + size);
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(0.f, 1.f);
+    GXPosition3f32(pos.x() - size, pos.y(), pos.z() - size);
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(0.f, 0.f);
+    GXPosition3f32(pos.x() + size, pos.y(), pos.z() - size);
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(1.f, 0.f);
+  }
+}
+
+void CElementGen::RenderBasicParticlesRotNoTS(const zeus::CTransform& xf) noexcept {
+  for (const auto& particle : x30_particles) {
+    const auto pos = xf * particle.x4_pos;
+    const auto size = 0.5f * particle.x2c_lineLengthOrSize;
+    const float theta = zeus::degToRad(particle.x30_lineWidthOrRota);
+    const float sinT = std::sin(theta) * size;
+    const float cosT = std::cos(theta) * size;
+    GXPosition3f32(pos.x() + (sinT + cosT), pos.y(), pos.z() + (cosT - sinT));
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(1.f, 1.f);
+    GXPosition3f32(pos.x() + (sinT - cosT), pos.y(), pos.z() + (sinT + cosT));
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(0.f, 1.f);
+    GXPosition3f32(pos.x() - (sinT + cosT), pos.y(), pos.z() - (cosT - sinT));
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(0.f, 0.f);
+    GXPosition3f32(pos.x() + (-sinT + cosT), pos.y(), pos.z() + (-cosT - sinT));
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(1.f, 0.f);
+  }
+}
+
+void CElementGen::RenderBasicParticlesRotTS(const zeus::CTransform& xf) noexcept {
+  for (const auto& particle : x30_particles) {
+    const auto pos = xf * (x80_timeDeltaScale * (particle.x4_pos - particle.x10_prevPos) + particle.x10_prevPos);
+    const auto size = 0.5f * particle.x2c_lineLengthOrSize;
+    const float theta = zeus::degToRad(particle.x30_lineWidthOrRota);
+    const float sinT = std::sin(theta) * size;
+    const float cosT = std::cos(theta) * size;
+    GXPosition3f32(pos.x() + (sinT + cosT), pos.y(), pos.z() + (cosT - sinT));
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(1.f, 1.f);
+    GXPosition3f32(pos.x() + (sinT - cosT), pos.y(), pos.z() + (sinT + cosT));
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(0.f, 1.f);
+    GXPosition3f32(pos.x() - (sinT + cosT), pos.y(), pos.z() - (cosT - sinT));
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(0.f, 0.f);
+    GXPosition3f32(pos.x() + (-sinT + cosT), pos.y(), pos.z() + (-cosT - sinT));
+    GXColor4f32(particle.x34_color);
+    GXTexCoord2f32(1.f, 0.f);
+  }
+}
 } // namespace metaforce

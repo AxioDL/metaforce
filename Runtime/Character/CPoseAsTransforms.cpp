@@ -4,7 +4,8 @@
 
 namespace metaforce {
 
-CPoseAsTransforms::CPoseAsTransforms(u8 boneCount) : x1_count(boneCount), xd0_transformArr(new Transform[boneCount]) {}
+CPoseAsTransforms::CPoseAsTransforms(u8 boneCount)
+: x1_count(boneCount), xd0_transformArr(std::make_unique<zeus::CTransform[]>(boneCount)) {}
 
 bool CPoseAsTransforms::ContainsDataFor(const CSegId& id) const {
   const std::pair<CSegId, CSegId>& link = x8_links[id];
@@ -24,38 +25,35 @@ void CPoseAsTransforms::AccumulateScaledTransform(const CSegId& id, zeus::CMatri
 const zeus::CTransform& CPoseAsTransforms::GetTransform(const CSegId& id) const {
   const std::pair<CSegId, CSegId>& link = x8_links[id];
   assert(link.second.IsValid());
-  return xd0_transformArr[link.second].m_originToAccum;
-}
-
-const zeus::CTransform& CPoseAsTransforms::GetRestToAccumTransform(const CSegId& id) const {
-  const std::pair<CSegId, CSegId>& link = x8_links[id];
-  assert(link.second.IsValid());
-  return xd0_transformArr[link.second].m_restPoseToAccum;
+  return xd0_transformArr[link.second];
 }
 
 const zeus::CVector3f& CPoseAsTransforms::GetOffset(const CSegId& id) const {
   const std::pair<CSegId, CSegId>& link = x8_links[id];
   assert(link.second.IsValid());
-  return xd0_transformArr[link.second].m_originToAccum.origin;
+  return xd0_transformArr[link.second].origin;
 }
 
 const zeus::CMatrix3f& CPoseAsTransforms::GetRotation(const CSegId& id) const {
   const std::pair<CSegId, CSegId>& link = x8_links[id];
   assert(link.second.IsValid());
-  return xd0_transformArr[link.second].m_originToAccum.basis;
+  return xd0_transformArr[link.second].basis;
 }
 
-void CPoseAsTransforms::Insert(const CSegId& id, const zeus::CMatrix3f& rotation, const zeus::CVector3f& offset,
-                               const zeus::CVector3f& restOffset) {
-  Transform& xfOut = xd0_transformArr[x0_nextId];
-  xfOut.m_originToAccum = zeus::CTransform(rotation, offset);
-  xfOut.m_restPoseToAccum = xfOut.m_originToAccum * zeus::CTransform::Translate(-restOffset);
+void CPoseAsTransforms::Insert(const CSegId& id, const zeus::CMatrix3f& rotation, const zeus::CVector3f& offset) {
+  xd0_transformArr[x0_nextId] = zeus::CTransform(rotation, offset);
 
   std::pair<CSegId, CSegId>& link = x8_links[id];
   link.first = xd4_lastInserted;
   link.second = x0_nextId;
   xd4_lastInserted = id;
   ++x0_nextId;
+}
+
+CSegId CPoseAsTransforms::GetParent(const CSegId& id) const {
+  const std::pair<CSegId, CSegId>& link = x8_links[id];
+  assert(link.first.IsValid());
+  return link.first;
 }
 
 } // namespace metaforce

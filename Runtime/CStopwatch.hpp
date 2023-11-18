@@ -1,31 +1,31 @@
 #pragma once
 
+#include "Runtime/GCNTypes.hpp"
+
+#include <cmath>
 #include <chrono>
-#include <fmt/format.h>
 
 namespace metaforce {
 class CStopwatch {
-  std::chrono::steady_clock::time_point m_start;
+private:
+  static CStopwatch mGlobalTimer;
+
+  using Time = std::chrono::steady_clock;
+  using MicroSeconds = std::chrono::microseconds;
+  using MilliSeconds = std::chrono::milliseconds;
+  using FloatSeconds = std::chrono::duration<float>;
+  Time::time_point m_startTime;
 
 public:
-  CStopwatch() : m_start(std::chrono::steady_clock::now()) {}
-  double report(const char* name) const {
-    double t =
-        std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_start).count() /
-        1000000.0;
-    //#ifndef NDEBUG
-    //    fmt::print(FMT_STRING("{} {}\n"), name, t);
-    //#endif
-    return t;
-  }
-  double reportReset(const char* name) {
-    std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-    double t = std::chrono::duration_cast<std::chrono::microseconds>(now - m_start).count() / 1000000.0;
-    //#ifndef NDEBUG
-    //    fmt::print(FMT_STRING("{} {}\n"), name, t);
-    //#endif
-    m_start = now;
-    return t;
-  }
+  static void InitGlobalTimer();
+  static CStopwatch& GetGlobalTimerObj() { return mGlobalTimer; }
+  static float GetGlobalTime() { return mGlobalTimer.GetElapsedTime(); }
+
+  void Reset();
+  void Wait(float wait);
+
+  float GetElapsedTime() const;
+  u16 GetElapsedMicros() const;
+  u64 GetCurMicros() const;
 };
 } // namespace metaforce

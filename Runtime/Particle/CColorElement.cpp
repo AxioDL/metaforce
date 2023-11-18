@@ -12,17 +12,17 @@
 namespace metaforce {
 
 CCEKeyframeEmitter::CCEKeyframeEmitter(CInputStream& in) {
-  x4_percent = in.readUint32Big();
-  x8_unk1 = in.readUint32Big();
-  xc_loop = in.readBool();
-  xd_unk2 = in.readBool();
-  x10_loopEnd = in.readUint32Big();
-  x14_loopStart = in.readUint32Big();
+  x4_percent = in.ReadLong();
+  x8_unk1 = in.ReadLong();
+  xc_loop = in.ReadBool();
+  xd_unk2 = in.ReadBool();
+  x10_loopEnd = in.ReadLong();
+  x14_loopStart = in.ReadLong();
 
-  const u32 count = in.readUint32Big();
+  const u32 count = in.ReadLong();
   x18_keys.reserve(count);
   for (u32 i = 0; i < count; ++i) {
-    x18_keys.emplace_back(in.readVec4fBig());
+    x18_keys.emplace_back(in.Get<zeus::CColor>());
   }
 }
 
@@ -72,10 +72,11 @@ bool CCEFastConstant::GetValue([[maybe_unused]] int frame, zeus::CColor& valOut)
 bool CCETimeChain::GetValue(int frame, zeus::CColor& valOut) const {
   int v;
   xc_swFrame->GetValue(frame, v);
-  if (frame >= v)
-    return x8_b->GetValue(frame, valOut);
-  else
+  if (frame < v) {
     return x4_a->GetValue(frame, valOut);
+  } else {
+    return x8_b->GetValue(frame - v, valOut);
+  }
 }
 
 bool CCEFadeEnd::GetValue(int frame, zeus::CColor& valOut) const {

@@ -3,7 +3,8 @@
 #include <map>
 #include <vector>
 
-#include "Runtime/RetroTypes.hpp"
+#include "RetroTypes.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 
 namespace metaforce {
 class CWorldSaveGameInfo;
@@ -18,8 +19,8 @@ class CMapWorldInfo {
 
 public:
   CMapWorldInfo() = default;
-  explicit CMapWorldInfo(CBitStreamReader& reader, const CWorldSaveGameInfo& saveWorld, CAssetId mlvlId);
-  void PutTo(CBitStreamWriter& writer, const CWorldSaveGameInfo& savw, CAssetId mlvlId) const;
+  explicit CMapWorldInfo(CInputStream& reader, const CWorldSaveGameInfo& saveWorld, CAssetId mlvlId);
+  void PutTo(COutputStream& writer, const CWorldSaveGameInfo& savw, CAssetId mlvlId) const;
   bool IsMapped(TAreaId aid) const;
   void SetIsMapped(TAreaId aid, bool mapped);
   void SetDoorVisited(TEditorId eid, bool val);

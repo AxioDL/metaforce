@@ -7,7 +7,7 @@
 #include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Weapon/CEnergyProjectile.hpp"
@@ -102,43 +102,43 @@ constexpr std::array<u32, 13> skStateToLocoTypeLookup{
 } // Anonymous namespace
 
 CScriptGunTurretData::CScriptGunTurretData(CInputStream& in, s32 propCount)
-: x0_intoDeactivateDelay(in.readFloatBig())
-, x4_intoActivateDelay(in.readFloatBig())
-, x8_reloadTime(in.readFloatBig())
-, xc_reloadTimeVariance(in.readFloatBig())
-, x10_panStartTime(in.readFloatBig())
-, x14_panHoldTime(in.readFloatBig())
-, x1c_leftMaxAngle(zeus::degToRad(in.readFloatBig()))
-, x20_rightMaxAngle(zeus::degToRad(in.readFloatBig()))
-, x24_downMaxAngle(zeus::degToRad(in.readFloatBig()))
-, x28_turnSpeed(zeus::degToRad(in.readFloatBig()))
-, x2c_detectionRange(in.readFloatBig())
-, x30_detectionZRange(in.readFloatBig())
-, x34_freezeDuration(in.readFloatBig())
-, x38_freezeVariance(in.readFloatBig())
-, x3c_freezeTimeout(propCount >= 48 ? in.readBool() : false)
+: x0_intoDeactivateDelay(in.ReadFloat())
+, x4_intoActivateDelay(in.ReadFloat())
+, x8_reloadTime(in.ReadFloat())
+, xc_reloadTimeVariance(in.ReadFloat())
+, x10_panStartTime(in.ReadFloat())
+, x14_panHoldTime(in.ReadFloat())
+, x1c_leftMaxAngle(zeus::degToRad(in.ReadFloat()))
+, x20_rightMaxAngle(zeus::degToRad(in.ReadFloat()))
+, x24_downMaxAngle(zeus::degToRad(in.ReadFloat()))
+, x28_turnSpeed(zeus::degToRad(in.ReadFloat()))
+, x2c_detectionRange(in.ReadFloat())
+, x30_detectionZRange(in.ReadFloat())
+, x34_freezeDuration(in.ReadFloat())
+, x38_freezeVariance(in.ReadFloat())
+, x3c_freezeTimeout(propCount >= 48 ? in.ReadBool() : false)
 , x40_projectileRes(in)
 , x44_projectileDamage(in)
-, x60_idleLightRes(in.readUint32Big())
-, x64_deactivateLightRes(in.readUint32Big())
-, x68_targettingLightRes(in.readUint32Big())
-, x6c_frozenEffectRes(in.readUint32Big())
-, x70_chargingEffectRes(in.readUint32Big())
-, x74_panningEffectRes(in.readUint32Big())
-, x78_visorEffectRes(propCount >= 44 ? in.readUint32Big() : -1)
-, x7c_trackingSoundId(CSfxManager::TranslateSFXID(u16(in.readUint32Big())))
-, x7e_lockOnSoundId(CSfxManager::TranslateSFXID(u16(in.readUint32Big())))
-, x80_unfreezeSoundId(CSfxManager::TranslateSFXID(u16(in.readUint32Big())))
-, x82_stopClankSoundId(CSfxManager::TranslateSFXID(u16(in.readUint32Big())))
-, x84_chargingSoundId(CSfxManager::TranslateSFXID(u16(in.readUint32Big())))
-, x86_visorSoundId(propCount >= 45 ? CSfxManager::TranslateSFXID(u16(in.readUint32Big())) : u16(0xFFFF))
-, x88_extensionModelResId(in.readUint32Big())
-, x8c_extensionDropDownDist(in.readFloatBig())
-, x90_numInitialShots(in.readUint32Big())
-, x94_initialShotTableIndex(in.readUint32Big())
-, x98_numSubsequentShots(in.readUint32Big())
-, x9c_frenzyDuration(propCount >= 47 ? in.readFloatBig() : 3.f)
-, xa0_scriptedStartOnly(propCount >= 46 ? in.readBool() : false) {}
+, x60_idleLightRes(in.Get<CAssetId>())
+, x64_deactivateLightRes(in.Get<CAssetId>())
+, x68_targettingLightRes(in.Get<CAssetId>())
+, x6c_frozenEffectRes(in.Get<CAssetId>())
+, x70_chargingEffectRes(in.Get<CAssetId>())
+, x74_panningEffectRes(in.Get<CAssetId>())
+, x78_visorEffectRes(propCount >= 44 ? in.Get<CAssetId>() : CAssetId())
+, x7c_trackingSoundId(CSfxManager::TranslateSFXID(u16(in.ReadLong())))
+, x7e_lockOnSoundId(CSfxManager::TranslateSFXID(u16(in.ReadLong())))
+, x80_unfreezeSoundId(CSfxManager::TranslateSFXID(u16(in.ReadLong())))
+, x82_stopClankSoundId(CSfxManager::TranslateSFXID(u16(in.ReadLong())))
+, x84_chargingSoundId(CSfxManager::TranslateSFXID(u16(in.ReadLong())))
+, x86_visorSoundId(propCount >= 45 ? CSfxManager::TranslateSFXID(u16(in.ReadLong())) : u16(0xFFFF))
+, x88_extensionModelResId(in.Get<CAssetId>())
+, x8c_extensionDropDownDist(in.ReadFloat())
+, x90_numInitialShots(in.ReadLong())
+, x94_initialShotTableIndex(in.ReadLong())
+, x98_numSubsequentShots(in.ReadLong())
+, x9c_frenzyDuration(propCount >= 47 ? in.ReadFloat() : 3.f)
+, xa0_scriptedStartOnly(propCount >= 46 ? in.ReadBool() : false) {}
 
 CScriptGunTurret::CScriptGunTurret(TUniqueId uid, std::string_view name, ETurretComponent comp, const CEntityInfo& info,
                                    const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& aabb,
@@ -510,39 +510,36 @@ void CScriptGunTurret::Render(CStateManager& mgr) {
       case ETurretState::DeactiveFromReady:
       case ETurretState::Deactivating:
       case ETurretState::DeactivatingFromReady:
-        x470_deactivateLight->Render(x90_actorLights.get());
+        x470_deactivateLight->Render();
         break;
       case ETurretState::Inactive:
-        x468_idleLight->Render(x90_actorLights.get());
+        x468_idleLight->Render();
         break;
       case ETurretState::PanningA:
       case ETurretState::PanningB:
-        x490_panningEffect->Render(x90_actorLights.get());
+        x490_panningEffect->Render();
         break;
       case ETurretState::Ready:
       case ETurretState::Targeting:
       case ETurretState::Firing:
       case ETurretState::ExitTargeting:
       case ETurretState::Frenzy:
-        x478_targettingLight->Render(x90_actorLights.get());
+        x478_targettingLight->Render();
         if (x520_state == ETurretState::Firing) {
-          x488_chargingEffect->Render(x90_actorLights.get());
+          x488_chargingEffect->Render();
         }
         break;
       default:
         break;
       }
     } else {
-      x480_frozenEffect->Render(x90_actorLights.get());
+      x480_frozenEffect->Render();
     }
   } else if (x258_type == ETurretComponent::Base) {
     if (x4a4_extensionModel && x4f8_extensionT > 0.f) {
       zeus::CTransform xf = GetTransform();
       xf.origin = x4fc_extensionOffset + (x4f4_extensionRange * 0.5f * zeus::skDown);
-      CModelFlags flags;
-      flags.x2_flags = 3;
-      flags.x1_matSetIdx = 0;
-      flags.x4_color = zeus::skWhite;
+      CModelFlags flags{0, 0, 3, zeus::skWhite};
       x4a4_extensionModel->Render(mgr, xf, x90_actorLights.get(), flags);
     }
   }

@@ -4,9 +4,10 @@
 
 namespace metaforce::MP1 {
 
-const char* kMovies[] = {"Video/wingame.thp",       "Video/wingame_good.thp",  "Video/wingame_best.thp",
-                         "Video/losegame.thp",      "Video/05_tallonText.thp", "Video/AfterCredits.thp",
-                         "Video/SpecialEnding.thp", "Video/creditBG.thp"};
+const char* kMovies[] = {
+    "Video/wingame.thp",       "Video/wingame_good.thp", "Video/wingame_best.thp",  "Video/losegame.thp",
+    "Video/05_tallonText.thp", "Video/AfterCredits.thp", "Video/SpecialEnding.thp", "Video/creditBG.thp",
+};
 
 bool CPlayMovie::IsResultsScreen(EWhichMovie which) { return int(which) <= 2; }
 
@@ -15,6 +16,7 @@ CPlayMovie::CPlayMovie(EWhichMovie which) : CIOWin("CPlayMovie"), x18_which(whic
 CIOWin::EMessageReturn CPlayMovie::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) {
   return EMessageReturn::RemoveIOWinAndExit;
 }
+
 void CPlayMovie::Draw() {
   if (x14_ != 3) {
     return;
@@ -28,7 +30,14 @@ void CPlayMovie::Draw() {
   }
 }
 
-void CPlayMovie::DrawVideo() {}
-void CPlayMovie::DrawText() {}
+void CPlayMovie::DrawVideo() {
+  if (x38_moviePlayer) {
+    x38_moviePlayer->DrawVideo();
+  }
+}
+
+void CPlayMovie::DrawText() {
+  // TODO
+}
 
 } // namespace metaforce::MP1

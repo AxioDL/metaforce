@@ -1,43 +1,55 @@
 #include "Runtime/Input/CInputGenerator.hpp"
 
-#include "Runtime/CArchitectureMessage.hpp"
+#include "Runtime/Input/IController.hpp"
+#include "Runtime/Input/CFinalInput.hpp"
+
 #include "Runtime/CArchitectureQueue.hpp"
 
 namespace metaforce {
-
-void CInputGenerator::Update(float dt, CArchitectureQueue& queue) {
-  if (m_firstFrame) {
-    m_firstFrame = false;
-    return;
-  }
-
-  /* Keyboard/Mouse first */
-  CFinalInput kbInput = getFinalInput(0, dt);
-  bool kbUsed = false;
-
-  /* Dolphin controllers next */
-  for (int i = 0; i < 4; ++i) {
-    bool connected;
-    EStatusChange change = m_dolphinCb.getStatusChange(i, connected);
-    if (change != EStatusChange::NoChange)
-      queue.Push(MakeMsg::CreateControllerStatus(EArchMsgTarget::Game, i, connected));
-    if (connected) {
-      CFinalInput input = m_dolphinCb.getFinalInput(i, dt, m_leftDiv, m_rightDiv);
-      if (i == 0) /* Merge KB input with first controller */
-      {
-        input |= kbInput;
-        kbUsed = true;
-      }
-      m_lastUpdate = input;
-      queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, input));
-    }
-  }
-
-  /* Send straight keyboard input if no first controller present */
-  if (!kbUsed) {
-    m_lastUpdate = kbInput;
-    queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, kbInput));
-  }
+CInputGenerator::CInputGenerator(/*COsContext& context, */ float leftDiv, float rightDiv)
+/*:  x0_context(context) */ {
+  x4_controller.reset(IController::Create());
+  xc_leftDiv = leftDiv;
+  x10_rightDiv = rightDiv;
 }
 
-} // namespace metaforce
+void CInputGenerator::Update(float dt, CArchitectureQueue& queue) {
+#if 0
+  if (!x0_context.Update()) {
+    return;
+  }
+#endif
+
+  u32 availSlot = 0;
+  bool firstController = false;
+  if (x4_controller) {
+    x4_controller->Poll();
+    for (u32 i = 0; i < x4_controller->GetDeviceCount(); ++i) {
+      auto cont = x4_controller->GetGamepadData(i);
+      if (cont.DeviceIsPresent()) {
+        if (i == 0) {
+          firstController = true;
+        }
+        auto tmp = CFinalInput(i, dt, cont, xc_leftDiv, x10_rightDiv);
+        if (i == 0) {
+          m_lastInput = tmp;
+        }
+        queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, tmp));
+        ++availSlot;
+      }
+
+      if (x8_connectedControllers[i] != cont.DeviceIsPresent()) {
+        queue.Push(MakeMsg::CreateControllerStatus(EArchMsgTarget::Game, i, cont.DeviceIsPresent()));
+        x8_connectedControllers[i] = cont.DeviceIsPresent();
+      }
+    }
+  }
+#if 0
+  if (firstController) {
+    queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, CFinalInput(availSlot, dt, x0_osContext)));
+  } else {
+    queue.Push(MakeMsg::CreateUserInput(EArchMsgTarget::Game, CFinalInput(0, dt, x0_osContext)));
+  }
+#endif
+}
+} // namespace metaforce::WIP

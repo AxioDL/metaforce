@@ -4,7 +4,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Camera/CGameCamera.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/GuiSys/CCompoundTargetReticle.hpp"
 #include "Runtime/GuiSys/CTargetingManager.hpp"
@@ -14,13 +14,13 @@
 
 namespace metaforce::MP1 {
 
-CPlayerVisor::CPlayerVisor(CStateManager&) : x108_newScanPane(EFilterType::Blend, CGraphics::g_SpareTexture.get()) {
+CPlayerVisor::CPlayerVisor(CStateManager&) {
   xcc_scanFrameCorner = g_SimplePool->GetObj("CMDL_ScanFrameCorner");
   xd8_scanFrameCenterSide = g_SimplePool->GetObj("CMDL_ScanFrameCenterSide");
   xe4_scanFrameCenterTop = g_SimplePool->GetObj("CMDL_ScanFrameCenterTop");
   xf0_scanFrameStretchSide = g_SimplePool->GetObj("CMDL_ScanFrameStretchSide");
   xfc_scanFrameStretchTop = g_SimplePool->GetObj("CMDL_ScanFrameStretchTop");
-  // x108_newScanPane = g_SimplePool->GetObj("CMDL_NewScanPane");
+  x108_newScanPane = g_SimplePool->GetObj("CMDL_NewScanPane");
   x114_scanShield = g_SimplePool->GetObj("CMDL_ScanShield");
   x124_scanIconNoncritical = g_SimplePool->GetObj("CMDL_ScanIconNoncritical");
   x130_scanIconCritical = g_SimplePool->GetObj("CMDL_ScanIconCritical");
@@ -54,7 +54,8 @@ int CPlayerVisor::FindCachedInactiveScanTarget(TUniqueId uid) const {
   return -1;
 }
 
-bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const {
+bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerVisor::DrawScanObjectIndicators", zeus::skMagenta);
   if (!x124_scanIconNoncritical.IsLoaded() || !x130_scanIconCritical.IsLoaded())
     return false;
   if (!x114_scanShield.IsLoaded())
@@ -63,7 +64,7 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const {
   CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
   g_Renderer->SetViewportOrtho(true, 0.f, 4096.f);
 
-  float vpScale = g_Viewport.xc_height / 448.f;
+  float vpScale = CGraphics::GetViewportHeight() / 448.f;
   CGraphics::SetModelMatrix(zeus::CTransform::Scale(x48_interpWindowDims.x() * 17.f * vpScale, 1.f,
                                                     x48_interpWindowDims.y() * 17.f * vpScale));
 
@@ -73,11 +74,12 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const {
   zeus::CTransform camMtx = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
   CGraphics::SetViewPointMatrix(camMtx);
   zeus::CFrustum frustum;
-  frustum.updatePlanes(camMtx, zeus::CProjection(zeus::SProjPersp(
-                                   cam->GetFov(), g_Viewport.x8_width / float(g_Viewport.xc_height), 1.f, 100.f)));
+  frustum.updatePlanes(
+      camMtx, zeus::CProjection(zeus::SProjPersp(
+                  cam->GetFov(), CGraphics::GetViewportWidth() / float(CGraphics::GetViewportHeight()), 1.f, 100.f)));
   g_Renderer->SetClippingPlanes(frustum);
-  g_Renderer->SetPerspective(cam->GetFov(), g_Viewport.x8_width, g_Viewport.xc_height, cam->GetNearClipDistance(),
-                             cam->GetFarClipDistance());
+  g_Renderer->SetPerspective(cam->GetFov(), CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(),
+                             cam->GetNearClipDistance(), cam->GetFarClipDistance());
 
   for (const SScanTarget& tgt : x13c_scanTargets) {
     if (tgt.x4_timer == 0.f)
@@ -86,7 +88,7 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const {
       if (!act->GetMaterialList().HasMaterial(EMaterialTypes::Scannable))
         continue;
       const CScannableObjectInfo* scanInfo = act->GetScannableObjectInfo();
-      const CModel* useModel;
+      CModel* useModel;
       const zeus::CColor* useColor;
       const zeus::CColor* useDimColor;
       if (scanInfo->IsImportant()) {
@@ -148,8 +150,8 @@ void CPlayerVisor::UpdateScanObjectIndicators(const CStateManager& mgr, float dt
       const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
       zeus::CVector3f orbitPos = act->GetOrbitPosition(mgr);
       orbitPos = cam->ConvertToScreenSpace(orbitPos);
-      orbitPos.x() = orbitPos.x() * g_Viewport.x8_width / 2.f + g_Viewport.x8_width / 2.f;
-      orbitPos.y() = orbitPos.y() * g_Viewport.xc_height / 2.f + g_Viewport.xc_height / 2.f;
+      orbitPos.x() = orbitPos.x() * CGraphics::GetViewportWidth() / 2.f + CGraphics::GetViewportWidth() / 2.f;
+      orbitPos.y() = orbitPos.y() * CGraphics::GetViewportHeight() / 2.f + CGraphics::GetViewportHeight() / 2.f;
       bool inBox = mgr.GetPlayer().WithinOrbitScreenBox(orbitPos, mgr.GetPlayer().GetOrbitZone(),
                                                         mgr.GetPlayer().GetOrbitType());
       if (inBox != tgt.xc_inBox) {
@@ -286,37 +288,33 @@ CPlayerVisor::EScanWindowState CPlayerVisor::GetDesiredScanWindowState(const CSt
 }
 
 void CPlayerVisor::LockUnlockAssets() {
-#if 0
-    if (x1c_curVisor == CPlayerState::EPlayerVisor::Scan)
-        x120_assetLockCountdown = 2;
-    else if (x120_assetLockCountdown > 0)
-        --x120_assetLockCountdown;
+  if (x1c_curVisor == CPlayerState::EPlayerVisor::Scan) {
+    x120_assetLockCountdown = 2;
+  } else if (x120_assetLockCountdown > 0) {
+    --x120_assetLockCountdown;
+  }
 
-    if (x120_assetLockCountdown > 0)
-    {
-        xcc_scanFrameCorner.Lock();
-        xd8_scanFrameCenterSide.Lock();
-        xe4_scanFrameCenterTop.Lock();
-        xf0_scanFrameStretchSide.Lock();
-        xfc_scanFrameStretchTop.Lock();
-        //x108_newScanPane.Lock();
-        x114_scanShield.Lock();
-        x124_scanIconNoncritical.Lock();
-        x130_scanIconCritical.Lock();
-    }
-    else
-    {
-        xcc_scanFrameCorner.Unlock();
-        xd8_scanFrameCenterSide.Unlock();
-        xe4_scanFrameCenterTop.Unlock();
-        xf0_scanFrameStretchSide.Unlock();
-        xfc_scanFrameStretchTop.Unlock();
-        //x108_newScanPane.Unlock();
-        x114_scanShield.Unlock();
-        x124_scanIconNoncritical.Unlock();
-        x130_scanIconCritical.Unlock();
-    }
-#endif
+  if (x120_assetLockCountdown > 0) {
+    xcc_scanFrameCorner.Lock();
+    xd8_scanFrameCenterSide.Lock();
+    xe4_scanFrameCenterTop.Lock();
+    xf0_scanFrameStretchSide.Lock();
+    xfc_scanFrameStretchTop.Lock();
+    x108_newScanPane.Lock();
+    x114_scanShield.Lock();
+    x124_scanIconNoncritical.Lock();
+    x130_scanIconCritical.Lock();
+  } else {
+    xcc_scanFrameCorner.Unlock();
+    xd8_scanFrameCenterSide.Unlock();
+    xe4_scanFrameCenterTop.Unlock();
+    xf0_scanFrameStretchSide.Unlock();
+    xfc_scanFrameStretchTop.Unlock();
+    x108_newScanPane.Unlock();
+    x114_scanShield.Unlock();
+    x124_scanIconNoncritical.Unlock();
+    x130_scanIconCritical.Unlock();
+  }
 }
 
 void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* tgtMgr) {
@@ -342,7 +340,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
     t = (x3c_windowInterpTimer > scanSidesStart) ? 1.f : x3c_windowInterpTimer / scanSidesStart;
   }
 
-  const float vpScale = g_Viewport.xc_height / 448.f;
+  const float vpScale = CGraphics::GetViewportHeight() / 448.f;
   float divisor = (transFactor * ((1.f - t) * x58_scanMagInterp + t * g_tweakGui->GetScanWindowScanningAspect()) +
                    (1.f - transFactor));
   divisor = 1.f / divisor;
@@ -351,40 +349,31 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   float vpH = 152.218f * x48_interpWindowDims.y() * divisor;
   vpH = zeus::clamp(0.f, vpH, 448.f) * vpScale;
 
-  SClipScreenRect rect;
-  rect.x4_left = int((g_Viewport.x8_width - vpW) / 2.f);
-  rect.x8_top = int((g_Viewport.xc_height - vpH) / 2.f);
-  rect.xc_width = int(vpW);
-  rect.x10_height = int(vpH);
-  CGraphics::ResolveSpareTexture(rect);
+  GXSetTexCopySrc(int((CGraphics::GetViewportWidth() - vpW) / 2.f), int((CGraphics::GetViewportHeight() - vpH) / 2.f),
+                  vpW, vpH);
+  GXSetTexCopyDst(vpW, vpH, GX_TF_RGB565, false);
+  GXCopyTex(CGraphics::sSpareTextureData, false);
+  GXPixModeSync();
 
-  x64_scanDim.Draw();
+  {
+    SCOPED_GRAPHICS_DEBUG_GROUP("x64_scanDim Draw", zeus::skMagenta);
+    x64_scanDim.Draw();
+  }
 
   g_Renderer->SetViewportOrtho(true, -1.f, 1.f);
 
   const zeus::CTransform windowScale = zeus::CTransform::Scale(x48_interpWindowDims.x(), 1.f, x48_interpWindowDims.y());
   const zeus::CTransform seventeenScale = zeus::CTransform::Scale(17.f * vpScale, 1.f, 17.f * vpScale);
-  CGraphics::SetModelMatrix(seventeenScale * windowScale);
+  const zeus::CTransform mm = seventeenScale * windowScale;
+  g_Renderer->SetModelMatrix(mm);
+  CGraphics::LoadDolphinSpareTexture(vpW, vpH, GX_TF_RGB565, CGraphics::sSpareTextureData, GX_TEXMAP0);
 
-  const float uvX0 = float(rect.x4_left) / float(g_Viewport.x8_width);
-  const float uvX1 = float(rect.x4_left + rect.xc_width) / float(g_Viewport.x8_width);
-  const float uvY0 = float(rect.x8_top) / float(g_Viewport.xc_height);
-  const float uvY1 = float(rect.x8_top + rect.x10_height) / float(g_Viewport.xc_height);
-  std::array<CTexturedQuadFilter::Vert, 4> rttVerts{{
-      {{-5.f, 0.f, 4.45f}, {uvX0, uvY0}},
-      {{5.f, 0.f, 4.45f}, {uvX1, uvY0}},
-      {{-5.f, 0.f, -4.45f}, {uvX0, uvY1}},
-      {{5.f, 0.f, -4.45f}, {uvX1, uvY1}},
-  }};
-  if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL) {
-    rttVerts[0].m_uv.y() = uvY1;
-    rttVerts[1].m_uv.y() = uvY1;
-    rttVerts[2].m_uv.y() = uvY0;
-    rttVerts[3].m_uv.y() = uvY0;
+  if (x108_newScanPane) {
+    SCOPED_GRAPHICS_DEBUG_GROUP("x108_newScanPane Draw", zeus::skMagenta);
+    x108_newScanPane->Draw(CModelFlags{5, 0, 7, zeus::CColor{1.f, transFactor}});
   }
-  x108_newScanPane.drawVerts(zeus::CColor(1.f, transFactor), rttVerts);
 
-  // No cull faces
+  CGraphics::SetCullMode(ERglCullMode::None);
 
   zeus::CColor frameColor = zeus::CColor::lerp(g_tweakGuiColors->GetScanFrameInactiveColor(),
                                                g_tweakGuiColors->GetScanFrameActiveColor(), x54c_scanFrameColorInterp);
@@ -393,7 +382,6 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   CModelFlags flags(5, 0, 0,
                     frameColor + g_tweakGuiColors->GetScanFrameImpulseColor() *
                                      zeus::CColor(x550_scanFrameColorImpulseInterp, x550_scanFrameColorImpulseInterp));
-  flags.m_noCull = true;
 
   const zeus::CTransform verticalFlip = zeus::CTransform::Scale(1.f, 1.f, -1.f);
   const zeus::CTransform horizontalFlip = zeus::CTransform::Scale(-1.f, 1.f, 1.f);
@@ -457,7 +445,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
     xf0_scanFrameStretchSide->Draw(flags);
   }
 
-  // cull faces
+  CGraphics::SetCullMode(ERglCullMode::Front);
 }
 
 void CPlayerVisor::DrawXRayEffect(const CStateManager&) {
@@ -472,12 +460,12 @@ void CPlayerVisor::DrawThermalEffect(const CStateManager&) {
 void CPlayerVisor::UpdateCurrentVisor(float transFactor) {
   switch (x1c_curVisor) {
   case CPlayerState::EPlayerVisor::XRay:
-    x90_xrayBlur.SetBlur(EBlurType::Xray, 36.f * transFactor, 0.f);
+    x90_xrayBlur.SetBlur(EBlurType::Xray, 36.f * transFactor, 0.f, false);
     break;
   case CPlayerState::EPlayerVisor::Scan: {
     zeus::CColor dimColor =
         zeus::CColor::lerp(g_tweakGuiColors->GetScanVisorHudLightMultiply(), zeus::skWhite, 1.f - transFactor);
-    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, -1);
+    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, CAssetId());
     break;
   }
   default:
@@ -491,7 +479,7 @@ void CPlayerVisor::FinishTransitionIn() {
     x90_xrayBlur.DisableBlur(0.f);
     break;
   case CPlayerState::EPlayerVisor::XRay:
-    x90_xrayBlur.SetBlur(EBlurType::Xray, 36.f, 0.f);
+    x90_xrayBlur.SetBlur(EBlurType::Xray, 36.f, 0.f, false);
     if (!x5c_visorLoopSfx)
       x5c_visorLoopSfx =
           CSfxManager::SfxStart(SFXui_visor_xray_lp, x24_visorSfxVol, 0.f, false, 0x7f, true, kInvalidAreaId);
@@ -499,7 +487,7 @@ void CPlayerVisor::FinishTransitionIn() {
   case CPlayerState::EPlayerVisor::Scan: {
     zeus::CColor dimColor = zeus::CColor::lerp(g_tweakGuiColors->GetScanVisorScreenDimColor(),
                                                g_tweakGuiColors->GetScanVisorHudLightMultiply(), x2c_scanDimInterp);
-    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, -1);
+    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, {});
     if (!x5c_visorLoopSfx)
       x5c_visorLoopSfx =
           CSfxManager::SfxStart(SFXui_visor_scan_lp, x24_visorSfxVol, 0.f, false, 0x7f, true, kInvalidAreaId);
@@ -518,14 +506,14 @@ void CPlayerVisor::FinishTransitionIn() {
 void CPlayerVisor::BeginTransitionIn(const CStateManager&) {
   switch (x1c_curVisor) {
   case CPlayerState::EPlayerVisor::XRay:
-    x90_xrayBlur.SetBlur(EBlurType::Xray, 0.f, 0.f);
-    // xc4_vpScaleX = 0.9f;
-    // xc8_vpScaleY = 0.9f;
+    x90_xrayBlur.SetBlur(EBlurType::Xray, 0.f, 0.f, false);
+    xc4_vpScaleX = 0.9f;
+    xc8_vpScaleY = 0.9f;
     CSfxManager::SfxStart(SFXui_into_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
     break;
   case CPlayerState::EPlayerVisor::Scan:
     CSfxManager::SfxStart(SFXui_into_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
-    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, zeus::skWhite, -1);
+    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, zeus::skWhite, {});
     break;
   case CPlayerState::EPlayerVisor::Thermal:
     CSfxManager::SfxStart(SFXui_into_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
@@ -539,8 +527,8 @@ void CPlayerVisor::FinishTransitionOut(const CStateManager&) {
   switch (x1c_curVisor) {
   case CPlayerState::EPlayerVisor::XRay:
     x90_xrayBlur.DisableBlur(0.f);
-    // xc4_vpScaleX = 1.f;
-    // xc8_vpScaleY = 1.f;
+    xc4_vpScaleX = 1.f;
+    xc8_vpScaleY = 1.f;
     break;
   case CPlayerState::EPlayerVisor::Scan:
     x64_scanDim.DisableFilter(0.f);
@@ -616,7 +604,7 @@ void CPlayerVisor::Update(float dt, const CStateManager& mgr) {
     } else if (curVisor == CPlayerState::EPlayerVisor::Scan) {
       zeus::CColor dimColor = zeus::CColor::lerp(g_tweakGuiColors->GetScanVisorScreenDimColor(),
                                                  g_tweakGuiColors->GetScanVisorHudLightMultiply(), x2c_scanDimInterp);
-      x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, -1);
+      x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, {});
     }
   }
 

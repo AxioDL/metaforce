@@ -3,7 +3,7 @@
 namespace metaforce {
 
 CProjectedShadow::CProjectedShadow(u32 w, u32 h, bool persistent)
-: x0_texture(CTexture(ETexelFormat::I4, w, h, 1)), x81_persistent(persistent) {}
+: x0_texture(CTexture(ETexelFormat::I4, w, h, 1, "Projected Shadow Texture")), x81_persistent(persistent) {}
 
 zeus::CAABox CProjectedShadow::CalculateRenderBounds() { return {}; }
 

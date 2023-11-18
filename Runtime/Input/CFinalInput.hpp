@@ -2,12 +2,24 @@
 
 #include <array>
 
-#include "Runtime/RetroTypes.hpp"
 #include "Runtime/Input/CKeyboardMouseController.hpp"
-
-#include <boo/inputdev/DolphinSmashAdapter.hpp>
+#include "Runtime/Input/CControllerGamepadData.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {
+
+struct SAuroraControllerState {
+  u32 m_which = -1;
+  bool m_isGamecube = false;
+  bool m_hasRumble = false;
+  std::array<int16_t, size_t(EControllerAxis::MAX)> m_axes{};
+  std::bitset<size_t(EControllerButton::MAX)> m_btns{};
+
+  SAuroraControllerState() = default;
+  SAuroraControllerState(uint32_t which, bool isGamecube, bool hasRumble)
+  : m_which(which), m_isGamecube(isGamecube), m_hasRumble(hasRumble) {}
+  void clamp();
+};
 
 struct CFinalInput {
   float x0_dt = 0.0f;
@@ -19,22 +31,13 @@ struct CFinalInput {
   float x18_anaLeftTrigger = 0.0f;
   float x1c_anaRightTrigger = 0.0f;
 
-  /* These were originally per-axis bools, requiring two logical tests
-   * at read-time; now they're logical cardinal-direction states
-   * (negative values indicated) */
-  bool x20_enableAnaLeftXP : 1 = false;
-  bool x20_enableAnaLeftNegXP : 1 = false;
-  bool x21_enableAnaLeftYP : 1 = false;
-  bool x21_enableAnaLeftNegYP : 1 = false;
-  bool x22_enableAnaRightXP : 1 = false;
-  bool x22_enableAnaRightNegXP : 1 = false;
-  bool x23_enableAnaRightYP : 1 = false;
-  bool x23_enableAnaRightNegYP : 1 = false;
+  bool x20_enableAnaLeftXP  = false;
+  bool x21_enableAnaLeftYP  = false;
+  bool x22_enableAnaRightXP = false;
+  bool x23_enableAnaRightYP = false;
 
-  /* These were originally redundantly-compared floats;
-   * now the logical state is stored directly */
-  bool x24_anaLeftTriggerP : 1 = false;
-  bool x28_anaRightTriggerP : 1 = false;
+  float x24_anaLeftTriggerP = 0.f;
+  float x28_anaRightTriggerP = 0.f;
 
   bool x2c_b24_A : 1 = false;
   bool x2c_b25_B : 1 = false;
@@ -65,18 +68,15 @@ struct CFinalInput {
   std::optional<CKeyboardMouseControllerData> m_kbm;
 
   std::array<bool, 256> m_PCharKeys{};
-  std::array<bool, 26> m_PSpecialKeys{};
+  std::array<bool, size_t(ESpecialKey::MAX)> m_PSpecialKeys{};
   std::array<bool, 6> m_PMouseButtons{};
 
-  float m_leftMul = 1.f;
-  float m_rightMul = 1.f;
 
   CFinalInput();
-  CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput, float leftDiv,
-              float rightDiv);
+  CFinalInput(int cIdx, float dt, const CControllerGamepadData& data, float leftDiv, float rightDiv);
   CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData& data, const CFinalInput& prevInput);
 
-  CFinalInput& operator|=(const CFinalInput& other);
+  //CFinalInput& operator|=(const CFinalInput& other);
 
   bool operator==(const CFinalInput& other) const { return memcmp(this, &other, sizeof(CFinalInput)) == 0; }
   bool operator!=(const CFinalInput& other) const { return !operator==(other); }
@@ -96,16 +96,16 @@ struct CFinalInput {
   bool PDPLeft() const { return x2e_b30_PDPLeft; }
   bool PDPDown() const { return x2e_b29_PDPDown; }
   bool PDPUp() const { return x2e_b27_PDPUp; }
-  bool PRTrigger() const { return x28_anaRightTriggerP; }
-  bool PLTrigger() const { return x24_anaLeftTriggerP; }
-  bool PRARight() const { return x22_enableAnaRightXP; }
-  bool PRALeft() const { return x22_enableAnaRightNegXP; }
-  bool PRADown() const { return x23_enableAnaRightNegYP; }
-  bool PRAUp() const { return x23_enableAnaRightYP; }
-  bool PLARight() const { return x20_enableAnaLeftXP; }
-  bool PLALeft() const { return x20_enableAnaLeftNegXP; }
-  bool PLADown() const { return x21_enableAnaLeftNegYP; }
-  bool PLAUp() const { return x21_enableAnaLeftYP; }
+  bool PRTrigger() const { return x28_anaRightTriggerP > 0.05f; }
+  bool PLTrigger() const { return x24_anaLeftTriggerP > 0.05f; }
+  bool PRARight() const { return x10_anaRightX > 0.7f && x22_enableAnaRightXP; }
+  bool PRALeft() const { return x10_anaRightX < -0.7f && x22_enableAnaRightXP; }
+  bool PRADown() const { return x14_anaRightY < -0.7f && x23_enableAnaRightYP; }
+  bool PRAUp() const { return x14_anaRightY > 0.7f && x23_enableAnaRightYP; }
+  bool PLARight() const { return x8_anaLeftX > 0.7f && x20_enableAnaLeftXP; }
+  bool PLALeft() const { return x8_anaLeftX < -0.7f && x20_enableAnaLeftXP; }
+  bool PLADown() const { return xc_anaLeftY < -0.7f && x21_enableAnaLeftYP; }
+  bool PLAUp() const { return xc_anaLeftY > 0.7f && x21_enableAnaLeftYP; }
   bool DStart() const { return x2d_b27_Start; }
   bool DR() const { return x2c_b30_R; }
   bool DL() const { return x2c_b29_L; }
@@ -159,16 +159,17 @@ struct CFinalInput {
   float ARightTrigger() const { return x1c_anaRightTrigger; }
 
   CFinalInput ScaleAnalogueSticks(float leftDiv, float rightDiv) const;
+  void InitializeAnalog(float leftDiv, float rightDiv);
 
   bool PKey(char k) const { return m_kbm && m_PCharKeys[size_t(k)]; }
-  bool PSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_PSpecialKeys[size_t(k)]; }
-  bool PMouseButton(boo::EMouseButton k) const { return m_kbm && m_PMouseButtons[size_t(k)]; }
+  bool PSpecialKey(ESpecialKey k) const { return m_kbm && m_PSpecialKeys[size_t(k)]; }
+  bool PMouseButton(EMouseButton k) const { return m_kbm && m_PMouseButtons[size_t(k)]; }
   bool DKey(char k) const { return m_kbm && m_kbm->m_charKeys[size_t(k)]; }
-  bool DSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_kbm->m_specialKeys[size_t(k)]; }
-  bool DMouseButton(boo::EMouseButton k) const { return m_kbm && m_kbm->m_mouseButtons[size_t(k)]; }
+  bool DSpecialKey(ESpecialKey k) const { return m_kbm && m_kbm->m_specialKeys[size_t(k)]; }
+  bool DMouseButton(EMouseButton k) const { return m_kbm && m_kbm->m_mouseButtons[size_t(k)]; }
   float AKey(char k) const { return DKey(k) ? 1.f : 0.f; }
-  float ASpecialKey(boo::ESpecialKey k) const { return DSpecialKey(k) ? 1.f : 0.f; }
-  float AMouseButton(boo::EMouseButton k) const { return DMouseButton(k) ? 1.f : 0.f; }
+  float ASpecialKey(ESpecialKey k) const { return DSpecialKey(k) ? 1.f : 0.f; }
+  float AMouseButton(EMouseButton k) const { return DMouseButton(k) ? 1.f : 0.f; }
 
   const std::optional<CKeyboardMouseControllerData>& GetKBM() const { return m_kbm; }
 };

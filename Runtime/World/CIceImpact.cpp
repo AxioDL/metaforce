@@ -5,7 +5,7 @@
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Collision/CollisionUtil.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/World/CDamageVulnerability.hpp"
 #include "Runtime/World/CGameLight.hpp"
@@ -80,10 +80,10 @@ void CIceImpact::AddToRenderer(zeus::CFrustum const& planes, CStateManager& mgr)
 
 void CIceImpact::Render(CStateManager& mgr) {
   CElementGen::SetSubtractBlend(true);
-  CBooModel::SetRenderModelBlack(true);
+  CCubeModel::SetRenderModelBlack(true);
   xe8_elementGen->Render();
   CElementGen::SetSubtractBlend(false);
-  CBooModel::SetRenderModelBlack(false);
+  CCubeModel::SetRenderModelBlack(false);
 }
 
 void CIceImpact::Think(float dt, CStateManager& mgr) {

@@ -90,10 +90,11 @@ bool CMVELinearImplosion::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVect
 bool CMVETimeChain::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const {
   int v;
   xc_swFrame->GetValue(frame, v);
-  if (frame >= v)
-    return x8_b->GetValue(frame, pVel, pPos);
-  else
+  if (frame < v) {
     return x4_a->GetValue(frame, pVel, pPos);
+  } else {
+    return x8_b->GetValue(frame - v, pVel, pPos);
+  }
 }
 
 CMVEBounce::CMVEBounce(std::unique_ptr<CVectorElement>&& planePoint, std::unique_ptr<CVectorElement>&& planeNormal,

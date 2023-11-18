@@ -2,7 +2,7 @@
 
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/World/CGameLight.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
@@ -50,16 +50,15 @@ void CExplosion::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
   } else if (msg == EScriptObjectMessage::Registered) {
     if (xe8_particleGen->SystemHasLight()) {
       xec_explosionLight = mgr.AllocateUniqueId();
-      mgr.AddObject(new CGameLight(xec_explosionLight, GetAreaIdAlways(), true, "ExplodePLight_" + x10_name,
-                                   x34_transform, GetUniqueId(), xe8_particleGen->GetLight(), 1, /*xf0_particleDesc*/ 0,
-                                   0.f));
+      mgr.AddObject(new CGameLight(xec_explosionLight, GetAreaIdAlways(), GetActive(), "ExplodePLight_" + x10_name,
+                                   x34_transform, GetUniqueId(), xe8_particleGen->GetLight(), 1, 0, 0.f));
     }
   }
 
   CActor::AcceptScriptMsg(msg, sender, mgr);
 
   if (xec_explosionLight != kInvalidUniqueId)
-    mgr.SendScriptMsgAlways(sender, xec_explosionLight, msg);
+    mgr.SendScriptMsgAlways(xec_explosionLight, sender, msg);
 }
 
 void CExplosion::Think(float dt, CStateManager& mgr) {
@@ -104,15 +103,15 @@ void CExplosion::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr
 void CExplosion::Render(CStateManager& mgr) {
   if (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot && xf4_24_renderThermalHot) {
     CElementGen::SetSubtractBlend(true);
-    CBooModel::SetRenderModelBlack(true);
+    CCubeModel::SetRenderModelBlack(true);
     xe8_particleGen->Render();
-    CBooModel::SetRenderModelBlack(false);
+    CCubeModel::SetRenderModelBlack(false);
     CElementGen::SetSubtractBlend(false);
     return;
   }
 
-  CElementGen::SetSubtractBlend(xf4_24_renderThermalHot);
-  CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 74.f, zeus::skBlack);
+  CElementGen::SetSubtractBlend(!xf4_24_renderThermalHot);
+  CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::skBlack);
   xe8_particleGen->Render();
   mgr.SetupFogForArea(GetAreaIdAlways());
   CElementGen::SetSubtractBlend(false);

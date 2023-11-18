@@ -1,13 +1,11 @@
 #include "Runtime/MP1/World/CMetroidPrimeExo.hpp"
 
-#include "DataSpec/DNAMP1/ScriptObjects/MetroidPrimeStage1.hpp"
-
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/MP1/World/CEnergyBall.hpp"
 #include "Runtime/MP1/World/CIceAttackProjectile.hpp"
 #include "Runtime/MP1/World/CMetroidPrimeRelay.hpp"
@@ -21,6 +19,8 @@
 #include "Runtime/World/CScriptWaypoint.hpp"
 #include "Runtime/World/CWorld.hpp"
 #include "Runtime/World/ScriptLoader.hpp"
+
+#include "Runtime/Streams/IOStreams.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -144,29 +144,29 @@ std::array<std::array<pas::ELocomotionType, 3>, 14> skSomeValues2{{
 }};
 } // namespace
 SPrimeStruct2B::SPrimeStruct2B(CInputStream& in)
-: x0_propertyCount(in.readUint32Big())
-, x4_particle1(in.readUint32Big())
-, x8_particle2(in.readUint32Big())
-, xc_particle3(in.readUint32Big())
+: x0_propertyCount(in.ReadLong())
+, x4_particle1(in.Get<CAssetId>())
+, x8_particle2(in.Get<CAssetId>())
+, xc_particle3(in.Get<CAssetId>())
 , x10_dInfo(in)
-, x2c_(in.readFloatBig())
-, x30_(in.readFloatBig())
-, x34_texture(in.readUint32Big())
-, x38_(CSfxManager::TranslateSFXID(u16(in.readUint32Big())))
-, x3a_(CSfxManager::TranslateSFXID(u16(in.readUint32Big()))) {}
+, x2c_(in.ReadFloat())
+, x30_(in.ReadFloat())
+, x34_texture(in.Get<CAssetId>())
+, x38_(CSfxManager::TranslateSFXID(u16(in.ReadLong())))
+, x3a_(CSfxManager::TranslateSFXID(u16(in.ReadLong()))) {}
 
 SPrimeStruct4::SPrimeStruct4(CInputStream& in)
 : x0_beamInfo(in)
-, x44_(in.readUint32Big())
+, x44_(in.ReadLong())
 , x48_dInfo1(in)
 , x64_struct5(CPlasmaProjectile::LoadPlayerEffectResources(in))
-, x88_(in.readFloatBig())
+, x88_(in.ReadFloat())
 , x8c_dInfo2(in) {}
 
 SPrimeStruct6::SPrimeStruct6(CInputStream& in)
-: x0_propertyCount(in.readUint32Big()), x4_damageVulnerability(in), x6c_color(zeus::CColor::ReadRGBABig(in)) {
-  x70_[0] = in.readUint32Big();
-  x70_[1] = in.readUint32Big();
+: x0_propertyCount(in.ReadLong()), x4_damageVulnerability(in), x6c_color(in.Get<zeus::CColor>()) {
+  x70_[0] = in.ReadLong();
+  x70_[1] = in.ReadLong();
 }
 
 static CPatternedInfo LoadPatternedInfo(CInputStream& in) {
@@ -174,23 +174,59 @@ static CPatternedInfo LoadPatternedInfo(CInputStream& in) {
   return CPatternedInfo(in, pcount.second);
 }
 
-using CameraShakeData = DataSpec::DNAMP1::MetroidPrimeStage1::MassivePrimeStruct::CameraShakeData;
+struct SExoCameraShakePoint {
+  float x0_attackTime{};
+  float x4_sustainTime{};
+  float x8_duration{};
+  float xc_magnitude{};
+  SExoCameraShakePoint() = default;
+  SExoCameraShakePoint(CInputStream& in)
+  : x0_attackTime(in.ReadFloat())
+  , x4_sustainTime(in.ReadFloat())
+  , x8_duration(in.ReadFloat())
+  , xc_magnitude(in.ReadFloat()) {}
+};
 
-static SCameraShakePoint BuildCameraShakePoint(CameraShakeData::CameraShakerComponent::CameraShakePoint& sp) {
-  return SCameraShakePoint(false, sp.attackTime, sp.sustainTime, sp.duration, sp.magnitude);
+struct SExoCameraShakerComponent {
+  bool x0_useModulation{};
+  SExoCameraShakePoint x4_am{};
+  SExoCameraShakePoint x14_fm{};
+  SExoCameraShakerComponent() = default;
+  explicit SExoCameraShakerComponent(CInputStream& in)
+  : x0_useModulation(in.ReadBool()), x4_am(in.Get<SExoCameraShakePoint>()), x14_fm(in.Get<SExoCameraShakePoint>()) {}
+};
+
+struct SExoCameraShakeData {
+  bool x0_useSfx{};
+  float x4_duration{};
+  float x8_sfxDist{};
+  std::array<SExoCameraShakerComponent, 3> xc_components{};
+  SExoCameraShakeData() = default;
+  explicit SExoCameraShakeData(CInputStream& in)
+  : x0_useSfx(in.ReadBool()), x4_duration(in.ReadFloat()), x8_sfxDist(in.ReadFloat()) {
+    for (auto& component : xc_components) {
+      component = in.Get<SExoCameraShakerComponent>();
+    }
+  }
+};
+
+static SCameraShakePoint BuildCameraShakePoint(SExoCameraShakePoint& sp) {
+  return {false, sp.x0_attackTime, sp.x4_sustainTime, sp.x8_duration, sp.xc_magnitude};
 }
 
-static CCameraShakerComponent BuildCameraShakerComponent(CameraShakeData::CameraShakerComponent& comp) {
-  return CCameraShakerComponent(comp.useModulation, BuildCameraShakePoint(comp.am), BuildCameraShakePoint(comp.fm));
+static CCameraShakerComponent BuildCameraShakerComponent(SExoCameraShakerComponent& comp) {
+  return {comp.x0_useModulation, BuildCameraShakePoint(comp.x4_am), BuildCameraShakePoint(comp.x14_fm)};
 }
 
 static CCameraShakeData LoadCameraShakeData(CInputStream& in) {
-  CameraShakeData shakeData;
-  shakeData.read(in);
-  return CCameraShakeData(shakeData.duration, shakeData.sfxDist, u32(shakeData.useSfx), zeus::skZero3f,
-                          BuildCameraShakerComponent(shakeData.shakerComponents[0]),
-                          BuildCameraShakerComponent(shakeData.shakerComponents[1]),
-                          BuildCameraShakerComponent(shakeData.shakerComponents[2]));
+  auto shakeData = in.Get<SExoCameraShakeData>();
+  return {shakeData.x4_duration,
+          shakeData.x8_sfxDist,
+          u32(shakeData.x0_useSfx),
+          zeus::skZero3f,
+          BuildCameraShakerComponent(shakeData.xc_components[0]),
+          BuildCameraShakerComponent(shakeData.xc_components[1]),
+          BuildCameraShakerComponent(shakeData.xc_components[2])};
 }
 
 static rstl::reserved_vector<SPrimeStruct4, 4> LoadPrimeStruct4s(CInputStream& in) {
@@ -203,41 +239,42 @@ static rstl::reserved_vector<SPrimeStruct4, 4> LoadPrimeStruct4s(CInputStream& i
 
 static rstl::reserved_vector<SPrimeStruct6, 4> LoadPrimeStruct6s(CInputStream& in) {
   rstl::reserved_vector<SPrimeStruct6, 4> ret;
-  for (int i = 0; i < 4; ++i)
+  for (int i = 0; i < 4; ++i) {
     ret.emplace_back(in);
+  }
   return ret;
 }
 
 SPrimeExoParameters::SPrimeExoParameters(CInputStream& in)
-: x0_propertyCount(in.readUint32Big())
+: x0_propertyCount(in.ReadLong())
 , x4_patternedInfo(LoadPatternedInfo(in))
 , x13c_actorParms(ScriptLoader::LoadActorParameters(in))
-, x1a4_(in.readUint32Big())
+, x1a4_(in.ReadLong())
 , x1a8_(LoadCameraShakeData(in))
 , x27c_(LoadCameraShakeData(in))
 , x350_(LoadCameraShakeData(in))
 , x424_(in)
-, x460_particle1(in.readUint32Big())
+, x460_particle1(in.Get<CAssetId>())
 , x464_(LoadPrimeStruct4s(in))
-, x708_wpsc1(in.readUint32Big())
+, x708_wpsc1(in.Get<CAssetId>())
 , x70c_dInfo1(in)
 , x728_shakeData1(LoadCameraShakeData(in))
-, x7fc_wpsc2(in.readUint32Big())
+, x7fc_wpsc2(in.Get<CAssetId>())
 , x800_dInfo2(in)
 , x81c_shakeData2(LoadCameraShakeData(in))
 , x8f0_(in)
 , x92c_(in)
 , x948_(LoadCameraShakeData(in))
-, xa1c_particle2(in.readUint32Big())
-, xa20_swoosh(in.readUint32Big())
-, xa24_particle3(in.readUint32Big())
-, xa28_particle4(in.readUint32Big())
+, xa1c_particle2(in.Get<CAssetId>())
+, xa20_swoosh(in.Get<CAssetId>())
+, xa24_particle3(in.Get<CAssetId>())
+, xa28_particle4(in.Get<CAssetId>())
 , xa2c_(LoadPrimeStruct6s(in)) {}
 
-SPrimeExoRoomParameters::SPrimeExoRoomParameters(CInputStream& in) {
-  u32 propCount = std::min(u32(14), in.readUint32Big());
+CMetroidPrimeAttackWeights::CMetroidPrimeAttackWeights(CInputStream& in) {
+  u32 propCount = std::min(14, in.ReadLong());
   for (u32 i = 0; i < propCount; ++i) {
-    x0_.push_back(in.readFloatBig());
+    x0_.push_back(in.ReadFloat());
   }
 }
 
@@ -1255,7 +1292,7 @@ void CMetroidPrimeExo::sub802759a8(CStateManager& mgr, u32 w1) {
   }
 }
 
-float CMetroidPrimeExo::sub80275b04(const SPrimeExoRoomParameters& roomParms, int w2) {
+float CMetroidPrimeExo::sub80275b04(const CMetroidPrimeAttackWeights& roomParms, int w2) {
   float dVar1 = 0.f;
   if (!zeus::close_enough(0.f, x1258_[w2])) {
     const float tmpFloat = roomParms.GetFloatValue(w2);
@@ -1489,7 +1526,8 @@ TUniqueId CMetroidPrimeExo::GetNextAttackWaypoint(CStateManager& mgr, bool b1) {
   return lastUid;
 }
 
-TUniqueId CMetroidPrimeExo::GetWaypointForBehavior(CStateManager& mgr, EScriptObjectState state, EScriptObjectMessage msg) {
+TUniqueId CMetroidPrimeExo::GetWaypointForBehavior(CStateManager& mgr, EScriptObjectState state,
+                                                   EScriptObjectMessage msg) {
   if (TCastToConstPtr<CMetroidPrimeRelay> relay = mgr.GetObjectById(x568_relayId)) {
     rstl::reserved_vector<TUniqueId, 8> uids;
     for (const auto& conn : relay->GetConnectionList()) {

@@ -20,7 +20,7 @@ s16 CRumbleManager::Rumble(CStateManager& mgr, const zeus::CVector3f& pos, ERumb
 
 s16 CRumbleManager::Rumble(CStateManager& mgr, ERumbleFxId fx, float gain, ERumblePriority priority) {
   if (g_GameState->GameOptions().GetIsRumbleEnabled())
-    return x0_rumbleGenerator.Rumble(RumbleFxTable[size_t(fx)], gain, priority, EIOPort::Zero);
+    return x0_rumbleGenerator.Rumble(RumbleFxTable[size_t(fx)], gain, priority, EIOPort::Player1);
   return -1;
 }
 

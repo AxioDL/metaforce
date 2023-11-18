@@ -17,7 +17,7 @@
 #include "Runtime/CSortedLists.hpp"
 #include "Runtime/CTimeProvider.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CLight.hpp"
 #include "Runtime/Input/ControlMapper.hpp"
 #include "Runtime/Input/CRumbleManager.hpp"
@@ -47,19 +47,19 @@
 #include "Runtime/World/CSnakeWeedSwarm.hpp"
 #include "Runtime/World/CWallCrawlerSwarm.hpp"
 #include "Runtime/World/CWorld.hpp"
-#include "TCastTo.hpp" // Generated file, do not modify include path
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 
-#include <hecl/CVarManager.hpp>
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include <zeus/CMRay.hpp>
 
 namespace metaforce {
 namespace {
-hecl::CVar* debugToolDrawAiPath = nullptr;
-hecl::CVar* debugToolDrawLighting = nullptr;
-hecl::CVar* debugToolDrawCollisionActors = nullptr;
-hecl::CVar* debugToolDrawMazePath = nullptr;
-hecl::CVar* debugToolDrawPlatformCollision = nullptr;
-hecl::CVar* sm_logScripting = nullptr;
+CVar* debugToolDrawAiPath = nullptr;
+CVar* debugToolDrawLighting = nullptr;
+CVar* debugToolDrawCollisionActors = nullptr;
+CVar* debugToolDrawMazePath = nullptr;
+CVar* debugToolDrawPlatformCollision = nullptr;
+CVar* sm_logScripting = nullptr;
 } // namespace
 logvisor::Module LogModule("metaforce::CStateManager");
 CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& mailbox, const std::weak_ptr<CMapWorldInfo>& mwInfo,
@@ -81,7 +81,7 @@ CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& mailbox, const
   x88c_rumbleManager = &x86c_stateManagerContainer->xf250_rumbleManager;
 
   g_Renderer->SetDrawableCallback(&CStateManager::RendererDrawCallback, this);
-  x908_loaderCount = int(EScriptObjectType::ScriptObjectTypeMAX);
+  x90c_loaderFuncs.resize(int(EScriptObjectType::ScriptObjectTypeMAX));
   x90c_loaderFuncs[size_t(EScriptObjectType::Actor)] = ScriptLoader::LoadActor;
   x90c_loaderFuncs[size_t(EScriptObjectType::Waypoint)] = ScriptLoader::LoadWaypoint;
   x90c_loaderFuncs[size_t(EScriptObjectType::Door)] = ScriptLoader::LoadDoor;
@@ -217,9 +217,9 @@ CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& mailbox, const
   g_StateManager = this;
 
   if (sm_logScripting == nullptr) {
-    sm_logScripting = hecl::CVarManager::instance()->findOrMakeCVar(
+    sm_logScripting = CVarManager::instance()->findOrMakeCVar(
         "stateManager.logScripting"sv, "Prints object communication to the console", false,
-        hecl::CVar::EFlags::ReadOnly | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::Game);
+        CVar::EFlags::ReadOnly | CVar::EFlags::Archive | CVar::EFlags::Game);
   }
   m_logScriptingReference.emplace(&m_logScripting, sm_logScripting);
 }
@@ -439,7 +439,7 @@ void CStateManager::SetupParticleHook(const CActor& actor) const {
 
 void CStateManager::MurderScriptInstanceNames() { xb40_uniqueInstanceNames.clear(); }
 
-std::string CStateManager::HashInstanceName(CInputStream& in) { return in.readString(); }
+std::string CStateManager::HashInstanceName(CInputStream& in) { return in.Get<std::string>(); }
 
 void CStateManager::SetActorAreaId(CActor& actor, TAreaId aid) {
   const TAreaId actorAid = actor.GetAreaIdAlways();
@@ -504,8 +504,8 @@ void CStateManager::DrawReflection(const zeus::CVector3f& reflectPoint) {
   CGraphics::SetViewPointMatrix(look);
   const CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
-  g_Renderer->SetPerspective(cam->GetFov(), g_Viewport.x8_width, g_Viewport.xc_height, cam->GetNearClipDistance(),
-                             cam->GetFarClipDistance());
+  g_Renderer->SetPerspective(cam->GetFov(), CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(),
+                             cam->GetNearClipDistance(), cam->GetFarClipDistance());
 
   x84c_player->RenderReflectedPlayer(*this);
 
@@ -534,6 +534,8 @@ void CStateManager::BuildDynamicLightListForWorld() {
   }
 
   x8e0_dynamicLights.clear();
+  x8e0_dynamicLights.reserve(GetLightObjectList().size());
+
   for (const CEntity* ent : GetLightObjectList()) {
     const auto& light = static_cast<const CGameLight&>(*ent);
     if (light.GetActive()) {
@@ -543,20 +545,31 @@ void CStateManager::BuildDynamicLightListForWorld() {
       }
     }
   }
+  
+  std::sort(x8e0_dynamicLights.begin(), x8e0_dynamicLights.end(), [](const CLight& a, const CLight& b) {
+    if (b.GetPriority() > a.GetPriority()) {
+      return true;
+    } else if (b.GetPriority() == a.GetPriority()) {
+      return a.GetIntensity() > b.GetIntensity();
+    } else {
+      return false;
+    }
+  });
 }
+
 void CStateManager::DrawDebugStuff() const {
-  if (hecl::com_developer != nullptr && !hecl::com_developer->toBoolean()) {
+  if (com_developer != nullptr && !com_developer->toBoolean()) {
     return;
   }
 
   // FIXME: Add proper globals for CVars
   if (debugToolDrawAiPath == nullptr || debugToolDrawCollisionActors == nullptr || debugToolDrawLighting == nullptr ||
       debugToolDrawMazePath == nullptr || debugToolDrawPlatformCollision == nullptr) {
-    debugToolDrawAiPath = hecl::CVarManager::instance()->findCVar("debugTool.drawAiPath");
-    debugToolDrawMazePath = hecl::CVarManager::instance()->findCVar("debugTool.drawMazePath");
-    debugToolDrawCollisionActors = hecl::CVarManager::instance()->findCVar("debugTool.drawCollisionActors");
-    debugToolDrawLighting = hecl::CVarManager::instance()->findCVar("debugTool.drawLighting");
-    debugToolDrawPlatformCollision = hecl::CVarManager::instance()->findCVar("debugTool.drawPlatformCollision");
+    debugToolDrawAiPath = CVarManager::instance()->findCVar("debugTool.drawAiPath");
+    debugToolDrawMazePath = CVarManager::instance()->findCVar("debugTool.drawMazePath");
+    debugToolDrawCollisionActors = CVarManager::instance()->findCVar("debugTool.drawCollisionActors");
+    debugToolDrawLighting = CVarManager::instance()->findCVar("debugTool.drawLighting");
+    debugToolDrawPlatformCollision = CVarManager::instance()->findCVar("debugTool.drawPlatformCollision");
     return;
   }
 
@@ -600,7 +613,7 @@ void CStateManager::DrawDebugStuff() const {
 
 void CStateManager::RenderCamerasAndAreaLights() {
   x870_cameraManager->RenderCameras(*this);
-  for (const CCameraFilterPassPoly& filter : xb84_camFilterPasses) {
+  for (auto& filter : xb84_camFilterPasses) {
     filter.Draw();
   }
 }
@@ -615,7 +628,7 @@ void CStateManager::DrawE3DeathEffect() {
     const float blurAmt = zeus::clamp(0.f, (player.x9f4_deathTime - 1.f) / (6.f - 1.f), 1.f);
     if (blurAmt > 0.f) {
       CCameraBlurPass blur;
-      blur.SetBlur(EBlurType::HiBlur, 7.f * blurAmt, 0.f);
+      blur.SetBlur(EBlurType::HiBlur, 7.f * blurAmt, 0.f, false);
       blur.Draw();
     }
   }
@@ -623,7 +636,7 @@ void CStateManager::DrawE3DeathEffect() {
   const float whiteAmt = zeus::clamp(0.f, 1.f - player.x9f4_deathTime / (0.05f * 6.f), 1.f);
   zeus::CColor color = zeus::skWhite;
   color.a() = whiteAmt;
-  m_deathWhiteout.draw(color);
+  CCameraFilterPass::DrawFilter(EFilterType::Add, EFilterShape::Fullscreen, color, nullptr, 1.f);
 }
 
 void CStateManager::DrawAdditionalFilters() {
@@ -633,7 +646,7 @@ void CStateManager::DrawAdditionalFilters() {
 
   zeus::CColor color = zeus::skWhite;
   color.a() = 1.f - xf0c_escapeTimer;
-  m_escapeWhiteout.draw(color);
+  CCameraFilterPass::DrawFilter(EFilterType::Add, EFilterShape::Fullscreen, color, nullptr, 1.f);
 }
 
 zeus::CFrustum CStateManager::SetupDrawFrustum(const SViewport& vp) const {
@@ -658,7 +671,7 @@ zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const {
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
   const zeus::CTransform camXf = x870_cameraManager->GetCurrentCameraTransform(*this);
   g_Renderer->SetWorldViewpoint(camXf);
-  CBooModel::SetNewPlayerPositionAndTime(x84c_player->GetTranslation());
+  CCubeModel::SetNewPlayerPositionAndTime(x84c_player->GetTranslation(), CStopwatch::GetGlobalTimerObj());
   const int vpWidth = static_cast<int>(xf2c_viewportScale.x() * vp.x8_width);
   const int vpHeight = static_cast<int>(xf2c_viewportScale.y() * vp.xc_height);
   const int vpLeft = static_cast<int>((vp.x8_width - vpWidth) / 2 + vp.x0_left);
@@ -674,29 +687,10 @@ zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const {
   proj.setPersp(zeus::SProjPersp{fov, width / height, cam->GetNearClipDistance(), cam->GetFarClipDistance()});
   frustum.updatePlanes(camXf, proj);
   g_Renderer->SetClippingPlanes(frustum);
-  // g_Renderer->PrimColor(zeus::skWhite);
+  g_Renderer->PrimColor(zeus::skWhite);
   CGraphics::SetModelMatrix(zeus::CTransform());
   x87c_fluidPlaneManager->StartFrame(false);
-  g_Renderer->SetDebugOption(IRenderer::EDebugOption::One, 1);
-  return frustum;
-}
-
-zeus::CFrustum CStateManager::SetupViewForCubeFaceDraw(const zeus::CVector3f& pos, int face) const {
-  const zeus::CTransform mainCamXf = x870_cameraManager->GetCurrentCameraTransform(*this);
-  const zeus::CTransform camXf = zeus::CTransform(mainCamXf.basis * CGraphics::skCubeBasisMats[face], pos);
-  g_Renderer->SetWorldViewpoint(camXf);
-  CBooModel::SetNewPlayerPositionAndTime(x84c_player->GetTranslation());
-  constexpr float width = CUBEMAP_RES;
-  g_Renderer->SetViewport(0, 0, width, width);
-  CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
-  constexpr float fov = zeus::degToRad(90.f);
-  g_Renderer->SetPerspective(zeus::radToDeg(fov), width, width, 0.2f, 750.f);
-  zeus::CFrustum frustum;
-  zeus::CProjection proj;
-  proj.setPersp(zeus::SProjPersp{fov, 1.f, 0.2f, 750.f});
-  frustum.updatePlanes(camXf, proj);
-  g_Renderer->SetClippingPlanes(frustum);
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  g_Renderer->SetDebugOption(IRenderer::EDebugOption::PVSState, int(EPVSVisSetState::NodeFound));
   return frustum;
 }
 
@@ -707,27 +701,25 @@ void CStateManager::ResetViewAfterDraw(const SViewport& backupViewport,
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
 
   zeus::CFrustum frustum;
-  frustum.updatePlanes(backupViewMatrix, zeus::SProjPersp(zeus::degToRad(cam->GetFov()), g_Viewport.aspect,
+  frustum.updatePlanes(backupViewMatrix, zeus::SProjPersp(zeus::degToRad(cam->GetFov()), CGraphics::GetViewportAspect(),
                                                           cam->GetNearClipDistance(), cam->GetFarClipDistance()));
   g_Renderer->SetClippingPlanes(frustum);
 
-  g_Renderer->SetPerspective(cam->GetFov(), g_Viewport.x8_width, g_Viewport.xc_height, cam->GetNearClipDistance(),
-                             cam->GetFarClipDistance());
+  g_Renderer->SetPerspective(cam->GetFov(), CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(),
+                             cam->GetNearClipDistance(), cam->GetFarClipDistance());
 }
 
 void CStateManager::DrawWorld() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CStateManager::DrawWorld", zeus::skBlue);
   const CTimeProvider timeProvider(xf14_curTimeMod900);
-  const SViewport backupViewport = g_Viewport;
+  const SViewport backupViewport = CGraphics::g_Viewport;
 
   /* Area camera is in (not necessarily player) */
   const TAreaId visAreaId = GetVisAreaId();
 
   x850_world->TouchSky();
 
-  DrawWorldCubeFaces();
-
-  const zeus::CFrustum frustum = SetupViewForDraw(g_Viewport);
+  const zeus::CFrustum frustum = SetupViewForDraw(CGraphics::g_Viewport);
   const zeus::CTransform backupViewMatrix = CGraphics::g_ViewMatrix;
 
   int areaCount = 0;
@@ -790,7 +782,6 @@ void CStateManager::DrawWorld() {
     SetupFogForArea(area);
     g_Renderer->EnablePVS(pvsArr[i], area.x4_selfIdx);
     g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
-    g_Renderer->UpdateAreaUniforms(area.x4_selfIdx);
     g_Renderer->DrawUnsortedGeometry(area.x4_selfIdx, mask, targetMask);
   }
 
@@ -984,120 +975,6 @@ void CStateManager::DrawWorld() {
   DrawAdditionalFilters();
 }
 
-void CStateManager::DrawActorCubeFaces(CActor& actor, int& cubeInst) const {
-  if (!actor.m_reflectionCube ||
-      (!TCastToPtr<CPlayer>(actor) && (!actor.GetActive() || !actor.IsDrawEnabled() || actor.xe4_30_outOfFrustum)))
-    return;
-
-  const TAreaId visAreaId = actor.GetAreaIdAlways();
-  const SViewport backupVp = g_Viewport;
-
-  int areaCount = 0;
-  std::array<const CGameArea*, 10> areaArr;
-  for (const CGameArea& area : *x850_world) {
-    if (areaCount == 10) {
-      break;
-    }
-    auto occState = CGameArea::EOcclusionState::Occluded;
-    if (area.IsPostConstructed()) {
-      occState = area.GetOcclusionState();
-    }
-    if (occState == CGameArea::EOcclusionState::Visible) {
-      areaArr[areaCount++] = &area;
-    }
-  }
-
-  for (int f = 0; f < 6; ++f) {
-    SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CStateManager::DrawActorCubeFaces [{}] {} {} {}"), f,
-                                            actor.GetUniqueId(), actor.GetEditorId(), actor.GetName())
-                                    .c_str(),
-                                zeus::skOrange);
-    CGraphics::g_BooMainCommandQueue->setRenderTarget(actor.m_reflectionCube, f);
-    SetupViewForCubeFaceDraw(actor.GetRenderBounds().center(), f);
-    CGraphics::g_BooMainCommandQueue->clearTarget();
-
-    std::sort(areaArr.begin(), areaArr.begin() + areaCount, [visAreaId](const CGameArea* a, const CGameArea* b) {
-      if (a->x4_selfIdx == b->x4_selfIdx) {
-        return false;
-      }
-      if (visAreaId == a->x4_selfIdx) {
-        return false;
-      }
-      if (visAreaId == b->x4_selfIdx) {
-        return true;
-      }
-      return CGraphics::g_ViewPoint.dot(a->GetAABB().center()) > CGraphics::g_ViewPoint.dot(b->GetAABB().center());
-    });
-
-    int pvsCount = 0;
-    std::array<CPVSVisSet, 10> pvsArr;
-    for (auto area = areaArr.cbegin(); area != areaArr.cbegin() + areaCount; ++area) {
-      const CGameArea* areaPtr = *area;
-      CPVSVisSet& pvsSet = pvsArr[pvsCount++];
-      pvsSet.Reset(EPVSVisSetState::OutOfBounds);
-      GetVisSetForArea(areaPtr->x4_selfIdx, visAreaId, pvsSet);
-    }
-
-    for (int i = areaCount - 1; i >= 0; --i) {
-      const CGameArea& area = *areaArr[i];
-      SetupFogForArea(area);
-      g_Renderer->EnablePVS(pvsArr[i], area.x4_selfIdx);
-      g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
-      g_Renderer->UpdateAreaUniforms(area.x4_selfIdx, EWorldShadowMode::None, true, cubeInst * 6 + f);
-      g_Renderer->DrawUnsortedGeometry(area.x4_selfIdx, 0x2, 0x0);
-    }
-
-    if (!SetupFogForDraw()) {
-      g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
-    }
-
-    x850_world->DrawSky(zeus::CTransform::Translate(CGraphics::g_ViewPoint));
-
-    for (int i = 0; i < areaCount; ++i) {
-      const CGameArea& area = *areaArr[i];
-      CPVSVisSet& pvs = pvsArr[i];
-      SetupFogForArea(area);
-      g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
-      g_Renderer->EnablePVS(pvs, area.x4_selfIdx);
-      g_Renderer->DrawSortedGeometry(area.x4_selfIdx, 0x2, 0x0);
-    }
-  }
-
-  CGraphics::g_BooMainCommandQueue->generateMipmaps(actor.m_reflectionCube);
-
-  CBooRenderer::BindMainDrawTarget();
-  g_Renderer->SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
-
-  ++cubeInst;
-}
-
-void CStateManager::DrawWorldCubeFaces() const {
-  size_t areaCount = 0;
-  std::array<const CGameArea*, 10> areaArr;
-  for (const CGameArea& area : *x850_world) {
-    if (areaCount == areaArr.size()) {
-      break;
-    }
-    auto occState = CGameArea::EOcclusionState::Occluded;
-    if (area.IsPostConstructed()) {
-      occState = area.GetOcclusionState();
-    }
-    if (occState == CGameArea::EOcclusionState::Visible) {
-      areaArr[areaCount++] = &area;
-    }
-  }
-
-  for (size_t ai = 0; ai < areaCount; ++ai) {
-    const CGameArea& area = *areaArr[ai];
-    int cubeInst = 0;
-    for (CEntity* ent : *area.GetAreaObjects()) {
-      if (const TCastToPtr<CActor> actor = ent) {
-        DrawActorCubeFaces(*actor, cubeInst);
-      }
-    }
-  }
-}
-
 void CStateManager::SetupFogForArea3XRange(TAreaId area) const {
   if (area == kInvalidAreaId) {
     area = x8cc_nextAreaId;
@@ -1197,7 +1074,7 @@ void CStateManager::PreRender() {
   }
 
   SCOPED_GRAPHICS_DEBUG_GROUP("CStateManager::PreRender", zeus::skBlue);
-  const zeus::CFrustum frustum = SetupDrawFrustum(g_Viewport);
+  const zeus::CFrustum frustum = SetupDrawFrustum(CGraphics::g_Viewport);
   x86c_stateManagerContainer->xf370_.clear();
   x86c_stateManagerContainer->xf39c_renderLast.clear();
   xf7c_projectedShadow = nullptr;
@@ -1470,14 +1347,14 @@ CStateManager::GetIdListForScript(TEditorId id) const {
 }
 
 void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector<TEditorId>& idsOut) {
-  in.readUByte();
+  in.ReadUint8();
 
-  const u32 objCount = in.readUint32Big();
+  const u32 objCount = in.ReadLong();
   idsOut.reserve(idsOut.size() + objCount);
   for (u32 i = 0; i < objCount; ++i) {
-    const auto objType = static_cast<EScriptObjectType>(in.readUByte());
-    const u32 objSize = in.readUint32Big();
-    const u32 pos = static_cast<u32>(in.position());
+    const auto objType = static_cast<EScriptObjectType>(in.ReadUint8());
+    const u32 objSize = in.ReadLong();
+    const u32 pos = static_cast<u32>(in.GetReadPosition());
     const auto id = LoadScriptObject(aid, objType, objSize, in);
     if (id.first == kInvalidEditorId) {
       continue;
@@ -1502,15 +1379,15 @@ void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector
 std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, EScriptObjectType type, u32 length,
                                                                 CInputStream& in) {
   OPTICK_EVENT();
-  const TEditorId id = in.readUint32Big();
-  const u32 connCount = in.readUint32Big();
+  const TEditorId id = in.ReadLong();
+  const u32 connCount = in.ReadLong();
   length -= 8;
   std::vector<SConnection> conns;
   conns.reserve(connCount);
   for (u32 i = 0; i < connCount; ++i) {
-    const auto state = EScriptObjectState(in.readUint32Big());
-    const auto msg = EScriptObjectMessage(in.readUint32Big());
-    const TEditorId target = in.readUint32Big();
+    const auto state = EScriptObjectState(in.ReadLong());
+    const auto msg = EScriptObjectMessage(in.ReadLong());
+    const TEditorId target = in.ReadLong();
     // Metaforce Addition
     if (m_incomingConnections.find(target) == m_incomingConnections.cend()) {
       m_incomingConnections.emplace(target, std::set<SConnection>());
@@ -1521,9 +1398,9 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
     length -= 12;
     conns.push_back(SConnection{state, msg, target});
   }
-  const u32 propCount = in.readUint32Big();
+  const u32 propCount = in.ReadLong();
   length -= 4;
-  const auto startPos = in.position();
+  const auto startPos = in.GetReadPosition();
 
   bool error = false;
   FScriptLoader loader = {};
@@ -1545,7 +1422,7 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
     error = true;
   }
 
-  const u32 readAmt = in.position() - startPos;
+  const u32 readAmt = in.GetReadPosition() - startPos;
   if (readAmt > length) {
     LogModule.report(logvisor::Fatal, FMT_STRING("Script object overread while reading {}"),
                      ScriptObjectTypeToStr(type));
@@ -1553,15 +1430,12 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
 
   const u32 leftover = length - readAmt;
   for (u32 i = 0; i < leftover; ++i) {
-    in.readByte();
+    in.ReadChar();
   }
 
   if (error || ent == nullptr) {
-    in.seek(startPos, athena::SeekOrigin::Begin);
-    const std::string name = HashInstanceName(in);
-    in.seek(startPos + length, athena::SeekOrigin::Begin);
-    LogModule.report(logvisor::Error, FMT_STRING("Script load error while loading {}, name: {}"),
-                     ScriptObjectTypeToStr(type), name);
+    LogModule.report(logvisor::Error, FMT_STRING("Script load error while loading {} (Editor ID: {}, Area: {})"),
+                     ScriptObjectTypeToStr(type), id, aid);
     return {kInvalidEditorId, kInvalidUniqueId};
   } else {
 #ifndef NDEBUG
@@ -1609,7 +1483,7 @@ void CStateManager::InitScriptObjects(const std::vector<TEditorId>& ids) {
 
 void CStateManager::InformListeners(const zeus::CVector3f& pos, EListenNoiseType type) {
   for (CEntity* ent : GetListeningAiObjectList()) {
-    if (const TCastToPtr<CAi> ai = ent) {
+    if (const TCastToPtr<CPatterned> ai = ent) {
       if (!ai->GetActive()) {
         continue;
       }
@@ -1645,7 +1519,7 @@ void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const
     return;
   }
 
-  const TCastToPtr<CAi> ai = actor;
+  const TCastToPtr<CPatterned> ai = actor;
   if (!ai && hInfo->GetHP() <= 0.f) {
     if (dampedPower > hInfo->GetKnockbackResistance()) {
       if (const TCastToPtr<CPhysicsActor> physActor = actor) {
@@ -2096,7 +1970,10 @@ void CStateManager::UpdateAreaSounds() {
   CSfxManager::SetActiveAreas(areas);
 }
 
-void CStateManager::FrameEnd() { g_SimplePool->Flush(); }
+void CStateManager::FrameEnd() {
+  CModel::FrameDone();
+  g_SimplePool->Flush();
+}
 
 void CStateManager::ProcessPlayerInput() {
   if (x84c_player) {
@@ -2355,7 +2232,7 @@ void CStateManager::MoveActors(float dt) {
       continue;
     }
 
-    if (const TCastToPtr<CAi> ai = physActor) {
+    if (const TCastToPtr<CPatterned> ai = physActor) {
       bool doThink = !xf94_29_cinematicPause;
       if (doThink && ai->GetAreaIdAlways() != kInvalidAreaId) {
         const CGameArea* area = x850_world->GetAreaAlways(ai->GetAreaIdAlways());
@@ -2447,7 +2324,7 @@ void CStateManager::Think(float dt) {
     }
   } else {
     for (CEntity* ent : GetAllObjectList()) {
-      if (const TCastToPtr<CAi> ai = ent) {
+      if (const TCastToPtr<CPatterned> ai = ent) {
         bool doThink = !xf94_29_cinematicPause;
         if (doThink && ai->GetAreaIdAlways() != kInvalidAreaId) {
           const CGameArea* area = x850_world->GetAreaAlways(ai->GetAreaIdAlways());
@@ -2487,7 +2364,12 @@ void CStateManager::ClearGraveyard() {
   x854_objectGraveyard.clear();
 }
 
-void CStateManager::FrameBegin(s32 frameCount) { x8d4_inputFrameIdx = frameCount; }
+void CStateManager::FrameBegin(s32 frameCount) {
+  x8d4_inputFrameIdx = frameCount;
+  CTexture::SetCurrentFrameCount(frameCount);
+  CGraphicsPalette::SetCurrentFrameCount(frameCount);
+  // SwapOutTexturesToARAM(2, 0x180000);
+}
 
 void CStateManager::InitializeState(CAssetId mlvlId, TAreaId aid, CAssetId mreaId) {
   const bool hadRandom = x900_activeRandom != nullptr;

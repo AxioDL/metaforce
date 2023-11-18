@@ -5,7 +5,7 @@
 #include "Runtime/World/CDamageInfo.hpp"
 
 namespace metaforce::MP1 {
-struct SShockWaveData {
+struct CShockWaveInfo {
 private:
   u32 x0_ = 8;
   CAssetId x4_particleDesc;
@@ -18,7 +18,7 @@ private:
   u16 x38_electrocuteSfx;
 
 public:
-  SShockWaveData(CAssetId part, const CDamageInfo& dInfo, float initialExpansionSpeed, CAssetId weapon, u16 sfx)
+  CShockWaveInfo(CAssetId part, const CDamageInfo& dInfo, float initialExpansionSpeed, CAssetId weapon, u16 sfx)
   : x4_particleDesc(part)
   , x8_damageInfo(dInfo)
   , x2c_initialExpansionSpeed(initialExpansionSpeed)
@@ -42,7 +42,7 @@ private:
   CDamageInfo xec_damageInfo;
   TToken<CGenDescription> x108_elementGenDesc;
   std::unique_ptr<CElementGen> x110_elementGen;
-  SShockWaveData x114_data;
+  CShockWaveInfo x114_data;
   float x150_radius;
   float x154_expansionSpeed;
   float x158_activeTime = 0.f;
@@ -59,7 +59,7 @@ private:
 public:
   DEFINE_ENTITY
   CShockWave(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
-             TUniqueId parent, const SShockWaveData& data, float minActiveTime, float knockback);
+             TUniqueId parent, const CShockWaveInfo& data, float minActiveTime, float knockback);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
@@ -70,6 +70,6 @@ public:
   void Touch(CActor& actor, CStateManager& mgr) override;
 
 private:
-  [[nodiscard]] bool IsHit(TUniqueId id) const;
+  [[nodiscard]] bool WasAlreadyDamaged(TUniqueId id) const;
 };
 } // namespace metaforce::MP1

@@ -43,7 +43,7 @@ ECardResult CMemoryCardDriver::SFileInfo::FileRead() {
   if (x24_saveFileData.empty()) {
     return ECardResult::CRC_MISMATCH;
   }
-  u32 existingCrc = hecl::SBig(*reinterpret_cast<u32*>(x24_saveFileData.data()));
+  u32 existingCrc = CBasics::SwapBytes(*reinterpret_cast<u32*>(x24_saveFileData.data()));
   u32 newCrc = CCRC32::Calculate(x24_saveFileData.data() + 4, x24_saveFileData.size() - 4);
   if (existingCrc == newCrc) {
     u32 saveDataOff;
@@ -106,19 +106,19 @@ ECardResult CMemoryCardDriver::SFileInfo::GetSaveDataOffset(u32& offOut) const {
 CMemoryCardDriver::SGameFileSlot::SGameFileSlot() { InitializeFromGameState(); }
 
 CMemoryCardDriver::SGameFileSlot::SGameFileSlot(CMemoryInStream& in) {
-  in.readBytesToBuf(x0_saveBuffer.data(), x0_saveBuffer.size());
+  in.ReadBytes(reinterpret_cast<char*>(x0_saveBuffer.data()), x0_saveBuffer.size());
   x944_fileInfo = CGameState::LoadGameFileState(x0_saveBuffer.data());
 }
 
 void CMemoryCardDriver::SGameFileSlot::InitializeFromGameState() {
-  CBitStreamWriter w(x0_saveBuffer.data(), x0_saveBuffer.size());
+  CMemoryStreamOut w(x0_saveBuffer.data(), x0_saveBuffer.size());
   g_GameState->PutTo(w);
   w.Flush();
   x944_fileInfo = CGameState::LoadGameFileState(x0_saveBuffer.data());
 }
 
 void CMemoryCardDriver::SGameFileSlot::LoadGameState(u32 idx) {
-  CBitStreamReader r(x0_saveBuffer.data(), x0_saveBuffer.size());
+  CMemoryInStream r(x0_saveBuffer.data(), x0_saveBuffer.size(), CMemoryInStream::EOwnerShip::NotOwned);
   static_cast<MP1::CMain*>(g_Main)->StreamNewGameState(r, idx);
 }
 
@@ -151,9 +151,9 @@ const CGameState::GameFileStateInfo* CMemoryCardDriver::GetGameFileStateInfo(int
 
 CMemoryCardDriver::SSaveHeader CMemoryCardDriver::LoadSaveHeader(CMemoryInStream& in) {
   SSaveHeader ret;
-  ret.x0_version = in.readUint32Big();
+  ret.x0_version = in.ReadLong();
   for (bool& present : ret.x4_savePresent) {
-    present = in.readBool();
+    present = in.ReadBool();
   }
   return ret;
 }
@@ -174,7 +174,7 @@ void CMemoryCardDriver::ReadFinished() {
   x20_fileTime = stat.GetTime();
   CMemoryInStream r(fileInfo.x34_saveData.data(), 3004);
   SSaveHeader header = LoadSaveHeader(r);
-  r.readBytesToBuf(x30_systemData.data(), x30_systemData.size());
+  r.ReadBytes(reinterpret_cast<char*>(x30_systemData.data()), x30_systemData.size());
 
   for (size_t i = 0; i < xe4_fileSlots.size(); ++i) {
     if (header.x4_savePresent[i]) {
@@ -188,17 +188,17 @@ void CMemoryCardDriver::ReadFinished() {
 }
 
 void CMemoryCardDriver::ImportPersistentOptions() {
-  CBitStreamReader r(x30_systemData.data(), x30_systemData.size());
+  CMemoryInStream r(x30_systemData.data(), x30_systemData.size(), CMemoryInStream::EOwnerShip::NotOwned);
   CPersistentOptions opts(r);
   g_GameState->ImportPersistentOptions(opts);
 }
 
 void CMemoryCardDriver::ExportPersistentOptions() {
-  CBitStreamReader r(x30_systemData.data(), x30_systemData.size());
+  CMemoryInStream r(x30_systemData.data(), x30_systemData.size(), CMemoryInStream::EOwnerShip::NotOwned);
   CPersistentOptions opts(r);
   g_GameState->ExportPersistentOptions(opts);
-  CBitStreamWriter w(x30_systemData.data(), x30_systemData.size());
-  opts.PutTo(w);
+  CMemoryStreamOut w(x30_systemData.data(), x30_systemData.size());
+  w.Put(opts);
 }
 
 void CMemoryCardDriver::CheckCardCapacity() {
@@ -645,7 +645,7 @@ void CMemoryCardDriver::BuildNewFileSlot(u32 saveIdx) {
     slot = std::make_unique<SGameFileSlot>();
   slot->LoadGameState(saveIdx);
 
-  CBitStreamReader r(x30_systemData.data(), x30_systemData.size());
+  CMemoryInStream r(x30_systemData.data(), x30_systemData.size());
   g_GameState->ReadPersistentOptions(r);
   ImportPersistentOptions();
   g_GameState->SetCardSerial(x28_cardSerial);
@@ -663,7 +663,7 @@ void CMemoryCardDriver::BuildExistingFileSlot(u32 saveIdx) {
   else
     slot->InitializeFromGameState();
 
-  CBitStreamWriter w(x30_systemData.data(), x30_systemData.size());
+  CMemoryStreamOut w(x30_systemData.data(), x30_systemData.size());
   g_GameState->PutTo(w);
 }
 
@@ -680,7 +680,7 @@ void CMemoryCardDriver::InitializeFileInfo() {
   x198_fileInfo->LockBannerToken(x4_saveBanner, *g_SimplePool);
   x198_fileInfo->LockIconToken(x8_saveIcon0, kabufuda::EAnimationSpeed::Middle, *g_SimplePool);
 
-  CMemoryOutStream w = x198_fileInfo->BeginMemoryOut(3004);
+  CMemoryStreamOut w = x198_fileInfo->BeginMemoryOut(3004);
 
   SSaveHeader header;
   for (size_t i = 0; i < xe4_fileSlots.size(); ++i) {
@@ -688,7 +688,7 @@ void CMemoryCardDriver::InitializeFileInfo() {
   }
   header.DoPut(w);
 
-  w.writeBytes(x30_systemData.data(), x30_systemData.size());
+  w.Put(x30_systemData.data(), x30_systemData.size());
 
   for (auto& fileSlot : xe4_fileSlots) {
     if (fileSlot) {

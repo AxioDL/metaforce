@@ -4,7 +4,6 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/rstl.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
 #include <zeus/CVector2f.hpp>
@@ -32,17 +31,7 @@ class CAuiImagePane : public CGuiWidget {
   float x148_fadeDuration = 0.f;
   float x14c_deResFactor = 0.f;
   float x150_flashFactor = 0.f;
-  struct Filters {
-    CAssetId m_texId;
-    CTexturedQuadFilterAlpha m_darkenerQuad;
-    std::array<CTexturedQuadFilterAlpha, 2> m_flashQuad;
-    std::array<CTexturedQuadFilterAlpha, 2> m_alphaQuad;
-    std::array<CTexturedQuadFilterAlpha, 2> m_addQuad;
-    explicit Filters(TLockedToken<CTexture>& tex);
-  };
-  std::optional<Filters> m_filters;
-  void DoDrawImagePane(const zeus::CColor& color, const CTexture& tex, int frame, float blurAmt, bool noBlur,
-                       CTexturedQuadFilterAlpha& quad) const;
+  void DoDrawImagePane(const zeus::CColor& color, CTexture& tex, int frame, float blurAmt, bool noBlur) const;
 
 public:
   CAuiImagePane(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId, CAssetId,

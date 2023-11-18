@@ -1,6 +1,10 @@
 #pragma once
+
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
+
+#include <map>
+
 namespace metaforce {
 class CPaletteInfo {
   u32 m_format;
@@ -9,7 +13,7 @@ class CPaletteInfo {
 
 public:
   explicit CPaletteInfo(CInputStream& in)
-  : m_format(in.readUint32Big()), m_elementCount(in.readUint32Big()), m_dolphinHash(in.readUint64Big()) {}
+  : m_format(in.ReadLong()), m_elementCount(in.ReadLong()), m_dolphinHash(in.ReadLongLong()) {}
 };
 class CTextureInfo {
   ETexelFormat m_format;
@@ -21,12 +25,12 @@ class CTextureInfo {
 
 public:
   explicit CTextureInfo(CInputStream& in)
-  : m_format(ETexelFormat(in.readUint32Big()))
-  , m_mipCount(in.readUint32Big())
-  , m_width(in.readUint16Big())
-  , m_height(in.readUint16Big())
-  , m_dolphinHash(in.readUint64Big()) {
-    bool hasPal = in.readBool();
+  : m_format(ETexelFormat(in.ReadLong()))
+  , m_mipCount(in.ReadLong())
+  , m_width(in.ReadShort())
+  , m_height(in.ReadShort())
+  , m_dolphinHash(in.ReadLongLong()) {
+    bool hasPal = in.ReadBool();
     if (hasPal)
       m_paletteInfo.emplace(in);
   }

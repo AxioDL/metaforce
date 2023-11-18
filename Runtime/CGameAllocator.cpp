@@ -1,7 +1,9 @@
 #include "Runtime/CGameAllocator.hpp"
 
+#include <logvisor/logvisor.hpp>
+
 namespace metaforce {
-logvisor::Module AllocLog("metaforce::CGameAllocator");
+static logvisor::Module Log("metaforce::CGameAllocator");
 
 #pragma GCC diagnostic ignored "-Wclass-memaccess"
 
@@ -44,7 +46,7 @@ u8* CGameAllocator::Alloc(size_t len) {
 void CGameAllocator::Free(u8* ptr) {
   SChunkDescription* info = reinterpret_cast<SChunkDescription*>(ptr - sizeof(SChunkDescription));
   if (info->magic != 0xE8E8E8E8 || info->sentinal != 0xEFEFEFEF) {
-    AllocLog.report(logvisor::Fatal, FMT_STRING("Invalid chunk description, memory corruption!"));
+    Log.report(logvisor::Fatal, FMT_STRING("Invalid chunk description, memory corruption!"));
     return;
   }
 

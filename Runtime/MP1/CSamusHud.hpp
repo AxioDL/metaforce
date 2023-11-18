@@ -111,7 +111,7 @@ class CSamusHud {
   std::unique_ptr<CActorLights> x33c_lights;
   rstl::reserved_vector<SCachedHudLight, 3> x340_hudLights;
   CSfxHandle x3a4_damageSfx;
-  CCameraFilterPass<CColoredQuadFilter> x3a8_camFilter;
+  CCameraFilterPass x3a8_camFilter;
   CGuiLight* x3d4_damageLight = nullptr;
   std::vector<zeus::CTransform> x3d8_lightTransforms;
   float x3e8_damageTIme = 0.f;
@@ -138,7 +138,7 @@ class CSamusHud {
   float x510_staticInterp = 0.f;
   float x514_staticCycleTimerHi = 0.f;
   float x518_staticCycleTimerLo = 0.f;
-  CCameraFilterPass<CRandomStaticFilter> x51c_camFilter2;
+  CCameraFilterPass x51c_camFilter2;
   CHUDMemoParms x548_hudMemoParms;
   TLockedToken<CStringTable> x550_hudMemoString;
   u32 x554_hudMemoIdx = 0;
@@ -166,9 +166,6 @@ class CSamusHud {
   std::array<float, 32> x72c_camZTweaks;
   rstl::reserved_vector<SProfileInfo, 15> x7ac_;
 
-  CColoredQuadFilter m_energyDrainFilter;
-  CCookieCutterDepthRandomStaticFilter m_cookieCutterStatic{EFilterType::NoColor};
-
   static CSamusHud* g_SamusHud;
   static rstl::reserved_vector<bool, 4> BuildPlayerHasVisors(const CStateManager& mgr);
   static rstl::reserved_vector<bool, 4> BuildPlayerHasBeams(const CStateManager& mgr);
@@ -193,7 +190,7 @@ class CSamusHud {
   int FindEmptyHudLightSlot(const CLight& light) const;
   zeus::CColor GetVisorHudLightColor(const zeus::CColor& color, const CStateManager& mgr) const;
   void UpdateHudDynamicLights(float dt, const CStateManager& mgr);
-  void UpdateHudDamage(float dt, const CStateManager& mgr, DataSpec::ITweakGui::EHelmetVisMode helmetVis);
+  void UpdateHudDamage(float dt, const CStateManager& mgr, Tweaks::ITweakGui::EHelmetVisMode helmetVis);
   void UpdateStaticSfx(CSfxHandle& handle, float& cycleTimer, u16 sfxId, float dt, float oldStaticInterp,
                        float staticThreshold);
   void UpdateStaticInterference(float dt, const CStateManager& mgr);

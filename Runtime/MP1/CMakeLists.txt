@@ -1,12 +1,19 @@
 add_subdirectory(World)
 
-if (APPLE)
-    set(MP1_PLAT_SOURCES
-            CFrontEndUITouchBarMac.mm
-            CSaveGameScreenTouchBarMac.mm)
-endif ()
-
 set(MP1_SOURCES
+        Tweaks/CTweakAutoMapper.hpp Tweaks/CTweakAutoMapper.cpp
+        Tweaks/CTweakBall.hpp Tweaks/CTweakBall.cpp
+        Tweaks/CTweakGame.hpp Tweaks/CTweakGame.cpp
+        Tweaks/CTweakGui.hpp Tweaks/CTweakGui.cpp
+        Tweaks/CTweakGuiColors.hpp Tweaks/CTweakGuiColors.cpp
+        Tweaks/CTweakGunRes.hpp Tweaks/CTweakGunRes.cpp
+        Tweaks/CTweakParticle.hpp Tweaks/CTweakParticle.cpp
+        Tweaks/CTweakPlayer.hpp Tweaks/CTweakPlayer.cpp
+        Tweaks/CTweakPlayerControl.hpp Tweaks/CTweakPlayerControl.cpp
+        Tweaks/CTweakPlayerGun.hpp Tweaks/CTweakPlayerGun.cpp
+        Tweaks/CTweakPlayerRes.hpp Tweaks/CTweakPlayerRes.cpp
+        Tweaks/CTweakSlideShow.hpp Tweaks/CTweakSlideShow.cpp
+        Tweaks/CTweakTargeting.hpp Tweaks/CTweakTargeting.cpp
         CTweaks.hpp CTweaks.cpp
         CInGameTweakManager.hpp
         CGBASupport.hpp CGBASupport.cpp
@@ -14,11 +21,9 @@ set(MP1_SOURCES
         CMFGame.hpp CMFGame.cpp
         CPlayMovie.hpp CPlayMovie.cpp
         CFrontEndUI.hpp CFrontEndUI.cpp
-        CFrontEndUITouchBar.hpp CFrontEndUITouchBar.cpp
         CPreFrontEnd.hpp CPreFrontEnd.cpp
         CSlideShow.hpp CSlideShow.cpp
         CSaveGameScreen.hpp CSaveGameScreen.cpp
-        CSaveGameScreenTouchBar.hpp CSaveGameScreenTouchBar.cpp
         CMemoryCardDriver.hpp CMemoryCardDriver.cpp
         CQuitGameScreen.hpp CQuitGameScreen.cpp
         CMessageScreen.hpp CMessageScreen.cpp

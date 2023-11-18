@@ -149,11 +149,13 @@ void CScriptActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) 
 
     if (x2e2_24_noThermalHotZ && xe6_27_thermalVisorFlags == 2) {
       if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
-        xb4_drawFlags.x2_flags &= ~3; // Disable Z test/update
-        xb4_drawFlags.m_noZTest = true;
+        // Disable Z test/update
+        xb4_drawFlags.x2_flags &= CModelFlagBits::DepthTest;
+        xb4_drawFlags.x2_flags &= CModelFlagBits::DepthUpdate;
       } else {
-        xb4_drawFlags.x2_flags |= 3; // Enable Z test/update
-        xb4_drawFlags.m_noZTest = false;
+        // Enable Z test/update
+        xb4_drawFlags.x2_flags |= CModelFlagBits::DepthTest;
+        xb4_drawFlags.x2_flags |= CModelFlagBits::DepthUpdate;
       }
     }
 

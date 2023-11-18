@@ -3,13 +3,11 @@
 #include <memory>
 #include <vector>
 
-#include "Runtime/CResFactory.hpp"
-#include "Runtime/RetroTypes.hpp"
 #include "Runtime/AutoMapper/CMappableObject.hpp"
+#include "Runtime/CResFactory.hpp"
 #include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
-
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include "Runtime/RetroTypes.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
@@ -29,9 +27,9 @@ public:
     struct Instance {
       CMapSurfaceShader m_surfacePrims;
       std::vector<CLineRenderer> m_linePrims;
-      Instance(boo::IGraphicsDataFactory::Context& ctx, const boo::ObjToken<boo::IGraphicsBufferS>& vbo,
-               const boo::ObjToken<boo::IGraphicsBufferS>& ibo)
-      : m_surfacePrims(ctx, vbo, ibo) {}
+      Instance(std::vector<zeus::CVector3f> vbo,
+               std::vector<u16> ibo)
+      : m_surfacePrims(vbo, ibo) {}
       Instance(Instance&&) = default;
       Instance& operator=(Instance&&) = default;
     };
@@ -65,8 +63,8 @@ private:
   u8* x40_surfaceStart;
   std::vector<CMapAreaSurface> m_surfaces;
   std::unique_ptr<u8[]> x44_buf;
-  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
+//  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
+//  boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
 
 public:
   explicit CMapArea(CInputStream& in, u32 size);

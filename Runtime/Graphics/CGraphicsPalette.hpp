@@ -1,35 +1,44 @@
 #pragma once
 
+#include "RetroTypes.hpp"
+#include "GX.hpp"
+
 #include <memory>
-#include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {
+class CInputStream;
 
-enum class EPaletteFormat {
-  IA8 = 0x0,
-  RGB565 = 0x1,
-  RGB5A3 = 0x2,
+enum class EPaletteFormat : std::underlying_type_t<GXTlutFmt> {
+  IA8 = GX_TL_IA8,
+  RGB565 = GX_TL_RGB565,
+  RGB5A3 = GX_TL_RGB5A3,
 };
 
 class CGraphicsPalette {
+  static u32 sCurrentFrameCount;
   friend class CTextRenderBuffer;
   EPaletteFormat x0_fmt;
-  u32 x4_;
-  int x8_entryCount;
+  u32 x4_frameLoaded{};
+  u32 x8_entryCount;
   std::unique_ptr<u16[]> xc_entries;
-  /* x10_ GXTlutObj here */
-  bool x1c_ = false;
+  GXTlutObj x10_tlutObj;
+  bool x1c_locked = false;
 
 public:
-  explicit CGraphicsPalette(EPaletteFormat fmt, int count)
-  : x0_fmt(fmt), x8_entryCount(count), xc_entries(new u16[count]) {}
-  explicit CGraphicsPalette(CInputStream& in) : x0_fmt(EPaletteFormat(in.readUint32Big())) {
-    u16 w = in.readUint16Big();
-    u16 h = in.readUint16Big();
-    x8_entryCount = w * h;
+  explicit CGraphicsPalette(EPaletteFormat fmt, int count);
+  explicit CGraphicsPalette(CInputStream& in);
+  ~CGraphicsPalette();
 
-    /* GX Tlut init here */
+  u16* Lock() {
+    x1c_locked = true;
+    return xc_entries.get();
   }
+  void UnLock();
+  void Load();
+
+  [[nodiscard]] const u16* GetPaletteData() const { return xc_entries.get(); }
+
+  static void SetCurrentFrameCount(u32 frameCount) { sCurrentFrameCount = frameCount; }
 };
 
 } // namespace metaforce

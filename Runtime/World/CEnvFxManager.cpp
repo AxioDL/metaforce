@@ -6,7 +6,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Collision/CInternalRayCastStructure.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CHUDBillboardEffect.hpp"
@@ -22,34 +22,34 @@ namespace metaforce {
 static rstl::reserved_vector<zeus::CVector2f, 256> g_SnowForces;
 
 CEnvFxManagerGrid::CEnvFxManagerGrid(const zeus::CVector2i& position, const zeus::CVector2i& extent,
-                                     std::vector<CVectorFixed8_8> initialParticles, int reserve, CEnvFxManager& parent,
-                                     boo::IGraphicsDataFactory::Context& ctx)
+                                     std::vector<CVectorFixed8_8> initialParticles, int reserve, CEnvFxManager& parent)
 : x4_position(position)
 , xc_extent(extent)
 , x1c_particles(std::move(initialParticles))
-, m_instBuf(parent.m_instPool.allocateBlock(CGraphics::g_BooFactory, reserve))
-, m_uniformBuf(parent.m_uniformPool.allocateBlock(CGraphics::g_BooFactory))
-, m_lineRenderer(ctx, CLineRenderer::EPrimitiveMode::Lines, reserve * 2, parent.x40_txtrEnvGradient->GetBooTexture(),
-                 true, true) {
+//, m_instBuf(parent.m_instPool.allocateBlock(CGraphics::g_BooFactory, reserve))
+//, m_uniformBuf(parent.m_uniformPool.allocateBlock(CGraphics::g_BooFactory))
+//, m_lineRenderer(CLineRenderer::EPrimitiveMode::Lines, reserve * 2, parent.x40_txtrEnvGradient->GetTexture(),
+//                 true, true)
+{
   x1c_particles.reserve(reserve);
-  CEnvFxShaders::BuildShaderDataBinding(ctx, parent, *this);
+  CEnvFxShaders::BuildShaderDataBinding(parent, *this);
 }
 
 CEnvFxManager::CEnvFxManager() {
   x40_txtrEnvGradient = g_SimplePool->GetObj("TXTR_EnvGradient");
-  x40_txtrEnvGradient->GetBooTexture()->setClampMode(boo::TextureClampMode::ClampToEdge);
+//  x40_txtrEnvGradient->GetBooTexture()->setClampMode(boo::TextureClampMode::ClampToEdge);
   xb58_envRainSplash = g_SimplePool->GetObj("PART_EnvRainSplash");
   xb74_txtrSnowFlake = g_SimplePool->GetObj("TXTR_SnowFlake");
   xc48_underwaterFlake = g_SimplePool->GetObj("TXTR_UnderwaterFlake");
   CRandom16 random(0);
-  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    m_fogUniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(CGraphics::g_Fog), 1);
+//  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
+//    m_fogUniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(CGraphics::g_Fog), 1);
     for (int i = 0; i < 8; ++i)
       for (int j = 0; j < 8; ++j)
         x50_grids.emplace_back(zeus::CVector2i{j * 2048, i * 2048}, zeus::CVector2i{2048, 2048},
-                               std::vector<CVectorFixed8_8>{}, 171, *this, ctx);
-    return true;
-  } BooTrace);
+                               std::vector<CVectorFixed8_8>{}, 171, *this);
+//    return true;
+//  } BooTrace);
   for (int i = 0; i < 16; ++i)
     xb84_snowZDeltas.emplace_back(0.f, 0.f, random.Range(-2.f, -4.f));
 }
@@ -376,26 +376,26 @@ static zeus::CColor GetFlakeColor(const zeus::CMatrix4f& mvp, const CEnvFxShader
 void CEnvFxManagerGrid::RenderSnowParticles(const zeus::CTransform& camXf) {
   const zeus::CVector3f xVec = 0.2f * camXf.basis[0];
   const zeus::CVector3f zVec = 0.2f * camXf.basis[2];
-  const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(false) * CGraphics::g_GXModelView.toMatrix4f();
-  auto* bufOut = m_instBuf.access();
-  for (const auto& particle : x1c_particles) {
-    bufOut->positions[0] = particle.toVec3f();
-    bufOut->uvs[0] = zeus::CVector2f(0.f, 0.f);
-    bufOut->positions[1] = bufOut->positions[0] + zVec;
-    bufOut->uvs[1] = zeus::CVector2f(0.f, 1.f);
-    bufOut->positions[3] = bufOut->positions[1] + xVec;
-    bufOut->uvs[3] = zeus::CVector2f(1.f, 1.f);
-    bufOut->positions[2] = bufOut->positions[3] - zVec;
-    bufOut->uvs[2] = zeus::CVector2f(1.f, 0.f);
-    bufOut->color = GetFlakeColor(mvp, *bufOut);
-    ++bufOut;
-  }
-  CGraphics::SetShaderDataBinding(m_snowBinding);
-  CGraphics::DrawInstances(0, 4, x1c_particles.size());
+  const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix() * CGraphics::g_GXModelView.toMatrix4f();
+//  auto* bufOut = m_instBuf.access();
+//  for (const auto& particle : x1c_particles) {
+//    bufOut->positions[0] = particle.toVec3f();
+//    bufOut->uvs[0] = zeus::CVector2f(0.f, 0.f);
+//    bufOut->positions[1] = bufOut->positions[0] + zVec;
+//    bufOut->uvs[1] = zeus::CVector2f(0.f, 1.f);
+//    bufOut->positions[3] = bufOut->positions[1] + xVec;
+//    bufOut->uvs[3] = zeus::CVector2f(1.f, 1.f);
+//    bufOut->positions[2] = bufOut->positions[3] - zVec;
+//    bufOut->uvs[2] = zeus::CVector2f(1.f, 0.f);
+//    bufOut->color = GetFlakeColor(mvp, *bufOut);
+//    ++bufOut;
+//  }
+//  CGraphics::SetShaderDataBinding(m_snowBinding);
+//  CGraphics::DrawInstances(0, 4, x1c_particles.size());
 }
 
 void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) {
-  m_lineRenderer.Reset();
+//  m_lineRenderer.Reset();
   const float zOffset = 2.f * (1.f - std::fabs(camXf.basis[2].dot(zeus::skUp))) + 1.f;
   const zeus::CColor color0(1.f, 10.f / 15.f);
   for (const auto& particle : x1c_particles) {
@@ -404,31 +404,31 @@ void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) {
     pos1.z() += zOffset;
     const float uvy0 = pos0.z() * 10.f + m_uvyOffset;
     const float uvy1 = pos1.z() * 10.f + m_uvyOffset;
-    m_lineRenderer.AddVertex(pos0, zeus::skWhite, 1.f, {0.f, uvy0});
-    m_lineRenderer.AddVertex(pos1, zeus::skClear, 1.f, {0.f, uvy1});
+//    m_lineRenderer.AddVertex(pos0, zeus::skWhite, 1.f, {0.f, uvy0});
+//    m_lineRenderer.AddVertex(pos1, zeus::skClear, 1.f, {0.f, uvy1});
   }
-  m_lineRenderer.Render(g_Renderer->IsThermalVisorHotPass(), zeus::CColor(1.f, 0.15f));
+//  m_lineRenderer.Render(false, zeus::CColor(1.f, 0.15f)); // g_Renderer->IsThermalVisorHotPass()
 }
 
 void CEnvFxManagerGrid::RenderUnderwaterParticles(const zeus::CTransform& camXf) {
   const zeus::CVector3f xVec = 0.5f * camXf.basis[0];
   const zeus::CVector3f zVec = 0.5f * camXf.basis[2];
-  const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(false) * CGraphics::g_GXModelView.toMatrix4f();
-  auto* bufOut = m_instBuf.access();
-  for (const auto& particle : x1c_particles) {
-    bufOut->positions[0] = particle.toVec3f();
-    bufOut->uvs[0] = zeus::CVector2f(0.f, 0.f);
-    bufOut->positions[1] = bufOut->positions[0] + zVec;
-    bufOut->uvs[1] = zeus::CVector2f(0.f, 1.f);
-    bufOut->positions[3] = bufOut->positions[1] + xVec;
-    bufOut->uvs[3] = zeus::CVector2f(1.f, 1.f);
-    bufOut->positions[2] = bufOut->positions[3] - zVec;
-    bufOut->uvs[2] = zeus::CVector2f(1.f, 0.f);
-    bufOut->color = GetFlakeColor(mvp, *bufOut);
-    ++bufOut;
-  }
-  CGraphics::SetShaderDataBinding(m_underwaterBinding);
-  CGraphics::DrawInstances(0, 4, x1c_particles.size());
+  const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix() * CGraphics::g_GXModelView.toMatrix4f();
+//  auto* bufOut = m_instBuf.access();
+//  for (const auto& particle : x1c_particles) {
+//    bufOut->positions[0] = particle.toVec3f();
+//    bufOut->uvs[0] = zeus::CVector2f(0.f, 0.f);
+//    bufOut->positions[1] = bufOut->positions[0] + zVec;
+//    bufOut->uvs[1] = zeus::CVector2f(0.f, 1.f);
+//    bufOut->positions[3] = bufOut->positions[1] + xVec;
+//    bufOut->uvs[3] = zeus::CVector2f(1.f, 1.f);
+//    bufOut->positions[2] = bufOut->positions[3] - zVec;
+//    bufOut->uvs[2] = zeus::CVector2f(1.f, 0.f);
+//    bufOut->color = GetFlakeColor(mvp, *bufOut);
+//    ++bufOut;
+//  }
+//  CGraphics::SetShaderDataBinding(m_underwaterBinding);
+//  CGraphics::DrawInstances(0, 4, x1c_particles.size());
 }
 
 void CEnvFxManagerGrid::Render(const zeus::CTransform& xf, const zeus::CTransform& invXf, const zeus::CTransform& camXf,
@@ -436,7 +436,7 @@ void CEnvFxManagerGrid::Render(const zeus::CTransform& xf, const zeus::CTransfor
   if (!x1c_particles.empty() && x14_block.first) {
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Translate(x4_position.toVec2f() / 256.f));
     parent.m_uniformData.mv = CGraphics::g_GXModelView.toMatrix4f();
-    parent.m_uniformData.proj = CGraphics::GetPerspectiveProjectionMatrix(true);
+    parent.m_uniformData.proj = CGraphics::GetPerspectiveProjectionMatrix(/*true*/);
     switch (fxType) {
     case EEnvFxType::Snow:
     case EEnvFxType::Rain: {
@@ -450,7 +450,7 @@ void CEnvFxManagerGrid::Render(const zeus::CTransform& xf, const zeus::CTransfor
     default:
       break;
     }
-    m_uniformBuf.access() = parent.m_uniformData;
+//    m_uniformBuf.access() = parent.m_uniformData;
     switch (fxType) {
     case EEnvFxType::Snow:
       RenderSnowParticles(camXf);
@@ -559,13 +559,13 @@ void CEnvFxManager::Render(const CStateManager& mgr) {
       default:
         break;
       }
-      m_fogUniformBuf->load(&CGraphics::g_Fog, sizeof(CGraphics::g_Fog));
+//      m_fogUniformBuf->load(&CGraphics::g_Fog, sizeof(CGraphics::g_Fog));
       for (auto& grid : x50_grids)
         grid.Render(xf, invXf, camXf, x30_fxDensity, fxType, *this);
       // Backface cull
 
-      m_uniformPool.updateBuffers();
-      m_instPool.updateBuffers();
+//      m_uniformPool.updateBuffers();
+//      m_instPool.updateBuffers();
     }
   }
 }
@@ -600,9 +600,9 @@ void CEnvFxManager::Cleanup() {
 void CEnvFxManager::Initialize() {
   const SObjectTag* tag = g_ResFactory->GetResourceIdByName("DUMB_SnowForces");
   std::unique_ptr<u8[]> data = g_ResFactory->LoadResourceSync(*tag);
-  athena::io::MemoryReader r(data.get(), 2048);
+  CMemoryInStream r(data.get(), 2048, CMemoryInStream::EOwnerShip::NotOwned);
   for (int i = 0; i < 256; ++i)
-    g_SnowForces.push_back(r.readVec2fBig());
+    g_SnowForces.push_back(r.Get<zeus::CVector2f>());
 }
 
 } // namespace metaforce

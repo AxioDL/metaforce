@@ -3,6 +3,7 @@
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/Shaders/CDecalShaders.hpp"
 #include "Runtime/Particle/CParticleGlobals.hpp"
+#include "Runtime/Graphics/CGX.hpp"
 
 namespace metaforce {
 CRandom16 CDecal::sDecalRandom;
@@ -18,52 +19,44 @@ CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf
 
   CDecalDescription* d = x0_description.GetObj();
   if (d->x38_DMDL) {
-    if (d->x48_DLFT)
+    if (d->x48_DLFT) {
       d->x48_DLFT->GetValue(0, x54_modelLifetime);
-    else
+    } else {
       x54_modelLifetime = 0x7FFFFF;
+    }
 
-    if (d->x50_DMRT)
+    if (d->x50_DMRT) {
       d->x50_DMRT->GetValue(0, x60_rotation);
+    }
   } else {
     x5c_29_modelInvalid = true;
   }
-
-  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    for (auto& decal : x3c_decalQuads) {
-      if (decal.m_desc->x14_TEX) {
-        decal.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SParticleInstanceTex), 1);
-      } else {
-        decal.m_instBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(SParticleInstanceNoTex), 1);
-      }
-      decal.m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(SParticleUniforms), 1);
-      CDecalShaders::BuildShaderDataBinding(ctx, decal);
-    }
-    return true;
-  } BooTrace);
 }
 
 bool CDecal::InitQuad(CQuadDecal& quad, const SQuadDescr& desc) {
-  quad.m_desc = &desc;
   if (desc.x14_TEX) {
-    if (desc.x0_LFT)
+    if (desc.x0_LFT) {
       desc.x0_LFT->GetValue(0, quad.x4_lifetime);
-    else
+    } else {
       quad.x4_lifetime = 0x7FFFFF;
+    }
     if (desc.x8_ROT) {
       desc.x8_ROT->GetValue(0, quad.x8_rotation);
-      quad.x0_24_invalid = desc.x8_ROT->IsConstant();
+      quad.x0_24_invalid &= desc.x8_ROT->IsConstant();
     }
 
     if (desc.x4_SZE) {
-      quad.x0_24_invalid = desc.x4_SZE->IsConstant();
-      float size = 1.f;
-      desc.x4_SZE->GetValue(0, size);
-      quad.x0_24_invalid = size <= 1.f;
+      quad.x0_24_invalid &= desc.x4_SZE->IsConstant();
+      if (quad.x0_24_invalid) {
+        float size = 1.f;
+        desc.x4_SZE->GetValue(0, size);
+        quad.x0_24_invalid = size <= 1.f;
+      }
     }
 
-    if (desc.xc_OFF)
-      quad.x0_24_invalid = desc.xc_OFF->IsFastConstant();
+    if (desc.xc_OFF) {
+      quad.x0_24_invalid &= desc.xc_OFF->IsFastConstant();
+    }
     return false;
   }
 
@@ -79,14 +72,16 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
   zeus::CColor color = zeus::skWhite;
   float size = 1.f;
   zeus::CVector3f offset;
-  if (CColorElement* clr = desc.x10_CLR.get())
+  if (CColorElement* clr = desc.x10_CLR.get()) {
     clr->GetValue(x58_frameIdx, color);
+  }
   if (CRealElement* sze = desc.x4_SZE.get()) {
     sze->GetValue(x58_frameIdx, size);
     size *= 0.5f;
   }
-  if (CRealElement* rot = desc.x8_ROT.get())
+  if (CRealElement* rot = desc.x8_ROT.get()) {
     rot->GetValue(x58_frameIdx, decal.x8_rotation);
+  }
   if (CVectorElement* off = desc.xc_OFF.get()) {
     off->GetValue(x58_frameIdx, offset);
     offset.y() = 0.f;
@@ -94,78 +89,109 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
   zeus::CTransform modXf = xc_transform;
   modXf.origin += offset;
   CGraphics::SetModelMatrix(modXf);
+  CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
 
-  SParticleUniforms uniformData = {
-      CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f(), {1.f, 1.f, 1.f, 1.f}};
-  decal.m_uniformBuf->load(&uniformData, sizeof(SParticleUniforms));
-
-  bool redToAlpha = sMoveRedToAlphaBuffer && desc.x18_ADD && desc.x14_TEX;
-
-  SUVElementSet uvSet = {0.f, 1.f, 0.f, 1.f};
-  if (CUVElement* tex = desc.x14_TEX.get()) {
-    TLockedToken<CTexture> texObj = tex->GetValueTexture(x58_frameIdx);
-    if (!texObj.IsLoaded())
-      return;
-    tex->GetValueUV(x58_frameIdx, uvSet);
-    if (redToAlpha)
-      CGraphics::SetShaderDataBinding(decal.m_redToAlphaDataBind);
-    else
-      CGraphics::SetShaderDataBinding(decal.m_normalDataBind);
-
-    g_instTexData.clear();
-    g_instTexData.reserve(1);
-
-    SParticleInstanceTex& inst = g_instTexData.emplace_back();
-    if (decal.x8_rotation == 0.f) {
-      inst.pos[0] = zeus::CVector3f(-size, 0.001f, size);
-      inst.pos[1] = zeus::CVector3f(size, 0.001f, size);
-      inst.pos[2] = zeus::CVector3f(-size, 0.001f, -size);
-      inst.pos[3] = zeus::CVector3f(size, 0.001f, -size);
+  bool redToAlpha = CDecal::sMoveRedToAlphaBuffer && desc.x18_ADD && desc.x14_TEX;
+  if (desc.x18_ADD) {
+    CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, false);
+    if (redToAlpha) {
+      CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::One, ERglLogicOp::Clear);
     } else {
-      float ang = zeus::degToRad(decal.x8_rotation);
-      float sinSize = std::sin(ang) * size;
-      float cosSize = std::cos(ang) * size;
-      inst.pos[0] = zeus::CVector3f(sinSize - cosSize, 0.001f, cosSize + sinSize);
-      inst.pos[1] = zeus::CVector3f(cosSize + sinSize, 0.001f, cosSize - sinSize);
-      inst.pos[2] = zeus::CVector3f(-(cosSize + sinSize), 0.001f, -(cosSize - sinSize));
-      inst.pos[3] = zeus::CVector3f(-sinSize + cosSize, 0.001f, -cosSize - sinSize);
+      CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::One,
+                              ERglLogicOp::Clear);
     }
-    inst.color = color;
-    inst.uvs[0] = zeus::CVector2f(uvSet.xMin, uvSet.yMin);
-    inst.uvs[1] = zeus::CVector2f(uvSet.xMax, uvSet.yMin);
-    inst.uvs[2] = zeus::CVector2f(uvSet.xMin, uvSet.yMax);
-    inst.uvs[3] = zeus::CVector2f(uvSet.xMax, uvSet.yMax);
-
-    decal.m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
-    CGraphics::DrawInstances(0, 4, g_instTexData.size());
   } else {
-    g_instNoTexData.clear();
-    g_instNoTexData.reserve(1);
+    CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, false);
+    CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
+                            ERglLogicOp::Clear);
+  }
 
-    SParticleInstanceNoTex& inst = g_instNoTexData.emplace_back();
-    if (decal.x8_rotation == 0.f) {
-      inst.pos[0] = zeus::CVector3f(-size, 0.001f, size);
-      inst.pos[1] = zeus::CVector3f(size, 0.001f, size);
-      inst.pos[2] = zeus::CVector3f(-size, 0.001f, -size);
-      inst.pos[3] = zeus::CVector3f(size, 0.001f, -size);
+  SUVElementSet uvSet{0.f, 1.f, 0.f, 1.f};
+  if (desc.x14_TEX) {
+    TLockedToken<CTexture> tex = desc.x14_TEX->GetValueTexture(x58_frameIdx);
+    tex->Load(GX_TEXMAP0, EClampMode::Repeat);
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+    desc.x14_TEX->GetValueUV(x58_frameIdx, uvSet);
+    if (redToAlpha) {
+      CGX::SetNumTevStages(2);
+      CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_CPREV, GX_CC_APREV, GX_CC_ZERO);
+      CGX::SetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_TEXA, GX_CA_APREV, GX_CA_ZERO);
+      CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE1);
+      CGX::SetAlphaCompare(GX_GREATER, 0, GX_AOP_OR, GX_NEVER, 0);
+      GXSetTevSwapMode(GX_TEVSTAGE1, GX_TEV_SWAP0, GX_TEV_SWAP1);
     } else {
-      float ang = zeus::degToRad(decal.x8_rotation);
-      float sinSize = std::sin(ang) * size;
-      float cosSize = std::cos(ang) * size;
-      inst.pos[0] = zeus::CVector3f(sinSize - cosSize, 0.001f, cosSize + sinSize);
-      inst.pos[1] = zeus::CVector3f(cosSize + sinSize, 0.001f, cosSize - sinSize);
-      inst.pos[2] = zeus::CVector3f(-(cosSize + sinSize), 0.001f, -(cosSize - sinSize));
-      inst.pos[3] = zeus::CVector3f(-sinSize + cosSize, 0.001f, -cosSize - sinSize);
+      CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
     }
-    inst.color = color;
+  } else {
+    CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvPassthru);
+    CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
+  }
 
-    decal.m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
-    CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
+  CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+  CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+  CGX::SetNumTexGens(1);
+  CGX::SetNumChans(1);
+  CGX::SetNumIndStages(0);
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX_SRC_REG, GX_SRC_VTX, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+  static const GXVtxDescList vtxDesc[4] = {
+      {GX_VA_POS, GX_DIRECT},
+      {GX_VA_CLR0, GX_DIRECT},
+      {GX_VA_TEX0, GX_DIRECT},
+      {GX_VA_NULL, GX_NONE},
+  };
+  CGX::SetVtxDescv(vtxDesc);
+  CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
+
+  float y = 0.001f;
+  if (decal.x8_rotation == 0.f) {
+    // Vertex 0
+    GXPosition3f32(-size, y, size);
+    GXColor4f32(color);
+    GXTexCoord2f32(uvSet.xMin, uvSet.yMin);
+    // Vertex 1
+    GXPosition3f32(size, y, size);
+    GXColor4f32(color);
+    GXTexCoord2f32(uvSet.xMax, uvSet.yMin);
+    // Vertex 2
+    GXPosition3f32(-size, y, -size);
+    GXColor4f32(color);
+    GXTexCoord2f32(uvSet.xMin, uvSet.yMax);
+    // Vertex 3
+    GXPosition3f32(size, y, -size);
+    GXColor4f32(color);
+    GXTexCoord2f32(uvSet.xMax, uvSet.yMax);
+  } else {
+    float ang = zeus::degToRad(decal.x8_rotation);
+    float sinSize = sin(ang) * size;
+    float cosSize = cos(ang) * size;
+    // Vertex 0
+    GXPosition3f32(sinSize - cosSize, y, cosSize + sinSize);
+    GXColor4f32(color);
+    GXTexCoord2f32(uvSet.xMin, uvSet.yMin);
+    // Vertex 1
+    GXPosition3f32(cosSize + sinSize, y, cosSize - sinSize);
+    GXColor4f32(color);
+    GXTexCoord2f32(uvSet.xMax, uvSet.yMin);
+    // Vertex 2
+    GXPosition3f32(-(cosSize + sinSize), y, -(cosSize - sinSize));
+    GXColor4f32(color);
+    GXTexCoord2f32(uvSet.xMin, uvSet.yMax);
+    // Vertex 3
+    GXPosition3f32(-sinSize + cosSize, y, -cosSize - sinSize);
+    GXColor4f32(color);
+    GXTexCoord2f32(uvSet.xMax, uvSet.yMax);
+  }
+
+  CGX::End();
+  if (redToAlpha) {
+    GXSetTevSwapMode(GX_TEVSTAGE1, GX_TEV_SWAP0, GX_TEV_SWAP0);
+    CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
   }
 }
 
 void CDecal::RenderMdl() {
-  const CDecalDescription& desc = *x0_description;
+  CDecalDescription& desc = *x0_description;
   zeus::CColor color = zeus::skWhite;
   zeus::CVector3f dmop;
   zeus::CTransform rotXf;
@@ -220,14 +246,14 @@ void CDecal::RenderMdl() {
 
   if (desc.x5c_24_DMAB) {
     const CModelFlags flags(7, 0, 1, color);
-    desc.x38_DMDL.m_token->Draw(flags);
+    desc.x38_DMDL->Draw(flags);
   } else {
     if (color.a() == 1.f) {
       constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
-      desc.x38_DMDL.m_token->Draw(flags);
+      desc.x38_DMDL->Draw(flags);
     } else {
       const CModelFlags flags(5, 0, 1, color);
-      desc.x38_DMDL.m_token->Draw(flags);
+      desc.x38_DMDL->Draw(flags);
     }
   }
 }
@@ -235,8 +261,9 @@ void CDecal::RenderMdl() {
 void CDecal::Render() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CDecal::Render", zeus::skYellow);
   CGlobalRandom gr(sDecalRandom);
-  if (x5c_29_modelInvalid && x5c_30_quad2Invalid && x5c_31_quad1Invalid)
+  if (x5c_29_modelInvalid && x5c_30_quad2Invalid && x5c_31_quad1Invalid) {
     return;
+  }
 
   CGraphics::DisableAllLights();
   CParticleGlobals::instance()->SetEmitterTime(x58_frameIdx);

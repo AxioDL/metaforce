@@ -1,21 +1,25 @@
 #include "Runtime/Graphics/Shaders/CSpaceWarpFilter.hpp"
 
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 
-#include <hecl/Pipeline.hpp>
+//#include <hecl/Pipeline.hpp>
 
 #define WARP_RAMP_RES 32
 
 namespace metaforce {
 
-static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+// static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 
-void CSpaceWarpFilter::Initialize() { s_Pipeline = hecl::conv->convert(Shader_CSpaceWarpFilter{}); }
+void CSpaceWarpFilter::Initialize() {
+  //  s_Pipeline = hecl::conv->convert(Shader_CSpaceWarpFilter{});
+}
 
-void CSpaceWarpFilter::Shutdown() { s_Pipeline.reset(); }
+void CSpaceWarpFilter::Shutdown() {
+  //  s_Pipeline.reset();
+}
 
-void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& ctx) {
+void CSpaceWarpFilter::GenerateWarpRampTex() {
   std::array<std::array<std::array<u8, 4>, WARP_RAMP_RES + 1>, WARP_RAMP_RES + 1> data{};
   const float halfRes = WARP_RAMP_RES / 2.f;
   for (int y = 0; y < WARP_RAMP_RES + 1; ++y) {
@@ -31,40 +35,38 @@ void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& c
       data[y][x][0] = data[y][x][1] = data[y][x][2];
     }
   }
-  m_warpTex =
-      ctx.newStaticTexture(WARP_RAMP_RES + 1, WARP_RAMP_RES + 1, 1, boo::TextureFormat::RGBA8,
-                           boo::TextureClampMode::Repeat, data.data(), (WARP_RAMP_RES + 1) * (WARP_RAMP_RES + 1) * 4)
-          .get();
+  m_warpTex.emplace(ETexelFormat::RGBA8PC, WARP_RAMP_RES + 1, WARP_RAMP_RES + 1, 1, "Warp Ramp");
 }
 
 CSpaceWarpFilter::CSpaceWarpFilter() {
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    GenerateWarpRampTex(ctx);
-
-    struct Vert {
-      zeus::CVector2f m_pos;
-      zeus::CVector2f m_uv;
-    };
-    const std::array<Vert, 4> verts{{
-        {{-1.f, -1.f}, {0.f, 0.f}},
-        {{-1.f, 1.f}, {0.f, 1.f}},
-        {{1.f, -1.f}, {1.f, 0.f}},
-        {{1.f, 1.f}, {1.f, 1.f}},
-    }};
-
-    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), 32, verts.size());
-    m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-
-    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
-    constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
-    const std::array<boo::ObjToken<boo::ITexture>, 2> texs{
-        CGraphics::g_SpareTexture.get(),
-        m_warpTex.get(),
-    };
-    m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
-                                          stages.data(), nullptr, nullptr, texs.size(), texs.data(), nullptr, nullptr);
-    return true;
-  } BooTrace);
+  //  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+  //    GenerateWarpRampTex(ctx);
+  //
+  //    struct Vert {
+  //      zeus::CVector2f m_pos;
+  //      zeus::CVector2f m_uv;
+  //    };
+  //    const std::array<Vert, 4> verts{{
+  //        {{-1.f, -1.f}, {0.f, 0.f}},
+  //        {{-1.f, 1.f}, {0.f, 1.f}},
+  //        {{1.f, -1.f}, {1.f, 0.f}},
+  //        {{1.f, 1.f}, {1.f, 1.f}},
+  //    }};
+  //
+  //    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), 32, verts.size());
+  //    m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
+  //
+  //    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
+  //    constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
+  //    const std::array<boo::ObjToken<boo::ITexture>, 2> texs{
+  //        CGraphics::g_SpareTexture.get(),
+  //        m_warpTex.get(),
+  //    };
+  //    m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
+  //                                          stages.data(), nullptr, nullptr, texs.size(), texs.data(), nullptr,
+  //                                          nullptr);
+  //    return true;
+  //  } BooTrace);
 }
 
 void CSpaceWarpFilter::draw(const zeus::CVector3f& pt) {
@@ -129,15 +131,15 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt) {
   m_uniform.m_matrix[1][1] = clipRect.x10_height / vp.y();
   m_uniform.m_matrix[3][0] = pt.x() + (1.f / vp.x());
   m_uniform.m_matrix[3][1] = pt.y() + (1.f / vp.y());
-  if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL) {
-    m_uniform.m_matrix[3][2] = pt.z() * 2.f - 1.f;
-  } else if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::Vulkan) {
-    m_uniform.m_matrix[1][1] *= -1.f;
-    m_uniform.m_matrix[3][1] *= -1.f;
-    m_uniform.m_matrix[3][2] = pt.z();
-  } else {
-    m_uniform.m_matrix[3][2] = pt.z();
-  }
+  //  if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL) {
+  //    m_uniform.m_matrix[3][2] = pt.z() * 2.f - 1.f;
+  //  } else if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::Vulkan) {
+  //    m_uniform.m_matrix[1][1] *= -1.f;
+  //    m_uniform.m_matrix[3][1] *= -1.f;
+  //    m_uniform.m_matrix[3][2] = pt.z();
+  //  } else {
+  //    m_uniform.m_matrix[3][2] = pt.z();
+  //  }
 
   if (clipRect.x4_left) {
     clipRect.x4_left -= 1;
@@ -154,16 +156,16 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt) {
 
   clipRect.x4_left += CGraphics::g_CroppedViewport.x4_left;
   clipRect.x8_top += CGraphics::g_CroppedViewport.x8_top;
-  clipRect.x8_top = g_Viewport.xc_height - clipRect.x10_height - clipRect.x8_top;
-  CGraphics::ResolveSpareTexture(clipRect);
+  clipRect.x8_top = CGraphics::GetViewportHeight() - clipRect.x10_height - clipRect.x8_top;
+  //  CGraphics::ResolveSpareTexture(clipRect);
 
   m_uniform.m_strength.x() =
       m_uniform.m_matrix[0][0] * m_strength * 0.5f * (clipRect.x10_height / float(clipRect.xc_width));
   m_uniform.m_strength.y() = m_uniform.m_matrix[1][1] * m_strength * 0.5f;
-  m_uniBuf->load(&m_uniform, sizeof(m_uniform));
+  //  m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
-  CGraphics::SetShaderDataBinding(m_dataBind);
-  CGraphics::DrawArray(0, 4);
+  //  CGraphics::SetShaderDataBinding(m_dataBind);
+  //  CGraphics::DrawArray(0, 4);
 }
 
 } // namespace metaforce

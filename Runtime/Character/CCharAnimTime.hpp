@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 
 #undef min
 #undef max
@@ -19,7 +19,7 @@ public:
   constexpr CCharAnimTime() = default;
   constexpr CCharAnimTime(float time) : x0_time(time), x4_type(x0_time != 0.f ? EType::NonZero : EType::ZeroSteady) {}
   constexpr CCharAnimTime(EType type, float t) : x0_time(t), x4_type(type) {}
-  explicit CCharAnimTime(CInputStream& in) : x0_time(in.readFloatBig()), x4_type(EType(in.readUint32Big())) {}
+  explicit CCharAnimTime(CInputStream& in) : x0_time(in.ReadFloat()), x4_type(EType(in.ReadLong())) {}
 
   static constexpr CCharAnimTime Infinity() { return {EType::Infinity, 1.0f}; }
   float GetSeconds() const { return x0_time; }

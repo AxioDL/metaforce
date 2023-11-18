@@ -4,6 +4,7 @@
 
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 
 namespace metaforce {
 
@@ -17,8 +18,9 @@ CPowerBeam::CPowerBeam(CAssetId characterId, EWeaponType type, TUniqueId playerI
 void CPowerBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
   zeus::CTransform backupView = CGraphics::g_ViewMatrix;
   CGraphics::SetViewPointMatrix(xf.inverse() * backupView);
-  CGraphics::SetModelMatrix(zeus::CTransform());
-  if (x234_shotSmokeGen)
+  g_Renderer->SetModelMatrix(zeus::CTransform());
+  
+  if (x234_shotSmokeGen && x240_smokeState != ESmokeState::Inactive)
     x234_shotSmokeGen->Render();
   CGraphics::SetViewPointMatrix(backupView);
 }

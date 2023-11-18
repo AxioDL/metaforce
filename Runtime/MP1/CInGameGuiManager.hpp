@@ -5,7 +5,7 @@
 #include <optional>
 #include <vector>
 
-#include "DataSpec/DNACommon/Tweaks/ITweakGui.hpp"
+#include "Runtime/Tweaks/ITweakGui.hpp"
 
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CRandom16.hpp"
@@ -43,8 +43,8 @@ class CSamusHud;
 
 class CInGameGuiManager {
 public:
-  using EHelmetVisMode = DataSpec::ITweakGui::EHelmetVisMode;
-  using EHudVisMode = DataSpec::ITweakGui::EHudVisMode;
+  using EHelmetVisMode = Tweaks::ITweakGui::EHelmetVisMode;
+  using EHudVisMode = Tweaks::ITweakGui::EHudVisMode;
 
 private:
   enum class ELoadPhase { LoadDepsGroup = 0, PreLoadDeps, LoadDeps, Done };
@@ -69,7 +69,7 @@ private:
   std::vector<TLockedToken<CDependencyGroup>> xc8_inGameGuiDGRPs;
   std::vector<u32> xd8_;
   std::vector<CToken> xe8_pauseResources;
-  CCameraFilterPass<CColoredQuadFilter> xf8_camFilter;
+  CCameraFilterPass xf8_camFilter;
   CAssetId x124_pauseGameHudMessage;
   float x128_pauseGameHudTime = 0.f;
   std::list<CToken> x12c_;
@@ -88,7 +88,6 @@ private:
   SOnScreenTex x1c4_onScreenTex;
   float x1d8_onScreenTexAlpha = 0.f;
   TLockedToken<CTexture> x1dc_onScreenTexTok; // Used to be heap-allocated
-  std::optional<CTexturedQuadFilterAlpha> m_onScreenQuad;
   EHelmetVisMode x1e0_helmetVisMode;
   bool x1e4_enableTargetingManager;
   bool x1e8_enableAutoMapper;
@@ -99,12 +98,6 @@ private:
   bool x1f8_25_playerAlive : 1 = true;
   bool x1f8_26_deferTransition : 1 = false;
   bool x1f8_27_exitSaveUI : 1 = true;
-
-  std::optional<CTexturedQuadFilter> m_deathRenderTexQuad;
-  std::optional<CTexturedQuadFilter> m_deathDotQuad;
-  CRandomStaticFilter m_randomStatic{EFilterType::Blend};
-  CColoredQuadFilter m_deathWhiteout{EFilterType::Blend};
-  CColoredQuadFilter m_deathBlackout{EFilterType::Blend};
 
   static std::vector<TLockedToken<CDependencyGroup>> LockPauseScreenDependencies();
   bool CheckDGRPLoadComplete() const;

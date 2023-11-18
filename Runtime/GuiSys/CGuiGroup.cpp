@@ -43,8 +43,8 @@ void CGuiGroup::OnActiveChange() {
 
 std::shared_ptr<CGuiWidget> CGuiGroup::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
   CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
-  s16 defaultWorker = in.readInt16Big();
-  bool b = in.readBool();
+  s16 defaultWorker = in.ReadInt16();
+  bool b = in.ReadBool();
   std::shared_ptr<CGuiWidget> ret = std::make_shared<CGuiGroup>(parms, defaultWorker, b);
   ret->ParseBaseInfo(frame, in, parms);
   return ret;

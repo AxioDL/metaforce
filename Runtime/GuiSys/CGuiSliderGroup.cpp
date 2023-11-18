@@ -67,9 +67,9 @@ bool CGuiSliderGroup::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVect
 }
 
 void CGuiSliderGroup::ProcessUserInput(const CFinalInput& input) {
-  if (input.DMouseButton(boo::EMouseButton::Primary) && m_mouseInside)
+  if (input.DMouseButton(EMouseButton::Primary) && m_mouseInside)
     m_mouseDown = true;
-  else if (!input.DMouseButton(boo::EMouseButton::Primary))
+  else if (!input.DMouseButton(EMouseButton::Primary))
     m_mouseDown = false;
   if (input.DLALeft()) {
     StartDecreasing();
@@ -158,10 +158,10 @@ CGuiWidget* CGuiSliderGroup::GetWorkerWidget(int id) const {
 std::shared_ptr<CGuiWidget> CGuiSliderGroup::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
   CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
 
-  float min = in.readFloatBig();
-  float max = in.readFloatBig();
-  float cur = in.readFloatBig();
-  float increment = in.readFloatBig();
+  float min = in.ReadFloat();
+  float max = in.ReadFloat();
+  float cur = in.ReadFloat();
+  float increment = in.ReadFloat();
 
   std::shared_ptr<CGuiWidget> ret = std::make_shared<CGuiSliderGroup>(parms, min, max, cur, increment);
   ret->ParseBaseInfo(frame, in, parms);

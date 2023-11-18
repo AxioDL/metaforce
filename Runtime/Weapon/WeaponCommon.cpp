@@ -19,8 +19,8 @@ void primitive_set_to_token_vector(const CAnimData& animData, const std::set<CPr
   tokensOut.clear();
   tokensOut.reserve(primSet.size() + eventCount);
 
-  SObjectTag atag{FOURCC('ANIM'), 0};
-  SObjectTag etag{FOURCC('EVNT'), 0};
+  SObjectTag atag{FOURCC('ANIM'), {}};
+  SObjectTag etag{FOURCC('EVNT'), {}};
   for (const CPrimitive& prim : primSet) {
     CAssetId eId = animData.GetEventResourceIdForAnimResourceId(prim.GetAnimResId());
     if (eId.IsValid()) {

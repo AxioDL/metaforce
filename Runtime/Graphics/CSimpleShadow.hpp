@@ -1,8 +1,9 @@
 #pragma once
 
-#include <optional>
+#include "Runtime/CToken.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
 
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include <optional>
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CTransform.hpp>
@@ -22,18 +23,17 @@ class CSimpleShadow {
   bool x48_24_collision : 1 = false;
   bool x48_25_alwaysCalculateRadius : 1 = true;
   bool x48_26_radiusCalculated : 1 = false;
-  std::optional<CTexturedQuadFilter> m_filter;
 
 public:
   CSimpleShadow(float scale, float userAlpha, float maxObjHeight, float displacement);
   bool Valid() const { return x48_24_collision; }
   zeus::CAABox GetMaxShadowBox(const zeus::CAABox& aabb) const;
   zeus::CAABox GetBounds() const;
-  void SetAlwaysCalculateRadius(bool) { x48_25_alwaysCalculateRadius = true; }
+  void SetAlwaysCalculateRadius(bool b) { x48_25_alwaysCalculateRadius = b; }
   float GetMaxObjectHeight() const { return x40_maxObjHeight; }
   void SetUserAlpha(float a) { x38_userAlpha = a; }
   const zeus::CTransform& GetTransform() const { return x0_xf; }
-  void Render(const TLockedToken<CTexture>& tex);
+  void Render(TLockedToken<CTexture>& tex);
   void Calculate(const zeus::CAABox& aabb, const zeus::CTransform& xf, const CStateManager& mgr);
 };
 } // namespace metaforce

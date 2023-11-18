@@ -74,7 +74,7 @@ void CFluidPlaneGPU::RenderStripWithRipples(float curY, const Heights& heights, 
       curTileX += info.x14_tileSize;
     }
 
-    CGraphics::DrawArray(start, pvOut.size() - start);
+//    CGraphics::DrawArray(start, pvOut.size() - start);
   }
 }
 

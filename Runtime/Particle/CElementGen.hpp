@@ -100,7 +100,7 @@ private:
   bool x26d_27_enableOPTS : 1;
   bool x26d_28_enableADV : 1 = false;
   int x270_MBSP = 0;
-  ERglLightBits x274_backupLightActive = ERglLightBits::None;
+  GX::LightMask x274_backupLightActive{};
   std::array<bool, 4> x278_hasVMD{};
   CRandom16 x27c_randState;
   std::array<CModVectorElement*, 4> x280_VELSources{};
@@ -141,17 +141,17 @@ public:
                        EOptionalSystemFlags flags = EOptionalSystemFlags::One);
   ~CElementGen() override;
 
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBind;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalSubDataBind;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBind;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaSubDataBind;
-  boo::ObjToken<boo::IGraphicsBufferD> m_instBuf;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
-
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBindPmus;
-  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBindPmus;
-  boo::ObjToken<boo::IGraphicsBufferD> m_instBufPmus;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBufPmus;
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBind;
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalSubDataBind;
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBind;
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaSubDataBind;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_instBuf;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
+//
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBindPmus;
+//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBindPmus;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_instBufPmus;
+//  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBufPmus;
 
   CGenDescription* GetDesc() { return x1c_genDesc.GetObj(); }
   const SObjectTag* GetDescTag() const { return x1c_genDesc.GetObjectTag(); }
@@ -184,13 +184,13 @@ public:
   void SetExternalVar(int index, float var) { x9c_externalVars[index] = var; }
 
   bool InternalUpdate(double dt);
-  void RenderModels(const CActorLights* actLights);
+  void RenderModels();
   void RenderLines();
   void RenderParticles();
   void RenderParticlesIndirectTexture();
 
   bool Update(double t) override;
-  void Render(const CActorLights* actorLights = nullptr) override;
+  void Render() override;
   void SetOrientation(const zeus::CTransform& orientation) override;
   void SetTranslation(const zeus::CVector3f& translation) override;
   void SetGlobalOrientation(const zeus::CTransform& orientation) override;
@@ -228,6 +228,12 @@ public:
 
   std::vector<CParticle> const& GetParticles() const { return x30_particles; }
   std::vector<CParticle>& GetParticles() { return x30_particles; }
+
+private:
+  void RenderBasicParticlesNoRotNoTS(const zeus::CTransform& xf) noexcept;
+  void RenderBasicParticlesNoRotTS(const zeus::CTransform& xf) noexcept;
+  void RenderBasicParticlesRotNoTS(const zeus::CTransform& xf) noexcept;
+  void RenderBasicParticlesRotTS(const zeus::CTransform& xf) noexcept;
 };
 ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 

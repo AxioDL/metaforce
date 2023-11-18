@@ -208,7 +208,7 @@ void CGrappleArm::RenderGrappleBeam(const CStateManager& mgr, const zeus::CVecto
   CGraphics::SetViewPointMatrix(backupViewMtx);
 }
 
-void CGrappleArm::TouchModel(const CStateManager& mgr) const {
+void CGrappleArm::TouchModel(const CStateManager& mgr) {
   if (!x3b2_24_active || x3b2_29_suitLoading) {
     return;
   }
@@ -491,17 +491,14 @@ void CGrappleArm::PreRender(const CStateManager& mgr, const zeus::CFrustum& frus
 
 void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransform& modelXf, const CModelFlags& flags) {
   CGraphics::SetModelMatrix(modelXf * zeus::CTransform::Scale(x0_grappleArmModel->GetScale()));
+  // TODO
   // CGraphics::DisableAllLights();
   // g_Renderer->SetAmbientColor(zeus::skWhite);
   CSkinnedModel& model = *x50_grappleArmSkeletonModel->GetAnimationData()->GetModelData();
-  model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
-  x0_grappleArmModel->GetAnimationData()->Render(model, flags, std::nullopt, nullptr);
+  // model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
+  x0_grappleArmModel->GetAnimationData()->Render(model, flags, nullptr, nullptr);
   // g_Renderer->SetAmbientColor(zeus::skWhite);
   // CGraphics::DisableAllLights();
-}
-
-void CGrappleArm::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  static_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
 }
 
 void CGrappleArm::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags,
@@ -527,7 +524,8 @@ void CGrappleArm::Render(const CStateManager& mgr, const zeus::CVector3f& pos, c
   }
 
   if (x3a4_rainSplashGenerator && x3a4_rainSplashGenerator->IsRaining()) {
-    CSkinnedModel::SetPointGeneratorFunc(x3a4_rainSplashGenerator.get(), PointGenerator);
+    CSkinnedModel::SetPointGeneratorFunc(
+        [&](const auto& workspace) { x3a4_rainSplashGenerator->GeneratePoints(workspace); });
   }
 
   x0_grappleArmModel->Render(mgr, modelXf, useLights, useFlags);

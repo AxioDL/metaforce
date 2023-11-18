@@ -15,7 +15,7 @@ class CPlayer;
 class CStateManager;
 
 class CMorphBallShadow {
-  std::list<const CActor*> x0_actors;
+  std::list<CActor*> x0_actors;
   std::list<TAreaId> x18_areas;
   std::vector<u32> x30_worldModelBits;
   // CTexture x40_;
@@ -31,5 +31,4 @@ public:
   void RenderIdBuffer(const zeus::CAABox& aabb, const CStateManager& mgr, CPlayer& player);
   void Render(const CStateManager& mgr, float alpha);
 };
-
 } // namespace metaforce

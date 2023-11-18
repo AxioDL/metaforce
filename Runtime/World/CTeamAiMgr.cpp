@@ -4,6 +4,7 @@
 
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CPatterned.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -38,15 +39,15 @@ struct TeamAiRoleSorter {
 };
 
 CTeamAiData::CTeamAiData(CInputStream& in, s32 propCount)
-: x0_aiCount(in.readUint32Big())
-, x4_meleeCount(in.readUint32Big())
-, x8_rangedCount(in.readUint32Big())
-, xc_unknownCount(in.readUint32Big())
-, x10_maxMeleeAttackerCount(in.readUint32Big())
-, x14_maxRangedAttackerCount(in.readUint32Big())
-, x18_positionMode(in.readUint32Big())
-, x1c_meleeTimeInterval(propCount > 8 ? in.readFloatBig() : 0.f)
-, x20_rangedTimeInterval(propCount > 8 ? in.readFloatBig() : 0.f) {}
+: x0_aiCount(in.ReadLong())
+, x4_meleeCount(in.ReadLong())
+, x8_rangedCount(in.ReadLong())
+, xc_unknownCount(in.ReadLong())
+, x10_maxMeleeAttackerCount(in.ReadLong())
+, x14_maxRangedAttackerCount(in.ReadLong())
+, x18_positionMode(in.ReadLong())
+, x1c_meleeTimeInterval(propCount > 8 ? in.ReadFloat() : 0.f)
+, x20_rangedTimeInterval(propCount > 8 ? in.ReadFloat() : 0.f) {}
 
 CTeamAiMgr::CTeamAiMgr(TUniqueId uid, std::string_view name, const CEntityInfo& info, const CTeamAiData& data)
 : CEntity(uid, info, true, name), x34_data(data) {
@@ -101,7 +102,7 @@ void CTeamAiMgr::SpacingSort(CStateManager& mgr, const zeus::CVector3f& pos) {
   std::sort(x58_roles.begin(), x58_roles.end(), sorter);
   float tierStagger = 4.5f;
   for (const auto& role : x58_roles) {
-    if (const TCastToConstPtr<CAi> ai = mgr.ObjectById(role.GetOwnerId())) {
+    if (const TCastToConstPtr<CPatterned> ai = mgr.ObjectById(role.GetOwnerId())) {
       const float length = (ai->GetBaseBoundingBox().max.y() - ai->GetBaseBoundingBox().min.y()) * 1.5f;
       if (length > tierStagger) {
         tierStagger = length;
@@ -112,7 +113,7 @@ void CTeamAiMgr::SpacingSort(CStateManager& mgr, const zeus::CVector3f& pos) {
   int tierTeamSize = 0;
   int maxTierTeamSize = 3;
   for (auto& role : x58_roles) {
-    if (const TCastToConstPtr<CAi> ai = mgr.ObjectById(role.GetOwnerId())) {
+    if (const TCastToConstPtr<CPatterned> ai = mgr.ObjectById(role.GetOwnerId())) {
       zeus::CVector3f delta = ai->GetTranslation() - pos;
       zeus::CVector3f newPos;
       if (delta.canBeNormalized()) {
@@ -142,7 +143,7 @@ void CTeamAiMgr::PositionTeam(CStateManager& mgr) {
     break;
   default:
     for (auto& role : x58_roles) {
-      if (const TCastToConstPtr<CAi> ai = mgr.ObjectById(role.GetOwnerId())) {
+      if (const TCastToConstPtr<CPatterned> ai = mgr.ObjectById(role.GetOwnerId())) {
         role.x1c_position = ai->GetOrigin(mgr, role, aimPos);
       }
     }

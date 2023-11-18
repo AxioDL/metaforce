@@ -7,7 +7,7 @@
 namespace metaforce {
 
 CGunMotion::CGunMotion(CAssetId ancsId, const zeus::CVector3f& scale)
-: x0_modelData(CAnimRes(ancsId, 0, scale, 0, false), 1), x4c_gunController(x0_modelData) {
+: x0_modelData(CAnimRes(ancsId, 0, scale, 0, false))/*, 1*/, x4c_gunController(x0_modelData) {
   LoadAnimations();
 }
 

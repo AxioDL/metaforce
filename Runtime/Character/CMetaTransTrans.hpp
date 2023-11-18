@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/Character/CCharAnimTime.hpp"
 #include "Runtime/Character/IMetaTrans.hpp"
 

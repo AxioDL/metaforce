@@ -50,5 +50,7 @@ public:
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                          const CWeaponMode&, EProjectileAttrib) const override;
   void FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr) override;
+
+  void SetDamageFalloffSpeed(float d);
 };
 } // namespace metaforce

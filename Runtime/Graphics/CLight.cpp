@@ -8,20 +8,21 @@ constexpr zeus::CVector3f kDefaultPosition(0.f, 0.f, 0.f);
 constexpr zeus::CVector3f kDefaultDirection(0.f, -1.f, 0.f);
 
 float CLight::CalculateLightRadius() const {
-  if (FLT_EPSILON > x28_distL && FLT_EPSILON > x2c_distQ) {
-    return 0.f;
+  if (x28_distL < FLT_EPSILON &&  x2c_distQ < FLT_EPSILON) {
+    return FLT_MAX;
   }
 
   float intensity = GetIntensity();
-  if (x2c_distQ <= FLT_EPSILON) {
+  float ret = 0.f;
+  if (x2c_distQ > FLT_EPSILON) {
     constexpr float mulVal = std::min(0.05882353f, 0.2f); // Yes, retro really did do this
-    if (x28_distL > FLT_EPSILON) {
-      return intensity / (mulVal * x28_distL);
+    if (intensity > FLT_EPSILON) {
+      return std::sqrt(intensity / (mulVal * x2c_distQ));
     }
   } else {
     constexpr float mulVal = std::min(0.05882353f, 0.2f); // See above comment
-    if (intensity > FLT_EPSILON) {
-      return std::sqrt(intensity / (mulVal * x2c_distQ));
+    if (x28_distL > FLT_EPSILON) {
+      return intensity / (mulVal * x28_distL);
     }
   }
 
@@ -69,7 +70,7 @@ zeus::CColor CLight::GetNormalIndependentLightingAtPoint(const zeus::CVector3f& 
     return x18_color;
 
   float dist = std::max((x0_pos - point).magnitude(), FLT_EPSILON);
-  return x18_color * (1.f / (x2c_distQ * dist * dist + x28_distL * dist + x24_distC));
+  return x18_color * (1.f / (dist * (x2c_distQ * dist) + (x28_distL * dist + x24_distC)));
 }
 
 CLight CLight::BuildDirectional(const zeus::CVector3f& dir, const zeus::CColor& color) {
@@ -77,8 +78,8 @@ CLight CLight::BuildDirectional(const zeus::CVector3f& dir, const zeus::CColor& 
 }
 
 CLight CLight::BuildSpot(const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeus::CColor& color,
-                         float angle) {
-  return CLight(ELightType::Spot, pos, dir, color, angle);
+                         float cutoff) {
+  return CLight(ELightType::Spot, pos, dir, color, cutoff);
 }
 
 CLight CLight::BuildPoint(const zeus::CVector3f& pos, const zeus::CColor& color) {

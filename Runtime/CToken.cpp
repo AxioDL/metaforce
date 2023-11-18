@@ -39,7 +39,7 @@ void CObjectReference::Lock() {
 }
 
 void CObjectReference::CancelLoad() {
-  if (xC_objectStore && IsLoading()) {
+  if ((xC_objectStore != nullptr) && IsLoading()) {
     xC_objectStore->GetFactory().CancelBuild(x4_objTag);
     x3_loading = false;
   }
@@ -102,6 +102,8 @@ IObj* CToken::GetObj() {
   return x0_objRef->GetObject();
 }
 CToken& CToken::operator=(const CToken& other) {
+  if (this == &other)
+    return *this;
   Unlock();
   RemoveRef();
   x0_objRef = other.x0_objRef;

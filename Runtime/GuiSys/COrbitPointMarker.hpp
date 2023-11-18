@@ -24,6 +24,6 @@ public:
   COrbitPointMarker();
   bool CheckLoadComplete() const;
   void Update(float dt, const CStateManager& mgr);
-  void Draw(const CStateManager& mgr) const;
+  void Draw(const CStateManager& mgr);
 };
 } // namespace metaforce

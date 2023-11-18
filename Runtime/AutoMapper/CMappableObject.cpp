@@ -1,8 +1,8 @@
 #include "Runtime/AutoMapper/CMappableObject.hpp"
 
+#include "Runtime/AutoMapper/CMapWorldInfo.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/AutoMapper/CMapWorldInfo.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
@@ -10,17 +10,17 @@
 namespace metaforce {
 std::array<zeus::CVector3f, 8> CMappableObject::skDoorVerts{};
 
-constexpr std::array<u32, 24> DoorIndices{
+std::array<u16, 24> CMappableObject::skDoorIndices{
     6, 4, 2, 0, 3, 1, 7, 5, 1, 0, 5, 4, 7, 6, 3, 2, 3, 2, 1, 0, 5, 4, 7, 6,
 };
 
 CMappableObject::CMappableObject(const void* buf) {
-  athena::io::MemoryReader r(buf, 64);
-  x0_type = EMappableObjectType(r.readUint32Big());
-  x4_visibilityMode = EVisMode(r.readUint32Big());
-  x8_objId = r.readUint32Big();
-  xc_ = r.readUint32Big();
-  x10_transform.read34RowMajor(r);
+  CMemoryInStream r(buf, 64);
+  x0_type = EMappableObjectType(r.ReadLong());
+  x4_visibilityMode = EVisMode(r.ReadLong());
+  x8_objId = r.ReadLong();
+  xc_ = r.ReadLong();
+  x10_transform = r.Get<zeus::CTransform>();
 }
 
 zeus::CTransform CMappableObject::AdjustTransformForType() const {
@@ -112,18 +112,19 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
   SCOPED_GRAPHICS_DEBUG_GROUP("CMappableObject::Draw", zeus::skCyan);
   if (IsDoorType(x0_type)) {
     std::pair<zeus::CColor, zeus::CColor> colors = GetDoorColors(curArea, mwInfo, alpha);
-    for (int s = 0; s < 6; ++s) {
-      DoorSurface& ds = *m_doorSurface;
-      ds.m_surface.draw(colors.first, s * 4, 4);
-      CLineRenderer& line = ds.m_outline;
-      const u32* baseIdx = &DoorIndices[s * 4];
-      line.Reset();
-      line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
-      line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
-      line.AddVertex(skDoorVerts[baseIdx[3]], colors.second, 1.f);
-      line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
-      line.Render();
-    }
+    // TODO
+//    for (int s = 0; s < 6; ++s) {
+//      DoorSurface& ds = *m_doorSurface;
+//      ds.m_surface.draw(colors.first, s * 4, 4);
+//      CLineRenderer& line = ds.m_outline;
+//      const u16* baseIdx = &skDoorIndices[s * 4];
+//      line.Reset();
+//      line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
+//      line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
+//      line.AddVertex(skDoorVerts[baseIdx[3]], colors.second, 1.f);
+//      line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
+//      line.Render();
+//    }
   } else {
     CAssetId iconRes;
     zeus::CColor iconColor = zeus::skWhite;
@@ -166,33 +167,33 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
     iconColor.a() *= alpha;
 
     TLockedToken<CTexture> tex = g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), iconRes});
-    if (!m_texQuadFilter || m_texQuadFilter->GetTex().GetObj() != tex.GetObj()) {
-      m_texQuadFilter.emplace(EFilterType::Add, tex, CTexturedQuadFilter::ZTest::GEqual);
-    }
+//    if (!m_texQuadFilter || m_texQuadFilter->GetTex().GetObj() != tex.GetObj()) {
+      //m_texQuadFilter.emplace(EFilterType::Add, tex, CTexturedQuadFilter::ZTest::GEqual);
+//    }
 
-    constexpr std::array<CTexturedQuadFilter::Vert, 4> verts{{
-        {{-2.6f, 0.f, 2.6f}, {0.f, 1.f}},
-        {{-2.6f, 0.f, -2.6f}, {0.f, 0.f}},
-        {{2.6f, 0.f, 2.6f}, {1.f, 1.f}},
-        {{2.6f, 0.f, -2.6f}, {1.f, 0.f}},
-    }};
-    m_texQuadFilter->drawVerts(iconColor, verts);
+//    constexpr std::array<CTexturedQuadFilter::Vert, 4> verts{{
+//        {{-2.6f, 0.f, 2.6f}, {0.f, 1.f}},
+//        {{-2.6f, 0.f, -2.6f}, {0.f, 0.f}},
+//        {{2.6f, 0.f, 2.6f}, {1.f, 1.f}},
+//        {{2.6f, 0.f, -2.6f}, {1.f, 0.f}},
+//    }};
+    //m_texQuadFilter->drawVerts(iconColor, verts);
   }
 }
 
 void CMappableObject::DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, float alpha, int surfIdx,
                                       bool needsVtxLoad) {
   std::pair<zeus::CColor, zeus::CColor> colors = GetDoorColors(curArea, mwInfo, alpha);
-  DoorSurface& ds = *m_doorSurface;
-  ds.m_surface.draw(colors.first, surfIdx * 4, 4);
-  CLineRenderer& line = ds.m_outline;
-  const u32* baseIdx = &DoorIndices[surfIdx * 4];
-  line.Reset();
-  line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
-  line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
-  line.AddVertex(skDoorVerts[baseIdx[3]], colors.second, 1.f);
-  line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
-  line.Render();
+//  DoorSurface& ds = *m_doorSurface;
+//  ds.m_surface.draw(colors.first, surfIdx * 4, 4);
+//  CLineRenderer& line = ds.m_outline;
+//  const u16* baseIdx = &skDoorIndices[surfIdx * 4];
+//  line.Reset();
+//  line.AddVertex(skDoorVerts[baseIdx[0]], colors.second, 1.f);
+//  line.AddVertex(skDoorVerts[baseIdx[1]], colors.second, 1.f);
+//  line.AddVertex(skDoorVerts[baseIdx[3]], colors.second, 1.f);
+//  line.AddVertex(skDoorVerts[baseIdx[2]], colors.second, 1.f);
+//  line.Render();
 }
 
 zeus::CVector3f CMappableObject::BuildSurfaceCenterPoint(int surfIdx) const {
@@ -236,9 +237,6 @@ bool CMappableObject::IsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& 
   }
 }
 
-boo::ObjToken<boo::IGraphicsBufferS> CMappableObject::g_doorVbo;
-boo::ObjToken<boo::IGraphicsBufferS> CMappableObject::g_doorIbo;
-
 void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks) {
   const zeus::CVector3f& center = tweaks.GetDoorCenter();
   const zeus::simd_floats centerF(center.mSimd);
@@ -254,15 +252,15 @@ void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks) {
   doorVerts[6].assign(.2f * -centerF[2], centerF[1], 0.f);
   doorVerts[7].assign(.2f * -centerF[2], centerF[1], 2.f * centerF[0]);
 
-  CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx) {
-    g_doorVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, skDoorVerts.data(), 16, skDoorVerts.size());
-    g_doorIbo = ctx.newStaticBuffer(boo::BufferUse::Index, DoorIndices.data(), 4, DoorIndices.size());
-    return true;
-  } BooTrace);
+//  CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx) {
+//    g_doorVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, skDoorVerts.data(), 16, skDoorVerts.size());
+//    g_doorIbo = ctx.newStaticBuffer(boo::BufferUse::Index, DoorIndices.data(), 4, DoorIndices.size());
+//    return true;
+//  } BooTrace);
 }
 
 void CMappableObject::Shutdown() {
-  g_doorVbo.reset();
-  g_doorIbo.reset();
+//  g_doorVbo.reset();
+//  g_doorIbo.reset();
 }
 } // namespace metaforce

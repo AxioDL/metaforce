@@ -27,7 +27,7 @@ bool CGameCameraList::IsQualified(const CEntity& ent) const { return TCastToCons
 CListeningAiList::CListeningAiList() : CObjectList(EGameObjectList::ListeningAi) {}
 
 bool CListeningAiList::IsQualified(const CEntity& ent) const {
-  const TCastToConstPtr<CAi> ai(ent);
+  const TCastToConstPtr<CPatterned> ai(ent);
   return ai && ai->IsListening();
 }
 

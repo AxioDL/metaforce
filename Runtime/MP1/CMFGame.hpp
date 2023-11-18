@@ -5,7 +5,6 @@
 
 #include "Runtime/CMFGameBase.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
-#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Runtime/MP1/CInGameGuiManager.hpp"
 
 namespace metaforce {
@@ -25,8 +24,6 @@ class CMFGame : public CMFGameBase {
   TUniqueId x28_skippedCineCam = kInvalidUniqueId;
   bool x2a_24_initialized : 1 = false;
   bool x2a_25_samusAlive : 1 = true;
-
-  CColoredQuadFilter m_fadeToBlack{EFilterType::Multiply};
 
   bool IsCameraActiveFlow() const {
     return (x1c_flowState == EGameFlowState::InGame || x1c_flowState == EGameFlowState::SamusDied);

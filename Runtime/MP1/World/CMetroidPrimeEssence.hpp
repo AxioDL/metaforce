@@ -27,12 +27,12 @@ class CMetroidPrimeEssence : public CPatterned {
   u32 x6d8_ = 0;
   u32 x6dc_ = 0;
   u32 x6e0_ = x6dc_;
-  u32 x6e4_ = 0;
+  u32 x6e4_spawnedAiCount = 0;
   u32 x6e8_ = 2;
   u32 x6ec_ = 4;
   u32 x6f0_ = 0;
   u32 x6f4_ = x6e8_ - 1;
-  u32 x6f8_ = 2;
+  u32 x6f8_maxSpawnedCount = 2;
   u32 x6fc_ = 0;
   u32 x700_ = 1;
   TUniqueId x704_bossUtilityWaypointId = kInvalidUniqueId;
@@ -55,9 +55,9 @@ class CMetroidPrimeEssence : public CPatterned {
   void sub8027cee0(CStateManager& mgr);
   u32 sub8027cfd4(CStateManager& mgr, bool w1);
   void DoPhaseTransition(CStateManager& mgr);
-  u32 sub8027d428() { return 2; /* Decided by fair dice roll, guaranteed to be random */ }
+  u32 GetMaxSpawnCount(CStateManager& mgr) { return 2;  }
   void ShakeCamera(CStateManager& mgr, float f1);
-  void DropShockwave(CStateManager& mgr, const SShockWaveData& shockWaveData);
+  void CreateShockWave(CStateManager& mgr, const CShockWaveInfo& shockWaveData);
   CRayCastResult RayStaticIntersection(CStateManager& mgr);
   void SetParticleEffectState(CStateManager& mgr, bool active);
   void sub8027d824(CStateManager& mgr);

@@ -16,7 +16,7 @@ CIOWin::EMessageReturn CStateSetterFlow::OnMessage(const CArchitectureMessage& m
       CResLoader* loader = g_ResFactory->GetResLoader();
       CAssetId worldId;
       for (const auto& pak : loader->GetPaks()) {
-        if (*(pak->GetPath().end() - 6) == '0' + m->m_warpWorldIdx) {
+        if (*(pak->GetPath().end() - 5) == '0' + m->m_warpWorldIdx) {
           worldId = pak->GetMLVLId();
           break;
         }

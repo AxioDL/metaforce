@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CVector2f.hpp>
@@ -22,21 +22,21 @@ public:
   };
 
 private:
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texZWrite;
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texNoZWrite;
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texAdditiveZWrite;
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texAdditiveNoZWrite;
-
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexZWrite;
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexNoZWrite;
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexAdditiveZWrite;
-  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexAdditiveNoZWrite;
+//  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texZWrite;
+//  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texNoZWrite;
+//  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texAdditiveZWrite;
+//  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texAdditiveNoZWrite;
+//
+//  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexZWrite;
+//  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexNoZWrite;
+//  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexAdditiveZWrite;
+//  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexAdditiveNoZWrite;
 
 public:
   static void Initialize();
   static void Shutdown();
   static EShaderClass GetShaderClass(CParticleSwoosh& gen);
-  static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CParticleSwoosh& gen);
+  static void BuildShaderDataBinding(CParticleSwoosh& gen);
 };
 
 } // namespace metaforce

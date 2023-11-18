@@ -40,6 +40,7 @@ void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId u
       }
 
       x44_28_playing = true;
+      x40_lifetime = x38_initialLifetime;
       SendScriptMsgs(EScriptObjectState::Play, mgr, EScriptObjectMessage::None);
     }
   } else if (msg == EScriptObjectMessage::InitializedInArea) {
@@ -74,9 +75,7 @@ void CScriptActorKeyframe::Think(float dt, CStateManager& mgr) {
         CAnimData* animData = act->GetModelData()->GetAnimationData();
         if (animData->IsAdditiveAnimation(x34_animationId)) {
           animData->DelAdditiveAnimation(x34_animationId);
-        }
-
-        if (animData->GetDefaultAnimation() == x34_animationId) {
+        } else if (animData->GetDefaultAnimation() == x34_animationId) {
           animData->EnableLooping(false);
         }
       }

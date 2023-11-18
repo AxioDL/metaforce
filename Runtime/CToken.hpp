@@ -91,6 +91,7 @@ public:
   CToken(IObj* obj);
   CToken(std::unique_ptr<IObj>&& obj);
   const SObjectTag* GetObjectTag() const;
+  const CObjectReference* GetObjectReference() const { return x0_objRef; }
   ~CToken();
 };
 
@@ -158,6 +159,8 @@ public:
     m_obj = nullptr;
     return *this;
   }
+
+  bool IsNull() const { return m_obj == nullptr; }
 };
 
 template <class T>

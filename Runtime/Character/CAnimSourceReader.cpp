@@ -250,7 +250,7 @@ SAdvancementResults CAnimSourceReader::VGetAdvancementResults(const CCharAnimTim
     if (x54_source->HasOffset(3)) {
       zeus::CVector3f ta = x54_source->GetOffset(3, prevTime);
       zeus::CVector3f tb = x54_source->GetOffset(3, accum);
-      ret.x8_deltas.x0_posDelta = zeus::CMatrix3f(rb) * (tb - ta);
+      ret.x8_deltas.x0_posDelta = zeus::CMatrix3f(rb.inverse()) * (tb - ta);
     }
 
     return ret;
@@ -274,6 +274,7 @@ SAdvancementResults CAnimSourceReader::VReverseView(const CCharAnimTime& dt) {
   SAdvancementResults ret;
 
   if (xc_curTime.EqualsZero()) {
+    xc_curTime = x54_source->GetDuration();
     ret.x0_remTime = dt;
     return ret;
   } else if (dt.EqualsZero()) {
@@ -298,7 +299,7 @@ SAdvancementResults CAnimSourceReader::VReverseView(const CCharAnimTime& dt) {
     if (x54_source->HasOffset(3)) {
       zeus::CVector3f ta = x54_source->GetOffset(3, prevTime);
       zeus::CVector3f tb = x54_source->GetOffset(3, xc_curTime);
-      ret.x8_deltas.x0_posDelta = zeus::CMatrix3f(rb) * (tb - ta);
+      ret.x8_deltas.x0_posDelta = zeus::CMatrix3f(rb.inverse()) * (tb - ta);
     }
 
     return ret;
@@ -319,7 +320,12 @@ void CAnimSourceReader::VGetSegStatementSet(const CSegIdList& list, CSegStatemen
 SAdvancementResults CAnimSourceReader::VAdvanceView(const CCharAnimTime& dt) {
   SAdvancementResults ret;
 
-  if (xc_curTime >= x54_source->GetDuration()) {
+  if (xc_curTime == x54_source->GetDuration()) {
+    xc_curTime = {};
+    x14_passedBoolCount = 0;
+    x18_passedIntCount = 0;
+    x1c_passedParticleCount = 0;
+    x20_passedSoundCount = 0;
     ret.x0_remTime = dt;
     return ret;
   } else if (dt.EqualsZero()) {
@@ -344,7 +350,7 @@ SAdvancementResults CAnimSourceReader::VAdvanceView(const CCharAnimTime& dt) {
     if (x54_source->HasOffset(3)) {
       zeus::CVector3f ta = x54_source->GetOffset(3, prevTime);
       zeus::CVector3f tb = x54_source->GetOffset(3, xc_curTime);
-      ret.x8_deltas.x0_posDelta = zeus::CMatrix3f(rb) * (tb - ta);
+      ret.x8_deltas.x0_posDelta = zeus::CMatrix3f(rb.inverse()) * (tb - ta);
     }
 
     return ret;

@@ -5,7 +5,7 @@
 #include "Runtime/Camera/CGameCamera.hpp"
 #include "Runtime/Character/CAssetFactory.hpp"
 #include "Runtime/Character/CCharacterFactory.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/MP1/MP1.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CLightParameters.hpp"
@@ -386,7 +386,6 @@ void CScriptPlayerActor::PreRender(CStateManager& mgr, const zeus::CFrustum& fru
   if (x2e8_suitRes.GetCharacterNodeId() == 3) {
     g_Renderer->AllocatePhazonSuitMaskTexture();
   }
-  xb4_drawFlags.m_extendedShader = EExtendedShader::LightingCubeReflection;
   CScriptActor::PreRender(mgr, frustum);
 }
 
@@ -398,38 +397,29 @@ void CScriptPlayerActor::AddToRenderer(const zeus::CFrustum& frustum, CStateMana
 }
 
 void CScriptPlayerActor::Render(CStateManager& mgr) {
-  CBooModel::SetReflectionCube(m_reflectionCube);
-
   const bool phazonSuit = x2e8_suitRes.GetCharacterNodeId() == 3;
   if (phazonSuit) {
-    // Draw into alpha buffer
-    CModelFlags flags = xb4_drawFlags;
-    flags.x4_color = zeus::skWhite;
-    flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-    CModelData::EWhichModel which = CModelData::GetRenderingModel(mgr);
-    x64_modelData->Render(which, x34_transform, x90_actorLights.get(), flags);
+    GXSetDstAlpha(true, 1.f);
   }
 
   CPhysicsActor::Render(mgr);
 
   if (x314_beamModelData && !x314_beamModelData->IsNull() && x64_modelData && !x64_modelData->IsNull()) {
-    zeus::CTransform modelXf = GetTransform() * x64_modelData->GetScaledLocatorTransform("GUN_LCTR");
-    CModelFlags flags(5, 0, 3, zeus::skWhite);
-    flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-    x314_beamModelData->Render(mgr, modelXf, x90_actorLights.get(), flags);
-    flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
-    flags.x4_color = zeus::CColor{1.f, xb4_drawFlags.x4_color.a()};
+    const auto modelXf = GetTransform() * x64_modelData->GetScaledLocatorTransform("GUN_LCTR");
+    const CModelFlags flags{5, 0, 3, zeus::CColor{1.f, xb4_drawFlags.x4_color.a()}};
     x314_beamModelData->Render(mgr, modelXf, x90_actorLights.get(), flags);
   }
 
   if (phazonSuit) {
+    // TODO
+    // CCubeRenderer::CopyTex
     zeus::CVector3f vecFromCam =
         GetBoundingBox().center() - mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation();
     const float radius = zeus::clamp(0.25f, (6.f - vecFromCam.magnitude()) / 6.f, 2.f);
     const float offsetX = std::sin(x34c_phazonOffsetAngle);
     const float offsetY = std::sin(x34c_phazonOffsetAngle) * 0.5f;
-    // g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.1f, 1.f), x338_phazonIndirectTexture, zeus::skWhite,
-    //                                          radius, 0.05f, offsetX, offsetY);
+    g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.1f, 1.f), x338_phazonIndirectTexture, zeus::skWhite, radius,
+                                             0.05f, offsetX, offsetY);
   }
 }
 

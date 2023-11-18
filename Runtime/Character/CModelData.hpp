@@ -23,7 +23,7 @@ struct CModelFlags;
 struct SAdvancementDeltas;
 
 class CStaticRes {
-  CAssetId x0_cmdlId = 0;
+  CAssetId x0_cmdlId;
   zeus::CVector3f x4_scale;
 
 public:
@@ -60,7 +60,6 @@ public:
 class CModelData {
   friend class CActor;
   zeus::CVector3f x0_scale;
-  bool xc_ = false;
   std::unique_ptr<CAnimData> x10_animData;
   bool x14_24_renderSorted : 1 = false;
   bool x14_25_sortThermal : 1 = false;
@@ -71,12 +70,6 @@ class CModelData {
   TLockedToken<CModel> x2c_xrayModel;
   TLockedToken<CModel> x3c_infraModel;
 
-  std::unique_ptr<CBooModel> m_normalModelInst;
-  std::unique_ptr<CBooModel> m_xrayModelInst;
-  std::unique_ptr<CBooModel> m_infraModelInst;
-
-  int m_drawInstCount = 0;
-
 public:
   enum class EWhichModel { Normal, XRay, Thermal, ThermalHot };
 
@@ -84,20 +77,21 @@ public:
   bool GetSortThermal() const { return x14_25_sortThermal; }
 
   ~CModelData();
-  explicit CModelData(const CStaticRes& res, int instCount = 1);
-  explicit CModelData(const CAnimRes& res, int instCount = 1);
+  explicit CModelData(const CStaticRes& res);
+  explicit CModelData(const CAnimRes& res);
   CModelData(CModelData&&) = default;
   CModelData& operator=(CModelData&&) = default;
   CModelData();
   static CModelData CModelDataNull();
 
   SAdvancementDeltas GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const;
-  void Render(const CStateManager& stateMgr, const zeus::CTransform& xf, const CActorLights* lights,
-              const CModelFlags& drawFlags);
-  bool IsLoaded(int shaderIdx) const;
+  bool IsLoaded(int shaderIdx);
   static EWhichModel GetRenderingModel(const CStateManager& stateMgr);
   CSkinnedModel& PickAnimatedModel(EWhichModel which) const;
-  const std::unique_ptr<CBooModel>& PickStaticModel(EWhichModel which) const;
+  TLockedToken<CModel>& PickStaticModel(EWhichModel which);
+  const TLockedToken<CModel>& PickStaticModel(EWhichModel which) const {
+    return const_cast<CModelData*>(this)->PickStaticModel(which);
+  }
   void SetXRayModel(const std::pair<CAssetId, CAssetId>& modelSkin);
   void SetInfraModel(const std::pair<CAssetId, CAssetId>& modelSkin);
   bool IsDefinitelyOpaque(EWhichModel) const;
@@ -116,21 +110,29 @@ public:
   bool IsAnimating() const;
   bool IsInFrustum(const zeus::CTransform& xf, const zeus::CFrustum& frustum) const;
   void RenderParticles(const zeus::CFrustum& frustum) const;
-  void Touch(EWhichModel, int shaderIdx) const;
-  void Touch(const CStateManager& stateMgr, int shaderIdx) const;
-  void RenderThermal(const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags) const;
+  void Touch(EWhichModel, int shaderIdx);
+  void Touch(const CStateManager& stateMgr, int shaderIdx);
   void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& mulColor, const zeus::CColor& addColor,
-                     const CModelFlags& flags) const;
+                     const CModelFlags& flags);
   void RenderUnsortedParts(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights,
                            const CModelFlags& drawFlags);
+  void Render(const CStateManager& stateMgr, const zeus::CTransform& xf, const CActorLights* lights,
+              const CModelFlags& drawFlags);
   void Render(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights, const CModelFlags& drawFlags);
+  void FlatDraw(EWhichModel which, const zeus::CTransform& xf, bool unsortedOnly, const CModelFlags& flags);
 
-  void InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
-                   const zeus::CColor& color0, const zeus::CColor& color1);
-  void DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform& xf, const CTexture& tex,
+  void MultiLightingDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
+                         const zeus::CColor& alphaColor, const zeus::CColor& additiveColor);
+  void MultiPassDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
+                     const CModelFlags* flags, u32 count);
+  void DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform& xf, CTexture& tex,
                         const zeus::CColor& addColor, float t);
-  void DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf, const CTexture& tex,
-                        const zeus::CColor& addColor, float t);
+  void DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf, CTexture& tex, const zeus::CColor& addColor,
+                        float t);
+  static void ThermalDraw(CSkinnedModel& model, const zeus::CColor& mulColor, const zeus::CColor& addColor,
+                          const CModelFlags& flags);
+  static void ThermalDraw(CSkinnedModel& model, TConstVectorRef positions, TConstVectorRef normals,
+                          const zeus::CColor& mulColor, const zeus::CColor& addColor, const CModelFlags& flags);
 
   CAnimData* GetAnimationData() { return x10_animData.get(); }
   const CAnimData* GetAnimationData() const { return x10_animData.get(); }

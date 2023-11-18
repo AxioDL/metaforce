@@ -29,7 +29,11 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install"
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install",
+        "USE_LTO": {
+          "type": "BOOL",
+          "value": false
+        }
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
@@ -83,7 +87,39 @@
       "inherits": [
         "relwithdebinfo",
         "linux-clang"
-      ]
+      ],
+      "cacheVariables": {
+        "USE_LTO": {
+          "type": "BOOL",
+          "value": true
+        }
+      }
+    },
+    {
+      "name": "linux-clang-debug-asan",
+      "displayName": "Linux (Clang) Debug w/ ASAN",
+      "inherits": [
+        "linux-clang-debug"
+      ],
+      "cacheVariables": {
+        "METAFORCE_ASAN": {
+          "type": "BOOL",
+          "value": true
+        }
+      }
+    },
+    {
+      "name": "linux-clang-relwithdebinfo-asan",
+      "displayName": "Linux (Clang) RelWithDebInfo w/ ASAN",
+      "inherits": [
+        "linux-clang-relwithdebinfo"
+      ],
+      "cacheVariables": {
+        "METAFORCE_ASAN": {
+          "type": "BOOL",
+          "value": true
+        }
+      }
     },
     {
       "name": "windows-msvc",
@@ -102,7 +138,11 @@
           "type": "FILEPATH",
           "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
         },
-        "VCPKG_TARGET_TRIPLET": "x64-windows-static"
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+        "VCPKG_SETUP_CMAKE_PROGRAM_PATH": {
+          "type": "BOOL",
+          "value": false
+        }
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
@@ -194,6 +234,52 @@
       ]
     },
     {
+      "name": "ios-default",
+      "displayName": "iOS",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "ios.toolchain.cmake",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install",
+        "PLATFORM": "OS64",
+        "DEPLOYMENT_TARGET": "13.0",
+        "ENABLE_BITCODE": {
+          "type": "BOOL",
+          "value": false
+        }
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [
+            "macOS"
+          ]
+        }
+      }
+    },
+    {
+      "name": "tvos-default",
+      "displayName": "tvOS",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "ios.toolchain.cmake",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install",
+        "PLATFORM": "TVOS",
+        "DEPLOYMENT_TARGET": "14.5",
+        "ENABLE_BITCODE": {
+          "type": "BOOL",
+          "value": false
+        }
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [
+            "macOS"
+          ]
+        }
+      }
+    },
+    {
       "name": "x-linux-ci",
       "hidden": true,
       "inherits": [
@@ -232,9 +318,11 @@
         "macos-default-relwithdebinfo"
       ],
       "cacheVariables": {
-        "CMAKE_C_COMPILER_LAUNCHER": "buildcache",
-        "CMAKE_CXX_COMPILER_LAUNCHER": "buildcache",
-        "CMAKE_OSX_ARCHITECTURES": "arm64;x86_64"
+        "CMAKE_OSX_ARCHITECTURES": "arm64;x86_64",
+        "IMGUI_USE_FREETYPE": {
+          "type": "BOOL",
+          "value": false
+        }
       }
     },
     {
@@ -296,6 +384,18 @@
       "displayName": "Linux (Clang) RelWithDebInfo"
     },
     {
+      "name": "linux-clang-debug-asan",
+      "configurePreset": "linux-clang-debug-asan",
+      "description": "Linux (Clang) debug build w/ ASAN",
+      "displayName": "Linux (Clang) Debug w/ ASAN"
+    },
+    {
+      "name": "linux-clang-relwithdebinfo-asan",
+      "configurePreset": "linux-clang-relwithdebinfo-asan",
+      "description": "Linux (Clang) release build with debug info w/ ASAN",
+      "displayName": "Linux (Clang) RelWithDebInfo w/ ASAN"
+    },
+    {
       "name": "macos-default-debug",
       "configurePreset": "macos-default-debug",
       "description": "macOS debug build",
@@ -306,6 +406,24 @@
       "configurePreset": "macos-default-relwithdebinfo",
       "description": "macOS release build with debug info",
       "displayName": "macOS RelWithDebInfo"
+    },
+    {
+      "name": "ios-default",
+      "configurePreset": "ios-default",
+      "description": "iOS release build with debug info",
+      "displayName": "iOS RelWithDebInfo",
+      "targets": [
+        "metaforce"
+      ]
+    },
+    {
+      "name": "tvos-default",
+      "configurePreset": "tvos-default",
+      "description": "tvOS release build with debug info",
+      "displayName": "tvOS RelWithDebInfo",
+      "targets": [
+        "metaforce"
+      ]
     },
     {
       "name": "windows-msvc-debug",

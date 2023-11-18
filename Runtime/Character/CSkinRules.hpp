@@ -3,57 +3,61 @@
 #include <vector>
 
 #include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Character/CSegId.hpp"
+#include "Runtime/Graphics/CCubeModel.hpp"
 #include "Runtime/RetroTypes.hpp"
-#include "Runtime/Character/CSkinBank.hpp"
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
+class CCharLayoutInfo;
 class CPoseAsTransforms;
 class CModel;
 
 struct SSkinWeighting {
-  CSegId m_id;
-  float m_weight;
-  explicit SSkinWeighting(CInputStream& in) : m_id(in), m_weight(in.readFloatBig()) {}
+  CSegId x0_id;
+  float x4_weight;
+  explicit SSkinWeighting(CInputStream& in) : x0_id(in), x4_weight(in.ReadFloat()) {}
 };
 
 class CVirtualBone {
-  std::vector<SSkinWeighting> m_weights;
+  friend class CSkinnedModel;
+
+  rstl::reserved_vector<SSkinWeighting, 3> x0_weights;
+  u32 x1c_vertexCount;
+  zeus::CTransform x20_xf;
+  zeus::CMatrix3f x50_rotation;
 
 public:
-  explicit CVirtualBone(CInputStream& in) {
-    u32 weightCount = in.readUint32Big();
-    m_weights.reserve(weightCount);
-    for (u32 i = 0; i < weightCount; ++i)
-      m_weights.emplace_back(in);
-  }
+  explicit CVirtualBone(CInputStream& in);
 
-  const std::vector<SSkinWeighting>& GetWeights() const { return m_weights; }
+  void BuildPoints(const zeus::CVector3f* in, TVectorRef out, u32 count) const;
+  void BuildNormals(const zeus::CVector3f* in, TVectorRef out, u32 count) const;
+  void BuildAccumulatedTransform(const CPoseAsTransforms& pose, const zeus::CVector3f* points);
+
+  [[nodiscard]] const auto& GetWeights() const { return x0_weights; }
+  [[nodiscard]] u32 GetVertexCount() const { return x1c_vertexCount; }
+
+private:
+  void BuildFinalPosMatrix(const CPoseAsTransforms& pose, const zeus::CVector3f* points);
 };
 
 class CSkinRules {
-  std::vector<CSkinBank> x0_skinBanks;
-  // u32 x10_vertexCount;
-  // u32 x14_normalCount;
-  std::vector<CVirtualBone> m_virtualBones;
-  std::vector<u32> m_poolToSkinIdx;
+  friend class CSkinnedModel;
+
+  std::vector<CVirtualBone> x0_bones;
+  u32 x10_vertexCount = 0;
+  u32 x14_normalCount = 0;
 
 public:
   explicit CSkinRules(CInputStream& in);
 
-  void GetBankTransforms(std::vector<const zeus::CTransform*>& out, const CPoseAsTransforms& pose,
-                         int skinBankIdx) const {
-    // FIXME: This is definitely not proper behavior, this is here to fix the phazon suit crashing
-    if (x0_skinBanks.size() <= skinBankIdx) {
-      return;
-    }
-    x0_skinBanks[skinBankIdx].GetBankTransforms(out, pose);
-  }
+  void BuildPoints(TConstVectorRef positions, TVectorRef out);
+  void BuildNormals(TConstVectorRef normals, TVectorRef out);
+  void BuildAccumulatedTransforms(const CPoseAsTransforms& pose, const CCharLayoutInfo& info);
 
-  void TransformVerticesCPU(std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vnOut,
-                            const CPoseAsTransforms& pose, const CModel& model) const;
+  [[nodiscard]] u32 GetVertexCount() const { return x10_vertexCount; }
+  [[nodiscard]] u32 GetNormalCount() const { return x14_normalCount; }
 };
 
 CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& params,

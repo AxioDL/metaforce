@@ -9,11 +9,9 @@
 #include "Runtime/GuiSys/CGuiHeadWidget.hpp"
 #include "Runtime/GuiSys/CGuiWidgetIdDB.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
-
-#include <boo/IWindow.hpp>
+#include "Runtime/Graphics/CGraphics.hpp"
 
 namespace metaforce {
-class CBooModel;
 class CGuiCamera;
 class CGuiLight;
 class CGuiSys;
@@ -54,7 +52,7 @@ private:
   std::function<void(CGuiWidget*, CGuiWidget*)> m_mouseOverChangeCb;
   std::function<void(CGuiWidget*, bool)> m_mouseDownCb;
   std::function<void(CGuiWidget*, bool)> m_mouseUpCb;
-  std::function<void(CGuiWidget*, const boo::SScrollDelta&, int, int)> m_mouseScrollCb;
+  std::function<void(CGuiWidget*, const SScrollDelta&, int, int)> m_mouseScrollCb;
 
 public:
   CGuiFrame(CAssetId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp);
@@ -72,7 +70,7 @@ public:
   void SetHeadWidget(std::shared_ptr<CGuiHeadWidget>&& hwig) { xc_headWidget = std::move(hwig); }
   CGuiHeadWidget* GetHeadWidget() const { return xc_headWidget.get(); }
   void SortDrawOrder();
-  void EnableLights(u32 lights, CBooModel& model) const;
+  void EnableLights(ERglLight lights) const;
   void DisableLights() const;
   void RemoveLight(CGuiLight* light);
   void AddLight(CGuiLight* light);
@@ -87,7 +85,7 @@ public:
   }
   void SetMouseDownCallback(std::function<void(CGuiWidget*, bool)>&& cb) { m_mouseDownCb = std::move(cb); }
   void SetMouseUpCallback(std::function<void(CGuiWidget*, bool)>&& cb) { m_mouseUpCb = std::move(cb); }
-  void SetMouseScrollCallback(std::function<void(CGuiWidget*, const boo::SScrollDelta&, int, int)>&& cb) {
+  void SetMouseScrollCallback(std::function<void(CGuiWidget*, const SScrollDelta&, int, int)>&& cb) {
     m_mouseScrollCb = std::move(cb);
   }
 
@@ -96,7 +94,7 @@ public:
   void Draw(const CGuiWidgetDrawParms& parms) const;
   CGuiWidget* BestCursorHit(const zeus::CVector2f& point, const CGuiWidgetDrawParms& parms) const;
   void Initialize();
-  void LoadWidgetsInGame(CInputStream& in, CSimplePool* sp);
+  void LoadWidgetsInGame(CInputStream& in, CSimplePool* sp, u32 version);
   void ProcessUserInput(const CFinalInput& input) const;
   bool ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDrawParms& parms);
   void ResetMouseState();

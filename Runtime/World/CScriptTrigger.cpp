@@ -9,9 +9,8 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
-namespace {
-logvisor::Module Log("CScriptTrigger");
-}
+static logvisor::Module Log("CScriptTrigger");
+
 CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                const zeus::CVector3f& pos, const zeus::CAABox& bounds, const CDamageInfo& dInfo,
                                const zeus::CVector3f& forceField, ETriggerFlags triggerFlags, bool active,
@@ -26,15 +25,7 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEnti
 , x148_26_deactivateOnEntered(deactivateOnEntered)
 , x148_27_deactivateOnExited(deactivateOnExited) {
   SetCallTouch(false);
-#ifdef NDEBUG
-  // FIXME: HACK This fixes the HotE softlock, definitely need to look into the morphball's collision codepath and
-  // FIXME: determine the proper fix
-  if (GetEditorId() == 0x0034004B) {
-    Log.report(logvisor::Warning, FMT_STRING("BUG THIS!: Overriding forceField.x() for trigger {} in area {}"),
-               GetEditorId(), GetAreaIdAlways());
-    x11c_forceField.x() = 0.f;
-  }
-#else
+#ifndef NDEBUG
   // HACK: For some reason MetroidPrime's lair doesn't enable this trigger until after the cutscene, activate it in debug build
   if (GetEditorId() == 0x000B01DB && !GetActive()) {
     Log.report(logvisor::Warning, FMT_STRING("BUG THIS!: Overriding active for trigger {} in area {}"), GetEditorId(),
@@ -242,8 +233,10 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
     auto testFlags = ETriggerFlags::None;
     const TCastToPtr<CPlayer> pl(act);
     if (pl) {
-      if (x128_forceMagnitude > 0.f && True(x12c_flags & ETriggerFlags::DetectPlayer) &&
-          mgr.GetLastTriggerId() == kInvalidUniqueId) {
+      if (x128_forceMagnitude > 0.f && True(x12c_flags & ETriggerFlags::DetectPlayer)) {
+        if (mgr.GetLastTriggerId() != kInvalidUniqueId) {
+          return;
+        }
         mgr.SetLastTriggerId(x8_uid);
       }
 
@@ -253,7 +246,7 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
       } else if (pl->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed) {
         testFlags |= ETriggerFlags::DetectMorphedPlayer;
       }
-    } else if (TCastToPtr<CAi>(act)) {
+    } else if (TCastToPtr<CPatterned>(act)) {
       testFlags |= ETriggerFlags::DetectAI;
     } else if (TCastToPtr<CGameProjectile>(act)) {
       testFlags |= ETriggerFlags::DetectProjectiles1 | ETriggerFlags::DetectProjectiles2 |

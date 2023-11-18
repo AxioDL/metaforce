@@ -212,7 +212,7 @@ void CLogBookScreen::UpdateBodyText() {
 void CLogBookScreen::UpdateBodyImagesAndText() {
   const CScannableObjectInfo* scan = x1f0_curViewScans[x1c_rightSel].first.GetObj();
   for (CAuiImagePane* pane : xf0_imagePanes) {
-    pane->SetTextureID0(-1, g_SimplePool);
+    pane->SetTextureID0({}, g_SimplePool);
     pane->SetAnimationParms(zeus::skZero2f, 0.f, 0.f);
   }
 
@@ -338,7 +338,7 @@ void CLogBookScreen::ProcessControllerInput(const CFinalInput& input) {
       if (input.PLAUp() || m_bodyUpClicked)
         newPage = std::max(oldPage - 1, 0);
       else if (input.PLADown() || m_bodyDownClicked ||
-               ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || m_bodyClicked) && !lastPage))
+               ((input.PA() || input.PSpecialKey(ESpecialKey::Enter) || m_bodyClicked) && !lastPage))
         newPage = std::min(oldPage + 1, pageCount - 1);
       x174_textpane_body->TextSupport().SetPage(newPage);
       if (oldPage != newPage)
@@ -352,8 +352,8 @@ void CLogBookScreen::ProcessControllerInput(const CFinalInput& input) {
 
     if (!x260_26_exitTextScroll)
       x260_26_exitTextScroll =
-          input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
-          ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || m_bodyClicked) && lastPage);
+          input.PB() || input.PSpecialKey(ESpecialKey::Esc) ||
+          ((input.PA() || input.PSpecialKey(ESpecialKey::Enter) || m_bodyClicked) && lastPage);
 
     if (g_tweakGui->GetLatchArticleText())
       x260_25_inTextScroll = !x260_26_exitTextScroll;

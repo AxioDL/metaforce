@@ -6,11 +6,10 @@
 #include <utility>
 #include <vector>
 
-#include "Runtime/GCNTypes.hpp"
-#include "Runtime/IOStreams.hpp"
-#include "Runtime/rstl.hpp"
+#include "GCNTypes.hpp"
+#include "rstl.hpp"
 
-#include <hecl/hecl.hpp>
+#include <logvisor/logvisor.hpp>
 #include <zeus/CMatrix3f.hpp>
 #include <zeus/CMatrix4f.hpp>
 #include <zeus/CTransform.hpp>
@@ -21,7 +20,10 @@
 #undef max
 
 using namespace std::literals;
+
 namespace metaforce {
+class CInputStream;
+class COutputStream;
 using kUniqueIdType = u16;
 static constexpr int kMaxEntities = 1024;
 constexpr kUniqueIdType kUniqueIdSize = sizeof(u16);
@@ -33,20 +35,176 @@ constexpr kUniqueIdType kUniqueIdValueMask = kMaxEntities - 1;
 constexpr kUniqueIdType kUniqueIdValueBits = 10;
 constexpr kUniqueIdType kUniqueIdVersionBits = 6;
 
-using FourCC = hecl::FourCC;
+#undef bswap16
+#undef bswap32
+#undef bswap64
+
+/* Type-sensitive byte swappers */
+template <typename T>
+constexpr T bswap16(T val) noexcept {
+#if __GNUC__
+  return __builtin_bswap16(val);
+#elif _WIN32
+  return _byteswap_ushort(val);
+#else
+  return (val = (val << 8) | ((val >> 8) & 0xFF));
+#endif
+}
+
+template <typename T>
+constexpr T bswap32(T val) noexcept {
+#if __GNUC__
+  return __builtin_bswap32(val);
+#elif _WIN32
+  return _byteswap_ulong(val);
+#else
+  val = (val & 0x0000FFFF) << 16 | (val & 0xFFFF0000) >> 16;
+  val = (val & 0x00FF00FF) << 8 | (val & 0xFF00FF00) >> 8;
+  return val;
+#endif
+}
+
+template <typename T>
+constexpr T bswap64(T val) noexcept {
+#if __GNUC__
+  return __builtin_bswap64(val);
+#elif _WIN32
+  return _byteswap_uint64(val);
+#else
+  return ((val & 0xFF00000000000000ULL) >> 56) | ((val & 0x00FF000000000000ULL) >> 40) |
+         ((val & 0x0000FF0000000000ULL) >> 24) | ((val & 0x000000FF00000000ULL) >> 8) |
+         ((val & 0x00000000FF000000ULL) << 8) | ((val & 0x0000000000FF0000ULL) << 24) |
+         ((val & 0x000000000000FF00ULL) << 40) | ((val & 0x00000000000000FFULL) << 56);
+#endif
+}
+
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+constexpr int16_t SBig(int16_t val) noexcept { return bswap16(val); }
+constexpr uint16_t SBig(uint16_t val) noexcept { return bswap16(val); }
+constexpr int32_t SBig(int32_t val) noexcept { return bswap32(val); }
+constexpr uint32_t SBig(uint32_t val) noexcept { return bswap32(val); }
+constexpr int64_t SBig(int64_t val) noexcept { return bswap64(val); }
+constexpr uint64_t SBig(uint64_t val) noexcept { return bswap64(val); }
+constexpr float SBig(float val) noexcept {
+  union {
+    float f;
+    u32 i;
+  } uval1 = {val};
+  union {
+    u32 i;
+    float f;
+  } uval2 = {bswap32(uval1.i)};
+  return uval2.f;
+}
+constexpr double SBig(double val) noexcept {
+  union {
+    double f;
+    u32 i;
+  } uval1 = {val};
+  union {
+    u32 i;
+    double f;
+  } uval2 = {bswap64(uval1.i)};
+  return uval2.f;
+}
+#ifndef SBIG
+#define SBIG(q) (((q)&0x000000FF) << 24 | ((q)&0x0000FF00) << 8 | ((q)&0x00FF0000) >> 8 | ((q)&0xFF000000) >> 24)
+#endif
+
+constexpr int16_t SLittle(int16_t val) noexcept { return val; }
+constexpr uint16_t SLittle(uint16_t val) noexcept { return val; }
+constexpr int32_t SLittle(int32_t val) noexcept { return val; }
+constexpr uint32_t SLittle(uint32_t val) noexcept { return val; }
+constexpr int64_t SLittle(int64_t val) noexcept { return val; }
+constexpr uint64_t SLittle(uint64_t val) noexcept { return val; }
+constexpr float SLittle(float val) noexcept { return val; }
+constexpr double SLittle(double val) noexcept { return val; }
+#ifndef SLITTLE
+#define SLITTLE(q) (q)
+#endif
+#else
+constexpr int16_t SLittle(int16_t val) noexcept { return bswap16(val); }
+constexpr uint16_t SLittle(uint16_t val) noexcept { return bswap16(val); }
+constexpr int32_t SLittle(int32_t val) noexcept { return bswap32(val); }
+constexpr uint32_t SLittle(uint32_t val) noexcept { return bswap32(val); }
+constexpr int64_t SLittle(int64_t val) noexcept { return bswap64(val); }
+constexpr uint64_t SLittle(uint64_t val) noexcept { return bswap64(val); }
+constexpr float SLittle(float val) noexcept {
+  int32_t ival = bswap32(*((int32_t*)(&val)));
+  return *((float*)(&ival));
+}
+constexpr double SLittle(double val) noexcept {
+  int64_t ival = bswap64(*((int64_t*)(&val)));
+  return *((double*)(&ival));
+}
+#ifndef SLITTLE
+#define SLITTLE(q) (((q)&0x000000FF) << 24 | ((q)&0x0000FF00) << 8 | ((q)&0x00FF0000) >> 8 | ((q)&0xFF000000) >> 24)
+#endif
+
+constexpr int16_t SBig(int16_t val) noexcept { return val; }
+constexpr uint16_t SBig(uint16_t val) noexcept { return val; }
+constexpr int32_t SBig(int32_t val) noexcept { return val; }
+constexpr uint32_t SBig(uint32_t val) noexcept { return val; }
+constexpr int64_t SBig(int64_t val) noexcept { return val; }
+constexpr uint64_t SBig(uint64_t val) noexcept { return val; }
+constexpr float SBig(float val) noexcept { return val; }
+constexpr double SBig(double val) noexcept { return val; }
+#ifndef SBIG
+#define SBIG(q) (q)
+#endif
+#endif
+
+class FourCC {
+protected:
+  union {
+    char fcc[4];
+    uint32_t num = 0;
+  };
+
+public:
+  // Sentinel FourCC
+  constexpr FourCC() noexcept = default;
+  constexpr FourCC(const FourCC& other) noexcept = default;
+  constexpr FourCC(FourCC&& other) noexcept = default;
+  constexpr FourCC(const char* name) noexcept : fcc{name[0], name[1], name[2], name[3]} {}
+  constexpr FourCC(uint32_t n) noexcept : num(n) {}
+
+  constexpr FourCC& operator=(const FourCC&) noexcept = default;
+  constexpr FourCC& operator=(FourCC&&) noexcept = default;
+
+  constexpr bool operator==(const FourCC& other) const noexcept { return num == other.num; }
+  constexpr bool operator!=(const FourCC& other) const noexcept { return !operator==(other); }
+  constexpr bool operator==(const char* other) const noexcept {
+    return other[0] == fcc[0] && other[1] == fcc[1] && other[2] == fcc[2] && other[3] == fcc[3];
+  }
+  constexpr bool operator!=(const char* other) const noexcept { return !operator==(other); }
+  constexpr bool operator==(int32_t other) const noexcept { return num == uint32_t(other); }
+  constexpr bool operator!=(int32_t other) const noexcept { return !operator==(other); }
+  constexpr bool operator==(uint32_t other) const noexcept { return num == other; }
+  constexpr bool operator!=(uint32_t other) const noexcept { return !operator==(other); }
+
+  std::string toString() const { return std::string(std::begin(fcc), std::end(fcc)); }
+  constexpr std::string_view toStringView() const { return std::string_view(fcc, std::size(fcc)); }
+  constexpr uint32_t toUint32() const noexcept { return num; }
+  constexpr const char* getChars() const noexcept { return fcc; }
+  constexpr char* getChars() noexcept { return fcc; }
+  constexpr bool IsValid() const noexcept { return num != 0; }
+};
+#define FOURCC(chars) FourCC(SBIG(chars))
 
 class CAssetId {
   u64 id = UINT64_MAX;
 
 public:
   constexpr CAssetId() noexcept = default;
+  constexpr CAssetId(u32 v) noexcept { Assign(u32(v)); }
   constexpr CAssetId(u64 v) noexcept { Assign(v); }
   explicit CAssetId(CInputStream& in);
   [[nodiscard]] constexpr bool IsValid() const noexcept { return id != UINT64_MAX; }
   [[nodiscard]] constexpr u64 Value() const noexcept { return id; }
   constexpr void Assign(u64 v) noexcept { id = (v == UINT32_MAX ? UINT64_MAX : (v == 0 ? UINT64_MAX : v)); }
   constexpr void Reset() noexcept { id = UINT64_MAX; }
-  void PutTo(COutputStream& out);
+  void PutTo(COutputStream& out) const;
   [[nodiscard]] constexpr bool operator==(CAssetId other) const noexcept { return id == other.id; }
   [[nodiscard]] constexpr bool operator!=(CAssetId other) const noexcept { return !operator==(other); }
   [[nodiscard]] constexpr bool operator<(CAssetId other) const noexcept { return id < other.id; }
@@ -64,14 +222,8 @@ struct SObjectTag {
   [[nodiscard]] constexpr bool operator<(const SObjectTag& other) const noexcept { return id < other.id; }
   constexpr SObjectTag() noexcept = default;
   constexpr SObjectTag(FourCC tp, CAssetId rid) noexcept : type(tp), id(rid) {}
-  explicit SObjectTag(CInputStream& in) {
-    in.readBytesToBuf(&type, 4);
-    id = CAssetId(in);
-  }
-  void readMLVL(CInputStream& in) {
-    id = CAssetId(in);
-    in.readBytesToBuf(&type, 4);
-  }
+  explicit SObjectTag(CInputStream& in);
+  void ReadMLVL(CInputStream& in);
 };
 
 struct TEditorId {
@@ -185,6 +337,11 @@ public:
 
 namespace std {
 template <>
+struct hash<metaforce::FourCC> {
+  size_t operator()(const metaforce::FourCC& val) const noexcept { return val.toUint32(); }
+};
+
+template <>
 struct hash<metaforce::SObjectTag> {
   size_t operator()(const metaforce::SObjectTag& tag) const noexcept { return tag.id.Value(); }
 };
@@ -200,6 +357,8 @@ FMT_CUSTOM_FORMATTER(metaforce::TEditorId, "{:08X}", obj.id)
 static_assert(sizeof(metaforce::kUniqueIdType) == sizeof(u16),
               "TUniqueId size does not match expected size! Update TUniqueId format string!");
 FMT_CUSTOM_FORMATTER(metaforce::TUniqueId, "{:04X}", obj.id)
+FMT_CUSTOM_FORMATTER(metaforce::FourCC, "{:c}{:c}{:c}{:c}", obj.getChars()[0], obj.getChars()[1], obj.getChars()[2],
+                     obj.getChars()[3])
 FMT_CUSTOM_FORMATTER(metaforce::SObjectTag, "{} {}", obj.type, obj.id)
 
 FMT_CUSTOM_FORMATTER(zeus::CVector3f, "({} {} {})", float(obj.x()), float(obj.y()), float(obj.z()))

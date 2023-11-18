@@ -7,14 +7,11 @@ class COmegaPirate : public CElitePirate {
 private:
   class CFlash : public CActor {
   private:
-    // TToken<CTexture> xe8_thermalSpotToken;
-    // CTexture* xf0_thermalSpot = nullptr;
+    TToken<CTexture> xe8_thermalSpotToken;
+    CTexture* xf0_thermalSpot = nullptr;
     float xf4_delay;
     float xf8_time = 0.f;
     float xfc_size = 0.f;
-
-    CTexturedQuadFilter m_thermalSpotAdd;
-    CTexturedQuadFilter m_thermalSpotSubtract;
 
   public:
     DEFINE_ENTITY
@@ -164,7 +161,7 @@ public:
   bool IsElitePirate() const override { return false; }
   void SetupHealthInfo(CStateManager& mgr) override;
   void SetLaunchersActive(CStateManager& mgr, bool val) override;
-  SShockWaveData GetShockWaveData() const override {
+  CShockWaveInfo GetShockWaveData() const override {
     return {GetData().GetShockwaveParticleDescId(), GetData().GetShockwaveDamageInfo(), 24.78255f,
             GetData().GetShockwaveWeaponDescId(), GetData().GetShockwaveElectrocuteSfxId()};
   }

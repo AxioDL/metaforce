@@ -11,18 +11,18 @@ struct SElectricBeamInfo {
   float xc_radius;
   float x10_travelSpeed;
   CAssetId x14_particleId;
-  float x18_;
-  float x1c_;
+  float x18_fadeSpeed;
+  float x1c_damageInterval;
 };
 
 class CElectricBeamProjectile : public CBeamProjectile {
   std::unique_ptr<CParticleElectric> x468_electric;
   TCachedToken<CGenDescription> x46c_genDescription;
   std::unique_ptr<CElementGen> x478_elementGen;
-  float x47c_;
-  float x480_;
-  float x484_ = 0.f;
-  float x488_;
+  float x47c_fadeSpeed;
+  float x480_intensity;
+  float x484_damageTimer = 0.f;
+  float x488_damageInterval;
   bool x48c_ = false;
 
 public:

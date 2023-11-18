@@ -59,30 +59,30 @@ public:
   }
 };
 
-struct SParticleInstanceTex {
-  std::array<zeus::CVector4f, 4> pos;
-  zeus::CColor color;
-  std::array<zeus::CVector2f, 4> uvs;
-};
-extern std::vector<SParticleInstanceTex> g_instTexData;
-
-struct SParticleInstanceIndTex {
-  std::array<zeus::CVector4f, 4> pos;
-  zeus::CColor color;
-  std::array<zeus::CVector4f, 4> texrTindUVs;
-  zeus::CVector4f sceneUVs;
-};
-extern std::vector<SParticleInstanceIndTex> g_instIndTexData;
-
-struct SParticleInstanceNoTex {
-  std::array<zeus::CVector4f, 4> pos;
-  zeus::CColor color;
-};
-extern std::vector<SParticleInstanceNoTex> g_instNoTexData;
-
-struct SParticleUniforms {
-  zeus::CMatrix4f mvp;
-  zeus::CColor moduColor;
-};
+//struct SParticleInstanceTex {
+//  std::array<zeus::CVector4f, 4> pos;
+//  zeus::CColor color;
+//  std::array<zeus::CVector2f, 4> uvs;
+//};
+//extern std::vector<SParticleInstanceTex> g_instTexData;
+//
+//struct SParticleInstanceIndTex {
+//  std::array<zeus::CVector4f, 4> pos;
+//  zeus::CColor color;
+//  std::array<zeus::CVector4f, 4> texrTindUVs;
+//  zeus::CVector4f sceneUVs;
+//};
+//extern std::vector<SParticleInstanceIndTex> g_instIndTexData;
+//
+//struct SParticleInstanceNoTex {
+//  std::array<zeus::CVector4f, 4> pos;
+//  zeus::CColor color;
+//};
+//extern std::vector<SParticleInstanceNoTex> g_instNoTexData;
+//
+//struct SParticleUniforms {
+//  zeus::CMatrix4f mvp;
+//  zeus::CColor moduColor;
+//};
 
 } // namespace metaforce

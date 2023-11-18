@@ -14,6 +14,7 @@ public:
   s32 Next() {
     IncrementNumNextCalls();
     m_seed = (m_seed * 0x41c64e6d) + 0x00003039;
+    SetLastSeed(m_seed);
     return (m_seed >> 16) & 0xffff;
   }
 
@@ -32,6 +33,8 @@ public:
   static void IncrementNumNextCalls();
   static u32 GetNumNextCalls();
   static void ResetNumNextCalls();
+  static u32 GetLastSeed();
+  static void SetLastSeed(u32 seed);
 };
 
 class CGlobalRandom {

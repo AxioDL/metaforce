@@ -5,7 +5,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Particle/CParticleElectric.hpp"
 #include "Runtime/Particle/CParticleSwoosh.hpp"
@@ -208,34 +208,34 @@ CRidleyData::CRidleyData(CInputStream& in, u32 propCount)
 , x28_(in)
 , x2c_(in)
 , x30_(in)
-, x34_(in.readFloatBig())
-, x38_(in.readFloatBig())
-, x3c_(in.readFloatBig())
-, x40_(in.readFloatBig())
+, x34_(in.ReadFloat())
+, x38_(in.ReadFloat())
+, x3c_(in.ReadFloat())
+, x40_(in.ReadFloat())
 , x44_(in)
 , x48_(in)
 , x64_(in)
-, xa8_(CSfxManager::TranslateSFXID(in.readUint32Big()))
+, xa8_(CSfxManager::TranslateSFXID(in.ReadLong()))
 , xac_(in)
 , xb0_(in)
 , xcc_(in)
 , x1a0_(in)
 , x1a4_(in)
 , x1c0_(in)
-, x294_(CSfxManager::TranslateSFXID(in.readUint32Big()))
+, x294_(CSfxManager::TranslateSFXID(in.ReadLong()))
 , x298_(in)
 , x2b4_(in)
-, x388_(in.readFloatBig())
-, x38c_(in.readFloatBig())
+, x388_(in.ReadFloat())
+, x38c_(in.ReadFloat())
 , x390_(in)
-, x3ac_(in.readFloatBig())
+, x3ac_(in.ReadFloat())
 , x3b0_(in)
-, x3cc_(in.readFloatBig())
+, x3cc_(in.ReadFloat())
 , x3d0_(in)
-, x3ec_(in.readFloatBig())
+, x3ec_(in.ReadFloat())
 , x3f0_(in)
-, x3f4_(in.readFloatBig())
-, x3f8_(CSfxManager::TranslateSFXID(in.readUint32Big()))
+, x3f4_(in.ReadFloat())
+, x3f8_(CSfxManager::TranslateSFXID(in.ReadLong()))
 , x3fc_(propCount > 47 ? CDamageInfo(in) : x48_) {}
 
 CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -617,9 +617,9 @@ void CRidley::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   CPlayerState::EPlayerVisor r28 = mgr.GetPlayerState()->GetActiveVisor(mgr);
   bool atLastMat = GetModelData()->GetNumMaterialSets() == (matSet + 1);
   if (r28 == CPlayerState::EPlayerVisor::Thermal && atLastMat) {
-    xb4_drawFlags.x2_flags |= 0x40;
+    xb4_drawFlags.x2_flags |= CModelFlagBits::ThermalUnsortedOnly;
   } else {
-    xb4_drawFlags.x2_flags &= 0x40;
+    xb4_drawFlags.x2_flags &= CModelFlagBits::ThermalUnsortedOnly;
   }
   xb4_drawFlags.x1_matSetIdx = matSet;
 

@@ -102,8 +102,6 @@ private:
   void UpdateSwingAction(float grappleSwingT, float dt, CStateManager& mgr);
   void RenderXRayModel(const CStateManager& mgr, const zeus::CTransform& modelXf, const CModelFlags& flags);
 
-  static void PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
-
 public:
   explicit CGrappleArm(const zeus::CVector3f& scale);
   void AsyncLoadSuit(CStateManager& mgr);
@@ -121,7 +119,7 @@ public:
   void GrappleBeamDisconnected();
   void GrappleBeamConnected();
   void RenderGrappleBeam(const CStateManager& mgr, const zeus::CVector3f& pos);
-  void TouchModel(const CStateManager& mgr) const;
+  void TouchModel(const CStateManager& mgr);
   void Update(float grappleSwingT, float dt, CStateManager& mgr);
   void PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos);
   void Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags,

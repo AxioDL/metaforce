@@ -6,7 +6,7 @@
 #include "Runtime/Character/CCharLayoutInfo.hpp"
 #include "Runtime/Character/CPASAnimParmData.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/MP1/World/CMetroid.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
@@ -152,34 +152,34 @@ std::list<TUniqueId> mChargePlayerList;
 } // Anonymous namespace
 
 CSpacePirate::CSpacePirateData::CSpacePirateData(metaforce::CInputStream& in, u32 propCount)
-: x0_AggressionCheck(in.readFloatBig())
-, x4_CoverCheck(in.readFloatBig())
-, x8_SearchRadius(in.readFloatBig())
-, xc_FallBackCheck(in.readFloatBig())
-, x10_FallBackRadius(in.readFloatBig())
-, x14_HearingRadius(in.readFloatBig())
-, x18_flags(in.readUint32Big())
-, x1c_(in.readBool())
+: x0_AggressionCheck(in.ReadFloat())
+, x4_CoverCheck(in.ReadFloat())
+, x8_SearchRadius(in.ReadFloat())
+, xc_FallBackCheck(in.ReadFloat())
+, x10_FallBackRadius(in.ReadFloat())
+, x14_HearingRadius(in.ReadFloat())
+, x18_flags(in.ReadLong())
+, x1c_(in.ReadBool())
 , x20_Projectile(in)
-, x48_Sound_Projectile(CSfxManager::TranslateSFXID(in.readUint32Big()))
+, x48_Sound_Projectile(CSfxManager::TranslateSFXID(in.ReadLong()))
 , x4c_BladeDamage(in)
-, x68_KneelAttackChance(in.readFloatBig())
+, x68_KneelAttackChance(in.ReadFloat())
 , x6c_KneelAttackShot(in)
-, x94_DodgeCheck(in.readFloatBig())
-, x98_Sound_Impact(CSfxManager::TranslateSFXID(in.readUint32Big()))
-, x9c_averageNextShotTime(in.readFloatBig())
-, xa0_nextShotTimeVariation(in.readFloatBig())
-, xa4_Sound_Alert(CSfxManager::TranslateSFXID(in.readUint32Big()))
-, xa8_GunTrackDelay(in.readFloatBig())
-, xac_firstBurstCount(in.readUint32Big())
-, xb0_CloakOpacity(in.readFloatBig())
-, xb4_MaxCloakOpacity(in.readFloatBig())
-, xb8_dodgeDelayTimeMin(in.readFloatBig())
-, xbc_dodgeDelayTimeMax(in.readFloatBig())
-, xc0_Sound_Hurled(CSfxManager::TranslateSFXID(in.readUint32Big()))
-, xc2_Sound_Death(CSfxManager::TranslateSFXID(in.readUint32Big()))
-, xc4_(propCount > 35 ? in.readFloatBig() : 0.2f)
-, xc8_AvoidDistance(propCount > 36 ? in.readFloatBig() : 8.f) {}
+, x94_DodgeCheck(in.ReadFloat())
+, x98_Sound_Impact(CSfxManager::TranslateSFXID(in.ReadLong()))
+, x9c_averageNextShotTime(in.ReadFloat())
+, xa0_nextShotTimeVariation(in.ReadFloat())
+, xa4_Sound_Alert(CSfxManager::TranslateSFXID(in.ReadLong()))
+, xa8_GunTrackDelay(in.ReadFloat())
+, xac_firstBurstCount(in.ReadLong())
+, xb0_CloakOpacity(in.ReadFloat())
+, xb4_MaxCloakOpacity(in.ReadFloat())
+, xb8_dodgeDelayTimeMin(in.ReadFloat())
+, xbc_dodgeDelayTimeMax(in.ReadFloat())
+, xc0_Sound_Hurled(CSfxManager::TranslateSFXID(in.ReadLong()))
+, xc2_Sound_Death(CSfxManager::TranslateSFXID(in.ReadLong()))
+, xc4_(propCount > 35 ? in.ReadFloat() : 0.2f)
+, xc8_AvoidDistance(propCount > 36 ? in.ReadFloat() : 8.f) {}
 
 CPirateRagDoll::CPirateRagDoll(CStateManager& mgr, CSpacePirate* sp, u16 thudSfx, u32 flags)
 : CRagDoll(-sp->GetGravityConstant(), -3.f, 8.f, flags), x6c_spacePirate(sp), x70_thudSfx(thudSfx) {

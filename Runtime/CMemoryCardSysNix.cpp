@@ -1,29 +1,49 @@
 #include "CMemoryCardSys.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/IMain.hpp"
+#include <Runtime/CBasics.hpp>
+#include <SDL_filesystem.h>
 
 namespace metaforce {
 
+static std::optional<std::string> GetPrefPath(const char* app) {
+  char* path = SDL_GetPrefPath(nullptr, app);
+  if (path == nullptr) {
+    return {};
+  }
+  std::string str{path};
+  SDL_free(path);
+  return str;
+}
+
 std::string CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlot slot) {
   if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
-    const char* home = getenv("HOME");
-    if (!home || home[0] != '/')
+    const auto dolphinPath = GetPrefPath("dolphin-emu");
+    if (!dolphinPath) {
       return {};
-    const char* dataHome = getenv("XDG_DATA_HOME");
+    }
+    auto path = *dolphinPath;
+    path += fmt::format(FMT_STRING("GC/MemoryCard{:c}.USA.raw"), slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
 
-    /* XDG-selected data path */
-    std::string path =
-        ((dataHome && dataHome[0] == '/') ? dataHome : std::string(home)) + "/.local/share/dolphin-emu";
-    path += fmt::format(FMT_STRING("/GC/MemoryCard{:c}.USA.raw"), slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
-
-    hecl::Sstat theStat;
-    if (hecl::Stat(path.c_str(), &theStat) || !S_ISREG(theStat.st_mode)) {
+    CBasics::Sstat theStat{};
+    if (CBasics::Stat(path.c_str(), &theStat) != 0 || !S_ISREG(theStat.st_mode)) {
       /* legacy case for older dolphin versions */
+      const char* home = getenv("HOME");
+      if (home == nullptr || home[0] != '/') {
+        return {};
+      }
+
       path = home;
+#ifndef __APPLE__
       path += fmt::format(FMT_STRING("/.dolphin-emu/GC/MemoryCard{:c}.USA.raw"),
                           slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
-      if (hecl::Stat(path.c_str(), &theStat) || !S_ISREG(theStat.st_mode))
+#else
+      path += fmt::format(FMT_STRING("/Library/Application Support/Dolphin/GC/MemoryCard{:c}.USA.raw"),
+                          slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
+#endif
+      if (CBasics::Stat(path.c_str(), &theStat) != 0 || !S_ISREG(theStat.st_mode)) {
         return {};
+      }
     }
 
     return path;
@@ -34,33 +54,39 @@ std::string CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlot slot) {
 std::string CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot slot, bool dolphin) {
   if (g_Main->IsUSA() && !g_Main->IsTrilogy()) {
     if (dolphin) {
-      const char* home = getenv("HOME");
-      if (!home || home[0] != '/')
+      const auto dolphinPath = GetPrefPath("dolphin-emu");
+      if (!dolphinPath) {
         return {};
-      const char* dataHome = getenv("XDG_DATA_HOME");
-
-      /* XDG-selected data path */
-      std::string path =
-          ((dataHome && dataHome[0] == '/') ? dataHome : std::string(home)) + "/.local/share/dolphin-emu/GC";
-
-      if (hecl::RecursiveMakeDir(path.c_str()) < 0)
+      }
+      auto path = *dolphinPath + "GC";
+      int ret = mkdir(path.c_str(), 0755);
+      if (ret != 0 && errno != EEXIST) {
         return {};
+      }
 
       path += fmt::format(FMT_STRING("/MemoryCard{:c}.USA.raw"), slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
-      const auto fp = hecl::FopenUnique(path.c_str(), "wb");
-      if (fp != nullptr) {
+      auto* file = fopen(path.c_str(), "wbe");
+      if (file != nullptr) {
+        fclose(file);
         return path;
       }
     } else {
       std::string path = _GetDolphinCardPath(slot);
-      hecl::SanitizePath(path);
       if (path.find('/') == std::string::npos) {
-        path = hecl::GetcwdStr() + "/" + _GetDolphinCardPath(slot);
+        auto basePath = GetPrefPath("metaforce");
+        if (!basePath) {
+          return {};
+        }
+        path = *basePath + _GetDolphinCardPath(slot);
       }
-      std::string tmpPath = path.substr(0, path.find_last_of("/"));
-      hecl::RecursiveMakeDir(tmpPath.c_str());
-      const auto fp = hecl::FopenUnique(path.c_str(), "wb");
-      if (fp) {
+      std::string tmpPath = path.substr(0, path.find_last_of('/'));
+      int ret = mkdir(tmpPath.c_str(), 0755);
+      if (ret != 0 && ret != EEXIST) {
+        return {};
+      }
+      auto* file = fopen(path.c_str(), "wbe");
+      if (file != nullptr) {
+        fclose(file);
         return path;
       }
     }

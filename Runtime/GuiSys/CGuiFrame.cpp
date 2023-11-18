@@ -44,43 +44,34 @@ void CGuiFrame::SortDrawOrder() {
             });
 }
 
-void CGuiFrame::EnableLights(u32 lights, CBooModel& model) const {
-  std::vector<CLight> lightsOut;
-  lightsOut.reserve(m_indexedLights.size() + 1);
+void CGuiFrame::EnableLights(ERglLight lights) const {
   CGraphics::DisableAllLights();
 
   zeus::CColor ambColor(zeus::skBlack);
-  ERglLight lightId = ERglLight::Zero;
-  int idx = 0;
+  ERglLight lightId = 0;
+  int enabledLights = 0;
   for (CGuiLight* light : m_indexedLights) {
-    if (!light || !light->GetIsVisible()) {
-      ++reinterpret_cast<std::underlying_type_t<ERglLight>&>(lightId);
-      ++idx;
+    if (light == nullptr || !light->GetIsVisible()) {
+      ++lightId;
       continue;
     }
-    if ((lights & (1 << idx)) != 0) {
-      // const zeus::CColor& geomCol = light->GetGeometryColor();
-      // if (geomCol.r || geomCol.g || geomCol.b)
-      //{
-      // CGraphics::LoadLight(lightId, light->BuildLight());
-      lightsOut.push_back(light->BuildLight());
-      CGraphics::EnableLight(lightId);
-      //}
+    if ((lights & (1 << lightId)) != 0) {
+      const auto& geomCol = light->GetGeometryColor();
+      if (geomCol.r() != 0.f || geomCol.g() != 0.f || geomCol.b() != 0.f) {
+        CGraphics::LoadLight(lightId, light->BuildLight());
+        CGraphics::EnableLight(lightId);
+      }
       // accumulate ambient color
       ambColor += light->GetAmbientLightColor();
+      ++enabledLights;
     }
-    ++reinterpret_cast<std::underlying_type_t<ERglLight>&>(lightId);
-    ++idx;
+    ++lightId;
   }
-  if (lightsOut.empty()) {
-    // CGraphics::SetAmbientColor(zeus::skWhite);
-    lightsOut.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, zeus::skWhite));
+  if (enabledLights == 0) {
+    CGraphics::SetAmbientColor(zeus::skWhite);
   } else {
-    // CGraphics::SetAmbientColor(ambColor);
-    lightsOut.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, ambColor));
+    CGraphics::SetAmbientColor(ambColor);
   }
-
-  model.ActivateLights(lightsOut);
 }
 
 void CGuiFrame::DisableLights() const { CGraphics::DisableAllLights(); }
@@ -133,10 +124,11 @@ void CGuiFrame::Update(float dt) { xc_headWidget->Update(dt); }
 void CGuiFrame::Draw(const CGuiWidgetDrawParms& parms) const {
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CGuiFrame::Draw FRME_{}"), x0_id).c_str(), zeus::skMagenta);
   CGraphics::SetCullMode(ERglCullMode::None);
+  CGraphics::ResetGfxStates();
   CGraphics::SetAmbientColor(zeus::skWhite);
   DisableLights();
   x14_camera->Draw(parms);
-  // Set one-stage modulate
+  CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
   CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
                           ERglLogicOp::Clear);
 
@@ -149,7 +141,7 @@ void CGuiFrame::Draw(const CGuiWidgetDrawParms& parms) const {
 
 CGuiWidget* CGuiFrame::BestCursorHit(const zeus::CVector2f& point, const CGuiWidgetDrawParms& parms) const {
   x14_camera->Draw(parms);
-  zeus::CMatrix4f vp = CGraphics::GetPerspectiveProjectionMatrix(false) * CGraphics::g_CameraMatrix.toMatrix4f();
+  zeus::CMatrix4f vp = CGraphics::GetPerspectiveProjectionMatrix() * CGraphics::g_CameraMatrix.toMatrix4f();
   CGuiWidget* ret = nullptr;
   for (const auto& widget : x2c_widgets)
     if (widget->GetMouseActive() && widget->TestCursorHit(vp, point))
@@ -163,15 +155,14 @@ void CGuiFrame::Initialize() {
   xc_headWidget->DispatchInitialize();
 }
 
-void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp) {
-  u32 count = in.readUint32Big();
+void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp, u32 version) {
+  u32 count = in.ReadLong();
   x2c_widgets.reserve(count);
   for (u32 i = 0; i < count; ++i) {
-    DataSpec::DNAFourCC type;
-    type.read(in);
-    std::shared_ptr<CGuiWidget> widget = CGuiSys::CreateWidgetInGame(type, in, this, sp);
-    type = widget->GetWidgetTypeID();
-    switch (type.toUint32()) {
+    FourCC type;
+    in.Get(reinterpret_cast<u8*>(&type), 4);
+    std::shared_ptr<CGuiWidget> widget = CGuiSys::CreateWidgetInGame(type.toUint32(), in, this, sp, version);
+    switch (widget->GetWidgetTypeID().toUint32()) {
     case SBIG('CAMR'):
     case SBIG('LITE'):
     case SBIG('BGND'):
@@ -217,7 +208,7 @@ bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDraw
       m_lastMouseOverWidget = hit;
     }
     if (hit && hit->m_lastScroll) {
-      boo::SScrollDelta delta = kbm->m_accumScroll - *hit->m_lastScroll;
+      SScrollDelta delta = kbm->m_accumScroll - *hit->m_lastScroll;
       hit->m_lastScroll.emplace(kbm->m_accumScroll);
       if (!delta.isZero()) {
         hit->m_integerScroll += delta;
@@ -227,7 +218,7 @@ bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDraw
         hit->m_integerScroll.delta[1] -= std::trunc(hit->m_integerScroll.delta[1]);
       }
     }
-    if (!m_inMouseDown && kbm->m_mouseButtons[size_t(boo::EMouseButton::Primary)]) {
+    if (!m_inMouseDown && kbm->m_mouseButtons[size_t(EMouseButton::Primary)]) {
       m_inMouseDown = true;
       m_inCancel = false;
       m_mouseDownWidget = hit;
@@ -235,7 +226,7 @@ bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDraw
         m_mouseDownCb(hit, false);
       if (hit)
         return true;
-    } else if (m_inMouseDown && !kbm->m_mouseButtons[size_t(boo::EMouseButton::Primary)]) {
+    } else if (m_inMouseDown && !kbm->m_mouseButtons[size_t(EMouseButton::Primary)]) {
       m_inMouseDown = false;
       m_inCancel = false;
       if (m_mouseDownWidget == m_lastMouseOverWidget) {
@@ -264,13 +255,13 @@ void CGuiFrame::ResetMouseState() {
 }
 
 std::unique_ptr<CGuiFrame> CGuiFrame::CreateFrame(CAssetId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp) {
-  in.readInt32Big();
-  int a = in.readInt32Big();
-  int b = in.readInt32Big();
-  int c = in.readInt32Big();
+  u32 version = in.ReadLong();
+  int a = in.ReadLong();
+  int b = in.ReadLong();
+  int c = in.ReadLong();
 
   std::unique_ptr<CGuiFrame> ret = std::make_unique<CGuiFrame>(frmeId, sys, a, b, c, sp);
-  ret->LoadWidgetsInGame(in, sp);
+  ret->LoadWidgetsInGame(in, sp, version);
   return ret;
 }
 

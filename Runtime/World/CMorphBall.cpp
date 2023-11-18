@@ -17,13 +17,13 @@
 #include "Runtime/World/CScriptSpiderBallWaypoint.hpp"
 #include "Runtime/World/CScriptWater.hpp"
 #include "Runtime/World/CWorld.hpp"
-#include <hecl/CVar.hpp>
-#include <hecl/CVarManager.hpp>
+#include "Runtime/ConsoleVariables/CVar.hpp"
+#include "Runtime/ConsoleVariables/CVarManager.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
 namespace {
-hecl::CVar* mb_spooderBall = nullptr;
+CVar* mb_spooderBall = nullptr;
 bool mb_spooderBallCached = false;
 float kSpiderBallCollisionRadius;
 
@@ -287,11 +287,11 @@ CMorphBall::CMorphBall(CPlayer& player, float radius)
   LoadAnimationTokens("SamusBallANCS");
   InitializeWakeEffects();
   if (mb_spooderBall == nullptr) {
-    mb_spooderBall = hecl::CVarManager::instance()->findOrMakeCVar(
+    mb_spooderBall = CVarManager::instance()->findOrMakeCVar(
         "morphball.enableSpooderBall",
         "Enables the ability to spiderball everywhere after touch a spiderball track with spiderball enabled", false,
-        hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Cheat);
-    mb_spooderBall->addListener([](hecl::CVar* cv) { mb_spooderBallCached = cv->toBoolean(); });
+        CVar::EFlags::Game | CVar::EFlags::Cheat);
+    mb_spooderBall->addListener([](CVar* cv) { mb_spooderBallCached = cv->toBoolean(); });
   }
 }
 
@@ -1616,6 +1616,7 @@ void CMorphBall::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
     return;
   }
 
+  SCOPED_GRAPHICS_DEBUG_GROUP("CMorphBall::PreRender", zeus::skBlue);
   x0_player.GetActorLights()->SetFindShadowLight(x1e44_damageEffect < 0.25f);
   x0_player.GetActorLights()->SetShadowDynamicRangeThreshold(0.05f);
   x0_player.GetActorLights()->SetDirty();
@@ -1657,10 +1658,6 @@ void CMorphBall::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   }
 }
 
-void CMorphBall::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  static_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
-}
-
 void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) const {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlayer::Render", zeus::skPurple);
   zeus::CTransform ballToWorld = GetBallToWorld();
@@ -1674,7 +1671,7 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
   if (dying) {
     const zeus::CColor modColor(0.f, zeus::clamp(0.f, 1.f - x0_player.x9f4_deathTime / 0.2f * 6.f, 1.f));
     CModelFlags flags(7, u8(x5c_ballModelShader), 1, modColor);
-    flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+    // flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
     x58_ballModel->Render(mgr, ballToWorld, nullptr, flags);
   }
 
@@ -1682,16 +1679,17 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
   if (x1e44_damageEffect > 0.f) {
     flags = CModelFlags(1, 0, 3, zeus::CColor(1.f, 1.f - x1e44_damageEffect, 1.f - x1e44_damageEffect, 1.f));
   }
-  flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+  // flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
 
   if (x1c1c_rainSplashGen && x1c1c_rainSplashGen->IsRaining()) {
-    CSkinnedModel::SetPointGeneratorFunc(x1c1c_rainSplashGen.get(), PointGenerator);
+    CSkinnedModel::SetPointGeneratorFunc(
+        [&](const auto& workspace) { x1c1c_rainSplashGen->GeneratePoints(workspace); });
   }
 
   if (x1c34_boostLightFactor != 1.f) {
     if (lights->HasShadowLight()) {
       x1c14_worldShadow->EnableModelProjectedShadow(ballToWorld, lights->GetShadowLightArrIndex(), 1.f);
-      flags.m_extendedShader = EExtendedShader::LightingCubeReflectionWorldShadow;
+      // flags.m_extendedShader = EExtendedShader::LightingCubeReflectionWorldShadow;
     }
     x58_ballModel->Render(mgr, ballToWorld, lights, flags);
     x1c14_worldShadow->DisableModelProjectedShadow();
@@ -1754,11 +1752,11 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
   if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::SpiderBall) && x60_spiderBallGlassModel) {
     const float tmp = std::max(x1c38_spiderLightFactor, x1c34_boostLightFactor);
     CModelFlags sflags(0, u8(x64_spiderBallGlassModelShader), 3, zeus::skWhite);
-    sflags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+    // sflags.m_extendedShader = EExtendedShader::LightingCubeReflection;
     if (tmp != 1.f) {
       if (lights->HasShadowLight()) {
         x1c14_worldShadow->EnableModelProjectedShadow(ballToWorld, lights->GetShadowLightArrIndex(), 1.f);
-        sflags.m_extendedShader = EExtendedShader::LightingCubeReflectionWorldShadow;
+        // sflags.m_extendedShader = EExtendedShader::LightingCubeReflectionWorldShadow;
       }
       x60_spiderBallGlassModel->Render(mgr, ballToWorld, x1c18_actorLights.get(), sflags);
       x1c14_worldShadow->DisableModelProjectedShadow();
@@ -1870,7 +1868,7 @@ void CMorphBall::RenderDamageEffects(const CStateManager& mgr, const zeus::CTran
   CModelFlags flags(7, 0, 1,
                     zeus::CColor(0.25f * x1e44_damageEffect, 0.1f * x1e44_damageEffect, 0.1f * x1e44_damageEffect,
                                  1.f)); // No Z update
-  flags.m_extendedShader = EExtendedShader::SolidColorAdditive;
+  // flags.m_extendedShader = EExtendedShader::SolidColorAdditive;
   for (int i = 0; i < 5; ++i) {
     rand.Float();
     const float translateMag = 0.15f * x1e44_damageEffect * std::sin(30.f * x1e4c_damageTime + rand.Float() * M_PIF);

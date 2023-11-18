@@ -18,16 +18,17 @@ CScriptRoomAcoustics::CScriptRoomAcoustics(TUniqueId uid, std::string_view name,
                                            u32 feedbackS, u32 outputL, u32 outputR, u32 outputS)
 : CEntity(uid, info, active, name)
 , x34_volumeScale(volScale)
-, x38_revHi(revHi)
-, x39_revHiDis(revHiDis)
-, x3c_revHiInfo(revHiColoration, revHiMix, revHiTime, revHiDamping, revHiPreDelay, revHiCrosstalk)
-, x54_chorus(chorus)
-, x58_chorusInfo(baseDelay, variation, period)
-, x64_revStd(revStd)
-, x65_revStdDis(revStdDis)
-, x68_revStdInfo(revStdColoration, revStdMix, revStdTime, revStdDamping, revStdPreDelay)
-, x7c_delay(delay)
-, x80_delayInfo(delayL, delayR, delayS, feedbackL, feedbackR, feedbackS, outputL, outputR, outputS) {}
+//, x38_revHi(revHi)
+//, x39_revHiDis(revHiDis)
+//, x3c_revHiInfo(revHiColoration, revHiMix, revHiTime, revHiDamping, revHiPreDelay, revHiCrosstalk)
+//, x54_chorus(chorus)
+//, x58_chorusInfo(baseDelay, variation, period)
+//, x64_revStd(revStd)
+//, x65_revStdDis(revStdDis)
+//, x68_revStdInfo(revStdColoration, revStdMix, revStdTime, revStdDamping, revStdPreDelay)
+//, x7c_delay(delay)
+//, x80_delayInfo(delayL, delayR, delayS, feedbackL, feedbackR, feedbackS, outputL, outputR, outputS)
+     {}
 
 void CScriptRoomAcoustics::DisableAuxCallbacks() {
   CSfxManager::DisableAuxProcessing();
@@ -41,17 +42,17 @@ void CScriptRoomAcoustics::EnableAuxCallbacks() {
   }
 
   bool applied = true;
-  if (x38_revHi) {
-    CSfxManager::PrepareReverbHiCallback(x3c_revHiInfo);
-  } else if (x54_chorus) {
-    CSfxManager::PrepareChorusCallback(x58_chorusInfo);
-  } else if (x64_revStd) {
-    CSfxManager::PrepareReverbStdCallback(x68_revStdInfo);
-  } else if (x7c_delay) {
-    CSfxManager::PrepareDelayCallback(x80_delayInfo);
-  } else {
-    applied = false;
-  }
+//  if (x38_revHi) {
+//    CSfxManager::PrepareReverbHiCallback(x3c_revHiInfo);
+//  } else if (x54_chorus) {
+//    CSfxManager::PrepareChorusCallback(x58_chorusInfo);
+//  } else if (x64_revStd) {
+//    CSfxManager::PrepareReverbStdCallback(x68_revStdInfo);
+//  } else if (x7c_delay) {
+//    CSfxManager::PrepareDelayCallback(x80_delayInfo);
+//  } else {
+//    applied = false;
+//  }
 
   if (applied) {
     CAudioSys::SetVolumeScale(x34_volumeScale);

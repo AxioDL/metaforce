@@ -1,22 +1,57 @@
 #pragma once
 
-#include <memory>
-#include <string>
-
 #include "Runtime/CFactoryMgr.hpp"
-#include "Runtime/GCNTypes.hpp"
-#include "Runtime/IObj.hpp"
-#include "Runtime/IOStreams.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
-
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include "Runtime/Graphics/CGraphicsPalette.hpp"
+#include "Runtime/Graphics/GX.hpp"
+#include "Runtime/IObj.hpp"
+#include "Runtime/Streams/CInputStream.hpp"
+#include "GX.hpp"
 
 namespace metaforce {
-class CVParamTransfer;
-class CTextureInfo;
+enum class ETexelFormat {
+  Invalid = -1,
+  I4 = 0,
+  I8 = 1,
+  IA4 = 2,
+  IA8 = 3,
+  C4 = 4,
+  C8 = 5,
+  C14X2 = 6,
+  RGB565 = 7,
+  RGB5A3 = 8,
+  RGBA8 = 9,
+  CMPR = 10,
+  // Metaforce addition: non-converting formats
+  RGBA8PC = 11,
+  R8PC = 12,
+};
+
+enum class EClampMode : std::underlying_type_t<GXTexWrapMode> {
+  Clamp = GX_CLAMP,
+  Repeat = GX_REPEAT,
+  Mirror = GX_MIRROR,
+};
 
 class CTexture {
+  class CDumpedBitmapDataReloader {
+    int x0_;
+    u32 x4_;
+    int x8_;
+    u32 xc_;
+    bool x10_;
+    int x14_;
+    void* x18_;
+  };
+
 public:
+  enum class EAutoMipmap {
+    Zero,
+    One,
+  };
+
+  enum class EBlackKey { Zero, One };
+
   enum class EFontType {
     None = -1,
     OneLayer = 0,        /* Fill bit0 */
@@ -28,56 +63,79 @@ public:
   };
 
 private:
-  ETexelFormat x0_fmt;
-  u16 x4_w;
-  u16 x6_h;
-  u32 x8_mips;
-  boo::ObjToken<boo::ITexture> m_booTex;
-  boo::ObjToken<boo::ITexture> m_paletteTex;
-  std::unique_ptr<u8[]> m_otex;
-  EFontType m_ftype = EFontType::None;
-  const CTextureInfo* m_textureInfo;
+  static bool sMangleMips;
+  static u32 sCurrentFrameCount;
+  static u32 sTotalAllocatedMemory;
 
-  size_t ComputeMippedTexelCount() const;
-  size_t ComputeMippedBlockCountDXT1() const;
-  void BuildI4FromGCN(CInputStream& in);
-  void BuildI8FromGCN(CInputStream& in);
-  void BuildIA4FromGCN(CInputStream& in);
-  void BuildIA8FromGCN(CInputStream& in);
-  void BuildC4FromGCN(CInputStream& in);
-  void BuildC8FromGCN(CInputStream& in);
-  void BuildC14X2FromGCN(CInputStream& in);
-  void BuildRGB565FromGCN(CInputStream& in);
-  void BuildRGB5A3FromGCN(CInputStream& in);
-  void BuildRGBA8FromGCN(CInputStream& in);
-  void BuildDXT1FromGCN(CInputStream& in);
-  void BuildRGBA8(const void* data, size_t length);
-  void BuildC8(const void* data, size_t length);
-  void BuildC8Font(const void* data, EFontType ftype);
-  void BuildDXT1(const void* data, size_t length);
-  void BuildDXT3(const void* data, size_t length);
+  ETexelFormat x0_fmt = ETexelFormat::Invalid;
+  u16 x4_w = 0;
+  u16 x6_h = 0;
+  u8 x8_mips = 0;
+  u8 x9_bitsPerPixel = 0;
+  bool xa_24_locked : 1 = false;
+  bool xa_25_canLoadPalette : 1 = false;
+  bool xa_26_isPowerOfTwo : 1 = false;
+  bool xa_27_noSwap : 1 = true;
+  bool xa_28_counted : 1 = false;
+  bool xa_29_canLoadObj : 1 = false;
+  u32 xc_memoryAllocated = 0;
+  std::unique_ptr<CGraphicsPalette> x10_graphicsPalette;
+  std::unique_ptr<CDumpedBitmapDataReloader> x14_bitmapReloader;
+  u32 x18_gxFormat = GX_TF_RGB565;
+  GXCITexFmt x1c_gxCIFormat = GX_TF_C8;
+  GXTexObj x20_texObj;
+  EClampMode x40_clampMode = EClampMode::Repeat;
+  std::unique_ptr<u8[]> x44_aramToken_x4_buff; // was CARAMToken
+  u32 x64_frameAllocated{};
+
+  // Metaforce additions
+  std::string m_label;
+  bool m_needsTexObjDataLoad = true;
+
+  void InitBitmapBuffers(ETexelFormat fmt, u16 width, u16 height, s32 mips);
+  void InitTextureObjs();
+  void CountMemory();
+  void UncountMemory();
+  void MangleMipmap(u32 mip);
+  static u32 TexelFormatBitsPerPixel(ETexelFormat fmt);
 
 public:
-  CTexture(ETexelFormat, s16, s16, s32);
-  CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTextureInfo* inf);
-  enum class EClampMode { None, One };
-  ETexelFormat GetTexelFormat() const { return x0_fmt; }
-  ETexelFormat GetMemoryCardTexelFormat() const {
-    return x0_fmt == ETexelFormat::C8PC ? ETexelFormat::C8 : ETexelFormat::RGB5A3;
-  }
-  u16 GetWidth() const { return x4_w; }
-  u16 GetHeight() const { return x6_h; }
-  u32 GetNumMips() const { return x8_mips; }
-  void Load(int slot, EClampMode clamp) const;
-  const boo::ObjToken<boo::ITexture>& GetBooTexture() const { return m_booTex; }
-  const boo::ObjToken<boo::ITexture>& GetPaletteTexture() const { return m_paletteTex; }
-  std::unique_ptr<u8[]> BuildMemoryCardTex(u32& sizeOut, ETexelFormat& fmtOut, std::unique_ptr<u8[]>& paletteOut) const;
-  const boo::ObjToken<boo::ITexture>& GetFontTexture(EFontType tp);
+  // Label parameters are new for Metaforce
+  CTexture(ETexelFormat fmt, u16 w, u16 h, s32 mips, std::string_view label);
+  CTexture(CInputStream& in, std::string_view label, EAutoMipmap automip = EAutoMipmap::Zero,
+           EBlackKey blackKey = EBlackKey::Zero);
+  ~CTexture();
 
-  const CTextureInfo* GetTextureInfo() const { return m_textureInfo; }
+  [[nodiscard]] ETexelFormat GetTextureFormat() const { return x0_fmt; }
+  [[nodiscard]] u16 GetWidth() const { return x4_w; }
+  [[nodiscard]] u16 GetHeight() const { return x6_h; }
+  [[nodiscard]] u8 GetNumberOfMipMaps() const { return x8_mips; }
+  [[nodiscard]] u32 GetBitDepth() const { return x9_bitsPerPixel; }
+  [[nodiscard]] u32 GetMemoryAllocated() const { return xc_memoryAllocated; }
+  [[nodiscard]] const std::unique_ptr<CGraphicsPalette>& GetPalette() const { return x10_graphicsPalette; }
+  [[nodiscard]] bool HasPalette() const { return x10_graphicsPalette != nullptr; }
+  [[nodiscard]] u8* Lock();
+  void UnLock();
+  void Load(GXTexMapID id, EClampMode clamp);
+  void LoadMipLevel(s32 mip, GXTexMapID id, EClampMode clamp);
+  // void UnloadBitmapData(u32) const;
+  // void TryReloadBitmapData(CResFactory&) const;
+  // void LoadToMRAM() const;
+  // void LoadToARAM() const;
+  // bool IsARAMTransferInProgress() const { return false; }
+  void MakeSwappable();
+
+  [[nodiscard]] const u8* GetConstBitMapData(s32 mip) const;
+  [[nodiscard]] u8* GetBitMapData(s32 mip) const;
+  [[nodiscard]] bool IsCITexture() const {
+    return x0_fmt == ETexelFormat::C4 || x0_fmt == ETexelFormat::C8 || x0_fmt == ETexelFormat::C14X2;
+  }
+
+  static void InvalidateTexMap(GXTexMapID id);
+  static void SetMangleMips(bool b) { sMangleMips = b; }
+  static void SetCurrentFrameCount(u32 frameCount) { sCurrentFrameCount = frameCount; }
 };
 
-CFactoryFnReturn FTextureFactory(const metaforce::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                                 const metaforce::CVParamTransfer& vparms, CObjectReference* selfRef);
-
+CFactoryFnReturn FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
+                                 CObjectReference* selfRef);
 } // namespace metaforce

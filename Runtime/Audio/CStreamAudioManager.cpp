@@ -11,7 +11,7 @@
 #include <cstring>
 #include <memory>
 
-#include <amuse/DSPCodec.hpp>
+//#include <amuse/DSPCodec.hpp>
 
 namespace metaforce {
 class CDSPStreamManager;
@@ -54,7 +54,7 @@ struct SDSPStreamInfo {
   explicit SDSPStreamInfo(const CDSPStreamManager& stream);
 };
 
-struct SDSPStream : boo::IAudioVoiceCallback {
+struct SDSPStream  {
   bool x0_active;
   bool x1_oneshot;
   s32 x4_ownerId;
@@ -155,91 +155,91 @@ struct SDSPStream : boo::IAudioVoiceCallback {
   s16 m_prev1 = 0;
   s16 m_prev2 = 0;
 
-  void preSupplyAudio(boo::IAudioVoice&, double) override {}
+//  void preSupplyAudio(boo::IAudioVoice&, double) override {}
 
-  unsigned decompressChunk(unsigned readToSample, int16_t*& data) {
-    unsigned startSamp = m_curSample;
+//  unsigned decompressChunk(unsigned readToSample, int16_t*& data) {
+//    unsigned startSamp = m_curSample;
+//
+//    auto sampDiv = std::div(int(m_curSample), int(14));
+//    if (sampDiv.rem) {
+//      unsigned samps = DSPDecompressFrameRanged(data, xd4_ringBuffer.get() + sampDiv.quot * 8, x10_info.x1c_coef,
+//                                                &m_prev1, &m_prev2, unsigned(sampDiv.rem), readToSample - m_curSample);
+//      m_curSample += samps;
+//      data += samps;
+//      ++sampDiv.quot;
+//    }
+//
+//    while (m_curSample < readToSample) {
+//      unsigned samps = DSPDecompressFrame(data, xd4_ringBuffer.get() + sampDiv.quot * 8, x10_info.x1c_coef, &m_prev1,
+//                                          &m_prev2, readToSample - m_curSample);
+//      m_curSample += samps;
+//      data += samps;
+//      ++sampDiv.quot;
+//    }
+//
+//    return m_curSample - startSamp;
+//  }
 
-    auto sampDiv = std::div(int(m_curSample), int(14));
-    if (sampDiv.rem) {
-      unsigned samps = DSPDecompressFrameRanged(data, xd4_ringBuffer.get() + sampDiv.quot * 8, x10_info.x1c_coef,
-                                                &m_prev1, &m_prev2, unsigned(sampDiv.rem), readToSample - m_curSample);
-      m_curSample += samps;
-      data += samps;
-      ++sampDiv.quot;
-    }
-
-    while (m_curSample < readToSample) {
-      unsigned samps = DSPDecompressFrame(data, xd4_ringBuffer.get() + sampDiv.quot * 8, x10_info.x1c_coef, &m_prev1,
-                                          &m_prev2, readToSample - m_curSample);
-      m_curSample += samps;
-      data += samps;
-      ++sampDiv.quot;
-    }
-
-    return m_curSample - startSamp;
-  }
-
-  size_t supplyAudio(boo::IAudioVoice&, size_t frames, int16_t* data) override {
-    if (!x0_active) {
-      memset(data, 0, frames * 2);
-      return frames;
-    }
-
-    if (xe8_silent) {
-      StopStream();
-      memset(data, 0, frames * 2);
-      return frames;
-    }
-
-    unsigned halfRingSamples = xdc_ringSamples / 2;
-
-    size_t remFrames = frames;
-    while (remFrames) {
-      if (xec_readState != 2 || (xe0_curBuffer == 0 && m_curSample >= halfRingSamples)) {
-        if (!BufferStream()) {
-          memset(data, 0, remFrames * 2);
-          return frames;
-        }
-      }
-
-      unsigned readToSample =
-          std::min(m_curSample + unsigned(remFrames), (m_curSample / halfRingSamples + 1) * halfRingSamples);
-
-      if (!x10_info.x10_loopFlag) {
-        m_totalSamples += remFrames;
-        size_t fileSamples = x10_info.xc_adpcmBytes * 14 / 8;
-        if (m_totalSamples >= fileSamples) {
-          size_t leftover = m_totalSamples - fileSamples;
-          readToSample -= leftover;
-          remFrames -= leftover;
-          memset(data + remFrames, 0, leftover * 2);
-          StopStream();
-        }
-      }
-
-      unsigned leftoverSamples = 0;
-      if (readToSample > xdc_ringSamples) {
-        leftoverSamples = readToSample - xdc_ringSamples;
-        readToSample = xdc_ringSamples;
-      }
-
-      remFrames -= decompressChunk(readToSample, data);
-
-      if (leftoverSamples) {
-        BufferStream();
-        m_curSample = 0;
-        remFrames -= decompressChunk(leftoverSamples, data);
-      }
-    }
-
-    return frames;
-  }
-  boo::ObjToken<boo::IAudioVoice> m_booVoice;
+//  size_t supplyAudio(boo::IAudioVoice&, size_t frames, int16_t* data) override {
+//    if (!x0_active) {
+//      memset(data, 0, frames * 2);
+//      return frames;
+//    }
+//
+//    if (xe8_silent) {
+//      StopStream();
+//      memset(data, 0, frames * 2);
+//      return frames;
+//    }
+//
+//    unsigned halfRingSamples = xdc_ringSamples / 2;
+//
+//    size_t remFrames = frames;
+//    while (remFrames) {
+//      if (xec_readState != 2 || (xe0_curBuffer == 0 && m_curSample >= halfRingSamples)) {
+//        if (!BufferStream()) {
+//          memset(data, 0, remFrames * 2);
+//          return frames;
+//        }
+//      }
+//
+//      unsigned readToSample =
+//          std::min(m_curSample + unsigned(remFrames), (m_curSample / halfRingSamples + 1) * halfRingSamples);
+//
+//      if (!x10_info.x10_loopFlag) {
+//        m_totalSamples += remFrames;
+//        size_t fileSamples = x10_info.xc_adpcmBytes * 14 / 8;
+//        if (m_totalSamples >= fileSamples) {
+//          size_t leftover = m_totalSamples - fileSamples;
+//          readToSample -= leftover;
+//          remFrames -= leftover;
+//          memset(data + remFrames, 0, leftover * 2);
+//          StopStream();
+//        }
+//      }
+//
+//      unsigned leftoverSamples = 0;
+//      if (readToSample > xdc_ringSamples) {
+//        leftoverSamples = readToSample - xdc_ringSamples;
+//        readToSample = xdc_ringSamples;
+//      }
+//
+//      remFrames -= decompressChunk(readToSample, data);
+//
+//      if (leftoverSamples) {
+//        BufferStream();
+//        m_curSample = 0;
+//        remFrames -= decompressChunk(leftoverSamples, data);
+//      }
+//    }
+//
+//    return frames;
+//  }
+//  boo::ObjToken<boo::IAudioVoice> m_booVoice;
 
   void DoAllocateStream() {
     xd4_ringBuffer.reset(new u8[0x11DC0]);
-    m_booVoice = CAudioSys::GetVoiceEngine()->allocateNewMonoVoice(32000.0, this);
+    //m_booVoice = CAudioSys::GetVoiceEngine()->allocateNewMonoVoice(32000.0, this);
   }
 
   static void Initialize() {
@@ -259,18 +259,18 @@ struct SDSPStream : boo::IAudioVoiceCallback {
   }
 
   static void FreeAllStreams() {
-    for (auto& stream : g_Streams) {
-      stream.m_booVoice.reset();
-      stream.x0_active = false;
-      for (auto& request : stream.m_readReqs) {
-        if (request) {
-          request->PostCancelRequest();
-          request.reset();
-        }
-      }
-      stream.xd4_ringBuffer.reset();
-      stream.m_file = std::nullopt;
-    }
+//    for (auto& stream : g_Streams) {
+//      stream.m_booVoice.reset();
+//      stream.x0_active = false;
+//      for (auto& request : stream.m_readReqs) {
+//        if (request) {
+//          request->PostCancelRequest();
+//          request.reset();
+//        }
+//      }
+//      stream.xd4_ringBuffer.reset();
+//      stream.m_file = std::nullopt;
+//    }
   }
 
   static s32 PickFreeStream(SDSPStream*& streamOut, bool oneshot) {
@@ -302,27 +302,27 @@ struct SDSPStream : boo::IAudioVoiceCallback {
   }
 
   void UpdateStreamVolume(float vol) {
-    x4c_vol = vol;
-    if (!x0_active || xe8_silent) {
-      return;
-    }
-    std::array<float, 8> coefs{};
-    coefs[size_t(boo::AudioChannel::FrontLeft)] = m_leftgain * vol;
-    coefs[size_t(boo::AudioChannel::FrontRight)] = m_rightgain * vol;
-    m_booVoice->setMonoChannelLevels(nullptr, coefs.data(), true);
+//    x4c_vol = vol;
+//    if (!x0_active || xe8_silent) {
+//      return;
+//    }
+//    std::array<float, 8> coefs{};
+//    coefs[size_t(boo::AudioChannel::FrontLeft)] = m_leftgain * vol;
+//    coefs[size_t(boo::AudioChannel::FrontRight)] = m_rightgain * vol;
+//    m_booVoice->setMonoChannelLevels(nullptr, coefs.data(), true);
   }
 
   static void UpdateVolume(s32 id, float vol) {
-    s32 idx = FindStreamIdx(id);
-    if (idx == -1)
-      return;
-
-    SDSPStream& stream = g_Streams[idx];
-    stream.UpdateStreamVolume(vol);
-    if (SDSPStream* left = stream.x8_stereoLeft)
-      left->UpdateStreamVolume(vol);
-    if (SDSPStream* right = stream.xc_companionRight)
-      right->UpdateStreamVolume(vol);
+//    s32 idx = FindStreamIdx(id);
+//    if (idx == -1)
+//      return;
+//
+//    SDSPStream& stream = g_Streams[idx];
+//    stream.UpdateStreamVolume(vol);
+//    if (SDSPStream* left = stream.x8_stereoLeft)
+//      left->UpdateStreamVolume(vol);
+//    if (SDSPStream* right = stream.xc_companionRight)
+//      right->UpdateStreamVolume(vol);
   }
 
   void SilenceStream() {
@@ -330,7 +330,7 @@ struct SDSPStream : boo::IAudioVoiceCallback {
       return;
     }
     constexpr std::array<float, 8> coefs{};
-    m_booVoice->setMonoChannelLevels(nullptr, coefs.data(), true);
+    //m_booVoice->setMonoChannelLevels(nullptr, coefs.data(), true);
     xe8_silent = true;
     x0_active = false;
   }
@@ -350,7 +350,7 @@ struct SDSPStream : boo::IAudioVoiceCallback {
 
   void StopStream() {
     x0_active = false;
-    m_booVoice->stop();
+    //m_booVoice->stop();
     m_file = std::nullopt;
   }
 
@@ -427,8 +427,8 @@ struct SDSPStream : boo::IAudioVoiceCallback {
     m_prev1 = 0;
     m_prev2 = 0;
     memset(xd4_ringBuffer.get(), 0, 0x11DC0);
-    m_booVoice->resetSampleRate(info.x4_sampleRate);
-    m_booVoice->start();
+    //m_booVoice->resetSampleRate(info.x4_sampleRate);
+    //m_booVoice->start();
     UpdateStreamVolume(vol);
   }
 
@@ -810,12 +810,12 @@ std::array<CDSPStreamManager, 4> CDSPStreamManager::g_Streams{};
 
 SDSPStreamInfo::SDSPStreamInfo(const CDSPStreamManager& stream) {
   x0_fileName = stream.x60_fileName.c_str();
-  x4_sampleRate = hecl::SBig(stream.x0_header.x8_sample_rate);
-  xc_adpcmBytes = (hecl::SBig(stream.x0_header.x4_num_nibbles) / 2) & 0x7FFFFFE0;
+  x4_sampleRate = SBig(stream.x0_header.x8_sample_rate);
+  xc_adpcmBytes = (SBig(stream.x0_header.x4_num_nibbles) / 2) & 0x7FFFFFE0;
 
   if (stream.x0_header.xc_loop_flag) {
-    u32 loopStartNibble = hecl::SBig(stream.x0_header.x10_loop_start_nibble);
-    u32 loopEndNibble = hecl::SBig(stream.x0_header.x14_loop_end_nibble);
+    u32 loopStartNibble = SBig(stream.x0_header.x10_loop_start_nibble);
+    u32 loopEndNibble = SBig(stream.x0_header.x14_loop_end_nibble);
     x10_loopFlag = true;
     x14_loopStartByte = (loopStartNibble / 2) & 0x7FFFFFE0;
     x18_loopEndByte = std::min((loopEndNibble / 2) & 0x7FFFFFE0, xc_adpcmBytes);
@@ -826,8 +826,8 @@ SDSPStreamInfo::SDSPStreamInfo(const CDSPStreamManager& stream) {
   }
 
   for (int i = 0; i < 8; ++i) {
-    x1c_coef[i][0] = hecl::SBig(stream.x0_header.x1c_coef[i][0]);
-    x1c_coef[i][1] = hecl::SBig(stream.x0_header.x1c_coef[i][1]);
+    x1c_coef[i][0] = SBig(stream.x0_header.x1c_coef[i][0]);
+    x1c_coef[i][1] = SBig(stream.x0_header.x1c_coef[i][1]);
   }
 }
 

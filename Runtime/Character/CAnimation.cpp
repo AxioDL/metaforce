@@ -5,7 +5,7 @@
 namespace metaforce {
 
 CAnimation::CAnimation(CInputStream& in) {
-  x0_name = in.readString();
+  x0_name = in.Get<std::string>();
   x10_anim = CMetaAnimFactory::CreateMetaAnim(in);
 }
 

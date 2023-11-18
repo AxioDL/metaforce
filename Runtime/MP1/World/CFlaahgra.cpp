@@ -7,7 +7,7 @@
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/MP1/World/CFlaahgraProjectile.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/World/CActorParameters.hpp"
@@ -45,10 +45,10 @@ constexpr std::array<SSphereJointInfo, 5> skSphereJointList{{
 }};
 
 CFlaahgraData::CFlaahgraData(CInputStream& in)
-: x0_(in.readFloatBig())
-, x4_(in.readFloatBig())
-, x8_(in.readFloatBig())
-, xc_faintDuration(in.readFloatBig())
+: x0_(in.ReadFloat())
+, x4_(in.ReadFloat())
+, x8_(in.ReadFloat())
+, xc_faintDuration(in.ReadFloat())
 , x10_(in)
 , x78_(in)
 , x7c_(in)
@@ -57,9 +57,9 @@ CFlaahgraData::CFlaahgraData(CInputStream& in)
 , xb8_plantsParticleGenDescId(in)
 , xbc_(in)
 , xd8_(ScriptLoader::LoadActorParameters(in))
-, x140_(in.readFloatBig())
-, x144_(in.readFloatBig())
-, x148_(in.readFloatBig())
+, x140_(in.ReadFloat())
+, x144_(in.ReadFloat())
+, x148_(in.ReadFloat())
 , x14c_animationParameters(ScriptLoader::LoadAnimationParameters(in))
 , x158_(in) {}
 
@@ -1413,7 +1413,7 @@ CFlaahgraPlants::CFlaahgraPlants(const TToken<CGenDescription>& genDesc, const C
   xe8_elementGen->SetOrientation(xf.getRotation());
   xe8_elementGen->SetTranslation(xf.origin);
   xe8_elementGen->SetModelsUseLights(true);
-  x110_aabox = {x130_obbox.calculateAABox(xf)};
+  x110_aabox = {x130_obbox.calculateAABox()};
 }
 
 void CFlaahgraPlants::Accept(IVisitor& visitor) { visitor.Visit(this); }

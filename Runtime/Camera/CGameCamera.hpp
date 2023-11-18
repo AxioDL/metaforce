@@ -15,14 +15,14 @@ class CGameCamera : public CActor {
 
 protected:
   TUniqueId xe8_watchedObject;
-  zeus::CMatrix4f xec_perspectiveMatrix;
+  mutable zeus::CMatrix4f xec_perspectiveMatrix;
   zeus::CTransform x12c_origXf;
   float x15c_currentFov;
   float x160_znear;
   float x164_zfar;
   float x168_aspect;
   u32 x16c_controllerIdx;
-  bool x170_24_perspDirty : 1 = true;
+  mutable bool x170_24_perspDirty : 1 = true;
   bool x170_25_disablesInput : 1;
   float x174_delayTime = 0.f;
   float x178_perspInterpRemTime = 0.f;

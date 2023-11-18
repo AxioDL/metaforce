@@ -4,7 +4,7 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Collision/CInternalRayCastStructure.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Weapon/CFlameInfo.hpp"
 #include "Runtime/Weapon/CFlameThrower.hpp"

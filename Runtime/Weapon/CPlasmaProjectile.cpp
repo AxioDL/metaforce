@@ -3,7 +3,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/World/CGameLight.hpp"
 #include "Runtime/World/CHUDBillboardEffect.hpp"
 #include "Runtime/World/CPlayer.hpp"
@@ -12,17 +12,16 @@
 
 namespace metaforce {
 
-CPlasmaProjectile::RenderObjects::RenderObjects(boo::IGraphicsDataFactory::Context& ctx,
-                                                boo::ObjToken<boo::ITexture> tex, boo::ObjToken<boo::ITexture> glowTex)
-: m_beamStrip1(ctx, 8, CColoredStripShader::Mode::Additive, {})
-, m_beamStrip2(ctx, 10, CColoredStripShader::Mode::FullAdditive, tex)
-, m_beamStrip3(ctx, 18, CColoredStripShader::Mode::FullAdditive, tex)
-, m_beamStrip4(ctx, 14, CColoredStripShader::Mode::Additive, glowTex)
-, m_beamStrip1Sub(ctx, 8, CColoredStripShader::Mode::Subtractive, {})
-, m_beamStrip2Sub(ctx, 10, CColoredStripShader::Mode::Subtractive, tex)
-, m_beamStrip3Sub(ctx, 18, CColoredStripShader::Mode::Subtractive, tex)
-, m_beamStrip4Sub(ctx, 14, CColoredStripShader::Mode::Subtractive, glowTex)
-, m_motionBlurStrip(ctx, 16, CColoredStripShader::Mode::Alpha, {}) {}
+//CPlasmaProjectile::RenderObjects::RenderObjects(aurora::gfx::TextureHandle tex, aurora::gfx::TextureHandle glowTex)
+//: m_beamStrip1(8, CColoredStripShader::Mode::Additive, {})
+//, m_beamStrip2(10, CColoredStripShader::Mode::FullAdditive, tex)
+//, m_beamStrip3(18, CColoredStripShader::Mode::FullAdditive, tex)
+//, m_beamStrip4(14, CColoredStripShader::Mode::Additive, glowTex)
+//, m_beamStrip1Sub(8, CColoredStripShader::Mode::Subtractive, {})
+//, m_beamStrip2Sub(10, CColoredStripShader::Mode::Subtractive, tex)
+//, m_beamStrip3Sub(18, CColoredStripShader::Mode::Subtractive, tex)
+//, m_beamStrip4Sub(14, CColoredStripShader::Mode::Subtractive, glowTex)
+//, m_motionBlurStrip(16, CColoredStripShader::Mode::Alpha, {}) {}
 
 CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                                      const CBeamInfo& bInfo, const zeus::CTransform& xf, EMaterialTypes matType,
@@ -60,10 +59,10 @@ CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, st
   x518_contactGen->SetParticleEmission(false);
   x51c_pulseGen->SetParticleEmission(false);
 
-  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    m_renderObjs.emplace(ctx, x4e8_texture->GetBooTexture(), x4f4_glowTexture->GetBooTexture());
-    return true;
-  } BooTrace);
+//  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
+//    m_renderObjs.emplace(x4e8_texture->GetTexture(), x4f4_glowTexture->GetTexture());
+//    return true;
+//  } BooTrace);
 }
 
 void CPlasmaProjectile::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -149,7 +148,7 @@ void CPlasmaProjectile::RenderMotionBlur() {
     v2.m_pos = GetPointCache()[i];
     v2.m_color = v1.m_color;
   }
-  m_renderObjs->m_motionBlurStrip.draw(zeus::skWhite, verts.size(), verts.data());
+//  m_renderObjs->m_motionBlurStrip.draw(zeus::skWhite, verts.size(), verts.data());
 }
 
 void CPlasmaProjectile::RenderBeam(s32 subdivs, float width, const zeus::CColor& color, s32 flags,
@@ -253,12 +252,11 @@ void CPlasmaProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
   switch (msg) {
   case EScriptObjectMessage::Registered: {
     xe6_27_thermalVisorFlags = 2;
-    const SChildGeneratorDesc& apsm = x170_projectile.GetWeaponDescription()->x34_APSM;
-    if (apsm)
-      x520_weaponGen = std::make_unique<CElementGen>(apsm.m_token);
+    const auto& weaponDesc = x170_projectile.GetWeaponDescription();
+    if (weaponDesc->x34_APSM)
+      x520_weaponGen = std::make_unique<CElementGen>(*weaponDesc->x34_APSM);
     if (x520_weaponGen && x520_weaponGen->SystemHasLight())
-      CreatePlasmaLights(x170_projectile.GetWeaponDescription().GetObjectTag()->id.Value(), x520_weaponGen->GetLight(),
-                         mgr);
+      CreatePlasmaLights(weaponDesc.GetObjectTag()->id.Value(), x520_weaponGen->GetLight(), mgr);
     else
       x520_weaponGen.reset();
     if (x548_28_drawOwnerFirst)
@@ -403,6 +401,8 @@ void CPlasmaProjectile::AddToRenderer(const zeus::CFrustum& frustum, CStateManag
 void CPlasmaProjectile::Render(CStateManager& mgr) {
   if (!GetActive())
     return;
+
+  // TODO
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlasmaProjectile::Render", zeus::skOrange);
 
   zeus::CTransform xf = GetBeamTransform();
@@ -420,23 +420,23 @@ void CPlasmaProjectile::Render(CStateManager& mgr) {
 
   // Pass1: alpha-controlled additive
   CGraphics::SetModelMatrix(xf);
-  RenderBeam(3, 0.25f * x4b8_beamWidth, zeus::CColor(1.f, 0.3f), flags | 0x4,
-             (flags & 0x10) ? m_renderObjs->m_beamStrip1Sub : m_renderObjs->m_beamStrip1);
+//  RenderBeam(3, 0.25f * x4b8_beamWidth, zeus::CColor(1.f, 0.3f), flags | 0x4,
+//             (flags & 0x10) ? m_renderObjs->m_beamStrip1Sub : m_renderObjs->m_beamStrip1);
 
   // Pass2: textured
   CGraphics::SetModelMatrix(xf * zeus::CTransform::RotateY(zeus::degToRad(x4c8_beamAngle)));
-  RenderBeam(4, 0.5f * x4b8_beamWidth, x490_innerColor, flags | 0x1,
-             (flags & 0x10) ? m_renderObjs->m_beamStrip2Sub : m_renderObjs->m_beamStrip2);
+//  RenderBeam(4, 0.5f * x4b8_beamWidth, x490_innerColor, flags | 0x1,
+//             (flags & 0x10) ? m_renderObjs->m_beamStrip2Sub : m_renderObjs->m_beamStrip2);
 
   // Pass3: textured | length-controlled UVY
   CGraphics::SetModelMatrix(xf * zeus::CTransform::RotateY(zeus::degToRad(-x4c8_beamAngle)));
-  RenderBeam(8, x4b8_beamWidth, x494_outerColor, flags | 0x3,
-             (flags & 0x10) ? m_renderObjs->m_beamStrip3Sub : m_renderObjs->m_beamStrip3);
+//  RenderBeam(8, x4b8_beamWidth, x494_outerColor, flags | 0x3,
+//             (flags & 0x10) ? m_renderObjs->m_beamStrip3Sub : m_renderObjs->m_beamStrip3);
 
   // Pass4: textured | alpha-controlled additive | glow texture
   CGraphics::SetModelMatrix(xf);
-  RenderBeam(6, 1.25f * x4b8_beamWidth, x494_outerColor, flags | 0xd,
-             (flags & 0x10) ? m_renderObjs->m_beamStrip4Sub : m_renderObjs->m_beamStrip4);
+//  RenderBeam(6, 1.25f * x4b8_beamWidth, x494_outerColor, flags | 0xd,
+//             (flags & 0x10) ? m_renderObjs->m_beamStrip4Sub : m_renderObjs->m_beamStrip4);
 }
 
 } // namespace metaforce

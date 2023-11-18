@@ -1,7 +1,7 @@
 #include "Runtime/Weapon/CProjectileWeapon.hpp"
 
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CParticleGlobals.hpp"
 
@@ -21,26 +21,26 @@ CProjectileWeapon::CProjectileWeapon(const TToken<CWeaponDescription>& wDesc, co
   x124_25_APSO = x4_weaponDesc->x28_APSO;
   if (x4_weaponDesc->x34_APSM) {
     xfc_APSMGen = std::make_unique<CElementGen>(
-        x4_weaponDesc->x34_APSM.m_token, CElementGen::EModelOrientationType::Normal,
+        *x4_weaponDesc->x34_APSM, CElementGen::EModelOrientationType::Normal,
         (xe4_flags & 0x1) == 0x1 ? CElementGen::EOptionalSystemFlags::Two : CElementGen::EOptionalSystemFlags::One);
     xfc_APSMGen->SetGlobalScale(scale);
   }
   if (x4_weaponDesc->x44_APS2) {
     x100_APS2Gen = std::make_unique<CElementGen>(
-        x4_weaponDesc->x44_APS2.m_token, CElementGen::EModelOrientationType::Normal,
+        *x4_weaponDesc->x44_APS2, CElementGen::EModelOrientationType::Normal,
         (xe4_flags & 0x1) == 0x1 ? CElementGen::EOptionalSystemFlags::Two : CElementGen::EOptionalSystemFlags::One);
     x100_APS2Gen->SetGlobalScale(scale);
   }
   if (x4_weaponDesc->x54_ASW1) {
-    x118_swoosh1 = std::make_unique<CParticleSwoosh>(x4_weaponDesc->x54_ASW1.m_token, 0);
+    x118_swoosh1 = std::make_unique<CParticleSwoosh>(*x4_weaponDesc->x54_ASW1, 0);
     x118_swoosh1->SetGlobalScale(scale);
   }
   if (x4_weaponDesc->x64_ASW2) {
-    x11c_swoosh2 = std::make_unique<CParticleSwoosh>(x4_weaponDesc->x64_ASW2.m_token, 0);
+    x11c_swoosh2 = std::make_unique<CParticleSwoosh>(*x4_weaponDesc->x64_ASW2, 0);
     x11c_swoosh2->SetGlobalScale(scale);
   }
   if (x4_weaponDesc->x74_ASW3) {
-    x120_swoosh3 = std::make_unique<CParticleSwoosh>(x4_weaponDesc->x74_ASW3.m_token, 0);
+    x120_swoosh3 = std::make_unique<CParticleSwoosh>(*x4_weaponDesc->x74_ASW3, 0);
     x120_swoosh3->SetGlobalScale(scale);
   }
   if (CIntElement* pslt = x4_weaponDesc->x14_PSLT.get())
@@ -60,8 +60,7 @@ CProjectileWeapon::CProjectileWeapon(const TToken<CWeaponDescription>& wDesc, co
   } else {
     SetRelativeOrientation(zeus::CTransform());
   }
-  if (x4_weaponDesc->x84_OHEF)
-    x108_model.emplace(x4_weaponDesc->x84_OHEF.m_token);
+  x108_model = x4_weaponDesc->x84_OHEF.x0_res;
   x124_26_AP11 = x4_weaponDesc->x2a_AP11;
   x124_27_AP21 = x4_weaponDesc->x2b_AP21;
   x124_28_AS11 = x4_weaponDesc->x2c_AS11;
@@ -124,13 +123,13 @@ std::optional<zeus::CAABox> CProjectileWeapon::GetBounds() const {
 float CProjectileWeapon::GetAudibleFallOff() const {
   if (!x4_weaponDesc->x94_COLR)
     return 0.f;
-  return x4_weaponDesc->x94_COLR.m_res->GetAudibleFallOff();
+  return x4_weaponDesc->x94_COLR->GetAudibleFallOff();
 }
 
 float CProjectileWeapon::GetAudibleRange() const {
   if (!x4_weaponDesc->x94_COLR)
     return 0.f;
-  return x4_weaponDesc->x94_COLR.m_res->GetAudibleRange();
+  return x4_weaponDesc->x94_COLR->GetAudibleRange();
 }
 
 std::optional<TLockedToken<CDecalDescription>>
@@ -138,13 +137,13 @@ CProjectileWeapon::GetDecalForCollision(EWeaponCollisionResponseTypes type) cons
   if (!x4_weaponDesc->x94_COLR) {
     return std::nullopt;
   }
-  return x4_weaponDesc->x94_COLR.m_res->GetDecalDescription(type);
+  return x4_weaponDesc->x94_COLR->GetDecalDescription(type);
 }
 
 s32 CProjectileWeapon::GetSoundIdForCollision(EWeaponCollisionResponseTypes type) const {
   if (!x4_weaponDesc->x94_COLR)
     return -1;
-  return x4_weaponDesc->x94_COLR.m_res->GetSoundEffectId(type);
+  return x4_weaponDesc->x94_COLR->GetSoundEffectId(type);
 }
 
 std::optional<TLockedToken<CGenDescription>> CProjectileWeapon::CollisionOccured(EWeaponCollisionResponseTypes type,
@@ -183,7 +182,7 @@ std::optional<TLockedToken<CGenDescription>> CProjectileWeapon::CollisionOccured
     if (!x4_weaponDesc->x94_COLR) {
       return std::nullopt;
     }
-    return x4_weaponDesc->x94_COLR.m_res->GetParticleDescription(type);
+    return x4_weaponDesc->x94_COLR->GetParticleDescription(type);
   }
 }
 
@@ -226,9 +225,10 @@ void CProjectileWeapon::Render() {
       zeus::CTransform::Translate(x44_localXf * x8c_projOffset + x80_localOffset + xa4_localOffset2) *
       zeus::CTransform::Scale(x98_scale) * x44_localXf);
 
-  std::vector<CLight> useLights;
-  useLights.push_back(CLight::BuildLocalAmbient({}, xc8_ambientLightColor));
-  (**x108_model).GetInstance().ActivateLights(useLights);
+  // TODO
+//  std::vector<CLight> useLights;
+//  useLights.push_back(CLight::BuildLocalAmbient({}, xc8_ambientLightColor));
+//  (**x108_model).GetInstance().ActivateLights(useLights);
   constexpr CModelFlags flags(0, 0, 3, zeus::skWhite);
   (*x108_model)->Draw(flags);
 }

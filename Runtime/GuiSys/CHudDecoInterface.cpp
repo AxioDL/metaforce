@@ -322,8 +322,9 @@ void CHudDecoInterfaceScan::Update(float dt, const CStateManager& stateMgr) {
 }
 
 void CHudDecoInterfaceScan::Draw() {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CHudDecoInterfaceScan::Draw", zeus::skGreen);
   x18_scanDisplay.Draw();
-  if (x10_loadedScanHudFlat) {
+  if (x10_loadedScanHudFlat != nullptr) {
     x10_loadedScanHudFlat->Draw(CGuiWidgetDrawParms::Default());
   }
 }

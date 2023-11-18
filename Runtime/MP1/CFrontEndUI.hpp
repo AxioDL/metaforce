@@ -5,18 +5,14 @@
 #include <optional>
 
 #include "Runtime/CGameDebug.hpp"
-#include "Runtime/CGameOptionsTouchBar.hpp"
 #include "Runtime/CIOWin.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/Audio/CStaticAudioPlayer.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
-#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
-#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 #include "Runtime/Input/CRumbleGenerator.hpp"
-#include "Runtime/MP1/CFrontEndUITouchBar.hpp"
 #include "Runtime/MP1/CGBASupport.hpp"
 
 #include <zeus/CVector3f.hpp>
@@ -110,14 +106,12 @@ public:
     bool x10d_needsEraseToggle = false;
     bool x10e_needsNewToggle = false;
 
-    CFrontEndUITouchBar& m_touchBar;
-
-    SNewFileSelectFrame(CSaveGameScreen* sui, u32 rnd, CFrontEndUITouchBar& touchBar);
+    SNewFileSelectFrame(CSaveGameScreen* sui, u32 rnd);
     void FinishedLoading();
     bool PumpLoad();
     bool IsTextDoneAnimating() const;
     void Update(float dt);
-    EAction ProcessUserInput(const CFinalInput& input, CFrontEndUITouchBar::EAction tbAction);
+    EAction ProcessUserInput(const CFinalInput& input);
     void Draw() const;
 
     void HandleActiveChange(CGuiTableGroup* active);
@@ -177,7 +171,7 @@ public:
       bool x40_linkInProgress;
 
       void SetUIText(EUIType tp);
-      EAction ProcessUserInput(const CFinalInput& input, bool linkInProgress, CFrontEndUITouchBar::EAction tbAction);
+      EAction ProcessUserInput(const CFinalInput& input, bool linkInProgress);
       void Update(float dt);
       void FinishedLoading();
       void Draw();
@@ -199,16 +193,14 @@ public:
     bool x39_fusionNotComplete = false;
     bool x3a_mpNotComplete = false;
 
-    CFrontEndUITouchBar& m_touchBar;
-
     bool m_gbaOverride = false;
 
-    explicit SFusionBonusFrame(CFrontEndUITouchBar& touchBar);
+    explicit SFusionBonusFrame();
     void FinishedLoading();
     bool PumpLoad();
     void SetTableColors(CGuiTableGroup* tbgp) const;
     void Update(float dt, CSaveGameScreen* saveUI);
-    EAction ProcessUserInput(const CFinalInput& input, CSaveGameScreen* sui, CFrontEndUITouchBar::EAction tbAction);
+    EAction ProcessUserInput(const CFinalInput& input, CSaveGameScreen* sui);
     void Draw() const;
 
     void ResetCompletionFlags() {
@@ -232,13 +224,11 @@ public:
     SGuiTextPair x1c_gbaPair;
     SGuiTextPair x24_cheatPair;
 
-    CFrontEndUITouchBar& m_touchBar;
-
-    SFrontEndFrame(u32 rnd, CFrontEndUITouchBar& touchBar);
+    SFrontEndFrame(u32 rnd);
     void FinishedLoading();
     bool PumpLoad();
     void Update(float dt);
-    EAction ProcessUserInput(const CFinalInput& input, CFrontEndUITouchBar::EAction tbAction);
+    EAction ProcessUserInput(const CFinalInput& input);
     void Draw() const;
     void HandleActiveChange(CGuiTableGroup* active);
 
@@ -281,10 +271,6 @@ public:
     CRumbleGenerator x40_rumbleGen;
     bool x134_24_visible : 1 = true;
     bool x134_25_exitOptions : 1 = false;
-
-    std::unique_ptr<CGameOptionsTouchBar> m_touchBar;
-    bool m_touchBarInValue = false;
-    bool m_touchBarValueDirty = false;
 
     SOptionsFrontEndFrame();
 
@@ -330,7 +316,7 @@ private:
   float x64_pressStartAlpha = 0.f;
   float x68_musicVol = 1.f;
   u32 x6c_;
-  std::array<std::unique_ptr<CMoviePlayer>, 9> x70_menuMovies;
+  std::array<std::unique_ptr<CMoviePlayer>, 8> x70_menuMovies;
   EMenuMovie xb8_curMovie = EMenuMovie::Stopped;
   int xbc_nextAttract = 0;
   int xc0_attractCount = 0;
@@ -349,11 +335,6 @@ private:
   std::unique_ptr<SOptionsFrontEndFrame> xf0_optionsFrme;
   CStaticAudioPlayer* xf4_curAudio = nullptr;
 
-  CColoredQuadFilter m_fadeToBlack{EFilterType::Blend};
-  std::optional<CTexturedQuadFilterAlpha> m_pressStartQuad;
-
-  std::unique_ptr<CFrontEndUITouchBar> m_touchBar;
-
   void SetFadeBlackWithMovie() {
     x58_fadeBlackTimer = 1000000.f;
     x5c_fadeBlackWithMovie = true;
@@ -371,7 +352,7 @@ private:
 
 public:
   CFrontEndUI();
-  ~CFrontEndUI();
+  ~CFrontEndUI() override;
   void StartSlideShow(CArchitectureQueue& queue);
   std::string GetAttractMovieFileName(int idx);
   std::string GetNextAttractMovieFileName();

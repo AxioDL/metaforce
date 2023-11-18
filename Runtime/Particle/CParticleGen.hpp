@@ -34,7 +34,7 @@ public:
   virtual ~CParticleGen() = default;
 
   virtual bool Update(double) = 0;
-  virtual void Render(const CActorLights* = nullptr) = 0;
+  virtual void Render() = 0;
   virtual void SetOrientation(const zeus::CTransform&) = 0;
   virtual void SetTranslation(const zeus::CVector3f&) = 0;
   virtual void SetGlobalOrientation(const zeus::CTransform&) = 0;

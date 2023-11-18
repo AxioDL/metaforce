@@ -3,12 +3,11 @@
 #include <array>
 #include <cstring>
 
-#include "Runtime/CResFactory.hpp"
+#include "Runtime/AutoMapper/CMappableObject.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/AutoMapper/CMappableObject.hpp"
-#include "Runtime/World/CGameArea.hpp"
 #include "Runtime/World/CWorld.hpp"
+#include "Runtime/CBasics.hpp"
 
 namespace metaforce {
 constexpr std::array<zeus::CVector3f, 3> MinesPostTransforms{{
@@ -63,17 +62,17 @@ constexpr std::array<u8, 42> MinesPostTransformIndices{
 };
 
 CMapArea::CMapArea(CInputStream& in, u32 size)
-: x0_magic(in.readUint32())
-, x4_version(in.readUint32Big())
-, x8_(in.readUint32Big())
-, xc_visibilityMode(EVisMode(in.readUint32Big()))
-, x10_box(zeus::CAABox::ReadBoundingBoxBig(in))
-, x28_mappableObjCount(in.readUint32Big())
-, x2c_vertexCount(in.readUint32Big())
-, x30_surfaceCount(in.readUint32Big())
+: x0_magic(in.ReadLong())
+, x4_version(in.ReadLong())
+, x8_(in.ReadLong())
+, xc_visibilityMode(EVisMode(in.ReadLong()))
+, x10_box(in.Get<zeus::CAABox>())
+, x28_mappableObjCount(in.ReadLong())
+, x2c_vertexCount(in.ReadLong())
+, x30_surfaceCount(in.ReadLong())
 , x34_size(size - 52) {
   x44_buf.reset(new u8[x34_size]);
-  in.readUBytesToBuf(x44_buf.get(), x34_size);
+  in.ReadBytes(x44_buf.get(), x34_size);
   PostConstruct();
 }
 
@@ -98,7 +97,7 @@ void CMapArea::PostConstruct() {
     float z;
     std::memcpy(&z, tmp + 8, sizeof(float));
 
-    m_verts.emplace_back(hecl::SBig(x), hecl::SBig(y), hecl::SBig(z));
+    m_verts.emplace_back(CBasics::SwapBytes(x), CBasics::SwapBytes(y), CBasics::SwapBytes(z));
     tmp += 12;
   }
 
@@ -108,43 +107,43 @@ void CMapArea::PostConstruct() {
     m_surfaces.emplace_back(x40_surfaceStart + j).PostConstruct(x44_buf.get(), index);
   }
 
-  CGraphics::CommitResources([this, &index](boo::IGraphicsDataFactory::Context& ctx) {
-    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, m_verts.data(), 16, m_verts.size());
-    m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, index.data(), 4, index.size());
-
-    /* Only the map universe specifies Always; it draws a maximum of 1016 instances */
-    size_t instCount = (xc_visibilityMode == EVisMode::Always) ? 1024 : 1;
-
-    for (u32 i = 0; i < x30_surfaceCount; ++i) {
-      CMapAreaSurface& surf = m_surfaces[i];
-      surf.m_instances.reserve(instCount);
-      for (u32 inst = 0; inst < instCount; ++inst) {
-        CMapAreaSurface::Instance& instance = surf.m_instances.emplace_back(ctx, m_vbo, m_ibo);
-
-        athena::io::MemoryReader r(surf.x1c_outlineOffset, INT_MAX);
-        u32 outlineCount = r.readUint32Big();
-
-        std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
-        linePrims.reserve(outlineCount * 2);
-        for (u32 j = 0; j < 2; ++j) {
-          r.seek(4, athena::SeekOrigin::Begin);
-          for (u32 k = 0; k < outlineCount; ++k) {
-            const u32 count = r.readUint32Big();
-            r.seek(count);
-            r.seekAlign4();
-            linePrims.emplace_back(ctx, CLineRenderer::EPrimitiveMode::LineStrip, count, nullptr, false, false, true);
-          }
-        }
-      }
-    }
-
-    for (u32 i = 0; i < x28_mappableObjCount; ++i) {
-      CMappableObject& mapObj = m_mappableObjects[i];
-      if (CMappableObject::IsDoorType(mapObj.GetType()))
-        mapObj.CreateDoorSurface(ctx);
-    }
-    return true;
-  } BooTrace);
+//  CGraphics::CommitResources([this, &index](boo::IGraphicsDataFactory::Context& ctx) {
+//    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, m_verts.data(), 16, m_verts.size());
+//    m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, index.data(), 4, index.size());
+//
+//    /* Only the map universe specifies Always; it draws a maximum of 1016 instances */
+//    size_t instCount = (xc_visibilityMode == EVisMode::Always) ? 1024 : 1;
+//
+//    for (u32 i = 0; i < x30_surfaceCount; ++i) {
+//      CMapAreaSurface& surf = m_surfaces[i];
+//      surf.m_instances.reserve(instCount);
+//      for (u32 inst = 0; inst < instCount; ++inst) {
+//        CMapAreaSurface::Instance& instance = surf.m_instances.emplace_back(ctx, m_vbo, m_ibo);
+//
+//        athena::io::MemoryReader r(surf.x1c_outlineOffset, INT_MAX);
+//        u32 outlineCount = r.ReadLong();
+//
+//        std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
+//        linePrims.reserve(outlineCount * 2);
+//        for (u32 j = 0; j < 2; ++j) {
+//          r.seek(4, athena::SeekOrigin::Begin);
+//          for (u32 k = 0; k < outlineCount; ++k) {
+//            const u32 count = r.ReadLong();
+//            r.seek(count);
+//            r.seekAlign4();
+//            linePrims.emplace_back(ctx, CLineRenderer::EPrimitiveMode::LineStrip, count, nullptr, false, false, true);
+//          }
+//        }
+//      }
+//    }
+//
+//    for (u32 i = 0; i < x28_mappableObjCount; ++i) {
+//      CMappableObject& mapObj = m_mappableObjects[i];
+//      if (CMappableObject::IsDoorType(mapObj.GetType()))
+//        mapObj.CreateDoorSurface(ctx);
+//    }
+//    return true;
+//  } BooTrace);
 }
 
 bool CMapArea::GetIsVisibleToAutoMapper(bool worldVis, bool areaVis) const {
@@ -181,11 +180,11 @@ const zeus::CVector3f& CMapArea::GetAreaPostTranslate(const IWorld& world, TArea
 }
 
 CMapArea::CMapAreaSurface::CMapAreaSurface(const void* surfBuf) {
-  athena::io::MemoryReader r(surfBuf, 32);
-  x0_normal = r.readVec3fBig();
-  xc_centroid = r.readVec3fBig();
-  x18_surfOffset = reinterpret_cast<const u8*>(uintptr_t(r.readUint32Big()));
-  x1c_outlineOffset = reinterpret_cast<const u8*>(uintptr_t(r.readUint32Big()));
+  CMemoryInStream r(surfBuf, 32, CMemoryInStream::EOwnerShip::NotOwned);
+  x0_normal = r.Get<zeus::CVector3f>();
+  xc_centroid = r.Get<zeus::CVector3f>();
+  x18_surfOffset = reinterpret_cast<const u8*>(uintptr_t(r.ReadLong()));
+  x1c_outlineOffset = reinterpret_cast<const u8*>(uintptr_t(r.ReadLong()));
 }
 
 void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& index) {
@@ -195,63 +194,66 @@ void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& i
   m_primStart = index.size();
   bool start = true;
   {
-    athena::io::MemoryReader r(x18_surfOffset, INT_MAX);
-    u32 primCount = r.readUint32Big();
+    CMemoryInStream r(x18_surfOffset, INT_MAX, CMemoryInStream::EOwnerShip::NotOwned);
+    u32 primCount = r.ReadLong();
     for (u32 i = 0; i < primCount; ++i) {
-      GX::Primitive prim = GX::Primitive(r.readUint32Big());
-      u32 count = r.readUint32Big();
+      GXPrimitive prim = GXPrimitive(r.ReadLong());
+      u32 count = r.ReadLong();
       switch (prim) {
-      case GX::Primitive::TRIANGLES: {
+      case GX_TRIANGLES: {
         for (u32 v = 0; v < count; v += 3) {
           if (!start) {
             index.push_back(index.back());
-            index.push_back(r.readUByte());
+            index.push_back(r.ReadUint8());
             index.push_back(index.back());
           } else {
-            index.push_back(r.readUByte());
+            index.push_back(r.ReadUint8());
             start = false;
           }
-          index.push_back(r.readUByte());
-          index.push_back(r.readUByte());
+          index.push_back(r.ReadUint8());
+          index.push_back(r.ReadUint8());
           index.push_back(index.back());
         }
         break;
       }
-      case GX::Primitive::TRIANGLESTRIP: {
+      case GX_TRIANGLESTRIP: {
         if (!start) {
           index.push_back(index.back());
-          index.push_back(r.readUByte());
+          index.push_back(r.ReadUint8());
           index.push_back(index.back());
         } else {
-          index.push_back(r.readUByte());
+          index.push_back(r.ReadUint8());
           start = false;
         }
         for (u32 v = 1; v < count; ++v)
-          index.push_back(r.readUByte());
+          index.push_back(r.ReadUint8());
         if (count & 1)
           index.push_back(index.back());
         break;
       }
-      case GX::Primitive::TRIANGLEFAN: {
-        u8 firstVert = r.readUByte();
+      case GX_TRIANGLEFAN: {
+        u8 firstVert = r.ReadUint8();
         if (!start) {
           index.push_back(index.back());
-          index.push_back(r.readUByte());
+          index.push_back(r.ReadUint8());
         } else {
-          index.push_back(r.readUByte());
+          index.push_back(r.ReadUint8());
           index.push_back(index.back());
           start = false;
         }
         for (u32 v = 1; v < count; ++v) {
           index.push_back(firstVert);
-          index.push_back(r.readUByte());
+          index.push_back(r.ReadUint8());
         }
         break;
       }
       default:
         break;
       }
-      r.seekAlign4();
+      u32 pos = r.GetReadPosition();
+      while (r.GetReadPosition() != ROUND_UP_4(pos)) {
+        r.ReadUint8();
+      }
     }
   }
   m_primCount = index.size() - m_primStart;
@@ -271,8 +273,10 @@ void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::C
 
   if (lineColor.a()) {
     bool draw2 = lineWidth > 1.f;
-    athena::io::MemoryReader r(x1c_outlineOffset, INT_MAX);
-    u32 outlineCount = r.readUint32Big();
+    u32 outlineCount = *reinterpret_cast<const u32*>(x1c_outlineOffset);
+#if METAFORCE_TARGET_BYTE_ORDER == __ORDER_LITTLE_ENDIAN__
+    outlineCount = CBasics::SwapBytes(outlineCount);
+#endif
 
     std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
     zeus::CColor color = lineColor;
@@ -282,16 +286,21 @@ void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::C
 
     auto primIt = linePrims.begin();
     for (u32 j = 0; j <= u32(draw2); ++j) {
-      r.seek(4, athena::SeekOrigin::Begin);
+      CMemoryInStream r(x1c_outlineOffset, INT_MAX, CMemoryInStream::EOwnerShip::NotOwned);
+      r.ReadLong();
       for (u32 i = 0; i < outlineCount; ++i) {
         CLineRenderer& prim = *primIt++;
         prim.Reset();
-        u32 count = r.readUint32Big();
+        u32 count = r.ReadLong();
         for (u32 v = 0; v < count; ++v) {
-          u8 idx = r.readUByte();
+          u8 idx = r.ReadUint8();
           prim.AddVertex(verts[idx], color, width);
         }
-        r.seekAlign4();
+
+        u32 pos = r.GetReadPosition();
+        while (r.GetReadPosition() != ROUND_UP_4(pos)) {
+          r.ReadUint8();
+        }
         prim.Render();
       }
       width -= 1.f;

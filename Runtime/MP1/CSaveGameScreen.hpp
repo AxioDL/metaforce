@@ -7,7 +7,6 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/MP1/CMemoryCardDriver.hpp"
-#include "Runtime/MP1/CSaveGameScreenTouchBar.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 namespace metaforce {
@@ -84,8 +83,6 @@ private:
   bool x91_uiTextDirty = false;
   bool x92_savingDisabled = false;
   bool x93_inGame;
-
-  std::unique_ptr<CSaveGameScreenTouchBar> m_touchBar;
 
   void ContinueWithoutSaving();
 

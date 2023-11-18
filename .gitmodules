@@ -1,59 +1,48 @@
-[submodule "nod"]
+[submodule "extern/nod"]
 	path = extern/nod
 	url = ../nod.git
 	branch = master
-[submodule "amuse"]
-	path = extern/amuse
-	url = ../amuse.git
-	branch = master
-[submodule "kabufuda"]
+[submodule "extern/kabufuda"]
 	path = extern/kabufuda
 	url = ../kabufuda.git
 	branch = master
-[submodule "jbus"]
+[submodule "extern/jbus"]
 	path = extern/jbus
 	url = ../jbus.git
 	branch = master
-[submodule "assetnameparser/tinyxml2"]
-	path = extern/tinyxml2
-	url = ../tinyxml2.git
-	branch = master
-[submodule "sanitizers-cmake"]
-	path = extern/sanitizers-cmake
-	url = https://github.com/arsenm/sanitizers-cmake.git
-	branch = master
-[submodule "discord-rpc"]
+[submodule "extern/discord-rpc"]
 	path = extern/discord-rpc
 	url = https://github.com/discordapp/discord-rpc.git
 	branch = master
-[submodule "rapidjson"]
+[submodule "extern/rapidjson"]
 	path = extern/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
 	branch = master
-[submodule "NESEmulator/fixNES"]
+[submodule "extern/fixNES"]
 	path = extern/fixNES
 	url = https://github.com/FIX94/fixNES.git
-	branch = master
-[submodule "extern/libSquish"]
-	path = extern/libSquish
-	url = ../libSquish.git
 	branch = master
 [submodule "extern/athena"]
 	path = extern/athena
 	url = ../../libAthena/athena.git
 	branch = master
-[submodule "extern/boo"]
-	path = extern/boo
-	url = ../boo.git
-	branch = master
 [submodule "extern/libjpeg-turbo"]
 	path = extern/libjpeg-turbo
 	url = ../libjpeg-turbo.git
 	branch = thp
-[submodule "zeus"]
+[submodule "extern/zeus"]
 	path = extern/zeus
 	url = ../zeus.git
 	branch = master
-[submodule "extern/imgui"]
-	path = extern/imgui
-	url = https://github.com/ocornut/imgui.git
+[submodule "extern/nativefiledialog-extended"]
+	path = extern/nativefiledialog-extended
+	url = https://github.com/encounter/nativefiledialog-extended.git
+	branch = nfd-install-option
+[submodule "extern/optick"]
+	path = extern/optick
+	url = https://github.com/AxioDL/optick.git
+	branch = master
+[submodule "extern/aurora"]
+	path = extern/aurora
+	url = https://github.com/encounter/aurora.git
+	branch = main

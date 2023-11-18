@@ -22,6 +22,7 @@ public:
   DEFINE_ENTITY
   CScriptMidi(TUniqueId id, const CEntityInfo& info, std::string_view name, bool active, CAssetId csng, float, float,
               s32);
+  ~CScriptMidi() override;
 
   void Stop(CStateManager& mgr, float fadeTime);
   void Play(CStateManager& mgr, float fadeTime);

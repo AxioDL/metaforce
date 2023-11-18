@@ -1,21 +1,21 @@
 #include "Runtime/World/IGameArea.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 
 namespace metaforce {
 IGameArea::Dock::Dock(metaforce::CInputStream& in, const zeus::CTransform& xf) {
-  u32 refCount = in.readUint32Big();
+  u32 refCount = in.ReadLong();
   x4_dockReferences.reserve(refCount);
   for (u32 i = 0; i < refCount; i++) {
     SDockReference ref;
-    ref.x0_area = in.readUint32Big();
-    ref.x4_dock = in.readUint32Big();
+    ref.x0_area = in.ReadLong();
+    ref.x4_dock = in.ReadLong();
     x4_dockReferences.push_back(ref);
   }
 
-  u32 vertCount = in.readUint32Big();
+  u32 vertCount = in.ReadLong();
 
   for (u32 i = 0; i < vertCount; i++) {
-    zeus::CVector3f vert;
-    vert.readBig(in);
+    zeus::CVector3f vert = in.Get<zeus::CVector3f>();
     x14_planeVertices.push_back(xf * vert);
   }
 }

@@ -40,7 +40,7 @@ protected:
   std::unique_ptr<CSimpleShadow> x94_simpleShadow;
   TLockedToken<CScannableObjectInfo> x98_scanObjectInfo;
   zeus::CAABox x9c_renderBounds;
-  CModelFlags xb4_drawFlags;
+  CModelFlags xb4_drawFlags{0, 0, 3, zeus::skWhite};
   float xbc_time = 0.f;
   float xc0_pitchBend = 0.f;
   TUniqueId xc4_fluidId = kInvalidUniqueId;
@@ -75,7 +75,7 @@ protected:
   bool xe7_30_doTargetDistanceTest : 1 = true;
   bool xe7_31_targetable : 1 = true;
 
-  boo::ObjToken<boo::ITextureCubeR> m_reflectionCube;
+  GXTexObj m_reflectionCube;
   zeus::CColor m_debugAddColor = zeus::skClear;
   float m_debugAddColorTime = 0.f;
 
@@ -100,6 +100,7 @@ public:
   DEFINE_ENTITY
   CActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform&,
          CModelData&& mData, const CMaterialList& list, const CActorParameters& params, TUniqueId otherUid);
+  ~CActor();
 
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void SetActive(bool active) override {

@@ -1,26 +1,30 @@
-## Metaforce
-#### Formerly known as URDE
+## Metaforce [![Build Status]][actions] [![Discord Badge]][discord]
 
-**Status:** Metroid Prime 1 In-Game (all retail GC & Wii versions)
+[Build Status]: https://github.com/AxioDL/metaforce/actions/workflows/build.yml/badge.svg
+[actions]: https://github.com/AxioDL/metaforce/actions
+[Discord Badge]: https://dcbadge.vercel.app/api/server/AMBVFuf?style=flat
+[discord]: https://discord.gg/AMBVFuf
 
-**Official Discord Channel:** https://discord.gg/AMBVFuf
+A reverse-engineered, native reimplementation of Metroid Prime.
+
+This project is currently in **alpha** state.  
+Builds are currently unavailable while the project undergoes large changes.
+
+Separately, a [matching decompilation](https://github.com/PrimeDecomp/prime) of Metroid Prime is currently underway. Contributions are welcome.  
+Progress on the decompilation benefits Metaforce with bug fixes and new implementations.
 
 ![Metaforce screenshot](assets/metaforce-screen1.png)
 
-### Download
-This project is currently in **Alpha** state, so expect bugs.  
-Builds available at [https://releases.axiodl.com](https://releases.axiodl.com).
-
 ### Platform Support
-* Windows 10 (64-bit, D3D11 / Vulkan)
+* Windows 10+ (64-bit, D3D12 / Vulkan / OpenGL)
 * macOS 10.15+ (Metal)
-* Linux (Vulkan)
+* Linux (Vulkan / OpenGL)
     * Follow [this guide](https://github.com/lutris/docs/blob/master/InstallingDrivers.md) to set up Vulkan & appropriate drivers for your distro.
 
-### Usage (GUI)
+### Usage
 
 Windows:
-- Open `metaforce-gui.exe`
+- Open `metaforce.exe`
 
 macOS:
 - Open `Metaforce.app`
@@ -29,26 +33,7 @@ Linux:
 - Ensure AppImage is marked as executable: `chmod +x Metaforce-*.AppImage`
 - Open `Metaforce-*.AppImage`
 
-### CLI usage (GC versions)
-
-* Extract ISO: `hecl extract [path].iso -o mp1`
-  * `mp1` can be substituted with the directory name of your choice
-* Repackage game for Metaforce: `cd mp1; hecl package`
-* Run Metaforce: `metaforce mp1/out`
-
-### CLI usage (Wii versions)
-
-**IMPORTANT**: Trilogy main menu currently doesn't work, and requires the `--warp 1 0` command line arguments to get in-game.  
-
-NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly without converting to ISO.
-
-* Extract ISO or NFS: `hecl extract [path].[iso/nfs] -o mpt`
-  * `mpt` can be substituted with the directory name of your choice
-* Repackage game for Metaforce: `cd mpt; hecl package MP1`
-  * The `MP1` parameter is important here.
-* Run Metaforce: `metaforce mpt/out --warp 1 0`
-
-#### Metaforce options (non-exhaustive)
+#### CLI options (non-exhaustive)
 
 * `-l`: Enable console logging
 * `--warp [worldid] [areaid]`: Warp to a specific world/area. Example: `--warp 2 2`
@@ -75,7 +60,7 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
       build-essential curl git ninja-build clang lld zlib1g-dev libcurl4-openssl-dev \
       libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev libpulse-dev \
       libudev-dev libpng-dev libncurses5-dev cmake libx11-xcb-dev python3 python-is-python3 \
-      qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libclang-dev
+      libclang-dev libfreetype-dev libxinerama-dev libxcursor-dev python3-markupsafe libgtk-3-dev
       ```
        * Optional Ubuntu 22.04+ packages (currently only needed for amuse-gui, can be ignored)
          ```
@@ -83,12 +68,11 @@ NFS files dumped from Metroid Prime Trilogy on Wii U VC can be used directly wit
          ```
      * Arch Linux packages
        ```
-       base-devel cmake ninja llvm vulkan-headers python3 qt6 clang lld alsa-lib libpulse libxrandr
+       base-devel cmake ninja llvm vulkan-headers python python-markupsafe clang lld alsa-lib libpulse libxrandr freetype2
        ```
      * Fedora packages
        ```
-       cmake vulkan-headers ninja-build clang-devel llvm-devel libpng-devel qt6-qtbase-devel 
-       qt6-linguist qt6-qttools-devel qt6-qtscxml-devel qt6-qtsvg-devel qt6-qt5compat-devel
+       cmake vulkan-headers ninja-build clang-devel llvm-devel libpng-devel
        ```
          * It's also important that you install the developer tools and libraries
            ```
@@ -155,21 +139,3 @@ cmake -G Xcode ../metaforce
 ```
 
 Then open `metaforce.xcodeproj`
-
-#### Optional Debug Models
-We provide custom debug models for use to visualize certain aspects of the game such as lighting, in order to use 
-these models you may download them from https://axiodl.com/files/debug_models.zip and extract to `MP1/URDE` in an 
-existing HECL project (assuming paths are relative), then run the following command:
-
-```sh
-hecl package MP1/URDE
-```
-This will cook and package the debug models and will automatically enable rendering of lights in a debug build of Metaforce.
-
-### Blender Known Issues
-On Windows it is known that paths >240 characters will cause blender to fail while attempting to open/create a file, causing hecl to stall.  
-We currently do not have a good fix for this issue, however a workaround is to place hecl near the root of your directory tree
-and executing from there e.g:  
-`D:\HECLProjects\`  
-Another work around is to install a version of python that matches the one blender ships with and renaming the python directory in the blender directory to `python.bak`.  
-This will force blender to use the system's python if it's available and will not have the same path limitation

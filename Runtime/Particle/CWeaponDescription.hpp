@@ -13,13 +13,7 @@
 namespace metaforce {
 class CCollisionResponseData;
 
-struct SCollisionResponseData {
-  TToken<CCollisionResponseData> m_res;
-  bool m_found = false;
-  SCollisionResponseData() = default;
-  SCollisionResponseData(CToken&& tok, bool found) : m_res(std::move(tok)), m_found(found) {}
-  explicit operator bool() const { return m_found; }
-};
+using SCollisionResponseData = STokenDesc<CCollisionResponseData>;
 
 class CWeaponDescription {
 public:

@@ -7,18 +7,18 @@
 namespace metaforce {
 
 CSpawnSystemKeyframeData::CSpawnSystemKeyframeData(CInputStream& in) {
-  x0 = in.readUint32Big();
-  x4 = in.readUint32Big();
-  x8_endFrame = in.readUint32Big();
-  xc = in.readUint32Big();
+  x0 = in.ReadLong();
+  x4 = in.ReadLong();
+  x8_endFrame = in.ReadLong();
+  xc = in.ReadLong();
 
-  u32 count = in.readUint32Big();
+  u32 count = in.ReadLong();
   x10_spawns.reserve(count);
   for (u32 i = 0; i < count; ++i) {
-    u32 v1 = in.readUint32Big();
+    u32 v1 = in.ReadLong();
     x10_spawns.emplace_back(v1, std::vector<CSpawnSystemKeyframeInfo>());
     std::vector<CSpawnSystemKeyframeInfo>& v2 = x10_spawns.back().second;
-    u32 v2c = in.readUint32Big();
+    u32 v2c = in.ReadLong();
     v2.reserve(v2c);
     for (u32 j = 0; j < v2c; ++j)
       v2.emplace_back(in);
@@ -26,10 +26,10 @@ CSpawnSystemKeyframeData::CSpawnSystemKeyframeData(CInputStream& in) {
 }
 
 CSpawnSystemKeyframeData::CSpawnSystemKeyframeInfo::CSpawnSystemKeyframeInfo(CInputStream& in) {
-  x0_id = in.readUint32Big();
-  x4 = in.readUint32Big();
-  x8 = in.readUint32Big();
-  xc = in.readUint32Big();
+  x0_id = in.ReadLong();
+  x4 = in.ReadLong();
+  x8 = in.ReadLong();
+  xc = in.ReadLong();
 }
 
 void CSpawnSystemKeyframeData::LoadAllSpawnedSystemTokens(CSimplePool* pool) {

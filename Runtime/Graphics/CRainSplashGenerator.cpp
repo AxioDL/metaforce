@@ -2,7 +2,7 @@
 
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/World/CWorld.hpp"
 
 namespace metaforce {
@@ -13,11 +13,8 @@ CRainSplashGenerator::CRainSplashGenerator(const zeus::CVector3f& scale, u32 max
   x30_alpha = std::min(1.f, alpha);
   x44_genRate = std::min(maxSplashes, genRate);
   x0_rainSplashes.reserve(maxSplashes);
-  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    for (u32 i = 0; i < maxSplashes; ++i)
-      x0_rainSplashes.emplace_back(ctx);
-    return true;
-  } BooTrace);
+  for (u32 i = 0; i < maxSplashes; ++i)
+    x0_rainSplashes.emplace_back();
 }
 
 void CRainSplashGenerator::SSplashLine::Draw(float alpha, float dt, const zeus::CVector3f& pos) {
@@ -33,7 +30,7 @@ void CRainSplashGenerator::SSplashLine::Draw(float alpha, float dt, const zeus::
       vt += delta;
       m_renderer.AddVertex(vec, zeus::CColor(1.f, vertAlpha), 1);
     }
-    m_renderer.Render(g_Renderer->IsThermalVisorHotPass());
+    // m_renderer.Render(g_Renderer->IsThermalVisorHotPass());
   }
 }
 
@@ -73,12 +70,11 @@ void CRainSplashGenerator::Draw(const zeus::CTransform& xf) {
   DoDraw(xf);
 }
 
-CRainSplashGenerator::SSplashLine::SSplashLine(boo::IGraphicsDataFactory::Context& ctx)
-: m_renderer(ctx, CLineRenderer::EPrimitiveMode::LineStrip, 3, nullptr, false) {}
+CRainSplashGenerator::SSplashLine::SSplashLine() : m_renderer(CLineRenderer::EPrimitiveMode::LineStrip, 3, {}, false) {}
 
-CRainSplashGenerator::SRainSplash::SRainSplash(boo::IGraphicsDataFactory::Context& ctx) {
+CRainSplashGenerator::SRainSplash::SRainSplash() {
   for (size_t i = 0; i < x0_lines.capacity(); ++i) {
-    x0_lines.emplace_back(ctx);
+    x0_lines.emplace_back();
   }
 }
 
@@ -149,16 +145,16 @@ void CRainSplashGenerator::Update(float dt, CStateManager& mgr) {
   }
 }
 
-u32 CRainSplashGenerator::GetNextBestPt(u32 pt, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn,
-                                        CRandom16& rand, float minZ) {
-  const auto& refVert = vn[pt];
+u32 CRainSplashGenerator::GetNextBestPt(u32 pt, const SSkinningWorkspace& workspace, CRandom16& rand, float minZ) {
+  const auto& refVert = workspace.m_vertexWorkspace[pt];
   float maxDist = 0.f;
   u32 nextPt = pt;
   for (int i = 0; i < 3; ++i) {
-    const auto idx = u32(rand.Range(0, int(vn.size() - 1)));
-    const auto& vert = vn[idx];
-    const float distSq = (refVert.first - vert.first).magSquared();
-    if (distSq > maxDist && vert.second.dot(zeus::skUp) >= 0.f && (vert.first.z() <= 0.f || vert.first.z() > minZ)) {
+    const auto idx = u32(rand.Range(0, int(workspace.m_vertexWorkspace.size() - 1)));
+    const auto& vert = workspace.m_vertexWorkspace[idx];
+    const auto& norm = workspace.m_normalWorkspace[idx];
+    const float distSq = (refVert - vert).magSquared();
+    if (distSq > maxDist && norm.dot(zeus::skUp) >= 0.f && (vert.z() <= 0.f || vert.z() > minZ)) {
       nextPt = idx;
       maxDist = distSq;
     }
@@ -180,7 +176,7 @@ void CRainSplashGenerator::AddPoint(const zeus::CVector3f& pos) {
   x38_queueTail += 1;
 }
 
-void CRainSplashGenerator::GeneratePoints(const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
+void CRainSplashGenerator::GeneratePoints(const SSkinningWorkspace& workspace) {
   if (!x48_25_raining)
     return;
 
@@ -188,8 +184,8 @@ void CRainSplashGenerator::GeneratePoints(const std::vector<std::pair<zeus::CVec
     for (u32 i = 0; i < x44_genRate; ++i) {
       if (x40_queueSize >= x0_rainSplashes.size())
         break;
-      x34_curPoint = GetNextBestPt(x34_curPoint, vn, x10_random, x2c_minZ);
-      AddPoint(x14_scale * vn[x34_curPoint].first);
+      x34_curPoint = GetNextBestPt(x34_curPoint, workspace, x10_random, x2c_minZ);
+      AddPoint(x14_scale * workspace.m_vertexWorkspace[x34_curPoint]);
     }
     x20_generateTimer = 0.f;
   }

@@ -154,7 +154,7 @@ void CFluidPlane::RenderStripWithRipples(float curY, const Heights& heights, con
           func(curTileX, curTileY + info.x18_rippleResolution, heights[curYDiv + 1][i + v]);
           curTileX += info.x18_rippleResolution;
         }
-        CGraphics::DrawArray(start, vOut.size() - start);
+//        CGraphics::DrawArray(start, vOut.size() - start);
       }
     } else {
       bool r19 = (flags[yTile + 1][xTile] & 0x2) != 0; // North
@@ -219,7 +219,7 @@ void CFluidPlane::RenderStripWithRipples(float curY, const Heights& heights, con
         default:
           break;
         }
-        CGraphics::DrawArray(start, vOut.size() - start);
+//        CGraphics::DrawArray(start, vOut.size() - start);
       } else {
         TriFanToStrip<CFluidPlaneShader::Vertex> toStrip(vOut);
         std::function<void(float x, float y, const CFluidPlaneRender::SHFieldSample& samp)> func;
@@ -303,7 +303,7 @@ void CFluidPlane::RenderStripWithRipples(float curY, const Heights& heights, con
           }
         }
 
-        toStrip.Draw();
+//        toStrip.Draw();
       }
     }
   }
@@ -328,7 +328,7 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const H
       vOut.emplace_back(zeus::CVector3f(xMin, yMax, 0.f));
       vOut.emplace_back(zeus::CVector3f(xMax, yMin, 0.f));
       vOut.emplace_back(zeus::CVector3f(xMax, yMax, 0.f));
-      CGraphics::DrawArray(start, 4);
+//      CGraphics::DrawArray(start, 4);
       break;
     }
     case CFluidPlaneRender::NormalMode::NoNormals: {
@@ -337,7 +337,7 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const H
       vOut.emplace_back(zeus::CVector3f(xMin, yMax, 0.f), zeus::skBlack);
       vOut.emplace_back(zeus::CVector3f(xMax, yMin, 0.f), zeus::skBlack);
       vOut.emplace_back(zeus::CVector3f(xMax, yMax, 0.f), zeus::skBlack);
-      CGraphics::DrawArray(start, 4);
+//      CGraphics::DrawArray(start, 4);
       break;
     }
     case CFluidPlaneRender::NormalMode::Normals: {
@@ -384,7 +384,7 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const H
 
               toStrip.EmplaceVert(zeus::CVector3f(xMax, yMax + info.x14_tileSize, 0.f), zeus::skUp, zeus::skBlack);
 
-              toStrip.Draw();
+//              toStrip.Draw();
 
               nextXTile = curXTile + 1;
               xMax += info.x14_tileSize;
@@ -399,7 +399,7 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const H
                 vOut.emplace_back(zeus::CVector3f(xMax, yMax + info.x14_tileSize, 0.f), zeus::skUp, zeus::skBlack);
                 xMax += info.x14_tileSize;
               }
-              CGraphics::DrawArray(start, vOut.size() - start);
+//              CGraphics::DrawArray(start, vOut.size() - start);
 
               ++nextXTile;
               if (nextXTile == xTiles) {
@@ -426,7 +426,7 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const H
         vOut.emplace_back(zeus::CVector3f(xMin, yMax, 0.f), zeus::skUp, zeus::skForward, zeus::skRight, zeus::skBlack);
         vOut.emplace_back(zeus::CVector3f(xMax, yMin, 0.f), zeus::skUp, zeus::skForward, zeus::skRight, zeus::skBlack);
         vOut.emplace_back(zeus::CVector3f(xMax, yMax, 0.f), zeus::skUp, zeus::skForward, zeus::skRight, zeus::skBlack);
-        CGraphics::DrawArray(start, 4);
+//        CGraphics::DrawArray(start, 4);
       } else {
         int xTiles = (info.x0_xSubdivs - 3) / CFluidPlaneRender::numSubdivisionsInTile + 1;
         int yTiles = (info.x1_ySubdivs - 3) / CFluidPlaneRender::numSubdivisionsInTile + 1;
@@ -451,7 +451,7 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const H
                                   zeus::skRight, zeus::skBlack);
                 xMax += info.x14_tileSize;
               }
-              CGraphics::DrawArray(start, vOut.size() - start);
+//              CGraphics::DrawArray(start, vOut.size() - start);
             } else {
               nextXTile = curXTile + 1;
               xMax += info.x14_tileSize;

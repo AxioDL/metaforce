@@ -6,9 +6,9 @@
 #include "Runtime/Input/CRumbleManager.hpp"
 #include "Runtime/World/CGameLight.hpp"
 #include "Runtime/World/CWorld.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 
-#include "DataSpec/DNAMP1/SFX/Weapons.h"
+#include "Audio/SFX/Weapons.h"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -25,8 +25,8 @@ CWaveBuster::CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType typ
 , x360_busterSwoosh2(g_SimplePool->GetObj("BusterSwoosh2"))
 , x36c_busterSparks(g_SimplePool->GetObj("BusterSparks"))
 , x378_busterLight(g_SimplePool->GetObj("BusterLight"))
-, m_lineRenderer1(CLineRenderer::EPrimitiveMode::LineStrip, 36 * 6, nullptr, true)
-, m_lineRenderer2(CLineRenderer::EPrimitiveMode::LineStrip, 36 * 6, nullptr, true) {
+, m_lineRenderer1(CLineRenderer::EPrimitiveMode::LineStrip, 36 * 6, {}, true)
+, m_lineRenderer2(CLineRenderer::EPrimitiveMode::LineStrip, 36 * 6, {}, true) {
   x354_busterSwoosh1.GetObj();
   x360_busterSwoosh2.GetObj();
   x36c_busterSparks.GetObj();
@@ -241,9 +241,9 @@ void CWaveBuster::RenderParticles() {
   }
 
   x38c_busterSparksGen->SetParticleEmission(false);
-  x384_busterSwoosh1Gen->Render(GetActorLights());
-  x388_busterSwoosh2Gen->Render(GetActorLights());
-  x38c_busterSparksGen->Render(GetActorLights());
+  x384_busterSwoosh1Gen->Render();
+  x388_busterSwoosh2Gen->Render();
+  x38c_busterSparksGen->Render();
 }
 
 void CWaveBuster::RenderBeam() {
@@ -302,7 +302,7 @@ CRayCastResult CWaveBuster::SeekDamageTarget(TUniqueId& uid, const zeus::CVector
     uid = physId;
     return physRes;
   }
-  
+
   if (actRes.IsValid() && ApplyDamageToTarget(physId, actRes, physRes, res, mgr, dt)) {
     uid = actId;
     return actRes;

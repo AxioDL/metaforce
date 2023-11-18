@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
@@ -45,7 +45,7 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
   if (desc->x40_SSWH) {
     x450_27_haveSSWH = true;
     for (int i = 0; i < x154_SCNT; ++i) {
-      x1e0_swooshGenerators.emplace_back(std::make_unique<CParticleSwoosh>(desc->x40_SSWH.m_token, x150_SSEG));
+      x1e0_swooshGenerators.emplace_back(std::make_unique<CParticleSwoosh>(*desc->x40_SSWH, x150_SSEG));
       x1e0_swooshGenerators.back()->DoElectricWarmup();
     }
   }
@@ -59,7 +59,7 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
     x450_25_haveGPSM = true;
     x400_gpsmGenerators.reserve(x154_SCNT);
     for (int i = 0; i < x154_SCNT; ++i) {
-      x400_gpsmGenerators.emplace_back(std::make_unique<CElementGen>(desc->x50_GPSM.m_token));
+      x400_gpsmGenerators.emplace_back(std::make_unique<CElementGen>(*desc->x50_GPSM));
       x400_gpsmGenerators.back()->SetParticleEmission(false);
     }
   }
@@ -68,7 +68,7 @@ CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
     x450_26_haveEPSM = true;
     x410_epsmGenerators.reserve(x154_SCNT);
     for (int i = 0; i < x154_SCNT; ++i) {
-      x410_epsmGenerators.emplace_back(std::make_unique<CElementGen>(desc->x60_EPSM.m_token));
+      x410_epsmGenerators.emplace_back(std::make_unique<CElementGen>(*desc->x60_EPSM));
       x410_epsmGenerators.back()->SetParticleEmission(false);
     }
   }
@@ -93,22 +93,22 @@ void CParticleElectric::SetupLineGXMaterial() {
 
 void CParticleElectric::DrawLineStrip(const std::vector<zeus::CVector3f>& verts, float width,
                                       const zeus::CColor& color) {
-  const size_t useIdx = m_nextLineRenderer;
-  if (++m_nextLineRenderer > m_lineRenderers.size()) {
-    m_lineRenderers.resize(m_nextLineRenderer);
-  }
-  if (!m_lineRenderers[useIdx]) {
-    m_lineRenderers[useIdx] =
-        std::make_unique<CLineRenderer>(CLineRenderer::EPrimitiveMode::LineStrip, x150_SSEG, nullptr, true, true);
-  }
-  CLineRenderer& renderer = *m_lineRenderers[useIdx];
-  const zeus::CColor useColor = x1b8_moduColor * color;
-
-  renderer.Reset();
-  for (const zeus::CVector3f& vert : verts) {
-    renderer.AddVertex(vert, useColor, width);
-  }
-  renderer.Render(g_Renderer->IsThermalVisorHotPass());
+//  const size_t useIdx = m_nextLineRenderer;
+//  if (++m_nextLineRenderer > m_lineRenderers.size()) {
+//    m_lineRenderers.resize(m_nextLineRenderer);
+//  }
+//  if (!m_lineRenderers[useIdx]) {
+//    m_lineRenderers[useIdx] = std::make_unique<CLineRenderer>(CLineRenderer::EPrimitiveMode::LineStrip, x150_SSEG,
+//                                                              aurora::gfx::TextureHandle{}, true, true);
+//  }
+//  CLineRenderer& renderer = *m_lineRenderers[useIdx];
+//  const zeus::CColor useColor = x1b8_moduColor * color;
+//
+//  renderer.Reset();
+//  for (const zeus::CVector3f& vert : verts) {
+//    renderer.AddVertex(vert, useColor, width);
+//  }
+//  renderer.Render(); // g_Renderer->IsThermalVisorHotPass()
 }
 
 void CParticleElectric::RenderLines() {
@@ -607,7 +607,7 @@ bool CParticleElectric::Update(double dt) {
   return ret;
 }
 
-void CParticleElectric::Render(const CActorLights* lights) {
+void CParticleElectric::Render() {
   SCOPED_GRAPHICS_DEBUG_GROUP(
       fmt::format(FMT_STRING("CParticleElectric::Render {}"), *x1c_elecDesc.GetObjectTag()).c_str(), zeus::skYellow);
 
@@ -625,13 +625,13 @@ void CParticleElectric::Render(const CActorLights* lights) {
 
   if (x450_25_haveGPSM) {
     for (int i = 0; i < x154_SCNT; ++i) {
-      x400_gpsmGenerators[i]->Render(lights);
+      x400_gpsmGenerators[i]->Render();
     }
   }
 
   if (x450_26_haveEPSM) {
     for (int i = 0; i < x154_SCNT; ++i) {
-      x410_epsmGenerators[i]->Render(lights);
+      x410_epsmGenerators[i]->Render();
     }
   }
 }

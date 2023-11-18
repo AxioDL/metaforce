@@ -17,14 +17,8 @@ CScriptSteam::CScriptSteam(TUniqueId uid, std::string_view name, const CEntityIn
 , x158_(f1)
 , x15c_alphaInDur(f2 / f1)
 , x160_alphaOutDur(f3 / f1) {
-  float r3 = (aabb.max.z() < aabb.max.y() ? aabb.max.z() : aabb.max.y());
-  r3 = (r3 < aabb.max.x() ? r3 : aabb.max.x());
-
-  if (zeus::close_enough(f4, 0.f)) {
-    r3 = (r3 < f2 ? r3 : f4);
-  }
-
-  x164_ = r3;
+  float r3 = std::min(aabb.max.x(), std::min(aabb.max.y(), aabb.max.z()));
+  x164_ = zeus::close_enough(f4, 0.f) ? r3 : std::min(f4, r3);
   x168_ = 1.f / x164_;
 }
 
@@ -32,7 +26,7 @@ void CScriptSteam::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptSteam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   if (msg == EScriptObjectMessage::Deactivate) {
-    mgr.Player()->SetVisorSteam(0.f, x158_, x160_alphaOutDur, CAssetId(), x150_);
+    mgr.Player()->SetVisorSteam(0.f, x158_, x160_alphaOutDur, CAssetId(), !x150_);
   }
 
   CScriptTrigger::AcceptScriptMsg(msg, uid, mgr);
@@ -50,12 +44,12 @@ void CScriptSteam::Think(float dt, CStateManager& mgr) {
     const zeus::CVector3f posDiff = (GetTranslation() - eyePos);
     const float mag = posDiff.magnitude();
     const float distance = (mag >= x164_ ? 0.f : std::cos((1.5707964f * mag) * x168_) * x158_);
-    mgr.Player()->SetVisorSteam(distance, x15c_alphaInDur, x160_alphaOutDur, x154_texture, x150_);
+    mgr.Player()->SetVisorSteam(distance, x15c_alphaInDur, x160_alphaOutDur, x154_texture, !x150_);
     if (x150_) {
       mgr.GetEnvFxManager()->SetSplashRate(2.f * distance);
     }
   } else {
-    mgr.Player()->SetVisorSteam(0.f, x15c_alphaInDur, x160_alphaOutDur, CAssetId(), x150_);
+    mgr.Player()->SetVisorSteam(0.f, x15c_alphaInDur, x160_alphaOutDur, CAssetId(), !x150_);
   }
 }
 

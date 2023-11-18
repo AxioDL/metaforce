@@ -209,7 +209,7 @@ pas::EAnimationState CBSDie::UpdateBody(float dt, CBodyController& bc, CStateMan
 void CBSFall::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCKnockDownCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown));
   zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetHitDirection());
-  zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.z());
+  zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.x());
   angle.makeRel();
   const CPASAnimParmData parms(pas::EAnimationState::Fall, CPASAnimParm::FromReal32(angle.asDegrees()),
                                CPASAnimParm::FromEnum(s32(cmd->GetHitSeverity())));
@@ -586,6 +586,7 @@ void CBSLoopAttack::Start(CBodyController& bc, CStateManager& mgr) {
   xc_25_advance = false;
 
   if (bc.GetLocomotionType() == pas::ELocomotionType::Crouch) {
+    x4_state = pas::ELoopState::Loop;
     const CPASAnimParmData parms(pas::EAnimationState::LoopAttack, CPASAnimParm::FromEnum(s32(x4_state)),
                                  CPASAnimParm::FromEnum(s32(x8_loopAttackType)));
     bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
@@ -715,7 +716,8 @@ void CBSLoopReaction::Start(CBodyController& bc, CStateManager& mgr) {
     x4_state = pas::ELoopState::Loop;
     const CPASAnimParmData loopParms(pas::EAnimationState::LoopReaction, CPASAnimParm::FromEnum(s32(x8_reactionType)),
                                      CPASAnimParm::FromEnum(s32(x4_state)));
-    bc.LoopBestAnimation(loopParms, *mgr.GetActiveRandom());
+    // Intentionally using parms instead of loopParms
+    bc.LoopBestAnimation(parms, *mgr.GetActiveRandom());
   }
 }
 
@@ -1408,10 +1410,11 @@ pas::EAnimationState CBSScripted::GetBodyStateTransition(float dt, const CBodyCo
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Scripted)) {
     return pas::EAnimationState::Scripted;
   }
-  if (x4_24_loopAnim && bc.GetCommandMgr().GetCmd(EBodyStateCmd::ExitState)) {
-    return pas::EAnimationState::Locomotion;
-  }
-  if (bc.IsAnimationOver()) {
+  if (x4_24_loopAnim) {
+    if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::ExitState)) {
+      return pas::EAnimationState::Locomotion;
+    }
+  } else if (bc.IsAnimationOver()) {
     return pas::EAnimationState::Locomotion;
   }
   return pas::EAnimationState::Invalid;
@@ -1536,7 +1539,7 @@ pas::EAnimationState CBSWallHang::GetBodyStateTransition(float dt, const CBodyCo
 }
 
 void CBSWallHang::FixInPlace(CBodyController& bc) {
-  if (const TCastToPtr<CAi> ai = bc.GetOwner()) {
+  if (const TCastToPtr<CPatterned> ai = bc.GetOwner()) {
     ai->SetConstantForce(zeus::skZero3f);
     ai->SetVelocityWR(zeus::skZero3f);
   }

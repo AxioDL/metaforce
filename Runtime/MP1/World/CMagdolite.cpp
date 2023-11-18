@@ -53,7 +53,7 @@ CMagdolite::CMagdolite(TUniqueId uid, std::string_view name, const CEntityInfo& 
 , x690_headlessModel(
       CToken(TObjOwnerDerivedFromIObj<CSkinnedModel>::GetNewDerivedObject(std::make_unique<CSkinnedModel>(
           g_SimplePool->GetObj({SBIG('CMDL'), modelId}), g_SimplePool->GetObj({SBIG('CSKR'), skinId}),
-          x64_modelData->GetAnimationData()->GetModelData()->GetLayoutInfo(), 1, 1))))
+          x64_modelData->GetAnimationData()->GetModelData()->GetLayoutInfo()))))
 , x6a8_flameInfo(magData)
 , x6cc_flameThrowerDesc(g_SimplePool->GetObj("FlameThrower"sv))
 , x6d4_flameThrowerDamage(dInfo1)

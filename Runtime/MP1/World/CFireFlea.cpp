@@ -23,7 +23,7 @@ CFireFlea::CDeathCameraEffect::CDeathCameraEffect(TUniqueId uid, TAreaId areaId,
 void CFireFlea::CDeathCameraEffect::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CFireFlea::CDeathCameraEffect::PreThink(float dt, CStateManager& mgr) {
-  CCameraFilterPassPoly& filterPass = mgr.GetCameraFilterPass(5);
+  auto& filterPass = mgr.GetCameraFilterPass(5);
   u32 r5 = x34_ + x38_;
   u32 r8 = r5 + x3c_;
   u32 r31 = r8 + x40_;

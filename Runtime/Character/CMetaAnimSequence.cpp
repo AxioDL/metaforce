@@ -7,7 +7,7 @@ namespace metaforce {
 
 std::vector<std::shared_ptr<IMetaAnim>> CMetaAnimSequence::CreateSequence(CInputStream& in) {
   std::vector<std::shared_ptr<IMetaAnim>> ret;
-  u32 seqCount = in.readUint32Big();
+  u32 seqCount = in.ReadLong();
   ret.reserve(seqCount);
 
   for (u32 i = 0; i < seqCount; ++i)

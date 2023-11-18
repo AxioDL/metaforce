@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+//#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
@@ -28,13 +28,13 @@ public:
   };
 
 private:
-  static boo::ObjToken<boo::IShaderPipeline> m_snowPipeline;
-  static boo::ObjToken<boo::IShaderPipeline> m_underwaterPipeline;
+//  static boo::ObjToken<boo::IShaderPipeline> m_snowPipeline;
+//  static boo::ObjToken<boo::IShaderPipeline> m_underwaterPipeline;
 
 public:
   static void Initialize();
   static void Shutdown();
-  static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CEnvFxManager& fxMgr,
+  static void BuildShaderDataBinding(CEnvFxManager& fxMgr,
                                      CEnvFxManagerGrid& grid);
 };
 

@@ -5,7 +5,7 @@
 namespace metaforce {
 
 CHalfTransition::CHalfTransition(CInputStream& in) {
-  x0_id = in.readUint32Big();
+  x0_id = in.ReadLong();
   x4_trans = CMetaTransFactory::CreateMetaTrans(in);
 }
 

@@ -6,7 +6,7 @@
 #include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/Collision/CMaterialList.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CScriptColorModulate.hpp"

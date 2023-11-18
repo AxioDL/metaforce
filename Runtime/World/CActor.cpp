@@ -9,14 +9,14 @@
 #include "Runtime/Character/CActorLights.hpp"
 #include "Runtime/Character/IAnimReader.hpp"
 #include "Runtime/Collision/CMaterialList.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CWorld.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-#include <hecl/CVarManager.hpp>
+#include "ConsoleVariables/CVarManager.hpp"
 
 namespace metaforce {
 static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, const CActorParameters& params) {
@@ -60,6 +60,8 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
     x98_scanObjectInfo = g_SimplePool->GetObj(SObjectTag{FOURCC('SCAN'), params.x40_scanParms.GetScanId()});
 }
 
+CActor::~CActor() { RemoveEmitter(); }
+
 void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   switch (msg) {
   case EScriptObjectMessage::Activate: {
@@ -91,11 +93,11 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     }
     break;
   }
-  case EScriptObjectMessage::UpdateSplashInhabitant: // 37
+  case EScriptObjectMessage::AddSplashInhabitant: // 37
     SetInFluid(true, uid);
     break;
   case EScriptObjectMessage::RemoveSplashInhabitant: // 39
-    SetInFluid(false, kInvalidUniqueId);
+    SetInFluid(false, uid);
     break;
   case EScriptObjectMessage::InitializedInArea: // 35
   {
@@ -121,8 +123,6 @@ void CActor::PreRender(CStateManager& mgr, const zeus::CFrustum& planes) {
 
   xe4_30_outOfFrustum = !planes.aabbFrustumTest(x9c_renderBounds);
   if (!xe4_30_outOfFrustum) {
-    xe7_28_worldLightingDirty = true;
-
     bool lightsDirty = false;
     if (xe4_29_actorLightsDirty) {
       xe4_29_actorLightsDirty = false;
@@ -193,7 +193,7 @@ void CActor::AddToRenderer(const zeus::CFrustum& planes, CStateManager& mgr) {
       mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::Thermal && xe5_24_shadowEnabled &&
       x94_simpleShadow->Valid() && planes.aabbFrustumTest(x94_simpleShadow->GetBounds())) {
     g_Renderer->AddDrawable(x94_simpleShadow.get(), x94_simpleShadow->GetTransform().origin,
-                            x94_simpleShadow->GetBounds(), 1, CBooRenderer::EDrawableSorting::SortedCallback);
+                            x94_simpleShadow->GetBounds(), 1, CCubeRenderer::EDrawableSorting::SortedCallback);
   }
 }
 
@@ -246,7 +246,7 @@ void CActor::RenderInternal(const CStateManager& mgr) const {
           1.f);
       CModelFlags flags(2, xb4_drawFlags.x1_matSetIdx, xb4_drawFlags.x2_flags, color);
       if (m_debugSelected || m_debugHovered) {
-        flags.addColor += m_debugAddColor;
+        // TODO flags.addColor += m_debugAddColor;
       }
       x64_modelData->Render(mgr, x34_transform, x90_actorLights.get(), flags);
       return;
@@ -254,7 +254,7 @@ void CActor::RenderInternal(const CStateManager& mgr) const {
   }
   CModelFlags flags = xb4_drawFlags;
   if (m_debugSelected || m_debugHovered) {
-    flags.addColor += m_debugAddColor;
+    // TODO flags.addColor += m_debugAddColor;
   }
   x64_modelData->Render(which, x34_transform, x90_actorLights.get(), flags);
 }
@@ -456,12 +456,12 @@ void CActor::_CreateShadow() {
 }
 
 void CActor::_CreateReflectionCube() {
-  if (hecl::com_cubemaps->toBoolean()) {
-    CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-      m_reflectionCube = ctx.newCubeRenderTexture(CUBEMAP_RES, CUBEMAP_MIPS);
-      return true;
-    } BooTrace);
-  }
+//  if (hecl::com_cubemaps->toBoolean()) {
+//    CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
+//      m_reflectionCube = ctx.newCubeRenderTexture(CUBEMAP_RES, CUBEMAP_MIPS);
+//      return true;
+//    } BooTrace);
+//  }
 }
 
 void CActor::SetCallTouch(bool callTouch) { xe5_28_callTouch = callTouch; }
@@ -525,8 +525,8 @@ float CActor::GetPitch() const { return zeus::CQuaternion(x34_transform.buildMat
 float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).yaw(); }
 
 void CActor::EnsureRendered(const CStateManager& mgr) {
-  const zeus::CAABox aabb = GetSortingBounds(mgr);
-  EnsureRendered(mgr, aabb.closestPointAlongVector(CGraphics::g_ViewMatrix.basis[1]), aabb);
+  const auto bounds = GetSortingBounds(mgr);
+  EnsureRendered(mgr, bounds.closestPointAlongVector(CGraphics::g_ViewMatrix.frontVector()), bounds);
 }
 
 void CActor::EnsureRendered(const CStateManager& stateMgr, const zeus::CVector3f& pos, const zeus::CAABox& aabb) {

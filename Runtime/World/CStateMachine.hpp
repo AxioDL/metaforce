@@ -4,7 +4,7 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/GCNTypes.hpp"
-#include "Runtime/IOStreams.hpp"
+#include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/IObj.hpp"
 #include "Runtime/IObjFactory.hpp"
 #include "Runtime/World/CAiFuncMap.hpp"
@@ -25,11 +25,14 @@ public:
   CAiTrigger* GetAnd() const { return x10_andTrig; }
   CAiState* GetState() const { return x14_state; }
   bool CallFunc(CStateManager& mgr, CAi& ai) const {
+    bool ret = true;
     if (x0_func) {
-      bool ret = (ai.*x0_func)(mgr, xc_arg);
-      return x18_lNot == !ret;
+      ret = (ai.*x0_func)(mgr, xc_arg);
+      if (x18_lNot) {
+        ret = !ret;
+      }
     }
-    return true;
+    return ret;
   }
 
   void Setup(CAiTriggerFunc func, bool lnot, float arg, CAiTrigger* andTrig) {

@@ -2,7 +2,7 @@
 
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/Shaders/CDecalShaders.hpp"
 #include "Runtime/Particle/CDecal.hpp"
 #include "Runtime/Particle/CDecalDescription.hpp"
@@ -12,7 +12,7 @@ bool CDecalManager::m_PoolInitialized = false;
 s32 CDecalManager::m_FreeIndex = 63;
 float CDecalManager::m_DeltaTimeSinceLastDecalCreation = 0.f;
 s32 CDecalManager::m_LastDecalCreatedIndex = -1;
-CAssetId CDecalManager::m_LastDecalCreatedAssetId = -1;
+CAssetId CDecalManager::m_LastDecalCreatedAssetId = {};
 rstl::reserved_vector<CDecalManager::SDecal, 64> CDecalManager::m_DecalPool;
 rstl::reserved_vector<s32, 64> CDecalManager::m_ActiveIndexList;
 
@@ -29,7 +29,7 @@ void CDecalManager::Initialize() {
   m_PoolInitialized = true;
   m_DeltaTimeSinceLastDecalCreation = 0.f;
   m_LastDecalCreatedIndex = -1;
-  m_LastDecalCreatedAssetId = -1;
+  m_LastDecalCreatedAssetId = {};
 
   /* Compile shaders */
   CDecalShaders::Initialize();

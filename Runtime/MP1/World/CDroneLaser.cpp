@@ -3,7 +3,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CGameLight.hpp"
@@ -49,9 +49,9 @@ void CDroneLaser::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mg
 }
 
 void CDroneLaser::Render(CStateManager& mgr) {
-  // g_Renderer->SetDepthReadWrite(true, true);
+  g_Renderer->SetDepthReadWrite(true, true);
   RenderBeam(4, 0.01f, zeus::CColor(1.f, .9f, .9f, 1.f), true);
-  // g_Renderer->SetDepthReadWrite(true, false);
+  g_Renderer->SetDepthReadWrite(true, false);
   RenderBeam(5, 0.06f, zeus::CColor(.4f, .0f, .0f, .5f), true);
   RenderBeam(7, 0.06f, zeus::CColor(.4f, .2f, .2f, .1f), true);
 }

@@ -31,23 +31,23 @@ public:
 
     void read(CInputStream& in) {
       /* unk0 */
-      unk0 = in.readUint32Big();
+      unk0 = in.ReadLong();
       /* duration */
-      duration = in.readFloatBig();
+      duration = in.ReadFloat();
       /* interval */
-      interval = in.readFloatBig();
+      interval = in.ReadFloat();
       /* rootBoneId */
-      rootBoneId = in.readUint32Big();
+      rootBoneId = in.ReadLong();
       /* looping */
-      looping = in.readUint32Big();
+      looping = in.ReadLong();
       /* rotDiv */
-      rotDiv = in.readUint32Big();
+      rotDiv = in.ReadLong();
       /* translationMult */
-      translationMult = in.readFloatBig();
+      translationMult = in.ReadFloat();
       /* boneChannelCount */
-      boneChannelCount = in.readUint32Big();
+      boneChannelCount = in.ReadLong();
       /* unk3 */
-      unk3 = in.readUint32Big();
+      unk3 = in.ReadLong();
     }
   };
 

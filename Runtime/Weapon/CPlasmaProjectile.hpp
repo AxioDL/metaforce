@@ -24,7 +24,7 @@ public:
     : rstl::reserved_vector<CAssetId, 8>({a, b, c, d, e, f, g, h}) {}
   };
   static PlayerEffectResources LoadPlayerEffectResources(CInputStream& in) {
-    u32 propCount = in.readUint32();
+    u32 propCount = in.ReadLong();
     CAssetId a{in};
     CAssetId b{in};
     CAssetId c{in};
@@ -81,20 +81,19 @@ private:
   bool x548_28_drawOwnerFirst : 1;
   bool x548_29_activePlayerPhazon : 1 = false;
 
-  struct RenderObjects {
-    CColoredStripShader m_beamStrip1;
-    CColoredStripShader m_beamStrip2;
-    CColoredStripShader m_beamStrip3;
-    CColoredStripShader m_beamStrip4;
-    CColoredStripShader m_beamStrip1Sub;
-    CColoredStripShader m_beamStrip2Sub;
-    CColoredStripShader m_beamStrip3Sub;
-    CColoredStripShader m_beamStrip4Sub;
-    CColoredStripShader m_motionBlurStrip;
-    RenderObjects(boo::IGraphicsDataFactory::Context& ctx, boo::ObjToken<boo::ITexture> tex,
-                  boo::ObjToken<boo::ITexture> glowTex);
-  };
-  std::optional<RenderObjects> m_renderObjs;
+//  struct RenderObjects {
+//    CColoredStripShader m_beamStrip1;
+//    CColoredStripShader m_beamStrip2;
+//    CColoredStripShader m_beamStrip3;
+//    CColoredStripShader m_beamStrip4;
+//    CColoredStripShader m_beamStrip1Sub;
+//    CColoredStripShader m_beamStrip2Sub;
+//    CColoredStripShader m_beamStrip3Sub;
+//    CColoredStripShader m_beamStrip4Sub;
+//    CColoredStripShader m_motionBlurStrip;
+//    RenderObjects(CTexture& tex, CTexture& glowTex);
+//  };
+//  std::optional<RenderObjects> m_renderObjs;
 
   void SetLightsActive(bool active, CStateManager& mgr);
   void CreatePlasmaLights(u32 sourceId, const CLight& l, CStateManager& mgr);
