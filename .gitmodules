@@ -36,8 +36,7 @@
 	branch = master
 [submodule "extern/nativefiledialog-extended"]
 	path = extern/nativefiledialog-extended
-	url = https://github.com/encounter/nativefiledialog-extended.git
-	branch = nfd-install-option
+	url = https://github.com/btzy/nativefiledialog-extended
 [submodule "extern/optick"]
 	path = extern/optick
 	url = https://github.com/AxioDL/optick.git
