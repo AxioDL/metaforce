@@ -590,16 +590,16 @@ void CRidley::Think(float dt, CStateManager& mgr) {
     return;
   }
 
-  sub802560d0(dt);
+  UpdateFlight(dt);
   CPatterned::Think(dt, mgr);
-  sub802563a8(dt);
+  ConstrainToHenge(dt);
   x984_bodyCollision->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
   x980_tailCollision->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
   xb20_ = std::max(0.f, xb20_ - dt);
   xb24_ = std::max(0.f, xb24_ - dt);
   xcc8_ = std::max(0.f, xcc8_ - dt);
-  sub80256b14(dt, mgr);
-  sub80256624(dt, mgr);
+  UpdateBeam(dt, mgr);
+  UpdateWingElectricity(dt, mgr);
   xb2c_.Update(dt);
 }
 
@@ -838,7 +838,7 @@ void CRidley::sub8025784c(CStateManager& mgr) {
   xa31_27_ = false;
 }
 
-void CRidley::sub80255d58(metaforce::CStateManager& mgr) {
+void CRidley::ChooseStage2Attack(metaforce::CStateManager& mgr) {
   xb04_ = skSomeRidleyStruct[xcb0_][xcb4_].x4_ < mgr.GetActiveRandom()->Range(0.f, 100.f)
               ? skSomeRidleyStruct[xcb0_][xcb4_].x8_
               : skSomeRidleyStruct[xcb0_][xcb4_].x0_;
@@ -913,7 +913,7 @@ void CRidley::sub80256914(float f31, bool r4) {
   }
 }
 
-void CRidley::sub802560d0(float dt) {
+void CRidley::UpdateFlight(float dt) {
   if (!IsAlive()) {
     xaec_.zeroOut();
   } else if (xaec_.isMagnitudeSafe()) {
@@ -928,7 +928,7 @@ void CRidley::sub802560d0(float dt) {
   xaf8_.zeroOut();
 }
 
-void CRidley::sub802563a8(float dt) {
+void CRidley::ConstrainToHenge(float dt) {
   if (xc64_aiStage == 3 && !x328_25_verticalMovement) {
     SetTranslation({GetTranslation().x(), GetTranslation().y(), xa84_.origin.z()});
     zeus::CVector3f posDiff = GetTranslation() - xa84_.origin;
@@ -942,7 +942,7 @@ void CRidley::sub802563a8(float dt) {
   }
 }
 
-void CRidley::sub80256b14(float dt, CStateManager& mgr) {
+void CRidley::UpdateBeam(float dt, CStateManager& mgr) {
   if (auto* proj = static_cast<CPlasmaProjectile*>(mgr.ObjectById(xb64_plasmaProjectile))) {
     if (!proj->GetActive()) {
       return;
@@ -975,7 +975,7 @@ void CRidley::sub80256b14(float dt, CStateManager& mgr) {
   }
 }
 
-void CRidley::sub80256624(float dt, CStateManager& mgr) {
+void CRidley::UpdateWingElectricity(float dt, CStateManager& mgr) {
   if (xce0_) {
     xce0_->SetGlobalOrientation(GetTransform().getRotation());
     xce0_->SetGlobalTranslation(GetTranslation());
@@ -1018,7 +1018,7 @@ void CRidley::sub80256624(float dt, CStateManager& mgr) {
 void CRidley::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg != EStateMsg::Activate)
     return;
-  sub80255d58(mgr);
+  ChooseStage2Attack(mgr);
   xa32_27_ = false;
   xa33_26_ = true;
 }
@@ -1277,7 +1277,7 @@ void CRidley::Crouch(metaforce::CStateManager& mgr, metaforce::EStateMsg msg, fl
   if (msg == EStateMsg::Activate) {
     SetMomentumWR(GetGravityConstant() * zeus::skDown);
     if (xc64_aiStage == 3) {
-      sub80253710(mgr);
+      ChooseStage3Attack(mgr);
     }
   } else if (msg == EStateMsg::Update) {
     if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Turn)
@@ -1679,7 +1679,7 @@ void CRidley::FacePlayer(float arg, CStateManager& mgr) {
   x450_bodyController->FaceDirection((mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized(), arg);
 }
 
-void CRidley::sub80253710(metaforce::CStateManager& mgr) {
+void CRidley::ChooseStage3Attack(metaforce::CStateManager& mgr) {
   xb08_ = xb0c_;
   float fVar1 = 100.f * mgr.GetActiveRandom()->Float();
   float fVar6 = 0.f + skFloats[xb08_].x0_;

@@ -175,15 +175,15 @@ class CRidley : public CPatterned {
 
   void sub80257650(CStateManager& mgr);
   void sub80256914(float f1, bool r4);
-  void sub802560d0(float dt);
-  void sub802563a8(float dt);
-  void sub80256b14(float dt, CStateManager& mgr);
-  void sub80256624(float dt, CStateManager& mgr);
+  void UpdateFlight(float dt);
+  void ConstrainToHenge(float dt);
+  void UpdateBeam(float dt, CStateManager& mgr);
+  void UpdateWingElectricity(float dt, CStateManager& mgr);
   void ResetPlasmaProjectile(CStateManager& mgr, bool b1);
   void sub80255fe8(float f1, float f2, const zeus::CVector3f& vec);
   void sub80255e5c(CStateManager& mgr);
   void sub8025784c(CStateManager& mgr);
-  void sub80255d58(CStateManager& mgr);
+  void ChooseStage2Attack(metaforce::CStateManager& mgr);
   void sub80257744(CStateManager& mgr);
   void FirePlasma(CStateManager& mgr);
   void FacePlayer(float arg, CStateManager& mgr);
@@ -193,7 +193,7 @@ class CRidley : public CPatterned {
       x3b4_speed = 1.2f;
   }
 
-  void sub80253710(CStateManager& mgr);
+  void ChooseStage3Attack(metaforce::CStateManager& mgr);
   bool sub80253960() {
     const float mag = ((GetTranslation() + ((0.5f * xae4_) * GetTransform().frontVector())) - xa84_.origin).magnitude();
     return mag < 0.5f * (xab4_ + xabc_);
