@@ -722,7 +722,7 @@ void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
       ImGui::PopStyleColor();
       ImGui::Dummy(padding);
     }
-    ImGuiTextCenter("2015-2022");
+    ImGuiTextCenter("2015-2025");
     ImGui::BeginGroup();
     ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 200));
     ImGuiStringViewText("Development & Research");
