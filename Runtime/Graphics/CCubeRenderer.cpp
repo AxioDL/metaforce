@@ -315,13 +315,7 @@ void CCubeRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* 
 }
 
 void CCubeRenderer::EnablePVS(const CPVSVisSet& set, u32 areaIdx) {
-  if (!xdc_) {
-    xc8_pvs.emplace(set);
-    xdc_ = true;
-  } else {
-    xc8_pvs.emplace(set);
-  }
-
+  xc8_pvs.emplace(set);
   xe0_pvsAreaIdx = areaIdx;
 }
 

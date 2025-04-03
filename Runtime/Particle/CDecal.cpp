@@ -256,6 +256,9 @@ void CDecal::RenderMdl() {
       desc.x38_DMDL->Draw(flags);
     }
   }
+
+  CGraphics::SetCullMode(ERglCullMode::Front);
+  CTevCombiners::ResetStates();
 }
 
 void CDecal::Render() {

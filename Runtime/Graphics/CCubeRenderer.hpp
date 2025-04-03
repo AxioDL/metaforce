@@ -61,8 +61,8 @@ private:
   void* xac_drawableCallbackUserData = nullptr;
   zeus::CPlane xb0_viewPlane{0.f, 1.f, 0.f, 0.f};
   enum class EPVSMode : u8 { Mask, PVS, PVSAndMask } xc0_pvsMode = EPVSMode::Mask;
+  int xc4_; // ?
   std::optional<CPVSVisSet> xc8_pvs;
-  bool xdc_{};
   u32 xe0_pvsAreaIdx = UINT32_MAX;
   CTexture xe4_blackTex{ETexelFormat::RGB565, 4, 4, 1, "Black Texture"};
   std::unique_ptr<CTexture> x14c_reflectionTex;

@@ -154,7 +154,7 @@ private:
   u32 x2d0_curAcceleration = 1;
   float x2d4_accelerationChangeTimer = 0.f;
   zeus::CAABox x2d8_fpBounds;
-  float x2f0_ballTransHeight = 0.f;
+  float x2f0_ballTransHeight = 1.f;
   EPlayerCameraState x2f4_cameraState = EPlayerCameraState::FirstPerson;
   EPlayerMorphBallState x2f8_morphBallState = EPlayerMorphBallState::Unmorphed;
   EPlayerMorphBallState x2fc_spawnedMorphBallState = EPlayerMorphBallState::Unmorphed;
@@ -223,7 +223,7 @@ private:
   zeus::CVector3f x500_lookDir = x34_transform.basis[1];
   zeus::CVector3f x50c_moveDir = x34_transform.basis[1];
   zeus::CVector3f x518_leaveMorphDir = x34_transform.basis[1];
-  zeus::CVector3f x524_lastPosForDirCalc = x34_transform.basis[1];
+  zeus::CVector3f x524_lastPosForDirCalc = x34_transform.origin;
   zeus::CVector3f x530_gunDir = x34_transform.basis[1];
   float x53c_timeMoving = 0.f;
   zeus::CVector3f x540_controlDir = x34_transform.basis[1];

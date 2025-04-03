@@ -976,7 +976,9 @@ void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
       case EFluidState::EnteredFluid: {
         bool doSplash = true;
         if (x4fc_flatMoveSpeed > 12.5f) {
-          const zeus::CVector3f lookDir = x34_transform.basis[1].normalized();
+          zeus::CVector3f lookDir = x34_transform.basis[1];
+          lookDir.z() = 0.f;
+          lookDir.normalize();
           zeus::CVector3f dcVel = GetDampedClampedVelocityWR();
           dcVel.z() = 0.f;
           if (lookDir.dot(dcVel.normalized()) > 0.75f) {
@@ -1806,23 +1808,23 @@ void CPlayer::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
 
   if (GetFrozenState()) {
     UpdateFrozenState(input, mgr);
-  }
 
-  if (GetFrozenState()) {
-    if (x258_movementState == EPlayerMovementState::OnGround ||
-        x258_movementState == EPlayerMovementState::FallingMorphed) {
+    if (GetFrozenState()) {
+      if (x258_movementState == EPlayerMovementState::OnGround ||
+          x258_movementState == EPlayerMovementState::FallingMorphed) {
+        return;
+      }
+
+      const CFinalInput dummyInput;
+      if (x2f8_morphBallState == EPlayerMorphBallState::Morphed) {
+        x768_morphball->ComputeBallMovement(dummyInput, mgr, input.DeltaTime());
+        x768_morphball->UpdateBallDynamics(mgr, input.DeltaTime());
+      } else {
+        ComputeMovement(dummyInput, mgr, input.DeltaTime());
+      }
+
       return;
     }
-
-    const CFinalInput dummyInput;
-    if (x2f8_morphBallState == EPlayerMorphBallState::Morphed) {
-      x768_morphball->ComputeBallMovement(dummyInput, mgr, input.DeltaTime());
-      x768_morphball->UpdateBallDynamics(mgr, input.DeltaTime());
-    } else {
-      ComputeMovement(dummyInput, mgr, input.DeltaTime());
-    }
-
-    return;
   }
 
   if (x760_controlsFrozen) {
@@ -2125,7 +2127,7 @@ void CPlayer::Freeze(CStateManager& stateMgr, CAssetId steamTxtr, u16 sfx, CAsse
   }
 
   if (showMsg) {
-    const char16_t* msg = g_MainStringTable->GetString(int(x2f8_morphBallState >= EPlayerMorphBallState::Morphed) + 19);
+    const char16_t* msg = g_MainStringTable->GetString(x2f8_morphBallState != EPlayerMorphBallState::Morphed ? 19 : 20);
     const CHUDMemoParms parms(5.f, true, false, false);
     MP1::CSamusHud::DisplayHudMemo(msg, parms);
   }
@@ -2610,7 +2612,7 @@ void CPlayer::Think(float dt, CStateManager& mgr) {
     x2b0_outOfWaterTicks += 1;
   }
 
-  x9c5_24_ = x9c4_24_visorChangeRequested;
+  x9c5_24_ = x9c4_31_inWaterMovement;
   x9c4_31_inWaterMovement = x9c5_25_splashUpdated;
   x9c5_25_splashUpdated = false;
   UpdateBombJumpStuff();
@@ -3060,15 +3062,16 @@ void CPlayer::UpdateGunState(const CFinalInput& input, CStateManager& mgr) {
     bool needsDraw = false;
     if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input) ||
         ControlMapper::GetDigitalInput(ControlMapper::ECommands::MissileOrPowerBomb, input) ||
-        x3b8_grappleState == EGrappleState::None ||
-        (g_tweakPlayer->GetGunButtonTogglesHolster() &&
-         ControlMapper::GetPressInput(ControlMapper::ECommands::ToggleHolster, input))) {
+        x3b8_grappleState == EGrappleState::None) {
+      needsDraw = true;
+    } else if (g_tweakPlayer->GetGunButtonTogglesHolster() &&
+               ControlMapper::GetPressInput(ControlMapper::ECommands::ToggleHolster, input)) {
       needsDraw = true;
     }
 
-    if (x3b8_grappleState == EGrappleState::None &&
-        (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan ||
-         mgr.GetPlayerState()->GetTransitioningVisor() == CPlayerState::EPlayerVisor::Scan)) {
+    if (x3b8_grappleState != EGrappleState::None ||
+        mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan ||
+        mgr.GetPlayerState()->GetTransitioningVisor() == CPlayerState::EPlayerVisor::Scan) {
       needsDraw = false;
     }
 
@@ -3205,7 +3208,7 @@ void CPlayer::UpdateGunTransform(const zeus::CVector3f& gunPos, CStateManager& m
     viewGunPos = camXf.rotate(gunPos - zeus::CVector3f(0.f, 0.f, eyeHeight)) + GetEyePosition();
   }
 
-  const zeus::CUnitVector3f rightDir(gunXf.basis[0]);
+  const zeus::CUnitVector3f rightDir(camXf.basis[0]);
   gunXf.origin = viewGunPos;
 
   switch (x498_gunHolsterState) {
@@ -5500,11 +5503,11 @@ zeus::CVector3f CPlayer::CalculateLeftStickEdgePosition(float strafeInput, float
   }
 
   if (forwardInput < 0.f) {
-    f29 = -0.555f;
+    f29 = -f29;
   }
 
   const float f4 = zeus::clamp(-1.f, std::atan(std::fabs(forwardInput) / std::fabs(strafeInput)) / (M_PIF / 4.f), 1.f);
-  return zeus::CVector3f(f30 - f31, f29, 0.f) * f4 + zeus::CVector3f(f31, 0.f, 0.f);
+  return zeus::CVector3f(f31, 0.f, 0.f) + f4 * (zeus::CVector3f(f30, f29, 0.f) - zeus::CVector3f(f31, 0.f, 0.f));
 }
 
 bool CPlayer::SidewaysDashAllowed(float strafeInput, float forwardInput, const CFinalInput& input,
@@ -6204,11 +6207,10 @@ void CPlayer::DecrementEnvironmentDamage() {
 }
 
 void CPlayer::IncrementEnvironmentDamage() {
-  if (xa10_envDmgCounter != 0) {
-    xa10_envDmgCounter++;
-  } else {
+  if (xa10_envDmgCounter == 0) {
     xa14_envDmgCameraShakeTimer = 0.f;
   }
+  xa10_envDmgCounter++;
 }
 
 bool CPlayer::CheckSubmerged() const {
