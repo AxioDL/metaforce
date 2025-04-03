@@ -32,7 +32,7 @@
 #include <aurora/event.h>
 #include <aurora/main.h>
 #include <dolphin/vi.h>
-#include <SDL_messagebox.h>
+#include <SDL3/SDL_messagebox.h>
 
 using namespace std::literals;
 
@@ -222,15 +222,15 @@ public:
 
   void onSdlEvent(const SDL_Event& event) noexcept {
     switch (event.type) {
-    case SDL_KEYDOWN:
-      m_lAltHeld = event.key.keysym.sym == SDLK_LALT;
+    case SDL_EVENT_KEY_DOWN:
+      m_lAltHeld = event.key.key == SDLK_LALT;
       // Toggle fullscreen on ALT+ENTER
-      if (event.key.keysym.sym == SDLK_RETURN && (event.key.keysym.mod & KMOD_ALT) != 0u && event.key.repeat == 0u) {
+      if (event.key.key == SDLK_RETURN && (event.key.mod & SDL_KMOD_ALT) != 0u && event.key.repeat == 0u) {
         m_cvarCommons.m_fullscreen->fromBoolean(!m_cvarCommons.m_fullscreen->toBoolean());
       }
       break;
-    case SDL_KEYUP:
-      if (m_lAltHeld && event.key.keysym.sym == SDLK_LALT) {
+    case SDL_EVENT_KEY_UP:
+      if (m_lAltHeld && event.key.key == SDLK_LALT) {
         m_imGuiConsole.ToggleVisible();
         m_lAltHeld = false;
       }
@@ -583,6 +583,9 @@ int main(int argc, char** argv) {
         case AURORA_UNPAUSED:
           g_paused = false;
           break;
+        case AURORA_DISPLAY_SCALE_CHANGED:
+          g_app->onAppDisplayScaleChanged(event->windowSize.scale);
+          break;
         default:
           break;
         }
@@ -597,8 +600,8 @@ int main(int argc, char** argv) {
       if (g_paused) {
         continue;
       }
-      g_app->onAppIdle(1.f / 60.f /* TODO */);
       aurora_begin_frame();
+      g_app->onAppIdle(1.f / 60.f /* TODO */);
       g_app->onAppDraw();
       aurora_end_frame();
       g_app->onAppPostDraw();

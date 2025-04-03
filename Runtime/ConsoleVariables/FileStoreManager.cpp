@@ -2,7 +2,7 @@
 
 #include "Runtime/CBasics.hpp"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <logvisor/logvisor.hpp>
 #if _WIN32
 #include <nowide/convert.hpp>

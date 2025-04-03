@@ -2,7 +2,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/IMain.hpp"
 #include <Runtime/CBasics.hpp>
-#include <SDL_filesystem.h>
+#include <SDL3/SDL_filesystem.h>
 
 namespace metaforce {
 
