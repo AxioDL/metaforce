@@ -37,3 +37,6 @@
 	path = extern/spdlog
 	url = https://github.com/gabime/spdlog.git
 	branch = v1.x
+[submodule "extern/musyx"]
+	path = extern/musyx
+	url = https://github.com/AxioDL/musyx.git
