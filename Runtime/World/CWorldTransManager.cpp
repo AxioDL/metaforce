@@ -199,6 +199,8 @@ void CWorldTransManager::DrawAllModels(CActorLights* lights) {
 
   if (!x4_modelData->x1c_samusModelData.IsNull()) {
     CModelFlags flags = {};
+    flags.x2_flags |= CModelFlagBits::DepthTest;
+    flags.x2_flags |= CModelFlagBits::DepthUpdate;
     // TODO flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
 
     x4_modelData->x1c_samusModelData.GetAnimationData()->PreRender();
