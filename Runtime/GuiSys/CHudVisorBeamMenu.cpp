@@ -9,6 +9,7 @@
 #include "Runtime/GuiSys/CGuiModel.hpp"
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce {
 
@@ -64,7 +65,7 @@ CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
   x18_basewidget_menu = x0_baseHud.FindWidget(BaseMenuNames[size_t(swappedType)]);
 
   x24_model_ghost =
-      static_cast<CGuiModel*>(x0_baseHud.FindWidget(fmt::format(FMT_STRING("{}ghost"), ModelNames[size_t(x4_type)])));
+      static_cast<CGuiModel*>(x0_baseHud.FindWidget(fmt::format("{}ghost", ModelNames[size_t(x4_type)])));
 
   x28_menuItems.resize(4);
   for (size_t i = 0; i < x28_menuItems.size(); i++) {
@@ -73,9 +74,9 @@ CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
 
     SMenuItem& item = x28_menuItems[i];
     item.x0_model_loz =
-        static_cast<CGuiModel*>(x0_baseHud.FindWidget(fmt::format(FMT_STRING("{}loz{}"), modelName, menuItemOrder)));
+        static_cast<CGuiModel*>(x0_baseHud.FindWidget(fmt::format("{}loz{}", modelName, menuItemOrder)));
     item.x4_model_icon =
-        static_cast<CGuiModel*>(x0_baseHud.FindWidget(fmt::format(FMT_STRING("{}icon{}"), modelName, menuItemOrder)));
+        static_cast<CGuiModel*>(x0_baseHud.FindWidget(fmt::format("{}icon{}", modelName, menuItemOrder)));
     item.xc_opacity = enables[i] ? 1.f : 0.f;
   }
 

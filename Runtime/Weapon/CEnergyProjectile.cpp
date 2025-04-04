@@ -212,7 +212,7 @@ void CEnergyProjectile::Think(float dt, CStateManager& mgr) {
 }
 
 void CEnergyProjectile::Render(CStateManager& mgr) {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CEnergyProjectile::Render WPSC_{}"), x2cc_wpscId).c_str(),
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format("CEnergyProjectile::Render WPSC_{}", x2cc_wpscId).c_str(),
                               zeus::skOrange);
 
   const auto visor = mgr.GetPlayerState()->GetActiveVisor(mgr);

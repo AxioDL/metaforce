@@ -1,9 +1,9 @@
 #include "Runtime/ConsoleVariables/FileStoreManager.hpp"
 
 #include "Runtime/CBasics.hpp"
+#include "Runtime/Logging.hpp"
 
 #include <SDL3/SDL.h>
-#include <logvisor/logvisor.hpp>
 #if _WIN32
 #include <nowide/convert.hpp>
 #endif
@@ -18,14 +18,12 @@ using namespace Windows::Storage;
 
 namespace metaforce {
 namespace {
-static logvisor::Module Log("FileStoreManager");
 FileStoreManager* g_instance = nullptr;
 }
 
 FileStoreManager::FileStoreManager(std::string_view org, std::string_view domain) : m_org(org), m_domain(domain) {
   if (g_instance != nullptr) {
-    Log.report(logvisor::Fatal, FMT_STRING("Attempting to build another FileStoreManager!!"));
-    return;
+    spdlog::fatal("Attempting to build another FileStoreManager!!");
   }
 
   auto prefPath = SDL_GetPrefPath(org.data(), domain.data());
@@ -34,7 +32,7 @@ FileStoreManager::FileStoreManager(std::string_view org, std::string_view domain
 #if !WINDOWS_STORE
     WCHAR home[MAX_PATH];
     if (!SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, home)))
-      Log.report(logvisor::Fatal, FMT_STRING("unable to locate profile for file store"));
+      spdlog::fatal("unable to locate profile for file store");
 
     std::string path = nowide::narrow(home);
 #else
@@ -54,18 +52,18 @@ FileStoreManager::FileStoreManager(std::string_view org, std::string_view domain
     std::string path;
     if (xdg_data_home) {
       if (xdg_data_home[0] != '/')
-        Log.report(logvisor::Fatal, FMT_STRING("invalid $XDG_DATA_HOME for file store (must be absolute)"));
+        spdlog::fatal("invalid $XDG_DATA_HOME for file store (must be absolute)");
       path = xdg_data_home;
     } else {
       const char* home = getenv("HOME");
       if (!home)
-        Log.report(logvisor::Fatal, FMT_STRING("unable to locate $HOME for file store"));
+        spdlog::fatal("unable to locate $HOME for file store");
       path = home;
       path += "/.local/share";
     }
     path += "/" + m_org + "/" + domain.data();
     if (CBasics::RecursiveMakeDir(path.c_str()) != 0) {
-      Log.report(logvisor::Fatal, FMT_STRING("unable to mkdir at {}"), path);
+      spdlog::fatal("unable to mkdir at {}", path);
     }
     m_storeRoot = path;
 #endif
@@ -78,9 +76,8 @@ FileStoreManager::FileStoreManager(std::string_view org, std::string_view domain
 
 FileStoreManager* FileStoreManager::instance() {
   if (g_instance == nullptr) {
-    Log.report(logvisor::Fatal, FMT_STRING("Requested FileStoreManager instance before it's built!"));
-    return nullptr;
+    spdlog::fatal("Requested FileStoreManager instance before it's built!");
   }
   return g_instance;
 }
-} // namespace hecl::Runtime
+} // namespace metaforce

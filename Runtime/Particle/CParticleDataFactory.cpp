@@ -7,12 +7,10 @@
 #include "Runtime/Particle/CElectricDescription.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce {
-static logvisor::Module Log("metaforce::CParticleDataFactory");
-
 float CParticleDataFactory::GetReal(CInputStream& in) { return in.ReadFloat(); }
 
 s32 CParticleDataFactory::GetInt(CInputStream& in) { return in.ReadInt32(); }
@@ -20,7 +18,7 @@ s32 CParticleDataFactory::GetInt(CInputStream& in) { return in.ReadInt32(); }
 bool CParticleDataFactory::GetBool(CInputStream& in) {
   FourCC cid = GetClassID(in);
   if (cid != FOURCC('CNST'))
-    Log.report(logvisor::Fatal, FMT_STRING("bool element does not begin with CNST"));
+    spdlog::fatal("bool element does not begin with CNST");
   return in.ReadBool();
 }
 
@@ -1003,7 +1001,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
       fillDesc->xec_xd8_SELC = GetElectricGeneratorDesc(in, resPool);
       break;
     default: {
-      Log.report(logvisor::Fatal, FMT_STRING("Unknown GPSM class {} @{}"), clsId, in.GetReadPosition());
+      spdlog::fatal("Unknown GPSM class {} @{}", clsId, in.GetReadPosition());
       return false;
     }
     }

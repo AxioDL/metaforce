@@ -7,17 +7,18 @@
 #include "Runtime/Streams/CMemoryInStream.hpp"
 #include "Runtime/Streams/CMemoryStreamOut.hpp"
 #include "Runtime/CStringExtras.hpp"
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Formatting.hpp"
+
 #include <algorithm>
 #include <memory>
 #include <regex>
 
 #if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
-#define S_ISREG(m) (((m)&S_IFMT) == S_IFREG)
+#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
 #endif
 
 #if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
-#define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
 
 namespace metaforce {
@@ -30,7 +31,6 @@ CVar* com_cubemaps = nullptr;
 static const std::regex cmdLineRegex(R"(\+([\w\.]+)([=])?([\/\\\s\w\.\-]+)?)");
 CVarManager* CVarManager::m_instance = nullptr;
 
-static logvisor::Module CVarLog("CVarManager");
 CVarManager::CVarManager(FileStoreManager& store, bool useBinary) : m_store(store), m_useBinary(useBinary) {
   m_instance = this;
   com_configfile =
@@ -175,7 +175,7 @@ void CVarManager::serialize() {
   CMemoryStreamOut memOut(workBuf.get(), requiredLen, CMemoryStreamOut::EOwnerShip::NotOwned, 32);
   CTextOutStream textOut(memOut);
   for (const auto& cvar : container) {
-    auto str = fmt::format(FMT_STRING("{}: {}"), cvar.m_name, cvar.m_value);
+    auto str = fmt::format("{}: {}", cvar.m_name, cvar.m_value);
     textOut.WriteString(str);
   }
 
@@ -208,7 +208,7 @@ std::vector<StoreCVar::CVar> CVarManager::loadCVars(const std::string& filename)
 #else
                        "rbe"
 #endif
-                       );
+    );
     if (file != nullptr) {
 
       std::unique_ptr<u8[]> inBuf(new u8[st.st_size]);

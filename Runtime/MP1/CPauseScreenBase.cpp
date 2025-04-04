@@ -1,7 +1,6 @@
 #include "Runtime/MP1/CPauseScreenBase.hpp"
 
 #include <array>
-#include <fmt/xchar.h>
 
 #include "Runtime/CGameState.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -15,6 +14,7 @@
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
 #include "Runtime/IMain.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce::MP1 {
 
@@ -66,7 +66,7 @@ void CPauseScreenBase::InitializeFrameGlue() {
   x17c_model_textalpha = static_cast<CGuiModel*>(x8_frame.FindWidget("model_textalpha"));
   x184_textpane_yicon = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_yicon"));
   x188_textpane_ytext = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_ytext"));
-  x184_textpane_yicon->TextSupport().SetText(fmt::format(FMT_STRING(u"&image={};"), g_tweakPlayerRes->xbc_yButton[0]));
+  x184_textpane_yicon->TextSupport().SetText(fmt::format(u"&image={};", g_tweakPlayerRes->xbc_yButton[0]));
   x188_textpane_ytext->TextSupport().SetText(
       xc_pauseStrg.GetString((g_Main->IsUSA() && !g_Main->IsTrilogy()) ? 99 : 102));
   x188_textpane_ytext->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
@@ -93,20 +93,18 @@ void CPauseScreenBase::InitializeFrameGlue() {
 
   for (int i = 0; i < 5; ++i) {
     xd8_textpane_titles.push_back(
-        static_cast<CGuiTextPane*>(x8_frame.FindWidget(fmt::format(FMT_STRING("textpane_title{}"), i + 1))));
+        static_cast<CGuiTextPane*>(x8_frame.FindWidget(fmt::format("textpane_title{}", i + 1))));
     xd8_textpane_titles.back()->TextSupport().SetText(u"");
-    x144_model_titles.push_back(
-        static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_title{}"), i + 1))));
+    x144_model_titles.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format("model_title{}", i + 1))));
     m_model_lefttitledecos.push_back(
-        static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_lefttitledeco{}"), i))));
+        static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format("model_lefttitledeco{}", i))));
     m_model_lefttitledecos.back()->SetMouseActive(true);
     x15c_model_righttitledecos.push_back(
-        static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_righttitledeco{}"), i + 1))));
+        static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format("model_righttitledeco{}", i + 1))));
     x15c_model_righttitledecos.back()->SetMouseActive(true);
     xa8_textpane_categories.push_back(
-        static_cast<CGuiTextPane*>(x8_frame.FindWidget(fmt::format(FMT_STRING("textpane_category{}"), i))));
-    xc0_model_categories.push_back(
-        static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(FMT_STRING("model_category{}"), i))));
+        static_cast<CGuiTextPane*>(x8_frame.FindWidget(fmt::format("textpane_category{}", i))));
+    xc0_model_categories.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format("model_category{}", i))));
   }
 
   for (int i = 0; i < 20; ++i)
@@ -535,7 +533,7 @@ std::string CPauseScreenBase::GetImagePaneName(size_t i) {
       "4", "5", "6", "7", "45", "56", "67", "456", "567", "4567",
   };
 
-  return fmt::format(FMT_STRING("imagepane_pane{}"), PaneSuffixes[i]);
+  return fmt::format("imagepane_pane{}", PaneSuffixes[i]);
 }
 
 } // namespace metaforce::MP1

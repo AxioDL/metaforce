@@ -36,7 +36,7 @@ void CRumbleGenerator::Update(float dt) {
         if (xe0_commandArray[i] != EMotorState::Stop) {
 #if PWM_MONITOR
           s_tp = now;
-          fmt::print(FMT_STRING("{}ms ON\n"), ms);
+          spdlog::debug("{}ms ON\n", ms);
 #endif
           xe0_commandArray[i] = EMotorState::Stop;
           updated = true;
@@ -48,7 +48,7 @@ void CRumbleGenerator::Update(float dt) {
           if (xe0_commandArray[i] != EMotorState::Rumble) {
 #if PWM_MONITOR
             s_tp = now;
-            fmt::print(FMT_STRING("{}ms Off\n"), ms);
+            spdlog::debug("{}ms Off\n", ms);
 #endif
             xe0_commandArray[i] = EMotorState::Rumble;
             updated = true;
@@ -60,7 +60,7 @@ void CRumbleGenerator::Update(float dt) {
             if (xe0_commandArray[i] != EMotorState::Stop) {
 #if PWM_MONITOR
               s_tp = now;
-              fmt::print(FMT_STRING("{}ms ON\n"), ms);
+              spdlog::debug("{}ms ON\n", ms);
 #endif
               xe0_commandArray[i] = EMotorState::Stop;
               updated = true;

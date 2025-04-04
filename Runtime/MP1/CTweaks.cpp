@@ -18,12 +18,9 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/AutoMapper/CMappableObject.hpp"
 #include "Runtime/World/CPlayerCameraBob.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
 
 namespace metaforce::MP1 {
-
-static logvisor::Module Log("MP1::CTweaks");
 
 void CTweaks::RegisterTweaks(CVarManager* cvarMgr) {
   std::optional<CMemoryInStream> strm;

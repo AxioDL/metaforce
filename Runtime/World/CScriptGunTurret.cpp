@@ -406,7 +406,7 @@ void CScriptGunTurret::SetTurretState(ETurretState state, CStateManager& mgr) {
 
   if (state != ETurretState::Invalid && x520_state != state) {
 #ifndef NDEBUG
-    fmt::print(FMT_STRING("{} {} {} - {}\n"), GetUniqueId(), GetEditorId(), GetName(), StateNames[size_t(state)]);
+    spdlog::debug("{} {} {} - {}\n", GetUniqueId(), GetEditorId(), GetName(), StateNames[size_t(state)]);
 #endif
   }
 

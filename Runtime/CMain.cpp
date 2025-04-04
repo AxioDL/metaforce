@@ -9,9 +9,8 @@
 #include "Runtime/ConsoleVariables/FileStoreManager.hpp"
 #include "Runtime/ConsoleVariables/CVarManager.hpp"
 #include "Runtime/CInfiniteLoopDetector.hpp"
-//#include "amuse/BooBackend.hpp"
-
-#include "logvisor/logvisor.hpp"
+#include "Runtime/Logging.hpp"
+// #include "amuse/BooBackend.hpp"
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -113,8 +112,6 @@ private:
 extern std::string ExeDir;
 
 namespace metaforce {
-static logvisor::Module Log{"Metaforce"};
-
 std::optional<MP1::CMain> g_mainMP1;
 
 static std::string CPUFeatureString(const zeus::CPUInfo& cpuInf) {
@@ -160,8 +157,8 @@ private:
 
   std::string m_deferredProject;
   bool m_projectInitialized = false;
-  //std::optional<amuse::BooBackendVoiceAllocator> m_amuseAllocWrapper;
-  //std::unique_ptr<boo::IAudioVoiceEngine> m_voiceEngine;
+  // std::optional<amuse::BooBackendVoiceAllocator> m_amuseAllocWrapper;
+  // std::unique_ptr<boo::IAudioVoiceEngine> m_voiceEngine;
 
   Limiter m_limiter{};
 
@@ -187,12 +184,11 @@ public:
   void onAppLaunched(const AuroraInfo& info) noexcept {
     initialize();
 
-    VISetWindowTitle(
-        fmt::format(FMT_STRING("Metaforce {} [{}]"), METAFORCE_WC_DESCRIBE, backend_name(info.backend)).c_str());
+    VISetWindowTitle(fmt::format("Metaforce {} [{}]", METAFORCE_WC_DESCRIBE, backend_name(info.backend)).c_str());
 
-//    m_voiceEngine = boo::NewAudioVoiceEngine("metaforce", "Metaforce");
-//    m_voiceEngine->setVolume(0.7f);
-//    m_amuseAllocWrapper.emplace(*m_voiceEngine);
+    //    m_voiceEngine = boo::NewAudioVoiceEngine("metaforce", "Metaforce");
+    //    m_voiceEngine->setVolume(0.7f);
+    //    m_amuseAllocWrapper.emplace(*m_voiceEngine);
 
 #if TARGET_OS_IOS || TARGET_OS_TV
     m_deferredProject = std::string{m_fileMgr.getStoreRoot()} + "game.iso";
@@ -208,16 +204,16 @@ public:
     }
 #endif
 
-    //m_voiceEngine->startPump();
+    // m_voiceEngine->startPump();
   }
 
   void initialize() {
     zeus::detectCPU();
 
     const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
-    Log.report(logvisor::Info, FMT_STRING("CPU Name: {}"), cpuInf.cpuBrand);
-    Log.report(logvisor::Info, FMT_STRING("CPU Vendor: {}"), cpuInf.cpuVendor);
-    Log.report(logvisor::Info, FMT_STRING("CPU Features: {}"), CPUFeatureString(cpuInf));
+    spdlog::info("CPU Name: {}", cpuInf.cpuBrand);
+    spdlog::info("CPU Vendor: {}", cpuInf.cpuVendor);
+    spdlog::info("CPU Features: {}", CPUFeatureString(cpuInf));
   }
 
   void onSdlEvent(const SDL_Event& event) noexcept {
@@ -244,13 +240,13 @@ public:
 #endif
 
     if (!m_projectInitialized && !m_deferredProject.empty()) {
-      Log.report(logvisor::Info, FMT_STRING("Loading game from '{}'"), m_deferredProject);
+      spdlog::info("Loading game from '{}'", m_deferredProject);
       if (CDvdFile::Initialize(m_deferredProject)) {
         m_projectInitialized = true;
         m_cvarCommons.m_lastDiscPath->fromLiteral(m_deferredProject);
       } else {
-        Log.report(logvisor::Error, FMT_STRING("Failed to open disc image '{}'"), m_deferredProject);
-        m_imGuiConsole.m_errorString = fmt::format(FMT_STRING("Failed to open disc image '{}'"), m_deferredProject);
+        spdlog::error("Failed to open disc image '{}'", m_deferredProject);
+        m_imGuiConsole.m_errorString = fmt::format("Failed to open disc image '{}'", m_deferredProject);
       }
       m_deferredProject.clear();
     }
@@ -292,10 +288,9 @@ public:
 
     if (!g_mainMP1 && m_projectInitialized) {
       g_mainMP1.emplace(nullptr, nullptr);
-      auto result =
-          g_mainMP1->Init(m_argc, m_argv, m_fileMgr, &m_cvarManager);
+      auto result = g_mainMP1->Init(m_argc, m_argv, m_fileMgr, &m_cvarManager);
       if (!result.empty()) {
-        Log.report(logvisor::Error, FMT_STRING("{}"), result);
+        spdlog::error("{}", result);
         m_imGuiConsole.m_errorString = result;
         g_mainMP1.reset();
         CDvdFile::Shutdown();
@@ -311,15 +306,15 @@ public:
 
     m_imGuiConsole.PreUpdate();
     if (g_mainMP1) {
-//      if (m_voiceEngine) {
-//        m_voiceEngine->lockPump();
-//      }
+      //      if (m_voiceEngine) {
+      //        m_voiceEngine->lockPump();
+      //      }
       if (g_mainMP1->Proc(dt)) {
         return false;
       }
-//      if (m_voiceEngine) {
-//        m_voiceEngine->unlockPump();
-//      }
+      //      if (m_voiceEngine) {
+      //        m_voiceEngine->unlockPump();
+      //      }
     }
     m_imGuiConsole.PostUpdate();
     if (!g_mainMP1 && m_imGuiConsole.m_gameDiscSelected) {
@@ -358,7 +353,6 @@ public:
     CDvdFile::DoWork();
 #endif
     CGraphics::TickRenderTimings();
-    ++logvisor::FrameIndex;
   }
 
   void onAppWindowResized(const AuroraWindowSize& size) noexcept {
@@ -370,7 +364,8 @@ public:
   }
 
   void onAppWindowMoved(const AuroraWindowPos& pos) {
-    if (pos.x > 0 && pos.y > 0 && (pos.x != m_cvarCommons.getWindowPos().x || pos.y != m_cvarCommons.getWindowPos().y)) {
+    if (pos.x > 0 && pos.y > 0 &&
+        (pos.x != m_cvarCommons.getWindowPos().x || pos.y != m_cvarCommons.getWindowPos().y)) {
       m_cvarCommons.m_windowPos->fromVec2i(zeus::CVector2i(pos.x, pos.y));
     }
   }
@@ -383,17 +378,17 @@ public:
 
   void onAppExiting() noexcept {
     m_imGuiConsole.Shutdown();
-//    if (m_voiceEngine) {
-//      m_voiceEngine->unlockPump();
-//      m_voiceEngine->stopPump();
-//    }
+    //    if (m_voiceEngine) {
+    //      m_voiceEngine->unlockPump();
+    //      m_voiceEngine->stopPump();
+    //    }
     if (g_mainMP1) {
       g_mainMP1->Shutdown();
     }
     g_mainMP1.reset();
     m_cvarManager.serialize();
-//    m_amuseAllocWrapper.reset();
-//    m_voiceEngine.reset();
+    //    m_amuseAllocWrapper.reset();
+    //    m_voiceEngine.reset();
     CDvdFile::Shutdown();
   }
 
@@ -415,12 +410,11 @@ static void SetupBasics() {
   auto result = zeus::validateCPU();
   if (!result.first) {
 #if _WIN32 && !WINDOWS_STORE
-    std::string msg =
-        fmt::format(FMT_STRING("ERROR: This build of Metaforce requires the following CPU features:\n{}\n"),
-                    metaforce::CPUFeatureString(result.second));
+    std::string msg = fmt::format("ERROR: This build of Metaforce requires the following CPU features:\n{}\n",
+                                  metaforce::CPUFeatureString(result.second));
     MessageBoxW(nullptr, nowide::widen(msg).c_str(), L"CPU error", MB_OK | MB_ICONERROR);
 #else
-    fmt::print(stderr, FMT_STRING("ERROR: This build of Metaforce requires the following CPU features:\n{}\n"),
+    fmt::print(stderr, "ERROR: This build of Metaforce requires the following CPU features:\n{}\n",
                metaforce::CPUFeatureString(result.second));
 #endif
     exit(1);
@@ -449,27 +443,30 @@ static std::unique_ptr<metaforce::Application> g_app;
 static SDL_Window* g_window;
 static bool g_paused;
 
-static void aurora_log_callback(AuroraLogLevel level, const char* message, unsigned int len) {
-  logvisor::Level severity = logvisor::Fatal;
+static void aurora_log_callback(AuroraLogLevel level, const char* module, const char* message, unsigned int len) {
+  spdlog::level::level_enum severity = spdlog::level::critical;
   switch (level) {
   case LOG_DEBUG:
+    severity = spdlog::level::debug;
+    break;
   case LOG_INFO:
-    severity = logvisor::Info;
+    severity = spdlog::level::info;
     break;
   case LOG_WARNING:
-    severity = logvisor::Warning;
+    severity = spdlog::level::warn;
     break;
   case LOG_ERROR:
-    severity = logvisor::Error;
+    severity = spdlog::level::err;
     break;
   default:
     break;
   }
+  const std::string_view view(message, len);
   if (level == LOG_FATAL) {
-    auto msg = fmt::format(FMT_STRING("Metaforce encountered an internal error:\n\n{}"), message);
+    auto msg = fmt::format("Metaforce encountered an internal error:\n\n{}", view);
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Metaforce", msg.c_str(), g_window);
   }
-  metaforce::Log.report(severity, FMT_STRING("{}"), message);
+  spdlog::log(severity, "[{}] {}", module, view);
 }
 
 static void aurora_imgui_init_callback(const AuroraWindowSize* size) { g_app->onImGuiInit(size->scale); }
@@ -481,7 +478,7 @@ int main(int argc, char** argv) {
   //  for now it's disabled
   // fesetround(FE_TOWARDZERO);
   if (argc > 1 && !strcmp(argv[1], "--dlpackage")) {
-    fmt::print(FMT_STRING("{}\n"), METAFORCE_DLPACKAGE);
+    fmt::print("{}\n", METAFORCE_DLPACKAGE);
     return 100;
   }
 
@@ -507,29 +504,28 @@ int main(int argc, char** argv) {
     if (!restart) {
       // TODO add clear loggers func to logvisor so we can recreate loggers on restart
       bool logging = IsClientLoggingEnabled(argc, argv);
-#if _WIN32
-      if (logging && GetFileType(GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN) {
-        logvisor::CreateWin32Console();
-      }
-#endif
-      logvisor::RegisterStandardExceptions();
-      if (logging) {
-        logvisor::RegisterConsoleLogger();
-      }
+      // #if _WIN32
+      //       if (logging && GetFileType(GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN) {
+      //         logvisor::CreateWin32Console();
+      //       }
+      // #endif
+      //       logvisor::RegisterStandardExceptions();
+      //       if (logging) {
+      //         logvisor::RegisterConsoleLogger();
+      //       }
 
       std::string logFile = cvarCmns.getLogFile();
       if (!logFile.empty()) {
         std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         char buf[100];
         std::strftime(buf, 100, "%Y-%m-%d_%H-%M-%S", std::localtime(&time));
-        logFilePath = fmt::format(FMT_STRING("{}/{}-{}"), fileMgr.getStoreRoot(), buf, logFile);
-        logvisor::RegisterFileLogger(logFilePath.c_str());
+        logFilePath = fmt::format("{}/{}-{}", fileMgr.getStoreRoot(), buf, logFile);
+        // logvisor::RegisterFileLogger(logFilePath.c_str());
       }
     }
 
     g_app = std::make_unique<metaforce::Application>(argc, argv, fileMgr, cvarMgr, cvarCmns);
     std::string configPath{fileMgr.getStoreRoot()};
-
 
     const AuroraConfig config{
         .appName = "Metaforce",
@@ -540,7 +536,7 @@ int main(int argc, char** argv) {
         .startFullscreen = cvarCmns.getFullscreen(),
         .allowJoystickBackgroundEvents = cvarCmns.getAllowJoystickInBackground(),
         .windowPosX = cvarCmns.getWindowPos().x,
-        .windowPosY =  cvarCmns.getWindowPos().y,
+        .windowPosY = cvarCmns.getWindowPos().y,
         .windowWidth = static_cast<uint>(cvarCmns.getWindowSize().x < 0 ? 0 : cvarCmns.getWindowSize().x),
         .windowHeight = static_cast<uint>(cvarCmns.getWindowSize().y < 0 ? 0 : cvarCmns.getWindowSize().y),
         .iconRGBA8 = icon.data.get(),
@@ -600,7 +596,9 @@ int main(int argc, char** argv) {
       if (g_paused) {
         continue;
       }
-      aurora_begin_frame();
+      if (!aurora_begin_frame()) {
+        continue;
+      }
       g_app->onAppIdle(1.f / 60.f /* TODO */);
       g_app->onAppDraw();
       aurora_end_frame();

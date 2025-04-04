@@ -1,7 +1,5 @@
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 
-#include <fmt/xchar.h>
-
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CGraphicsPalette.hpp"
@@ -11,6 +9,7 @@
 #include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
 #include "Runtime/GuiSys/CTextParser.hpp"
 #include "Runtime/CStringExtras.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce {
 
@@ -178,7 +177,7 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer() {
 
   std::u16string initStr;
   if (x5c_fontId.IsValid())
-    initStr = fmt::format(FMT_STRING(u"&font={};"), x5c_fontId);
+    initStr = fmt::format(u"&font={};", x5c_fontId);
   initStr += x0_string;
 
   g_TextParser->ParseText(*g_TextExecuteBuf, initStr.c_str(), initStr.size(), x14_props.xc_txtrMap);

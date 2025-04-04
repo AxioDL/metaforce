@@ -2,11 +2,12 @@
 
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStopwatch.hpp"
+#include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
+
 #include "optick.h"
 
 namespace metaforce {
-static logvisor::Module Log("CResFactory");
-
 void CResFactory::AddToLoadList(SLoadingData&& data) {
   const SObjectTag tag = data.x0_tag;
   m_loadMap.insert_or_assign(tag, m_loadList.insert(m_loadList.end(), std::move(data)));
@@ -29,7 +30,7 @@ CFactoryFnReturn CResFactory::BuildSync(const SObjectTag& tag, const CVParamTran
     else
       ret = std::make_unique<TObjOwnerDerivedFromIObjUntyped>(nullptr);
   }
-  Log.report(logvisor::Warning, FMT_STRING("sync-built {}"), tag);
+  spdlog::warn("sync-built {}", tag);
   return ret;
 }
 
@@ -40,7 +41,7 @@ bool CResFactory::PumpResource(SLoadingData& data) {
     *data.xc_targetPtr =
         x5c_factoryMgr.MakeObjectFromMemory(data.x0_tag, std::move(data.x10_loadBuffer), data.x14_resSize,
                                             data.m_compressed, data.x18_cvXfer, data.m_selfRef);
-    Log.report(logvisor::Info, FMT_STRING("async-built {}"), data.x0_tag);
+    spdlog::info("async-built {}", data.x0_tag);
     return true;
   }
   return false;

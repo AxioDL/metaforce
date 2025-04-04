@@ -9,6 +9,7 @@
 #include "Runtime/GuiSys/CGuiFrame.hpp"
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce {
 
@@ -96,7 +97,7 @@ void CHudEnergyInterface::Update(float dt, float energyLowPulse) {
     x1c_26_barDirty = false;
     x18_cachedBarEnergy = x2c_energybart01_energybar->GetFilledEnergy();
     std::string string =
-        fmt::format(FMT_STRING("{:02d}"), int(std::fmod(x18_cachedBarEnergy, CPlayerState::GetEnergyTankCapacity())));
+        fmt::format("{:02d}", int(std::fmod(x18_cachedBarEnergy, CPlayerState::GetEnergyTankCapacity())));
     x20_textpane_energydigits->TextSupport().SetText(string);
   }
 

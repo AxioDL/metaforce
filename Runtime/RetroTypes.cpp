@@ -2,12 +2,9 @@
 #include "Runtime/Streams/IOStreams.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/IMain.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
 
 namespace metaforce {
-logvisor::Module Log("metaforce::RetroTypes::CAssetId");
-
 SObjectTag::SObjectTag(CInputStream& in) {
   in.ReadBytes(reinterpret_cast<u8*>(&type), 4);
   id = in.Get<CAssetId>();
@@ -25,10 +22,10 @@ CAssetId::CAssetId(CInputStream& in) {
     } else if (g_Main->GetExpectedIdSize() == sizeof(u64)) {
       Assign(in.ReadLongLong());
     } else {
-      Log.report(logvisor::Fatal, FMT_STRING("Unsupported id length {}"), g_Main->GetExpectedIdSize());
+      spdlog::fatal("Unsupported id length {}", g_Main->GetExpectedIdSize());
     }
   } else {
-    Log.report(logvisor::Fatal, FMT_STRING("Input constructor called before runtime Main entered!"));
+    spdlog::fatal("Input constructor called before runtime Main entered!");
   }
 }
 
@@ -39,10 +36,10 @@ void CAssetId::PutTo(COutputStream& out) const {
     } else if (g_Main->GetExpectedIdSize() == sizeof(u64)) {
       out.Put(id);
     } else {
-      Log.report(logvisor::Fatal, FMT_STRING("Unsupported id length {}"), g_Main->GetExpectedIdSize());
+      spdlog::fatal("Unsupported id length {}", g_Main->GetExpectedIdSize());
     }
   } else {
-    Log.report(logvisor::Fatal, FMT_STRING("PutTo called before runtime Main entered!"));
+    spdlog::fatal("PutTo called before runtime Main entered!");
   }
 }
 

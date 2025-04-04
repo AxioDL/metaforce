@@ -24,12 +24,9 @@
 #include "Runtime/Character/IAnimReader.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 #include "Runtime/Graphics/CGX.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
 
 namespace metaforce {
-static logvisor::Module Log("CAnimData");
-
 rstl::reserved_vector<CBoolPOINode, 8> CAnimData::g_BoolPOINodes;
 rstl::reserved_vector<CInt32POINode, 16> CAnimData::g_Int32POINodes;
 rstl::reserved_vector<CParticlePOINode, 20> CAnimData::g_ParticlePOINodes;
@@ -81,8 +78,7 @@ CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAn
 
   if (defaultAnim == -1) {
     defaultAnim = 0;
-    Log.report(logvisor::Warning, FMT_STRING("Character {} has invalid initial animation, so defaulting to first."),
-               character.GetCharacterName());
+    spdlog::warn("Character {} has invalid initial animation, so defaulting to first.", character.GetCharacterName());
   }
 
   auto treeNode = GetAnimationManager()->GetAnimationTree(character.GetAnimationIndex(defaultAnim),

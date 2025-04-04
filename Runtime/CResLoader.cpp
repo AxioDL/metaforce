@@ -1,10 +1,10 @@
 #include "Runtime/CResLoader.hpp"
 
 #include "Runtime/CPakFile.hpp"
+#include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce {
-static logvisor::Module Log("CResLoader");
-
 CResLoader::CResLoader() { x48_curPak = x18_pakLoadedList.end(); }
 
 const std::vector<CAssetId>* CResLoader::GetTagListForFile(std::string_view name) const {
@@ -213,7 +213,7 @@ bool CResLoader::FindResource(CAssetId id) const {
       return true;
   }
 
-  Log.report(logvisor::Warning, FMT_STRING("Unable to find asset {}"), id);
+  spdlog::warn("Unable to find asset {}", id);
   return false;
 }
 
@@ -237,7 +237,7 @@ CPakFile* CResLoader::FindResourceForLoad(CAssetId id) {
     }
   }
 
-  Log.report(logvisor::Error, FMT_STRING("Unable to find asset {}"), id);
+  spdlog::error("Unable to find asset {}", id);
   return nullptr;
 }
 

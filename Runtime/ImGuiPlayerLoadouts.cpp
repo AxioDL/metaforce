@@ -1,15 +1,15 @@
 #include "Runtime/ImGuiPlayerLoadouts.hpp"
 #include "Runtime/Streams/ContainerReaders.hpp"
 #include "Runtime/Streams/ContainerWriters.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
 
 #include "magic_enum.hpp"
+
 namespace metaforce {
 namespace {
-logvisor::Module Log("metaforce::ImGuiPlayerLoadouts");
 constexpr u32 CurrentVersion = 1;
 } // namespace
+
 ImGuiPlayerLoadouts::Item::Item(CInputStream& in)
 : type(magic_enum::enum_cast<CPlayerState::EItemType>(in.Get<std::string>()).value()), amount(in.ReadLong()) {}
 
@@ -29,7 +29,7 @@ ImGuiPlayerLoadouts::ImGuiPlayerLoadouts(CInputStream& in) {
   in.Get(reinterpret_cast<u8*>(&magic), 4);
   auto version = in.ReadLong();
   if (magic != FOURCC('LOAD') && version != CurrentVersion) {
-    Log.report(logvisor::Error, FMT_STRING("Incorrect loadout version, expected {} got {}"), CurrentVersion, version);
+    spdlog::error("Incorrect loadout version, expected {} got {}", CurrentVersion, version);
     return;
   }
   read_vector(loadouts, in);

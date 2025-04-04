@@ -1,6 +1,7 @@
 #include "Graphics/CTexture.hpp"
 
-#include "CToken.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include <zeus/Math.hpp>
 #include <magic_enum.hpp>
@@ -15,7 +16,7 @@ CTexture::CTexture(ETexelFormat fmt, u16 w, u16 h, s32 mips, std::string_view la
 , x8_mips(mips)
 , x9_bitsPerPixel(TexelFormatBitsPerPixel(fmt))
 , x64_frameAllocated(sCurrentFrameCount)
-, m_label(fmt::format(FMT_STRING("{} ({})"), label, magic_enum::enum_name(fmt))) {
+, m_label(fmt::format("{} ({})", label, magic_enum::enum_name(fmt))) {
   InitBitmapBuffers(fmt, w, h, mips);
   InitTextureObjs();
 }
@@ -26,7 +27,7 @@ CTexture::CTexture(CInputStream& in, std::string_view label, EAutoMipmap automip
 , x6_h(in.ReadShort())
 , x8_mips(in.ReadLong())
 , x64_frameAllocated(sCurrentFrameCount)
-, m_label(fmt::format(FMT_STRING("{} ({})"), label, magic_enum::enum_name(x0_fmt))) {
+, m_label(fmt::format("{} ({})", label, magic_enum::enum_name(x0_fmt))) {
   bool hasPalette = (x0_fmt == ETexelFormat::C4 || x0_fmt == ETexelFormat::C8 || x0_fmt == ETexelFormat::C14X2);
   if (hasPalette) {
     x10_graphicsPalette = std::make_unique<CGraphicsPalette>(in);
@@ -284,7 +285,7 @@ void CTexture::InvalidateTexMap(GXTexMapID id) { sLoadedTextures[id] = nullptr; 
 
 CFactoryFnReturn FTextureFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                  CObjectReference* selfRef) {
-  const auto label = fmt::format(FMT_STRING("{} {}"), tag.type, tag.id);
+  const auto label = fmt::format("{} {}", tag.type, tag.id);
   return TToken<CTexture>::GetIObjObjectFor(std::make_unique<CTexture>(in, label));
 }
 } // namespace metaforce

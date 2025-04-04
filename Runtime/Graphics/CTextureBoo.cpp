@@ -358,7 +358,7 @@ void CTexture::BuildC8FromGCN(CInputStream& in, aurora::zstring_view label) {
 }
 
 void CTexture::BuildC14X2FromGCN(CInputStream& in, aurora::zstring_view label) {
-  Log.report(logvisor::Fatal, FMT_STRING("C14X2 not implemented"));
+  spdlog::fatal("C14X2 not implemented");
 }
 
 void CTexture::BuildRGB565FromGCN(CInputStream& in, aurora::zstring_view label) {
@@ -543,7 +543,7 @@ void CTexture::BuildRGBA8(const void* data, size_t length, aurora::zstring_view 
   size_t texelCount = ComputeMippedTexelCount();
   size_t expectedSize = texelCount * 4;
   if (expectedSize > length)
-    Log.report(logvisor::Fatal, FMT_STRING("insufficient TXTR length ({}/{})"), length, expectedSize);
+    spdlog::fatal("insufficient TXTR length ({}/{})", length, expectedSize);
 
   m_tex = aurora::gfx::new_static_texture_2d(x4_w, x6_h, x8_mips, aurora::gfx::TextureFormat::RGBA8,
                                              {reinterpret_cast<const uint8_t*>(data), expectedSize}, label);
@@ -552,7 +552,7 @@ void CTexture::BuildRGBA8(const void* data, size_t length, aurora::zstring_view 
 void CTexture::BuildC8(const void* data, size_t length, aurora::zstring_view label) {
   size_t texelCount = ComputeMippedTexelCount();
   if (texelCount > length)
-    Log.report(logvisor::Fatal, FMT_STRING("insufficient TXTR length ({}/{})"), length, texelCount);
+    spdlog::fatal("insufficient TXTR length ({}/{})", length, texelCount);
 
   uint32_t nentries = CBasics::SwapBytes(*reinterpret_cast<const uint32_t*>(data));
   const u8* paletteTexels = reinterpret_cast<const u8*>(data) + 4;
@@ -758,7 +758,7 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTex
   x9_bitsPerPixel = TexelFormatBitsPerPixel(x0_fmt);
   m_textureInfo = inf;
 
-  auto label = fmt::format(FMT_STRING("TXTR {:08X} ({})"), id.Value(), TextureFormatString(x0_fmt));
+  auto label = fmt::format("TXTR {:08X} ({})", id.Value(), TextureFormatString(x0_fmt));
   switch (x0_fmt) {
   case ETexelFormat::I4:
     BuildI4FromGCN(r, label);
@@ -794,8 +794,7 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTex
     if (aurora::gfx::get_dxt_compression_supported()) {
       BuildDXT1FromGCN(r, label);
     } else {
-      Log.report(logvisor::Error, FMT_STRING("BC/DXT1 compression is not supported on your GPU, unable to load {}"),
-                 label);
+      spdlog::error("BC/DXT1 compression is not supported on your GPU, unable to load {}", label);
       x0_fmt = ETexelFormat::RGBA8PC;
       x8_mips = 1;
       std::unique_ptr<u8[]> data = std::make_unique<u8[]>(x4_w * x6_h * 4);
@@ -825,7 +824,7 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTex
     BuildDXT3(owned.get() + 12, length - 12, label);
     break;
   default:
-    Log.report(logvisor::Fatal, FMT_STRING("invalid texture type {} for boo"), int(x0_fmt));
+    spdlog::fatal("invalid texture type {} for boo", int(x0_fmt));
   }
 
   if (otex)
@@ -837,7 +836,7 @@ void CTexture::Load(int slot, EClampMode clamp) const {}
 std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& fmtOut,
                                                    std::unique_ptr<u8[]>& paletteOut) const {
   if (!m_otex)
-    Log.report(logvisor::Fatal, FMT_STRING("MemoryCard TXTR not loaded with 'otex'"));
+    spdlog::fatal("MemoryCard TXTR not loaded with 'otex'");
 
   size_t texelCount = x4_w * x6_h;
   std::unique_ptr<u8[]> ret;
@@ -914,7 +913,7 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
       }
     }
   } else
-    Log.report(logvisor::Fatal, FMT_STRING("MemoryCard texture may only use RGBA8PC or C8PC format"));
+    spdlog::fatal("MemoryCard texture may only use RGBA8PC or C8PC format");
 
   return ret;
 }

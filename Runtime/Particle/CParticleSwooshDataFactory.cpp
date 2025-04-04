@@ -6,12 +6,10 @@
 #include "Runtime/Particle/CElectricDescription.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce {
-static logvisor::Module Log("metaforce::CParticleSwooshDataFactory");
-
 using CPF = CParticleDataFactory;
 
 std::unique_ptr<CSwooshDescription> CParticleSwooshDataFactory::GetGeneratorDesc(CInputStream& in,
@@ -124,7 +122,7 @@ bool CParticleSwooshDataFactory::CreateWPSM(CSwooshDescription* desc, CInputStre
       desc->x45_26_CRND = CPF::GetBool(in);
       break;
     default: {
-      Log.report(logvisor::Fatal, FMT_STRING("Unknown SWSH class {} @{}"), clsId, in.GetReadPosition());
+      spdlog::fatal("Unknown SWSH class {} @{}", clsId, in.GetReadPosition());
       return false;
     }
     }

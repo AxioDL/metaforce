@@ -18,6 +18,7 @@
 #include "Runtime/World/CScriptWaypoint.hpp"
 #include "Runtime/World/CTeamAiMgr.hpp"
 #include "Runtime/World/CWorld.hpp"
+#include "Runtime/Logging.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -770,8 +771,7 @@ void CSpacePirate::Think(float dt, CStateManager& mgr) {
   }
 
   if (!m_lastKnownGoodXf.origin.isZero() && GetTranslation().isNaN()) {
-    fmt::print(
-        FMT_STRING("BUG THIS!: Space Pirate attempted to visit it's people, resetting position to sane value\n"));
+    spdlog::warn("BUG THIS!: Space Pirate attempted to visit it's people, resetting position to sane value\n");
     Stop();
     SetTransform(m_lastKnownGoodXf);
   }
@@ -891,7 +891,7 @@ void CSpacePirate::Think(float dt, CStateManager& mgr) {
   if (!GetTranslation().isNaN()) {
     m_lastKnownGoodXf = GetTransform();
   } else {
-    fmt::print(FMT_STRING("BUG THIS!: Space Pirate being yeeted to the unknown\n"));
+    spdlog::warn("BUG THIS!: Space Pirate being yeeted to the unknown\n");
   }
 }
 

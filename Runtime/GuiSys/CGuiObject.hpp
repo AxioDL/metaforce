@@ -6,6 +6,8 @@
 #include <zeus/CTransform.hpp>
 #include <zeus/CVector3f.hpp>
 
+#include <memory>
+
 namespace metaforce {
 struct CGuiWidgetDrawParms;
 

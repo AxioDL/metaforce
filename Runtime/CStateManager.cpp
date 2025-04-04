@@ -48,6 +48,7 @@
 #include "Runtime/World/CWallCrawlerSwarm.hpp"
 #include "Runtime/World/CWorld.hpp"
 #include "Runtime/ConsoleVariables/CVarManager.hpp"
+#include "Runtime/Logging.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 #include <zeus/CMRay.hpp>
@@ -61,7 +62,6 @@ CVar* debugToolDrawMazePath = nullptr;
 CVar* debugToolDrawPlatformCollision = nullptr;
 CVar* sm_logScripting = nullptr;
 } // namespace
-logvisor::Module LogModule("metaforce::CStateManager");
 CStateManager::CStateManager(const std::weak_ptr<CScriptMailbox>& mailbox, const std::weak_ptr<CMapWorldInfo>& mwInfo,
                              const std::weak_ptr<CPlayerState>& playerState,
                              const std::weak_ptr<CWorldTransManager>& wtMgr,
@@ -545,7 +545,7 @@ void CStateManager::BuildDynamicLightListForWorld() {
       }
     }
   }
-  
+
   std::sort(x8e0_dynamicLights.begin(), x8e0_dynamicLights.end(), [](const CLight& a, const CLight& b) {
     if (b.GetPriority() > a.GetPriority()) {
       return true;
@@ -1209,11 +1209,10 @@ void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMes
   if (m_logScripting) {
     auto srcObj = GetObjectById(src);
     if (srcObj != nullptr) {
-      LogModule.report(logvisor::Info, FMT_STRING("{} is sending '{}' to '{}' id= {} -> {}"), srcObj->GetName(),
-                       ScriptObjectMessageToStr(msg), dest->GetName(), dest->GetUniqueId(), src, dest->GetUniqueId());
+      spdlog::info("{} is sending '{}' to '{}' id= {} -> {}", srcObj->GetName(), ScriptObjectMessageToStr(msg),
+                   dest->GetName(), dest->GetUniqueId(), src, dest->GetUniqueId());
     } else {
-      LogModule.report(logvisor::Info, FMT_STRING("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
-                       dest->GetName(), dest->GetUniqueId());
+      spdlog::info("Sending '{}' to '{}' id= {}", ScriptObjectMessageToStr(msg), dest->GetName(), dest->GetUniqueId());
     }
   }
 
@@ -1234,11 +1233,10 @@ void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptOb
   if (m_logScripting) {
     auto srcObj = GetObjectById(src);
     if (srcObj != nullptr) {
-      LogModule.report(logvisor::Info, FMT_STRING("{} is sending '{}' to '{}' id= {} -> {}"), srcObj->GetName(),
-                       ScriptObjectMessageToStr(msg), dst->GetName(), dst->GetUniqueId(), src, dst->GetUniqueId());
+      spdlog::info("{} is sending '{}' to '{}' id= {} -> {}", srcObj->GetName(), ScriptObjectMessageToStr(msg),
+                   dst->GetName(), dst->GetUniqueId(), src, dst->GetUniqueId());
     } else {
-      LogModule.report(logvisor::Info, FMT_STRING("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
-                       dst->GetName(), dst->GetUniqueId());
+      spdlog::info("Sending '{}' to '{}' id= {}", ScriptObjectMessageToStr(msg), dst->GetName(), dst->GetUniqueId());
     }
   }
 
@@ -1308,7 +1306,7 @@ void CStateManager::FreeScriptObject(TUniqueId id) {
   }
 
   if (m_logScripting) {
-    LogModule.report(logvisor::Info, FMT_STRING("Removed '{}'"), ent->GetName());
+    spdlog::info("Removed '{}'", ent->GetName());
   }
 }
 
@@ -1424,8 +1422,7 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
 
   const u32 readAmt = in.GetReadPosition() - startPos;
   if (readAmt > length) {
-    LogModule.report(logvisor::Fatal, FMT_STRING("Script object overread while reading {}"),
-                     ScriptObjectTypeToStr(type));
+    spdlog::fatal("Script object overread while reading {}", ScriptObjectTypeToStr(type));
   }
 
   const u32 leftover = length - readAmt;
@@ -1434,12 +1431,11 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
   }
 
   if (error || ent == nullptr) {
-    LogModule.report(logvisor::Error, FMT_STRING("Script load error while loading {} (Editor ID: {}, Area: {})"),
-                     ScriptObjectTypeToStr(type), id, aid);
+    spdlog::error("Script load error while loading {} (Editor ID: {}, Area: {})", ScriptObjectTypeToStr(type), id, aid);
     return {kInvalidEditorId, kInvalidUniqueId};
   } else {
 #ifndef NDEBUG
-    LogModule.report(logvisor::Info, FMT_STRING("Loaded {} in area {}"), ent->GetName(), ent->GetAreaIdAlways());
+    LogModule.report(logvisor::Info, "Loaded {} in area {}", ent->GetName(), ent->GetAreaIdAlways());
 #endif
     return {id, ent->GetUniqueId()};
   }
@@ -2669,7 +2665,7 @@ void CStateManager::AddObject(CEntity& ent) {
   }
 
   if (m_logScripting) {
-    LogModule.report(logvisor::Info, FMT_STRING("Added '{}'"), ent.GetName());
+    spdlog::info("Added '{}'", ent.GetName());
   }
 }
 
@@ -2721,7 +2717,7 @@ TUniqueId CStateManager::AllocateUniqueId() {
     ourIndex = x0_nextFreeIndex;
     x0_nextFreeIndex = (ourIndex + 1) & 0x3ff;
     if (x0_nextFreeIndex == lastIndex) {
-      LogModule.report(logvisor::Fatal, FMT_STRING("Object list full!"));
+      spdlog::fatal("Object list full!");
     }
   } while (GetAllObjectList().GetObjectByIndex(ourIndex) != nullptr);
 

@@ -9,6 +9,7 @@
 #include "Runtime/GuiSys/CGuiModel.hpp"
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce {
 
@@ -214,7 +215,7 @@ void CHudMissileInterface::SetChargeBeamFactor(float t) { x4c_chargeBeamFactor =
 void CHudMissileInterface::SetNumMissiles(int numMissiles, const CStateManager& mgr) {
   numMissiles = zeus::clamp(0, numMissiles, 999);
 
-  x60_textpane_missiledigits->TextSupport().SetText(fmt::format(FMT_STRING("{:3d}"), numMissiles));
+  x60_textpane_missiledigits->TextSupport().SetText(fmt::format("{:3d}", numMissiles));
 
   if (x8_numMissles < numMissiles) {
     xc_arrowTimer = g_tweakGui->GetMissileArrowVisTime();

@@ -20,7 +20,8 @@
 #include <nfd.hpp>
 #endif
 
-#include <cstdarg>
+#include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include <zeus/CEulerAngles.hpp>
 
@@ -44,8 +45,6 @@ extern size_t g_lastStorageSize;
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
-static logvisor::Module Log{"Console"};
-
 std::array<ImGuiEntityEntry, kMaxEntities> ImGuiConsole::entities;
 std::set<TUniqueId> ImGuiConsole::inspectingEntities;
 ImGuiPlayerLoadouts ImGuiConsole::loadouts;
@@ -235,7 +234,7 @@ void ImGuiConsole::BeginEntityRow(const ImGuiEntityEntry& entry) {
   ImGui::PushStyleColor(ImGuiCol_Text, textColor);
 
   if (ImGui::TableNextColumn()) {
-    auto text = fmt::format(FMT_STRING("0x{:04X}"), entry.uid.Value());
+    auto text = fmt::format("0x{:04X}", entry.uid.Value());
     ImGui::Selectable(text.c_str(), &entry.ent->m_debugSelected,
                       ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
     if (ImGui::IsItemHovered()) {
@@ -396,7 +395,7 @@ bool ImGuiConsole::ShowEntityInfoWindow(TUniqueId uid) {
   if (entry.ent == nullptr) {
     return false;
   }
-  auto name = fmt::format(FMT_STRING("{}##0x{:04X}"), !entry.name.empty() ? entry.name : entry.type, uid.Value());
+  auto name = fmt::format("{}##0x{:04X}", !entry.name.empty() ? entry.name : entry.type, uid.Value());
   if (ImGui::Begin(name.c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize)) {
     ImGui::PushID(uid.Value());
     entry.ent->ImGuiInspect();
@@ -699,7 +698,7 @@ void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
         if (nfdResult == NFD_OKAY) {
           m_gameDiscSelected = outPath.get();
         } else if (nfdResult != NFD_CANCEL) {
-          Log.report(logvisor::Error, FMT_STRING("nativefiledialog error: {}"), NFD::GetError());
+          spdlog::error("nativefiledialog error: {}", NFD::GetError());
         }
       }
 #endif
@@ -807,9 +806,9 @@ static std::string BytesToString(size_t bytes) {
     count /= 1024.0;
   }
   if (count - floor(count) == 0.0) {
-    return fmt::format(FMT_STRING("{}{}"), static_cast<size_t>(count), suffixes[s]);
+    return fmt::format("{}{}", static_cast<size_t>(count), suffixes[s]);
   }
-  return fmt::format(FMT_STRING("{:.1f}{}"), count, suffixes[s]);
+  return fmt::format("{:.1f}{}", count, suffixes[s]);
 }
 
 void ImGuiConsole::ShowDebugOverlay() {
@@ -831,7 +830,7 @@ void ImGuiConsole::ShowDebugOverlay() {
   if (ImGui::Begin("Debug Overlay", nullptr, windowFlags)) {
     bool hasPrevious = false;
     if (m_frameCounter && g_StateManager != nullptr) {
-      ImGuiStringViewText(fmt::format(FMT_STRING("Frame: {}\n"), g_StateManager->GetUpdateFrameIndex()));
+      ImGuiStringViewText(fmt::format("Frame: {}\n", g_StateManager->GetUpdateFrameIndex()));
       hasPrevious = true;
     }
     if (m_frameRate) {
@@ -840,7 +839,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      ImGuiStringViewText(fmt::format(FMT_STRING("FPS: {:.1f}\n"), io.Framerate));
+      ImGuiStringViewText(fmt::format("FPS: {:.1f}\n", io.Framerate));
     }
     if (m_inGameTime && g_GameState != nullptr) {
       if (hasPrevious) {
@@ -852,7 +851,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       u32 ms = u64(igt * 1000) % 1000;
       auto pt = std::div(int(igt), 3600);
       ImGuiStringViewText(
-          fmt::format(FMT_STRING("Play Time: {:02d}:{:02d}:{:02d}.{:03d}\n"), pt.quot, pt.rem / 60, pt.rem % 60, ms));
+          fmt::format("Play Time: {:02d}:{:02d}:{:02d}.{:03d}\n", pt.quot, pt.rem / 60, pt.rem % 60, ms));
     }
     if (m_roomTimer && g_StateManager != nullptr) {
       if (hasPrevious) {
@@ -864,8 +863,8 @@ void ImGuiConsole::ShowDebugOverlay() {
       double currentRoomTime = igt - m_currentRoomStart;
       u32 curFrames = u32(std::round(u32(currentRoomTime * 60)));
       u32 lastFrames = u32(std::round(u32(m_lastRoomTime * 60)));
-      ImGuiStringViewText(fmt::format(FMT_STRING("Room Time: {:7.3f} / {:5d} | Last Room:{:7.3f} / {:5d}\n"),
-                                      currentRoomTime, curFrames, m_lastRoomTime, lastFrames));
+      ImGuiStringViewText(fmt::format("Room Time: {:7.3f} / {:5d} | Last Room:{:7.3f} / {:5d}\n", currentRoomTime,
+                                      curFrames, m_lastRoomTime, lastFrames));
     }
     if (m_playerInfo && g_StateManager != nullptr && g_StateManager->Player() != nullptr && m_developer) {
       if (hasPrevious) {
@@ -878,12 +877,12 @@ void ImGuiConsole::ShowDebugOverlay() {
       const zeus::CTransform camXf = g_StateManager->GetCameraManager()->GetCurrentCameraTransform(*g_StateManager);
       const zeus::CQuaternion camQ = zeus::CQuaternion(camXf.getRotation().buildMatrix3f());
       ImGuiStringViewText(
-          fmt::format(FMT_STRING("Player Position x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
-                                 "       Roll: {: .2f}, Pitch: {: .2f}, Yaw: {: .2f}\n"
-                                 "       Momentum x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
-                                 "       Velocity x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
-                                 "Camera Position x: {: .2f}, y: {: .2f}, z {: .2f}\n"
-                                 "       Roll: {: .2f}, Pitch: {: .2f}, Yaw: {: .2f}\n"),
+          fmt::format("Player Position x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
+                      "       Roll: {: .2f}, Pitch: {: .2f}, Yaw: {: .2f}\n"
+                      "       Momentum x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
+                      "       Velocity x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
+                      "Camera Position x: {: .2f}, y: {: .2f}, z {: .2f}\n"
+                      "       Roll: {: .2f}, Pitch: {: .2f}, Yaw: {: .2f}\n",
                       pl.GetTranslation().x(), pl.GetTranslation().y(), pl.GetTranslation().z(),
                       zeus::radToDeg(plQ.roll()), zeus::radToDeg(plQ.pitch()), zeus::radToDeg(plQ.yaw()),
                       pl.GetMomentum().x(), pl.GetMomentum().y(), pl.GetMomentum().z(), pl.GetVelocity().x(),
@@ -897,8 +896,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       hasPrevious = true;
 
       const std::string name = ImGuiLoadStringTable(g_StateManager->GetWorld()->IGetStringTableAssetId(), 0);
-      ImGuiStringViewText(
-          fmt::format(FMT_STRING("World Asset ID: 0x{}, Name: {}\n"), g_GameState->CurrentWorldAssetId(), name));
+      ImGuiStringViewText(fmt::format("World Asset ID: 0x{}, Name: {}\n", g_GameState->CurrentWorldAssetId(), name));
     }
     if (m_areaInfo && g_StateManager != nullptr && m_developer) {
       const metaforce::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
@@ -921,9 +919,9 @@ void ImGuiConsole::ShowDebugOverlay() {
         }
         CGameArea* pArea = g_StateManager->GetWorld()->GetArea(aId);
         CAssetId stringId = pArea->IGetStringTableAssetId();
-        ImGuiStringViewText(
-            fmt::format(FMT_STRING("Area Asset ID: 0x{}, Name: {}\nArea ID: {}, Active Layer bits: {}\n"),
-                        pArea->GetAreaAssetId(), ImGuiLoadStringTable(stringId, 0), pArea->GetAreaId(), layerBits));
+        ImGuiStringViewText(fmt::format("Area Asset ID: 0x{}, Name: {}\nArea ID: {}, Active Layer bits: {}\n",
+                                        pArea->GetAreaAssetId(), ImGuiLoadStringTable(stringId, 0), pArea->GetAreaId(),
+                                        layerBits));
       }
     }
     if (m_layerInfo && g_StateManager != nullptr && m_developer) {
@@ -962,9 +960,8 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      ImGuiStringViewText(
-          fmt::format(FMT_STRING("CRandom16::Next calls: {}\n"), metaforce::CRandom16::GetNumNextCalls()));
-      ImGuiStringViewText(fmt::format(FMT_STRING("CRandom16::LastSeed: 0x{:08X}\n"), CRandom16::GetLastSeed()));
+      ImGuiStringViewText(fmt::format("CRandom16::Next calls: {}\n", metaforce::CRandom16::GetNumNextCalls()));
+      ImGuiStringViewText(fmt::format("CRandom16::LastSeed: 0x{:08X}\n", CRandom16::GetLastSeed()));
     }
     if (m_resourceStats && g_SimplePool != nullptr) {
       if (hasPrevious) {
@@ -972,7 +969,7 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      ImGuiStringViewText(fmt::format(FMT_STRING("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects()));
+      ImGuiStringViewText(fmt::format("Resource Objects: {}\n", g_SimplePool->GetLiveObjects()));
     }
     if (m_pipelineInfo && m_developer) {
       if (hasPrevious) {
@@ -980,8 +977,8 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      ImGuiStringViewText(fmt::format(FMT_STRING("Queued pipelines:  {}\n"), aurora::gfx::queuedPipelines));
-      ImGuiStringViewText(fmt::format(FMT_STRING("Done pipelines:    {}\n"), aurora::gfx::createdPipelines));
+      ImGuiStringViewText(fmt::format("Queued pipelines:  {}\n", aurora::gfx::queuedPipelines.load()));
+      ImGuiStringViewText(fmt::format("Done pipelines:    {}\n", aurora::gfx::createdPipelines.load()));
     }
     if (m_drawCallInfo && m_developer) {
       if (hasPrevious) {
@@ -989,8 +986,8 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      ImGuiStringViewText(fmt::format(FMT_STRING("Draw call count:   {}\n"), aurora::gfx::g_drawCallCount));
-      ImGuiStringViewText(fmt::format(FMT_STRING("Merged draw calls: {}\n"), aurora::gfx::g_mergedDrawCallCount));
+      ImGuiStringViewText(fmt::format("Draw call count:   {}\n", aurora::gfx::g_drawCallCount));
+      ImGuiStringViewText(fmt::format("Merged draw calls: {}\n", aurora::gfx::g_mergedDrawCallCount));
     }
     if (m_bufferInfo && m_developer) {
       if (hasPrevious) {
@@ -998,15 +995,11 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      ImGuiStringViewText(
-          fmt::format(FMT_STRING("Vertex size:       {}\n"), BytesToString(aurora::gfx::g_lastVertSize)));
-      ImGuiStringViewText(
-          fmt::format(FMT_STRING("Uniform size:      {}\n"), BytesToString(aurora::gfx::g_lastUniformSize)));
-      ImGuiStringViewText(
-          fmt::format(FMT_STRING("Index size:        {}\n"), BytesToString(aurora::gfx::g_lastIndexSize)));
-      ImGuiStringViewText(
-          fmt::format(FMT_STRING("Storage size:      {}\n"), BytesToString(aurora::gfx::g_lastStorageSize)));
-      ImGuiStringViewText(fmt::format(FMT_STRING("Total:             {}\n"),
+      ImGuiStringViewText(fmt::format("Vertex size:       {}\n", BytesToString(aurora::gfx::g_lastVertSize)));
+      ImGuiStringViewText(fmt::format("Uniform size:      {}\n", BytesToString(aurora::gfx::g_lastUniformSize)));
+      ImGuiStringViewText(fmt::format("Index size:        {}\n", BytesToString(aurora::gfx::g_lastIndexSize)));
+      ImGuiStringViewText(fmt::format("Storage size:      {}\n", BytesToString(aurora::gfx::g_lastStorageSize)));
+      ImGuiStringViewText(fmt::format("Total:             {}\n",
                                       BytesToString(aurora::gfx::g_lastVertSize + aurora::gfx::g_lastUniformSize +
                                                     aurora::gfx::g_lastIndexSize + aurora::gfx::g_lastStorageSize)));
     }
@@ -1858,7 +1851,7 @@ void ImGuiConsole::ShowPipelineProgress() {
                ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMove |
                    ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing);
   const auto percent = static_cast<float>(createdPipelines) / static_cast<float>(totalPipelines);
-  const auto progressStr = fmt::format(FMT_STRING("Processing pipelines: {} / {}"), createdPipelines, totalPipelines);
+  const auto progressStr = fmt::format("Processing pipelines: {} / {}", createdPipelines, totalPipelines);
   const auto textSize = ImGui::CalcTextSize(progressStr.data(), progressStr.data() + progressStr.size());
   ImGui::NewLine();
   ImGui::SameLine(ImGui::GetWindowWidth() / 2.f - textSize.x + textSize.x / 2.f);
@@ -1870,14 +1863,14 @@ void ImGuiConsole::ShowPipelineProgress() {
 void ImGuiConsole::ControllerAdded(uint32_t idx) {
   const char* name = PADGetName(idx);
   if (name != nullptr) {
-    m_toasts.emplace_back(fmt::format(FMT_STRING("Controller {} ({}) connected"), idx, name), 5.f);
+    m_toasts.emplace_back(fmt::format("Controller {} ({}) connected", idx, name), 5.f);
   } else {
-    m_toasts.emplace_back(fmt::format(FMT_STRING("Controller {} connected"), idx), 5.f);
+    m_toasts.emplace_back(fmt::format("Controller {} connected", idx), 5.f);
   }
 }
 
 void ImGuiConsole::ControllerRemoved(uint32_t idx) {
-  m_toasts.emplace_back(fmt::format(FMT_STRING("Controller {} disconnected"), idx), 5.f);
+  m_toasts.emplace_back(fmt::format("Controller {} disconnected", idx), 5.f);
 }
 
 static void ImGuiCVarCheckbox(CVarManager& mgr, std::string_view cvarName, const char* label, bool* ptr = nullptr) {
@@ -1910,7 +1903,7 @@ void ImGuiConsole::ShowPreLaunchSettingsWindow() {
       if (ImGui::BeginTabItem("Graphics")) {
         size_t backendCount = 0;
         const auto* backends = aurora_get_available_backends(&backendCount);
-        ImGuiStringViewText(fmt::format(FMT_STRING("Current backend: {}"), backend_name(aurora_get_backend())));
+        ImGuiStringViewText(fmt::format("Current backend: {}", backend_name(aurora_get_backend())));
         auto desiredBackend = static_cast<int>(BACKEND_AUTO);
         if (auto* cvar = m_cvarMgr.findCVar("graphicsApi")) {
           bool valid = false;

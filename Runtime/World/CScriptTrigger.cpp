@@ -5,12 +5,10 @@
 #include "Runtime/Weapon/CGameProjectile.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CPlayer.hpp"
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
-static logvisor::Module Log("CScriptTrigger");
-
 CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                const zeus::CVector3f& pos, const zeus::CAABox& bounds, const CDamageInfo& dInfo,
                                const zeus::CVector3f& forceField, ETriggerFlags triggerFlags, bool active,
@@ -28,7 +26,7 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEnti
 #ifndef NDEBUG
   // HACK: For some reason MetroidPrime's lair doesn't enable this trigger until after the cutscene, activate it in debug build
   if (GetEditorId() == 0x000B01DB && !GetActive()) {
-    Log.report(logvisor::Warning, FMT_STRING("BUG THIS!: Overriding active for trigger {} in area {}"), GetEditorId(),
+    Log.report(logvisor::Warning, "BUG THIS!: Overriding active for trigger {} in area {}", GetEditorId(),
                GetAreaIdAlways());
     SetActive(true);
   }

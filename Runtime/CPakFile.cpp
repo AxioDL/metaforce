@@ -1,11 +1,11 @@
 #include "Runtime/CPakFile.hpp"
 
-namespace metaforce {
-static logvisor::Module Log("metaforce::CPakFile");
+#include "Runtime/Logging.hpp"
 
+namespace metaforce {
 CPakFile::CPakFile(std::string_view filename, bool buildDepList, bool worldPak, bool override) : CDvdFile(filename) {
   if (!CDvdFile::operator bool())
-    Log.report(logvisor::Fatal, FMT_STRING("{}: Unable to open"), GetPath());
+    spdlog::fatal("{}: Unable to open", GetPath());
   x28_24_buildDepList = buildDepList;
   // x28_24_buildDepList = true; // Always do this so metaforce can rapidly pre-warm shaders
   x28_26_worldPak = worldPak;
@@ -65,10 +65,8 @@ void CPakFile::InitialHeaderLoad() {
   x30_dvdReq.reset();
   u32 version = r.ReadLong();
   if (version != 0x00030005) {
-    Log.report(logvisor::Fatal,
-               FMT_STRING("{}: Incompatible pak file version -- Current version is {:08X}, you're using {:08X}"),
-               GetPath(), 0x00030005, version);
-    return;
+    spdlog::fatal("{}: Incompatible pak file version -- Current version is {:08X}, you're using {:08X}", GetPath(),
+                  0x00030005, version);
   }
 
   r.ReadLong();

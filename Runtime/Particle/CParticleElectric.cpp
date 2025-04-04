@@ -609,7 +609,7 @@ bool CParticleElectric::Update(double dt) {
 
 void CParticleElectric::Render() {
   SCOPED_GRAPHICS_DEBUG_GROUP(
-      fmt::format(FMT_STRING("CParticleElectric::Render {}"), *x1c_elecDesc.GetObjectTag()).c_str(), zeus::skYellow);
+      fmt::format("CParticleElectric::Render {}", *x1c_elecDesc.GetObjectTag()).c_str(), zeus::skYellow);
 
   if (!x3e8_electricManagers.empty()) {
     if (x450_29_transformDirty) {

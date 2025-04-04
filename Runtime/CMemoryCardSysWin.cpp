@@ -63,7 +63,7 @@ std::string CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlot slot) {
     std::string path(localFolder->Path->Data());
 #endif
 
-    path += fmt::format(FMT_STRING("/GC/MemoryCard{}.USA.raw"), slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
+    path += fmt::format("/GC/MemoryCard{}.USA.raw", slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
 
     struct _stat64 theStat{};
     if (_stat64(path.c_str(), &theStat) || !S_ISREG(theStat.st_mode))
@@ -116,7 +116,7 @@ std::string CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot slot, bool do
       if (CBasics::RecursiveMakeDir(path.c_str()) < 0)
         return {};
 
-      path += fmt::format(FMT_STRING("/MemoryCard{}.USA.raw"), slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
+      path += fmt::format("/MemoryCard{}.USA.raw", slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
       const nowide::wstackstring wpath(path);
       FILE* fp = _wfopen(wpath.get(), L"wb");
       if (fp == nullptr) {

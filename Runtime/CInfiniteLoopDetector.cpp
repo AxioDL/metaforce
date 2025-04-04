@@ -1,9 +1,8 @@
 #include "Runtime/CInfiniteLoopDetector.hpp"
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
 
 namespace metaforce {
 namespace {
-logvisor::Module Log("CInfiniteLoopDetector");
 std::chrono::system_clock::time_point g_WatchDog = std::chrono::system_clock::now();
 std::mutex g_mutex;
 } // namespace
@@ -22,7 +21,7 @@ void CInfiniteLoopDetector::run() {
       std::lock_guard<std::mutex> guard(g_mutex);
       if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - g_WatchDog) >
           std::chrono::milliseconds(m_duration)) {
-        Log.report(logvisor::Fatal, FMT_STRING("INFINITE LOOP DETECTED!"));
+        spdlog::fatal("INFINITE LOOP DETECTED!");
       }
     }
   }

@@ -154,7 +154,6 @@ void CDvdFile::DoWork() {
 
 void CDvdFile::WorkerProc() {
 #ifdef HAS_DVD_THREAD
-  logvisor::RegisterThreadName("CDvdFile");
   OPTICK_THREAD("CDvdFile");
 
   while (m_WorkerRun.load()) {

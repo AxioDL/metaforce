@@ -596,7 +596,7 @@ void CFishCloud::Render(CStateManager& mgr) {
   }
 
   SCOPED_GRAPHICS_DEBUG_GROUP(
-      fmt::format(FMT_STRING("CFishCloud::Render {} {} {}"), x8_uid, xc_editorId, x10_name).c_str(), zeus::skOrange);
+      fmt::format("CFishCloud::Render {} {} {}", x8_uid, xc_editorId, x10_name).c_str(), zeus::skOrange);
 
   const bool thermalHot = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot;
   CModelFlags flags(0, 0, 3, zeus::skWhite);

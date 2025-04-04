@@ -6,6 +6,7 @@
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce {
 namespace {
@@ -88,7 +89,7 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg, CA
       if (x18_galleryTXTRDeps.empty()) {
         x18_galleryTXTRDeps.reserve(5);
         for (int i = 1; true; ++i) {
-          std::string depResName = fmt::format(FMT_STRING("Gallery{:02d}_DGRP"), i);
+          std::string depResName = fmt::format("Gallery{:02d}_DGRP", i);
           if (!LoadTXTRDep(depResName))
             break;
         }

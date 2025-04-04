@@ -6,12 +6,10 @@
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
 #include "Runtime/World/CPlayer.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce::MP1 {
-logvisor::Module SpankLog("metaforce::MP1::SpankWeed");
-
 constexpr std::array<SSphereJointInfo, 7> kArmCollision{{
     {"Arm_4", 1.5f},
     {"Arm_6", 1.f},
@@ -41,10 +39,10 @@ CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& 
     float scale = modelScale.magnitude() / std::sqrt(3.f);
 
     GetModelData()->SetScale(zeus::CVector3f(scale));
-    SpankLog.report(logvisor::Level::Warning,
-                    FMT_STRING("WARNING: Non-uniform scale {} applied to Spank Weed"
-                               "...changing scale to ({} {} {})\n"),
-                    modelScale, scale, scale, scale);
+    spdlog::warn(
+        "WARNING: Non-uniform scale {} applied to Spank Weed"
+        "...changing scale to ({} {} {})\n",
+        modelScale, scale, scale, scale);
   }
   CMaterialList list = GetMaterialFilter().GetExcludeList();
   list.Add(EMaterialTypes::Character);

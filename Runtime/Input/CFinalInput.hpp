@@ -1,6 +1,8 @@
 #pragma once
 
 #include <array>
+#include <cstring>
+#include <bitset>
 
 #include "Runtime/Input/CKeyboardMouseController.hpp"
 #include "Runtime/Input/CControllerGamepadData.hpp"

@@ -1,10 +1,9 @@
 #include "Runtime/CObjectList.hpp"
+#ifndef NDEBUG
+#include "Runtime/Logging.hpp"
+#endif
 
-#include <logvisor/logvisor.hpp>
 namespace metaforce {
-namespace {
-logvisor::Module Log("metaforce::CObjectList");
-}
 
 CObjectList::CObjectList(EGameObjectList listEnum) : x2004_listEnum(listEnum) {}
 
@@ -13,9 +12,8 @@ void CObjectList::AddObject(CEntity& entity) {
 #ifndef NDEBUG
     if (x0_list[entity.GetUniqueId().Value()].entity != nullptr &&
         x0_list[entity.GetUniqueId().Value()].entity != &entity)
-      Log.report(logvisor::Level::Fatal,
-                 FMT_STRING("INVALID USAGE DETECTED: Attempting to assign entity '{} ({})' to existing node '{}'!!!"),
-                 entity.GetName(), entity.GetEditorId(), entity.GetUniqueId().Value());
+      spdlog::fatal("INVALID USAGE DETECTED: Attempting to assign entity '{} ({})' to existing node '{}'!!!",
+                    entity.GetName(), entity.GetEditorId(), entity.GetUniqueId().Value());
 #endif
     s16 prevFirst = -1;
     if (x2008_firstId != -1) {

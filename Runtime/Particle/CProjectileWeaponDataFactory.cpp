@@ -8,12 +8,10 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
 #include "Runtime/Particle/CWeaponDescription.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce {
-static logvisor::Module Log("metaforce::CProjectileWeaponDataFactory");
-
 using CPF = CParticleDataFactory;
 
 std::unique_ptr<CWeaponDescription> CProjectileWeaponDataFactory::GetGeneratorDesc(CInputStream& in,
@@ -160,7 +158,7 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
       desc->x29_FC60 = CPF::GetBool(in);
       break;
     default: {
-      Log.report(logvisor::Fatal, FMT_STRING("Unknown WPSM class {} @{}"), clsId, in.GetReadPosition());
+      spdlog::fatal("Unknown WPSM class {} @{}", clsId, in.GetReadPosition());
       return false;
     }
     }

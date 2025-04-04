@@ -4,12 +4,10 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Particle/CParticleDataFactory.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce {
-static logvisor::Module Log("metaforce::CDecalDataFactory");
-
 using CPF = CParticleDataFactory;
 std::unique_ptr<CDecalDescription> CDecalDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
   return CreateGeneratorDescription(in, resPool);
@@ -84,7 +82,7 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
       desc->x5c_25_DMOO = CPF::GetBool(in);
       break;
     default: {
-      Log.report(logvisor::Fatal, FMT_STRING("Unknown DPSC class {} @{}"), clsId, in.GetReadPosition());
+      spdlog::fatal("Unknown DPSC class {} @{}", clsId, in.GetReadPosition());
       return false;
     }
     }

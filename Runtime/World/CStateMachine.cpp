@@ -2,14 +2,12 @@
 
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CAi.hpp"
+#include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include "ConsoleVariables/CVarManager.hpp"
 
 namespace metaforce {
-namespace {
-logvisor::Module Log("metaforce::CStateMachine");
-}
-
 CStateMachine::CStateMachine(CInputStream& in) {
   CAiTrigger* lastTrig = nullptr;
   u32 stateCount = in.ReadLong();
@@ -99,8 +97,8 @@ void CStateMachineState::Update(CStateManager& mgr, CAi& ai, float delta) {
       if (andPassed && state != nullptr) {
         x4_state->CallFunc(mgr, ai, EStateMsg::Deactivate, 0.f);
         x4_state = state;
-        Log.report(logvisor::Info, FMT_STRING("{} {} {} - {} {}"), ai.GetUniqueId(), ai.GetEditorId(), ai.GetName(),
-                   state->xc_name, int(state - x0_machine->GetStateVector().data()));
+        spdlog::info("{} {} {} - {} {}", ai.GetUniqueId(), ai.GetEditorId(), ai.GetName(), state->xc_name,
+                     int(state - x0_machine->GetStateVector().data()));
         x8_time = 0.f;
         x18_24_codeTrigger = false;
         xc_random = mgr.GetActiveRandom()->Float();

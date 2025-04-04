@@ -15,12 +15,11 @@
 #include "Runtime/Particle/CDecal.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/CDvdFile.hpp"
+#include "Runtime/Logging.hpp"
 
 #include <utility>
 
 namespace metaforce {
-static logvisor::Module Log("CCubeRenderer");
-
 /* TODO: This is to fix some areas exceeding the max drawable count, the proper number is 128 drawables per bucket */
 // using BucketHolderType = rstl::reserved_vector<CDrawable*, 128>;
 using BucketHolderType = rstl::reserved_vector<CDrawable*, 132>;
@@ -127,7 +126,7 @@ void Buckets::Sort() {
       bucket.push_back(&drawable);
     }
     // else
-    //    Log.report(logvisor::Fatal, FMT_STRING("Full bucket!!!"));
+    //    spdlog::fatal("Full bucket!!!");
   }
 
   u16 bucketIdx = u16(sBuckets->size());
@@ -162,7 +161,7 @@ void Buckets::InsertPlaneObject(float closeDist, float farDist, const zeus::CAAB
 void Buckets::Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype, void* data,
                      const zeus::CPlane& plane, u16 extraSort) {
   if (sData->size() == sData->capacity()) {
-    Log.report(logvisor::Fatal, FMT_STRING("Rendering buckets filled to capacity"));
+    spdlog::fatal("Rendering buckets filled to capacity");
     return;
   }
 
@@ -330,7 +329,7 @@ void CCubeRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance
 
 void CCubeRenderer::DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   SCOPED_GRAPHICS_DEBUG_GROUP(
-      fmt::format(FMT_STRING("CCubeRenderer::DrawUnsortedGeometry areaIdx={} mask={} targetMask={}"), areaIdx, mask,
+      fmt::format("CCubeRenderer::DrawUnsortedGeometry areaIdx={} mask={} targetMask={}", areaIdx, mask,
                   targetMask)
           .c_str(),
       zeus::skBlue);
@@ -408,7 +407,7 @@ void CCubeRenderer::DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) 
 
 void CCubeRenderer::DrawSortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   SCOPED_GRAPHICS_DEBUG_GROUP(
-      fmt::format(FMT_STRING("CCubeRenderer::DrawSortedGeometry areaIdx={} mask={} targetMask={}"), areaIdx, mask,
+      fmt::format("CCubeRenderer::DrawSortedGeometry areaIdx={} mask={} targetMask={}", areaIdx, mask,
                   targetMask)
           .c_str(),
       zeus::skBlue);
@@ -442,7 +441,7 @@ void CCubeRenderer::DrawStaticGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
 
 void CCubeRenderer::DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   SCOPED_GRAPHICS_DEBUG_GROUP(
-      fmt::format(FMT_STRING("CCubeRenderer::DrawAreaGeometry areaIdx={} mask={} targetMask={}"), areaIdx, mask,
+      fmt::format("CCubeRenderer::DrawAreaGeometry areaIdx={} mask={} targetMask={}", areaIdx, mask,
                   targetMask)
           .c_str(),
       zeus::skBlue);
@@ -490,7 +489,7 @@ void CCubeRenderer::DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
 
 void CCubeRenderer::RenderBucketItems(const CAreaListItem* item) {
   SCOPED_GRAPHICS_DEBUG_GROUP(
-      fmt::format(FMT_STRING("CCubeRenderer::RenderBucketItems areaIdx={}"), item->x18_areaIdx).c_str(), zeus::skBlue);
+      fmt::format("CCubeRenderer::RenderBucketItems areaIdx={}", item->x18_areaIdx).c_str(), zeus::skBlue);
 
   CCubeModel* lastModel = nullptr;
   EDrawableType lastDrawableType = EDrawableType::Invalid;

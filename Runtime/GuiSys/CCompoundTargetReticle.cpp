@@ -9,6 +9,7 @@
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CScriptGrapplePoint.hpp"
 #include "Runtime/World/CWorld.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -64,7 +65,7 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 , x208_lockonTimer(g_tweakTargeting->GetLockonDuration()) {
   xe0_outerBeamIconSquares.reserve(9);
   for (size_t i = 0; i < xe0_outerBeamIconSquares.capacity(); ++i) {
-    xe0_outerBeamIconSquares.emplace_back(fmt::format(FMT_STRING("{}{}"), skOuterBeamIconSquareNameBase, i));
+    xe0_outerBeamIconSquares.emplace_back(fmt::format("{}{}", skOuterBeamIconSquareNameBase, i));
   }
   x34_crosshairs.Lock();
 }

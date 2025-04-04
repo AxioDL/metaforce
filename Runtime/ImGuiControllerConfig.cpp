@@ -4,6 +4,7 @@
 #include "Runtime/Streams/CFileOutStream.hpp"
 #include "Runtime/Streams/ContainerReaders.hpp"
 #include "Runtime/Streams/ContainerWriters.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include <imgui.h>
 
@@ -77,23 +78,23 @@ void ImGuiControllerConfig::show(bool& visible) {
   std::vector<std::string> controllers;
   controllers.push_back("None");
   for (u32 i = 0; i < PADCount(); ++i) {
-    controllers.push_back(fmt::format(FMT_STRING("{}-{}"), PADGetNameForControllerIndex(i), i));
+    controllers.push_back(fmt::format("{}-{}", PADGetNameForControllerIndex(i), i));
   }
 
   m_pendingValid = false;
   if (ImGui::Begin("Controller Config", &visible)) {
     if (ImGui::CollapsingHeader("Ports")) {
       for (u32 i = 0; i < 4; ++i) {
-        ImGui::PushID(fmt::format(FMT_STRING("PortConf-{}"), i).c_str());
+        ImGui::PushID(fmt::format("PortConf-{}", i).c_str());
         s32 index = PADGetIndexForPort(i);
         int sel = 0;
         std::string name = "None";
         const char* tmpName = PADGetName(i);
         bool changed = false;
         if (tmpName != nullptr) {
-          name = fmt::format(FMT_STRING("{}-{}"), tmpName, index);
+          name = fmt::format("{}-{}", tmpName, index);
         }
-        if (ImGui::BeginCombo(fmt::format(FMT_STRING("Port {}"), i + 1).c_str(), name.c_str())) {
+        if (ImGui::BeginCombo(fmt::format("Port {}", i + 1).c_str(), name.c_str())) {
           for (u32 j = 0; const auto& s : controllers) {
             if (ImGui::Selectable(s.c_str(), name == s)) {
               sel = j;
@@ -116,8 +117,8 @@ void ImGuiControllerConfig::show(bool& visible) {
     }
     if (ImGui::BeginTabBar("Controllers")) {
       for (u32 i = 0; i < 4; ++i) {
-        if (ImGui::BeginTabItem(fmt::format(FMT_STRING("Port {}"), i + 1).c_str())) {
-          ImGui::PushID(fmt::format(FMT_STRING("Port_{}"), i + 1).c_str());
+        if (ImGui::BeginTabItem(fmt::format("Port {}", i + 1).c_str())) {
+          ImGui::PushID(fmt::format("Port_{}", i + 1).c_str());
           /* If the tab is changed while pending for input, cancel the pending port */
           if (m_pendingMapping != nullptr && m_pendingPort != i) {
             m_pendingMapping = nullptr;

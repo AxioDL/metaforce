@@ -93,7 +93,7 @@ void CPhysicsActor::AddMotionState(const CMotionState& mst) {
   q += mst.xc_orientation;
   zeus::CQuaternion quat = zeus::CQuaternion::fromNUQuaternion(q);
   //   if (TCastToPtr<CPlayer>(this)) {
-  //    fmt::print(FMT_STRING("ADD {}\n"), mst.x0_translation);
+  //    spdlog::debug("ADD {}\n", mst.x0_translation);
   //  }
   SetTransform(zeus::CTransform(quat, x34_transform.origin));
 

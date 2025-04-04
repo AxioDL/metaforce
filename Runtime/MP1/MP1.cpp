@@ -40,6 +40,7 @@
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CStateMachine.hpp"
 #include "Runtime/World/CScriptMazeNode.hpp"
+#include "Runtime/Logging.hpp"
 
 #include "Runtime/MP1/CCredits.hpp"
 
@@ -73,8 +74,6 @@ inline void* memmem(const void* haystack, size_t hlen, const void* needle, size_
 #endif
 
 namespace metaforce::MP1 {
-static logvisor::Module Log{"MP1"};
-
 namespace {
 struct AudioGroupInfo {
   const char* name;
@@ -329,7 +328,7 @@ void CMain::AddOverridePaks() {
    * the higher the number the higer the priority, e.g: Override0 has less priority than Override1 etc.
    */
   for (size_t i = 9; i > 0; --i) {
-    const std::string path = fmt::format(FMT_STRING("Override{}"), i);
+    const std::string path = fmt::format("Override{}", i);
     if (CDvdFile::FileExists(path + ".pak")) {
       loader->AddPakFileAsync(path, false, false, true);
     }
@@ -403,8 +402,7 @@ bool CMain::LoadAudio() {
 
 void CMain::EnsureWorldPaksReady() {}
 
-void CMain::EnsureWorldPakReady(CAssetId mlvl) { /* TODO: Schedule resource list load for World Pak containing mlvl */
-}
+void CMain::EnsureWorldPakReady(CAssetId mlvl) { /* TODO: Schedule resource list load for World Pak containing mlvl */ }
 
 void CMain::StreamNewGameState(CInputStream& r, u32 idx) {
   bool fusionBackup = g_GameState->SystemOptions().GetPlayerFusionSuitActive();
@@ -429,8 +427,6 @@ void CMain::RefreshGameState() {
   g_GameState->GetPlayerState()->SetIsFusionEnabled(g_GameState->SystemOptions().GetPlayerFusionSuitActive());
 }
 
-static logvisor::Module DiscordLog("Discord");
-static logvisor::Module MainLog("MP1::CMain");
 static const char* DISCORD_APPLICATION_ID = "402571593815031819";
 static int64_t DiscordStartTime;
 static CAssetId DiscordWorldSTRG;
@@ -476,7 +472,7 @@ void CMain::UpdateDiscordPresence(CAssetId worldSTRG) {
       const u32 itemPercent = pState->CalculateItemCollectionRate() * 100 / pState->GetPickupTotal();
       if (DiscordItemPercent != itemPercent) {
         DiscordItemPercent = itemPercent;
-        DiscordState = fmt::format(FMT_STRING("{}%"), itemPercent);
+        DiscordState = fmt::format("{}%", itemPercent);
         updated = true;
       }
     }
@@ -493,17 +489,13 @@ void CMain::UpdateDiscordPresence(CAssetId worldSTRG) {
 #endif
 }
 
-void CMain::HandleDiscordReady(const DiscordUser* request) {
-  DiscordLog.report(logvisor::Info, FMT_STRING("Discord Ready"));
-}
+void CMain::HandleDiscordReady(const DiscordUser* request) { spdlog::info("Discord Ready"); }
 
 void CMain::HandleDiscordDisconnected(int errorCode, const char* message) {
-  DiscordLog.report(logvisor::Warning, FMT_STRING("Discord Disconnected: {}"), message);
+  spdlog::warn("Discord Disconnected: {}", message);
 }
 
-void CMain::HandleDiscordErrored(int errorCode, const char* message) {
-  DiscordLog.report(logvisor::Error, FMT_STRING("Discord Error: {}"), message);
-}
+void CMain::HandleDiscordErrored(int errorCode, const char* message) { spdlog::error("Discord Error: {}", message); }
 
 std::string CMain::Init(int argc, char** argv, const FileStoreManager& storeMgr, CVarManager* cvarMgr) {
   m_cvarMgr = cvarMgr;
@@ -511,7 +503,7 @@ std::string CMain::Init(int argc, char** argv, const FileStoreManager& storeMgr,
   {
     auto discInfo = CDvdFile::DiscInfo();
     if (discInfo.gameId[4] != '0' || discInfo.gameId[5] != '1') {
-      return fmt::format(FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
+      return fmt::format("Unknown game ID {}", std::string_view{discInfo.gameId.data(), 6});
     }
     if (strncmp(discInfo.gameId.data(), "GM8", 3) == 0) {
       m_version.game = EGame::MetroidPrime1;
@@ -532,7 +524,7 @@ std::string CMain::Init(int argc, char** argv, const FileStoreManager& storeMgr,
       m_version.game = EGame::MetroidPrimeTrilogy;
       m_version.platform = EPlatform::Wii;
     } else {
-      return fmt::format(FMT_STRING("Unknown game ID {}"), std::string_view{discInfo.gameId.data(), 6});
+      return fmt::format("Unknown game ID {}", std::string_view{discInfo.gameId.data(), 6});
     }
     switch (discInfo.gameId[3]) {
     case 'E':
@@ -549,13 +541,13 @@ std::string CMain::Init(int argc, char** argv, const FileStoreManager& storeMgr,
       m_version.region = ERegion::PAL;
       break;
     default:
-      return fmt::format(FMT_STRING("Unknown region {}"), discInfo.gameId[3]);
+      return fmt::format("Unknown region {}", discInfo.gameId[3]);
     }
     m_version.gameTitle = std::move(discInfo.gameTitle);
   }
 
   if (m_version.game != EGame::MetroidPrime1 && m_version.game != EGame::MetroidPrimeTrilogy) {
-    return fmt::format(FMT_STRING("Unsupported game {}"), magic_enum::enum_name(m_version.game));
+    return fmt::format("Unsupported game {}", magic_enum::enum_name(m_version.game));
   }
 
   {
@@ -567,18 +559,17 @@ std::string CMain::Init(int argc, char** argv, const FileStoreManager& storeMgr,
     }
     CDvdFile file(dolFile);
     if (!file) {
-      return fmt::format(FMT_STRING("Failed to open {}"), dolFile);
+      return fmt::format("Failed to open {}", dolFile);
     }
     std::unique_ptr<u8[]> buf = std::make_unique<u8[]>(file.Length());
     u32 readLen = file.SyncRead(buf.get(), file.Length());
     const char* buildInfo = static_cast<char*>(memmem(buf.get(), readLen, "MetroidBuildInfo", 16)) + 19;
     if (buildInfo == nullptr) {
-      return fmt::format(FMT_STRING("Failed to locate MetroidBuildInfo"));
+      return fmt::format("Failed to locate MetroidBuildInfo");
     }
     m_version.version = buildInfo;
   }
-  MainLog.report(logvisor::Level::Info, FMT_STRING("Loading data from {} {} ({})"), GetGameTitle(),
-                 magic_enum::enum_name(GetRegion()), GetVersionString());
+  spdlog::info("Loading data from {} {} ({})", GetGameTitle(), magic_enum::enum_name(GetRegion()), GetVersionString());
 
   InitializeDiscord();
   if (m_version.game == EGame::MetroidPrimeTrilogy) {

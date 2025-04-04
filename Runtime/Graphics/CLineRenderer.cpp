@@ -1,12 +1,9 @@
 #include "Runtime/Graphics/CLineRenderer.hpp"
 
 #include "Runtime/Graphics/Shaders/CLineRendererShaders.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
 
 namespace metaforce {
-logvisor::Module LineRendererLog("metaforce::CLineRenderer");
-
 void CLineRenderer::Initialize() { CLineRendererShaders::Initialize(); }
 
 void CLineRenderer::Shutdown() {
@@ -25,7 +22,7 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, u32 texture,
 : m_mode(mode), m_maxVerts(maxVerts) {
   OPTICK_EVENT();
   if (maxVerts < 2) {
-    LineRendererLog.report(logvisor::Fatal, FMT_STRING("maxVerts < 2, maxVerts = {}"), maxVerts);
+    spdlog::fatal("maxVerts < 2, maxVerts = {}", maxVerts);
     return;
   }
   m_textured = bool(texture);

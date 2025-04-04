@@ -3,18 +3,10 @@
 #include <functional>
 #include <optional>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "GCNTypes.hpp"
 #include "rstl.hpp"
-
-#include <logvisor/logvisor.hpp>
-#include <zeus/CMatrix3f.hpp>
-#include <zeus/CMatrix4f.hpp>
-#include <zeus/CTransform.hpp>
-#include <zeus/CVector2f.hpp>
-#include <zeus/CVector3f.hpp>
 
 #undef min
 #undef max
@@ -108,7 +100,8 @@ constexpr double SBig(double val) noexcept {
   return uval2.f;
 }
 #ifndef SBIG
-#define SBIG(q) (((q)&0x000000FF) << 24 | ((q)&0x0000FF00) << 8 | ((q)&0x00FF0000) >> 8 | ((q)&0xFF000000) >> 24)
+#define SBIG(q)                                                                                                        \
+  (((q) & 0x000000FF) << 24 | ((q) & 0x0000FF00) << 8 | ((q) & 0x00FF0000) >> 8 | ((q) & 0xFF000000) >> 24)
 #endif
 
 constexpr int16_t SLittle(int16_t val) noexcept { return val; }
@@ -138,7 +131,8 @@ constexpr double SLittle(double val) noexcept {
   return *((double*)(&ival));
 }
 #ifndef SLITTLE
-#define SLITTLE(q) (((q)&0x000000FF) << 24 | ((q)&0x0000FF00) << 8 | ((q)&0x00FF0000) >> 8 | ((q)&0xFF000000) >> 24)
+#define SLITTLE(q)                                                                                                     \
+  (((q) & 0x000000FF) << 24 | ((q) & 0x0000FF00) << 8 | ((q) & 0x00FF0000) >> 8 | ((q) & 0xFF000000) >> 24)
 #endif
 
 constexpr int16_t SBig(int16_t val) noexcept { return val; }
@@ -210,7 +204,7 @@ public:
   [[nodiscard]] constexpr bool operator<(CAssetId other) const noexcept { return id < other.id; }
 };
 
-//#define kInvalidAssetId CAssetId()
+// #define kInvalidAssetId CAssetId()
 
 struct SObjectTag {
   FourCC type;
@@ -332,7 +326,6 @@ public:
 
   [[nodiscard]] size_t Size() const { return this->size(); }
 };
-
 } // namespace metaforce
 
 namespace std {
@@ -351,40 +344,6 @@ struct hash<metaforce::CAssetId> {
   size_t operator()(const metaforce::CAssetId& id) const noexcept { return id.Value(); }
 };
 } // namespace std
-
-FMT_CUSTOM_FORMATTER(metaforce::CAssetId, "{:08X}", obj.Value())
-FMT_CUSTOM_FORMATTER(metaforce::TEditorId, "{:08X}", obj.id)
-static_assert(sizeof(metaforce::kUniqueIdType) == sizeof(u16),
-              "TUniqueId size does not match expected size! Update TUniqueId format string!");
-FMT_CUSTOM_FORMATTER(metaforce::TUniqueId, "{:04X}", obj.id)
-FMT_CUSTOM_FORMATTER(metaforce::FourCC, "{:c}{:c}{:c}{:c}", obj.getChars()[0], obj.getChars()[1], obj.getChars()[2],
-                     obj.getChars()[3])
-FMT_CUSTOM_FORMATTER(metaforce::SObjectTag, "{} {}", obj.type, obj.id)
-
-FMT_CUSTOM_FORMATTER(zeus::CVector3f, "({} {} {})", float(obj.x()), float(obj.y()), float(obj.z()))
-FMT_CUSTOM_FORMATTER(zeus::CVector2f, "({} {})", float(obj.x()), float(obj.y()))
-FMT_CUSTOM_FORMATTER(zeus::CMatrix3f,
-                     "\n({} {} {})"
-                     "\n({} {} {})"
-                     "\n({} {} {})",
-                     float(obj[0][0]), float(obj[1][0]), float(obj[2][0]), float(obj[0][1]), float(obj[1][1]),
-                     float(obj[2][1]), float(obj[0][2]), float(obj[1][2]), float(obj[2][2]))
-FMT_CUSTOM_FORMATTER(zeus::CMatrix4f,
-                     "\n({} {} {} {})"
-                     "\n({} {} {} {})"
-                     "\n({} {} {} {})"
-                     "\n({} {} {} {})",
-                     float(obj[0][0]), float(obj[1][0]), float(obj[2][0]), float(obj[3][0]), float(obj[0][1]),
-                     float(obj[1][1]), float(obj[2][1]), float(obj[3][1]), float(obj[0][2]), float(obj[1][2]),
-                     float(obj[2][2]), float(obj[3][2]), float(obj[0][3]), float(obj[1][3]), float(obj[2][3]),
-                     float(obj[3][3]))
-FMT_CUSTOM_FORMATTER(zeus::CTransform,
-                     "\n({} {} {} {})"
-                     "\n({} {} {} {})"
-                     "\n({} {} {} {})",
-                     float(obj.basis[0][0]), float(obj.basis[1][0]), float(obj.basis[2][0]), float(obj.origin[0]),
-                     float(obj.basis[0][1]), float(obj.basis[1][1]), float(obj.basis[2][1]), float(obj.origin[1]),
-                     float(obj.basis[0][2]), float(obj.basis[1][2]), float(obj.basis[2][2]), float(obj.origin[2]))
 
 #if defined(__has_feature)
 #if __has_feature(memory_sanitizer)

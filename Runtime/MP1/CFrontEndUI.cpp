@@ -459,9 +459,9 @@ std::u16string GetTimeString(const CGameState::GameFileStateInfo* data) {
   if (data) {
     auto pt = std::div(data->x0_playTime, 3600);
 #if FE_USE_SECONDS_IN_ELAPSED
-    return fmt::format(FMT_STRING(u"{:02d}:{:02d}:{:02d}"), pt.quot, pt.rem / 60, pt.rem % 60);
+    return fmt::format(u"{:02d}:{:02d}:{:02d}", pt.quot, pt.rem / 60, pt.rem % 60);
 #else
-    return fmt::format(FMT_STRING(u"{:02d}:{:02d}"), pt.quot, pt.rem / 60);
+    return fmt::format(u"{:02d}:{:02d}", pt.quot, pt.rem / 60);
 #endif
   }
   if (!g_Main->IsUSA() || g_Main->IsTrilogy())
@@ -500,7 +500,7 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents() {
               strIdx = (strIdx == 106 ? 100 : 40);
 
             std::u16string fileStr = g_MainStringTable->GetString(strIdx + int(i));
-            str = fileStr + fmt::format(FMT_STRING(u"  {:02d}%"), data->x18_itemPercent);
+            str = fileStr + fmt::format(u"  {:02d}%", data->x18_itemPercent);
             break;
           }
           str = g_MainStringTable->GetString(36);
@@ -637,11 +637,11 @@ void CFrontEndUI::SNewFileSelectFrame::DoFileMenuAdvance(CGuiTableGroup* caller)
 
 CFrontEndUI::SFileMenuOption CFrontEndUI::SNewFileSelectFrame::FindFileSelectOption(CGuiFrame* frame, int idx) {
   SFileMenuOption ret;
-  ret.x0_base = frame->FindWidget(fmt::format(FMT_STRING("basewidget_file{}"), idx));
-  ret.x4_textpanes[0] = FindTextPanePair(frame, fmt::format(FMT_STRING("textpane_filename{}"), idx));
-  ret.x4_textpanes[1] = FindTextPanePair(frame, fmt::format(FMT_STRING("textpane_world{}"), idx));
-  ret.x4_textpanes[2] = FindTextPanePair(frame, fmt::format(FMT_STRING("textpane_playtime{}"), idx));
-  ret.x4_textpanes[3] = FindTextPanePair(frame, fmt::format(FMT_STRING("textpane_date{}"), idx));
+  ret.x0_base = frame->FindWidget(fmt::format("basewidget_file{}", idx));
+  ret.x4_textpanes[0] = FindTextPanePair(frame, fmt::format("textpane_filename{}", idx));
+  ret.x4_textpanes[1] = FindTextPanePair(frame, fmt::format("textpane_world{}", idx));
+  ret.x4_textpanes[2] = FindTextPanePair(frame, fmt::format("textpane_playtime{}", idx));
+  ret.x4_textpanes[3] = FindTextPanePair(frame, fmt::format("textpane_date{}", idx));
   return ret;
 }
 
@@ -1066,14 +1066,14 @@ void CFrontEndUI::SGuiTextPair::SetPairText(std::u16string_view str) {
 CFrontEndUI::SGuiTextPair CFrontEndUI::FindTextPanePair(CGuiFrame* frame, std::string_view name) {
   SGuiTextPair ret;
   ret.x0_panes[0] = static_cast<CGuiTextPane*>(frame->FindWidget(name));
-  ret.x0_panes[1] = static_cast<CGuiTextPane*>(frame->FindWidget(fmt::format(FMT_STRING("{}b"), name)));
+  ret.x0_panes[1] = static_cast<CGuiTextPane*>(frame->FindWidget(fmt::format("{}b", name)));
   return ret;
 }
 
 void CFrontEndUI::FindAndSetPairText(CGuiFrame* frame, std::string_view name, std::u16string_view str) {
   CGuiTextPane* w1 = static_cast<CGuiTextPane*>(frame->FindWidget(name));
   w1->TextSupport().SetText(str);
-  CGuiTextPane* w2 = static_cast<CGuiTextPane*>(frame->FindWidget(fmt::format(FMT_STRING("{}b"), name)));
+  CGuiTextPane* w2 = static_cast<CGuiTextPane*>(frame->FindWidget(fmt::format("{}b", name)));
   w2->TextSupport().SetText(str);
 }
 
@@ -1469,7 +1469,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::SetRightUIText() {
       (g_Main->IsUSA() && !g_Main->IsTrilogy()) ? GameOptionsRegistry[userSel] : GameOptionsRegistryNew[userSel];
 
   for (int i = 0; i < 5; ++i) {
-    std::string name = fmt::format(FMT_STRING("textpane_right{}"), i);
+    std::string name = fmt::format("textpane_right{}", i);
     if (i < static_cast<int>(options.first)) {
       FindTextPanePair(x1c_loadedFrame, name).SetPairText(x20_loadedPauseStrg->GetString(options.second[i].stringId));
       x28_tablegroup_rightmenu->GetWorkerWidget(i)->SetIsSelectable(true);
@@ -1537,7 +1537,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::FinishedLoading() {
 
   // Visor, Display, Sound, Controller
   for (int i = 0; i < 4; ++i) {
-    const std::string name = fmt::format(FMT_STRING("textpane_filename{}"), i);
+    const std::string name = fmt::format("textpane_filename{}", i);
     FindTextPanePair(x1c_loadedFrame, name)
         .SetPairText(x20_loadedPauseStrg->GetString((g_Main->IsUSA() && !g_Main->IsTrilogy() ? 16 : 18) + i));
   }
@@ -1653,7 +1653,7 @@ void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue) {
 }
 
 std::string CFrontEndUI::GetAttractMovieFileName(int idx) {
-  return fmt::format(FMT_STRING("Video/attract{}.thp"), idx);
+  return fmt::format("Video/attract{}.thp", idx);
 }
 
 std::string CFrontEndUI::GetNextAttractMovieFileName() {

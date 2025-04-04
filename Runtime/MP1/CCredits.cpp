@@ -13,8 +13,6 @@
 #include "Runtime/MP1/CPlayMovie.hpp"
 
 namespace metaforce::MP1 {
-static logvisor::Module Log("CCredits");
-
 CCredits::CCredits()
 : CIOWin("Credits")
 , x18_creditsTable(g_SimplePool->GetObj(g_tweakGui->GetCreditsTable()))

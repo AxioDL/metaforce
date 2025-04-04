@@ -9,14 +9,12 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CCubeSurface.hpp"
+#include "Runtime/Logging.hpp"
 #include "Runtime/World/CScriptAreaAttributes.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
-
-static logvisor::Module Log("CGameArea");
-
 CAreaRenderOctTree::CAreaRenderOctTree(const u8* buf) : x0_buf(buf) {
   CMemoryInStream r(x0_buf + 8, INT32_MAX);
   x8_bitmapCount = r.ReadLong();
@@ -259,7 +257,7 @@ std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& 
   CMemoryInStream r(data.get() + 4, 96 - 4);
   u32 version = r.ReadLong();
   if ((version & 0x10000) == 0) {
-    Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-URDE MREA"));
+    spdlog::fatal("Attempted to load non-URDE MREA");
   }
   version &= ~0x10000;
 
@@ -1091,7 +1089,7 @@ SMREAHeader CGameArea::VerifyHeader() const {
   CMemoryInStream r(x110_mreaSecBufs[0].first.get() + 4, x110_mreaSecBufs[0].second - 4);
   u32 version = r.ReadLong();
   if ((version & 0x10000) != 0) {
-    Log.report(logvisor::Fatal, FMT_STRING("Attempted to load non-retail MREA"));
+    spdlog::fatal("Attempted to load non-retail MREA");
   }
 
   SMREAHeader header;

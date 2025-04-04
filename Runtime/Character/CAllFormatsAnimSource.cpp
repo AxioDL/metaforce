@@ -3,12 +3,9 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/Character/CAnimSourceReader.hpp"
 #include "Runtime/Character/CFBStreamedAnimReader.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
 
 namespace metaforce {
-static logvisor::Module Log("metaforce::CAllFormatsAnimSource");
-
 void CAnimFormatUnion::SubConstruct(u8* storage, EAnimFormat fmt, CInputStream& in, IObjectStore& store) {
   switch (fmt) {
   case EAnimFormat::Uncompressed:
@@ -21,7 +18,7 @@ void CAnimFormatUnion::SubConstruct(u8* storage, EAnimFormat fmt, CInputStream& 
     new (storage) CFBStreamedCompression(in, store, true);
     break;
   default:
-    Log.report(logvisor::Fatal, FMT_STRING("unable to read ANIM format {}"), int(fmt));
+    spdlog::fatal("unable to read ANIM format {}", static_cast<int>(fmt));
   }
 }
 

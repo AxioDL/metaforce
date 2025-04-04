@@ -149,13 +149,8 @@ function(add_runtime_common_library name)
 endfunction()
 
 set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
-set(DISCORD_RPC_LIBRARY "")
-if (NOT GEKKO AND NOT NX AND NOT IOS AND NOT TVOS)
-    set(DISCORD_RPC_LIBRARY "discord-rpc")
-endif()
-set(RUNTIME_LIBRARIES zeus nod NESEmulator libjpeg-turbo jbus kabufuda logvisor OptickCore
-    imgui_support aurora::aurora
-    ${DISCORD_RPC_LIBRARY}
+set(RUNTIME_LIBRARIES zeus nod NESEmulator libjpeg-turbo jbus kabufuda OptickCore
+    imgui_support aurora::aurora spdlog::spdlog
     ${ZLIB_LIBRARIES}
     )
 

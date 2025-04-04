@@ -2,13 +2,13 @@
 #if METAFORCE_TARGET_BYTE_ORDER == __ORDER_LITTLE_ENDIAN__
 #include "Runtime/CBasics.hpp"
 #endif
+#ifndef NDEBUG
+#include "Runtime/Logging.hpp"
+#endif
 
 #include <cstring>
-#include <logvisor/logvisor.hpp>
 
 namespace metaforce {
-static logvisor::Module Log("metaforce::CInputStream");
-
 static u32 min_containing_bytes(u32 v) {
   v = 32 - v;
   v = (v >> 3) - (static_cast<s32>(-(v & 7)) >> 31);
@@ -51,7 +51,7 @@ void CInputStream::Get(u8* dest, u32 len) {
       u32 readLen = Read(dest + readCount, len);
 #ifndef NDEBUG
       if (readLen == 0) {
-        Log.report(logvisor::Fatal, FMT_STRING("Invalid read size!"));
+        spdlog::fatal("Invalid read size!");
         break;
       }
 #endif
@@ -112,8 +112,7 @@ u32 CInputStream::ReadBits(u32 bitCount) {
     const u32 mask2 = shiftAmt == 32 ? 0xffffffff : (1 << shiftAmt) - 1;
     u32 tmp = x20_bitOffset;
     x20_bitOffset = len * 8;
-    ret = ((mask & (bitWord >> (32 - bitOffset))) << shiftAmt) |
-          ((mask2 & (x1c_bitWord >> (32 - shiftAmt))) << tmp);
+    ret = ((mask & (bitWord >> (32 - bitOffset))) << shiftAmt) | ((mask2 & (x1c_bitWord >> (32 - shiftAmt))) << tmp);
     x20_bitOffset -= shiftAmt;
     x1c_bitWord <<= u64(shiftAmt);
   } else {

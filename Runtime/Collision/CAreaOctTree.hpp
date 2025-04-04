@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <memory>
 
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Collision/CCollisionEdge.hpp"

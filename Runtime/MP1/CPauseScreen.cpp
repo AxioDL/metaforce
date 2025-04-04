@@ -9,6 +9,7 @@
 #include "Runtime/Input/ControlMapper.hpp"
 #include "Runtime/MP1/CLogBookScreen.hpp"
 #include "Runtime/MP1/COptionsScreen.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce::MP1 {
 
@@ -218,21 +219,21 @@ void CPauseScreen::ProcessControllerInput(const CStateManager& mgr, const CFinal
   }
 
   x38_textpane_l1->TextSupport().SetText(fmt::format(
-      FMT_STRING("&image={};"),
+      "&image={};",
       g_tweakPlayerRes
           ->x74_lTrigger[ControlMapper::GetDigitalInput(ControlMapper::ECommands::PreviousPauseScreen, useInput) ||
                          m_lDown]));
   x3c_textpane_r->TextSupport().SetText(fmt::format(
-      FMT_STRING("&image={};"),
+      "&image={};",
       g_tweakPlayerRes
           ->x80_rTrigger[ControlMapper::GetDigitalInput(ControlMapper::ECommands::NextPauseScreen, useInput) ||
                          m_rDown]));
   x48_textpane_return->TextSupport().SetText(
-      fmt::format(FMT_STRING("&image={};"), g_tweakPlayerRes->x8c_startButton[useInput.DStart() || m_returnDown]));
+      fmt::format("&image={};", g_tweakPlayerRes->x8c_startButton[useInput.DStart() || m_returnDown]));
   x50_textpane_back->TextSupport().SetText(
-      fmt::format(FMT_STRING("&image={};"), g_tweakPlayerRes->x98_aButton[useInput.DA() || m_backDown]));
+      fmt::format("&image={};", g_tweakPlayerRes->x98_aButton[useInput.DA() || m_backDown]));
   x4c_textpane_next->TextSupport().SetText(
-      fmt::format(FMT_STRING("&image={};"), g_tweakPlayerRes->xa4_bButton[useInput.DB() || m_nextDown]));
+      fmt::format("&image={};", g_tweakPlayerRes->xa4_bButton[useInput.DB() || m_nextDown]));
 }
 
 void CPauseScreen::TransitionComplete() {

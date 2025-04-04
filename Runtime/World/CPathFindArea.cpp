@@ -1,14 +1,10 @@
 #include "Runtime/World/CPathFindArea.hpp"
 
-#include <logvisor/logvisor.hpp>
-
+#include "Runtime/Logging.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/IVParamObj.hpp"
 
 namespace metaforce {
-
-static logvisor::Module Log("CPathFindArea");
-
 CPFAreaOctree::CPFAreaOctree(CMemoryInStream& in) {
   x0_isLeaf = in.ReadLong();
   x4_aabb = in.Get<zeus::CAABox>();
@@ -127,7 +123,7 @@ CPFArea::CPFArea(std::unique_ptr<u8[]>&& buf, u32 len) {
 
   u32 version = r.ReadLong();
   if (version != 4)
-    Log.report(logvisor::Fatal, FMT_STRING("Unexpected PATH version {}, should be 4"), version);
+    spdlog::fatal("Unexpected PATH version {}, should be 4", version);
 
   u32 numNodes = r.ReadLong();
   x140_nodes.reserve(numNodes);

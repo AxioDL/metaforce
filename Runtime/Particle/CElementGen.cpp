@@ -13,13 +13,12 @@
 #include "Runtime/Particle/CParticleSwoosh.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
 #include "Runtime/Particle/CWarp.hpp"
+#include "Runtime/Logging.hpp"
 
 #define MAX_GLOBAL_PARTICLES 2560
 
 namespace metaforce {
 namespace {
-logvisor::Module Log("metaforce::CElementGen");
-
 // constexpr std::array ShadClsSizes{
 //     sizeof(SParticleInstanceTex),
 //     sizeof(SParticleInstanceIndTex),
@@ -244,7 +243,7 @@ bool CElementGen::Update(double t) {
   if (pswtElem && !x26d_25_warmedUp) {
     int pswt = 0;
     pswtElem->GetValue(x74_curFrame, pswt);
-    // Log.report(logvisor::Info, FMT_STRING("Running warmup on particle system 0x%08x for %d ticks."), desc, pswt);
+    // spdlog::info("Running warmup on particle system 0x%08x for %d ticks.", desc, pswt);
     InternalUpdate((1.f / 60.f) * pswt);
     x26d_25_warmedUp = true;
   }
@@ -367,8 +366,7 @@ void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, s32 par
   CGenDescription* desc = x28_loadedGenDesc;
 
   if (activeParticleCount >= x60_advValues.size()) {
-    Log.report(logvisor::Fatal, FMT_STRING("activeParticleCount ({}) >= advValues size ({})"), activeParticleCount,
-               x60_advValues.size());
+    spdlog::fatal("activeParticleCount ({}) >= advValues size ({})", activeParticleCount, x60_advValues.size());
   }
 
   std::array<float, 8>& arr = x60_advValues[activeParticleCount];
@@ -838,7 +836,7 @@ u32 CElementGen::GetSystemCount() const {
 }
 
 void CElementGen::Render() {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::Render {}"), *x1c_genDesc.GetObjectTag()).c_str(),
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format("CElementGen::Render {}", *x1c_genDesc.GetObjectTag()).c_str(),
                               zeus::skYellow);
 
   CGenDescription* desc = x1c_genDesc.GetObj();
@@ -868,7 +866,7 @@ void CElementGen::Render() {
 }
 
 void CElementGen::RenderModels() {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderModels")).c_str(), zeus::skYellow);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format("CElementGen::RenderModels").c_str(), zeus::skYellow);
 
   CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
   if (x26d_26_modelsUseLights) {
@@ -1093,7 +1091,7 @@ void CElementGen::RenderModels() {
 }
 
 void CElementGen::RenderLines() {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderLines")).c_str(), zeus::skYellow);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format("CElementGen::RenderLines").c_str(), zeus::skYellow);
 
   CGenDescription* desc = x1c_genDesc.GetObj();
   CGlobalRandom gr(x27c_randState);
@@ -1202,7 +1200,7 @@ void CElementGen::RenderParticles() {
     return;
   }
 
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderParticles")).c_str(), zeus::skYellow);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format("CElementGen::RenderParticles").c_str(), zeus::skYellow);
 
   CRealElement* size = desc->x4c_x38_SIZE.get();
   if (size && size->IsConstant()) {
@@ -1526,7 +1524,7 @@ void CElementGen::RenderParticles() {
 //      g_instNoTexData.reserve(x30_particles.size() * mbspVal);
 //      break;
 //    default:
-//      Log.report(logvisor::Fatal, FMT_STRING("unexpected particle shader class"));
+//      spdlog::fatal("unexpected particle shader class");
 //      break;
 //    }
     const float mbspFac = 1.f / float(mbspVal);
@@ -1640,7 +1638,7 @@ void CElementGen::RenderParticles() {
 }
 
 void CElementGen::RenderParticlesIndirectTexture() {
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CElementGen::RenderParticlesIndirectTexture")).c_str(), zeus::skYellow);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format("CElementGen::RenderParticlesIndirectTexture").c_str(), zeus::skYellow);
 
   CGenDescription* desc = x1c_genDesc.GetObj();
 

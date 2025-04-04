@@ -1,6 +1,9 @@
 #include "Runtime/Input/CDolphinController.hpp"
 
 #include <dolphin/si.h>
+#include <zeus/Math.hpp>
+
+#include <cstring>
 
 namespace metaforce {
 CDolphinController::CDolphinController() {

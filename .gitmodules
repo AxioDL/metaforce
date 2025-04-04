@@ -10,21 +10,9 @@
 	path = extern/jbus
 	url = ../jbus.git
 	branch = master
-[submodule "extern/discord-rpc"]
-	path = extern/discord-rpc
-	url = https://github.com/discordapp/discord-rpc.git
-	branch = master
-[submodule "extern/rapidjson"]
-	path = extern/rapidjson
-	url = https://github.com/Tencent/rapidjson.git
-	branch = master
 [submodule "extern/fixNES"]
 	path = extern/fixNES
 	url = https://github.com/FIX94/fixNES.git
-	branch = master
-[submodule "extern/athena"]
-	path = extern/athena
-	url = ../../libAthena/athena.git
 	branch = master
 [submodule "extern/libjpeg-turbo"]
 	path = extern/libjpeg-turbo
@@ -45,3 +33,7 @@
 	path = extern/aurora
 	url = https://github.com/encounter/aurora.git
 	branch = main
+[submodule "extern/spdlog"]
+	path = extern/spdlog
+	url = https://github.com/gabime/spdlog.git
+	branch = v1.x

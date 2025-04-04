@@ -13,12 +13,10 @@
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 #include "Runtime/Graphics/CVertexMorphEffect.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce {
-static logvisor::Module Log("metaforce::CModelData");
-
 CModelData::~CModelData() = default;
 
 CModelData::CModelData() {}
@@ -27,7 +25,7 @@ CModelData CModelData::CModelDataNull() { return CModelData(); }
 CModelData::CModelData(const CStaticRes& res) : x0_scale(res.GetScale()) {
   x1c_normalModel = g_SimplePool->GetObj({SBIG('CMDL'), res.GetId()});
   if (!x1c_normalModel)
-    Log.report(logvisor::Fatal, FMT_STRING("unable to find CMDL {}"), res.GetId());
+    spdlog::fatal("unable to find CMDL {}", res.GetId());
 }
 
 CModelData::CModelData(const CAnimRes& res) : x0_scale(res.GetScale()) {
@@ -142,7 +140,7 @@ void CModelData::SetXRayModel(const std::pair<CAssetId, CAssetId>& modelSkin) {
       } else {
         x2c_xrayModel = g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first});
         if (!x2c_xrayModel)
-          Log.report(logvisor::Fatal, FMT_STRING("unable to find CMDL {}"), modelSkin.first);
+          spdlog::fatal("unable to find CMDL {}", modelSkin.first);
       }
     }
   }
@@ -158,7 +156,7 @@ void CModelData::SetInfraModel(const std::pair<CAssetId, CAssetId>& modelSkin) {
       } else {
         x3c_infraModel = g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first});
         if (!x3c_infraModel)
-          Log.report(logvisor::Fatal, FMT_STRING("unable to find CMDL {}"), modelSkin.first);
+          spdlog::fatal("unable to find CMDL {}", modelSkin.first);
       }
     }
   }

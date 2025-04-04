@@ -933,7 +933,7 @@ void CParticleSwoosh::Render() {
     return;
   }
 
-  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(FMT_STRING("CParticleSwoosh::Render {}"), *x1c_desc.GetObjectTag()).c_str(),
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format("CParticleSwoosh::Render {}", *x1c_desc.GetObjectTag()).c_str(),
                               zeus::skYellow);
 
   m_cachedVerts.clear();

@@ -30,10 +30,8 @@
 #endif
 
 #include "Runtime/CBasics.hpp"
-
 #include "Runtime/CStopwatch.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
 
 #if __APPLE__
 static u64 MachToDolphinNum;
@@ -43,7 +41,6 @@ static LARGE_INTEGER PerfFrequency;
 #endif
 
 namespace metaforce {
-static logvisor::Module LogModule("metaforce::CBasics");
 void CBasics::Initialize() {
   CStopwatch::InitGlobalTimer();
 #if __APPLE__
@@ -352,11 +349,11 @@ void CBasics::MakeDir(const char* dir) {
   const nowide::wstackstring wdir(dir);
   if (!CreateDirectoryW(wdir.get(), NULL))
     if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-      LogModule.report(logvisor::Fatal, FMT_STRING("MakeDir({})"), dir);
+      LogModule.report(logvisor::Fatal, "MakeDir({})", dir);
 #else
   if (mkdir(dir, 0755))
     if (errno != EEXIST)
-      LogModule.report(logvisor::Fatal, FMT_STRING("MakeDir({}): {}"), dir, strerror(errno));
+      spdlog::fatal("MakeDir({}): {}", dir, strerror(errno));
 #endif
 }
 

@@ -3,13 +3,11 @@
 #include "Runtime/Character/CSkinRules.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CVertexMorphEffect.hpp"
+#include "Runtime/Logging.hpp"
 
-#include <logvisor/logvisor.hpp>
 #include <list>
 
 namespace metaforce {
-static logvisor::Module Log("metaforce::CSkinnedModel");
-
 CSkinnedModel::CSkinnedModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules,
                              const TLockedToken<CCharLayoutInfo>& layoutInfo)
 : x4_model(std::move(model))
@@ -17,13 +15,13 @@ CSkinnedModel::CSkinnedModel(const TLockedToken<CModel>& model, const TLockedTok
 , x1c_layoutInfo(std::move(layoutInfo))
 , m_workspace(*x10_skinRules) {
   if (!x4_model) {
-    Log.report(logvisor::Fatal, FMT_STRING("bad model token provided to CSkinnedModel"));
+    spdlog::fatal("bad model token provided to CSkinnedModel");
   }
   if (!x10_skinRules) {
-    Log.report(logvisor::Fatal, FMT_STRING("bad skin token provided to CSkinnedModel"));
+    spdlog::fatal("bad skin token provided to CSkinnedModel");
   }
   if (!x1c_layoutInfo) {
-    Log.report(logvisor::Fatal, FMT_STRING("bad character layout token provided to CSkinnedModel"));
+    spdlog::fatal("bad character layout token provided to CSkinnedModel");
   }
 }
 

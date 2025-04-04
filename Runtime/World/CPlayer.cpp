@@ -29,15 +29,12 @@
 #include "Runtime/World/CScriptGrapplePoint.hpp"
 #include "Runtime/World/CScriptPlayerHint.hpp"
 #include "Runtime/World/CScriptWater.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
 namespace {
-logvisor::Module Log("metaforce::CPlayer");
-
 constexpr CMaterialFilter SolidMaterialFilter = CMaterialFilter::MakeInclude(CMaterialList(EMaterialTypes::Solid));
 
 constexpr CMaterialFilter LineOfSightFilter = CMaterialFilter::MakeIncludeExclude(
@@ -3944,7 +3941,7 @@ void CPlayer::SetOrbitState(EPlayerOrbitState state, CStateManager& mgr) {
 #ifndef NDEBUG
     if (x310_orbitTargetId != kInvalidUniqueId) {
       if (const CEntity* ent = mgr.GetObjectById(x310_orbitTargetId)) {
-        Log.report(logvisor::Info, FMT_STRING("Orbiting {} {}"), ent->GetEditorId(), ent->GetName());
+        Log.report(logvisor::Info, "Orbiting {} {}", ent->GetEditorId(), ent->GetName());
       }
     }
 #endif

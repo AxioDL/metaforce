@@ -1,7 +1,7 @@
 #include "CNESEmulator.hpp"
 #include "CGameState.hpp"
 #include "Input/CFinalInput.hpp"
-#include "logvisor/logvisor.hpp"
+#include "Runtime/Logging.hpp"
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
@@ -168,7 +168,6 @@ int audioUpdate() {
 namespace metaforce::MP1 {
 
 bool CNESEmulator::EmulatorConstructed = false;
-static logvisor::Module Log("CNESEmulator");
 
 #define NESEMUP_ROM_OFFSET 0xa3f8
 
@@ -182,7 +181,7 @@ static logvisor::Module Log("CNESEmulator");
 
 CNESEmulator::CNESEmulator() {
   if (EmulatorConstructed)
-    Log.report(logvisor::Fatal, FMT_STRING("Attempted constructing more than 1 CNESEmulator"));
+    spdlog::fatal("Attempted constructing more than 1 CNESEmulator");
   EmulatorConstructed = true;
 
   CDvdFile NESEmuFile("NESemuP.rel");
@@ -190,7 +189,7 @@ CNESEmulator::CNESEmulator() {
     m_nesEmuPBuf.reset(new u8[0x20000]);
     m_dvdReq = NESEmuFile.AsyncSeekRead(m_nesEmuPBuf.get(), 0x20000, ESeekOrigin::Begin, NESEMUP_ROM_OFFSET);
   } else {
-    Log.report(logvisor::Fatal, FMT_STRING("Unable to open NESemuP.rel"));
+    spdlog::fatal("Unable to open NESemuP.rel");
   }
 }
 

@@ -1,10 +1,6 @@
-﻿#include "Runtime/ConsoleVariables/CVar.hpp"
-#include "Runtime/CBasics.hpp"
-#include "Runtime/CStringExtras.hpp"
-
-#include <logvisor/logvisor.hpp>
-
-#include <sstream>
+﻿#include "Runtime/CStringExtras.hpp"
+#include "Runtime/ConsoleVariables/CVar.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include "Runtime/ConsoleVariables/CVarManager.hpp"
 
@@ -269,7 +265,7 @@ bool CVar::fromVec2i(const zeus::CVector2i& val) {
   if (!safeToModify(EType::Vec2i))
     return false;
 
-  m_value.assign(fmt::format(FMT_STRING("{} {}"), val.x, val.y));
+  m_value.assign(fmt::format("{} {}", val.x, val.y));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -278,7 +274,7 @@ bool CVar::fromVec2f(const zeus::CVector2f& val) {
   if (!safeToModify(EType::Vec2f))
     return false;
 
-  m_value.assign(fmt::format(FMT_STRING("{} {}"), val.x(), val.y()));
+  m_value.assign(fmt::format("{} {}", val.x(), val.y()));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -287,7 +283,7 @@ bool CVar::fromVec2d(const zeus::CVector2d& val) {
   if (!safeToModify(EType::Vec2d))
     return false;
 
-  m_value.assign(fmt::format(FMT_STRING("{} {}"), val.x(), val.y()));
+  m_value.assign(fmt::format("{} {}", val.x(), val.y()));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -296,7 +292,7 @@ bool CVar::fromVec3f(const zeus::CVector3f& val) {
   if (!safeToModify(EType::Vec3f))
     return false;
 
-  m_value.assign(fmt::format(FMT_STRING("{} {} {}"), val.x(), val.y(), val.z()));
+  m_value.assign(fmt::format("{} {} {}", val.x(), val.y(), val.z()));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -305,7 +301,7 @@ bool CVar::fromVec3d(const zeus::CVector3d& val) {
   if (!safeToModify(EType::Vec3d))
     return false;
 
-  m_value.assign(fmt::format(FMT_STRING("{} {} {}"), val.x(), val.y(), val.z()));
+  m_value.assign(fmt::format("{} {} {}", val.x(), val.y(), val.z()));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -314,7 +310,7 @@ bool CVar::fromVec4f(const zeus::CVector4f& val) {
   if (!safeToModify(EType::Vec4f))
     return false;
 
-  m_value.assign(fmt::format(FMT_STRING("{} {} {} {}"), val.x(), val.y(), val.z(), val.w()));
+  m_value.assign(fmt::format("{} {} {} {}", val.x(), val.y(), val.z(), val.w()));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -323,7 +319,7 @@ bool CVar::fromVec4d(const zeus::CVector4d& val) {
   if (!safeToModify(EType::Vec4d))
     return false;
 
-  m_value.assign(fmt::format(FMT_STRING("{} {} {} {}"), val.x(), val.y(), val.z(), val.w()));
+  m_value.assign(fmt::format("{} {} {} {}", val.x(), val.y(), val.z(), val.w()));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -332,7 +328,7 @@ bool CVar::fromReal(double val) {
   if (!safeToModify(EType::Real))
     return false;
 
-  m_value.assign(fmt::format(FMT_STRING("{}"), val));
+  m_value.assign(fmt::format("{}", val));
   setModified();
   return true;
 }
@@ -363,7 +359,7 @@ bool CVar::fromInteger(int32_t val) {
     return false;
 
   // Properly format based on signedness
-  m_value = fmt::format(FMT_STRING("{}"), (m_type == EType::Signed ? val : static_cast<uint32_t>(val)));
+  m_value = fmt::format("{}", (m_type == EType::Signed ? val : static_cast<uint32_t>(val)));
   setModified();
   return true;
 }
@@ -381,7 +377,7 @@ bool CVar::fromInteger(uint32_t val) {
     return false;
 
   // Properly format based on signedness
-  m_value = fmt::format(FMT_STRING("{}"), (m_type == EType::Unsigned ? val : static_cast<int32_t>(val)));
+  m_value = fmt::format("{}", (m_type == EType::Unsigned ? val : static_cast<int32_t>(val)));
   setModified();
   return true;
 }

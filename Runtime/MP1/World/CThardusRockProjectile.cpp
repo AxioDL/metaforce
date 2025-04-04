@@ -11,6 +11,7 @@
 #include "Runtime/World/CExplosion.hpp"
 #include "Runtime/World/CLightParameters.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -343,7 +344,7 @@ void CThardusRockProjectile::SetMaterialProperties(const std::unique_ptr<CCollis
 void CThardusRockProjectile::DoExplosion(CStateManager& mgr, CAssetId particleId, const zeus::CVector3f& pos,
                                          const zeus::CVector3f& scale, u32 w2) {
   TUniqueId uid = mgr.AllocateUniqueId();
-  std::string name = fmt::format(FMT_STRING("ROCK_PROJECTILE_EFFECT-{}-{}"), particleId.Value(), uid.Value());
+  std::string name = fmt::format("ROCK_PROJECTILE_EFFECT-{}-{}", particleId.Value(), uid.Value());
   TLockedToken<CGenDescription> descTok = g_SimplePool->GetObj({SBIG('PART'), particleId});
   mgr.AddObject(new CExplosion(descTok, uid, true, CEntityInfo(mgr.GetNextAreaId(), NullConnectionList), name,
                                zeus::CTransform(zeus::CMatrix3f(), pos), w2, scale, zeus::skWhite));

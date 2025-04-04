@@ -9,6 +9,7 @@
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Formatting.hpp"
 
 namespace metaforce {
 
@@ -87,7 +88,7 @@ void CHudThreatInterface::Update(float dt) {
     if (x10_threatDist < maxThreatEnergy) {
       x70_textpane_threatdigits->SetIsVisible(true);
       x70_textpane_threatdigits->TextSupport().SetText(
-          fmt::format(FMT_STRING("{:01.1f}"), std::max(0.f, x10_threatDist)));
+          fmt::format("{:01.1f}", std::max(0.f, x10_threatDist)));
     } else {
       x70_textpane_threatdigits->SetIsVisible(false);
     }

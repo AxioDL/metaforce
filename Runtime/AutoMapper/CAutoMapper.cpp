@@ -1050,15 +1050,15 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
     } else {
       x2fc_textpane_hint->TextSupport().SetText(u"");
       std::u16string str =
-          fmt::format(FMT_STRING(u"&image=SI,0.6,1.0,{};"), g_tweakPlayerRes->x24_lStick[x2e4_lStickPos]);
+          fmt::format(u"&image=SI,0.6,1.0,{};", g_tweakPlayerRes->x24_lStick[x2e4_lStickPos]);
       str += g_MainStringTable->GetString(46 + (!g_Main->IsUSA() || g_Main->IsTrilogy())); // Rotate
       x300_textpane_instructions->TextSupport().SetText(str);
-      str = fmt::format(FMT_STRING(u"&image=SI,0.6,1.0,{};"), g_tweakPlayerRes->x4c_cStick[x2e8_rStickPos]);
+      str = fmt::format(u"&image=SI,0.6,1.0,{};", g_tweakPlayerRes->x4c_cStick[x2e8_rStickPos]);
       str += g_MainStringTable->GetString(47 + (!g_Main->IsUSA() || g_Main->IsTrilogy())); // Move
       x304_textpane_instructions1->TextSupport().SetText(str);
-      str = fmt::format(FMT_STRING(u"&image={};"), g_tweakPlayerRes->x74_lTrigger[x2ec_lTriggerPos]);
+      str = fmt::format(u"&image={};", g_tweakPlayerRes->x74_lTrigger[x2ec_lTriggerPos]);
       str += g_MainStringTable->GetString(48 + (!g_Main->IsUSA() || g_Main->IsTrilogy())); // Zoom
-      str += fmt::format(FMT_STRING(u"&image={};"), g_tweakPlayerRes->x80_rTrigger[x2f0_rTriggerPos]);
+      str += fmt::format(u"&image={};", g_tweakPlayerRes->x80_rTrigger[x2f0_rTriggerPos]);
       x308_textpane_instructions2->TextSupport().SetText(str);
     }
   }
@@ -1132,7 +1132,7 @@ void CAutoMapper::Update(float dt, CStateManager& mgr) {
     std::u16string string;
     if (x1bc_state == EAutoMapperState::MapScreenUniverse ||
         (x1bc_state == EAutoMapperState::MapScreen && HasCurrentMapUniverseWorld()))
-      string = fmt::format(FMT_STRING(u"&image={};"), g_tweakPlayerRes->x98_aButton[x2f4_aButtonPos]);
+      string = fmt::format(u"&image={};", g_tweakPlayerRes->x98_aButton[x2f4_aButtonPos]);
     right1->TextSupport().SetText(string);
     CGuiTextPane* right = static_cast<CGuiTextPane*>(x28_frmeMapScreen->FindWidget("textpane_right"));
     if (x1bc_state == EAutoMapperState::MapScreenUniverse)

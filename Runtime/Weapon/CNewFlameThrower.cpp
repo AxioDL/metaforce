@@ -228,7 +228,7 @@ void CNewFlameThrower::RenderParticles(std::array<CElementGen*, 5> const& elem_g
       active_particle_count++;
     }
   }
-  Log.report(logvisor::Info, FMT_STRING("Active particle count (render count) {}"), active_particle_count);
+  Log.report(logvisor::Info, "Active particle count (render count) {}", active_particle_count);
   std::sort(translated_sorted_particles, translated_sorted_particles + active_particle_count,
             [](ParticleElement const& l, ParticleElement const& r) { return l.vec.y() > r.vec.y(); });
 

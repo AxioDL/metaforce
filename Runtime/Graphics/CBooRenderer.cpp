@@ -147,7 +147,7 @@ void Buckets::Sort() {
     if (bucket.size() < bucket.capacity())
       bucket.push_back(&drawable);
     // else
-    //    Log.report(logvisor::Fatal, FMT_STRING("Full bucket!!!"));
+    //    spdlog::fatal("Full bucket!!!");
   }
 
   u16 bucketIdx = u16(sBuckets->size());
@@ -182,7 +182,7 @@ void Buckets::InsertPlaneObject(float closeDist, float farDist, const zeus::CAAB
 void Buckets::Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype, void* data,
                      const zeus::CPlane& plane, u16 extraSort) {
   if (sData->size() == sData->capacity()) {
-    Log.report(logvisor::Fatal, FMT_STRING("Rendering buckets filled to capacity"));
+    spdlog::fatal("Rendering buckets filled to capacity");
     return;
   }
 

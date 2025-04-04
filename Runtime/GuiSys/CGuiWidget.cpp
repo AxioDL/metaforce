@@ -1,12 +1,9 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 #include "Runtime/GuiSys/CGuiFrame.hpp"
-
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
 
 namespace metaforce {
-static logvisor::Module Log("metaforce::CGuiWidget");
-
 CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
 : x70_selfId(parms.x6_selfId)
 , x72_parentId(parms.x8_parentId)
@@ -64,8 +61,7 @@ void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWid
   in.ReadShort();
   if (isWorker) {
     if (!parent->AddWorkerWidget(this)) {
-      Log.report(logvisor::Warning,
-                 FMT_STRING("Warning: Discarding useless worker id. Parent is not a compound widget."));
+      spdlog::warn("Warning: Discarding useless worker id. Parent is not a compound widget.");
       xb4_workerId = -1;
     }
   }

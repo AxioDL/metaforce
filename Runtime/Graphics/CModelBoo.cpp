@@ -253,7 +253,7 @@ CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurf
 //  }
 //
 //  if (m_instances.size() >= 512) {
-//    Log.report(logvisor::Fatal, FMT_STRING("Model buffer overflow"));
+//    spdlog::fatal("Model buffer overflow");
 //  }
 //
 //  ModelInstance& newInst = m_instances.emplace_back();
@@ -1163,7 +1163,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
   u32 version = CBasics::SwapBytes(*reinterpret_cast<u32*>(data.get() + 0x4));
   m_flags = CBasics::SwapBytes(*reinterpret_cast<u32*>(data.get() + 0x8));
   if (version != 0x10002) {
-    Log.report(logvisor::Error, FMT_STRING("invalid CMDL for loading with boo"));
+    spdlog::error("invalid CMDL for loading with boo");
     return;
   }
 
