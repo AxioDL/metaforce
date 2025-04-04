@@ -1435,7 +1435,7 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
     return {kInvalidEditorId, kInvalidUniqueId};
   } else {
 #ifndef NDEBUG
-    LogModule.report(logvisor::Info, "Loaded {} in area {}", ent->GetName(), ent->GetAreaIdAlways());
+    spdlog::info("Loaded {} in area {}", ent->GetName(), ent->GetAreaIdAlways());
 #endif
     return {id, ent->GetUniqueId()};
   }

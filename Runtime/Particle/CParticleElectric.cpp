@@ -12,6 +12,7 @@
 #include "Runtime/Particle/CParticleGlobals.hpp"
 #include "Runtime/Particle/CParticleSwoosh.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CRelAngle.hpp>

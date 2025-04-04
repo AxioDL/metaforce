@@ -10,6 +10,7 @@
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CWorld.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 

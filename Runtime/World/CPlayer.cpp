@@ -30,6 +30,7 @@
 #include "Runtime/World/CScriptPlayerHint.hpp"
 #include "Runtime/World/CScriptWater.hpp"
 #include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -3941,7 +3942,7 @@ void CPlayer::SetOrbitState(EPlayerOrbitState state, CStateManager& mgr) {
 #ifndef NDEBUG
     if (x310_orbitTargetId != kInvalidUniqueId) {
       if (const CEntity* ent = mgr.GetObjectById(x310_orbitTargetId)) {
-        Log.report(logvisor::Info, "Orbiting {} {}", ent->GetEditorId(), ent->GetName());
+        spdlog::info("Orbiting {} {}", ent->GetEditorId(), ent->GetName());
       }
     }
 #endif

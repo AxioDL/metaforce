@@ -6,6 +6,7 @@
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
@@ -24,10 +25,10 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEnti
 , x148_27_deactivateOnExited(deactivateOnExited) {
   SetCallTouch(false);
 #ifndef NDEBUG
-  // HACK: For some reason MetroidPrime's lair doesn't enable this trigger until after the cutscene, activate it in debug build
+  // HACK: For some reason MetroidPrime's lair doesn't enable this trigger until after the cutscene, activate it in
+  // debug build
   if (GetEditorId() == 0x000B01DB && !GetActive()) {
-    Log.report(logvisor::Warning, "BUG THIS!: Overriding active for trigger {} in area {}", GetEditorId(),
-               GetAreaIdAlways());
+    spdlog::warn("BUG THIS!: Overriding active for trigger {} in area {}", GetEditorId(), GetAreaIdAlways());
     SetActive(true);
   }
 #endif

@@ -288,10 +288,6 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER_LAUNCHER": "buildcache",
         "CMAKE_CXX_COMPILER_LAUNCHER": "buildcache",
-        "BUILD_ATDNA": {
-          "type": "BOOL",
-          "value": false
-        },
         "USE_LTO": {
           "type": "BOOL",
           "value": false

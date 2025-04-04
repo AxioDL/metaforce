@@ -8,14 +8,10 @@
 #include <iterator>
 
 #ifndef NDEBUG
-#include <logvisor/logvisor.hpp>
+#include "Runtime/Logging.hpp"
 #endif
 
 namespace rstl {
-
-#ifndef NDEBUG
-static logvisor::Module Log("rstl");
-#endif
 
 /**
  * @brief Base vector backed by statically-allocated array

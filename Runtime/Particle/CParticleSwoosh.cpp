@@ -4,6 +4,7 @@
 #include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Particle/CParticleGlobals.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include <chrono>
 

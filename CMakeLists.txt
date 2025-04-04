@@ -339,15 +339,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/bintoc/bintocHelpers.cmake)
 
 add_subdirectory(extern)
 add_subdirectory(imgui)
-
-if(NOT TARGET atdna)
-  # Import native atdna if cross-compiling
-  find_package(atdna REQUIRED)
-  if(NOT TARGET atdna)
-    message(FATAL_ERROR "atdna required for building Metaforce; please verify LLVM installation")
-  endif()
-endif()
-
 add_subdirectory(NESEmulator EXCLUDE_FROM_ALL)
 add_subdirectory(Runtime)
 add_subdirectory(gbalink EXCLUDE_FROM_ALL)

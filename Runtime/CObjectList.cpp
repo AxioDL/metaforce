@@ -1,6 +1,7 @@
 #include "Runtime/CObjectList.hpp"
 #ifndef NDEBUG
 #include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
 #endif
 
 namespace metaforce {

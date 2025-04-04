@@ -22,6 +22,7 @@
 #include "Runtime/World/CScriptDoor.hpp"
 #include "Runtime/World/CScriptWaypoint.hpp"
 #include "Runtime/World/CWorld.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 

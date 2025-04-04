@@ -15,6 +15,7 @@
 #include "Runtime/World/CAiFuncMap.hpp"
 #include "Runtime/World/CGameLight.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 

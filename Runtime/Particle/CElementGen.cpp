@@ -14,6 +14,7 @@
 #include "Runtime/Particle/CSwooshDescription.hpp"
 #include "Runtime/Particle/CWarp.hpp"
 #include "Runtime/Logging.hpp"
+#include "Runtime/Formatting.hpp"
 
 #define MAX_GLOBAL_PARTICLES 2560
 

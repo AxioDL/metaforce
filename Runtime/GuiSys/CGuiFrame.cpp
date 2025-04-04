@@ -11,6 +11,7 @@
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 #include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Runtime/Input/CFinalInput.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include <zeus/CColor.hpp>
 
