@@ -21,6 +21,7 @@
 #endif
 #include <Windows.h>
 #include <shellapi.h>
+#include <nowide/convert.hpp>
 #endif
 
 #include "../version.h"
@@ -537,8 +538,8 @@ int main(int argc, char** argv) {
         .allowJoystickBackgroundEvents = cvarCmns.getAllowJoystickInBackground(),
         .windowPosX = cvarCmns.getWindowPos().x,
         .windowPosY = cvarCmns.getWindowPos().y,
-        .windowWidth = static_cast<uint>(cvarCmns.getWindowSize().x < 0 ? 0 : cvarCmns.getWindowSize().x),
-        .windowHeight = static_cast<uint>(cvarCmns.getWindowSize().y < 0 ? 0 : cvarCmns.getWindowSize().y),
+        .windowWidth = static_cast<uint32_t>(cvarCmns.getWindowSize().x < 0 ? 0 : cvarCmns.getWindowSize().x),
+        .windowHeight = static_cast<uint32_t>(cvarCmns.getWindowSize().y < 0 ? 0 : cvarCmns.getWindowSize().y),
         .iconRGBA8 = icon.data.get(),
         .iconWidth = icon.width,
         .iconHeight = icon.height,

@@ -14,6 +14,18 @@ if (NOT TARGET spdlog)
   add_subdirectory(spdlog EXCLUDE_FROM_ALL)
 endif ()
 
+if (WIN32 AND NOT TARGET nowide)
+  include(FetchContent)
+  FetchContent_Declare(
+    nowide
+    URL https://github.com/boostorg/nowide/releases/download/v11.3.0/nowide_standalone_v11.3.0.tar.gz
+    URL_HASH SHA256=153ac93173c8de9c08e7701e471fa750f84c27e51fe329570c5aa06016591f8c
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    EXCLUDE_FROM_ALL
+  )
+  FetchContent_MakeAvailable(nowide)
+endif ()
+
 add_subdirectory(nod EXCLUDE_FROM_ALL)
 add_subdirectory(jbus EXCLUDE_FROM_ALL)
 add_subdirectory(kabufuda EXCLUDE_FROM_ALL)

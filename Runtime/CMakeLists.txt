@@ -150,7 +150,7 @@ endfunction()
 
 set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 set(RUNTIME_LIBRARIES zeus nod NESEmulator libjpeg-turbo jbus kabufuda OptickCore
-    imgui_support aurora::aurora spdlog::spdlog
+    imgui_support aurora::aurora spdlog::spdlog $<$<BOOL:${WIN32}>:nowide::nowide>
     ${ZLIB_LIBRARIES}
     )
 
@@ -218,7 +218,7 @@ elseif (UNIX)
     set(PLAT_LIBS rt)
 endif ()
 
-add_executable(metaforce CMain.cpp ${PLAT_SRCS}
+add_executable(metaforce WIN32 CMain.cpp ${PLAT_SRCS}
     ImGuiConsole.hpp ImGuiConsole.cpp
     ImGuiControllerConfig.hpp ImGuiControllerConfig.cpp
     ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp)
@@ -228,6 +228,9 @@ if (TARGET nfd)
     target_link_libraries(metaforce PRIVATE nfd)
 endif()
 target_compile_definitions(metaforce PUBLIC "-DMETAFORCE_TARGET_BYTE_ORDER=__BYTE_ORDER__")
+if (WIN32)
+    target_link_options(metaforce PRIVATE /ENTRY:wWinMainCRTStartup)
+endif ()
 
 if (APPLE)
     if (TVOS)

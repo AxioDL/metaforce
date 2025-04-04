@@ -1955,6 +1955,9 @@ AuroraBackend backend_from_string(const std::string& str) {
   if (eq(str, "d3d12"sv) || eq(str, "d3d"sv)) {
     return BACKEND_D3D12;
   }
+  if (eq(str, "d3d11")) {
+    return BACKEND_D3D11;
+  }
   if (eq(str, "metal"sv)) {
     return BACKEND_METAL;
   }
@@ -1982,6 +1985,8 @@ std::string_view backend_to_string(AuroraBackend backend) {
     return "auto"sv;
   case BACKEND_D3D12:
     return "d3d12"sv;
+  case BACKEND_D3D11:
+    return "d3d11"sv;
   case BACKEND_METAL:
     return "metal"sv;
   case BACKEND_VULKAN:
@@ -2003,6 +2008,8 @@ std::string_view backend_name(AuroraBackend backend) {
     return "Auto"sv;
   case BACKEND_D3D12:
     return "D3D12"sv;
+  case BACKEND_D3D11:
+    return "D3D11"sv;
   case BACKEND_METAL:
     return "Metal"sv;
   case BACKEND_VULKAN:

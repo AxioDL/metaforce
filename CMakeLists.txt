@@ -86,14 +86,8 @@ if(APPLE AND NOT CMAKE_OSX_SYSROOT)
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
-# MSVC has a "latest" flag, which always uses the newest standard
-# when available. GCC and Clang posess no such flag, and must be
-# manually enforced. CMake, curiously, also doesn't have a "latest"
-# standard flag either.
-if (NOT MSVC)
-  set(CMAKE_CXX_STANDARD 20)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif()
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force shared libs off" FORCE)
 set(BUILD_STATIC_LIBS ON CACHE BOOL "Force static libs on" FORCE)
@@ -131,7 +125,8 @@ if(MSVC)
   add_compile_definitions(UNICODE=1 _UNICODE=1 __SSE__=1
       _CRT_SECURE_NO_WARNINGS=1 D_SCL_SECURE_NO_WARNINGS=1
       _SCL_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
-      _ENABLE_EXTENDED_ALIGNED_STORAGE=1 NOMINMAX=1)
+      _ENABLE_EXTENDED_ALIGNED_STORAGE=1 NOMINMAX=1
+      _HAS_EXCEPTIONS=0)
   add_compile_options(/IGNORE:4221
           $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4018>
           $<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:/wd4800>
@@ -165,14 +160,14 @@ if(MSVC)
 
     # Reports the proper value for the __cplusplus preprocessor macro.
     $<$<COMPILE_LANGUAGE:CXX>:/Zc:__cplusplus>
-
-    # Use latest C++ standard.
-    $<$<COMPILE_LANGUAGE:CXX>:/std:c++latest>
   )
 
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # Flags for MSVC (not clang-cl)
     add_compile_options(
+      # Enable standards conforming preprocessor.
+      $<$<COMPILE_LANGUAGE:CXX>:/Zc:preprocessor>
+
       # Allow constexpr variables to have explicit external linkage.
       $<$<COMPILE_LANGUAGE:CXX>:/Zc:externConstexpr>
 

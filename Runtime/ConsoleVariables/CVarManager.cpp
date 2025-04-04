@@ -225,7 +225,14 @@ std::vector<StoreCVar::CVar> CVarManager::loadCVars(const std::string& filename)
         if (parts.size() < 2) {
           continue;
         }
-        ret.emplace_back(StoreCVar::CVar{CStringExtras::Trim(parts[0]), CStringExtras::Trim(parts[1])});
+        const auto key = CStringExtras::Trim(parts[0]);
+        auto value = parts[1];
+        for (size_t i = 2; i < parts.size(); ++i) {
+          value += ":";
+          value += parts[i];
+        }
+        value = CStringExtras::Trim(value);
+        ret.emplace_back(StoreCVar::CVar{key, value});
       }
     }
   }

@@ -24,6 +24,9 @@
 #define _WIN32_IE 0x0400
 #endif
 #include <ShlObj.h>
+#if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
+#define S_ISREG(m) (((m)&S_IFMT) == S_IFREG)
+#endif
 #if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
 #define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
 #endif
@@ -349,7 +352,7 @@ void CBasics::MakeDir(const char* dir) {
   const nowide::wstackstring wdir(dir);
   if (!CreateDirectoryW(wdir.get(), NULL))
     if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-      LogModule.report(logvisor::Fatal, "MakeDir({})", dir);
+      spdlog::fatal("MakeDir({})", dir);
 #else
   if (mkdir(dir, 0755))
     if (errno != EEXIST)

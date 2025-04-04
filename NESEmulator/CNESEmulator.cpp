@@ -344,8 +344,8 @@ CNESEmulator::~CNESEmulator() {
 }
 
 int CNESEmulator::audioUpdate() {
-//  int origProcBufs = m_procBufs;
-//
+  int origProcBufs = m_procBufs;
+
 //  uint8_t* data = apuGetBuf();
 //  if (data != NULL && m_procBufs) {
 //    uint32_t apuBufSz = apuGetMaxBufSize();
@@ -370,7 +370,7 @@ int CNESEmulator::audioUpdate() {
 //  // if (!origProcBufs)
 //  // printf("OVERRUN\n");
 //
-//  return origProcBufs;
+  return origProcBufs;
 }
 
 static constexpr uint32_t AudioFrameSz = 2 * sizeof(int16_t);

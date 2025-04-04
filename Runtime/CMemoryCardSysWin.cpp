@@ -3,9 +3,12 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/IMain.hpp"
 #include "Runtime/CBasics.hpp"
+#include "Runtime/Formatting.hpp"
 
 #include <ShlObj.h>
-#include <SDL_filesystem.h>
+#include <SDL3/SDL_filesystem.h>
+#include <nowide/stackstring.hpp>
+#include <nowide/convert.hpp>
 
 namespace metaforce {
 
@@ -117,8 +120,8 @@ std::string CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot slot, bool do
         return {};
 
       path += fmt::format("/MemoryCard{}.USA.raw", slot == kabufuda::ECardSlot::SlotA ? 'A' : 'B');
-      const nowide::wstackstring wpath(path);
-      FILE* fp = _wfopen(wpath.get(), L"wb");
+      const auto wpath = nowide::widen(path);
+      FILE* fp = _wfopen(wpath.c_str(), L"wb");
       if (fp == nullptr) {
         return {};
       }
@@ -136,8 +139,8 @@ std::string CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot slot, bool do
       }
       std::string tmpPath = path.substr(0, path.find_last_of('/'));
       CBasics::RecursiveMakeDir(tmpPath.c_str());
-      const nowide::wstackstring wpath(path);
-      FILE* fp = _wfopen(wpath.get(), L"wb");
+      const auto wpath = nowide::widen(path);
+      FILE* fp = _wfopen(wpath.c_str(), L"wb");
       if (fp) {
         fclose(fp);
         return path;
