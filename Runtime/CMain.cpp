@@ -599,7 +599,9 @@ int main(int argc, char** argv) {
       if (!aurora_begin_frame()) {
         continue;
       }
-      g_app->onAppIdle(1.f / 60.f /* TODO */);
+      if (!g_app->onAppIdle(1.f / 60.f /* TODO */)) {
+        break;
+      }
       g_app->onAppDraw();
       aurora_end_frame();
       g_app->onAppPostDraw();
