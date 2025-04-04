@@ -42,3 +42,4 @@ endif ()
 
 add_subdirectory(libjpeg-turbo EXCLUDE_FROM_ALL)
 add_subdirectory(zeus EXCLUDE_FROM_ALL)
+add_subdirectory(musyx EXCLUDE_FROM_ALL)

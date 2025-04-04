@@ -223,7 +223,7 @@ add_executable(metaforce CMain.cpp ${PLAT_SRCS}
     ImGuiControllerConfig.hpp ImGuiControllerConfig.cpp
     ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp)
 # RUNTIME_LIBRARIES repeated here for link ordering
-target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS} aurora::main)
+target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS} aurora::main musyx)
 if (TARGET nfd)
     target_link_libraries(metaforce PRIVATE nfd)
 endif()
