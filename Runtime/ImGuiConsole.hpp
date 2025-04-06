@@ -55,6 +55,7 @@ public:
   ImGuiConsole(CVarManager& cvarMgr, CVarCommons& cvarCommons);
   void PreUpdate();
   void PostUpdate();
+  void PostDraw();
   void Shutdown();
 
   static void BeginEntityRow(const ImGuiEntityEntry& entry);

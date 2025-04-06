@@ -344,6 +344,7 @@ public:
       }
       g_Renderer->EndScene();
     }
+    m_imGuiConsole.PostDraw();
   }
 
   void onAppPostDraw() noexcept {

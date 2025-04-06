@@ -1401,10 +1401,7 @@ void ImGuiConsole::PreUpdate() {
   if (m_showConsoleVariablesWindow) {
     ShowConsoleVariablesWindow();
   }
-  ShowDebugOverlay();
-  ShowInputViewer();
   ShowPlayerTransformEditor();
-  ShowPipelineProgress();
   m_controllerConfig.show(m_controllerConfigVisible);
   if (preLaunch && m_showPreLaunchSettingsWindow) {
     ShowPreLaunchSettingsWindow();
@@ -1442,6 +1439,12 @@ void ImGuiConsole::PostUpdate() {
     m_lastRoomTime = igt - m_currentRoomStart;
     m_currentRoomStart = igt;
   }
+}
+
+void ImGuiConsole::PostDraw() {
+  ShowDebugOverlay();
+  ShowInputViewer();
+  ShowPipelineProgress();
 }
 
 void ImGuiConsole::Shutdown() {
