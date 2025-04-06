@@ -186,7 +186,7 @@ void CCameraFilterPass::DrawFullScreenTexturedQuadQuarters(const zeus::CColor& c
   CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   g_Renderer->SetDepthReadWrite(false, false);
   if (tex != nullptr) {
-    tex->Load(GX_TEXMAP0, EClampMode::Repeat);
+    tex->Load(GX_TEXMAP0, EClampMode::Clamp);
   }
   CGraphics::SetCullMode(ERglCullMode::None);
   for (int i = 0; i < 4; ++i) {

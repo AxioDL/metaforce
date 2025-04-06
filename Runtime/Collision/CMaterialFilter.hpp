@@ -8,9 +8,9 @@ public:
   enum class EFilterType { Always, Include, Exclude, IncludeExclude };
 
 private:
-  CMaterialList x0_include;
-  CMaterialList x8_exclude;
-  EFilterType x10_type = EFilterType::IncludeExclude;
+  CMaterialList x0_include = CMaterialList(0x00000000FFFFFFFF);
+  CMaterialList x8_exclude = CMaterialList(0);
+  EFilterType x10_type = EFilterType::Always;
 
 public:
   static const CMaterialFilter skPassEverything;
