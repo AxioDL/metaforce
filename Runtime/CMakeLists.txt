@@ -224,9 +224,6 @@ add_executable(metaforce WIN32 CMain.cpp ${PLAT_SRCS}
     ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp)
 # RUNTIME_LIBRARIES repeated here for link ordering
 target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS} aurora::main musyx)
-if (TARGET nfd)
-    target_link_libraries(metaforce PRIVATE nfd)
-endif()
 target_compile_definitions(metaforce PUBLIC "-DMETAFORCE_TARGET_BYTE_ORDER=__BYTE_ORDER__")
 if (WIN32)
     target_link_options(metaforce PRIVATE /ENTRY:wWinMainCRTStartup)

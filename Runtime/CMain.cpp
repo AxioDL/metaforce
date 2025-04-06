@@ -114,6 +114,7 @@ extern std::string ExeDir;
 
 namespace metaforce {
 std::optional<MP1::CMain> g_mainMP1;
+SDL_Window* g_window;
 
 static std::string CPUFeatureString(const zeus::CPUInfo& cpuInf) {
   std::string features;
@@ -441,7 +442,6 @@ static bool IsClientLoggingEnabled(int argc, char** argv) {
 }
 
 static std::unique_ptr<metaforce::Application> g_app;
-static SDL_Window* g_window;
 static bool g_paused;
 
 static void aurora_log_callback(AuroraLogLevel level, const char* module, const char* message, unsigned int len) {
@@ -465,7 +465,7 @@ static void aurora_log_callback(AuroraLogLevel level, const char* module, const 
   const std::string_view view(message, len);
   if (level == LOG_FATAL) {
     auto msg = fmt::format("Metaforce encountered an internal error:\n\n{}", view);
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Metaforce", msg.c_str(), g_window);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Metaforce", msg.c_str(), metaforce::g_window);
   }
   spdlog::log(severity, "[{}] {}", module, view);
 }
@@ -547,7 +547,7 @@ int main(int argc, char** argv) {
         .imGuiInitCallback = aurora_imgui_init_callback,
     };
     const auto info = aurora_initialize(argc, argv, &config);
-    g_window = info.window;
+    metaforce::g_window = info.window;
     g_app->onImGuiAddTextures();
     g_app->onAppLaunched(info);
     g_app->onAppWindowResized(info.windowSize);

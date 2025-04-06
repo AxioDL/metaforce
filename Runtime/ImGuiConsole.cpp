@@ -5,6 +5,7 @@
     y = v.y();                                                                                                         \
   }                                                                                                                    \
   operator zeus::CVector2f() const { return zeus::CVector2f{x, y}; }
+
 #include "ImGuiConsole.hpp"
 
 #include "../version.h"
@@ -13,16 +14,13 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/ImGuiEntitySupport.hpp"
 #include "Runtime/World/CPlayer.hpp"
-
 #include "ImGuiEngine.hpp"
-#include "magic_enum.hpp"
-#ifdef NATIVEFILEDIALOG_SUPPORTED
-#include <nfd.hpp>
-#endif
-
 #include "Runtime/Logging.hpp"
 #include "Runtime/Formatting.hpp"
 
+#include <SDL3/SDL_dialog.h>
+#include <SDL3/SDL_error.h>
+#include <magic_enum.hpp>
 #include <zeus/CEulerAngles.hpp>
 
 namespace ImGui {
@@ -48,13 +46,10 @@ namespace metaforce {
 std::array<ImGuiEntityEntry, kMaxEntities> ImGuiConsole::entities;
 std::set<TUniqueId> ImGuiConsole::inspectingEntities;
 ImGuiPlayerLoadouts ImGuiConsole::loadouts;
+extern SDL_Window* g_window;
 
 ImGuiConsole::ImGuiConsole(CVarManager& cvarMgr, CVarCommons& cvarCommons)
-: m_cvarMgr(cvarMgr), m_cvarCommons(cvarCommons) {
-#ifdef NATIVEFILEDIALOG_SUPPORTED
-  NFD::Init();
-#endif
-}
+: m_cvarMgr(cvarMgr), m_cvarCommons(cvarCommons) {}
 
 void ImGuiStringViewText(std::string_view text) {
   // begin()/end() do not work on MSVC
@@ -659,6 +654,22 @@ void ImGuiConsole::ShowConsoleVariablesWindow() {
   ImGui::End();
 }
 
+void fileDialogCallback(void* userdata, const char* const* filelist, [[maybe_unused]] int filter) {
+  auto* self = static_cast<ImGuiConsole*>(userdata);
+  if (filelist != nullptr) {
+    if (filelist[0] == nullptr) {
+      // Cancelled
+      self->m_gameDiscSelected.reset();
+    } else {
+      self->m_gameDiscSelected = filelist[0];
+    }
+  } else {
+    // Error occurred
+    self->m_gameDiscSelected.reset();
+    self->m_errorString = fmt::format("File dialog error: {}", SDL_GetError());
+  }
+}
+
 void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
   // Center window
   ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -690,18 +701,10 @@ void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
       if (ImGuiButtonCenter("Settings")) {
         m_showPreLaunchSettingsWindow = true;
       }
-#ifdef NATIVEFILEDIALOG_SUPPORTED
       ImGui::Dummy(padding);
       if (ImGuiButtonCenter("Select Game")) {
-        NFD::UniquePathU8 outPath;
-        nfdresult_t nfdResult = NFD::OpenDialog(outPath, nullptr, 0, nullptr);
-        if (nfdResult == NFD_OKAY) {
-          m_gameDiscSelected = outPath.get();
-        } else if (nfdResult != NFD_CANCEL) {
-          spdlog::error("nativefiledialog error: {}", NFD::GetError());
-        }
+        SDL_ShowOpenFileDialog(&fileDialogCallback, this, g_window, nullptr, 0, nullptr, false);
       }
-#endif
 #ifdef EMSCRIPTEN
       if (ImGuiButtonCenter("Load Game")) {
         m_gameDiscSelected = "game.iso";
@@ -1444,9 +1447,6 @@ void ImGuiConsole::PostUpdate() {
 void ImGuiConsole::Shutdown() {
   dummyWorlds.clear();
   stringTables.clear();
-#ifdef NATIVEFILEDIALOG_SUPPORTED
-  NFD::Quit();
-#endif
 }
 
 static constexpr std::array GeneralItems{
