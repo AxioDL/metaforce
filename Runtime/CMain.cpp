@@ -81,29 +81,35 @@ private:
   }
 
 #if _WIN32
-  bool m_initialized;
-  double m_countPerNs;
-
   void NanoSleep(const duration_t duration) {
-    if (!m_initialized) {
+    static bool initialized = false;
+    static double countPerNs;
+    static size_t numSleeps = 0;
+
+    // QueryPerformanceFrequency's result is constant, but calling it occasionally
+    // appears to stabilize QueryPerformanceCounter. Without it, the game drifts
+    // from 60hz to 144hz. (Cursed, but I suspect it's NVIDIA/G-SYNC related)
+    if (!initialized || numSleeps++ % 1000 == 0) {
       LARGE_INTEGER freq;
-      QueryPerformanceFrequency(&freq);
-      m_countPerNs = static_cast<double>(freq.QuadPart) / 1000000000.0;
-      m_initialized = true;
+      if (QueryPerformanceFrequency(&freq) == 0) {
+        spdlog::warn("QueryPerformanceFrequency failed: {}", GetLastError());
+        return;
+      }
+      countPerNs = static_cast<double>(freq.QuadPart) / 1e9;
+      initialized = true;
+      numSleeps = 0;
     }
 
-    DWORD ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-    auto tickCount = static_cast<LONGLONG>(static_cast<double>(duration.count()) * m_countPerNs);
-    LARGE_INTEGER count;
-    QueryPerformanceCounter(&count);
-    if (ms > 10) {
-      // Adjust for Sleep overhead
-      ::Sleep(ms - 10);
+    LARGE_INTEGER start, current;
+    QueryPerformanceCounter(&start);
+    LONGLONG ticksToWait = static_cast<LONGLONG>(duration.count() * countPerNs);
+    if (DWORD ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count(); ms > 1) {
+      ::Sleep(ms - 1);
     }
-    auto end = count.QuadPart + tickCount;
     do {
-      QueryPerformanceCounter(&count);
-    } while (count.QuadPart < end);
+      QueryPerformanceCounter(&current);
+      _mm_pause(); // Yield CPU
+    } while (current.QuadPart - start.QuadPart < ticksToWait);
   }
 #else
   void NanoSleep(const duration_t duration) { std::this_thread::sleep_for(duration); }
