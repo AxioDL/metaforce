@@ -8,6 +8,7 @@
 #include "Runtime/Graphics/CGX.hpp"
 
 #include <zeus/Math.hpp>
+#include <dolphin/gx.h>
 
 namespace metaforce {
 CGraphics::CProjectionState CGraphics::g_Proj;
@@ -190,12 +191,21 @@ void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::
   const auto oldProj = g_Proj;
   const auto oldCull = g_cullMode;
   const auto oldLights = g_LightActive;
-  SetOrtho(-g_Viewport.x10_halfWidth, g_Viewport.x10_halfWidth, g_Viewport.x14_halfHeight, -g_Viewport.x14_halfHeight,
-           -1.f, -10.f);
+  SetOrtho(-g_Viewport.x8_width / 2, g_Viewport.x8_width / 2, g_Viewport.xc_height / 2, -g_Viewport.xc_height / 2, -1.f,
+           -10.f);
   GXLoadPosMtxImm(&zeus::skIdentityMatrix4f, GX_PNMTX0);
-  DisableAllLights();
+  GXVtxDescList desc[] = {
+      {GX_VA_POS, GX_DIRECT},
+      {GX_VA_CLR0, GX_DIRECT},
+      {GX_VA_TEX0, GX_DIRECT},
+      {GX_VA_NULL, GX_NONE},
+  };
+  CGX::SetVtxDescv(desc);
+  SetTevStates(6);
+  if (g_LightActive.any()) {
+    DisableAllLights();
+  }
   SetCullMode(ERglCullMode::None);
-  tex.Load(GX_TEXMAP0, EClampMode::Repeat);
 
   //  float hPad, vPad;
   //  if (CGraphics::GetViewportAspect() >= 1.78f) {
@@ -211,23 +221,32 @@ void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::
   float scaledW = static_cast<float>(w) / 640.f * static_cast<float>(g_Viewport.x8_width);
   float scaledH = static_cast<float>(h) / 448.f * static_cast<float>(g_Viewport.xc_height);
 
-  float x1 = scaledX - g_Viewport.x10_halfWidth;
-  float y1 = scaledY - g_Viewport.x14_halfHeight;
+  float x1 = scaledX - (g_Viewport.x8_width / 2);
+  float y1 = scaledY - (g_Viewport.xc_height / 2);
   float x2 = x1 + scaledW;
   float y2 = y1 + scaledH;
-  StreamBegin(GX_TRIANGLESTRIP);
-  StreamColor(col);
-  StreamTexcoord(0.f, 0.f);
-  StreamVertex(x1, y1, 1.f);
-  StreamTexcoord(1.f, 0.f);
-  StreamVertex(x2, y1, 1.f);
-  StreamTexcoord(0.f, 1.f);
-  StreamVertex(x1, y2, 1.f);
-  StreamTexcoord(1.f, 1.f);
-  StreamVertex(x2, y2, 1.f);
-  StreamEnd();
 
-  SetLightState(g_LightActive);
+  tex.Load(GX_TEXMAP0, EClampMode::Repeat);
+  CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
+  {
+    GXPosition3f32(x1, y1, 1.f);
+    GXColor4f32(col.r(), col.g(), col.b(), col.a());
+    GXTexCoord2f32(0.f, 0.f);
+    GXPosition3f32(x2, y1, 1.f);
+    GXColor4f32(col.r(), col.g(), col.b(), col.a());
+    GXTexCoord2f32(1.f, 0.f);
+    GXPosition3f32(x1, y2, 1.f);
+    GXColor4f32(col.r(), col.g(), col.b(), col.a());
+    GXTexCoord2f32(0.f, 1.f);
+    GXPosition3f32(x2, y2, 1.f);
+    GXColor4f32(col.r(), col.g(), col.b(), col.a());
+    GXTexCoord2f32(1.f, 1.f);
+  }
+  CGX::End();
+
+  if (oldLights.any()) {
+    SetLightState(oldLights);
+  }
   g_Proj = oldProj;
   FlushProjection();
   SetModelMatrix({});

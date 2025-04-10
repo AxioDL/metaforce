@@ -1,4 +1,5 @@
 #include <zeus/CVector2f.hpp>
+#include <ranges>
 #define IM_VEC2_CLASS_EXTRA                                                                                            \
   ImVec2(const zeus::CVector2f& v) {                                                                                   \
     x = v.x();                                                                                                         \
@@ -21,6 +22,7 @@
 #include <SDL3/SDL_dialog.h>
 #include <SDL3/SDL_error.h>
 #include <magic_enum.hpp>
+#include <build/linux-default-relwithdebinfo/_deps/imgui-src/imgui_internal.h>
 #include <zeus/CEulerAngles.hpp>
 
 namespace ImGui {
@@ -146,7 +148,7 @@ static void Warp(const CAssetId worldId, TAreaId aId) {
   }
 }
 
-static inline float GetScale() { return ImGui::GetIO().DisplayFramebufferScale.x; }
+static inline float GetScale() { return ImGui::GetCurrentContext()->CurrentDpiScale; }
 
 void ImGuiConsole::ShowMenuGame() {
   if (g_Main != nullptr) {
@@ -815,13 +817,26 @@ static std::string BytesToString(size_t bytes) {
 }
 
 void ImGuiConsole::ShowDebugOverlay() {
-  if (!m_developer && !m_frameCounter && !m_frameRate && !m_inGameTime && !m_roomTimer) {
+  const std::array flags{
+      m_frameCounter && (g_StateManager != nullptr),
+      m_frameRate,
+      m_inGameTime && (g_StateManager != nullptr),
+      m_roomTimer && (g_StateManager != nullptr),
+      m_playerInfo && (g_StateManager != nullptr) && (g_StateManager->Player() != nullptr),
+      m_worldInfo && (g_StateManager != nullptr) && m_developer,
+      m_areaInfo && (g_StateManager != nullptr) && m_developer,
+      m_layerInfo && (g_StateManager != nullptr) && m_developer,
+      m_randomStats && m_developer,
+      m_drawCallInfo && m_developer,
+      m_bufferInfo && m_developer,
+      m_pipelineInfo && m_developer,
+      m_resourceStats && (g_SimplePool != nullptr),
+  };
+
+  if (std::ranges::all_of(flags, [](const bool v) { return !v; })) {
     return;
   }
-  if (!m_playerInfo && !m_areaInfo && !m_worldInfo && !m_randomStats && !m_resourceStats && !m_pipelineInfo &&
-      !m_drawCallInfo && !m_bufferInfo) {
-    return;
-  }
+
   ImGuiIO& io = ImGui::GetIO();
   ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
                                  ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
