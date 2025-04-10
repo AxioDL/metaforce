@@ -22,7 +22,7 @@
 #include <SDL3/SDL_dialog.h>
 #include <SDL3/SDL_error.h>
 #include <magic_enum.hpp>
-#include <build/linux-default-relwithdebinfo/_deps/imgui-src/imgui_internal.h>
+#include <imgui_internal.h>
 #include <zeus/CEulerAngles.hpp>
 
 namespace ImGui {
