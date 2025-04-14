@@ -3,7 +3,6 @@
 #include <memory>
 #include <string_view>
 
-#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
 #include "Runtime/World/CDamageVulnerability.hpp"
 #include "Runtime/World/CHealthInfo.hpp"
 #include "Runtime/World/CPhysicsActor.hpp"
@@ -32,8 +31,6 @@ class CCollisionActor : public CPhysicsActor {
   TUniqueId x2fc_lastTouched = kInvalidUniqueId;
   EWeaponCollisionResponseTypes x300_responseType = EWeaponCollisionResponseTypes::EnemyNormal;
   zeus::CVector3f x304_extendedTouchBounds = zeus::skZero3f;
-
-  CAABoxShader m_aabox;
 
 public:
   DEFINE_ENTITY

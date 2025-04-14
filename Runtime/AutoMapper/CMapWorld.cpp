@@ -8,6 +8,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/AutoMapper/CMapWorldInfo.hpp"
 #include "Runtime/World/CWorld.hpp"
+#include "Runtime/Graphics/CCubeRenderer.hpp"
 
 namespace metaforce {
 namespace {
@@ -460,8 +461,8 @@ bool CMapWorld::IsMapAreaValid(const IWorld& wld, int areaIdx, bool checkLoad) c
 
 void CMapWorld::DrawAreas(const CMapWorldDrawParms& parms, int selArea, const std::vector<CMapAreaBFSInfo>& bfsInfos,
                           bool inMapScreen) {
-  // Alpha blend
-  // Line width 1
+  g_Renderer->SetBlendMode_AlphaBlended();
+  CGraphics::SetLineWidth(1.f, ERglTexOffset::One);
 
   int surfCount = 0;
   int objCount = 0;
@@ -556,7 +557,7 @@ void CMapWorld::DrawAreas(const CMapWorldDrawParms& parms, int selArea, const st
     u32 si = 0;
     for (; i < mapa->GetNumMappableObjects(); ++i, si += 6) {
       const CMappableObject& obj = mapa->GetMappableObject(i);
-      if (!obj.IsVisibleToAutoMapper(mwInfo.IsWorldVisible(thisArea), mwInfo))
+      if (!obj.GetIsVisibleToAutoMapper(mwInfo.IsWorldVisible(thisArea), mwInfo))
         continue;
 
       bool doorType = CMappableObject::IsDoorType(obj.GetType());
@@ -582,58 +583,61 @@ void CMapWorld::DrawAreas(const CMapWorldDrawParms& parms, int selArea, const st
     }
   }
 
-  std::sort(sortInfos.begin(), sortInfos.end(), [](const CMapObjectSortInfo& a, const CMapObjectSortInfo& b) {
-    return a.GetZDistance() > b.GetZDistance();
-  });
+  if (!sortInfos.empty()) {
+    std::sort(sortInfos.begin(), sortInfos.end(), [](const CMapObjectSortInfo& a, const CMapObjectSortInfo& b) {
+      return a.GetZDistance() > b.GetZDistance();
+    });
+    CMapArea::CMapAreaSurface::SetupGXMaterial();
 
-  u32 lastAreaIdx = UINT32_MAX;
-  CMapObjectSortInfo::EObjectCode lastType = CMapObjectSortInfo::EObjectCode::Invalid;
-  for (const CMapObjectSortInfo& info : sortInfos) {
-    CMapArea* mapa = GetMapArea(info.GetAreaIndex());
-    zeus::CTransform areaPostXf = mapa->GetAreaPostTransform(parms.GetWorld(), info.GetAreaIndex());
-    if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Surface) {
-      CMapArea::CMapAreaSurface& surf = mapa->GetSurface(info.GetLocalObjectIndex());
-      zeus::CColor color(
-          std::max(0.f, (-parms.GetCameraTransform().basis[1]).dot(areaPostXf.rotate(surf.GetNormal()))) *
-              g_tweakAutoMapper->GetMapSurfaceNormColorLinear() +
-          g_tweakAutoMapper->GetMapSurfaceNormColorConstant());
-      color *= info.GetSurfaceColor();
-      if (lastAreaIdx != info.GetAreaIndex() || lastType != CMapObjectSortInfo::EObjectCode::Surface) {
-        CGraphics::SetModelMatrix(parms.GetPlaneProjectionTransform() * areaPostXf);
+    u32 lastAreaIdx = UINT32_MAX;
+    CMapObjectSortInfo::EObjectCode lastType = CMapObjectSortInfo::EObjectCode::Invalid;
+    for (const CMapObjectSortInfo& info : sortInfos) {
+      CMapArea* mapa = GetMapArea(info.GetAreaIndex());
+      zeus::CTransform areaPostXf = mapa->GetAreaPostTransform(parms.GetWorld(), info.GetAreaIndex());
+      if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Surface) {
+        CMapArea::CMapAreaSurface& surf = mapa->GetSurface(info.GetLocalObjectIndex());
+        zeus::CColor color(
+            std::max(0.f, (-parms.GetCameraTransform().basis[1]).dot(areaPostXf.rotate(surf.GetNormal()))) *
+                g_tweakAutoMapper->GetMapSurfaceNormColorLinear() +
+            g_tweakAutoMapper->GetMapSurfaceNormColorConstant());
+        color *= info.GetSurfaceColor();
+        if (lastAreaIdx != info.GetAreaIndex() || lastType != CMapObjectSortInfo::EObjectCode::Surface) {
+          CGraphics::SetModelMatrix(parms.GetPlaneProjectionTransform() * areaPostXf);
+        }
+        surf.Draw(mapa->GetVertices(), color, info.GetOutlineColor(), parms.GetOutlineWidthScale());
+
+        lastAreaIdx = info.GetAreaIndex();
+        lastType = info.GetObjectCode();
       }
-      surf.Draw(mapa->GetVertices(), color, info.GetOutlineColor(), parms.GetOutlineWidthScale());
-
-      lastAreaIdx = info.GetAreaIndex();
-      lastType = info.GetObjectCode();
     }
-  }
-  for (const CMapObjectSortInfo& info : sortInfos) {
-    CMapArea* mapa = GetMapArea(info.GetAreaIndex());
-    if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door ||
-        info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Object) {
-      CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex());
-      const zeus::CTransform objXf =
-          zeus::CTransform::Translate(CMapArea::GetAreaPostTranslate(parms.GetWorld(), info.GetAreaIndex())) *
-          mapObj.GetTransform();
-      if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door) {
-        CGraphics::SetModelMatrix(parms.GetPlaneProjectionTransform() * objXf);
-      } else {
-        CGraphics::SetModelMatrix(
-            parms.GetPlaneProjectionTransform() * objXf *
-            zeus::CTransform(parms.GetCameraTransform().buildMatrix3f() * zeus::CMatrix3f(parms.GetObjectScale())));
+    for (const CMapObjectSortInfo& info : sortInfos) {
+      CMapArea* mapa = GetMapArea(info.GetAreaIndex());
+      if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door ||
+          info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Object) {
+        CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex());
+        const zeus::CTransform objXf =
+            zeus::CTransform::Translate(CMapArea::GetAreaPostTranslate(parms.GetWorld(), info.GetAreaIndex())) *
+            mapObj.GetTransform();
+        if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door) {
+          CGraphics::SetModelMatrix(parms.GetPlaneProjectionTransform() * objXf);
+        } else {
+          CGraphics::SetModelMatrix(
+              parms.GetPlaneProjectionTransform() * objXf *
+              zeus::CTransform(parms.GetCameraTransform().buildMatrix3f() * zeus::CMatrix3f(parms.GetObjectScale())));
+        }
+        mapObj.Draw(selArea, mwInfo, parms.GetAlpha(), lastType != info.GetObjectCode());
+        lastType = info.GetObjectCode();
+      } else if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::DoorSurface) {
+        CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex() / 6);
+        const zeus::CTransform objXf =
+            parms.GetPlaneProjectionTransform() *
+            zeus::CTransform::Translate(CMapArea::GetAreaPostTranslate(parms.GetWorld(), info.GetAreaIndex())) *
+            mapObj.GetTransform();
+        CGraphics::SetModelMatrix(objXf);
+        mapObj.DrawDoorSurface(selArea, mwInfo, parms.GetAlpha(), info.GetLocalObjectIndex() % 6,
+                               lastType != info.GetObjectCode());
+        lastType = info.GetObjectCode();
       }
-      mapObj.Draw(selArea, mwInfo, parms.GetAlpha(), lastType != info.GetObjectCode());
-      lastType = info.GetObjectCode();
-    } else if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::DoorSurface) {
-      CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex() / 6);
-      const zeus::CTransform objXf =
-          parms.GetPlaneProjectionTransform() *
-          zeus::CTransform::Translate(CMapArea::GetAreaPostTranslate(parms.GetWorld(), info.GetAreaIndex())) *
-          mapObj.GetTransform();
-      CGraphics::SetModelMatrix(objXf);
-      mapObj.DrawDoorSurface(selArea, mwInfo, parms.GetAlpha(), info.GetLocalObjectIndex() % 6,
-                             lastType != info.GetObjectCode());
-      lastType = info.GetObjectCode();
     }
   }
 }

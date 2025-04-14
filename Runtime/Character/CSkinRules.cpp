@@ -52,7 +52,7 @@ void CSkinRules::BuildPoints(TConstVectorRef positions, TVectorRef out) {
   size_t offset = 0;
   for (auto& bone : x0_bones) {
     u32 vertexCount = bone.GetVertexCount();
-    bone.BuildPoints(positions->data() + offset, out, vertexCount);
+    bone.BuildPoints(positions.data() + offset, out, vertexCount);
     offset += vertexCount;
   }
 }
@@ -61,7 +61,7 @@ void CSkinRules::BuildNormals(TConstVectorRef normals, TVectorRef out) {
   size_t offset = 0;
   for (auto& bone : x0_bones) {
     u32 vertexCount = bone.GetVertexCount();
-    bone.BuildNormals(normals->data() + offset, out, vertexCount);
+    bone.BuildNormals(normals.data() + offset, out, vertexCount);
     offset += vertexCount;
   }
 }
@@ -85,15 +85,19 @@ static inline auto StreamInSkinWeighting(CInputStream& in) {
 
 CVirtualBone::CVirtualBone(CInputStream& in) : x0_weights(StreamInSkinWeighting(in)), x1c_vertexCount(in.ReadLong()) {}
 
-void CVirtualBone::BuildPoints(const zeus::CVector3f* in, TVectorRef out, u32 count) const {
+void CVirtualBone::BuildPoints(const aurora::Vec3<float>* in, TVectorRef out, u32 count) const {
   for (u32 i = 0; i < count; ++i) {
-    out->emplace_back(x20_xf * in[i]);
+    const auto& vec = in[i];
+    zeus::CVector3f zout = x20_xf * zeus::CVector3f{vec.x, vec.y, vec.z};
+    out->emplace_back(zout.x(), zout.y(), zout.z());
   }
 }
 
-void CVirtualBone::BuildNormals(const zeus::CVector3f* in, TVectorRef out, u32 count) const {
+void CVirtualBone::BuildNormals(const aurora::Vec3<float>* in, TVectorRef out, u32 count) const {
   for (u32 i = 0; i < count; ++i) {
-    out->emplace_back(x50_rotation * in[i]);
+    const auto& vec = in[i];
+    zeus::CVector3f zout = x50_rotation * zeus::CVector3f{vec.x, vec.y, vec.z};
+    out->emplace_back(zout.x(), zout.y(), zout.z());
   }
 }
 

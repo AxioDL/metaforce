@@ -12,7 +12,6 @@
 #include "Runtime/World/CDamageVulnerability.hpp"
 #include "Runtime/World/CHealthInfo.hpp"
 #include "Runtime/World/CPhysicsActor.hpp"
-#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
 
 #include <zeus/CQuaternion.hpp>
 #include <zeus/CTransform.hpp>
@@ -72,8 +71,6 @@ class CScriptPlatform : public CPhysicsActor {
                          const zeus::CTransform& newXf, const zeus::CVector3f& dragDelta,
                          const zeus::CQuaternion& rotDelta);
   static EntityList BuildNearListFromRiders(CStateManager& mgr, const std::vector<SRiders>& movedRiders);
-
-  std::optional<CAABoxShader> m_boxFilter;
 
 public:
   DEFINE_ENTITY

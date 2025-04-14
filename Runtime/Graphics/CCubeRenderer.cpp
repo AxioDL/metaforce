@@ -297,15 +297,11 @@ void CCubeRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* 
       models->reserve(geometry->size());
       s32 instIdx = 0;
       for (const CMetroidModelInstance& inst : *geometry) {
-        models->emplace_back(
-            std::make_unique<CCubeModel>(const_cast<std::vector<CCubeSurface>*>(inst.GetSurfaces()), textures.get(),
-                                         const_cast<u8*>(inst.GetMaterialPointer()),
-                                         const_cast<std::vector<zeus::CVector3f>*>(inst.GetVertexPointer()),
-                                         const_cast<std::vector<zeus::CColor>*>(inst.GetColorPointer()),
-                                         const_cast<std::vector<zeus::CVector3f>*>(inst.GetNormalPointer()),
-                                         const_cast<std::vector<aurora::Vec2<float>>*>(inst.GetTCPointer()),
-                                         const_cast<std::vector<aurora::Vec2<float>>*>(inst.GetPackedTCPointer()),
-                                         inst.GetBoundingBox(), inst.GetFlags(), false, instIdx));
+        models->emplace_back(std::make_unique<CCubeModel>(
+            const_cast<std::vector<CCubeSurface>*>(inst.GetSurfaces()), textures.get(),
+            const_cast<u8*>(inst.GetMaterialPointer()), inst.GetVertexPointer(), inst.GetColorPointer(),
+            inst.GetNormalPointer(), inst.GetTCPointer(), inst.GetPackedTCPointer(), inst.GetBoundingBox(),
+            inst.GetFlags(), false, instIdx));
         ++instIdx;
       }
     }
@@ -329,8 +325,7 @@ void CCubeRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance
 
 void CCubeRenderer::DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   SCOPED_GRAPHICS_DEBUG_GROUP(
-      fmt::format("CCubeRenderer::DrawUnsortedGeometry areaIdx={} mask={} targetMask={}", areaIdx, mask,
-                  targetMask)
+      fmt::format("CCubeRenderer::DrawUnsortedGeometry areaIdx={} mask={} targetMask={}", areaIdx, mask, targetMask)
           .c_str(),
       zeus::skBlue);
 
@@ -407,8 +402,7 @@ void CCubeRenderer::DrawUnsortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) 
 
 void CCubeRenderer::DrawSortedGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   SCOPED_GRAPHICS_DEBUG_GROUP(
-      fmt::format("CCubeRenderer::DrawSortedGeometry areaIdx={} mask={} targetMask={}", areaIdx, mask,
-                  targetMask)
+      fmt::format("CCubeRenderer::DrawSortedGeometry areaIdx={} mask={} targetMask={}", areaIdx, mask, targetMask)
           .c_str(),
       zeus::skBlue);
 
@@ -441,8 +435,7 @@ void CCubeRenderer::DrawStaticGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
 
 void CCubeRenderer::DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
   SCOPED_GRAPHICS_DEBUG_GROUP(
-      fmt::format("CCubeRenderer::DrawAreaGeometry areaIdx={} mask={} targetMask={}", areaIdx, mask,
-                  targetMask)
+      fmt::format("CCubeRenderer::DrawAreaGeometry areaIdx={} mask={} targetMask={}", areaIdx, mask, targetMask)
           .c_str(),
       zeus::skBlue);
 
@@ -488,8 +481,8 @@ void CCubeRenderer::DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) {
 }
 
 void CCubeRenderer::RenderBucketItems(const CAreaListItem* item) {
-  SCOPED_GRAPHICS_DEBUG_GROUP(
-      fmt::format("CCubeRenderer::RenderBucketItems areaIdx={}", item->x18_areaIdx).c_str(), zeus::skBlue);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format("CCubeRenderer::RenderBucketItems areaIdx={}", item->x18_areaIdx).c_str(),
+                              zeus::skBlue);
 
   CCubeModel* lastModel = nullptr;
   EDrawableType lastDrawableType = EDrawableType::Invalid;
@@ -544,19 +537,19 @@ void CCubeRenderer::PostRenderFogs() {
 
   x2ac_fogVolumes.sort([](const CFogVolumeListItem& a, const CFogVolumeListItem& b) {
     zeus::CAABox aabbA = a.x34_aabb.getTransformedAABox(a.x0_transform);
-    bool insideA =
-        aabbA.pointInside(zeus::CVector3f(CGraphics::g_ViewPoint.x(), CGraphics::g_ViewPoint.y(), aabbA.min.z()));
+    bool insideA = aabbA.pointInside(
+        zeus::CVector3f(CGraphics::mViewMatrix.origin.x(), CGraphics::mViewMatrix.origin.y(), aabbA.min.z()));
 
     zeus::CAABox aabbB = b.x34_aabb.getTransformedAABox(b.x0_transform);
-    bool insideB =
-        aabbB.pointInside(zeus::CVector3f(CGraphics::g_ViewPoint.x(), CGraphics::g_ViewPoint.y(), aabbB.min.z()));
+    bool insideB = aabbB.pointInside(
+        zeus::CVector3f(CGraphics::mViewMatrix.origin.x(), CGraphics::mViewMatrix.origin.y(), aabbB.min.z()));
 
     if (insideA != insideB) {
       return insideA;
     }
 
-    float dotA = aabbA.furthestPointAlongVector(CGraphics::g_ViewMatrix.basis[1]).dot(CGraphics::g_ViewMatrix.basis[1]);
-    float dotB = aabbB.furthestPointAlongVector(CGraphics::g_ViewMatrix.basis[1]).dot(CGraphics::g_ViewMatrix.basis[1]);
+    float dotA = aabbA.furthestPointAlongVector(CGraphics::mViewMatrix.basis[1]).dot(CGraphics::mViewMatrix.basis[1]);
+    float dotB = aabbB.furthestPointAlongVector(CGraphics::mViewMatrix.basis[1]).dot(CGraphics::mViewMatrix.basis[1]);
     return dotA < dotB;
   });
   for (const CFogVolumeListItem& fog : x2ac_fogVolumes) {
@@ -677,8 +670,8 @@ void CCubeRenderer::AddPlaneObject(void* obj, const zeus::CAABox& aabb, const ze
 
   if (closestDist >= 0.f || furthestDist >= 0.f) {
     const bool zOnly = plane.normal() == zeus::skUp;
-    const bool invertTest = zOnly ? CGraphics::g_GXModelView.origin.z() >= plane.d()
-                                  : plane.pointToPlaneDist(CGraphics::g_GXModelView.origin) >= 0.f;
+    const bool invertTest = zOnly ? CGraphics::mViewMatrix.origin.z() >= plane.d()
+                                  : plane.pointToPlaneDist(CGraphics::mViewMatrix.origin) >= 0.f;
     Buckets::InsertPlaneObject(closestDist, furthestDist, aabb, invertTest, plane, zOnly, EDrawableType(type + 2), obj);
   }
 }
@@ -735,14 +728,14 @@ void CCubeRenderer::SetViewport(s32 left, s32 bottom, s32 width, s32 height) {
 
 void CCubeRenderer::BeginScene() {
   CGraphics::SetUseVideoFilter(true);
-  CGraphics::SetViewport(0, 0, CGraphics::g_Viewport.x8_width, CGraphics::g_Viewport.xc_height);
+  CGraphics::SetViewport(0, 0, CGraphics::mRenderModeObj.fbWidth, CGraphics::mRenderModeObj.xfbHeight);
 
   CGraphics::SetClearColor(zeus::skClear);
   CGraphics::SetCullMode(ERglCullMode::Front);
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
   CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
                           ERglLogicOp::Clear);
-  CGraphics::SetPerspective(75.f, CGraphics::g_Viewport.x8_width / CGraphics::g_Viewport.xc_height, 1.f, 4096.f);
+  CGraphics::SetPerspective(75.f, CGraphics::mViewport.mWidth / CGraphics::mViewport.mHeight, 1.f, 4096.f);
   CGraphics::SetModelMatrix(zeus::CTransform());
   if (x310_phazonSuitMaskCountdown != 0) {
     --x310_phazonSuitMaskCountdown;
@@ -756,14 +749,14 @@ void CCubeRenderer::BeginScene() {
     x318_26_requestRGBA6 = false;
   }
 
-  // GXSetPixelFmt(x318_27_currentRGBA6, GX_ZC_LINEAR);
+  GXSetPixelFmt(x318_27_currentRGBA6 ? GX_PF_RGBA6_Z24 : GX_PF_RGB8_Z24, GX_ZC_LINEAR);
   GXSetAlphaUpdate(true);
   GXSetDstAlpha(true, 0.f);
   CGraphics::BeginScene();
 }
 
 void CCubeRenderer::EndScene() {
-  x318_31_persistRGBA6 = !CGraphics::g_IsBeginSceneClearFb;
+  x318_31_persistRGBA6 = !CGraphics::mIsBeginSceneClearFb;
   CGraphics::EndScene();
 
   if (x2dc_reflectionAge < 2) {
@@ -802,7 +795,7 @@ void CCubeRenderer::BeginPrimitive(IRenderer::EPrimitiveType type, s32 nverts) {
   CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
   x18_primVertCount = nverts;
   CGX::SetVtxDescv(vtxDescList.data());
-  CGX::Begin(GXPrimitive(type), GX_VTXFMT0, nverts);
+  CGX::Begin(static_cast<GXPrimitive>(type), GX_VTXFMT0, nverts);
 }
 
 void CCubeRenderer::BeginLines(s32 nverts) { BeginPrimitive(EPrimitiveType::Lines, nverts); }
@@ -839,7 +832,7 @@ void CCubeRenderer::SetAmbientColor(const zeus::CColor& color) { CGraphics::SetA
 
 void CCubeRenderer::DrawString(const char* string, s32 x, s32 y) { x10_font.DrawString(string, x, y, zeus::skWhite); }
 
-u32 CCubeRenderer::GetFPS() { return CGraphics::GetFPS(); }
+float CCubeRenderer::GetFPS() { return CGraphics::GetFPS(); }
 
 void CCubeRenderer::CacheReflection(IRenderer::TReflectionCallback cb, void* ctx, bool clearAfter) {
   // TODO
@@ -880,25 +873,23 @@ void CCubeRenderer::DrawModelDisintegrate(CModel& model, CTexture& tex, const ze
   const auto transformedBounds = bounds.getTransformedAABox(rotation);
   const auto xf = zeus::CTransform::Scale(5.f / (transformedBounds.max - transformedBounds.min)) *
                   zeus::CTransform::Translate(-transformedBounds.min) * rotation;
-  const zeus::CTransform ptTex1{
-      zeus::CMatrix3f{
-          1.f, 1.f, 0.f,
-          0.f, 0.f, 1.f,
-          0.f, 0.f, 0.f,
-      },
-      zeus::CVector3f{t * -0.85f - 0.15f, -(1.f - t) * 6.f + 1.f, 1.f},
+  Mtx mtx;
+  xf.toCStyleMatrix(mtx);
+  float f1 = -(1.f - t) * 6.f + 1.f;
+  float f2 = t * -0.85f - 0.15f;
+  const Mtx ptTex0 = {
+      {1.0f, 1.0f, 0.0f, t},
+      {0.0f, 0.0f, 1.0f, f1},
+      {0.0f, 0.0f, 0.0f, 1.0f},
   };
-  const zeus::CTransform ptTex0{
-      zeus::CMatrix3f{
-          1.f, 1.f, 0.f,
-          0.f, 0.f, 1.f,
-          0.f, 0.f, 0.f,
-      },
-      zeus::CVector3f{t, ptTex1.origin.y(), 1.f},
+  const Mtx ptTex1 = {
+      {1.0f, 1.0f, 0.0f, f2},
+      {0.0f, 0.0f, 1.0f, f1},
+      {0.0f, 0.0f, 0.0f, 1.0f},
   };
-  GXLoadTexMtxImm(&xf, GX_TEXMTX0, GX_MTX3x4);
-  GXLoadTexMtxImm(&ptTex0, GX_PTTEXMTX0, GX_MTX3x4);
-  GXLoadTexMtxImm(&ptTex1, GX_PTTEXMTX1, GX_MTX3x4);
+  GXLoadTexMtxImm(mtx, GX_TEXMTX0, GX_MTX3x4);
+  GXLoadTexMtxImm(ptTex0, GX_PTTEXMTX0, GX_MTX3x4);
+  GXLoadTexMtxImm(ptTex1, GX_PTTEXMTX1, GX_MTX3x4);
   CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_POS, GX_TEXMTX0, false, GX_PTTEXMTX0);
   CGX::SetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX3x4, GX_TG_POS, GX_TEXMTX0, false, GX_PTTEXMTX1);
   CGX::SetAlphaCompare(GX_GREATER, 0, GX_AOP_AND, GX_ALWAYS, 0);
@@ -949,7 +940,7 @@ void CCubeRenderer::SetWorldFog(ERglFogMode mode, float startz, float endz, cons
 void CCubeRenderer::RenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb,
                                     const TLockedToken<CModel>* model, const CSkinnedModel* sModel) {
   if (!x318_28_disableFog) {
-    x2ac_fogVolumes.emplace_back(CGraphics::g_GXModelMatrix, color, aabb, model, sModel);
+    x2ac_fogVolumes.emplace_back(CGraphics::mModelMatrix, color, aabb, model, sModel);
   }
 }
 
@@ -977,7 +968,7 @@ void CCubeRenderer::DoThermalBlendCold() {
   CGX::SetZMode(true, GX_LEQUAL, false);
   GXSetTexCopySrc(left, top, width, height);
   GXSetTexCopyDst(width, height, GX_TF_I4, false);
-  GXCopyTex(CGraphics::sSpareTextureData, true);
+  GXCopyTex(CGraphics::mpSpareBuffer, true);
   CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_I4, nullptr, GX_TEXMAP7);
 
   // Upload random static texture (game reads from .text)
@@ -1050,7 +1041,7 @@ void CCubeRenderer::DoThermalBlendCold() {
   CGX::SetBlendMode(GX_BM_NONE, GX_BL_ONE, GX_BL_ZERO, GX_LO_CLEAR);
 
   // Backup & set viewport/projection
-  const auto backupViewMatrix = CGraphics::g_ViewMatrix;
+  const auto backupViewMatrix = CGraphics::mViewMatrix;
   const auto backupProjectionState = CGraphics::GetProjectionState();
   CGraphics::SetOrtho(0.f, static_cast<float>(width), 0.f, static_cast<float>(height), -4096.f, 4096.f);
   CGraphics::SetViewPointMatrix({});
@@ -1093,7 +1084,7 @@ void CCubeRenderer::DoThermalBlendHot() {
   CGX::SetZMode(true, GX_LEQUAL, true);
   GXSetTexCopySrc(left, top, width, height);
   GXSetTexCopyDst(width, height, GX_TF_I4, false);
-  GXCopyTex(CGraphics::sSpareTextureData, false);
+  GXCopyTex(CGraphics::mpSpareBuffer, false);
   x288_thermoPalette.Load();
   CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_C4, GX_TLUT0, nullptr, GX_TEXMAP7);
   CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXA, GX_CC_TEXC, GX_CC_ZERO);
@@ -1115,7 +1106,7 @@ void CCubeRenderer::DoThermalBlendHot() {
   CGX::SetBlendMode(GX_BM_BLEND, GX_BL_DSTALPHA, GX_BL_INVDSTALPHA, GX_LO_CLEAR);
 
   // Backup & set viewport/projection
-  const auto backupViewMatrix = CGraphics::g_ViewMatrix;
+  const auto backupViewMatrix = CGraphics::mViewMatrix;
   const auto backupProjectionState = CGraphics::GetProjectionState();
   CGraphics::SetOrtho(0.f, static_cast<float>(width), 0.f, static_cast<float>(height), -4096.f, 4096.f);
   CGraphics::SetViewPointMatrix({});
@@ -1186,7 +1177,7 @@ void CCubeRenderer::DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirect
                                                  const TLockedToken<CTexture>& indTex, const zeus::CColor& indirectMod,
                                                  float blurRadius, float scale, float offX, float offY) {
   if (x318_27_currentRGBA6 && x310_phazonSuitMaskCountdown != 0) {
-    const auto backupViewMatrix = CGraphics::g_ViewMatrix;
+    const auto backupViewMatrix = CGraphics::mViewMatrix;
     const auto backupProjectionState = CGraphics::GetProjectionState();
     if (!x314_phazonSuitMask || x314_phazonSuitMask->GetWidth() != CGraphics::GetViewportWidth() / 4 ||
         x314_phazonSuitMask->GetHeight() != CGraphics::GetViewportHeight() / 4) {
@@ -1370,9 +1361,10 @@ void CCubeRenderer::SetupRendererStates(bool depthWrite) {
   GXSetTevColor(GX_TEVREG1, to_gx_color(x2fc_tevReg1Color));
 }
 
-constexpr zeus::CTransform MvPostXf{
-    {zeus::CVector3f{0.5f, 0.f, 0.f}, {0.f, 0.f, 0.f}, {0.f, 0.5f, 0.f}},
-    {0.5f, 0.5f, 1.f},
+constexpr Mtx MvPostXf = {
+    {0.5f, 0.0f, 0.0f, 0.5f},
+    {0.0f, 0.5f, 0.5f, 0.5f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
 };
 
 void CCubeRenderer::DoThermalModelDraw(CCubeModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,
@@ -1382,10 +1374,12 @@ void CCubeRenderer::DoThermalModelDraw(CCubeModel& model, const zeus::CColor& mu
   CGX::SetNumTexGens(1);
   CGX::SetNumChans(0);
   x220_sphereRamp.Load(GX_TEXMAP0, EClampMode::Clamp);
-  zeus::CTransform xf = CGraphics::g_ViewMatrix.inverse().multiplyIgnoreTranslation(CGraphics::g_GXModelMatrix);
+  zeus::CTransform xf = CGraphics::mViewMatrix.quickInverse().multiplyIgnoreTranslation(CGraphics::mModelMatrix);
   xf.origin.zeroOut();
-  GXLoadTexMtxImm(&xf, GX_TEXMTX0, GX_MTX3x4);
-  GXLoadTexMtxImm(&MvPostXf, GX_PTTEXMTX0, GX_MTX3x4);
+  Mtx mtx;
+  xf.toCStyleMatrix(mtx);
+  GXLoadTexMtxImm(mtx, GX_TEXMTX0, GX_MTX3x4);
+  GXLoadTexMtxImm(MvPostXf, GX_PTTEXMTX0, GX_MTX3x4);
   CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
   CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_C0, GX_CC_TEXC, GX_CC_KONST);
   CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_TEXA, GX_CA_A0, GX_CA_KONST);
@@ -1451,7 +1445,7 @@ void CCubeRenderer::ReallyDrawSpaceWarp(const zeus::CVector3f& pt, float strengt
     CGX::SetFog(GX_FOG_NONE, fogStartZ, fogEndZ, fogNearZ, fogFarZ, fogColor);
     GXSetTexCopySrc(v2right.x, v2right.y, v2sub.x, v2sub.y);
     GXSetTexCopyDst(v2sub.x, v2sub.y, GX_TF_RGBA8, false);
-    GXCopyTex(CGraphics::sSpareTextureData, false);
+    GXCopyTex(CGraphics::mpSpareBuffer, false);
     GXPixModeSync();
     CGraphics::LoadDolphinSpareTexture(v2sub.x, v2sub.y, GX_TF_RGBA8, nullptr, GX_TEXMAP7);
     x150_reflectionTex.Load(GX_TEXMAP1, EClampMode::Clamp);

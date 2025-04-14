@@ -42,7 +42,7 @@ void CScanDisplay::CDataDot::Draw(const zeus::CColor& col, float radius) {
 
   const zeus::CTransform xf = zeus::CTransform::Translate(xc_curPos.x(), 0.f, xc_curPos.y());
   g_Renderer->SetModelMatrix(xf);
-  CGraphics::StreamBegin(GX_TRIANGLESTRIP);
+  CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
   zeus::CColor useColor = col;
   useColor.a() *= x24_alpha;
   CGraphics::StreamColor(useColor);

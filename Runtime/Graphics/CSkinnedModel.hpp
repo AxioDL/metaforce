@@ -20,8 +20,8 @@ class IObjectStore;
 
 // Originally vert + normal workspaces were allocated together, but here separated for ease of use
 struct SSkinningWorkspace {
-  std::vector<zeus::CVector3f> m_vertexWorkspace;
-  std::vector<zeus::CVector3f> m_normalWorkspace;
+  std::vector<aurora::Vec3<float>> m_vertexWorkspace;
+  std::vector<aurora::Vec3<float>> m_normalWorkspace;
 
   SSkinningWorkspace(const CSkinRules& rules) { Reset(rules); }
   void Reset(const CSkinRules& rules) {
@@ -83,13 +83,13 @@ public:
 };
 
 class CSkinnedModelWithAvgNormals : public CSkinnedModel {
-  std::vector<zeus::CVector3f> x40_averagedNormals; // was rstl::auto_ptr<float[]>
+  std::vector<aurora::Vec3<float>> x40_averagedNormals; // was rstl::auto_ptr<float[]>
 
 public:
   CSkinnedModelWithAvgNormals(IObjectStore& store, CAssetId model, CAssetId skinRules, CAssetId layoutInfo);
   ~CSkinnedModelWithAvgNormals() override = default;
 
-  TConstVectorRef GetAveragedNormals() const { return &x40_averagedNormals; }
+  TConstVectorRef GetAveragedNormals() const { return x40_averagedNormals; }
 };
 
 } // namespace metaforce

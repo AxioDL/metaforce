@@ -6,6 +6,14 @@ namespace metaforce::CGX {
 SGXState sGXState{};
 std::array<GXVtxDescList, 12> sVtxDescList{};
 
+void SetLineWidth(u8 width, GXTexOffset offset) noexcept {
+  u16 flags = width | offset << 8;
+  if (flags != sGXState.x54_lineWidthAndOffset) {
+    sGXState.x54_lineWidthAndOffset = flags;
+    GXSetLineWidth(width, offset);
+  }
+}
+
 void ResetGXStates() noexcept {
   sGXState.x48_descList = 0;
   GXClearVtxDesc();

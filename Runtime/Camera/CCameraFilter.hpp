@@ -1,12 +1,7 @@
 #pragma once
 
-#include <memory>
-#include <optional>
-
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
-#include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
-#include "Runtime/Graphics/Shaders/CXRayBlurFilter.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 #include <zeus/CColor.hpp>
@@ -38,7 +33,6 @@ enum class EFilterShape {
 };
 
 class CCameraFilterPass {
-private:
   EFilterType x0_curType = EFilterType::Passthru;
   EFilterType x4_nextType = EFilterType::Passthru;
   EFilterShape x8_shape = EFilterShape::Fullscreen;

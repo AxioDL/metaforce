@@ -180,7 +180,7 @@ public:
   void EndPrimitive() override;
   void SetAmbientColor(const zeus::CColor& color) override;
   void DrawString(const char* string, s32, s32) override;
-  u32 GetFPS() override;
+  float GetFPS() override;
   void CacheReflection(TReflectionCallback cb, void* ctx, bool clearAfter) override;
   void DrawSpaceWarp(const zeus::CVector3f& pt, float strength) override;
   void DrawThermalModel(CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,

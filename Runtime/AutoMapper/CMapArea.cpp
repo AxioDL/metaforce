@@ -8,6 +8,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/World/CWorld.hpp"
 #include "Runtime/CBasics.hpp"
+#include "Runtime/Graphics/CGX.hpp"
 
 namespace metaforce {
 constexpr std::array<zeus::CVector3f, 3> MinesPostTransforms{{
@@ -101,49 +102,10 @@ void CMapArea::PostConstruct() {
     tmp += 12;
   }
 
-  std::vector<u32> index;
   m_surfaces.reserve(x30_surfaceCount);
   for (u32 i = 0, j = 0; i < x30_surfaceCount; ++i, j += 32) {
-    m_surfaces.emplace_back(x40_surfaceStart + j).PostConstruct(x44_buf.get(), index);
+    m_surfaces.emplace_back(x40_surfaceStart + j).PostConstruct(x44_buf.get());
   }
-
-//  CGraphics::CommitResources([this, &index](boo::IGraphicsDataFactory::Context& ctx) {
-//    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, m_verts.data(), 16, m_verts.size());
-//    m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, index.data(), 4, index.size());
-//
-//    /* Only the map universe specifies Always; it draws a maximum of 1016 instances */
-//    size_t instCount = (xc_visibilityMode == EVisMode::Always) ? 1024 : 1;
-//
-//    for (u32 i = 0; i < x30_surfaceCount; ++i) {
-//      CMapAreaSurface& surf = m_surfaces[i];
-//      surf.m_instances.reserve(instCount);
-//      for (u32 inst = 0; inst < instCount; ++inst) {
-//        CMapAreaSurface::Instance& instance = surf.m_instances.emplace_back(ctx, m_vbo, m_ibo);
-//
-//        athena::io::MemoryReader r(surf.x1c_outlineOffset, INT_MAX);
-//        u32 outlineCount = r.ReadLong();
-//
-//        std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
-//        linePrims.reserve(outlineCount * 2);
-//        for (u32 j = 0; j < 2; ++j) {
-//          r.seek(4, athena::SeekOrigin::Begin);
-//          for (u32 k = 0; k < outlineCount; ++k) {
-//            const u32 count = r.ReadLong();
-//            r.seek(count);
-//            r.seekAlign4();
-//            linePrims.emplace_back(ctx, CLineRenderer::EPrimitiveMode::LineStrip, count, nullptr, false, false, true);
-//          }
-//        }
-//      }
-//    }
-//
-//    for (u32 i = 0; i < x28_mappableObjCount; ++i) {
-//      CMappableObject& mapObj = m_mappableObjects[i];
-//      if (CMappableObject::IsDoorType(mapObj.GetType()))
-//        mapObj.CreateDoorSurface(ctx);
-//    }
-//    return true;
-//  } BooTrace);
 }
 
 bool CMapArea::GetIsVisibleToAutoMapper(bool worldVis, bool areaVis) const {
@@ -183,129 +145,87 @@ CMapArea::CMapAreaSurface::CMapAreaSurface(const void* surfBuf) {
   CMemoryInStream r(surfBuf, 32, CMemoryInStream::EOwnerShip::NotOwned);
   x0_normal = r.Get<zeus::CVector3f>();
   xc_centroid = r.Get<zeus::CVector3f>();
-  x18_surfOffset = reinterpret_cast<const u8*>(uintptr_t(r.ReadLong()));
-  x1c_outlineOffset = reinterpret_cast<const u8*>(uintptr_t(r.ReadLong()));
+  x18_surfOffset = reinterpret_cast<const u32*>(static_cast<uintptr_t>(r.ReadLong()));
+  x1c_outlineOffset = reinterpret_cast<const u32*>(static_cast<uintptr_t>(r.ReadLong()));
 }
 
-void CMapArea::CMapAreaSurface::PostConstruct(const u8* buf, std::vector<u32>& index) {
-  x18_surfOffset = buf + reinterpret_cast<uintptr_t>(x18_surfOffset);
-  x1c_outlineOffset = buf + reinterpret_cast<uintptr_t>(x1c_outlineOffset);
+void CMapArea::CMapAreaSurface::PostConstruct(const void* buf) {
+  x18_surfOffset =
+      reinterpret_cast<const u32*>(static_cast<const u8*>(buf) + reinterpret_cast<uintptr_t>(x18_surfOffset));
+  x1c_outlineOffset =
+      reinterpret_cast<const u32*>(static_cast<const u8*>(buf) + reinterpret_cast<uintptr_t>(x1c_outlineOffset));
+}
 
-  m_primStart = index.size();
-  bool start = true;
-  {
-    CMemoryInStream r(x18_surfOffset, INT_MAX, CMemoryInStream::EOwnerShip::NotOwned);
-    u32 primCount = r.ReadLong();
-    for (u32 i = 0; i < primCount; ++i) {
-      GXPrimitive prim = GXPrimitive(r.ReadLong());
-      u32 count = r.ReadLong();
-      switch (prim) {
-      case GX_TRIANGLES: {
-        for (u32 v = 0; v < count; v += 3) {
-          if (!start) {
-            index.push_back(index.back());
-            index.push_back(r.ReadUint8());
-            index.push_back(index.back());
-          } else {
-            index.push_back(r.ReadUint8());
-            start = false;
-          }
-          index.push_back(r.ReadUint8());
-          index.push_back(r.ReadUint8());
-          index.push_back(index.back());
-        }
-        break;
+void CMapArea::CMapAreaSurface::Draw(TConstVectorRef verts, const CColor& surfColor, const CColor& lineColor,
+                                     float lineWidth) const {
+  bool hasSurfAlpha = surfColor.a() > 0.0f;
+  bool hasLineAlpha = lineColor.a() > 0.0f;
+  u32 numSurfaces = CBasics::SwapBytes(*x18_surfOffset);
+  u32 numOutlines = CBasics::SwapBytes(*x1c_outlineOffset);
+  if (!verts.empty()) {
+    CGX::SetArray(GX_VA_POS, verts);
+  }
+  if (hasSurfAlpha) {
+    CGX::SetTevKColor(GX_KCOLOR0, surfColor);
+    const u32* surface = &x18_surfOffset[1];
+    for (u32 i = 0; i < numSurfaces; ++i) {
+      GXPrimitive primType = static_cast<GXPrimitive>(CBasics::SwapBytes(*surface++));
+      u32 numVertices = CBasics::SwapBytes(*surface++);
+      const u8* data = reinterpret_cast<const u8*>(surface);
+      surface += ((numVertices + 3) & ~3) / 4;
+
+      CGX::Begin(primType, GX_VTXFMT0, numVertices);
+      for (u32 v = 0; v < numVertices; ++v) {
+        GXPosition1x8(data[v]);
       }
-      case GX_TRIANGLESTRIP: {
-        if (!start) {
-          index.push_back(index.back());
-          index.push_back(r.ReadUint8());
-          index.push_back(index.back());
-        } else {
-          index.push_back(r.ReadUint8());
-          start = false;
-        }
-        for (u32 v = 1; v < count; ++v)
-          index.push_back(r.ReadUint8());
-        if (count & 1)
-          index.push_back(index.back());
-        break;
+      CGX::End();
+    }
+  }
+  if (hasLineAlpha) {
+    bool thickLine = lineWidth > 1.f;
+    for (u32 j = 0; j < (thickLine ? 1 : 0) + 1; ++j) {
+      const u32* outline = &x1c_outlineOffset[1];
+
+      if (thickLine) {
+        CGraphics::SetLineWidth(lineWidth - j, ERglTexOffset::One);
       }
-      case GX_TRIANGLEFAN: {
-        u8 firstVert = r.ReadUint8();
-        if (!start) {
-          index.push_back(index.back());
-          index.push_back(r.ReadUint8());
-        } else {
-          index.push_back(r.ReadUint8());
-          index.push_back(index.back());
-          start = false;
-        }
-        for (u32 v = 1; v < count; ++v) {
-          index.push_back(firstVert);
-          index.push_back(r.ReadUint8());
-        }
-        break;
+      CColor clr = lineColor;
+      if (thickLine) {
+        clr.a() *= 0.5f;
       }
-      default:
-        break;
-      }
-      u32 pos = r.GetReadPosition();
-      while (r.GetReadPosition() != ROUND_UP_4(pos)) {
-        r.ReadUint8();
+      CGX::SetTevKColor(GX_KCOLOR0, clr);
+
+      for (u32 i = 0; i < numOutlines; ++i) {
+        u32 numVertices = CBasics::SwapBytes(*outline++);
+        const u8* data = reinterpret_cast<const u8*>(outline);
+        outline += ((numVertices + 3) & ~3) / 4;
+
+        CGX::Begin(GX_LINESTRIP, GX_VTXFMT0, numVertices);
+        for (u32 v = 0; v < numVertices; ++v) {
+          GXPosition1x8(data[v]);
+        }
+        CGX::End();
       }
     }
   }
-  m_primCount = index.size() - m_primStart;
 }
 
-void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::CColor& surfColor,
-                                     const zeus::CColor& lineColor, float lineWidth, size_t instIdx) {
-  if (instIdx >= m_instances.size()) {
-    return;
-  }
-
-  Instance& instance = m_instances[instIdx];
-
-  if (surfColor.a()) {
-    instance.m_surfacePrims.draw(surfColor, m_primStart, m_primCount);
-  }
-
-  if (lineColor.a()) {
-    bool draw2 = lineWidth > 1.f;
-    u32 outlineCount = *reinterpret_cast<const u32*>(x1c_outlineOffset);
-#if METAFORCE_TARGET_BYTE_ORDER == __ORDER_LITTLE_ENDIAN__
-    outlineCount = CBasics::SwapBytes(outlineCount);
-#endif
-
-    std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
-    zeus::CColor color = lineColor;
-    if (draw2)
-      color.a() *= 0.5f;
-    float width = lineWidth;
-
-    auto primIt = linePrims.begin();
-    for (u32 j = 0; j <= u32(draw2); ++j) {
-      CMemoryInStream r(x1c_outlineOffset, INT_MAX, CMemoryInStream::EOwnerShip::NotOwned);
-      r.ReadLong();
-      for (u32 i = 0; i < outlineCount; ++i) {
-        CLineRenderer& prim = *primIt++;
-        prim.Reset();
-        u32 count = r.ReadLong();
-        for (u32 v = 0; v < count; ++v) {
-          u8 idx = r.ReadUint8();
-          prim.AddVertex(verts[idx], color, width);
-        }
-
-        u32 pos = r.GetReadPosition();
-        while (r.GetReadPosition() != ROUND_UP_4(pos)) {
-          r.ReadUint8();
-        }
-        prim.Render();
-      }
-      width -= 1.f;
-    }
-  }
+void CMapArea::CMapAreaSurface::SetupGXMaterial() {
+  const GXVtxDescList list[2] = {
+      {GX_VA_POS, GX_INDEX8},
+      {GX_VA_NULL, GX_NONE},
+  };
+  CGX::SetVtxDescv(list);
+  CGX::SetNumChans(1);
+  CGX::SetNumTexGens(0);
+  CGX::SetNumTevStages(1);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX_SRC_REG, GX_SRC_VTX, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+  CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_KONST);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_KONST);
+  CGX::SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+  CGX::SetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+  CGX::SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K0);
+  CGX::SetTevKAlphaSel(GX_TEVSTAGE0, GX_TEV_KASEL_K0_A);
 }
 
 CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, const CVParamTransfer&,

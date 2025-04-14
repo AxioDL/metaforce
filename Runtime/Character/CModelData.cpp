@@ -286,7 +286,7 @@ void CModelData::RenderThermal(const zeus::CTransform& xf, const zeus::CColor& m
 
   if (x10_animData) {
     CSkinnedModel& model = PickAnimatedModel(EWhichModel::ThermalHot);
-    x10_animData->SetupRender(model, nullptr, nullptr);
+    x10_animData->SetupRender(model, nullptr, {});
     ThermalDraw(model, mulColor, addColor, flags);
   } else {
     auto& model = PickStaticModel(EWhichModel::ThermalHot);
@@ -335,7 +335,7 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf, const CAc
   }
 
   if (x10_animData) {
-    x10_animData->Render(PickAnimatedModel(which), drawFlags, nullptr, nullptr);
+    x10_animData->Render(PickAnimatedModel(which), drawFlags, nullptr, {});
   } else {
     // TODO supposed to be optional_object?
     if (x1c_normalModel) {
@@ -357,10 +357,10 @@ void CModelData::FlatDraw(EWhichModel which, const zeus::CTransform& xf, bool un
   g_Renderer->SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
   CGraphics::DisableAllLights();
   if (!x10_animData) {
-    g_Renderer->DrawModelFlat(*PickStaticModel(which), flags, unsortedOnly, nullptr, nullptr);
+    g_Renderer->DrawModelFlat(*PickStaticModel(which), flags, unsortedOnly, {}, {});
   } else {
     auto model = PickAnimatedModel(which);
-    x10_animData->SetupRender(model, nullptr, nullptr);
+    x10_animData->SetupRender(model, nullptr, {});
     model.DoDrawCallback([=](TConstVectorRef positions, TConstVectorRef normals) {
       auto m = model.GetModel();
       g_Renderer->DrawModelFlat(*m, flags, unsortedOnly, positions, normals);
@@ -371,12 +371,12 @@ void CModelData::FlatDraw(EWhichModel which, const zeus::CTransform& xf, bool un
 void CModelData::MultiLightingDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
                                    const zeus::CColor& alphaColor, const zeus::CColor& additiveColor) {
   CModel* model = nullptr;
-  const auto callback = [&](auto positions, auto normals) {
+  const auto callback = [&](TConstVectorRef positions, TConstVectorRef normals) {
     CGraphics::DisableAllLights();
     constexpr CModelFlags flags1{5, 0, 3, zeus::CColor{1.f, 0.f}};
     const CModelFlags flags2{5, 0, 1, alphaColor};
     const CModelFlags flags3{7, 0, 1, additiveColor};
-    if (positions == nullptr) {
+    if (positions.empty()) {
       model->Draw(flags1);
       if (lights != nullptr) {
         lights->ActivateLights();
@@ -395,12 +395,12 @@ void CModelData::MultiLightingDraw(EWhichModel which, const zeus::CTransform& xf
   CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
   if (x10_animData) {
     auto& skinnedModel = PickAnimatedModel(which);
-    x10_animData->SetupRender(skinnedModel, nullptr, nullptr);
+    x10_animData->SetupRender(skinnedModel, nullptr, {});
     model = skinnedModel.GetModel().GetObj();
     skinnedModel.DoDrawCallback(callback);
   } else {
     model = PickStaticModel(which).GetObj();
-    callback(nullptr, nullptr);
+    callback({}, {});
   }
 }
 
@@ -415,7 +415,7 @@ void CModelData::MultiPassDraw(EWhichModel which, const zeus::CTransform& xf, co
   }
   if (x10_animData) {
     auto& skinnedModel = PickAnimatedModel(which);
-    x10_animData->SetupRender(skinnedModel, nullptr, nullptr);
+    x10_animData->SetupRender(skinnedModel, nullptr, {});
     auto& model = *skinnedModel.GetModel();
     skinnedModel.DoDrawCallback([&](auto positions, auto normals) {
       for (int i = 0; i < count; ++i) {
@@ -443,12 +443,12 @@ void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf,
   const auto aabb = GetBounds(scaledXf);
   if (x10_animData) {
     auto& model = PickAnimatedModel(which);
-    x10_animData->SetupRender(model, nullptr, nullptr);
+    x10_animData->SetupRender(model, nullptr, {});
     model.DoDrawCallback([&](auto positions, auto normals) {
       g_Renderer->DrawModelDisintegrate(*model.GetModel(), tex, addColor, positions, normals, t);
     });
   } else {
-    g_Renderer->DrawModelDisintegrate(*PickStaticModel(which), tex, addColor, nullptr, nullptr, t);
+    g_Renderer->DrawModelDisintegrate(*PickStaticModel(which), tex, addColor, {}, {}, t);
   }
 }
 

@@ -17,7 +17,7 @@ void CGuiPane::Draw(const CGuiWidgetDrawParms& parms) {
     col.a() = parms.x0_alphaMod * xa8_color2.a();
 
     CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvPassthru);
-    CGraphics::DrawPrimitive(GX_TRIANGLESTRIP, xc0_verts.data(), skDefaultNormal, col, xc0_verts.size());
+    CGraphics::DrawPrimitive(ERglPrimitive::TriangleStrip, xc0_verts.data(), skDefaultNormal, col, xc0_verts.size());
   }
   CGuiWidget::Draw(parms);
 }

@@ -16,7 +16,7 @@ CPowerBeam::CPowerBeam(CAssetId characterId, EWeaponType type, TUniqueId playerI
 }
 
 void CPowerBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
-  zeus::CTransform backupView = CGraphics::g_ViewMatrix;
+  zeus::CTransform backupView = CGraphics::mViewMatrix;
   CGraphics::SetViewPointMatrix(xf.inverse() * backupView);
   g_Renderer->SetModelMatrix(zeus::CTransform());
   

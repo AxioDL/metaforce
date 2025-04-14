@@ -48,8 +48,6 @@ class CWaveBuster : public CGameProjectile {
   bool x3d0_26_trackingTarget : 1 = false;
   bool x3d0_27_ : 1 = false;
   bool x3d0_28_ : 1 = true;
-  CLineRenderer m_lineRenderer1;
-  CLineRenderer m_lineRenderer2;
 
   void RenderParticles();
   void RenderBeam();

@@ -70,7 +70,7 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
   x34_crosshairs.Lock();
 }
 
-CCompoundTargetReticle::SScanReticuleRenderer::SScanReticuleRenderer() {
+// CCompoundTargetReticle::SScanReticuleRenderer::SScanReticuleRenderer() {
 //  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
 //    for (size_t i = 0; i < m_lineRenderers.size(); ++i) {
 //      m_lineRenderers[i].emplace(CLineRenderer::EPrimitiveMode::Lines, 8, {}, true, true);
@@ -80,7 +80,7 @@ CCompoundTargetReticle::SScanReticuleRenderer::SScanReticuleRenderer() {
 //    }
 //    return true;
 //  } BooTrace);
-}
+// }
 
 CCompoundTargetReticle::EReticleState CCompoundTargetReticle::GetDesiredReticleState(const CStateManager& mgr) const {
   switch (mgr.GetPlayerState()->GetCurrentVisor()) {
@@ -896,33 +896,33 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, con
     float alpha = 0.5f * factor;
     zeus::CColor color = g_tweakGuiColors->GetScanReticuleColor();
     color.a() *= alpha;
-    for (size_t i = 0; i < m_scanRetRenderer.m_lineRenderers.size(); ++i) {
-      const float lineWidth = i != 0 ? 2.5f : 1.f;
-      auto& rend = *m_scanRetRenderer.m_lineRenderers[i];
-      rend.Reset();
-      rend.AddVertex({-0.5f, 0.f, 0.f}, color, lineWidth);
-      rend.AddVertex({-20.5f, 0.f, 0.f}, color, lineWidth);
-      rend.AddVertex({0.5f, 0.f, 0.f}, color, lineWidth);
-      rend.AddVertex({20.5f, 0.f, 0.f}, color, lineWidth);
-      rend.AddVertex({0.f, 0.f, -0.5f}, color, lineWidth);
-      rend.AddVertex({0.f, 0.f, -20.5f}, color, lineWidth);
-      rend.AddVertex({0.f, 0.f, 0.5f}, color, lineWidth);
-      rend.AddVertex({0.f, 0.f, 20.5f}, color, lineWidth);
-      rend.Render();
-
-      for (size_t j = 0; j < m_scanRetRenderer.m_stripRenderers[i].size(); ++j) {
-        const float xSign = j < 2 ? -1.f : 1.f;
-        const float zSign = (j & 0x1) != 0 ? -1.f : 1.f;
-        // begin line strip
-        auto& stripRend = *m_scanRetRenderer.m_stripRenderers[i][j];
-        stripRend.Reset();
-        stripRend.AddVertex({0.5f * xSign, 0.f, 0.1f * zSign}, color, lineWidth);
-        stripRend.AddVertex({0.5f * xSign, 0.f, 0.35f * zSign}, color, lineWidth);
-        stripRend.AddVertex({0.35f * xSign, 0.f, 0.5f * zSign}, color, lineWidth);
-        stripRend.AddVertex({0.1f * xSign, 0.f, 0.5f * zSign}, color, lineWidth);
-        stripRend.Render();
-      }
-    }
+    // for (size_t i = 0; i < m_scanRetRenderer.m_lineRenderers.size(); ++i) {
+    //   const float lineWidth = i != 0 ? 2.5f : 1.f;
+    //   auto& rend = *m_scanRetRenderer.m_lineRenderers[i];
+    //   rend.Reset();
+    //   rend.AddVertex({-0.5f, 0.f, 0.f}, color, lineWidth);
+    //   rend.AddVertex({-20.5f, 0.f, 0.f}, color, lineWidth);
+    //   rend.AddVertex({0.5f, 0.f, 0.f}, color, lineWidth);
+    //   rend.AddVertex({20.5f, 0.f, 0.f}, color, lineWidth);
+    //   rend.AddVertex({0.f, 0.f, -0.5f}, color, lineWidth);
+    //   rend.AddVertex({0.f, 0.f, -20.5f}, color, lineWidth);
+    //   rend.AddVertex({0.f, 0.f, 0.5f}, color, lineWidth);
+    //   rend.AddVertex({0.f, 0.f, 20.5f}, color, lineWidth);
+    //   rend.Render();
+    //
+    //   for (size_t j = 0; j < m_scanRetRenderer.m_stripRenderers[i].size(); ++j) {
+    //     const float xSign = j < 2 ? -1.f : 1.f;
+    //     const float zSign = (j & 0x1) != 0 ? -1.f : 1.f;
+    //     // begin line strip
+    //     auto& stripRend = *m_scanRetRenderer.m_stripRenderers[i][j];
+    //     stripRend.Reset();
+    //     stripRend.AddVertex({0.5f * xSign, 0.f, 0.1f * zSign}, color, lineWidth);
+    //     stripRend.AddVertex({0.5f * xSign, 0.f, 0.35f * zSign}, color, lineWidth);
+    //     stripRend.AddVertex({0.35f * xSign, 0.f, 0.5f * zSign}, color, lineWidth);
+    //     stripRend.AddVertex({0.1f * xSign, 0.f, 0.5f * zSign}, color, lineWidth);
+    //     stripRend.Render();
+    //   }
+    // }
   }
 }
 
@@ -1004,7 +1004,6 @@ float CCompoundTargetReticle::CalculateClampedScale(const zeus::CVector3f& pos, 
   const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
   zeus::CVector3f viewPos = cam->GetTransform().transposeRotate(pos - cam->GetTransform().origin);
-  viewPos = zeus::CVector3f(viewPos.x(), viewPos.z(), -viewPos.y());
   const float realX = cam->GetPerspectiveMatrix().multiplyOneOverW(viewPos).x();
   const float offsetX = cam->GetPerspectiveMatrix().multiplyOneOverW(viewPos + zeus::CVector3f(scale, 0.f, 0.f)).x();
   const float unclampedX = (offsetX - realX) * 640;

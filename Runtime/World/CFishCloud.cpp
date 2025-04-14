@@ -577,12 +577,12 @@ void CFishCloud::RenderBoid(int idx, const CBoid& boid, u32& drawMask, bool ther
   if ((drawMask & thisDrawMask) != 0) {
     drawMask &= ~thisDrawMask;
     mData.GetAnimationData()->BuildPose();
-    model.Calculate(mData.GetAnimationData()->GetPose(), nullptr, nullptr, &x178_workspaces[modelIndex]);
+    model.Calculate(mData.GetAnimationData()->GetPose(), nullptr, {}, &x178_workspaces[modelIndex]);
   }
 
   CGraphics::SetModelMatrix(zeus::lookAt(boid.x0_pos, boid.x0_pos + boid.xc_vel));
-  const auto* positions = &x178_workspaces[modelIndex].m_vertexWorkspace;
-  const auto* normals = &x178_workspaces[modelIndex].m_normalWorkspace;
+  const auto& positions = x178_workspaces[modelIndex].m_vertexWorkspace;
+  const auto& normals = x178_workspaces[modelIndex].m_normalWorkspace;
   if (thermalHot) {
     constexpr CModelFlags thermFlags(0, 0, 3, zeus::skWhite);
     CModelData::ThermalDraw(model, positions, normals, zeus::skWhite, zeus::CColor(0.f, 0.25f), thermFlags);

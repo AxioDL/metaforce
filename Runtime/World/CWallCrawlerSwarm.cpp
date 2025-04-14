@@ -1043,14 +1043,14 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
   if ((drawMask & thisDrawMask) != 0u) {
     drawMask &= ~thisDrawMask;
     mData.GetAnimationData()->BuildPose();
-    model.Calculate(mData.GetAnimationData()->GetPose(), nullptr, nullptr, &x430_workspaces[modelIndex]);
+    model.Calculate(mData.GetAnimationData()->GetPose(), nullptr, {}, &x430_workspaces[modelIndex]);
   }
 
   g_Renderer->SetAmbientColor(boid->x40_ambientLighting);
   g_Renderer->SetModelMatrix(boid->GetTransform());
 
-  const auto* positions = &x430_workspaces[modelIndex].m_vertexWorkspace;
-  const auto* normals = &x430_workspaces[modelIndex].m_normalWorkspace;
+  const auto& positions = x430_workspaces[modelIndex].m_vertexWorkspace;
+  const auto& normals = x430_workspaces[modelIndex].m_normalWorkspace;
   if (boid->x48_timeToDie > 0.f && !thermalHot) {
     constexpr CModelFlags useFlags(0, 0, 3, zeus::skWhite);
     model.Draw(positions, normals, useFlags);
@@ -1059,7 +1059,7 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
       const float alpha = 1.f - boid->x48_timeToDie;
       const zeus::CColor color(1.f, alpha > 0.f ? boid->x48_timeToDie : 1.f);
       const CModelFlags iceFlags(5, 0, 3, color);
-      mData.GetAnimationData()->Render(*iceModel, iceFlags, nullptr, nullptr);
+      mData.GetAnimationData()->Render(*iceModel, iceFlags, nullptr, {});
     }
   } else if (thermalHot) {
     constexpr CModelFlags thermFlags(5, 0, 3, zeus::skWhite);
@@ -1086,7 +1086,7 @@ void CWallCrawlerSwarm::Render(CStateManager& mgr) {
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
     flags = CModelFlags(5, 0, 3, zeus::CColor(1.f, 0.3f));
   }
-  CGX::SetChanCtrl(CGX::EChannelId::Channel0, CGraphics::g_LightActive);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, CGraphics::mLightActive);
 
   for (int r27 = 0; r27 < 5; ++r27) {
     for (int r28 = 0; r28 < 5; ++r28) {

@@ -201,7 +201,7 @@ void CGrappleArm::RenderGrappleBeam(const CStateManager& mgr, const zeus::CVecto
   x394_grappleClawGen->Render();
   x3a0_grappleSwooshGen->Render();
   x390_grappleSegmentGen->Render();
-  const zeus::CTransform backupViewMtx = CGraphics::g_ViewMatrix;
+  const zeus::CTransform backupViewMtx = CGraphics::mViewMatrix;
   CGraphics::SetViewPointMatrix(tmpXf.inverse() * backupViewMtx);
   CGraphics::SetModelMatrix(zeus::CTransform());
   x39c_grappleMuzzleGen->Render();
@@ -496,7 +496,7 @@ void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransfo
   // g_Renderer->SetAmbientColor(zeus::skWhite);
   CSkinnedModel& model = *x50_grappleArmSkeletonModel->GetAnimationData()->GetModelData();
   // model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
-  x0_grappleArmModel->GetAnimationData()->Render(model, flags, nullptr, nullptr);
+  x0_grappleArmModel->GetAnimationData()->Render(model, flags, nullptr, {});
   // g_Renderer->SetAmbientColor(zeus::skWhite);
   // CGraphics::DisableAllLights();
 }

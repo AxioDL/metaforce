@@ -4,7 +4,6 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CGraphicsPalette.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
-#include "Runtime/Graphics/Shaders/CTextSupportShader.hpp"
 #include "Runtime/GuiSys/CFontImageDef.hpp"
 #include "Runtime/GuiSys/CFontRenderState.hpp"
 #include "Runtime/GuiSys/CInstruction.hpp"

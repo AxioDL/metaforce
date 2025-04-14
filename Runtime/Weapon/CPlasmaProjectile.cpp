@@ -139,54 +139,54 @@ void CPlasmaProjectile::RenderMotionBlur() {
   zeus::CColor color2 = x494_outerColor;
   color1.a() = 63.f / 255.f;
   color2.a() = 0.f;
-  std::array<CColoredStripShader::Vert, 16> verts;
-  for (size_t i = 0; i < verts.size() / 2; ++i) {
-    auto& v1 = verts[i * 2];
-    auto& v2 = verts[i * 2 + 1];
-    v1.m_pos = GetBeamTransform().origin;
-    v1.m_color = zeus::CColor::lerp(color1, color2, float(i) / 8.f);
-    v2.m_pos = GetPointCache()[i];
-    v2.m_color = v1.m_color;
-  }
+  // std::array<CColoredStripShader::Vert, 16> verts;
+  // for (size_t i = 0; i < verts.size() / 2; ++i) {
+  //   auto& v1 = verts[i * 2];
+  //   auto& v2 = verts[i * 2 + 1];
+  //   v1.m_pos = GetBeamTransform().origin;
+  //   v1.m_color = zeus::CColor::lerp(color1, color2, float(i) / 8.f);
+  //   v2.m_pos = GetPointCache()[i];
+  //   v2.m_color = v1.m_color;
+  // }
 //  m_renderObjs->m_motionBlurStrip.draw(zeus::skWhite, verts.size(), verts.data());
 }
 
-void CPlasmaProjectile::RenderBeam(s32 subdivs, float width, const zeus::CColor& color, s32 flags,
-                                   CColoredStripShader& shader) const {
-  // Flags: 0x1: textured, 0x2: length controlled UVY 0x4: alpha controlled additive blend,
-  // 0x8: glow texture, 0x10: subtractive blend
-  if ((flags & 0x1) == 0 || (flags & 0x8) ? x4f4_glowTexture.IsLoaded() : x4e8_texture.IsLoaded()) {
-    float angIncrement = 2.f * M_PIF / float(subdivs);
-    float uvY1 = -(x4cc_energyPulseStartY / 16.f);
-    float uvY2 = (uvY1 + float((flags & 0x3) == 0x3) != 0.f) ? 2.f : 0.5f * GetCurrentLength();
-    std::array<CColoredStripShader::Vert, 18> verts;
-    s32 numNodes = subdivs + 1;
-    float angle = 0.f;
-    bool flip = false;
-    for (s32 i = 0; i < numNodes; ++i) {
-      CColoredStripShader::Vert& v0 = verts[i * 2];
-      CColoredStripShader::Vert& v1 = verts[i * 2 + 1];
-      float x = std::cos(angle);
-      float y = std::sin(angle);
-      float uvX;
-      if (flags & 0x8)
-        uvX = 0.5f * y;
-      else if (flip)
-        uvX = width;
-      else
-        uvX = 0.f;
-      flip ^= true;
-      v0.m_pos = zeus::CVector3f(width * x, 0.f, width * y);
-      v0.m_color = color;
-      v0.m_uv = zeus::CVector2f(uvX, uvY1);
-      v1.m_pos = zeus::CVector3f(width * x, GetCurrentLength(), width * y);
-      v1.m_color = color;
-      v1.m_uv = zeus::CVector2f(uvX, uvY2);
-      angle += angIncrement;
-    }
-    shader.draw(zeus::skWhite, numNodes * 2, verts.data());
-  }
-}
+// void CPlasmaProjectile::RenderBeam(s32 subdivs, float width, const zeus::CColor& color, s32 flags,
+//                                    CColoredStripShader& shader) const {
+//   // Flags: 0x1: textured, 0x2: length controlled UVY 0x4: alpha controlled additive blend,
+//   // 0x8: glow texture, 0x10: subtractive blend
+//   if ((flags & 0x1) == 0 || (flags & 0x8) ? x4f4_glowTexture.IsLoaded() : x4e8_texture.IsLoaded()) {
+//     float angIncrement = 2.f * M_PIF / float(subdivs);
+//     float uvY1 = -(x4cc_energyPulseStartY / 16.f);
+//     float uvY2 = (uvY1 + float((flags & 0x3) == 0x3) != 0.f) ? 2.f : 0.5f * GetCurrentLength();
+//     std::array<CColoredStripShader::Vert, 18> verts;
+//     s32 numNodes = subdivs + 1;
+//     float angle = 0.f;
+//     bool flip = false;
+//     for (s32 i = 0; i < numNodes; ++i) {
+//       CColoredStripShader::Vert& v0 = verts[i * 2];
+//       CColoredStripShader::Vert& v1 = verts[i * 2 + 1];
+//       float x = std::cos(angle);
+//       float y = std::sin(angle);
+//       float uvX;
+//       if (flags & 0x8)
+//         uvX = 0.5f * y;
+//       else if (flip)
+//         uvX = width;
+//       else
+//         uvX = 0.f;
+//       flip ^= true;
+//       v0.m_pos = zeus::CVector3f(width * x, 0.f, width * y);
+//       v0.m_color = color;
+//       v0.m_uv = zeus::CVector2f(uvX, uvY1);
+//       v1.m_pos = zeus::CVector3f(width * x, GetCurrentLength(), width * y);
+//       v1.m_color = color;
+//       v1.m_uv = zeus::CVector2f(uvX, uvY2);
+//       angle += angIncrement;
+//     }
+//     shader.draw(zeus::skWhite, numNodes * 2, verts.data());
+//   }
+// }
 
 void CPlasmaProjectile::ResetBeam(CStateManager& mgr, bool fullReset) {
   if (fullReset) {

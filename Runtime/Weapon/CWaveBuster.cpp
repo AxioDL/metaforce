@@ -24,9 +24,7 @@ CWaveBuster::CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType typ
 , x354_busterSwoosh1(g_SimplePool->GetObj("BusterSwoosh1"))
 , x360_busterSwoosh2(g_SimplePool->GetObj("BusterSwoosh2"))
 , x36c_busterSparks(g_SimplePool->GetObj("BusterSparks"))
-, x378_busterLight(g_SimplePool->GetObj("BusterLight"))
-, m_lineRenderer1(CLineRenderer::EPrimitiveMode::LineStrip, 36 * 6, {}, true)
-, m_lineRenderer2(CLineRenderer::EPrimitiveMode::LineStrip, 36 * 6, {}, true) {
+, x378_busterLight(g_SimplePool->GetObj("BusterLight")) {
   x354_busterSwoosh1.GetObj();
   x360_busterSwoosh2.GetObj();
   x36c_busterSparks.GetObj();
@@ -276,17 +274,17 @@ void CWaveBuster::RenderBeam() {
     splineBaseIndex += 36;
   }
   g_Renderer->SetModelMatrix(x2e8_originalXf);
-  m_lineRenderer1.Reset();
-  for (const zeus::CVector3f& vec : linePoints) {
-    m_lineRenderer1.AddVertex(vec, zeus::skWhite, 12.f / 6.f);
-  }
-  m_lineRenderer1.Render();
-
-  m_lineRenderer2.Reset();
-  for (const zeus::CVector3f& vec : linePoints) {
-    m_lineRenderer2.AddVertex(vec, zeus::CColor{1.f, 0.f, 1.f, 0.5f}, 48.f / 6);
-  }
-  m_lineRenderer2.Render();
+  // m_lineRenderer1.Reset();
+  // for (const zeus::CVector3f& vec : linePoints) {
+  //   m_lineRenderer1.AddVertex(vec, zeus::skWhite, 12.f / 6.f);
+  // }
+  // m_lineRenderer1.Render();
+  //
+  // m_lineRenderer2.Reset();
+  // for (const zeus::CVector3f& vec : linePoints) {
+  //   m_lineRenderer2.AddVertex(vec, zeus::CColor{1.f, 0.f, 1.f, 0.5f}, 48.f / 6);
+  // }
+  // m_lineRenderer2.Render();
 }
 
 CRayCastResult CWaveBuster::SeekDamageTarget(TUniqueId& uid, const zeus::CVector3f& pos, const zeus::CVector3f& dir,

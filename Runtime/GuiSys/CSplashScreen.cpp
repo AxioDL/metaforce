@@ -78,7 +78,7 @@ void CSplashScreen::Draw() {
     const auto y = static_cast<float>(170 - (height - 104) / 2);
     CGraphics::SetOrtho(-10.f, 650.f, -5.5f, 484.5f, -1.f, 1.f);
     CGraphics::SetCullMode(ERglCullMode::None);
-    CGraphics::StreamBegin(GX_TRIANGLESTRIP);
+    CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
     CGraphics::StreamColor(color);
     CGraphics::StreamTexcoord(0.f, 0.f);
     CGraphics::StreamVertex({x, 0.f, y + static_cast<float>(height)});

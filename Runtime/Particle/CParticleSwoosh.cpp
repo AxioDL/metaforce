@@ -67,11 +67,11 @@ CParticleSwoosh::CParticleSwoosh(const TToken<CSwooshDescription>& desc, int len
 
     if (x1c_desc->x44_29_WIRE) {
       const int maxVerts = x1b4_LENG * (x1b0_SPLN + 1) * x1b8_SIDE * 12;
-      m_lineRenderer.reset(
-          new CLineRenderer(CLineRenderer::EPrimitiveMode::Lines, maxVerts * 2, {}, x1d0_25_AALP));
+      // m_lineRenderer.reset(
+      //     new CLineRenderer(CLineRenderer::EPrimitiveMode::Lines, maxVerts * 2, {}, x1d0_25_AALP));
     } else {
       const auto maxVerts = size_t(x1b4_LENG * (x1b0_SPLN + 1) * x1b8_SIDE * 4);
-      m_cachedVerts.reserve(maxVerts);
+      // m_cachedVerts.reserve(maxVerts);
 //      CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
 //        m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(CParticleSwooshShaders::Vert), maxVerts);
 //        m_uniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CMatrix4f), 1);
@@ -308,7 +308,7 @@ int CParticleSwoosh::WrapIndex(int i) const {
 void CParticleSwoosh::RenderNSidedSpline() {
   if (x1c_desc->x44_29_WIRE) {
     x1bc_prim = GX_LINES;
-    m_lineRenderer->Reset();
+    // m_lineRenderer->Reset();
   } else {
     x1bc_prim = GX_QUADS;
   }
@@ -434,10 +434,10 @@ void CParticleSwoosh::RenderNSidedSpline() {
           const auto v2 = GetSplinePoint(x16c_p0[otherK], x17c_p1[otherK], x18c_p2[otherK], x19c_p3[otherK], t1);
           const auto v3 = GetSplinePoint(x16c_p0[k], x17c_p1[k], x18c_p2[k], x19c_p3[k], t1);
 
-          m_cachedVerts.push_back({v0, {x1d4_uvs.xMin, x1d4_uvs.yMin}, color});
-          m_cachedVerts.push_back({v1, {x1d4_uvs.xMin, x1d4_uvs.yMax}, color});
-          m_cachedVerts.push_back({v2, {x1d4_uvs.xMax, x1d4_uvs.yMin}, color});
-          m_cachedVerts.push_back({v3, {x1d4_uvs.xMax, x1d4_uvs.yMax}, color});
+          // m_cachedVerts.push_back({v0, {x1d4_uvs.xMin, x1d4_uvs.yMin}, color});
+          // m_cachedVerts.push_back({v1, {x1d4_uvs.xMin, x1d4_uvs.yMax}, color});
+          // m_cachedVerts.push_back({v2, {x1d4_uvs.xMax, x1d4_uvs.yMin}, color});
+          // m_cachedVerts.push_back({v3, {x1d4_uvs.xMax, x1d4_uvs.yMax}, color});
 //          CGraphics::DrawArray(m_cachedVerts.size() - 4, 4);
         } else {
           const auto v0 = GetSplinePoint(x16c_p0[k], x17c_p1[k], x18c_p2[k], x19c_p3[k], t0);
@@ -446,23 +446,23 @@ void CParticleSwoosh::RenderNSidedSpline() {
           const auto v3 = GetSplinePoint(x16c_p0[k], x17c_p1[k], x18c_p2[k], x19c_p3[k], t1);
 
           if (x1bc_prim == GX_LINES) {
-            m_lineRenderer->AddVertex(v0, color, 1.f);
-            m_lineRenderer->AddVertex(v1, color, 1.f);
-            m_lineRenderer->AddVertex(v1, color, 1.f);
-            m_lineRenderer->AddVertex(v2, color, 1.f);
-            m_lineRenderer->AddVertex(v2, color, 1.f);
-            m_lineRenderer->AddVertex(v0, color, 1.f);
-            m_lineRenderer->AddVertex(v0, color, 1.f);
-            m_lineRenderer->AddVertex(v2, color, 1.f);
-            m_lineRenderer->AddVertex(v2, color, 1.f);
-            m_lineRenderer->AddVertex(v3, color, 1.f);
-            m_lineRenderer->AddVertex(v3, color, 1.f);
-            m_lineRenderer->AddVertex(v0, color, 1.f);
+            // m_lineRenderer->AddVertex(v0, color, 1.f);
+            // m_lineRenderer->AddVertex(v1, color, 1.f);
+            // m_lineRenderer->AddVertex(v1, color, 1.f);
+            // m_lineRenderer->AddVertex(v2, color, 1.f);
+            // m_lineRenderer->AddVertex(v2, color, 1.f);
+            // m_lineRenderer->AddVertex(v0, color, 1.f);
+            // m_lineRenderer->AddVertex(v0, color, 1.f);
+            // m_lineRenderer->AddVertex(v2, color, 1.f);
+            // m_lineRenderer->AddVertex(v2, color, 1.f);
+            // m_lineRenderer->AddVertex(v3, color, 1.f);
+            // m_lineRenderer->AddVertex(v3, color, 1.f);
+            // m_lineRenderer->AddVertex(v0, color, 1.f);
           } else if (x1bc_prim == GX_QUADS) {
-            m_cachedVerts.push_back({v0, {x1d4_uvs.xMin, x1d4_uvs.yMin}, color});
-            m_cachedVerts.push_back({v1, {x1d4_uvs.xMin, x1d4_uvs.yMax}, color});
-            m_cachedVerts.push_back({v2, {x1d4_uvs.xMax, x1d4_uvs.yMin}, color});
-            m_cachedVerts.push_back({v3, {x1d4_uvs.xMax, x1d4_uvs.yMax}, color});
+            // m_cachedVerts.push_back({v0, {x1d4_uvs.xMin, x1d4_uvs.yMin}, color});
+            // m_cachedVerts.push_back({v1, {x1d4_uvs.xMin, x1d4_uvs.yMax}, color});
+            // m_cachedVerts.push_back({v2, {x1d4_uvs.xMax, x1d4_uvs.yMin}, color});
+            // m_cachedVerts.push_back({v3, {x1d4_uvs.xMax, x1d4_uvs.yMax}, color});
 //            CGraphics::DrawArray(m_cachedVerts.size() - 4, 4);
           }
         }
@@ -590,22 +590,22 @@ void CParticleSwoosh::Render3SidedSolidSpline() {
           c1 = zeus::CColor::lerp(useColor0, useColor1, t1);
           uv1 = t1 * uvDelta + curUvSpan;
 
-          m_cachedVerts.push_back({v00, {uv0, x1d4_uvs.yMin}, c0});
-          m_cachedVerts.push_back({v10, {uv0, x1d4_uvs.yMax}, c0});
-          m_cachedVerts.push_back({v01, {uv1, x1d4_uvs.yMin}, c1});
-          m_cachedVerts.push_back({v11, {uv1, x1d4_uvs.yMax}, c1});
+          // m_cachedVerts.push_back({v00, {uv0, x1d4_uvs.yMin}, c0});
+          // m_cachedVerts.push_back({v10, {uv0, x1d4_uvs.yMax}, c0});
+          // m_cachedVerts.push_back({v01, {uv1, x1d4_uvs.yMin}, c1});
+          // m_cachedVerts.push_back({v11, {uv1, x1d4_uvs.yMax}, c1});
 //          CGraphics::DrawArray(m_cachedVerts.size() - 4, 4);
 
-          m_cachedVerts.push_back({v10, {uv0, x1d4_uvs.yMin}, c0});
-          m_cachedVerts.push_back({v20, {uv0, x1d4_uvs.yMax}, c0});
-          m_cachedVerts.push_back({v11, {uv1, x1d4_uvs.yMin}, c1});
-          m_cachedVerts.push_back({v21, {uv1, x1d4_uvs.yMax}, c1});
+          // m_cachedVerts.push_back({v10, {uv0, x1d4_uvs.yMin}, c0});
+          // m_cachedVerts.push_back({v20, {uv0, x1d4_uvs.yMax}, c0});
+          // m_cachedVerts.push_back({v11, {uv1, x1d4_uvs.yMin}, c1});
+          // m_cachedVerts.push_back({v21, {uv1, x1d4_uvs.yMax}, c1});
 //          CGraphics::DrawArray(m_cachedVerts.size() - 4, 4);
 
-          m_cachedVerts.push_back({v20, {uv0, x1d4_uvs.yMin}, c0});
-          m_cachedVerts.push_back({v00, {uv0, x1d4_uvs.yMax}, c0});
-          m_cachedVerts.push_back({v21, {uv1, x1d4_uvs.yMin}, c1});
-          m_cachedVerts.push_back({v01, {uv1, x1d4_uvs.yMax}, c1});
+          // m_cachedVerts.push_back({v20, {uv0, x1d4_uvs.yMin}, c0});
+          // m_cachedVerts.push_back({v00, {uv0, x1d4_uvs.yMax}, c0});
+          // m_cachedVerts.push_back({v21, {uv1, x1d4_uvs.yMin}, c1});
+          // m_cachedVerts.push_back({v01, {uv1, x1d4_uvs.yMax}, c1});
 //          CGraphics::DrawArray(m_cachedVerts.size() - 4, 4);
         }
       }
@@ -682,22 +682,22 @@ void CParticleSwoosh::Render3SidedSolidNoSplineNoGaps() {
     const float uv1 = uv0;
     uv0 += x1e8_uvSpan;
 
-    m_cachedVerts.push_back({p0[i & 1], {uv0, x1d4_uvs.yMin}, c0});
-    m_cachedVerts.push_back({p1[i & 1], {uv0, x1d4_uvs.yMax}, c0});
-    m_cachedVerts.push_back({p0[!(i & 1)], {uv1, x1d4_uvs.yMin}, c1});
-    m_cachedVerts.push_back({p1[!(i & 1)], {uv1, x1d4_uvs.yMax}, c1});
+    // m_cachedVerts.push_back({p0[i & 1], {uv0, x1d4_uvs.yMin}, c0});
+    // m_cachedVerts.push_back({p1[i & 1], {uv0, x1d4_uvs.yMax}, c0});
+    // m_cachedVerts.push_back({p0[!(i & 1)], {uv1, x1d4_uvs.yMin}, c1});
+    // m_cachedVerts.push_back({p1[!(i & 1)], {uv1, x1d4_uvs.yMax}, c1});
 //    CGraphics::DrawArray(m_cachedVerts.size() - 4, 4);
 
-    m_cachedVerts.push_back({p1[i & 1], {uv0, x1d4_uvs.yMin}, c0});
-    m_cachedVerts.push_back({p2[i & 1], {uv0, x1d4_uvs.yMax}, c0});
-    m_cachedVerts.push_back({p1[!(i & 1)], {uv1, x1d4_uvs.yMin}, c1});
-    m_cachedVerts.push_back({p2[!(i & 1)], {uv1, x1d4_uvs.yMax}, c1});
+    // m_cachedVerts.push_back({p1[i & 1], {uv0, x1d4_uvs.yMin}, c0});
+    // m_cachedVerts.push_back({p2[i & 1], {uv0, x1d4_uvs.yMax}, c0});
+    // m_cachedVerts.push_back({p1[!(i & 1)], {uv1, x1d4_uvs.yMin}, c1});
+    // m_cachedVerts.push_back({p2[!(i & 1)], {uv1, x1d4_uvs.yMax}, c1});
 //    CGraphics::DrawArray(m_cachedVerts.size() - 4, 4);
 
-    m_cachedVerts.push_back({p2[i & 1], {uv0, x1d4_uvs.yMin}, c0});
-    m_cachedVerts.push_back({p0[i & 1], {uv0, x1d4_uvs.yMax}, c0});
-    m_cachedVerts.push_back({p2[!(i & 1)], {uv1, x1d4_uvs.yMin}, c1});
-    m_cachedVerts.push_back({p0[!(i & 1)], {uv1, x1d4_uvs.yMax}, c1});
+    // m_cachedVerts.push_back({p2[i & 1], {uv0, x1d4_uvs.yMin}, c0});
+    // m_cachedVerts.push_back({p0[i & 1], {uv0, x1d4_uvs.yMax}, c0});
+    // m_cachedVerts.push_back({p2[!(i & 1)], {uv1, x1d4_uvs.yMin}, c1});
+    // m_cachedVerts.push_back({p0[!(i & 1)], {uv1, x1d4_uvs.yMax}, c1});
 //    CGraphics::DrawArray(m_cachedVerts.size() - 4, 4);
   }
 }
@@ -733,7 +733,7 @@ void CParticleSwoosh::Render2SidedNoSplineGaps() {
         continue;
       }
       streaming = true;
-      drawStart = m_cachedVerts.size();
+      // drawStart = m_cachedVerts.size();
     }
 
     float ang = zeus::degToRad(swoosh.x30_irot + swoosh.x34_rotm);
@@ -759,10 +759,10 @@ void CParticleSwoosh::Render2SidedNoSplineGaps() {
 
     const zeus::CColor color = swoosh.x6c_color * x20c_moduColor;
 
-    m_cachedVerts.push_back({v0, {1.f, x1d4_uvs.yMin}, color});
-    m_cachedVerts.push_back({v1, {1.f, x1d4_uvs.yMax}, color});
-    m_cachedVerts.push_back({v0, {0.f, x1d4_uvs.yMin}, color});
-    m_cachedVerts.push_back({v1, {0.f, x1d4_uvs.yMax}, color});
+    // m_cachedVerts.push_back({v0, {1.f, x1d4_uvs.yMin}, color});
+    // m_cachedVerts.push_back({v1, {1.f, x1d4_uvs.yMax}, color});
+    // m_cachedVerts.push_back({v0, {0.f, x1d4_uvs.yMin}, color});
+    // m_cachedVerts.push_back({v1, {0.f, x1d4_uvs.yMax}, color});
   }
 
 //  if (streaming)
@@ -779,7 +779,7 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
     if (x1c_desc->x45_25_ORNT) {
       const zeus::CVector3f camToParticle =
           ((zeus::CTransform::Translate(xa4_globalTranslation) * xb0_globalOrientation * xec_scaleXf).inverse() *
-           CGraphics::g_ViewMatrix)
+           CGraphics::mViewMatrix)
               .origin;
       zeus::CVector3f dotVec = zeus::skZero3f;
 
@@ -816,14 +816,14 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
 
               const zeus::CColor color = swoosh.x6c_color * x20c_moduColor;
 
-              m_cachedVerts.push_back({v0, {uvOffset, x1d4_uvs.yMin}, color});
-              m_cachedVerts.push_back({v1, {uvOffset, x1d4_uvs.yMax}, color});
+              // m_cachedVerts.push_back({v0, {uvOffset, x1d4_uvs.yMin}, color});
+              // m_cachedVerts.push_back({v1, {uvOffset, x1d4_uvs.yMax}, color});
               if (uvOffset >= 1.f && particleCount) {
 //                CGraphics::DrawArray(drawStart, m_cachedVerts.size() - drawStart);
-                drawStart = m_cachedVerts.size();
+                // drawStart = m_cachedVerts.size();
                 uvOffset -= 1.f;
-                m_cachedVerts.push_back({v0, {uvOffset, x1d4_uvs.yMin}, color});
-                m_cachedVerts.push_back({v1, {uvOffset, x1d4_uvs.yMax}, color});
+                // m_cachedVerts.push_back({v0, {uvOffset, x1d4_uvs.yMin}, color});
+                // m_cachedVerts.push_back({v1, {uvOffset, x1d4_uvs.yMax}, color});
               }
 
               if (x1ec_TSPN > 0) {
@@ -870,14 +870,14 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
 
           const zeus::CColor color = swoosh.x6c_color * x20c_moduColor;
 
-          m_cachedVerts.push_back({v0, {uvOffset, x1d4_uvs.yMin}, color});
-          m_cachedVerts.push_back({v1, {uvOffset, x1d4_uvs.yMax}, color});
+          // m_cachedVerts.push_back({v0, {uvOffset, x1d4_uvs.yMin}, color});
+          // m_cachedVerts.push_back({v1, {uvOffset, x1d4_uvs.yMax}, color});
           if (uvOffset >= 1.f && particleCount) {
 //            CGraphics::DrawArray(drawStart, m_cachedVerts.size() - drawStart);
-            drawStart = m_cachedVerts.size();
+            // drawStart = m_cachedVerts.size();
             uvOffset -= 1.f;
-            m_cachedVerts.push_back({v0, {uvOffset, x1d4_uvs.yMin}, color});
-            m_cachedVerts.push_back({v1, {uvOffset, x1d4_uvs.yMax}, color});
+            // m_cachedVerts.push_back({v0, {uvOffset, x1d4_uvs.yMin}, color});
+            // m_cachedVerts.push_back({v1, {uvOffset, x1d4_uvs.yMax}, color});
           }
 
           if (x1ec_TSPN > 0) {
@@ -920,8 +920,8 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
             useOffset;
 
         const zeus::CColor color = swoosh.x6c_color * x20c_moduColor;
-        m_cachedVerts.push_back({v0, {}, color});
-        m_cachedVerts.push_back({v1, {}, color});
+        // m_cachedVerts.push_back({v0, {}, color});
+        // m_cachedVerts.push_back({v1, {}, color});
       }
     }
   }
@@ -937,7 +937,7 @@ void CParticleSwoosh::Render() {
   SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format("CParticleSwoosh::Render {}", *x1c_desc.GetObjectTag()).c_str(),
                               zeus::skYellow);
 
-  m_cachedVerts.clear();
+  // m_cachedVerts.clear();
 //  if (m_dataBind[0]) {
 //    CGraphics::SetShaderDataBinding(m_dataBind[g_Renderer->IsThermalVisorHotPass()]);
 //  }
@@ -1007,7 +1007,7 @@ void CParticleSwoosh::Render() {
     }
   }
 
-  zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(/*true*/) * CGraphics::g_GXModelView.toMatrix4f();
+  // zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix(/*true*/) * CGraphics::g_GXModelView.toMatrix4f();
 //  m_uniformBuf->load(&mvp, sizeof(zeus::CMatrix4f));
 //  if (m_cachedVerts.size()) {
 //    m_vertBuf->load(m_cachedVerts.data(), m_cachedVerts.size() * sizeof(CParticleSwooshShaders::Vert));

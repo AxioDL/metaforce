@@ -9,7 +9,6 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
-#include "Runtime/Graphics/Shaders/CFluidPlaneShader.hpp"
 #include "Runtime/World/CFluidUVMotion.hpp"
 
 #include <zeus/CAABox.hpp>
@@ -116,6 +115,8 @@ public:
   };
 };
 
+enum class EFluidType { NormalWater, PoisonWater, Lava, PhazonFluid, Four, ThickLava };
+
 class CFluidPlane {
 public:
   using Flags = std::array<std::array<u8, 9>, 9>;
@@ -133,20 +134,20 @@ protected:
   float x48_rippleIntensity;
   CFluidUVMotion x4c_uvMotion;
 
-  std::vector<CFluidPlaneShader::Vertex> m_verts;
-  std::vector<CFluidPlaneShader::PatchVertex> m_pVerts;
-  std::optional<CFluidPlaneShader> m_shader;
+  // std::vector<CFluidPlaneShader::Vertex> m_verts;
+  // std::vector<CFluidPlaneShader::PatchVertex> m_pVerts;
+  // std::optional<CFluidPlaneShader> m_shader;
 
   float ProjectRippleVelocity(float baseI, float velDot) const;
   float CalculateRippleIntensity(float baseI) const;
 
-  virtual void RenderStripWithRipples(float curY, const Heights& heights, const Flags& flags, int startYDiv,
-                                      const CFluidPlaneRender::SPatchInfo& info,
-                                      std::vector<CFluidPlaneShader::Vertex>& vOut,
-                                      std::vector<CFluidPlaneShader::PatchVertex>& pvOut);
-  void RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const Heights& heights, const Flags& flags,
-                   bool noRipples, bool flagIs1, std::vector<CFluidPlaneShader::Vertex>& vOut,
-                   std::vector<CFluidPlaneShader::PatchVertex>& pvOut);
+  // virtual void RenderStripWithRipples(float curY, const Heights& heights, const Flags& flags, int startYDiv,
+  //                                     const CFluidPlaneRender::SPatchInfo& info,
+  //                                     std::vector<CFluidPlaneShader::Vertex>& vOut,
+  //                                     std::vector<CFluidPlaneShader::PatchVertex>& pvOut);
+  // void RenderPatch(const CFluidPlaneRender::SPatchInfo& info, const Heights& heights, const Flags& flags,
+  //                  bool noRipples, bool flagIs1, std::vector<CFluidPlaneShader::Vertex>& vOut,
+  //                  std::vector<CFluidPlaneShader::PatchVertex>& pvOut);
 
 public:
   virtual ~CFluidPlane() = default;

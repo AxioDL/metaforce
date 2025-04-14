@@ -1,141 +1,201 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 
 #include "Runtime/CTimeProvider.hpp"
-#include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
-#include "Runtime/Graphics/Shaders/CTextSupportShader.hpp"
 #include "Runtime/GuiSys/CGuiSys.hpp"
 #include "Runtime/Graphics/CGX.hpp"
+#include "Runtime/Logging.hpp"
 
-#include <zeus/Math.hpp>
 #include <dolphin/gx.h>
+#include <dolphin/vi.h>
+#include <zeus/Math.hpp>
 
 namespace metaforce {
-CGraphics::CProjectionState CGraphics::g_Proj;
-// CFogState CGraphics::g_Fog;
-float CGraphics::g_ProjAspect = 1.f;
-u32 CGraphics::g_NumBreakpointsWaiting = 0;
-u32 CGraphics::g_FlippingState;
-bool CGraphics::g_LastFrameUsedAbove = false;
-bool CGraphics::g_InterruptLastFrameUsedAbove = false;
-GX::LightMask CGraphics::g_LightActive{};
-std::array<GXLightObj, GX::MaxLights> CGraphics::g_LightObjs;
-std::array<ELightType, GX::MaxLights> CGraphics::g_LightTypes;
-zeus::CTransform CGraphics::g_GXModelView;
-zeus::CTransform CGraphics::g_GXModelViewInvXpose;
-zeus::CTransform CGraphics::g_GXModelMatrix = zeus::CTransform();
-zeus::CTransform CGraphics::g_ViewMatrix;
-zeus::CVector3f CGraphics::g_ViewPoint;
-zeus::CTransform CGraphics::g_GXViewPointMatrix;
-zeus::CTransform CGraphics::g_CameraMatrix;
-SClipScreenRect CGraphics::g_CroppedViewport;
-bool CGraphics::g_IsGXModelMatrixIdentity = true;
-zeus::CColor CGraphics::g_ClearColor = zeus::skClear;
-float CGraphics::g_ClearDepthValue = 1.f;
-bool CGraphics::g_IsBeginSceneClearFb = true;
+using CVector3f = zeus::CVector3f;
+using CVector2i = zeus::CVector2i;
+using CTransform4f = zeus::CTransform;
+using CColor = zeus::CColor;
+using uchar = unsigned char;
+using uint = unsigned int;
+using ushort = unsigned short;
 
-SViewport CGraphics::g_Viewport = {
-    0, 0, 640, 480, 640 / 2.f, 480 / 2.f, 0.0f,
+CGraphics::CRenderState CGraphics::sRenderState;
+VecPtr CGraphics::vtxBuffer;
+VecPtr CGraphics::nrmBuffer;
+Vec2Ptr CGraphics::txtBuffer0;
+Vec2Ptr CGraphics::txtBuffer1;
+uint* CGraphics::clrBuffer;
+bool CGraphics::mJustReset;
+ERglCullMode CGraphics::mCullMode;
+int CGraphics::mNumLightsActive;
+float CGraphics::mDepthNear;
+VecPtr CGraphics::mpVtxBuffer;
+VecPtr CGraphics::mpNrmBuffer;
+Vec2Ptr CGraphics::mpTxtBuffer0;
+Vec2Ptr CGraphics::mpTxtBuffer1;
+uint* CGraphics::mpClrBuffer;
+
+struct {
+  Vec vtx;
+  Vec nrm;
+  Vec2 uv0;
+  Vec2 uv1;
+  u32 color;
+  u16 textureUsed;
+  u8 streamFlags;
+} vtxDescr;
+
+CVector3f CGraphics::kDefaultPositionVector(0.f, 0.f, 0.f);
+CVector3f CGraphics::kDefaultDirectionVector(0.f, 1.f, 0.f);
+CGraphics::CProjectionState CGraphics::mProj(true, -1.f, 1.f, 1.f, -1.f, 1.f, 100.f);
+CTransform4f CGraphics::mViewMatrix = CTransform4f();
+CTransform4f CGraphics::mModelMatrix = CTransform4f();
+CColor CGraphics::mClearColor = zeus::skBlack;
+CVector3f CGraphics::mViewPoint(0.f, 0.f, 0.f);
+GXLightObj CGraphics::mLightObj[8];
+// GXTexRegion CGraphics::mTexRegions[GX_MAX_TEXMAP];
+// GXTexRegion CGraphics::mTexRegionsCI[GX_MAX_TEXMAP / 2];
+GXRenderModeObj CGraphics::mRenderModeObj;
+Mtx CGraphics::mGXViewPointMatrix;
+Mtx CGraphics::mGXModelMatrix;
+Mtx CGraphics::mGxModelView;
+Mtx CGraphics::mCameraMtx;
+
+int CGraphics::mNumPrimitives;
+int CGraphics::mFrameCounter;
+float CGraphics::mFramesPerSecond;
+float CGraphics::mLastFramesPerSecond;
+int CGraphics::mNumBreakpointsWaiting;
+int CGraphics::mFlippingState;
+bool CGraphics::mLastFrameUsedAbove;
+bool CGraphics::mInterruptLastFrameUsedAbove;
+GX::LightMask CGraphics::mLightActive;
+GX::LightMask CGraphics::mLightsWereOn;
+void* CGraphics::mpFrameBuf1;
+void* CGraphics::mpFrameBuf2;
+void* CGraphics::mpCurrenFrameBuf;
+int CGraphics::mSpareBufferSize;
+void* CGraphics::mpSpareBuffer;
+int CGraphics::mSpareBufferTexCacheSize;
+// GXTexRegionCallback CGraphics::mGXDefaultTexRegionCallback;
+void* CGraphics::mpFifo;
+GXFifoObj* CGraphics::mpFifoObj;
+uint CGraphics::mRenderTimings;
+float CGraphics::mSecondsMod900;
+CTimeProvider* CGraphics::mpExternalTimeProvider;
+int CGraphics::mScreenStretch;
+int CGraphics::mScreenPositionX;
+int CGraphics::mScreenPositionY;
+
+CViewport CGraphics::mViewport = {0, 0, 640, 480, 320.f, 240.f};
+ELightType CGraphics::mLightTypes[8] = {
+    ELightType::Directional, ELightType::Directional, ELightType::Directional, ELightType::Directional,
+    ELightType::Directional, ELightType::Directional, ELightType::Directional, ELightType::Directional,
 };
-u32 CGraphics::g_FrameCounter = 0;
-u32 CGraphics::g_Framerate = 0;
-u32 CGraphics::g_FramesPast = 0;
-frame_clock::time_point CGraphics::g_FrameStartTime = frame_clock::now();
-ERglEnum CGraphics::g_depthFunc = ERglEnum::Never;
-ERglCullMode CGraphics::g_cullMode = ERglCullMode::None;
 
-const std::array<zeus::CMatrix3f, 6> CGraphics::skCubeBasisMats{{
-    /* Right */
-    {0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, -1.f},
-    /* Left */
-    {0.f, -1.f, 0.f, -1.f, 0.f, 0.f, 0.f, 0.f, -1.f},
-    /* Up */
-    {1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f},
-    /* Down */
-    {1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, -1.f, 0.f},
-    /* Back */
-    {1.f, 0.f, 0.f, 0.f, -1.f, 0.f, 0.f, 0.f, -1.f},
-    /* Forward */
-    {-1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, -1.f},
-}};
+// const CTevCombiners::CTevPass& CGraphics::kEnvPassthru = CTevCombiners::kEnvPassthru;
+bool CGraphics::mIsBeginSceneClearFb = true;
+ERglEnum CGraphics::mDepthFunc = ERglEnum::LEqual;
+ERglPrimitive CGraphics::mCurrentPrimitive = ERglPrimitive::Points;
+float CGraphics::mDepthFar = 1.f;
+u32 CGraphics::mClearDepthValue = GX_MAX_Z24;
+bool CGraphics::mIsGXModelMatrixIdentity = true;
+bool CGraphics::mFirstFrame = true;
+GXBool CGraphics::mUseVideoFilter = GX_ENABLE;
+float CGraphics::mBrightness = 1.f;
+
+const GXTexMapID CGraphics::kSpareBufferTexMapID = GX_TEXMAP7;
+
 // We don't actually store anything here
-u8 CGraphics::sSpareTextureData[] = {0};
-
-// Stream API
-static u32 sStreamFlags;
-static GXPrimitive sStreamPrimitive;
-static u32 sVerticesCount;
-static zeus::CColor sQueuedColor;
-// Originally writes directly to GX FIFO
-struct StreamVertex {
-  zeus::CColor color;
-  zeus::CVector2f texCoord;
-  zeus::CVector3f normal;
-  zeus::CVector3f vertex;
-  constexpr StreamVertex(const zeus::CColor& color) : color(color) {}
-  constexpr StreamVertex(const StreamVertex&) = default;
-};
-static std::vector<StreamVertex> sQueuedVertices;
+static std::array<uchar, 1> sSpareFrameBuffer;
 
 void CGraphics::DisableAllLights() {
-  g_LightActive.reset();
-  CGX::SetChanCtrl(CGX::EChannelId::Channel0, {});
+  mNumLightsActive = 0;
+  mLightActive.reset();
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+}
+
+static inline GXLightID get_hw_light_index(ERglLight light) {
+  return static_cast<GXLightID>((1 << light) & (GX_MAX_LIGHT - 1));
 }
 
 void CGraphics::LoadLight(ERglLight light, const CLight& info) {
-  const auto lightId = static_cast<GXLightID>(1 << light);
+  GXLightID lightId = get_hw_light_index(light);
+  ELightType type = info.GetType();
+  CVector3f pos = info.GetPosition();
+  CVector3f dir = info.GetDirection();
 
-  auto& obj = g_LightObjs[light];
-  zeus::CVector3f pos = info.GetPosition();
-  zeus::CVector3f dir = info.GetDirection();
-  const auto type = info.GetType();
-  if (type == ELightType::Directional) {
-    dir = -(g_CameraMatrix.buildMatrix3f() * dir);
-    GXInitLightPos(&obj, dir.x() * 1048576.f, dir.y() * 1048576.f, dir.z() * 1048576.f);
-    GXInitLightAttn(&obj, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
-  } else if (type == ELightType::Spot) {
-    pos = g_CameraMatrix * pos;
-    GXInitLightPos(&obj, pos.x(), pos.y(), pos.z());
-    dir = g_CameraMatrix.buildMatrix3f() * dir;
-    GXInitLightDir(&obj, dir.x(), dir.y(), dir.z());
-    GXInitLightAttn(&obj, 1.f, 0.f, 0.f, info.GetAttenuationConstant(), info.GetAttenuationLinear(),
+  switch (type) {
+  case ELightType::Spot: {
+    MTXMultVec(mCameraMtx, reinterpret_cast<VecPtr>(&pos), reinterpret_cast<VecPtr>(&pos));
+    GXLightObj* obj = &mLightObj[light];
+    GXInitLightPos(obj, pos.x(), pos.y(), pos.z());
+    MTXMultVecSR(mCameraMtx, reinterpret_cast<VecPtr>(&dir), reinterpret_cast<VecPtr>(&dir));
+    GXInitLightDir(obj, dir.x(), dir.y(), dir.z());
+    GXInitLightAttn(obj, 1.f, 0.f, 0.f, info.GetAttenuationConstant(), info.GetAttenuationLinear(),
                     info.GetAttenuationQuadratic());
-    GXInitLightSpot(&obj, info.GetSpotCutoff(), GX_SP_COS2);
-  } else if (type == ELightType::Custom) {
-    pos = g_CameraMatrix * pos;
-    GXInitLightPos(&obj, pos.x(), pos.y(), pos.z());
-    dir = g_CameraMatrix.buildMatrix3f() * dir;
-    GXInitLightDir(&obj, dir.x(), dir.y(), dir.z());
-    GXInitLightAttn(&obj, info.GetAngleAttenuationConstant(), info.GetAngleAttenuationLinear(),
+    GXInitLightSpot(obj, info.GetSpotCutoff(), GX_SP_COS2);
+    break;
+  }
+  case ELightType::Point:
+  case ELightType::LocalAmbient: {
+    MTXMultVec(mCameraMtx, reinterpret_cast<VecPtr>(&pos), reinterpret_cast<VecPtr>(&pos));
+    GXInitLightPos(&mLightObj[light], pos.x(), pos.y(), pos.z());
+    GXInitLightAttn(&mLightObj[light], 1.f, 0.f, 0.f, info.GetAttenuationConstant(), info.GetAttenuationLinear(),
+                    info.GetAttenuationQuadratic());
+    break;
+  }
+  case ELightType::Directional: {
+    MTXMultVecSR(mCameraMtx, reinterpret_cast<VecPtr>(&dir), reinterpret_cast<VecPtr>(&dir));
+    dir = -dir;
+    GXInitLightPos(&mLightObj[light], dir.x() * 1048576.f, dir.y() * 1048576.f, dir.z() * 1048576.f);
+    GXInitLightAttn(&mLightObj[light], 1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
+    break;
+  }
+  case ELightType::Custom: {
+    MTXMultVec(mCameraMtx, reinterpret_cast<VecPtr>(&pos), reinterpret_cast<VecPtr>(&pos));
+    GXLightObj* obj = &mLightObj[light];
+    GXInitLightPos(obj, pos.x(), pos.y(), pos.z());
+    MTXMultVecSR(mCameraMtx, reinterpret_cast<VecPtr>(&dir), reinterpret_cast<VecPtr>(&dir));
+    GXInitLightDir(obj, dir.x(), dir.y(), dir.z());
+    GXInitLightAttn(obj, info.GetAngleAttenuationConstant(), info.GetAngleAttenuationLinear(),
                     info.GetAngleAttenuationQuadratic(), info.GetAttenuationConstant(), info.GetAttenuationLinear(),
                     info.GetAttenuationQuadratic());
-  } else if (type == ELightType::LocalAmbient || type == ELightType::Point) {
-    pos = g_CameraMatrix * pos;
-    GXInitLightPos(&obj, pos.x(), pos.y(), pos.z());
-    GXInitLightAttn(&obj, 1.f, 0.f, 0.f, info.GetAttenuationConstant(), info.GetAttenuationLinear(),
-                    info.GetAttenuationQuadratic());
+    break;
+  }
+  default:
+    break;
   }
 
-  g_LightTypes[light] = type;
-  zeus::CColor col(info.GetColor().r(), info.GetColor().g(), info.GetColor().b());
-  GXInitLightColor(&obj, to_gx_color(col));
-  GXLoadLightObjImm(&obj, lightId);
+  GXInitLightColor(&mLightObj[light], to_gx_color(info.GetColor()));
+  GXLoadLightObjImm(&mLightObj[light], lightId);
+  mLightTypes[light] = info.GetType();
 }
 
 void CGraphics::EnableLight(ERglLight light) {
   CGX::SetNumChans(1);
-  if (!g_LightActive.test(light)) {
-    g_LightActive.set(light);
-    CGX::SetChanCtrl(CGX::EChannelId::Channel0, g_LightActive);
+  GX::LightMask lightsWereOn = mLightActive;
+  if (!lightsWereOn.test(light)) {
+    mLightActive.set(light);
+    CGX::SetChanCtrl(CGX::EChannelId::Channel0, true, GX_SRC_REG, GX_SRC_REG, mLightActive, GX_DF_CLAMP, GX_AF_SPOT);
+    ++mNumLightsActive;
   }
+  mLightsWereOn = mLightActive;
 }
 
-void CGraphics::SetLightState(GX::LightMask lightState) {
-  g_LightActive = lightState;
-  const bool hasLights = lightState.any();
-  CGX::SetChanCtrl(CGX::EChannelId::Channel0, hasLights, GX_SRC_REG,
-                   sStreamFlags & 2 /* fHasColor */ ? GX_SRC_VTX : GX_SRC_REG, lightState,
-                   hasLights ? GX_DF_CLAMP : GX_DF_NONE, hasLights ? GX_AF_SPOT : GX_AF_NONE);
+void CGraphics::SetLightState(GX::LightMask lights) {
+  GXAttnFn attnFn = GX_AF_NONE;
+  if (lights.any()) {
+    attnFn = GX_AF_SPOT;
+  }
+  GXDiffuseFn diffFn = GX_DF_NONE;
+  if (lights.any()) {
+    diffFn = GX_DF_CLAMP;
+  }
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, lights.any() ? GX_ENABLE : GX_DISABLE, GX_SRC_REG,
+                   (vtxDescr.streamFlags & 2) != 0 ? GX_SRC_VTX : GX_SRC_REG, lights, diffFn, attnFn);
+  mLightActive = lights;
+  mNumLightsActive = lights.count();
 }
 
 void CGraphics::SetAmbientColor(const zeus::CColor& col) {
@@ -144,522 +204,712 @@ void CGraphics::SetAmbientColor(const zeus::CColor& col) {
 }
 
 void CGraphics::SetFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color) {
-  CGX::SetFog(GXFogType(mode), startz, endz, g_Proj.x14_near, g_Proj.x18_far, to_gx_color(color));
+  CGX::SetFog(static_cast<GXFogType>(mode), startz, endz, mProj.GetNear(), mProj.GetFar(), to_gx_color(color));
 }
 
-void CGraphics::SetDepthWriteMode(bool compare_enable, ERglEnum comp, bool update_enable) {
-  g_depthFunc = comp;
-  CGX::SetZMode(compare_enable, GXCompare(comp), update_enable);
+void CGraphics::SetDepthWriteMode(const bool test, ERglEnum comp, const bool write) {
+  mDepthFunc = comp;
+  CGX::SetZMode(test, static_cast<GXCompare>(comp), write);
 }
 
 void CGraphics::SetBlendMode(ERglBlendMode mode, ERglBlendFactor src, ERglBlendFactor dst, ERglLogicOp op) {
-  CGX::SetBlendMode(GXBlendMode(mode), GXBlendFactor(src), GXBlendFactor(dst), GXLogicOp(op));
+  CGX::SetBlendMode(static_cast<GXBlendMode>(mode), static_cast<GXBlendFactor>(src), static_cast<GXBlendFactor>(dst),
+                    static_cast<GXLogicOp>(op));
 }
 
-void CGraphics::SetCullMode(ERglCullMode mode) {
-  g_cullMode = mode;
-  GXSetCullMode(GXCullMode(mode));
+void CGraphics::SetCullMode(ERglCullMode cullMode) {
+  mCullMode = cullMode;
+  GXSetCullMode(static_cast<GXCullMode>(cullMode));
 }
 
-void CGraphics::BeginScene() {
-  // ClearBackAndDepthBuffers();
+void CGraphics::ClearBackAndDepthBuffers() {
+  GXInvalidateTexAll();
+  GXSetViewport(0.f, 0.f, mRenderModeObj.fbWidth, mRenderModeObj.xfbHeight, 0.f, 1.f);
+  GXInvalidateVtxCache();
 }
+
+void CGraphics::BeginScene() { ClearBackAndDepthBuffers(); }
 
 void CGraphics::EndScene() {
   CGX::SetZMode(true, GX_LEQUAL, true);
-
-  /* Spinwait until g_NumBreakpointsWaiting is 0 */
-  /* ++g_NumBreakpointsWaiting; */
-  /* GXCopyDisp to g_CurrenFrameBuf with clear enabled */
-  /* Register next breakpoint with GP FIFO */
-
-  /* Yup, GX effectively had fences long before D3D12 and Vulkan
-   * (same functionality implemented in boo's execute method) */
-
-  /* This usually comes from VI register during interrupt;
-   * we don't care in the era of progressive-scan dominance,
-   * so simulate field-flipping with XOR instead */
-  g_InterruptLastFrameUsedAbove ^= 1;
-  g_LastFrameUsedAbove = g_InterruptLastFrameUsedAbove;
-
-  ++g_FrameCounter;
-
-  UpdateFPSCounter();
+  // volatile int& numBreakPt = const_cast< volatile int& >(mNumBreakpointsWaiting);
+  // while (numBreakPt > 0) {
+  //   OSYieldThread();
+  // }
+  ++mNumBreakpointsWaiting;
+  void*& frameBuf = mpCurrenFrameBuf;
+  float brightness = std::clamp(mBrightness, 0.f, 2.f);
+  static const u8 copyFilter[7] = {0x00, 0x00, 0x15, 0x16, 0x15, 0x00, 0x00};
+  const u8* inFilter = mUseVideoFilter ? mRenderModeObj.vfilter : copyFilter;
+  u8 vfilter[7];
+  for (int i = 0; i < 7; i++) {
+    vfilter[i] = static_cast<u8>(static_cast<float>(inFilter[i]) * brightness);
+  }
+  GXSetCopyFilter(mRenderModeObj.aa, mRenderModeObj.sample_pattern, true, vfilter);
+  GXCopyDisp(frameBuf, mIsBeginSceneClearFb ? GX_TRUE : GX_FALSE);
+  GXSetCopyFilter(mRenderModeObj.aa, mRenderModeObj.sample_pattern, mUseVideoFilter ? GX_ENABLE : GX_DISABLE,
+                  mRenderModeObj.vfilter);
+  // GXSetBreakPtCallback(SwapBuffers);
+  // VISetPreRetraceCallback(VideoPreCallback);
+  // VISetPostRetraceCallback(VideoPostCallback);
+  GXFlush();
+  GXFifoObj* fifo = GXGetGPFifo();
+  void* readPtr;
+  void* writePtr;
+  GXGetFifoPtrs(fifo, &readPtr, &writePtr);
+  // GXEnableBreakPt(writePtr);
+  mLastFrameUsedAbove = mInterruptLastFrameUsedAbove;
+  ++mFrameCounter;
+  // CFrameDelayedKiller::fn_8036CB90();
 }
+
+static constexpr GXVtxDescList skPosColorTexDirect[] = {
+    {GX_VA_POS, GX_DIRECT},
+    {GX_VA_CLR0, GX_DIRECT},
+    {GX_VA_TEX0, GX_DIRECT},
+    {GX_VA_NULL, GX_DIRECT},
+};
 
 void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::CColor& col) {
-  const auto oldProj = g_Proj;
-  const auto oldCull = g_cullMode;
-  const auto oldLights = g_LightActive;
-  SetOrtho(-g_Viewport.x8_width / 2, g_Viewport.x8_width / 2, g_Viewport.xc_height / 2, -g_Viewport.xc_height / 2, -1.f,
+  Mtx44 proj;
+  MTXOrtho(proj, mViewport.mHeight / 2, -mViewport.mHeight / 2, -mViewport.mWidth / 2, mViewport.mWidth / 2, -1.f,
            -10.f);
-  GXLoadPosMtxImm(&zeus::skIdentityMatrix4f, GX_PNMTX0);
-  GXVtxDescList desc[] = {
-      {GX_VA_POS, GX_DIRECT},
-      {GX_VA_CLR0, GX_DIRECT},
-      {GX_VA_TEX0, GX_DIRECT},
-      {GX_VA_NULL, GX_NONE},
-  };
-  CGX::SetVtxDescv(desc);
+  GXSetProjection(proj, GX_ORTHOGRAPHIC);
+  uint c = col.toRGBA();
+
+  Mtx mtx;
+  MTXIdentity(mtx);
+  GXLoadPosMtxImm(mtx, GX_PNMTX0);
+
+  float x2, y2, x1, y1;
+  x1 = x - mViewport.mWidth / 2;
+  y1 = y - mViewport.mHeight / 2;
+  x2 = x1 + w;
+  y2 = y1 + h;
+
+  // Save state + setup
+  CGX::SetVtxDescv(skPosColorTexDirect);
   SetTevStates(6);
-  if (g_LightActive.any()) {
+  mLightsWereOn = mLightActive;
+  if (mLightActive.any()) {
     DisableAllLights();
   }
+  ERglCullMode cullMode = mCullMode;
   SetCullMode(ERglCullMode::None);
 
-  //  float hPad, vPad;
-  //  if (CGraphics::GetViewportAspect() >= 1.78f) {
-  //    hPad = 1.78f / CGraphics::GetViewportAspect();
-  //    vPad = 1.78f / 1.33f;
-  //  } else {
-  //    hPad = 1.f;
-  //    vPad = CGraphics::GetViewportAspect() / 1.33f;
-  //  }
-  // TODO make this right
-  float scaledX = static_cast<float>(x) / 640.f * static_cast<float>(g_Viewport.x8_width);
-  float scaledY = static_cast<float>(y) / 448.f * static_cast<float>(g_Viewport.xc_height);
-  float scaledW = static_cast<float>(w) / 640.f * static_cast<float>(g_Viewport.x8_width);
-  float scaledH = static_cast<float>(h) / 448.f * static_cast<float>(g_Viewport.xc_height);
-
-  float x1 = scaledX - (g_Viewport.x8_width / 2);
-  float y1 = scaledY - (g_Viewport.xc_height / 2);
-  float x2 = x1 + scaledW;
-  float y2 = y1 + scaledH;
-
-  tex.Load(GX_TEXMAP0, EClampMode::Repeat);
+  // Draw
   CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
-  {
-    GXPosition3f32(x1, y1, 1.f);
-    GXColor4f32(col.r(), col.g(), col.b(), col.a());
-    GXTexCoord2f32(0.f, 0.f);
-    GXPosition3f32(x2, y1, 1.f);
-    GXColor4f32(col.r(), col.g(), col.b(), col.a());
-    GXTexCoord2f32(1.f, 0.f);
-    GXPosition3f32(x1, y2, 1.f);
-    GXColor4f32(col.r(), col.g(), col.b(), col.a());
-    GXTexCoord2f32(0.f, 1.f);
-    GXPosition3f32(x2, y2, 1.f);
-    GXColor4f32(col.r(), col.g(), col.b(), col.a());
-    GXTexCoord2f32(1.f, 1.f);
-  }
+  GXPosition3f32(x1, y1, 1.f);
+  GXColor1u32(c);
+  GXTexCoord2f32(0.f, 0.f);
+  GXPosition3f32(x2, y1, 1.f);
+  GXColor1u32(c);
+  GXTexCoord2f32(1.f, 0.f);
+  GXPosition3f32(x1, y2, 1.f);
+  GXColor1u32(c);
+  GXTexCoord2f32(0.f, 1.f);
+  GXPosition3f32(x2, y2, 1.f);
+  GXColor1u32(c);
+  GXTexCoord2f32(1.f, 1.f);
   CGX::End();
 
-  if (oldLights.any()) {
-    SetLightState(oldLights);
+  // Restore state
+  if (mLightsWereOn.any()) {
+    SetLightState(mLightsWereOn);
   }
-  g_Proj = oldProj;
   FlushProjection();
-  SetModelMatrix({});
-  SetCullMode(oldCull);
+  mIsGXModelMatrixIdentity = false;
+  SetModelMatrix(mModelMatrix);
+  SetCullMode(cullMode);
 }
 
-bool CGraphics::BeginRender2D(const CTexture& tex) { return false; }
-
-void CGraphics::DoRender2D(const CTexture& tex, s32 x, s32 y, s32 w1, s32 w2, s32 w3, s32 w4, s32 w5,
-                           const zeus::CColor& col) {}
-
-void CGraphics::EndRender2D(bool v) {}
-
-void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1) {
+void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, uchar ref0, ERglAlphaOp op, ERglAlphaFunc comp1, uchar ref1) {
   CGX::SetAlphaCompare(static_cast<GXCompare>(comp0), ref0, static_cast<GXAlphaOp>(op), static_cast<GXCompare>(comp1),
                        ref1);
 }
 
 void CGraphics::SetViewPointMatrix(const zeus::CTransform& xf) {
-  g_ViewMatrix = xf;
-  g_ViewPoint = xf.origin;
-  zeus::CMatrix3f tmp(xf.basis[0], xf.basis[2], -xf.basis[1]);
-  g_GXViewPointMatrix = zeus::CTransform(tmp.transposed());
+  mViewMatrix = xf;
+  mGXViewPointMatrix[0][0] = xf.basis[0][0];
+  mGXViewPointMatrix[0][1] = xf.basis[0][1];
+  mGXViewPointMatrix[0][2] = xf.basis[0][2];
+  mGXViewPointMatrix[0][3] = 0.f;
+  mGXViewPointMatrix[1][0] = xf.basis[2][0];
+  mGXViewPointMatrix[1][1] = xf.basis[2][1];
+  mGXViewPointMatrix[1][2] = xf.basis[2][2];
+  mGXViewPointMatrix[1][3] = 0.f;
+  mGXViewPointMatrix[2][0] = -xf.basis[1][0];
+  mGXViewPointMatrix[2][1] = -xf.basis[1][1];
+  mGXViewPointMatrix[2][2] = -xf.basis[1][2];
+  mGXViewPointMatrix[2][3] = 0.f;
+  mViewPoint = xf.origin;
+  SetViewMatrix();
+}
+
+void CGraphics::SetIdentityViewPointMatrix() {
+  mViewMatrix = CTransform4f();
+  MTXIdentity(mGXViewPointMatrix);
+  mGXViewPointMatrix[2][2] = 0.f;
+  mGXViewPointMatrix[1][1] = 0.f;
+  mGXViewPointMatrix[1][2] = 1.f;
+  mGXViewPointMatrix[2][1] = -1.f;
+  mViewPoint = CVector3f();
   SetViewMatrix();
 }
 
 void CGraphics::SetViewMatrix() {
-  g_CameraMatrix = g_GXViewPointMatrix * zeus::CTransform::Translate(-g_ViewPoint);
-  if (g_IsGXModelMatrixIdentity)
-    g_GXModelView = g_CameraMatrix;
-  else
-    g_GXModelView = g_CameraMatrix * g_GXModelMatrix;
-  /* Load position matrix */
-  GXLoadPosMtxImm(&g_GXModelView, GX_PNMTX0);
-  /* Inverse-transpose */
-  g_GXModelViewInvXpose = g_GXModelView.inverse();
-  g_GXModelViewInvXpose.basis.transpose();
-  /* Load normal matrix */
-  GXLoadNrmMtxImm(&g_GXModelViewInvXpose, GX_PNMTX0);
+  Mtx mtx;
+  MTXTrans(mtx, -mViewPoint.x(), -mViewPoint.y(), -mViewPoint.z());
+  MTXConcat(mGXViewPointMatrix, mtx, mCameraMtx);
+  if (mIsGXModelMatrixIdentity) {
+    MTXCopy(mCameraMtx, mGxModelView);
+  } else {
+    MTXConcat(mCameraMtx, mGXModelMatrix, mGxModelView);
+  }
+  GXLoadPosMtxImm(mGxModelView, GX_PNMTX0);
+
+  Mtx nrmMtx;
+  MTXInvXpose(mGxModelView, nrmMtx);
+  GXLoadNrmMtxImm(nrmMtx, GX_PNMTX0);
 }
 
 void CGraphics::SetModelMatrix(const zeus::CTransform& xf) {
-  g_IsGXModelMatrixIdentity = false;
-  g_GXModelMatrix = xf;
+  if (xf == zeus::CTransform()) {
+    if (!mIsGXModelMatrixIdentity) {
+      mModelMatrix = xf;
+      mIsGXModelMatrixIdentity = true;
+      SetViewMatrix();
+    }
+    return;
+  }
+
+  mModelMatrix = xf;
+  mIsGXModelMatrixIdentity = false;
+  mGXModelMatrix[0][0] = xf.basis[0][0];
+  mGXModelMatrix[0][1] = xf.basis[1][0];
+  mGXModelMatrix[0][2] = xf.basis[2][0];
+  mGXModelMatrix[0][3] = xf.origin.x();
+  mGXModelMatrix[1][0] = xf.basis[0][1];
+  mGXModelMatrix[1][1] = xf.basis[1][1];
+  mGXModelMatrix[1][2] = xf.basis[2][1];
+  mGXModelMatrix[1][3] = xf.origin.y();
+  mGXModelMatrix[2][0] = xf.basis[0][2];
+  mGXModelMatrix[2][1] = xf.basis[1][2];
+  mGXModelMatrix[2][2] = xf.basis[2][2];
+  mGXModelMatrix[2][3] = xf.origin.z();
   SetViewMatrix();
 }
 
-zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect, float znear, float zfar) {
-  CProjectionState st;
-  float tfov = std::tan(zeus::degToRad(fovy * 0.5f));
-  st.x14_near = znear;
-  st.x18_far = zfar;
-  st.xc_top = znear * tfov;
-  st.x10_bottom = -st.xc_top;
-  st.x8_right = aspect * znear * tfov;
-  st.x4_left = -st.x8_right;
-
-  float rml = st.x8_right - st.x4_left;
-  float rpl = st.x8_right + st.x4_left;
-  float tmb = st.xc_top - st.x10_bottom;
-  float tpb = st.xc_top + st.x10_bottom;
-  float fpn = st.x18_far + st.x14_near;
-  float fmn = st.x18_far - st.x14_near;
-  // clang-format off
-  return {
-      2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f,
-      0.f, 2.f * st.x14_near / tmb, tpb / tmb, 0.f,
-      0.f, 0.f, -fpn / fmn, -2.f * st.x18_far * st.x14_near / fmn,
-      0.f, 0.f, -1.f, 0.f,
-  };
-  // clang-format on
-}
-
-zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix() {
-  if (g_Proj.x0_persp) {
-    float rml = g_Proj.x8_right - g_Proj.x4_left;
-    float rpl = g_Proj.x8_right + g_Proj.x4_left;
-    float tmb = g_Proj.xc_top - g_Proj.x10_bottom;
-    float tpb = g_Proj.xc_top + g_Proj.x10_bottom;
-    float fpn = g_Proj.x18_far + g_Proj.x14_near;
-    float fmn = g_Proj.x18_far - g_Proj.x14_near;
-    // clang-format off
-    return {
-        2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f, 0.f,
-        2.f * g_Proj.x14_near / tmb, tpb / tmb, 0.f,
-        0.f, 0.f, -g_Proj.x14_near / fmn, -(g_Proj.x18_far * g_Proj.x14_near) / fmn,
-        0.f, 0.f, -1.f, 0.f,
-    };
-    // clang-format on
-  } else {
-    float rml = g_Proj.x8_right - g_Proj.x4_left;
-    float rpl = g_Proj.x8_right + g_Proj.x4_left;
-    float tmb = g_Proj.xc_top - g_Proj.x10_bottom;
-    float tpb = g_Proj.xc_top + g_Proj.x10_bottom;
-    float fmn = g_Proj.x18_far - g_Proj.x14_near;
-    // clang-format off
-    return {
-        2.f / rml, 0.f, 0.f, -rpl / rml,
-        0.f, 2.f / tmb, 0.f, -tpb / tmb,
-        0.f, 0.f, -1.f / fmn, -g_Proj.x18_far / fmn,
-        0.f, 0.f, 0.f, 1.f
-    };
-    // clang-format on
+void CGraphics::SetIdentityModelMatrix() {
+  if (!mIsGXModelMatrixIdentity) {
+    mModelMatrix = CTransform4f();
+    mIsGXModelMatrixIdentity = true;
+    SetViewMatrix();
   }
 }
 
-const CGraphics::CProjectionState& CGraphics::GetProjectionState() { return g_Proj; }
+zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect, float znear, float zfar) {
+  float t = std::tan(zeus::degToRad(fovy) / 2.f);
+  float right = aspect * 2.f * znear * t * 0.5f;
+  float left = -right;
+  float top = znear * 2.f * t * 0.5f;
+  float bottom = -top;
+  return zeus::CMatrix4f{
+      // clang-format off
+    (2.f * znear) / (right - left),
+    -(right + left) / (right - left),
+    0.f,
+    0.f,
+    0.f,
+    -(top + bottom) / (top - bottom),
+    (2.f * znear) / (top - bottom),
+    0.f,
+    0.f,
+    (zfar + znear) / (zfar - znear),
+    0.f,
+    -(2.f * zfar * znear) / (zfar - znear),
+    0.f,
+    1.f,
+    0.f,
+    0.f,
+      // clang-format on
+  };
+}
 
-void CGraphics::SetProjectionState(const CGraphics::CProjectionState& proj) {
-  g_Proj = proj;
+zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix() {
+  return zeus::CMatrix4f{
+      // clang-format off
+    (mProj.GetNear() * 2.f) / (mProj.GetRight() - mProj.GetLeft()),
+    -(mProj.GetRight() + mProj.GetLeft()) / (mProj.GetRight() - mProj.GetLeft()),
+    0.f,
+    0.f,
+    0.f,
+    -(mProj.GetTop() + mProj.GetBottom()) / (mProj.GetTop() - mProj.GetBottom()),
+    (mProj.GetNear() * 2.f) / (mProj.GetTop() - mProj.GetBottom()),
+    0.f,
+    0.f,
+    (mProj.GetFar() + mProj.GetNear()) / (mProj.GetFar() - mProj.GetNear()),
+    0.f,
+    -(mProj.GetFar() * 2.f * mProj.GetNear()) / (mProj.GetFar() - mProj.GetNear()),
+    0.f,
+    1.f,
+    0.f,
+    0.f
+      // clang-format on
+  };
+}
+
+const CGraphics::CProjectionState& CGraphics::GetProjectionState() { return mProj; }
+
+void CGraphics::SetProjectionState(const CProjectionState& proj) {
+  mProj = proj;
   FlushProjection();
 }
 
 void CGraphics::SetPerspective(float fovy, float aspect, float znear, float zfar) {
-  g_ProjAspect = aspect;
-
-  float tfov = std::tan(zeus::degToRad(fovy * 0.5f));
-  g_Proj.x0_persp = true;
-  g_Proj.x14_near = znear;
-  g_Proj.x18_far = zfar;
-  g_Proj.xc_top = znear * tfov;
-  g_Proj.x10_bottom = -g_Proj.xc_top;
-  g_Proj.x8_right = aspect * znear * tfov;
-  g_Proj.x4_left = -g_Proj.x8_right;
-
+  float t = tan(zeus::degToRad(fovy) / 2.f);
+  mProj = CProjectionState(true,                               // Is Projection
+                           -(aspect * 2.f * znear * t * 0.5f), // Left
+                           (aspect * 2.f * znear * t * 0.5f),  // Right
+                           (znear * 2.f * t * 0.5f),           // Top
+                           -(znear * 2.f * t * 0.5f),          // Bottom
+                           znear, zfar);
   FlushProjection();
 }
 
 void CGraphics::SetOrtho(float left, float right, float top, float bottom, float znear, float zfar) {
-  g_Proj.x0_persp = false;
-  g_Proj.x4_left = left;
-  g_Proj.x8_right = right;
-  g_Proj.xc_top = top;
-  g_Proj.x10_bottom = bottom;
-  g_Proj.x14_near = znear;
-  g_Proj.x18_far = zfar;
-
+  mProj = CProjectionState(false, left, right, top, bottom, znear, zfar);
   FlushProjection();
 }
 
 void CGraphics::FlushProjection() {
-  const auto mtx = GetPerspectiveProjectionMatrix();
-  if (g_Proj.x0_persp) {
-    // Convert and load persp
-    GXSetProjection(&mtx, GX_PERSPECTIVE);
+  float right = mProj.GetRight();
+  float left = mProj.GetLeft();
+  float top = mProj.GetTop();
+  float bottom = mProj.GetBottom();
+  float near = mProj.GetNear();
+  float far = mProj.GetFar();
+  if (mProj.IsPerspective()) {
+    Mtx44 mtx;
+    MTXFrustum(mtx, top, bottom, left, right, near, far);
+    GXSetProjection(mtx, GX_PERSPECTIVE);
   } else {
-    // Convert and load ortho
-    GXSetProjection(&mtx, GX_ORTHOGRAPHIC);
+    Mtx44 mtx;
+    MTXOrtho(mtx, top, bottom, left, right, near, far);
+    GXSetProjection(mtx, GX_ORTHOGRAPHIC);
   }
 }
 
 zeus::CVector2i CGraphics::ProjectPoint(const zeus::CVector3f& point) {
-  zeus::CVector3f projPt = GetPerspectiveProjectionMatrix().multiplyOneOverW(point);
-  return {int(projPt.x() * g_Viewport.x10_halfWidth) + int(g_Viewport.x10_halfWidth),
-          int(g_Viewport.xc_height) - (int(projPt.y() * g_Viewport.x14_halfHeight) + int(g_Viewport.x14_halfHeight))};
+  zeus::CVector3f vec = GetPerspectiveProjectionMatrix().multiplyOneOverW(point);
+  vec.x() = vec.x() * mViewport.mHalfWidth + mViewport.mHalfWidth;
+  vec.y() = -vec.y() * mViewport.mHalfHeight + mViewport.mHalfHeight;
+  return CVector2i(vec.x(), vec.y());
 }
 
-SClipScreenRect CGraphics::ClipScreenRectFromMS(const zeus::CVector3f& p1, const zeus::CVector3f& p2) {
-  zeus::CVector3f xf1 = g_GXModelView * p1;
-  zeus::CVector3f xf2 = g_GXModelView * p2;
-  return ClipScreenRectFromVS(xf1, xf2);
+static CVector3f TransposeMultiply(const CTransform4f& self, const CVector3f& in) {
+  return self.transposeRotate({in.x() - self.origin.x(), in.y() - self.origin.y(), in.z() - self.origin.z()});
 }
 
-SClipScreenRect CGraphics::ClipScreenRectFromVS(const zeus::CVector3f& p1, const zeus::CVector3f& p2) {
-  if (p1.x() == 0.f && p1.y() == 0.f && p1.z() == 0.f)
-    return {};
-  if (p2.x() == 0.f && p2.y() == 0.f && p2.z() == 0.f)
-    return {};
+CGraphics::CClippedScreenRect CGraphics::ClipScreenRectFromMS(const CVector3f& p1, const CVector3f& p2,
+                                                              ETexelFormat fmt) {
+  return ClipScreenRectFromVS(TransposeMultiply(mViewMatrix, mModelMatrix * p1),
+                              TransposeMultiply(mViewMatrix, mModelMatrix * p2), fmt);
+}
 
-  if (-p1.z() < GetProjectionState().x14_near || -p2.z() < GetProjectionState().x14_near)
-    return {};
-  if (-p1.z() > GetProjectionState().x18_far || -p2.z() > GetProjectionState().x18_far)
-    return {};
+CGraphics::CClippedScreenRect CGraphics::ClipScreenRectFromVS(const CVector3f& p1, const CVector3f& p2,
+                                                              ETexelFormat fmt) {
+  if (p1.isZero() || p2.isZero()) {
+    return CClippedScreenRect();
+  }
+  if (p1.y() < GetProjectionState().GetNear() || p2.y() < GetProjectionState().GetNear()) {
+    return CClippedScreenRect();
+  }
+  if (p1.y() > GetProjectionState().GetFar() || p2.y() > GetProjectionState().GetFar()) {
+    return CClippedScreenRect();
+  }
 
-  zeus::CVector2i sp1 = ProjectPoint(p1);
-  zeus::CVector2i sp2 = ProjectPoint(p2);
-  int minX = std::min(sp2.x, sp1.x);
-  int minX2 = minX & 0xfffffffe;
-  int minY = std::min(sp2.y, sp1.y);
-  int minY2 = minY & 0xfffffffe;
+  CVector2i p1p = ProjectPoint(p1);
+  CVector2i p2p = ProjectPoint(p2);
 
-  if (minX2 >= g_Viewport.x8_width)
-    return {};
+  int minX = std::min(p1p.x, p2p.x);
+  int minY = std::min(p1p.y, p2p.y);
 
-  int maxX = abs(sp1.x - sp2.x) + minX;
-  int maxX2 = (maxX + 2) & 0xfffffffe;
-  if (maxX2 <= 0 /* ViewportX origin */)
-    return {};
+  int maxX = abs(p1p.x - p2p.x);
+  int maxY = abs(p1p.y - p2p.y);
 
-  // int finalMinX = std::max(minX, 0 /* ViewportX origin */);
-  // int finalMaxX = std::min(maxX, int(g_Viewport.x8_width));
+  int left = minX & ~1;
+  if (left >= mViewport.mLeft + mViewport.mWidth) {
+    return CClippedScreenRect();
+  }
 
-  if (minY2 >= g_Viewport.xc_height)
-    return {};
+  int right = minX + maxX + 2 & ~1;
+  if (right <= mViewport.mLeft) {
+    return CClippedScreenRect();
+  }
+  left = std::max(left, mViewport.mLeft) & ~1;
+  right = std::min(right, mViewport.mLeft + mViewport.mWidth) + 1 & ~1;
 
-  int maxY = abs(sp1.y - sp2.y) + minY;
-  int maxY2 = (maxY + 2) & 0xfffffffe;
-  if (maxY2 <= 0 /* ViewportY origin */)
-    return {};
+  int top = minY & ~1;
+  if (top >= mViewport.mTop + mViewport.mHeight) {
+    return CClippedScreenRect();
+  }
 
-  // int finalMinY = std::max(minY, 0 /* ViewportY origin */);
-  // int finalMaxY = std::min(maxY, int(g_Viewport.xc_height));
+  int bottom = minY + maxY + 2 & ~1;
+  if (bottom <= mViewport.mTop) {
+    return CClippedScreenRect();
+  }
+  top = std::max(top, mViewport.mTop) & ~1;
+  bottom = std::min(bottom, mViewport.mTop + mViewport.mHeight) + 1 & ~1;
 
-  int width = maxX2 - minX2;
-  int height = maxY2 - minY2;
-  return {true,
-          minX2,
-          minY2,
-          width,
-          height,
-          width,
-          minX2 / float(g_Viewport.x8_width),
-          maxX2 / float(g_Viewport.x8_width),
-          1.f - maxY2 / float(g_Viewport.xc_height),
-          1.f - minY2 / float(g_Viewport.xc_height)};
+  float minV = static_cast<float>(minY - top) / static_cast<float>(bottom - top);
+  float maxV = static_cast<float>(maxY + (minY - top) + 1) / static_cast<float>(bottom - top);
+
+  int texAlign = 4;
+  switch (fmt) {
+  case ETexelFormat::I8:
+    texAlign = 8;
+    break;
+  case ETexelFormat::IA8:
+  case ETexelFormat::RGB565:
+  case ETexelFormat::RGB5A3:
+    texAlign = 4;
+    break;
+  case ETexelFormat::RGBA8:
+    texAlign = 2;
+    break;
+  }
+
+  int texWidth = texAlign + (right - left) - 1 & ~(texAlign - 1);
+  float minU = static_cast<float>(minX - left) / static_cast<float>(texWidth);
+  float maxU = static_cast<float>(maxX + (minX - left) + 1) / static_cast<float>(texWidth);
+  return CClippedScreenRect(left, top, right - left, bottom - top, texWidth, minU, maxU, minV, maxV);
 }
 
 void CGraphics::SetViewportResolution(const zeus::CVector2i& res) {
-  g_Viewport.x8_width = res.x;
-  g_Viewport.xc_height = res.y;
-  g_CroppedViewport = SClipScreenRect();
-  g_CroppedViewport.xc_width = res.x;
-  g_CroppedViewport.x10_height = res.y;
-  g_Viewport.x10_halfWidth = res.x / 2.f;
-  g_Viewport.x14_halfHeight = res.y / 2.f;
-  g_Viewport.aspect = res.x / float(res.y);
+  mRenderModeObj.fbWidth = res.x;
+  mRenderModeObj.efbHeight = res.y;
+  mRenderModeObj.xfbHeight = res.y;
+  SetViewport(0, 0, res.x, res.y);
   if (g_GuiSys)
     g_GuiSys->OnViewportResize();
 }
 
-static zeus::CRectangle CachedVP;
-zeus::CVector2f CGraphics::g_CachedDepthRange = {0.f, 1.f};
-
-void CGraphics::SetViewport(int leftOff, int bottomOff, int width, int height) {
-  CachedVP.position[0] = leftOff;
-  CachedVP.position[1] = bottomOff;
-  CachedVP.size[0] = width;
-  CachedVP.size[1] = height;
-  GXSetViewport(CachedVP.position[0], CachedVP.position[1], CachedVP.size[0], CachedVP.size[1], g_CachedDepthRange[0],
-                g_CachedDepthRange[1]);
+void CGraphics::SetViewport(int left, int bottom, int width, int height) {
+  mViewport.mLeft = left;
+  mViewport.mTop = mRenderModeObj.efbHeight - (bottom + height);
+  mViewport.mWidth = width;
+  mViewport.mHeight = height;
+  mViewport.mHalfWidth = static_cast<float>(width / 2);
+  mViewport.mHalfHeight = static_cast<float>(height / 2);
+  GXSetViewport(static_cast<float>(mViewport.mLeft), static_cast<float>(mViewport.mTop),
+                static_cast<float>(mViewport.mWidth), static_cast<float>(mViewport.mHeight), mDepthNear, mDepthFar);
 }
 
-void CGraphics::SetScissor(int leftOff, int bottomOff, int width, int height) {
-  GXSetScissor(leftOff, bottomOff, width, height);
+void CGraphics::SetScissor(int left, int bottom, int width, int height) {
+  GXSetScissor(left, mRenderModeObj.efbHeight - (bottom + height), width, height);
 }
 
-void CGraphics::SetDepthRange(float znear, float zfar) {
-  g_CachedDepthRange[0] = znear;
-  g_CachedDepthRange[1] = zfar;
-  GXSetViewport(CachedVP.position[0], CachedVP.position[1], CachedVP.size[0], CachedVP.size[1], g_CachedDepthRange[0],
-                g_CachedDepthRange[1]);
+void CGraphics::SetDepthRange(float near, float far) {
+  mDepthNear = near;
+  mDepthFar = far;
+  GXSetViewport(static_cast<float>(mViewport.mLeft), static_cast<float>(mViewport.mTop),
+                static_cast<float>(mViewport.mWidth), static_cast<float>(mViewport.mHeight), mDepthNear, mDepthFar);
 }
-
-CTimeProvider* CGraphics::g_ExternalTimeProvider = nullptr;
-float CGraphics::g_DefaultSeconds = 0.f;
-u32 CGraphics::g_RenderTimings = 0;
 
 float CGraphics::GetSecondsMod900() {
-  if (!g_ExternalTimeProvider)
-    return g_DefaultSeconds;
-  return g_ExternalTimeProvider->x0_currentTime;
+  if (mpExternalTimeProvider != nullptr) {
+    return mpExternalTimeProvider->GetSecondsMod900();
+  }
+  return mSecondsMod900;
 }
 
 void CGraphics::TickRenderTimings() {
   OPTICK_EVENT();
-  g_RenderTimings = (g_RenderTimings + 1) % u32(900 * 60);
-  g_DefaultSeconds = g_RenderTimings / 60.f;
+  mRenderTimings = (mRenderTimings + 1) % (900 * 60);
+  mSecondsMod900 = static_cast<float>(mRenderTimings) / 60.f;
 }
 
-static constexpr u64 FPS_REFRESH_RATE = 1000;
-void CGraphics::UpdateFPSCounter() {
-  ++g_FramesPast;
-
-  std::chrono::duration<double, std::milli> timeElapsed = frame_clock::now() - g_FrameStartTime;
-  if (timeElapsed.count() > FPS_REFRESH_RATE) {
-    g_Framerate = g_FramesPast;
-    g_FrameStartTime = frame_clock::now();
-    g_FramesPast = 0;
-  }
+void CGraphics::SetUseVideoFilter(bool b) {
+  mUseVideoFilter = b;
+  GXSetCopyFilter(mRenderModeObj.aa, mRenderModeObj.sample_pattern, b ? GX_ENABLE : GX_DISABLE, mRenderModeObj.vfilter);
 }
 
-static bool g_UseVideoFilter = false;
-void CGraphics::SetUseVideoFilter(bool filter) {
-  g_UseVideoFilter = filter;
-  // GXSetCopyFilter(CGraphics::mRenderModeObj.aa, CGraphics::mRenderModeObj.sample_pattern, filter,
-  //                 CGraphics::mRenderModeObj.vfilter);
+void CGraphics::SetClearColor(const CColor& color) {
+  mClearColor = color;
+  GXSetCopyClear(to_gx_color(color), mClearDepthValue);
 }
 
-void CGraphics::SetClearColor(const zeus::CColor& color) {
-  g_ClearColor = color;
-  GXSetCopyClear(to_gx_color(color), g_ClearDepthValue);
+void CGraphics::SetCopyClear(const CColor& color, float depth) {
+  mClearColor = color;
+  mClearDepthValue = static_cast<u32>(depth * GX_MAX_Z24);
+  GXSetCopyClear(to_gx_color(color), mClearDepthValue);
 }
 
-void CGraphics::SetCopyClear(const zeus::CColor& color, float depth) {
-  g_ClearColor = color;
-  g_ClearDepthValue = depth; // 1.6777215E7 * depth; Metroid Prime needed this to convert float [0,1] depth into 24 bit
-                             // range, we no longer have this requirement
-  GXSetCopyClear(to_gx_color(g_ClearColor), g_ClearDepthValue);
-}
-
-void CGraphics::SetIsBeginSceneClearFb(bool clear) { g_IsBeginSceneClearFb = clear; }
+void CGraphics::SetIsBeginSceneClearFb(bool b) { mIsBeginSceneClearFb = b; }
 
 void CGraphics::SetTevOp(ERglTevStage stage, const CTevCombiners::CTevPass& pass) {
   CTevCombiners::SetupPass(stage, pass);
 }
 
-void CGraphics::StreamBegin(GXPrimitive primitive) {
-  // Originally ResetVertexDataStream(true);
-  sQueuedVertices.clear();
-  sQueuedVertices.emplace_back(sQueuedColor);
-  sVerticesCount = 0;
-  // End
-  sStreamFlags = 2;
-  sStreamPrimitive = primitive;
+#define STREAM_PRIM_BUFFER_SIZE 240
+
+static std::array<Vec, STREAM_PRIM_BUFFER_SIZE + 1> sVtxBuffer;
+static std::array<Vec, STREAM_PRIM_BUFFER_SIZE + 1> sNrmBuffer;
+static std::array<Vec2, STREAM_PRIM_BUFFER_SIZE + 1> sTxt0Buffer;
+static std::array<Vec2, STREAM_PRIM_BUFFER_SIZE + 1> sTxt1Buffer;
+static std::array<u32, STREAM_PRIM_BUFFER_SIZE + 1> sClrBuffer;
+
+static const uchar kHasNormals = 1;
+static const uchar kHasColor = 2;
+static const uchar kHasTexture = 4;
+
+void CGraphics::StreamBegin(ERglPrimitive primitive) {
+  vtxBuffer = sVtxBuffer.data();
+  nrmBuffer = sNrmBuffer.data();
+  txtBuffer0 = sTxt0Buffer.data();
+  txtBuffer1 = sTxt1Buffer.data();
+  clrBuffer = sClrBuffer.data();
+  ResetVertexDataStream(true);
+  mCurrentPrimitive = primitive;
+  vtxDescr.streamFlags = kHasColor;
 }
 
 void CGraphics::StreamNormal(const zeus::CVector3f& nrm) {
-  sQueuedVertices.back().normal = nrm;
-  sStreamFlags |= 1;
+  vtxDescr.nrm.x = nrm.x();
+  vtxDescr.nrm.y = nrm.y();
+  vtxDescr.nrm.z = nrm.z();
+  vtxDescr.streamFlags |= kHasNormals;
 }
 
 void CGraphics::StreamColor(const zeus::CColor& color) {
-  if (sStreamFlags) {
-    sQueuedVertices.back().color = color;
-  } else {
-    sQueuedColor = color;
-  }
-  sStreamFlags |= 2;
+  vtxDescr.color = color.toRGBA();
+  vtxDescr.streamFlags |= kHasColor;
 }
 
 void CGraphics::StreamTexcoord(const zeus::CVector2f& uv) {
-  sQueuedVertices.back().texCoord = uv;
-  sStreamFlags |= 4;
+  vtxDescr.uv0.x = uv.x();
+  vtxDescr.uv0.y = uv.y();
+  vtxDescr.streamFlags |= kHasTexture;
+  vtxDescr.textureUsed |= 1;
 }
 
 void CGraphics::StreamVertex(const zeus::CVector3f& pos) {
-  sQueuedVertices.back().vertex = pos;
+  vtxDescr.vtx.x = pos.x();
+  vtxDescr.vtx.y = pos.y();
+  vtxDescr.vtx.z = pos.z();
   UpdateVertexDataStream();
 }
 
 void CGraphics::StreamEnd() {
-  if (sVerticesCount != 0) {
+  if (mNumPrimitives != 0) {
     FlushStream();
   }
-  sStreamFlags = {};
+  vtxBuffer = nullptr;
+  vtxDescr.streamFlags = 0;
+  vtxDescr.textureUsed = 0;
+  nrmBuffer = nullptr;
+  txtBuffer0 = nullptr;
+  txtBuffer1 = nullptr;
+  clrBuffer = nullptr;
+}
+
+void CGraphics::SetLineWidth(float w, ERglTexOffset offs) {
+  CGX::SetLineWidth(static_cast<uchar>(w * 6.f), static_cast<GXTexOffset>(offs));
 }
 
 void CGraphics::UpdateVertexDataStream() {
-  ++sVerticesCount;
-  if (sVerticesCount == 240) {
+  ++mNumPrimitives;
+  mpVtxBuffer->x = vtxDescr.vtx.x;
+  mpVtxBuffer->y = vtxDescr.vtx.y;
+  mpVtxBuffer->z = vtxDescr.vtx.z;
+  ++mpVtxBuffer;
+  if ((vtxDescr.streamFlags & kHasNormals) != 0) {
+    mpNrmBuffer->x = vtxDescr.nrm.x;
+    mpNrmBuffer->y = vtxDescr.nrm.y;
+    mpNrmBuffer->z = vtxDescr.nrm.z;
+    ++mpNrmBuffer;
+  }
+  if ((vtxDescr.streamFlags & kHasTexture) != 0) {
+    mpTxtBuffer0->x = vtxDescr.uv0.x;
+    mpTxtBuffer0->y = vtxDescr.uv0.y;
+    ++mpTxtBuffer0;
+
+    mpTxtBuffer1->x = vtxDescr.uv1.x;
+    mpTxtBuffer1->y = vtxDescr.uv1.y;
+    ++mpTxtBuffer1;
+  }
+  if ((vtxDescr.streamFlags & kHasColor) != 0) {
+    *mpClrBuffer = vtxDescr.color;
+    ++mpClrBuffer;
+  }
+  mJustReset = 0;
+  if (mNumPrimitives == STREAM_PRIM_BUFFER_SIZE) {
     FlushStream();
     ResetVertexDataStream(false);
-  } else {
-    sQueuedVertices.emplace_back(sQueuedVertices.back());
   }
 }
 
 void CGraphics::FlushStream() {
-  std::array<GXVtxDescList, 5> vtxDescList{};
-  size_t idx = 0;
-  vtxDescList[idx++] = {GX_VA_POS, GX_DIRECT};
-  if (sStreamFlags & 1) {
-    vtxDescList[idx++] = {GX_VA_NRM, GX_DIRECT};
+  GXVtxDescList vtxDesc[10];
+
+  GXVtxDescList* curDesc = vtxDesc;
+  const GXVtxDescList vtxDescPos = {GX_VA_POS, GX_DIRECT};
+  *curDesc++ = vtxDescPos;
+
+  if ((vtxDescr.streamFlags & kHasNormals) != 0) {
+    const GXVtxDescList vtxDescNrm = {GX_VA_NRM, GX_DIRECT};
+    *curDesc++ = vtxDescNrm;
   }
-  if (sStreamFlags & 2) {
-    vtxDescList[idx++] = {GX_VA_CLR0, GX_DIRECT};
+
+  if ((vtxDescr.streamFlags & kHasColor) != 0) {
+    const GXVtxDescList vtxDescClr0 = {GX_VA_CLR0, GX_DIRECT};
+    *curDesc++ = vtxDescClr0;
   }
-  if (sStreamFlags & 4) {
-    vtxDescList[idx++] = {GX_VA_TEX0, GX_DIRECT};
+
+  if ((vtxDescr.streamFlags & kHasTexture) != 0) {
+    const GXVtxDescList vtxDescTex0 = {GX_VA_TEX0, GX_DIRECT};
+    *curDesc++ = vtxDescTex0;
   }
-  vtxDescList[idx] = {GX_VA_NULL, GX_NONE};
-  CGX::SetVtxDescv(vtxDescList.data());
-  SetTevStates(sStreamFlags);
+
+  const GXVtxDescList vtxDescNull = {GX_VA_NULL, GX_NONE};
+  *curDesc = vtxDescNull;
+
+  CGX::SetVtxDescv(vtxDesc);
+  SetTevStates(vtxDescr.streamFlags);
   FullRender();
 }
 
 void CGraphics::FullRender() {
-  CGX::Begin(sStreamPrimitive, GX_VTXFMT0, sVerticesCount);
-  for (size_t i = 0; i < sVerticesCount; ++i) {
-    const auto& item = sQueuedVertices[i];
-    GXPosition3f32(item.vertex);
-    if (sStreamFlags & 1) {
-      GXNormal3f32(item.normal);
+  CGX::Begin(static_cast<GXPrimitive>(mCurrentPrimitive), GX_VTXFMT0, mNumPrimitives);
+  switch (vtxDescr.streamFlags) {
+  case 0:
+    for (int i = 0; i < mNumPrimitives; i++) {
+      const Vec& vtx = vtxBuffer[i];
+      GXPosition3f32(vtx.x, vtx.y, vtx.z);
     }
-    if (sStreamFlags & 2) {
-      GXColor4f32(item.color);
+    break;
+  case kHasNormals:
+    for (int i = 0; i < mNumPrimitives; i++) {
+      const Vec& vtx = vtxBuffer[i];
+      GXPosition3f32(vtx.x, vtx.y, vtx.z);
+      const Vec& nrm = nrmBuffer[i];
+      GXNormal3f32(nrm.x, nrm.y, nrm.z);
     }
-    if (sStreamFlags & 4) {
-      GXTexCoord2f32(item.texCoord);
+    break;
+  case kHasColor:
+    for (int i = 0; i < mNumPrimitives; i++) {
+      const Vec& vtx = vtxBuffer[i];
+      GXPosition3f32(vtx.x, vtx.y, vtx.z);
+      GXColor1u32(clrBuffer[i]);
     }
+    break;
+  case kHasTexture:
+    for (int i = 0; i < mNumPrimitives; i++) {
+      const Vec& vtx = vtxBuffer[i];
+      GXPosition3f32(vtx.x, vtx.y, vtx.z);
+      const Vec2& uv = txtBuffer0[i];
+      GXTexCoord2f32(uv.x, uv.y);
+    }
+    break;
+  case kHasNormals | kHasTexture:
+    for (int i = 0; i < mNumPrimitives; i++) {
+      const Vec& vtx = vtxBuffer[i];
+      GXPosition3f32(vtx.x, vtx.y, vtx.z);
+      const Vec& nrm = nrmBuffer[i];
+      GXNormal3f32(nrm.x, nrm.y, nrm.z);
+      const Vec2& uv = txtBuffer0[i];
+      GXTexCoord2f32(uv.x, uv.y);
+    }
+    break;
+  case kHasNormals | kHasColor:
+    for (int i = 0; i < mNumPrimitives; i++) {
+      const Vec& vtx = vtxBuffer[i];
+      GXPosition3f32(vtx.x, vtx.y, vtx.z);
+      const Vec& nrm = nrmBuffer[i];
+      GXNormal3f32(nrm.x, nrm.y, nrm.z);
+      GXColor1u32(clrBuffer[i]);
+    }
+    break;
+  case kHasColor | kHasTexture:
+    for (int i = 0; i < mNumPrimitives; i++) {
+      const Vec& vtx = vtxBuffer[i];
+      GXPosition3f32(vtx.x, vtx.y, vtx.z);
+      GXColor1u32(clrBuffer[i]);
+      const Vec2& uv = txtBuffer0[i];
+      GXTexCoord2f32(uv.x, uv.y);
+    }
+    break;
+  case kHasNormals | kHasColor | kHasTexture:
+    for (int i = 0; i < mNumPrimitives; i++) {
+      const Vec& vtx = vtxBuffer[i];
+      GXPosition3f32(vtx.x, vtx.y, vtx.z);
+      const Vec& nrm = nrmBuffer[i];
+      GXNormal3f32(nrm.x, nrm.y, nrm.z);
+      GXColor1u32(clrBuffer[i]);
+      const Vec2& uv = txtBuffer0[i];
+      GXTexCoord2f32(uv.x, uv.y);
+    }
+    break;
   }
   CGX::End();
 }
 
-void CGraphics::ResetVertexDataStream(bool end) {
-  if (end) {
-    sQueuedVertices.clear();
-  } else {
-    const auto lastVertex = sQueuedVertices.back();
-    sQueuedVertices.clear();
-    sQueuedVertices.emplace_back(lastVertex);
+void CGraphics::ResetVertexDataStream(bool initial) {
+  mpVtxBuffer = vtxBuffer;
+  mpNrmBuffer = nrmBuffer;
+  mpTxtBuffer0 = txtBuffer0;
+  mpTxtBuffer1 = txtBuffer1;
+  mpClrBuffer = clrBuffer;
+  mNumPrimitives = 0;
+
+  if (initial) {
+    return;
   }
-  sVerticesCount = 0;
-  if (!end) {
-    // TODO something with triangle fans
+
+  switch (mCurrentPrimitive) {
+  case ERglPrimitive::TriangleFan:
+    mpVtxBuffer = vtxBuffer + 1;
+    memcpy(mpVtxBuffer, &vtxDescr.vtx, sizeof(Vec));
+    ++mpVtxBuffer;
+
+    if ((vtxDescr.streamFlags & kHasNormals) != 0) {
+      ++mpNrmBuffer;
+      memcpy(mpNrmBuffer, &vtxDescr.nrm, sizeof(Vec));
+      ++mpNrmBuffer;
+    }
+
+    if ((vtxDescr.streamFlags & kHasTexture) != 0) {
+      ++mpTxtBuffer0;
+      memcpy(mpTxtBuffer0, &vtxDescr.uv0, sizeof(Vec2));
+      ++mpTxtBuffer0;
+
+      ++mpTxtBuffer1;
+      memcpy(mpTxtBuffer1, &vtxDescr.uv1, sizeof(Vec2));
+      ++mpTxtBuffer1;
+    }
+
+    if ((vtxDescr.streamFlags & kHasColor) != 0) {
+      ++mpClrBuffer;
+      *mpClrBuffer = vtxDescr.color;
+      ++mpClrBuffer;
+    }
+
+    mNumPrimitives += 2;
+    break;
+
+  default:
+    break;
   }
+
+  mJustReset = 1;
 }
 
-void CGraphics::DrawPrimitive(GXPrimitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
+void CGraphics::DrawPrimitive(ERglPrimitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
                               const zeus::CColor& col, s32 numVerts) {
   StreamBegin(primitive);
-  StreamColor(col);
   StreamNormal(normal);
+  StreamColor(col);
   for (u32 i = 0; i < numVerts; ++i) {
     StreamVertex(pos[i]);
   }
@@ -667,71 +917,145 @@ void CGraphics::DrawPrimitive(GXPrimitive primitive, const zeus::CVector3f* pos,
 }
 
 void CGraphics::SetTevStates(u32 flags) noexcept {
-  if (flags & 4 /* fHasTexture */) {
-    CGX::SetNumTexGens(1); // sTextureUsed & 3?
-    CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
-    CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD1, GX_TEXMAP1, GX_COLOR0A0);
-  } else {
+  switch (flags) {
+  case 0:
+  case kHasNormals:
+  case kHasColor:
+  case kHasNormals | kHasColor:
+    CGX::SetNumChans(1);
     CGX::SetNumTexGens(0);
     CGX::SetNumTevStages(1);
     CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
     CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
+    break;
+  case kHasTexture:
+  case kHasNormals | kHasTexture:
+  case kHasColor | kHasTexture:
+  case kHasNormals | kHasColor | kHasTexture:
+    CGX::SetNumChans(1);
+    if ((vtxDescr.textureUsed & 3) != 0) {
+      CGX::SetNumTexGens(2);
+    } else {
+      CGX::SetNumTexGens(1);
+    }
+    CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+    CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD1, GX_TEXMAP1, GX_COLOR0A0);
+    break;
   }
-  CGX::SetNumChans(1);
   CGX::SetNumIndStages(0);
   CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
   CGX::SetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX2x4, GX_TG_TEX1, GX_IDENTITY, false, GX_PTIDENTITY);
-  const bool hasLights = g_LightActive.any();
-  CGX::SetChanCtrl(CGX::EChannelId::Channel0, hasLights, GX_SRC_REG,
-                   flags & 2 /* fHasColor */ ? GX_SRC_VTX : GX_SRC_REG, g_LightActive,
-                   hasLights ? GX_DF_CLAMP : GX_DF_NONE, hasLights ? GX_AF_SPOT : GX_AF_NONE);
-  CGX::FlushState(); // normally would be handled in FullRender TODO
+
+  GX::LightMask light = mLightActive;
+  GXAttnFn attnFn = GX_AF_NONE;
+  if (light.any()) {
+    attnFn = GX_AF_SPOT;
+  }
+  GXDiffuseFn diffFn = GX_DF_NONE;
+  if (light.any()) {
+    diffFn = GX_DF_CLAMP;
+  }
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, light.any() ? GX_ENABLE : GX_DISABLE, GX_SRC_REG,
+                   (flags & kHasColor) ? GX_SRC_VTX : GX_SRC_REG, light, diffFn, attnFn);
 }
 
-void CGraphics::Startup() {
-  // Setup GXFifo
+bool CGraphics::Startup() {
+  // mpFifo = fifoBase;
+  // mpFifoObj = GXInit(fifoBase, fifoSize);
+  mpFifoObj = GXInit(nullptr, 0);
+  // GXFifoObj fifoObj;
+  // GXInitFifoBase(&fifoObj, mpFifo, fifoSize);
+  // GXSetCPUFifo(&fifoObj);
+  // GXSetGPFifo(&fifoObj);
+  // GXInitFifoLimits(mpFifoObj, fifoSize - 0x4000, fifoSize - 0x10000);
+  // GXSetCPUFifo(mpFifoObj);
+  // GXSetGPFifo(mpFifoObj);
+  // GXSetMisc(GX_MT_XF_FLUSH, 8);
+  GXSetDither(GX_FALSE);
   CGX::ResetGXStates();
   InitGraphicsVariables();
-  // ConfigureFrameBuffer(...);
-  InitGraphicsDefaults();
-  // GXInitTexCacheRegion
-  // GXSetTexRegionCallback
+  ConfigureFrameBuffer(/*osContext*/);
+  // for (int i = 0; i < ARRAY_SIZE(mTexRegions); i++) {
+  //   GXInitTexCacheRegion(&mTexRegions[i], false, 0x8000 * i, GX_TEXCACHE_32K, 0x80000 + (0x8000 * i),
+  //   GX_TEXCACHE_32K);
+  // }
+  // for (int i = 0; i < ARRAY_SIZE(mTexRegionsCI); i++) {
+  //   GXInitTexCacheRegion(&mTexRegionsCI[i], false, (8 + (2 * i)) << 0xF, GX_TEXCACHE_32K, (9 + (2 * i)) << 0xF,
+  //                        GX_TEXCACHE_32K);
+  // }
+  // mGXDefaultTexRegionCallback = GXSetTexRegionCallback(TexRegionCallback);
+  mSpareBufferSize = sSpareFrameBuffer.size();
+  mpSpareBuffer = sSpareFrameBuffer.data();
+  mSpareBufferTexCacheSize = 0x10000;
+  return true;
 }
 
+#define ARRAY_SIZE(arr) static_cast<int>(sizeof(arr) / sizeof(arr[0]))
+
 void CGraphics::InitGraphicsVariables() {
-  g_LightTypes.fill(ELightType::Directional);
-  g_LightActive = {};
-  SetDepthWriteMode(false, g_depthFunc, false);
+  for (int i = 0; i < ARRAY_SIZE(mLightTypes); ++i) {
+    mLightTypes[i] = ELightType::Directional;
+  }
+  mLightActive = 0;
+  SetDepthWriteMode(false, mDepthFunc, false);
   SetCullMode(ERglCullMode::None);
-  SetAmbientColor(zeus::CColor{0.2f, 1.f});
-  g_IsGXModelMatrixIdentity = false;
-  // SetIdentityViewPointMatrix();
-  // SetIdentityModelMatrix();
-  SetViewport(0, 0, g_Viewport.x8_width, g_Viewport.xc_height);
-  SetPerspective(60.f, g_Viewport.x8_width / g_Viewport.xc_height, g_Proj.x14_near, g_Proj.x18_far);
-  SetCopyClear(g_ClearColor, 1.f);
-  CGX::SetChanMatColor(CGX::EChannelId::Channel0, zeus::skWhite);
-  // g_RenderState.ResetFlushAll();
+  SetAmbientColor(CColor(0.2f, 0.2f, 0.2f, 1.f));
+  mIsGXModelMatrixIdentity = false;
+  SetIdentityViewPointMatrix();
+  SetIdentityModelMatrix();
+  SetViewport(0, 0, mViewport.mWidth, mViewport.mHeight);
+  SetPerspective(60.f, static_cast<float>(mViewport.mWidth) / static_cast<float>(mViewport.mHeight), mProj.GetNear(),
+                 mProj.GetFar());
+  SetCopyClear(mClearColor, 1.f);
+  constexpr GXColor white = {0xFF, 0xFF, 0xFF, 0xFF};
+  CGX::SetChanMatColor(CGX::EChannelId::Channel0, white);
+  sRenderState.ResetFlushAll();
 }
 
 void CGraphics::InitGraphicsDefaults() {
   SetDepthRange(0.f, 1.f);
-  g_IsGXModelMatrixIdentity = false;
-  SetModelMatrix(g_GXModelMatrix);
-  SetViewPointMatrix(g_GXModelView);
-  SetDepthWriteMode(false, g_depthFunc, false);
-  SetCullMode(g_cullMode);
-  SetViewport(g_Viewport.x0_left, g_Viewport.x4_top, g_Viewport.x8_width, g_Viewport.xc_height);
+  mIsGXModelMatrixIdentity = false;
+  SetModelMatrix(mModelMatrix);
+  SetViewPointMatrix(mViewMatrix);
+  SetDepthWriteMode(false, mDepthFunc, false);
+  SetCullMode(mCullMode);
+  SetViewport(mViewport.mLeft, mViewport.mTop, mViewport.mWidth, mViewport.mHeight);
   FlushProjection();
   CTevCombiners::Init();
   DisableAllLights();
   SetDefaultVtxAttrFmt();
 }
 
-void CGraphics::SetDefaultVtxAttrFmt() {
-  // Unneeded, all attributes are expected to be full floats
-  // Left here for reference
+void CGraphics::ConfigureFrameBuffer(/*const COsContext& osContext*/) {
+  // mRenderModeObj = osContext.GetRenderModeObj();
+  // mpFrameBuf1 = osContext.GetFramebuf1();
+  // mpFrameBuf2 = osContext.GetFramebuf2();
+  // VIConfigure(&mRenderModeObj);
+  // VISetNextFrameBuffer(mpFrameBuf1);
+  mpCurrenFrameBuf = mpFrameBuf2;
+  GXSetViewport(0.f, 0.f, static_cast<float>(mRenderModeObj.fbWidth), static_cast<float>(mRenderModeObj.efbHeight), 0.f,
+                1.f);
+  GXSetScissor(0, 0, mRenderModeObj.fbWidth, mRenderModeObj.efbHeight);
+  GXSetDispCopySrc(0, 0, mRenderModeObj.fbWidth, mRenderModeObj.efbHeight);
+  GXSetDispCopyDst(mRenderModeObj.fbWidth, mRenderModeObj.efbHeight);
+  GXSetDispCopyYScale(static_cast<float>(mRenderModeObj.xfbHeight) / static_cast<float>(mRenderModeObj.efbHeight));
+  GXSetCopyFilter(mRenderModeObj.aa, mRenderModeObj.sample_pattern, GX_ENABLE, mRenderModeObj.vfilter);
+  if (mRenderModeObj.aa) {
+    GXSetPixelFmt(GX_PF_RGB565_Z16, GX_ZC_LINEAR);
+  } else {
+    GXSetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
+  }
+  GXSetDispCopyGamma(GX_GM_1_0);
+  GXCopyDisp(mpCurrenFrameBuf, true);
+  VIFlush();
+  // VIWaitForRetrace();
+  // VIWaitForRetrace();
+  mViewport.mWidth = mRenderModeObj.fbWidth;
+  mViewport.mHeight = mRenderModeObj.efbHeight;
+  InitGraphicsDefaults();
+}
 
+void CGraphics::SetDefaultVtxAttrFmt() {
   GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
   GXSetVtxAttrFmt(GX_VTXFMT1, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
   GXSetVtxAttrFmt(GX_VTXFMT2, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
@@ -744,51 +1068,73 @@ void CGraphics::SetDefaultVtxAttrFmt() {
   GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
   GXSetVtxAttrFmt(GX_VTXFMT1, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
   GXSetVtxAttrFmt(GX_VTXFMT2, GX_VA_TEX0, GX_TEX_ST, GX_U16, 15);
-  for (GXAttr attr = GX_VA_TEX1; attr <= GX_VA_TEX7; attr = GXAttr(attr + 1)) {
+  for (int i = 1; i <= 7; ++i) {
+    GXAttr attr = static_cast<GXAttr>(GX_VA_TEX0 + i);
     GXSetVtxAttrFmt(GX_VTXFMT0, attr, GX_TEX_ST, GX_F32, 0);
     GXSetVtxAttrFmt(GX_VTXFMT1, attr, GX_TEX_ST, GX_F32, 0);
     GXSetVtxAttrFmt(GX_VTXFMT2, attr, GX_TEX_ST, GX_F32, 0);
   }
 }
 
-void CGraphics::ResetGfxStates() noexcept {
-  // sRenderState.x0_ = 0;
-}
+void CGraphics::ResetGfxStates() noexcept { sRenderState.Set(0); }
 
-void CGraphics::LoadDolphinSpareTexture(int width, int height, GXTexFmt format, void* data, GXTexMapID id) {
-  void* ptr = static_cast<void*>(sSpareTextureData);
-  if (data != nullptr) {
-    ptr = data;
-  }
-  GXTexObj obj;
-  GXInitTexObj(&obj, ptr, width, height, format, GX_CLAMP, GX_CLAMP, false);
-  GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.0, 0.0, 0.0, false, false, GX_ANISO_1);
-  GXLoadTexObj(&obj, id);
-  // CTexture::InvalidateTexmap(id);
-  if (id == GX_TEXMAP7) {
-    // GXInvalidateTexRegion(...);
-  }
+void CGraphics::LoadDolphinSpareTexture(int width, int height, GXTexFmt fmt, void* data, GXTexMapID texId) {
+  GXTexObj texObj;
+  GXInitTexObj(&texObj, data != nullptr ? data : mpSpareBuffer, width, height, fmt, GX_CLAMP, GX_CLAMP, GX_DISABLE);
+  GXInitTexObjLOD(&texObj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, GX_DISABLE, GX_DISABLE, GX_ANISO_1);
+  GXLoadTexObj(&texObj, texId);
+  // CTexture::InvalidateTexmap(texId);
+  // if (texId == GX_TEXMAP7) {
+  //   GXInvalidateTexRegion(&mTexRegions[0]);
+  // }
 #ifdef AURORA
-  GXDestroyTexObj(&obj);
+  GXDestroyTexObj(&texObj);
 #endif
 }
 
-void CGraphics::LoadDolphinSpareTexture(int width, int height, GXCITexFmt format, GXTlut tlut, void* data,
-                                        GXTexMapID id) {
-  void* ptr = static_cast<void*>(sSpareTextureData);
-  if (data != nullptr) {
-    ptr = data;
-  }
-  GXTexObj obj;
-  GXInitTexObjCI(&obj, ptr, width, height, format, GX_CLAMP, GX_CLAMP, false, tlut);
-  GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.0, 0.0, 0.0, false, false, GX_ANISO_1);
-  GXLoadTexObj(&obj, id);
-  // CTexture::InvalidateTexmap(id);
-  if (id == GX_TEXMAP7) {
-    // GXInvalidateTexRegion(...);
-  }
+void CGraphics::LoadDolphinSpareTexture(int width, int height, GXCITexFmt fmt, GXTlut tlut, void* data,
+                                        GXTexMapID texId) {
+  GXTexObj texObj;
+  GXInitTexObjCI(&texObj, data != nullptr ? data : mpSpareBuffer, width, height, fmt, GX_CLAMP, GX_CLAMP, GX_DISABLE,
+                 tlut);
+  GXInitTexObjLOD(&texObj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, GX_DISABLE, GX_DISABLE, GX_ANISO_1);
+  GXLoadTexObj(&texObj, texId);
+  // CTexture::InvalidateTexmap(texId);
+  // if (texId == GX_TEXMAP7) {
+  //   GXInvalidateTexRegion(&mTexRegions[0]);
+  // }
 #ifdef AURORA
-  GXDestroyTexObj(&obj);
+  GXDestroyTexObj(&texObj);
 #endif
+}
+
+CGraphics::CRenderState::CRenderState() {
+  x0_ = 0;
+  x4_ = 0;
+}
+
+void CGraphics::CRenderState::Flush() {}
+
+int CGraphics::CRenderState::SetVtxState(const float* pos, const float* nrm, const uint* clr) {
+  // CGX::SetArray(GX_VA_POS, pos, 12);
+  // CGX::SetArray(GX_VA_NRM, nrm, 12);
+  // CGX::SetArray(GX_VA_CLR0, clr, 4);
+  int result = 1;
+  if (nrm != nullptr) {
+    result |= 2;
+  }
+  if (clr != nullptr) {
+    result |= 16;
+  }
+  return result;
+}
+
+void CGraphics::CRenderState::ResetFlushAll() {
+  x0_ = 0;
+  SetVtxState(nullptr, nullptr, nullptr);
+  for (int i = 0; i < 8; i++) {
+    CGX::SetArray(static_cast<GXAttr>(GX_VA_TEX0 + i), std::span<const CVector3f>{});
+  }
+  Flush();
 }
 } // namespace metaforce

@@ -81,7 +81,7 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, CTexture& tex, in
       CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
       CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
       tex.LoadMipLevel(0, GX_TEXMAP0, EClampMode::Repeat);
-      CGraphics::StreamBegin(GX_TRIANGLESTRIP);
+      CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
       CGraphics::StreamColor(useColor);
       for (u32 i = 0; i < useUVs->size(); ++i) {
         CGraphics::StreamTexcoord((*useUVs)[i] + xd0_uvBias0);
@@ -147,7 +147,7 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, CTexture& tex, in
     CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulateAlpha);
     CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
     tex.Load(GX_TEXMAP0, EClampMode::Repeat);
-    CGraphics::StreamBegin(GX_TRIANGLESTRIP);
+    CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
     CGraphics::StreamColor(useColor);
     for (u32 i = 0; i < useUVs->size(); ++i) {
       CGraphics::StreamTexcoord((*useUVs)[i]);

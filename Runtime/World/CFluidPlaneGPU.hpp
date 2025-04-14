@@ -17,9 +17,9 @@ public:
                  float turbAmplitudeMin, float specularMin, float specularMax, float reflectionBlend,
                  float reflectionSize, float rippleIntensity, u32 maxVertCount);
 
-  void RenderStripWithRipples(float curY, const Heights& heights, const Flags& flags, int startYDiv,
-                              const CFluidPlaneRender::SPatchInfo& info, std::vector<CFluidPlaneShader::Vertex>& vOut,
-                              std::vector<CFluidPlaneShader::PatchVertex>& pvOut) override;
+  // void RenderStripWithRipples(float curY, const Heights& heights, const Flags& flags, int startYDiv,
+  //                             const CFluidPlaneRender::SPatchInfo& info, std::vector<CFluidPlaneShader::Vertex>& vOut,
+  //                             std::vector<CFluidPlaneShader::PatchVertex>& pvOut) override;
 };
 
 } // namespace metaforce

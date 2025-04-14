@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <span>
 #include <aurora/math.hpp>
 
 #include "CStopwatch.hpp"
@@ -22,8 +23,13 @@ enum class ESurfaceSelection {
 };
 
 // These parameters were originally float*
-using TVectorRef = std::vector<zeus::CVector3f>*;
-using TConstVectorRef = const std::vector<zeus::CVector3f>*;
+using TVectorRef = std::vector<aurora::Vec3<float>>*;
+using TConstVectorRef = std::span<const aurora::Vec3<float>>;
+
+template <typename T>
+std::span<const u8> byte_span(const std::vector<T>& vec) {
+  return std::span(reinterpret_cast<const u8*>(vec.data()), vec.size() * sizeof(T));
+}
 
 class CCubeModel {
   friend class CModel;
@@ -31,18 +37,18 @@ class CCubeModel {
 
 private:
   class ModelInstance {
-    std::vector<CCubeSurface>* x0_surfacePtrs;             // was rstl::vector<void*>*
-    u8* x4_materialData;                                   //
-    std::vector<zeus::CVector3f>* x8_positions;            // was void*
-    std::vector<zeus::CVector3f>* xc_normals;              // was void*
-    std::vector<zeus::CColor>* x10_colors;                 // was void*
-    std::vector<aurora::Vec2<float>>* x14_texCoords;       // was void*
-    std::vector<aurora::Vec2<float>>* x18_packedTexCoords; // was void*
+    std::vector<CCubeSurface>* x0_surfacePtrs; // was rstl::vector<void*>*
+    u8* x4_materialData;                       //
+    std::span<const u8> x8_positions;          // was void*
+    std::span<const u8> xc_normals;            // was void*
+    std::span<const u8> x10_colors;            // was void*
+    std::span<const u8> x14_texCoords;         // was void*
+    std::span<const u8> x18_packedTexCoords;   // was void*
 
   public:
-    ModelInstance(std::vector<CCubeSurface>* surfaces, u8* material, std::vector<zeus::CVector3f>* positions,
-                  std::vector<zeus::CColor>* colors, std::vector<zeus::CVector3f>* normals,
-                  std::vector<aurora::Vec2<float>>* texCoords, std::vector<aurora::Vec2<float>>* packedTexCoords)
+    ModelInstance(std::vector<CCubeSurface>* surfaces, u8* material, std::span<const u8> positions,
+                  std::span<const u8> colors, std::span<const u8> normals, std::span<const u8> texCoords,
+                  std::span<const u8> packedTexCoords)
     : x0_surfacePtrs(surfaces)
     , x4_materialData(material)
     , x8_positions(positions)
@@ -58,13 +64,11 @@ private:
     [[nodiscard]] std::vector<CCubeSurface>* Surfaces() const { return x0_surfacePtrs; }
     [[nodiscard]] u8* GetMaterialPointer() const { return x4_materialData; }
     void SetMaterialPointer(u8* mat) { x4_materialData = mat; }
-    [[nodiscard]] TVectorRef GetVertexPointer() { return x8_positions; }
-    [[nodiscard]] TConstVectorRef GetVertexPointer() const { return x8_positions; }
-    [[nodiscard]] TVectorRef GetNormalPointer() { return xc_normals; }
-    [[nodiscard]] TConstVectorRef GetNormalPointer() const { return xc_normals; }
-    [[nodiscard]] std::vector<zeus::CColor>* GetColorPointer() const { return x10_colors; }
-    [[nodiscard]] std::vector<aurora::Vec2<float>>* GetTCPointer() const { return x14_texCoords; }
-    [[nodiscard]] std::vector<aurora::Vec2<float>>* GetPackedTCPointer() const { return x18_packedTexCoords; }
+    [[nodiscard]] std::span<const u8> GetVertexPointer() const { return x8_positions; }
+    [[nodiscard]] std::span<const u8> GetNormalPointer() const { return xc_normals; }
+    [[nodiscard]] std::span<const u8> GetColorPointer() const { return x10_colors; }
+    [[nodiscard]] std::span<const u8> GetTCPointer() const { return x14_texCoords; }
+    [[nodiscard]] std::span<const u8> GetPackedTCPointer() const { return x18_packedTexCoords; }
   };
 
   ModelInstance x0_modelInstance;
@@ -79,9 +83,9 @@ private:
 
 public:
   CCubeModel(std::vector<CCubeSurface>* surfaces, std::vector<TCachedToken<CTexture>>* textures, u8* materialData,
-             std::vector<zeus::CVector3f>* positions, std::vector<zeus::CColor>* colors,
-             std::vector<zeus::CVector3f>* normals, std::vector<aurora::Vec2<float>>* texCoords,
-             std::vector<aurora::Vec2<float>>* packedTexCoords, const zeus::CAABox& aabb, u8 flags, bool b1, u32 idx);
+             std::span<const u8> positions, std::span<const u8> colors, std::span<const u8> normals,
+             std::span<const u8> texCoords, std::span<const u8> packedTexCoords, const zeus::CAABox& aabb, u8 flags,
+             bool b1, u32 idx);
 
   CCubeMaterial GetMaterialByIndex(u32 idx);
   bool TryLockTextures();
@@ -107,10 +111,14 @@ public:
   [[nodiscard]] CCubeSurface* GetFirstSortedSurface() { return x3c_firstSortedSurf; }
   [[nodiscard]] const CCubeSurface* GetFirstSortedSurface() const { return x3c_firstSortedSurf; }
 
-  [[nodiscard]] TVectorRef GetPositions() { return x0_modelInstance.GetVertexPointer(); }
-  [[nodiscard]] TConstVectorRef GetPositions() const { return x0_modelInstance.GetVertexPointer(); }
-  [[nodiscard]] TVectorRef GetNormals() { return x0_modelInstance.GetNormalPointer(); }
-  [[nodiscard]] TConstVectorRef GetNormals() const { return x0_modelInstance.GetNormalPointer(); }
+  [[nodiscard]] TConstVectorRef GetPositions() const {
+    const auto sp = x0_modelInstance.GetVertexPointer();
+    return {reinterpret_cast<const aurora::Vec3<float>*>(sp.data()), sp.size() / sizeof(aurora::Vec3<float>)};
+  }
+  [[nodiscard]] TConstVectorRef GetNormals() const {
+    const auto sp = x0_modelInstance.GetNormalPointer();
+    return {reinterpret_cast<const aurora::Vec3<float>*>(sp.data()), sp.size() / sizeof(aurora::Vec3<float>)};
+  }
   [[nodiscard]] TCachedToken<CTexture>& GetTexture(u32 idx) const { return x1c_textures->at(idx); }
 
   static void EnableShadowMaps(const CTexture& shadowTex, const zeus::CTransform& textureProjXf,
@@ -142,4 +150,10 @@ private:
 
 template <>
 aurora::Vec2<float> cinput_stream_helper(CInputStream& in);
+template <>
+aurora::Vec3<float> cinput_stream_helper(CInputStream& in);
+template <>
+aurora::Vec2<u16> cinput_stream_helper(CInputStream& in);
+template <>
+aurora::Vec3<s16> cinput_stream_helper(CInputStream& in);
 } // namespace metaforce

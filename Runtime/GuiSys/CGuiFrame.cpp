@@ -142,7 +142,7 @@ void CGuiFrame::Draw(const CGuiWidgetDrawParms& parms) const {
 
 CGuiWidget* CGuiFrame::BestCursorHit(const zeus::CVector2f& point, const CGuiWidgetDrawParms& parms) const {
   x14_camera->Draw(parms);
-  zeus::CMatrix4f vp = CGraphics::GetPerspectiveProjectionMatrix() * CGraphics::g_CameraMatrix.toMatrix4f();
+  zeus::CMatrix4f vp = CGraphics::GetPerspectiveProjectionMatrix(); // TODO * CGraphics::mCameraMtx;
   CGuiWidget* ret = nullptr;
   for (const auto& widget : x2c_widgets)
     if (widget->GetMouseActive() && widget->TestCursorHit(vp, point))

@@ -91,9 +91,9 @@ public:
   void CreateRipple(const CRipple& ripple, CStateManager& mgr);
   void CalculateLightmapMatrix(const zeus::CTransform& areaXf, const zeus::CTransform& xf, const zeus::CAABox& aabb,
                                zeus::CMatrix4f& mtxOut) const;
-  CFluidPlaneShader::RenderSetupInfo RenderSetup(const CStateManager& mgr, float, const zeus::CTransform& xf,
-                                                 const zeus::CTransform& areaXf, const zeus::CAABox& aabb,
-                                                 const CScriptWater* water);
+  // CFluidPlaneShader::RenderSetupInfo RenderSetup(const CStateManager& mgr, float, const zeus::CTransform& xf,
+  //                                                const zeus::CTransform& areaXf, const zeus::CAABox& aabb,
+  //                                                const CScriptWater* water);
   void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
               const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
               const std::optional<CRippleManager>& rippleManager, TUniqueId waterId, const bool* gridFlags,

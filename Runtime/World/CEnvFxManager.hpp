@@ -8,8 +8,6 @@
 #include "Runtime/rstl.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
-#include "Runtime/Graphics/CLineRenderer.hpp"
-#include "Runtime/Graphics/Shaders/CEnvFxShaders.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CTransform.hpp>
@@ -84,7 +82,7 @@ class CEnvFxManager {
 
 //  hecl::VertexBufferPool<CEnvFxShaders::Instance> m_instPool;
 //  hecl::UniformBufferPool<CEnvFxShaders::Uniform> m_uniformPool;
-  CEnvFxShaders::Uniform m_uniformData;
+  // CEnvFxShaders::Uniform m_uniformData;
 //  boo::ObjToken<boo::IGraphicsBufferD> m_fogUniformBuf;
 
   zeus::CAABox x0_particleBounds = zeus::CAABox(-63.5f, 63.5f);

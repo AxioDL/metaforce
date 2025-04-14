@@ -312,7 +312,7 @@ u32 CCubeMaterial::HandleColorChannels(u32 chanCount, u32 firstChan) {
       CGX::SetChanAmbColor(CGX::EChannelId::Channel1, GX_BLACK);
       CGX::SetChanMatColor(CGX::EChannelId::Channel1, GX_WHITE);
 
-      auto chan0Lights = CGraphics::g_LightActive & ~CCubeModel::sChannel0DisableLightMask;
+      auto chan0Lights = CGraphics::mLightActive & ~CCubeModel::sChannel0DisableLightMask;
       CGX::SetChanCtrl(CGX::EChannelId::Channel0, firstChan, chan0Lights);
       CGX::SetChanCtrl(CGX::EChannelId::Channel1, CCubeModel::sChannel1EnableLightMask);
       if (chan0Lights.any()) {
@@ -334,8 +334,8 @@ u32 CCubeMaterial::HandleColorChannels(u32 chanCount, u32 firstChan) {
   if (chanCount == 0) {
     CGX::SetChanCtrl(CGX::EChannelId::Channel0, {});
   } else {
-    CGX::SetChanCtrl(CGX::EChannelId::Channel0, firstChan, CGraphics::g_LightActive);
-    if (CGraphics::g_LightActive.any()) {
+    CGX::SetChanCtrl(CGX::EChannelId::Channel0, firstChan, CGraphics::mLightActive);
+    if (CGraphics::mLightActive.any()) {
       CGX::SetChanMatColor(CGX::EChannelId::Channel0, GX_WHITE);
     } else {
       CGX::SetChanMatColor(CGX::EChannelId::Channel0, CGX::GetChanAmbColor(CGX::EChannelId::Channel0));
@@ -363,26 +363,35 @@ void CCubeMaterial::HandleTev(u32 tevCur, const u32* materialDataCur, const u32*
   CGX::SetTevKAlphaSel(stage, static_cast<GXTevKAlphaSel>(matFlags >> 0x10 & 0xFF));
 }
 
-constexpr zeus::CTransform MvPostXf{
-    {zeus::CVector3f{0.5f, 0.f, 0.f}, {0.f, 0.f, 0.f}, {0.f, 0.5f, 0.f}},
-    {0.5f, 0.5f, 1.f},
-};
-
-u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, GXTexMtx texMtx, GXPTTexMtx pttTexMtx) {
+u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, GXTexMtx texMtx, GXPTTexMtx ptTexMtx) {
+  static const Mtx postMtx = {
+      {0.5f, 0.0f, 0.0f, 0.5f},
+      {0.0f, 0.0f, 0.5f, 0.5f},
+      {0.0f, 0.0f, 0.0f, 1.0f},
+  };
+  static Mtx translateMtx = {
+      {1.0f, 0.0f, 0.0f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {0.0f, 0.0f, 1.0f, 0.0f},
+  };
   u32 type = SBig(*uvAnim);
   const float* params = reinterpret_cast<const float*>(uvAnim + 1);
   switch (type) {
   case 0: {
-    auto xf = CGraphics::g_ViewMatrix.inverse().multiplyIgnoreTranslation(CGraphics::g_GXModelMatrix);
+    auto xf = CGraphics::GetViewMatrix().quickInverse().multiplyIgnoreTranslation(CGraphics::GetModelMatrix());
     xf.origin.zeroOut();
-    GXLoadTexMtxImm(&xf, texMtx, GX_MTX3x4);
-    GXLoadTexMtxImm(&MvPostXf, pttTexMtx, GX_MTX3x4);
+    Mtx mtx;
+    xf.toCStyleMatrix(mtx);
+    GXLoadTexMtxImm(mtx, texMtx, GX_MTX3x4);
+    GXLoadTexMtxImm(postMtx, ptTexMtx, GX_MTX3x4);
     return 1;
   }
   case 1: {
-    auto xf = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix;
-    GXLoadTexMtxImm(&xf, texMtx, GX_MTX3x4);
-    GXLoadTexMtxImm(&MvPostXf, pttTexMtx, GX_MTX3x4);
+    auto xf = CGraphics::GetViewMatrix().quickInverse() * CGraphics::GetModelMatrix();
+    Mtx mtx;
+    xf.toCStyleMatrix(mtx);
+    GXLoadTexMtxImm(mtx, texMtx, GX_MTX3x4);
+    GXLoadTexMtxImm(postMtx, ptTexMtx, GX_MTX3x4);
     return 1;
   }
   case 2: {
@@ -391,74 +400,101 @@ u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, GXTexMtx texMtx, GXPTTexM
     const float f3 = SBig(params[2]);
     const float f4 = SBig(params[3]);
     const float seconds = CGraphics::GetSecondsMod900();
-    const auto xf = zeus::CTransform::Translate(seconds * f3 + f1, seconds * f4 + f2, 0.f);
-    GXLoadTexMtxImm(&xf, texMtx, GX_MTX3x4);
+    translateMtx[0][3] = f1 + seconds * f3;
+    translateMtx[1][3] = f2 + seconds * f4;
+    GXLoadTexMtxImm(translateMtx, texMtx, GX_MTX3x4);
     return 5;
   }
   case 3: {
-    const float angle = CGraphics::GetSecondsMod900() * SBig(params[1]) + SBig(params[0]);
-    const float acos = std::cos(angle);
+    const float f1 = SBig(params[0]);
+    const float f2 = SBig(params[1]);
+    const float seconds = CGraphics::GetSecondsMod900();
+    const float angle = f1 + seconds * f2;
     const float asin = std::sin(angle);
-    zeus::CTransform xf;
-    xf.basis[0][0] = acos;
-    xf.basis[0][1] = asin;
-    xf.basis[1][0] = -asin;
-    xf.basis[1][1] = acos;
-    xf.origin[0] = (1.f - (acos - asin)) * 0.5f;
-    xf.origin[1] = (1.f - (asin + acos)) * 0.5f;
-    GXLoadTexMtxImm(&xf, texMtx, GX_MTX3x4);
+    const float acos = std::cos(angle);
+    Mtx mtx = {
+        {acos, -asin, 0.f, (1.f - (acos - asin)) * 0.5f},
+        {asin, acos, 0.f, (1.f - (asin + acos)) * 0.5f},
+        {0.f, 0.f, 1.f, 0.f},
+    };
+    GXLoadTexMtxImm(mtx, texMtx, GX_MTX3x4);
     return 3;
   }
   case 4:
   case 5: {
-    zeus::CTransform xf;
-    const float value = SBig(params[0]) * SBig(params[2]) * (SBig(params[3]) + CGraphics::GetSecondsMod900());
+    const float f1 = SBig(params[0]);
+    const float f2 = SBig(params[1]);
+    const float f3 = SBig(params[2]);
+    const float f4 = SBig(params[3]);
+    const float value = (f4 + CGraphics::GetSecondsMod900()) * f1 * f3;
+    const float fmod = std::fmod(value, 1.f);
+    const float fs = std::trunc(fmod * f2);
+    const float v2 = fs * f3;
     if (type == 4) {
-      xf.origin.x() = std::trunc(SBig(params[1]) * std::fmod(value, 1.f)) * SBig(params[2]);
-      xf.origin.y() = 0.f;
+      translateMtx[0][3] = v2;
+      translateMtx[1][3] = 0.f;
     } else {
-      xf.origin.x() = 0.f;
-      xf.origin.y() = std::trunc(SBig(params[1]) * std::fmod(value, 1.f)) * SBig(params[2]);
+      translateMtx[0][3] = 0.f;
+      translateMtx[1][3] = v2;
     }
-    GXLoadTexMtxImm(&xf, texMtx, GX_MTX3x4);
+    GXLoadTexMtxImm(translateMtx, texMtx, GX_MTX3x4);
     return 5;
   }
   case 6: {
-    const zeus::CTransform mtx{CGraphics::g_GXModelMatrix.basis};
-    const zeus::CTransform postMtx{
-        {
-            zeus::CVector3f{0.5f, 0.f, 0.f},
-            zeus::CVector3f{0.f, 0.f, 0.f},
-            zeus::CVector3f{0.f, 0.5f, 0.f},
-        },
-        zeus::CVector3f{
-            CGraphics::g_GXModelMatrix.origin.x() * 0.05f,
-            CGraphics::g_GXModelMatrix.origin.y() * 0.05f,
-            1.f,
-        },
+    static const Mtx sTexMtx = {
+        {0.f, 0.f, 0.f, 0.f},
+        {0.f, 0.f, 0.f, 0.f},
+        {0.f, 0.f, 0.f, 0.f},
     };
-    GXLoadTexMtxImm(&mtx, texMtx, GX_MTX3x4);
-    GXLoadTexMtxImm(&postMtx, pttTexMtx, GX_MTX3x4);
+    static const Mtx sPtMtx = {
+        {0.5f, 0.f, 0.f, 0.f},
+        {0.f, 0.f, 0.5f, 0.f},
+        {0.f, 0.f, 0.f, 1.f},
+    };
+    const zeus::CTransform& mm = CGraphics::GetModelMatrix();
+    Mtx tmpTexMtx;
+    Mtx tmpPtMtx;
+    memcpy(&tmpTexMtx, &sTexMtx, sizeof(Mtx));
+    tmpTexMtx[0][0] = mm.basis[0][0];
+    tmpTexMtx[0][1] = mm.basis[1][0];
+    tmpTexMtx[0][2] = mm.basis[2][0];
+    tmpTexMtx[1][0] = mm.basis[0][1];
+    tmpTexMtx[1][1] = mm.basis[1][1];
+    tmpTexMtx[1][2] = mm.basis[2][1];
+    tmpTexMtx[2][0] = mm.basis[0][2];
+    tmpTexMtx[2][1] = mm.basis[1][2];
+    tmpTexMtx[2][2] = mm.basis[2][2];
+    memcpy(&tmpPtMtx, &sPtMtx, sizeof(Mtx));
+    tmpPtMtx[0][3] = mm.origin.x() * 0.05f;
+    tmpPtMtx[1][3] = mm.origin.y() * 0.05f;
+    GXLoadTexMtxImm(tmpTexMtx, texMtx, GX_MTX3x4);
+    GXLoadTexMtxImm(tmpPtMtx, ptTexMtx, GX_MTX3x4);
     return 1;
   }
   case 7: {
-    zeus::CTransform mtx = CGraphics::g_ViewMatrix.inverse().multiplyIgnoreTranslation(CGraphics::g_GXModelMatrix);
-    mtx.origin.zeroOut();
-    float xy = SBig(params[1]) * (CGraphics::g_ViewMatrix.origin.x() + CGraphics::g_ViewMatrix.origin.y()) * 0.025f;
-    xy = (xy - static_cast<int>(xy));
-    float z = SBig(params[1]) * CGraphics::g_ViewMatrix.origin.z() * 0.05f;
-    z = (z - static_cast<int>(z));
-    float halfA = SBig(params[0]) * 0.5f;
-    zeus::CTransform postMtx{
-        {
-            zeus::CVector3f{halfA, 0.f, 0.f},
-            zeus::CVector3f{0.f, 0.f, 0.f},
-            zeus::CVector3f{0.f, halfA, 0.f},
-        },
-        zeus::CVector3f{xy, z, 1.f},
+    static const Mtx sPtMtx = {
+        {0.f, 0.f, 0.f, 0.f},
+        {0.f, 0.f, 0.f, 0.f},
+        {0.f, 0.f, 0.f, 1.f},
     };
-    GXLoadTexMtxImm(&mtx, texMtx, GX_MTX3x4);
-    GXLoadTexMtxImm(&postMtx, pttTexMtx, GX_MTX3x4);
+    const zeus::CTransform& vm = CGraphics::GetViewMatrix();
+    zeus::CTransform xf = vm.quickInverse().multiplyIgnoreTranslation(CGraphics::GetModelMatrix());
+    float v = SBig(params[0]) / 2.f;
+    float v03 = 0.025f * (vm.origin.x() + vm.origin.y()) * SBig(params[1]);
+    float v13 = 0.05f * vm.origin.z() * SBig(params[1]);
+    float v03f = std::fmod(v03, 1.f);
+    float v13f = std::fmod(v13, 1.f);
+    xf.origin.zeroOut();
+    Mtx mtx;
+    xf.toCStyleMatrix(mtx);
+    Mtx tmpPtMtx;
+    memcpy(&tmpPtMtx, &sPtMtx, sizeof(Mtx));
+    tmpPtMtx[0][0] = v;
+    tmpPtMtx[0][3] = v03f;
+    tmpPtMtx[1][2] = v;
+    tmpPtMtx[1][3] = v13f;
+    GXLoadTexMtxImm(mtx, texMtx, GX_MTX3x4);
+    GXLoadTexMtxImm(tmpPtMtx, ptTexMtx, GX_MTX3x4);
     return 3;
   }
   default:

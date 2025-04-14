@@ -255,7 +255,7 @@ public:
 
 private:
   std::vector<std::pair<std::unique_ptr<u8[]>, int>> x110_mreaSecBufs;
-  std::vector<std::pair<const u8*, u32>> m_resolvedBufs;
+  std::vector<std::span<const u8>> m_resolvedBufs;
   u32 x124_secCount = 0;
   u32 x128_mreaDataOffset = 0;
   std::unique_ptr<CPostConstructed> x12c_postConstructed;

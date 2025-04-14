@@ -113,7 +113,7 @@ void CParticleElectric::DrawLineStrip(const std::vector<zeus::CVector3f>& verts,
 }
 
 void CParticleElectric::RenderLines() {
-  m_nextLineRenderer = 0;
+  // m_nextLineRenderer = 0;
   CGraphics::DisableAllLights();
   // Z-test, no write
   // Additive blend

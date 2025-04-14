@@ -29,7 +29,7 @@ CHudRadarInterface::CHudRadarInterface(CGuiFrame& baseHud, CStateManager& stateM
 void CHudRadarInterface::DoDrawRadarPaint(float radius) {
   radius *= 4.f;
 
-  CGraphics::StreamBegin(GX_TRIANGLESTRIP);
+  CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
   CGraphics::StreamTexcoord(0.f, 1.f);
   CGraphics::StreamVertex(-radius, 0.f, radius);
   CGraphics::StreamTexcoord(0.f, 0.f);

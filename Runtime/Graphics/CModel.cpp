@@ -61,34 +61,38 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
     x4_dataLen += shader.x0_textures.size() * sizeof(TCachedToken<CTexture>);
   }
 
-  /* Metaforce note: Due to padding in zeus types we need to convert these and store locally */
   u32 numVertices = CBasics::SwapBytes(*secSizeCur) / 12;
+  m_positions.reserve(numVertices);
   auto positions = StreamFromPartData(dataCur, secSizeCur);
   for (u32 i = 0; i < numVertices; ++i) {
-    m_positions.emplace_back(positions.Get<zeus::CVector3f>());
+    m_positions.emplace_back(positions.Get<aurora::Vec3<float>>());
   }
 
   u32 numNormals = CBasics::SwapBytes(*secSizeCur);
   numNormals /= (flags & 2) == 0 ? 12 : 6;
+  if ((flags & 2) == 0) {
+    m_normals.reserve(numNormals);
+  } else {
+    m_shortNormals.reserve(numNormals);
+  }
   auto normals = StreamFromPartData(dataCur, secSizeCur);
   for (u32 i = 0; i < numNormals; ++i) {
     if ((flags & 2) == 0) {
-      m_normals.emplace_back(normals.Get<zeus::CVector3f>());
+      m_normals.emplace_back(normals.Get<aurora::Vec3<float>>());
     } else {
-      const auto x = static_cast<float>(normals.ReadShort()) / 16384.f;
-      const auto y = static_cast<float>(normals.ReadShort()) / 16384.f;
-      const auto z = static_cast<float>(normals.ReadShort()) / 16384.f;
-      m_normals.emplace_back(x, y, z);
+      m_shortNormals.emplace_back(normals.Get<aurora::Vec3<s16>>());
     }
   }
 
   u32 numColors = CBasics::SwapBytes(*secSizeCur) / 4;
+  m_colors.reserve(numColors);
   auto vtxColors = StreamFromPartData(dataCur, secSizeCur);
   for (u32 i = 0; i < numColors; ++i) {
-    m_colors.emplace_back(zeus::CColor(vtxColors.ReadUint32()));
+    m_colors.emplace_back(vtxColors.ReadUint32());
   }
 
   u32 numFloatUVs = CBasics::SwapBytes(*secSizeCur) / 8;
+  m_floatUVs.reserve(numFloatUVs);
   auto floatUVs = StreamFromPartData(dataCur, secSizeCur);
   for (u32 i = 0; i < numFloatUVs; ++i) {
     m_floatUVs.emplace_back(floatUVs.Get<aurora::Vec2<float>>());
@@ -96,11 +100,10 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
 
   if ((flags & 4) != 0) {
     u32 numShortUVs = CBasics::SwapBytes(*secSizeCur) / 4;
+    m_shortUVs.reserve(numShortUVs);
     auto shortUVs = StreamFromPartData(dataCur, secSizeCur);
     for (u32 i = 0; i < numShortUVs; ++i) {
-      const auto u = static_cast<float>(shortUVs.ReadShort()) / 32768.f;
-      const auto v = static_cast<float>(shortUVs.ReadShort()) / 32768.f;
-      m_shortUVs.emplace_back(u, v);
+      m_shortUVs.emplace_back(shortUVs.Get<aurora::Vec2<u16>>());
     }
   }
 
@@ -122,9 +125,10 @@ CModel::CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store)
   };
 
   /* This constructor has been changed from the original to take into account platform differences */
-  x28_modelInst =
-      std::make_unique<CCubeModel>(&x8_surfaces, &x18_matSets[0].x0_textures, x18_matSets[0].x10_data, &m_positions,
-                                   &m_colors, &m_normals, &m_floatUVs, &m_shortUVs, aabb, flags, true, -1);
+  x28_modelInst = std::make_unique<CCubeModel>(&x8_surfaces, &x18_matSets[0].x0_textures, x18_matSets[0].x10_data,
+                                               byte_span(m_positions), byte_span(m_colors),
+                                               (flags & 2) == 0 ? byte_span(m_normals) : byte_span(m_shortNormals),
+                                               byte_span(m_floatUVs), byte_span(m_shortUVs), aabb, flags, true, -1);
 
   sThisFrameList = this;
   if (x34_next != nullptr) {
@@ -203,11 +207,7 @@ void CModel::EnableTextureTimeout() { sIsTextureTimeoutEnabled = true; }
 
 void CModel::DisableTextureTimeout() { sIsTextureTimeoutEnabled = false; }
 
-TVectorRef CModel::GetPositions() { return x28_modelInst->GetPositions(); }
-
 TConstVectorRef CModel::GetPositions() const { return x28_modelInst->GetPositions(); }
-
-TVectorRef CModel::GetNormals() { return x28_modelInst->GetNormals(); }
 
 TConstVectorRef CModel::GetNormals() const { return x28_modelInst->GetNormals(); }
 
@@ -262,7 +262,7 @@ void CModel::Touch(u32 matIdx) {
 
 void CModel::Draw(CModelFlags flags) {
   if (flags.x2_flags & CModelFlagBits::DrawNormal) {
-    x28_modelInst->DrawNormal(nullptr, nullptr, ESurfaceSelection::All);
+    x28_modelInst->DrawNormal({}, {}, ESurfaceSelection::All);
   }
   CCubeMaterial::ResetCachedMaterials();
   MoveToThisFrameList();
@@ -282,7 +282,7 @@ void CModel::Draw(TConstVectorRef positions, TConstVectorRef normals, const CMod
 
 void CModel::DrawSortedParts(CModelFlags flags) {
   if (flags.x2_flags & CModelFlagBits::DrawNormal) {
-    x28_modelInst->DrawNormal(nullptr, nullptr, ESurfaceSelection::Sorted);
+    x28_modelInst->DrawNormal({}, {}, ESurfaceSelection::Sorted);
   }
   CCubeMaterial::ResetCachedMaterials();
   MoveToThisFrameList();
@@ -292,7 +292,7 @@ void CModel::DrawSortedParts(CModelFlags flags) {
 
 void CModel::DrawUnsortedParts(CModelFlags flags) {
   if (flags.x2_flags & CModelFlagBits::DrawNormal) {
-    x28_modelInst->DrawNormal(nullptr, nullptr, ESurfaceSelection::Unsorted);
+    x28_modelInst->DrawNormal({}, {}, ESurfaceSelection::Unsorted);
   }
   CCubeMaterial::ResetCachedMaterials();
   MoveToThisFrameList();

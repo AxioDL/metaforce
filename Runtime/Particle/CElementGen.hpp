@@ -8,8 +8,6 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CLight.hpp"
-#include "Runtime/Graphics/CLineRenderer.hpp"
-#include "Runtime/Graphics/Shaders/CElementGenShaders.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CParticleGen.hpp"
 
@@ -129,9 +127,6 @@ private:
   float x334_LSLA = 45.f;
   zeus::CColor x338_moduColor = {1.f, 1.f, 1.f, 1.f};
 
-  std::unique_ptr<CLineRenderer> m_lineRenderer;
-  CElementGenShaders::EShaderClass m_shaderClass;
-
   void AccumulateBounds(const zeus::CVector3f& pos, float size);
 
   void _RecreatePipelines();
@@ -140,18 +135,6 @@ public:
   explicit CElementGen(TToken<CGenDescription> gen, EModelOrientationType orientType = EModelOrientationType::Normal,
                        EOptionalSystemFlags flags = EOptionalSystemFlags::One);
   ~CElementGen() override;
-
-//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBind;
-//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalSubDataBind;
-//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBind;
-//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaSubDataBind;
-//  boo::ObjToken<boo::IGraphicsBufferD> m_instBuf;
-//  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
-//
-//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_normalDataBindPmus;
-//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_redToAlphaDataBindPmus;
-//  boo::ObjToken<boo::IGraphicsBufferD> m_instBufPmus;
-//  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBufPmus;
 
   CGenDescription* GetDesc() { return x1c_genDesc.GetObj(); }
   const SObjectTag* GetDescTag() const { return x1c_genDesc.GetObjectTag(); }

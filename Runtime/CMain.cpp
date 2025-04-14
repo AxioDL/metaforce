@@ -470,11 +470,13 @@ static void aurora_log_callback(AuroraLogLevel level, const char* module, const 
     break;
   }
   const std::string_view view(message, len);
+  spdlog::log(severity, "[{}] {}", module, view);
   if (level == LOG_FATAL) {
+    spdlog::default_logger()->flush();
     auto msg = fmt::format("Metaforce encountered an internal error:\n\n{}", view);
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Metaforce", msg.c_str(), metaforce::g_window);
+    std::abort();
   }
-  spdlog::log(severity, "[{}] {}", module, view);
 }
 
 static void aurora_imgui_init_callback(const AuroraWindowSize* size) { g_app->onImGuiInit(size->scale); }

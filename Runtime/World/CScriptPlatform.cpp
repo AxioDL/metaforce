@@ -560,11 +560,11 @@ zeus::CQuaternion CScriptPlatform::Move(float dt, CStateManager& mgr) {
 }
 
 void CScriptPlatform::DebugDraw() {
-  if (!m_boxFilter) {
-    m_boxFilter = {CAABoxShader()};
-  }
-
-  m_boxFilter->setAABB(*GetTouchBounds());
-  m_boxFilter->draw({1.f, 0.f, 1.f, .5f});
+  // if (!m_boxFilter) {
+  //   m_boxFilter = {CAABoxShader()};
+  // }
+  //
+  // m_boxFilter->setAABB(*GetTouchBounds());
+  // m_boxFilter->draw({1.f, 0.f, 1.f, .5f});
 }
 } // namespace metaforce

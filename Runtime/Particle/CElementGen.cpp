@@ -5,7 +5,6 @@
 #include "Runtime/Graphics/CCubeRenderer.hpp"
 #include "Runtime/Graphics/CGX.hpp"
 #include "Runtime/Graphics/CModel.hpp"
-#include "Runtime/Graphics/Shaders/CElementGenShaders.hpp"
 #include "Runtime/Particle/CElectricDescription.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CParticleGlobals.hpp"
@@ -19,14 +18,6 @@
 #define MAX_GLOBAL_PARTICLES 2560
 
 namespace metaforce {
-namespace {
-// constexpr std::array ShadClsSizes{
-//     sizeof(SParticleInstanceTex),
-//     sizeof(SParticleInstanceIndTex),
-//     sizeof(SParticleInstanceNoTex),
-// };
-} // Anonymous namespace
-
 u16 CElementGen::g_GlobalSeed = 99;
 bool CElementGen::g_subtractBlend = false;
 
@@ -36,10 +27,6 @@ bool CElementGen::g_ParticleSystemInitialized = false;
 bool CElementGen::sMoveRedToAlphaBuffer = false;
 CParticle* CElementGen::g_currentParticle = nullptr;
 
-// std::vector<SParticleInstanceTex> g_instTexData;
-// std::vector<SParticleInstanceIndTex> g_instIndTexData;
-// std::vector<SParticleInstanceNoTex> g_instNoTexData;
-
 void CElementGen::Initialize() {
   if (g_ParticleSystemInitialized)
     return;
@@ -47,12 +34,9 @@ void CElementGen::Initialize() {
   g_ParticleAliveCount = 0;
   g_ParticleSystemAliveCount = 0;
   g_ParticleSystemInitialized = true;
-
-  /* Compile shaders */
-  CElementGenShaders::Initialize();
 }
 
-void CElementGen::Shutdown() { CElementGenShaders::Shutdown(); }
+void CElementGen::Shutdown() { g_ParticleSystemInitialized = false; }
 
 CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orientType, EOptionalSystemFlags flags)
 : x1c_genDesc(std::move(gen))
@@ -218,7 +202,7 @@ CElementGen::CElementGen(TToken<CGenDescription> gen, EModelOrientationType orie
     //    m_lineRenderer.reset(
     //        new CLineRenderer(CLineRenderer::EPrimitiveMode::Lines, maxVerts * 2, tex, x26c_26_AAPH, x26c_28_zTest));
   } else {
-    m_shaderClass = CElementGenShaders::GetShaderClass(*this);
+    // m_shaderClass = CElementGenShaders::GetShaderClass(*this);
   }
 
   _RecreatePipelines();
@@ -842,7 +826,7 @@ void CElementGen::Render() {
 
   CGenDescription* desc = x1c_genDesc.GetObj();
 
-  x274_backupLightActive = CGraphics::g_LightActive;
+  x274_backupLightActive = CGraphics::mLightActive;
   CGraphics::DisableAllLights();
 
   for (std::unique_ptr<CParticleGen>& child : x290_activePartChildren)
@@ -1050,7 +1034,7 @@ void CElementGen::RenderModels() {
         GXTexCoord2f32(uvs.xMax, uvs.yMin);
         CGX::End();
       } else {
-        CGraphics::StreamBegin(GX_QUADS);
+        CGraphics::StreamBegin(ERglPrimitive::Quads);
         CGraphics::StreamColor(col);
         CGraphics::StreamTexcoord(uvs.xMax, uvs.yMax);
         CGraphics::StreamVertex(0.5f, 0.f, 0.5f);
@@ -1097,7 +1081,7 @@ void CElementGen::RenderLines() {
   CGenDescription* desc = x1c_genDesc.GetObj();
   CGlobalRandom gr(x27c_randState);
 
-  zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
+  zeus::CTransform systemViewPointMatrix(CGraphics::mViewMatrix);
   systemViewPointMatrix.origin.zeroOut();
   zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x22c_globalOrientation;
   systemViewPointMatrix =
@@ -1216,7 +1200,7 @@ void CElementGen::RenderParticles() {
 
   bool hasModuColor = x338_moduColor != zeus::skWhite;
   CGraphics::SetCullMode(ERglCullMode::None);
-  zeus::CTransform systemModelMatrix(CGraphics::g_ViewMatrix);
+  zeus::CTransform systemModelMatrix(CGraphics::mViewMatrix);
   systemModelMatrix.origin.zeroOut();
   zeus::CTransform systemCameraMatrix = systemModelMatrix.inverse() * x22c_globalOrientation;
   systemModelMatrix =
@@ -1330,7 +1314,7 @@ void CElementGen::RenderParticles() {
   GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
   GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
   if (constUVs) {
-    GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_TEX0, GX_TEX_ST, GX_RGBA8, 1);
+    GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_TEX0, GX_TEX_ST, GX_S8, 1);
   } else {
     GXSetVtxAttrFmt(GX_VTXFMT6, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
   }
@@ -1393,37 +1377,65 @@ void CElementGen::RenderParticles() {
           CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
           CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(partFrame);
           texr->GetValueUV(partFrame, uvs);
-        }
-
-        if (noRota) {
+          if (noRota) {
+            GXPosition3f32(viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size);
+            GXColor4f32(particle.x34_color);
+            GXTexCoord2f32(uvs.xMax, uvs.yMax);
+            GXPosition3f32(viewPoint.x() - size, viewPoint.y(), viewPoint.z() + size);
+            GXColor4f32(particle.x34_color);
+            GXTexCoord2f32(uvs.xMin, uvs.yMax);
+            GXPosition3f32(viewPoint.x() - size, viewPoint.y(), viewPoint.z() - size);
+            GXColor4f32(particle.x34_color);
+            GXTexCoord2f32(uvs.xMin, uvs.yMin);
+            GXPosition3f32(viewPoint.x() + size, viewPoint.y(), viewPoint.z() - size);
+            GXColor4f32(particle.x34_color);
+            GXTexCoord2f32(uvs.xMax, uvs.yMin);
+          } else {
+            const float theta = zeus::degToRad(particle.x30_lineWidthOrRota);
+            const float sinT = std::sin(theta) * size;
+            const float cosT = std::cos(theta) * size;
+            GXPosition3f32(viewPoint.x() + (sinT + cosT), viewPoint.y(), viewPoint.z() + (cosT - sinT));
+            GXColor4f32(particle.x34_color);
+            GXTexCoord2f32(uvs.xMax, uvs.yMax);
+            GXPosition3f32(viewPoint.x() + (sinT - cosT), viewPoint.y(), viewPoint.z() + (sinT + cosT));
+            GXColor4f32(particle.x34_color);
+            GXTexCoord2f32(uvs.xMin, uvs.yMax);
+            GXPosition3f32(viewPoint.x() - (sinT + cosT), viewPoint.y(), viewPoint.z() - (cosT - sinT));
+            GXColor4f32(particle.x34_color);
+            GXTexCoord2f32(uvs.xMin, uvs.yMin);
+            GXPosition3f32(viewPoint.x() + (-sinT + cosT), viewPoint.y(), viewPoint.z() + (-cosT - sinT));
+            GXColor4f32(particle.x34_color);
+            GXTexCoord2f32(uvs.xMax, uvs.yMin);
+          }
+        } else if (noRota) {
           GXPosition3f32(viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size);
           GXColor4f32(particle.x34_color);
-          GXTexCoord2f32(uvs.xMax, uvs.yMax);
+          GXTexCoord2s8(2, 2);
           GXPosition3f32(viewPoint.x() - size, viewPoint.y(), viewPoint.z() + size);
           GXColor4f32(particle.x34_color);
-          GXTexCoord2f32(uvs.xMin, uvs.yMax);
+          GXTexCoord2s8(0, 2);
           GXPosition3f32(viewPoint.x() - size, viewPoint.y(), viewPoint.z() - size);
           GXColor4f32(particle.x34_color);
-          GXTexCoord2f32(uvs.xMin, uvs.yMin);
+          GXTexCoord2s8(0, 0);
           GXPosition3f32(viewPoint.x() + size, viewPoint.y(), viewPoint.z() - size);
           GXColor4f32(particle.x34_color);
-          GXTexCoord2f32(uvs.xMax, uvs.yMin);
+          GXTexCoord2s8(2, 0);
         } else {
           const float theta = zeus::degToRad(particle.x30_lineWidthOrRota);
           const float sinT = std::sin(theta) * size;
           const float cosT = std::cos(theta) * size;
           GXPosition3f32(viewPoint.x() + (sinT + cosT), viewPoint.y(), viewPoint.z() + (cosT - sinT));
           GXColor4f32(particle.x34_color);
-          GXTexCoord2f32(uvs.xMax, uvs.yMax);
+          GXTexCoord2s8(2, 2);
           GXPosition3f32(viewPoint.x() + (sinT - cosT), viewPoint.y(), viewPoint.z() + (sinT + cosT));
           GXColor4f32(particle.x34_color);
-          GXTexCoord2f32(uvs.xMin, uvs.yMax);
+          GXTexCoord2s8(0, 2);
           GXPosition3f32(viewPoint.x() - (sinT + cosT), viewPoint.y(), viewPoint.z() - (cosT - sinT));
           GXColor4f32(particle.x34_color);
-          GXTexCoord2f32(uvs.xMin, uvs.yMin);
+          GXTexCoord2s8(0, 0);
           GXPosition3f32(viewPoint.x() + (-sinT + cosT), viewPoint.y(), viewPoint.z() + (-cosT - sinT));
           GXColor4f32(particle.x34_color);
-          GXTexCoord2f32(uvs.xMax, uvs.yMin);
+          GXTexCoord2s8(2, 0);
         }
       }
     } else {
@@ -1450,17 +1462,17 @@ void CElementGen::RenderParticles() {
         zeus::CVector3f foreVec = particle.x2c_lineLengthOrSize * dir;
         zeus::CVector3f rightVec;
         if (desc->x30_31_RSOP) {
-          rightVec = dir.cross(CGraphics::g_ViewMatrix.basis[1]);
+          rightVec = dir.cross(CGraphics::mViewMatrix.basis[1]);
           if (rightVec.canBeNormalized()) {
             rightVec = rightVec.normalized() * (particle.x2c_lineLengthOrSize * width);
           } else {
-            rightVec = dir.cross((CGraphics::g_ViewMatrix.origin - particle.x4_pos).normalized());
+            rightVec = dir.cross((CGraphics::mViewMatrix.origin - particle.x4_pos).normalized());
             if (rightVec.canBeNormalized()) {
               rightVec = rightVec.normalized() * (particle.x2c_lineLengthOrSize * width);
             }
           }
         } else {
-          rightVec = foreVec.cross(CGraphics::g_ViewMatrix.basis[1]) * width;
+          rightVec = foreVec.cross(CGraphics::mViewMatrix.basis[1]) * width;
         }
 
         if (!constUVs) {
@@ -1502,18 +1514,18 @@ void CElementGen::RenderParticles() {
       }
     }
 
-    switch (m_shaderClass) {
-    case CElementGenShaders::EShaderClass::Tex:
-      //      m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
-      //      CGraphics::DrawInstances(0, 4, g_instTexData.size());
-      break;
-    case CElementGenShaders::EShaderClass::NoTex:
-      //      m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
-      //      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
-      break;
-    default:
-      break;
-    }
+    // switch (m_shaderClass) {
+    // case CElementGenShaders::EShaderClass::Tex:
+    //   m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
+    //   CGraphics::DrawInstances(0, 4, g_instTexData.size());
+    //   break;
+    // case CElementGenShaders::EShaderClass::NoTex:
+    //   m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
+    //   CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
+    //   break;
+    // default:
+    //   break;
+    // }
   } else {
 //    switch (m_shaderClass) {
 //    case CElementGenShaders::EShaderClass::Tex:
@@ -1616,18 +1628,18 @@ void CElementGen::RenderParticles() {
         }
       }
     }
-    switch (m_shaderClass) {
-    case CElementGenShaders::EShaderClass::Tex:
-      //      m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
-      //      CGraphics::DrawInstances(0, 4, g_instTexData.size());
-      break;
-    case CElementGenShaders::EShaderClass::NoTex:
-      //      m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
-      //      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
-      break;
-    default:
-      break;
-    }
+    // switch (m_shaderClass) {
+    // case CElementGenShaders::EShaderClass::Tex:
+    //   //      m_instBuf->load(g_instTexData.data(), g_instTexData.size() * sizeof(SParticleInstanceTex));
+    //   //      CGraphics::DrawInstances(0, 4, g_instTexData.size());
+    //   break;
+    // case CElementGenShaders::EShaderClass::NoTex:
+    //   //      m_instBuf->load(g_instNoTexData.data(), g_instNoTexData.size() * sizeof(SParticleInstanceNoTex));
+    //   //      CGraphics::DrawInstances(0, 4, g_instNoTexData.size());
+    //   break;
+    // default:
+    //   break;
+    // }
   }
 
   CGX::End();
@@ -1643,7 +1655,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
 
   CGenDescription* desc = x1c_genDesc.GetObj();
 
-  zeus::CTransform systemViewPointMatrix(CGraphics::g_ViewMatrix);
+  zeus::CTransform systemViewPointMatrix(CGraphics::mViewMatrix);
   systemViewPointMatrix.origin.zeroOut();
   zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x22c_globalOrientation;
   systemViewPointMatrix =
@@ -1749,9 +1761,9 @@ void CElementGen::RenderParticlesIndirectTexture() {
     float size = 0.5f * particle.x2c_lineLengthOrSize;
     zeus::CVector3f p1 = {viewPoint.x() - size, viewPoint.y(), viewPoint.z() - size};
     zeus::CVector3f p2 = {viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size};
-    SClipScreenRect clipRect = CGraphics::ClipScreenRectFromMS(p1, p2);
+    CGraphics::CClippedScreenRect clipRect = CGraphics::ClipScreenRectFromMS(p1, p2, ETexelFormat::RGB565);
 
-    if (!clipRect.x0_valid)
+    if (!clipRect.IsValid())
       continue;
 
 //    CGraphics::ResolveSpareTexture(clipRect);
@@ -1953,16 +1965,16 @@ void CElementGen::RenderBasicParticlesNoRotNoTS(const zeus::CTransform& xf) noex
     const auto size = 0.5f * particle.x2c_lineLengthOrSize;
     GXPosition3f32(pos.x() + size, pos.y(), pos.z() + size);
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(1.f, 1.f);
+    GXTexCoord2s8(2, 2);
     GXPosition3f32(pos.x() - size, pos.y(), pos.z() + size);
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(0.f, 1.f);
+    GXTexCoord2s8(0, 2);
     GXPosition3f32(pos.x() - size, pos.y(), pos.z() - size);
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(0.f, 0.f);
+    GXTexCoord2s8(0, 0);
     GXPosition3f32(pos.x() + size, pos.y(), pos.z() - size);
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(1.f, 0.f);
+    GXTexCoord2s8(2, 0);
   }
 }
 
@@ -1972,16 +1984,16 @@ void CElementGen::RenderBasicParticlesNoRotTS(const zeus::CTransform& xf) noexce
     const auto size = 0.5f * particle.x2c_lineLengthOrSize;
     GXPosition3f32(pos.x() + size, pos.y(), pos.z() + size);
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(1.f, 1.f);
+    GXTexCoord2s8(2, 2);
     GXPosition3f32(pos.x() - size, pos.y(), pos.z() + size);
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(0.f, 1.f);
+    GXTexCoord2s8(0, 2);
     GXPosition3f32(pos.x() - size, pos.y(), pos.z() - size);
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(0.f, 0.f);
+    GXTexCoord2s8(0, 0);
     GXPosition3f32(pos.x() + size, pos.y(), pos.z() - size);
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(1.f, 0.f);
+    GXTexCoord2s8(2, 0);
   }
 }
 
@@ -1994,16 +2006,16 @@ void CElementGen::RenderBasicParticlesRotNoTS(const zeus::CTransform& xf) noexce
     const float cosT = std::cos(theta) * size;
     GXPosition3f32(pos.x() + (sinT + cosT), pos.y(), pos.z() + (cosT - sinT));
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(1.f, 1.f);
+    GXTexCoord2s8(2, 2);
     GXPosition3f32(pos.x() + (sinT - cosT), pos.y(), pos.z() + (sinT + cosT));
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(0.f, 1.f);
+    GXTexCoord2s8(0, 2);
     GXPosition3f32(pos.x() - (sinT + cosT), pos.y(), pos.z() - (cosT - sinT));
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(0.f, 0.f);
+    GXTexCoord2s8(0, 0);
     GXPosition3f32(pos.x() + (-sinT + cosT), pos.y(), pos.z() + (-cosT - sinT));
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(1.f, 0.f);
+    GXTexCoord2s8(2, 0);
   }
 }
 
@@ -2016,16 +2028,16 @@ void CElementGen::RenderBasicParticlesRotTS(const zeus::CTransform& xf) noexcept
     const float cosT = std::cos(theta) * size;
     GXPosition3f32(pos.x() + (sinT + cosT), pos.y(), pos.z() + (cosT - sinT));
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(1.f, 1.f);
+    GXTexCoord2s8(2, 2);
     GXPosition3f32(pos.x() + (sinT - cosT), pos.y(), pos.z() + (sinT + cosT));
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(0.f, 1.f);
+    GXTexCoord2s8(0, 2);
     GXPosition3f32(pos.x() - (sinT + cosT), pos.y(), pos.z() - (cosT - sinT));
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(0.f, 0.f);
+    GXTexCoord2s8(0, 0);
     GXPosition3f32(pos.x() + (-sinT + cosT), pos.y(), pos.z() + (-cosT - sinT));
     GXColor4f32(particle.x34_color);
-    GXTexCoord2f32(1.f, 0.f);
+    GXTexCoord2s8(2, 0);
   }
 }
 } // namespace metaforce

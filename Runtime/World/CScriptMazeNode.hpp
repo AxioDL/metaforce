@@ -5,7 +5,6 @@
 #include <string_view>
 
 #include "Runtime/CRandom16.hpp"
-#include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CActor.hpp"
 
@@ -55,7 +54,6 @@ class CMazeState {
   bool x94_24_initialized : 1 = false;
 
   std::vector<s32> m_path;
-  CLineRenderer m_renderer = {CLineRenderer::EPrimitiveMode::LineStrip, skMazeRows* skMazeCols, {}, true};
 
 public:
   CMazeState(s32 enterCol, s32 enterRow, s32 targetCol, s32 targetRow)

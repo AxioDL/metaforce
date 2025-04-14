@@ -500,7 +500,7 @@ void CStateManager::DrawReflection(const zeus::CVector3f& reflectPoint) {
   const zeus::CVector3f viewPos = playerPos - surfToPlayer.normalized() * 3.5f;
   const zeus::CTransform look = zeus::lookAt(viewPos, playerPos, {0.f, 0.f, -1.f});
 
-  const zeus::CTransform backupView = CGraphics::g_ViewMatrix;
+  const zeus::CTransform backupView = CGraphics::mViewMatrix;
   CGraphics::SetViewPointMatrix(look);
   const CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
@@ -649,38 +649,38 @@ void CStateManager::DrawAdditionalFilters() {
   CCameraFilterPass::DrawFilter(EFilterType::Add, EFilterShape::Fullscreen, color, nullptr, 1.f);
 }
 
-zeus::CFrustum CStateManager::SetupDrawFrustum(const SViewport& vp) const {
+zeus::CFrustum CStateManager::SetupDrawFrustum(const CViewport& vp) const {
   zeus::CFrustum ret;
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
   const zeus::CTransform camXf = x870_cameraManager->GetCurrentCameraTransform(*this);
-  const int vpWidth = static_cast<int>(xf2c_viewportScale.x() * vp.x8_width);
-  const int vpHeight = static_cast<int>(xf2c_viewportScale.y() * vp.xc_height);
-  const int vpLeft = static_cast<int>((vp.x8_width - vpWidth) / 2 + vp.x0_left);
-  const int vpTop = static_cast<int>((vp.xc_height - vpHeight) / 2 + vp.x4_top);
+  const int vpWidth = static_cast<int>(xf2c_viewportScale.x() * vp.mWidth);
+  const int vpHeight = static_cast<int>(xf2c_viewportScale.y() * vp.mHeight);
+  const int vpLeft = (vp.mWidth - vpWidth) / 2 + vp.mLeft;
+  const int vpTop = (vp.mHeight - vpHeight) / 2 + vp.mTop;
   g_Renderer->SetViewport(vpLeft, vpTop, vpWidth, vpHeight);
   const float fov = std::atan(std::tan(zeus::degToRad(cam->GetFov()) * 0.5f) * xf2c_viewportScale.y()) * 2.f;
-  const float width = xf2c_viewportScale.x() * vp.x8_width;
-  const float height = xf2c_viewportScale.y() * vp.xc_height;
+  const float width = xf2c_viewportScale.x() * vp.mWidth;
+  const float height = xf2c_viewportScale.y() * vp.mHeight;
   zeus::CProjection proj;
   proj.setPersp(zeus::SProjPersp{fov, width / height, cam->GetNearClipDistance(), cam->GetFarClipDistance()});
   ret.updatePlanes(camXf, proj);
   return ret;
 }
 
-zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const {
+zeus::CFrustum CStateManager::SetupViewForDraw(const CViewport& vp) const {
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
   const zeus::CTransform camXf = x870_cameraManager->GetCurrentCameraTransform(*this);
   g_Renderer->SetWorldViewpoint(camXf);
   CCubeModel::SetNewPlayerPositionAndTime(x84c_player->GetTranslation(), CStopwatch::GetGlobalTimerObj());
-  const int vpWidth = static_cast<int>(xf2c_viewportScale.x() * vp.x8_width);
-  const int vpHeight = static_cast<int>(xf2c_viewportScale.y() * vp.xc_height);
-  const int vpLeft = static_cast<int>((vp.x8_width - vpWidth) / 2 + vp.x0_left);
-  const int vpTop = static_cast<int>((vp.xc_height - vpHeight) / 2 + vp.x4_top);
+  const int vpWidth = static_cast<int>(xf2c_viewportScale.x() * vp.mWidth);
+  const int vpHeight = static_cast<int>(xf2c_viewportScale.y() * vp.mHeight);
+  const int vpLeft = (vp.mWidth - vpWidth) / 2 + vp.mLeft;
+  const int vpTop = (vp.mHeight - vpHeight) / 2 + vp.mTop;
   g_Renderer->SetViewport(vpLeft, vpTop, vpWidth, vpHeight);
   CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
   const float fov = std::atan(std::tan(zeus::degToRad(cam->GetFov()) * 0.5f) * xf2c_viewportScale.y()) * 2.f;
-  const float width = xf2c_viewportScale.x() * vp.x8_width;
-  const float height = xf2c_viewportScale.y() * vp.xc_height;
+  const float width = xf2c_viewportScale.x() * vp.mWidth;
+  const float height = xf2c_viewportScale.y() * vp.mHeight;
   g_Renderer->SetPerspective(zeus::radToDeg(fov), width, height, cam->GetNearClipDistance(), cam->GetFarClipDistance());
   zeus::CFrustum frustum;
   zeus::CProjection proj;
@@ -690,14 +690,13 @@ zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const {
   g_Renderer->PrimColor(zeus::skWhite);
   CGraphics::SetModelMatrix(zeus::CTransform());
   x87c_fluidPlaneManager->StartFrame(false);
-  g_Renderer->SetDebugOption(IRenderer::EDebugOption::PVSState, int(EPVSVisSetState::NodeFound));
+  g_Renderer->SetDebugOption(IRenderer::EDebugOption::PVSState, static_cast<int>(EPVSVisSetState::NodeFound));
   return frustum;
 }
 
-void CStateManager::ResetViewAfterDraw(const SViewport& backupViewport,
+void CStateManager::ResetViewAfterDraw(const CViewport& backupViewport,
                                        const zeus::CTransform& backupViewMatrix) const {
-  g_Renderer->SetViewport(backupViewport.x0_left, backupViewport.x4_top, backupViewport.x8_width,
-                          backupViewport.xc_height);
+  g_Renderer->SetViewport(backupViewport.mLeft, backupViewport.mTop, backupViewport.mWidth, backupViewport.mHeight);
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
 
   zeus::CFrustum frustum;
@@ -712,15 +711,15 @@ void CStateManager::ResetViewAfterDraw(const SViewport& backupViewport,
 void CStateManager::DrawWorld() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CStateManager::DrawWorld", zeus::skBlue);
   const CTimeProvider timeProvider(xf14_curTimeMod900);
-  const SViewport backupViewport = CGraphics::g_Viewport;
+  const CViewport backupViewport = CGraphics::mViewport;
 
   /* Area camera is in (not necessarily player) */
   const TAreaId visAreaId = GetVisAreaId();
 
   x850_world->TouchSky();
 
-  const zeus::CFrustum frustum = SetupViewForDraw(CGraphics::g_Viewport);
-  const zeus::CTransform backupViewMatrix = CGraphics::g_ViewMatrix;
+  const zeus::CFrustum frustum = SetupViewForDraw(CGraphics::mViewport);
+  const zeus::CTransform backupViewMatrix = CGraphics::mViewMatrix;
 
   int areaCount = 0;
   std::array<const CGameArea*, 10> areaArr;
@@ -747,7 +746,7 @@ void CStateManager::DrawWorld() {
     if (visAreaId == b->x4_selfIdx) {
       return true;
     }
-    return CGraphics::g_ViewPoint.dot(a->GetAABB().center()) > CGraphics::g_ViewPoint.dot(b->GetAABB().center());
+    return CGraphics::mViewPoint.dot(a->GetAABB().center()) > CGraphics::mViewPoint.dot(b->GetAABB().center());
   });
 
   int pvsCount = 0;
@@ -789,7 +788,7 @@ void CStateManager::DrawWorld() {
     g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
   }
 
-  x850_world->DrawSky(zeus::CTransform::Translate(CGraphics::g_ViewPoint));
+  x850_world->DrawSky(zeus::CTransform::Translate(CGraphics::mViewPoint));
 
   if (areaCount != 0) {
     SetupFogForArea(*areaArr[areaCount - 1]);
@@ -1074,7 +1073,7 @@ void CStateManager::PreRender() {
   }
 
   SCOPED_GRAPHICS_DEBUG_GROUP("CStateManager::PreRender", zeus::skBlue);
-  const zeus::CFrustum frustum = SetupDrawFrustum(CGraphics::g_Viewport);
+  const zeus::CFrustum frustum = SetupDrawFrustum(CGraphics::mViewport);
   x86c_stateManagerContainer->xf370_.clear();
   x86c_stateManagerContainer->xf39c_renderLast.clear();
   xf7c_projectedShadow = nullptr;
@@ -1143,7 +1142,7 @@ bool CStateManager::GetVisSetForArea(TAreaId a, TAreaId b, CPVSVisSet& setOut) c
     return false;
   }
 
-  const zeus::CVector3f viewPoint = CGraphics::g_ViewMatrix.origin;
+  const zeus::CVector3f viewPoint = CGraphics::mViewMatrix.origin;
   zeus::CVector3f closestDockPoint = viewPoint;
   bool hasClosestDock = false;
   if (a != b) {

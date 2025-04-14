@@ -34,9 +34,9 @@ void ImGuiEngine_Initialize(float scale) {
 
   auto* fontData = ImGui::MemAlloc(NOTO_MONO_FONT_DECOMPRESSED_SZ);
   {
-    auto stream = std::make_unique<metaforce::CMemoryInStream>(
-        static_cast<const u8*>(NOTO_MONO_FONT), NOTO_MONO_FONT_SZ, metaforce::CMemoryInStream::EOwnerShip::NotOwned);
-    metaforce::CZipInputStream zipInputStream{std::move(stream)};
+    auto stream = std::make_unique<CMemoryInStream>(static_cast<const u8*>(NOTO_MONO_FONT), NOTO_MONO_FONT_SZ,
+                                                    CMemoryInStream::EOwnerShip::NotOwned);
+    CZipInputStream zipInputStream{std::move(stream)};
     zipInputStream.Get(static_cast<uint8_t*>(fontData), NOTO_MONO_FONT_DECOMPRESSED_SZ);
   }
 
@@ -135,8 +135,8 @@ void ImGuiEngine_Initialize(float scale) {
 Icon GetIcon() {
   int iconWidth = 0;
   int iconHeight = 0;
-  auto* data = stbi_load_from_memory(static_cast<const stbi_uc*>(METAFORCE_ICON), int(METAFORCE_ICON_SZ), &iconWidth,
-                                     &iconHeight, nullptr, 4);
+  auto* data =
+      stbi_load_from_memory(METAFORCE_ICON, static_cast<int>(METAFORCE_ICON_SZ), &iconWidth, &iconHeight, nullptr, 4);
   size_t size = static_cast<size_t>(iconWidth) * static_cast<size_t>(iconHeight) * 4;
   auto ptr = std::make_unique<u8[]>(size);
   memcpy(ptr.get(), data, size);

@@ -2,7 +2,6 @@
 
 #include <optional>
 
-#include "Runtime/Graphics/Shaders/CFluidPlaneShader.hpp"
 #include "Runtime/World/CFluidPlane.hpp"
 
 namespace metaforce {
@@ -11,8 +10,8 @@ class CFluidPlaneDoor final : public CFluidPlane {
   int xa4_tileSubdivisions;
   float xa8_rippleResolution;
 
-  CFluidPlaneShader::RenderSetupInfo RenderSetup(const CStateManager& mgr, float alpha, const zeus::CTransform& xf,
-                                                 const zeus::CAABox& aabb, bool noNormals);
+  // CFluidPlaneShader::RenderSetupInfo RenderSetup(const CStateManager& mgr, float alpha, const zeus::CTransform& xf,
+  //                                                const zeus::CAABox& aabb, bool noNormals);
 
 public:
   CFluidPlaneDoor(CAssetId patternTex1, CAssetId patternTex2, CAssetId colorTex, float tileSize, u32 tileSubdivisions,

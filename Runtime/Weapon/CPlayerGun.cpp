@@ -2146,11 +2146,11 @@ zeus::CVector3f CPlayerGun::ConvertToScreenSpace(const zeus::CVector3f& pos, con
 
 void CPlayerGun::CopyScreenTex() {
   // Copy lower right quadrant to gpCopyTexBuf as RGBA8
-  u16 width = CGraphics::g_Viewport.x8_width / 2;
-  u16 height = CGraphics::g_Viewport.xc_height / 2;
+  u16 width = CGraphics::mViewport.mWidth / 2;
+  u16 height = CGraphics::mViewport.mHeight / 2;
   GXSetTexCopySrc(width, height, width, height);
   GXSetTexCopyDst(width, height, GX_TF_RGBA8, false);
-  GXCopyTex(CGraphics::sSpareTextureData, false);
+  GXCopyTex(CGraphics::mpSpareBuffer, false);
   GXPixModeSync();
 }
 
@@ -2158,13 +2158,13 @@ void CPlayerGun::DrawScreenTex(float z) {
   // Use CopyScreenTex rendering to draw over framebuffer pixels in front of `z`
   // This is accomplished using orthographic projection quad with sweeping `y` coordinates
   // Depth is set to GEQUAL to obscure pixels in front rather than behind
-  const auto backupViewMatrix = CGraphics::g_ViewMatrix;
+  const auto backupViewMatrix = CGraphics::mViewMatrix;
   const auto backupProjectionState = CGraphics::GetProjectionState();
   g_Renderer->SetViewportOrtho(false, -1.f, 1.f);
   g_Renderer->SetBlendMode_AlphaBlended();
   CGraphics::SetDepthWriteMode(true, ERglEnum::GEqual, true);
-  u16 width = CGraphics::g_Viewport.x8_width / 2;
-  u16 height = CGraphics::g_Viewport.xc_height / 2;
+  u16 width = CGraphics::mViewport.mWidth / 2;
+  u16 height = CGraphics::mViewport.mHeight / 2;
   CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_RGBA8, nullptr, GX_TEXMAP7);
   constexpr std::array vtxDescList{
       GXVtxDescList{GX_VA_POS, GX_DIRECT},
@@ -2178,13 +2178,13 @@ void CPlayerGun::DrawScreenTex(float z) {
   CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP7, GX_COLOR_NULL);
   CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX_SRC_REG, GX_SRC_REG, {}, GX_DF_NONE, GX_AF_NONE);
   CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
-  GXPosition3f32(CGraphics::g_Viewport.x10_halfWidth, z, 0.f);
+  GXPosition3f32(CGraphics::mViewport.mHalfWidth, z, 0.f);
   GXTexCoord2f32(0.f, 1.f);
-  GXPosition3f32(CGraphics::g_Viewport.x8_width, z, 0.f);
+  GXPosition3f32(CGraphics::mViewport.mWidth, z, 0.f);
   GXTexCoord2f32(1.f, 1.f);
-  GXPosition3f32(CGraphics::g_Viewport.x10_halfWidth, z, CGraphics::g_Viewport.x14_halfHeight);
+  GXPosition3f32(CGraphics::mViewport.mHalfWidth, z, CGraphics::mViewport.mHalfHeight);
   GXTexCoord2f32(0.f, 0.f);
-  GXPosition3f32(CGraphics::g_Viewport.x8_width, z, CGraphics::g_Viewport.x14_halfHeight);
+  GXPosition3f32(CGraphics::mViewport.mWidth, z, CGraphics::mViewport.mHalfHeight);
   GXTexCoord2f32(1.f, 0.f);
   CGX::End();
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
@@ -2268,7 +2268,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
     offsetWorldXf.origin += zeus::CVector3f(x34c_shakeX, 0.f, x350_shakeZ);
   }
 
-  zeus::CTransform oldViewMtx = CGraphics::g_ViewMatrix;
+  zeus::CTransform oldViewMtx = CGraphics::mViewMatrix;
   CGraphics::SetViewPointMatrix(offsetWorldXf.inverse() * oldViewMtx);
   CGraphics::SetModelMatrix(zeus::CTransform());
   if (x32c_chargePhase >= EChargePhase::FxGrown && x32c_chargePhase < EChargePhase::ComboXfer) {
@@ -2340,7 +2340,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
     break;
   }
 
-  oldViewMtx = CGraphics::g_ViewMatrix;
+  oldViewMtx = CGraphics::mViewMatrix;
   CGraphics::SetViewPointMatrix(offsetWorldXf.inverse() * oldViewMtx);
   CGraphics::SetModelMatrix(zeus::CTransform());
   x72c_currentBeam->PostRenderGunFx(mgr, offsetWorldXf);

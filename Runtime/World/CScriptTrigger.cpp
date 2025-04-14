@@ -310,8 +310,8 @@ zeus::CAABox CScriptTrigger::GetTriggerBoundsWR() const {
 
 void CScriptTrigger::DebugDraw() {
   if (m_debugSelected || m_debugHovered) {
-    m_debugBox.setAABB(GetTriggerBoundsWR());
-    m_debugBox.draw(m_debugAddColor);
+    // m_debugBox.setAABB(GetTriggerBoundsWR());
+    // m_debugBox.draw(m_debugAddColor);
   }
 }
 } // namespace metaforce

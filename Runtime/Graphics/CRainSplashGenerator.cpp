@@ -22,13 +22,13 @@ void CRainSplashGenerator::SSplashLine::Draw(float alpha, float dt, const zeus::
     float delta = dt * xc_speed;
     float vt = std::max(0.f, x0_t - delta * x15_length);
     auto vertCount = u32((x0_t - vt) / delta + 1.f);
-    m_renderer.Reset();
+    // m_renderer.Reset();
     for (u32 i = 0; i < vertCount; ++i) {
       float vertAlpha = vt * alpha;
       zeus::CVector3f vec(vt * x4_xEnd, vt * x8_yEnd, -4.f * vt * (vt - 1.f) * x10_zParabolaHeight);
       vec += pos;
       vt += delta;
-      m_renderer.AddVertex(vec, zeus::CColor(1.f, vertAlpha), 1);
+      // m_renderer.AddVertex(vec, zeus::CColor(1.f, vertAlpha), 1);
     }
     // m_renderer.Render(g_Renderer->IsThermalVisorHotPass());
   }
@@ -70,7 +70,7 @@ void CRainSplashGenerator::Draw(const zeus::CTransform& xf) {
   DoDraw(xf);
 }
 
-CRainSplashGenerator::SSplashLine::SSplashLine() : m_renderer(CLineRenderer::EPrimitiveMode::LineStrip, 3, {}, false) {}
+CRainSplashGenerator::SSplashLine::SSplashLine() {}
 
 CRainSplashGenerator::SRainSplash::SRainSplash() {
   for (size_t i = 0; i < x0_lines.capacity(); ++i) {
@@ -146,13 +146,16 @@ void CRainSplashGenerator::Update(float dt, CStateManager& mgr) {
 }
 
 u32 CRainSplashGenerator::GetNextBestPt(u32 pt, const SSkinningWorkspace& workspace, CRandom16& rand, float minZ) {
-  const auto& refVert = workspace.m_vertexWorkspace[pt];
+  const auto& refVertA = workspace.m_vertexWorkspace[pt];
+  const zeus::CVector3f refVert{refVertA.x, refVertA.y, refVertA.z};
   float maxDist = 0.f;
   u32 nextPt = pt;
   for (int i = 0; i < 3; ++i) {
     const auto idx = u32(rand.Range(0, int(workspace.m_vertexWorkspace.size() - 1)));
-    const auto& vert = workspace.m_vertexWorkspace[idx];
-    const auto& norm = workspace.m_normalWorkspace[idx];
+    const auto& vertA = workspace.m_vertexWorkspace[idx];
+    const zeus::CVector3f vert{vertA.x, vertA.y, vertA.z};
+    const auto& normA = workspace.m_normalWorkspace[idx];
+    const zeus::CVector3f norm{normA.x, normA.y, normA.z};
     const float distSq = (refVert - vert).magSquared();
     if (distSq > maxDist && norm.dot(zeus::skUp) >= 0.f && (vert.z() <= 0.f || vert.z() > minZ)) {
       nextPt = idx;
@@ -185,7 +188,8 @@ void CRainSplashGenerator::GeneratePoints(const SSkinningWorkspace& workspace) {
       if (x40_queueSize >= x0_rainSplashes.size())
         break;
       x34_curPoint = GetNextBestPt(x34_curPoint, workspace, x10_random, x2c_minZ);
-      AddPoint(x14_scale * workspace.m_vertexWorkspace[x34_curPoint]);
+      const auto& vert = workspace.m_vertexWorkspace[x34_curPoint];
+      AddPoint(x14_scale * zeus::CVector3f{vert.x, vert.y, vert.z});
     }
     x20_generateTimer = 0.f;
   }

@@ -8,5 +8,6 @@ public:
 
   CTimeProvider(const float& time);
   ~CTimeProvider();
+  float GetSecondsMod900() const { return x0_currentTime; }
 };
 } // namespace metaforce

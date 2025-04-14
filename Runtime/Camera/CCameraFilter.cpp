@@ -191,7 +191,7 @@ void CCameraFilterPass::DrawFullScreenTexturedQuadQuarters(const zeus::CColor& c
   CGraphics::SetCullMode(ERglCullMode::None);
   for (int i = 0; i < 4; ++i) {
     g_Renderer->SetModelMatrix(zeus::CTransform::Scale((i & 1) != 0 ? 1.f : -1.f, 0.f, (i & 2) != 0 ? 1.f : -1.f));
-    CGraphics::StreamBegin(GX_TRIANGLESTRIP);
+    CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
     CGraphics::StreamColor(color);
     CGraphics::StreamTexcoord(lod, lod);
     CGraphics::StreamVertex(lt.x(), 0.f, rb.y());
@@ -217,7 +217,7 @@ void CCameraFilterPass::DrawFullScreenTexturedQuad(const zeus::CColor& color, CT
   }
   CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
   CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
-  CGraphics::StreamBegin(GX_TRIANGLESTRIP);
+  CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
   CGraphics::StreamColor(color);
   CGraphics::StreamTexcoord(u, v);
   CGraphics::StreamVertex(lt.x() - 1.f, 0.f, 1.f + rb.y());
@@ -255,7 +255,7 @@ void CCameraFilterPass::DrawRandomStatic(const zeus::CColor& color, float alpha,
   m_randomStatic.UnLock();
   m_randomStatic.Load(GX_TEXMAP0, EClampMode::Clamp);
 
-  CGraphics::StreamBegin(GX_TRIANGLESTRIP);
+  CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
   CGraphics::StreamColor(color);
   CGraphics::StreamTexcoord(0.f, 1.f);
   CGraphics::StreamVertex(lb.x() - 1.f, 0.01f, rt.y() + 1.f);

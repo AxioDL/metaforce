@@ -113,7 +113,7 @@ void CAuiEnergyBarT01::Draw(const CGuiWidgetDrawParms& drawParms) {
       CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
       CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
       xbc_tex->Load(GX_TEXMAP0, EClampMode::Repeat);
-      CGraphics::StreamBegin(GX_TRIANGLESTRIP);
+      CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
       CGraphics::StreamColor(useCol);
       auto coords = xd8_coordFunc(barOffT);
       while (barOffT < barMaxT) {

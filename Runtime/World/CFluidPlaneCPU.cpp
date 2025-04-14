@@ -125,158 +125,158 @@ static void InitializeSineWave() {
 
 #define kEnableWaterBumpMaps true
 
-CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha,
-                                                               const zeus::CTransform& xf,
-                                                               const zeus::CTransform& areaXf, const zeus::CAABox& aabb,
-                                                               const CScriptWater* water) {
-  OPTICK_EVENT();
-  CFluidPlaneShader::RenderSetupInfo out;
-
-  const float uvT = mgr.GetFluidPlaneManager()->GetUVT();
-  const bool hasBumpMap = HasBumpMap() && kEnableWaterBumpMaps;
-  bool doubleLightmapBlend = false;
-  const bool hasEnvMap = mgr.GetCameraManager()->GetFluidCounter() == 0 && HasEnvMap();
-  const bool hasEnvBumpMap = HasEnvBumpMap();
-  InitializeSineWave();
-  CGraphics::SetModelMatrix(xf);
-
-  if (hasBumpMap) {
-    // Build 50% grey directional light with xf0_bumpLightDir and load into LIGHT_3
-    // Light 3 in channel 1
-    // Vertex colors in channel 0
-    out.lights.resize(4);
-    out.lights[3] = CLight::BuildDirectional(xf0_bumpLightDir, zeus::skGrey);
-  } else {
-    // Normal light mask in channel 1
-    // Vertex colors in channel 0
-    out.lights = water->GetActorLights()->BuildLightVector();
-  }
-
-  int curTex = 3;
-
-  if (hasBumpMap) {
-    // Load into next
-    curTex++;
-  }
-
-  if (hasEnvMap) {
-    // Load into next
-    curTex++;
-  }
-
-  if (hasEnvBumpMap) {
-    // Load into next
-    curTex++;
-  }
-
-  const auto fluidUVs = x4c_uvMotion.CalculateFluidTextureOffset(uvT);
-
-  out.texMtxs[0][0][0] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
-  out.texMtxs[0][1][1] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
-  out.texMtxs[0][3][0] = fluidUVs[1][0];
-  out.texMtxs[0][3][1] = fluidUVs[1][1];
-
-  out.texMtxs[1][0][0] = x4c_uvMotion.GetFluidLayers()[2].GetUVScale();
-  out.texMtxs[1][1][1] = x4c_uvMotion.GetFluidLayers()[2].GetUVScale();
-  out.texMtxs[1][3][0] = fluidUVs[2][0];
-  out.texMtxs[1][3][1] = fluidUVs[2][1];
-
-  out.texMtxs[2][0][0] = x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
-  out.texMtxs[2][1][1] = x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
-  out.texMtxs[2][3][0] = fluidUVs[0][0];
-  out.texMtxs[2][3][1] = fluidUVs[0][1];
-
-  // Load normal mtx 0 with
-  out.normMtx = (zeus::CTransform::Scale(xfc_bumpScale) * CGraphics::g_ViewMatrix.getRotation().inverse()).toMatrix4f();
-
-  // Setup TCGs
-  int nextTexMtx = 3;
-
-  if (hasEnvBumpMap) {
-    float pttScale;
-    if (hasEnvMap)
-      pttScale = 0.5f * (1.f - x118_reflectionSize);
-    else
-      pttScale = g_tweakGame->GetFluidEnvBumpScale() * x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
-
-    // Load GX_TEXMTX3 with identity
-    zeus::CMatrix4f& texMtx = out.texMtxs[nextTexMtx++];
-    texMtx[0][0] = pttScale;
-    texMtx[1][1] = pttScale;
-    texMtx[3][0] = 0.5f;
-    texMtx[3][1] = 0.5f;
-    // Load GX_PTTEXMTX0 with scale of pttScale
-    // Next: GX_TG_MTX2x4 GX_TG_NRM, GX_TEXMTX3, true, GX_PTTEXMTX0
-
-    out.indScale = 0.5f * (hasEnvMap ? x118_reflectionSize : 1.f);
-    // Load ind mtx with scale of (indScale, -indScale)
-    // Load envBumpMap into ind stage 0 with previous TCG
-  }
-
-  if (hasEnvMap) {
-    float scale = std::max(aabb.max.x() - aabb.min.x(), aabb.max.y() - aabb.min.y());
-    zeus::CMatrix4f& texMtx = out.texMtxs[nextTexMtx++];
-    texMtx[0][0] = 1.f / scale;
-    texMtx[1][1] = 1.f / scale;
-    zeus::CVector3f center = aabb.center();
-    texMtx[3][0] = 0.5f + -center.x() / scale;
-    texMtx[3][1] = 0.5f + -center.y() / scale;
-    // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
-  }
-
-  if (HasLightMap()) {
-    float lowLightBlend = 1.f;
-    const CGameArea* area = mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId());
-    float lightLevel = area->GetPostConstructed()->x1128_worldLightingLevel;
-    const CScriptWater* nextWater = water->GetNextConnectedWater(mgr);
-    if (std::fabs(water->GetMorphFactor()) < 0.00001f || !nextWater || !nextWater->GetFluidPlane().HasLightMap()) {
-      // Load lightmap
-      CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
-      // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
-    } else if (nextWater && nextWater->GetFluidPlane().HasLightMap()) {
-      if (std::fabs(water->GetMorphFactor() - 1.f) < 0.00001f) {
-        // Load lightmap
-        CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
-        // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
-      } else {
-        // Load lightmap
-        CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
-        // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
-        // Load lightmap
-        CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
-        // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
-
-        float lum = lightLevel * water->GetMorphFactor();
-        out.kColors[3] = zeus::CColor(lum, 1.f);
-        lowLightBlend = (1.f - water->GetMorphFactor()) / (1.f - lum);
-        doubleLightmapBlend = true;
-      }
-    }
-
-    out.kColors[2] = zeus::CColor(lowLightBlend * lightLevel, 1.f);
-  }
-
-  float waterPlaneOrthoDot =
-      xf.transposeRotate(zeus::skUp).dot(CGraphics::g_ViewMatrix.inverse().transposeRotate(zeus::skForward));
-  if (waterPlaneOrthoDot < 0.f)
-    waterPlaneOrthoDot = -waterPlaneOrthoDot;
-
-  out.kColors[0] =
-      zeus::CColor((1.f - waterPlaneOrthoDot) * (x110_specularMax - x10c_specularMin) + x10c_specularMin, alpha);
-  out.kColors[1] = zeus::CColor(x114_reflectionBlend, 1.f);
-
-  if (!m_shader || m_cachedDoubleLightmapBlend != doubleLightmapBlend ||
-      m_cachedAdditive != (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot)) {
-    m_cachedDoubleLightmapBlend = doubleLightmapBlend;
-    m_cachedAdditive = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot;
-//    m_shader.emplace(x44_fluidType, x10_texPattern1, x20_texPattern2, x30_texColor, xb0_bumpMap, xc0_envMap,
-//                     xd0_envBumpMap, xe0_lightmap,
-//                     m_tessellation ? CFluidPlaneManager::RippleMapTex : aurora::gfx::TextureHandle{},
-//                     m_cachedDoubleLightmapBlend, m_cachedAdditive, m_maxVertCount);
-  }
-
-  return out;
-}
+// CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha,
+//                                                                const zeus::CTransform& xf,
+//                                                                const zeus::CTransform& areaXf, const zeus::CAABox& aabb,
+//                                                                const CScriptWater* water) {
+//   OPTICK_EVENT();
+//   CFluidPlaneShader::RenderSetupInfo out;
+//
+//   const float uvT = mgr.GetFluidPlaneManager()->GetUVT();
+//   const bool hasBumpMap = HasBumpMap() && kEnableWaterBumpMaps;
+//   bool doubleLightmapBlend = false;
+//   const bool hasEnvMap = mgr.GetCameraManager()->GetFluidCounter() == 0 && HasEnvMap();
+//   const bool hasEnvBumpMap = HasEnvBumpMap();
+//   InitializeSineWave();
+//   CGraphics::SetModelMatrix(xf);
+//
+//   if (hasBumpMap) {
+//     // Build 50% grey directional light with xf0_bumpLightDir and load into LIGHT_3
+//     // Light 3 in channel 1
+//     // Vertex colors in channel 0
+//     out.lights.resize(4);
+//     out.lights[3] = CLight::BuildDirectional(xf0_bumpLightDir, zeus::skGrey);
+//   } else {
+//     // Normal light mask in channel 1
+//     // Vertex colors in channel 0
+//     out.lights = water->GetActorLights()->BuildLightVector();
+//   }
+//
+//   int curTex = 3;
+//
+//   if (hasBumpMap) {
+//     // Load into next
+//     curTex++;
+//   }
+//
+//   if (hasEnvMap) {
+//     // Load into next
+//     curTex++;
+//   }
+//
+//   if (hasEnvBumpMap) {
+//     // Load into next
+//     curTex++;
+//   }
+//
+//   const auto fluidUVs = x4c_uvMotion.CalculateFluidTextureOffset(uvT);
+//
+//   out.texMtxs[0][0][0] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
+//   out.texMtxs[0][1][1] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
+//   out.texMtxs[0][3][0] = fluidUVs[1][0];
+//   out.texMtxs[0][3][1] = fluidUVs[1][1];
+//
+//   out.texMtxs[1][0][0] = x4c_uvMotion.GetFluidLayers()[2].GetUVScale();
+//   out.texMtxs[1][1][1] = x4c_uvMotion.GetFluidLayers()[2].GetUVScale();
+//   out.texMtxs[1][3][0] = fluidUVs[2][0];
+//   out.texMtxs[1][3][1] = fluidUVs[2][1];
+//
+//   out.texMtxs[2][0][0] = x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
+//   out.texMtxs[2][1][1] = x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
+//   out.texMtxs[2][3][0] = fluidUVs[0][0];
+//   out.texMtxs[2][3][1] = fluidUVs[0][1];
+//
+//   // Load normal mtx 0 with
+//   out.normMtx = (zeus::CTransform::Scale(xfc_bumpScale) * CGraphics::mViewMatrix.getRotation().inverse()).toMatrix4f();
+//
+//   // Setup TCGs
+//   int nextTexMtx = 3;
+//
+//   if (hasEnvBumpMap) {
+//     float pttScale;
+//     if (hasEnvMap)
+//       pttScale = 0.5f * (1.f - x118_reflectionSize);
+//     else
+//       pttScale = g_tweakGame->GetFluidEnvBumpScale() * x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
+//
+//     // Load GX_TEXMTX3 with identity
+//     zeus::CMatrix4f& texMtx = out.texMtxs[nextTexMtx++];
+//     texMtx[0][0] = pttScale;
+//     texMtx[1][1] = pttScale;
+//     texMtx[3][0] = 0.5f;
+//     texMtx[3][1] = 0.5f;
+//     // Load GX_PTTEXMTX0 with scale of pttScale
+//     // Next: GX_TG_MTX2x4 GX_TG_NRM, GX_TEXMTX3, true, GX_PTTEXMTX0
+//
+//     out.indScale = 0.5f * (hasEnvMap ? x118_reflectionSize : 1.f);
+//     // Load ind mtx with scale of (indScale, -indScale)
+//     // Load envBumpMap into ind stage 0 with previous TCG
+//   }
+//
+//   if (hasEnvMap) {
+//     float scale = std::max(aabb.max.x() - aabb.min.x(), aabb.max.y() - aabb.min.y());
+//     zeus::CMatrix4f& texMtx = out.texMtxs[nextTexMtx++];
+//     texMtx[0][0] = 1.f / scale;
+//     texMtx[1][1] = 1.f / scale;
+//     zeus::CVector3f center = aabb.center();
+//     texMtx[3][0] = 0.5f + -center.x() / scale;
+//     texMtx[3][1] = 0.5f + -center.y() / scale;
+//     // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
+//   }
+//
+//   if (HasLightMap()) {
+//     float lowLightBlend = 1.f;
+//     const CGameArea* area = mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId());
+//     float lightLevel = area->GetPostConstructed()->x1128_worldLightingLevel;
+//     const CScriptWater* nextWater = water->GetNextConnectedWater(mgr);
+//     if (std::fabs(water->GetMorphFactor()) < 0.00001f || !nextWater || !nextWater->GetFluidPlane().HasLightMap()) {
+//       // Load lightmap
+//       CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
+//       // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
+//     } else if (nextWater && nextWater->GetFluidPlane().HasLightMap()) {
+//       if (std::fabs(water->GetMorphFactor() - 1.f) < 0.00001f) {
+//         // Load lightmap
+//         CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
+//         // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
+//       } else {
+//         // Load lightmap
+//         CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
+//         // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
+//         // Load lightmap
+//         CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
+//         // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
+//
+//         float lum = lightLevel * water->GetMorphFactor();
+//         out.kColors[3] = zeus::CColor(lum, 1.f);
+//         lowLightBlend = (1.f - water->GetMorphFactor()) / (1.f - lum);
+//         doubleLightmapBlend = true;
+//       }
+//     }
+//
+//     out.kColors[2] = zeus::CColor(lowLightBlend * lightLevel, 1.f);
+//   }
+//
+//   float waterPlaneOrthoDot =
+//       xf.transposeRotate(zeus::skUp).dot(CGraphics::mViewMatrix.inverse().transposeRotate(zeus::skForward));
+//   if (waterPlaneOrthoDot < 0.f)
+//     waterPlaneOrthoDot = -waterPlaneOrthoDot;
+//
+//   out.kColors[0] =
+//       zeus::CColor((1.f - waterPlaneOrthoDot) * (x110_specularMax - x10c_specularMin) + x10c_specularMin, alpha);
+//   out.kColors[1] = zeus::CColor(x114_reflectionBlend, 1.f);
+//
+//   if (!m_shader || m_cachedDoubleLightmapBlend != doubleLightmapBlend ||
+//       m_cachedAdditive != (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot)) {
+//     m_cachedDoubleLightmapBlend = doubleLightmapBlend;
+//     m_cachedAdditive = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot;
+// //    m_shader.emplace(x44_fluidType, x10_texPattern1, x20_texPattern2, x30_texColor, xb0_bumpMap, xc0_envMap,
+// //                     xd0_envBumpMap, xe0_lightmap,
+// //                     m_tessellation ? CFluidPlaneManager::RippleMapTex : aurora::gfx::TextureHandle{},
+// //                     m_cachedDoubleLightmapBlend, m_cachedAdditive, m_maxVertCount);
+//   }
+//
+//   return out;
+// }
 
 int CFluidPlaneRender::numTilesInHField;
 int CFluidPlaneRender::numSubdivisionsInTile;
@@ -743,7 +743,7 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
                             const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CFluidPlaneCPU::Render", zeus::skCyan);
   TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(waterId);
-  CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, areaXf, aabb, water.GetPtr());
+  // CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, areaXf, aabb, water.GetPtr());
 
   // if (!m_shader->isReady())
   //   return;
@@ -807,17 +807,17 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
   u32 patchDimX = (water && water->GetPatchDimensionX()) ? water->GetPatchDimensionX() : 128;
   u32 patchDimY = (water && water->GetPatchDimensionY()) ? water->GetPatchDimensionY() : 128;
 
-  m_verts.clear();
-  m_pVerts.clear();
+  // m_verts.clear();
+  // m_pVerts.clear();
   if (m_tessellation) {
     /* Additional uniform data for tessellation evaluation shader */
     zeus::CColor colorMul;
     colorMul.r() = wavecapIntensityScale / 255.f / float(1 << redShift);
     colorMul.g() = wavecapIntensityScale / 255.f / float(1 << greenShift);
     colorMul.b() = wavecapIntensityScale / 255.f / float(1 << blueShift);
-    m_shader->prepareDraw(setupInfo, xf.origin, *rippleManager, colorMul, x108_rippleResolution / 4.f);
+    // m_shader->prepareDraw(setupInfo, xf.origin, *rippleManager, colorMul, x108_rippleResolution / 4.f);
   } else {
-    m_shader->prepareDraw(setupInfo);
+    // m_shader->prepareDraw(setupInfo);
   }
 
   u32 tileY = 0;
@@ -857,7 +857,7 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
 
           bool noRipples = UpdatePatch(mgr.GetFluidPlaneManager()->GetUVT(), info, lc_heights, lc_flags, areaCenter,
                                        rippleManager, fromX, toX, fromY, toY);
-          RenderPatch(info, lc_heights, lc_flags, noRipples, renderFlags == 1, m_verts, m_pVerts);
+          // RenderPatch(info, lc_heights, lc_flags, noRipples, renderFlags == 1, m_verts, m_pVerts);
         }
       }
       curX += ripplePitch.x();
@@ -867,8 +867,8 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
     tileY += CFluidPlaneRender::numTilesInHField;
   }
 
-  m_shader->loadVerts(m_verts, m_pVerts);
-  m_shader->doneDrawing();
+  // m_shader->loadVerts(m_verts, m_pVerts);
+  // m_shader->doneDrawing();
 }
 
 } // namespace metaforce

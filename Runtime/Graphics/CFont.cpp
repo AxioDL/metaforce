@@ -57,15 +57,15 @@ void CFont::LinearToTile8(u8* dest, const u8* src) {
 }
 
 void CFont::DrawString(const char* str, int x, int y, const zeus::CColor& col) {
-  bool bVar2 = CGraphics::BeginRender2D(*mpTexture.get());
-  char chr = *str;
-  while (chr != 0) {
-    u32 cellSize = static_cast<u32>(16.f * x4_scale);
-    ++str;
-    CGraphics::DoRender2D(*mpTexture, x, y, (chr & 0xf) * 16, 0xf0, 0x10, cellSize, cellSize, col);
-    chr = *str;
-  }
-  CGraphics::EndRender2D(bVar2);
+  // bool bVar2 = CGraphics::BeginRender2D(*mpTexture.get());
+  // char chr = *str;
+  // while (chr != 0) {
+  //   u32 cellSize = static_cast<u32>(16.f * x4_scale);
+  //   ++str;
+  //   CGraphics::DoRender2D(*mpTexture, x, y, (chr & 0xf) * 16, 0xf0, 0x10, cellSize, cellSize, col);
+  //   chr = *str;
+  // }
+  // CGraphics::EndRender2D(bVar2);
 }
 
 u32 CFont::StringWidth(const char* str) const {

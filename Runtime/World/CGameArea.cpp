@@ -890,23 +890,23 @@ void CGameArea::PostConstructArea() {
   auto secIt = m_resolvedBufs.begin() + 3;
   x12c_postConstructed->x4c_insts.resize(header.modelCount);
   for (u32 i = 0; i < header.modelCount; ++i) {
-    u32 surfCount = CBasics::SwapBytes(*reinterpret_cast<const u32*>((secIt + 6)->first));
+    u32 surfCount = CBasics::SwapBytes(*reinterpret_cast<const u32*>((secIt + 6)->data()));
     secIt += 7 + surfCount;
   }
 
   /* Render octree */
   if (header.version > 14 && header.arotSecIdx != -1) {
-    x12c_postConstructed->xc_octTree.emplace(secIt->first);
+    x12c_postConstructed->xc_octTree.emplace(secIt->data());
     ++secIt;
   }
 
   /* Scriptable layer section */
-  x12c_postConstructed->x10c8_sclyBuf = secIt->first;
-  x12c_postConstructed->x10d0_sclySize = secIt->second;
+  x12c_postConstructed->x10c8_sclyBuf = secIt->data();
+  x12c_postConstructed->x10d0_sclySize = secIt->size_bytes();
   ++secIt;
 
   /* Collision section */
-  x12c_postConstructed->x0_collision = CAreaOctTree::MakeFromMemory(secIt->first, secIt->second);
+  x12c_postConstructed->x0_collision = CAreaOctTree::MakeFromMemory(secIt->data(), secIt->size_bytes());
   ++secIt;
 
   /* Unknown section */
@@ -914,7 +914,7 @@ void CGameArea::PostConstructArea() {
 
   /* Lights section */
   if (header.version > 6) {
-    CMemoryInStream r(secIt->first, secIt->second, CMemoryInStream::EOwnerShip::NotOwned);
+    CMemoryInStream r(secIt->data(), secIt->size_bytes(), CMemoryInStream::EOwnerShip::NotOwned);
     u32 magic = r.ReadLong();
     u32 aCount = magic;
     if (magic == 0xBABEDEAD) {
@@ -947,8 +947,8 @@ void CGameArea::PostConstructArea() {
 
   /* PVS section */
   if (header.version > 7) {
-    CMemoryInStream r(secIt->first, secIt->second, CMemoryInStream::EOwnerShip::NotOwned);
-    if (secIt->second > 0) { // TODO this works around CMemoryInStream inf loop on 0 len
+    CMemoryInStream r(secIt->data(), secIt->size_bytes(), CMemoryInStream::EOwnerShip::NotOwned);
+    if (secIt->size() > 0) { // TODO this works around CMemoryInStream inf loop on 0 len
       u32 magic = r.ReadLong();
       if (magic == 'VISI') {
         x12c_postConstructed->x10a8_pvsVersion = r.ReadLong();
@@ -956,7 +956,7 @@ void CGameArea::PostConstructArea() {
           x12c_postConstructed->x1108_29_pvsHasActors = r.ReadBool();
           x12c_postConstructed->x1108_30_ = r.ReadBool();
           x12c_postConstructed->xa0_pvs =
-              std::make_unique<CPVSAreaSet>(secIt->first + r.GetReadPosition(), secIt->second - r.GetReadPosition());
+              std::make_unique<CPVSAreaSet>(secIt->data() + r.GetReadPosition(), secIt->size_bytes() - r.GetReadPosition());
         }
       }
     }
@@ -966,7 +966,7 @@ void CGameArea::PostConstructArea() {
 
   /* Pathfinding section */
   if (header.version > 9) {
-    CMemoryInStream r(secIt->first, secIt->second, CMemoryInStream::EOwnerShip::NotOwned);
+    CMemoryInStream r(secIt->data(), secIt->size_bytes(), CMemoryInStream::EOwnerShip::NotOwned);
     CAssetId pathId = r.Get<CAssetId>();
     x12c_postConstructed->x10ac_pathToken = g_SimplePool->GetObj(SObjectTag{FOURCC('PATH'), pathId});
     x12c_postConstructed->x10bc_pathArea = x12c_postConstructed->x10ac_pathToken.GetObj();
@@ -1023,13 +1023,13 @@ void CGameArea::FillInStaticGeometry() {
     auto colors = *iter++;
     auto texCoords = *iter++;
     auto packedTexCoords = *iter++;
-    u32 surfaceCount = CBasics::SwapBytes(*reinterpret_cast<const u32*>(iter++->first));
+    u32 surfaceCount = CBasics::SwapBytes(*reinterpret_cast<const u32*>(iter++->data()));
     if (surfaceCount != 0) {
       std::vector<CCubeSurface> surfaces;
       surfaces.reserve(surfaceCount);
       for (int idx = 0; idx < surfaceCount; ++idx) {
-        auto [ptr, len] = *iter++;
-        surfaces.emplace_back(ptr, len);
+        const auto sp = *iter++;
+        surfaces.emplace_back(sp.data(), sp.size());
       }
       inst = CMetroidModelInstance{
           modelHeader,     x12c_postConstructed->x10d4_firstMatPtr,

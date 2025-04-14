@@ -352,7 +352,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   GXSetTexCopySrc(int((CGraphics::GetViewportWidth() - vpW) / 2.f), int((CGraphics::GetViewportHeight() - vpH) / 2.f),
                   vpW, vpH);
   GXSetTexCopyDst(vpW, vpH, GX_TF_RGB565, false);
-  GXCopyTex(CGraphics::sSpareTextureData, false);
+  GXCopyTex(CGraphics::mpSpareBuffer, false);
   GXPixModeSync();
 
   {
@@ -366,7 +366,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   const zeus::CTransform seventeenScale = zeus::CTransform::Scale(17.f * vpScale, 1.f, 17.f * vpScale);
   const zeus::CTransform mm = seventeenScale * windowScale;
   g_Renderer->SetModelMatrix(mm);
-  CGraphics::LoadDolphinSpareTexture(vpW, vpH, GX_TF_RGB565, CGraphics::sSpareTextureData, GX_TEXMAP0);
+  CGraphics::LoadDolphinSpareTexture(vpW, vpH, GX_TF_RGB565, CGraphics::mpSpareBuffer, GX_TEXMAP0);
 
   if (x108_newScanPane) {
     SCOPED_GRAPHICS_DEBUG_GROUP("x108_newScanPane Draw", zeus::skMagenta);

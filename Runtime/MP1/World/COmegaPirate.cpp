@@ -102,8 +102,8 @@ void COmegaPirate::CFlash::Render(CStateManager& mgr) {
   }
 
   float size = xfc_size * sizeMul;
-  const auto rightVec = size * CGraphics::g_ViewMatrix.rightVector();
-  const auto upVec = size * CGraphics::g_ViewMatrix.upVector();
+  const auto rightVec = size * CGraphics::mViewMatrix.rightVector();
+  const auto upVec = size * CGraphics::mViewMatrix.upVector();
   const auto rvS = GetTranslation() - rightVec;
   const auto rvP = GetTranslation() + rightVec;
   CGraphics::SetModelMatrix(zeus::CTransform());
@@ -111,7 +111,7 @@ void COmegaPirate::CFlash::Render(CStateManager& mgr) {
   CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   CGraphics::SetDepthWriteMode(false, ERglEnum::Always, false);
   CGraphics::StreamColor(zeus::CColor{1.f, std::min(1.f, size)});
-  CGraphics::StreamBegin(GX_TRIANGLEFAN);
+  CGraphics::StreamBegin(ERglPrimitive::TriangleFan);
   CGraphics::StreamTexcoord(0.f, 0.f);
   CGraphics::StreamVertex(rvS + upVec);
   CGraphics::StreamTexcoord(1.f, 0.f);
@@ -648,7 +648,7 @@ void COmegaPirate::Render(CStateManager& mgr) {
 
   if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay && xa2c_skeletonAlpha > 0.f) {
     const CModelFlags flags{5, 0, 3, zeus::CColor{1.f, xa2c_skeletonAlpha}};
-    animData->Render(x9f0_skeletonModel, flags, nullptr, nullptr);
+    animData->Render(x9f0_skeletonModel, flags, nullptr, {});
   }
   if (x9a0_visible) {
     bool isXRay = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay;
@@ -656,7 +656,7 @@ void COmegaPirate::Render(CStateManager& mgr) {
       g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
       const CModelFlags flags{5, 0, 1, zeus::CColor{1.f, 0.2f}};
       auto& model = *animData->GetModelData().GetObj();
-      animData->Render(model, flags, nullptr, nullptr);
+      animData->Render(model, flags, nullptr, {});
     }
     CPatterned::Render(mgr);
     if (isXRay) {

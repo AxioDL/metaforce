@@ -40,7 +40,6 @@ struct ITweakAutoMapper : public ITweak {
   virtual float GetAlphaSurfaceUnvisited() const = 0;
   virtual float GetMiniAlphaOutlineUnvisited() const = 0;
   virtual float GetAlphaOutlineUnvisited() const = 0;
-  virtual const zeus::CVector3f& GetDoorCenter() const = 0;
   virtual float GetMiniMapViewportWidth() const = 0;
   virtual float GetMiniMapViewportHeight() const = 0;
   virtual float GetMiniMapCamDistScale() const = 0;

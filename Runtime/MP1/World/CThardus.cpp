@@ -1390,16 +1390,16 @@ void CThardus::RenderFlare(const CStateManager& mgr, float t) {
   x91c_flareTexture->Load(GX_TEXMAP0, EClampMode::Repeat);
 
   const float scale = 30.f * t;
-  zeus::CVector3f offset = scale * CGraphics::g_ViewMatrix.basis[2];
-  zeus::CVector3f max = x92c_currentRockPos + (scale * CGraphics::g_ViewMatrix.basis[0]);
-  zeus::CVector3f min = x92c_currentRockPos - (scale * CGraphics::g_ViewMatrix.basis[0]);
+  zeus::CVector3f offset = scale * CGraphics::mViewMatrix.basis[2];
+  zeus::CVector3f max = x92c_currentRockPos + (scale * CGraphics::mViewMatrix.basis[0]);
+  zeus::CVector3f min = x92c_currentRockPos - (scale * CGraphics::mViewMatrix.basis[0]);
   CGraphics::SetModelMatrix({});
   CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::One, ERglLogicOp::Clear);
   CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
   CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   CGraphics::SetDepthWriteMode(false, ERglEnum::Always, false);
   CGraphics::StreamColor({t, t});
-  CGraphics::StreamBegin(GX_TRIANGLEFAN);
+  CGraphics::StreamBegin(ERglPrimitive::TriangleFan);
   CGraphics::StreamTexcoord(0.f, 0.f);
   CGraphics::StreamVertex(min + offset);
   CGraphics::StreamTexcoord(1.f, 0.f);

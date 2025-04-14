@@ -6,9 +6,7 @@
 
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
-#include "Runtime/Graphics/Shaders/CParticleSwooshShaders.hpp"
 #include "Runtime/Particle/CParticleGen.hpp"
 #include "Runtime/Particle/CUVElement.hpp"
 
@@ -101,12 +99,6 @@ private:
   zeus::CVector3f x1fc_aabbMax;
   float x208_maxRadius = 0.f;
   zeus::CColor x20c_moduColor = zeus::skWhite;
-
-//  std::array<boo::ObjToken<boo::IShaderDataBinding>, 2> m_dataBind;
-//  boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
-//  boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
-  std::unique_ptr<CLineRenderer> m_lineRenderer;
-  std::vector<CParticleSwooshShaders::Vert> m_cachedVerts;
 
   static int g_ParticleSystemAliveCount;
 

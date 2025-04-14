@@ -40,7 +40,7 @@ void CSimpleShadow::Render(TLockedToken<CTexture>& tex) {
   CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, false);
   CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
                           ERglLogicOp::Clear);
-  CGraphics::StreamBegin(GX_QUADS);
+  CGraphics::StreamBegin(ERglPrimitive::Quads);
   float radius = x34_radius * x30_scale;
   CGraphics::StreamColor(zeus::CColor{1.f, x3c_heightAlpha * x38_userAlpha});
   CGraphics::StreamTexcoord(0.f, 0.f);

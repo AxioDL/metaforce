@@ -3,46 +3,38 @@
 #include <memory>
 #include <vector>
 
+#include "Runtime/Graphics/CCubeModel.hpp"
 #include "Runtime/AutoMapper/CMappableObject.hpp"
 #include "Runtime/CResFactory.hpp"
-#include "Runtime/Graphics/CLineRenderer.hpp"
-#include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
+using CColor = zeus::CColor;
+using CVector3f = zeus::CVector3f;
+
 class IWorld;
 class CMapArea {
 public:
   class CMapAreaSurface {
     friend class CMapArea;
-    zeus::CVector3f x0_normal;
-    zeus::CVector3f xc_centroid;
-    const u8* x18_surfOffset;
-    const u8* x1c_outlineOffset;
-    u32 m_primStart;
-    u32 m_primCount;
-    struct Instance {
-      CMapSurfaceShader m_surfacePrims;
-      std::vector<CLineRenderer> m_linePrims;
-      Instance(std::vector<zeus::CVector3f> vbo,
-               std::vector<u16> ibo)
-      : m_surfacePrims(vbo, ibo) {}
-      Instance(Instance&&) = default;
-      Instance& operator=(Instance&&) = default;
-    };
-    std::vector<Instance> m_instances;
+    CVector3f x0_normal;
+    CVector3f xc_centroid;
+    const u32* x18_surfOffset;
+    const u32* x1c_outlineOffset;
 
   public:
     explicit CMapAreaSurface(const void* surfBuf);
-    CMapAreaSurface(CMapAreaSurface&&) = default;
-    void PostConstruct(const u8* buf, std::vector<u32>& index);
-    void Draw(const zeus::CVector3f* verts, const zeus::CColor& surfColor, const zeus::CColor& lineColor,
-              float lineWidth, size_t instIdx = 0);
-    const zeus::CVector3f& GetNormal() const { return x0_normal; }
-    const zeus::CVector3f& GetCenterPosition() const { return xc_centroid; }
+
+    void PostConstruct(const void* buf);
+    void Draw(TConstVectorRef verts, const CColor& surfColor, const CColor& lineColor, float lineWidth) const;
+
+    static void SetupGXMaterial();
+
+    const CVector3f& GetNormal() const { return x0_normal; }
+    const CVector3f& GetCenterPosition() const { return xc_centroid; }
   };
   enum class EVisMode { Always, MapStationOrVisit, Visit, Never };
 
@@ -59,12 +51,10 @@ private:
   u8* x38_moStart;
   std::vector<CMappableObject> m_mappableObjects;
   u8* x3c_vertexStart;
-  std::vector<zeus::CVector3f> m_verts;
+  std::vector<aurora::Vec3<float>> m_verts;
   u8* x40_surfaceStart;
   std::vector<CMapAreaSurface> m_surfaces;
   std::unique_ptr<u8[]> x44_buf;
-//  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
-//  boo::ObjToken<boo::IGraphicsBufferS> m_ibo;
 
 public:
   explicit CMapArea(CInputStream& in, u32 size);
@@ -80,7 +70,7 @@ public:
   u32 GetNumSurfaces() const { return m_surfaces.size(); }
   zeus::CTransform GetAreaPostTransform(const IWorld& world, TAreaId aid) const;
   static const zeus::CVector3f& GetAreaPostTranslate(const IWorld& world, TAreaId aid);
-  const zeus::CVector3f* GetVertices() const { return m_verts.data(); }
+  TConstVectorRef GetVertices() const { return m_verts; }
 };
 
 CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, const CVParamTransfer&, CObjectReference*);

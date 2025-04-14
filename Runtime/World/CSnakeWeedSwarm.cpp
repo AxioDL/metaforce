@@ -419,13 +419,13 @@ void CSnakeWeedSwarm::RenderBoid(u32 idx, const CBoid& boid, u32& posesToBuild) 
   if (posesToBuild & 1 << modelIdx) {
     posesToBuild &= ~(1 << modelIdx);
     animData.BuildPose();
-    model.Calculate(animData.GetPose(), nullptr, nullptr, &workspace);
+    model.Calculate(animData.GetPose(), nullptr, {}, &workspace);
   }
   CGraphics::SetModelMatrix(
       zeus::CTransform::Translate(boid.GetPosition() - zeus::CVector3f(0.f, 0.f, boid.GetZOffset())) *
       zeus::CTransform::Scale(boid.GetScale()));
   constexpr CModelFlags useFlags{0, 0, 3, zeus::skWhite};
-  model.Draw(&workspace.m_vertexWorkspace, &workspace.m_normalWorkspace, useFlags);
+  model.Draw(workspace.m_vertexWorkspace, workspace.m_normalWorkspace, useFlags);
 }
 
 void CSnakeWeedSwarm::ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& mgr) {

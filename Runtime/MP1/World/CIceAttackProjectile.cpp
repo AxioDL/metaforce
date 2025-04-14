@@ -52,7 +52,7 @@ void CIceAttackProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId o
 }
 
 void CIceAttackProjectile::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
-  mgr.AddDrawableActor(*this, -1000.f * CGraphics::g_ViewMatrix.frontVector(), x9c_renderBounds);
+  mgr.AddDrawableActor(*this, -1000.f * CGraphics::mViewMatrix.frontVector(), x9c_renderBounds);
 }
 
 void CIceAttackProjectile::Render(CStateManager& mgr) {}

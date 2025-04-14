@@ -185,17 +185,18 @@ void CCollisionActor::SetSphereRadius(float radius) {
   x288_sphereRadius = radius;
   x284_spherePrimitive->SetSphereRadius(radius);
 }
+
 void CCollisionActor::DebugDraw() {
-  zeus::CAABox aabox;
-  if (x258_primitiveType == EPrimitiveType::OBBTreeGroup)
-    aabox = x27c_obbTreeGroupPrimitive->CalculateAABox(x34_transform);
-  else if (x258_primitiveType == EPrimitiveType::AABox)
-    aabox = x280_aaboxPrimitive->CalculateAABox(x34_transform);
-  else if (x258_primitiveType == EPrimitiveType::Sphere)
-    aabox = x284_spherePrimitive->CalculateAABox(x34_transform);
-  m_aabox.setAABB(aabox);
-  zeus::CColor col = !GetActive() ? zeus::skRed : zeus::skGreen;
-  col.a() = 0.5f;
-  m_aabox.draw(col);
+  // zeus::CAABox aabox;
+  // if (x258_primitiveType == EPrimitiveType::OBBTreeGroup)
+  //   aabox = x27c_obbTreeGroupPrimitive->CalculateAABox(x34_transform);
+  // else if (x258_primitiveType == EPrimitiveType::AABox)
+  //   aabox = x280_aaboxPrimitive->CalculateAABox(x34_transform);
+  // else if (x258_primitiveType == EPrimitiveType::Sphere)
+  //   aabox = x284_spherePrimitive->CalculateAABox(x34_transform);
+  // m_aabox.setAABB(aabox);
+  // zeus::CColor col = !GetActive() ? zeus::skRed : zeus::skGreen;
+  // col.a() = 0.5f;
+  // m_aabox.draw(col);
 }
 } // namespace metaforce

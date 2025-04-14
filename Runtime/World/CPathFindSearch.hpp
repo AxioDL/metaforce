@@ -4,7 +4,6 @@
 
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
-#include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/World/CPathFindArea.hpp"
 
 #include <zeus/CVector3f.hpp>
@@ -13,8 +12,6 @@ namespace metaforce {
 class CPathFindSearch;
 
 class CPathFindVisualizer {
-  CLineRenderer m_spline = {CLineRenderer::EPrimitiveMode::LineStrip, 16, {}, true};
-
 public:
   void Draw(const CPathFindSearch& path);
 };

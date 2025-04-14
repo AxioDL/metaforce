@@ -102,8 +102,8 @@ void CVisorFlare::Render(const zeus::CVector3f& pos, const CStateManager& mgr) c
   const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   zeus::CVector3f camPos = cam->GetTranslation();
   zeus::CVector3f camFront = cam->GetTransform().frontVector();
-  const auto invPos = CGraphics::g_ViewMatrix.inverse() * pos;
-  const auto invPos2 = CGraphics::g_ViewMatrix * zeus::CVector3f{-invPos.x(), invPos.y(), -invPos.z()};
+  const auto invPos = CGraphics::mViewMatrix.inverse() * pos;
+  const auto invPos2 = CGraphics::mViewMatrix * zeus::CVector3f{-invPos.x(), invPos.y(), -invPos.z()};
   if (!zeus::close_enough(x24_, 0.f, 1.0E-5f)) {
     float acos = 0.f;
     if (!zeus::close_enough(x20_f3, 0.f, 1.0E-5f)) {
@@ -196,7 +196,7 @@ void CVisorFlare::ResetTevSwapMode(const CStateManager& mgr) const {
 
 void CVisorFlare::DrawDirect(const zeus::CColor& color, float f1, float f2) const {
   zeus::CColor kcolor = color;
-  kcolor.a() *= x24_; // TODO i think this is wrong
+  kcolor.a() *= x24_;
   CGX::SetTevKColor(GX_KCOLOR0, kcolor);
   CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
   GXPosition3f32(f1 - f2, 0.f, f2 + f1);
@@ -211,7 +211,7 @@ void CVisorFlare::DrawDirect(const zeus::CColor& color, float f1, float f2) cons
 }
 
 void CVisorFlare::DrawStreamed(const zeus::CColor& color, float f1, float f2) const {
-  CGraphics::StreamBegin(GX_TRIANGLESTRIP);
+  CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
   zeus::CColor kcolor = color;
   kcolor.a() *= x24_;
   CGraphics::StreamColor(kcolor);

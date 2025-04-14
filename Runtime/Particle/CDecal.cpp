@@ -1,7 +1,6 @@
 #include "Runtime/Particle/CDecal.hpp"
 
 #include "Runtime/Graphics/CModel.hpp"
-#include "Runtime/Graphics/Shaders/CDecalShaders.hpp"
 #include "Runtime/Particle/CParticleGlobals.hpp"
 #include "Runtime/Graphics/CGX.hpp"
 

@@ -678,7 +678,6 @@ void CMain::ShutdownSubsystems() {
   CElementGen::Shutdown();
   CAnimData::FreeCache();
   CMemoryCardSys::Shutdown();
-  CMappableObject::Shutdown();
   // Metaforce additions
   CMoviePlayer::Shutdown();
   CFont::Shutdown();

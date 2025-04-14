@@ -2,12 +2,11 @@
 
 #include "Runtime/ConsoleVariables/CVar.hpp"
 #include "Runtime/Graphics/CLight.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Graphics/CTevCombiners.hpp"
 #include "Runtime/Graphics/GX.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-#include <array>
-#include <chrono>
 #include <vector>
 
 #include <zeus/CColor.hpp>
@@ -17,8 +16,7 @@
 
 #include <aurora/aurora.h>
 #include <optick.h>
-
-using frame_clock = std::chrono::high_resolution_clock;
+#include <dolphin/mtx.h>
 
 namespace metaforce {
 class CTexture;
@@ -102,6 +100,16 @@ enum class ERglEnum : std::underlying_type_t<GXCompare> {
   Always = GX_ALWAYS,
 };
 
+enum class ERglPrimitive : std::underlying_type_t<GXPrimitive> {
+  Quads = GX_QUADS,
+  Triangles = GX_TRIANGLES,
+  TriangleStrip = GX_TRIANGLESTRIP,
+  TriangleFan = GX_TRIANGLEFAN,
+  Lines = GX_LINES,
+  LineStrip = GX_LINESTRIP,
+  Points = GX_POINTS,
+};
+
 using ERglLight = u8;
 
 enum class ERglTexOffset : std::underlying_type_t<GXTexOffset> {
@@ -129,49 +137,20 @@ enum class ERglFogMode : std::underlying_type_t<GXFogType> {
   OrthoRevExp2 = GX_FOG_ORTHO_REVEXP2,
 };
 
-struct SViewport {
-  u32 x0_left;
-  u32 x4_top;
-  u32 x8_width;
-  u32 xc_height;
-  float x10_halfWidth;
-  float x14_halfHeight;
-  float aspect;
+struct CViewport {
+  int mLeft;
+  int mTop;
+  int mWidth;
+  int mHeight;
+  float mHalfWidth;
+  float mHalfHeight;
 };
 
-struct SClipScreenRect {
-  bool x0_valid = false;
-  int x4_left = 0;
-  int x8_top = 0;
-  int xc_width = 0;
-  int x10_height = 0;
-  int x14_dstWidth = 0;
-  float x18_uvXMin = 0.f;
-  float x1c_uvXMax = 0.f;
-  float x20_uvYMin = 0.f;
-  float x24_uvYMax = 0.f;
-
-  SClipScreenRect() = default;
-  SClipScreenRect(bool valid, int left, int top, int width, int height, int dstWidth, float uvXMin, float uvXMax,
-                  float uvYMin, float uvYMax)
-  : x0_valid(valid)
-  , x4_left(left)
-  , x8_top(top)
-  , xc_width(width)
-  , x10_height(height)
-  , x14_dstWidth(dstWidth)
-  , x18_uvXMin(uvXMin)
-  , x1c_uvXMax(uvXMax)
-  , x20_uvYMin(uvYMin)
-  , x24_uvYMax(uvYMax) {}
-
-  SClipScreenRect(const SViewport& vp) {
-    x4_left = vp.x0_left;
-    x8_top = vp.x4_top;
-    xc_width = vp.x8_width;
-    x10_height = vp.xc_height;
-  }
-};
+// TODO
+typedef struct {
+  float x;
+  float y;
+} Vec2, *Vec2Ptr;
 
 #define DEPTH_FAR 1.f
 #define DEPTH_SKY 0.999f
@@ -184,49 +163,171 @@ struct SClipScreenRect {
 #define CUBEMAP_RES 256
 #define CUBEMAP_MIPS 6
 
+enum class ETexelFormat;
+
 class CGraphics {
 public:
-  struct CProjectionState {
+  using CVector3f = zeus::CVector3f;
+  using CTransform4f = zeus::CTransform;
+  using CColor = zeus::CColor;
+  using uchar = unsigned char;
+  using uint = unsigned int;
+
+  class CRenderState {
+  public:
+    CRenderState();
+
+    void Flush();
+    void ResetFlushAll();
+    int SetVtxState(const float* pos, const float* nrm, const uint* clr);
+
+    // In map this takes two args, but x4 is unused?
+    void Set(int v0) { x0_ = v0; }
+
+  private:
+    int x0_;
+    int x4_;
+  };
+
+  class CProjectionState {
+  public:
+    CProjectionState(bool persp, float left, float right, float top, float bottom, float near, float far)
+    : x0_persp(persp), x4_left(left), x8_right(right), xc_top(top), x10_bottom(bottom), x14_near(near), x18_far(far) {}
+
+    bool IsPerspective() const { return x0_persp; }
+    float GetLeft() const { return x4_left; }
+    float GetRight() const { return x8_right; }
+    float GetTop() const { return xc_top; }
+    float GetBottom() const { return x10_bottom; }
+    float GetNear() const { return x14_near; }
+    float GetFar() const { return x18_far; }
+
+  private:
     bool x0_persp;
     float x4_left;
     float x8_right;
+    // TODO: I think top/bottom are flipped
     float xc_top;
     float x10_bottom;
     float x14_near;
     float x18_far;
   };
 
-  static CProjectionState g_Proj;
-  static zeus::CVector2f g_CachedDepthRange;
-  // static CFogState g_Fog;
-  static SViewport g_Viewport;
-  static float g_ProjAspect;
-  static u32 g_NumBreakpointsWaiting;
-  static u32 g_FlippingState;
-  static bool g_LastFrameUsedAbove;
-  static bool g_InterruptLastFrameUsedAbove;
-  static GX::LightMask g_LightActive;
-  static std::array<GXLightObj, GX::MaxLights> g_LightObjs;
-  static std::array<ELightType, GX::MaxLights> g_LightTypes;
-  static zeus::CTransform g_GXModelView;
-  static zeus::CTransform g_GXModelViewInvXpose;
-  static zeus::CTransform g_GXModelMatrix;
-  static zeus::CTransform g_ViewMatrix;
-  static zeus::CVector3f g_ViewPoint;
-  static zeus::CTransform g_GXViewPointMatrix;
-  static zeus::CTransform g_CameraMatrix;
-  static SClipScreenRect g_CroppedViewport;
-  static bool g_IsGXModelMatrixIdentity;
-  static zeus::CColor g_ClearColor;
-  static float g_ClearDepthValue; // Was a 24bit value, we use a float range from [0,1]
-  static bool g_IsBeginSceneClearFb;
+  class CClippedScreenRect {
+  public:
+    CClippedScreenRect() : x0_valid(false) {}
+    CClippedScreenRect(int x, int y, int width, int height, int texWidth, float minU, float maxU, float minV,
+                       float maxV)
+    : x0_valid(true)
+    , x4_x(x)
+    , x8_y(y)
+    , xc_width(width)
+    , x10_height(height)
+    , x14_texWidth(texWidth)
+    , x18_minU(minU)
+    , x1c_maxU(maxU)
+    , x20_minV(minV)
+    , x24_maxV(maxV) {}
 
-  static ERglEnum g_depthFunc;
-  static ERglCullMode g_cullMode;
+    bool IsValid() const { return x0_valid; }
+    int GetX() const { return x4_x; }
+    int GetY() const { return x8_y; }
+    int GetWidth() const { return xc_width; }
+    int GetHeight() const { return x10_height; }
+    int GetTexWidth() const { return x14_texWidth; }
+    float GetMinU() const { return x18_minU; }
+    float GetMaxU() const { return x1c_maxU; }
+    float GetMinV() const { return x20_minV; }
+    float GetMaxV() const { return x24_maxV; }
 
-  static void Startup();
+  private:
+    bool x0_valid;
+    int x4_x;
+    int x8_y;
+    int xc_width;
+    int x10_height;
+    int x14_texWidth;
+    float x18_minU;
+    float x1c_maxU;
+    float x20_minV;
+    float x24_maxV;
+  };
+
+  static CRenderState sRenderState;
+  static VecPtr vtxBuffer;
+  static VecPtr nrmBuffer;
+  static Vec2Ptr txtBuffer0;
+  static Vec2Ptr txtBuffer1;
+  static uint* clrBuffer;
+  static bool mJustReset;
+  static ERglCullMode mCullMode;
+  static int mNumLightsActive;
+  static float mDepthNear;
+  static VecPtr mpVtxBuffer;
+  static VecPtr mpNrmBuffer;
+  static Vec2Ptr mpTxtBuffer0;
+  static Vec2Ptr mpTxtBuffer1;
+  static uint* mpClrBuffer;
+  static int mNumPrimitives;
+  static int mFrameCounter;
+  static float mFramesPerSecond;
+  static float mLastFramesPerSecond;
+  static int mNumBreakpointsWaiting;
+  static int mFlippingState;
+  static bool mLastFrameUsedAbove;
+  static bool mInterruptLastFrameUsedAbove;
+  static GX::LightMask mLightActive;
+  static GX::LightMask mLightsWereOn;
+  static void* mpFrameBuf1;
+  static void* mpFrameBuf2;
+  static void* mpCurrenFrameBuf;
+  static int mSpareBufferSize;
+  static void* mpSpareBuffer;
+  static int mSpareBufferTexCacheSize;
+  // static GXTexRegionCallback mGXDefaultTexRegionCallback;
+  static void* mpFifo;
+  static GXFifoObj* mpFifoObj;
+  static uint mRenderTimings;
+  static float mSecondsMod900;
+  static CTimeProvider* mpExternalTimeProvider;
+  static int mScreenStretch;
+  static int mScreenPositionX;
+  static int mScreenPositionY;
+
+  static CVector3f kDefaultPositionVector;
+  static CVector3f kDefaultDirectionVector;
+  static CProjectionState mProj;
+  static CTransform4f mViewMatrix;
+  static CTransform4f mModelMatrix;
+  static CColor mClearColor;
+  static CVector3f mViewPoint;
+  static CViewport mViewport;
+  static ELightType mLightTypes[8];
+  static GXLightObj mLightObj[8];
+  // static GXTexRegion mTexRegions[GX_MAX_TEXMAP];
+  // static GXTexRegion mTexRegionsCI[GX_MAX_TEXMAP / 2];
+  static GXRenderModeObj mRenderModeObj;
+  static Mtx mGXViewPointMatrix;
+  static Mtx mGXModelMatrix;
+  static Mtx mGxModelView;
+  static Mtx mCameraMtx;
+
+  static bool mIsBeginSceneClearFb;
+  static ERglEnum mDepthFunc;
+  static ERglPrimitive mCurrentPrimitive;
+  static float mDepthFar;
+  static u32 mClearDepthValue; // = GX_MAX_Z24
+  static bool mIsGXModelMatrixIdentity;
+  static bool mFirstFrame;
+  static GXBool mUseVideoFilter;
+  static float mBrightness;
+
+  static const GXTexMapID kSpareBufferTexMapID;
+
+  static bool Startup();
   static void InitGraphicsVariables();
   static void InitGraphicsDefaults();
+  static void ConfigureFrameBuffer();
   static void SetDefaultVtxAttrFmt();
   static void DisableAllLights();
   static void LoadLight(ERglLight light, const CLight& info);
@@ -240,10 +341,6 @@ public:
   static void BeginScene();
   static void EndScene();
   static void Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::CColor& col);
-  static bool BeginRender2D(const CTexture& tex);
-  static void DoRender2D(const CTexture& tex, s32 x, s32 y, s32 w1, s32 w2, s32 w3, s32 w4, s32 w5,
-                         const zeus::CColor& col);
-  static void EndRender2D(bool v);
   static void SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1);
   static void SetViewPointMatrix(const zeus::CTransform& xf);
   static void SetViewMatrix();
@@ -256,51 +353,38 @@ public:
   static void SetOrtho(float left, float right, float top, float bottom, float znear, float zfar);
   static void FlushProjection();
   static zeus::CVector2i ProjectPoint(const zeus::CVector3f& point);
-  static SClipScreenRect ClipScreenRectFromMS(const zeus::CVector3f& p1, const zeus::CVector3f& p2);
-  static SClipScreenRect ClipScreenRectFromVS(const zeus::CVector3f& p1, const zeus::CVector3f& p2);
+  static CClippedScreenRect ClipScreenRectFromVS(const CVector3f& p1, const CVector3f& p2, ETexelFormat fmt);
+  static CClippedScreenRect ClipScreenRectFromMS(const CVector3f& p1, const CVector3f& p2, ETexelFormat fmt);
 
   static void SetViewportResolution(const zeus::CVector2i& res);
   static void SetViewport(int leftOff, int bottomOff, int width, int height);
   static void SetScissor(int leftOff, int bottomOff, int width, int height);
   static void SetDepthRange(float near, float far);
+  static void SetIdentityViewPointMatrix();
+  static void SetIdentityModelMatrix();
+  static void ClearBackAndDepthBuffers();
 
-  static CTimeProvider* g_ExternalTimeProvider;
-  static float g_DefaultSeconds;
-  static u32 g_RenderTimings;
-  static void SetExternalTimeProvider(CTimeProvider* provider) { g_ExternalTimeProvider = provider; }
+  static void SetExternalTimeProvider(CTimeProvider* provider) { mpExternalTimeProvider = provider; }
   static float GetSecondsMod900();
   static void TickRenderTimings();
-  static u32 g_FrameCounter;
-  static u32 g_Framerate;
-  static u32 g_FramesPast;
-  static frame_clock::time_point g_FrameStartTime;
-  static u32 GetFrameCounter() { return g_FrameCounter; }
-  static u32 GetFPS() { return g_Framerate; }
-  static void UpdateFPSCounter();
+  static int GetFrameCounter() { return mFrameCounter; }
+  static float GetFPS() { return mFramesPerSecond; }
   static void SetUseVideoFilter(bool);
   static void SetClearColor(const zeus::CColor& color);
   static void SetCopyClear(const zeus::CColor& color, float depth);
   static void SetIsBeginSceneClearFb(bool clear);
-  static u32 GetViewportLeft() { return g_Viewport.x0_left; }
-  static u32 GetViewportTop() { return g_Viewport.x4_top; }
-  static u32 GetViewportWidth() { return g_Viewport.x8_width; }
-  static u32 GetViewportHeight() { return g_Viewport.xc_height; }
-  static float GetViewportHalfWidth() { return g_Viewport.x10_halfWidth; }
-  static float GetViewportHalfHeight() { return g_Viewport.x14_halfHeight; }
-  static float GetViewportAspect() { return g_Viewport.aspect; }
-  static bool IsCroppedViewportValid() { return g_CroppedViewport.x0_valid; }
-  static int GetCroppedViewportLeft() { return g_CroppedViewport.x4_left; }
-  static int GetCroppedViewportTop() { return g_CroppedViewport.x8_top; }
-  static int GetCroppedViewportWidth() { return g_CroppedViewport.xc_width; }
-  static int GetCroppedViewportHeight() { return g_CroppedViewport.x10_height; }
-  static float GetCroppedViewportDstWidth() { return g_CroppedViewport.x14_dstWidth; }
-  static float GetCroppedViewportUVXMin() { return g_CroppedViewport.x18_uvXMin; }
-  static float GetCroppedViewportUVXMax() { return g_CroppedViewport.x1c_uvXMax; }
-  static float GetCroppedViewportUVYMin() { return g_CroppedViewport.x20_uvYMin; }
-  static float GetCroppedViewportUVYMax() { return g_CroppedViewport.x24_uvYMax; }
-
-  static const std::array<zeus::CMatrix3f, 6> skCubeBasisMats;
-  static u8 sSpareTextureData[];
+  static u32 GetViewportLeft() { return mViewport.mLeft; }
+  static u32 GetViewportTop() { return mViewport.mTop; }
+  static u32 GetViewportWidth() { return mViewport.mWidth; }
+  static u32 GetViewportHeight() { return mViewport.mHeight; }
+  static float GetViewportHalfWidth() { return mViewport.mHalfWidth; }
+  static float GetViewportHalfHeight() { return mViewport.mHalfHeight; }
+  static float GetViewportAspect() {
+    return static_cast<float>(mViewport.mWidth) / static_cast<float>(mViewport.mHeight);
+  }
+  static const CVector3f& GetViewPoint() { return mViewPoint; }
+  static const CTransform4f& GetViewMatrix() { return mViewMatrix; }
+  static const CTransform4f& GetModelMatrix() { return mModelMatrix; }
 
   static void LoadDolphinSpareTexture(int width, int height, GXTexFmt format, void* data, GXTexMapID id);
   static void LoadDolphinSpareTexture(int width, int height, GXCITexFmt format, GXTlut tlut, void* data, GXTexMapID id);
@@ -308,7 +392,7 @@ public:
   static void ResetGfxStates() noexcept;
   static void SetTevStates(u32 flags) noexcept;
   static void SetTevOp(ERglTevStage stage, const CTevCombiners::CTevPass& pass);
-  static void StreamBegin(GXPrimitive primitive);
+  static void StreamBegin(ERglPrimitive primitive);
   static void StreamNormal(const zeus::CVector3f& nrm);
   static void StreamColor(const zeus::CColor& color);
   static inline void StreamColor(float r, float g, float b, float a) { StreamColor({r, g, b, a}); }
@@ -322,7 +406,7 @@ public:
   static void ResetVertexDataStream(bool end);
   static void FlushStream();
   static void FullRender();
-  static void DrawPrimitive(GXPrimitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
+  static void DrawPrimitive(ERglPrimitive primitive, const zeus::CVector3f* pos, const zeus::CVector3f& normal,
                             const zeus::CColor& col, s32 numVerts);
   static void SetLineWidth(float width, ERglTexOffset offs);
 };

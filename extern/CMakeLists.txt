@@ -5,7 +5,6 @@
 if (CMAKE_SYSTEM_NAME STREQUAL Linux)
   set(DAWN_USE_WAYLAND ON CACHE BOOL "Enable support for Wayland surface" FORCE)
 endif ()
-set(AURORA_NATIVE_MATRIX ON CACHE BOOL "Assume OpenGL-layout matrices, disables transposing" FORCE)
 add_subdirectory(aurora)
 
 if (NOT TARGET spdlog)

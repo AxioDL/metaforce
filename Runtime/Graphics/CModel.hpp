@@ -85,11 +85,12 @@ private:
   u32 x38_lastFrame;
 
   /* Resident copies of maintained data */
-  std::vector<zeus::CVector3f> m_positions;
-  std::vector<zeus::CVector3f> m_normals;
-  std::vector<zeus::CColor> m_colors;
+  std::vector<aurora::Vec3<float>> m_positions;
+  std::vector<aurora::Vec3<float>> m_normals;
+  std::vector<aurora::Vec3<s16>> m_shortNormals;
+  std::vector<u32> m_colors;
   std::vector<aurora::Vec2<float>> m_floatUVs;
-  std::vector<aurora::Vec2<float>> m_shortUVs;
+  std::vector<aurora::Vec2<u16>> m_shortUVs;
 
 public:
   CModel(std::unique_ptr<u8[]> in, u32 dataLen, IObjectStore* store);
@@ -106,9 +107,7 @@ public:
   void DrawUnsortedParts(CModelFlags flags);
   bool IsLoaded(u32 matIdx);
 
-  [[nodiscard]] TVectorRef GetPositions();
   [[nodiscard]] TConstVectorRef GetPositions() const;
-  [[nodiscard]] TVectorRef GetNormals();
   [[nodiscard]] TConstVectorRef GetNormals() const;
   [[nodiscard]] u32 GetNumMaterialSets() const { return x18_matSets.size(); }
   [[nodiscard]] bool IsOpaque() const { return x28_modelInst->x3c_firstSortedSurf == nullptr; }

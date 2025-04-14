@@ -6,7 +6,6 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
-#include "Runtime/Graphics/Shaders/CEnergyBarShader.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
 #include <zeus/CColor.hpp>

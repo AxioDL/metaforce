@@ -20,8 +20,8 @@ CPhazonBeam::CPhazonBeam(CAssetId characterId, EWeaponType type, TUniqueId playe
                       zeus::CVector3f(0.0625f, -0.25f, 0.09375f) * scale.y()) {
   x21c_phazonVeins = g_SimplePool->GetObj("PhazonVeins");
   x228_phazon2nd1 = g_SimplePool->GetObj("Phazon2nd_1");
-  m_aaboxShaderScale.setAABB(x238_aaBoxScale);
-  m_aaboxShaderTranslate.setAABB(x250_aaBoxTranslate);
+  // m_aaboxShaderScale.setAABB(x238_aaBoxScale);
+  // m_aaboxShaderTranslate.setAABB(x250_aaBoxTranslate);
 }
 
 void CPhazonBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
@@ -54,7 +54,7 @@ void CPhazonBeam::CreateBeam(CStateManager& mgr) {
 
 void CPhazonBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
   if (IsFiring()) {
-    zeus::CTransform backupView = CGraphics::g_ViewMatrix;
+    zeus::CTransform backupView = CGraphics::mViewMatrix;
     CGraphics::SetViewPointMatrix(xf.inverse() * backupView);
     CGraphics::SetModelMatrix(zeus::CTransform());
     CGunWeapon::DrawMuzzleFx(mgr);
@@ -170,12 +170,12 @@ bool CPhazonBeam::IsLoaded() const { return CGunWeapon::IsLoaded() && x274_24_lo
 
 void CPhazonBeam::DrawClipScaleCube() {
   // Render AABB as completely transparent object, only modifying Z-buffer
-  m_aaboxShaderScale.draw(zeus::skClear);
+  // m_aaboxShaderScale.draw(zeus::skClear);
 }
 
 void CPhazonBeam::DrawClipTranslateCube() {
   // Render AABB as completely transparent object, only modifying Z-buffer
-  m_aaboxShaderTranslate.draw(zeus::skClear);
+  // m_aaboxShaderTranslate.draw(zeus::skClear);
 }
 
 void CPhazonBeam::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,

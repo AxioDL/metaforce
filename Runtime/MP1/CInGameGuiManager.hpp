@@ -12,7 +12,6 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
-#include "Runtime/Graphics/Shaders/CRandomStaticFilter.hpp"
 #include "Runtime/MP1/CFaceplateDecoration.hpp"
 #include "Runtime/MP1/CInGameGuiManagerCommon.hpp"
 #include "Runtime/MP1/CInventoryScreen.hpp"

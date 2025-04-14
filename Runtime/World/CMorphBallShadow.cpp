@@ -35,13 +35,14 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
 
   GatherAreas(mgr);
 
-  SViewport backupVp = CGraphics::g_Viewport;
+  CViewport backupVp = CGraphics::mViewport;
   // g_Renderer->BindBallShadowIdTarget();
   // CGraphics::g_BooMainCommandQueue->clearTarget();
 
-  zeus::CTransform backupViewMtx = CGraphics::g_ViewMatrix;
-  CGraphics::CProjectionState backupProjection = CGraphics::g_Proj;
-  zeus::CVector2f backupDepth = CGraphics::g_CachedDepthRange;
+  zeus::CTransform backupViewMtx = CGraphics::mViewMatrix;
+  CGraphics::CProjectionState backupProjection = CGraphics::mProj;
+  float backupDepthNear = CGraphics::mDepthNear;
+  float backupDepthFar = CGraphics::mDepthFar;
   zeus::CTransform viewMtx(
       zeus::skRight, zeus::skDown, zeus::skForward,
       zeus::CVector3f((aabb.min.x() + aabb.max.x()) * 0.5f, (aabb.min.y() + aabb.max.y()) * 0.5f, aabb.max.z()));
@@ -90,8 +91,8 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
   // g_Renderer->BindMainDrawTarget();
   CGraphics::SetViewPointMatrix(backupViewMtx);
   CGraphics::SetProjectionState(backupProjection);
-  g_Renderer->SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
-  CGraphics::SetDepthRange(backupDepth[0], backupDepth[1]);
+  g_Renderer->SetViewport(backupVp.mLeft, backupVp.mTop, backupVp.mWidth, backupVp.mHeight);
+  CGraphics::SetDepthRange(backupDepthNear, backupDepthFar);
 
   xd0_hasIds = alphaVal != 4;
 }

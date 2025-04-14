@@ -85,7 +85,6 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
 
   int lastWldIdx = -1;
   int lastHexIdx = -1;
-  size_t instIdx = 0;
   for (const CMapObjectSortInfo& info : sortInfos) {
     const CMapWorldData& mwData = x10_worldDatas[info.GetWorldIndex()];
     zeus::CColor surfColor = info.GetSurfaceColor();
@@ -110,7 +109,7 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
     if (info.GetAreaIndex() != lastHexIdx || info.GetWorldIndex() != lastWldIdx)
       CGraphics::SetModelMatrix(parms.GetPaneProjectionTransform() * mwData.GetMapAreaData(info.GetAreaIndex()));
 
-    surf.Draw(x4_hexagonToken->GetVertices(), surfColor, outlineColor, 2.f, instIdx++);
+    surf.Draw(x4_hexagonToken->GetVertices(), surfColor, outlineColor, 2.f);
   }
 }
 

@@ -89,7 +89,7 @@ public:
   virtual void EndPrimitive() = 0;
   virtual void SetAmbientColor(const zeus::CColor& color) = 0;
   virtual void DrawString(const char* string, int, int) = 0;
-  virtual u32 GetFPS() = 0;
+  virtual float GetFPS() = 0;
   virtual void CacheReflection(TReflectionCallback cb, void* ctx, bool clearAfter) = 0;
   virtual void DrawSpaceWarp(const zeus::CVector3f& pt, float strength) = 0;
   virtual void DrawThermalModel(CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol,

@@ -5,7 +5,6 @@
 
 #include "Runtime/CPlayerState.hpp"
 #include "Runtime/CToken.hpp"
-#include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/RetroTypes.hpp"
 
 #include <zeus/CQuaternion.hpp>
@@ -124,13 +123,6 @@ private:
   u32 x21c_ = 0;
   u32 x220_ = 0;
   u32 x228_ = 0;
-
-  struct SScanReticuleRenderer {
-    std::array<std::optional<CLineRenderer>, 2> m_lineRenderers;
-    std::array<std::array<std::optional<CLineRenderer>, 4>, 2> m_stripRenderers;
-    SScanReticuleRenderer();
-  };
-  SScanReticuleRenderer m_scanRetRenderer;
 
   void DrawGrapplePoint(const CScriptGrapplePoint& point, float t, const CStateManager& mgr, const zeus::CMatrix3f& rot,
                         bool zEqual);

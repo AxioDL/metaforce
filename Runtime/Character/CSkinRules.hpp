@@ -31,8 +31,8 @@ class CVirtualBone {
 public:
   explicit CVirtualBone(CInputStream& in);
 
-  void BuildPoints(const zeus::CVector3f* in, TVectorRef out, u32 count) const;
-  void BuildNormals(const zeus::CVector3f* in, TVectorRef out, u32 count) const;
+  void BuildPoints(const aurora::Vec3<float>* in, TVectorRef out, u32 count) const;
+  void BuildNormals(const aurora::Vec3<float>* in, TVectorRef out, u32 count) const;
   void BuildAccumulatedTransform(const CPoseAsTransforms& pose, const zeus::CVector3f* points);
 
   [[nodiscard]] const auto& GetWeights() const { return x0_weights; }

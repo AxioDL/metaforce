@@ -179,7 +179,7 @@ void CNewFlameThrower::Render(CStateManager& mgr) {
 
 void CNewFlameThrower::RenderParticles(std::array<CElementGen*, 5> const& elem_gens) {
   LoadParticleGenQuads();
-  zeus::CTransform xf(CGraphics::g_ViewMatrix);
+  zeus::CTransform xf(CGraphics::mViewMatrix);
   zeus::CTransform xf2 = xf;
   xf2.origin = zeus::skZero3f;
   zeus::CTransform xf3 = xf2.inverse();

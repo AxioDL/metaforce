@@ -3,7 +3,6 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CCubeRenderer.hpp"
-#include "Runtime/Graphics/Shaders/CDecalShaders.hpp"
 #include "Runtime/Particle/CDecal.hpp"
 #include "Runtime/Particle/CDecalDescription.hpp"
 
@@ -30,9 +29,6 @@ void CDecalManager::Initialize() {
   m_DeltaTimeSinceLastDecalCreation = 0.f;
   m_LastDecalCreatedIndex = -1;
   m_LastDecalCreatedAssetId = {};
-
-  /* Compile shaders */
-  CDecalShaders::Initialize();
 }
 
 void CDecalManager::Reinitialize() {
@@ -52,7 +48,6 @@ void CDecalManager::Reinitialize() {
 void CDecalManager::Shutdown() {
   m_ActiveIndexList.clear();
   m_DecalPool.clear();
-  CDecalShaders::Shutdown();
 }
 
 void CDecalManager::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) {

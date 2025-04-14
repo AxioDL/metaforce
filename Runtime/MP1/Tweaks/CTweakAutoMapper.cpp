@@ -91,7 +91,9 @@ CTweakAutoMapper::CTweakAutoMapper(CInputStream& in) {
   x98_alphaSurfaceUnvisited = in.ReadFloat();
   x9c_miniAlphaOutlineUnvisited = in.ReadFloat();
   xa0_alphaOutlineUnvisited = in.ReadFloat();
-  xa4_doorCenter = in.Get<zeus::CVector3f>();
+  xa4_doorCenterA = in.ReadFloat();
+  xa8_doorCenterB = in.ReadFloat();
+  xac_doorCenterC = in.ReadFloat();
   xb0_ = in.ReadFloat();
   xb4_ = in.ReadFloat();
   xb8_miniMapViewportWidth = in.ReadFloat();

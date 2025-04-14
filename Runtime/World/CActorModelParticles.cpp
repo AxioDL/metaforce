@@ -32,12 +32,14 @@ CActorModelParticles::CItem::CItem(const CEntity& ent, CActorModelParticles& par
 
 static s32 GetNextBestPt(s32 start, const SSkinningWorkspace& workspace, CRandom16& rnd) {
   const auto& verts = workspace.m_vertexWorkspace;
-  const zeus::CVector3f& startVec = verts[start];
+  const auto& startVecA = verts[start];
+  const zeus::CVector3f startVec{startVecA.x, startVecA.y, startVecA.z};
   s32 ret = start;
   float maxMag = 0.f;
   for (s32 i = 0; i < 10; ++i) {
     s32 idx = rnd.Range(0, s32(verts.size()) - 1);
-    const zeus::CVector3f& rndVec = verts[idx];
+    const auto& rndVecA = verts[idx];
+    const zeus::CVector3f rndVec{rndVecA.x, rndVecA.y, rndVecA.z};
     float mag = (startVec - rndVec).magSquared();
     if (mag > maxMag) {
       ret = idx;
@@ -54,7 +56,8 @@ void CActorModelParticles::CItem::GeneratePoints(const SSkinningWorkspace& works
   for (std::pair<std::unique_ptr<CElementGen>, u32>& pair : x8_onFireGens) {
     if (pair.first) {
       CRandom16 rnd(pair.second);
-      const zeus::CVector3f& vec = verts[rnd.Float() * (verts.size() - 1)];
+      const auto& vecA = verts[rnd.Float() * (verts.size() - 1)];
+      const zeus::CVector3f vec{vecA.x, vecA.y, vecA.z};
       pair.first->SetTranslation(xec_particleOffsetScale * vec);
     }
   }
@@ -65,8 +68,10 @@ void CActorModelParticles::CItem::GeneratePoints(const SSkinningWorkspace& works
     s32 idx = x80_ashPointIterator;
     for (u32 i = 0; i < count; ++i) {
       idx = GetNextBestPt(idx, workspace, rnd);
-      x78_ashGen->SetTranslation(xec_particleOffsetScale * verts[idx]);
-      zeus::CVector3f v = norms[idx];
+      const auto& vertA = verts[idx];
+      x78_ashGen->SetTranslation(xec_particleOffsetScale * zeus::CVector3f{vertA.x, vertA.y, vertA.z});
+      const auto& normA = norms[idx];
+      zeus::CVector3f v{normA.x, normA.y, normA.z};
       if (v.canBeNormalized()) {
         v.normalize();
         x78_ashGen->SetOrientation(zeus::CTransform{v.cross(zeus::skUp), v, zeus::skUp, zeus::skZero3f});
@@ -85,9 +90,15 @@ void CActorModelParticles::CItem::GeneratePoints(const SSkinningWorkspace& works
     iceGen->SetGlobalOrientAndTrans(xf8_iceXf);
 
     s32 idx = GetNextBestPt(xb0_icePointIterator, workspace, rnd);
-    iceGen->SetTranslation(xec_particleOffsetScale * verts[idx]);
 
-    iceGen->SetOrientation(zeus::CTransform::MakeRotationsBasedOnY(zeus::CUnitVector3f(norms[idx])));
+    const auto& vertA = verts[idx];
+    zeus::CVector3f vert{vertA.x, vertA.y, vertA.z};
+    const auto& normA = norms[idx];
+    zeus::CVector3f norm{normA.x, normA.y, normA.z};
+
+    iceGen->SetTranslation(xec_particleOffsetScale * vert);
+
+    iceGen->SetOrientation(zeus::CTransform::MakeRotationsBasedOnY(zeus::CUnitVector3f(norm)));
 
     x8c_iceGens.push_back(std::move(iceGen));
     xb0_icePointIterator = (x8c_iceGens.size() == 4 ? -1 : idx);
@@ -102,9 +113,11 @@ void CActorModelParticles::CItem::GeneratePoints(const SSkinningWorkspace& works
 #endif
     s32 idx = xc8_electricPointIterator;
     for (u32 i = 0; i < end; ++i) {
-      xc0_electricGen->SetOverrideIPos(verts[rnd.Range(0, s32(verts.size()) - 1)] * xec_particleOffsetScale);
+      const auto& iPosA = verts[rnd.Range(0, s32(verts.size()) - 1)];
+      xc0_electricGen->SetOverrideIPos(zeus::CVector3f{iPosA.x, iPosA.y, iPosA.z} * xec_particleOffsetScale);
       idx = rnd.Range(0, s32(verts.size()) - 1);
-      xc0_electricGen->SetOverrideFPos(verts[idx] * xec_particleOffsetScale);
+      const auto& vertA = verts[idx];
+      xc0_electricGen->SetOverrideFPos(zeus::CVector3f{vertA.x, vertA.y, vertA.z} * xec_particleOffsetScale);
       xc0_electricGen->ForceParticleCreation(1);
     }
 
@@ -642,7 +655,7 @@ void CActorModelParticles::RemoveRainSplashGenerator(CActor& act) {
 }
 
 void CActorModelParticles::Render(const CStateManager& mgr, const CActor& actor) const {
-  zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;
+  zeus::CTransform backupModel = CGraphics::mModelMatrix;
   auto search = FindSystem(actor.GetUniqueId());
   if (search == x0_items.end())
     return;

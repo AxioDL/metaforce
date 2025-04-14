@@ -6,7 +6,6 @@
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
-#include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/Graphics/CSkinnedModel.hpp"
 
 #include <zeus/CVector3f.hpp>
@@ -24,7 +23,7 @@ class CRainSplashGenerator {
     u8 x14_ = 3;
     u8 x15_length = 1;
     bool x16_active = true; // used to be one-bit bitfield
-    CLineRenderer m_renderer;
+
     explicit SSplashLine();
     void Update(float dt, CStateManager& mgr);
     void Draw(float alpha, float dt, const zeus::CVector3f& pos);

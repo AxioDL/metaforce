@@ -60,8 +60,9 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
         frustum.updatePlanes(x4_view, zeus::SProjPersp(zeus::degToRad(fov), 1.f, 0.1f, distance + x64_objHalfExtent));
         g_Renderer->SetClippingPlanes(frustum);
         g_Renderer->SetPerspective(fov, x0_texture->GetWidth(), x0_texture->GetHeight(), 0.1f, 1000.f);
-        SViewport backupVp = CGraphics::g_Viewport;
-        zeus::CVector2f backupDepthRange = CGraphics::g_CachedDepthRange;
+        CViewport backupVp = CGraphics::mViewport;
+        float backupDepthNear = CGraphics::mDepthNear;
+        float backupDepthFar = CGraphics::mDepthFar;
         g_Renderer->SetViewport(0, 0, x0_texture->GetWidth(), x0_texture->GetHeight());
         CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_FAR);
 
@@ -99,7 +100,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
                                   ERglLogicOp::Clear);
           CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvPassthru);
           CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
-          CGraphics::StreamBegin(GX_TRIANGLESTRIP);
+          CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
           CGraphics::StreamColor(1.f, 1.f, 1.f, 0.25f);
           CGraphics::StreamVertex(-extent, 0.f, extent);
           CGraphics::StreamVertex(extent, 0.f, extent);
@@ -127,8 +128,8 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
         // m_shader.resolveTexture();
         // CBooRenderer::BindMainDrawTarget();
 
-        g_Renderer->SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
-        CGraphics::SetDepthRange(backupDepthRange[0], backupDepthRange[1]);
+        g_Renderer->SetViewport(backupVp.mLeft, backupVp.mTop, backupVp.mWidth, backupVp.mHeight);
+        CGraphics::SetDepthRange(backupDepthNear, backupDepthFar);
       }
     }
   }

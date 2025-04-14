@@ -48,8 +48,9 @@ struct CTweakAutoMapper final : public Tweaks::ITweakAutoMapper {
   float x98_alphaSurfaceUnvisited;
   float x9c_miniAlphaOutlineUnvisited;
   float xa0_alphaOutlineUnvisited;
-  /* Originally 4 separate floats */
-  zeus::CVector3f xa4_doorCenter;
+  float xa4_doorCenterA;
+  float xa8_doorCenterB;
+  float xac_doorCenterC;
   float xb0_;
   float xb4_;
   float xb8_miniMapViewportWidth;
@@ -113,7 +114,6 @@ struct CTweakAutoMapper final : public Tweaks::ITweakAutoMapper {
   float GetAlphaSurfaceUnvisited() const override { return x98_alphaSurfaceUnvisited; }
   float GetMiniAlphaOutlineUnvisited() const override { return x9c_miniAlphaOutlineUnvisited; }
   float GetAlphaOutlineUnvisited() const override { return xa0_alphaOutlineUnvisited; }
-  const zeus::CVector3f& GetDoorCenter() const override { return xa4_doorCenter; }
   float GetMiniMapViewportWidth() const override { return xb8_miniMapViewportWidth; }
   float GetMiniMapViewportHeight() const override { return xbc_miniMapViewportHeight; }
   float GetMiniMapCamDistScale() const override { return xc0_miniMapCamDistScale; }

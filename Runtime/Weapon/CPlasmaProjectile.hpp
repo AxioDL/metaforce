@@ -8,7 +8,6 @@
 
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/rstl.hpp"
-#include "Runtime/Graphics/Shaders/CColoredStripShader.hpp"
 #include "Runtime/Weapon/CBeamInfo.hpp"
 #include "Runtime/Weapon/CBeamProjectile.hpp"
 #include "Runtime/World/CDamageInfo.hpp"
@@ -101,7 +100,7 @@ private:
   void UpdateLights(float expansion, float dt, CStateManager& mgr);
   void UpdateEnergyPulse(float dt);
   void RenderMotionBlur();
-  void RenderBeam(s32 subdivs, float width, const zeus::CColor& color, s32 flags, CColoredStripShader& shader) const;
+  // void RenderBeam(s32 subdivs, float width, const zeus::CColor& color, s32 flags, CColoredStripShader& shader) const;
   float UpdateBeamState(float dt, CStateManager& mgr);
   void MakeBillboardEffect(const std::optional<TToken<CGenDescription>>& particle,
                            const std::optional<TToken<CElectricDescription>>& electric, std::string_view name,

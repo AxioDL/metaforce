@@ -67,8 +67,8 @@ CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAn
   g_TransientInt32POINodes.resize(16);
 
   xd8_modelData->CalculateDefault();
-  for (const auto& item : *xd8_modelData->GetModel()->GetPositions()) {
-    x108_aabb.accumulateBounds(item);
+  for (const auto& item : xd8_modelData->GetModel()->GetPositions()) {
+    x108_aabb.accumulateBounds({item.x, item.y, item.z});
   }
   x120_particleDB.CacheParticleDesc(xc_charInfo.GetParticleResData());
 
@@ -560,7 +560,7 @@ void CAnimData::SetupRender(CSkinnedModel& model, CVertexMorphEffect* morphEffec
 }
 
 void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) {
-  CGX::SetChanCtrl(CGX::EChannelId::Channel0, CGraphics::g_LightActive);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, CGraphics::mLightActive);
   model.Draw(flags);
 }
 
@@ -888,8 +888,8 @@ zeus::CAABox CAnimData::GetBoundingBox() const {
 void CAnimData::SubstituteModelData(const TCachedToken<CSkinnedModel>& model) {
   xd8_modelData = model;
   x108_aabb = {};
-  for (const auto& item : *xd8_modelData->GetModel()->GetPositions()) {
-    x108_aabb.accumulateBounds(item);
+  for (const auto& item : xd8_modelData->GetModel()->GetPositions()) {
+    x108_aabb.accumulateBounds({item.x, item.y, item.z});
   }
 }
 

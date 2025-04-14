@@ -68,28 +68,28 @@ void CSkinnedModel::Draw(TConstVectorRef verts, TConstVectorRef norms, const CMo
 
 void CSkinnedModel::Draw(const CModelFlags& drawFlags) {
   if (x35_disableWorkspaces) {
-    const auto mtx = CGraphics::g_GXModelMatrix;
+    const auto mtx = CGraphics::mModelMatrix;
     CGraphics::SetModelMatrix(mtx * x10_skinRules->x0_bones.front().x20_xf);
     x4_model->Draw(drawFlags);
     CGraphics::SetModelMatrix(mtx);
   } else if (m_workspace.IsEmpty()) {
     x4_model->Draw(drawFlags);
   } else {
-    x4_model->Draw(&m_workspace.m_vertexWorkspace, &m_workspace.m_normalWorkspace, drawFlags);
+    x4_model->Draw(m_workspace.m_vertexWorkspace, m_workspace.m_normalWorkspace, drawFlags);
     // PostDrawFunc();
   }
 }
 
 void CSkinnedModel::DoDrawCallback(const FCustomDraw& func) const {
   if (x35_disableWorkspaces) {
-    const auto mtx = CGraphics::g_GXModelMatrix;
+    const auto mtx = CGraphics::mModelMatrix;
     CGraphics::SetModelMatrix(mtx * x10_skinRules->x0_bones.front().x20_xf);
     func(x4_model->GetPositions(), x4_model->GetNormals());
     CGraphics::SetModelMatrix(mtx);
   } else if (m_workspace.IsEmpty()) {
     func(x4_model->GetPositions(), x4_model->GetNormals());
   } else {
-    func(&m_workspace.m_vertexWorkspace, &m_workspace.m_normalWorkspace);
+    func(m_workspace.m_vertexWorkspace, m_workspace.m_normalWorkspace);
     // PostDrawFunc();
   }
 }
@@ -102,33 +102,37 @@ CSkinnedModelWithAvgNormals::CSkinnedModelWithAvgNormals(IObjectStore& store, CA
                                                          CAssetId layoutInfo)
 : CSkinnedModel(store, model, skinRules, layoutInfo) {
   const auto vertexCount = GetSkinRules()->GetVertexCount();
-  const auto& modelPositions = *GetModel()->GetPositions();
+  const auto modelPositions = GetModel()->GetPositions();
 
   x40_averagedNormals.resize(vertexCount);
   std::vector<std::pair<zeus::CVector3f, std::list<u32>>> vertMap;
   for (int vertIdx = 0; vertIdx < vertexCount; ++vertIdx) {
-    const auto curPos = modelPositions[vertIdx];
+    const auto curPosV = modelPositions[vertIdx];
+    const zeus::CVector3f curPos{curPosV.x, curPosV.y, curPosV.z};
     if (std::find_if(vertMap.cbegin(), vertMap.cend(), [=](const auto& pair) { return pair.first.isEqu(curPos); }) ==
         vertMap.cend()) {
       auto& [_, list] = vertMap.emplace_back(curPos, std::list<u32>{});
       for (int idx = vertIdx; idx < vertexCount; ++idx) {
         // Originally uses ==, but adjusted to match above
-        if (modelPositions[idx].isEqu(curPos)) {
+        const auto& mpv = modelPositions[idx];
+        const zeus::CVector3f mpz{mpv.x, mpv.y, mpv.z};
+        if (mpz.isEqu(curPos)) {
           list.emplace_back(idx);
         }
       }
     }
   }
 
-  const auto& modelNormals = *GetModel()->GetNormals();
+  const auto& modelNormals = GetModel()->GetNormals();
   for (const auto& [_, idxs] : vertMap) {
     zeus::CVector3f averagedNormal;
     for (const auto idx : idxs) {
-      averagedNormal += modelNormals[idx];
+      const auto& mnv = modelNormals[idx];
+      averagedNormal += zeus::CVector3f{mnv.x, mnv.y, mnv.z};
     }
     averagedNormal.normalize();
     for (const auto idx : idxs) {
-      x40_averagedNormals[idx] = averagedNormal;
+      x40_averagedNormals[idx] = {averagedNormal.x(), averagedNormal.y(), averagedNormal.z()};
     }
   }
 }

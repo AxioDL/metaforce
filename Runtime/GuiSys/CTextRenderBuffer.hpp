@@ -5,7 +5,6 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
-#include "Runtime/Graphics/Shaders/CTextSupportShader.hpp"
 #include "Runtime/GuiSys/CFontImageDef.hpp"
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 

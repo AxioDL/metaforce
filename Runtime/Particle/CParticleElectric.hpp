@@ -9,7 +9,6 @@
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/CToken.hpp"
 #include "Runtime/rstl.hpp"
-#include "Runtime/Graphics/CLineRenderer.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Particle/CParticleGen.hpp"
 #include "Runtime/Particle/CParticleSwoosh.hpp"
@@ -91,9 +90,6 @@ private:
   bool x450_27_haveSSWH : 1 = false;
   bool x450_28_haveLWD : 1 = false;
   bool x450_29_transformDirty : 1 = true;
-
-  size_t m_nextLineRenderer = 0;
-  std::vector<std::unique_ptr<CLineRenderer>> m_lineRenderers;
 
   void SetupLineGXMaterial();
   void DrawLineStrip(const std::vector<zeus::CVector3f>& verts, float width, const zeus::CColor& color);

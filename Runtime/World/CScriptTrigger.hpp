@@ -5,7 +5,6 @@
 
 #include "Runtime/World/CActor.hpp"
 #include "Runtime/World/CDamageInfo.hpp"
-#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CVector3f.hpp>
@@ -60,8 +59,6 @@ protected:
   bool x148_27_deactivateOnExited : 1;
   bool x148_28_playerTriggerProc : 1 = false;
   bool x148_29_didPhazonDamage : 1 = false;
-
-  CAABoxShader m_debugBox;
 
 public:
   DEFINE_ENTITY

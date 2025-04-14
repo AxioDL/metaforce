@@ -22,10 +22,9 @@ static bool sDrawingWireframe = false;
 static zeus::CVector3f sPlayerPosition;
 
 CCubeModel::CCubeModel(std::vector<CCubeSurface>* surfaces, std::vector<TCachedToken<CTexture>>* textures,
-                       u8* materialData, std::vector<zeus::CVector3f>* positions, std::vector<zeus::CColor>* colors,
-                       std::vector<zeus::CVector3f>* normals, std::vector<aurora::Vec2<float>>* texCoords,
-                       std::vector<aurora::Vec2<float>>* packedTexCoords, const zeus::CAABox& aabb, u8 flags, bool b1,
-                       u32 idx)
+                       u8* materialData, std::span<const u8> positions, std::span<const u8> colors,
+                       std::span<const u8> normals, std::span<const u8> texCoords, std::span<const u8> packedTexCoords,
+                       const zeus::CAABox& aabb, u8 flags, bool b1, u32 idx)
 : x0_modelInstance(surfaces, materialData, positions, colors, normals, texCoords, packedTexCoords)
 , x1c_textures(textures)
 , x20_worldAABB(aabb)
@@ -148,7 +147,7 @@ void CCubeModel::DrawAlphaSurfaces(const CModelFlags& flags) {
 }
 
 void CCubeModel::DrawFlat(TConstVectorRef positions, TConstVectorRef normals, ESurfaceSelection surfaces) {
-  if (positions == nullptr) {
+  if (positions.empty()) {
     SetArraysCurrent();
   } else {
     SetSkinningArraysCurrent(positions, normals);
@@ -259,8 +258,8 @@ void CCubeModel::EnableShadowMaps(const CTexture& shadowTex, const zeus::CTransf
 void CCubeModel::DisableShadowMaps() { sRenderModelShadow = false; }
 
 void CCubeModel::SetArraysCurrent() {
-  CGX::SetArray(GX_VA_POS, x0_modelInstance.GetVertexPointer(), true);
-  CGX::SetArray(GX_VA_NRM, x0_modelInstance.GetNormalPointer(), true);
+  CGX::SetArray(GX_VA_POS, x0_modelInstance.GetVertexPointer(), 12);
+  CGX::SetArray(GX_VA_NRM, x0_modelInstance.GetNormalPointer(), (x41_visorFlags & 1) != 0 ? 6 : 12);
   SetStaticArraysCurrent();
 }
 
@@ -280,26 +279,26 @@ void CCubeModel::SetRenderModelBlack(bool v) {
 }
 
 void CCubeModel::SetSkinningArraysCurrent(TConstVectorRef positions, TConstVectorRef normals) {
-  CGX::SetArray(GX_VA_POS, positions, false);
-  CGX::SetArray(GX_VA_NRM, normals, false);
+  CGX::SetArray(GX_VA_POS, positions);
+  CGX::SetArray(GX_VA_NRM, normals);
   // colors unused
   SetStaticArraysCurrent();
 }
 
 void CCubeModel::SetStaticArraysCurrent() {
-  // colors unused
-  const auto* packedTexCoords = x0_modelInstance.GetPackedTCPointer();
-  const auto* texCoords = x0_modelInstance.GetTCPointer();
-  if (packedTexCoords == nullptr) {
-    sUsingPackedLightmaps = false;
+  if (!x0_modelInstance.GetColorPointer().empty()) {
+    CGX::SetArray(GX_VA_CLR0, x0_modelInstance.GetColorPointer(), 4);
   }
+  const auto packedTexCoords = x0_modelInstance.GetPackedTCPointer();
+  const auto texCoords = x0_modelInstance.GetTCPointer();
+  sUsingPackedLightmaps = !packedTexCoords.empty();
   if (sUsingPackedLightmaps) {
-    CGX::SetArray(GX_VA_TEX0, packedTexCoords, true);
+    CGX::SetArray(GX_VA_TEX0, packedTexCoords, 4);
   } else {
-    CGX::SetArray(GX_VA_TEX0, texCoords, true);
+    CGX::SetArray(GX_VA_TEX0, texCoords, 8);
   }
   for (int i = GX_VA_TEX1; i <= GX_VA_TEX7; ++i) {
-    CGX::SetArray(static_cast<GXAttr>(i), texCoords, true);
+    CGX::SetArray(static_cast<GXAttr>(i), texCoords, 8);
   }
   CCubeMaterial::KillCachedViewDepState();
 }
@@ -307,16 +306,39 @@ void CCubeModel::SetStaticArraysCurrent() {
 void CCubeModel::SetUsingPackedLightmaps(bool v) {
   sUsingPackedLightmaps = v;
   if (v) {
-    CGX::SetArray(GX_VA_TEX0, x0_modelInstance.GetPackedTCPointer(), true);
+    CGX::SetArray(GX_VA_TEX0, x0_modelInstance.GetPackedTCPointer(), 4);
   } else {
-    CGX::SetArray(GX_VA_TEX0, x0_modelInstance.GetTCPointer(), true);
+    CGX::SetArray(GX_VA_TEX0, x0_modelInstance.GetTCPointer(), 8);
   }
 }
 
 template <>
 aurora::Vec2<float> cinput_stream_helper(CInputStream& in) {
-  float x = in.ReadFloat();
-  float y = in.ReadFloat();
+  const auto x = in.ReadFloat();
+  const auto y = in.ReadFloat();
   return {x, y};
+}
+
+template <>
+aurora::Vec3<float> cinput_stream_helper(CInputStream& in) {
+  const auto x = in.ReadFloat();
+  const auto y = in.ReadFloat();
+  const auto z = in.ReadFloat();
+  return {x, y, z};
+}
+
+template <>
+aurora::Vec2<u16> cinput_stream_helper(CInputStream& in) {
+  const auto x = in.ReadUint16();
+  const auto y = in.ReadUint16();
+  return {x, y};
+}
+
+template <>
+aurora::Vec3<s16> cinput_stream_helper(CInputStream& in) {
+  const auto x = in.ReadInt16();
+  const auto y = in.ReadInt16();
+  const auto z = in.ReadInt16();
+  return {x, y, z};
 }
 } // namespace metaforce

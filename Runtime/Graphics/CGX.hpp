@@ -3,6 +3,7 @@
 #include "Graphics/GX.hpp"
 #include "RetroTypes.hpp"
 
+#include <span>
 #include <zeus/CColor.hpp>
 
 namespace metaforce::CGX {
@@ -118,10 +119,29 @@ static inline void SetAlphaCompare(GXCompare comp0, u8 ref0, GXAlphaOp op, GXCom
   }
 }
 
+static inline void SetArray(GXAttr attr, std::span<const u8> data, u8 stride) noexcept {
+  const auto* ptr = static_cast<const void*>(data.data());
+  if (ptr != nullptr && sGXState.x0_arrayPtrs[attr - GX_VA_POS] != ptr) {
+    // sGXState.x0_arrayPtrs[attr - GX_VA_POS] = const_cast<void*>(ptr);
+    GXSetArray(attr, data.data(), data.size(), stride);
+  }
+}
+
 template <typename T>
-static inline void SetArray(GXAttr attr, const std::vector<T>* data, bool isStatic) noexcept {
-  if (data != nullptr && sGXState.x0_arrayPtrs[attr - GX_VA_POS] != data) {
-    GXSetArray(attr, data->data(), data->size() * sizeof(T), sizeof(T));
+static inline void SetArray(GXAttr attr, std::span<const T> data) noexcept {
+  const auto* ptr = static_cast<const void*>(data.data());
+  if (ptr != nullptr && sGXState.x0_arrayPtrs[attr - GX_VA_POS] != ptr) {
+    // sGXState.x0_arrayPtrs[attr - GX_VA_POS] = const_cast<void*>(ptr);
+    GXSetArray(attr, data.data(), data.size_bytes(), sizeof(T));
+  }
+}
+
+template <typename T, size_t N>
+static inline void SetArray(GXAttr attr, const std::array<T, N>& data) noexcept {
+  const auto* ptr = static_cast<const void*>(data.data());
+  if (ptr != nullptr && sGXState.x0_arrayPtrs[attr - GX_VA_POS] != ptr) {
+    // sGXState.x0_arrayPtrs[attr - GX_VA_POS] = const_cast<void*>(ptr);
+    GXSetArray(attr, ptr, data.size() * sizeof(T), sizeof(T));
   }
 }
 
@@ -403,25 +423,24 @@ static inline void SetTexCoordGen(GXTexCoordID dstCoord, u32 flags) noexcept {
   }
 }
 
-static inline void SetVtxDescv_Compressed(u32 descList) noexcept {
-  u32 currentDescList = sGXState.x48_descList;
-  if (descList != currentDescList) {
-    size_t remain = sVtxDescList.size() - 1;
-    u32 shift = 0;
-    u32 attrIdx = 0;
-    do {
-      sVtxDescList[attrIdx] = {
-          GXAttr(GX_VA_POS + attrIdx),
-          GXAttrType(descList >> shift & 3),
-      };
-      shift += 2;
-      ++attrIdx;
-      --remain;
-    } while (remain != 0);
-    sVtxDescList[attrIdx] = {GX_VA_NULL, GX_NONE};
-    GXSetVtxDescv(sVtxDescList.data());
-    sGXState.x48_descList = descList;
+static inline void SetVtxDescv_Compressed(u32 flags) noexcept {
+  if (flags == sGXState.x48_descList) {
+    return;
   }
+  GXVtxDescList* list = sVtxDescList.data();
+  for (u32 idx = 0; idx < sVtxDescList.size() - 1; ++idx) {
+    u32 shift = idx * 2;
+    if ((flags & 3 << shift) == (sGXState.x48_descList & 3 << shift)) {
+      continue;
+    }
+    list->attr = static_cast<GXAttr>(GX_VA_POS + idx);
+    list->type = static_cast<GXAttrType>(flags >> shift & 3);
+    ++list;
+  }
+  list->attr = GX_VA_NULL;
+  list->type = GX_NONE;
+  GXSetVtxDescv(sVtxDescList.data());
+  sGXState.x48_descList = flags;
 }
 
 static inline void SetVtxDescv(const GXVtxDescList* descList) noexcept {

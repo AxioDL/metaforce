@@ -117,7 +117,7 @@ void CBomb::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
   float ballRadius = mgr.GetPlayer().GetMorphBall()->GetBallRadius();
 
   zeus::CAABox aabox(origin - (0.9f * ballRadius), origin + (0.9f * ballRadius));
-  zeus::CVector3f closestPoint = aabox.closestPointAlongVector(CGraphics::g_ViewMatrix.frontVector());
+  zeus::CVector3f closestPoint = aabox.closestPointAlongVector(CGraphics::mViewMatrix.frontVector());
 
   if (x190_24_isNotDetonated && x17c_fuseTime > 0.5f)
     g_Renderer->AddParticleGen(*x180_particle1, closestPoint, aabox);

@@ -13,43 +13,43 @@ CFluidPlaneDoor::CFluidPlaneDoor(CAssetId patternTex1, CAssetId patternTex2, CAs
 , xa4_tileSubdivisions(tileSubdivisions & ~0x1)
 , xa8_rippleResolution(xa0_tileSize / float(xa4_tileSubdivisions)) {}
 
-CFluidPlaneShader::RenderSetupInfo CFluidPlaneDoor::RenderSetup(const CStateManager& mgr, float alpha,
-                                                                const zeus::CTransform& xf, const zeus::CAABox& aabb,
-                                                                bool noNormals) {
-  CFluidPlaneShader::RenderSetupInfo out;
-
-  const float uvT = mgr.GetFluidPlaneManager()->GetUVT();
-  CGraphics::SetModelMatrix(xf);
-
-  const auto fluidUVs = x4c_uvMotion.CalculateFluidTextureOffset(uvT);
-
-  out.texMtxs[0][0][0] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
-  out.texMtxs[0][1][1] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
-  out.texMtxs[0][3][0] = fluidUVs[1][0];
-  out.texMtxs[0][3][1] = fluidUVs[1][1];
-
-  out.texMtxs[1][0][0] = x4c_uvMotion.GetFluidLayers()[2].GetUVScale();
-  out.texMtxs[1][1][1] = x4c_uvMotion.GetFluidLayers()[2].GetUVScale();
-  out.texMtxs[1][3][0] = fluidUVs[2][0];
-  out.texMtxs[1][3][1] = fluidUVs[2][1];
-
-  out.texMtxs[2][0][0] = x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
-  out.texMtxs[2][1][1] = x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
-  out.texMtxs[2][3][0] = fluidUVs[0][0];
-  out.texMtxs[2][3][1] = fluidUVs[0][1];
-
-  out.kColors[0] = zeus::CColor(1.f, alpha);
-
-  if (!m_shader) {
-    auto gridDimX = u32((xa0_tileSize + aabb.max.x() - aabb.min.x() - 0.01f) / xa0_tileSize);
-    auto gridDimY = u32((xa0_tileSize + aabb.max.y() - aabb.min.y() - 0.01f) / xa0_tileSize);
-    u32 gridCellCount = (gridDimX + 1) * (gridDimY + 1);
-    u32 maxVerts = gridCellCount * ((std::max(2, xa4_tileSubdivisions) * 4 + 2) * 4);
-    m_shader.emplace(x10_texPattern1, x20_texPattern2, x30_texColor, maxVerts);
-  }
-
-  return out;
-}
+// CFluidPlaneShader::RenderSetupInfo CFluidPlaneDoor::RenderSetup(const CStateManager& mgr, float alpha,
+//                                                                 const zeus::CTransform& xf, const zeus::CAABox& aabb,
+//                                                                 bool noNormals) {
+//   CFluidPlaneShader::RenderSetupInfo out;
+//
+//   const float uvT = mgr.GetFluidPlaneManager()->GetUVT();
+//   CGraphics::SetModelMatrix(xf);
+//
+//   const auto fluidUVs = x4c_uvMotion.CalculateFluidTextureOffset(uvT);
+//
+//   out.texMtxs[0][0][0] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
+//   out.texMtxs[0][1][1] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
+//   out.texMtxs[0][3][0] = fluidUVs[1][0];
+//   out.texMtxs[0][3][1] = fluidUVs[1][1];
+//
+//   out.texMtxs[1][0][0] = x4c_uvMotion.GetFluidLayers()[2].GetUVScale();
+//   out.texMtxs[1][1][1] = x4c_uvMotion.GetFluidLayers()[2].GetUVScale();
+//   out.texMtxs[1][3][0] = fluidUVs[2][0];
+//   out.texMtxs[1][3][1] = fluidUVs[2][1];
+//
+//   out.texMtxs[2][0][0] = x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
+//   out.texMtxs[2][1][1] = x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
+//   out.texMtxs[2][3][0] = fluidUVs[0][0];
+//   out.texMtxs[2][3][1] = fluidUVs[0][1];
+//
+//   out.kColors[0] = zeus::CColor(1.f, alpha);
+//
+//   if (!m_shader) {
+//     auto gridDimX = u32((xa0_tileSize + aabb.max.x() - aabb.min.x() - 0.01f) / xa0_tileSize);
+//     auto gridDimY = u32((xa0_tileSize + aabb.max.y() - aabb.min.y() - 0.01f) / xa0_tileSize);
+//     u32 gridCellCount = (gridDimX + 1) * (gridDimY + 1);
+//     u32 maxVerts = gridCellCount * ((std::max(2, xa4_tileSubdivisions) * 4 + 2) * 4);
+//     m_shader.emplace(x10_texPattern1, x20_texPattern2, x30_texColor, maxVerts);
+//   }
+//
+//   return out;
+// }
 
 // Used to be part of locked cache
 // These are too big for stack allocation
@@ -62,7 +62,7 @@ void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::
                              TUniqueId waterId, const bool* gridFlags, u32 gridDimX, u32 gridDimY,
                              const zeus::CVector3f& areaCenter) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CFluidPlaneDoor::Render", zeus::skCyan);
-  CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, aabb, noNormals);
+  // CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, aabb, noNormals);
 
   // if (!m_shader->isReady())
   //   return;
@@ -74,9 +74,9 @@ void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::
   float patchSize = xa8_rippleResolution * CFluidPlaneRender::numSubdivisionsInHField;
   float ooSubdivSize = 1.f / xa8_rippleResolution;
 
-  m_verts.clear();
-  m_pVerts.clear();
-  m_shader->prepareDraw(setupInfo);
+  // m_verts.clear();
+  // m_pVerts.clear();
+  // m_shader->prepareDraw(setupInfo);
 
   for (float curX = aabb.min.x(); curX < aabb.max.x(); curX += patchSize) {
     float remSubdivsX = (aabb.max.x() - curX) * ooSubdivSize;
@@ -92,13 +92,13 @@ void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::
                                                 CFluidPlaneRender::numSubdivisionsInHField,
                                                 CFluidPlaneRender::NormalMode::None, 0, 0, 0, 0, 0, 0, 0, nullptr);
 
-        RenderPatch(patchInfo, lc_heights, lc_flags, true, true, m_verts, m_pVerts);
+        // RenderPatch(patchInfo, lc_heights, lc_flags, true, true, m_verts, m_pVerts);
       }
     }
   }
 
-  m_shader->loadVerts(m_verts, m_pVerts);
-  m_shader->doneDrawing();
+  // m_shader->loadVerts(m_verts, m_pVerts);
+  // m_shader->doneDrawing();
 }
 
 } // namespace metaforce

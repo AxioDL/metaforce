@@ -201,21 +201,20 @@ void CActor::AddToRenderer(const zeus::CFrustum& planes, CStateManager& mgr) {
 void CActor::DrawTouchBounds() {
   // Empty in retail
   if (m_debugHovered || m_debugSelected) {
-    auto aabox = GetTouchBounds();
-    if (aabox) {
-      if (!m_actorDebugRender) {
-        m_actorDebugRender = CAABoxShader();
-      }
-      m_actorDebugRender->setAABB(*aabox);
-      m_actorDebugRender->draw(m_debugAddColor);
-    }
+    // auto aabox = GetTouchBounds();
+    // if (aabox) {
+    //   if (!m_actorDebugRender) {
+    //     m_actorDebugRender = CAABoxShader();
+    //   }
+    //   m_actorDebugRender->setAABB(*aabox);
+    //   m_actorDebugRender->draw(m_debugAddColor);
+    // }
   }
 }
 
 void CActor::RenderInternal(const CStateManager& mgr) const {
-  SCOPED_GRAPHICS_DEBUG_GROUP(
-      fmt::format("CActor::RenderInternal {} {} {}", x8_uid, xc_editorId, x10_name).c_str(),
-      zeus::skOrange);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format("CActor::RenderInternal {} {} {}", x8_uid, xc_editorId, x10_name).c_str(),
+                              zeus::skOrange);
 
   CModelData::EWhichModel which = CModelData::GetRenderingModel(mgr);
   if (which == CModelData::EWhichModel::ThermalHot) {
@@ -247,7 +246,7 @@ void CActor::RenderInternal(const CStateManager& mgr) const {
           1.f);
       CModelFlags flags(2, xb4_drawFlags.x1_matSetIdx, xb4_drawFlags.x2_flags, color);
       if (m_debugSelected || m_debugHovered) {
-        // TODO flags.addColor += m_debugAddColor;
+        flags.x4_color += m_debugAddColor;
       }
       x64_modelData->Render(mgr, x34_transform, x90_actorLights.get(), flags);
       return;
@@ -255,7 +254,12 @@ void CActor::RenderInternal(const CStateManager& mgr) const {
   }
   CModelFlags flags = xb4_drawFlags;
   if (m_debugSelected || m_debugHovered) {
-    // TODO flags.addColor += m_debugAddColor;
+    if (flags.x0_blendMode == 0) {
+      flags.x0_blendMode = 2;
+      flags.x4_color = m_debugAddColor;
+    } else {
+      flags.x4_color += m_debugAddColor;
+    }
   }
   x64_modelData->Render(which, x34_transform, x90_actorLights.get(), flags);
 }
@@ -457,12 +461,12 @@ void CActor::_CreateShadow() {
 }
 
 void CActor::_CreateReflectionCube() {
-//  if (hecl::com_cubemaps->toBoolean()) {
-//    CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-//      m_reflectionCube = ctx.newCubeRenderTexture(CUBEMAP_RES, CUBEMAP_MIPS);
-//      return true;
-//    } BooTrace);
-//  }
+  //  if (hecl::com_cubemaps->toBoolean()) {
+  //    CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
+  //      m_reflectionCube = ctx.newCubeRenderTexture(CUBEMAP_RES, CUBEMAP_MIPS);
+  //      return true;
+  //    } BooTrace);
+  //  }
 }
 
 void CActor::SetCallTouch(bool callTouch) { xe5_28_callTouch = callTouch; }
@@ -527,7 +531,7 @@ float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.buildMatri
 
 void CActor::EnsureRendered(const CStateManager& mgr) {
   const auto bounds = GetSortingBounds(mgr);
-  EnsureRendered(mgr, bounds.closestPointAlongVector(CGraphics::g_ViewMatrix.frontVector()), bounds);
+  EnsureRendered(mgr, bounds.closestPointAlongVector(CGraphics::mViewMatrix.frontVector()), bounds);
 }
 
 void CActor::EnsureRendered(const CStateManager& stateMgr, const zeus::CVector3f& pos, const zeus::CAABox& aabb) {

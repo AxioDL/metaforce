@@ -48,13 +48,9 @@ static void MyTHPGXYuv2RgbSetup(bool interlaced2ndFrame, bool fieldFlip) {
   if (!fieldFlip) {
     CGX::SetNumTexGens(3);
     CGX::SetTexCoordGen(GX_TEXCOORD2, GX_TG_MTX2x4, GX_TG_POS, GX_TEXMTX0, false, GX_PTIDENTITY);
-    aurora::Mat4x2<float> mtx;
-    mtx.m0.x = 0.125f;
-    mtx.m2.y = 0.25f;
-    if (interlaced2ndFrame) {
-      mtx.m3.y = 0.25f;
-    }
-    GXLoadTexMtxImm(&mtx, GX_TEXMTX0, GX_MTX2x4);
+    float n = interlaced2ndFrame ? 0.25f : 0.f;
+    float mtx[8] = {0.125f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.25f, n};
+    GXLoadTexMtxImm(mtx, GX_TEXMTX0, GX_MTX2x4);
     GXTexObj texObj;
     GXInitTexObj(&texObj, InterlaceTex.data(), 8, 4, GX_TF_I8, GX_REPEAT, GX_REPEAT, false);
     GXInitTexObjLOD(&texObj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
@@ -567,7 +563,7 @@ void CMoviePlayer::DrawFrame(const zeus::CVector3f& v1, const zeus::CVector3f& v
 
   /* ensure second field is being displayed by VI to signal advance
    * (faked in metaforce with continuous xor) */
-  if (xfc_fieldIndex == 0 && CGraphics::g_LastFrameUsedAbove)
+  if (xfc_fieldIndex == 0 && CGraphics::mLastFrameUsedAbove)
     xf4_26_fieldFlip = true;
 
   ++xfc_fieldIndex;

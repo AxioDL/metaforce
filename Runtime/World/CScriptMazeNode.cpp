@@ -462,8 +462,8 @@ void CMazeState::GenerateObstacles() {
 }
 
 void CMazeState::DebugRender() {
-  m_renderer.Reset();
-  m_renderer.AddVertex(sDebugCellPos[skEnterCol + skEnterRow * skMazeCols], zeus::skBlue, 2.f);
+  // m_renderer.Reset();
+  // m_renderer.AddVertex(sDebugCellPos[skEnterCol + skEnterRow * skMazeCols], zeus::skBlue, 2.f);
   for (s32 i = m_path.size() - 1; i >= 0; --i) {
     s32 idx = m_path[i];
     zeus::CVector3f pos;
@@ -473,8 +473,8 @@ void CMazeState::DebugRender() {
     } else {
       pos = sDebugCellPos[idx];
     }
-    m_renderer.AddVertex(pos, zeus::skBlue, 2.f);
+    // m_renderer.AddVertex(pos, zeus::skBlue, 2.f);
   }
-  m_renderer.Render();
+  // m_renderer.Render();
 }
 } // namespace metaforce
