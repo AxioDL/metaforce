@@ -78,8 +78,8 @@ static void MyTHPGXYuv2RgbSetup(bool interlaced2ndFrame, bool fieldFlip) {
   GXSetColorUpdate(true);
   GXSetAlphaUpdate(false);
   GXInvalidateTexAll();
-  GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-  GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_TEX0, GX_TEX_ST, GX_U16, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_POS, GX_CLR_RGBA, GX_F32, 0);
+  GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_TEX0, GX_CLR_RGBA, GX_RGBX8, 0);
   CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD1, GX_TEXMAP1, GX_COLOR_NULL);
   CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, GX_CC_C0);
   CGX::SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, false, GX_TEVPREV);
@@ -543,7 +543,7 @@ void CMoviePlayer::DrawFrame(const zeus::CVector3f& v1, const zeus::CVector3f& v
   //  CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
   //  aurora::gfx::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0], tex.U, tex.V, hPad, vPad);
 
-  MyTHPGXYuv2RgbSetup(true /*CGraphics::g_LastFrameUsedAbove*/, xf4_26_fieldFlip);
+  MyTHPGXYuv2RgbSetup(CGraphics::mLastFrameUsedAbove, xf4_26_fieldFlip);
   uintptr_t planeSize = x6c_videoInfo.width * x6c_videoInfo.height;
   uintptr_t planeSizeQuarter = planeSize / 4;
   MyTHPYuv2RgbTextureSetup(m_yuvBuf.get(), m_yuvBuf.get() + planeSize, m_yuvBuf.get() + planeSize + planeSizeQuarter,
@@ -551,13 +551,13 @@ void CMoviePlayer::DrawFrame(const zeus::CVector3f& v1, const zeus::CVector3f& v
 
   CGX::Begin(GX_TRIANGLEFAN, GX_VTXFMT7, 4);
   GXPosition3f32(v1);
-  GXTexCoord2f32(0.f, 0.f);
+  GXTexCoord2u16(0, 0);
   GXPosition3f32(v3);
-  GXTexCoord2f32(0.f, 1.f);
+  GXTexCoord2u16(0, 1);
   GXPosition3f32(v4);
-  GXTexCoord2f32(1.f, 1.f);
+  GXTexCoord2u16(1, 1);
   GXPosition3f32(v2);
-  GXTexCoord2f32(1.f, 0.f);
+  GXTexCoord2u16(1, 0);
   CGX::End();
   MyTHPGXRestore();
 
