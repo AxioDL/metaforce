@@ -59,7 +59,7 @@ CTexture::CTexture(CInputStream& in, std::string_view label, EAutoMipmap automip
   }
 
   if (sMangleMips) {
-    for (u32 i = 0; i < x8_mips; ++i) {
+    for (u32 i = 1; i < x8_mips; ++i) {
       MangleMipmap(i);
     }
   }
