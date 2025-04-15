@@ -45,7 +45,7 @@ static void MyTHPGXYuv2RgbSetup(bool interlaced2ndFrame, bool fieldFlip) {
   CGX::SetNumChans(0);
   CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
   CGX::SetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
-  if (!fieldFlip) {
+  if (false && !fieldFlip) {
     CGX::SetNumTexGens(3);
     CGX::SetTexCoordGen(GX_TEXCOORD2, GX_TG_MTX2x4, GX_TG_POS, GX_TEXMTX0, false, GX_PTIDENTITY);
     float n = interlaced2ndFrame ? 0.25f : 0.f;
@@ -299,28 +299,6 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
   x80_textures.reserve(3);
   for (int i = 0; i < 3; ++i) {
     CTHPTextureSet& set = x80_textures.emplace_back();
-    //    if (deinterlace) {
-    //      /* metaforce addition: this way interlaced THPs don't look horrible */
-    //      set.Y[0] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1, GX_TF_I8,
-    //                                                     fmt::format("Movie {} Texture Set {} Y[0]", path,
-    //                                                     i));
-    //      set.Y[1] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height / 2, 1, GX_TF_I8,
-    //                                                     fmt::format("Movie {} Texture Set {} Y[1]", path,
-    //                                                     i));
-    //      set.U = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX_TF_I8,
-    //                                                  fmt::format("Movie {} Texture Set {} U", path, i));
-    //      set.V = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX_TF_I8,
-    //                                                  fmt::format("Movie {} Texture Set {} V", path, i));
-    //    } else {
-    //      /* normal progressive presentation */
-    //      set.Y[0] = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width, x6c_videoInfo.height, 1, GX_TF_I8,
-    //                                                     fmt::format("Movie {} Texture Set {} Y", path,
-    //                                                     i));
-    //      set.U = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX_TF_I8,
-    //                                                  fmt::format("Movie {} Texture Set {} U", path, i));
-    //      set.V = aurora::gfx::new_dynamic_texture_2d(x6c_videoInfo.width / 2, x6c_videoInfo.height / 2, 1, GX_TF_I8,
-    //                                                  fmt::format("Movie {} Texture Set {} V", path, i));
-    //    }
     if (xf4_25_hasAudio)
       set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);
   }

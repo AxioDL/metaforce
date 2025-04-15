@@ -1159,8 +1159,7 @@ void CFrontEndUI::SFrontEndFrame::HandleActiveChange(CGuiTableGroup* active) {
   active->SetColors(zeus::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 }
 
-void CFrontEndUI::SFrontEndFrame::DoCancel(CGuiTableGroup* caller) { /* Intentionally empty */
-}
+void CFrontEndUI::SFrontEndFrame::DoCancel(CGuiTableGroup* caller) { /* Intentionally empty */ }
 
 void CFrontEndUI::SFrontEndFrame::DoSelectionChange(CGuiTableGroup* caller, int oldSel) {
   CSfxManager::SfxStart(SFXfnt_selection_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
@@ -1395,7 +1394,8 @@ void CFrontEndUI::SOptionsFrontEndFrame::DoMenuSelectionChange(CGuiTableGroup* c
 
       if (option.option == EGameOption::Rumble && caller->GetUserSelection() > 0) {
         x40_rumbleGen.HardStopAll();
-        x40_rumbleGen.Rumble(RumbleFxTable[size_t(ERumbleFxId::PlayerBump)], 1.f, ERumblePriority::One, EIOPort::Player1);
+        x40_rumbleGen.Rumble(RumbleFxTable[size_t(ERumbleFxId::PlayerBump)], 1.f, ERumblePriority::One,
+                             EIOPort::Player1);
       }
     }
   }
@@ -1643,18 +1643,16 @@ CFrontEndUI::CFrontEndUI() : CIOWin("FrontEndUI") {
 
 CFrontEndUI::~CFrontEndUI() {
   if (x14_phase >= EPhase::DisplayFrontEnd) {
-    //CAudioSys::RemoveAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
+    // CAudioSys::RemoveAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
   }
 }
 
 void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue) {
-  //xf4_curAudio->StopMixing();
+  // xf4_curAudio->StopMixing();
   queue.Push(MakeMsg::CreateCreateIOWin(EArchMsgTarget::IOWinManager, 12, 11, std::make_shared<CSlideShow>()));
 }
 
-std::string CFrontEndUI::GetAttractMovieFileName(int idx) {
-  return fmt::format("Video/attract{}.thp", idx);
-}
+std::string CFrontEndUI::GetAttractMovieFileName(int idx) { return fmt::format("Video/attract{}.thp", idx); }
 
 std::string CFrontEndUI::GetNextAttractMovieFileName() {
   std::string ret = GetAttractMovieFileName(xbc_nextAttract);
@@ -1771,9 +1769,9 @@ void CFrontEndUI::CompleteStateTransition() {
   case EScreen::FileSelect:
     SetCurrentMovie(EMenuMovie::FileSelectLoop);
     if (oldScreen == EScreen::Title) {
-      //xf4_curAudio->StopMixing();
-      //xf4_curAudio = xd8_audio2.get();
-      //xf4_curAudio->StartMixing();
+      // xf4_curAudio->StopMixing();
+      // xf4_curAudio = xd8_audio2.get();
+      // xf4_curAudio->StartMixing();
     }
     if (xdc_saveUI)
       xdc_saveUI->ResetCardDriver();
@@ -1829,8 +1827,8 @@ void CFrontEndUI::Draw() {
       g_Renderer->SetDepthReadWrite(false, false);
       const auto width = x38_pressStart->GetWidth();
       const auto height = x38_pressStart->GetHeight();
-      CGraphics::Render2D(*x38_pressStart, 320 - width / 2, 72 - height / 2, width, height,
-                          zeus::CColor{1.f, x64_pressStartAlpha});
+      CGraphics::Render2D(*x38_pressStart, 320 - (width / 2), 72 - (height / 2), width,
+                          height, zeus::CColor{1.f, x64_pressStartAlpha});
     }
 
     if (xc0_attractCount > 0) {
@@ -1966,16 +1964,16 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
 
   if (x50_curScreen != x54_nextScreen) {
     if (x54_nextScreen == EScreen::AttractMovie &&
-        (input.PStart() || input.PA() || input.PSpecialKey(ESpecialKey::Esc) ||
-         input.PSpecialKey(ESpecialKey::Enter) || input.PMouseButton(EMouseButton::Primary))) {
+        (input.PStart() || input.PA() || input.PSpecialKey(ESpecialKey::Esc) || input.PSpecialKey(ESpecialKey::Enter) ||
+         input.PMouseButton(EMouseButton::Primary))) {
       /* Player wants to return to opening credits from attract movie */
       SetFadeBlackTimer(std::min(1.f, x58_fadeBlackTimer));
       PlayAdvanceSfx();
       return;
     }
 
-    if (input.PA() || input.PStart() || input.PSpecialKey(ESpecialKey::Esc) ||
-        input.PSpecialKey(ESpecialKey::Enter) || input.PMouseButton(EMouseButton::Primary)) {
+    if (input.PA() || input.PStart() || input.PSpecialKey(ESpecialKey::Esc) || input.PSpecialKey(ESpecialKey::Enter) ||
+        input.PMouseButton(EMouseButton::Primary)) {
       if (x50_curScreen == EScreen::OpenCredits && x54_nextScreen == EScreen::Title && x58_fadeBlackTimer > 1.f) {
         /* Player is too impatient to view opening credits */
         xd0_playerSkipToTitle = true;
@@ -2046,7 +2044,7 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
         StartStateTransition(EScreen::FileSelect);
         return;
       case SFusionBonusFrame::EAction::PlayNESMetroid:
-        //xf4_curAudio->StopMixing();
+        // xf4_curAudio->StopMixing();
         xec_emuFrme = std::make_unique<SNesEmulatorFrame>();
         if (xdc_saveUI)
           xdc_saveUI->SetInGame(true);
@@ -2119,9 +2117,9 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
       }
       xe8_frontendNoCardFrme = std::make_unique<SFrontEndFrame>(x1c_rndB);
       x38_pressStart.GetObj();
-      //CAudioSys::AddAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
-//      xd4_audio1 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_1.rsf", 416480, 1973664);
-//      xd8_audio2 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_2.rsf", 273556, 1636980);
+      // CAudioSys::AddAudioGroup(x44_frontendAudioGrp->GetAudioGroupData());
+      //      xd4_audio1 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_1.rsf", 416480, 1973664);
+      //      xd8_audio2 = std::make_unique<CStaticAudioPlayer>("Audio/frontend_2.rsf", 273556, 1636980);
       x14_phase = EPhase::LoadFrames;
     }
     if (x14_phase == EPhase::LoadDeps)
@@ -2136,8 +2134,8 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
     if (/*!xd4_audio1->IsReady() || !xd8_audio2->IsReady() || */ !xe0_frontendCardFrme->PumpLoad() ||
         !xe8_frontendNoCardFrme->PumpLoad() || !xdc_saveUI->PumpLoad())
       return EMessageReturn::Exit;
-//    xf4_curAudio = xd4_audio1.get();
-//    xf4_curAudio->StartMixing();
+    //    xf4_curAudio = xd4_audio1.get();
+    //    xf4_curAudio->StartMixing();
     x14_phase = EPhase::LoadMovies;
     [[fallthrough]];
 
@@ -2178,7 +2176,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
         xec_emuFrme.reset();
         if (xdc_saveUI)
           xdc_saveUI->SetInGame(false);
-        //xf4_curAudio->StartMixing();
+        // xf4_curAudio->StartMixing();
       }
       break;
     }
@@ -2186,7 +2184,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
     if (xd2_deferSlideShow) {
       /* Start mixing slideshow music */
       xd2_deferSlideShow = false;
-      //xf4_curAudio->StartMixing();
+      // xf4_curAudio->StartMixing();
       if (xdc_saveUI)
         xdc_saveUI->ResetCardDriver();
     }

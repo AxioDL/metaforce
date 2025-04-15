@@ -272,7 +272,7 @@ static constexpr GXVtxDescList skPosColorTexDirect[] = {
 
 void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::CColor& col) {
   Mtx44 proj;
-  MTXOrtho(proj, mViewport.mHeight / 2, -mViewport.mHeight / 2, -mViewport.mWidth / 2, mViewport.mWidth / 2, -1.f,
+  MTXOrtho(proj, mViewport.mHeight / 2, -(mViewport.mHeight / 2), -(mViewport.mWidth / 2), mViewport.mWidth / 2, -1.f,
            -10.f);
   GXSetProjection(proj, GX_ORTHOGRAPHIC);
   uint c = col.toRGBA();
@@ -280,12 +280,15 @@ void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::
   Mtx mtx;
   MTXIdentity(mtx);
   GXLoadPosMtxImm(mtx, GX_PNMTX0);
+  const float scaledX = static_cast<float>(x) / 640.f * static_cast<float>(mViewport.mWidth);
+  const float scaledY = static_cast<float>(y) / 448.f * static_cast<float>(mViewport.mHeight);
+  const float scaledW = static_cast<float>(w) / 640.f * static_cast<float>(mViewport.mWidth);
+  const float scaledH = static_cast<float>(h) / 448.f * static_cast<float>(mViewport.mHeight);
 
-  float x2, y2, x1, y1;
-  x1 = x - mViewport.mWidth / 2;
-  y1 = y - mViewport.mHeight / 2;
-  x2 = x1 + w;
-  y2 = y1 + h;
+  const float x1 = scaledX - (mViewport.mWidth / 2);
+  const float y1 = scaledY - (mViewport.mHeight / 2);
+  const float x2 = x1 + scaledW;
+  const float y2 = y1 + scaledH;
 
   // Save state + setup
   CGX::SetVtxDescv(skPosColorTexDirect);
@@ -298,6 +301,7 @@ void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::
   SetCullMode(ERglCullMode::None);
 
   // Draw
+  tex.Load(GX_TEXMAP0, EClampMode::Repeat);
   CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
   GXPosition3f32(x1, y1, 1.f);
   GXColor1u32(c);
@@ -543,24 +547,24 @@ CGraphics::CClippedScreenRect CGraphics::ClipScreenRectFromVS(const CVector3f& p
     return CClippedScreenRect();
   }
 
-  int right = minX + maxX + 2 & ~1;
+  int right = minX + ((maxX + 2) & ~1);
   if (right <= mViewport.mLeft) {
     return CClippedScreenRect();
   }
   left = std::max(left, mViewport.mLeft) & ~1;
-  right = std::min(right, mViewport.mLeft + mViewport.mWidth) + 1 & ~1;
+  right = (std::min(right, mViewport.mLeft + mViewport.mWidth) + 1) & ~1;
 
   int top = minY & ~1;
   if (top >= mViewport.mTop + mViewport.mHeight) {
     return CClippedScreenRect();
   }
 
-  int bottom = minY + maxY + 2 & ~1;
+  int bottom = minY + ((maxY + 2) & ~1);
   if (bottom <= mViewport.mTop) {
     return CClippedScreenRect();
   }
   top = std::max(top, mViewport.mTop) & ~1;
-  bottom = std::min(bottom, mViewport.mTop + mViewport.mHeight) + 1 & ~1;
+  bottom = (std::min(bottom, mViewport.mTop + mViewport.mHeight) + 1) & ~1;
 
   float minV = static_cast<float>(minY - top) / static_cast<float>(bottom - top);
   float maxV = static_cast<float>(maxY + (minY - top) + 1) / static_cast<float>(bottom - top);
@@ -578,9 +582,11 @@ CGraphics::CClippedScreenRect CGraphics::ClipScreenRectFromVS(const CVector3f& p
   case ETexelFormat::RGBA8:
     texAlign = 2;
     break;
+  default:
+    break;
   }
 
-  int texWidth = texAlign + (right - left) - 1 & ~(texAlign - 1);
+  int texWidth = (texAlign + ((right - left) - 1)) & ~(texAlign - 1);
   float minU = static_cast<float>(minX - left) / static_cast<float>(texWidth);
   float maxU = static_cast<float>(maxX + (minX - left) + 1) / static_cast<float>(texWidth);
   return CClippedScreenRect(left, top, right - left, bottom - top, texWidth, minU, maxU, minV, maxV);
