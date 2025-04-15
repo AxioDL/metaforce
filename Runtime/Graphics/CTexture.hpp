@@ -106,7 +106,7 @@ public:
            EBlackKey blackKey = EBlackKey::Zero);
   ~CTexture();
 
-  [[nodiscard]] ETexelFormat GetTextureFormat() const { return x0_fmt; }
+  [[nodiscard]] ETexelFormat GetTexelFormat() const { return x0_fmt; }
   [[nodiscard]] u16 GetWidth() const { return x4_w; }
   [[nodiscard]] u16 GetHeight() const { return x6_h; }
   [[nodiscard]] u8 GetNumberOfMipMaps() const { return x8_mips; }

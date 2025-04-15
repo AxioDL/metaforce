@@ -184,7 +184,7 @@ void CMemoryCardSys::CCardFileInfo::LockIconToken(CAssetId iconTxtr, kabufuda::E
 u32 CMemoryCardSys::CCardFileInfo::CalculateBannerDataSize() const {
   u32 ret = 68;
   if (x3c_bannerTex.IsValid()) {
-    if ((*x40_bannerTok)->GetTextureFormat() == ETexelFormat::RGB5A3) {
+    if ((*x40_bannerTok)->GetTexelFormat() == ETexelFormat::RGB5A3) {
       ret = 6212;
     } else {
       ret = 3652;
@@ -193,7 +193,7 @@ u32 CMemoryCardSys::CCardFileInfo::CalculateBannerDataSize() const {
 
   bool paletteTex = false;
   for (const Icon& icon : x50_iconToks) {
-    if (icon.x8_tex->GetTextureFormat() == ETexelFormat::RGB5A3) {
+    if (icon.x8_tex->GetTexelFormat() == ETexelFormat::RGB5A3) {
       ret += 2048;
     } else {
       ret += 1024;
@@ -236,7 +236,7 @@ void CMemoryCardSys::CCardFileInfo::BuildCardBuffer() {
 void CMemoryCardSys::CCardFileInfo::WriteBannerData(COutputStream& out) const {
   if (x3c_bannerTex.IsValid()) {
     const TLockedToken<CTexture>& tex = *x40_bannerTok;
-    const auto format = tex->GetTextureFormat();
+    const auto format = tex->GetTexelFormat();
     const auto* texels = tex->GetConstBitMapData(0);
     if (format == ETexelFormat::RGB5A3) {
       out.Put(texels, 6144);
@@ -252,7 +252,7 @@ void CMemoryCardSys::CCardFileInfo::WriteBannerData(COutputStream& out) const {
 void CMemoryCardSys::CCardFileInfo::WriteIconData(COutputStream& out) const {
   const u8* palette = nullptr;
   for (const Icon& icon : x50_iconToks) {
-    const auto format = icon.x8_tex->GetTextureFormat();
+    const auto format = icon.x8_tex->GetTexelFormat();
     const auto* texels = icon.x8_tex->GetConstBitMapData(0);
     if (format == ETexelFormat::RGB5A3) {
       out.Put(texels, 2048);
@@ -305,7 +305,7 @@ ECardResult CMemoryCardSys::CCardFileInfo::GetStatus(kabufuda::CardStat& stat) c
 
   kabufuda::EImageFormat bannerFmt;
   if (x3c_bannerTex.IsValid()) {
-    if ((*x40_bannerTok)->GetTextureFormat() == ETexelFormat::RGB5A3) {
+    if ((*x40_bannerTok)->GetTexelFormat() == ETexelFormat::RGB5A3) {
       bannerFmt = kabufuda::EImageFormat::RGB5A3;
     } else {
       bannerFmt = kabufuda::EImageFormat::C8;
@@ -317,7 +317,7 @@ ECardResult CMemoryCardSys::CCardFileInfo::GetStatus(kabufuda::CardStat& stat) c
 
   int idx = 0;
   for (const Icon& icon : x50_iconToks) {
-    stat.SetIconFormat(icon.x8_tex->GetTextureFormat() == ETexelFormat::RGB5A3 ? kabufuda::EImageFormat::RGB5A3
+    stat.SetIconFormat(icon.x8_tex->GetTexelFormat() == ETexelFormat::RGB5A3 ? kabufuda::EImageFormat::RGB5A3
                                                                                : kabufuda::EImageFormat::C8,
                        idx);
     stat.SetIconSpeed(icon.x4_speed, idx);
