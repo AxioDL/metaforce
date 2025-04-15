@@ -46,7 +46,7 @@ public:
   }
   zeus::CVector3f toVec3f() const { return {x / 256.f, y / 256.f, z / 256.f}; }
 };
-
+class CEnvFxManager;
 class CEnvFxManagerGrid {
   friend class CEnvFxManager;
   friend class CEnvFxShaders;
