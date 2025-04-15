@@ -347,7 +347,7 @@ u32 CTexture::TexelFormatBitsPerPixel(ETexelFormat fmt) {
   }
 }
 
-bool CTexture::sMangleMips = true;
+bool CTexture::sMangleMips = false;
 u32 CTexture::sCurrentFrameCount = 0;
 u32 CTexture::sTotalAllocatedMemory = 0;
 

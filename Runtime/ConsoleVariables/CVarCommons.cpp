@@ -89,6 +89,9 @@ CVarCommons::CVarCommons(CVarManager& manager) : m_mgr(manager) {
   m_debugToolDrawPlatformCollision =
       m_mgr.findOrMakeCVar("debugTool.drawPlatformCollision", "Draws the bounding boxes of platforms"sv, false,
                            CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly);
+  m_debugToolMangleMipmaps = m_mgr.findOrMakeCVar(
+      "debugTool.mangleMipmaps", "Sets each mipmap of a texture to a known color based on distance."sv, false,
+      CVar::EFlags::Game | CVar::EFlags::Archive | CVar::EFlags::ReadOnly | CVar::EFlags::ModifyRestart);
   m_logFile = m_mgr.findOrMakeCVar("logFile"sv, "Any log prints will be stored to this file upon exit"sv, "app.log"sv,
                                    CVar::EFlags::System | CVar::EFlags::Archive | CVar::EFlags::ModifyRestart);
   m_lastDiscPath = m_mgr.findOrMakeCVar("lastDiscPath"sv, "Most recently loaded disc image path"sv, ""sv,

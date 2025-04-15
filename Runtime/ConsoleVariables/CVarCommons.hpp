@@ -52,6 +52,7 @@ struct CVarCommons {
   CVar* m_debugToolDrawCollisionActors = nullptr;
   CVar* m_debugToolDrawMazePath = nullptr;
   CVar* m_debugToolDrawPlatformCollision = nullptr;
+  CVar* m_debugToolMangleMipmaps = nullptr;
   CVar* m_logFile = nullptr;
   CVar* m_lastDiscPath = nullptr;
 
@@ -87,6 +88,9 @@ struct CVarCommons {
   std::string getLogFile() const { return m_logFile->toLiteral(); };
 
   void setLogFile(std::string_view log) { m_logFile->fromLiteral(log); }
+
+  bool getMangleMipmaps() const { return m_debugToolMangleMipmaps->toBoolean(); }
+  void setMangleMipmaps(bool b) { m_debugToolMangleMipmaps->fromBoolean(b); }
 
   void serialize() { m_mgr.serialize(); }
 

@@ -33,6 +33,7 @@
 #include <aurora/main.h>
 #include <dolphin/vi.h>
 #include <SDL3/SDL_messagebox.h>
+#include "Runtime/Graphics/CTexture.hpp"
 
 using namespace std::literals;
 
@@ -510,7 +511,6 @@ int main(int argc, char** argv) {
     metaforce::CVarManager cvarMgr{fileMgr};
     metaforce::CVarCommons cvarCmns{cvarMgr};
     cvarMgr.parseCommandLine(args);
-
     if (!restart) {
       // TODO add clear loggers func to logvisor so we can recreate loggers on restart
       bool logging = IsClientLoggingEnabled(argc, argv);
@@ -560,6 +560,7 @@ int main(int argc, char** argv) {
     g_app->onImGuiAddTextures();
     g_app->onAppLaunched(info);
     g_app->onAppWindowResized(info.windowSize);
+    metaforce::CTexture::SetMangleMips(cvarCmns.getMangleMipmaps());
     while (!cvarMgr.restartRequired()) {
       const auto* event = aurora_update();
       bool exiting = false;
