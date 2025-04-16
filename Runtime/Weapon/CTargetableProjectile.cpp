@@ -57,7 +57,7 @@ bool CTargetableProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVec
 }
 
 void CTargetableProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr) {
-  zeus::CTransform  xf = zeus::lookAt(GetTranslation(), GetAimPosition(mgr, 0.1f));
+  zeus::CTransform xf = zeus::lookAt(GetTranslation(), GetAimPosition(mgr, 0.1f));
   xf.origin = GetTranslation();
   SetTransform(xf);
   CEnergyProjectile::ResolveCollisionWithActor(res, act, mgr);

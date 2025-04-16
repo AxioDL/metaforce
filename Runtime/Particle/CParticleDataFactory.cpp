@@ -507,10 +507,10 @@ std::unique_ptr<CRealElement> CParticleDataFactory::GetRealElement(CInputStream&
     return std::make_unique<CRELifetimePercent>(std::move(a));
   }
   case SBIG('SINE'): {
-    auto a = GetRealElement(in);
-    auto b = GetRealElement(in);
-    auto c = GetRealElement(in);
-    return std::make_unique<CRESineWave>(std::move(a), std::move(b), std::move(c));
+    auto frequency = GetRealElement(in);
+    auto amplitude = GetRealElement(in);
+    auto phase = GetRealElement(in);
+    return std::make_unique<CRESineWave>(std::move(phase), std::move(frequency), std::move(amplitude));
   }
   case SBIG('ISWT'): {
     auto a = GetRealElement(in);
