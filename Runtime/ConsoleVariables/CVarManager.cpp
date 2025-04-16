@@ -28,7 +28,9 @@ CVar* com_configfile = nullptr;
 CVar* com_enableCheats = nullptr;
 CVar* com_cubemaps = nullptr;
 
-static const std::regex cmdLineRegex(R"(\+([\w\.]+)([=])?([\/\\\s\w\.\-]+)?)");
+static const std::regex cmdLineRegexEnable(R"(^\+([\w\.]+)([=])?([\/\\\s\w\.\-]+)?)");
+static const std::regex cmdLineRegexDisable(R"(^\-([\w\.]+)([=])?([\/\\\s\w\.\-]+)?)");
+
 CVarManager* CVarManager::m_instance = nullptr;
 
 CVarManager::CVarManager(FileStoreManager& store, bool useBinary) : m_store(store), m_useBinary(useBinary) {
@@ -270,15 +272,15 @@ void CVarManager::parseCommandLine(const std::vector<std::string>& args) {
   std::string developerName(com_developer->name());
   CStringExtras::ToLower(developerName);
   for (const std::string& arg : args) {
-    if (arg[0] != '+') {
+    if (arg[0] != '+' && arg[0] != '-') {
       continue;
     }
 
     std::smatch matches;
     std::string cvarName;
     std::string cvarValue;
-
-    if (std::regex_match(arg, matches, cmdLineRegex)) {
+    bool set = false;
+    if (std::regex_match(arg, matches, cmdLineRegexEnable)) {
       std::vector<std::string> realMatches;
       for (auto match : matches) {
         if (match.matched) {
@@ -291,26 +293,42 @@ void CVarManager::parseCommandLine(const std::vector<std::string>& args) {
         cvarName = matches[1].str();
         cvarValue = matches[3].str();
       }
+      set = true;
+    } else if (std::regex_match(arg, matches, cmdLineRegexDisable)) {
+      std::vector<std::string> realMatches;
+      for (auto match : matches) {
+        if (match.matched) {
+          realMatches.push_back(match);
+        }
+      }
+      if (realMatches.size() == 2) {
+        cvarName = matches[1].str();
+      } else if (realMatches.size() == 4) {
+        cvarName = matches[1].str();
+        cvarValue = matches[3].str();
+      }
+      set = false;
     }
 
     if (CVar* cv = findCVar(cvarName)) {
       if (cvarValue.empty() && cv->isBoolean()) {
         // We were set from the command line with an empty value, assume true
-        cv->fromBoolean(true);
+        cv->fromBoolean(set);
       } else if (!cvarValue.empty()) {
         cv->fromLiteralToType(cvarValue);
       }
       cv->m_wasDeserialized = true;
       cv->forceClearModified();
       CStringExtras::ToLower(cvarName);
-      if (developerName == cvarName)
+      if (developerName == cvarName) {
         /* Make sure we're not overriding developer mode when we restore */
         oldDeveloper = com_developer->toBoolean();
+      }
     } else {
       /* Unable to find an existing CVar, let's defer for the time being 8 */
       CStringExtras::ToLower(cvarName);
       if (cvarValue.empty()) {
-        cvarValue = "true";
+        cvarValue = set ? "true" : "false";
       }
       m_deferedCVars.insert(std::make_pair<std::string, std::string>(std::move(cvarName), std::move(cvarValue)));
     }
