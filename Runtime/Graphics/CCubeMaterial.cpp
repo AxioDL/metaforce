@@ -6,6 +6,7 @@
 #include "Graphics/CCubeSurface.hpp"
 #include "Graphics/CGX.hpp"
 #include "Graphics/CModel.hpp"
+#include "Logging.hpp"
 
 namespace metaforce {
 static u32 sReflectionType = 0;
@@ -307,16 +308,21 @@ void CCubeMaterial::EnsureViewDepStateCached(const CCubeSurface* surface) {
 }
 
 u32 CCubeMaterial::HandleColorChannels(u32 chanCount, u32 firstChan) {
+  static constexpr GXColor sGXBlack = {0, 0, 0, 0};
+  static constexpr GXColor sGXWhite = {0xFF, 0xFF, 0xFF, 0xFF};
+
   if (CCubeModel::sRenderModelShadow) {
     if (chanCount != 0) {
-      CGX::SetChanAmbColor(CGX::EChannelId::Channel1, GX_BLACK);
-      CGX::SetChanMatColor(CGX::EChannelId::Channel1, GX_WHITE);
+      CGX::SetChanAmbColor(CGX::EChannelId::Channel1, sGXBlack);
+      CGX::SetChanMatColor(CGX::EChannelId::Channel1, sGXWhite);
 
-      auto chan0Lights = CGraphics::mLightActive & ~CCubeModel::sChannel0DisableLightMask;
-      CGX::SetChanCtrl(CGX::EChannelId::Channel0, firstChan, chan0Lights);
-      CGX::SetChanCtrl(CGX::EChannelId::Channel1, CCubeModel::sChannel1EnableLightMask);
+      CGX::SetChanCtrl(CGX::EChannelId::Channel1, true, GX_SRC_REG, GX_SRC_REG, CCubeModel::sChannel1EnableLightMask,
+                       GX_DF_CLAMP, GX_AF_SPOT);
+
+      const auto chan0Lights = CGraphics::GetLightMask() & ~CCubeModel::sChannel0DisableLightMask;
+      CGX::SetChanCtrl_Compressed(CGX::EChannelId::Channel0, chan0Lights, firstChan);
       if (chan0Lights.any()) {
-        CGX::SetChanMatColor(CGX::EChannelId::Channel0, GX_WHITE);
+        CGX::SetChanMatColor(CGX::EChannelId::Channel0, sGXWhite);
       } else {
         CGX::SetChanMatColor(CGX::EChannelId::Channel0, CGX::GetChanAmbColor(CGX::EChannelId::Channel0));
       }
@@ -325,21 +331,22 @@ u32 CCubeMaterial::HandleColorChannels(u32 chanCount, u32 firstChan) {
   }
 
   if (chanCount == 2) {
-    CGX::SetChanAmbColor(CGX::EChannelId::Channel1, GX_BLACK);
-    CGX::SetChanMatColor(CGX::EChannelId::Channel1, GX_WHITE);
+    CGX::SetChanAmbColor(CGX::EChannelId::Channel1, sGXBlack);
+    CGX::SetChanMatColor(CGX::EChannelId::Channel1, sGXWhite);
   } else {
-    CGX::SetChanCtrl(CGX::EChannelId::Channel1, {});
+    CGX::SetChanCtrl(CGX::EChannelId::Channel1, false, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
   }
 
-  if (chanCount == 0) {
-    CGX::SetChanCtrl(CGX::EChannelId::Channel0, {});
-  } else {
-    CGX::SetChanCtrl(CGX::EChannelId::Channel0, firstChan, CGraphics::mLightActive);
-    if (CGraphics::mLightActive.any()) {
-      CGX::SetChanMatColor(CGX::EChannelId::Channel0, GX_WHITE);
+  if (chanCount >= 1) {
+    const auto lightMask = CGraphics::GetLightMask();
+    CGX::SetChanCtrl_Compressed(CGX::EChannelId::Channel0, lightMask, firstChan);
+    if (lightMask.any()) {
+      CGX::SetChanMatColor(CGX::EChannelId::Channel0, sGXWhite);
     } else {
       CGX::SetChanMatColor(CGX::EChannelId::Channel0, CGX::GetChanAmbColor(CGX::EChannelId::Channel0));
     }
+  } else {
+    CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
   }
 
   return chanCount;
@@ -603,8 +610,29 @@ void CCubeMaterial::DoPassthru(u32 finalTevCount) {
 }
 
 void CCubeMaterial::DoModelShadow(u32 texCount, u32 tcgCount) {
-  // CCubeModel::sShadowTexture->Load(texCount, EClampMode::One);
-  // TODO
+  CCubeModel::sShadowTexture->Load(static_cast<GXTexMapID>(texCount), EClampMode::Repeat);
+  const auto& xf = CCubeModel::sTextureProjectionTransform;
+  Mtx mtx = {
+      {xf.basis[0][0], xf.basis[1][0], xf.basis[2][0], xf.origin.x()},
+      {xf.basis[0][2], xf.basis[1][2], xf.basis[2][2], xf.origin.z()},
+      {0.f, 0.f, 0.f, 1.f},
+  };
+  GXLoadTexMtxImm(mtx, GX_TEXMTX5, GX_MTX3x4);
+
+  CGX::SetTexCoordGen(static_cast<GXTexCoordID>(tcgCount), GX_TG_MTX3x4, GX_TG_POS, GX_TEXMTX5, GX_FALSE,
+                      GX_PTIDENTITY);
+  CGX::SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVREG0);
+  CGX::SetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVREG0);
+  CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_RASC, GX_CC_TEXC, GX_CC_ZERO);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_RASA);
+  CGX::SetTevOrder(GX_TEVSTAGE0, static_cast<GXTexCoordID>(tcgCount), static_cast<GXTexMapID>(texCount), GX_COLOR1A1);
+
+  CGX::SetTevColorOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVREG0);
+  CGX::SetTevAlphaOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVREG0);
+  CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_RASC, GX_CC_ONE, GX_CC_C0);
+  CGX::SetTevAlphaIn(GX_TEVSTAGE1, GX_CA_ZERO, GX_CA_RASA, GX_CA_KONST, GX_CA_A0);
+  CGX::SetTevKAlphaSel(GX_TEVSTAGE1, GX_TEV_KASEL_1);
+  CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
 }
 
 static GXTevStageID sCurrentTevStage = GX_MAX_TEVSTAGE;

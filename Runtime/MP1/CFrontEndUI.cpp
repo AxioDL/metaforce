@@ -1825,10 +1825,10 @@ void CFrontEndUI::Draw() {
       CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
       g_Renderer->SetBlendMode_AdditiveAlpha();
       g_Renderer->SetDepthReadWrite(false, false);
-      const auto width = x38_pressStart->GetWidth();
-      const auto height = x38_pressStart->GetHeight();
+      const int width = x38_pressStart->GetWidth();
+      const int height = x38_pressStart->GetHeight();
       CGraphics::Render2D(*x38_pressStart, 320 - (width / 2), 72 - (height / 2), width,
-                          height, zeus::CColor{1.f, x64_pressStartAlpha});
+                          height, zeus::CColor{1.f, x64_pressStartAlpha}, true);
     }
 
     if (xc0_attractCount > 0) {

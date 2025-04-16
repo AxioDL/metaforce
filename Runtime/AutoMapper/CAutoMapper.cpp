@@ -1449,17 +1449,9 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
     if (IsInMapperState(EAutoMapperState::MapScreen)) {
       CAssetId wldMlvl = x24_world->IGetWorldAssetId();
       const CMapWorld* mw = x24_world->IGetMapWorld();
-//      std::vector<CTexturedQuadFilter>& hintBeaconFilters = m_hintBeaconFilters;
-//      if (hintBeaconFilters.size() < x1f8_hintLocations.size()) {
-//        hintBeaconFilters.reserve(x1f8_hintLocations.size());
-//        for (u32 i = hintBeaconFilters.size(); i < x1f8_hintLocations.size(); ++i)
-//          hintBeaconFilters.emplace_back(EFilterType::Add, x3c_hintBeacon);
-//      }
       auto locIt = x1f8_hintLocations.cbegin();
-//      auto filterIt = hintBeaconFilters.begin();
-      for (; locIt != x1f8_hintLocations.cend(); ++locIt/*, ++filterIt*/) {
+      for (; locIt != x1f8_hintLocations.cend(); ++locIt) {
         const SAutoMapperHintLocation& loc = *locIt;
-//        CTexturedQuadFilter& filter = *filterIt;
         if (loc.x8_worldId != wldMlvl)
           continue;
         const CMapArea* mapa = mw->GetMapArea(loc.xc_areaId);
@@ -1474,22 +1466,26 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
           beaconAlpha = loc.x4_beaconAlpha;
         }
         if (beaconAlpha > 0.f) {
-//          constexpr std::array<CTexturedQuadFilter::Vert, 4> verts{{
-//              {{-4.f, -8.f, 8.f}, {0.f, 1.f}},
-//              {{-4.f, -8.f, 0.f}, {0.f, 0.f}},
-//              {{4.f, -8.f, 8.f}, {1.f, 1.f}},
-//              {{4.f, -8.f, 0.f}, {1.f, 0.f}},
-//          }};
-          float colorAlpha = beaconAlpha;
-          if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
-          } else {
-            colorAlpha *= xa8_renderStates[0].x34_alphaSurfaceVisited;
-          }
-          colorAlpha *= mapAlpha;
+          CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
+          x3c_hintBeacon->Load(GX_TEXMAP0, EClampMode::Repeat);
+          g_Renderer->SetBlendMode_AdditiveAlpha();
+          CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
           zeus::CColor color = zeus::skWhite;
-          color.a() = colorAlpha;
-          // TODO
-//          filter.drawVerts(color, verts);
+          color.a() = beaconAlpha *
+                      ((x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap)
+                           ? 1.f
+                           : xa8_renderStates[0].x34_alphaSurfaceVisited) *
+                      mapAlpha;
+          CGraphics::StreamColor(color);
+          CGraphics::StreamTexcoord(0.f, 1.f);
+          CGraphics::StreamVertex(zeus::CVector3f(-4.f, -8.f, 8.f));
+          CGraphics::StreamTexcoord(0.f, 0.f);
+          CGraphics::StreamVertex(zeus::CVector3f(-4.f, -8.f, 0.f));
+          CGraphics::StreamTexcoord(1.f, 1.f);
+          CGraphics::StreamVertex(zeus::CVector3f(4.f, -8.f, 8.f));
+          CGraphics::StreamTexcoord(1.f, 0.f);
+          CGraphics::StreamVertex(zeus::CVector3f(4.f, -8.f, 0.f));
+          CGraphics::StreamEnd();
         }
       }
     }

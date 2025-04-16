@@ -340,7 +340,7 @@ public:
   static void SetCullMode(ERglCullMode);
   static void BeginScene();
   static void EndScene();
-  static void Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::CColor& col);
+  static void Render2D(CTexture& tex, int x, int y, int w, int h, const zeus::CColor& col, bool scale);
   static void SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1);
   static void SetViewPointMatrix(const zeus::CTransform& xf);
   static void SetViewMatrix();
@@ -373,10 +373,10 @@ public:
   static void SetClearColor(const zeus::CColor& color);
   static void SetCopyClear(const zeus::CColor& color, float depth);
   static void SetIsBeginSceneClearFb(bool clear);
-  static u32 GetViewportLeft() { return mViewport.mLeft; }
-  static u32 GetViewportTop() { return mViewport.mTop; }
-  static u32 GetViewportWidth() { return mViewport.mWidth; }
-  static u32 GetViewportHeight() { return mViewport.mHeight; }
+  static int GetViewportLeft() { return mViewport.mLeft; }
+  static int GetViewportTop() { return mViewport.mTop; }
+  static int GetViewportWidth() { return mViewport.mWidth; }
+  static int GetViewportHeight() { return mViewport.mHeight; }
   static float GetViewportHalfWidth() { return mViewport.mHalfWidth; }
   static float GetViewportHalfHeight() { return mViewport.mHalfHeight; }
   static float GetViewportAspect() {
@@ -385,6 +385,7 @@ public:
   static const CVector3f& GetViewPoint() { return mViewPoint; }
   static const CTransform4f& GetViewMatrix() { return mViewMatrix; }
   static const CTransform4f& GetModelMatrix() { return mModelMatrix; }
+  static GX::LightMask GetLightMask() { return mLightActive; }
 
   static void LoadDolphinSpareTexture(int width, int height, GXTexFmt format, void* data, GXTexMapID id);
   static void LoadDolphinSpareTexture(int width, int height, GXCITexFmt format, GXTlut tlut, void* data, GXTexMapID id);

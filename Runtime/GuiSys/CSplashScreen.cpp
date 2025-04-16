@@ -92,7 +92,7 @@ void CSplashScreen::Draw() {
     CGraphics::SetCullMode(ERglCullMode::Front);
   } else {
     // TODO originally uses CGraphics viewport, but Render2D needs scaling fix
-    CGraphics::Render2D(tex, 0, 0, 640, 448, color);
+    CGraphics::Render2D(tex, 0, 0, 640, 448, color, true);
   }
 
   // Progressive scan options omitted

@@ -449,13 +449,13 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
         const SObjectTag* objectTag = g_ResFactory->GetResourceIdByName(xec_locatorName);
         const CAssetId assetId = objectTag ? objectTag->id : CAssetId();
 
-        mgr.SetPendingOnScreenTex(assetId, {int(x104_float3), int(x108_float4)}, {int(xfc_float1), int(x100_float2)});
+        mgr.SetPendingOnScreenTex(assetId, {int(xfc_float1), int(x100_float2)}, {int(x104_float3), int(x108_float4)});
         if (objectTag) {
           x1e8_ = g_SimplePool->GetObj(*objectTag);
           x1e5_26_displayBillboard = true;
         }
       } else if (msg == EScriptObjectMessage::Decrement) {
-        mgr.SetPendingOnScreenTex({}, {int(x104_float3), int(x108_float4)}, {int(xfc_float1), int(x100_float2)});
+        mgr.SetPendingOnScreenTex({}, {int(xfc_float1), int(x100_float2)}, {int(x104_float3), int(x108_float4)});
         if (x1e8_)
           x1e8_ = TLockedToken<CTexture>();
         x1e5_26_displayBillboard = false;

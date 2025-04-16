@@ -32,7 +32,15 @@ struct SGXState {
   std::array<GXColor, 2> x38_chanAmbColors;
   std::array<GXColor, 2> x40_chanMatColors;
   u32 x48_descList = 0;
-  u8 x4c_dirtyChans = 0;
+  union {
+    u8 x4c_chanFlags = 0;
+    // Ordering swapped for LE
+    struct {
+      u8 numDirty : 1;
+      u8 chansDirty : 2;
+      u8 unused : 5;
+    } x4c_flags;
+  };
   u8 x4d_prevNumChans = 0;
   u8 x4e_numChans = 0;
   u8 x4f_numTexGens = 0;
@@ -55,6 +63,9 @@ struct SGXState {
 extern SGXState sGXState;
 extern std::array<GXVtxDescList, 12> sVtxDescList;
 
+static inline u32 MaskAndShiftLeft(u32 v, u32 m, u32 s) { return (v & m) << s; }
+static inline u32 ShiftRightAndMask(u32 v, u32 m, u32 s) { return (v >> s) & m; }
+
 static inline void update_fog(u32 value) noexcept {
   if (sGXState.x53_fogType == GX_FOG_NONE || (sGXState.x56_blendMode & 0xE0) == (value & 0xE0)) {
     return;
@@ -67,28 +78,37 @@ static inline void update_fog(u32 value) noexcept {
 }
 
 static inline void FlushState() noexcept {
-  if ((sGXState.x4c_dirtyChans & 1) != 0) {
-    u8 numChans = sGXState.x4e_numChans;
-    GXSetNumChans(numChans);
-    sGXState.x4d_prevNumChans = numChans;
+  if (sGXState.x4c_chanFlags & 1) {
+    GXSetNumChans(sGXState.x4e_numChans);
+    sGXState.x4d_prevNumChans = sGXState.x4e_numChans;
   }
-  if ((sGXState.x4c_dirtyChans & 2) != 0) {
-    auto flags = sGXState.x34_chanCtrls[0];
-    GXSetChanCtrl(GX_COLOR0, GXBool(flags & 1), GXColorSrc(flags >> 1 & 1), GXColorSrc(flags >> 2 & 1),
-                  flags >> 3 & 0xFF, GXDiffuseFn(flags >> 11 & 3), GXAttnFn(flags >> 13 & 3));
-    sGXState.x30_prevChanCtrls[0] = flags;
+  if (sGXState.x4c_chanFlags & 2) {
+    u16 flags = sGXState.x34_chanCtrls[0];
+    GXBool enable = ShiftRightAndMask(flags, 1, 0);
+    GXColorSrc ambSrc = static_cast<GXColorSrc>(ShiftRightAndMask(flags, 1, 1));
+    GXColorSrc matSrc = static_cast<GXColorSrc>(ShiftRightAndMask(flags, 1, 2));
+    u32 lightMask = ShiftRightAndMask(flags, 0xFF, 3);
+    GXDiffuseFn diffFn = static_cast<GXDiffuseFn>(ShiftRightAndMask(flags, 3, 11));
+    GXAttnFn attnFn = static_cast<GXAttnFn>(ShiftRightAndMask(flags, 3, 13));
+    GXSetChanCtrl(GX_COLOR0, enable, ambSrc, matSrc, lightMask, diffFn, attnFn);
+    sGXState.x30_prevChanCtrls[0] = sGXState.x34_chanCtrls[0];
   }
-  if ((sGXState.x4c_dirtyChans & 4) != 0) {
-    auto flags = sGXState.x34_chanCtrls[1];
-    GXSetChanCtrl(GX_COLOR1, GXBool(flags & 1), GXColorSrc(flags >> 1 & 1), GXColorSrc(flags >> 2 & 1),
-                  flags >> 3 & 0xFF, GXDiffuseFn(flags >> 11 & 3), GXAttnFn(flags >> 13 & 3));
-    sGXState.x30_prevChanCtrls[1] = flags;
+  if (sGXState.x4c_chanFlags & 4) {
+    u16 flags = sGXState.x34_chanCtrls[1];
+    GXBool enable = ShiftRightAndMask(flags, 1, 0);
+    GXColorSrc ambSrc = static_cast<GXColorSrc>(ShiftRightAndMask(flags, 1, 1));
+    GXColorSrc matSrc = static_cast<GXColorSrc>(ShiftRightAndMask(flags, 1, 2));
+    u32 lightMask = ShiftRightAndMask(flags, 0xFF, 3);
+    GXDiffuseFn diffFn = static_cast<GXDiffuseFn>(ShiftRightAndMask(flags, 3, 11));
+    GXAttnFn attnFn = static_cast<GXAttnFn>(ShiftRightAndMask(flags, 3, 13));
+    GXSetChanCtrl(GX_COLOR1, enable, ambSrc, matSrc, lightMask, diffFn, attnFn);
+    sGXState.x30_prevChanCtrls[1] = sGXState.x34_chanCtrls[1];
   }
-  sGXState.x4c_dirtyChans = 0;
+  sGXState.x4c_chanFlags = 0;
 }
 
 static inline void Begin(GXPrimitive primitive, GXVtxFmt fmt, u16 nverts) noexcept {
-  if (sGXState.x4c_dirtyChans != 0) {
+  if (sGXState.x4c_chanFlags != 0) {
     FlushState();
   }
   GXBegin(primitive, fmt, nverts);
@@ -97,7 +117,7 @@ static inline void Begin(GXPrimitive primitive, GXVtxFmt fmt, u16 nverts) noexce
 static inline void End() noexcept { GXEnd(); }
 
 static inline void CallDisplayList(const void* data, u32 nbytes) noexcept {
-  if (sGXState.x4c_dirtyChans != 0) {
+  if (sGXState.x4c_chanFlags != 0) {
     FlushState();
   }
   GXCallDisplayList(data, nbytes);
@@ -165,30 +185,31 @@ static inline void SetChanAmbColor(EChannelId id, const zeus::CColor& color) noe
   SetChanAmbColor(id, to_gx_color(color));
 }
 
-static inline void SetChanCtrl(EChannelId id, GXBool enable, GXColorSrc ambSrc, GXColorSrc matSrc, GX::LightMask lights,
-                               GXDiffuseFn diffFn, GXAttnFn attnFn) noexcept {
-  const auto idx = std::underlying_type_t<EChannelId>(id);
+static inline void SetChanCtrl(EChannelId channel, GXBool enable, GXColorSrc ambSrc, GXColorSrc matSrc,
+                               GX::LightMask lights, GXDiffuseFn diffFn, GXAttnFn attnFn) noexcept {
+  const auto idx = static_cast<std::underlying_type_t<EChannelId>>(channel);
+  u16& state = sGXState.x34_chanCtrls[idx];
+  u16 prevFlags = sGXState.x30_prevChanCtrls[idx];
   if (lights.none()) {
-    enable = false;
+    enable = GX_FALSE;
   }
-  const u32 flags = (attnFn & 3) << 13 | (diffFn & 3) << 11 | (lights.to_ulong() & 0xFF) << 3 | (matSrc & 1) << 2 |
-                    (ambSrc & 1) << 1 | (u8(enable) & 1);
-  sGXState.x34_chanCtrls[idx] = flags;
-  sGXState.x4c_dirtyChans = 7; // TODO
+  u32 flags = MaskAndShiftLeft(enable, 1, 0) | MaskAndShiftLeft(ambSrc, 1, 1) | MaskAndShiftLeft(matSrc, 1, 2) |
+              MaskAndShiftLeft(lights.to_ulong(), 0xFF, 3) | MaskAndShiftLeft(diffFn, 3, 11) |
+              MaskAndShiftLeft(attnFn, 3, 13);
+  state = flags;
+  sGXState.x4c_chanFlags = ((flags != prevFlags) << (idx + 1)) | (sGXState.x4c_chanFlags & ~(1 << (idx + 1)));
 }
 
-// Flags with lights override
-static inline void SetChanCtrl(EChannelId id, u32 flags, GX::LightMask lights) noexcept {
-  const auto idx = std::underlying_type_t<EChannelId>(id);
-  sGXState.x34_chanCtrls[idx] = lights.any() ? (flags | lights.to_ulong() << 3) : (flags & 0xFFFFFFFE);
-  sGXState.x4c_dirtyChans = 7; // TODO
-}
-
-// Helper function for common logic
-static inline void SetChanCtrl(EChannelId id, GX::LightMask lights) noexcept {
-  const bool hasLights = lights.any();
-  SetChanCtrl(id, hasLights, GX_SRC_REG, GX_SRC_REG, lights, hasLights ? GX_DF_CLAMP : GX_DF_NONE,
-              hasLights ? GX_AF_SPOT : GX_AF_NONE);
+static inline void SetChanCtrl_Compressed(EChannelId channel, GX::LightMask lights, u32 ctrl) {
+  const auto idx = static_cast<std::underlying_type_t<EChannelId>>(channel);
+  u16& state = sGXState.x34_chanCtrls[idx];
+  u16 prevFlags = sGXState.x30_prevChanCtrls[idx];
+  u32 flags = ctrl & ~1;
+  if (lights.any()) {
+    flags = ctrl | (lights.to_ulong() & 0xFF) << 3;
+  }
+  state = flags;
+  sGXState.x4c_chanFlags = ((flags != prevFlags) << (idx + 1)) | (sGXState.x4c_chanFlags & ~(1 << (idx + 1)));
 }
 
 static inline void SetChanMatColor(EChannelId id, GXColor color) noexcept {
@@ -222,8 +243,8 @@ void SetIndTexMtxSTPointFive(GXIndTexMtxID id, s8 scaleExp) noexcept;
 void SetLineWidth(u8 width, GXTexOffset offset) noexcept;
 
 static inline void SetNumChans(u8 num) noexcept {
-  sGXState.x4c_dirtyChans = 7; // TODO
   sGXState.x4e_numChans = num;
+  sGXState.x4c_flags.numDirty = sGXState.x4e_numChans != sGXState.x4d_prevNumChans;
 }
 
 static inline void SetNumIndStages(u8 num) noexcept {

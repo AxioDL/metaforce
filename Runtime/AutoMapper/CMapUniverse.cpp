@@ -16,7 +16,7 @@ CMapUniverse::CMapUniverse(CInputStream& in, u32 version) : x0_hexagonId(in.Get<
 
 CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
 : x0_label(in.Get<std::string>()), x10_worldAssetId(in) {
-  x14_transform  = in.Get<zeus::CTransform>();
+  x14_transform = in.Get<zeus::CTransform>();
   const u32 worldCount = in.ReadLong();
   x44_hexagonXfs.reserve(worldCount);
   for (u32 i = 0; i < worldCount; ++i) {
@@ -79,37 +79,40 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
     }
   }
 
-  std::sort(sortInfos.begin(), sortInfos.end(), [](const CMapObjectSortInfo& a, const CMapObjectSortInfo& b) {
-    return a.GetZDistance() > b.GetZDistance();
-  });
+  if (!sortInfos.empty()) {
+    std::sort(sortInfos.begin(), sortInfos.end(), [](const CMapObjectSortInfo& a, const CMapObjectSortInfo& b) {
+      return a.GetZDistance() > b.GetZDistance();
+    });
+    CMapArea::CMapAreaSurface::SetupGXMaterial();
 
-  int lastWldIdx = -1;
-  int lastHexIdx = -1;
-  for (const CMapObjectSortInfo& info : sortInfos) {
-    const CMapWorldData& mwData = x10_worldDatas[info.GetWorldIndex()];
-    zeus::CColor surfColor = info.GetSurfaceColor();
-    zeus::CColor outlineColor = info.GetOutlineColor();
-    if (parms.GetWorldAssetId() == mwData.GetWorldAssetId() && parms.GetClosestArea() == info.GetAreaIndex()) {
-      surfColor = zeus::CColor::lerp(g_tweakAutoMapper->GetSurfaceSelectVisitedColor(),
-                                     g_tweakAutoMapper->GetAreaFlashPulseColor(), parms.GetFlashPulse());
-      surfColor.a() = info.GetSurfaceColor().a();
-      outlineColor = zeus::CColor::lerp(g_tweakAutoMapper->GetOutlineSelectVisitedColor(),
-                                        g_tweakAutoMapper->GetAreaFlashPulseColor(), parms.GetFlashPulse());
-      outlineColor.a() = info.GetOutlineColor().a();
+    int lastWldIdx = -1;
+    int lastHexIdx = -1;
+    for (const CMapObjectSortInfo& info : sortInfos) {
+      const CMapWorldData& mwData = x10_worldDatas[info.GetWorldIndex()];
+      zeus::CColor surfColor = info.GetSurfaceColor();
+      zeus::CColor outlineColor = info.GetOutlineColor();
+      if (parms.GetWorldAssetId() == mwData.GetWorldAssetId() && parms.GetClosestArea() == info.GetAreaIndex()) {
+        surfColor = zeus::CColor::lerp(g_tweakAutoMapper->GetSurfaceSelectVisitedColor(),
+                                       g_tweakAutoMapper->GetAreaFlashPulseColor(), parms.GetFlashPulse());
+        surfColor.a() = info.GetSurfaceColor().a();
+        outlineColor = zeus::CColor::lerp(g_tweakAutoMapper->GetOutlineSelectVisitedColor(),
+                                          g_tweakAutoMapper->GetAreaFlashPulseColor(), parms.GetFlashPulse());
+        outlineColor.a() = info.GetOutlineColor().a();
+      }
+
+      zeus::CTransform hexXf = mwData.GetMapAreaData(info.GetAreaIndex());
+      hexXf.orthonormalize();
+      CMapArea::CMapAreaSurface& surf = x4_hexagonToken->GetSurface(info.GetObjectIndex());
+      zeus::CColor color(std::max(0.f, (-parms.GetCameraTransform().basis[1]).dot(hexXf.rotate(surf.GetNormal()))) *
+                             g_tweakAutoMapper->GetMapSurfaceNormColorLinear() +
+                         g_tweakAutoMapper->GetMapSurfaceNormColorConstant());
+      surfColor *= color;
+
+      if (info.GetAreaIndex() != lastHexIdx || info.GetWorldIndex() != lastWldIdx)
+        CGraphics::SetModelMatrix(parms.GetPaneProjectionTransform() * mwData.GetMapAreaData(info.GetAreaIndex()));
+
+      surf.Draw(x4_hexagonToken->GetVertices(), surfColor, outlineColor, 2.f);
     }
-
-    zeus::CTransform hexXf = mwData.GetMapAreaData(info.GetAreaIndex());
-    hexXf.orthonormalize();
-    CMapArea::CMapAreaSurface& surf = x4_hexagonToken->GetSurface(info.GetObjectIndex());
-    zeus::CColor color(std::max(0.f, (-parms.GetCameraTransform().basis[1]).dot(hexXf.rotate(surf.GetNormal()))) *
-                           g_tweakAutoMapper->GetMapSurfaceNormColorLinear() +
-                       g_tweakAutoMapper->GetMapSurfaceNormColorConstant());
-    surfColor *= color;
-
-    if (info.GetAreaIndex() != lastHexIdx || info.GetWorldIndex() != lastWldIdx)
-      CGraphics::SetModelMatrix(parms.GetPaneProjectionTransform() * mwData.GetMapAreaData(info.GetAreaIndex()));
-
-    surf.Draw(x4_hexagonToken->GetVertices(), surfColor, outlineColor, 2.f);
   }
 }
 

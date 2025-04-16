@@ -69,8 +69,8 @@ struct SScriptObjectStream {
 
 struct SOnScreenTex {
   CAssetId x0_id;
-  zeus::CVector2i x4_origin;
-  zeus::CVector2i xc_extent;
+  zeus::CVector2i x4_extent;
+  zeus::CVector2i xc_origin;
 };
 
 enum class EStateManagerTransition { InGame, MapScreen, PauseGame, LogBook, SaveGame, MessageScreen };
@@ -428,8 +428,8 @@ public:
   u32 GetBossStringIdx() const { return xf20_bossStringIdx; }
   void SetPendingOnScreenTex(CAssetId texId, const zeus::CVector2i& origin, const zeus::CVector2i& extent) {
     xef4_pendingScreenTex.x0_id = texId;
-    xef4_pendingScreenTex.x4_origin = origin;
-    xef4_pendingScreenTex.xc_extent = extent;
+    xef4_pendingScreenTex.x4_extent = origin;
+    xef4_pendingScreenTex.xc_origin = extent;
   }
   const SOnScreenTex& GetPendingScreenTex() const { return xef4_pendingScreenTex; }
   void SetViewportScale(const zeus::CVector2f& scale) { xf2c_viewportScale = scale; }

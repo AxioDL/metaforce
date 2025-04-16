@@ -337,8 +337,8 @@ void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQ
       }
     } else {
       if (!stateMgr.GetPendingScreenTex().x0_id.IsValid() &&
-          stateMgr.GetPendingScreenTex().x4_origin == zeus::CVector2i(0, 0)) {
-        x1c4_onScreenTex.x4_origin = stateMgr.GetPendingScreenTex().x4_origin;
+          stateMgr.GetPendingScreenTex().x4_extent == zeus::CVector2i(0, 0)) {
+        x1c4_onScreenTex.x4_extent = stateMgr.GetPendingScreenTex().x4_extent;
         x1c4_onScreenTex.x0_id = {};
         x1d8_onScreenTexAlpha = 0.f;
       } else {
@@ -477,11 +477,11 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
     g_Renderer->SetBlendMode_AlphaBlended();
     CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
     CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
-    int w = x1c4_onScreenTex.x4_origin.x;
-    int h = x1c4_onScreenTex.x4_origin.y;
-    int x = CGraphics::GetViewportLeft() + (CGraphics::GetViewportWidth() - w) / 2 + x1c4_onScreenTex.xc_extent.x;
-    int y = CGraphics::GetViewportTop() + (CGraphics::GetViewportHeight() - h) / 2 - x1c4_onScreenTex.xc_extent.y;
-    CGraphics::Render2D(*x1dc_onScreenTexTok, x, y, w, h, zeus::CColor{1.f, x1d8_onScreenTexAlpha});
+    int w = x1c4_onScreenTex.x4_extent.x;
+    int h = x1c4_onScreenTex.x4_extent.y;
+    int x = (640 - w) / 2 + x1c4_onScreenTex.xc_origin.x;
+    int y = (448 - h) / 2 - x1c4_onScreenTex.xc_origin.y;
+    CGraphics::Render2D(*x1dc_onScreenTexTok, x, y, w, h, zeus::CColor{1.f, x1d8_onScreenTexAlpha}, true);
   }
 
   float staticAlpha = 0.f;

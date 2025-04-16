@@ -270,25 +270,47 @@ static constexpr GXVtxDescList skPosColorTexDirect[] = {
     {GX_VA_NULL, GX_DIRECT},
 };
 
-void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::CColor& col) {
+void CGraphics::Render2D(CTexture& tex, int x, int y, int w, int h, const zeus::CColor& col, bool scale) {
   Mtx44 proj;
-  MTXOrtho(proj, mViewport.mHeight / 2, -(mViewport.mHeight / 2), -(mViewport.mWidth / 2), mViewport.mWidth / 2, -1.f,
-           -10.f);
+  if (scale) {
+    const float viewportAspect = GetViewportAspect();
+    float left = -320.f;
+    float right = 320.f;
+    float top = 224.f;
+    float bottom = -224.f;
+    if (viewportAspect > 4.f / 3.f) {
+      float width = 224.0f * viewportAspect;
+      left = -width;
+      right = width;
+    } else {
+      float height = 320.0f / viewportAspect;
+      top = height;
+      bottom = -height;
+    }
+    MTXOrtho(proj, top, bottom, left, right, -1.f, -10.f);
+  } else {
+    MTXOrtho(proj, mViewport.mHeight / 2, -(mViewport.mHeight / 2), -(mViewport.mWidth / 2), mViewport.mWidth / 2, -1.f,
+             -10.f);
+  }
   GXSetProjection(proj, GX_ORTHOGRAPHIC);
   uint c = col.toRGBA();
 
   Mtx mtx;
   MTXIdentity(mtx);
   GXLoadPosMtxImm(mtx, GX_PNMTX0);
-  const float scaledX = static_cast<float>(x) / 640.f * static_cast<float>(mViewport.mWidth);
-  const float scaledY = static_cast<float>(y) / 448.f * static_cast<float>(mViewport.mHeight);
-  const float scaledW = static_cast<float>(w) / 640.f * static_cast<float>(mViewport.mWidth);
-  const float scaledH = static_cast<float>(h) / 448.f * static_cast<float>(mViewport.mHeight);
 
-  const float x1 = scaledX - (mViewport.mWidth / 2);
-  const float y1 = scaledY - (mViewport.mHeight / 2);
-  const float x2 = x1 + scaledW;
-  const float y2 = y1 + scaledH;
+  float x2, y2, x1, y1;
+  if (scale) {
+    x1 = x - 320;
+    y1 = y - 224;
+    x2 = x1 + w;
+    y2 = y1 + h;
+  } else {
+    x1 = x - mViewport.mWidth / 2;
+    y1 = y - mViewport.mHeight / 2;
+    x2 = x1 + w;
+    y2 = y1 + h;
+  }
 
   // Save state + setup
   CGX::SetVtxDescv(skPosColorTexDirect);
@@ -299,9 +321,9 @@ void CGraphics::Render2D(CTexture& tex, u32 x, u32 y, u32 w, u32 h, const zeus::
   }
   ERglCullMode cullMode = mCullMode;
   SetCullMode(ERglCullMode::None);
+  tex.Load(GX_TEXMAP0, EClampMode::Repeat);
 
   // Draw
-  tex.Load(GX_TEXMAP0, EClampMode::Repeat);
   CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
   GXPosition3f32(x1, y1, 1.f);
   GXColor1u32(c);

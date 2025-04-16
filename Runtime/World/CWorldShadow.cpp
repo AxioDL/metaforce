@@ -19,7 +19,7 @@ void CWorldShadow::EnableModelProjectedShadow(const zeus::CTransform& pos, s32 l
   texTransform = zeus::CTransform::Translate(0.5f, 0.f, 0.5f) * texTransform;
   GX::LightMask lightMask;
   lightMask.set(lightIdx);
-  // CCubeModel::EnableShadowMaps(*x0_texture, texTransform, lightMask, lightMask);
+  CCubeModel::EnableShadowMaps(*x0_texture, texTransform, lightMask, lightMask);
 }
 
 void CWorldShadow::DisableModelProjectedShadow() { CCubeModel::DisableShadowMaps(); }
@@ -32,7 +32,6 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
     x84_lightIdx = lightIdx;
   }
 
-  return; // TODO
   if (aid != kInvalidAreaId) {
     const CGameArea* area = mgr.GetWorld()->GetAreaAlways(aid);
     if (area->IsPostConstructed()) {
@@ -60,16 +59,16 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
         frustum.updatePlanes(x4_view, zeus::SProjPersp(zeus::degToRad(fov), 1.f, 0.1f, distance + x64_objHalfExtent));
         g_Renderer->SetClippingPlanes(frustum);
         g_Renderer->SetPerspective(fov, x0_texture->GetWidth(), x0_texture->GetHeight(), 0.1f, 1000.f);
-        CViewport backupVp = CGraphics::mViewport;
         float backupDepthNear = CGraphics::mDepthNear;
         float backupDepthFar = CGraphics::mDepthFar;
-        g_Renderer->SetViewport(0, 0, x0_texture->GetWidth(), x0_texture->GetHeight());
         CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_FAR);
-
-        x34_model = zeus::lookAt(centerPoint - zeus::CVector3f(0.f, 0.f, 0.1f), light.GetPosition());
-        CGraphics::SetModelMatrix(x34_model);
+        CViewport backupVp = CGraphics::mViewport;
+        g_Renderer->SetViewport(0, 0, x0_texture->GetWidth() * 2, x0_texture->GetHeight() * 2);
 
         float extent = float(M_SQRT2) * x64_objHalfExtent;
+        x34_model = zeus::lookAt(centerPoint - zeus::CVector3f(0.f, 0.f, 0.1f), light.GetPosition());
+        g_Renderer->SetModelMatrix(x34_model);
+
         g_Renderer->PrimColor(zeus::skWhite);
         CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
         CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
@@ -77,6 +76,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
                                 ERglLogicOp::Clear);
         CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvPassthru);
         CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
+
         g_Renderer->BeginTriangleStrip(4);
         g_Renderer->PrimVertex({-extent, 0.f, extent});
         g_Renderer->PrimVertex({extent, 0.f, extent});
@@ -118,15 +118,22 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
           CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
           CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
           CGraphics::Render2D(*x0_texture, 0, x0_texture->GetWidth() * 2, x0_texture->GetHeight() * 2,
-                              x0_texture->GetWidth() * -2, zeus::CColor{1.f, 0.85f});
+                              x0_texture->GetWidth() * -2, zeus::CColor{1.f, 0.85f}, false);
           CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
         }
 
         x88_blurReset = false;
 
-        // TODO
-        // m_shader.resolveTexture();
-        // CBooRenderer::BindMainDrawTarget();
+        GXSetTexCopySrc(0, CGraphics::mRenderModeObj.efbHeight - x0_texture->GetHeight() * 2,
+                        x0_texture->GetWidth() * 2, x0_texture->GetHeight() * 2);
+        GXTexFmt fmt = GX_TF_RGBA8;
+        if (x0_texture->GetTexelFormat() == ETexelFormat::RGB565) {
+          fmt = GX_TF_RGB565;
+        }
+        GXSetTexCopyDst(x0_texture->GetWidth(), x0_texture->GetHeight(), fmt, true);
+        void* dest = x0_texture->Lock();
+        GXCopyTex(dest, true);
+        x0_texture->UnLock();
 
         g_Renderer->SetViewport(backupVp.mLeft, backupVp.mTop, backupVp.mWidth, backupVp.mHeight);
         CGraphics::SetDepthRange(backupDepthNear, backupDepthFar);

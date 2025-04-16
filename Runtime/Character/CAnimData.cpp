@@ -560,7 +560,9 @@ void CAnimData::SetupRender(CSkinnedModel& model, CVertexMorphEffect* morphEffec
 }
 
 void CAnimData::DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags) {
-  CGX::SetChanCtrl(CGX::EChannelId::Channel0, CGraphics::mLightActive);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, GX_ENABLE, GX_SRC_REG, GX_SRC_REG, CGraphics::mLightActive,
+                   CGraphics::mLightActive.any() ? GX_DF_CLAMP : GX_DF_NONE,
+                   CGraphics::mLightActive.any() ? GX_AF_SPOT : GX_AF_NONE);
   model.Draw(flags);
 }
 

@@ -258,22 +258,22 @@ void CTexture::MangleMipmap(u32 mip) {
     return;
   }
 
-  constexpr uint colors[4] = {
+  constexpr u32 colors[4] = {
       0x000000FF,
       0x0000FF00,
       0x00FF0000,
       0x0000FFFF,
   };
-  const uint color = colors[(mip - 1) & 3];
-  const ushort rgb565Color = ((color >> 3) & 0x001F) | // B
-                             ((color >> 5) & 0x07E0) | // G
-                             ((color >> 8) & 0xF800);  // R
-  const ushort rgb555Color = ((color >> 3) & 0x001F) | // B
-                             ((color >> 6) & 0x03E0) | // G
-                             ((color >> 9) & 0x7C00);  // R
-  const ushort rgb4Color = ((color >> 4) & 0x000F) |   // B
-                           ((color >> 8) & 0x00F0) |   // G
-                           ((color >> 12) & 0x0F00);   // R
+  const u32 color = colors[(mip - 1) & 3];
+  const u16 rgb565Color = ((color >> 3) & 0x001F) | // B
+                          ((color >> 5) & 0x07E0) | // G
+                          ((color >> 8) & 0xF800);  // R
+  const u16 rgb555Color = ((color >> 3) & 0x001F) | // B
+                          ((color >> 6) & 0x03E0) | // G
+                          ((color >> 9) & 0x7C00);  // R
+  const u16 rgb4Color = ((color >> 4) & 0x000F) |   // B
+                        ((color >> 8) & 0x00F0) |   // G
+                        ((color >> 12) & 0x0F00);   // R
 
   int width = GetWidth();
   int height = GetHeight();
@@ -287,7 +287,7 @@ void CTexture::MangleMipmap(u32 mip) {
 
   switch (GetTexelFormat()) {
   case ETexelFormat::RGB565: {
-    const auto ptr = reinterpret_cast<ushort*>(x44_aramToken_x4_buff.get()); // mARAMToken.GetMRAMSafe());
+    const auto ptr = reinterpret_cast<u16*>(x44_aramToken_x4_buff.get()); // mARAMToken.GetMRAMSafe());
     for (int i = 0; i < width * height; ++i) {
       ptr[i + offset] = rgb565Color;
       CBasics::Swap2Bytes(reinterpret_cast<u8*>(&ptr[i + offset]));
@@ -295,7 +295,7 @@ void CTexture::MangleMipmap(u32 mip) {
     break;
   }
   case ETexelFormat::CMPR: {
-    auto ptr = reinterpret_cast<ushort*>(x44_aramToken_x4_buff.get()) + offset / 4;
+    auto ptr = reinterpret_cast<u16*>(x44_aramToken_x4_buff.get()) + offset / 4;
     for (int i = 0; i < width * height / 16; ++i, ptr += 4) {
       ptr[0] = rgb565Color;
       CBasics::Swap2Bytes(reinterpret_cast<u8*>(&ptr[0]));
@@ -307,9 +307,9 @@ void CTexture::MangleMipmap(u32 mip) {
     break;
   }
   case ETexelFormat::RGB5A3: {
-    const auto ptr = reinterpret_cast<ushort*>(x44_aramToken_x4_buff.get());
+    const auto ptr = reinterpret_cast<u16*>(x44_aramToken_x4_buff.get());
     for (int i = 0; i < width * height; ++i) {
-      ushort& val = ptr[i + offset];
+      u16& val = ptr[i + offset];
       CBasics::Swap2Bytes(reinterpret_cast<u8*>(&val));
       if ((val & 0x8000) != 0) {
         val = rgb555Color | 0x8000;

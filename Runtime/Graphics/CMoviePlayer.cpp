@@ -464,9 +464,10 @@ bool CMoviePlayer::DrawVideo() {
   const s32 vpLeft = CGraphics::GetViewportLeft();
 #ifdef AURORA
   // Scale to full size, maintaining aspect ratio
-  float vidAspect = static_cast<float>(x6c_videoInfo.width) / static_cast<float>(x6c_videoInfo.height);
-  const s32 vidWidth = vpHeight * vidAspect;
-  const s32 vidHeight = vpHeight;
+  const float scale = std::min(static_cast<float>(CGraphics::GetViewportWidth()) / 640.0f,
+                               static_cast<float>(CGraphics::GetViewportHeight()) / 448.0f);
+  const s32 vidWidth = x6c_videoInfo.width * scale;
+  const s32 vidHeight = x6c_videoInfo.height * scale;
 #else
   const s32 vidWidth = x6c_videoInfo.width;
   const s32 vidHeight = x6c_videoInfo.height;
@@ -506,20 +507,6 @@ void CMoviePlayer::DrawFrame(const zeus::CVector3f& v1, const zeus::CVector3f& v
   SCOPED_GRAPHICS_DEBUG_GROUP("CMoviePlayer::DrawFrame", zeus::skYellow);
 
   CGraphics::SetUseVideoFilter(xf4_26_fieldFlip);
-
-  /* Correct movie aspect ratio */
-  float hPad, vPad;
-  if (CGraphics::GetViewportAspect() >= 1.78f) {
-    hPad = 1.78f / CGraphics::GetViewportAspect();
-    vPad = 1.78f / 1.33f;
-  } else {
-    hPad = 1.f;
-    vPad = CGraphics::GetViewportAspect() / 1.33f;
-  }
-
-  //  /* draw appropriate field */
-  //  CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];
-  //  aurora::gfx::queue_movie_player(tex.Y[m_deinterlace ? (xfc_fieldIndex != 0) : 0], tex.U, tex.V, hPad, vPad);
 
   MyTHPGXYuv2RgbSetup(CGraphics::mLastFrameUsedAbove, xf4_26_fieldFlip);
   uintptr_t planeSize = x6c_videoInfo.width * x6c_videoInfo.height;
@@ -646,31 +633,6 @@ void CMoviePlayer::DecodeFromRead(const void* data) {
     case THPComponents::Type::Video: {
       tjDecompressToYUV(TjHandle, (u8*)inptr, frameHeader.imageSize, m_yuvBuf.get(), 0);
       inptr += frameHeader.imageSize;
-
-      uintptr_t planeSize = x6c_videoInfo.width * x6c_videoInfo.height;
-      uintptr_t planeSizeHalf = planeSize / 2;
-      uintptr_t planeSizeQuarter = planeSizeHalf / 2;
-
-      //      if (m_deinterlace) {
-      //        /* Deinterlace into 2 discrete 60-fps half-res textures */
-      //        auto buffer = std::make_unique<u8[]>(planeSizeHalf);
-      //        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
-      //          memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2),
-      //                 x6c_videoInfo.width);
-      //        }
-      //        aurora::gfx::write_texture(*tex.Y[0], {buffer.get(), planeSizeHalf});
-      //        for (unsigned y = 0; y < x6c_videoInfo.height / 2; ++y) {
-      //          memcpy(buffer.get() + x6c_videoInfo.width * y, m_yuvBuf.get() + x6c_videoInfo.width * (y * 2 + 1),
-      //                 x6c_videoInfo.width);
-      //        }
-      //        aurora::gfx::write_texture(*tex.Y[1], {buffer.get(), planeSizeHalf});
-      //      } else {
-      //        /* Direct planar load */
-      //        aurora::gfx::write_texture(*tex.Y[0], {m_yuvBuf.get(), planeSize});
-      //      }
-      //      aurora::gfx::write_texture(*tex.U, {m_yuvBuf.get() + planeSize, planeSizeQuarter});
-      //      aurora::gfx::write_texture(*tex.V, {m_yuvBuf.get() + planeSize + planeSizeQuarter, planeSizeQuarter});
-
       break;
     }
     case THPComponents::Type::Audio:

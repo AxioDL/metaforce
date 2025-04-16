@@ -913,7 +913,7 @@ void CElementGen::RenderModels() {
             GXVtxDescList{GX_VA_NULL, GX_NONE},
         };
         CGX::SetVtxDescv(vtxDescList.data());
-        CGX::SetChanCtrl(CGX::EChannelId::Channel0, {});
+        CGX::SetChanCtrl(CGX::EChannelId::Channel0, false, GX_SRC_REG, GX_SRC_VTX, {}, GX_DF_NONE, GX_AF_NONE);
         CGX::SetNumChans(1);
         CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
         CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
@@ -1271,7 +1271,7 @@ void CElementGen::RenderParticles() {
     CGX::SetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR1A1);
     CGX::SetChanAmbColor(CGX::EChannelId::Channel1, zeus::skBlack);
     CGX::SetChanMatColor(CGX::EChannelId::Channel1, x338_moduColor);
-    CGX::SetChanCtrl(CGX::EChannelId::Channel1, {});
+    CGX::SetChanCtrl(CGX::EChannelId::Channel1, false, GX_SRC_REG, GX_SRC_REG, {}, GX_DF_NONE, GX_AF_NONE);
   } else {
     CGX::SetNumChans(1);
     nextStage = GX_TEVSTAGE1;

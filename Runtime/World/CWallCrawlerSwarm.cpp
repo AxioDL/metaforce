@@ -1070,9 +1070,8 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
 }
 
 void CWallCrawlerSwarm::Render(CStateManager& mgr) {
-  SCOPED_GRAPHICS_DEBUG_GROUP(
-      fmt::format("CWallCrawlerSwarm::Render {} {} {}", x8_uid, xc_editorId, x10_name).c_str(),
-      zeus::skOrange);
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format("CWallCrawlerSwarm::Render {} {} {}", x8_uid, xc_editorId, x10_name).c_str(),
+                              zeus::skOrange);
   u32 drawMask = 0xffffffff;
   const bool r24 = x560_24_enableLighting;
   const bool r23 = x560_25_useSoftwareLight;
@@ -1086,7 +1085,9 @@ void CWallCrawlerSwarm::Render(CStateManager& mgr) {
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
     flags = CModelFlags(5, 0, 3, zeus::CColor(1.f, 0.3f));
   }
-  CGX::SetChanCtrl(CGX::EChannelId::Channel0, CGraphics::mLightActive);
+  CGX::SetChanCtrl(CGX::EChannelId::Channel0, r24 && !r23, GX_SRC_REG, GX_SRC_REG, CGraphics::mLightActive,
+                   CGraphics::mLightActive.any() ? GX_DF_CLAMP : GX_DF_NONE,
+                   CGraphics::mLightActive.any() ? GX_AF_SPOT : GX_AF_NONE);
 
   for (int r27 = 0; r27 < 5; ++r27) {
     for (int r28 = 0; r28 < 5; ++r28) {
