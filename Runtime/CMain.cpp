@@ -239,6 +239,13 @@ public:
         m_imGuiConsole.ToggleVisible();
         m_lAltHeld = false;
       }
+      break;
+    case SDL_EVENT_DROP_FILE: {
+      m_imGuiConsole.m_gameDiscSelected = event.drop.data;
+      break;
+    }
+    default:
+      break;
     }
   }
 
