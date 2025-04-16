@@ -27,7 +27,6 @@ endif ()
 
 add_subdirectory(nod EXCLUDE_FROM_ALL)
 add_subdirectory(jbus EXCLUDE_FROM_ALL)
-add_subdirectory(kabufuda EXCLUDE_FROM_ALL)
 
 option(OPTICK_ENABLED "Enable profiling with Optick" OFF)
 set(OPTICK_USE_VULKAN ${DAWN_ENABLE_VULKAN} CACHE BOOL "Built-in support for Vulkan" FORCE)
