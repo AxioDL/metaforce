@@ -78,7 +78,7 @@ CMapArea::CMapArea(CInputStream& in, u32 size)
 }
 
 void CMapArea::PostConstruct() {
-  OPTICK_EVENT();
+//  OPTICK_EVENT();
   x38_moStart = x44_buf.get();
   x3c_vertexStart = x38_moStart + (x28_mappableObjCount * 0x50);
   x40_surfaceStart = x3c_vertexStart + (x2c_vertexCount * 12);

@@ -1329,7 +1329,7 @@ void ImGuiConsole::ToggleVisible() {
 }
 
 void ImGuiConsole::PreUpdate() {
-  OPTICK_EVENT();
+  //OPTICK_EVENT();
   bool preLaunch = g_Main == nullptr;
   if (!m_isInitialized) {
     m_isInitialized = true;
@@ -1424,7 +1424,7 @@ void ImGuiConsole::PreUpdate() {
 }
 
 void ImGuiConsole::PostUpdate() {
-  OPTICK_EVENT();
+  //OPTICK_EVENT();
   if (g_StateManager != nullptr && g_StateManager->GetObjectList()) {
     // Clear deleted objects
     CObjectList& list = g_StateManager->GetAllObjectList();

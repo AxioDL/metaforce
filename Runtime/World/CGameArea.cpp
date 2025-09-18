@@ -790,7 +790,7 @@ void CGameArea::StartStreamIn(CStateManager& mgr) {
   if (xf0_24_postConstructed || xf0_27_loadPaused)
     return;
 
-  OPTICK_EVENT();
+  //OPTICK_EVENT();
   VerifyTokenList(mgr);
 
   if (!xf0_26_tokensReady) {

@@ -61,7 +61,7 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose, CVertexMorphEffect*
 }
 
 void CSkinnedModel::Draw(TConstVectorRef verts, TConstVectorRef norms, const CModelFlags& drawFlags) {
-  OPTICK_EVENT();
+  //OPTICK_EVENT();
   x4_model->Draw(verts, norms, drawFlags);
   // PostDrawFunc();
 }

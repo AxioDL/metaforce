@@ -4,7 +4,7 @@
 #include <array>
 #include <cctype>
 #include <iterator>
-#include "optick.h"
+//#include "optick.h"
 
 #include "Runtime/CStopwatch.hpp"
 #include "Runtime/IObj.hpp"
@@ -36,7 +36,7 @@ bool CFactoryMgr::CanMakeMemory(const metaforce::SObjectTag& tag) const {
 CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, std::unique_ptr<u8[]>&& buf, int size,
                                                    bool compressed, const CVParamTransfer& paramXfer,
                                                    CObjectReference* selfRef) {
-  OPTICK_EVENT();
+  //OPTICK_EVENT();
   std::unique_ptr<u8[]> localBuf = std::move(buf);
 
   const auto memFactoryIter = x24_memFactories.find(tag.type);

@@ -48,27 +48,27 @@ CRasterFont::CRasterFont(metaforce::CInputStream& in, metaforce::IObjectStore& s
     float endU = in.ReadFloat();
     float endV = in.ReadFloat();
     s32 layer = 0;
-    s32 a, b, c, cellWidth, cellHeight, baseline, kernStart;
+    s32 leftPadding, advance, rightPadding, cellWidth, cellHeight, baseline, kernStart;
     if (version < 4) {
-      a = in.ReadInt32();
-      b = in.ReadInt32();
-      c = in.ReadInt32();
+      leftPadding = in.ReadInt32();
+      advance = in.ReadInt32();
+      rightPadding = in.ReadInt32();
       cellWidth = in.ReadInt32();
       cellHeight = in.ReadInt32();
       baseline = in.ReadInt32();
       kernStart = in.ReadInt32();
     } else {
       layer = in.ReadInt8();
-      a = in.ReadInt8();
-      b = in.ReadInt8();
-      c = in.ReadInt8();
+      leftPadding = in.ReadInt8();
+      advance = in.ReadInt8();
+      rightPadding = in.ReadInt8();
       cellWidth = in.ReadInt8();
       cellHeight = in.ReadInt8();
       baseline = in.ReadInt8();
       kernStart = in.ReadInt16();
     }
-    xc_glyphs.emplace_back(
-        chr, CGlyph(a, b, c, startU, startV, endU, endV, cellWidth, cellHeight, baseline, kernStart, layer));
+    xc_glyphs.emplace_back(chr, CGlyph(leftPadding, advance, rightPadding, startU, startV, endU, endV, cellWidth,
+                                       cellHeight, baseline, kernStart, layer));
   }
 
   std::sort(xc_glyphs.begin(), xc_glyphs.end(), [=](auto& a, auto& b) -> bool { return a.first < b.first; });

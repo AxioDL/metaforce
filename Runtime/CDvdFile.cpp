@@ -1,6 +1,6 @@
 #include "Runtime/CDvdFile.hpp"
 
-#include <optick.h>
+//#include <optick.h>
 
 #include "Runtime/CDvdRequest.hpp"
 #include "Runtime/CStopwatch.hpp"
@@ -154,7 +154,7 @@ void CDvdFile::DoWork() {
 
 void CDvdFile::WorkerProc() {
 #ifdef HAS_DVD_THREAD
-  OPTICK_THREAD("CDvdFile");
+  //OPTICK_THREAD("CDvdFile");
 
   while (m_WorkerRun.load()) {
     std::unique_lock lk{m_WorkerMutex};

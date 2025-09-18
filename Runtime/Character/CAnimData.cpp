@@ -551,7 +551,7 @@ void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags, CVert
 }
 
 void CAnimData::SetupRender(CSkinnedModel& model, CVertexMorphEffect* morphEffect, TConstVectorRef averagedNormals) {
-  OPTICK_EVENT();
+  //OPTICK_EVENT();
   if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildNoScale(x224_pose);
     x220_30_poseBuilt = true;

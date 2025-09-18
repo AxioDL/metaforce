@@ -270,7 +270,7 @@ public:
     const auto targetFrameTime = getTargetFrameTime();
     bool skipRetrace = false;
     if (g_ResFactory != nullptr) {
-      OPTICK_EVENT("Async Load Resources");
+//      OPTICK_EVENT("Async Load Resources");
       const auto idleTime = m_limiter.SleepTime(targetFrameTime);
       skipRetrace = g_ResFactory->AsyncIdle(idleTime);
     }
@@ -281,12 +281,12 @@ public:
     } else {
       // No more to load, and we're under frame time
       {
-        OPTICK_EVENT("Sleep");
+        //OPTICK_EVENT("Sleep");
         m_limiter.Sleep(targetFrameTime);
       }
     }
 
-    OPTICK_FRAME("MainThread");
+    //OPTICK_FRAME("MainThread");
 
     // Check if fullscreen has been toggled, if so set the fullscreen cvar accordingly
     if (m_fullscreenToggleRequested) {
@@ -350,7 +350,7 @@ public:
   }
 
   void onAppDraw() noexcept {
-    OPTICK_EVENT("Draw");
+    //OPTICK_EVENT("Draw");
     if (g_Renderer != nullptr) {
       g_Renderer->BeginScene();
       if (g_mainMP1) {
@@ -362,7 +362,7 @@ public:
   }
 
   void onAppPostDraw() noexcept {
-    OPTICK_EVENT("PostDraw");
+    //OPTICK_EVENT("PostDraw");
 //    if (m_voiceEngine) {
 //      m_voiceEngine->pumpAndMixVoices();
 //    }

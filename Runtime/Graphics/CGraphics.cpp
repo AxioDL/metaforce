@@ -653,7 +653,7 @@ float CGraphics::GetSecondsMod900() {
 }
 
 void CGraphics::TickRenderTimings() {
-  OPTICK_EVENT();
+  //OPTICK_EVENT();
   mRenderTimings = (mRenderTimings + 1) % (900 * 60);
   mSecondsMod900 = static_cast<float>(mRenderTimings) / 60.f;
 }

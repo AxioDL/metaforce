@@ -36,11 +36,11 @@ private:
 
 public:
   CGlyph() = default;
-  CGlyph(s16 a, s16 b, s32 c, float startU, float startV, float endU, float endV, s16 cellWidth, s16 cellHeight,
+  CGlyph(s16 leftPadding, s16 advance, s32 rightPadding, float startU, float startV, float endU, float endV, s16 cellWidth, s16 cellHeight,
          s16 baseline, s16 kernStart, s16 layer = 0)
-  : x0_leftPadding(a)
-  , x2_advance(b)
-  , x4_rightPadding(c)
+  : x0_leftPadding(leftPadding)
+  , x2_advance(advance)
+  , x4_rightPadding(rightPadding)
   , x8_startU(startU)
   , xc_startV(startV)
   , x10_endU(endU)

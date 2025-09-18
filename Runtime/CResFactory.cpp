@@ -5,7 +5,7 @@
 #include "Runtime/Logging.hpp"
 #include "Runtime/Formatting.hpp"
 
-#include "optick.h"
+//#include "optick.h"
 
 namespace metaforce {
 void CResFactory::AddToLoadList(SLoadingData&& data) {
@@ -35,7 +35,7 @@ CFactoryFnReturn CResFactory::BuildSync(const SObjectTag& tag, const CVParamTran
 }
 
 bool CResFactory::PumpResource(SLoadingData& data) {
-  OPTICK_EVENT();
+  //OPTICK_EVENT();
   if (data.x8_dvdReq && data.x8_dvdReq->IsComplete()) {
     data.x8_dvdReq.reset();
     *data.xc_targetPtr =
@@ -77,7 +77,7 @@ void CResFactory::BuildAsync(const SObjectTag& tag, const CVParamTransfer& xfer,
 }
 
 bool CResFactory::AsyncIdle(std::chrono::nanoseconds target) {
-  OPTICK_EVENT();
+  //OPTICK_EVENT();
   if (m_loadList.empty()) {
     return false;
   }
