@@ -451,7 +451,6 @@ struct ScopedDebugGroup {
   inline ~ScopedDebugGroup() noexcept { pop_debug_group(); }
 };
 #define SCOPED_GRAPHICS_DEBUG_GROUP(name, ...)                                                                         \
-  OPTICK_EVENT_DYNAMIC(name);                                                                                          \
   ScopedDebugGroup _GfxDbg_ { name }
 #else
 #define SCOPED_GRAPHICS_DEBUG_GROUP(name, ...) 
