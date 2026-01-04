@@ -306,7 +306,7 @@ void CPlasmaProjectile::UpdatePlayerEffects(float dt, CStateManager& mgr) {
         MakeBillboardEffect({}, {x52c_visorElectric}, "PlasmaElectricFx"sv, mgr);
         CSfxManager::SfxStart(x546_electricSfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         mgr.GetPlayer().SetHudDisable(3.f, 0.5f, 2.5f);
-        mgr.GetPlayer().SetOrbitRequestForTarget(mgr.GetPlayer().GetOrbitTargetId(),
+        mgr.GetPlayer().TryToBreakOrbit(mgr.GetPlayer().GetOrbitTargetId(),
                                                  CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
         mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), 0.2f, 3.f);
       }

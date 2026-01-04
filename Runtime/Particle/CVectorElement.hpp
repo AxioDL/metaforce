@@ -78,15 +78,15 @@ public:
 };
 
 class CVECircleCluster : public CVectorElement {
-  std::unique_ptr<CVectorElement> x4_a;
+  std::unique_ptr<CVectorElement> x4_origin;
   zeus::CVector3f x8_xVec;
   zeus::CVector3f x14_yVec;
   float x20_deltaAngle;
   std::unique_ptr<CRealElement> x24_magnitude;
 
 public:
-  CVECircleCluster(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
-                   std::unique_ptr<CIntElement>&& c, std::unique_ptr<CRealElement>&& d);
+  CVECircleCluster(std::unique_ptr<CVectorElement>&& origin, std::unique_ptr<CVectorElement>&& xVec,
+                   std::unique_ptr<CIntElement>&& deltaAngle, std::unique_ptr<CRealElement>&& magnitude);
   bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
@@ -119,8 +119,8 @@ class CVECircle : public CVectorElement {
   std::unique_ptr<CRealElement> x28_radius;
 
 public:
-  CVECircle(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b, std::unique_ptr<CRealElement>&& c,
-            std::unique_ptr<CRealElement>&& d, std::unique_ptr<CRealElement>&& e);
+  CVECircle(std::unique_ptr<CVectorElement>&& direction, std::unique_ptr<CVectorElement>&& upVector, std::unique_ptr<CRealElement>&& angleConstant,
+            std::unique_ptr<CRealElement>&& angleLinear, std::unique_ptr<CRealElement>&& radius);
   bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
@@ -160,7 +160,7 @@ public:
   bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
-class CVEParticleColor : public CVectorElement {
+class CVEParticlePreviousLocation : public CVectorElement {
 public:
   bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };

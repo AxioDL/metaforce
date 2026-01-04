@@ -229,7 +229,7 @@ void CRasterFont::SetupRenderState() {
   CGX::SetNumTevStages(1);
   CGX::SetNumIndStages(0);
   CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
-  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, false, GX_PTIDENTITY);
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
 }
 std::unique_ptr<IObj> FRasterFontFactory([[maybe_unused]] const SObjectTag& tag, CInputStream& in,
                                          const CVParamTransfer& vparms, [[maybe_unused]] CObjectReference* selfRef) {

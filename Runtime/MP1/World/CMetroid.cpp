@@ -531,7 +531,7 @@ void CMetroid::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
       x7c8_attackState = EAttackState::Attached;
       x9bf_29_isAttacking = true;
       RemoveMaterial(EMaterialTypes::Orbit, EMaterialTypes::Target, mgr);
-      mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+      mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
       DisableSolidCollision(this);
       AddMaterial(EMaterialTypes::Trigger, mgr);
     } else {

@@ -803,7 +803,7 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
   case EUserEventType::BreakLockOn: {
     if (x400_25_alive) {
       RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
-      mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+      mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
       return;
     }
     break;

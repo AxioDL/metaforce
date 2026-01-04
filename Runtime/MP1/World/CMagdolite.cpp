@@ -294,7 +294,7 @@ void CMagdolite::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, 
     LaunchFlameThrower(mgr, true);
   } else if (type == EUserEventType::BreakLockOn) {
     RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
-    mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+    mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
     return;
   }
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);

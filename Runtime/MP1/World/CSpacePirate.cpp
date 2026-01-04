@@ -2138,7 +2138,7 @@ void CSpacePirate::Dodge(CStateManager& mgr, EStateMsg msg, float dt) {
       TryCommand(mgr, pas::EAnimationState::Step, &CPatterned::TryBreakDodge, int(x844_dodgeDir));
       if (GetMaterialList().HasMaterial(EMaterialTypes::Orbit) && x330_stateMachineState.GetTime() > 0.5f) {
         RemoveMaterial(EMaterialTypes::Orbit, mgr);
-        mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+        mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
       }
     }
     break;

@@ -679,7 +679,7 @@ void CIceSheegoth::TurnAround(CStateManager& mgr, EStateMsg msg, float dt) {
 void CIceSheegoth::Crouch(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     RemoveMaterial(EMaterialTypes::Orbit, EMaterialTypes::Target, mgr);
-    mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+    mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
     GetBodyController()->SetLocomotionType(pas::ELocomotionType::Crouch);
     x968_interestTimer = x56c_sheegothData.GetMaxInterestTime();
     x400_24_hitByPlayerProjectile = false;

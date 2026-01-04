@@ -149,7 +149,7 @@ std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream&
     jpExtentY = in.ReadLong();
   }
   auto ret = std::make_shared<CGuiTextPane>(parms, sp, dim, vec, fontId, props, fontCol, outlineCol, extentX, extentY,
-                                            jpFontId, jpExtentY, jpExtentY);
+                                            jpFontId, jpExtentX, jpExtentY);
   ret->ParseBaseInfo(frame, in, parms);
   ret->InitializeBuffers();
   ret->TextSupport().SetText(u"");

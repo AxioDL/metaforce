@@ -91,7 +91,7 @@ void CJellyZap::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
       float staticTimer = 3.f * (1.f - dist / x56c_attackDamage.GetRadius()) + 2.f;
       if (staticTimer > mgr.GetPlayer().GetStaticTimer()) {
         mgr.GetPlayer().SetHudDisable(staticTimer, 0.5f, 2.5f);
-        mgr.GetPlayer().SetOrbitRequestForTarget(mgr.GetPlayer().GetOrbitTargetId(),
+        mgr.GetPlayer().TryToBreakOrbit(mgr.GetPlayer().GetOrbitTargetId(),
                                                  CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
       }
 

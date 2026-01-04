@@ -285,7 +285,7 @@ void CScriptGunTurret::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
         if ((proj->GetAttribField() & EProjectileAttrib::Wave) == EProjectileAttrib::Wave) {
           x520_state = ETurretState::Frenzy;
           RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
-          mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource,
+          mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource,
                                                    mgr);
           x53c_freezeRemTime = 0.f;
         }
@@ -714,7 +714,7 @@ void CScriptGunTurret::ProcessGunStateMachine(float dt, CStateManager& mgr) {
     } else if (x520_state != ETurretState::Frenzy) {
       SetTurretState(ETurretState::Frenzy, mgr);
       gunTurret->RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
-      mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+      mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
     }
   }
 }
@@ -921,7 +921,7 @@ void CScriptGunTurret::ProcessFrenzyState(EStateMsg msg, CStateManager& mgr, flo
     x560_31_frenzyReverse = mgr.GetActiveRandom()->Float() < 0.f;
     x534_fireCycleRemTime = 0.15f;
     RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
-    mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+    mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
   } else if (msg == EStateMsg::Update) {
     if (x524_curStateTime >= x2d4_data.GetFrenzyDuration()) {
       SetTurretState(ETurretState::Destroyed, mgr);

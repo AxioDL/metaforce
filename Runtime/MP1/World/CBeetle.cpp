@@ -490,7 +490,7 @@ void CBeetle::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
       if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::Generate) {
         RemoveMaterial(EMaterialTypes::Character, EMaterialTypes::Solid, EMaterialTypes::Target, EMaterialTypes::Orbit,
                        mgr);
-        mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+        mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
         x838_25_burrowing = true;
         x5a8_animTimeRem = x450_bodyController->GetAnimTimeRemaining();
         x568_stateProg = 2;
@@ -791,7 +791,7 @@ void CBeetle::Retreat(CStateManager& mgr, EStateMsg msg, float dt) {
       if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::Generate) {
         RemoveMaterial(EMaterialTypes::Character, EMaterialTypes::Solid, EMaterialTypes::Target, EMaterialTypes::Orbit,
                        mgr);
-        mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+        mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
         x838_25_burrowing = true;
         x5a8_animTimeRem = x450_bodyController->GetAnimTimeRemaining();
         x568_stateProg = 2;

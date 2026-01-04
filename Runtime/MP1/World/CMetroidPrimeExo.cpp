@@ -698,7 +698,7 @@ void CMetroidPrimeExo::Suck(CStateManager& mgr, EStateMsg msg, float arg) {
     sub802738d4(mgr);
     x1088_ = 0.6f;
     if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
-      mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+      mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
       x402_28_isMakingBigStrike = true;
       x504_damageDur = 0.35f;
       mgr.SendScriptMsgAlways(mgr.GetPlayer().GetUniqueId(), GetUniqueId(), EScriptObjectMessage::Damage);
@@ -1823,7 +1823,7 @@ void CMetroidPrimeExo::sub80278508(CStateManager& mgr, int w1, bool b1) {
   if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x8cc_headColActor)) {
     if (!b1) {
       colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
-      mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+      mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
       colAct->RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
     } else {
       colAct->SetDamageVulnerability(x588_[x570_].x4_damageVulnerability);

@@ -86,7 +86,7 @@ void CScriptEMPulse::Touch(CActor& act, CStateManager& mgr) {
 
       if (dur > pl->GetStaticTimer()) {
         pl->SetHudDisable(dur, 0.5f, 2.5f);
-        pl->SetOrbitRequestForTarget(mgr.GetPlayer().GetOrbitTargetId(),
+        pl->TryToBreakOrbit(mgr.GetPlayer().GetOrbitTargetId(),
                                      CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
       }
       mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), mag, dur);

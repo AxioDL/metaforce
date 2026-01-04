@@ -737,10 +737,10 @@ void CBabygoth::Taunt(CStateManager&, EStateMsg msg, float) {
   }
 }
 
-void CBabygoth::Crouch(CStateManager& mgr, EStateMsg msg, float arg) {
+void CBabygoth::Crouch(CStateManager& mgr, const EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     RemoveMaterial(EMaterialTypes::Orbit, EMaterialTypes::Target, mgr);
-    mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+    mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Crouch);
     xa48_30_heardPlayerFire = xa48_24_isAlert = false;
     x400_24_hitByPlayerProjectile = false;

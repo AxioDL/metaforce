@@ -467,7 +467,7 @@ public:
   void BeginGrapple(zeus::CVector3f& vec, CStateManager& mgr);
   void BreakGrapple(EPlayerOrbitRequest req, CStateManager& mgr);
   void SetOrbitRequest(EPlayerOrbitRequest req, CStateManager& mgr);
-  void SetOrbitRequestForTarget(TUniqueId id, EPlayerOrbitRequest req, CStateManager& mgr);
+  void TryToBreakOrbit(TUniqueId id, EPlayerOrbitRequest req, CStateManager& mgr);
   bool InGrappleJumpCooldown() const;
   void PreventFallingCameraPitch();
   void OrbitCarcass(CStateManager& mgr);

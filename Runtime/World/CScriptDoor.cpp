@@ -225,8 +225,8 @@ void CScriptDoor::ForceClosed(CStateManager& mgr) {
     SetDoorAnimation(EDoorAnimType::Close);
     SendScriptMsgs(EScriptObjectState::Closed, mgr, EScriptObjectMessage::None);
 
-    x25c_animTime = 0.f;
     x2a8_27_conditionsMet = false;
+    x25c_animTime = 0.f;
     x2a8_30_doClose = false;
   } else if (x2a8_27_conditionsMet) {
     x2a8_27_conditionsMet = false;
@@ -286,6 +286,7 @@ void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr) {
             dock2->GetCurrentConnectedAreaId(mgr) == dock1->GetAreaId()) {
           x27e_partner2 = door->GetUniqueId();
           mgr.SendScriptMsg(ent, GetUniqueId(), EScriptObjectMessage::Open);
+          break;
         }
       }
     }

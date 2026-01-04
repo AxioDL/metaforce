@@ -162,7 +162,7 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp, u32 version
   for (u32 i = 0; i < count; ++i) {
     FourCC type;
     in.Get(reinterpret_cast<u8*>(&type), 4);
-    std::shared_ptr<CGuiWidget> widget = CGuiSys::CreateWidgetInGame(type.toUint32(), in, this, sp, version);
+    std::shared_ptr<CGuiWidget> widget = CGuiSys::CreateWidgetInGame(type, in, this, sp, version);
     switch (widget->GetWidgetTypeID().toUint32()) {
     case SBIG('CAMR'):
     case SBIG('LITE'):

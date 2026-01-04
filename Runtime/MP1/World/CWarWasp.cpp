@@ -557,7 +557,7 @@ void CWarWasp::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
     case 0:
       if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::Generate) {
         RemoveMaterial(EMaterialTypes::Character, EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
-        mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+        mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
         x568_stateProg = 2;
       } else {
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::One));
@@ -931,7 +931,7 @@ void CWarWasp::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) {
   case EStateMsg::Activate:
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Combat);
     RemoveMaterial(EMaterialTypes::Orbit, mgr);
-    mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+    mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
     SwarmAdd(mgr);
     SetUpCircleTelegraphTeam(mgr);
     break;

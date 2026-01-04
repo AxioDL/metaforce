@@ -3889,7 +3889,7 @@ void CPlayer::SetOrbitRequest(EPlayerOrbitRequest req, CStateManager& mgr) {
   }
 }
 
-void CPlayer::SetOrbitRequestForTarget(TUniqueId id, EPlayerOrbitRequest req, CStateManager& mgr) {
+void CPlayer::TryToBreakOrbit(TUniqueId id, EPlayerOrbitRequest req, CStateManager& mgr) {
   switch (x304_orbitState) {
   case EPlayerOrbitState::OrbitObject:
   case EPlayerOrbitState::ForcedOrbitObject:

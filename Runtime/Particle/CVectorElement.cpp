@@ -124,15 +124,15 @@ bool CVEAdd::GetValue(int frame, zeus::CVector3f& valOut) const {
   return false;
 }
 
-CVECircleCluster::CVECircleCluster(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
-                                   std::unique_ptr<CIntElement>&& c, std::unique_ptr<CRealElement>&& d)
-: x4_a(std::move(a)), x24_magnitude(std::move(d)) {
+CVECircleCluster::CVECircleCluster(std::unique_ptr<CVectorElement>&& origin, std::unique_ptr<CVectorElement>&& xVec,
+                                   std::unique_ptr<CIntElement>&& deltaAngle, std::unique_ptr<CRealElement>&& magnitude)
+: x4_origin(std::move(origin)), x24_magnitude(std::move(magnitude)) {
   int cv;
-  c->GetValue(0, cv);
+  deltaAngle->GetValue(0, cv);
   x20_deltaAngle = zeus::degToRad(360.f / float(cv));
 
   zeus::CVector3f bv;
-  b->GetValue(0, bv);
+  xVec->GetValue(0, bv);
   bv.normalize();
   if (bv[0] > 0.8f)
     x8_xVec = bv.cross(zeus::CVector3f(0.f, 1.f, 0.f));
@@ -143,7 +143,7 @@ CVECircleCluster::CVECircleCluster(std::unique_ptr<CVectorElement>&& a, std::uni
 
 bool CVECircleCluster::GetValue(int frame, zeus::CVector3f& valOut) const {
   zeus::CVector3f av;
-  x4_a->GetValue(frame, av);
+  x4_origin->GetValue(frame, av);
 
   float curAngle = frame * x20_deltaAngle;
   zeus::CVector3f x = x8_xVec * std::cos(curAngle);
@@ -176,12 +176,12 @@ bool CVEFastConstant::GetValue([[maybe_unused]] int frame, zeus::CVector3f& valO
   return false;
 }
 
-CVECircle::CVECircle(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
-                     std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d,
-                     std::unique_ptr<CRealElement>&& e)
-: x4_direction(std::move(a)), x20_angleConstant(std::move(c)), x24_angleLinear(std::move(d)), x28_radius(std::move(e)) {
+CVECircle::CVECircle(std::unique_ptr<CVectorElement>&& direction, std::unique_ptr<CVectorElement>&& upVector,
+                     std::unique_ptr<CRealElement>&& angleConstant, std::unique_ptr<CRealElement>&& angleLinear,
+                     std::unique_ptr<CRealElement>&& radius)
+: x4_direction(std::move(direction)), x20_angleConstant(std::move(angleConstant)), x24_angleLinear(std::move(angleLinear)), x28_radius(std::move(radius)) {
   zeus::CVector3f bv;
-  b->GetValue(0, bv);
+  upVector->GetValue(0, bv);
   bv.normalize();
   if (bv[0] > 0.8f)
     x8_xVec = bv.cross(zeus::CVector3f(0.f, 1.f, 0.f));
@@ -245,7 +245,7 @@ bool CVEParticleVelocity::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
   return false;
 }
 
-bool CVEParticleColor::GetValue(int /*frame*/, zeus::CVector3f& valOut) const {
+bool CVEParticlePreviousLocation::GetValue(int /*frame*/, zeus::CVector3f& valOut) const {
   valOut = CElementGen::g_currentParticle->x10_prevPos;
   return false;
 }

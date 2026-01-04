@@ -18,10 +18,16 @@
     auto format(const Type& obj, FormatContext& ctx) const -> decltype(ctx.out()) {                                    \
       if constexpr (std::is_same_v<CharT, char>) {                                                                     \
         return fmt::format_to(ctx.out(), str __VA_OPT__(, ) __VA_ARGS__);                                              \
+      } else if constexpr (std::is_same_v<CharT, char8_t>) {                                                           \
+        return fmt::format_to(ctx.out(), u8##str __VA_OPT__(, ) __VA_ARGS__);                                          \
       } else if constexpr (std::is_same_v<CharT, char16_t>) {                                                          \
         return fmt::format_to(ctx.out(), u##str __VA_OPT__(, ) __VA_ARGS__);                                           \
+      } else if constexpr (std::is_same_v<CharT, char32_t>) {                                                          \
+        return fmt::format_to(ctx.out(), U##str __VA_OPT__(, ) __VA_ARGS__);                                           \
+      } else if constexpr (std::is_same_v<CharT, wchar_t>) {                                                           \
+        return fmt::format_to(ctx.out(), L##str __VA_OPT__(, ) __VA_ARGS__);                                           \
       } else {                                                                                                         \
-        static_assert(false, "Unsupported character type for formatter");                                              \
+        static_assert(!sizeof(CharT), "Unsupported character type for formatter");                                         \
       }                                                                                                                \
     }                                                                                                                  \
   }

@@ -406,7 +406,7 @@ std::unique_ptr<CVectorElement> CParticleDataFactory::GetVectorElement(CInputStr
     return std::make_unique<CVEParticleVelocity>();
   }
   case SBIG('PLCO'): {
-    return std::make_unique<CVEParticleColor>();
+    return std::make_unique<CVEParticlePreviousLocation>();
   }
   case SBIG('PLOC'): {
     return std::make_unique<CVEParticleLocation>();
