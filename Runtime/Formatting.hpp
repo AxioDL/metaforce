@@ -27,7 +27,7 @@
       } else if constexpr (std::is_same_v<CharT, wchar_t>) {                                                           \
         return fmt::format_to(ctx.out(), L##str __VA_OPT__(, ) __VA_ARGS__);                                           \
       } else {                                                                                                         \
-        static_assert(!sizeof(CharT), "Unsupported character type for formatter");                                         \
+        static_assert(!sizeof(CharT), "Unsupported character type for formatter");                                     \
       }                                                                                                                \
     }                                                                                                                  \
   }

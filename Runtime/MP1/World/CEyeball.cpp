@@ -38,16 +38,27 @@ CEyeball::CEyeball(TUniqueId uid, std::string_view name, CPatterned::EFlavorType
 void CEyeball::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CEyeball::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
+  bool skipForward = false;
   switch (msg) {
-  case EScriptObjectMessage::ProjectileCollide:
-  case EScriptObjectMessage::InvulnDamage: {
-    if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(uid)) {
+  case EScriptObjectMessage::Damage: {
+    if (TCastToConstPtr<CGameProjectile> const proj = mgr.GetObjectById(uid)) {
       if (proj->GetOwnerId() == mgr.GetPlayer().GetUniqueId())
-        if (GetDamageVulnerability()->GetVulnerability(proj->GetDamageInfo().GetWeaponMode(), false) !=
-            EVulnerability::Deflect)
+        if (static_cast<CActor*>(this)->GetDamageVulnerability()->GetVulnerability(
+                proj->GetDamageInfo().GetWeaponMode(), false) != EVulnerability::Deflect)
           x400_24_hitByPlayerProjectile = true;
     }
-    return;
+    skipForward = true;
+    break;
+  }
+  case EScriptObjectMessage::InvulnDamage: {
+    if (TCastToConstPtr<CGameProjectile> const proj = mgr.GetObjectById(uid)) {
+      if (proj->GetOwnerId() == mgr.GetPlayer().GetUniqueId())
+        if (static_cast<CActor*>(this)->GetDamageVulnerability()->GetVulnerability(
+                proj->GetDamageInfo().GetWeaponMode(), false) != EVulnerability::Deflect)
+          x400_24_hitByPlayerProjectile = true;
+    }
+    skipForward = true;
+    break;
   }
   case EScriptObjectMessage::Alert:
     x60c_26_alert = true;
@@ -74,7 +85,9 @@ void CEyeball::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
   default:
     break;
   }
-  CPatterned::AcceptScriptMsg(msg, uid, mgr);
+  if (!skipForward) {
+    CPatterned::AcceptScriptMsg(msg, uid, mgr);
+  }
 }
 
 void CEyeball::Think(float dt, CStateManager& mgr) {
@@ -129,7 +142,7 @@ void CEyeball::CreateBeam(CStateManager& mgr) {
                      150.f);
   x5ec_projectileId = mgr.AllocateUniqueId();
   mgr.AddObject(new CPlasmaProjectile(x5b4_projectileInfo.Token(), "EyeBall_Beam"sv, EWeaponType::AI, beamInfo,
-                                      zeus::CTransform(), EMaterialTypes::Immovable, x5b4_projectileInfo.GetDamage(),
+                                      zeus::CTransform(), EMaterialTypes::Character, x5b4_projectileInfo.GetDamage(),
                                       x5ec_projectileId, GetAreaIdAlways(), GetUniqueId(), {}, false,
                                       EProjectileAttrib::KeepInCinematic));
 }

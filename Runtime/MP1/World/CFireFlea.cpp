@@ -115,7 +115,7 @@ void CFireFlea::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
       if (pathFind->GetResult() != CPathFindSearch::EResult::Success) {
         zeus::CVector3f closestPoint = zeus::skZero3f;
         if (pathFind->FindClosestReachablePoint(GetTranslation(), closestPoint) == CPathFindSearch::EResult::Success) {
-          zeus::CVector3f delta = FindSafeRoute(mgr, x45c_steeringBehaviors.Arrival(*this, xd80_targetPos, 5.f));
+          zeus::CVector3f delta = AdjustMovementVec(mgr, x45c_steeringBehaviors.Arrival(*this, xd80_targetPos, 5.f));
           x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(delta, {}, 1.f));
         }
       } else {
@@ -128,7 +128,7 @@ void CFireFlea::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-zeus::CVector3f CFireFlea::FindSafeRoute(CStateManager& mgr, const zeus::CVector3f& forward) const {
+zeus::CVector3f CFireFlea::AdjustMovementVec(CStateManager& mgr, const zeus::CVector3f& forward) const {
   const float mag = forward.magnitude();
   if (mag <= 0.f) {
     return {};
@@ -136,7 +136,7 @@ zeus::CVector3f CFireFlea::FindSafeRoute(CStateManager& mgr, const zeus::CVector
 
   const CRayCastResult res = mgr.RayStaticIntersection(GetTranslation(), forward.normalized(), 1.f,
                                                        CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
-  if (res.IsInvalid() && !CheckNearWater(mgr, forward.normalized())) {
+  if (res.IsInvalid() && !MoveTooCloseToWater(mgr, forward.normalized())) {
     return forward;
   }
 
@@ -171,7 +171,7 @@ zeus::CVector3f CFireFlea::FindSafeRoute(CStateManager& mgr, const zeus::CVector
   return -forward;
 }
 
-bool CFireFlea::CheckNearWater(const CStateManager& mgr, const zeus::CVector3f& dir) const {
+bool CFireFlea::MoveTooCloseToWater(const CStateManager& mgr, const zeus::CVector3f& dir) const {
   EntityList nearList;
   mgr.BuildNearList(nearList, GetTranslation(), dir, 2.f, CMaterialFilter::skPassEverything, nullptr);
 
@@ -187,7 +187,7 @@ void CFireFlea::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
   if (!zeus::close_enough(x310_moveVec, {}))
     x310_moveVec.normalize();
 
-  x310_moveVec = FindSafeRoute(mgr, x310_moveVec);
+  x310_moveVec = AdjustMovementVec(mgr, x310_moveVec);
   CPatterned::Patrol(mgr, msg, arg);
   if (x2d8_patrolState == EPatrolState::Done)
     mgr.FreeScriptObject(GetUniqueId());
@@ -198,12 +198,12 @@ void CFireFlea::Flee(CStateManager& mgr, EStateMsg msg, float) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Lurk);
   } else if (msg == EStateMsg::Update) {
     if (x570_nearList.empty()) {
-      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(FindSafeRoute(mgr, xd74_), {}, 1.f));
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(AdjustMovementVec(mgr, xd74_), {}, 1.f));
     } else {
       for (TUniqueId id : x570_nearList) {
         if (const CActor* act = static_cast<const CActor*>(mgr.GetObjectById(id))) {
           zeus::CVector3f fleeDirection = x45c_steeringBehaviors.Flee(*this, act->GetTranslation());
-          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(FindSafeRoute(mgr, fleeDirection), {}, 1.f));
+          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(AdjustMovementVec(mgr, fleeDirection), {}, 1.f));
         }
       }
     }

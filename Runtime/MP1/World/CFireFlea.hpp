@@ -34,8 +34,8 @@ class CFireFlea : public CPatterned {
   CPathFindSearch xd8c_pathFind;
 
   static s32 sLightIdx;
-  zeus::CVector3f FindSafeRoute(CStateManager& mgr, const zeus::CVector3f& forward) const;
-  bool CheckNearWater(const CStateManager&, const zeus::CVector3f& dir) const;
+  zeus::CVector3f AdjustMovementVec(CStateManager& mgr, const zeus::CVector3f& forward) const;
+  bool MoveTooCloseToWater(const CStateManager&, const zeus::CVector3f& dir) const;
 
 public:
   DEFINE_PATTERNED(FireFlea);
