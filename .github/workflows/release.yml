@@ -69,7 +69,7 @@ jobs:
           df -h .
 
       - name: Restore buildcache
-        uses: pat-s/always-upload-cache@v2
+        uses: pat-s/always-upload-cache@v3
         with:
           path: ${{env.BUILDCACHE_DIR}}
           key: buildcache-${{runner.os}}-${{matrix.preset}}-${{github.sha}}
@@ -96,7 +96,7 @@ jobs:
         run: ci/build-appimage.sh
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.preset}}-x86_64
           path: |
@@ -146,7 +146,7 @@ jobs:
           rm /tmp/$NAME.dmg
 
       - name: Restore buildcache
-        uses: pat-s/always-upload-cache@v2
+        uses: pat-s/always-upload-cache@v3
         with:
           path: ${{env.BUILDCACHE_DIR}}
           key: buildcache-${{runner.os}}-universal-${{github.sha}}
@@ -184,7 +184,7 @@ jobs:
         run: ci/build-dmg.sh
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-universal
           path: |
@@ -253,7 +253,7 @@ jobs:
             (Get-Item '*.exe', '*.pdb').Name
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-msvc-x86_64
           path: |
@@ -310,7 +310,7 @@ jobs:
           Get-PSDrive
 
       - name: Restore buildcache
-        uses: pat-s/always-upload-cache@v2
+        uses: pat-s/always-upload-cache@v3
         with:
           path: ${{env.BUILDCACHE_DIR}}
           key: buildcache-${{runner.os}}-clang-${{github.sha}}
@@ -330,7 +330,7 @@ jobs:
         run: buildcache -s
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-clang-x86_64
           path: |
