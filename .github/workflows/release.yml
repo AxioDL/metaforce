@@ -96,7 +96,7 @@ jobs:
         run: ci/build-appimage.sh
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.preset}}-x86_64
           path: |
@@ -184,7 +184,7 @@ jobs:
         run: ci/build-dmg.sh
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-universal
           path: |
@@ -253,7 +253,7 @@ jobs:
             (Get-Item '*.exe', '*.pdb').Name
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-msvc-x86_64
           path: |
@@ -330,7 +330,7 @@ jobs:
         run: buildcache -s
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-clang-x86_64
           path: |
