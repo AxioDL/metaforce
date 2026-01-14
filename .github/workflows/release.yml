@@ -34,7 +34,7 @@ jobs:
             preset: clang
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive
@@ -113,7 +113,7 @@ jobs:
       BUILDCACHE_DIR: ${{github.workspace}}/.buildcache
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive
@@ -203,7 +203,7 @@ jobs:
       BUILDCACHE_MAX_CACHE_SIZE: 5368709120 # 5GiB
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive
@@ -272,7 +272,7 @@ jobs:
       BUILD_DIR: C:\build
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive
