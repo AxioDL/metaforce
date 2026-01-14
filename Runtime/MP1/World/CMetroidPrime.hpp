@@ -54,7 +54,7 @@ struct SPrimeStruct6 {
   explicit SPrimeStruct6(CInputStream& in);
 };
 
-struct SPrimeExoParameters {
+struct CMetroidPrimeData {
   u32 x0_propertyCount;
   CPatternedInfo x4_patternedInfo;
   CActorParameters x13c_actorParms;
@@ -79,7 +79,7 @@ struct SPrimeExoParameters {
   CAssetId xa24_particle3;
   CAssetId xa28_particle4;
   rstl::reserved_vector<SPrimeStruct6, 4> xa2c_;
-  explicit SPrimeExoParameters(CInputStream& in);
+  explicit CMetroidPrimeData(CInputStream& in);
 };
 
 struct CMetroidPrimeAttackWeights {
@@ -89,7 +89,7 @@ struct CMetroidPrimeAttackWeights {
   float GetFloatValue(size_t idx) const { return x0_[idx]; }
 };
 
-class CMetroidPrimeExo : public CPatterned {
+class CMetroidPrime : public CPatterned {
   class CPhysicsDummy : public CPhysicsActor {
   public:
     DEFINE_ENTITY
@@ -265,7 +265,7 @@ class CMetroidPrimeExo : public CPatterned {
 
 public:
   DEFINE_PATTERNED(MetroidPrimeExo);
-  CMetroidPrimeExo(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CMetroidPrime(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                    CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& aParms, u32 pw1,
                    const CCameraShakeData& shakeData1, const CCameraShakeData& shakeData2,
                    const CCameraShakeData& shakeData3, const SPrimeStruct2B& struct2b, CAssetId particle1,

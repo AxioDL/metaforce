@@ -132,8 +132,8 @@
 #include "Runtime/MP1/World/CMetaree.hpp"
 #include "Runtime/MP1/World/CMetroid.hpp"
 #include "Runtime/MP1/World/CMetroidBeta.hpp"
-#include "Runtime/MP1/World/CMetroidPrimeEssence.hpp"
-#include "Runtime/MP1/World/CMetroidPrimeExo.hpp"
+#include "Runtime/MP1/World/CMetroidPrimeStage2.hpp"
+#include "Runtime/MP1/World/CMetroidPrime.hpp"
 #include "Runtime/MP1/World/CMetroidPrimeProjectile.hpp"
 #include "Runtime/MP1/World/CMetroidPrimeRelay.hpp"
 #include "Runtime/MP1/World/CNewIntroBoss.hpp"
@@ -753,7 +753,7 @@ IMGUI_ENTITY_INSPECT(CAmbientAI, CPhysicsActor, AmbientAI, {})
 IMGUI_ENTITY_INSPECT(MP1::CBouncyGrenade, CPhysicsActor, BouncyGrenade, {})
 IMGUI_ENTITY_INSPECT(CCollisionActor, CPhysicsActor, CollisionActor, {})
 IMGUI_ENTITY_INSPECT(MP1::CGrenadeLauncher, CPhysicsActor, GrenadeLauncher, {})
-IMGUI_ENTITY_INSPECT(MP1::CMetroidPrimeExo::CPhysicsDummy, CPhysicsActor, MetroidPrimeExoPhysicsDummy, {})
+IMGUI_ENTITY_INSPECT(MP1::CMetroidPrime::CPhysicsDummy, CPhysicsActor, MetroidPrimeExoPhysicsDummy, {})
 IMGUI_ENTITY_INSPECT(CPlayer, CPhysicsActor, Player, {
   if (ImGui::CollapsingHeader("Player Gun")) {
     auto* gun = GetPlayerGun();
@@ -895,8 +895,8 @@ IMGUI_ENTITY_INSPECT(MP1::CMagdolite, CPatterned, Magdolite, {})
 IMGUI_ENTITY_INSPECT(MP1::CMetaree, CPatterned, Metaree, {})
 IMGUI_ENTITY_INSPECT(MP1::CMetroid, CPatterned, Metroid, {})
 IMGUI_ENTITY_INSPECT(MP1::CMetroidBeta, CPatterned, MetroidBeta, {})
-IMGUI_ENTITY_INSPECT(MP1::CMetroidPrimeEssence, CPatterned, MetroidPrimeEssence, {})
-IMGUI_ENTITY_INSPECT(MP1::CMetroidPrimeExo, CPatterned, MetroidPrimeExo, {})
+IMGUI_ENTITY_INSPECT(MP1::CMetroidPrimeStage2, CPatterned, MetroidPrimeEssence, {})
+IMGUI_ENTITY_INSPECT(MP1::CMetroidPrime, CPatterned, MetroidPrimeExo, {})
 IMGUI_ENTITY_INSPECT(MP1::CNewIntroBoss, CPatterned, NewIntroBoss, {})
 IMGUI_ENTITY_INSPECT(MP1::CPhazonHealingNodule, CPatterned, PhazonHealingNodule, {})
 IMGUI_ENTITY_INSPECT(MP1::CPuddleSpore, CPatterned, PuddleSpore, {})

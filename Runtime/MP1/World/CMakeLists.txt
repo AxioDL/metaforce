@@ -29,10 +29,10 @@ set(MP1_WORLD_SOURCES
         CMetaree.hpp CMetaree.cpp
         CMetroid.hpp CMetroid.cpp
         CMetroidBeta.hpp CMetroidBeta.cpp
-        CMetroidPrimeExo.hpp CMetroidPrimeExo.cpp
+        CMetroidPrime.hpp CMetroidPrime.cpp
         CMetroidPrimeProjectile.hpp CMetroidPrimeProjectile.cpp
         CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp
-        CMetroidPrimeEssence.hpp CMetroidPrimeEssence.cpp
+        CMetroidPrimeStage2.hpp CMetroidPrimeStage2.cpp
         CNewIntroBoss.hpp CNewIntroBoss.cpp
         COmegaPirate.hpp COmegaPirate.cpp
         CParasite.hpp CParasite.cpp

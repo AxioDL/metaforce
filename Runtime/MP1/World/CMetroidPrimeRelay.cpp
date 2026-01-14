@@ -1,6 +1,6 @@
 #include "Runtime/MP1/World/CMetroidPrimeRelay.hpp"
 
-#include "Runtime/MP1/World/CMetroidPrimeExo.hpp"
+#include "Runtime/MP1/World/CMetroidPrime.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -8,7 +8,7 @@ namespace metaforce::MP1 {
 
 CMetroidPrimeRelay::CMetroidPrimeRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
                                        const zeus::CTransform& xf, const zeus::CVector3f& scale,
-                                       SPrimeExoParameters&& parms, float f1, float f2, float f3, u32 w1, bool b1,
+                                       CMetroidPrimeData&& parms, float f1, float f2, float f3, u32 w1, bool b1,
                                        u32 w2, const CHealthInfo& hInfo1, const CHealthInfo& hInfo2, u32 w3, u32 w4,
                                        u32 w5, rstl::reserved_vector<CMetroidPrimeAttackWeights, 4>&& roomParms)
 : CEntity(uid, info, active, name)
@@ -39,7 +39,7 @@ void CMetroidPrimeRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId obj
 }
 
 void CMetroidPrimeRelay::ForwardMessageToMetroidPrimeExo(EScriptObjectMessage msg, CStateManager& mgr) {
-  if (auto* exo = CPatterned::CastTo<CMetroidPrimeExo>(mgr.ObjectById(x34_mpUid))) {
+  if (auto* exo = CPatterned::CastTo<CMetroidPrime>(mgr.ObjectById(x34_mpUid))) {
     mgr.SendScriptMsg(exo, GetUniqueId(), msg);
   }
 }
@@ -50,7 +50,7 @@ void CMetroidPrimeRelay::GetOrBuildMetroidPrimeExo(CStateManager& mgr) {
   }
 
   for (const auto act : mgr.GetPhysicsActorObjectList()) {
-    if (CPatterned::CastTo<CMetroidPrimeExo>(act) != nullptr) {
+    if (CPatterned::CastTo<CMetroidPrime>(act) != nullptr) {
       return;
     }
   }
@@ -58,7 +58,7 @@ void CMetroidPrimeRelay::GetOrBuildMetroidPrimeExo(CStateManager& mgr) {
   const auto& animParms = x74_parms.x4_patternedInfo.GetAnimationParameters();
   CModelData mData(
       CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), x68_scale, animParms.GetInitialAnimation(), true));
-  auto* exo = new CMetroidPrimeExo(
+  auto* exo = new CMetroidPrime(
       mgr.AllocateUniqueId(), "Metroid Prime! (Stage 1)"sv, CEntityInfo(GetAreaId(), NullConnectionList), x38_xf,
       std::move(mData), x74_parms.x4_patternedInfo, x74_parms.x13c_actorParms, x74_parms.x1a4_, x74_parms.x1a8_,
       x74_parms.x27c_, x74_parms.x350_, x74_parms.x424_, x74_parms.x460_particle1, x74_parms.x464_,

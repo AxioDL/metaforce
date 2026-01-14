@@ -8,7 +8,7 @@
 namespace metaforce {
 class CCollisionActorManager;
 namespace MP1 {
-class CMetroidPrimeEssence : public CPatterned {
+class CMetroidPrimeStage2 : public CPatterned {
   TCachedToken<CGenDescription> x568_;
   CPathFindSearch x574_searchPath;
   std::unique_ptr<CCollisionActorManager> x658_collisionManager;
@@ -73,7 +73,7 @@ class CMetroidPrimeEssence : public CPatterned {
 public:
   DEFINE_PATTERNED(MetroidPrimeEssence);
 
-  CMetroidPrimeEssence(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CMetroidPrimeStage2(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                        CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
                        CAssetId particle1, const CDamageInfo& dInfo, float f1, CAssetId electric, u32 w1,
                        CAssetId particle2);

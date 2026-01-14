@@ -29,7 +29,7 @@
 #include "Runtime/MP1/World/CDrone.hpp"
 #include "Runtime/MP1/World/CMetroid.hpp"
 #include "Runtime/MP1/World/CMetroidBeta.hpp"
-#include "Runtime/MP1/World/CMetroidPrimeEssence.hpp"
+#include "Runtime/MP1/World/CMetroidPrimeStage2.hpp"
 #include "Runtime/MP1/World/CMetroidPrimeRelay.hpp"
 #include "Runtime/MP1/World/CNewIntroBoss.hpp"
 #include "Runtime/MP1/World/COmegaPirate.hpp"
@@ -3676,7 +3676,7 @@ CEntity* ScriptLoader::LoadMetroidPrimeEssence(CStateManager& mgr, CInputStream&
   const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
   CModelData mData{CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
                             animParms.GetInitialAnimation(), true)};
-  return new MP1::CMetroidPrimeEssence(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform,
+  return new MP1::CMetroidPrimeStage2(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform,
                                        std::move(mData), pInfo, actParms, particle1, dInfo, aHead.x40_scale.y(),
                                        electric, w3, particle2);
 };
@@ -3705,7 +3705,7 @@ CEntity* ScriptLoader::LoadMetroidPrimeStage1(CStateManager& mgr, CInputStream& 
     roomParms.emplace_back(in);
   u32 w4 = in.ReadLong();
   u32 w5 = in.ReadLong();
-  MP1::SPrimeExoParameters primeParms(in);
+  MP1::CMetroidPrimeData primeParms(in);
 
   return new MP1::CMetroidPrimeRelay(mgr.AllocateUniqueId(), aHead.x0_name, info, active, aHead.x10_transform,
                                      aHead.x40_scale, std::move(primeParms), f1, f2, f3, w1, b1, w2, hInfo1, hInfo2, w3,

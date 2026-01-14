@@ -35,7 +35,7 @@ CRayCastResult CCollisionPrimitive::CastRay(const zeus::CVector3f& start, const 
   return CastRayInternal(CInternalRayCastStructure(start, dir, length, xf, filter));
 }
 
-std::vector<CCollisionPrimitive::Type>::const_iterator CCollisionPrimitive::FindCollisionType(const char* name) {
+std::vector<CCollisionPrimitive::Type>::const_iterator CCollisionPrimitive::TypeIndexFromTypeInfo(const char* name) {
   return std::find_if(sCollisionTypeList->cbegin(), sCollisionTypeList->cend(),
                       [name](const auto& type) { return std::strcmp(name, type.GetInfo()) == 0; });
 }
@@ -188,8 +188,8 @@ void CCollisionPrimitive::InitBeginColliders() {
 }
 
 void CCollisionPrimitive::InitAddBooleanCollider(const BooleanComparison& cmp) {
-  const auto iter1 = FindCollisionType(cmp.GetType1());
-  const auto iter2 = FindCollisionType(cmp.GetType2());
+  const auto iter1 = TypeIndexFromTypeInfo(cmp.GetType1());
+  const auto iter2 = TypeIndexFromTypeInfo(cmp.GetType2());
   const auto index1 = std::distance(sCollisionTypeList->cbegin(), iter1);
   const auto index2 = std::distance(sCollisionTypeList->cbegin(), iter2);
   const bool hasReachedEnd = iter1 == sCollisionTypeList->cend() || iter2 == sCollisionTypeList->cend();
@@ -208,8 +208,8 @@ void CCollisionPrimitive::InitAddBooleanCollider(BooleanComparisonFunc cmp, cons
 }
 
 void CCollisionPrimitive::InitAddMovingCollider(const MovingComparison& cmp) {
-  const auto iter1 = FindCollisionType(cmp.GetType1());
-  const auto iter2 = FindCollisionType(cmp.GetType2());
+  const auto iter1 = TypeIndexFromTypeInfo(cmp.GetType1());
+  const auto iter2 = TypeIndexFromTypeInfo(cmp.GetType2());
   const auto index1 = std::distance(sCollisionTypeList->cbegin(), iter1);
   const auto index2 = std::distance(sCollisionTypeList->cbegin(), iter2);
   const bool hasReachedEnd = iter1 == sCollisionTypeList->cend() || iter2 == sCollisionTypeList->cend();
@@ -228,8 +228,8 @@ void CCollisionPrimitive::InitAddMovingCollider(MovingComparisonFunc cmp, const 
 }
 
 void CCollisionPrimitive::InitAddCollider(const Comparison& cmp) {
-  const auto iter1 = FindCollisionType(cmp.GetType1());
-  const auto iter2 = FindCollisionType(cmp.GetType2());
+  const auto iter1 = TypeIndexFromTypeInfo(cmp.GetType1());
+  const auto iter2 = TypeIndexFromTypeInfo(cmp.GetType2());
   const auto index1 = std::distance(sCollisionTypeList->cbegin(), iter1);
   const auto index2 = std::distance(sCollisionTypeList->cbegin(), iter2);
   const bool hasReachedEnd = iter1 == sCollisionTypeList->cend() || iter2 == sCollisionTypeList->cend();

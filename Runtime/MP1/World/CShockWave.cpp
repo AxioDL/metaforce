@@ -97,9 +97,10 @@ void CShockWave::Think(float dt, CStateManager& mgr) {
     mgr.FreeScriptObject(GetUniqueId());
   } else if (x980_id2 != kInvalidUniqueId) {
     if (TCastToPtr<CGameLight> light = mgr.ObjectById(x980_id2)) {
-      if (light->GetActive()) {
-        light->SetLight(x110_elementGen->GetLight());
+      if (!GetActive()) {
+        return;
       }
+      light->SetLight(x110_elementGen->GetLight());
     }
   }
 }
