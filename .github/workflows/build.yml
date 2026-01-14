@@ -33,7 +33,7 @@ jobs:
             preset: clang
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive
@@ -66,7 +66,7 @@ jobs:
           df -h .
 
       - name: Restore buildcache
-        uses: pat-s/always-upload-cache@v2
+        uses: pat-s/always-upload-cache@v3
         with:
           path: ${{env.BUILDCACHE_DIR}}
           key: buildcache-${{runner.os}}-${{matrix.preset}}-${{github.sha}}
@@ -86,7 +86,7 @@ jobs:
         run: ci/build-appimage.sh
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.preset}}-x86_64
           path: |
@@ -102,7 +102,7 @@ jobs:
       BUILDCACHE_DIR: ${{github.workspace}}/.buildcache
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive
@@ -131,7 +131,7 @@ jobs:
           rm /tmp/$NAME.dmg
 
       - name: Restore buildcache
-        uses: pat-s/always-upload-cache@v2
+        uses: pat-s/always-upload-cache@v3
         with:
           path: ${{env.BUILDCACHE_DIR}}
           key: buildcache-${{runner.os}}-universal-${{github.sha}}
@@ -165,7 +165,7 @@ jobs:
         run: ci/build-dmg.sh
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-universal
           path: |
@@ -177,7 +177,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive
@@ -199,7 +199,7 @@ jobs:
         run: ci/build-ipa.sh
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-ios-appleclang-arm64
           path: |
@@ -211,7 +211,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive
@@ -233,7 +233,7 @@ jobs:
         run: ci/build-ipa.sh
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-tvos-appleclang-arm64
           path: |
@@ -261,7 +261,7 @@ jobs:
           #  preset: clang
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: recursive
@@ -300,7 +300,7 @@ jobs:
           Get-PSDrive
 
       - name: Restore buildcache
-        uses: pat-s/always-upload-cache@v2
+        uses: pat-s/always-upload-cache@v3
         with:
           path: ${{env.BUILDCACHE_DIR}}
           key: buildcache-${{runner.os}}-${{matrix.preset}}-${{github.sha}}
@@ -320,7 +320,7 @@ jobs:
         run: buildcache -s
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-${{matrix.preset}}-x86_64
           path: |
