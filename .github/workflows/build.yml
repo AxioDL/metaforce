@@ -245,7 +245,6 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Qt_VERSION: 5.15.2
       IPP_VERSION: 2021.2.0.210
       # C: has ~90GB available space at the moment
       BUILDCACHE_DIR: C:\buildcache
@@ -265,14 +264,6 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-
-      - name: Install vcpkg Qt
-        run: |
-          $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          $Filename = "vcpkg-qt-$env:Qt_VERSION-full.7z"
-          New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://axiodl.com/files/$Filename", "$TempDir\$Filename")
-          7z x "-o$env:RUNNER_WORKSPACE" -aos "$TempDir\$Filename"
 
       - name: Install Intel IPP
         if: 'false' # takes >10min, not worth it
