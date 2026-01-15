@@ -120,7 +120,7 @@ jobs:
           curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-macos.zip -o /tmp/buildcache-macos.zip
           unzip /tmp/buildcache-macos.zip -d "$RUNNER_WORKSPACE"
           echo "$RUNNER_WORKSPACE"/buildcache/bin >> $GITHUB_PATH
-        run: cmake --preset x-macos-ci
+          cmake --preset x-macos-ci
 
       - name: Install Intel IPP
         if: 'false' # not supported for universal build
