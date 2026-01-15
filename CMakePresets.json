@@ -334,9 +334,6 @@
         "CMAKE_C_FLAGS_RELWITHDEBINFO": "/Z7 /O2 /Ob1 /DNDEBUG",
         "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/Z7 /O2 /Ob1 /DNDEBUG",
         "CMAKE_INSTALL_PREFIX": "$env{BUILD_DIR}/install"
-      },
-      "environment": {
-        "VCPKG_ROOT": "$env{RUNNER_WORKSPACE}/vcpkg-qt-$env{Qt_VERSION}"
       }
     },
     {

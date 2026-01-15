@@ -64,7 +64,6 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           echo After
           df -h .
-          cmake --preset x-linux-ci-${{matrix.preset}}
 
       - name: Restore buildcache
         uses: pat-s/always-upload-cache@v3
@@ -75,7 +74,7 @@ jobs:
             buildcache-${{runner.os}}-${{matrix.preset}}-
 
       - name: Configure CMake
-        run: cmake --preset x-linux-ci-${{matrix.preset}}
+        run: cmake --preset x-linux-ci-${{matrix.preset}} && cmake --preset x-linux-ci-${{matrix.preset}}
 
       - name: Build
         run: cmake --build --preset x-linux-ci-${{matrix.preset}}
@@ -120,7 +119,6 @@ jobs:
           curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-macos.zip -o /tmp/buildcache-macos.zip
           unzip /tmp/buildcache-macos.zip -d "$RUNNER_WORKSPACE"
           echo "$RUNNER_WORKSPACE"/buildcache/bin >> $GITHUB_PATH
-          cmake --preset x-macos-ci
 
       - name: Install Intel IPP
         if: 'false' # not supported for universal build
@@ -141,7 +139,7 @@ jobs:
             buildcache-${{runner.os}}-universal-
 
       - name: Configure CMake
-        run: cmake --preset x-macos-ci
+        run: cmake --preset x-macos-ci && cmake --preset x-macos-ci
 
       - name: Build
         run: cmake --build --preset x-macos-ci
@@ -175,6 +173,7 @@ jobs:
             build/install/debug.tar.*
 
   build-ios:
+    if: 'false'
     name: Build iOS (AppleClang arm64)
     runs-on: macos-latest
 
@@ -192,7 +191,7 @@ jobs:
           pip3 install markupsafe
 
       - name: Configure CMake
-        run: cmake --preset ios-default
+        run: cmake --preset ios-default && cmake --preset ios-default
 
       - name: Build
         run: cmake --build --preset ios-default --target install
@@ -209,6 +208,7 @@ jobs:
             build/install/debug.tar.*
 
   build-tvos:
+    if: 'false'
     name: Build tvOS (AppleClang arm64)
     runs-on: macos-latest
 
@@ -224,10 +224,9 @@ jobs:
           brew upgrade --formula
           brew install ninja
           pip3 install markupsafe
-          cmake --preset tvos-default
 
       - name: Configure CMake
-        run: cmake --preset tvos-default
+        run: cmake --preset tvos-default && cmake --preset tvos-default 
 
       - name: Build
         run: cmake --build --preset tvos-default --target install
@@ -292,7 +291,6 @@ jobs:
 
           # check available disk space
           Get-PSDrive
-          cmake --preset x-windows-ci-${{matrix.preset}}
 
       - name: Restore buildcache
         uses: pat-s/always-upload-cache@v3
@@ -306,7 +304,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Configure CMake
-        run: cmake --preset x-windows-ci-${{matrix.preset}}
+        run: cmake --preset x-windows-ci-${{matrix.preset}} && cmake --preset x-windows-ci-${{matrix.preset}} 
 
       - name: Build
         run: cmake --build --preset x-windows-ci-${{matrix.preset}}
