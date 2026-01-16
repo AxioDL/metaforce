@@ -173,22 +173,23 @@ class CRidley : public CPatterned {
   void SetupCollisionActorManager(CStateManager& mgr);
   void SetupCollisionActors(CStateManager& mgr);
 
-  void sub80257650(CStateManager& mgr);
-  void sub80256914(float f1, bool r4);
+  void SetStage3BreastVulnerability(CStateManager& mgr);
+  void ActivateWingElectricity(float f1, bool r4);
   void UpdateFlight(float dt);
   void ConstrainToHenge(float dt);
   void UpdateBeam(float dt, CStateManager& mgr);
   void UpdateWingElectricity(float dt, CStateManager& mgr);
   void ResetPlasmaProjectile(CStateManager& mgr, bool b1);
   void sub80255fe8(float f1, float f2, const zeus::CVector3f& vec);
-  void sub80255e5c(CStateManager& mgr);
-  void sub8025784c(CStateManager& mgr);
+  void PushPlayer(CStateManager& mgr);
+  void SetStage3ThroatVulnerability(CStateManager& mgr);
   void ChooseStage2Attack(metaforce::CStateManager& mgr);
-  void sub80257744(CStateManager& mgr);
+  void SetStage3Immunity(CStateManager& mgr);
   void FirePlasma(CStateManager& mgr);
   void FacePlayer(float arg, CStateManager& mgr);
   void SetSphereCollisionRadius(float f1, CStateManager& mgr);
-  void sub80256580() {
+  void RandomSlowDown() {}
+  void RandomSpeedUp() {
     if (!xa31_24_)
       x3b4_speed = 1.2f;
   }

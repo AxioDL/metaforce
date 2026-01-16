@@ -76,7 +76,7 @@ std::u16string CStringExtras::ConvertToUTF16(std::string_view sv) {
     const char8_t* next = OSUTF8To32(in, &utf32);
     // TODO: bug in OSUTF
     if (next == nullptr) {
-      utf32 = *in;
+      utf32 = static_cast<char32_t>(*in);
       in++;
     } else {
       in = next;

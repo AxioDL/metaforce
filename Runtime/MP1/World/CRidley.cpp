@@ -450,7 +450,7 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
           } else {
             xc64_aiStage = 3;
             xa31_25_ = false;
-            sub80257650(mgr);
+            SetStage3BreastVulnerability(mgr);
             xcbc_ = 0.6667f * x568_data.x3c_;
             if (x450_bodyController->GetLocomotionType() != pas::ELocomotionType::Combat) {
               for (const auto& effect : skWingEffects) {
@@ -461,7 +461,7 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
             xcc8_ = 2.f * 0.33f;
             xb10_ = 0.f;
           }
-          sub80256914(2.f * 0.33f, r26);
+          ActivateWingElectricity(2.f * 0.33f, r26);
         } else {
           dontKnockback = true;
         }
@@ -733,7 +733,7 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
   }
   case EUserEventType::DamageOn: {
     if (xc64_aiStage == 3) {
-      sub8025784c(mgr);
+      SetStage3ThroatVulnerability(mgr);
     } else if (xc64_aiStage == 2) {
       xa33_28_ = false;
     }
@@ -742,7 +742,7 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
   }
   case EUserEventType::DamageOff: {
     if (xc64_aiStage == 3) {
-      sub80257650(mgr);
+      SetStage3BreastVulnerability(mgr);
     } else if (xc64_aiStage == 2 && !xa33_31_) {
       xa33_28_ = true;
     }
@@ -824,7 +824,7 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
-void CRidley::sub8025784c(CStateManager& mgr) {
+void CRidley::SetStage3ThroatVulnerability(CStateManager& mgr) {
   for (size_t i = 0; i < x984_bodyCollision->GetNumCollisionActors(); ++i) {
     const auto& colDesc = x984_bodyCollision->GetCollisionDescFromIndex(i);
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(colDesc.GetCollisionActorId())) {
@@ -853,7 +853,7 @@ void CRidley::ChooseStage2Attack(metaforce::CStateManager& mgr) {
   xcc4_ = 1;
 }
 
-void CRidley::sub80257744(metaforce::CStateManager& mgr) {
+void CRidley::SetStage3Immunity(metaforce::CStateManager& mgr) {
   for (size_t i = 0; i < x984_bodyCollision->GetNumCollisionActors(); ++i) {
     const auto& colDesc = x984_bodyCollision->GetCollisionDescFromIndex(i);
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(colDesc.GetCollisionActorId())) {
@@ -885,7 +885,7 @@ void CRidley::FirePlasma(metaforce::CStateManager& mgr) {
   }
 }
 
-void CRidley::sub80257650(CStateManager& mgr) {
+void CRidley::SetStage3BreastVulnerability(CStateManager& mgr) {
   for (size_t i = 0; i < x984_bodyCollision->GetNumCollisionActors(); ++i) {
     const auto& colDesc = x984_bodyCollision->GetCollisionDescFromIndex(i);
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(colDesc.GetCollisionActorId())) {
@@ -899,7 +899,7 @@ void CRidley::sub80257650(CStateManager& mgr) {
   xa31_27_ = false;
 }
 
-void CRidley::sub80256914(float f31, bool r4) {
+void CRidley::ActivateWingElectricity(float f31, bool r4) {
   if (xce0_) {
     xce0_->SetParticleEmission(true);
   }
@@ -1262,7 +1262,7 @@ void CRidley::CoverAttack(CStateManager& mgr, EStateMsg msg, float arg) {
     x402_28_isMakingBigStrike = x568_data.x3ec_ > 0.f;
     x504_damageDur = x568_data.x3ec_;
     xc8c_ = x568_data.x3d0_;
-    sub80256580();
+    RandomSpeedUp();
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, 1);
   } else if (msg == EStateMsg::Deactivate) {
@@ -1380,13 +1380,13 @@ void CRidley::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
 
 void CRidley::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    sub80257744(mgr);
+    SetStage3Immunity(mgr);
     x32c_animState = EAnimState::Ready;
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::KnockBack, &CPatterned::TryKnockBack_Front, 3);
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
-    sub80257650(mgr);
+    SetStage3BreastVulnerability(mgr);
     xa32_28_shotAt = false;
   }
 }
@@ -1395,22 +1395,22 @@ void CRidley::Hurled(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg != EStateMsg::Activate)
     return;
 
-  sub80257650(mgr);
+  SetStage3BreastVulnerability(mgr);
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(GetTransform().frontVector(), pas::ESeverity::Four));
 }
 
 void CRidley::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    sub8025784c(mgr);
+    SetStage3ThroatVulnerability(mgr);
     x32c_animState = EAnimState::Ready;
     xa32_25_ = true;
-    sub80256580();
+    RandomSpeedUp();
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::ProjectileAttack, &CPatterned::TryProjectileAttack, 0);
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
     ResetPlasmaProjectile(mgr, true);
-    sub80257650(mgr);
+    SetStage3BreastVulnerability(mgr);
     xa32_25_ = false;
   }
 }
@@ -1422,7 +1422,7 @@ void CRidley::Jump(CStateManager& mgr, EStateMsg msg, float arg) {
     x402_28_isMakingBigStrike = x568_data.x3ac_ > 0.f;
     x504_damageDur = x568_data.x3ac_;
     xc8c_ = x568_data.x390_;
-    sub80256580();
+    RandomSpeedUp();
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, xc88_);
     if (x330_stateMachineState.GetTime() < 1.75f) {
@@ -1558,7 +1558,7 @@ void CRidley::Land(CStateManager& mgr, EStateMsg msg, float arg) {
     if (x32c_animState == EAnimState::Repeat) {
       x450_bodyController->SetLocomotionType(pas::ELocomotionType::Combat);
     }
-    sub80255e5c(mgr);
+    PushPlayer(mgr);
   } else if (msg == EStateMsg::Deactivate) {
     x32c_animState = EAnimState::NotReady;
     x402_28_isMakingBigStrike = false;
@@ -1666,7 +1666,7 @@ void CRidley::sub80255fe8(float f1, float f2, const zeus::CVector3f& vec) {
   }
 }
 
-void CRidley::sub80255e5c(CStateManager& mgr) {
+void CRidley::PushPlayer(CStateManager& mgr) {
   zeus::CVector3f posDiff = mgr.GetPlayer().GetTranslation() - GetTranslation();
   if (posDiff.magnitude() < 8.f) {
     float mag = mgr.GetPlayer().GetMass() * (8.f - posDiff.magnitude());
