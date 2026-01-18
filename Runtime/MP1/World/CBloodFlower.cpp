@@ -193,8 +193,11 @@ void CBloodFlower::Active(CStateManager& mgr, EStateMsg msg, float arg) {
     TryCommand(mgr, pas::EAnimationState::LoopReaction, &CPatterned::TryLoopReaction, 0);
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCAdditiveAimCmd());
     x584_curAttackTime += arg;
-    x450_bodyController->GetCommandMgr().DeliverAdditiveTargetVector(
-        GetTransform().transposeRotate(mgr.GetPlayer().GetTranslation() - GetTranslation()));
+    zeus::CVector3f targetPos = GetTransform().transposeRotate(mgr.GetPlayer().GetTranslation() - GetTranslation());
+    const float y = targetPos.y();
+    targetPos.y() = static_cast<float>(targetPos.z());
+    targetPos.z() = y;
+    x450_bodyController->GetCommandMgr().DeliverAdditiveTargetVector(targetPos);
   } else if (msg == EStateMsg::Deactivate) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
     x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::AdditiveIdle));
@@ -222,7 +225,7 @@ void CBloodFlower::PodAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::ESeverity::Zero));
     x574_podEffect->SetParticleEmission(true);
-    ActivateTriggers(mgr, true);
+    TriggerPodSteam(mgr, true);
   } else if (msg == EStateMsg::Update) {
     if (!TooClose(mgr, 0.f)) {
       return;
@@ -232,16 +235,16 @@ void CBloodFlower::PodAttack(CStateManager& mgr, EStateMsg msg, float arg) {
                     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
   } else if (msg == EStateMsg::Deactivate) {
     x574_podEffect->SetParticleEmission(false);
-    ActivateTriggers(mgr, false);
+    TriggerPodSteam(mgr, false);
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd({}, pas::ESeverity::One));
   }
 }
 
-void CBloodFlower::ActivateTriggers(CStateManager& mgr, bool activate) {
+void CBloodFlower::TriggerPodSteam(CStateManager& mgr, bool activate) {
   for (const SConnection& conn : GetConnectionList()) {
     auto search = mgr.GetIdListForScript(conn.x8_objId);
-    for (auto it = search.first; it != search.second; ++it) {
-      if (TCastToPtr<CScriptTrigger> trigger = mgr.ObjectById(it->second)) {
+    if (search.first != search.second) {
+      if (TCastToPtr<CScriptTrigger> trigger = mgr.ObjectById(search.second->second)) {
         mgr.SendScriptMsg(trigger, GetUniqueId(),
                           (activate ? EScriptObjectMessage::Activate : EScriptObjectMessage::Deactivate));
       }

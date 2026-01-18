@@ -35,7 +35,7 @@ class CBloodFlower : public CPatterned {
   CAssetId x61c_;
   CAssetId x620_;
 
-  void ActivateTriggers(CStateManager& mgr, bool activate);
+  void TriggerPodSteam(CStateManager& mgr, bool activate);
   void CalculateAttackTime(CStateManager&);
   void UpdateFire(CStateManager& mgr);
   void TurnEffectsOn(u32, CStateManager&);
