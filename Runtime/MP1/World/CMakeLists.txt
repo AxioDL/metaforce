@@ -1,5 +1,5 @@
 set(MP1_WORLD_SOURCES
-        CActorContraption.hpp CActorContraption.cpp
+        CScriptContraption.hpp CScriptContraption.cpp
         CAtomicAlpha.hpp CAtomicAlpha.cpp
         CAtomicBeta.hpp CAtomicBeta.cpp
         CBabygoth.hpp CBabygoth.cpp
