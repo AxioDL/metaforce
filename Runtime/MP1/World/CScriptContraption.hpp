@@ -9,17 +9,18 @@
 
 namespace metaforce {
 class CFlameThrower;
+class CWeaponDescription;
 namespace MP1 {
-class CActorContraption : public CScriptActor {
+class CScriptContraption : public CScriptActor {
   /* AKA Why Zoid?!?!?!? */
   std::vector<std::pair<TUniqueId, std::string>> x2e8_children;
-  TToken<CGenDescription> x300_flameThrowerGen;
+  TToken<CWeaponDescription> x300_flameThrowerGen;
   CAssetId x308_flameFxId;
   CDamageInfo x30c_dInfo;
 
 public:
   DEFINE_ENTITY
-  CActorContraption(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptContraption(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                     CModelData&& mData, const zeus::CAABox& aabox, const CMaterialList& matList, float mass,
                     float zMomentum, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
                     const CActorParameters& aParams, CAssetId part, const CDamageInfo& dInfo, bool active);

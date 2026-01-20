@@ -46,6 +46,6 @@ public:
   EFlickerBatState GetFlickerBatState() const { return x574_state; }
   void SetFlickerBatState(EFlickerBatState state, CStateManager&);
   void FlickerBatStateChanged(EFlickerBatState, CStateManager&);
-  void CheckStaticIntersection(CStateManager&);
+  void CheckFadeEffect(CStateManager&);
 };
 } // namespace metaforce::MP1

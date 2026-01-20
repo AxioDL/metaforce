@@ -6,7 +6,7 @@
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
-#include "Runtime/MP1/World/CActorContraption.hpp"
+#include "Runtime/MP1/World/CScriptContraption.hpp"
 #include "Runtime/MP1/World/CAtomicAlpha.hpp"
 #include "Runtime/MP1/World/CAtomicBeta.hpp"
 #include "Runtime/MP1/World/CBabygoth.hpp"
@@ -3184,7 +3184,7 @@ CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in
   if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) || collisionExtent.isZero())
     aabb = data.GetBounds(head.x10_transform.getRotation());
 
-  return new MP1::CActorContraption(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data),
+  return new MP1::CScriptContraption(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data),
                                     aabb, list, mass, zMomentum, hInfo, dVuln, actParams, flameFxId, dInfo, active);
 }
 

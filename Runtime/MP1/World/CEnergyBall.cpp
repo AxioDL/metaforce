@@ -58,7 +58,7 @@ void CEnergyBall::Think(float dt, CStateManager& mgr) {
   }
 
   if (!r27)
-    sub8029f4a8(mgr);
+    Detonate(mgr);
 }
 
 void CEnergyBall::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
@@ -98,5 +98,5 @@ void CEnergyBall::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
     x450_bodyController->FaceDirection3D(seekPos, GetTransform().basis[1], arg);
   }
 }
-void CEnergyBall::sub8029f4a8(CStateManager& mgr) {}
+void CEnergyBall::Detonate(CStateManager& mgr) {}
 } // namespace metaforce::MP1

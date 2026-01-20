@@ -106,7 +106,7 @@ void CFlickerBat::Render(CStateManager& mgr) {
       mgr.DrawSpaceWarp(GetTranslation(), 0.3f * std::sin(M_PIF * strength));
   }
 
-  if (x580_26_inLOS) {
+  if (x580_24_wasInXray) {
     mgr.SetupFogForAreaNonCurrent(GetAreaIdAlways());
     CPatterned::Render(mgr);
     mgr.SetupFogForArea(GetAreaIdAlways());
@@ -208,18 +208,19 @@ void CFlickerBat::FlickerBatStateChanged(EFlickerBatState state, CStateManager& 
       SetMuted(false);
     }
 
-    CheckStaticIntersection(mgr);
+    CheckFadeEffect(mgr);
     SetupPlayerCollision(true);
   } else if (state == EFlickerBatState::FadeOut) {
-    if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay)
-      CreateShadow(true);
+    if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay) {
+      CreateShadow(false);
+    }
 
-    CheckStaticIntersection(mgr);
+    CheckFadeEffect(mgr);
     SetupPlayerCollision(false);
   }
 }
 
-void CFlickerBat::CheckStaticIntersection(CStateManager& mgr) {
+void CFlickerBat::CheckFadeEffect(CStateManager& mgr) {
   if (!x580_27_enableLOSCheck) {
     x580_26_inLOS = false;
     return;

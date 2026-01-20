@@ -104,7 +104,7 @@
 #include "Runtime/Weapon/CTargetableProjectile.hpp"
 #include "Runtime/Weapon/CWaveBuster.hpp"
 
-#include "Runtime/MP1/World/CActorContraption.hpp"
+#include "Runtime/MP1/World/CScriptContraption.hpp"
 #include "Runtime/MP1/World/CAtomicAlpha.hpp"
 #include "Runtime/MP1/World/CAtomicBeta.hpp"
 #include "Runtime/MP1/World/CBabygoth.hpp"
@@ -844,7 +844,7 @@ IMGUI_ENTITY_INSPECT(CScriptPlatform, CPhysicsActor, ScriptPlatform, {
 })
 
 // <- CScriptActor
-IMGUI_ENTITY_INSPECT(MP1::CActorContraption, CScriptActor, ActorContraption, {})
+IMGUI_ENTITY_INSPECT(MP1::CScriptContraption, CScriptActor, ActorContraption, {})
 IMGUI_ENTITY_INSPECT(CScriptPlayerActor, CScriptActor, PlayerActor, {
   ImGuiAnimRes("Suit Resource", x2e8_suitRes);
   ImGuiEnumInput("Beam", x304_beam);

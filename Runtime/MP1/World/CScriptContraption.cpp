@@ -1,4 +1,4 @@
-#include "Runtime/MP1/World/CActorContraption.hpp"
+#include "Runtime/MP1/World/CScriptContraption.hpp"
 
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
@@ -11,7 +11,7 @@
 
 namespace metaforce {
 
-MP1::CActorContraption::CActorContraption(TUniqueId uid, std::string_view name, const CEntityInfo& info,
+MP1::CScriptContraption::CScriptContraption(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                           const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& aabox,
                                           const CMaterialList& matList, float mass, float zMomentum,
                                           const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
@@ -23,9 +23,9 @@ MP1::CActorContraption::CActorContraption(TUniqueId uid, std::string_view name, 
 , x308_flameFxId(part)
 , x30c_dInfo(dInfo) {}
 
-void MP1::CActorContraption::Accept(IVisitor& visitor) { visitor.Visit(this); }
+void MP1::CScriptContraption::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-void MP1::CActorContraption::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
+void MP1::CScriptContraption::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   bool curActive = GetActive();
   switch (msg) {
   case EScriptObjectMessage::Registered:
@@ -50,7 +50,7 @@ void MP1::CActorContraption::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
   }
 }
 
-void MP1::CActorContraption::Think(float dt, CStateManager& mgr) {
+void MP1::CScriptContraption::Think(float dt, CStateManager& mgr) {
   CScriptActor::Think(dt, mgr);
 
   for (const auto& [uid, name] : x2e8_children) {
@@ -62,7 +62,7 @@ void MP1::CActorContraption::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void MP1::CActorContraption::ResetFlameThrowers(CStateManager& mgr) {
+void MP1::CScriptContraption::ResetFlameThrowers(CStateManager& mgr) {
   for (const std::pair<TUniqueId, std::string>& uid : x2e8_children) {
     CFlameThrower* act = static_cast<CFlameThrower*>(mgr.ObjectById(uid.first));
     if (act && act->GetParticlesActive())
@@ -70,7 +70,7 @@ void MP1::CActorContraption::ResetFlameThrowers(CStateManager& mgr) {
   }
 }
 
-void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType evType,
+void MP1::CScriptContraption::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType evType,
                                              float dt) {
   if (evType == EUserEventType::DamageOff) {
     ResetFlameThrowers(mgr);
@@ -82,7 +82,7 @@ void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, const CInt32POI
     CActor::DoUserAnimEvent(mgr, node, evType, dt);
 }
 
-CFlameThrower* MP1::CActorContraption::CreateFlameThrower(std::string_view name, CStateManager& mgr) {
+CFlameThrower* MP1::CScriptContraption::CreateFlameThrower(std::string_view name, CStateManager& mgr) {
   const auto it =
       std::find_if(x2e8_children.cbegin(), x2e8_children.cend(), [&name](const auto& p) { return p.second == name; });
 

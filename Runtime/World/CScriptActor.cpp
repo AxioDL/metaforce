@@ -4,7 +4,7 @@
 #include "Runtime/CPlayerState.hpp"
 #include "Runtime/Camera/CGameCamera.hpp"
 #include "Runtime/Character/IAnimReader.hpp"
-#include "Runtime/MP1/World/CActorContraption.hpp"
+#include "Runtime/MP1/World/CScriptContraption.hpp"
 #include "Runtime/World/CActorParameters.hpp"
 #include "Runtime/World/CDamageVulnerability.hpp"
 #include "Runtime/World/CScriptColorModulate.hpp"

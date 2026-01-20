@@ -27,7 +27,7 @@ class CEnergyBall : public CPatterned {
   CDamageInfo x5cc_;
   float x5e8_;
 
-  void sub8029f4a8(CStateManager& mgr);
+  void Detonate(CStateManager& mgr);
 
 public:
   DEFINE_PATTERNED(EnergyBall);
