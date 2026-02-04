@@ -28,7 +28,7 @@ class CJellyZap : public CPatterned {
   void RemoveSelfFromFishCloud(CStateManager&);
   void RemoveAllAttractors(CStateManager&);
   bool ClosestToPlayer(const CStateManager&) const;
-  bool sub801d8190() const { return x568_ != 1; }
+  bool HitShell() const { return x568_ != 1; }
 
 public:
   DEFINE_PATTERNED(JellyZap);
@@ -49,7 +49,7 @@ public:
                                                      const CDamageInfo& info) const override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                          const CWeaponMode&, EProjectileAttrib) const override {
-    return sub801d8190() ? EWeaponCollisionResponseTypes::Unknown89 : EWeaponCollisionResponseTypes::Unknown39;
+    return HitShell() ? EWeaponCollisionResponseTypes::Unknown89 : EWeaponCollisionResponseTypes::Unknown39;
   }
   void Attack(CStateManager&, EStateMsg, float) override;
   void Suck(CStateManager&, EStateMsg, float) override;

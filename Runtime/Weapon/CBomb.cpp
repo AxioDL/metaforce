@@ -37,12 +37,13 @@ void CBomb::Accept(metaforce::IVisitor& visitor) { visitor.Visit(this); }
 
 void CBomb::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   if (msg == EScriptObjectMessage::Registered) {
-
-    x188_lightId = mgr.AllocateUniqueId();
-    CGameLight* gameLight = new CGameLight(
-        x188_lightId, GetAreaIdAlways(), false, std::string("Bomb_PLight") + GetName().data(), GetTransform(),
-        GetUniqueId(), x184_particle2->GetLight(), reinterpret_cast<size_t>(x18c_particle2Obj), 1, 0.f);
-    mgr.AddObject(gameLight);
+    if (x184_particle2->SystemHasLight()) {
+      x188_lightId = mgr.AllocateUniqueId();
+      CGameLight* gameLight = new CGameLight(
+          x188_lightId, GetAreaIdAlways(), false, std::string("Bomb_PLight") + GetName().data(), GetTransform(),
+          GetUniqueId(), x184_particle2->GetLight(), reinterpret_cast<size_t>(x18c_particle2Obj), 1, 0.f);
+      mgr.AddObject(gameLight);
+    }
     mgr.AddWeaponId(xec_ownerId, xf0_weaponType);
     CSfxManager::AddEmitter(SFXwpn_bomb_drop, GetTranslation(), {}, true, false, 0x7f, -1);
     mgr.InformListeners(GetTranslation(), EListenNoiseType::BombExplode);

@@ -58,10 +58,10 @@ void CJellyZap::Think(float dt, CStateManager& mgr) {
 
   float damage = x50c_baseDamageMag;
 
-  if (x5b8_25_ || GetBodyController()->GetPercentageFrozen() != 0.f) {
-    damage -= dt / 0.75f;
-  } else {
+  if (x5b8_25_ && GetBodyController()->GetPercentageFrozen() == 0.f) {
     damage += dt / 0.3f;
+  } else {
+    damage -= dt / 0.75f;
   }
   x50c_baseDamageMag = zeus::clamp(0.f, damage, 1.f);
 }
@@ -92,7 +92,7 @@ void CJellyZap::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
       if (staticTimer > mgr.GetPlayer().GetStaticTimer()) {
         mgr.GetPlayer().SetHudDisable(staticTimer, 0.5f, 2.5f);
         mgr.GetPlayer().TryToBreakOrbit(mgr.GetPlayer().GetOrbitTargetId(),
-                                                 CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+                                        CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
       }
 
       mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), 0.5f, 0.5f);
@@ -149,11 +149,11 @@ void CJellyZap::Active(CStateManager& mgr, EStateMsg msg, float arg) {
     x330_stateMachineState.SetDelay(x3d0_playerLeashTime);
   } else if (msg == EStateMsg::Update) {
     zeus::CVector3f targetVector =
-        GetTranslation() - (zeus::CVector3f(0.f, 0.f, 1.f) + mgr.GetPlayer().GetTranslation());
+        (mgr.GetPlayer().GetTranslation() + zeus::CVector3f(0.f, 0.f, 1.f)) - GetTranslation();
     x450_bodyController->GetCommandMgr().DeliverTargetVector(targetVector);
     if (x5b8_26_) {
-      zeus::CVector3f moveToImpulse =
-          GetMoveToORImpulseWR(GetTransform().transposeRotate(arg * (zeus::CVector3f(0.f, 1.f, 0.f) * x598_)), arg);
+      const zeus::CVector3f tmpMove = arg * (x598_ * zeus::CVector3f(0.f, 1.f, 0.f));
+      const zeus::CVector3f moveToImpulse = GetMoveToORImpulseWR(GetTransform().transposeRotate(tmpMove), arg);
       ApplyImpulseOR(moveToImpulse, zeus::CAxisAngle());
     }
   } else if (msg == EStateMsg::Deactivate) {
@@ -197,7 +197,7 @@ bool CJellyZap::InDetectionRange(CStateManager& mgr, float arg) {
 
 void CJellyZap::AddSelfToFishCloud(CStateManager& mgr, float radius, float priority, bool repulsor) {
   for (const SConnection& conn : x20_conns) {
-    if (conn.x0_state != EScriptObjectState::ScanStart || conn.x4_msg != EScriptObjectMessage::Follow) {
+    if (conn.x0_state != EScriptObjectState::Modify || conn.x4_msg != EScriptObjectMessage::Follow) {
       continue;
     }
     if (TCastToPtr<CFishCloud> cloud = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId))) {
@@ -256,7 +256,7 @@ bool CJellyZap::ClosestToPlayer(const CStateManager& mgr) const {
 }
 const CDamageVulnerability* CJellyZap::GetDamageVulnerability(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                                                               const CDamageInfo& info) const {
-  if (!sub801d8190()) {
+  if (!HitShell()) {
     return GetDamageVulnerability();
   }
 
