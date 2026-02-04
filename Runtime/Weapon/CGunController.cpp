@@ -34,29 +34,25 @@ void CGunController::EnterComboFire(CStateManager& mgr, s32 gunId) {
 
 void CGunController::EnterStruck(CStateManager& mgr, float angle, bool bigStrike, bool b2) {
   switch (x50_gunState) {
-  case EGunState::Default:
-  case EGunState::ComboFire:
-  case EGunState::Idle:
-  case EGunState::Strike:
-  case EGunState::BigStrike:
-    return;
   case EGunState::FreeLook:
     x4_freeLook.SetIdle(true);
     break;
-  default:
+  case EGunState::Inactive:
+  case EGunState::Fidget:
     break;
+  default:
+    return;
   }
 
-  const CPASDatabase& pasDatabase = x0_modelData.GetAnimationData()->GetCharacterInfo().GetPASDatabase();
-  CPASAnimParmData parms(pas::EAnimationState::LieOnGround, CPASAnimParm::FromInt32(x4_freeLook.GetGunId()),
-                         CPASAnimParm::FromReal32(angle), CPASAnimParm::FromBool(bigStrike),
-                         CPASAnimParm::FromBool(b2));
-  std::pair<float, s32> anim = pasDatabase.FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
-  x0_modelData.GetAnimationData()->EnableLooping(false);
-  CAnimPlaybackParms aparms(anim.second, -1, 1.f, true);
-  x0_modelData.GetAnimationData()->SetAnimation(aparms, false);
+  const CPASAnimParmData aparam =
+      CPASAnimParmData(pas::EAnimationState::LieOnGround, CPASAnimParm::FromInt32(x4_freeLook.GetGunId()),
+                       CPASAnimParm::FromReal32(angle), CPASAnimParm::FromBool(bigStrike), CPASAnimParm::FromBool(b2));
+  CAnimData& animData = *x0_modelData.GetAnimationData();
+  const std::pair<float, int> anim =
+      animData.GetCharacterInfo().GetPASDatabase().FindBestAnimation(aparam, *mgr.GetActiveRandom(), -1);
+  animData.EnableLooping(false);
+  animData.SetAnimation(CAnimPlaybackParms(anim.second, -1, 1.f, true), false);
   x54_curAnimId = anim.second;
-  x58_25_enteredComboFire = false;
   x50_gunState = bigStrike ? EGunState::BigStrike : EGunState::Strike;
 }
 

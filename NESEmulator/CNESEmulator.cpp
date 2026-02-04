@@ -5,7 +5,6 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
-#include <cstdbool>
 #include <cstring>
 #include "malloc.h"
 #include <cinttypes>
