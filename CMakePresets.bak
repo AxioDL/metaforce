@@ -284,7 +284,15 @@
       "hidden": true,
       "inherits": [
         "relwithdebinfo"
-      ]
+      ],
+      "cacheVariables": {
+        "CMAKE_C_COMPILER_LAUNCHER": "buildcache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "buildcache",
+        "USE_LTO": {
+          "type": "BOOL",
+          "value": false
+        }
+      }
     },
     {
       "name": "x-linux-ci-gcc",
@@ -304,7 +312,14 @@
       "name": "x-macos-ci",
       "inherits": [
         "macos-default-relwithdebinfo"
-      ]
+      ],
+      "cacheVariables": {
+        "CMAKE_OSX_ARCHITECTURES": "arm64;x86_64",
+        "IMGUI_USE_FREETYPE": {
+          "type": "BOOL",
+          "value": false
+        }
+      }
     },
     {
       "name": "x-windows-ci",
@@ -312,7 +327,14 @@
       "inherits": [
         "relwithdebinfo"
       ],
-      "binaryDir": "$env{BUILD_DIR}"
+      "binaryDir": "$env{BUILD_DIR}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER_LAUNCHER": "buildcache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "buildcache",
+        "CMAKE_C_FLAGS_RELWITHDEBINFO": "/Z7 /O2 /Ob1 /DNDEBUG",
+        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/Z7 /O2 /Ob1 /DNDEBUG",
+        "CMAKE_INSTALL_PREFIX": "$env{BUILD_DIR}/install"
+      }
     },
     {
       "name": "x-windows-ci-msvc",
