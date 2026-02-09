@@ -65,13 +65,13 @@ jobs:
           echo After
           df -h .
 
-      - name: Restore buildcache
-        uses: pat-s/always-upload-cache@v3
-        with:
-          path: ${{env.BUILDCACHE_DIR}}
-          key: buildcache-${{runner.os}}-${{matrix.preset}}-${{github.sha}}
-          restore-keys: |
-            buildcache-${{runner.os}}-${{matrix.preset}}-
+      #- name: Restore buildcache
+      #  uses: pat-s/always-upload-cache@v3
+      #  with:
+      #    path: ${{env.BUILDCACHE_DIR}}
+      #    key: buildcache-${{runner.os}}-${{matrix.preset}}-${{github.sha}}
+      #    restore-keys: |
+      #      buildcache-${{runner.os}}-${{matrix.preset}}-
 
       - name: Acquire Dawn Deps
         continue-on-error: true
@@ -83,8 +83,8 @@ jobs:
       - name: Build
         run: cmake --build --preset x-linux-ci-${{matrix.preset}}
 
-      - name: Print buildcache stats
-        run: buildcache -s
+      #- name: Print buildcache stats
+      #  run: buildcache -s
 
       - name: Generate AppImage
         run: ci/build-appimage.sh
