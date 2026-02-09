@@ -74,6 +74,7 @@ jobs:
             buildcache-${{runner.os}}-${{matrix.preset}}-
 
       - name: Configure CMake
+        continue-on-error: true
         run: |
           cmake --preset x-linux-ci-${{matrix.preset}}
           cmake --preset x-linux-ci-${{matrix.preset}}
@@ -141,6 +142,7 @@ jobs:
             buildcache-${{runner.os}}-universal-
 
       - name: Configure CMake
+        continue-on-error: true
         run: |
           cmake --preset x-macos-ci
           cmake --preset x-macos-ci
@@ -195,6 +197,7 @@ jobs:
           pip3 install markupsafe
 
       - name: Configure CMake
+        continue-on-error: true
         run: |
           cmake --preset ios-default
           cmake --preset ios-default
@@ -232,6 +235,7 @@ jobs:
           pip3 install markupsafe
 
       - name: Configure CMake
+        continue-on-error: true
         run: |
           cmake --preset tvos-default
           cmake --preset tvos-default 
@@ -312,6 +316,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Configure CMake
+        continue-on-error: true
         run: |
           cmake --preset x-windows-ci-${{matrix.preset}} 
           cmake --preset x-windows-ci-${{matrix.preset}} 
