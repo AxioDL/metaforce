@@ -20,8 +20,8 @@ jobs:
     name: Build Linux (${{matrix.name}} x86_64)
     runs-on: ubuntu-latest
 
-    env:
-      BUILDCACHE_DIR: ${{github.workspace}}/.buildcache
+    #env:
+      #BUILDCACHE_DIR: ${{github.workspace}}/.buildcache
 
     strategy:
       fail-fast: false
@@ -50,8 +50,8 @@ jobs:
             libxinerama-dev libxcursor-dev python3-markupsafe libgtk-3-dev libssl-dev
 
           # setup buildcache
-          curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-linux.tar.gz | tar xz -C "$RUNNER_WORKSPACE"
-          echo "$RUNNER_WORKSPACE"/buildcache/bin >> $GITHUB_PATH
+          #curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-linux.tar.gz | tar xz -C "$RUNNER_WORKSPACE"
+          #echo "$RUNNER_WORKSPACE"/buildcache/bin >> $GITHUB_PATH
 
           # free up disk space
           # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
