@@ -1323,7 +1323,7 @@ void CElementGen::RenderParticles() {
   if (x26c_30_MBLR) {
     CGX::Begin(GX_QUADS, GX_VTXFMT6, mbspVal * x30_particles.size() * 4);
   } else {
-    CGX::Begin(GX_QUADS, GX_VTXFMT6, mbspVal * 4);
+    CGX::Begin(GX_QUADS, GX_VTXFMT6, x30_particles.size() * 4);
   }
 
   std::vector<CParticleListItem> sortItems;

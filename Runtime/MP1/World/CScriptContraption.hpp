@@ -6,6 +6,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CDamageInfo.hpp"
 #include "Runtime/World/CScriptActor.hpp"
+#include "Runtime/Particle/CWeaponDescription.hpp"
 
 namespace metaforce {
 class CFlameThrower;
