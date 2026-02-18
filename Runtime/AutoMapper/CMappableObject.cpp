@@ -146,14 +146,15 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
       GXPosition1x8(sDrawData[i].xf_idxD);
       CGX::End();
 
-      CGX::SetTevKColor(GX_KCOLOR0, colors.second);
-      CGX::Begin(GX_LINESTRIP, GX_VTXFMT0, 5);
-      GXPosition1x8(sDrawData[i].xc_idxA);
-      GXPosition1x8(sDrawData[i].xd_idxB);
-      GXPosition1x8(sDrawData[i].xf_idxD);
-      GXPosition1x8(sDrawData[i].xe_idxC);
-      GXPosition1x8(sDrawData[i].xc_idxA);
-      CGX::End();
+      // TODO lines
+      // CGX::SetTevKColor(GX_KCOLOR0, colors.second);
+      // CGX::Begin(GX_LINESTRIP, GX_VTXFMT0, 5);
+      // GXPosition1x8(sDrawData[i].xc_idxA);
+      // GXPosition1x8(sDrawData[i].xd_idxB);
+      // GXPosition1x8(sDrawData[i].xf_idxD);
+      // GXPosition1x8(sDrawData[i].xe_idxC);
+      // GXPosition1x8(sDrawData[i].xc_idxA);
+      // CGX::End();
     }
     return;
   }
@@ -232,14 +233,15 @@ void CMappableObject::DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, 
   GXPosition1x8(drawData.xf_idxD);
   CGX::End();
 
-  CGX::SetTevKColor(GX_KCOLOR0, colors.second);
-  CGX::Begin(GX_LINESTRIP, GX_VTXFMT0, 5);
-  GXPosition1x8(drawData.xc_idxA);
-  GXPosition1x8(drawData.xd_idxB);
-  GXPosition1x8(drawData.xf_idxD);
-  GXPosition1x8(drawData.xe_idxC);
-  GXPosition1x8(drawData.xc_idxA);
-  CGX::End();
+  // TODO lines
+  // CGX::SetTevKColor(GX_KCOLOR0, colors.second);
+  // CGX::Begin(GX_LINESTRIP, GX_VTXFMT0, 5);
+  // GXPosition1x8(drawData.xc_idxA);
+  // GXPosition1x8(drawData.xd_idxB);
+  // GXPosition1x8(drawData.xf_idxD);
+  // GXPosition1x8(drawData.xe_idxC);
+  // GXPosition1x8(drawData.xc_idxA);
+  // CGX::End();
 }
 
 CVector3f CMappableObject::BuildSurfaceCenterPoint(int surfaceIdx) const {

@@ -1321,7 +1321,15 @@ void CElementGen::RenderParticles() {
 
   int mbspVal = std::max(1, x270_MBSP);
   if (x26c_30_MBLR) {
-    CGX::Begin(GX_QUADS, GX_VTXFMT6, mbspVal * x30_particles.size() * 4);
+    // CGX::Begin(GX_QUADS, GX_VTXFMT6, mbspVal * x30_particles.size() * 4);
+
+    // TODO: temp hack to return early since the x26c_30_MBLR case is unimplemented below
+    if (moveRedToAlphaBuffer) {
+      GXSetTevSwapMode(GXTevStageID(nextStage - 1), GX_TEV_SWAP0, GX_TEV_SWAP0);
+    }
+    CGraphics::SetCullMode(ERglCullMode::Front);
+    CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
+    return;
   } else {
     CGX::Begin(GX_QUADS, GX_VTXFMT6, x30_particles.size() * 4);
   }
