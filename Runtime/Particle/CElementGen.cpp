@@ -1320,7 +1320,7 @@ void CElementGen::RenderParticles() {
   }
 
   int mbspVal = std::max(1, x270_MBSP);
-  if (x26c_30_MBLR) {
+  if (x26c_30_MBLR || x26c_29_ORNT) { // TODO: temp added x26c_29_ORNT to return early
     // CGX::Begin(GX_QUADS, GX_VTXFMT6, mbspVal * x30_particles.size() * 4);
 
     // TODO: temp hack to return early since the x26c_30_MBLR case is unimplemented below
