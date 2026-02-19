@@ -242,7 +242,7 @@
         "CMAKE_TOOLCHAIN_FILE": "ios.toolchain.cmake",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install",
         "PLATFORM": "OS64",
-        "DEPLOYMENT_TARGET": "13.0",
+        "DEPLOYMENT_TARGET": "14.0",
         "ENABLE_BITCODE": {
           "type": "BOOL",
           "value": false

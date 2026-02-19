@@ -47,7 +47,8 @@ jobs:
           sudo apt-get -y install ninja-build clang lld openssl libcurl4-openssl-dev intel-oneapi-ipp-devel \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
             libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev libfreetype-dev \
-            libxinerama-dev libxcursor-dev python3-markupsafe libgtk-3-dev libssl-dev
+            libxinerama-dev libxcursor-dev python3-markupsafe libgtk-3-dev libssl-dev \
+            libxss-dev libfuse2
 
           # setup buildcache
           #curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-linux.tar.gz | tar xz -C "$RUNNER_WORKSPACE"
@@ -98,7 +99,6 @@ jobs:
             build/install/debug.tar.*
 
   build-macos:
-    if: 'false'
     name: Build macOS (AppleClang universal)
     runs-on: macos-latest
 
@@ -116,9 +116,8 @@ jobs:
         run: |
           brew update
           brew upgrade --formula
-          brew install ninja graphicsmagick imagemagick
-          yarn global add create-dmg
-          pip3 install markupsafe
+          brew install cmake ninja graphicsmagick imagemagick
+          pip3 install --break-system-packages markupsafe
 
           # setup buildcache
           curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-macos.zip -o /tmp/buildcache-macos.zip
@@ -165,24 +164,18 @@ jobs:
         #  certificate-passphrase: ${{secrets.MACOS_CERTIFICATE_PASSWORD}}
         #  keychain-password: ${{secrets.MACOS_KEYCHAIN_PASSWORD}}
 
-      - name: Deploy & codesign application
-          #env:
-          #ASC_USERNAME: ${{secrets.MACOS_ASC_USERNAME}}
-          #ASC_PASSWORD: ${{secrets.MACOS_ASC_PASSWORD}}
-          #ASC_TEAM_ID: ${{secrets.MACOS_ASC_TEAM_ID}}
-        #CODESIGN_IDENT: ${{secrets.MACOS_CODESIGN_IDENT}}
-        run: ci/build-dmg.sh
+      - name: Verify CMake version
+        run: cmake --version
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-universal
           path: |
-            build/install/Metaforce *.dmg
+            build/install/Metaforce.app
             build/install/debug.tar.*
 
   build-ios:
-    if: 'false'
     name: Build iOS (AppleClang arm64)
     runs-on: macos-latest
 
@@ -196,8 +189,11 @@ jobs:
         run: |
           brew update
           brew upgrade --formula
-          brew install ninja
-          pip3 install markupsafe
+          brew install cmake ninja
+          pip3 install --break-system-packages markupsafe
+
+      - name: Verify CMake version
+        run: cmake --version
 
       - name: Acquire Dawn Deps
         continue-on-error: true
@@ -209,19 +205,15 @@ jobs:
       - name: Build
         run: cmake --build --preset ios-default --target install
 
-      - name: Generate IPA
-        run: ci/build-ipa.sh
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-ios-appleclang-arm64
           path: |
-            build/install/Metaforce.ipa
+            build/install/Metaforce.app
             build/install/debug.tar.*
 
   build-tvos:
-    if: 'false'
     name: Build tvOS (AppleClang arm64)
     runs-on: macos-latest
 
@@ -235,38 +227,36 @@ jobs:
         run: |
           brew update
           brew upgrade --formula
-          brew install ninja
-          pip3 install markupsafe
+          brew install cmake ninja
+          pip3 install --break-system-packages markupsafe
+
+      - name: Verify CMake version
+        run: cmake --version
+
+      - name: Acquire Dawn Deps
+        continue-on-error: true
+        run: cmake --preset tvos-default
 
       - name: Configure CMake
-        continue-on-error: true
-        run: |
-          cmake --preset tvos-default
-          cmake --preset tvos-default 
+        run: cmake --preset tvos-default
 
       - name: Build
         run: cmake --build --preset tvos-default --target install
-
-      - name: Generate IPA
-        run: ci/build-ipa.sh
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-tvos-appleclang-arm64
           path: |
-            build/install/Metaforce.ipa
+            build/install/Metaforce.app
             build/install/debug.tar.*
 
   build-windows:
-    if: 'false'
     name: Build Windows (${{matrix.name}} x86_64)
     runs-on: windows-latest
 
     env:
       IPP_VERSION: 2021.2.0.210
-      # C: has ~90GB available space at the moment
-      BUILDCACHE_DIR: C:\buildcache
       BUILD_DIR: C:\build
 
     strategy:
@@ -295,30 +285,16 @@ jobs:
           Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
 
       - name: Install dependencies
-        run: |
-          choco install ninja vulkan-sdk
-          pip install markupsafe
-
-          # set up buildcache
-          $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://github.com/encounter/buildcache/releases/download/$env:BUILDCACHE_VERSION/buildcache-windows.zip", "$TempDir\buildcache.zip")
-          Expand-Archive -LiteralPath "$TempDir\buildcache.zip" -DestinationPath "$TempDir" -Force
-          echo "$TempDir\buildcache\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-          # check available disk space
-          Get-PSDrive
-
-      - name: Restore buildcache
-        uses: pat-s/always-upload-cache@v3
-        with:
-          path: ${{env.BUILDCACHE_DIR}}
-          key: buildcache-${{runner.os}}-${{matrix.preset}}-${{github.sha}}
-          restore-keys: |
-            buildcache-${{runner.os}}-${{matrix.preset}}-
+        run: choco install ninja
 
       - name: Enable Visual Studio environment
         uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Override VCPKG_ROOT
+        run: echo "VCPKG_ROOT=C:\vcpkg" >> $env:GITHUB_ENV
+
+      - name: Install vcpkg packages
+        run: vcpkg install zlib:x64-windows-static
 
       - name: Acquire Dawn Deps
         continue-on-error: true
@@ -329,9 +305,6 @@ jobs:
 
       - name: Build
         run: cmake --build --preset x-windows-ci-${{matrix.preset}}
-
-      - name: Print buildcache stats
-        run: buildcache -s
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
