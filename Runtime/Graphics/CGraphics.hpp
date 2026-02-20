@@ -191,8 +191,14 @@ public:
 
   class CProjectionState {
   public:
-    CProjectionState(bool persp, float left, float right, float top, float bottom, float near, float far)
-    : x0_persp(persp), x4_left(left), x8_right(right), xc_top(top), x10_bottom(bottom), x14_near(near), x18_far(far) {}
+    CProjectionState(bool persp, float left, float right, float top, float bottom, float nearPlane, float farPlane)
+    : x0_persp(persp)
+    , x4_left(left)
+    , x8_right(right)
+    , xc_top(top)
+    , x10_bottom(bottom)
+    , x14_near(nearPlane)
+    , x18_far(farPlane) {}
 
     bool IsPerspective() const { return x0_persp; }
     float GetLeft() const { return x4_left; }
@@ -359,7 +365,7 @@ public:
   static void SetViewportResolution(const zeus::CVector2i& res);
   static void SetViewport(int leftOff, int bottomOff, int width, int height);
   static void SetScissor(int leftOff, int bottomOff, int width, int height);
-  static void SetDepthRange(float near, float far);
+  static void SetDepthRange(float nearPlane, float farPlane);
   static void SetIdentityViewPointMatrix();
   static void SetIdentityModelMatrix();
   static void ClearBackAndDepthBuffers();

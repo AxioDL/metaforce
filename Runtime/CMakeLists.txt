@@ -214,17 +214,32 @@ if (WIN32)
     endif ()
 elseif (APPLE)
     # nothing
-elseif (UNIX)
+elseif (UNIX AND NOT ANDROID)
     set(PLAT_LIBS rt)
 endif ()
 
-add_executable(metaforce WIN32 CMain.cpp ${PLAT_SRCS}
-    ImGuiConsole.hpp ImGuiConsole.cpp
-    ImGuiControllerConfig.hpp ImGuiControllerConfig.cpp
-    ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp)
+if (ANDROID)
+    add_library(metaforce SHARED CMain.cpp ${PLAT_SRCS}
+        ImGuiConsole.hpp ImGuiConsole.cpp
+        ImGuiControllerConfig.hpp ImGuiControllerConfig.cpp
+        ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp)
+    set_target_properties(metaforce PROPERTIES
+        OUTPUT_NAME main
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries)
+else ()
+    add_executable(metaforce WIN32 CMain.cpp ${PLAT_SRCS}
+        ImGuiConsole.hpp ImGuiConsole.cpp
+        ImGuiControllerConfig.hpp ImGuiControllerConfig.cpp
+        ImGuiEntitySupport.hpp ImGuiEntitySupport.cpp)
+endif ()
 # RUNTIME_LIBRARIES repeated here for link ordering
 target_link_libraries(metaforce PUBLIC RuntimeCommon RuntimeCommonB ${RUNTIME_LIBRARIES} ${PLAT_LIBS} aurora::main)
 target_compile_definitions(metaforce PUBLIC "-DMETAFORCE_TARGET_BYTE_ORDER=__BYTE_ORDER__")
+if (ANDROID)
+    # SDLActivity loads SDL_main via dlsym on Android. Since aurora::main is a static
+    # archive, force an undefined reference so the linker keeps the SDL_main object.
+    target_link_options(metaforce PRIVATE "-Wl,-u,SDL_main")
+endif ()
 if (WIN32)
     target_link_options(metaforce PRIVATE /ENTRY:wWinMainCRTStartup)
 endif ()

@@ -11,6 +11,8 @@
 
 #if defined(__x86_64__) || defined(_M_AMD64)
 #define METAFORCE_DLPACKAGE "metaforce-@METAFORCE_WC_DESCRIBE@-@PLATFORM_NAME@-x86_64-@METAFORCE_VECTOR_ISA@"
+#elif defined(__i386__) || defined(_M_IX86)
+#define METAFORCE_DLPACKAGE "metaforce-@METAFORCE_WC_DESCRIBE@-@PLATFORM_NAME@-x86"
 #elif defined(__aarch64__) || defined(_M_ARM64)
 #define METAFORCE_DLPACKAGE "metaforce-@METAFORCE_WC_DESCRIBE@-@PLATFORM_NAME@-arm64"
 #elif defined(EMSCRIPTEN)

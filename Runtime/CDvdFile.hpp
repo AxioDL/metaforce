@@ -46,6 +46,7 @@ class CDvdFile {
 
   static std::vector<std::shared_ptr<IDvdRequest>> m_RequestQueue;
   static std::string m_rootDirectory;
+  static std::string m_lastError;
   static std::unique_ptr<u8[]> m_dolBuf;
   static size_t m_dolBufLen;
 
@@ -61,6 +62,7 @@ class CDvdFile {
 
 public:
   static bool Initialize(const std::string_view& path);
+  static std::string_view GetLastError() { return m_lastError; }
   static SDiscInfo DiscInfo();
   static void SetRootDirectory(const std::string_view& rootDir);
   static void Shutdown();

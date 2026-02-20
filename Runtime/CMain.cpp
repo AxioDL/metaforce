@@ -2,6 +2,7 @@
 #include <string_view>
 #include <numeric>
 #include <iostream>
+#include <vector>
 
 #include "ImGuiEngine.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
@@ -32,7 +33,11 @@
 #include <aurora/event.h>
 #include <aurora/main.h>
 #include <dolphin/vi.h>
+#include <SDL3/SDL_log.h>
 #include <SDL3/SDL_messagebox.h>
+#if defined(ANDROID)
+#include <spdlog/sinks/android_sink.h>
+#endif
 #include "Runtime/Graphics/CTexture.hpp"
 
 using namespace std::literals;
@@ -202,10 +207,10 @@ public:
 #if TARGET_OS_IOS || TARGET_OS_TV
     m_deferredProject = std::string{m_fileMgr.getStoreRoot()} + "game.iso";
 #else
-    bool inArg = false;
     for (int i = 1; i < m_argc; ++i) {
       std::string arg = m_argv[i];
-      if (m_deferredProject.empty() && !arg.starts_with('-') && !arg.starts_with('+') && CBasics::IsDir(arg.c_str()))
+      if (m_deferredProject.empty() && !arg.starts_with('-') && !arg.starts_with('+') &&
+          (CBasics::IsDir(arg.c_str()) || CBasics::IsFile(arg.c_str())))
         m_deferredProject = arg;
       else if (arg == "--no-sound") {
         // m_voiceEngine->setVolume(0.f);
@@ -261,8 +266,17 @@ public:
         m_projectInitialized = true;
         m_cvarCommons.m_lastDiscPath->fromLiteral(m_deferredProject);
       } else {
-        spdlog::error("Failed to open disc image '{}'", m_deferredProject);
-        m_imGuiConsole.m_errorString = fmt::format("Failed to open disc image '{}'", m_deferredProject);
+        const std::string_view dvdErr = CDvdFile::GetLastError();
+        if (dvdErr.empty()) {
+          spdlog::error("Failed to open disc image '{}'", m_deferredProject);
+          m_imGuiConsole.m_errorString = fmt::format("Failed to open disc image '{}'", m_deferredProject);
+        } else {
+          spdlog::error("Failed to open disc image '{}': {}", m_deferredProject, dvdErr);
+          m_imGuiConsole.m_errorString = fmt::format("Failed to open disc image '{}': {}", m_deferredProject, dvdErr);
+        }
+        if (m_deferredProject.starts_with("content://")) {
+          m_cvarCommons.m_lastDiscPath->fromLiteral(""sv);
+        }
       }
       m_deferredProject.clear();
     }
@@ -436,6 +450,20 @@ static void SetupBasics() {
 #endif
     exit(1);
   }
+
+#if defined(ANDROID)
+  {
+    std::vector<spdlog::sink_ptr> sinks;
+    if (auto defaultLogger = spdlog::default_logger(); defaultLogger != nullptr) {
+      sinks = defaultLogger->sinks();
+    }
+    sinks.emplace_back(std::make_shared<spdlog::sinks::android_sink_mt>("Metaforce"));
+    auto logger = std::make_shared<spdlog::logger>("metaforce-android", sinks.begin(), sinks.end());
+    logger->set_level(spdlog::level::trace);
+    logger->flush_on(spdlog::level::warn);
+    spdlog::set_default_logger(std::move(logger));
+  }
+#endif
 
 #if SENTRY_ENABLED
   std::string cacheDir{metaforce::FileStoreManager::instance()->getStoreRoot()};

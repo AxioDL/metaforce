@@ -280,6 +280,45 @@
       }
     },
     {
+      "name": "android-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install",
+        "CMAKE_TOOLCHAIN_FILE": "$env{ANDROID_HOME}/ndk/$env{ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake",
+        "ANDROID_PLATFORM": "android-24"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [
+            "Linux"
+          ]
+        }
+      }
+    },
+    {
+      "name": "android-arm64",
+      "displayName": "Android (arm64-v8a)",
+      "inherits": [
+        "android-base"
+      ],
+      "cacheVariables": {
+        "ANDROID_ABI": "arm64-v8a"
+      }
+    },
+    {
+      "name": "android-x86_64",
+      "displayName": "Android (x86_64)",
+      "inherits": [
+        "android-base"
+      ],
+      "cacheVariables": {
+        "ANDROID_ABI": "x86_64"
+      }
+    },
+    {
       "name": "x-linux-ci",
       "hidden": true,
       "inherits": [
@@ -392,6 +431,24 @@
       "configurePreset": "tvos-default",
       "description": "tvOS release build with debug info",
       "displayName": "tvOS RelWithDebInfo",
+      "targets": [
+        "metaforce"
+      ]
+    },
+    {
+      "name": "android-arm64",
+      "configurePreset": "android-arm64",
+      "description": "Android arm64-v8a release build with debug info",
+      "displayName": "Android arm64-v8a RelWithDebInfo",
+      "targets": [
+        "metaforce"
+      ]
+    },
+    {
+      "name": "android-x86_64",
+      "configurePreset": "android-x86_64",
+      "description": "Android x86_64 release build with debug info",
+      "displayName": "Android x86_64 RelWithDebInfo",
       "targets": [
         "metaforce"
       ]

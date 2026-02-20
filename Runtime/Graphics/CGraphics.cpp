@@ -513,15 +513,15 @@ void CGraphics::FlushProjection() {
   float left = mProj.GetLeft();
   float top = mProj.GetTop();
   float bottom = mProj.GetBottom();
-  float near = mProj.GetNear();
-  float far = mProj.GetFar();
+  float nearPlane = mProj.GetNear();
+  float farPlane = mProj.GetFar();
   if (mProj.IsPerspective()) {
     Mtx44 mtx;
-    MTXFrustum(mtx, top, bottom, left, right, near, far);
+    MTXFrustum(mtx, top, bottom, left, right, nearPlane, farPlane);
     GXSetProjection(mtx, GX_PERSPECTIVE);
   } else {
     Mtx44 mtx;
-    MTXOrtho(mtx, top, bottom, left, right, near, far);
+    MTXOrtho(mtx, top, bottom, left, right, nearPlane, farPlane);
     GXSetProjection(mtx, GX_ORTHOGRAPHIC);
   }
 }
@@ -638,9 +638,9 @@ void CGraphics::SetScissor(int left, int bottom, int width, int height) {
   GXSetScissor(left, mRenderModeObj.efbHeight - (bottom + height), width, height);
 }
 
-void CGraphics::SetDepthRange(float near, float far) {
-  mDepthNear = near;
-  mDepthFar = far;
+void CGraphics::SetDepthRange(float nearPlane, float farPlane) {
+  mDepthNear = nearPlane;
+  mDepthFar = farPlane;
   GXSetViewport(static_cast<float>(mViewport.mLeft), static_cast<float>(mViewport.mTop),
                 static_cast<float>(mViewport.mWidth), static_cast<float>(mViewport.mHeight), mDepthNear, mDepthFar);
 }

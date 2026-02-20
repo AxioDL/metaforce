@@ -2,6 +2,7 @@
 
 // #include <optick.h>
 
+#include <SDL3/SDL_error.h>
 #include <SDL3/SDL_iostream.h>
 
 #include <cstring>
@@ -9,6 +10,7 @@
 #include <new>
 
 #include "Runtime/CDvdRequest.hpp"
+#include "Runtime/Logging.hpp"
 #include "Runtime/CStopwatch.hpp"
 
 namespace metaforce {
@@ -99,10 +101,9 @@ class CFileDvdRequest : public IDvdRequest {
   ESeekOrigin m_whence;
   int m_offset;
 
-
   bool m_cancel = false;
   bool m_complete = false;
-  
+
   std::function<void(u32)> m_callback;
 
 public:
@@ -185,6 +186,7 @@ public:
 
 std::vector<std::shared_ptr<IDvdRequest>> CDvdFile::m_RequestQueue;
 std::string CDvdFile::m_rootDirectory;
+std::string CDvdFile::m_lastError;
 std::unique_ptr<u8[]> CDvdFile::m_dolBuf;
 size_t CDvdFile::m_dolBufLen = 0;
 
@@ -369,16 +371,21 @@ bool CDvdFile::LoadDolBuf() {
 
 bool CDvdFile::Initialize(const std::string_view& path) {
   Shutdown();
+  m_lastError.clear();
 
   std::string pathStr(path);
   SDL_IOStream* io = SDL_IOFromFile(pathStr.c_str(), "rb");
   if (io == nullptr) {
+    m_lastError = std::string{"SDL_IOFromFile failed: "} + SDL_GetError();
+    spdlog::error("{} (path: '{}')", m_lastError, pathStr);
     return false;
   }
 
   auto* streamCtx = new (std::nothrow) SDLDiscStreamCtx{io};
   if (streamCtx == nullptr) {
     SDL_CloseIO(io);
+    m_lastError = "Failed to allocate SDL disc stream context";
+    spdlog::error("{} (path: '{}')", m_lastError, pathStr);
     return false;
   }
 
@@ -394,7 +401,12 @@ bool CDvdFile::Initialize(const std::string_view& path) {
   };
   const NodResult discResult = nod_disc_open_stream(&stream, &discOpts, &discRaw);
   if (discResult != NOD_RESULT_OK || discRaw == nullptr) {
-    sdlStreamClose(streamCtx);
+    const char* nodError = nod_error_message();
+    m_lastError = fmt::format("nod_disc_open_stream failed ({}){}", int(discResult),
+                              nodError != nullptr && nodError[0] != '\0' ? fmt::format(": {}", nodError) : "");
+    spdlog::error("{} (path: '{}')", m_lastError, pathStr);
+    // Ownership of streamCtx is transferred to nod_disc_open_stream.
+    // FfiDiscStream drops and invokes close() on failure paths.
     return false;
   }
   m_DvdRoot = NodHandleUnique(discRaw, nod_free);
@@ -403,12 +415,24 @@ bool CDvdFile::Initialize(const std::string_view& path) {
   const NodResult partitionResult =
       nod_disc_open_partition_kind(m_DvdRoot.get(), NOD_PARTITION_KIND_DATA, nullptr, &partitionRaw);
   if (partitionResult != NOD_RESULT_OK || partitionRaw == nullptr) {
+    const char* nodError = nod_error_message();
+    m_lastError = fmt::format("nod_disc_open_partition_kind(data) failed ({}){}", int(partitionResult),
+                              nodError != nullptr && nodError[0] != '\0' ? fmt::format(": {}", nodError) : "");
+    spdlog::error("{} (path: '{}')", m_lastError, pathStr);
     Shutdown();
     return false;
   }
   m_DataPartition = NodHandleUnique(partitionRaw, nod_free);
 
-  if (!BuildFileEntries() || !LoadDolBuf()) {
+  if (!BuildFileEntries()) {
+    m_lastError = "Failed to read disc file-system table";
+    spdlog::error("{} (path: '{}')", m_lastError, pathStr);
+    Shutdown();
+    return false;
+  }
+  if (!LoadDolBuf()) {
+    m_lastError = "Failed to load raw DOL data from disc";
+    spdlog::error("{} (path: '{}')", m_lastError, pathStr);
     Shutdown();
     return false;
   }

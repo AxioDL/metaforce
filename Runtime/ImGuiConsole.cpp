@@ -729,7 +729,10 @@ void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
     }
     if (m_errorString) {
       ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{0.77f, 0.12f, 0.23f, 1.f});
-      ImGuiTextCenter(*m_errorString);
+      ImGui::NewLine();
+      ImGui::PushTextWrapPos(0.f);
+      ImGuiStringViewText(*m_errorString);
+      ImGui::PopTextWrapPos();
       ImGui::PopStyleColor();
       ImGui::Dummy(padding);
     }
