@@ -1,4 +1,5 @@
 #include <zeus/CVector2f.hpp>
+#include <array>
 #include <ranges>
 #define IM_VEC2_CLASS_EXTRA                                                                                            \
   ImVec2(const zeus::CVector2f& v) {                                                                                   \
@@ -672,6 +673,11 @@ void fileDialogCallback(void* userdata, const char* const* filelist, [[maybe_unu
   }
 }
 
+static constexpr std::array<SDL_DialogFileFilter, 2> skGameDiscFileFilters{{
+    {"Game Disc Images", "iso;gcm;ciso;gcz;nfs;rvz;wbfs;wia;tgc"},
+    {"All Files", "*"},
+}};
+
 void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
   // Center window
   ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -705,7 +711,8 @@ void ImGuiConsole::ShowAboutWindow(bool preLaunch) {
       }
       ImGui::Dummy(padding);
       if (ImGuiButtonCenter("Select Game")) {
-        SDL_ShowOpenFileDialog(&fileDialogCallback, this, g_window, nullptr, 0, nullptr, false);
+        SDL_ShowOpenFileDialog(&fileDialogCallback, this, g_window, skGameDiscFileFilters.data(),
+                               int(skGameDiscFileFilters.size()), nullptr, false);
       }
 #ifdef EMSCRIPTEN
       if (ImGuiButtonCenter("Load Game")) {

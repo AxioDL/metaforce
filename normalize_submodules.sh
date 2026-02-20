@@ -7,7 +7,6 @@ for sub in "extern/amuse" \
            "extern/boo" \
            "extern/jbus" \
            "extern/kabufuda" \
-           "extern/nod" \
            "extern/xxhash" \
            "extern/zeus"; do
     if [ -d $sub ]; then

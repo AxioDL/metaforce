@@ -1,7 +1,42 @@
 #include "Runtime/CStringExtras.hpp"
 #include "Runtime/Streams/CInputStream.hpp"
 
-#include <nod/OSUTF.h>
+#include <cstdint>
+
+namespace {
+
+constexpr char32_t kReplacementChar = 0xFFFD;
+
+void AppendUTF8(char32_t codePoint, std::string& out) {
+  if (codePoint <= 0x7F) {
+    out.push_back(static_cast<char>(codePoint));
+  } else if (codePoint <= 0x7FF) {
+    out.push_back(static_cast<char>(0xC0 | ((codePoint >> 6) & 0x1F)));
+    out.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
+  } else if (codePoint <= 0xFFFF) {
+    out.push_back(static_cast<char>(0xE0 | ((codePoint >> 12) & 0x0F)));
+    out.push_back(static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F)));
+    out.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
+  } else {
+    out.push_back(static_cast<char>(0xF0 | ((codePoint >> 18) & 0x07)));
+    out.push_back(static_cast<char>(0x80 | ((codePoint >> 12) & 0x3F)));
+    out.push_back(static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F)));
+    out.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
+  }
+}
+
+void AppendUTF16(char32_t codePoint, std::u16string& out) {
+  if (codePoint <= 0xFFFF) {
+    out.push_back(static_cast<char16_t>(codePoint));
+    return;
+  }
+
+  codePoint -= 0x10000;
+  out.push_back(static_cast<char16_t>(0xD800 + (codePoint >> 10)));
+  out.push_back(static_cast<char16_t>(0xDC00 + (codePoint & 0x3FF)));
+}
+
+} // namespace
 
 namespace metaforce {
 std::string CStringExtras::ReadString(CInputStream& in) {
@@ -41,56 +76,84 @@ std::u16string CStringExtras::ConvertToUNICODE(std::string_view sv) {
 
 std::string CStringExtras::ConvertToUTF8(std::u16string_view sv) {
   std::string out;
-  const auto* in = sv.data();
-  const auto* end = in + sv.size();
-  while (in < end) {
-    char32_t utf32 = 0;
-    const char16_t* next = OSUTF16To32(in, &utf32);
-    // TODO: bug in OSUTF
-    if (next == nullptr) {
-      utf32 = *in;
-      in++;
-    } else {
-      in = next;
+  out.reserve(sv.size());
+
+  for (size_t i = 0; i < sv.size(); ++i) {
+    char32_t codePoint = sv[i];
+    if (codePoint >= 0xD800 && codePoint <= 0xDBFF) {
+      if (i + 1 < sv.size()) {
+        const char32_t low = sv[i + 1];
+        if (low >= 0xDC00 && low <= 0xDFFF) {
+          codePoint = 0x10000 + ((codePoint - 0xD800) << 10) + (low - 0xDC00);
+          ++i;
+        } else {
+          codePoint = kReplacementChar;
+        }
+      } else {
+        codePoint = kReplacementChar;
+      }
+    } else if (codePoint >= 0xDC00 && codePoint <= 0xDFFF) {
+      codePoint = kReplacementChar;
     }
-    std::array<char8_t, 4> chars8{};
-    char8_t* end8 = OSUTF32To8(utf32, chars8.data());
-    if (end8 == nullptr) {
-      continue;
-    }
-    const auto* c = chars8.data();
-    while (c < end8) {
-      out.push_back(static_cast<char>(*c));
-      c++;
-    }
+
+    AppendUTF8(codePoint, out);
   }
   return out;
 }
 
 std::u16string CStringExtras::ConvertToUTF16(std::string_view sv) {
   std::u16string out;
-  const auto* in = reinterpret_cast<const char8_t*>(sv.data());
-  const auto* end = in + sv.size();
-  while (in < end) {
-    char32_t utf32 = 0;
-    const char8_t* next = OSUTF8To32(in, &utf32);
-    // TODO: bug in OSUTF
-    if (next == nullptr) {
-      utf32 = static_cast<char32_t>(*in);
-      in++;
-    } else {
-      in = next;
+  out.reserve(sv.size());
+
+  const auto* bytes = reinterpret_cast<const uint8_t*>(sv.data());
+  const size_t len = sv.size();
+  size_t i = 0;
+  while (i < len) {
+    const uint8_t c0 = bytes[i++];
+    char32_t codePoint = kReplacementChar;
+
+    if (c0 < 0x80) {
+      codePoint = c0;
+    } else if ((c0 & 0xE0) == 0xC0) {
+      if (i < len) {
+        const uint8_t c1 = bytes[i];
+        if ((c1 & 0xC0) == 0x80) {
+          const char32_t cp = ((c0 & 0x1F) << 6) | (c1 & 0x3F);
+          if (cp >= 0x80) {
+            codePoint = cp;
+            ++i;
+          }
+        }
+      }
+    } else if ((c0 & 0xF0) == 0xE0) {
+      if (i + 1 < len) {
+        const uint8_t c1 = bytes[i];
+        const uint8_t c2 = bytes[i + 1];
+        if ((c1 & 0xC0) == 0x80 && (c2 & 0xC0) == 0x80) {
+          const char32_t cp = ((c0 & 0x0F) << 12) | ((c1 & 0x3F) << 6) | (c2 & 0x3F);
+          if (cp >= 0x800 && !(cp >= 0xD800 && cp <= 0xDFFF)) {
+            codePoint = cp;
+            i += 2;
+          }
+        }
+      }
+    } else if ((c0 & 0xF8) == 0xF0) {
+      if (i + 2 < len) {
+        const uint8_t c1 = bytes[i];
+        const uint8_t c2 = bytes[i + 1];
+        const uint8_t c3 = bytes[i + 2];
+        if ((c1 & 0xC0) == 0x80 && (c2 & 0xC0) == 0x80 && (c3 & 0xC0) == 0x80) {
+          const char32_t cp =
+              ((c0 & 0x07) << 18) | ((c1 & 0x3F) << 12) | ((c2 & 0x3F) << 6) | (c3 & 0x3F);
+          if (cp >= 0x10000 && cp <= 0x10FFFF) {
+            codePoint = cp;
+            i += 3;
+          }
+        }
+      }
     }
-    std::array<char16_t, 2> chars16{};
-    char16_t* end16 = OSUTF32To16(utf32, chars16.data());
-    if (end16 == nullptr) {
-      continue;
-    }
-    const auto* c = chars16.data();
-    while (c < end16) {
-      out.push_back(*c);
-      c++;
-    }
+
+    AppendUTF16(codePoint, out);
   }
   return out;
 }

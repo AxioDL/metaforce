@@ -561,13 +561,23 @@ std::string CMain::Init(int argc, char** argv, const FileStoreManager& storeMgr,
     if (!file) {
       return fmt::format("Failed to open {}", dolFile);
     }
-    std::unique_ptr<u8[]> buf = std::make_unique<u8[]>(file.Length());
-    u32 readLen = file.SyncRead(buf.get(), file.Length());
-    const char* buildInfo = static_cast<char*>(memmem(buf.get(), readLen, "MetroidBuildInfo", 16)) + 19;
-    if (buildInfo == nullptr) {
+    std::unique_ptr<u8[]> dolBuf = std::make_unique<u8[]>(file.Length());
+    size_t dolLen = file.SyncRead(dolBuf.get(), file.Length());
+    if (dolLen < 16) {
+      return fmt::format("Failed to read {}", dolFile);
+    }
+
+    const void* buildInfoPos = memmem(dolBuf.get(), dolLen, "MetroidBuildInfo", 16);
+    if (buildInfoPos == nullptr) {
       return fmt::format("Failed to locate MetroidBuildInfo");
     }
-    m_version.version = buildInfo;
+    const char* buildInfo = static_cast<const char*>(buildInfoPos) + 19;
+    const auto maxRemaining = size_t(dolBuf.get() + dolLen - reinterpret_cast<const u8*>(buildInfo));
+    const char* buildInfoEnd = static_cast<const char*>(memchr(buildInfo, '\0', maxRemaining));
+    if (buildInfoEnd == nullptr) {
+      return fmt::format("Failed to parse MetroidBuildInfo");
+    }
+    m_version.version.assign(buildInfo, buildInfoEnd);
   }
   spdlog::info("Loading data from {} {} ({})", GetGameTitle(), magic_enum::enum_name(GetRegion()), GetVersionString());
 

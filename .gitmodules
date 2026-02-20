@@ -1,7 +1,7 @@
 [submodule "extern/nod"]
 	path = extern/nod
-	url = ../nod.git
-	branch = master
+	url = https://github.com/encounter/nod.git
+	branch = main
 [submodule "extern/kabufuda"]
 	path = extern/kabufuda
 	url = ../kabufuda.git
