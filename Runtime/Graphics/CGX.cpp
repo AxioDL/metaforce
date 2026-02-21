@@ -31,11 +31,15 @@ void ResetGXStates() noexcept {
   SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
   GXSetCurrentMtx(GX_PNMTX0);
   SetNumIndStages(0);
-  // TODO GXSetIndTexCoordScale
-  for (GXTevStageID id = GX_TEVSTAGE0; id < GX_MAX_TEVSTAGE; id = static_cast<GXTevStageID>(id + 1)) {
-    SetTevDirect(id);
+  for (int i = 0; i < GX_MAX_INDTEXSTAGE; i++) {
+    GXSetIndTexCoordScale(static_cast<GXIndTexStageID>(i), GX_ITS_1, GX_ITS_1);
   }
-  // GXSetTexCoordCylWrap
-  // GXSetZTexture
+  for (int i = 0; i < GX_MAX_TEVSTAGE; i++) {
+    SetTevDirect(static_cast<GXTevStageID>(i));
+  }
+  for (int i = 0; i < GX_MAX_TEXCOORD; i++) {
+    GXSetTexCoordScaleManually(static_cast<GXTexCoordID>(i), false, 0, 0);
+  }
+  GXSetZTexture(GX_ZT_DISABLE, GX_TF_Z8, 0);
 }
 } // namespace metaforce::CGX
