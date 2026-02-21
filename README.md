@@ -40,7 +40,7 @@ Linux:
 * `+developer=1`: Enable developer UI
 
 ### Build Prerequisites:
-* [CMake 3.15+](https://cmake.org)
+* [CMake 3.30+](https://cmake.org)
     * Windows: Install `CMake Tools` in Visual Studio
     * macOS: `brew install cmake`
 * [Python 3+](https://python.org)

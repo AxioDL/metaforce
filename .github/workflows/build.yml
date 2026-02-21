@@ -2,26 +2,19 @@ name: Build
 
 on:
   push:
-    #    branches-ignore:
-    #      - main
     paths-ignore:
-      - '*.json'
       - '*.md'
       - '*LICENSE'
   pull_request:
 
 env:
-  BUILDCACHE_VERSION: v0.27.3
-  BUILDCACHE_ACCURACY: STRICT
-  BUILDCACHE_MAX_CACHE_SIZE: 1073741824 # 1GiB
+  SCCACHE_GHA_ENABLED: "true"
+  RUSTC_WRAPPER: "sccache"
 
 jobs:
   build-linux:
     name: Build Linux (${{matrix.name}} x86_64)
     runs-on: ubuntu-latest
-
-    #env:
-      #BUILDCACHE_DIR: ${{github.workspace}}/.buildcache
 
     strategy:
       fail-fast: false
@@ -40,52 +33,21 @@ jobs:
 
       - name: Install dependencies
         run: |
-          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-          rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-          sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
-          sudo apt-get -y install ninja-build clang lld openssl libcurl4-openssl-dev intel-oneapi-ipp-devel \
+          sudo apt-get update
+          sudo apt-get -y install ninja-build clang lld openssl libcurl4-openssl-dev \
             zlib1g-dev libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev \
             libpulse-dev libudev-dev libpng-dev libncurses5-dev libx11-xcb-dev libfreetype-dev \
             libxinerama-dev libxcursor-dev python3-markupsafe libgtk-3-dev libssl-dev \
             libxss-dev libfuse2
 
-          # setup buildcache
-          #curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-linux.tar.gz | tar xz -C "$RUNNER_WORKSPACE"
-          #echo "$RUNNER_WORKSPACE"/buildcache/bin >> $GITHUB_PATH
-
-          # free up disk space
-          # https://github.com/actions/virtual-environments/issues/2840#issuecomment-790492173
-          echo Before
-          df -h .
-          sudo apt-get clean
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/local/share/boost
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          echo After
-          df -h .
-
-      #- name: Restore buildcache
-      #  uses: pat-s/always-upload-cache@v3
-      #  with:
-      #    path: ${{env.BUILDCACHE_DIR}}
-      #    key: buildcache-${{runner.os}}-${{matrix.preset}}-${{github.sha}}
-      #    restore-keys: |
-      #      buildcache-${{runner.os}}-${{matrix.preset}}-
-
-      - name: Acquire Dawn Deps
-        continue-on-error: true
-        run: cmake --preset x-linux-ci-${{matrix.preset}}
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
 
       - name: Configure CMake
         run: cmake --preset x-linux-ci-${{matrix.preset}}
 
       - name: Build
         run: cmake --build --preset x-linux-ci-${{matrix.preset}}
-
-      #- name: Print buildcache stats
-      #  run: buildcache -s
 
       - name: Generate AppImage
         run: ci/build-appimage.sh
@@ -102,10 +64,6 @@ jobs:
     name: Build macOS (AppleClang universal)
     runs-on: macos-latest
 
-    env:
-      IPP_VERSION: 2021.2.0.192
-      BUILDCACHE_DIR: ${{github.workspace}}/.buildcache
-
     steps:
       - uses: actions/checkout@v6
         with:
@@ -119,42 +77,14 @@ jobs:
           brew install cmake ninja graphicsmagick imagemagick
           pip3 install --break-system-packages markupsafe
 
-          # setup buildcache
-          curl -LSfs https://github.com/encounter/buildcache/releases/download/$BUILDCACHE_VERSION/buildcache-macos.zip -o /tmp/buildcache-macos.zip
-          unzip /tmp/buildcache-macos.zip -d "$RUNNER_WORKSPACE"
-          echo "$RUNNER_WORKSPACE"/buildcache/bin >> $GITHUB_PATH
-
-      - name: Install Intel IPP
-        if: 'false' # not supported for universal build
-        run: |
-          NAME="m_ipp_oneapi_p_${IPP_VERSION}_offline"
-          curl -LSfs https://registrationcenter-download.intel.com/akdlm/irc_nas/17606/$NAME.dmg -o /tmp/$NAME.dmg
-          sudo hdiutil attach /tmp/$NAME.dmg -quiet
-          sudo /Volumes/$NAME/bootstrapper.app/Contents/MacOS/install.sh -c --action install --eula accept
-          sudo hdiutil detach /Volumes/$NAME -quiet
-          rm /tmp/$NAME.dmg
-
-      - name: Restore buildcache
-        uses: pat-s/always-upload-cache@v3
-        with:
-          path: ${{env.BUILDCACHE_DIR}}
-          key: buildcache-${{runner.os}}-universal-${{github.sha}}
-          restore-keys: |
-            buildcache-${{runner.os}}-universal-
-
-      - name: Acquire Dawn Deps
-        continue-on-error: true
-        run: cmake --preset x-macos-ci
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
 
       - name: Configure CMake
         run: cmake --preset x-macos-ci
 
       - name: Build
         run: cmake --build --preset x-macos-ci
-
-      - name: Print buildcache stats
-        if: 'false' # temporarily disabled
-        run: buildcache -s
         
         #- name: Import signing certificate
         # if: 'false' # temporarily disabled
@@ -163,9 +93,6 @@ jobs:
         #  certificate-data: ${{secrets.MACOS_CERTIFICATE_DATA}}
         #  certificate-passphrase: ${{secrets.MACOS_CERTIFICATE_PASSWORD}}
         #  keychain-password: ${{secrets.MACOS_KEYCHAIN_PASSWORD}}
-
-      - name: Verify CMake version
-        run: cmake --version
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
@@ -191,19 +118,16 @@ jobs:
           brew upgrade --formula
           brew install cmake ninja
           pip3 install --break-system-packages markupsafe
+          rustup target add aarch64-apple-ios
 
-      - name: Verify CMake version
-        run: cmake --version
-
-      - name: Acquire Dawn Deps
-        continue-on-error: true
-        run: cmake --preset ios-default
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
 
       - name: Configure CMake
-        run: cmake --preset ios-default
+        run: cmake --preset x-ios-ci
 
       - name: Build
-        run: cmake --build --preset ios-default --target install
+        run: cmake --build --preset x-ios-ci --target install
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
@@ -229,19 +153,17 @@ jobs:
           brew upgrade --formula
           brew install cmake ninja
           pip3 install --break-system-packages markupsafe
+          rustup toolchain install nightly
+          rustup target add --toolchain nightly aarch64-apple-tvos
 
-      - name: Verify CMake version
-        run: cmake --version
-
-      - name: Acquire Dawn Deps
-        continue-on-error: true
-        run: cmake --preset tvos-default
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
 
       - name: Configure CMake
-        run: cmake --preset tvos-default
+        run: cmake --preset x-tvos-ci
 
       - name: Build
-        run: cmake --build --preset tvos-default --target install
+        run: cmake --build --preset x-tvos-ci --target install
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
@@ -256,7 +178,6 @@ jobs:
     runs-on: windows-latest
 
     env:
-      IPP_VERSION: 2021.2.0.210
       BUILD_DIR: C:\build
 
     strategy:
@@ -265,8 +186,8 @@ jobs:
         include:
           - name: MSVC
             preset: msvc
-          #- name: Clang
-          #  preset: clang
+          - name: Clang
+            preset: clang
 
     steps:
       - uses: actions/checkout@v6
@@ -274,34 +195,24 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Install Intel IPP
-        if: 'false' # takes >10min, not worth it
-        run: |
-          $TempDir = "$env:RUNNER_WORKSPACE\temp"
-          $Filename = "w_ipp_oneapi_p_${env:IPP_VERSION}_offline.exe"
-          New-Item -Path "$TempDir" -ItemType Directory -ea 0
-          (New-Object Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/irc_nas/17739/$Filename", "$TempDir\$Filename")
-          Start-Process "$TempDir\$Filename" -ArgumentList "--x --s --f $TempDir\ipp" -Wait
-          Start-Process "$TempDir\ipp\bootstrapper.exe" -ArgumentList "--eula accept -c --action install" -Wait
-
-      - name: Install dependencies
-        run: choco install ninja
-
       - name: Enable Visual Studio environment
         uses: ilammy/msvc-dev-cmd@v1
 
+      # msvc-dev-cmd sets VCPKG_ROOT, set it back
       - name: Override VCPKG_ROOT
         run: echo "VCPKG_ROOT=C:\vcpkg" >> $env:GITHUB_ENV
 
-      - name: Install vcpkg packages
-        run: vcpkg install zlib:x64-windows-static
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
 
-      - name: Acquire Dawn Deps
-        continue-on-error: true
-        run: cmake --preset x-windows-ci-${{matrix.preset}} 
+      - name: Install dependencies
+        run: |
+          choco install ninja
+          vcpkg install zlib:x64-windows-static bzip2:x64-windows-static zstd:x64-windows-static `
+            liblzma:x64-windows-static freetype:x64-windows-static
 
       - name: Configure CMake
-        run: cmake --preset x-windows-ci-${{matrix.preset}}  
+        run: cmake --preset x-windows-ci-${{matrix.preset}}
 
       - name: Build
         run: cmake --build --preset x-windows-ci-${{matrix.preset}}

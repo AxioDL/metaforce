@@ -238,6 +238,9 @@
       "displayName": "iOS",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
+      "inherits": [
+        "relwithdebinfo"
+      ],
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "ios.toolchain.cmake",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install",
@@ -246,6 +249,27 @@
         "ENABLE_BITCODE": {
           "type": "BOOL",
           "value": false
+        },
+        "Rust_CARGO_TARGET": "aarch64-apple-ios",
+        "BUILD_SHARED_LIBS": {
+          "type": "BOOL",
+          "value": false
+        },
+        "IMGUI_USE_FREETYPE": {
+          "type": "BOOL",
+          "value": false
+        },
+        "CMAKE_DISABLE_FIND_PACKAGE_BZip2": {
+          "type": "BOOL",
+          "value": true
+        },
+        "CMAKE_DISABLE_FIND_PACKAGE_LibLZMA": {
+          "type": "BOOL",
+          "value": true
+        },
+        "CMAKE_DISABLE_FIND_PACKAGE_zstd": {
+          "type": "BOOL",
+          "value": true
         }
       },
       "vendor": {
@@ -261,6 +285,9 @@
       "displayName": "tvOS",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
+      "inherits": [
+        "relwithdebinfo"
+      ],
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "ios.toolchain.cmake",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install",
@@ -269,6 +296,28 @@
         "ENABLE_BITCODE": {
           "type": "BOOL",
           "value": false
+        },
+        "Rust_CARGO_TARGET": "aarch64-apple-tvos",
+        "Rust_TOOLCHAIN": "nightly",
+        "BUILD_SHARED_LIBS": {
+          "type": "BOOL",
+          "value": false
+        },
+        "IMGUI_USE_FREETYPE": {
+          "type": "BOOL",
+          "value": false
+        },
+        "CMAKE_DISABLE_FIND_PACKAGE_BZip2": {
+          "type": "BOOL",
+          "value": true
+        },
+        "CMAKE_DISABLE_FIND_PACKAGE_LibLZMA": {
+          "type": "BOOL",
+          "value": true
+        },
+        "CMAKE_DISABLE_FIND_PACKAGE_zstd": {
+          "type": "BOOL",
+          "value": true
         }
       },
       "vendor": {
@@ -284,18 +333,13 @@
       "hidden": true,
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
+      "inherits": [
+        "relwithdebinfo"
+      ],
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install",
         "CMAKE_TOOLCHAIN_FILE": "$env{ANDROID_HOME}/ndk/$env{ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake",
         "ANDROID_PLATFORM": "android-24"
-      },
-      "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [
-            "Linux"
-          ]
-        }
       }
     },
     {
@@ -323,7 +367,11 @@
       "hidden": true,
       "inherits": [
         "relwithdebinfo"
-      ]
+      ],
+      "cacheVariables": {
+        "CMAKE_C_COMPILER_LAUNCHER": "sccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache"
+      }
     },
     {
       "name": "x-linux-ci-gcc",
@@ -343,7 +391,31 @@
       "name": "x-macos-ci",
       "inherits": [
         "macos-default-relwithdebinfo"
-      ]
+      ],
+      "cacheVariables": {
+        "CMAKE_C_COMPILER_LAUNCHER": "sccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache"
+      }
+    },
+    {
+      "name": "x-ios-ci",
+      "inherits": [
+        "ios-default"
+      ],
+      "cacheVariables": {
+        "CMAKE_C_COMPILER_LAUNCHER": "sccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache"
+      }
+    },
+    {
+      "name": "x-tvos-ci",
+      "inherits": [
+        "tvos-default"
+      ],
+      "cacheVariables": {
+        "CMAKE_C_COMPILER_LAUNCHER": "sccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache"
+      }
     },
     {
       "name": "x-windows-ci",
@@ -351,7 +423,13 @@
       "inherits": [
         "relwithdebinfo"
       ],
-      "binaryDir": "$env{BUILD_DIR}"
+      "binaryDir": "$env{BUILD_DIR}",
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "$env{BUILD_DIR}/install",
+        "CMAKE_C_COMPILER_LAUNCHER": "sccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache",
+        "CMAKE_MSVC_DEBUG_INFORMATION_FORMAT": "Embedded"
+      }
     },
     {
       "name": "x-windows-ci-msvc",
@@ -484,8 +562,7 @@
       "displayName": "(Internal) Linux CI GCC",
       "targets": [
         "install"
-      ],
-      "verbose": true
+      ]
     },
     {
       "name": "x-linux-ci-clang",
@@ -494,8 +571,7 @@
       "displayName": "(Internal) Linux CI Clang",
       "targets": [
         "install"
-      ],
-      "verbose": true
+      ]
     },
     {
       "name": "x-macos-ci",
@@ -504,8 +580,25 @@
       "displayName": "(Internal) macOS CI",
       "targets": [
         "install"
-      ],
-      "verbose": true
+      ]
+    },
+    {
+      "name": "x-ios-ci",
+      "configurePreset": "x-ios-ci",
+      "description": "(Internal) iOS CI",
+      "displayName": "(Internal) iOS CI",
+      "targets": [
+        "install"
+      ]
+    },
+    {
+      "name": "x-tvos-ci",
+      "configurePreset": "x-tvos-ci",
+      "description": "(Internal) tvOS CI",
+      "displayName": "(Internal) tvOS CI",
+      "targets": [
+        "install"
+      ]
     },
     {
       "name": "x-windows-ci-msvc",
@@ -514,8 +607,7 @@
       "displayName": "(Internal) Windows CI MSVC",
       "targets": [
         "install"
-      ],
-      "verbose": true
+      ]
     },
     {
       "name": "x-windows-ci-clang",
@@ -524,8 +616,7 @@
       "displayName": "(Internal) Windows CI Clang",
       "targets": [
         "install"
-      ],
-      "verbose": true
+      ]
     }
   ]
 }

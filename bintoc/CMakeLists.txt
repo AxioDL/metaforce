@@ -5,7 +5,6 @@ project(bintoc LANGUAGES C)
 add_executable(bintoc bintoc.c)
 
 find_package(ZLIB REQUIRED)
-set(ZLIB_LIBRARIES ZLIB::ZLIB CACHE STRING "zlib libraries" FORCE)
-target_link_libraries(bintoc PRIVATE ${ZLIB_LIBRARIES})
+target_link_libraries(bintoc PRIVATE ZLIB::ZLIB)
 
 install(TARGETS bintoc DESTINATION bin)

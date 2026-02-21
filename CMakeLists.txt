@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
-cmake_policy(VERSION 3.15...3.20)
+cmake_minimum_required(VERSION 3.30...4.1)
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
@@ -64,10 +63,7 @@ if(DEFINED ENV{GITHUB_ENV})
 endif()
 message(STATUS "Metaforce version set to ${METAFORCE_WC_DESCRIBE}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-if(APPLE)
-  set(EXTRA_LANGUAGES OBJC)
-endif()
-project(metaforce LANGUAGES C CXX ASM ${EXTRA_LANGUAGES} VERSION ${METAFORCE_VERSION_STRING})
+project(metaforce LANGUAGES C CXX VERSION ${METAFORCE_VERSION_STRING})
 if (APPLE AND NOT TVOS AND CMAKE_SYSTEM_NAME STREQUAL tvOS)
   # ios.toolchain.cmake hack for SDL
   set(TVOS ON)
@@ -323,7 +319,6 @@ if(USE_LD_GOLD)
 endif()
 
 find_package(ZLIB REQUIRED)
-set(ZLIB_LIBRARIES ZLIB::ZLIB CACHE STRING "zlib libraries" FORCE)
 
 include(ExternalProject)
 set(BINTOC_CMAKE_ARGS

@@ -151,7 +151,7 @@ endfunction()
 set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 set(RUNTIME_LIBRARIES zeus nod::nod NESEmulator libjpeg-turbo jbus kabufuda #OptickCore
     imgui_support aurora::core aurora::gx aurora::pad aurora::si aurora::vi aurora::mtx spdlog::spdlog $<$<BOOL:${WIN32}>:nowide::nowide>
-    ${ZLIB_LIBRARIES}
+    ZLIB::ZLIB
     )
 
 add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})

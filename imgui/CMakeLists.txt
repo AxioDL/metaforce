@@ -4,7 +4,7 @@ add_library(imgui_support
     NotoMono.cpp
     MetaforceIcon.cpp
     )
-target_link_libraries(imgui_support PUBLIC aurora::core imgui ${ZLIB_LIBRARIES})
+target_link_libraries(imgui_support PUBLIC aurora::core imgui ZLIB::ZLIB)
 target_include_directories(imgui_support PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(imgui_support PRIVATE ${CMAKE_SOURCE_DIR})
 
