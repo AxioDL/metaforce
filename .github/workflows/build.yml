@@ -53,7 +53,7 @@ jobs:
         run: ci/build-appimage.sh
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-linux-${{matrix.preset}}-x86_64
           path: |
@@ -95,7 +95,7 @@ jobs:
         #  keychain-password: ${{secrets.MACOS_KEYCHAIN_PASSWORD}}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-macos-appleclang-universal
           path: |
@@ -130,7 +130,7 @@ jobs:
         run: cmake --build --preset x-ios-ci --target install
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-ios-appleclang-arm64
           path: |
@@ -166,7 +166,7 @@ jobs:
         run: cmake --build --preset x-tvos-ci --target install
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-tvos-appleclang-arm64
           path: |
@@ -218,7 +218,7 @@ jobs:
         run: cmake --build --preset x-windows-ci-${{matrix.preset}}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: metaforce-${{env.METAFORCE_VERSION}}-win32-${{matrix.preset}}-x86_64
           path: |
