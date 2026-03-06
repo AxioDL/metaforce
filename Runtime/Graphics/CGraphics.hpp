@@ -14,8 +14,8 @@
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector2i.hpp>
 
-#include <aurora/aurora.h>
-//#include <optick.h>
+#include <aurora/gfx.h>
+// #include <optick.h>
 #include <dolphin/mtx.h>
 
 namespace metaforce {
@@ -459,8 +459,8 @@ struct ScopedDebugGroup {
 #define SCOPED_GRAPHICS_DEBUG_GROUP(name, ...)                                                                         \
   ScopedDebugGroup _GfxDbg_ { name }
 #else
-#define SCOPED_GRAPHICS_DEBUG_GROUP(name, ...) 
-  //OPTICK_EVENT_DYNAMIC(name)
+#define SCOPED_GRAPHICS_DEBUG_GROUP(name, ...)
+// OPTICK_EVENT_DYNAMIC(name)
 #endif
 
 } // namespace metaforce

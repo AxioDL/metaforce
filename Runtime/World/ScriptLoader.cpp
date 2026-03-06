@@ -871,8 +871,8 @@ CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in, int 
   float clampRotRange = zeus::degToRad(in.ReadFloat());
   overrideFlags |= in.ReadBool() << 31;
   float elevation = in.ReadFloat();
-  float interpolateTime = in.ReadFloat();
   float clampVelTime = in.ReadFloat();
+  float interpolateTime = in.ReadFloat();
   float controlInterpDur = in.ReadFloat();
 
   return new CScriptCameraHint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, active, prio, behaviour,

@@ -12,7 +12,7 @@
 
 namespace metaforce {
 
-class CCameraHint {
+class CCameraOverrideInfo {
   u32 x4_overrideFlags;
   CBallCamera::EBallCameraBehaviour x8_behaviour;
   float xc_minDist;
@@ -33,11 +33,12 @@ class CCameraHint {
   float x60_controlInterpDur;
 
 public:
-  CCameraHint(u32 overrideFlags, CBallCamera::EBallCameraBehaviour behaviour, float minDist, float maxDist,
-              float backwardsDist, const zeus::CVector3f& lookAtOffset, const zeus::CVector3f& chaseLookAtOffset,
-              const zeus::CVector3f& ballToCam, float fov, float attitudeRange, float azimuthRange,
-              float anglePerSecond, float clampVelRange, float clampRotRange, float elevation, float interpolateTime,
-              float clampVelTime, float controlInterpDur)
+  CCameraOverrideInfo(u32 overrideFlags, CBallCamera::EBallCameraBehaviour behaviour, float minDist, float maxDist,
+                      float backwardsDist, const zeus::CVector3f& lookAtOffset,
+                      const zeus::CVector3f& chaseLookAtOffset, const zeus::CVector3f& ballToCam, float fov,
+                      float attitudeRange, float azimuthRange, float anglePerSecond, float clampVelRange,
+                      float clampRotRange, float elevation, float interpolateTime, float clampVelTime,
+                      float controlInterpDur)
   : x4_overrideFlags(overrideFlags)
   , x8_behaviour(behaviour)
   , xc_minDist(minDist)
@@ -79,7 +80,7 @@ public:
 
 class CScriptCameraHint : public CActor {
   s32 xe8_priority;
-  CCameraHint xec_hint;
+  CCameraOverrideInfo xec_hint;
   rstl::reserved_vector<TUniqueId, 8> x150_helpers;
   TUniqueId x164_delegatedCamera = kInvalidUniqueId;
   bool x166_inactive = false;
@@ -107,7 +108,7 @@ public:
   size_t GetHelperCount() const { return x150_helpers.size(); }
   TUniqueId GetFirstHelper() const { return x150_helpers.empty() ? kInvalidUniqueId : x150_helpers[0]; }
   s32 GetPriority() const { return xe8_priority; }
-  const CCameraHint& GetHint() const { return xec_hint; }
+  const CCameraOverrideInfo& GetHint() const { return xec_hint; }
   TUniqueId GetDelegatedCamera() const { return x164_delegatedCamera; }
   const zeus::CTransform& GetOriginalTransform() const { return x168_origXf; }
 };
