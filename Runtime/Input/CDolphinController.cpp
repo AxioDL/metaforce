@@ -124,9 +124,9 @@ void CDolphinController::ProcessButtons(u32 controller) {
     ProcessDigitalButton(controller, x34_gamepadStates[controller].GetButton(EButton(i)), mButtonMapping[i]);
   }
 
-  ProcessAnalogButton(x4_status[controller].triggerL,
+  ProcessAnalogButton(x4_status[controller].triggerLeft,
                       x34_gamepadStates[controller].GetAnalogButton(EAnalogButton::Left));
-  ProcessAnalogButton(x4_status[controller].triggerR,
+  ProcessAnalogButton(x4_status[controller].triggerRight,
                       x34_gamepadStates[controller].GetAnalogButton(EAnalogButton::Right));
 }
 

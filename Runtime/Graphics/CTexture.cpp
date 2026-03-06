@@ -125,7 +125,7 @@ void CTexture::LoadMipLevel(s32 mip, GXTexMapID id, EClampMode clamp) {
 
   GXTexObj texObj;
   const auto wrap = static_cast<GXTexWrapMode>(clamp);
-  GXInitTexObj(&texObj, image_ptr + offset, width, height, x18_gxFormat, wrap, wrap, false);
+  GXInitTexObj(&texObj, image_ptr + offset, width, height, static_cast<GXTexFmt>(x18_gxFormat), wrap, wrap, false);
   GXInitTexObjLOD(&texObj, GX_LINEAR, GX_LINEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
   if (HasPalette()) {
     x10_graphicsPalette->Load();
@@ -227,7 +227,7 @@ void CTexture::InitTextureObjs() {
                    static_cast<GXTexWrapMode>(x40_clampMode), static_cast<GXTexWrapMode>(x40_clampMode), x8_mips > 1,
                    0);
   } else {
-    GXInitTexObj(&x20_texObj, x44_aramToken_x4_buff.get(), x4_w, x6_h, x18_gxFormat,
+    GXInitTexObj(&x20_texObj, x44_aramToken_x4_buff.get(), x4_w, x6_h, static_cast<GXTexFmt>(x18_gxFormat),
                  static_cast<GXTexWrapMode>(x40_clampMode), static_cast<GXTexWrapMode>(x40_clampMode), x8_mips > 1);
     GXInitTexObjLOD(&x20_texObj, x8_mips > 1 ? GX_LIN_MIP_LIN : GX_LINEAR, GX_LINEAR, 0.f,
                     static_cast<float>(x8_mips) - 1.f, 0.f, false, false, x8_mips > 1 ? GX_ANISO_4 : GX_ANISO_1);

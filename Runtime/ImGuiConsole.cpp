@@ -20,6 +20,8 @@
 #include "Runtime/Logging.hpp"
 #include "Runtime/Formatting.hpp"
 
+#include <aurora/aurora.h>
+#include <aurora/gfx.h>
 #include <SDL3/SDL_dialog.h>
 #include <SDL3/SDL_error.h>
 #include <magic_enum.hpp>
@@ -30,18 +32,6 @@ namespace ImGui {
 // Internal functions
 void ClearIniSettings();
 } // namespace ImGui
-
-namespace aurora::gfx {
-extern std::atomic_uint32_t queuedPipelines;
-extern std::atomic_uint32_t createdPipelines;
-
-extern size_t g_drawCallCount;
-extern size_t g_mergedDrawCallCount;
-extern size_t g_lastVertSize;
-extern size_t g_lastUniformSize;
-extern size_t g_lastIndexSize;
-extern size_t g_lastStorageSize;
-} // namespace aurora::gfx
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
@@ -847,6 +837,7 @@ void ImGuiConsole::ShowDebugOverlay() {
     return;
   }
 
+  const auto* stats = aurora_get_stats();
   ImGuiIO& io = ImGui::GetIO();
   ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
                                  ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
@@ -1005,8 +996,8 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      ImGuiStringViewText(fmt::format("Queued pipelines:  {}\n", aurora::gfx::queuedPipelines.load()));
-      ImGuiStringViewText(fmt::format("Done pipelines:    {}\n", aurora::gfx::createdPipelines.load()));
+      ImGuiStringViewText(fmt::format("Queued pipelines:  {}\n", stats->queuedPipelines));
+      ImGuiStringViewText(fmt::format("Done pipelines:    {}\n", stats->createdPipelines));
     }
     if (m_drawCallInfo && m_developer) {
       if (hasPrevious) {
@@ -1014,8 +1005,8 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      ImGuiStringViewText(fmt::format("Draw call count:   {}\n", aurora::gfx::g_drawCallCount));
-      ImGuiStringViewText(fmt::format("Merged draw calls: {}\n", aurora::gfx::g_mergedDrawCallCount));
+      ImGuiStringViewText(fmt::format("Draw call count:   {}\n", stats->drawCallCount));
+      ImGuiStringViewText(fmt::format("Merged draw calls: {}\n", stats->mergedDrawCallCount));
     }
     if (m_bufferInfo && m_developer) {
       if (hasPrevious) {
@@ -1023,13 +1014,13 @@ void ImGuiConsole::ShowDebugOverlay() {
       }
       hasPrevious = true;
 
-      ImGuiStringViewText(fmt::format("Vertex size:       {}\n", BytesToString(aurora::gfx::g_lastVertSize)));
-      ImGuiStringViewText(fmt::format("Uniform size:      {}\n", BytesToString(aurora::gfx::g_lastUniformSize)));
-      ImGuiStringViewText(fmt::format("Index size:        {}\n", BytesToString(aurora::gfx::g_lastIndexSize)));
-      ImGuiStringViewText(fmt::format("Storage size:      {}\n", BytesToString(aurora::gfx::g_lastStorageSize)));
-      ImGuiStringViewText(fmt::format("Total:             {}\n",
-                                      BytesToString(aurora::gfx::g_lastVertSize + aurora::gfx::g_lastUniformSize +
-                                                    aurora::gfx::g_lastIndexSize + aurora::gfx::g_lastStorageSize)));
+      ImGuiStringViewText(fmt::format("Vertex size:       {}\n", BytesToString(stats->lastVertSize)));
+      ImGuiStringViewText(fmt::format("Uniform size:      {}\n", BytesToString(stats->lastUniformSize)));
+      ImGuiStringViewText(fmt::format("Index size:        {}\n", BytesToString(stats->lastIndexSize)));
+      ImGuiStringViewText(fmt::format("Storage size:      {}\n", BytesToString(stats->lastStorageSize)));
+      ImGuiStringViewText(fmt::format(
+          "Total:             {}\n",
+          BytesToString(stats->lastVertSize + stats->lastUniformSize + stats->lastIndexSize + stats->lastStorageSize)));
     }
     if (ShowCornerContextMenu(m_debugOverlayCorner, m_inputOverlayCorner)) {
       m_cvarCommons.m_debugOverlayCorner->fromInteger(m_debugOverlayCorner);
@@ -1339,7 +1330,7 @@ void ImGuiConsole::ToggleVisible() {
 }
 
 void ImGuiConsole::PreUpdate() {
-  //OPTICK_EVENT();
+  // OPTICK_EVENT();
   bool preLaunch = g_Main == nullptr;
   if (!m_isInitialized) {
     m_isInitialized = true;
@@ -1434,7 +1425,7 @@ void ImGuiConsole::PreUpdate() {
 }
 
 void ImGuiConsole::PostUpdate() {
-  //OPTICK_EVENT();
+  // OPTICK_EVENT();
   if (g_StateManager != nullptr && g_StateManager->GetObjectList()) {
     // Clear deleted objects
     CObjectList& list = g_StateManager->GetAllObjectList();
@@ -1862,11 +1853,12 @@ void ImGuiConsole::ShowPlayerTransformEditor() {
 }
 
 void ImGuiConsole::ShowPipelineProgress() {
-  const u32 queuedPipelines = aurora::gfx::queuedPipelines;
+  const auto* stats = aurora_get_stats();
+  const u32 queuedPipelines = stats->queuedPipelines;
   if (queuedPipelines == 0) {
     return;
   }
-  const u32 createdPipelines = aurora::gfx::createdPipelines;
+  const u32 createdPipelines = stats->createdPipelines;
   const u32 totalPipelines = queuedPipelines + createdPipelines;
 
   const auto* viewport = ImGui::GetMainViewport();

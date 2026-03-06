@@ -13,6 +13,7 @@
 #include "Runtime/ConsoleVariables/CVarCommons.hpp"
 #include "Runtime/ConsoleVariables/CVarManager.hpp"
 
+#include <aurora/aurora.h>
 #include <zeus/CEulerAngles.hpp>
 
 #if __APPLE__
@@ -124,7 +125,7 @@ private:
 #else
   bool m_pipelineInfo = m_cvarCommons.m_debugOverlayPipelineInfo->toBoolean(); // TODO cvar
   bool m_drawCallInfo = m_cvarCommons.m_debugOverlayDrawCallInfo->toBoolean(); // TODO cvar
-  bool m_bufferInfo = m_cvarCommons.m_debugOverlayBufferInfo->toBoolean(); // TODO cvar
+  bool m_bufferInfo = m_cvarCommons.m_debugOverlayBufferInfo->toBoolean();     // TODO cvar
 #endif
   bool m_developer = m_cvarMgr.findCVar("developer")->toBoolean();
   bool m_cheats = m_cvarMgr.findCVar("cheats")->toBoolean();

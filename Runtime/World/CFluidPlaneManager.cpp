@@ -135,7 +135,7 @@ void CFluidPlaneManager::SetupRippleMap() {
     curX += (1.f / 63.f);
   }
 
-  GXInitTexObj(&RippleMapTex, RippleValues.data(), 64, 64, GX_TF_R8_PC, GX_REPEAT, GX_REPEAT, false);
+  GXInitTexObj(&RippleMapTex, RippleValues.data(), 64, 64, static_cast<GXTexFmt>(GX_TF_R8_PC), GX_REPEAT, GX_REPEAT, false);
 }
 
 void CFluidPlaneManager::Shutdown() { GXDestroyTexObj(&RippleMapTex); }
