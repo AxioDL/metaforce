@@ -91,7 +91,7 @@ constexpr std::array<AudioGroupInfo, 5> StaticAudioGroups{{
 
 CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent)
 : m_parent(parent)
-, x0_audioSys(0, 0, 0, 0, 0)
+, x0_audioSys(32, 8, 24, 16, 0x200000, true)
 , x30_inputGenerator(/*osCtx, */ g_tweakPlayer->GetLeftLogicalThreshold(), g_tweakPlayer->GetRightLogicalThreshold())
 , x44_guiSys(*g_ResFactory, *g_SimplePool, CGuiSys::EUsageMode::Zero) {
   auto* m = static_cast<CMain*>(g_Main);
@@ -99,7 +99,7 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent)
   g_InputGenerator = &x30_inputGenerator;
   g_Controller = x30_inputGenerator.GetController();
 
-  CAudioSys::SysSetVolume(0x7f);
+  CAudioSys::SysSetVolume(0x7f, 0, SND_ALL_VOLGROUPS);
   CAudioSys::SetDefaultVolumeScale(0x75);
   CAudioSys::SetVolumeScale(CAudioSys::GetDefaultVolumeScale());
   CStreamAudioManager::Initialize();
@@ -151,7 +151,7 @@ bool CGameArchitectureSupport::LoadAudio() {
         CAudioGroupSet* set = tok.GetObj();
         if (!CAudioSys::SysIsGroupSetLoaded(set->GetName())) {
           CAudioSys::SysLoadGroupSet(tok, set->GetName(), tok.GetObjectTag()->id);
-          CAudioSys::SysAddGroupIntoAmuse(set->GetName());
+          CAudioSys::SysPushGroupIntoARAM(set->GetName(), static_cast<u8>(StaticAudioGroups[i].id));
         }
       } else {
         return false;
@@ -197,7 +197,7 @@ void CGameArchitectureSupport::UnloadAudio() {
   for (const AudioGroupInfo& info : StaticAudioGroups) {
     const SObjectTag* tag = g_ResFactory->GetResourceIdByName(info.name);
     auto name = CAudioSys::SysGetGroupSetName(tag->id);
-    CAudioSys::SysRemoveGroupFromAmuse(name);
+    CAudioSys::SysPopGroupFromARAM();
     CAudioSys::SysUnloadAudioGroupSet(name);
   }
 

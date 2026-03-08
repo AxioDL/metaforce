@@ -264,7 +264,7 @@ void CWorld::MoveAreaToAliveChain(TAreaId aid) { MoveToChain(x18_areas[aid].get(
 void CWorld::LoadSoundGroup(int groupId, CAssetId agscId, CSoundGroupData& data) {
   if (!CAudioSys::SysLoadGroupSet(g_SimplePool, agscId)) {
     auto name = CAudioSys::SysGetGroupSetName(agscId);
-    CAudioSys::SysAddGroupIntoAmuse(name);
+    CAudioSys::SysPushGroupIntoARAM(name, static_cast<u8>(groupId));
     data.xc_name = name;
     ++x6c_loadedAudioGrpCount;
   }
@@ -274,7 +274,7 @@ void CWorld::LoadSoundGroups() {}
 
 void CWorld::UnloadSoundGroups() {
   for (CSoundGroupData& data : x74_soundGroupData) {
-    CAudioSys::SysRemoveGroupFromAmuse(data.xc_name);
+    CAudioSys::SysPopGroupFromARAM();
     CAudioSys::SysUnloadAudioGroupSet(data.xc_name);
   }
 }

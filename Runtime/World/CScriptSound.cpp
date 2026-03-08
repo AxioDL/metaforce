@@ -186,7 +186,8 @@ void CScriptSound::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
 }
 
 void CScriptSound::PlaySound(CStateManager& mgr) {
-  if ((!x11d_24_allowDuplicates && xec_sfxHandle && !xec_sfxHandle->IsClosed()) || x11d_25_processedThisFrame) {
+  if ((!x11d_24_allowDuplicates && xec_sfxHandle && CSfxManager::IsHandleValid(xec_sfxHandle)) ||
+      x11d_25_processedThisFrame) {
     return;
   }
 

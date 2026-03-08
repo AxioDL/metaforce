@@ -9,6 +9,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Audio/CAudioSys.hpp"
 
+#include <musyx/musyx.h>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -26,30 +27,12 @@ public:
   class CBaseSfxWrapper;
   using CSfxHandle = std::shared_ptr<CBaseSfxWrapper>;
 
-  /* Original imp, kept for reference
-  class CSfxHandle
-  {
-      static u32 mRefCount;
-      u32 x0_idx;
-  public:
-      CSfxHandle(u32 id)
-          : x0_idx(++mRefCount << 14 | (id & 0xFFFF)) {}
-  };
-  */
-
   class CSfxChannel {
     friend class CSfxManager;
     zeus::CVector3f x0_pos;
     zeus::CVector3f xc_;
     zeus::CVector3f x18_;
     zeus::CVector3f x24_;
-    /*
-    float x30_ = 0.f;
-    float x34_ = 0.f;
-    float x38_ = 0.f;
-    u32 x3c_ = 0;
-    bool x40_ = false;
-    */
     bool x44_listenerActive = false;
     std::unordered_set<CSfxHandle> x48_handles;
   };
@@ -58,7 +41,7 @@ public:
     float x4_timeRemaining = 15.f;
     s16 x8_rank = 0;
     s16 xa_prio;
-    // CSfxHandle xc_handle;
+    u16 xc_groupKey = 0;
     TAreaId x10_area;
     bool x14_24_isActive : 1 = true;
     bool x14_25_isPlaying : 1 = false;
@@ -84,13 +67,13 @@ public:
     virtual bool IsActive() const { return x14_24_isActive; }
     virtual s16 GetRank() const { return x8_rank; }
     virtual s16 GetPriority() const { return xa_prio; }
+    virtual u16 GetGroupKey() const { return xc_groupKey; }
     virtual TAreaId GetArea() const { return x10_area; }
     virtual CSfxHandle GetSfxHandle() { return shared_from_this(); }
     virtual void Play() = 0;
     virtual void Stop() = 0;
     virtual bool Ready() = 0;
     virtual ESfxAudibility GetAudible(const zeus::CVector3f&) = 0;
-    //virtual amuse::ObjToken<amuse::Voice> GetVoice() const = 0;
     virtual u16 GetSfxId() const = 0;
     virtual void UpdateEmitterSilent() = 0;
     virtual void UpdateEmitter() = 0;
@@ -102,6 +85,7 @@ public:
       x4_timeRemaining = 15.f;
     }
     bool IsReleased() const { return x14_28_isReleased; }
+    void SetGroupKey(u16 key) { xc_groupKey = key; }
 
     void Close() { m_isClosed = true; }
     bool IsClosed() const { return m_isClosed; }
@@ -109,16 +93,17 @@ public:
     float GetTimeRemaining() const { return x4_timeRemaining; }
     void SetTimeRemaining(float t) { x4_timeRemaining = t; }
 
-    CBaseSfxWrapper(bool looped, s16 prio, /*const CSfxHandle& handle,*/ bool useAcoustics, TAreaId area)
-    : xa_prio(prio), /*xc_handle(handle),*/ x10_area(area), x14_26_looped(looped), x14_29_useAcoustics(useAcoustics) {}
+    CBaseSfxWrapper(bool looped, s16 prio, bool useAcoustics, TAreaId area)
+    : xa_prio(prio), x10_area(area), x14_26_looped(looped), x14_29_useAcoustics(useAcoustics) {}
   };
 
   class CSfxEmitterWrapper : public CBaseSfxWrapper {
-    float x1a_reverb = 0.0f;
+    SND_PARAMETER x18_para{};
+    SND_PARAMETER_INFO x1c_parameterInfo{};
     CAudioSys::C3DEmitterParmData x24_parmData;
-    //amuse::ObjToken<amuse::Emitter> x50_emitterHandle;
+    u32 x50_emitterHandle = SND_ID_ERROR;
     bool x54_ready = true;
-    float x55_cachedMaxVol = 0.0f;
+    float x55_cachedMaxVol = 0.f;
 
   public:
     bool IsPlaying() const override;
@@ -126,27 +111,25 @@ public:
     void Stop() override;
     bool Ready() override;
     ESfxAudibility GetAudible(const zeus::CVector3f&) override;
-    //amuse::ObjToken<amuse::Voice> GetVoice() const override { return x50_emitterHandle->getVoice(); }
     u16 GetSfxId() const override;
     void UpdateEmitterSilent() override;
     void UpdateEmitter() override;
     void SetReverb(float rev) override;
     CAudioSys::C3DEmitterParmData& GetEmitterData() { return x24_parmData; }
-
-    //amuse::ObjToken<amuse::Emitter> GetHandle() const { return x50_emitterHandle; }
+    u32 GetHandle() const { return x50_emitterHandle; }
 
     CSfxEmitterWrapper(bool looped, s16 prio, const CAudioSys::C3DEmitterParmData& data,
-                       /*const CSfxHandle& handle,*/ bool useAcoustics, TAreaId area)
-    : CBaseSfxWrapper(looped, prio, /*handle,*/ useAcoustics, area), x24_parmData(data) {
+                       bool useAcoustics, TAreaId area)
+    : CBaseSfxWrapper(looped, prio, useAcoustics, area), x24_parmData(data) {
       m_isEmitter = true;
     }
   };
 
   class CSfxWrapper : public CBaseSfxWrapper {
     u16 x18_sfxId;
-    //amuse::ObjToken<amuse::Voice> x1c_voiceHandle;
-    float x20_vol;
-    float x22_pan;
+    SND_VOICEID x1c_voiceHandle = SND_ID_ERROR;
+    u8 x20_vol;
+    u8 x22_pan;
     bool x24_ready = true;
 
   public:
@@ -155,16 +138,16 @@ public:
     void Stop() override;
     bool Ready() override;
     ESfxAudibility GetAudible(const zeus::CVector3f&) override { return ESfxAudibility::Aud3; }
-//    amuse::ObjToken<amuse::Voice> GetVoice() const override { return x1c_voiceHandle; }
     u16 GetSfxId() const override;
     void UpdateEmitterSilent() override;
     void UpdateEmitter() override;
     void SetReverb(float rev) override;
-    void SetVolume(float vol) { x20_vol = vol; }
+    void SetVolume(u8 vol) { x20_vol = vol; }
+    SND_VOICEID GetVoice() const { return x1c_voiceHandle; }
 
-    CSfxWrapper(bool looped, s16 prio, u16 sfxId, float vol, float pan,
-                /*const CSfxHandle& handle,*/ bool useAcoustics, TAreaId area)
-    : CBaseSfxWrapper(looped, prio, /*handle,*/ useAcoustics, area), x18_sfxId(sfxId), x20_vol(vol), x22_pan(pan) {
+    CSfxWrapper(bool looped, s16 prio, u16 sfxId, u8 vol, u8 pan,
+                bool useAcoustics, TAreaId area)
+    : CBaseSfxWrapper(looped, prio, useAcoustics, area), x18_sfxId(sfxId), x20_vol(vol), x22_pan(pan) {
       m_isEmitter = false;
     }
   };
@@ -178,7 +161,6 @@ public:
   static float m_reverbAmount;
   static EAuxEffect m_activeEffect;
   static EAuxEffect m_nextEffect;
-  //static amuse::ObjToken<amuse::Listener> m_listener;
 
   static u16 kMaxPriority;
   static u16 kMedPriority;
@@ -199,6 +181,7 @@ public:
                              const zeus::CVector3f& up, float vol);
 
   static bool PlaySound(const CSfxHandle& handle);
+  static bool IsHandleValid(const CSfxHandle& handle);
   static void StopSound(const CSfxHandle& handle);
   static s16 GetRank(CBaseSfxWrapper* sfx);
   static void ApplyReverb();
@@ -222,10 +205,10 @@ public:
   static void StopAndRemoveAllEmitters();
   static void DisableAuxCallback();
   static void EnableAuxCallback();
-//  static void PrepareDelayCallback(const amuse::EffectDelayInfo& info);
-//  static void PrepareReverbStdCallback(const amuse::EffectReverbStdInfo& info);
-//  static void PrepareChorusCallback(const amuse::EffectChorusInfo& info);
-//  static void PrepareReverbHiCallback(const amuse::EffectReverbHiInfo& info);
+  static void PrepareDelayCallback(const SND_AUX_DELAY& info);
+  static void PrepareReverbStdCallback(const SND_AUX_REVERBSTD& info);
+  static void PrepareChorusCallback(const SND_AUX_CHORUS& info);
+  static void PrepareReverbHiCallback(const SND_AUX_REVERBHI& info);
   static void DisableAuxProcessing();
 
   static void SetActiveAreas(const rstl::reserved_vector<TAreaId, 10>& areas);

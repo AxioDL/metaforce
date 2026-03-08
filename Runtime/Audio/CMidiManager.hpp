@@ -23,16 +23,13 @@ public:
   };
 
   class CMidiWrapper {
-    //amuse::ObjToken<amuse::Sequencer> x0_sequencer;
-    // CSfxHandle x4_handle;
-    u16 x8_songId;
+    u32 x0_sysHandle = 0;
+    u16 x8_songId = 0;
     bool xa_available = true;
 
   public:
-    //amuse::ObjToken<amuse::Sequencer> GetAudioSysHandle() const { return x0_sequencer; }
-    //void SetAudioSysHandle(amuse::ObjToken<amuse::Sequencer> sequencer) { x0_sequencer = std::move(sequencer); }
-    // const CSfxHandle& GetManagerHandle() const { return x4_handle; }
-    // void SetMidiHandle(const CSfxHandle& handle) { x4_handle = handle; }
+    u32 GetAudioSysHandle() const { return x0_sysHandle; }
+    void SetAudioSysHandle(u32 handle) { x0_sysHandle = handle; }
     bool IsAvailable() const { return xa_available; }
     void SetAvailable(bool available) { xa_available = available; }
     u16 GetSongId() const { return x8_songId; }

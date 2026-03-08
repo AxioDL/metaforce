@@ -1,21 +1,62 @@
 #include "Runtime/Audio/CSfxManager.hpp"
 #include "Runtime/Streams/CInputStream.hpp"
 
+#include <algorithm>
+#include <cmath>
+
 #include "Runtime/CSimplePool.hpp"
 
 namespace metaforce {
+namespace {
+u16 NextSfxGroupKey() {
+  static u16 s_NextGroupKey = 1;
+  const u16 ret = s_NextGroupKey++;
+  if (s_NextGroupKey == 0)
+    s_NextGroupKey = 1;
+  return ret;
+}
+
+u8 ClampSfxByte(int value) { return static_cast<u8>(std::clamp(value, 0, 127)); }
+
+u8 ToSfxVolume(float vol) {
+  if (!std::isfinite(vol) || vol <= 0.f)
+    return 0;
+  if (vol <= 1.f)
+    return ClampSfxByte(int(std::lround(vol * 127.f)));
+  return ClampSfxByte(int(std::lround(vol)));
+}
+
+u8 ToSfxPan(float pan) {
+  if (!std::isfinite(pan))
+    return 64;
+  if (pan <= 1.f) {
+    pan = std::clamp(pan, -1.f, 1.f);
+    return ClampSfxByte(int(std::lround((pan + 1.f) * 63.5f)));
+  }
+  return ClampSfxByte(int(std::lround(pan)));
+}
+
+u16 ToSfxPitchBend(float pitch) {
+  if (!std::isfinite(pitch))
+    return 8192;
+  if (pitch >= -1.f && pitch <= 1.f)
+    return static_cast<u16>(std::clamp<int>(int(std::lround((pitch + 1.f) * 8191.5f)), 0, 16383));
+  return static_cast<u16>(std::clamp<int>(int(std::lround(pitch)), 0, 16383));
+}
+
+} // namespace
+
 static TLockedToken<std::vector<u16>> mpSfxTranslationTableTok;
 std::vector<u16>* CSfxManager::mpSfxTranslationTable = nullptr;
 
-//static amuse::EffectReverbHiInfo s_ReverbHiQueued;
-//static amuse::EffectChorusInfo s_ChorusQueued;
-//static amuse::EffectReverbStdInfo s_ReverbStdQueued;
-//static amuse::EffectDelayInfo s_DelayQueued;
-//
-//static amuse::EffectReverbHi* s_ReverbHiState = nullptr;
-//static amuse::EffectChorus* s_ChorusState = nullptr;
-//static amuse::EffectReverbStd* s_ReverbStdState = nullptr;
-//static amuse::EffectDelay* s_DelayState = nullptr;
+static SND_AUX_REVERBHI s_ReverbHi;
+static SND_AUX_CHORUS s_Chorus;
+static SND_AUX_REVERBSTD s_ReverbStd;
+static SND_AUX_DELAY s_Delay;
+static SND_AUX_REVERBHI s_ReverbHiQueued;
+static SND_AUX_CHORUS s_ChorusQueued;
+static SND_AUX_REVERBSTD s_ReverbStdQueued;
+static SND_AUX_DELAY s_DelayQueued;
 
 CFactoryFnReturn FAudioTranslationTableFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                                CObjectReference* selfRef) {
@@ -28,15 +69,14 @@ CFactoryFnReturn FAudioTranslationTableFactory(const SObjectTag& tag, CInputStre
 }
 
 std::array<CSfxManager::CSfxChannel, 4> CSfxManager::m_channels;
-CSfxManager::ESfxChannels CSfxManager::m_currentChannel = CSfxManager::ESfxChannels::Default;
+CSfxManager::ESfxChannels CSfxManager::m_currentChannel = ESfxChannels::Default;
 bool CSfxManager::m_doUpdate;
 void* CSfxManager::m_usedSounds;
 bool CSfxManager::m_muted;
 bool CSfxManager::m_auxProcessingEnabled = false;
 float CSfxManager::m_reverbAmount = 1.f;
-CSfxManager::EAuxEffect CSfxManager::m_activeEffect = CSfxManager::EAuxEffect::None;
-CSfxManager::EAuxEffect CSfxManager::m_nextEffect = CSfxManager::EAuxEffect::None;
-//amuse::ObjToken<amuse::Listener> CSfxManager::m_listener;
+CSfxManager::EAuxEffect CSfxManager::m_activeEffect = EAuxEffect::None;
+CSfxManager::EAuxEffect CSfxManager::m_nextEffect = EAuxEffect::None;
 
 u16 CSfxManager::kMaxPriority;
 u16 CSfxManager::kMedPriority;
@@ -54,27 +94,29 @@ bool CSfxManager::LoadTranslationTable(CSimplePool* pool, const SObjectTag* tag)
 }
 
 bool CSfxManager::CSfxWrapper::IsPlaying() const {
-//  if (CBaseSfxWrapper::IsPlaying() && x1c_voiceHandle)
-//    return x1c_voiceHandle->state() == amuse::VoiceState::Playing;
+  if (CBaseSfxWrapper::IsPlaying() && x1c_voiceHandle != SND_ID_ERROR)
+    return CAudioSys::SfxCheck(x1c_voiceHandle) != SND_ID_ERROR;
   return false;
 }
 
 void CSfxManager::CSfxWrapper::Play() {
-//  x1c_voiceHandle = CAudioSys::GetAmuseEngine().fxStart(x18_sfxId, x20_vol, x22_pan);
-//  if (x1c_voiceHandle) {
-//    if (CSfxManager::IsAuxProcessingEnabled() && UseAcoustics())
-//      x1c_voiceHandle->setReverbVol(m_reverbAmount);
-//    SetPlaying(true);
-//  }
+  x1c_voiceHandle = CAudioSys::SfxStart(x18_sfxId, x20_vol, x22_pan, 0);
+  if (x1c_voiceHandle != SND_ID_ERROR) {
+    if (IsAuxProcessingEnabled() && UseAcoustics()) {
+      u8 reverb = static_cast<u8>(GetReverbAmount() * 127.f);
+      CAudioSys::SfxCtrl(x1c_voiceHandle, SND_MIDICTRL_REVERB, reverb);
+    }
+    SetPlaying(true);
+  }
   x24_ready = false;
 }
 
 void CSfxManager::CSfxWrapper::Stop() {
-//  if (x1c_voiceHandle) {
-//    x1c_voiceHandle->keyOff();
-//    SetPlaying(false);
-//    x1c_voiceHandle.reset();
-//  }
+  if (x1c_voiceHandle != SND_ID_ERROR) {
+    CAudioSys::SfxStop(x1c_voiceHandle);
+    SetPlaying(false);
+    x1c_voiceHandle = SND_ID_ERROR;
+  }
 }
 
 bool CSfxManager::CSfxWrapper::Ready() {
@@ -86,51 +128,53 @@ bool CSfxManager::CSfxWrapper::Ready() {
 u16 CSfxManager::CSfxWrapper::GetSfxId() const { return x18_sfxId; }
 
 void CSfxManager::CSfxWrapper::UpdateEmitterSilent() {
-//  if (x1c_voiceHandle)
-//    x1c_voiceHandle->setVolume(1.f / 127.f);
+  if (x1c_voiceHandle != SND_ID_ERROR)
+    CAudioSys::SfxVolume(x1c_voiceHandle, 1);
 }
 
 void CSfxManager::CSfxWrapper::UpdateEmitter() {
-//  if (x1c_voiceHandle)
-//    x1c_voiceHandle->setVolume(x20_vol);
+  if (x1c_voiceHandle != SND_ID_ERROR)
+    CAudioSys::SfxVolume(x1c_voiceHandle, x20_vol);
 }
 
 void CSfxManager::CSfxWrapper::SetReverb(float rev) {
-//  if (x1c_voiceHandle && IsAuxProcessingEnabled() && UseAcoustics())
-//    x1c_voiceHandle->setReverbVol(rev);
+  if (x1c_voiceHandle != SND_ID_ERROR && IsAuxProcessingEnabled() && UseAcoustics()) {
+    u8 reverbVal = static_cast<u8>(rev * 127.f);
+    CAudioSys::SfxCtrl(x1c_voiceHandle, SND_MIDICTRL_REVERB, reverbVal);
+  }
 }
 
 bool CSfxManager::CSfxEmitterWrapper::IsPlaying() const {
   if (IsLooped())
     return CBaseSfxWrapper::IsPlaying();
-//  if (CBaseSfxWrapper::IsPlaying() && x50_emitterHandle)
-//    return x50_emitterHandle->getVoice()->state() == amuse::VoiceState::Playing;
+  if (CBaseSfxWrapper::IsPlaying() && x50_emitterHandle != SND_ID_ERROR)
+    return CAudioSys::S3dCheckEmitter(x50_emitterHandle);
   return false;
 }
 
 void CSfxManager::CSfxEmitterWrapper::Play() {
-  if (CSfxManager::IsAuxProcessingEnabled() && UseAcoustics())
-    x1a_reverb = m_reverbAmount;
-  else
-    x1a_reverb = 0.f;
+  x1c_parameterInfo.numPara = 1;
+  x1c_parameterInfo.paraArray = &x18_para;
+  x18_para.ctrl = SND_MIDICTRL_REVERB;
 
-//  zeus::simd_floats pos(x24_parmData.x0_pos.mSimd);
-//  zeus::simd_floats dir(x24_parmData.xc_dir.mSimd);
-//  x50_emitterHandle = CAudioSys::GetAmuseEngine().addEmitter(
-//      pos.data(), dir.data(), x24_parmData.x18_maxDist, x24_parmData.x1c_distComp, x24_parmData.x24_sfxId,
-//      x24_parmData.x27_minVol, x24_parmData.x26_maxVol, (x24_parmData.x20_flags & 0x8) != 0);
-//
-//  if (x50_emitterHandle)
-//    SetPlaying(true);
+  if (IsAuxProcessingEnabled() && UseAcoustics())
+    x18_para.paraData.value7 = static_cast<u8>(GetReverbAmount() * 127.f);
+  else
+    x18_para.paraData.value7 = 0;
+
+  x50_emitterHandle = CAudioSys::S3dAddEmitterParaEx(x24_parmData, GetGroupKey(), &x1c_parameterInfo);
+  if (x50_emitterHandle != SND_ID_ERROR)
+    SetPlaying(true);
+
   x54_ready = false;
 }
 
 void CSfxManager::CSfxEmitterWrapper::Stop() {
-//  if (x50_emitterHandle) {
-//    x50_emitterHandle->getVoice()->keyOff();
-//    SetPlaying(false);
-//    x50_emitterHandle.reset();
-//  }
+  if (x50_emitterHandle != SND_ID_ERROR) {
+    CAudioSys::S3dRemoveEmitter(x50_emitterHandle);
+    SetPlaying(false);
+    x50_emitterHandle = SND_ID_ERROR;
+  }
 }
 
 bool CSfxManager::CSfxEmitterWrapper::Ready() {
@@ -154,27 +198,21 @@ CSfxManager::ESfxAudibility CSfxManager::CSfxEmitterWrapper::GetAudible(const ze
 u16 CSfxManager::CSfxEmitterWrapper::GetSfxId() const { return x24_parmData.x24_sfxId; }
 
 void CSfxManager::CSfxEmitterWrapper::UpdateEmitterSilent() {
-//  if (x50_emitterHandle) {
-//    zeus::simd_floats pos(x24_parmData.x0_pos.mSimd);
-//    zeus::simd_floats dir(x24_parmData.xc_dir.mSimd);
-//    x50_emitterHandle->setVectors(pos.data(), dir.data());
-//    x50_emitterHandle->setMaxVol(1.f / 127.f);
-//  }
-  x55_cachedMaxVol = x24_parmData.x26_maxVol;
+  if (x50_emitterHandle != SND_ID_ERROR) {
+    x55_cachedMaxVol = x24_parmData.x26_maxVol;
+    CAudioSys::S3dUpdateEmitter(x50_emitterHandle, x24_parmData.x0_pos, x24_parmData.xc_dir, 1.f / 127.f);
+  }
 }
 
 void CSfxManager::CSfxEmitterWrapper::UpdateEmitter() {
-//  if (x50_emitterHandle) {
-//    zeus::simd_floats pos(x24_parmData.x0_pos.mSimd);
-//    zeus::simd_floats dir(x24_parmData.xc_dir.mSimd);
-//    x50_emitterHandle->setVectors(pos.data(), dir.data());
-//    x50_emitterHandle->setMaxVol(x55_cachedMaxVol);
-//  }
+  if (x50_emitterHandle != SND_ID_ERROR)
+    CAudioSys::S3dUpdateEmitter(x50_emitterHandle, x24_parmData.x0_pos, x24_parmData.xc_dir, x55_cachedMaxVol);
 }
 
 void CSfxManager::CSfxEmitterWrapper::SetReverb(float rev) {
-  if (IsAuxProcessingEnabled() && UseAcoustics())
-    x1a_reverb = rev;
+  if (IsAuxProcessingEnabled() && UseAcoustics()) {
+    x18_para.paraData.value7 = static_cast<u8>(rev * 127.f);
+  }
 }
 
 void CSfxManager::SetChannel(ESfxChannels chan) {
@@ -237,27 +275,26 @@ void CSfxManager::TurnOffChannel(ESfxChannels chan) {
 
 void CSfxManager::AddListener(ESfxChannels channel, const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                               const zeus::CVector3f& heading, const zeus::CVector3f& up, float frontRadius,
-                              float surroundRadius, float soundSpeed, u32 flags /* 0x1 for doppler */, float vol) {
-//  if (m_listener)
-//    CAudioSys::GetAmuseEngine().removeListener(m_listener.get());
-//  zeus::simd_floats p(pos.mSimd);
-//  zeus::simd_floats d(dir.mSimd);
-//  zeus::simd_floats h(heading.mSimd);
-//  zeus::simd_floats u(up.mSimd);
-//  m_listener = CAudioSys::GetAmuseEngine().addListener(p.data(), d.data(), h.data(), u.data(), frontRadius,
-//                                                       surroundRadius, soundSpeed, vol);
+                              float surroundRadius, float soundSpeed, u32 flags, float vol) {
+  CSfxChannel& chanObj = m_channels[size_t(channel)];
+  chanObj.x0_pos = pos;
+  chanObj.xc_ = dir;
+  chanObj.x18_ = heading;
+  chanObj.x24_ = up;
+  chanObj.x44_listenerActive = true;
+  CAudioSys::S3dAddListener(pos, dir, heading, up, frontRadius, surroundRadius, soundSpeed, flags,
+                            static_cast<u8>(vol * 127.f));
 }
 
 void CSfxManager::UpdateListener(const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeus::CVector3f& heading,
                                  const zeus::CVector3f& up, float vol) {
-//  if (m_listener) {
-//    zeus::simd_floats p(pos.mSimd);
-//    zeus::simd_floats d(dir.mSimd);
-//    zeus::simd_floats h(heading.mSimd);
-//    zeus::simd_floats u(up.mSimd);
-//    m_listener->setVectors(p.data(), d.data(), h.data(), u.data());
-//    m_listener->setVolume(vol);
-//  }
+  CSfxChannel& chanObj = m_channels[size_t(m_currentChannel)];
+  chanObj.x0_pos = pos;
+  chanObj.xc_ = dir;
+  chanObj.x18_ = heading;
+  chanObj.x24_ = up;
+  chanObj.x44_listenerActive = true;
+  CAudioSys::S3dUpdateListener(pos, dir, heading, up, static_cast<u8>(vol * 127.f));
 }
 
 s16 CSfxManager::GetRank(CBaseSfxWrapper* sfx) {
@@ -303,29 +340,41 @@ void CSfxManager::PitchBend(const CSfxHandle& handle, float pitch) {
   if (!handle)
     return;
   if (!handle->IsPlaying())
-    CSfxManager::Update(0.f);
-//  if (handle->IsPlaying()) {
-//    m_doUpdate = true;
-//    handle->GetVoice()->setPitchWheel(pitch);
-//  }
+    Update(0.f);
+  if (handle->IsPlaying()) {
+    m_doUpdate = true;
+    const u16 bend = ToSfxPitchBend(pitch);
+    if (handle->IsEmitter()) {
+      CSfxEmitterWrapper& emitter = static_cast<CSfxEmitterWrapper&>(*handle);
+      const SND_VOICEID voice = CAudioSys::S3dEmitterVoiceID(emitter.GetHandle());
+      if (voice != SND_ID_ERROR)
+        CAudioSys::SfxPitchBend(voice, bend);
+    } else {
+      CSfxWrapper& wrapper = static_cast<CSfxWrapper&>(*handle);
+      CAudioSys::SfxPitchBend(wrapper.GetVoice(), bend);
+    }
+  }
 }
 
 void CSfxManager::SfxVolume(const CSfxHandle& handle, float vol) {
   if (!handle)
     return;
-  if (handle->IsEmitter()) {
+  if (!handle->IsEmitter()) {
     CSfxWrapper& wrapper = static_cast<CSfxWrapper&>(*handle);
-    wrapper.SetVolume(vol);
+    u8 volU8 = static_cast<u8>(vol * 127.f);
+    wrapper.SetVolume(volU8);
+    if (handle->IsPlaying())
+      CAudioSys::SfxVolume(wrapper.GetVoice(), volU8);
   }
-//  if (handle->IsPlaying())
-//    handle->GetVoice()->setVolume(vol);
 }
 
 void CSfxManager::SfxSpan(const CSfxHandle& handle, float span) {
   if (!handle)
     return;
-//  if (handle->IsPlaying())
-//    handle->GetVoice()->setSurroundPan(span);
+  if (!handle->IsEmitter() && handle->IsPlaying()) {
+    CSfxWrapper& wrapper = static_cast<CSfxWrapper&>(*handle);
+    CAudioSys::SfxSpan(wrapper.GetVoice(), ToSfxPan(span));
+  }
 }
 
 u16 CSfxManager::TranslateSFXID(u16 id) {
@@ -342,7 +391,14 @@ u16 CSfxManager::TranslateSFXID(u16 id) {
   return ret;
 }
 
-bool CSfxManager::PlaySound(const CSfxManager::CSfxHandle& handle) { return false; }
+bool CSfxManager::PlaySound(const CSfxHandle& handle) { return false; }
+
+bool CSfxManager::IsHandleValid(const CSfxHandle& handle) {
+  if (!handle)
+    return false;
+  const CSfxChannel& chanObj = m_channels[size_t(m_currentChannel)];
+  return chanObj.x48_handles.find(handle) != chanObj.x48_handles.end();
+}
 
 void CSfxManager::StopSound(const CSfxHandle& handle) {
   if (!handle)
@@ -361,8 +417,11 @@ CSfxHandle CSfxManager::SfxStart(u16 id, float vol, float pan, bool useAcoustics
   if (m_muted || id == 0xffff)
     return {};
 
+  u8 volU8 = ToSfxVolume(vol);
+  u8 panU8 = ToSfxPan(pan);
+
   m_doUpdate = true;
-  CSfxHandle wrapper = std::make_shared<CSfxWrapper>(looped, prio, id, vol, pan, useAcoustics, areaId);
+  CSfxHandle wrapper = std::make_shared<CSfxWrapper>(looped, prio, id, volU8, panU8, useAcoustics, areaId);
   CSfxChannel& chanObj = m_channels[size_t(m_currentChannel)];
   chanObj.x48_handles.insert(wrapper);
   return wrapper;
@@ -380,16 +439,12 @@ void CSfxManager::UpdateEmitter(const CSfxHandle& handle, const zeus::CVector3f&
                                 float maxVol) {
   if (!handle || !handle->IsEmitter() || !handle->IsPlaying())
     return;
-//  m_doUpdate = true;
-//  CSfxEmitterWrapper& emitter = static_cast<CSfxEmitterWrapper&>(*handle);
-//  emitter.GetEmitterData().x0_pos = pos;
-//  emitter.GetEmitterData().xc_dir = dir;
-//  emitter.GetEmitterData().x26_maxVol = maxVol;
-//  amuse::Emitter& h = *emitter.GetHandle();
-//  zeus::simd_floats p(pos.mSimd);
-//  zeus::simd_floats d(dir.mSimd);
-//  h.setVectors(p.data(), d.data());
-//  h.setMaxVol(maxVol);
+  m_doUpdate = true;
+  CSfxEmitterWrapper& emitter = static_cast<CSfxEmitterWrapper&>(*handle);
+  emitter.GetEmitterData().x0_pos = pos;
+  emitter.GetEmitterData().xc_dir = dir;
+  emitter.GetEmitterData().x26_maxVol = maxVol;
+  CAudioSys::S3dUpdateEmitter(emitter.GetHandle(), pos, dir, maxVol);
 }
 
 CSfxHandle CSfxManager::AddEmitter(u16 id, const zeus::CVector3f& pos, const zeus::CVector3f& dir, bool useAcoustics,
@@ -436,6 +491,7 @@ CSfxHandle CSfxManager::AddEmitter(const CAudioSys::C3DEmitterParmData& parmData
     data.x20_flags |= 0x6; // Pausable/restartable when inaudible
   m_doUpdate = true;
   CSfxHandle wrapper = std::make_shared<CSfxEmitterWrapper>(looped, prio, data, useAcoustics, areaId);
+  wrapper->SetGroupKey(NextSfxGroupKey());
   CSfxChannel& chanObj = m_channels[size_t(m_currentChannel)];
   chanObj.x48_handles.insert(wrapper);
   return wrapper;
@@ -459,84 +515,99 @@ void CSfxManager::EnableAuxCallback() {
   if (m_activeEffect != EAuxEffect::None)
     DisableAuxCallback();
 
-//  auto studio = CAudioSys::GetAmuseEngine().getDefaultStudio();
-//  amuse::Submix& smix = studio->getAuxA();
-//
-//  m_activeEffect = m_nextEffect;
-//  switch (m_activeEffect) {
-//  case EAuxEffect::ReverbHi:
-//    s_ReverbHiState = &smix.makeReverbHi(s_ReverbHiQueued);
-//    break;
-//  case EAuxEffect::Chorus:
-//    s_ChorusState = &smix.makeChorus(s_ChorusQueued);
-//    break;
-//  case EAuxEffect::ReverbStd:
-//    s_ReverbStdState = &smix.makeReverbStd(s_ReverbStdQueued);
-//    break;
-//  case EAuxEffect::Delay:
-//    s_DelayState = &smix.makeDelay(s_DelayQueued);
-//    break;
-//  default:
-//    break;
-//  }
+  m_activeEffect = m_nextEffect;
+  if (m_activeEffect == EAuxEffect::None)
+    return;
 
+  SND_AUX_CALLBACK cb = nullptr;
+  void* userA = nullptr;
+
+  switch (m_activeEffect) {
+  case EAuxEffect::ReverbHi:
+    s_ReverbHi = s_ReverbHiQueued;
+    userA = &s_ReverbHi;
+    sndAuxCallbackPrepareReverbHI(&s_ReverbHi);
+    cb = sndAuxCallbackReverbHI;
+    break;
+  case EAuxEffect::Chorus:
+    s_Chorus = s_ChorusQueued;
+    userA = &s_Chorus;
+    sndAuxCallbackPrepareChorus(&s_Chorus);
+    cb = sndAuxCallbackChorus;
+    break;
+  case EAuxEffect::ReverbStd:
+    s_ReverbStd = s_ReverbStdQueued;
+    userA = &s_ReverbStd;
+    sndAuxCallbackPrepareReverbSTD(&s_ReverbStd);
+    cb = sndAuxCallbackReverbSTD;
+    break;
+  case EAuxEffect::Delay:
+    s_Delay = s_DelayQueued;
+    userA = &s_Delay;
+    sndAuxCallbackPrepareDelay(&s_Delay);
+    cb = sndAuxCallbackDelay;
+    break;
+  default:
+    break;
+  }
+
+  sndSetAuxProcessingCallbacks(0, cb, userA, SND_MIDI_NONE, 0, nullptr, nullptr, SND_MIDI_NONE, 0);
   m_auxProcessingEnabled = true;
 }
 
-//void CSfxManager::PrepareDelayCallback(const amuse::EffectDelayInfo& info) {
-//  DisableAuxProcessing();
-//  s_DelayQueued = info;
-//  m_nextEffect = EAuxEffect::Delay;
-//  if (m_reverbAmount == 0.f)
-//    EnableAuxCallback();
-//}
-//
-//void CSfxManager::PrepareReverbStdCallback(const amuse::EffectReverbStdInfo& info) {
-//  DisableAuxProcessing();
-//  s_ReverbStdQueued = info;
-//  m_nextEffect = EAuxEffect::ReverbStd;
-//  if (m_reverbAmount == 0.f)
-//    EnableAuxCallback();
-//}
-//
-//void CSfxManager::PrepareChorusCallback(const amuse::EffectChorusInfo& info) {
-//  DisableAuxProcessing();
-//  s_ChorusQueued = info;
-//  m_nextEffect = EAuxEffect::Chorus;
-//  if (m_reverbAmount == 0.f)
-//    EnableAuxCallback();
-//}
-//
-//void CSfxManager::PrepareReverbHiCallback(const amuse::EffectReverbHiInfo& info) {
-//  DisableAuxProcessing();
-//  s_ReverbHiQueued = info;
-//  m_nextEffect = EAuxEffect::ReverbHi;
-//  if (m_reverbAmount == 0.f)
-//    EnableAuxCallback();
-//}
+void CSfxManager::PrepareDelayCallback(const SND_AUX_DELAY& info) {
+  DisableAuxProcessing();
+  s_DelayQueued = info;
+  m_nextEffect = EAuxEffect::Delay;
+  if (m_reverbAmount == 0.f)
+    EnableAuxCallback();
+}
+
+void CSfxManager::PrepareReverbStdCallback(const SND_AUX_REVERBSTD& info) {
+  DisableAuxProcessing();
+  s_ReverbStdQueued = info;
+  m_nextEffect = EAuxEffect::ReverbStd;
+  if (m_reverbAmount == 0.f)
+    EnableAuxCallback();
+}
+
+void CSfxManager::PrepareChorusCallback(const SND_AUX_CHORUS& info) {
+  DisableAuxProcessing();
+  s_ChorusQueued = info;
+  m_nextEffect = EAuxEffect::Chorus;
+  if (m_reverbAmount == 0.f)
+    EnableAuxCallback();
+}
+
+void CSfxManager::PrepareReverbHiCallback(const SND_AUX_REVERBHI& info) {
+  DisableAuxProcessing();
+  s_ReverbHiQueued = info;
+  m_nextEffect = EAuxEffect::ReverbHi;
+  if (m_reverbAmount == 0.f)
+    EnableAuxCallback();
+}
 
 void CSfxManager::DisableAuxCallback() {
-//  auto studio = CAudioSys::GetAmuseEngine().getDefaultStudio();
-//  studio->getAuxA().clearEffects();
-//
-//  switch (m_activeEffect) {
-//  case EAuxEffect::ReverbHi:
-//    s_ReverbHiState = nullptr;
-//    break;
-//  case EAuxEffect::Chorus:
-//    s_ChorusState = nullptr;
-//    break;
-//  case EAuxEffect::ReverbStd:
-//    s_ReverbStdState = nullptr;
-//    break;
-//  case EAuxEffect::Delay:
-//    s_DelayState = nullptr;
-//    break;
-//  default:
-//    break;
-//  }
-//
-//  m_activeEffect = EAuxEffect::None;
+  sndSetAuxProcessingCallbacks(0, nullptr, nullptr, SND_MIDI_NONE, 0, nullptr, nullptr, SND_MIDI_NONE, 0);
+
+  switch (m_activeEffect) {
+  case EAuxEffect::ReverbHi:
+    sndAuxCallbackShutdownReverbHI(&s_ReverbHi);
+    break;
+  case EAuxEffect::Chorus:
+    sndAuxCallbackShutdownChorus(&s_Chorus);
+    break;
+  case EAuxEffect::ReverbStd:
+    sndAuxCallbackShutdownReverbSTD(&s_ReverbStd);
+    break;
+  case EAuxEffect::Delay:
+    sndAuxCallbackShutdownDelay(&s_Delay);
+    break;
+  default:
+    break;
+  }
+
+  m_activeEffect = EAuxEffect::None;
 }
 
 void CSfxManager::DisableAuxProcessing() {
@@ -593,7 +664,7 @@ void CSfxManager::Update(float dt) {
     }
 
     std::sort(rankedSfx.begin(), rankedSfx.end(),
-              [](const CSfxHandle& a, const CSfxHandle& b) -> bool { return a->GetRank() < b->GetRank(); });
+              [](const CSfxHandle& a, const CSfxHandle& b) -> bool { return a->GetRank() > b->GetRank(); });
 
     for (size_t i = 48; i < rankedSfx.size(); ++i) {
       const CSfxHandle& handle = rankedSfx[i];
@@ -612,12 +683,21 @@ void CSfxManager::Update(float dt) {
       }
     }
 
+    CAudioSys::S3dFlushUnusedEmitters();
+
 #ifndef URDE_MSAN
-    for (const CSfxHandle& handle : chanObj.x48_handles) {
-      if (handle->IsPlaying())
+    size_t remaining = 48;
+    for (const CSfxHandle& handle : rankedSfx) {
+      if (remaining == 0)
+        break;
+      if (chanObj.x48_handles.find(handle) == chanObj.x48_handles.end())
         continue;
-      if (handle->Ready() && handle->IsInArea())
+      if (handle->IsPlaying()) {
+        --remaining;
+      } else if (handle->Ready() && handle->IsInArea()) {
         handle->Play();
+        --remaining;
+      }
     }
 #endif
 

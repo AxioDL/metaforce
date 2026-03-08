@@ -5,26 +5,26 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/World/CEntity.hpp"
 
-//#include <amuse/EffectChorus.hpp>
-//#include <amuse/EffectDelay.hpp>
-//#include <amuse/EffectReverb.hpp>
+#include <musyx/musyx.h>
 
 namespace metaforce {
 
 class CScriptRoomAcoustics : public CEntity {
   u32 x34_volumeScale;
 
-//  bool x38_revHi, x39_revHiDis;
-//  amuse::EffectReverbHiInfo x3c_revHiInfo;
-//
-//  bool x54_chorus;
-//  amuse::EffectChorusInfo x58_chorusInfo;
-//
-//  bool x64_revStd, x65_revStdDis;
-//  amuse::EffectReverbStdInfo x68_revStdInfo;
-//
-//  bool x7c_delay;
-//  amuse::EffectDelayInfo x80_delayInfo;
+  bool x38_revHi;
+  bool x39_revHiDis;
+  SND_AUX_REVERBHI x3c_revHiInfo{};
+
+  bool x54_chorus;
+  SND_AUX_CHORUS x58_chorusInfo{};
+
+  bool x64_revStd;
+  bool x65_revStdDis;
+  SND_AUX_REVERBSTD x68_revStdInfo{};
+
+  bool x7c_delay;
+  SND_AUX_DELAY x80_delayInfo{};
 
 public:
   DEFINE_ENTITY

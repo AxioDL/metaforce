@@ -18,17 +18,39 @@ CScriptRoomAcoustics::CScriptRoomAcoustics(TUniqueId uid, std::string_view name,
                                            u32 feedbackS, u32 outputL, u32 outputR, u32 outputS)
 : CEntity(uid, info, active, name)
 , x34_volumeScale(volScale)
-//, x38_revHi(revHi)
-//, x39_revHiDis(revHiDis)
-//, x3c_revHiInfo(revHiColoration, revHiMix, revHiTime, revHiDamping, revHiPreDelay, revHiCrosstalk)
-//, x54_chorus(chorus)
-//, x58_chorusInfo(baseDelay, variation, period)
-//, x64_revStd(revStd)
-//, x65_revStdDis(revStdDis)
-//, x68_revStdInfo(revStdColoration, revStdMix, revStdTime, revStdDamping, revStdPreDelay)
-//, x7c_delay(delay)
-//, x80_delayInfo(delayL, delayR, delayS, feedbackL, feedbackR, feedbackS, outputL, outputR, outputS)
-     {}
+, x38_revHi(revHi)
+, x39_revHiDis(revHiDis)
+, x54_chorus(chorus)
+, x64_revStd(revStd)
+, x65_revStdDis(revStdDis)
+, x7c_delay(delay) {
+  x3c_revHiInfo.coloration = revHiColoration;
+  x3c_revHiInfo.mix = revHiMix;
+  x3c_revHiInfo.time = revHiTime;
+  x3c_revHiInfo.damping = revHiDamping;
+  x3c_revHiInfo.preDelay = revHiPreDelay;
+  x3c_revHiInfo.crosstalk = revHiCrosstalk;
+
+  x58_chorusInfo.baseDelay = static_cast<u32>(baseDelay);
+  x58_chorusInfo.variation = static_cast<u32>(variation);
+  x58_chorusInfo.period = static_cast<u32>(period);
+
+  x68_revStdInfo.coloration = revStdColoration;
+  x68_revStdInfo.mix = revStdMix;
+  x68_revStdInfo.time = revStdTime;
+  x68_revStdInfo.damping = revStdDamping;
+  x68_revStdInfo.preDelay = revStdPreDelay;
+
+  x80_delayInfo.delay[0] = delayL;
+  x80_delayInfo.delay[1] = delayR;
+  x80_delayInfo.delay[2] = delayS;
+  x80_delayInfo.feedback[0] = feedbackL;
+  x80_delayInfo.feedback[1] = feedbackR;
+  x80_delayInfo.feedback[2] = feedbackS;
+  x80_delayInfo.output[0] = outputL;
+  x80_delayInfo.output[1] = outputR;
+  x80_delayInfo.output[2] = outputS;
+}
 
 void CScriptRoomAcoustics::DisableAuxCallbacks() {
   CSfxManager::DisableAuxProcessing();
@@ -42,17 +64,17 @@ void CScriptRoomAcoustics::EnableAuxCallbacks() {
   }
 
   bool applied = true;
-//  if (x38_revHi) {
-//    CSfxManager::PrepareReverbHiCallback(x3c_revHiInfo);
-//  } else if (x54_chorus) {
-//    CSfxManager::PrepareChorusCallback(x58_chorusInfo);
-//  } else if (x64_revStd) {
-//    CSfxManager::PrepareReverbStdCallback(x68_revStdInfo);
-//  } else if (x7c_delay) {
-//    CSfxManager::PrepareDelayCallback(x80_delayInfo);
-//  } else {
-//    applied = false;
-//  }
+  if (x38_revHi) {
+    CSfxManager::PrepareReverbHiCallback(x3c_revHiInfo);
+  } else if (x54_chorus) {
+    CSfxManager::PrepareChorusCallback(x58_chorusInfo);
+  } else if (x64_revStd) {
+    CSfxManager::PrepareReverbStdCallback(x68_revStdInfo);
+  } else if (x7c_delay) {
+    CSfxManager::PrepareDelayCallback(x80_delayInfo);
+  } else {
+    applied = false;
+  }
 
   if (applied) {
     CAudioSys::SetVolumeScale(x34_volumeScale);
