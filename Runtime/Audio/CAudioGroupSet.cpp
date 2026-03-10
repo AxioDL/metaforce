@@ -16,16 +16,18 @@ static inline u32 SwapU32(u32 v) { return __builtin_bswap32(v); }
 static inline s16 SwapS16(s16 v) { return static_cast<s16>(__builtin_bswap16(static_cast<u16>(v))); }
 
 void CAudioGroupSet::SwapProjectEndian() {
-  // Project data is a linked list of GROUP_DATA structures
-  // Each GROUP_DATA contains offsets to sub-tables within the project
   u8* base = m_proj;
   u32 offset = 0;
 
-  while (offset < m_projLen) {
+  while (offset + sizeof(u32) <= m_projLen) {
     GROUP_DATA* g = reinterpret_cast<GROUP_DATA*>(base + offset);
 
-    // Swap GROUP_DATA fields
     g->nextOff = SwapU32(g->nextOff);
+    if (g->nextOff == 0xFFFFFFFF) {
+      break;
+    }
+
+    // Swap GROUP_DATA fields
     g->id = SwapU16(g->id);
     g->type = SwapU16(g->type);
     g->macroOff = SwapU32(g->macroOff);
@@ -33,9 +35,18 @@ void CAudioGroupSet::SwapProjectEndian() {
     g->curveOff = SwapU32(g->curveOff);
     g->keymapOff = SwapU32(g->keymapOff);
     g->layerOff = SwapU32(g->layerOff);
-    g->data.song.normpageOff = SwapU32(g->data.song.normpageOff);
-    g->data.song.drumpageOff = SwapU32(g->data.song.drumpageOff);
-    g->data.song.midiSetupOff = SwapU32(g->data.song.midiSetupOff);
+    switch (g->type) {
+    case 0:
+      g->data.song.normpageOff = SwapU32(g->data.song.normpageOff);
+      g->data.song.drumpageOff = SwapU32(g->data.song.drumpageOff);
+      g->data.song.midiSetupOff = SwapU32(g->data.song.midiSetupOff);
+      break;
+    case 1:
+      g->data.fx.tableOff = SwapU32(g->data.fx.tableOff);
+      break;
+    default:
+      break;
+    }
 
     // Swap the ID reference lists (u16 lists terminated by 0xFFFF)
     // macroOff points to a list of u16 macro IDs
@@ -85,8 +96,8 @@ void CAudioGroupSet::SwapProjectEndian() {
     }
 
     // Swap FX table if type == 1 (FX group)
-    if (g->type == 1 && g->data.song.normpageOff < m_projLen) {
-      FX_DATA* fxData = reinterpret_cast<FX_DATA*>(base + g->data.song.normpageOff);
+    if (g->type == 1 && g->data.fx.tableOff < m_projLen) {
+      FX_DATA* fxData = reinterpret_cast<FX_DATA*>(base + g->data.fx.tableOff);
       fxData->num = SwapU16(fxData->num);
       fxData->reserverd = SwapU16(fxData->reserverd);
       u16 numFx = fxData->num;
@@ -98,8 +109,6 @@ void CAudioGroupSet::SwapProjectEndian() {
       }
     }
 
-    if (g->nextOff == 0xFFFFFFFF)
-      break;
     offset = g->nextOff;
   }
 }
