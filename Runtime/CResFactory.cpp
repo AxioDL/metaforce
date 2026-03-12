@@ -1,11 +1,12 @@
 #include "Runtime/CResFactory.hpp"
 
+#include "CResourceNameDatabase.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStopwatch.hpp"
 #include "Runtime/Logging.hpp"
 #include "Runtime/Formatting.hpp"
 
-//#include "optick.h"
+// #include "optick.h"
 
 namespace metaforce {
 void CResFactory::AddToLoadList(SLoadingData&& data) {
@@ -35,13 +36,18 @@ CFactoryFnReturn CResFactory::BuildSync(const SObjectTag& tag, const CVParamTran
 }
 
 bool CResFactory::PumpResource(SLoadingData& data) {
-  //OPTICK_EVENT();
+  // OPTICK_EVENT();
   if (data.x8_dvdReq && data.x8_dvdReq->IsComplete()) {
     data.x8_dvdReq.reset();
     *data.xc_targetPtr =
         x5c_factoryMgr.MakeObjectFromMemory(data.x0_tag, std::move(data.x10_loadBuffer), data.x14_resSize,
                                             data.m_compressed, data.x18_cvXfer, data.m_selfRef);
     spdlog::info("async-built {}", data.x0_tag);
+    if (CResourceNameDatabase::instance()) {
+      if (const auto* name = CResourceNameDatabase::instance()->assetName(data.x0_tag.id)) {
+        spdlog::info("rep filepath: {}", *name);
+      }
+    }
     return true;
   }
   return false;
@@ -77,7 +83,7 @@ void CResFactory::BuildAsync(const SObjectTag& tag, const CVParamTransfer& xfer,
 }
 
 bool CResFactory::AsyncIdle(std::chrono::nanoseconds target) {
-  //OPTICK_EVENT();
+  // OPTICK_EVENT();
   if (m_loadList.empty()) {
     return false;
   }
@@ -108,7 +114,7 @@ void CResFactory::CancelBuild(const SObjectTag& tag) {
 
 void CResFactory::LoadPersistentResources(CSimplePool& sp) {
   const auto& paks = x4_loader.GetPaks();
-  for (const auto & pak : paks) {
+  for (const auto& pak : paks) {
     if (!pak->IsWorldPak()) {
       for (const CAssetId& id : pak->GetDepList()) {
         SObjectTag tag(GetResourceTypeById(id), id);

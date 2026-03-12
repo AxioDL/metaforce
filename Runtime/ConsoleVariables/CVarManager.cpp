@@ -213,7 +213,7 @@ std::vector<StoreCVar::CVar> CVarManager::loadCVars(const std::string& filename)
     );
     if (file != nullptr) {
 
-      std::unique_ptr<u8[]> inBuf(new u8[st.st_size]);
+      std::unique_ptr<u8> inBuf(new u8[st.st_size]);
       fread(inBuf.get(), 1, st.st_size, file);
       fclose(file);
       CMemoryInStream mem(inBuf.get(), st.st_size, CMemoryInStream::EOwnerShip::NotOwned);
