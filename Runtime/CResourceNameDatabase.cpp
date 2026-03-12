@@ -28,9 +28,9 @@ CResourceNameDatabase::CResourceNameDatabase(FileStoreManager& store) {
 
   // This is in little endian so we'll need to do some `SBig` calls in order to swap it back to little endian since
   // CMemoryInStream swaps.
-  u32 count = SBig(mem.Get<u32>());
+  u32 count = mem.Get<u32>();
   while ((count--) != 0u) {
-    const CAssetId assetId = SBig(mem.Get<u32>());
+    const CAssetId assetId = mem.Get<u32>();
     const auto name = mem.Get<std::string>();
     m_assetNames[assetId] = name;
   }
