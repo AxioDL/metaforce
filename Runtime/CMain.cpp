@@ -1,3 +1,5 @@
+#include "CResourceNameDatabase.hpp"
+
 #include <string>
 #include <string_view>
 #include <numeric>
@@ -167,6 +169,7 @@ private:
   FileStoreManager& m_fileMgr;
   CVarManager& m_cvarManager;
   CVarCommons& m_cvarCommons;
+  CResourceNameDatabase& m_nameDatabase;
   ImGuiConsole m_imGuiConsole;
 
   std::string m_deferredProject;
@@ -187,12 +190,14 @@ private:
                                           // is built, i.e during initialization
 
 public:
-  Application(int argc, char** argv, FileStoreManager& fileMgr, CVarManager& cvarMgr, CVarCommons& cvarCmns)
+  Application(int argc, char** argv, FileStoreManager& fileMgr, CVarManager& cvarMgr, CVarCommons& cvarCmns,
+              CResourceNameDatabase& nameDatabase)
   : m_argc(argc)
   , m_argv(argv)
   , m_fileMgr(fileMgr)
   , m_cvarManager(cvarMgr)
   , m_cvarCommons(cvarCmns)
+  , m_nameDatabase(nameDatabase)
   , m_imGuiConsole(cvarMgr, cvarCmns) {}
 
   void onAppLaunched(const AuroraInfo& info) noexcept {
@@ -284,7 +289,7 @@ public:
     const auto targetFrameTime = getTargetFrameTime();
     bool skipRetrace = false;
     if (g_ResFactory != nullptr) {
-//      OPTICK_EVENT("Async Load Resources");
+      //      OPTICK_EVENT("Async Load Resources");
       const auto idleTime = m_limiter.SleepTime(targetFrameTime);
       skipRetrace = g_ResFactory->AsyncIdle(idleTime);
     }
@@ -295,12 +300,12 @@ public:
     } else {
       // No more to load, and we're under frame time
       {
-        //OPTICK_EVENT("Sleep");
+        // OPTICK_EVENT("Sleep");
         m_limiter.Sleep(targetFrameTime);
       }
     }
 
-    //OPTICK_FRAME("MainThread");
+    // OPTICK_FRAME("MainThread");
 
     // Check if fullscreen has been toggled, if so set the fullscreen cvar accordingly
     if (m_fullscreenToggleRequested) {
@@ -364,7 +369,7 @@ public:
   }
 
   void onAppDraw() noexcept {
-    //OPTICK_EVENT("Draw");
+    // OPTICK_EVENT("Draw");
     if (g_Renderer != nullptr) {
       g_Renderer->BeginScene();
       if (g_mainMP1) {
@@ -376,7 +381,7 @@ public:
   }
 
   void onAppPostDraw() noexcept {
-    //OPTICK_EVENT("PostDraw");
+    // OPTICK_EVENT("PostDraw");
 //    if (m_voiceEngine) {
 //      m_voiceEngine->pumpAndMixVoices();
 //    }
@@ -545,6 +550,8 @@ int main(int argc, char** argv) {
   do {
     metaforce::CVarManager cvarMgr{fileMgr};
     metaforce::CVarCommons cvarCmns{cvarMgr};
+    metaforce::CResourceNameDatabase nameDatabase{fileMgr};
+
     cvarMgr.parseCommandLine(args);
     if (!restart) {
       // TODO add clear loggers func to logvisor so we can recreate loggers on restart
@@ -569,7 +576,7 @@ int main(int argc, char** argv) {
       }
     }
 
-    g_app = std::make_unique<metaforce::Application>(argc, argv, fileMgr, cvarMgr, cvarCmns);
+    g_app = std::make_unique<metaforce::Application>(argc, argv, fileMgr, cvarMgr, cvarCmns, nameDatabase);
     std::string configPath{fileMgr.getStoreRoot()};
 
     const AuroraConfig config{
