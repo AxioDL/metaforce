@@ -26,8 +26,6 @@ CResourceNameDatabase::CResourceNameDatabase(FileStoreManager& store) {
   (void)fclose(file);
   CMemoryInStream mem(inBuf.get(), st.st_size, CMemoryInStream::EOwnerShip::NotOwned);
 
-  // This is in little endian so we'll need to do some `SBig` calls in order to swap it back to little endian since
-  // CMemoryInStream swaps.
   u32 count = mem.Get<u32>();
   while ((count--) != 0u) {
     const CAssetId assetId = mem.Get<u32>();
