@@ -7,10 +7,10 @@
 
 A reverse-engineered, native reimplementation of Metroid Prime.
 
-This project is currently in **alpha** state.  
+This project is currently in **alpha** state.
 Builds are currently unavailable while the project undergoes large changes.
 
-Separately, a [matching decompilation](https://github.com/PrimeDecomp/prime) of Metroid Prime is currently underway. Contributions are welcome.  
+Separately, a [matching decompilation](https://github.com/PrimeDecomp/prime) of Metroid Prime is currently underway. Contributions are welcome.
 Progress on the decompilation benefits Metaforce with bug fixes and new implementations.
 
 ![Metaforce screenshot](assets/metaforce-screen1.png)
@@ -29,7 +29,7 @@ Windows:
 macOS:
 - Open `Metaforce.app`
 
-Linux: 
+Linux:
 - Ensure AppImage is marked as executable: `chmod +x Metaforce-*.AppImage`
 - Open `Metaforce-*.AppImage`
 
@@ -40,7 +40,7 @@ Linux:
 * `+developer=1`: Enable developer UI
 
 ### Build Prerequisites:
-* [CMake 3.30+](https://cmake.org)
+* [CMake 3.25+](https://cmake.org)
     * Windows: Install `CMake Tools` in Visual Studio
     * macOS: `brew install cmake`
 * [Python 3+](https://python.org)
