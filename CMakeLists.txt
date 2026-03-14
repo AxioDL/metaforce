@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30...4.1)
+cmake_minimum_required(VERSION 3.25...4.1)
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
