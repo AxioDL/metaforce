@@ -17,7 +17,7 @@ constexpr std::array<SSphereJointInfo, 7> kArmCollision{{
     {"Arm_8", 1.f},
     {"Arm_9", 1.f},
     {"Arm_11", 1.f},
-    {"Swoosh_LCTR", 1.5f},
+    {"swoosh_LCTR", 1.5f},
 }};
 
 CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
