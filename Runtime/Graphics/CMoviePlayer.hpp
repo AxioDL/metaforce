@@ -69,9 +69,9 @@ private:
   };
 
   struct CTHPTextureSet {
-    std::array<GXTexObj, 2> Y;
-    GXTexObj U;
-    GXTexObj V;
+    std::array<TGXTexObj, 2> Y;
+    TGXTexObj U;
+    TGXTexObj V;
     u32 playedSamples = 0;
     u32 audioSamples = 0;
     std::unique_ptr<s16[]> audioBuf;

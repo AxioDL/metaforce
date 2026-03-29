@@ -74,7 +74,7 @@ protected:
   bool xe7_30_doTargetDistanceTest : 1 = true;
   bool xe7_31_targetable : 1 = true;
 
-  GXTexObj m_reflectionCube;
+  // GXTexObj m_reflectionCube;
   zeus::CColor m_debugAddColor = zeus::skClear;
   float m_debugAddColorTime = 0.f;
 

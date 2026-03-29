@@ -151,7 +151,7 @@ template <typename T>
 static inline void SetArray(GXAttr attr, std::span<const T> data) noexcept {
   const auto* ptr = static_cast<const void*>(data.data());
   if (ptr != nullptr && sGXState.x0_arrayPtrs[attr - GX_VA_POS] != ptr) {
-    // sGXState.x0_arrayPtrs[attr - GX_VA_POS] = const_cast<void*>(ptr);
+    sGXState.x0_arrayPtrs[attr - GX_VA_POS] = const_cast<void*>(ptr);
     GXSetArray(attr, data.data(), data.size_bytes(), sizeof(T));
   }
 }
@@ -160,9 +160,15 @@ template <typename T, size_t N>
 static inline void SetArray(GXAttr attr, const std::array<T, N>& data) noexcept {
   const auto* ptr = static_cast<const void*>(data.data());
   if (ptr != nullptr && sGXState.x0_arrayPtrs[attr - GX_VA_POS] != ptr) {
-    // sGXState.x0_arrayPtrs[attr - GX_VA_POS] = const_cast<void*>(ptr);
+    sGXState.x0_arrayPtrs[attr - GX_VA_POS] = const_cast<void*>(ptr);
     GXSetArray(attr, ptr, data.size() * sizeof(T), sizeof(T));
   }
+}
+
+// Aurora addition: clear array to force reupload
+static inline void ClearArray(GXAttr attr) noexcept {
+  GXSetArray(attr, nullptr, 0, 0);
+  sGXState.x0_arrayPtrs[attr - GX_VA_POS] = nullptr;
 }
 
 static inline void SetBlendMode(GXBlendMode mode, GXBlendFactor srcFac, GXBlendFactor dstFac, GXLogicOp op) noexcept {

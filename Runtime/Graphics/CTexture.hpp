@@ -83,7 +83,7 @@ private:
   std::unique_ptr<CDumpedBitmapDataReloader> x14_bitmapReloader;
   u32 x18_gxFormat = GX_TF_RGB565;
   GXCITexFmt x1c_gxCIFormat = GX_TF_C8;
-  GXTexObj x20_texObj;
+  TGXTexObj x20_texObj;
   EClampMode x40_clampMode = EClampMode::Repeat;
   std::unique_ptr<u8[]> x44_aramToken_x4_buff; // was CARAMToken
   u32 x64_frameAllocated{};

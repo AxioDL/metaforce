@@ -67,7 +67,7 @@ CTexture::CTexture(CInputStream& in, std::string_view label, EAutoMipmap automip
   InitTextureObjs();
 }
 
-CTexture::~CTexture() { GXDestroyTexObj(&x20_texObj); }
+CTexture::~CTexture() = default;
 
 u8* CTexture::Lock() {
   xa_24_locked = true;
@@ -123,7 +123,7 @@ void CTexture::LoadMipLevel(s32 mip, GXTexMapID id, EClampMode clamp) {
     }
   }
 
-  GXTexObj texObj;
+  TGXTexObj texObj;
   const auto wrap = static_cast<GXTexWrapMode>(clamp);
   GXInitTexObj(&texObj, image_ptr + offset, width, height, static_cast<GXTexFmt>(x18_gxFormat), wrap, wrap, false);
   GXInitTexObjLOD(&texObj, GX_LINEAR, GX_LINEAR, 0.f, 0.f, 0.f, false, false, GX_ANISO_1);
@@ -132,9 +132,6 @@ void CTexture::LoadMipLevel(s32 mip, GXTexMapID id, EClampMode clamp) {
     xa_25_canLoadPalette = false;
   }
   GXLoadTexObj(&texObj, id);
-#ifdef AURORA
-  GXDestroyTexObj(&texObj);
-#endif
   x64_frameAllocated = sCurrentFrameCount;
   sLoadedTextures[id] = nullptr;
 }

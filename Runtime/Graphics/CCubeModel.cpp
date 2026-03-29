@@ -279,6 +279,9 @@ void CCubeModel::SetRenderModelBlack(bool v) {
 }
 
 void CCubeModel::SetSkinningArraysCurrent(TConstVectorRef positions, TConstVectorRef normals) {
+  // Aurora addition: clear current array to force reupload
+  CGX::ClearArray(GX_VA_POS);
+  CGX::ClearArray(GX_VA_NRM);
   CGX::SetArray(GX_VA_POS, positions);
   CGX::SetArray(GX_VA_NRM, normals);
   // colors unused

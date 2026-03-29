@@ -3,6 +3,7 @@
 #include <dolphin/gx.h>
 
 #include <bitset>
+#include <cstring>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>
@@ -19,9 +20,7 @@ constexpr GXColor GX_CLEAR{0, 0, 0, 0};
 inline bool operator==(const GXColor& lhs, const GXColor& rhs) noexcept {
   return lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b && lhs.a == rhs.a;
 }
-inline bool operator!=(const GXColor& lhs, const GXColor& rhs) noexcept {
-  return !(lhs == rhs);
-}
+inline bool operator!=(const GXColor& lhs, const GXColor& rhs) noexcept { return !(lhs == rhs); }
 
 static inline void GXPosition3f32(const zeus::CVector3f& v) { GXPosition3f32(v.x(), v.y(), v.z()); }
 static inline void GXNormal3f32(const zeus::CVector3f& v) { GXNormal3f32(v.x(), v.y(), v.z()); }
@@ -44,3 +43,27 @@ static inline zeus::CColor from_gx_color(GXColor color) {
       static_cast<float>(color.a) / 255.f,
   };
 }
+
+class GXTexObjRAII : public GXTexObj {
+public:
+  GXTexObjRAII() : GXTexObj() {}
+  ~GXTexObjRAII() { GXDestroyTexObj(this); }
+
+  void reset() { GXDestroyTexObj(this); }
+
+  GXTexObjRAII(const GXTexObjRAII&) = delete;
+  GXTexObjRAII& operator=(const GXTexObjRAII&) = delete;
+  GXTexObjRAII(GXTexObjRAII&& o) noexcept : GXTexObj(o) {
+    std::memset(static_cast<GXTexObj*>(&o), 0, sizeof(GXTexObj));
+  }
+  GXTexObjRAII& operator=(GXTexObjRAII&& o) noexcept {
+    if (this != &o) {
+      GXDestroyTexObj(this);
+      std::memcpy(static_cast<GXTexObj*>(this), &o, sizeof(GXTexObj));
+      std::memset(static_cast<GXTexObj*>(&o), 0, sizeof(GXTexObj));
+    }
+    return *this;
+  }
+};
+static_assert(sizeof(GXTexObjRAII) == sizeof(GXTexObj), "GXTexObjRAII should have the same size as GXTexObj");
+using TGXTexObj = GXTexObjRAII;

@@ -1107,7 +1107,7 @@ void CGraphics::SetDefaultVtxAttrFmt() {
 void CGraphics::ResetGfxStates() noexcept { sRenderState.Set(0); }
 
 void CGraphics::LoadDolphinSpareTexture(int width, int height, GXTexFmt fmt, void* data, GXTexMapID texId) {
-  GXTexObj texObj;
+  TGXTexObj texObj;
   GXInitTexObj(&texObj, data != nullptr ? data : mpSpareBuffer, width, height, fmt, GX_CLAMP, GX_CLAMP, GX_DISABLE);
   GXInitTexObjLOD(&texObj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, GX_DISABLE, GX_DISABLE, GX_ANISO_1);
   GXLoadTexObj(&texObj, texId);
@@ -1115,14 +1115,11 @@ void CGraphics::LoadDolphinSpareTexture(int width, int height, GXTexFmt fmt, voi
   // if (texId == GX_TEXMAP7) {
   //   GXInvalidateTexRegion(&mTexRegions[0]);
   // }
-#ifdef AURORA
-  GXDestroyTexObj(&texObj);
-#endif
 }
 
 void CGraphics::LoadDolphinSpareTexture(int width, int height, GXCITexFmt fmt, GXTlut tlut, void* data,
                                         GXTexMapID texId) {
-  GXTexObj texObj;
+  TGXTexObj texObj;
   GXInitTexObjCI(&texObj, data != nullptr ? data : mpSpareBuffer, width, height, fmt, GX_CLAMP, GX_CLAMP, GX_DISABLE,
                  tlut);
   GXInitTexObjLOD(&texObj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, GX_DISABLE, GX_DISABLE, GX_ANISO_1);
@@ -1131,9 +1128,6 @@ void CGraphics::LoadDolphinSpareTexture(int width, int height, GXCITexFmt fmt, G
   // if (texId == GX_TEXMAP7) {
   //   GXInvalidateTexRegion(&mTexRegions[0]);
   // }
-#ifdef AURORA
-  GXDestroyTexObj(&texObj);
-#endif
 }
 
 CGraphics::CRenderState::CRenderState() {

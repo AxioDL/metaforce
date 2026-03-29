@@ -34,7 +34,7 @@ private:
     zeus::CColor m_color;
   };
 
-  GXTexObj m_texture;
+  TGXTexObj m_texture;
 //  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
 //  boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
 //  boo::ObjToken<boo::IShaderDataBinding> m_shadBind;
