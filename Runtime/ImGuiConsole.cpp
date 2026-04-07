@@ -1018,9 +1018,10 @@ void ImGuiConsole::ShowDebugOverlay() {
       ImGuiStringViewText(fmt::format("Uniform size:      {}\n", BytesToString(stats->lastUniformSize)));
       ImGuiStringViewText(fmt::format("Index size:        {}\n", BytesToString(stats->lastIndexSize)));
       ImGuiStringViewText(fmt::format("Storage size:      {}\n", BytesToString(stats->lastStorageSize)));
+      ImGuiStringViewText(fmt::format("Tex upload size:   {}\n", BytesToString(stats->lastTextureUploadSize)));
       ImGuiStringViewText(fmt::format(
-          "Total:             {}\n",
-          BytesToString(stats->lastVertSize + stats->lastUniformSize + stats->lastIndexSize + stats->lastStorageSize)));
+          "Total:             {}\n", BytesToString(stats->lastVertSize + stats->lastUniformSize + stats->lastIndexSize +
+                                                   stats->lastStorageSize + stats->lastTextureUploadSize)));
     }
     if (ShowCornerContextMenu(m_debugOverlayCorner, m_inputOverlayCorner)) {
       m_cvarCommons.m_debugOverlayCorner->fromInteger(m_debugOverlayCorner);

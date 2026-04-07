@@ -200,12 +200,11 @@ void CMapArea::CMapAreaSurface::Draw(TConstVectorRef verts, const CColor& surfCo
         const u8* data = reinterpret_cast<const u8*>(outline);
         outline += ((numVertices + 3) & ~3) / 4;
 
-        // TODO lines
-        // CGX::Begin(GX_LINESTRIP, GX_VTXFMT0, numVertices);
-        // for (u32 v = 0; v < numVertices; ++v) {
-        //   GXPosition1x8(data[v]);
-        // }
-        // CGX::End();
+        CGX::Begin(GX_LINESTRIP, GX_VTXFMT0, numVertices);
+        for (u32 v = 0; v < numVertices; ++v) {
+          GXPosition1x8(data[v]);
+        }
+        CGX::End();
       }
     }
   }

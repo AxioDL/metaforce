@@ -142,8 +142,8 @@ static inline void SetAlphaCompare(GXCompare comp0, u8 ref0, GXAlphaOp op, GXCom
 static inline void SetArray(GXAttr attr, std::span<const u8> data, u8 stride) noexcept {
   const auto* ptr = static_cast<const void*>(data.data());
   if (ptr != nullptr && sGXState.x0_arrayPtrs[attr - GX_VA_POS] != ptr) {
-    // sGXState.x0_arrayPtrs[attr - GX_VA_POS] = const_cast<void*>(ptr);
-    GXSetArray(attr, data.data(), data.size(), stride);
+    sGXState.x0_arrayPtrs[attr - GX_VA_POS] = const_cast<void*>(ptr);
+    GXSetArray(attr, data.data(), data.size(), stride, true);
   }
 }
 
@@ -152,7 +152,7 @@ static inline void SetArray(GXAttr attr, std::span<const T> data) noexcept {
   const auto* ptr = static_cast<const void*>(data.data());
   if (ptr != nullptr && sGXState.x0_arrayPtrs[attr - GX_VA_POS] != ptr) {
     sGXState.x0_arrayPtrs[attr - GX_VA_POS] = const_cast<void*>(ptr);
-    GXSetArray(attr, data.data(), data.size_bytes(), sizeof(T));
+    GXSetArray(attr, data.data(), data.size_bytes(), sizeof(T), true);
   }
 }
 
@@ -161,13 +161,13 @@ static inline void SetArray(GXAttr attr, const std::array<T, N>& data) noexcept 
   const auto* ptr = static_cast<const void*>(data.data());
   if (ptr != nullptr && sGXState.x0_arrayPtrs[attr - GX_VA_POS] != ptr) {
     sGXState.x0_arrayPtrs[attr - GX_VA_POS] = const_cast<void*>(ptr);
-    GXSetArray(attr, ptr, data.size() * sizeof(T), sizeof(T));
+    GXSetArray(attr, ptr, data.size() * sizeof(T), sizeof(T), true);
   }
 }
 
 // Aurora addition: clear array to force reupload
 static inline void ClearArray(GXAttr attr) noexcept {
-  GXSetArray(attr, nullptr, 0, 0);
+  GXSetArray(attr, nullptr, 0, 0, true);
   sGXState.x0_arrayPtrs[attr - GX_VA_POS] = nullptr;
 }
 
