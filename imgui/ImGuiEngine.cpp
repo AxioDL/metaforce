@@ -31,6 +31,7 @@ void ImGuiEngine_Initialize(float scale) {
   ImGui::GetCurrentContext();
   ImGuiIO& io = ImGui::GetIO();
   io.Fonts->Clear();
+  io.FontGlobalScale = scale > 0.0f ? 1.0f / scale : 1.0f;
 
   auto* fontData = ImGui::MemAlloc(NOTO_MONO_FONT_DECOMPRESSED_SZ);
   {
@@ -128,8 +129,6 @@ void ImGuiEngine_Initialize(float scale) {
   colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
   colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
   colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
-
-  style.ScaleAllSizes(scale);
 }
 
 Icon GetIcon() {

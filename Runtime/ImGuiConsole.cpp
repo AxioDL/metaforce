@@ -139,7 +139,7 @@ static void Warp(const CAssetId worldId, TAreaId aId) {
   }
 }
 
-static inline float GetScale() { return ImGui::GetCurrentContext()->CurrentDpiScale; }
+static inline float GetScale() { return 1.f; }
 
 void ImGuiConsole::ShowMenuGame() {
   if (g_Main != nullptr) {
