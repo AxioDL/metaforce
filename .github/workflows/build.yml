@@ -41,7 +41,7 @@ jobs:
             libxss-dev libfuse2
 
       - name: Setup sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
 
       - name: Configure CMake
         run: cmake --preset x-linux-ci-${{matrix.preset}}
@@ -78,7 +78,7 @@ jobs:
           pip3 install --break-system-packages markupsafe
 
       - name: Setup sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
 
       - name: Configure CMake
         run: cmake --preset x-macos-ci
@@ -121,7 +121,7 @@ jobs:
           rustup target add aarch64-apple-ios
 
       - name: Setup sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
 
       - name: Configure CMake
         run: cmake --preset x-ios-ci
@@ -157,7 +157,7 @@ jobs:
           rustup target add --toolchain nightly aarch64-apple-tvos
 
       - name: Setup sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
 
       - name: Configure CMake
         run: cmake --preset x-tvos-ci
@@ -203,7 +203,7 @@ jobs:
         run: echo "VCPKG_ROOT=C:\vcpkg" >> $env:GITHUB_ENV
 
       - name: Setup sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
 
       - name: Install dependencies
         run: |
