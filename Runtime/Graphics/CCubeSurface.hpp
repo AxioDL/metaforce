@@ -44,5 +44,6 @@ public:
   [[nodiscard]] zeus::CAABox GetBounds() const {
     return x1c_extraSize != 0 ? x24_bounds : zeus::CAABox{x0_center, x0_center};
   }
+  [[nodiscard]] bool IsValid() const { return x0_data != nullptr; }
 };
 } // namespace metaforce

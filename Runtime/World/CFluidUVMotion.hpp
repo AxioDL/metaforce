@@ -47,6 +47,9 @@ public:
   CFluidUVMotion(float timeToWrap, float orientation);
 
   const rstl::reserved_vector<SFluidLayerMotion, 3>& GetFluidLayers() const { return x0_fluidLayers; }
+  const SFluidLayerMotion& GetFluidLayerMotion(EFluidUVMotion motion) const {
+    return x0_fluidLayers[static_cast<int>(motion)];
+  }
   float GetOrientation() const { return x50_orientation; }
   float GetOOTimeToWrapTexPage() const { return x4c_ooTimeToWrap; }
 

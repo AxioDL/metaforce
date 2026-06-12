@@ -15,6 +15,7 @@ static const u8* sLastMaterialCached = nullptr;
 static const CCubeModel* sLastModelCached = nullptr;
 static const CCubeModel* sRenderingModel = nullptr;
 static float sReflectionAlpha = 0.f;
+zeus::CVector3f CCubeMaterial::sViewingFrom{};
 
 void CCubeMaterial::SetCurrent(const CModelFlags& flags, const CCubeSurface& surface, CCubeModel& model) {
   if (sLastMaterialCached == x0_data) {

@@ -2163,9 +2163,7 @@ void CPlayerGun::DrawScreenTex(float z) {
   g_Renderer->SetViewportOrtho(false, -1.f, 1.f);
   g_Renderer->SetBlendMode_AlphaBlended();
   CGraphics::SetDepthWriteMode(true, ERglEnum::GEqual, true);
-  u16 width = CGraphics::mViewport.mWidth / 2;
-  u16 height = CGraphics::mViewport.mHeight / 2;
-  CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_RGBA8, nullptr, GX_TEXMAP7);
+  CGraphics::LoadDolphinSpareTexture(320, 224, GX_TF_RGBA8, nullptr, GX_TEXMAP7);
   constexpr std::array vtxDescList{
       GXVtxDescList{GX_VA_POS, GX_DIRECT},
       GXVtxDescList{GX_VA_TEX0, GX_DIRECT},

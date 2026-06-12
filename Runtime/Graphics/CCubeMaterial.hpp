@@ -57,6 +57,8 @@ public:
   static void KillCachedViewDepState();
   static void EnsureTevsDirect();
 
+  static const zeus::CVector3f& GetViewingReflection() { return sViewingFrom; }
+
 private:
   void SetCurrentBlack();
 
@@ -71,5 +73,7 @@ private:
                               u32 finalKColorCount, u32& finalCCFlags, u32& finalACFlags);
   static void DoPassthru(u32 finalTevCount);
   static void DoModelShadow(u32 texCount, u32 tcgCount);
+
+  static zeus::CVector3f sViewingFrom;
 };
 } // namespace metaforce

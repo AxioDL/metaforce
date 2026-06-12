@@ -83,7 +83,7 @@ private:
   std::vector<CLight> x300_dynamicLights;
   u32 x310_phazonSuitMaskCountdown = 0;
   std::unique_ptr<CTexture> x314_phazonSuitMask;
-  bool x318_24_refectionDirty : 1 = false;
+  bool x318_24_reflectionDirty : 1 = false;
   bool x318_25_drawWireframe : 1 = false;
   bool x318_26_requestRGBA6 : 1 = false;
   bool x318_27_currentRGBA6 : 1 = false;
@@ -102,6 +102,8 @@ private:
   void ReallyDrawPhazonSuitIndirectEffect(const zeus::CColor& vertColor, CTexture& maskTex, CTexture& indTex,
                                           const zeus::CColor& modColor, float scale, float offX, float offY);
   void ReallyDrawPhazonSuitEffect(const zeus::CColor& modColor, CTexture& maskTex);
+  static void* GetRenderToTexBuffer(int);
+  void CopyTex(int, bool, void*, GXTexFmt, bool);
   void DoPhazonSuitIndirectAlphaBlur(float blurRadius, float f2);
   void ReallyDrawSpaceWarp(const zeus::CVector3f& pt, float strength);
   void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const CModel* model,
@@ -215,6 +217,13 @@ public:
   void DrawOverlappingWorldModelShadows(s32 alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb);
   void RenderBucketItems(const CAreaListItem* lights);
   void DrawRenderBucketsDebug() {}
+  void RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* model, const zeus::CTransform& modelXf,
+                            const zeus::CTransform& viewXf, const CSkinnedModel* skinnedModel);
+  void DrawFogSlices(const zeus::CPlane* planes, int planeCount, int planeIdx, const zeus::CVector3f& point,
+                     float extent);
+  void DrawFogFans(const zeus::CPlane* planes, int planeCount, const zeus::CVector3f* verts, int vertCount,
+                   int startPlane, int curPlane);
+  void DrawFogFan(const zeus::CVector3f* verts, int vertCount);
 
   void HandleUnsortedModel(CAreaListItem* areaItem, CCubeModel& model, const CModelFlags& flags);
   void HandleUnsortedModelWireframe(CAreaListItem* areaItem, CCubeModel& model);
@@ -226,17 +235,11 @@ public:
 
   // Getters
   [[nodiscard]] bool IsInAreaDraw() const { return x318_30_inAreaDraw; }
-  [[nodiscard]] bool IsReflectionDirty() const { return x318_24_refectionDirty; }
-  void SetReflectionDirty(bool v) { x318_24_refectionDirty = v; }
+  [[nodiscard]] bool IsReflectionDirty() const { return x318_24_reflectionDirty; }
+  void SetReflectionDirty(bool v) { x318_24_reflectionDirty = v; }
   [[nodiscard]] bool IsThermalVisorActive() const { return x318_29_thermalVisor; }
-  CTexture* GetRealReflection() {
-    x2dc_reflectionAge = 0;
-    if (x14c_reflectionTex) {
-      return x14c_reflectionTex.get();
-    }
-
-    return &xe4_blackTex;
-  }
+  CTexture* GetRealReflection();
+  const CTexture& GetZeroTexture() const { return xe4_blackTex; }
 
   static void SetupCGraphicsState();
 };

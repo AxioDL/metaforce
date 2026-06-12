@@ -224,7 +224,7 @@ void CGraphics::SetCullMode(ERglCullMode cullMode) {
 
 void CGraphics::ClearBackAndDepthBuffers() {
   GXInvalidateTexAll();
-  GXSetViewport(0.f, 0.f, mRenderModeObj.fbWidth, mRenderModeObj.xfbHeight, 0.f, 1.f);
+  GXSetViewportRender(0.f, 0.f, mRenderModeObj.fbWidth, mRenderModeObj.xfbHeight, 0.f, 1.f);
   GXInvalidateVtxCache();
 }
 
@@ -630,19 +630,21 @@ void CGraphics::SetViewport(int left, int bottom, int width, int height) {
   mViewport.mHeight = height;
   mViewport.mHalfWidth = static_cast<float>(width / 2);
   mViewport.mHalfHeight = static_cast<float>(height / 2);
-  GXSetViewport(static_cast<float>(mViewport.mLeft), static_cast<float>(mViewport.mTop),
-                static_cast<float>(mViewport.mWidth), static_cast<float>(mViewport.mHeight), mDepthNear, mDepthFar);
+  GXSetViewportRender(static_cast<float>(mViewport.mLeft), static_cast<float>(mViewport.mTop),
+                      static_cast<float>(mViewport.mWidth), static_cast<float>(mViewport.mHeight), mDepthNear,
+                      mDepthFar);
 }
 
 void CGraphics::SetScissor(int left, int bottom, int width, int height) {
-  GXSetScissor(left, mRenderModeObj.efbHeight - (bottom + height), width, height);
+  GXSetScissorRender(left, mRenderModeObj.efbHeight - (bottom + height), width, height);
 }
 
 void CGraphics::SetDepthRange(float nearPlane, float farPlane) {
   mDepthNear = nearPlane;
   mDepthFar = farPlane;
-  GXSetViewport(static_cast<float>(mViewport.mLeft), static_cast<float>(mViewport.mTop),
-                static_cast<float>(mViewport.mWidth), static_cast<float>(mViewport.mHeight), mDepthNear, mDepthFar);
+  GXSetViewportRender(static_cast<float>(mViewport.mLeft), static_cast<float>(mViewport.mTop),
+                      static_cast<float>(mViewport.mWidth), static_cast<float>(mViewport.mHeight), mDepthNear,
+                      mDepthFar);
 }
 
 float CGraphics::GetSecondsMod900() {
@@ -653,7 +655,7 @@ float CGraphics::GetSecondsMod900() {
 }
 
 void CGraphics::TickRenderTimings() {
-  //OPTICK_EVENT();
+  // OPTICK_EVENT();
   mRenderTimings = (mRenderTimings + 1) % (900 * 60);
   mSecondsMod900 = static_cast<float>(mRenderTimings) / 60.f;
 }
@@ -1058,12 +1060,13 @@ void CGraphics::ConfigureFrameBuffer(/*const COsContext& osContext*/) {
   // mRenderModeObj = osContext.GetRenderModeObj();
   // mpFrameBuf1 = osContext.GetFramebuf1();
   // mpFrameBuf2 = osContext.GetFramebuf2();
-  // VIConfigure(&mRenderModeObj);
+  VIConfigure(&mRenderModeObj);
+  AuroraSetViewportPolicy(AURORA_VIEWPORT_NATIVE);
   // VISetNextFrameBuffer(mpFrameBuf1);
   mpCurrenFrameBuf = mpFrameBuf2;
-  GXSetViewport(0.f, 0.f, static_cast<float>(mRenderModeObj.fbWidth), static_cast<float>(mRenderModeObj.efbHeight), 0.f,
-                1.f);
-  GXSetScissor(0, 0, mRenderModeObj.fbWidth, mRenderModeObj.efbHeight);
+  GXSetViewportRender(0.f, 0.f, static_cast<float>(mRenderModeObj.fbWidth),
+                      static_cast<float>(mRenderModeObj.efbHeight), 0.f, 1.f);
+  GXSetScissorRender(0, 0, mRenderModeObj.fbWidth, mRenderModeObj.efbHeight);
   GXSetDispCopySrc(0, 0, mRenderModeObj.fbWidth, mRenderModeObj.efbHeight);
   GXSetDispCopyDst(mRenderModeObj.fbWidth, mRenderModeObj.efbHeight);
   GXSetDispCopyYScale(static_cast<float>(mRenderModeObj.xfbHeight) / static_cast<float>(mRenderModeObj.efbHeight));

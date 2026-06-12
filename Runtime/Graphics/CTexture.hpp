@@ -130,6 +130,7 @@ public:
   [[nodiscard]] bool IsCITexture() const {
     return x0_fmt == ETexelFormat::C4 || x0_fmt == ETexelFormat::C8 || x0_fmt == ETexelFormat::C14X2;
   }
+  void SetLocked(bool b) { xa_24_locked = b; }
 
   static void InvalidateTexMap(GXTexMapID id);
   static void SetMangleMips(bool b) { sMangleMips = b; }

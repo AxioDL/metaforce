@@ -9,9 +9,38 @@
 #include "Runtime/World/CWorld.hpp"
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
+#include "Graphics/CCubeRenderer.hpp"
+#include "Graphics/CGX.hpp"
 
 namespace metaforce {
 constexpr u32 kTableSize = 2048;
+
+struct STexMtx24 {
+  float m[2][4];
+};
+struct SIndMtx23 {
+  float m[2][3];
+};
+struct SEnvMtx34 {
+  float m[3][4];
+};
+struct SFluidTexMtxTable {
+  STexMtx24 pad;
+  STexMtx24 color;
+  STexMtx24 pattern1;
+  STexMtx24 pattern2;
+  SIndMtx23 ind;
+  SEnvMtx34 env;
+};
+static const SFluidTexMtxTable kTexMtxTable = {};
+
+static u8 sFluidSetupInitOnce;
+static u8 sFluidSetupDone;
+static int kMaxTilesInHField = 7;
+
+constexpr bool sRenderFog = true;
+constexpr bool sRenderBumpMaps = true;
+constexpr int sFluidEnvMapType = 2;
 
 CFluidPlaneCPU::CTurbulence::CTurbulence(float speed, float distance, float freqMax, float freqMin, float phaseMax,
                                          float phaseMin, float amplitudeMax, float amplitudeMin)
@@ -67,7 +96,7 @@ CFluidPlaneCPU::CFluidPlaneCPU(CAssetId texPattern1, CAssetId texPattern2, CAsse
 , xfc_bumpScale(bumpScale)
 , x100_tileSize(tileSize)
 , x104_tileSubdivisions(tileSubdivisions & ~0x1)
-, x108_rippleResolution(x100_tileSize / float(x104_tileSubdivisions))
+, x108_rippleResolution(x100_tileSize / static_cast<float>(x104_tileSubdivisions))
 , x10c_specularMin(specularMin)
 , x110_specularMax(specularMax)
 , x114_reflectionBlend(reflectionBlend)
@@ -89,7 +118,7 @@ CFluidPlaneCPU::CFluidPlaneCPU(CAssetId texPattern1, CAssetId texPattern2, CAsse
 void CFluidPlaneCPU::CreateRipple(const CRipple& ripple, CStateManager& mgr) {}
 
 void CFluidPlaneCPU::CalculateLightmapMatrix(const zeus::CTransform& areaXf, const zeus::CTransform& xf,
-                                             const zeus::CAABox& aabb, zeus::CMatrix4f& mtxOut) const {
+                                             const zeus::CAABox& aabb, int idx) const {
   int width = GetLightMap().GetWidth();
   int height = GetLightMap().GetHeight();
 
@@ -106,9 +135,13 @@ void CFluidPlaneCPU::CalculateLightmapMatrix(const zeus::CTransform& areaXf, con
   float scaleY = -(f25 - f29 - f6) / (areaLocalAABB.max.y() - areaLocalAABB.min.y());
   float offX = f24 + f26 * -areaLocalAABB.min.x() / (areaLocalAABB.max.x() - areaLocalAABB.min.x());
   float offY = f25 * areaLocalAABB.min.y() / (areaLocalAABB.max.y() - areaLocalAABB.min.y()) - f6;
-  mtxOut = (zeus::CTransform(zeus::CMatrix3f(zeus::CVector3f(scaleX, scaleY, 0.f)), zeus::CVector3f(offX, offY, 0.f)) *
-            toLocal)
-               .toMatrix4f();
+
+  zeus::CTransform result =
+      zeus::CTransform(zeus::CMatrix3f(zeus::CVector3f(scaleX, scaleY, 0.f)), zeus::CVector3f(offX, offY, 0.f)) *
+      toLocal;
+  float mtx[2][4];
+  result.toCStyleMatrix(mtx);
+  CGX::LoadTexMtxImm(mtx, idx, GX_MTX2x4);
 }
 
 static bool sSineWaveInitialized = false;
@@ -118,165 +151,525 @@ static void InitializeSineWave() {
     return;
   }
   for (size_t i = 0; i < sGlobalSineWave.size(); ++i) {
-    sGlobalSineWave[i] = std::sin(2.f * M_PIF * (float(i) / 256.f));
+    sGlobalSineWave[i] = std::sin(2.f * M_PIF * (static_cast<float>(i) / 256.f));
   }
   sSineWaveInitialized = true;
 }
 
-#define kEnableWaterBumpMaps true
+void CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::CTransform& xf,
+                                 const zeus::CTransform& areaXf, const zeus::CAABox& aabb, const CScriptWater* water) {
+  const SFluidTexMtxTable* tbl = &kTexMtxTable;
 
-// CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha,
-//                                                                const zeus::CTransform& xf,
-//                                                                const zeus::CTransform& areaXf, const zeus::CAABox& aabb,
-//                                                                const CScriptWater* water) {
-//   OPTICK_EVENT();
-//   CFluidPlaneShader::RenderSetupInfo out;
-//
-//   const float uvT = mgr.GetFluidPlaneManager()->GetUVT();
-//   const bool hasBumpMap = HasBumpMap() && kEnableWaterBumpMaps;
-//   bool doubleLightmapBlend = false;
-//   const bool hasEnvMap = mgr.GetCameraManager()->GetFluidCounter() == 0 && HasEnvMap();
-//   const bool hasEnvBumpMap = HasEnvBumpMap();
-//   InitializeSineWave();
-//   CGraphics::SetModelMatrix(xf);
-//
-//   if (hasBumpMap) {
-//     // Build 50% grey directional light with xf0_bumpLightDir and load into LIGHT_3
-//     // Light 3 in channel 1
-//     // Vertex colors in channel 0
-//     out.lights.resize(4);
-//     out.lights[3] = CLight::BuildDirectional(xf0_bumpLightDir, zeus::skGrey);
-//   } else {
-//     // Normal light mask in channel 1
-//     // Vertex colors in channel 0
-//     out.lights = water->GetActorLights()->BuildLightVector();
-//   }
-//
-//   int curTex = 3;
-//
-//   if (hasBumpMap) {
-//     // Load into next
-//     curTex++;
-//   }
-//
-//   if (hasEnvMap) {
-//     // Load into next
-//     curTex++;
-//   }
-//
-//   if (hasEnvBumpMap) {
-//     // Load into next
-//     curTex++;
-//   }
-//
-//   const auto fluidUVs = x4c_uvMotion.CalculateFluidTextureOffset(uvT);
-//
-//   out.texMtxs[0][0][0] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
-//   out.texMtxs[0][1][1] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
-//   out.texMtxs[0][3][0] = fluidUVs[1][0];
-//   out.texMtxs[0][3][1] = fluidUVs[1][1];
-//
-//   out.texMtxs[1][0][0] = x4c_uvMotion.GetFluidLayers()[2].GetUVScale();
-//   out.texMtxs[1][1][1] = x4c_uvMotion.GetFluidLayers()[2].GetUVScale();
-//   out.texMtxs[1][3][0] = fluidUVs[2][0];
-//   out.texMtxs[1][3][1] = fluidUVs[2][1];
-//
-//   out.texMtxs[2][0][0] = x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
-//   out.texMtxs[2][1][1] = x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
-//   out.texMtxs[2][3][0] = fluidUVs[0][0];
-//   out.texMtxs[2][3][1] = fluidUVs[0][1];
-//
-//   // Load normal mtx 0 with
-//   out.normMtx = (zeus::CTransform::Scale(xfc_bumpScale) * CGraphics::mViewMatrix.getRotation().inverse()).toMatrix4f();
-//
-//   // Setup TCGs
-//   int nextTexMtx = 3;
-//
-//   if (hasEnvBumpMap) {
-//     float pttScale;
-//     if (hasEnvMap)
-//       pttScale = 0.5f * (1.f - x118_reflectionSize);
-//     else
-//       pttScale = g_tweakGame->GetFluidEnvBumpScale() * x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
-//
-//     // Load GX_TEXMTX3 with identity
-//     zeus::CMatrix4f& texMtx = out.texMtxs[nextTexMtx++];
-//     texMtx[0][0] = pttScale;
-//     texMtx[1][1] = pttScale;
-//     texMtx[3][0] = 0.5f;
-//     texMtx[3][1] = 0.5f;
-//     // Load GX_PTTEXMTX0 with scale of pttScale
-//     // Next: GX_TG_MTX2x4 GX_TG_NRM, GX_TEXMTX3, true, GX_PTTEXMTX0
-//
-//     out.indScale = 0.5f * (hasEnvMap ? x118_reflectionSize : 1.f);
-//     // Load ind mtx with scale of (indScale, -indScale)
-//     // Load envBumpMap into ind stage 0 with previous TCG
-//   }
-//
-//   if (hasEnvMap) {
-//     float scale = std::max(aabb.max.x() - aabb.min.x(), aabb.max.y() - aabb.min.y());
-//     zeus::CMatrix4f& texMtx = out.texMtxs[nextTexMtx++];
-//     texMtx[0][0] = 1.f / scale;
-//     texMtx[1][1] = 1.f / scale;
-//     zeus::CVector3f center = aabb.center();
-//     texMtx[3][0] = 0.5f + -center.x() / scale;
-//     texMtx[3][1] = 0.5f + -center.y() / scale;
-//     // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
-//   }
-//
-//   if (HasLightMap()) {
-//     float lowLightBlend = 1.f;
-//     const CGameArea* area = mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId());
-//     float lightLevel = area->GetPostConstructed()->x1128_worldLightingLevel;
-//     const CScriptWater* nextWater = water->GetNextConnectedWater(mgr);
-//     if (std::fabs(water->GetMorphFactor()) < 0.00001f || !nextWater || !nextWater->GetFluidPlane().HasLightMap()) {
-//       // Load lightmap
-//       CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
-//       // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
-//     } else if (nextWater && nextWater->GetFluidPlane().HasLightMap()) {
-//       if (std::fabs(water->GetMorphFactor() - 1.f) < 0.00001f) {
-//         // Load lightmap
-//         CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
-//         // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
-//       } else {
-//         // Load lightmap
-//         CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
-//         // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
-//         // Load lightmap
-//         CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
-//         // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
-//
-//         float lum = lightLevel * water->GetMorphFactor();
-//         out.kColors[3] = zeus::CColor(lum, 1.f);
-//         lowLightBlend = (1.f - water->GetMorphFactor()) / (1.f - lum);
-//         doubleLightmapBlend = true;
-//       }
-//     }
-//
-//     out.kColors[2] = zeus::CColor(lowLightBlend * lightLevel, 1.f);
-//   }
-//
-//   float waterPlaneOrthoDot =
-//       xf.transposeRotate(zeus::skUp).dot(CGraphics::mViewMatrix.inverse().transposeRotate(zeus::skForward));
-//   if (waterPlaneOrthoDot < 0.f)
-//     waterPlaneOrthoDot = -waterPlaneOrthoDot;
-//
-//   out.kColors[0] =
-//       zeus::CColor((1.f - waterPlaneOrthoDot) * (x110_specularMax - x10c_specularMin) + x10c_specularMin, alpha);
-//   out.kColors[1] = zeus::CColor(x114_reflectionBlend, 1.f);
-//
-//   if (!m_shader || m_cachedDoubleLightmapBlend != doubleLightmapBlend ||
-//       m_cachedAdditive != (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot)) {
-//     m_cachedDoubleLightmapBlend = doubleLightmapBlend;
-//     m_cachedAdditive = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot;
-// //    m_shader.emplace(x44_fluidType, x10_texPattern1, x20_texPattern2, x30_texColor, xb0_bumpMap, xc0_envMap,
-// //                     xd0_envBumpMap, xe0_lightmap,
-// //                     m_tessellation ? CFluidPlaneManager::RippleMapTex : aurora::gfx::TextureHandle{},
-// //                     m_cachedDoubleLightmapBlend, m_cachedAdditive, m_maxVertCount);
-//   }
-//
-//   return out;
-// }
+  if (!sRenderFog) {
+    return;
+  }
+
+  bool hasBumpMap = false;
+  bool hasDoubleLightmap = false;
+  float uvT = mgr.GetFluidPlaneManager()->GetUVT();
+  if (HasBumpMap() && sRenderBumpMaps) {
+    hasBumpMap = true;
+  }
+  bool hasLightmap = HasLightMap();
+  int envMapType;
+  if (mgr.GetCameraManager()->GetFluidCounter() != 0) {
+    envMapType = 0;
+  } else {
+    bool hasEnv = HasEnvMap();
+    envMapType = sFluidEnvMapType & ((-hasEnv | hasEnv) >> 31);
+  }
+  bool hasEnvBumpMap = HasEnvBumpMap();
+
+  InitializeSineWave();
+
+  g_Renderer->SetModelMatrix(xf);
+
+  constexpr GXColor ambColor = {0, 0, 0, 0};
+  constexpr GXColor white = {0xff, 0xff, 0xff, 0xff};
+
+  if (hasBumpMap) {
+    CColor bumpLightColor(0.5f, 0.5f, 0.5f, 1.f);
+    CLight bumpLight = CLight::BuildDirectional(GetBumpLightDir().normalized(), bumpLightColor);
+    CGraphics::LoadLight(3, bumpLight);
+    CGX::SetNumChans(2);
+    CGX::SetChanCtrl(CGX::EChannelId::Channel1, true, GX_SRC_REG, GX_SRC_REG, GX_LIGHT3, GX_DF_CLAMP, GX_AF_SPOT);
+    CGX::SetChanMatColor(CGX::EChannelId::Channel1, white);
+    CGX::SetChanAmbColor(CGX::EChannelId::Channel1, ambColor);
+    CGX::SetChanCtrl(CGX::EChannelId::Channel0, true, GX_SRC_REG, GX_SRC_VTX, GX_LIGHT_NULL, GX_DF_CLAMP, GX_AF_SPOT);
+    CGX::SetChanMatColor(CGX::EChannelId::Channel0, white);
+    CGX::SetChanAmbColor(CGX::EChannelId::Channel0, ambColor);
+  } else {
+    CGX::SetNumChans(2);
+    CGX::SetChanCtrl(CGX::EChannelId::Channel1, true, GX_SRC_REG, GX_SRC_REG, CGraphics::GetLightMask(), GX_DF_CLAMP,
+                     GX_AF_SPOT);
+    CGX::SetChanMatColor(CGX::EChannelId::Channel1, CGraphics::GetLightMask() != 0 ? white : ambColor);
+    if (hasLightmap) {
+      CGX::SetChanAmbColor(CGX::EChannelId::Channel1, ambColor);
+    }
+    CGX::SetChanCtrl(CGX::EChannelId::Channel0, true, GX_SRC_REG, GX_SRC_VTX, GX_LIGHT_NULL, GX_DF_CLAMP, GX_AF_SPOT);
+    CGX::SetChanMatColor(CGX::EChannelId::Channel0, white);
+    CGX::SetChanAmbColor(CGX::EChannelId::Channel0, ambColor);
+  }
+
+  int nextTexMap = 0;
+  int nextCoord = 0;
+
+  int texMapIds[8];
+  int texCoordIds[8];
+
+  if (HasTexturePattern1()) {
+    const_cast<CTexture&>(GetTexturePattern1()).Load(static_cast<GXTexMapID>(nextTexMap), EClampMode::Repeat);
+  } else {
+    const_cast<CTexture&>(g_Renderer->GetZeroTexture()).Load(static_cast<GXTexMapID>(nextTexMap), EClampMode::Repeat);
+  }
+  texMapIds[0] = nextTexMap;
+  nextTexMap = 1;
+
+  if (HasTexturePattern2()) {
+    const_cast<CTexture&>(GetTexturePattern2()).Load(static_cast<GXTexMapID>(nextTexMap), EClampMode::Repeat);
+  } else {
+    const_cast<CTexture&>(g_Renderer->GetZeroTexture()).Load(static_cast<GXTexMapID>(nextTexMap), EClampMode::Repeat);
+  }
+  texMapIds[1] = nextTexMap;
+  nextTexMap = 2;
+
+  if (HasColorTexture()) {
+    const_cast<CTexture&>(GetColorTexture()).Load(static_cast<GXTexMapID>(nextTexMap), EClampMode::Repeat);
+  } else {
+    const_cast<CTexture&>(g_Renderer->GetZeroTexture()).Load(static_cast<GXTexMapID>(nextTexMap), EClampMode::Repeat);
+  }
+  texMapIds[2] = nextTexMap;
+  nextTexMap = 3;
+
+  if (hasBumpMap) {
+    texMapIds[3] = nextTexMap;
+    const_cast<CTexture&>(GetBumpMap()).Load(static_cast<GXTexMapID>(nextTexMap), EClampMode::Repeat);
+    nextTexMap = 4;
+  }
+
+  if (envMapType != 0) {
+    texMapIds[4] = nextTexMap;
+    const_cast<CTexture&>(GetEnvMap()).Load(static_cast<GXTexMapID>(nextTexMap), EClampMode::Repeat);
+    nextTexMap += 1;
+  }
+
+  if (hasEnvBumpMap) {
+    texMapIds[5] = nextTexMap;
+    const_cast<CTexture&>(GetEnvBumpMap()).Load(static_cast<GXTexMapID>(nextTexMap), EClampMode::Repeat);
+    nextTexMap += 1;
+  }
+
+  const auto uvOffsets = GetUVMotion().CalculateFluidTextureOffset(uvT);
+
+  STexMtx24 colorMtx = tbl->color;
+  colorMtx.m[0][0] = x4c_uvMotion.GetFluidLayerMotion(CFluidUVMotion::EFluidUVMotion::Circular).x14_uvScale;
+  colorMtx.m[1][1] = x4c_uvMotion.GetFluidLayerMotion(CFluidUVMotion::EFluidUVMotion::Circular).x14_uvScale;
+  colorMtx.m[0][3] = uvOffsets[1][0];
+  colorMtx.m[1][3] = uvOffsets[1][1];
+
+  STexMtx24 pattern1Mtx = tbl->pattern1;
+  pattern1Mtx.m[0][0] = x4c_uvMotion.GetFluidLayerMotion(CFluidUVMotion::EFluidUVMotion::Oscillate).x14_uvScale;
+  pattern1Mtx.m[1][1] = x4c_uvMotion.GetFluidLayerMotion(CFluidUVMotion::EFluidUVMotion::Oscillate).x14_uvScale;
+  pattern1Mtx.m[0][3] = uvOffsets[2][0];
+  pattern1Mtx.m[1][3] = uvOffsets[2][1];
+
+  STexMtx24 pattern2Mtx = tbl->pattern2;
+  pattern2Mtx.m[0][0] = x4c_uvMotion.GetFluidLayerMotion(CFluidUVMotion::EFluidUVMotion::Linear).x14_uvScale;
+  pattern2Mtx.m[1][1] = x4c_uvMotion.GetFluidLayerMotion(CFluidUVMotion::EFluidUVMotion::Linear).x14_uvScale;
+  pattern2Mtx.m[0][3] = uvOffsets[0][0];
+  pattern2Mtx.m[1][3] = uvOffsets[0][1];
+
+  GXLoadTexMtxImm(colorMtx.m, GX_TEXMTX0, GX_MTX2x4);
+  GXLoadTexMtxImm(pattern1Mtx.m, GX_TEXMTX1, GX_MTX2x4);
+  GXLoadTexMtxImm(pattern2Mtx.m, GX_TEXMTX2, GX_MTX2x4);
+
+  int texMtx = GX_TEXMTX3;
+
+  if (hasBumpMap) {
+    float bumpScale = GetBumpScale();
+    zeus::CTransform nrmMtxSrc(CGraphics::GetViewMatrix().getRotation().quickInverse());
+    Mtx nrmMtx;
+    nrmMtxSrc.toCStyleMatrix(nrmMtx);
+    MTXScaleApply(nrmMtx, nrmMtx, bumpScale, bumpScale, bumpScale);
+    GXLoadNrmMtxImm(nrmMtx, GX_PNMTX0);
+  }
+
+  texCoordIds[0] = nextCoord;
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_POS, GX_TEXMTX0, false, GX_PTIDENTITY);
+  nextCoord = 1;
+  texCoordIds[1] = nextCoord;
+  CGX::SetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX2x4, GX_TG_POS, GX_TEXMTX1, false, GX_PTIDENTITY);
+  nextCoord = 2;
+  texCoordIds[2] = nextCoord;
+  CGX::SetTexCoordGen(GX_TEXCOORD2, GX_TG_MTX2x4, GX_TG_POS, GX_TEXMTX2, false, GX_PTIDENTITY);
+  nextCoord = 3;
+
+  if (hasBumpMap) {
+    texCoordIds[3] = nextCoord;
+    CGX::SetTexCoordGen(static_cast<GXTexCoordID>(nextCoord), GX_TG_MTX2x4, GX_TG_POS, GX_TEXMTX0, false,
+                        GX_PTIDENTITY);
+    CGX::SetTexCoordGen(static_cast<GXTexCoordID>(nextCoord + 1), GX_TG_BUMP3, GX_TG_TEXCOORD3, GX_IDENTITY, false,
+                        GX_PTIDENTITY);
+    nextCoord = 5;
+  }
+
+  if (hasEnvBumpMap) {
+    float envBumpScale;
+    if (envMapType != 0) {
+      envBumpScale = 0.5f * (1.f - x118_reflectionSize);
+    } else {
+      envBumpScale = g_tweakGame->GetFluidEnvBumpScale() *
+                     GetUVMotion().GetFluidLayerMotion(CFluidUVMotion::EFluidUVMotion::Linear).x14_uvScale;
+    }
+
+    Mtx envBumpMtx;
+    if (envMapType == 0) {
+      MTXIdentity(envBumpMtx);
+    } else {
+      MTXIdentity(envBumpMtx);
+    }
+    GXLoadTexMtxImm(envBumpMtx, GX_TEXMTX3, GX_MTX2x4);
+
+    Mtx postMtx;
+    MTXScale(postMtx, envBumpScale, -envBumpScale, 1.f);
+    postMtx[0][3] = 0.5f;
+    postMtx[1][3] = 0.5f;
+    GXLoadTexMtxImm(postMtx, GX_PTTEXMTX0, GX_MTX3x4);
+
+    texCoordIds[4] = nextCoord;
+    int envBumpCoordIdx = nextCoord;
+    CGX::SetTexCoordGen(static_cast<GXTexCoordID>(nextCoord), GX_TG_MTX2x4, GX_TG_NRM, GX_TEXMTX3, true, GX_PTTEXMTX0);
+    nextCoord += 1;
+    texMtx = GX_TEXMTX4;
+
+    float indScale = 0.5f * (envMapType != 0 ? x118_reflectionSize : 1.f);
+    SIndMtx23 indMtx = tbl->ind;
+    indMtx.m[0][0] = indScale;
+    indMtx.m[1][1] = -indScale;
+    GXSetIndTexMtx(GX_ITM_0, indMtx.m, 1);
+    GXSetIndTexCoordScale(GX_INDTEXSTAGE0, GX_ITS_1, GX_ITS_1);
+    GXSetIndTexOrder(GX_INDTEXSTAGE0, static_cast<GXTexCoordID>(envBumpCoordIdx),
+                     static_cast<GXTexMapID>(texMapIds[5]));
+    CGX::SetNumIndStages(1);
+  }
+
+  if (envMapType != 0) {
+    float envHeight = aabb.max.z() - aabb.min.z();
+    float envWidth = aabb.max.x() - aabb.min.x();
+    float maxDim;
+    if (envWidth < envHeight) {
+      maxDim = envWidth;
+    } else {
+      maxDim = envHeight;
+    }
+    float ooMaxDim = 1.f / maxDim;
+
+    SEnvMtx34 envMtx = tbl->env;
+    envMtx.m[0][0] = ooMaxDim;
+    envMtx.m[1][1] = ooMaxDim;
+    envMtx.m[0][3] = 0.5f + -aabb.center().x() / maxDim;
+    envMtx.m[1][3] = 0.5f + -aabb.center().y() / maxDim;
+
+    GXLoadTexMtxImm(envMtx.m, texMtx, GX_MTX2x4);
+    texCoordIds[5] = nextCoord;
+    CGX::SetTexCoordGen(static_cast<GXTexCoordID>(nextCoord), GX_TG_MTX2x4, GX_TG_POS, static_cast<GXTexMtx>(texMtx),
+                        false, GX_PTIDENTITY);
+    nextCoord += 1;
+    texMtx += 3;
+  }
+
+  if (hasLightmap) {
+    TAreaId areaId = mgr.GetNextAreaId();
+    float lightmapAlpha = 1.f;
+    float darkLevel = mgr.GetWorld()->GetAreaAlways(areaId)->GetPostConstructed()->x1128_worldLightingLevel;
+
+    const CScriptWater* nextWater = water->GetNextConnectedWater(mgr);
+
+    if (zeus::close_enough(water->GetMorphFactor(), 0.f) || nextWater == nullptr ||
+        !nextWater->GetFluidPlane().HasLightMap()) {
+      texMapIds[6] = nextTexMap;
+      xe0_lightmap->Load(static_cast<GXTexMapID>(nextTexMap), EClampMode::Repeat);
+      CalculateLightmapMatrix(areaXf, xf, aabb, texMtx);
+      texCoordIds[6] = nextCoord;
+      CGX::SetTexCoordGen(static_cast<GXTexCoordID>(nextCoord), GX_TG_MTX2x4, GX_TG_POS, static_cast<GXTexMtx>(texMtx),
+                          false, GX_PTIDENTITY);
+      nextCoord += 1;
+    } else if (nextWater != nullptr && nextWater->GetFluidPlane().HasLightMap()) {
+      if (zeus::close_enough(water->GetMorphFactor(), 1.f)) {
+        texMapIds[6] = nextTexMap;
+        nextWater->GetFluidPlane().xe0_lightmap->Load(static_cast<GXTexMapID>(nextTexMap), EClampMode::Repeat);
+        nextWater->GetFluidPlane().CalculateLightmapMatrix(areaXf, xf, aabb, texMtx);
+        texCoordIds[6] = nextCoord;
+        CGX::SetTexCoordGen(static_cast<GXTexCoordID>(nextCoord), GX_TG_MTX2x4, GX_TG_POS,
+                            static_cast<GXTexMtx>(texMtx), false, GX_PTIDENTITY);
+        nextCoord += 1;
+      } else {
+        texMapIds[6] = nextTexMap;
+        xe0_lightmap->Load(static_cast<GXTexMapID>(nextTexMap), EClampMode::Repeat);
+        CalculateLightmapMatrix(areaXf, xf, aabb, texMtx);
+
+        nextTexMap += 1;
+        texMapIds[7] = nextTexMap;
+        const_cast<CTexture&>(nextWater->GetFluidPlane().GetLightMap())
+            .Load(static_cast<GXTexMapID>(nextTexMap), EClampMode::Repeat);
+        nextWater->GetFluidPlane().CalculateLightmapMatrix(areaXf, xf, aabb, texMtx + 3);
+        texCoordIds[6] = nextCoord;
+        CGX::SetTexCoordGen(static_cast<GXTexCoordID>(nextCoord), GX_TG_MTX2x4, GX_TG_POS,
+                            static_cast<GXTexMtx>(texMtx), false, GX_PTIDENTITY);
+        texCoordIds[7] = nextCoord + 1;
+        CGX::SetTexCoordGen(static_cast<GXTexCoordID>(nextCoord + 1), GX_TG_MTX2x4, GX_TG_POS,
+                            static_cast<GXTexMtx>(texMtx + 3), false, GX_PTIDENTITY);
+        nextCoord += 2;
+
+        float morphVal = darkLevel * water->GetMorphFactor();
+        lightmapAlpha = (1.f - water->GetMorphFactor()) / (1.f - morphVal);
+        CColor kColor3(morphVal, morphVal, morphVal, 1.f);
+        CGX::SetTevKColor(GX_KCOLOR3, to_gx_color(kColor3));
+        hasDoubleLightmap = true;
+      }
+    }
+    float lightmapVal = lightmapAlpha * darkLevel;
+    CColor kColor2(lightmapVal, lightmapVal, lightmapVal, 1.f);
+    CGX::SetTevKColor(GX_KCOLOR2, to_gx_color(kColor2));
+  }
+
+  CVector3f upVec(0.f, 0.f, 1.f);
+  CVector3f xfUp(xf.transposeRotate(upVec));
+  float xfUpX = xfUp.x();
+  float xfUpY = xfUp.y();
+  float xfUpZ = xfUp.z();
+  CVector3f camUp(0.f, 1.f, 0.f);
+  zeus::CTransform invView(CGraphics::GetViewMatrix().quickInverse());
+  CVector3f viewUp(invView.transposeRotate(camUp));
+  float dot = xfUpX * viewUp.x() + xfUpY * viewUp.y() + xfUpZ * viewUp.z();
+  if (dot < 0.f) {
+    dot = -dot;
+  }
+  float specular = (1.f - dot) * (GetSpecularMax() - GetSpecularMin()) + GetSpecularMin();
+  float specularAlpha;
+  if (envMapType == 2) {
+    specularAlpha = 1.f;
+  } else {
+    specularAlpha = alpha;
+  }
+  CColor kColor0(specular, specular, specular, specularAlpha);
+  CGX::SetTevKColor(GX_KCOLOR0, to_gx_color(kColor0));
+
+  float reflBlend = GetReflectionBlend();
+  CColor kColor1(reflBlend, reflBlend, reflBlend, 1.f);
+  CGX::SetTevKColor(GX_KCOLOR1, to_gx_color(kColor1));
+
+  CGX::SetNumTexGens(static_cast<u8>(nextCoord));
+
+  EFluidType fluidType = GetFluidType();
+  int nextStage = 0;
+
+  switch (fluidType) {
+  case EFluidType::NormalWater:
+  case EFluidType::PhazonFluid:
+  case EFluidType::Four: {
+    int curStage = 0;
+    if (hasLightmap) {
+      GXChannelID lightmapChan = GX_COLOR1A1;
+      GXTevColorArg lightmapRasc = GX_CC_RASC;
+      if (hasDoubleLightmap) {
+        lightmapChan = GX_COLOR_NULL;
+        lightmapRasc = GX_CC_ZERO;
+      }
+      CGX::SetTevOrder(GX_TEVSTAGE0, static_cast<GXTexCoordID>(texCoordIds[6]), static_cast<GXTexMapID>(texMapIds[6]),
+                       lightmapChan);
+      CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, lightmapRasc);
+      CGX::SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVREG2);
+      CGX::SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K2);
+      curStage = 1;
+      if (hasDoubleLightmap) {
+        CGX::SetTevOrder(GX_TEVSTAGE1, static_cast<GXTexCoordID>(texCoordIds[7]), static_cast<GXTexMapID>(texMapIds[7]),
+                         GX_COLOR1A1);
+        CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_C2, GX_CC_TEXC, GX_CC_KONST, GX_CC_RASC);
+        CGX::SetTevColorOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVREG2);
+        CGX::SetTevKColorSel(GX_TEVSTAGE1, GX_TEV_KCSEL_K3);
+        curStage = 2;
+      }
+    }
+    CGX::SetTevOrder(static_cast<GXTevStageID>(curStage), static_cast<GXTexCoordID>(texCoordIds[0]),
+                     static_cast<GXTexMapID>(texMapIds[0]), GX_COLOR1A1);
+    CGX::SetTevColorIn(static_cast<GXTevStageID>(curStage), GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, GX_CC_RASC);
+    CGX::SetTevColorOp(static_cast<GXTevStageID>(curStage), GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+    CGX::SetTevKColorSel(static_cast<GXTevStageID>(curStage), GX_TEV_KCSEL_K0);
+    CGX::SetTevOrder(static_cast<GXTevStageID>(curStage + 1), static_cast<GXTexCoordID>(texCoordIds[1]),
+                     static_cast<GXTexMapID>(texMapIds[1]), GX_COLOR0A0);
+    CGX::SetTevColorIn(static_cast<GXTevStageID>(curStage + 1), GX_CC_ZERO, GX_CC_TEXC, GX_CC_CPREV, GX_CC_RASC);
+    CGX::SetTevColorOp(static_cast<GXTevStageID>(curStage + 1), GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true,
+                       GX_TEVPREV);
+    CGX::SetTevOrder(static_cast<GXTevStageID>(curStage + 2), static_cast<GXTexCoordID>(texCoordIds[2]),
+                     static_cast<GXTexMapID>(texMapIds[2]), GX_COLOR1A1);
+    GXTevColorArg colorRasc = GX_CC_RASC;
+    if (hasLightmap) {
+      colorRasc = GX_CC_C2;
+    }
+    CGX::SetTevColorIn(static_cast<GXTevStageID>(curStage + 2), GX_CC_ZERO, GX_CC_TEXC, colorRasc, GX_CC_CPREV);
+    CGX::SetTevColorOp(static_cast<GXTevStageID>(curStage + 2), GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true,
+                       GX_TEVPREV);
+    if (envMapType == 0 && hasEnvBumpMap) {
+      CGX::SetTevIndirect(static_cast<GXTevStageID>(curStage + 2), GX_INDTEXSTAGE0, GX_ITF_8, GX_ITB_STU, GX_ITM_0,
+                          GX_ITW_OFF, GX_ITW_OFF, false, false, GX_ITBA_OFF);
+    }
+    nextStage = curStage + 3;
+    if (envMapType > 0) {
+      CGX::SetTevOrder(static_cast<GXTevStageID>(nextStage), static_cast<GXTexCoordID>(texCoordIds[5]),
+                       static_cast<GXTexMapID>(texMapIds[4]), GX_COLOR_NULL);
+      GXTevColorArg envD = GX_CC_TEXC;
+      GXTevColorArg envC = GX_CC_ZERO;
+      GXTevColorArg envB = GX_CC_ZERO;
+      GXTevColorArg envA = GX_CC_ZERO;
+      if (envMapType == 1) {
+        envD = GX_CC_ZERO;
+        envC = GX_CC_KONST;
+        envB = GX_CC_TEXC;
+        envA = GX_CC_CPREV;
+      }
+      CGX::SetTevColorIn(static_cast<GXTevStageID>(nextStage), envA, envB, envC, envD);
+      CGX::SetTevColorOp(static_cast<GXTevStageID>(nextStage), GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+      CGX::SetTevKColorSel(static_cast<GXTevStageID>(nextStage), GX_TEV_KCSEL_K1);
+      CGX::SetTevIndirect(static_cast<GXTevStageID>(nextStage), GX_INDTEXSTAGE0, GX_ITF_8, GX_ITB_STU, GX_ITM_0,
+                          GX_ITW_OFF, GX_ITW_OFF, false, false, GX_ITBA_OFF);
+      nextStage = curStage + 4;
+    }
+    break;
+  }
+  case EFluidType::PoisonWater: {
+    if (hasLightmap) {
+      GXChannelID lightmapChan = GX_COLOR1A1;
+      GXTevColorArg lightmapRasc = GX_CC_RASC;
+      if (hasDoubleLightmap) {
+        lightmapChan = GX_COLOR_NULL;
+        lightmapRasc = GX_CC_ZERO;
+      }
+      CGX::SetTevOrder(GX_TEVSTAGE0, static_cast<GXTexCoordID>(texCoordIds[6]), static_cast<GXTexMapID>(texMapIds[6]),
+                       lightmapChan);
+      CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, lightmapRasc);
+      CGX::SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVREG2);
+      CGX::SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K2);
+      nextStage = 1;
+      if (hasDoubleLightmap) {
+        CGX::SetTevOrder(GX_TEVSTAGE1, static_cast<GXTexCoordID>(texCoordIds[7]), static_cast<GXTexMapID>(texMapIds[7]),
+                         GX_COLOR1A1);
+        CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_C2, GX_CC_TEXC, GX_CC_KONST, GX_CC_RASC);
+        CGX::SetTevColorOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVREG2);
+        CGX::SetTevKColorSel(GX_TEVSTAGE1, GX_TEV_KCSEL_K3);
+        nextStage = 2;
+      }
+    }
+    CGX::SetTevOrder(static_cast<GXTevStageID>(nextStage), static_cast<GXTexCoordID>(texCoordIds[0]),
+                     static_cast<GXTexMapID>(texMapIds[0]), GX_COLOR1A1);
+    CGX::SetTevColorIn(static_cast<GXTevStageID>(nextStage), GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, GX_CC_RASC);
+    CGX::SetTevColorOp(static_cast<GXTevStageID>(nextStage), GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+    CGX::SetTevKColorSel(static_cast<GXTevStageID>(nextStage), GX_TEV_KCSEL_K0);
+    CGX::SetTevOrder(static_cast<GXTevStageID>(nextStage + 1), static_cast<GXTexCoordID>(texCoordIds[1]),
+                     static_cast<GXTexMapID>(texMapIds[1]), GX_COLOR0A0);
+    CGX::SetTevColorIn(static_cast<GXTevStageID>(nextStage + 1), GX_CC_ZERO, GX_CC_TEXC, GX_CC_CPREV, GX_CC_RASC);
+    CGX::SetTevColorOp(static_cast<GXTevStageID>(nextStage + 1), GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true,
+                       GX_TEVPREV);
+    CGX::SetTevOrder(static_cast<GXTevStageID>(nextStage + 2), static_cast<GXTexCoordID>(texCoordIds[2]),
+                     static_cast<GXTexMapID>(texMapIds[2]), GX_COLOR1A1);
+    GXTevColorArg pColorRasc = GX_CC_RASC;
+    if (hasLightmap) {
+      pColorRasc = GX_CC_C2;
+    }
+    CGX::SetTevColorIn(static_cast<GXTevStageID>(nextStage + 2), GX_CC_ZERO, GX_CC_TEXC, pColorRasc, GX_CC_CPREV);
+    CGX::SetTevColorOp(static_cast<GXTevStageID>(nextStage + 2), GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true,
+                       GX_TEVPREV);
+    if (hasEnvBumpMap) {
+      CGX::SetTevIndirect(static_cast<GXTevStageID>(nextStage + 2), GX_INDTEXSTAGE0, GX_ITF_8, GX_ITB_STU, GX_ITM_0,
+                          GX_ITW_OFF, GX_ITW_OFF, false, false, GX_ITBA_OFF);
+    }
+    nextStage += 3;
+    break;
+  }
+  case EFluidType::Lava: {
+    CGX::SetTevOrder(GX_TEVSTAGE0, static_cast<GXTexCoordID>(texCoordIds[0]), static_cast<GXTexMapID>(texMapIds[0]),
+                     GX_COLOR0A0);
+    CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, GX_CC_RASC);
+    CGX::SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+    CGX::SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K0);
+    CGX::SetTevOrder(GX_TEVSTAGE1, static_cast<GXTexCoordID>(texCoordIds[1]), static_cast<GXTexMapID>(texMapIds[1]),
+                     GX_COLOR0A0);
+    CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_TEXC, GX_CC_CPREV, GX_CC_RASC);
+    CGX::SetTevColorOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+    CGX::SetTevOrder(GX_TEVSTAGE2, static_cast<GXTexCoordID>(texCoordIds[2]), static_cast<GXTexMapID>(texMapIds[2]),
+                     GX_COLOR_NULL);
+    CGX::SetTevColorIn(GX_TEVSTAGE2, GX_CC_ZERO, GX_CC_TEXC, GX_CC_ONE, GX_CC_CPREV);
+    CGX::SetTevColorOp(GX_TEVSTAGE2, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+    nextStage = 3;
+    if (hasBumpMap) {
+      CGX::SetTevOrder(GX_TEVSTAGE3, static_cast<GXTexCoordID>(texCoordIds[3]), static_cast<GXTexMapID>(texMapIds[3]),
+                       GX_COLOR_NULL);
+      CGX::SetTevColorIn(GX_TEVSTAGE3, GX_CC_ZERO, GX_CC_TEXC, GX_CC_ONE, GX_CC_HALF);
+      CGX::SetTevColorOp(GX_TEVSTAGE3, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, false, GX_TEVREG0);
+      CGX::SetTevOrder(GX_TEVSTAGE4, static_cast<GXTexCoordID>(texCoordIds[3] + 1),
+                       static_cast<GXTexMapID>(texMapIds[3]), GX_COLOR_NULL);
+      CGX::SetTevColorIn(GX_TEVSTAGE4, GX_CC_ZERO, GX_CC_TEXC, GX_CC_ONE, GX_CC_C0);
+      CGX::SetTevColorOp(GX_TEVSTAGE4, GX_TEV_SUB, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVREG0);
+      CGX::SetTevOrder(GX_TEVSTAGE5, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR_NULL);
+      CGX::SetTevColorIn(GX_TEVSTAGE5, GX_CC_ZERO, GX_CC_CPREV, GX_CC_C0, GX_CC_ZERO);
+      CGX::SetTevColorOp(GX_TEVSTAGE5, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_2, true, GX_TEVPREV);
+      nextStage = 6;
+    }
+    break;
+  }
+  case EFluidType::ThickLava: {
+    CGX::SetTevOrder(GX_TEVSTAGE0, static_cast<GXTexCoordID>(texCoordIds[0]), static_cast<GXTexMapID>(texMapIds[0]),
+                     GX_COLOR0A0);
+    CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_TEXC, GX_CC_KONST, GX_CC_RASC);
+    CGX::SetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+    CGX::SetTevKColorSel(GX_TEVSTAGE0, GX_TEV_KCSEL_K0);
+    CGX::SetTevOrder(GX_TEVSTAGE1, static_cast<GXTexCoordID>(texCoordIds[1]), static_cast<GXTexMapID>(texMapIds[1]),
+                     GX_COLOR0A0);
+    CGX::SetTevColorIn(GX_TEVSTAGE1, GX_CC_ZERO, GX_CC_TEXC, GX_CC_CPREV, GX_CC_RASC);
+    CGX::SetTevColorOp(GX_TEVSTAGE1, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+    CGX::SetTevOrder(GX_TEVSTAGE2, static_cast<GXTexCoordID>(texCoordIds[2]), static_cast<GXTexMapID>(texMapIds[2]),
+                     GX_COLOR_NULL);
+    CGX::SetTevColorIn(GX_TEVSTAGE2, GX_CC_ZERO, GX_CC_TEXC, GX_CC_ONE, GX_CC_CPREV);
+    CGX::SetTevColorOp(GX_TEVSTAGE2, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+    nextStage = 3;
+    if (hasBumpMap) {
+      CGX::SetTevOrder(GX_TEVSTAGE3, static_cast<GXTexCoordID>(texCoordIds[3]), static_cast<GXTexMapID>(texMapIds[3]),
+                       GX_COLOR_NULL);
+      CGX::SetTevColorIn(GX_TEVSTAGE3, GX_CC_ZERO, GX_CC_TEXC, GX_CC_CPREV, GX_CC_ZERO);
+      CGX::SetTevColorOp(GX_TEVSTAGE3, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_2, true, GX_TEVPREV);
+      nextStage = 4;
+    }
+    break;
+  }
+  default: {
+    if (!sFluidSetupInitOnce) {
+      sFluidSetupDone = 0;
+      sFluidSetupInitOnce = 1;
+    }
+    if (!sFluidSetupDone) {
+      sFluidSetupDone = 1;
+    }
+    break;
+  }
+  }
+
+  CGX::SetNumTevStages(static_cast<u8>(nextStage));
+  int lastStage = nextStage - 1;
+  CGX::SetTevAlphaIn(static_cast<GXTevStageID>(lastStage), GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_KONST);
+  CGX::SetTevAlphaOp(static_cast<GXTevStageID>(lastStage), GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, true, GX_TEVPREV);
+  CGX::SetTevKAlphaSel(static_cast<GXTevStageID>(lastStage), GX_TEV_KASEL_K0_A);
+
+  if (mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot) {
+    GXBlendMode bm = (alpha == 1.f) ? GX_BM_NONE : GX_BM_BLEND;
+    CGX::SetBlendMode(bm, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
+  } else {
+    CGX::SetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ONE, GX_LO_CLEAR);
+  }
+
+  CGX::SetZMode(true, GX_LEQUAL, false);
+  CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
+  GXSetCullMode(GX_CULL_NONE);
+}
 
 int CFluidPlaneRender::numTilesInHField;
 int CFluidPlaneRender::numSubdivisionsInTile;
@@ -284,7 +677,8 @@ int CFluidPlaneRender::numSubdivisionsInHField;
 
 bool CFluidPlaneCPU::PrepareRipple(const CRipple& ripple, const CFluidPlaneRender::SPatchInfo& info,
                                    CFluidPlaneRender::SRippleInfo& rippleOut) {
-  auto lifeIdx = int((1.f - (ripple.GetTimeFalloff() - ripple.GetTime()) / ripple.GetTimeFalloff()) * 64.f);
+  auto lifeIdx =
+      static_cast<int>((1.f - (ripple.GetTimeFalloff() - ripple.GetTime()) / ripple.GetTimeFalloff()) * 64.f);
   float dist = CFluidPlaneManager::RippleMaxs[lifeIdx] * (ripple.GetDistanceFalloff() / 256.f);
   dist *= dist;
   if (dist != 0)
@@ -292,14 +686,14 @@ bool CFluidPlaneCPU::PrepareRipple(const CRipple& ripple, const CFluidPlaneRende
   dist = info.x24_ooRippleResolution * dist + 1.f;
   float centerX = info.x24_ooRippleResolution * (ripple.GetCenter().x() - info.xc_globalMin.x());
   float centerY = info.x24_ooRippleResolution * (ripple.GetCenter().y() - info.xc_globalMin.y());
-  int fromX = int(centerX - dist) - 1;
-  int toX = int(centerX + dist) + 1;
-  int fromY = int(centerY - dist) - 1;
-  int toY = int(centerY + dist) + 1;
+  int fromX = static_cast<int>(centerX - dist) - 1;
+  int toX = static_cast<int>(centerX + dist) + 1;
+  int fromY = static_cast<int>(centerY - dist) - 1;
+  int toY = static_cast<int>(centerY + dist) + 1;
   rippleOut.x4_fromX = std::max(0, fromX);
-  rippleOut.x8_toX = std::min(int(info.x0_xSubdivs), toX);
+  rippleOut.x8_toX = std::min(static_cast<int>(info.x0_xSubdivs), toX);
   rippleOut.xc_fromY = std::max(0, fromY);
-  rippleOut.x10_toY = std::min(int(info.x1_ySubdivs), toY);
+  rippleOut.x10_toY = std::min(static_cast<int>(info.x1_ySubdivs), toY);
   rippleOut.x14_gfromX = std::max(rippleOut.x14_gfromX, fromX);
   rippleOut.x18_gtoX = std::min(rippleOut.x18_gtoX, toX);
   rippleOut.x1c_gfromY = std::max(rippleOut.x1c_gfromY, fromY);
@@ -343,7 +737,7 @@ void CFluidPlaneCPU::ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInf
                   (1.f - rippleInfo.x0_ripple.GetTime() * rippleInfo.x0_ripple.GetOOTimeFalloff() *
                              rippleInfo.x0_ripple.GetOOTimeFalloff()) *
                   rippleInfo.x0_ripple.GetFrequency();
-  auto lifeIdx = int(64.f * rippleInfo.x0_ripple.GetTime() * rippleInfo.x0_ripple.GetOOTimeFalloff());
+  auto lifeIdx = static_cast<int>(64.f * rippleInfo.x0_ripple.GetTime() * rippleInfo.x0_ripple.GetOOTimeFalloff());
   float distMul = rippleInfo.x0_ripple.GetDistanceFalloff() / 255.f;
   float minDist = CFluidPlaneManager::RippleMins[lifeIdx] * distMul;
   float minDistSq = minDist * minDist;
@@ -410,10 +804,10 @@ void CFluidPlaneCPU::ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInf
             }
 
             float divDist = (divDistSq != 0.f) ? std::sqrt(divDistSq) : 0.f;
-            if (u8 rippleV = CFluidPlaneManager::RippleValues[lifeIdx][int(divDist * distFalloff)]) {
+            if (u8 rippleV = CFluidPlaneManager::RippleValues[lifeIdx][static_cast<int>(divDist * distFalloff)]) {
               heights[k][l].height +=
                   rippleV * rippleInfo.x0_ripple.GetLookupAmplitude() *
-                  sineWave[size_t(divDist * rippleInfo.x0_ripple.GetLookupPhase() + lookupT) & 0xff];
+                  sineWave[static_cast<size_t>(divDist * rippleInfo.x0_ripple.GetLookupPhase() + lookupT) & 0xff];
             } else {
               heights[k][l].height += 0.f;
             }
@@ -429,20 +823,24 @@ void CFluidPlaneCPU::ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInf
         int xMin = nextXDiv - 1;
         int xMax = nextXDiv - CFluidPlaneRender::numSubdivisionsInTile + 1;
 
-        if (curGridX >= 0.f && curGridX < info.x2a_gridDimX && curGridY - info.x2a_gridDimX >= 0 &&
-            !info.x30_gridFlags[curGridX + curGridY - info.x2a_gridDimX])
+        if (curGridX >= 0 && curGridX < static_cast<int>(info.x2a_gridDimX) &&
+            curGridY - static_cast<int>(info.x2a_gridDimX) >= 0 &&
+            !info.x30_gridFlags[curGridX + curGridY - static_cast<int>(info.x2a_gridDimX)]) {
           yMax -= 2;
-
-        if (curGridX >= 0.f && curGridX < info.x2a_gridDimX && curGridY + info.x2a_gridDimX < gridCells &&
-            !info.x30_gridFlags[curGridX + info.x2a_gridDimX])
+        }
+        if (curGridX >= 0 && curGridX < static_cast<int>(info.x2a_gridDimX) &&
+            curGridY + static_cast<int>(info.x2a_gridDimX) < gridCells &&
+            !info.x30_gridFlags[curGridX + curGridY + static_cast<int>(info.x2a_gridDimX)]) {
           yMin += 2;
-
-        if (curGridY >= 0 && curGridY < info.x2c_gridDimY && curGridX > 0 && !info.x30_gridFlags[curGridX - 1])
+        }
+        if (curGridY >= 0 && curGridY < static_cast<int>(info.x2c_gridDimY) && curGridX > 0 &&
+            !info.x30_gridFlags[curGridY + curGridX - 1]) {
           xMax -= 2;
-
-        if (curGridY >= 0 && curGridY < info.x2c_gridDimY && curGridX + 1 < info.x2a_gridDimX &&
-            !info.x30_gridFlags[curGridX + 1])
+        }
+        if (curGridY >= 0 && curGridY < static_cast<int>(info.x2c_gridDimY) &&
+            curGridX + 1 < static_cast<int>(info.x2a_gridDimX) && !info.x30_gridFlags[curGridY + curGridX + 1]) {
           xMin += 2;
+        }
 
         for (int k = curYDiv; k <= std::min(rippleInfo.x10_toY, nextYDiv - 1);
              ++k, curYMod -= info.x18_rippleResolution) {
@@ -462,10 +860,10 @@ void CFluidPlaneCPU::ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInf
               }
 
               float divDist = (divDistSq != 0.f) ? std::sqrt(divDistSq) : 0.f;
-              if (u8 rippleV = CFluidPlaneManager::RippleValues[lifeIdx][int(divDist * distFalloff)]) {
+              if (u8 rippleV = CFluidPlaneManager::RippleValues[lifeIdx][static_cast<int>(divDist * distFalloff)]) {
                 heights[k][l].height +=
                     rippleV * rippleInfo.x0_ripple.GetLookupAmplitude() *
-                    sineWave[size_t(divDist * rippleInfo.x0_ripple.GetLookupPhase() + lookupT) & 0xff];
+                    sineWave[static_cast<size_t>(divDist * rippleInfo.x0_ripple.GetLookupPhase() + lookupT) & 0xff];
               } else {
                 heights[k][l].height += 0.f;
               }
@@ -522,7 +920,8 @@ void CFluidPlaneCPU::UpdatePatchNoNormals(Heights& heights, const Flags& flags,
           for (int l = r11; l < x28; ++l) {
             CFluidPlaneRender::SHFieldSample& sample = heights[k][l];
             if (sample.height > 0.f)
-              sample.wavecapIntensity = u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+              sample.wavecapIntensity =
+                  static_cast<u8>(std::min(255, static_cast<int>(info.x38_wavecapIntensityScale * sample.height)));
             else
               sample.wavecapIntensity = 0;
           }
@@ -533,7 +932,8 @@ void CFluidPlaneCPU::UpdatePatchNoNormals(Heights& heights, const Flags& flags,
           int halfSubdivs = CFluidPlaneRender::numSubdivisionsInTile / 2;
           CFluidPlaneRender::SHFieldSample& sample = heights[halfSubdivs + r9][halfSubdivs + r11];
           if (sample.height > 0.f)
-            sample.wavecapIntensity = u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+            sample.wavecapIntensity =
+                static_cast<u8>(std::min(255, static_cast<int>(info.x38_wavecapIntensityScale * sample.height)));
           else
             sample.wavecapIntensity = 0;
         }
@@ -542,7 +942,8 @@ void CFluidPlaneCPU::UpdatePatchNoNormals(Heights& heights, const Flags& flags,
           for (int l = r11; l < x28; ++l) {
             CFluidPlaneRender::SHFieldSample& sample = heights[r9][l];
             if (sample.height > 0.f)
-              sample.wavecapIntensity = u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+              sample.wavecapIntensity =
+                  static_cast<u8>(std::min(255, static_cast<int>(info.x38_wavecapIntensityScale * sample.height)));
             else
               sample.wavecapIntensity = 0;
           }
@@ -552,7 +953,8 @@ void CFluidPlaneCPU::UpdatePatchNoNormals(Heights& heights, const Flags& flags,
           for (int k = r9 + 1; k < x24; ++k) {
             CFluidPlaneRender::SHFieldSample& sample = heights[k][r11];
             if (sample.height > 0.f)
-              sample.wavecapIntensity = u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+              sample.wavecapIntensity =
+                  static_cast<u8>(std::min(255, static_cast<int>(info.x38_wavecapIntensityScale * sample.height)));
             else
               sample.wavecapIntensity = 0;
           }
@@ -593,11 +995,12 @@ void CFluidPlaneCPU::UpdatePatchWithNormals(Heights& heights, const Flags& flags
             if (normalizer != 0.f)
               normalizer = std::sqrt(normalizer);
             normalizer = 63.f / normalizer;
-            sample.nx = s8(nx * normalizer);
-            sample.ny = s8(ny * normalizer);
-            sample.nz = s8(nz * normalizer);
+            sample.nx = static_cast<s8>(nx * normalizer);
+            sample.ny = static_cast<s8>(ny * normalizer);
+            sample.nz = static_cast<s8>(nz * normalizer);
             if (sample.height > 0.f)
-              sample.wavecapIntensity = u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+              sample.wavecapIntensity =
+                  static_cast<u8>(std::min(255, static_cast<int>(info.x38_wavecapIntensityScale * sample.height)));
             else
               sample.wavecapIntensity = 0;
           }
@@ -620,11 +1023,12 @@ void CFluidPlaneCPU::UpdatePatchWithNormals(Heights& heights, const Flags& flags
             if (normalizer != 0.f)
               normalizer = std::sqrt(normalizer);
             normalizer = 63.f / normalizer;
-            sample.nx = s8(nx * normalizer);
-            sample.ny = s8(ny * normalizer);
-            sample.nz = s8(nz * normalizer);
+            sample.nx = static_cast<s8>(nx * normalizer);
+            sample.ny = static_cast<s8>(ny * normalizer);
+            sample.nz = static_cast<s8>(nz * normalizer);
             if (sample.height > 0.f)
-              sample.wavecapIntensity = u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+              sample.wavecapIntensity =
+                  static_cast<u8>(std::min(255, static_cast<int>(info.x38_wavecapIntensityScale * sample.height)));
             else
               sample.wavecapIntensity = 0;
           }
@@ -645,11 +1049,12 @@ void CFluidPlaneCPU::UpdatePatchWithNormals(Heights& heights, const Flags& flags
               if (normalizer != 0.f)
                 normalizer = std::sqrt(normalizer);
               normalizer = 63.f / normalizer;
-              sample.nx = s8(nx * normalizer);
-              sample.ny = s8(ny * normalizer);
-              sample.nz = s8(nz * normalizer);
+              sample.nx = static_cast<s8>(nx * normalizer);
+              sample.ny = static_cast<s8>(ny * normalizer);
+              sample.nz = static_cast<s8>(nz * normalizer);
               if (sample.height > 0.f)
-                sample.wavecapIntensity = u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+                sample.wavecapIntensity =
+                    static_cast<u8>(std::min(255, static_cast<int>(info.x38_wavecapIntensityScale * sample.height)));
               else
                 sample.wavecapIntensity = 0;
             }
@@ -666,11 +1071,12 @@ void CFluidPlaneCPU::UpdatePatchWithNormals(Heights& heights, const Flags& flags
               if (normalizer != 0.f)
                 normalizer = std::sqrt(normalizer);
               normalizer = 63.f / normalizer;
-              sample.nx = s8(nx * normalizer);
-              sample.ny = s8(ny * normalizer);
-              sample.nz = s8(nz * normalizer);
+              sample.nx = static_cast<s8>(nx * normalizer);
+              sample.ny = static_cast<s8>(ny * normalizer);
+              sample.nz = static_cast<s8>(nz * normalizer);
               if (sample.height > 0.f)
-                sample.wavecapIntensity = u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+                sample.wavecapIntensity =
+                    static_cast<u8>(std::min(255, static_cast<int>(info.x38_wavecapIntensityScale * sample.height)));
               else
                 sample.wavecapIntensity = 0;
             }
@@ -686,11 +1092,12 @@ void CFluidPlaneCPU::UpdatePatchWithNormals(Heights& heights, const Flags& flags
             if (normalizer != 0.f)
               normalizer = std::sqrt(normalizer);
             normalizer = 63.f / normalizer;
-            sample.nx = s8(nx * normalizer);
-            sample.ny = s8(ny * normalizer);
-            sample.nz = s8(nz * normalizer);
+            sample.nx = static_cast<s8>(nx * normalizer);
+            sample.ny = static_cast<s8>(ny * normalizer);
+            sample.nz = static_cast<s8>(nz * normalizer);
             if (sample.height > 0.f)
-              sample.wavecapIntensity = u8(std::min(255, int(info.x38_wavecapIntensityScale * sample.height)));
+              sample.wavecapIntensity =
+                  static_cast<u8>(std::min(255, static_cast<int>(info.x38_wavecapIntensityScale * sample.height)));
             else
               sample.wavecapIntensity = 0;
           }
@@ -741,29 +1148,36 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
                             const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
                             const std::optional<CRippleManager>& rippleManager, TUniqueId waterId,
                             const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) {
+  if (!sRenderFog) {
+    return;
+  }
+
   SCOPED_GRAPHICS_DEBUG_GROUP("CFluidPlaneCPU::Render", zeus::skCyan);
   TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(waterId);
-  // CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, areaXf, aabb, water.GetPtr());
+  RenderSetup(mgr, alpha, xf, areaXf, aabb, water);
 
-  // if (!m_shader->isReady())
-  //   return;
+  CGX::ResetVtxDescv();
 
   CFluidPlaneRender::NormalMode normalMode;
-  if (xb0_bumpMap && kEnableWaterBumpMaps)
+  if (HasBumpMap() && sRenderBumpMaps) {
     normalMode = CFluidPlaneRender::NormalMode::NBT;
-  else if (!noNormals)
+  } else if (!noNormals) {
     normalMode = CFluidPlaneRender::NormalMode::Normals;
-  else
+  } else {
     normalMode = CFluidPlaneRender::NormalMode::NoNormals;
+  }
 
-  // Set Position and color format
+  CGX::SetVtxDesc(GX_VA_POS, GX_DIRECT);
+  CGX::SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
 
   switch (normalMode) {
   case CFluidPlaneRender::NormalMode::NBT:
-    // Set NBT format
+    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_NBT, GX_CLR_RGBA, GX_RGB8, 6);
+    GXSetVtxDesc(GX_VA_NBT, GX_DIRECT);
     break;
   case CFluidPlaneRender::NormalMode::Normals:
-    // Set Normal format
+    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_CLR_RGB, GX_RGB8, 6);
+    CGX::SetVtxDesc(GX_VA_NRM, GX_DIRECT);
     break;
   default:
     break;
@@ -771,7 +1185,7 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
 
   float rippleResolutionRecip = 1.f / x108_rippleResolution;
   CFluidPlaneRender::numSubdivisionsInTile = x104_tileSubdivisions;
-  CFluidPlaneRender::numTilesInHField = std::min(7, 42 / CFluidPlaneRender::numSubdivisionsInTile);
+  CFluidPlaneRender::numTilesInHField = std::min(kMaxTilesInHField, 42 / CFluidPlaneRender::numSubdivisionsInTile);
   CFluidPlaneRender::numSubdivisionsInHField =
       CFluidPlaneRender::numTilesInHField * CFluidPlaneRender::numSubdivisionsInTile;
 
@@ -807,19 +1221,6 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
   u32 patchDimX = (water && water->GetPatchDimensionX()) ? water->GetPatchDimensionX() : 128;
   u32 patchDimY = (water && water->GetPatchDimensionY()) ? water->GetPatchDimensionY() : 128;
 
-  // m_verts.clear();
-  // m_pVerts.clear();
-  if (m_tessellation) {
-    /* Additional uniform data for tessellation evaluation shader */
-    zeus::CColor colorMul;
-    colorMul.r() = wavecapIntensityScale / 255.f / float(1 << redShift);
-    colorMul.g() = wavecapIntensityScale / 255.f / float(1 << greenShift);
-    colorMul.b() = wavecapIntensityScale / 255.f / float(1 << blueShift);
-    // m_shader->prepareDraw(setupInfo, xf.origin, *rippleManager, colorMul, x108_rippleResolution / 4.f);
-  } else {
-    // m_shader->prepareDraw(setupInfo);
-  }
-
   u32 tileY = 0;
   float curY = aabb.min.y();
   for (int i = 0; curY < aabb.max.y() && i < patchDimY; ++i) {
@@ -828,9 +1229,10 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
     float _remDivsY = (aabb.max.y() - curY) * rippleResolutionRecip;
     for (int j = 0; curX < aabb.max.x() && j < patchDimX; ++j) {
       if (u8 renderFlags = water->GetPatchRenderFlags(j, i)) {
-        s16 remDivsX = std::min(s16((aabb.max.x() - curX) * rippleResolutionRecip),
-                                s16(CFluidPlaneRender::numSubdivisionsInHField));
-        s16 remDivsY = std::min(s16(_remDivsY), s16(CFluidPlaneRender::numSubdivisionsInHField));
+        s16 remDivsX = std::min(static_cast<s16>((aabb.max.x() - curX) * rippleResolutionRecip),
+                                static_cast<s16>(CFluidPlaneRender::numSubdivisionsInHField));
+        s16 remDivsY =
+            std::min(static_cast<s16>(_remDivsY), static_cast<s16>(CFluidPlaneRender::numSubdivisionsInHField));
         zeus::CVector3f localMax(x108_rippleResolution * remDivsX + curX, x108_rippleResolution * remDivsY + curY,
                                  aabb.max.z());
         zeus::CVector3f localMin(curX, curY, aabb.min.z());
@@ -856,8 +1258,8 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
             toY = info.x1_ySubdivs;
 
           bool noRipples = UpdatePatch(mgr.GetFluidPlaneManager()->GetUVT(), info, lc_heights, lc_flags, areaCenter,
-                                       rippleManager, fromX, toX, fromY, toY);
-          // RenderPatch(info, lc_heights, lc_flags, noRipples, renderFlags == 1, m_verts, m_pVerts);
+                                       *rippleManager, fromX, toX, fromY, toY);
+          RenderPatch(info, lc_heights, lc_flags, noRipples, renderFlags == 1);
         }
       }
       curX += ripplePitch.x();
@@ -867,8 +1269,41 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
     tileY += CFluidPlaneRender::numTilesInHField;
   }
 
-  // m_shader->loadVerts(m_verts, m_pVerts);
-  // m_shader->doneDrawing();
+  GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_NBT, GX_CLR_RGBA, GX_F32, 6);
+  GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_NRM, GX_CLR_RGB, GX_F32, 6);
+  GXSetVtxDesc(GX_VA_NBT, GX_NONE);
+  GXSetCullMode(GX_CULL_FRONT);
+  RenderCleanup();
+}
+
+void CFluidPlaneCPU::RenderCleanup() const {
+  if (!sRenderFog) {
+    return;
+  }
+
+  CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_TEX0, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
+  CGX::SetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX3x4, GX_TG_TEX1, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
+  CGX::SetTexCoordGen(GX_TEXCOORD2, GX_TG_MTX3x4, GX_TG_TEX2, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
+  CGX::SetTexCoordGen(GX_TEXCOORD3, GX_TG_MTX3x4, GX_TG_TEX3, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
+  CGX::SetTexCoordGen(GX_TEXCOORD4, GX_TG_MTX3x4, GX_TG_TEX4, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
+  CGX::SetTexCoordGen(GX_TEXCOORD5, GX_TG_MTX3x4, GX_TG_TEX5, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
+  CGX::SetTexCoordGen(GX_TEXCOORD6, GX_TG_MTX3x4, GX_TG_TEX6, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
+
+  CGX::SetTevDirect(GX_TEVSTAGE3);
+  CGX::SetTevDirect(GX_TEVSTAGE6);
+
+  CGX::SetNumIndStages(0);
+
+  CGX::ResetVtxDescv();
+
+  float mtx[3][4];
+  CGraphics::GetViewMatrix().getRotation().quickInverse().toCStyleMatrix(mtx);
+  GXLoadNrmMtxImm(mtx, GX_PNMTX0);
+
+  CGX::SetChanCtrl(CGX::EChannelId::Channel1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_CLAMP, GX_AF_SPOT);
+  CGX::SetNumChans(1);
+
+  CGraphics::SetLightState(CGraphics::GetLightMask());
 }
 
 } // namespace metaforce

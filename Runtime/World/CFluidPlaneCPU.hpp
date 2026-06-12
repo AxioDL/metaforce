@@ -79,6 +79,9 @@ protected:
   bool UpdatePatch(float time, const CFluidPlaneRender::SPatchInfo& info, Heights& heights, Flags& flags,
                    const zeus::CVector3f& areaCenter, const std::optional<CRippleManager>& rippleManager, int fromX,
                    int toX, int fromY, int toY) const;
+  void CalculateLightmapMtx(const zeus::CTransform& areaXf, const zeus::CTransform& xf, const zeus::CAABox& aabb,
+                            int idx);
+  void RenderCleanup() const;
 
 public:
   CFluidPlaneCPU(CAssetId texPattern1, CAssetId texPattern2, CAssetId texColor, CAssetId bumpMap, CAssetId envMap,
@@ -90,10 +93,9 @@ public:
                  float reflectionSize, float rippleIntensity, u32 maxVertCount);
   void CreateRipple(const CRipple& ripple, CStateManager& mgr);
   void CalculateLightmapMatrix(const zeus::CTransform& areaXf, const zeus::CTransform& xf, const zeus::CAABox& aabb,
-                               zeus::CMatrix4f& mtxOut) const;
-  // CFluidPlaneShader::RenderSetupInfo RenderSetup(const CStateManager& mgr, float, const zeus::CTransform& xf,
-  //                                                const zeus::CTransform& areaXf, const zeus::CAABox& aabb,
-  //                                                const CScriptWater* water);
+                               int idx) const;
+  void RenderSetup(const CStateManager& mgr, float, const zeus::CTransform& xf, const zeus::CTransform& areaXf,
+                   const zeus::CAABox& aabb, const CScriptWater* water);
   void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
               const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
               const std::optional<CRippleManager>& rippleManager, TUniqueId waterId, const bool* gridFlags,

@@ -244,7 +244,13 @@ static inline void SetFog(GXFogType type, float startZ, float endZ, float nearZ,
   GXSetFog(type, startZ, endZ, nearZ, farZ, fogColor);
 }
 
-void SetIndTexMtxSTPointFive(GXIndTexMtxID id, s8 scaleExp) noexcept;
+static inline void SetIndTexMtxSTPointFive(GXIndTexMtxID id, s8 scaleExp) noexcept {
+  static const float indMtx[2][3] = {
+      {0.5f, 0.f, 0.f},
+      {0.f, 0.5f, 0.f},
+  };
+  GXSetIndTexMtx(id, indMtx, scaleExp);
+}
 
 void SetLineWidth(u8 width, GXTexOffset offset) noexcept;
 
@@ -382,8 +388,14 @@ static inline void SetStandardDirectTev_Compressed(GXTevStageID stageId, u32 col
 static inline void SetTevIndirect(GXTevStageID stageId, GXIndTexStageID indStage, GXIndTexFormat fmt,
                                   GXIndTexBiasSel biasSel, GXIndTexMtxID mtxSel, GXIndTexWrap wrapS, GXIndTexWrap wrapT,
                                   GXBool addPrev, GXBool indLod, GXIndTexAlphaSel alphaSel) noexcept {
-  // TODO
-  GXSetTevIndirect(stageId, indStage, fmt, biasSel, mtxSel, wrapS, wrapT, addPrev, indLod, alphaSel);
+  auto& state = sGXState.x68_tevStates[stageId];
+  uint flags = MaskAndShiftLeft(indStage, 3, 0) | MaskAndShiftLeft(fmt, 3, 2) | MaskAndShiftLeft(biasSel, 7, 4) |
+               MaskAndShiftLeft(mtxSel, 15, 7) | MaskAndShiftLeft(wrapS, 7, 11) | MaskAndShiftLeft(wrapT, 7, 14) |
+               MaskAndShiftLeft(addPrev, 1, 17) | MaskAndShiftLeft(indLod, 1, 18) | MaskAndShiftLeft(alphaSel, 3, 19);
+  if (state.x10_indFlags != flags) {
+    state.x10_indFlags = flags;
+    GXSetTevIndirect(stageId, indStage, fmt, biasSel, mtxSel, wrapS, wrapT, addPrev, indLod, alphaSel);
+  }
 }
 
 static inline void SetTevIndWarp(GXTevStageID stageId, GXIndTexStageID indStage, GXBool signedOffset,
@@ -478,6 +490,24 @@ static inline void SetVtxDescv(const GXVtxDescList* descList) noexcept {
   SetVtxDescv_Compressed(flags);
 }
 
+static inline void SetVtxDesc(GXAttr attr, GXAttrType type) noexcept {
+  uint lshift = (attr - GX_VA_POS) * 2;
+  uint rshift = 3 << lshift;
+  uint flags = type << lshift;
+  if (flags != (sGXState.x48_descList & rshift)) {
+    sGXState.x48_descList = flags | (sGXState.x48_descList & ~rshift);
+    GXSetVtxDesc(attr, type);
+  }
+}
+
+static inline void ResetVtxDescv() noexcept {
+  static const GXVtxDescList vtxDescList[2] = {
+      {GX_VA_POS, GX_INDEX16},
+      {GX_VA_NULL, GX_NONE},
+  };
+  SetVtxDescv(vtxDescList);
+}
+
 static inline void SetZMode(GXBool compareEnable, GXCompare func, GXBool updateEnable) noexcept {
   u32 flags = (func & 0xFF) << 2 | (u8(updateEnable) << 1) | (u8(compareEnable) & 1);
   auto& state = sGXState.x52_zmode;
@@ -507,5 +537,9 @@ static inline void GetFog(GXFogType* fogType, float* fogStartZ, float* fogEndZ, 
   if (fogColor != nullptr) {
     *fogColor = sGXState.x25c_fogColor;
   }
+}
+
+static inline void LoadTexMtxImm(const float mtx[][4], unsigned long id, GXTexMtxType type) {
+  GXLoadTexMtxImm(mtx, id, type);
 }
 } // namespace metaforce::CGX

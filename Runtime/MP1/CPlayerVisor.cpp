@@ -12,6 +12,8 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
+#include <cmath>
+
 namespace metaforce::MP1 {
 
 CPlayerVisor::CPlayerVisor(CStateManager&) {
@@ -366,7 +368,10 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   const zeus::CTransform seventeenScale = zeus::CTransform::Scale(17.f * vpScale, 1.f, 17.f * vpScale);
   const zeus::CTransform mm = seventeenScale * windowScale;
   g_Renderer->SetModelMatrix(mm);
-  CGraphics::LoadDolphinSpareTexture(vpW, vpH, GX_TF_RGB565, CGraphics::mpSpareBuffer, GX_TEXMAP0);
+
+  const float logicalScale = CGraphics::GetViewportHeight() / 448.f;
+  CGraphics::LoadDolphinSpareTexture(std::lround(vpW / logicalScale), std::lround(vpH / logicalScale), GX_TF_RGB565,
+                                     CGraphics::mpSpareBuffer, GX_TEXMAP0);
 
   if (x108_newScanPane) {
     SCOPED_GRAPHICS_DEBUG_GROUP("x108_newScanPane Draw", zeus::skMagenta);

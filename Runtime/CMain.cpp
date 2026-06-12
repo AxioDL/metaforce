@@ -514,8 +514,8 @@ static void aurora_log_callback(AuroraLogLevel level, const char* module, const 
   spdlog::log(severity, "[{}] {}", module, view);
   if (level == LOG_FATAL) {
     spdlog::default_logger()->flush();
-    auto msg = fmt::format("Metaforce encountered an internal error:\n\n{}", view);
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Metaforce", msg.c_str(), metaforce::g_window);
+    // auto msg = fmt::format("Metaforce encountered an internal error:\n\n{}", view);
+    // SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Metaforce", msg.c_str(), metaforce::g_window);
     std::abort();
   }
 }
@@ -581,7 +581,8 @@ int main(int argc, char** argv) {
 
     const AuroraConfig config{
         .appName = "Metaforce",
-        .configPath = configPath.c_str(),
+        .userPath = configPath.c_str(),
+        .cachePath = configPath.c_str(),
         .desiredBackend = metaforce::backend_from_string(cvarCmns.getGraphicsApi()),
         .msaa = cvarCmns.getSamples(),
         .maxTextureAnisotropy = static_cast<uint16_t>(cvarCmns.getAnisotropy()),
