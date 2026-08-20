@@ -30,7 +30,7 @@ CThardusRockProjectile::CThardusRockProjectile(TUniqueId uid, std::string_view n
                                                const zeus::CTransform& xf, CModelData&& modelData,
                                                const CActorParameters& aParms, const CPatternedInfo& patternedInfo,
                                                std::vector<CStaticRes>&& mDataVec, CAssetId stateMachine, float f1)
-: CPatterned(ECharacter::ThardusRockProjectile, uid, name, EFlavorType::Zero, info, xf, std::move(modelData),
+: CPatterned(EPatternedAI::ThardusRockProjectile, uid, name, EFlavorType::Zero, info, xf, std::move(modelData),
              patternedInfo, EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, aParms,
              EKnockBackVariant::Medium)
 , x57c_(std::move(mDataVec))

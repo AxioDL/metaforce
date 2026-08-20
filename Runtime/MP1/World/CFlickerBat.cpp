@@ -14,7 +14,7 @@ CFlickerBat::CFlickerBat(TUniqueId uid, std::string_view name, CPatterned::EFlav
                          const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                          EColliderType colType, bool startsHidden, const CActorParameters& actParms,
                          bool enableLineOfSight)
-: CPatterned(ECharacter::FlickerBat, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
+: CPatterned(EPatternedAI::FlickerBat, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              colType, EBodyType::Pitchable, actParms, EKnockBackVariant::Small)
 , x574_state(EFlickerBatState(startsHidden))
 , x580_27_enableLOSCheck(enableLineOfSight) {

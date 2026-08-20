@@ -18,7 +18,7 @@ CEyeball::CEyeball(TUniqueId uid, std::string_view name, CPatterned::EFlavorType
                    float attackStartTime, CAssetId wpscId, const CDamageInfo& dInfo, CAssetId beamContactFxId,
                    CAssetId beamPulseFxId, CAssetId beamTextureId, CAssetId beamGlowTextureId, u32 anim0, u32 anim1,
                    u32 anim2, u32 anim3, u32 beamSfx, bool attackDisabled, const CActorParameters& actParms)
-: CPatterned(ECharacter::EyeBall, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
+: CPatterned(EPatternedAI::EyeBall, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              EColliderType::Zero, EBodyType::Restricted, actParms, EKnockBackVariant::Medium)
 , x568_attackDelay(attackDelay)
 , x56c_attackStartTime(attackStartTime)

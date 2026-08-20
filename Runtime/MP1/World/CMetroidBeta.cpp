@@ -39,7 +39,7 @@ CMetroidBetaData::CMetroidBetaData(CInputStream& in)
 CMetroidBeta::CMetroidBeta(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& aParms,
                            const CMetroidBetaData& metroidData)
-: CPatterned(ECharacter::MetroidBeta, uid, name, EFlavorType::One, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::MetroidBeta, uid, name, EFlavorType::One, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, aParms, EKnockBackVariant::Large)
 , x56c_metroidBetaData(metroidData)
 , x67c_pathFind(nullptr, 3, pInfo.GetPathfindingIndex(), 1.f, 1.f)

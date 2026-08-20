@@ -306,7 +306,7 @@ void CFlyingPirate::CFlyingPirateRagDoll::Update(CStateManager& mgr, float dt, f
 CFlyingPirate::CFlyingPirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                              CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
                              CInputStream& in, u32 propCount)
-: CPatterned(ECharacter::FlyingPirate, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::FlyingPirate, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Ground, EColliderType::One, EBodyType::NewFlyer, actParms, EKnockBackVariant::Medium)
 , x568_data(in, propCount)
 , x6a0_24_isFlyingPirate(x568_data.x8_type == EFlyingPirateType::FlyingPirate)

@@ -287,7 +287,7 @@ CMetroidPrime::CMetroidPrime(
     const CCameraShakeData& shakeData5, const SPrimeProjectileInfo& projectileInfo, const CDamageInfo& dInfo3,
     const CCameraShakeData& shakeData6, CAssetId particle2, CAssetId swoosh, CAssetId particle3, CAssetId particle4,
     const rstl::reserved_vector<SPrimeStruct6, 4>& struct6s)
-: CPatterned(ECharacter::MetroidPrimeExo, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::MetroidPrimeExo, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, aParms, EKnockBackVariant::Large)
 , x588_(struct6s)
 , x8e8_headUpAdditiveBodyAnimIndex(

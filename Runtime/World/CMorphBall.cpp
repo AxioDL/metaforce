@@ -27,7 +27,7 @@ CVar* mb_spooderBall = nullptr;
 bool mb_spooderBallCached = false;
 float kSpiderBallCollisionRadius;
 
-constexpr std::array<std::pair<const char*, u32>, 8> kBallCharacterTable{{
+constexpr std::array<std::pair<const char*, u32>, 8> skNormalBalls{{
     {"SamusBallANCS", 0},
     {"SamusBallANCS", 0},
     {"SamusBallANCS", 1},
@@ -38,7 +38,7 @@ constexpr std::array<std::pair<const char*, u32>, 8> kBallCharacterTable{{
     {"SamusFusionBallANCS", 3},
 }};
 
-constexpr std::array<std::pair<const char*, u32>, 8> kBallLowPolyTable{{
+constexpr std::array<std::pair<const char*, u32>, 8> skNormalLowPolyBalls{{
     {"SamusBallLowPolyCMDL", 0},
     {"SamusBallLowPolyCMDL", 0},
     {"SamusBallLowPolyCMDL", 1},
@@ -49,7 +49,7 @@ constexpr std::array<std::pair<const char*, u32>, 8> kBallLowPolyTable{{
     {"SamusBallFusionLowPolyCMDL", 3},
 }};
 
-constexpr std::array<std::pair<const char*, u32>, 8> kSpiderBallLowPolyTable{{
+constexpr std::array<std::pair<const char*, u32>, 8> skLowPolySpiderBalls{{
     {"SamusSpiderBallLowPolyCMDL", 0},
     {"SamusSpiderBallLowPolyCMDL", 0},
     {"SamusSpiderBallLowPolyCMDL", 1},
@@ -60,7 +60,7 @@ constexpr std::array<std::pair<const char*, u32>, 8> kSpiderBallLowPolyTable{{
     {"SamusBallFusionLowPolyCMDL", 3},
 }};
 
-constexpr std::array<std::pair<const char*, u32>, 8> kSpiderBallCharacterTable{{
+constexpr std::array<std::pair<const char*, u32>, 8> skSpiderBalls{{
     {"SamusSpiderBallANCS", 0},
     {"SamusSpiderBallANCS", 0},
     {"SamusSpiderBallANCS", 1},
@@ -71,7 +71,7 @@ constexpr std::array<std::pair<const char*, u32>, 8> kSpiderBallCharacterTable{{
     {"SamusFusionBallANCS", 3},
 }};
 
-constexpr std::array<std::pair<const char*, u32>, 8> kSpiderBallGlassTable{{
+constexpr std::array<std::pair<const char*, u32>, 8> skGlassModels{{
     {"SamusSpiderBallGlassCMDL", 0},
     {"SamusSpiderBallGlassCMDL", 0},
     {"SamusSpiderBallGlassCMDL", 1},
@@ -91,7 +91,7 @@ constexpr std::array<u32, 8> kBallGlowColorIdxTable{
 };
 
 /* Maps material index to effect in generator array */
-constexpr std::array<s32, 32> skWakeEffectMap{
+constexpr std::array<s32, 32> skMaterialToWakeIndex{
     -1, -1, -1, -1, -1, -1, -1,
     0, // Phazon
     2, // Dirt
@@ -2000,7 +2000,7 @@ void CMorphBall::CollidedWith(TUniqueId id, const CCollisionInfoList& list, CSta
 
           wakeMaterial = tmpMaterial;
           if (tmpMaterial != EMaterialTypes::NoStepLogic) {
-            int mappedIdx = skWakeEffectMap[size_t(tmpMaterial)];
+            int mappedIdx = skMaterialToWakeIndex[size_t(tmpMaterial)];
 
             // Phazon
             if (mappedIdx == 0) {
@@ -2271,15 +2271,15 @@ void CMorphBall::LoadMorphBallModel(CStateManager& mgr) {
   if (loadModelId != x4_loadedModelId) {
     x4_loadedModelId = loadModelId;
     if (spiderBall) {
-      x58_ballModel = GetMorphBallModel(kSpiderBallCharacterTable[modelIdx].first, xc_radius);
-      x5c_ballModelShader = kSpiderBallCharacterTable[modelIdx].second;
+      x58_ballModel = GetMorphBallModel(skSpiderBalls[modelIdx].first, xc_radius);
+      x5c_ballModelShader = skSpiderBalls[modelIdx].second;
 
-      x68_lowPolyBallModel = GetMorphBallModel(kSpiderBallLowPolyTable[modelIdx].first, xc_radius);
-      x6c_lowPolyBallModelShader = kSpiderBallLowPolyTable[modelIdx].second;
+      x68_lowPolyBallModel = GetMorphBallModel(skLowPolySpiderBalls[modelIdx].first, xc_radius);
+      x6c_lowPolyBallModelShader = skLowPolySpiderBalls[modelIdx].second;
 
-      if (kSpiderBallGlassTable[modelIdx].first) {
-        x60_spiderBallGlassModel = GetMorphBallModel(kSpiderBallGlassTable[modelIdx].first, xc_radius);
-        x64_spiderBallGlassModelShader = kSpiderBallGlassTable[modelIdx].second;
+      if (skGlassModels[modelIdx].first) {
+        x60_spiderBallGlassModel = GetMorphBallModel(skGlassModels[modelIdx].first, xc_radius);
+        x64_spiderBallGlassModelShader = skGlassModels[modelIdx].second;
       } else {
         x60_spiderBallGlassModel.reset();
         x64_spiderBallGlassModelShader = 0;
@@ -2287,11 +2287,11 @@ void CMorphBall::LoadMorphBallModel(CStateManager& mgr) {
 
       x8_ballGlowColorIdx = kSpiderBallGlowColorIdxTable[modelIdx];
     } else {
-      x58_ballModel = GetMorphBallModel(kBallCharacterTable[modelIdx].first, xc_radius);
-      x5c_ballModelShader = kBallCharacterTable[modelIdx].second;
+      x58_ballModel = GetMorphBallModel(skNormalBalls[modelIdx].first, xc_radius);
+      x5c_ballModelShader = skNormalBalls[modelIdx].second;
 
-      x68_lowPolyBallModel = GetMorphBallModel(kBallLowPolyTable[modelIdx].first, xc_radius);
-      x6c_lowPolyBallModelShader = kBallLowPolyTable[modelIdx].second;
+      x68_lowPolyBallModel = GetMorphBallModel(skNormalLowPolyBalls[modelIdx].first, xc_radius);
+      x6c_lowPolyBallModelShader = skNormalLowPolyBalls[modelIdx].second;
 
       x8_ballGlowColorIdx = kBallGlowColorIdxTable[modelIdx];
     }

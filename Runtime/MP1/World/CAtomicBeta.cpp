@@ -22,7 +22,7 @@ CAtomicBeta::CAtomicBeta(TUniqueId uid, std::string_view name, const CEntityInfo
                          CAssetId electricId, CAssetId weaponId, const CDamageInfo& dInfo, CAssetId particleId,
                          float f1, float beamRadius, float f3, const CDamageVulnerability& dVuln, float f4, float f5,
                          float f6, s16 sId1, s16 sId2, s16 sId3, float f7)
-: CPatterned(ECharacter::AtomicBeta, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::AtomicBeta, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::RestrictedFlyer, actParms, EKnockBackVariant::Small)
 , x578_minSpeed(f5)
 , x57c_maxSpeed(f6)

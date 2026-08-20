@@ -19,7 +19,7 @@
 #include <zeus/CVector3f.hpp>
 
 #ifndef DEFINE_PATTERNED
-#define DEFINE_PATTERNED(type) DEFINE_ENTITY static constexpr ECharacter CharacterType = ECharacter::type
+#define DEFINE_PATTERNED(type) DEFINE_ENTITY static constexpr EPatternedAI CharacterType = EPatternedAI::type
 #endif
 
 namespace metaforce {
@@ -32,7 +32,7 @@ using CPatternedTryFunc = void (CPatterned::*)(CStateManager&, int);
 class CPatterned : public CAi {
 public:
   static constexpr zeus::CColor skDamageColor{0.5f, 0.f, 0.f};
-  enum class ECharacter {
+  enum class EPatternedAI {
     AtomicAlpha = 0,
     AtomicBeta = 1,
     Babygoth = 2,
@@ -136,7 +136,7 @@ protected:
   bool x329_24_ : 1 = true;
   EAnimState x32c_animState = EAnimState::NotReady;
   CStateMachineState x330_stateMachineState;
-  ECharacter x34c_character;
+  EPatternedAI x34c_character;
   zeus::CVector3f x350_patternStartPos;
   zeus::CVector3f x35c_patternStartPlayerPos;
   zeus::CVector3f x368_destWPDelta;
@@ -248,7 +248,7 @@ protected:
 
 public:
   DEFINE_ENTITY
-  CPatterned(ECharacter character, TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
+  CPatterned(EPatternedAI character, TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
              const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,
              CPatterned::EMovementType movement, EColliderType collider, EBodyType body, const CActorParameters& params,
              EKnockBackVariant kbVariant);

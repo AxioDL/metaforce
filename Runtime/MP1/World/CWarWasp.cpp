@@ -20,7 +20,7 @@ CWarWasp::CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info
                    CPatterned::EColliderType collider, const CDamageInfo& dInfo1, const CActorParameters& actorParms,
                    CAssetId projectileWeapon, const CDamageInfo& projectileDamage, CAssetId projectileVisorParticle,
                    u32 projecileVisorSfx)
-: CPatterned(ECharacter::WarWasp, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer, collider,
+: CPatterned(EPatternedAI::WarWasp, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer, collider,
              EBodyType::Flyer, actorParms, EKnockBackVariant::Small)
 , x570_cSphere(zeus::CSphere({0.f, 0.f, 1.8f}, 1.f), x68_material)
 , x590_pfSearch(nullptr, 0x3, pInfo.GetPathfindingIndex(), 1.f, 1.f)

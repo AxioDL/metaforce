@@ -9,7 +9,7 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
-CWallWalker::CWallWalker(ECharacter chr, TUniqueId uid, std::string_view name, EFlavorType flavType,
+CWallWalker::CWallWalker(EPatternedAI chr, TUniqueId uid, std::string_view name, EFlavorType flavType,
                          const CEntityInfo& eInfo, const zeus::CTransform& xf, CModelData&& mData,
                          const CPatternedInfo& pInfo, EMovementType mType, EColliderType colType, EBodyType bType,
                          const CActorParameters& aParms, float collisionCloseMargin, float alignAngVel,

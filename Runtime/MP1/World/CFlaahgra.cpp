@@ -82,7 +82,7 @@ void CFlaahgraRenderer::Accept(IVisitor& visitor) { visitor.Visit(this); }
 CFlaahgra::CFlaahgra(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                      const CAnimRes& animRes, const CPatternedInfo& pInfo, const CActorParameters& actParms,
                      CFlaahgraData flaahgraData)
-: CPatterned(ECharacter::Flaahgra, uid, name, EFlavorType::Zero, info, xf, CModelData::CModelDataNull(), pInfo,
+: CPatterned(EPatternedAI::Flaahgra, uid, name, EFlavorType::Zero, info, xf, CModelData::CModelDataNull(), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Large)
 , x56c_data(std::move(flaahgraData))
 , x6d4_plantsParticleGenDesc(g_SimplePool->GetObj({SBIG('PART'), x56c_data.xb8_plantsParticleGenDescId}))

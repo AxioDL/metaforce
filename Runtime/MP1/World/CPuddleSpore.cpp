@@ -25,7 +25,7 @@ CPuddleSpore::CPuddleSpore(TUniqueId uid, std::string_view name, EFlavorType fla
                            const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                            EColliderType colType, CAssetId glowFx, float f1, float f2, float f3, float f4, float f5,
                            const CActorParameters& actParms, CAssetId weapon, const CDamageInfo& dInfo)
-: CPatterned(ECharacter::PuddleSpore, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
+: CPatterned(EPatternedAI::PuddleSpore, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              colType, EBodyType::Restricted, actParms, EKnockBackVariant::Medium)
 , x570_(f1)
 , x574_(f2)

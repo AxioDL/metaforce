@@ -14,7 +14,7 @@ CJellyZap::CJellyZap(TUniqueId uid, std::string_view name, const CEntityInfo& in
                      float f3, float f4, float attackDelay, float f6, float f7, float f8, float priority,
                      float repulseRadius, float attractRadius, float f12, const CPatternedInfo& pInfo,
                      const CActorParameters& actParms)
-: CPatterned(ECharacter::JellyZap, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::JellyZap, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Medium)
 , x56c_attackDamage(attackDamage)
 , x588_attackRadius(attackRadius)

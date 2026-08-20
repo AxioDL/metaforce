@@ -23,7 +23,7 @@ constexpr std::array<SSphereJointInfo, 7> kArmCollision{{
 CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                        CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
                        float maxDetectionRange, float maxHearingRange, float maxSightRange, float hideTime)
-: CPatterned(ECharacter::SpankWeed, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::SpankWeed, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Medium)
 , x568_maxDetectionRange(maxDetectionRange)
 , x56c_detectionHeightRange(pInfo.GetDetectionHeightRange())

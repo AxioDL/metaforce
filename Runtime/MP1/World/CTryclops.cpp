@@ -17,12 +17,12 @@ const CDamageVulnerability CTryclops::skVulnerabilities = CDamageVulnerability(
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Normal, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
-    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::Two);
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::RetargetPlayer);
 
 CTryclops::CTryclops(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                      CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float f1,
                      float f2, float f3, float launchSpeed)
-: CPatterned(ECharacter::Tryclops, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::Tryclops, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Ground, EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Small)
 , x568_pathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x67c_(f1)

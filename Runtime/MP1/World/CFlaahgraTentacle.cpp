@@ -22,7 +22,7 @@ constexpr std::array<SSphereJointInfo, 3> skJointList{{
 CFlaahgraTentacle::CFlaahgraTentacle(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                      const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                                      const CActorParameters& actParms)
-: CPatterned(ECharacter::FlaahgraTentacle, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::FlaahgraTentacle, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Large) {
   GetActorLights()->SetCastShadows(false);
   x460_knockBackController.SetAutoResetImpulse(false);

@@ -32,7 +32,7 @@ CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const C
                float f8, float f9, float f10, float f11, float f12, float f13, float f14, float f15, float f16,
                float f17, float f18, float f19, float f20, CAssetId crscId, float f21, float f22, float f23, float f24,
                s32 sId, bool b1)
-: CPatterned(ECharacter::Drone, uid, name, flavor, info, xf, std::move(mData), pInfo, movement, colliderType, bodyType,
+: CPatterned(EPatternedAI::Drone, uid, name, flavor, info, xf, std::move(mData), pInfo, movement, colliderType, bodyType,
              actParms, flavor == EFlavorType::Zero ? EKnockBackVariant::Medium : EKnockBackVariant::Large)
 , x568_laserParticlesId(aId1)
 , x56c_(g_SimplePool->GetObj({SBIG('CRSC'), crscId}))

@@ -241,7 +241,7 @@ CRidleyData::CRidleyData(CInputStream& in, u32 propCount)
 CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                  CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, CInputStream& in,
                  u32 propCount)
-: CPatterned(ECharacter::Ridley, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
+: CPatterned(EPatternedAI::Ridley, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              EColliderType::Zero, EBodyType::Flyer, actParms, EKnockBackVariant::Large)
 , x568_data(in, propCount)
 , x98c_(g_SimplePool->GetObj({SBIG('PART'), x568_data.x30_}))

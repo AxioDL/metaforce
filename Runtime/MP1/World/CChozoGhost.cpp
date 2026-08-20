@@ -74,7 +74,7 @@ CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo
                          u16 soundImpact, float f5, u16 sId2, u16 sId3, u32 w1, float f6, u32 w2, float hurlRecoverTime,
                          CAssetId projectileVisorEffect, s16 soundProjectileVisor, float f8, float f9, u32 nearChance,
                          u32 midChance)
-: CPatterned(ECharacter::ChozoGhost, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::ChozoGhost, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::Zero, EBodyType::BiPedal, actParms, EKnockBackVariant::Medium)
 , x568_hearingRadius(hearingRadius)
 , x56c_fadeOutDelay(fadeOutDelay)

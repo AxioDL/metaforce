@@ -35,7 +35,7 @@ CParasite::CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, c
                      float haltDelay, bool disableMove, EWalkerType wType, const CDamageVulnerability& dVuln,
                      const CDamageInfo& parInfo, u16 haltSfx, u16 getUpSfx, u16 crouchSfx, CAssetId modelRes,
                      CAssetId skinRes, float iceZoomerJointHP, const CActorParameters& aParams)
-: CWallWalker(ECharacter::Parasite, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
+: CWallWalker(EPatternedAI::Parasite, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
               EColliderType::Zero, bodyType, aParams, collisionCloseMargin, alignAngVel, EKnockBackVariant::Small,
               advanceWpRadius, wType, playerObstructionMinDist, disableMove)
 , x64c_oculusHaltDVuln(dVuln)

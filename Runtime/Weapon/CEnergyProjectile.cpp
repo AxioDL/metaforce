@@ -282,9 +282,9 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
     case EDeflectType::None:
       deflect = false;
       break;
-    case EDeflectType::Two:
-    case EDeflectType::Three:
-      if (deflectType != EDeflectType::Two ||
+    case EDeflectType::RetargetPlayer:
+    case EDeflectType::RetargetPlayerCombo:
+      if (deflectType != EDeflectType::RetargetPlayer ||
           (xf0_weaponType != EWeaponType::Missile &&
            (xe8_projectileAttribs & EProjectileAttrib::ComboShot) != EProjectileAttrib::ComboShot)) {
         if (xf8_filter.GetExcludeList().HasMaterial(EMaterialTypes::Player)) {

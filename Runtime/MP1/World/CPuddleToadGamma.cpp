@@ -27,7 +27,7 @@ CPuddleToadGamma::CPuddleToadGamma(TUniqueId uid, std::string_view name, EFlavor
                                    float playerSuckRange, const zeus::CVector3f& localShootDir, float playerShootSpeed,
                                    float shouldAttackWaitTime, float spotPlayerWaitTime,
                                    const CDamageInfo& playerShootDamage, const CDamageInfo& dInfo2, CAssetId dcln)
-: CPatterned(ECharacter::PuddleToad, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
+: CPatterned(EPatternedAI::PuddleToad, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              EColliderType::Zero, EBodyType::Restricted, aParms, EKnockBackVariant::Large)
 , x570_playerShootDamage(playerShootDamage)
 , x58c_(dInfo2)

@@ -21,7 +21,7 @@ CAtomicAlpha::CAtomicAlpha(TUniqueId uid, std::string_view name, const CEntityIn
                            CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
                            CAssetId bombWeapon, const CDamageInfo& bombDamage, float bombDropDelay, float f2, float f3,
                            CAssetId cmdl, bool invisible, bool b2)
-: CPatterned(ECharacter::AtomicAlpha, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::AtomicAlpha, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, actParms, EKnockBackVariant::Medium)
 , x568_25_invisible(invisible)
 , x568_26_applyBeamAttraction(b2)

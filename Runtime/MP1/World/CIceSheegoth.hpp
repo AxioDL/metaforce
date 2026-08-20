@@ -163,8 +163,8 @@ class CIceSheegoth : public CPatterned {
   void SetupCollisionActorManager(CStateManager& mgr);
   void SetupHealthInfo(CStateManager& mgr);
   void AttractProjectiles(CStateManager& mgr);
-  void UpdateTimers(float dt);
-  void UpdateScanState(CStateManager& mgr);
+  void UpdateAILogicTimers(float dt);
+  void UpdateAimTarget(CStateManager& mgr);
   void SetPassthroughVulnerability(CStateManager& mgr);
   void PreventWorldCollisions(float dt, CStateManager& mgr);
   void UpdateHealthInfo(CStateManager& mgr);

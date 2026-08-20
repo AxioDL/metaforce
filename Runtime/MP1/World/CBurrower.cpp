@@ -24,7 +24,7 @@ CBurrower::CBurrower(TUniqueId uid, std::string_view name, const CEntityInfo& in
                      CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, CAssetId aId1,
                      CAssetId aId2, CAssetId aId3, const CDamageInfo& damageInfo, CAssetId aId4, u32 sfxId,
                      CAssetId aId5)
-: CPatterned(ECharacter::Burrower, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::Burrower, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Ground, EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Small)
 , x568_pathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x64c_projectileInfo(aId3, damageInfo)

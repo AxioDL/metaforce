@@ -8,9 +8,9 @@ namespace metaforce::MP1 {
 
 CMetroidPrimeRelay::CMetroidPrimeRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
                                        const zeus::CTransform& xf, const zeus::CVector3f& scale,
-                                       CMetroidPrimeData&& parms, float f1, float f2, float f3, u32 w1, bool b1,
-                                       u32 w2, const CHealthInfo& hInfo1, const CHealthInfo& hInfo2, u32 w3, u32 w4,
-                                       u32 w5, rstl::reserved_vector<CMetroidPrimeAttackWeights, 4>&& roomParms)
+                                       CMetroidPrimeData&& parms, float f1, float f2, float f3, u32 w1, bool b1, u32 w2,
+                                       const CHealthInfo& hInfo1, const CHealthInfo& hInfo2, u32 w3, u32 w4, u32 w5,
+                                       rstl::reserved_vector<CMetroidPrimeAttackWeights, 4>&& roomParms)
 : CEntity(uid, info, active, name)
 , x38_xf(xf)
 , x68_scale(scale)
@@ -39,9 +39,15 @@ void CMetroidPrimeRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId obj
 }
 
 void CMetroidPrimeRelay::ForwardMessageToMetroidPrimeExo(EScriptObjectMessage msg, CStateManager& mgr) {
-  if (auto* exo = CPatterned::CastTo<CMetroidPrime>(mgr.ObjectById(x34_mpUid))) {
-    mgr.SendScriptMsg(exo, GetUniqueId(), msg);
+  auto* exo = CPatterned::CastTo<CMetroidPrime>(mgr.ObjectById(x34_mpUid));
+  if (!exo) {
+    return;
   }
+
+  if (msg < EScriptObjectMessage::WorldInitialized && msg >= EScriptObjectMessage::Registered) {
+    return;
+  }
+  mgr.SendScriptMsg(exo, GetUniqueId(), msg);
 }
 
 void CMetroidPrimeRelay::GetOrBuildMetroidPrimeExo(CStateManager& mgr) {
@@ -58,14 +64,14 @@ void CMetroidPrimeRelay::GetOrBuildMetroidPrimeExo(CStateManager& mgr) {
   const auto& animParms = x74_parms.x4_patternedInfo.GetAnimationParameters();
   CModelData mData(
       CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), x68_scale, animParms.GetInitialAnimation(), true));
-  auto* exo = new CMetroidPrime(
-      mgr.AllocateUniqueId(), "Metroid Prime! (Stage 1)"sv, CEntityInfo(GetAreaId(), NullConnectionList), x38_xf,
-      std::move(mData), x74_parms.x4_patternedInfo, x74_parms.x13c_actorParms, x74_parms.x1a4_, x74_parms.x1a8_,
-      x74_parms.x27c_, x74_parms.x350_, x74_parms.x424_, x74_parms.x460_particle1, x74_parms.x464_,
-      x74_parms.x708_wpsc1, x74_parms.x70c_dInfo1, x74_parms.x728_shakeData1, x74_parms.x7fc_wpsc2,
-      x74_parms.x800_dInfo2, x74_parms.x81c_shakeData2, x74_parms.x8f0_, x74_parms.x92c_, x74_parms.x948_,
-      x74_parms.xa1c_particle2, x74_parms.xa20_swoosh, x74_parms.xa24_particle3, x74_parms.xa28_particle4,
-      x74_parms.xa2c_);
+  auto* exo = new CMetroidPrime(mgr.AllocateUniqueId(), "Metroid Prime! (Stage 1)"sv,
+                                CEntityInfo(GetAreaId(), NullConnectionList), x38_xf, std::move(mData),
+                                x74_parms.x4_patternedInfo, x74_parms.x13c_actorParms, x74_parms.x1a4_, x74_parms.x1a8_,
+                                x74_parms.x27c_, x74_parms.x350_, x74_parms.x424_, x74_parms.x460_particle1,
+                                x74_parms.x464_, x74_parms.x708_wpsc1, x74_parms.x70c_dInfo1, x74_parms.x728_shakeData1,
+                                x74_parms.x7fc_wpsc2, x74_parms.x800_dInfo2, x74_parms.x81c_shakeData2, x74_parms.x8f0_,
+                                x74_parms.x92c_, x74_parms.x948_, x74_parms.xa1c_particle2, x74_parms.xa20_swoosh,
+                                x74_parms.xa24_particle3, x74_parms.xa28_particle4, x74_parms.xa2c_);
   mgr.AddObject(exo);
   mgr.SendScriptMsg(exo, kInvalidUniqueId, EScriptObjectMessage::InitializedInArea);
 }

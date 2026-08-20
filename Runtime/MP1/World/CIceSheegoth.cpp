@@ -81,7 +81,7 @@ CIceSheegothData::CIceSheegothData(CInputStream& in, [[maybe_unused]] s32 proper
 CIceSheegoth::CIceSheegoth(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform& xf,
                            CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
                            const CIceSheegothData& sheegothData)
-: CPatterned(ECharacter::IceSheeegoth, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::IceSheeegoth, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Ground, EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Large)
 , x56c_sheegothData(sheegothData)
 , x760_pathSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
@@ -133,8 +133,8 @@ void CIceSheegoth::Think(float dt, CStateManager& mgr) {
 
   CPatterned::Think(dt, mgr);
   AttractProjectiles(mgr);
-  UpdateTimers(dt);
-  UpdateScanState(mgr);
+  UpdateAILogicTimers(dt);
+  UpdateAimTarget(mgr);
   if (!IsAlive()) {
     x974_ = std::max(0.f, x974_ - (dt * x56c_sheegothData.Get_x170()));
     if (GetBodyController()->GetBodyStateInfo().GetCurrentState()->IsDying()) {
@@ -1196,7 +1196,7 @@ void CIceSheegoth::AttractProjectiles(CStateManager& mgr) {
   }
 }
 
-void CIceSheegoth::UpdateTimers(float dt) {
+void CIceSheegoth::UpdateAILogicTimers(float dt) {
   if (x954_attackTimeLeft > 0.f) {
     x954_attackTimeLeft -= (xb29_27_ ? 2.f : 1.f) * dt;
   }
@@ -1214,7 +1214,7 @@ void CIceSheegoth::UpdateTimers(float dt) {
   }
 }
 
-void CIceSheegoth::UpdateScanState(CStateManager& mgr) {
+void CIceSheegoth::UpdateAimTarget(CStateManager& mgr) {
   if (!xb29_29_scanned && GetScannableObjectInfo() != nullptr &&
       zeus::close_enough(1.f, mgr.GetPlayerState()->GetScanTime(GetScannableObjectInfo()->GetScannableObjectId()))) {
     xb29_29_scanned = true;

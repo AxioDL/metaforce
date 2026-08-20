@@ -10,7 +10,7 @@ CPhazonHealingNodule::CPhazonHealingNodule(TUniqueId uid, std::string_view name,
                                            const zeus::CTransform& xf, CModelData&& mData,
                                            const CActorParameters& actParams, const CPatternedInfo& pInfo,
                                            CAssetId particleDescId, std::string actorLctr)
-: CPatterned(ECharacter::PhazonHealingNodule, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::PhazonHealingNodule, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Restricted, actParams, EKnockBackVariant::Medium)
 , x570_electricDesc(g_SimplePool->GetObj(SObjectTag{SBIG('ELSC'), particleDescId}))
 , x580_initialHealthInfo(pInfo.GetHealthInfo())

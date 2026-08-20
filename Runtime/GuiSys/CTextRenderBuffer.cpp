@@ -130,6 +130,14 @@ void CTextRenderBuffer::Render(const zeus::CColor& color, float time) {
         if (font && font->GetGlyph(chr) != nullptr) {
           const auto* glyph = font->GetGlyph(chr);
           CGX::SetTevKColor(GX_KCOLOR0, chrColor * color);
+          static const GXVtxDescList vtxDesc[] ={
+            {GX_VA_POS, GX_DIRECT},
+            {GX_VA_TEX0, GX_DIRECT},
+            {GX_VA_NULL, GX_NONE},
+          };
+          CGX::SetVtxDescv(vtxDesc);
+          CGX::SetNumChans(0);
+          CGX::SetNumTexGens(1);
           CGX::Begin(GX_TRIANGLESTRIP, GX_VTXFMT0, 4);
           {
             GXPosition3f32(offX, 0.f, offY);

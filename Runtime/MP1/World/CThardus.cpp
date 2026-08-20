@@ -74,7 +74,7 @@ CThardus::CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info
                    CAssetId stateMachine, CAssetId particle4, CAssetId particle5, CAssetId particle6,
                    CAssetId particle7, CAssetId particle8, CAssetId particle9, CAssetId texture, u32 sfxId1,
                    CAssetId particle10, u32 sfxId2, u32 sfxId3, u32 sfxId4)
-: CPatterned(ECharacter::Thardus, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::Thardus, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Ground, EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Large)
 , x5cc_(std::move(mData1))
 , x5dc_(std::move(mData2))
@@ -519,7 +519,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
               EVulnerability::Normal, EVulnerability::Deflect, EVulnerability::Normal, EVulnerability::Normal,
               EVulnerability::Normal, EVulnerability::Normal, EVulnerability::Normal, EVulnerability::Deflect,
               EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
-              EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::One),
+              EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::Ricochet),
           GetMaterialList(), x630_,
           CActorParameters(CLightParameters(false, 0.f, CLightParameters::EShadowTesselation::Invalid, 0.f, 0.f,
                                             zeus::skWhite, true, CLightParameters::EWorldLightingOptions::NoShadowCast,

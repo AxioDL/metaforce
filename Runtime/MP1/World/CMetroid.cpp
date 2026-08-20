@@ -77,7 +77,7 @@ CMetroidData::CMetroidData(CInputStream& in)
 CMetroid::CMetroid(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                    const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                    const CActorParameters& aParms, const CMetroidData& metroidData, TUniqueId other)
-: CPatterned(ECharacter::Metroid, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
+: CPatterned(EPatternedAI::Metroid, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              EColliderType::One, EBodyType::Flyer, aParms, EKnockBackVariant::Medium)
 , x56c_data(metroidData)
 , x6a0_collisionPrimitive(zeus::CSphere{zeus::skZero3f, 0.9f * GetModelData()->GetScale().y()}, GetMaterialList())

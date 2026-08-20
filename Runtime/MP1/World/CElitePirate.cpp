@@ -96,7 +96,7 @@ CElitePirateData::CElitePirateData(CInputStream& in, u32 propCount)
 CElitePirate::CElitePirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
                            CElitePirateData data)
-: CPatterned(ECharacter::ElitePirate, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::ElitePirate, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Ground, EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Large)
 , x56c_vulnerability(pInfo.GetDamageVulnerability())
 , x5d8_data(std::move(data))

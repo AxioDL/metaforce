@@ -20,7 +20,7 @@ class CSeedling : public CWallWalker {
   TUniqueId x720_prevObj = kInvalidUniqueId;
   bool x722_24_renderOnlyClusterA : 1 = true;
   bool x722_25_curNeedleCluster : 1 = false;
-  void LaunchNeedles(CStateManager&);
+  void FireSpikes(CStateManager&);
 
 public:
   DEFINE_PATTERNED(Seedling);

@@ -36,7 +36,7 @@ CSeedling::CSeedling(TUniqueId uid, std::string_view name, const CEntityInfo& in
                      CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
                      CAssetId needleId, CAssetId weaponId, const CDamageInfo& dInfo1, const CDamageInfo& dInfo2,
                      float f1, float f2, float f3, float f4)
-: CWallWalker(ECharacter::Seedling, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CWallWalker(EPatternedAI::Seedling, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
               EMovementType::Ground, EColliderType::Zero, EBodyType::WallWalker, actParms, f1, f2,
               EKnockBackVariant::Small, f3, EWalkerType::Seedling, f4, false)
 , x5d8_searchPath(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
@@ -119,7 +119,7 @@ void CSeedling::Render(CStateManager& mgr) {
 
 void CSeedling::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
   if (type == EUserEventType::Projectile)
-    LaunchNeedles(mgr);
+    FireSpikes(mgr);
   else if (type == EUserEventType::BeginAction)
     x722_24_renderOnlyClusterA = true;
   else
@@ -203,7 +203,7 @@ bool CSeedling::ShouldAttack(CStateManager& mgr, float) {
   return mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, 6);
 }
 
-void CSeedling::LaunchNeedles(CStateManager& mgr) {
+void CSeedling::FireSpikes(CStateManager& mgr) {
   const auto& needleLocators = skNeedleLocators[size_t(x722_25_curNeedleCluster)];
   for (const auto& needle : needleLocators) {
     LaunchProjectile(GetLctrTransform(needle), mgr, int(needleLocators.size()), EProjectileAttrib::None, true, {},
@@ -218,7 +218,7 @@ void CSeedling::MassiveDeath(CStateManager& mgr) {
   if (x400_25_alive) {
     mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), x6e8_deathDamage,
                            CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}));
-    LaunchNeedles(mgr);
+    FireSpikes(mgr);
   }
   CPatterned::MassiveDeath(mgr);
 }

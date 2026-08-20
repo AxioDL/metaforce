@@ -20,7 +20,7 @@ CBeetle::CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
                  const CDamageVulnerability& platingVuln, const zeus::CVector3f& tailAimReference,
                  float initialAttackDelay, float retreatTime, float f3, const CDamageVulnerability& tailVuln,
                  const CActorParameters& aParams, const std::optional<CStaticRes>& tailModel)
-: CPatterned(ECharacter::Beetle, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Ground,
+: CPatterned(EPatternedAI::Beetle, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Ground,
              EColliderType::One, EBodyType::BiPedal, aParams, EKnockBackVariant(flavor))
 , x56c_entranceType(entranceType)
 , x574_tailAimReference(tailAimReference)

@@ -384,7 +384,7 @@ void CPirateRagDoll::Prime(CStateManager& mgr, const zeus::CTransform& xf, CMode
 CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const CActorParameters& aParams, const CPatternedInfo& pInfo,
                            CInputStream& in, u32 propCount)
-: CPatterned(ECharacter::SpacePirate, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::SpacePirate, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Ground, EColliderType::One, EBodyType::BiPedal, aParams, EKnockBackVariant::Medium)
 , x568_pirateData(in, propCount)
 , x660_pathFindSearch(nullptr, 0x1, pInfo.GetPathfindingIndex(), 1.f, 1.f)

@@ -41,7 +41,7 @@ CNewIntroBoss::CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntity
                              float minTurnAngle, CAssetId projectile, const CDamageInfo& dInfo,
                              CAssetId beamContactFxId, CAssetId beamPulseFxId, CAssetId beamTextureId,
                              CAssetId beamGlowTextureId)
-: CPatterned(ECharacter::NewIntroBoss, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::NewIntroBoss, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Medium)
 , x570_minTurnAngle(minTurnAngle)
 , x574_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),

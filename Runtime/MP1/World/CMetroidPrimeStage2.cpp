@@ -34,7 +34,7 @@ CMetroidPrimeStage2::CMetroidPrimeStage2(metaforce::TUniqueId uid, std::string_v
                                            const metaforce::CActorParameters& actParms, metaforce::CAssetId particle1,
                                            const metaforce::CDamageInfo& dInfo, float f1, metaforce::CAssetId electric,
                                            u32 w1, metaforce::CAssetId particle2)
-: CPatterned(ECharacter::MetroidPrimeEssence, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+: CPatterned(EPatternedAI::MetroidPrimeEssence, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, actParms, EKnockBackVariant::Medium)
 , x568_(g_SimplePool->GetObj({FOURCC('PART'), particle2}))
 , x574_searchPath(nullptr, 3, pInfo.GetPathfindingIndex(), 1.f, 1.f)
