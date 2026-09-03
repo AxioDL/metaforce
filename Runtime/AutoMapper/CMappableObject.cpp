@@ -42,44 +42,44 @@ CMappableObject::CMappableObject(const void* buf) {
   x4_visibilityMode = EVisMode(r.ReadLong());
   x8_objId = r.ReadLong();
   xc_ = r.ReadLong();
-  x10_transform = r.Get<zeus::CTransform>();
+  x10_transform = r.Get<zeus::CTransform4f>();
 }
 
-zeus::CTransform CMappableObject::AdjustTransformForType() const {
+zeus::CTransform4f CMappableObject::AdjustTransformForType() const {
   const float doorCenterX = g_tweakAutoMapper->xa4_doorCenterA;
   const float doorCenterZ = g_tweakAutoMapper->xac_doorCenterC;
   if (x0_type == EMappableObjectType::BigDoor1) {
-    zeus::CTransform orientation;
+    zeus::CTransform4f orientation;
     orientation.origin = {0.0f, 0.0f, -1.4f * doorCenterX};
-    orientation.rotateLocalZ(zeus::degToRad(90.0f));
-    return (x10_transform * orientation) * zeus::CTransform::Scale(zeus::CVector3f{1.5f});
+    orientation.RotateLocalZ(zeus::degToRad(90.0f));
+    return (x10_transform * orientation) * zeus::CTransform4f::Scale(zeus::CVector3f{1.5f});
   } else if (x0_type == EMappableObjectType::BigDoor2) {
-    zeus::CTransform orientation;
+    zeus::CTransform4f orientation;
     orientation.origin = {0.f, -2.0f * doorCenterZ, -1.4f * doorCenterX};
-    orientation.rotateLocalZ(zeus::degToRad(-90.f));
-    return (x10_transform * orientation) * zeus::CTransform::Scale(zeus::CVector3f{1.5f});
+    orientation.RotateLocalZ(zeus::degToRad(-90.f));
+    return (x10_transform * orientation) * zeus::CTransform4f::Scale(zeus::CVector3f{1.5f});
   } else if (x0_type == EMappableObjectType::IceDoorCeiling || x0_type == EMappableObjectType::WaveDoorCeiling ||
              x0_type == EMappableObjectType::PlasmaDoorCeiling) {
-    zeus::CTransform orientation;
+    zeus::CTransform4f orientation;
     orientation.origin = {-1.65f * doorCenterX, 0.f, -1.5f * doorCenterZ};
-    orientation.rotateLocalY(zeus::degToRad(90.f));
+    orientation.RotateLocalY(zeus::degToRad(90.f));
     return x10_transform * orientation;
   } else if (x0_type == EMappableObjectType::IceDoorFloor || x0_type == EMappableObjectType::WaveDoorFloor ||
              x0_type == EMappableObjectType::PlasmaDoorFloor) {
-    zeus::CTransform orientation;
+    zeus::CTransform4f orientation;
     orientation.origin = {-1.65f * doorCenterX, 0.f, -1.f * doorCenterZ};
-    orientation.rotateLocalY(zeus::degToRad(90.f));
+    orientation.RotateLocalY(zeus::degToRad(90.f));
     return x10_transform * orientation;
   } else if ((u32(x0_type) - u32(EMappableObjectType::IceDoorFloor2)) <= u32(EMappableObjectType::ShieldDoor) ||
              x0_type == EMappableObjectType::PlasmaDoorFloor2) {
-    zeus::CTransform orientation;
+    zeus::CTransform4f orientation;
     orientation.origin = {-0.49f * doorCenterX, 0.f, -1.f * doorCenterZ};
-    orientation.rotateLocalY(zeus::degToRad(90.f));
+    orientation.RotateLocalY(zeus::degToRad(90.f));
     return x10_transform * orientation;
   } else if (IsDoorType(x0_type)) {
     return x10_transform;
   }
-  return zeus::CTransform::Translate(x10_transform.origin);
+  return zeus::CTransform4f::Translate(x10_transform.origin);
 }
 
 std::pair<CColor, CColor> CMappableObject::GetDoorColors(int curAreaId, const CMapWorldInfo& mwInfo,

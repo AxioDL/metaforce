@@ -9,7 +9,7 @@
 #include "Runtime/RetroTypes.hpp"
 
 #include <zeus/CAABox.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <aurora/math.hpp>
 
 namespace metaforce {
@@ -17,7 +17,7 @@ class CCubeSurface;
 
 class CMetroidModelInstance {
   u32 x0_visorFlags = 0;
-  zeus::CTransform x4_worldXf;
+  zeus::CTransform4f x4_worldXf;
   zeus::CAABox x34_worldAABB;
   const u8* x4c_materialData = nullptr;
   std::vector<CCubeSurface> x50_surfaces;             // was rstl::vector<void*>*

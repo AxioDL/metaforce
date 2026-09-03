@@ -14,7 +14,7 @@
 namespace metaforce {
 
 CScriptEMPulse::CScriptEMPulse(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                               const zeus::CTransform& xf, bool active, float initialRadius, float finalRadius,
+                               const zeus::CTransform4f& xf, bool active, float initialRadius, float finalRadius,
                                float duration, float interferenceDur, float f5, float interferenceMag, float f7,
                                CAssetId partId)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Projectile),
@@ -54,13 +54,13 @@ void CScriptEMPulse::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
   x114_particleGen = std::make_unique<CElementGen>(x108_particleDesc, CElementGen::EModelOrientationType::Normal,
                                                    CElementGen::EOptionalSystemFlags::One);
 
-  x114_particleGen->SetOrientation(GetTransform().getRotation());
+  x114_particleGen->SetOrientation(GetTransform().GetRotation());
   x114_particleGen->SetGlobalTranslation(GetTranslation());
   x114_particleGen->SetParticleEmission(true);
   mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), x100_interferenceMag, xf8_interferenceDur);
 }
 
-void CScriptEMPulse::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CScriptEMPulse::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   CActor::AddToRenderer(frustum, mgr);
   if (GetActive()) {
     g_Renderer->AddParticleGen(*x114_particleGen);

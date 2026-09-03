@@ -29,7 +29,7 @@ static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, co
   return ret;
 }
 
-CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                CModelData&& mData, const CMaterialList& list, const CActorParameters& params, TUniqueId otherUid)
 : CEntity(uid, info, active, name)
 , x34_transform(xf)
@@ -118,7 +118,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
   CEntity::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CActor::PreRender(CStateManager& mgr, const zeus::CFrustum& planes) {
+void CActor::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& planes) {
   if (!x64_modelData || x64_modelData->IsNull())
     return;
 
@@ -173,7 +173,7 @@ void CActor::PreRender(CStateManager& mgr, const zeus::CFrustum& planes) {
   }
 }
 
-void CActor::AddToRenderer(const zeus::CFrustum& planes, CStateManager& mgr) {
+void CActor::AddToRenderer(const zeus::CFrustumPlanes& planes, CStateManager& mgr) {
   if (!x64_modelData || x64_modelData->IsNull()) {
     return;
   }
@@ -364,11 +364,11 @@ void CActor::SetVolume(float vol) {
   xd4_maxVol = vol;
 }
 
-zeus::CTransform CActor::GetScaledLocatorTransform(std::string_view segName) const {
+zeus::CTransform4f CActor::GetScaledLocatorTransform(std::string_view segName) const {
   return x64_modelData->GetScaledLocatorTransform(segName);
 }
 
-zeus::CTransform CActor::GetLocatorTransform(std::string_view segName) const {
+zeus::CTransform4f CActor::GetLocatorTransform(std::string_view segName) const {
   return x64_modelData->GetLocatorTransform(segName);
 }
 
@@ -516,7 +516,7 @@ void CActor::SetTranslation(const zeus::CVector3f& tr) {
   xe4_29_actorLightsDirty = true;
 }
 
-void CActor::SetTransform(const zeus::CTransform& tr) {
+void CActor::SetTransform(const zeus::CTransform4f& tr) {
   x34_transform = tr;
   xe4_27_notInSortedLists = true;
   xe4_28_transformDirty = true;
@@ -525,13 +525,13 @@ void CActor::SetTransform(const zeus::CTransform& tr) {
 
 void CActor::SetAddedToken(u32 tok) { xcc_addedToken = tok; }
 
-float CActor::GetPitch() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).pitch(); }
+float CActor::GetPitch() const { return zeus::CQuaternion(x34_transform.BuildMatrix3f()).pitch(); }
 
-float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.buildMatrix3f()).yaw(); }
+float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.BuildMatrix3f()).yaw(); }
 
 void CActor::EnsureRendered(const CStateManager& mgr) {
   const auto bounds = GetSortingBounds(mgr);
-  EnsureRendered(mgr, bounds.closestPointAlongVector(CGraphics::mViewMatrix.frontVector()), bounds);
+  EnsureRendered(mgr, bounds.closestPointAlongVector(CGraphics::mViewMatrix.GetForward()), bounds);
 }
 
 void CActor::EnsureRendered(const CStateManager& stateMgr, const zeus::CVector3f& pos, const zeus::CAABox& aabb) {

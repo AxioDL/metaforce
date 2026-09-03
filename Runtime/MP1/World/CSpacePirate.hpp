@@ -32,7 +32,7 @@ public:
 
   void PreRender(const zeus::CVector3f& v, CModelData& mData) override;
   void Update(CStateManager& mgr, float dt, float waterTop) override;
-  void Prime(CStateManager& mgr, const zeus::CTransform& xf, CModelData& mData) override;
+  void Prime(CStateManager& mgr, const zeus::CTransform4f& xf, CModelData& mData) override;
   zeus::CVector3f& TorsoImpulse() { return x84_torsoImpulse; }
 };
 
@@ -206,7 +206,7 @@ private:
   float x8d8_holdPositionTime = 0.f;
   float x8dc_leashTimer = 0.f;
 
-  zeus::CTransform m_lastKnownGoodXf;
+  zeus::CTransform4f m_lastKnownGoodXf;
   void UpdateCloak(float dt, CStateManager& mgr);
   bool ShouldFrenzy(CStateManager& mgr);
   void SquadReset(CStateManager& mgr);
@@ -233,13 +233,13 @@ private:
   pas::EStepDirection GetStrafeDir(CStateManager& mgr, float dist) const;
 
 public:
-  CSpacePirate(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CSpacePirate(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
                const CActorParameters&, const CPatternedInfo&, CInputStream&, u32);
 
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   void Render(CStateManager& mgr) override;
 
   void CalculateRenderBounds() override;

@@ -25,7 +25,7 @@ CSnakeWeedSwarm::CSnakeWeedSwarm(TUniqueId uid, bool active, std::string_view na
                                  float f11, float scaleMin, float scaleMax, float distanceBelowGround,
                                  const CDamageInfo& dInfo, float /*f15*/, u32 sfxId1, u32 sfxId2, u32 sfxId3,
                                  CAssetId particleGenDesc1, u32 w5, CAssetId particleGenDesc2, float f16)
-: CActor(uid, active, name, info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(),
+: CActor(uid, active, name, info, zeus::CTransform4f::Translate(pos), CModelData::CModelDataNull(),
          CMaterialList(EMaterialTypes::Trigger, EMaterialTypes::NonSolidDamageable), actParms, kInvalidUniqueId)
 , xe8_scale(scale)
 , xf4_boidSpacing(spacing)
@@ -105,7 +105,7 @@ void CSnakeWeedSwarm::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId id, CS
   }
 }
 
-void CSnakeWeedSwarm::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CSnakeWeedSwarm::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   if (!frustum.aabbFrustumTest(x144_touchBounds)) {
     xe4_30_outOfFrustum = true;
     return;
@@ -138,7 +138,7 @@ void CSnakeWeedSwarm::PreRender(CStateManager& mgr, const zeus::CFrustum& frustu
   }
 }
 
-void CSnakeWeedSwarm::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CSnakeWeedSwarm::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   if (xe4_30_outOfFrustum) {
     return;
   }
@@ -422,8 +422,8 @@ void CSnakeWeedSwarm::RenderBoid(u32 idx, const CBoid& boid, u32& posesToBuild) 
     model.Calculate(animData.GetPose(), nullptr, {}, &workspace);
   }
   CGraphics::SetModelMatrix(
-      zeus::CTransform::Translate(boid.GetPosition() - zeus::CVector3f(0.f, 0.f, boid.GetZOffset())) *
-      zeus::CTransform::Scale(boid.GetScale()));
+      zeus::CTransform4f::Translate(boid.GetPosition() - zeus::CVector3f(0.f, 0.f, boid.GetZOffset())) *
+      zeus::CTransform4f::Scale(boid.GetScale()));
   constexpr CModelFlags useFlags{0, 0, 3, zeus::skWhite};
   model.Draw(workspace.m_vertexWorkspace, workspace.m_normalWorkspace, useFlags);
 }

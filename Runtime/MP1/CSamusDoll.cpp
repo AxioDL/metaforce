@@ -95,7 +95,7 @@ constexpr std::array<std::array<u32, 2>, 8> Character2and3Idxs{{
 CSamusDoll::CSamusDoll(const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp,
                        CPlayerState::EPlayerSuit suit, CPlayerState::EBeamId beam, bool hasSpiderBall,
                        bool hasGrappleBeam)
-: x10_ballXf(zeus::CTransform::Translate(0.f, 0.f, 0.625f * g_tweakPlayer->GetPlayerBallHalfExtent()))
+: x10_ballXf(zeus::CTransform4f::Translate(0.f, 0.f, 0.625f * g_tweakPlayer->GetPlayerBallHalfExtent()))
 , x44_suit(suit)
 , x48_beam(beam)
 , x270_24_hasSpiderBall(hasSpiderBall)
@@ -319,12 +319,12 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
 
   g_Renderer->SetPerspective(55.f, CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(), 0.2f, 4096.f);
 
-  CGraphics::SetViewPointMatrix(zeus::CTransform(xb0_userRot, xa4_offset) *
-                                zeus::CTransform::Translate(0.f, xc0_userZoom, 0.f));
+  CGraphics::SetViewPointMatrix(zeus::CTransform4f(xb0_userRot, xa4_offset) *
+                                zeus::CTransform4f::Translate(0.f, xc0_userZoom, 0.f));
 
-  zeus::CTransform gunXf = xc8_suitModel0->GetScaledLocatorTransform("GUN_LCTR");
-  zeus::CTransform visorXf = xc8_suitModel0->GetScaledLocatorTransform("VISOR_LCTR");
-  zeus::CTransform grappleXf = xc8_suitModel0->GetScaledLocatorTransform("GRAPPLE_LCTR");
+  zeus::CTransform4f gunXf = xc8_suitModel0->GetScaledLocatorTransform("GUN_LCTR");
+  zeus::CTransform4f visorXf = xc8_suitModel0->GetScaledLocatorTransform("VISOR_LCTR");
+  zeus::CTransform4f grappleXf = xc8_suitModel0->GetScaledLocatorTransform("GRAPPLE_LCTR");
 
   if (!x4c_completedMorphball || !x4d_selectedMorphball) {
     float suitPulse = itemPulse * x58_suitPulseFactor;
@@ -339,12 +339,12 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
       TCachedToken<CSkinnedModel> backupModelData = xc8_suitModel0->GetAnimationData()->GetModelData();
       if (i < x118_suitModel1and2.size())
         xc8_suitModel0->GetAnimationData()->SubstituteModelData(x118_suitModel1and2[i]);
-      xc8_suitModel0->MultiLightingDraw(CModelData::EWhichModel::Normal, zeus::CTransform(), x24c_actorLights.get(),
+      xc8_suitModel0->MultiLightingDraw(CModelData::EWhichModel::Normal, zeus::CTransform4f(), x24c_actorLights.get(),
                                         zeus::CColor(1.f, alpha), zeus::CColor(1.f, alpha * suitPulse));
       xc8_suitModel0->GetAnimationData()->SubstituteModelData(backupModelData);
     }
 
-    x134_suitModelBoots->MultiLightingDraw(CModelData::EWhichModel::Normal, zeus::CTransform(), x24c_actorLights.get(),
+    x134_suitModelBoots->MultiLightingDraw(CModelData::EWhichModel::Normal, zeus::CTransform4f(), x24c_actorLights.get(),
                                            zeus::CColor(1.f, alpha), zeus::CColor(1.f, alpha * bootsPulse));
 
     {
@@ -423,7 +423,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
         if (spinAlpha > 0.f) {
           const CModelFlags flags{7, ballMatIdx, 1, zeus::CColor{1.f, spinAlpha * alpha}};
           x184_ballModelData->Render(
-              mgr, x10_ballXf * zeus::CTransform::RotateZ(spinAngle) * zeus::CTransform::Scale(spinScale),
+              mgr, x10_ballXf * zeus::CTransform4f::RotateZ(spinAngle) * zeus::CTransform4f::Scale(spinScale),
               x24c_actorLights.get(), flags);
         }
       }
@@ -528,7 +528,7 @@ void CSamusDoll::Touch() {
 }
 
 void CSamusDoll::SetupLights() {
-  x23c_lights[0] = CLight::BuildDirectional(xb0_userRot.toTransform().basis[1], zeus::CColor(0.75f, 1.f));
+  x23c_lights[0] = CLight::BuildDirectional(xb0_userRot.toTransform().GetForward(), zeus::CColor(0.75f, 1.f));
   x24c_actorLights->BuildFakeLightList(x23c_lights, zeus::skBlack);
 }
 

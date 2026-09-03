@@ -42,7 +42,7 @@ public:
   [[nodiscard]] const CJointCollisionDescription& GetCollisionDescFromIndex(u32 i) const {
     return x0_jointDescriptions[i];
   }
-  static zeus::CTransform GetWRLocatorTransform(const CAnimData& animData, CSegId id, const zeus::CTransform& worldXf,
-                                                const zeus::CTransform& localXf);
+  static zeus::CTransform4f GetWRLocatorTransform(const CAnimData& animData, CSegId id, const zeus::CTransform4f& worldXf,
+                                                const zeus::CTransform4f& localXf);
 };
 } // namespace metaforce

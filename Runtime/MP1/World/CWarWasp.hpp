@@ -69,7 +69,7 @@ class CWarWasp : public CPatterned {
 
 public:
   DEFINE_PATTERNED(WarWasp);
-  CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
            CModelData&& mData, const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor, CPatterned::EColliderType,
            const CDamageInfo& dInfo1, const CActorParameters&, CAssetId projectileWeapon,
            const CDamageInfo& projectileDamage, CAssetId projectileVisorParticle, u32 projecileVisorSfx);

@@ -93,14 +93,14 @@ class CMetroidBeta : public CPatterned {
 
 public:
   DEFINE_PATTERNED(MetroidBeta);
-  CMetroidBeta(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CMetroidBeta(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& aParms,
                const CMetroidBetaData& metroidData);
 
   void Accept(IVisitor& visitor) override { visitor.Visit(this); }
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   void Render(CStateManager& mgr) override;
   const CDamageVulnerability* GetDamageVulnerability() const override;
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2,

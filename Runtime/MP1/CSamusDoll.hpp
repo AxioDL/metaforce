@@ -15,7 +15,7 @@
 
 #include <zeus/CRelAngle.hpp>
 #include <zeus/CQuaternion.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -24,7 +24,7 @@ namespace MP1 {
 
 class CSamusDoll {
   std::vector<CToken> x0_depToks;
-  zeus::CTransform x10_ballXf;
+  zeus::CTransform4f x10_ballXf;
   float x40_alphaIn = 0.f;
   CPlayerState::EPlayerSuit x44_suit;
   CPlayerState::EBeamId x48_beam;

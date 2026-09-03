@@ -20,7 +20,7 @@ constexpr std::array<SSphereJointInfo, 7> kArmCollision{{
     {"swoosh_LCTR", 1.5f},
 }};
 
-CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                        CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
                        float maxDetectionRange, float maxHearingRange, float maxSightRange, float hideTime)
 : CPatterned(EPatternedAI::SpankWeed, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
@@ -51,7 +51,7 @@ CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& 
 
   const CSegId segId = GetModelData()->GetAnimationData()->GetLocatorSegId("lockon_target_LCTR"sv);
   if (segId.IsValid()) {
-    const zeus::CTransform locatorXf = GetTransform() * zeus::CTransform::Scale(GetModelData()->GetScale()) *
+    const zeus::CTransform4f locatorXf = GetTransform() * zeus::CTransform4f::Scale(GetModelData()->GetScale()) *
                                        GetModelData()->GetAnimationData()->GetLocatorTransform(segId, nullptr);
     x5a8_lockonTarget = locatorXf.origin;
     x59c_lockonOffset = locatorXf.origin - GetTranslation();
@@ -96,7 +96,7 @@ void CSpankWeed::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     if (x90_actorLights) {
       x90_actorLights->SetDirty();
       zeus::CVector3f swooshOrigin = GetScaledLocatorTransform("swoosh_LCTR"sv).origin;
-      x90_actorLights->SetActorPositionBias(GetTransform().buildMatrix3f() * swooshOrigin);
+      x90_actorLights->SetActorPositionBias(GetTransform().BuildMatrix3f() * swooshOrigin);
     }
   } else if (msg == EScriptObjectMessage::Touched) {
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
@@ -130,7 +130,7 @@ void CSpankWeed::Think(float dt, CStateManager& mgr) {
 
   if (!x598_isHiding) {
     zeus::CVector3f eyeOrigin = GetLocatorTransform("Eye"sv).origin;
-    MoveCollisionPrimitive(GetTransform().rotate(GetModelData()->GetScale() * eyeOrigin));
+    MoveCollisionPrimitive(GetTransform().Rotate(GetModelData()->GetScale() * eyeOrigin));
     x594_collisionMgr->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
     xe4_27_notInSortedLists = true;
   }

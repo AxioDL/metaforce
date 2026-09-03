@@ -25,7 +25,7 @@
 
 namespace metaforce::MP1 {
 CDrone::CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
-               const zeus::CTransform& xf, float f1, CModelData&& mData, const CPatternedInfo& pInfo,
+               const zeus::CTransform4f& xf, float f1, CModelData&& mData, const CPatternedInfo& pInfo,
                const CActorParameters& actParms, EMovementType movement, EColliderType colliderType, EBodyType bodyType,
                const CDamageInfo& dInfo1, CAssetId aId1, const CDamageInfo& dInfo2, CAssetId aId2,
                std::vector<CVisorFlare::CFlareDef> flares, float f2, float f3, float f4, float f5, float f6, float f7,
@@ -201,14 +201,14 @@ void CDrone::Think(float dt, CStateManager& mgr) {
           if (waterBox.max.z() - GetTranslation().z() < 1.5f) {
             z = 60.f;
           }
-          ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(z * (dt * zeus::skDown)), dt),
+          ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().TransposeRotate(z * (dt * zeus::skDown)), dt),
                          zeus::CAxisAngle());
         }
       }
     }
   }
   if (IsAlive() && x668_elevation < x664_) {
-    ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(dt * (1.f * zeus::skUp)), dt),
+    ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().TransposeRotate(dt * (1.f * zeus::skUp)), dt),
                    zeus::CAxisAngle());
   }
   xe7_31_targetable = IsAlive();
@@ -288,11 +288,11 @@ void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateM
   }
 }
 
-void CDrone::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CDrone::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   CPatterned::AddToRenderer(frustum, mgr);
 }
 
-void CDrone::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CDrone::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   CPatterned::PreRender(mgr, frustum);
   if (x3fc_flavor == EFlavorType::One) {
     if (HasModelData() && GetModelData()->HasAnimData() && GetModelData()->HasNormalModel()) {
@@ -438,8 +438,8 @@ void CDrone::Death(CStateManager& mgr, const zeus::CVector3f& direction, EScript
   } else {
     x834_28_ = true;
     if (x3e0_xDamageDelay <= 0.f) {
-      SetTransform(zeus::lookAt(GetTranslation(), GetTranslation() - direction) *
-                   zeus::CTransform::RotateX(zeus::degToRad(45.f)));
+      SetTransform(zeus::CTransform4f::LookAt(GetTranslation(), GetTranslation() - direction) *
+                   zeus::CTransform4f::RotateX(zeus::degToRad(45.f)));
     }
   }
 
@@ -509,7 +509,7 @@ void CDrone::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
       ApplyImpulseWR(GetMass() * (x5e4_ * moveVec), {});
       const auto target = (mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation()).normalized();
       x450_bodyController->GetCommandMgr().DeliverCmd(
-          CBCLocomotionCmd(FLT_EPSILON * GetTransform().frontVector(), target, 1.f));
+          CBCLocomotionCmd(FLT_EPSILON * GetTransform().GetForward(), target, 1.f));
       x450_bodyController->GetCommandMgr().DeliverTargetVector(target);
       StrafeFromCompanions(mgr);
       if (x630_ <= 0.f) {
@@ -538,7 +538,7 @@ void CDrone::TargetPlayer(CStateManager& mgr, EStateMsg msg, float dt) {
   } else if (msg == EStateMsg::Update) {
     zeus::CVector3f target = (mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation()).normalized();
     x450_bodyController->GetCommandMgr().DeliverCmd(
-        CBCLocomotionCmd(FLT_EPSILON * GetTransform().frontVector(), target, 1.f));
+        CBCLocomotionCmd(FLT_EPSILON * GetTransform().GetForward(), target, 1.f));
     x450_bodyController->GetCommandMgr().DeliverTargetVector(target);
     StrafeFromCompanions(mgr);
     if (x630_ <= 0.f)
@@ -555,7 +555,7 @@ void CDrone::TargetCover(CStateManager& mgr, EStateMsg msg, float dt) {
 
   // Don't ask I have no idea....
   const zeus::CVector3f vec{1.f * x5e4_ * 0.f, 1.f * x5e4_ * 0.f, 1.f * x5e4_ * 1.f};
-  ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(vec), 1.f), {});
+  ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().TransposeRotate(vec), 1.f), {});
 }
 
 void CDrone::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
@@ -570,7 +570,7 @@ void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
     x834_31_attackOver = false;
     const auto playerAimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
     const auto& xf = GetTransform();
-    const auto frontVec = xf.frontVector();
+    const auto frontVec = xf.GetForward();
     zeus::CVector3f out;
     if ((playerAimPos - GetTranslation()).normalized().dot(frontVec) >= 0.8f) {
       out = playerAimPos;
@@ -579,25 +579,25 @@ void CDrone::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     s32 state = mgr.GetActiveRandom()->Next() % 4;
     if (state == 0) {
-      x7e0_lasersStart[0] = out + (3.f * xf.rightVector()) - (4.f * xf.upVector());
-      x7fc_lasersEnd[0] = out - (3.f * xf.rightVector()) + (4.f * xf.upVector());
-      x7e0_lasersStart[1] = out - (3.f * xf.rightVector()) - (4.f * xf.upVector());
-      x7fc_lasersEnd[1] = out + (3.f * xf.rightVector()) + (4.f * xf.upVector());
+      x7e0_lasersStart[0] = out + (3.f * xf.GetRight()) - (4.f * xf.GetUp());
+      x7fc_lasersEnd[0] = out - (3.f * xf.GetRight()) + (4.f * xf.GetUp());
+      x7e0_lasersStart[1] = out - (3.f * xf.GetRight()) - (4.f * xf.GetUp());
+      x7fc_lasersEnd[1] = out + (3.f * xf.GetRight()) + (4.f * xf.GetUp());
     } else if (state == 1) {
-      x7e0_lasersStart[0] = out + (3.f * xf.rightVector()) + (4.f * xf.upVector());
-      x7fc_lasersEnd[0] = out - (3.f * xf.rightVector()) - (4.f * xf.upVector());
-      x7e0_lasersStart[1] = out - (3.f * xf.rightVector()) + (4.f * xf.upVector());
-      x7fc_lasersEnd[1] = out + (3.f * xf.rightVector()) - (4.f * xf.upVector());
+      x7e0_lasersStart[0] = out + (3.f * xf.GetRight()) + (4.f * xf.GetUp());
+      x7fc_lasersEnd[0] = out - (3.f * xf.GetRight()) - (4.f * xf.GetUp());
+      x7e0_lasersStart[1] = out - (3.f * xf.GetRight()) + (4.f * xf.GetUp());
+      x7fc_lasersEnd[1] = out + (3.f * xf.GetRight()) - (4.f * xf.GetUp());
     } else if (state == 2) {
-      x7e0_lasersStart[0] = out - (4.f * xf.rightVector()) - (3.f * xf.upVector());
-      x7fc_lasersEnd[0] = out + (4.f * xf.rightVector()) + (3.f * xf.upVector());
-      x7e0_lasersStart[1] = out + (4.f * xf.rightVector()) - (3.f * xf.upVector());
-      x7fc_lasersEnd[1] = out - (4.f * xf.rightVector()) + (3.f * xf.upVector());
+      x7e0_lasersStart[0] = out - (4.f * xf.GetRight()) - (3.f * xf.GetUp());
+      x7fc_lasersEnd[0] = out + (4.f * xf.GetRight()) + (3.f * xf.GetUp());
+      x7e0_lasersStart[1] = out + (4.f * xf.GetRight()) - (3.f * xf.GetUp());
+      x7fc_lasersEnd[1] = out - (4.f * xf.GetRight()) + (3.f * xf.GetUp());
     } else if (state == 3) {
-      x7e0_lasersStart[0] = out - (4.f * xf.rightVector()) + (3.f * xf.upVector());
-      x7fc_lasersEnd[0] = out + (4.f * xf.rightVector()) - (3.f * xf.upVector());
-      x7e0_lasersStart[1] = out + (4.f * xf.rightVector()) + (3.f * xf.upVector());
-      x7fc_lasersEnd[1] = out - (4.f * xf.rightVector()) - (3.f * xf.upVector());
+      x7e0_lasersStart[0] = out - (4.f * xf.GetRight()) + (3.f * xf.GetUp());
+      x7fc_lasersEnd[0] = out + (4.f * xf.GetRight()) - (3.f * xf.GetUp());
+      x7e0_lasersStart[1] = out + (4.f * xf.GetRight()) + (3.f * xf.GetUp());
+      x7fc_lasersEnd[1] = out - (4.f * xf.GetRight()) - (3.f * xf.GetUp());
     }
     x818_lasersTime[0] = 0.f;
     x818_lasersTime[1] = 0.f;
@@ -642,7 +642,7 @@ void CDrone::Flee(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     x7c8_ = 0;
     x832_b = 0;
-    if (mgr.RayStaticIntersection(GetTranslation(), -GetTransform().frontVector(), 4.f,
+    if (mgr.RayStaticIntersection(GetTranslation(), -GetTransform().GetForward(), 4.f,
                                   CMaterialFilter::MakeInclude({EMaterialTypes::Solid}))
             .IsValid()) {
       x832_b = mgr.GetActiveRandom()->Float() >= 0.5f ? 1 : 2;
@@ -783,9 +783,9 @@ void CDrone::Cover(CStateManager& mgr, EStateMsg msg, float dt) {
       }
     }
   } else if (msg == EStateMsg::Update) {
-    ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(dt * (x658_ * x67c_)), dt), zeus::CAxisAngle());
+    ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().TransposeRotate(dt * (x658_ * x67c_)), dt), zeus::CAxisAngle());
     x450_bodyController->GetCommandMgr().DeliverCmd(
-        CBCLocomotionCmd(FLT_EPSILON * GetTransform().basis[1],
+        CBCLocomotionCmd(FLT_EPSILON * GetTransform().GetForward(),
                          (mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation()).normalized(), 1.f));
   } else if (msg == EStateMsg::Deactivate) {
     x644_ = (x640_ - x63c_) * mgr.GetActiveRandom()->Float() + x63c_;
@@ -801,11 +801,11 @@ void CDrone::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) {
     GetBodyController()->SetLocomotionType(pas::ELocomotionType::Internal10);
   } else if (msg == EStateMsg::Update) {
     GetBodyController()->GetCommandMgr().DeliverCmd(
-        CBCLocomotionCmd(GetTransform().frontVector(), zeus::skZero3f, 1.f));
+        CBCLocomotionCmd(GetTransform().GetForward(), zeus::skZero3f, 1.f));
     zeus::CVector3f local_74 =
         0.5f * (mgr.GetPlayer().GetAimPosition(mgr, 0.f) + mgr.GetPlayer().GetTranslation()) - GetTranslation();
     if (((x668_elevation < x664_ && local_74.z() > 0.f) || (x668_elevation > x664_)) && local_74.canBeNormalized()) {
-      ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().transposeRotate(dt * (x5e4_ * local_74.normalized())), dt),
+      ApplyImpulseWR(GetMoveToORImpulseWR(GetTransform().TransposeRotate(dt * (x5e4_ * local_74.normalized())), dt),
                      zeus::CAxisAngle());
     }
   }
@@ -843,7 +843,7 @@ bool CDrone::SpotPlayer(CStateManager& mgr, float arg) {
   if (!LineOfSight(mgr, arg))
     return false;
 
-  return (GetTransform().frontVector() + x5cc_ * GetTransform().rightVector())
+  return (GetTransform().GetForward() + x5cc_ * GetTransform().GetRight())
              .normalized()
              .dot((mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation()).normalized()) > 0.5f;
 }
@@ -944,15 +944,15 @@ void CDrone::SetVisorFlareEnabled(CStateManager& mgr, bool activate) {
 void CDrone::UpdateVisorFlare(CStateManager& mgr) {
   TCastToPtr<CScriptVisorFlare> flare = mgr.ObjectById(x57a_visorFlareId);
   SetVisorFlareEnabled(
-      mgr, (mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized().dot(GetTransform().frontVector()) > 0.f);
+      mgr, (mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized().dot(GetTransform().GetForward()) > 0.f);
   if (flare) {
     const auto beaconXf = GetLctrTransform("Beacon_LCTR"sv);
-    flare->SetTranslation(beaconXf.origin + (0.1f * beaconXf.frontVector()));
+    flare->SetTranslation(beaconXf.origin + (0.1f * beaconXf.GetForward()));
   }
 }
 
 void CDrone::UpdateTouchBounds(float radius) {
-  const zeus::CTransform xf = GetLctrTransform("Skeleton_Root"sv);
+  const zeus::CTransform4f xf = GetLctrTransform("Skeleton_Root"sv);
   const zeus::CVector3f diff = xf.origin - GetTranslation();
   x690_colSphere.SetSphereCenter(diff);
   x690_colSphere.SetSphereRadius(radius);
@@ -962,7 +962,7 @@ void CDrone::UpdateTouchBounds(float radius) {
 
 bool CDrone::HitShield(const zeus::CVector3f& dir) const {
   if (x3fc_flavor == EFlavorType::One && !zeus::close_enough(x5dc_, 0.f)) {
-    return GetLctrTransform("Shield_LCTR"sv).frontVector().dot(dir.normalized()) > 0.85f;
+    return GetLctrTransform("Shield_LCTR"sv).GetForward().dot(dir.normalized()) > 0.85f;
   }
 
   return false;
@@ -997,7 +997,7 @@ void CDrone::UpdateLaser(CStateManager& mgr, u32 laserIdx, bool active) {
   }
 }
 
-void CDrone::FireProjectile(CStateManager& mgr, const zeus::CTransform& xf, const TToken<CWeaponDescription>& weapon) {
+void CDrone::FireProjectile(CStateManager& mgr, const zeus::CTransform4f& xf, const TToken<CWeaponDescription>& weapon) {
   // TODO implement
 }
 
@@ -1025,7 +1025,7 @@ void CDrone::StrafeFromCompanions(CStateManager& mgr) {
     return;
 
   const auto off = nearestPos - GetTranslation();
-  const float rightOff = GetTransform().rightVector().dot(off);
+  const float rightOff = GetTransform().GetRight().dot(off);
   if (rightOff < -0.2f) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Right, pas::EStepType::Normal));
   } else if (rightOff > 0.2f) {
@@ -1052,7 +1052,7 @@ void CDrone::UpdateScanner(CStateManager& mgr, float dt) {
   if (std::fpclassify(angle) != FP_SUBNORMAL)
     x5d8_ += 0.03f * std::pow(angle, 5.f);
   zeus::CVector3f vec =
-      GetTransform().rotate(zeus::CVector3f(0.5f * std::cos(x5d8_), 1.f, 0.5f * std::sin(2.05f * x5d8_)).normalized());
+      GetTransform().Rotate(zeus::CVector3f(0.5f * std::cos(x5d8_), 1.f, 0.5f * std::sin(2.05f * x5d8_)).normalized());
   TUniqueId id;
   EntityList nearList;
   nearList.push_back(mgr.GetPlayer().GetUniqueId());
@@ -1124,30 +1124,30 @@ void CDrone::sub_8015f158(float dt) {
   // TODO implement
 }
 
-void CDrone::sub_80165984(CStateManager& mgr, const zeus::CTransform& xf) {
+void CDrone::sub_80165984(CStateManager& mgr, const zeus::CTransform4f& xf) {
   /*constexpr*/ float sin60 = std::sqrt(3.f) / 2.f;
   const auto playerAimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
   const auto distNorm = (playerAimPos - xf.origin).normalized();
-  if (distNorm.dot(xf.frontVector()) <= sin60) {
+  if (distNorm.dot(xf.GetForward()) <= sin60) {
     sub_801656d4(xf, mgr);
   } else {
     zeus::CVector3f vec;
     if (mgr.GetActiveRandom()->Float() > 0.2f) {
-      const auto lookAt = zeus::lookAt(xf.origin, playerAimPos);
-      vec = zeus::CQuaternion::fromAxisAngle(lookAt.frontVector(), mgr.GetActiveRandom()->Range(0.f, M_PIF))
-                .transform(4.f * lookAt.rightVector());
+      const auto lookAt = zeus::CTransform4f::LookAt(xf.origin, playerAimPos);
+      vec = zeus::CQuaternion::fromAxisAngle(lookAt.GetForward(), mgr.GetActiveRandom()->Range(0.f, M_PIF))
+                .transform(4.f * lookAt.GetRight());
     }
-    sub_801656d4(zeus::lookAt(xf.origin, playerAimPos + vec), mgr);
+    sub_801656d4(zeus::CTransform4f::LookAt(xf.origin, playerAimPos + vec), mgr);
   }
 }
 
-void CDrone::sub_801656d4(const zeus::CTransform& xf, CStateManager& mgr) {
+void CDrone::sub_801656d4(const zeus::CTransform4f& xf, CStateManager& mgr) {
   constexpr auto matFilter =
       CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
   EntityList nearList;
-  mgr.BuildNearList(nearList, xf.origin, xf.frontVector(), 100000.f, matFilter, this);
+  mgr.BuildNearList(nearList, xf.origin, xf.GetForward(), 100000.f, matFilter, this);
   TUniqueId id;
-  const auto result = mgr.RayWorldIntersection(id, xf.origin, xf.frontVector(), 100000.f, matFilter, nearList);
+  const auto result = mgr.RayWorldIntersection(id, xf.origin, xf.GetForward(), 100000.f, matFilter, nearList);
   if (result.IsInvalid()) {
     return;
   }

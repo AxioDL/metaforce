@@ -25,7 +25,7 @@ void CHudHelmetInterface::UpdateVisibility() {
 void CHudHelmetInterface::Update(float dt) {
   if (x3c_28_hudLagDirty) {
     x3c_28_hudLagDirty = false;
-    x44_BaseWidget_Pivot->SetTransform(zeus::CTransform(x0_hudLagRotation, x24_pivotPosition + x30_hudLagPosition));
+    x44_BaseWidget_Pivot->SetTransform(zeus::CTransform4f(x0_hudLagRotation, x24_pivotPosition + x30_hudLagPosition));
   }
 }
 
@@ -45,7 +45,7 @@ void CHudHelmetInterface::AddHelmetLightValue(float val) {
 
 void CHudHelmetInterface::UpdateCameraDebugSettings(float fov, float y, float z) {
   x40_camera->SetFov(fov);
-  x40_camera->SetTransform(zeus::CTransform(x40_camera->GetTransform().buildMatrix3f(), zeus::CVector3f(0.f, y, z)));
+  x40_camera->SetTransform(zeus::CTransform4f(x40_camera->GetTransform().BuildMatrix3f(), zeus::CVector3f(0.f, y, z)));
 }
 
 void CHudHelmetInterface::UpdateHelmetAlpha() {

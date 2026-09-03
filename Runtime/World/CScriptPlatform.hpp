@@ -14,7 +14,7 @@
 #include "Runtime/World/CPhysicsActor.hpp"
 
 #include <zeus/CQuaternion.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -23,9 +23,9 @@ class CFluidPlane;
 struct SRiders {
   TUniqueId x0_uid;
   float x4_decayTimer;
-  zeus::CTransform x8_transform;
+  zeus::CTransform4f x8_transform;
 
-  SRiders(TUniqueId id, float decayTimer, const zeus::CTransform& xf)
+  SRiders(TUniqueId id, float decayTimer, const zeus::CTransform4f& xf)
   : x0_uid(id), x4_decayTimer(decayTimer), x8_transform(xf) {}
 };
 
@@ -67,14 +67,14 @@ class CScriptPlatform : public CPhysicsActor {
                   const zeus::CVector3f& delta);
   static void DecayRiders(std::vector<SRiders>& riders, float dt, CStateManager& mgr);
   static void MoveRiders(CStateManager& mgr, float dt, bool active, std::vector<SRiders>& riders,
-                         std::vector<SRiders>& collidedRiders, const zeus::CTransform& oldXf,
-                         const zeus::CTransform& newXf, const zeus::CVector3f& dragDelta,
+                         std::vector<SRiders>& collidedRiders, const zeus::CTransform4f& oldXf,
+                         const zeus::CTransform4f& newXf, const zeus::CVector3f& dragDelta,
                          const zeus::CQuaternion& rotDelta);
   static EntityList BuildNearListFromRiders(CStateManager& mgr, const std::vector<SRiders>& movedRiders);
 
 public:
   DEFINE_ENTITY
-  CScriptPlatform(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptPlatform(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                   CModelData&& mData, const CActorParameters& actParms, const zeus::CAABox& aabb, float speed,
                   bool detectCollision, float xrayAlpha, bool active, const CHealthInfo& hInfo,
                   const CDamageVulnerability& dVuln, std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>> dcln,
@@ -84,10 +84,10 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void PreThink(float, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void PreRender(CStateManager&, const zeus::CFrustum&) override;
+  void PreRender(CStateManager&, const zeus::CFrustumPlanes&) override;
   void Render(CStateManager&) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
-  zeus::CTransform GetPrimitiveTransform() const override;
+  zeus::CTransform4f GetPrimitiveTransform() const override;
   const CCollisionPrimitive* GetCollisionPrimitive() const override;
   zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const override;
   zeus::CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override;

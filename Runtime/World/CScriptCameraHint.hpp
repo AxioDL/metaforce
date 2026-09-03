@@ -7,7 +7,7 @@
 #include "Runtime/Camera/CBallCamera.hpp"
 #include "Runtime/World/CActor.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -84,14 +84,14 @@ class CScriptCameraHint : public CActor {
   rstl::reserved_vector<TUniqueId, 8> x150_helpers;
   TUniqueId x164_delegatedCamera = kInvalidUniqueId;
   bool x166_inactive = false;
-  zeus::CTransform x168_origXf;
+  zeus::CTransform4f x168_origXf;
   void InitializeInArea(CStateManager& mgr);
   void AddHelper(TUniqueId id);
   void RemoveHelper(TUniqueId id);
 
 public:
   DEFINE_ENTITY
-  CScriptCameraHint(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, bool active,
+  CScriptCameraHint(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf, bool active,
                     s32 priority, CBallCamera::EBallCameraBehaviour behaviour, u32 overrideFlags, float minDist,
                     float maxDist, float backwardsDist, const zeus::CVector3f& lookAtOffset,
                     const zeus::CVector3f& chaseLookAtOffset, const zeus::CVector3f& ballToCam, float fov,
@@ -110,6 +110,6 @@ public:
   s32 GetPriority() const { return xe8_priority; }
   const CCameraOverrideInfo& GetHint() const { return xec_hint; }
   TUniqueId GetDelegatedCamera() const { return x164_delegatedCamera; }
-  const zeus::CTransform& GetOriginalTransform() const { return x168_origXf; }
+  const zeus::CTransform4f& GetOriginalTransform() const { return x168_origXf; }
 };
 } // namespace metaforce

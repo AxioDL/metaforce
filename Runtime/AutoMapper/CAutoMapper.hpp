@@ -12,7 +12,7 @@
 #include "Runtime/MP1/CInGameGuiManager.hpp"
 
 #include <zeus/CQuaternion.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector2i.hpp>
 #include <zeus/CVector3f.hpp>
@@ -238,7 +238,7 @@ public:
     return IsInMapperState(EAutoMapperState::MapScreen) || IsInMapperState(EAutoMapperState::MapScreenUniverse);
   }
   void Update(float dt, CStateManager& mgr);
-  void Draw(const CStateManager& mgr, const zeus::CTransform& xf, float alpha);
+  void Draw(const CStateManager& mgr, const zeus::CTransform4f& xf, float alpha);
   float GetTimeIntoInterpolation() const { return x1c8_interpTime; }
   void BeginMapperStateTransition(EAutoMapperState state, CStateManager& mgr);
   void CompleteMapperStateTransition(CStateManager& mgr);

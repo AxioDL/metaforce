@@ -68,7 +68,7 @@ public:
   const CMapAreaSurface& GetSurface(int idx) const { return m_surfaces[idx]; }
   u32 GetNumMappableObjects() const { return m_mappableObjects.size(); }
   u32 GetNumSurfaces() const { return m_surfaces.size(); }
-  zeus::CTransform GetAreaPostTransform(const IWorld& world, TAreaId aid) const;
+  zeus::CTransform4f GetAreaPostTransform(const IWorld& world, TAreaId aid) const;
   static const zeus::CVector3f& GetAreaPostTranslate(const IWorld& world, TAreaId aid);
   TConstVectorRef GetVertices() const { return m_verts; }
 };

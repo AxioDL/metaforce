@@ -39,11 +39,11 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
   // g_Renderer->BindBallShadowIdTarget();
   // CGraphics::g_BooMainCommandQueue->clearTarget();
 
-  zeus::CTransform backupViewMtx = CGraphics::mViewMatrix;
+  zeus::CTransform4f backupViewMtx = CGraphics::mViewMatrix;
   CGraphics::CProjectionState backupProjection = CGraphics::mProj;
   float backupDepthNear = CGraphics::mDepthNear;
   float backupDepthFar = CGraphics::mDepthFar;
-  zeus::CTransform viewMtx(
+  zeus::CTransform4f viewMtx(
       zeus::skRight, zeus::skDown, zeus::skForward,
       zeus::CVector3f((aabb.min.x() + aabb.max.x()) * 0.5f, (aabb.min.y() + aabb.max.y()) * 0.5f, aabb.max.z()));
 
@@ -70,7 +70,7 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
     x0_actors.push_back(actor);
 
     auto* modelData = actor->GetModelData();
-    zeus::CTransform modelXf = actor->GetTransform() * zeus::CTransform::Scale(modelData->GetScale());
+    zeus::CTransform4f modelXf = actor->GetTransform() * zeus::CTransform4f::Scale(modelData->GetScale());
     CGraphics::SetModelMatrix(modelXf);
 
     CModelFlags flags(0, 0, 3, zeus::CColor{1.f, 1.f, 1.f, alphaVal / 255.f});
@@ -81,7 +81,7 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
     alphaVal += 4;
   }
 
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  CGraphics::SetModelMatrix(zeus::CTransform4f());
 
   g_Renderer->FindOverlappingWorldModels(x30_worldModelBits, aabb);
   alphaVal = g_Renderer->DrawOverlappingWorldModelIDs(alphaVal, x30_worldModelBits, aabb);
@@ -126,7 +126,7 @@ void CMorphBallShadow::Render(const CStateManager& mgr, float alpha) {
   int alphaVal = 4;
   for (auto* actor : x0_actors) {
     auto* modelData = actor->GetModelData();
-    zeus::CTransform modelXf = actor->GetTransform() * zeus::CTransform::Scale(modelData->GetScale());
+    zeus::CTransform4f modelXf = actor->GetTransform() * zeus::CTransform4f::Scale(modelData->GetScale());
     CGraphics::SetModelMatrix(modelXf);
 
     flags.x4_color.r() = alphaVal / 255.f;
@@ -136,7 +136,7 @@ void CMorphBallShadow::Render(const CStateManager& mgr, float alpha) {
     alphaVal += 4;
   }
 
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  CGraphics::SetModelMatrix(zeus::CTransform4f());
   g_Renderer->DrawOverlappingWorldModelShadows(alphaVal, x30_worldModelBits, xb8_shadowVolume);
 }
 

@@ -111,7 +111,7 @@ bool CCollidableOBBTree::LineIntersectsOBBTree(const COBBTree::CNode& node, CRay
 }
 
 CRayCastResult CCollidableOBBTree::LineIntersectsTree(const zeus::CMRay& ray, const CMaterialFilter& filter,
-                                                      float maxTime, const zeus::CTransform& xf) const {
+                                                      float maxTime, const zeus::CTransform4f& xf) const {
   zeus::CMRay useRay = ray.getInvUnscaledTransformRay(xf);
   CRayCastInfo info(useRay, filter, maxTime);
   if (LineIntersectsOBBTree(x10_tree->GetRoot(), info)) {
@@ -122,12 +122,12 @@ CRayCastResult CCollidableOBBTree::LineIntersectsTree(const zeus::CMRay& ray, co
   }
 }
 
-zeus::CPlane CCollidableOBBTree::TransformPlane(const zeus::CPlane& pl, const zeus::CTransform& xf) {
-  zeus::CVector3f normal = xf.rotate(pl.normal());
+zeus::CPlane CCollidableOBBTree::TransformPlane(const zeus::CPlane& pl, const zeus::CTransform4f& xf) {
+  zeus::CVector3f normal = xf.Rotate(pl.normal());
   return zeus::CPlane(normal, (xf * (pl.normal() * pl.d())).dot(normal));
 }
 
-bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& leaf, const zeus::CTransform& xf,
+bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& leaf, const zeus::CTransform4f& xf,
                                                      const zeus::CSphere& sphere, const CMaterialList& matList,
                                                      const CMaterialFilter& filter, const zeus::CVector3f& dir,
                                                      double& dOut, CCollisionInfo& infoOut) const {
@@ -257,7 +257,7 @@ bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& 
   return ret;
 }
 
-bool CCollidableOBBTree::SphereCollisionMoving(const COBBTree::CNode& node, const zeus::CTransform& xf,
+bool CCollidableOBBTree::SphereCollisionMoving(const COBBTree::CNode& node, const zeus::CTransform4f& xf,
                                                const zeus::CSphere& sphere, const zeus::COBBox& obb,
                                                const CMaterialList& material, const CMaterialFilter& filter,
                                                const zeus::CVector3f& dir, double& dOut, CCollisionInfo& info) const {
@@ -282,7 +282,7 @@ bool CCollidableOBBTree::SphereCollisionMoving(const COBBTree::CNode& node, cons
   return ret;
 }
 
-bool CCollidableOBBTree::AABoxCollideWithLeafMoving(const COBBTree::CLeafData& leaf, const zeus::CTransform& xf,
+bool CCollidableOBBTree::AABoxCollideWithLeafMoving(const COBBTree::CLeafData& leaf, const zeus::CTransform4f& xf,
                                                     const zeus::CAABox& aabb, const CMaterialList& matList,
                                                     const CMaterialFilter& filter,
                                                     const CMovingAABoxComponents& components,
@@ -372,7 +372,7 @@ bool CCollidableOBBTree::AABoxCollideWithLeafMoving(const COBBTree::CLeafData& l
   return ret;
 }
 
-bool CCollidableOBBTree::AABoxCollisionMoving(const COBBTree::CNode& node, const zeus::CTransform& xf,
+bool CCollidableOBBTree::AABoxCollisionMoving(const COBBTree::CNode& node, const zeus::CTransform4f& xf,
                                               const zeus::CAABox& aabb, const zeus::COBBox& obb,
                                               const CMaterialList& material, const CMaterialFilter& filter,
                                               const CMovingAABoxComponents& components, const zeus::CVector3f& dir,
@@ -398,7 +398,7 @@ bool CCollidableOBBTree::AABoxCollisionMoving(const COBBTree::CNode& node, const
   return ret;
 }
 
-bool CCollidableOBBTree::SphereCollisionBoolean(const COBBTree::CNode& node, const zeus::CTransform& xf,
+bool CCollidableOBBTree::SphereCollisionBoolean(const COBBTree::CNode& node, const zeus::CTransform4f& xf,
                                                 const zeus::CSphere& sphere, const zeus::COBBox& obb,
                                                 const CMaterialFilter& filter) const {
   const_cast<CCollidableOBBTree&>(*this).x14_tries += 1;
@@ -426,7 +426,7 @@ bool CCollidableOBBTree::SphereCollisionBoolean(const COBBTree::CNode& node, con
   return false;
 }
 
-bool CCollidableOBBTree::AABoxCollisionBoolean(const COBBTree::CNode& node, const zeus::CTransform& xf,
+bool CCollidableOBBTree::AABoxCollisionBoolean(const COBBTree::CNode& node, const zeus::CTransform4f& xf,
                                                const zeus::CAABox& aabb, const zeus::COBBox& obb,
                                                const CMaterialFilter& filter) const {
   zeus::CVector3f center = aabb.center();
@@ -457,7 +457,7 @@ bool CCollidableOBBTree::AABoxCollisionBoolean(const COBBTree::CNode& node, cons
   return false;
 }
 
-bool CCollidableOBBTree::SphereCollideWithLeaf(const COBBTree::CLeafData& leaf, const zeus::CTransform& xf,
+bool CCollidableOBBTree::SphereCollideWithLeaf(const COBBTree::CLeafData& leaf, const zeus::CTransform4f& xf,
                                                const zeus::CSphere& sphere, const CMaterialList& material,
                                                const CMaterialFilter& filter, CCollisionInfoList& infoList) const {
   bool ret = false;
@@ -481,7 +481,7 @@ bool CCollidableOBBTree::SphereCollideWithLeaf(const COBBTree::CLeafData& leaf, 
   return ret;
 }
 
-bool CCollidableOBBTree::SphereCollision(const COBBTree::CNode& node, const zeus::CTransform& xf,
+bool CCollidableOBBTree::SphereCollision(const COBBTree::CNode& node, const zeus::CTransform4f& xf,
                                          const zeus::CSphere& sphere, const zeus::COBBox& obb,
                                          const CMaterialList& material, const CMaterialFilter& filter,
                                          CCollisionInfoList& infoList) const {
@@ -506,7 +506,7 @@ bool CCollidableOBBTree::SphereCollision(const COBBTree::CNode& node, const zeus
   return ret;
 }
 
-bool CCollidableOBBTree::AABoxCollideWithLeaf(const COBBTree::CLeafData& leaf, const zeus::CTransform& xf,
+bool CCollidableOBBTree::AABoxCollideWithLeaf(const COBBTree::CLeafData& leaf, const zeus::CTransform4f& xf,
                                               const zeus::CAABox& aabb, const CMaterialList& material,
                                               const CMaterialFilter& filter, const std::array<zeus::CPlane, 6>& planes,
                                               CCollisionInfoList& infoList) const {
@@ -534,7 +534,7 @@ bool CCollidableOBBTree::AABoxCollideWithLeaf(const COBBTree::CLeafData& leaf, c
   return ret;
 }
 
-bool CCollidableOBBTree::AABoxCollision(const COBBTree::CNode& node, const zeus::CTransform& xf,
+bool CCollidableOBBTree::AABoxCollision(const COBBTree::CNode& node, const zeus::CTransform4f& xf,
                                         const zeus::CAABox& aabb, const zeus::COBBox& obb,
                                         const CMaterialList& material, const CMaterialFilter& filter,
                                         const std::array<zeus::CPlane, 6>& planes, CCollisionInfoList& infoList) const {
@@ -565,7 +565,7 @@ CRayCastResult CCollidableOBBTree::CastRayInternal(const CInternalRayCastStructu
   return LineIntersectsTree(rayCast.GetRay(), rayCast.GetFilter(), rayCast.GetMaxTime(), rayCast.GetTransform());
 }
 
-zeus::CAABox CCollidableOBBTree::CalculateAABox(const zeus::CTransform& xf) const {
+zeus::CAABox CCollidableOBBTree::CalculateAABox(const zeus::CTransform4f& xf) const {
   return zeus::COBBox::FromAABox(x10_tree->CalculateLocalAABox(), xf).calculateAABox();
 }
 

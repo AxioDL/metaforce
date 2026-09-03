@@ -10,7 +10,7 @@ zeus::CVector3f CSteeringBehaviors::Flee(const CPhysicsActor& actor, const zeus:
   if (actVec.canBeNormalized())
     return actVec.normalized();
 
-  return actor.GetTransform().frontVector();
+  return actor.GetTransform().GetForward();
 }
 
 zeus::CVector3f CSteeringBehaviors::Seek(const CPhysicsActor& actor, const zeus::CVector3f& target) const {
@@ -50,7 +50,7 @@ zeus::CVector3f CSteeringBehaviors::Separation(const CPhysicsActor& actor, const
     return {};
 
   if (!posDiff.canBeNormalized())
-    return actor.GetTransform().frontVector();
+    return actor.GetTransform().GetForward();
 
   return (1.f - (posDiff.magSquared() / (separation * separation))) * posDiff.normalized();
 }
@@ -62,12 +62,12 @@ zeus::CVector3f CSteeringBehaviors::Alignment(const CPhysicsActor& actor, Entity
   if (!list.empty()) {
     for (const TUniqueId& id : list)
       if (const CActor* act = static_cast<const CActor*>(mgr.GetObjectById(id)))
-        align += act->GetTransform().frontVector();
+        align += act->GetTransform().GetForward();
 
     align *= zeus::CVector3f(1.f / float(list.size()));
   }
 
-  float diff = zeus::CVector3f::getAngleDiff(actor.GetTransform().frontVector(), align);
+  float diff = zeus::CVector3f::getAngleDiff(actor.GetTransform().GetForward(), align);
   return align * (diff / M_PIF);
 }
 
@@ -90,7 +90,7 @@ zeus::CVector2f CSteeringBehaviors::Flee2D(const CPhysicsActor& actor, const zeu
   if (diffVec.magSquared() > FLT_EPSILON)
     return diffVec.normalized();
   else
-    return actor.GetTransform().basis[1].toVec2f();
+    return actor.GetTransform().GetForward().toVec2f();
 }
 
 zeus::CVector2f CSteeringBehaviors::Arrival2D(const CPhysicsActor& actor, const zeus::CVector2f& v0) const {

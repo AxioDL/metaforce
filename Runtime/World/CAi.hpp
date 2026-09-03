@@ -33,7 +33,7 @@ protected:
 
 public:
   DEFINE_ENTITY
-  CAi(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CAi(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
       CModelData&& mData, const zeus::CAABox& box, float mass, const CHealthInfo& hInfo, const CDamageVulnerability&,
       const CMaterialList& list, CAssetId fsm, const CActorParameters&, float f1, float f2);
 

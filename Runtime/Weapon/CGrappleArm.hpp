@@ -44,11 +44,11 @@ private:
   TCachedToken<CAnimCharacterSet> x184_grappleArm;
   std::vector<CToken> x18c_anims;
   rstl::reserved_vector<std::vector<CToken>, 8> x19c_suitDeps;
-  zeus::CTransform x220_xf;
-  zeus::CTransform x250_grapLocatorXf;
-  zeus::CTransform x280_grapNozLoc1Xf;
-  zeus::CTransform x2b0_grapNozLoc2Xf;
-  zeus::CTransform x2e0_auxXf;
+  zeus::CTransform4f x220_xf;
+  zeus::CTransform4f x250_grapLocatorXf;
+  zeus::CTransform4f x280_grapNozLoc1Xf;
+  zeus::CTransform4f x2b0_grapNozLoc2Xf;
+  zeus::CTransform4f x2e0_auxXf;
   zeus::CVector3f x310_grapplePointPos;
   zeus::CVector3f x31c_scale;
   std::unique_ptr<CGunController> x328_gunController;
@@ -98,16 +98,16 @@ private:
   void DoUserAnimEvents(CStateManager& mgr);
   void UpdateArmMovement(float dt, CStateManager& mgr);
   void UpdateGrappleBeamFx(const zeus::CVector3f& beamGunPos, const zeus::CVector3f& beamAirPos, CStateManager& mgr);
-  bool UpdateGrappleBeam(float dt, const zeus::CTransform& beamLoc, CStateManager& mgr);
+  bool UpdateGrappleBeam(float dt, const zeus::CTransform4f& beamLoc, CStateManager& mgr);
   void UpdateSwingAction(float grappleSwingT, float dt, CStateManager& mgr);
-  void RenderXRayModel(const CStateManager& mgr, const zeus::CTransform& modelXf, const CModelFlags& flags);
+  void RenderXRayModel(const CStateManager& mgr, const zeus::CTransform4f& modelXf, const CModelFlags& flags);
 
 public:
   explicit CGrappleArm(const zeus::CVector3f& scale);
   void AsyncLoadSuit(CStateManager& mgr);
-  void SetTransform(const zeus::CTransform& xf) { x220_xf = xf; }
-  const zeus::CTransform& GetTransform() const { return x220_xf; }
-  zeus::CTransform& AuxTransform() { return x2e0_auxXf; }
+  void SetTransform(const zeus::CTransform4f& xf) { x220_xf = xf; }
+  const zeus::CTransform4f& GetTransform() const { return x220_xf; }
+  zeus::CTransform4f& AuxTransform() { return x2e0_auxXf; }
   void SetAnimState(EArmState state);
   EArmState GetAnimState() const { return x334_animState; }
   bool GetActive() const { return x3b2_24_active; }
@@ -121,7 +121,7 @@ public:
   void RenderGrappleBeam(const CStateManager& mgr, const zeus::CVector3f& pos);
   void TouchModel(const CStateManager& mgr);
   void Update(float grappleSwingT, float dt, CStateManager& mgr);
-  void PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos);
+  void PreRender(const CStateManager& mgr, const zeus::CFrustumPlanes& frustum, const zeus::CVector3f& camPos);
   void Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags,
               const CActorLights* lights);
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);

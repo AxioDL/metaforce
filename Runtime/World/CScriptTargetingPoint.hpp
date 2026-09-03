@@ -14,7 +14,7 @@ private:
 
 public:
   DEFINE_ENTITY
-  CScriptTargetingPoint(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool);
+  CScriptTargetingPoint(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, bool);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;

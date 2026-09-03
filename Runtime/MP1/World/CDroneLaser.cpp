@@ -11,7 +11,7 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce::MP1 {
-CDroneLaser::CDroneLaser(TUniqueId uid, TAreaId aId, const zeus::CTransform& xf, CAssetId particle)
+CDroneLaser::CDroneLaser(TUniqueId uid, TAreaId aId, const zeus::CTransform4f& xf, CAssetId particle)
 : CActor(uid, true, "DroneLaser"sv, CEntityInfo(aId, CEntity::NullConnectionList), xf, CModelData::CModelDataNull(),
          CMaterialList(EMaterialTypes::NoStepLogic), CActorParameters::None().HotInThermal(true), kInvalidUniqueId)
 , xf8_beamDesc(g_SimplePool->GetObj({SBIG('PART'), particle}))
@@ -38,12 +38,12 @@ void CDroneLaser::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CS
     }
   } else if (msg == EScriptObjectMessage::Registered) {
     xf4_scannerLight = mgr.AllocateUniqueId();
-    mgr.AddObject(new CGameLight(xf4_scannerLight, GetAreaIdAlways(), GetActive(), "LaserScanner"sv, zeus::CTransform(),
+    mgr.AddObject(new CGameLight(xf4_scannerLight, GetAreaIdAlways(), GetActive(), "LaserScanner"sv, zeus::CTransform4f(),
                                  GetUniqueId(), CLight::BuildPoint(zeus::skZero3f, zeus::skRed), 0, 0, 0.f));
   }
 }
 
-void CDroneLaser::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CDroneLaser::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   g_Renderer->AddParticleGen(*x104_beamParticle);
   EnsureRendered(mgr);
 }
@@ -61,8 +61,8 @@ void CDroneLaser::CalculateRenderBounds() {
   const zeus::CVector3f diff = xe8_ - GetTranslation();
   const float mag1 = 0.2f * diff.magnitude();
   box.accumulateBounds(diff);
-  box.accumulateBounds(xe8_ + (mag1 * GetTransform().basis[2]));
-  box.accumulateBounds(xe8_ - (mag1 * GetTransform().basis[2]));
+  box.accumulateBounds(xe8_ + (mag1 * GetTransform().GetUp()));
+  box.accumulateBounds(xe8_ - (mag1 * GetTransform().GetUp()));
   x9c_renderBounds = box;
 }
 
@@ -82,7 +82,7 @@ void CDroneLaser::sub_80167754(CStateManager& mgr, const zeus::CVector3f& pos, c
       light->SetTranslation(pos - 0.5f * (pos - GetTranslation()));
     }
   }
-  x104_beamParticle->SetOrientation(zeus::lookAt(zeus::skZero3f, look));
+  x104_beamParticle->SetOrientation(zeus::CTransform4f::LookAt(zeus::skZero3f, look));
   x104_beamParticle->SetTranslation(pos);
 }
 

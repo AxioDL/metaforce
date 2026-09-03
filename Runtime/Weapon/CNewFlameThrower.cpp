@@ -27,7 +27,7 @@ constexpr CMaterialFilter skExcludeProjectilePassthrough =
 }
 
 CNewFlameThrower::CNewFlameThrower(const TToken<CWeaponDescription>& desc, std::string_view name, EWeaponType wType,
-                                   const std::array<CAssetId, 8>& resInfo, const zeus::CTransform& xf,
+                                   const std::array<CAssetId, 8>& resInfo, const zeus::CTransform4f& xf,
                                    EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid,
                                    TUniqueId owner, EProjectileAttrib attribs)
 : CGameProjectile(false, desc, name, wType, xf, matType, dInfo, uid, aid, owner, kInvalidUniqueId, attribs, false,
@@ -88,7 +88,7 @@ void CNewFlameThrower::DeleteLightObjects(CStateManager& mgr) {
   x3b8_lightIds.clear();
 }
 
-void CNewFlameThrower::AddToRenderer(zeus::CFrustum const& planes, CStateManager& mgr) {
+void CNewFlameThrower::AddToRenderer(zeus::CFrustumPlanes const& planes, CStateManager& mgr) {
   zeus::CAABox sorting_bounds = GetSortingBounds(mgr);
   EnsureRendered(mgr, x34_transform.origin, sorting_bounds);
 }
@@ -98,7 +98,7 @@ void CNewFlameThrower::CreateLightObjects(CStateManager& mgr) {
   for (int i = 0; i < 4; ++i) {
     TUniqueId uid = mgr.AllocateUniqueId();
     CLight lObj = x358_mainFireGen->GetLight();
-    CGameLight* light = new CGameLight(uid, GetAreaId(), false, "FlamethrowerLight", zeus::CTransform(), x8_uid, lObj,
+    CGameLight* light = new CGameLight(uid, GetAreaId(), false, "FlamethrowerLight", zeus::CTransform4f(), x8_uid, lObj,
                                        u32(reinterpret_cast<uintptr_t>(this) + (i & 0x1)), 0, 0.f);
     mgr.AddObject(light);
     x3b8_lightIds.push_back(uid);
@@ -120,7 +120,7 @@ void CNewFlameThrower::EnableFx(CStateManager& mgr) {
     CreateLightObjects(mgr);
 }
 
-void CNewFlameThrower::StartFiring(const zeus::CTransform& xf, CStateManager& mgr) {
+void CNewFlameThrower::StartFiring(const zeus::CTransform4f& xf, CStateManager& mgr) {
   SetActive(true);
   x37c_25_firing = true;
   x37c_24_renderAuxEffects = true;
@@ -295,7 +295,7 @@ void CNewFlameThrower::RenderParticles(std::array<CElementGen*, 5> const& elem_g
 }
 */
 
-void CNewFlameThrower::UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr) {
+void CNewFlameThrower::UpdateFx(const zeus::CTransform4f& xf, float dt, CStateManager& mgr) {
   if (!x30_24_active) {
     return;
   }
@@ -304,8 +304,8 @@ void CNewFlameThrower::UpdateFx(const zeus::CTransform& xf, float dt, CStateMana
   x37c_26_runningSlowish = (active_time > 0.65f);
   UpdateFlameState(dt, mgr);
   zeus::CVector3f org = xf.origin;
-  zeus::CTransform rot = xf.getRotation();
-  zeus::CTransform rot_copy(rot);
+  zeus::CTransform4f rot = xf.GetRotation();
+  zeus::CTransform4f rot_copy(rot);
 
   x358_mainFireGen->SetTranslation(org);
   x358_mainFireGen->SetOrientation(rot_copy);
@@ -363,8 +363,8 @@ void CNewFlameThrower::UpdateFx(const zeus::CTransform& xf, float dt, CStateMana
         auto& swoosh_1 = x36c_swooshCenterGen->GetSwooshes()[quarter_behind_cur];
         auto& swoosh_2 = x36c_swooshCenterGen->GetSwooshes()[next_idx];
         zeus::CVector3f delta = swoosh_1.xc_translation - swoosh_2.xc_translation;
-        float f0 = delta.dot(swoosh_1.x38_orientation.frontVector());
-        zeus::CVector3f unk = delta - (swoosh_1.x38_orientation.frontVector() * f0);
+        float f0 = delta.dot(swoosh_1.x38_orientation.GetForward());
+        zeus::CVector3f unk = delta - (swoosh_1.x38_orientation.GetForward() * f0);
         float tmp = std::clamp(unk.magnitude() * 30.f, 1.f, x37c_26_runningSlowish ? 2.f : 4.f);
 
         x3b4_numSmokeParticlesSpawned = std::max(static_cast<int>(round(tmp)), x3b4_numSmokeParticlesSpawned - 1);
@@ -487,7 +487,7 @@ bool CNewFlameThrower::UpdateParticleCollisions(float dt, CStateManager& mgr,
                                   CMaterialList(EMaterialTypes::Solid));
       CCollisionInfoList coll_info_out;
       bool collided_static = CGameCollision::DetectStaticCollision_Cached(
-          mgr, coll_cache, coll_prim, zeus::CTransform(), skExcludeProjectilePassthrough, coll_info_out);
+          mgr, coll_cache, coll_prim, zeus::CTransform4f(), skExcludeProjectilePassthrough, coll_info_out);
 
       TUniqueId first_actor_hit = kInvalidUniqueId;
       bool collided_other = FindCollisionInNearList(mgr, near_list_cache, coll_prim, first_actor_hit, coll_info_out);
@@ -508,7 +508,7 @@ bool CNewFlameThrower::UpdateParticleCollisions(float dt, CStateManager& mgr,
           const int max_overlapping = (x37c_26_runningSlowish ? 2 : 3);
           if (num_overlap < max_overlapping) {
             AddContactPoint(info, 10);
-            zeus::CTransform xf = zeus::lookAt(zeus::skZero3f, info.GetNormalLeft(), zeus::skUp);
+            zeus::CTransform4f xf = zeus::CTransform4f::LookAt(zeus::skZero3f, info.GetNormalLeft(), zeus::skUp);
             x360_secondarySmokeGen->SetOrientation(xf);
             x364_secondaryFireGen->SetOrientation(xf);
             x368_secondarySparksGen->SetOrientation(xf);
@@ -672,7 +672,7 @@ bool CNewFlameThrower::FindCollisionInNearList(CStateManager& mgr, EntityList co
       if (TCastToPtr<CPhysicsActor> pa = *near_actor) {
         CInternalCollisionStructure::CPrimDesc pa_desc(*pa->GetCollisionPrimitive(), pa->GetMaterialFilter(),
                                                        pa->GetPrimitiveTransform());
-        CInternalCollisionStructure::CPrimDesc param_desc(coll, skExcludeProjectilePassthrough, zeus::CTransform());
+        CInternalCollisionStructure::CPrimDesc param_desc(coll, skExcludeProjectilePassthrough, zeus::CTransform4f());
 
         if (CCollisionPrimitive::Collide(pa_desc, param_desc, collisions)) {
           first_coll_out = cur_uid;
@@ -685,8 +685,8 @@ bool CNewFlameThrower::FindCollisionInNearList(CStateManager& mgr, EntityList co
         }
         CCollidableAABox coll_aabb(bounds.value(), CMaterialList(EMaterialTypes::Solid));
         CInternalCollisionStructure::CPrimDesc aabb_desc(coll_aabb, CMaterialFilter::skPassEverything,
-                                                         zeus::CTransform());
-        CInternalCollisionStructure::CPrimDesc param_desc(coll, skExcludeProjectilePassthrough, zeus::CTransform());
+                                                         zeus::CTransform4f());
+        CInternalCollisionStructure::CPrimDesc param_desc(coll, skExcludeProjectilePassthrough, zeus::CTransform4f());
 
         if (CCollisionPrimitive::Collide(param_desc, aabb_desc, collisions)) {
           first_coll_out = cur_uid;

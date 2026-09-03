@@ -26,7 +26,7 @@ static CMaterialList MakeDoorMaterialList(bool open) {
   return ret;
 }
 
-CScriptDoor::CScriptDoor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CScriptDoor::CScriptDoor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                          CModelData&& mData, const CActorParameters& actParms, const zeus::CVector3f& orbitPos,
                          const zeus::CAABox& aabb, bool active, bool open, bool projectilesCollide, float animLen,
                          bool ballDoor)
@@ -38,7 +38,7 @@ CScriptDoor::CScriptDoor(TUniqueId uid, std::string_view name, const CEntityInfo
   x2a8_28_projectilesCollide = projectilesCollide;
   x2a8_29_ballDoor = ballDoor;
   x264_ = GetBoundingBox();
-  x284_modelBounds = x64_modelData->GetBounds(xf.getRotation());
+  x284_modelBounds = x64_modelData->GetBounds(xf.GetRotation());
   x29c_orbitPos = orbitPos;
 
   xe6_27_thermalVisorFlags = 1;
@@ -205,7 +205,7 @@ void CScriptDoor::Think(float dt, CStateManager& mgr) {
   xe7_31_targetable = mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan;
 }
 
-void CScriptDoor::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManager& mgr) {
+void CScriptDoor::AddToRenderer(const zeus::CFrustumPlanes& /*frustum*/, CStateManager& mgr) {
   if (xe4_30_outOfFrustum) {
     return;
   }

@@ -65,7 +65,7 @@ static float CalcRainPitch(float f) { return f - 1.f; }
 
 void CEnvFxManager::UpdateRainSounds(const CStateManager& mgr) {
   if (mgr.GetWorld()->GetNeededEnvFx() == EEnvFxType::Rain) {
-    zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+    zeus::CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     float rainVol = CalcRainVolume(x30_fxDensity);
     if (!xb6a_rainSoundActive) {
       xb6c_leftRainSound =
@@ -74,8 +74,8 @@ void CEnvFxManager::UpdateRainSounds(const CStateManager& mgr) {
           CSfxManager::AddEmitter(SFXsfx09F1, zeus::skZero3f, zeus::skZero3f, false, true, 0xff, kInvalidAreaId);
       xb6a_rainSoundActive = true;
     }
-    CSfxManager::UpdateEmitter(xb6c_leftRainSound, camXf.origin - camXf.basis[0], camXf.basis[0], rainVol);
-    CSfxManager::UpdateEmitter(xb70_rightRainSound, camXf.origin + camXf.basis[0], -camXf.basis[0], rainVol);
+    CSfxManager::UpdateEmitter(xb6c_leftRainSound, camXf.origin - camXf.GetRight(), camXf.GetRight(), rainVol);
+    CSfxManager::UpdateEmitter(xb70_rightRainSound, camXf.origin + camXf.GetRight(), -camXf.GetRight(), rainVol);
     float rainPitch = CalcRainPitch(x30_fxDensity);
     CSfxManager::PitchBend(xb6c_leftRainSound, rainPitch);
     CSfxManager::PitchBend(xb70_rightRainSound, rainPitch);
@@ -90,17 +90,17 @@ zeus::CVector3f CEnvFxManager::GetParticleBoundsToWorldScale() const {
   return (x0_particleBounds.max - x0_particleBounds.min) / 127.f;
 }
 
-zeus::CTransform CEnvFxManager::GetParticleBoundsToWorldTransform() const {
-  return zeus::CTransform::Translate(x18_focusCellPosition) * zeus::CTransform::Translate(zeus::CVector3f(-31.75f)) *
-         zeus::CTransform::Scale(GetParticleBoundsToWorldScale());
+zeus::CTransform4f CEnvFxManager::GetParticleBoundsToWorldTransform() const {
+  return zeus::CTransform4f::Translate(x18_focusCellPosition) * zeus::CTransform4f::Translate(zeus::CVector3f(-31.75f)) *
+         zeus::CTransform4f::Scale(GetParticleBoundsToWorldScale());
 }
 
-void CEnvFxManager::UpdateVisorSplash(CStateManager& mgr, float dt, const zeus::CTransform& camXf) {
+void CEnvFxManager::UpdateVisorSplash(CStateManager& mgr, float dt, const zeus::CTransform4f& camXf) {
   EEnvFxType fxType = mgr.GetWorld()->GetNeededEnvFx();
   if (xb68_envRainSplashId != kInvalidUniqueId)
     if (TCastToPtr<CHUDBillboardEffect> splashEffect = mgr.ObjectById(xb68_envRainSplashId))
       mgr.SetActorAreaId(*splashEffect, mgr.GetNextAreaId());
-  float camUpness = camXf.basis[1].dot(zeus::skUp);
+  float camUpness = camXf.GetForward().dot(zeus::skUp);
   float splashRateFactor;
   if (x24_enableSplash)
     splashRateFactor = std::max(0.f, camUpness) * x30_fxDensity;
@@ -108,7 +108,7 @@ void CEnvFxManager::UpdateVisorSplash(CStateManager& mgr, float dt, const zeus::
     splashRateFactor = 0.f;
   float forwardRateFactor = 0.f;
   if (x24_enableSplash && camUpness >= -0.1f) {
-    zeus::CVector3f pRelVel = mgr.GetPlayer().GetTransform().transposeRotate(mgr.GetPlayer().GetVelocity());
+    zeus::CVector3f pRelVel = mgr.GetPlayer().GetTransform().TransposeRotate(mgr.GetPlayer().GetVelocity());
     if (pRelVel.canBeNormalized()) {
       float velMag = pRelVel.magnitude();
       zeus::CVector3f normRelVel = pRelVel * (1.f / velMag);
@@ -178,8 +178,8 @@ void CEnvFxManager::BuildBlockObjectList(EntityList& list, CStateManager& mgr) {
   }
 }
 
-void CEnvFxManager::UpdateBlockedGrids(CStateManager& mgr, EEnvFxType type, const zeus::CTransform& camXf,
-                                       const zeus::CTransform& xf, const zeus::CTransform& invXf) {
+void CEnvFxManager::UpdateBlockedGrids(CStateManager& mgr, EEnvFxType type, const zeus::CTransform4f& camXf,
+                                       const zeus::CTransform4f& xf, const zeus::CTransform4f& invXf) {
   zeus::CVector3f playerPos;
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed)
     playerPos = camXf.origin;
@@ -297,7 +297,7 @@ void CEnvFxManager::UpdateUnderwaterParticles(const CVectorFixed8_8& zVec) {
 
 void CEnvFxManager::Update(float dt, CStateManager& mgr) {
   EEnvFxType fxType = mgr.GetWorld()->GetNeededEnvFx();
-  zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+  zeus::CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
   if (mgr.GetCameraManager()->GetFluidCounter() != 0) {
     x2c_lastBlockedGridIdx = -1;
     x24_enableSplash = false;
@@ -318,7 +318,7 @@ void CEnvFxManager::Update(float dt, CStateManager& mgr) {
     x30_fxDensity += densityDeltaDamper * densityDelta;
     zeus::CVector3f pbtws = GetParticleBoundsToWorldScale();
     zeus::CVector3f oopbtws = 1.f / pbtws;
-    zeus::CVector3f forwardPoint = camXf.basis[1] * 23.8125f + camXf.origin;
+    zeus::CVector3f forwardPoint = camXf.GetForward() * 23.8125f + camXf.origin;
     float modX = std::fmod(forwardPoint.x(), 7.9375f);
     float modY = std::fmod(forwardPoint.y(), 7.9375f);
     s32 moveX = (x18_focusCellPosition.x() - (forwardPoint.x() - modX)) / 7.9375f;
@@ -333,8 +333,8 @@ void CEnvFxManager::Update(float dt, CStateManager& mgr) {
       zVec.z += s16(256.f * 0.5f * dt);
     rstl::reserved_vector<CVectorFixed8_8, 256> snowForces;
     CalculateSnowForces(zVec, snowForces, fxType, oopbtws, dt);
-    zeus::CTransform xf = GetParticleBoundsToWorldTransform();
-    zeus::CTransform invXf = xf.inverse();
+    zeus::CTransform4f xf = GetParticleBoundsToWorldTransform();
+    zeus::CTransform4f invXf = xf.Inverse();
     UpdateBlockedGrids(mgr, fxType, camXf, xf, invXf);
     CreateNewParticles(fxType);
     switch (fxType) {
@@ -365,9 +365,9 @@ void CEnvFxManager::Update(float dt, CStateManager& mgr) {
 //   return zeus::CColor(1.f - zeus::clamp(0.f, screenHeight, 1.f), 1.f);
 // }
 
-void CEnvFxManagerGrid::RenderSnowParticles(const zeus::CTransform& camXf) {
-  const zeus::CVector3f xVec = 0.2f * camXf.basis[0];
-  const zeus::CVector3f zVec = 0.2f * camXf.basis[2];
+void CEnvFxManagerGrid::RenderSnowParticles(const zeus::CTransform4f& camXf) {
+  const zeus::CVector3f xVec = 0.2f * camXf.GetRight();
+  const zeus::CVector3f zVec = 0.2f * camXf.GetUp();
   // const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix() * CGraphics::g_GXModelView.toMatrix4f();
   //  auto* bufOut = m_instBuf.access();
   //  for (const auto& particle : x1c_particles) {
@@ -386,9 +386,9 @@ void CEnvFxManagerGrid::RenderSnowParticles(const zeus::CTransform& camXf) {
   //  CGraphics::DrawInstances(0, 4, x1c_particles.size());
 }
 
-void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) {
+void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform4f& camXf) {
 //  m_lineRenderer.Reset();
-  const float zOffset = 2.f * (1.f - std::fabs(camXf.basis[2].dot(zeus::skUp))) + 1.f;
+  const float zOffset = 2.f * (1.f - std::fabs(camXf.GetUp().dot(zeus::skUp))) + 1.f;
   const zeus::CColor color0(1.f, 10.f / 15.f);
   for (const auto& particle : x1c_particles) {
     const zeus::CVector3f pos0 = particle.toVec3f();
@@ -402,9 +402,9 @@ void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) {
 //  m_lineRenderer.Render(false, zeus::CColor(1.f, 0.15f)); // g_Renderer->IsThermalVisorHotPass()
 }
 
-void CEnvFxManagerGrid::RenderUnderwaterParticles(const zeus::CTransform& camXf) {
-  const zeus::CVector3f xVec = 0.5f * camXf.basis[0];
-  const zeus::CVector3f zVec = 0.5f * camXf.basis[2];
+void CEnvFxManagerGrid::RenderUnderwaterParticles(const zeus::CTransform4f& camXf) {
+  const zeus::CVector3f xVec = 0.5f * camXf.GetRight();
+  const zeus::CVector3f zVec = 0.5f * camXf.GetUp();
   // const zeus::CMatrix4f mvp = CGraphics::GetPerspectiveProjectionMatrix() * CGraphics::g_GXModelView.toMatrix4f();
   //  auto* bufOut = m_instBuf.access();
   //  for (const auto& particle : x1c_particles) {
@@ -423,10 +423,10 @@ void CEnvFxManagerGrid::RenderUnderwaterParticles(const zeus::CTransform& camXf)
   //  CGraphics::DrawInstances(0, 4, x1c_particles.size());
 }
 
-void CEnvFxManagerGrid::Render(const zeus::CTransform& xf, const zeus::CTransform& invXf, const zeus::CTransform& camXf,
+void CEnvFxManagerGrid::Render(const zeus::CTransform4f& xf, const zeus::CTransform4f& invXf, const zeus::CTransform4f& camXf,
                                float fxDensity, EEnvFxType fxType, CEnvFxManager& parent) {
   if (!x1c_particles.empty() && x14_block.first) {
-    CGraphics::SetModelMatrix(xf * zeus::CTransform::Translate(x4_position.toVec2f() / 256.f));
+    CGraphics::SetModelMatrix(xf * zeus::CTransform4f::Translate(x4_position.toVec2f() / 256.f));
     // parent.m_uniformData.mv = CGraphics::g_GXModelView.toMatrix4f();
     // parent.m_uniformData.proj = CGraphics::GetPerspectiveProjectionMatrix(/*true*/);
     switch (fxType) {
@@ -497,7 +497,7 @@ void CEnvFxManager::SetupRainTevs() const {
   // KAlpha 0.15
 }
 
-void CEnvFxManager::SetupUnderwaterTevs(const zeus::CTransform& invXf, const CStateManager& mgr) const {
+void CEnvFxManager::SetupUnderwaterTevs(const zeus::CTransform4f& invXf, const CStateManager& mgr) const {
   // Blend SrcAlpha InvSrcAlpha
 
   // xc48_underwaterFlake
@@ -534,9 +534,9 @@ void CEnvFxManager::Render(const CStateManager& mgr) {
       SCOPED_GRAPHICS_DEBUG_GROUP("CEnvFxManager::Render", zeus::skCyan);
       // No Cull
       // ZTest, No ZWrite
-      zeus::CTransform xf = GetParticleBoundsToWorldTransform();
-      zeus::CTransform invXf = xf.inverse();
-      zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+      zeus::CTransform4f xf = GetParticleBoundsToWorldTransform();
+      zeus::CTransform4f invXf = xf.Inverse();
+      zeus::CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
       // m_uniformData.moduColor = zeus::skWhite;
       switch (fxType) {
       case EEnvFxType::Snow:

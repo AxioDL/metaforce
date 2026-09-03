@@ -10,7 +10,7 @@
 #include "Runtime/World/CPathFindRegion.hpp"
 
 #include <zeus/CAABox.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -87,13 +87,13 @@ class CPFArea {
   std::vector<u32> x168_connectionsGround;         // x168: word_count, x16c: ptr
   std::vector<u32> x170_connectionsFlyers;         // x170: word_count, x174: ptr
   std::vector<CPFRegionData> x178_regionDatas;
-  zeus::CTransform x188_transform;
+  zeus::CTransform4f x188_transform;
 
 public:
   CPFArea(std::unique_ptr<u8[]>&& buf, u32 len);
 
-  void SetTransform(const zeus::CTransform& xf) { x188_transform = xf; }
-  const zeus::CTransform& GetTransform() const { return x188_transform; }
+  void SetTransform(const zeus::CTransform4f& xf) { x188_transform = xf; }
+  const zeus::CTransform4f& GetTransform() const { return x188_transform; }
   const CPFRegion& GetRegion(s32 i) const { return x150_regions[i]; }
   const zeus::CVector3f& GetClosestPoint() const { return x4_closestPoint; }
   CPFOpenList& OpenList() { return x78_openList; }

@@ -124,20 +124,20 @@ void CHudVisorBeamMenu::UpdateMenuWidgetTransform(size_t idx, CGuiWidget& w, flo
 
   switch (idx) {
   case 0:
-    w.SetO2WTransform(x18_basewidget_menu->GetWorldTransform() * zeus::CTransform::Translate(0.f, 0.f, translate) *
-                      zeus::CTransform::Scale(scale));
+    w.SetO2WTransform(x18_basewidget_menu->GetWorldTransform() * zeus::CTransform4f::Translate(0.f, 0.f, translate) *
+                      zeus::CTransform4f::Scale(scale));
     break;
   case 1:
-    w.SetO2WTransform(x18_basewidget_menu->GetWorldTransform() * zeus::CTransform::Translate(translate, 0.f, 0.f) *
-                      zeus::CTransform::Scale(scale));
+    w.SetO2WTransform(x18_basewidget_menu->GetWorldTransform() * zeus::CTransform4f::Translate(translate, 0.f, 0.f) *
+                      zeus::CTransform4f::Scale(scale));
     break;
   case 2:
-    w.SetO2WTransform(x18_basewidget_menu->GetWorldTransform() * zeus::CTransform::Translate(0.f, 0.f, -translate) *
-                      zeus::CTransform::Scale(scale));
+    w.SetO2WTransform(x18_basewidget_menu->GetWorldTransform() * zeus::CTransform4f::Translate(0.f, 0.f, -translate) *
+                      zeus::CTransform4f::Scale(scale));
     break;
   case 3:
-    w.SetO2WTransform(x18_basewidget_menu->GetWorldTransform() * zeus::CTransform::Translate(-translate, 0.f, 0.f) *
-                      zeus::CTransform::Scale(scale));
+    w.SetO2WTransform(x18_basewidget_menu->GetWorldTransform() * zeus::CTransform4f::Translate(-translate, 0.f, 0.f) *
+                      zeus::CTransform4f::Scale(scale));
     break;
   default:
     break;

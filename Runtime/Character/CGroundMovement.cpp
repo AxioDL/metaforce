@@ -28,7 +28,7 @@ void CGroundMovement::CheckFalling(CPhysicsActor& actor, CStateManager& mgr, flo
   if (oob) {
     mgr.SendScriptMsg(&actor, kInvalidUniqueId, EScriptObjectMessage::OnFloor);
     actor.SetAngularVelocityWR(actor.GetAngularVelocityWR() * 0.98f);
-    zeus::CVector3f vel = actor.GetTransform().transposeRotate(actor.GetVelocity());
+    zeus::CVector3f vel = actor.GetTransform().TransposeRotate(actor.GetVelocity());
     vel.z() = 0.f;
     actor.SetVelocityOR(vel);
     actor.SetMomentumWR(zeus::skZero3f);
@@ -521,7 +521,7 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
     float zOffset = 0.f;
     TUniqueId id = kInvalidUniqueId;
     if (stepDown2 > FLT_EPSILON) {
-      zeus::CTransform xf = actor.GetTransform();
+      zeus::CTransform4f xf = actor.GetTransform();
       xf.origin += zeus::CVector3f(0.f, 0.f, 0.0005f);
       if (!CGameCollision::DetectCollisionBoolean_Cached(mgr, cache, *actor.GetCollisionPrimitive(), xf,
                                                          actor.GetMaterialFilter(), useNearList)) {
@@ -543,7 +543,7 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
     if (!collisionInfo.IsValid() ||
         !CGameCollision::CanBlock(collisionInfo.GetMaterialLeft(), collisionInfo.GetNormalLeft())) {
       if (zOffset > 0.f) {
-        zeus::CTransform xf = actor.GetTransform();
+        zeus::CTransform4f xf = actor.GetTransform();
         xf.origin -= zeus::CVector3f(0.f, 0.f, zOffset);
       }
 

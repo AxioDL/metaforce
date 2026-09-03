@@ -3,7 +3,7 @@
 #include "Runtime/Graphics/CTexture.hpp"
 
 #include <zeus/CAABox.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -24,7 +24,7 @@ public:
 
   zeus::CAABox CalculateRenderBounds();
   void Render(const CStateManager& mgr);
-  void RenderShadowBuffer(const CStateManager&, const CModelData&, const zeus::CTransform&, s32, const zeus::CVector3f&,
+  void RenderShadowBuffer(const CStateManager&, const CModelData&, const zeus::CTransform4f&, s32, const zeus::CVector3f&,
                           float, float);
 
   void Unset_X80() { x80_ = false; }

@@ -8,7 +8,7 @@
 namespace metaforce {
 
 CScriptCameraWaypoint::CScriptCameraWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                             const zeus::CTransform& xf, bool active, float hfov, u32 w1)
+                                             const zeus::CTransform4f& xf, bool active, float hfov, u32 w1)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_hfov(hfov)

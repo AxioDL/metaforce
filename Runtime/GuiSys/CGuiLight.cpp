@@ -22,13 +22,13 @@ CLight CGuiLight::BuildLight() const {
 
   switch (xb8_type) {
   case ELightType::Spot:
-    ret = CLight::BuildSpot(GetWorldPosition(), x34_worldXF.basis[1], xa4_color, xbc_spotCutoff);
+    ret = CLight::BuildSpot(GetWorldPosition(), x34_worldXF.GetForward(), xa4_color, xbc_spotCutoff);
     break;
   case ELightType::Point:
     ret = CLight::BuildPoint(GetWorldPosition(), xa4_color);
     break;
   case ELightType::Directional:
-    ret = CLight::BuildDirectional(x34_worldXF.basis[1], xa4_color);
+    ret = CLight::BuildDirectional(x34_worldXF.GetForward(), xa4_color);
     break;
   default:
     break;

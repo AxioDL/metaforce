@@ -7,7 +7,7 @@
 
 namespace metaforce::MP1 {
 CPhazonHealingNodule::CPhazonHealingNodule(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                           const zeus::CTransform& xf, CModelData&& mData,
+                                           const zeus::CTransform4f& xf, CModelData&& mData,
                                            const CActorParameters& actParams, const CPatternedInfo& pInfo,
                                            CAssetId particleDescId, std::string actorLctr)
 : CPatterned(EPatternedAI::PhazonHealingNodule, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,

@@ -28,15 +28,15 @@ class CElectricBeamProjectile : public CBeamProjectile {
 public:
   DEFINE_ENTITY
   CElectricBeamProjectile(const TToken<CWeaponDescription>&, EWeaponType, const SElectricBeamInfo&,
-                          const zeus::CTransform&, EMaterialTypes, const CDamageInfo&, TUniqueId, TAreaId, TUniqueId,
+                          const zeus::CTransform4f&, EMaterialTypes, const CDamageInfo&, TUniqueId, TAreaId, TUniqueId,
                           EProjectileAttrib);
 
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void PreRender(CStateManager&, const zeus::CFrustum&) override;
+  void PreRender(CStateManager&, const zeus::CFrustumPlanes&) override;
   void Touch(CActor&, CStateManager&) override {}
-  void UpdateFx(const zeus::CTransform&, float, CStateManager&) override;
+  void UpdateFx(const zeus::CTransform4f&, float, CStateManager&) override;
   void ResetBeam(CStateManager&, bool) override;
-  void Fire(const zeus::CTransform&, CStateManager&, bool) override;
+  void Fire(const zeus::CTransform4f&, CStateManager&, bool) override;
 };
 } // namespace metaforce

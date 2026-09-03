@@ -20,8 +20,8 @@ public:
   void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager& stateMgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
-  void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustumPlanes&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager&) override;
 };
 

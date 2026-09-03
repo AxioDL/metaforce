@@ -25,14 +25,14 @@ class CScriptShadowProjector : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptShadowProjector(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool,
+  CScriptShadowProjector(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, bool,
                          const zeus::CVector3f&, bool, float, float, float, float, s32);
 
   void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override {}
+  void PreRender(CStateManager&, const zeus::CFrustumPlanes&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override {}
   void CreateProjectedShadow();
 };
 } // namespace metaforce

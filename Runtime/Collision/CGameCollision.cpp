@@ -305,7 +305,7 @@ CRayCastResult CGameCollision::RayDynamicIntersection(const CStateManager& mgr, 
   for (TUniqueId id : nearList) {
     const CEntity* ent = mgr.GetObjectById(id);
     if (const TCastToConstPtr<CPhysicsActor> physActor = ent) {
-      const zeus::CTransform xf = physActor->GetPrimitiveTransform();
+      const zeus::CTransform4f xf = physActor->GetPrimitiveTransform();
       const CCollisionPrimitive* prim = physActor->GetCollisionPrimitive();
       const CRayCastResult res = prim->CastRay(pos, dir, bestT, filter, xf);
       if (!res.IsInvalid() && res.GetT() < bestT) {
@@ -332,7 +332,7 @@ bool CGameCollision::RayDynamicIntersectionBool(const CStateManager& mgr, const 
       if (damagee != nullptr && physActor->GetUniqueId() == damagee->GetUniqueId()) {
         continue;
       }
-      const zeus::CTransform xf = physActor->GetPrimitiveTransform();
+      const zeus::CTransform4f xf = physActor->GetPrimitiveTransform();
       const CCollisionPrimitive* prim = physActor->GetCollisionPrimitive();
       const CRayCastResult res = prim->CastRay(pos, dir, length, filter, xf);
       if (!res.IsInvalid()) {
@@ -400,7 +400,7 @@ float CGameCollision::GetMinExtentForCollisionPrimitive(const CCollisionPrimitiv
 }
 
 bool CGameCollision::DetectCollisionBoolean(const CStateManager& mgr, const CCollisionPrimitive& prim,
-                                            const zeus::CTransform& xf, const CMaterialFilter& filter,
+                                            const zeus::CTransform4f& xf, const CMaterialFilter& filter,
                                             const EntityList& nearList) {
   if (!filter.GetExcludeList().HasMaterial(EMaterialTypes::NoStaticCollision) &&
       DetectStaticCollisionBoolean(mgr, prim, xf, filter)) {
@@ -413,7 +413,7 @@ bool CGameCollision::DetectCollisionBoolean(const CStateManager& mgr, const CCol
 }
 
 bool CGameCollision::DetectCollisionBoolean_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
-                                                   const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                                   const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                                    const CMaterialFilter& filter, const EntityList& nearList) {
   if (!filter.GetExcludeList().HasMaterial(EMaterialTypes::NoStaticCollision) &&
       DetectStaticCollisionBoolean_Cached(mgr, cache, prim, xf, filter)) {
@@ -426,7 +426,7 @@ bool CGameCollision::DetectCollisionBoolean_Cached(const CStateManager& mgr, CAr
 }
 
 bool CGameCollision::DetectStaticCollisionBoolean(const CStateManager& mgr, const CCollisionPrimitive& prim,
-                                                  const zeus::CTransform& xf, const CMaterialFilter& filter) {
+                                                  const zeus::CTransform4f& xf, const CMaterialFilter& filter) {
   if (prim.GetPrimType() == FOURCC('OBTG')) {
     return false;
   }
@@ -456,7 +456,7 @@ bool CGameCollision::DetectStaticCollisionBoolean(const CStateManager& mgr, cons
 }
 
 bool CGameCollision::DetectStaticCollisionBoolean_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
-                                                         const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                                         const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                                          const CMaterialFilter& filter) {
   if (prim.GetPrimType() == FOURCC('OBTG')) {
     return false;
@@ -495,7 +495,7 @@ bool CGameCollision::DetectStaticCollisionBoolean_Cached(const CStateManager& mg
   return false;
 }
 
-bool CGameCollision::DetectDynamicCollisionBoolean(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+bool CGameCollision::DetectDynamicCollisionBoolean(const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                                    const EntityList& nearList, const CStateManager& mgr) {
   for (const auto& id : nearList) {
     if (const TCastToConstPtr<CPhysicsActor> actor = mgr.GetObjectById(id)) {
@@ -512,7 +512,7 @@ bool CGameCollision::DetectDynamicCollisionBoolean(const CCollisionPrimitive& pr
 }
 
 bool CGameCollision::DetectCollision_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
-                                            const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                            const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                             const CMaterialFilter& filter, const EntityList& nearList, TUniqueId& idOut,
                                             CCollisionInfoList& infoList) {
   idOut = kInvalidUniqueId;
@@ -533,7 +533,7 @@ bool CGameCollision::DetectCollision_Cached(const CStateManager& mgr, CAreaColli
 }
 
 bool CGameCollision::DetectCollision_Cached_Moving(const CStateManager& mgr, CAreaCollisionCache& cache,
-                                                   const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                                   const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                                    const CMaterialFilter& filter, const EntityList& nearList,
                                                    const zeus::CVector3f& dir, TUniqueId& idOut,
                                                    CCollisionInfo& infoOut, double& d) {
@@ -553,7 +553,7 @@ bool CGameCollision::DetectCollision_Cached_Moving(const CStateManager& mgr, CAr
 }
 
 bool CGameCollision::DetectStaticCollision(const CStateManager& mgr, const CCollisionPrimitive& prim,
-                                           const zeus::CTransform& xf, const CMaterialFilter& filter,
+                                           const zeus::CTransform4f& xf, const CMaterialFilter& filter,
                                            CCollisionInfoList& list) {
   if (prim.GetPrimType() == FOURCC('OBTG')) {
     return false;
@@ -586,7 +586,7 @@ bool CGameCollision::DetectStaticCollision(const CStateManager& mgr, const CColl
 }
 
 bool CGameCollision::DetectStaticCollision_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
-                                                  const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                                  const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                                   const CMaterialFilter& filter, CCollisionInfoList& list) {
   if (prim.GetPrimType() == FOURCC('OBTG')) {
     return false;
@@ -628,7 +628,7 @@ bool CGameCollision::DetectStaticCollision_Cached(const CStateManager& mgr, CAre
 }
 
 bool CGameCollision::DetectStaticCollision_Cached_Moving(const CStateManager& mgr, CAreaCollisionCache& cache,
-                                                         const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                                         const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                                          const CMaterialFilter& filter, const zeus::CVector3f& dir,
                                                          CCollisionInfo& infoOut, double& dOut) {
   if (prim.GetPrimType() == FOURCC('OBTG')) {
@@ -677,7 +677,7 @@ bool CGameCollision::DetectStaticCollision_Cached_Moving(const CStateManager& mg
   return infoOut.IsValid();
 }
 
-bool CGameCollision::DetectDynamicCollision(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+bool CGameCollision::DetectDynamicCollision(const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                             const EntityList& nearList, TUniqueId& idOut, CCollisionInfoList& list,
                                             const CStateManager& mgr) {
   for (const auto& id : nearList) {
@@ -695,7 +695,7 @@ bool CGameCollision::DetectDynamicCollision(const CCollisionPrimitive& prim, con
   return false;
 }
 
-bool CGameCollision::DetectDynamicCollisionMoving(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+bool CGameCollision::DetectDynamicCollisionMoving(const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                                   const EntityList& nearList, const zeus::CVector3f& dir,
                                                   TUniqueId& idOut, CCollisionInfo& infoOut, double& dOut,
                                                   const CStateManager& mgr) {
@@ -720,7 +720,7 @@ bool CGameCollision::DetectDynamicCollisionMoving(const CCollisionPrimitive& pri
 }
 
 bool CGameCollision::DetectCollision(const CStateManager& mgr, const CCollisionPrimitive& prim,
-                                     const zeus::CTransform& xf, const CMaterialFilter& filter,
+                                     const zeus::CTransform4f& xf, const CMaterialFilter& filter,
                                      const EntityList& nearList, TUniqueId& idOut, CCollisionInfoList& infoOut) {
   bool ret = false;
   CMaterialList exclude = filter.ExcludeList();
@@ -933,7 +933,7 @@ void CGameCollision::CollisionFailsafe(const CStateManager& mgr, CAreaCollisionC
 std::optional<zeus::CVector3f>
 CGameCollision::FindNonIntersectingVector(const CStateManager& mgr, CAreaCollisionCache& cache, CPhysicsActor& actor,
                                           const CCollisionPrimitive& prim, const EntityList& nearList) {
-  zeus::CTransform xf = actor.GetPrimitiveTransform();
+  zeus::CTransform4f xf = actor.GetPrimitiveTransform();
   zeus::CVector3f origOrigin = xf.origin;
   zeus::CVector3f center = prim.CalculateAABox(xf).center();
   for (int i = 2; i < 1000; i += (i / 2)) {

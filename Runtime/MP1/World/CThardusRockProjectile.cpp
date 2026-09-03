@@ -27,7 +27,7 @@ constexpr std::array<SSphereJointInfo, 1> skRockCollisions{{
 } // namespace
 
 CThardusRockProjectile::CThardusRockProjectile(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                               const zeus::CTransform& xf, CModelData&& modelData,
+                                               const zeus::CTransform4f& xf, CModelData&& modelData,
                                                const CActorParameters& aParms, const CPatternedInfo& patternedInfo,
                                                std::vector<CStaticRes>&& mDataVec, CAssetId stateMachine, float f1)
 : CPatterned(EPatternedAI::ThardusRockProjectile, uid, name, EFlavorType::Zero, info, xf, std::move(modelData),
@@ -140,7 +140,7 @@ void CThardusRockProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
                                                  zeus::skZero3f, -1, -1, false, 0),
                                 CScannableParameters(), {}, {}, {}, true, true, false, false, 0.f, 0.f, 1.f);
       auto rock = new CDestroyableRock(uid, true, skRockCollisions[i].name,
-                                       CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), zeus::CTransform(),
+                                       CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), zeus::CTransform4f(),
                                        std::move(mData), 0.f, hInfo, CDamageVulnerability::NormalVulnerability(),
                                        GetMaterialList(), x59c_stateMachine, actParms, x57c_[i], 1);
       rock->Set_x340(false);
@@ -347,7 +347,7 @@ void CThardusRockProjectile::DoExplosion(CStateManager& mgr, CAssetId particleId
   std::string name = fmt::format("ROCK_PROJECTILE_EFFECT-{}-{}", particleId.Value(), uid.Value());
   TLockedToken<CGenDescription> descTok = g_SimplePool->GetObj({SBIG('PART'), particleId});
   mgr.AddObject(new CExplosion(descTok, uid, true, CEntityInfo(mgr.GetNextAreaId(), NullConnectionList), name,
-                               zeus::CTransform(zeus::CMatrix3f(), pos), w2, scale, zeus::skWhite));
+                               zeus::CTransform4f(zeus::CMatrix3f(), pos), w2, scale, zeus::skWhite));
 }
 void CThardusRockProjectile::ExplodeAndShake(CStateManager& mgr, const zeus::CVector3f& pos) {
   if (x5d0_thardusId == kInvalidUniqueId) {
@@ -379,10 +379,10 @@ void CThardusRockProjectile::ModifyActorMaterial(CStateManager& mgr, bool remove
 void CThardusRockProjectile::UpdateDestroyableRockPositions(CStateManager& mgr) {
   const zeus::CVector3f scale = GetModelData()->GetScale();
   for (size_t i = 0; i < x58c_destroyableRocks.size(); ++i) {
-    zeus::CTransform locatorXf =
+    zeus::CTransform4f locatorXf =
         GetModelData()->GetAnimationData()->GetLocatorTransform(skRockCollisions[i].name, nullptr);
     if (TCastToPtr<CActor> rock = mgr.ObjectById(x58c_destroyableRocks[i])) {
-      locatorXf = GetTransform() * (zeus::CTransform::Scale(scale) * locatorXf);
+      locatorXf = GetTransform() * (zeus::CTransform4f::Scale(scale) * locatorXf);
       rock->SetTransform(locatorXf);
     }
   }

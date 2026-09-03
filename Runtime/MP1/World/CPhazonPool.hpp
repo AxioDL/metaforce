@@ -36,14 +36,14 @@ private:
 
 public:
   DEFINE_ENTITY
-  CPhazonPool(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CPhazonPool(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
               const zeus::CVector3f& scale, bool active, CAssetId w1, CAssetId w2, CAssetId w3, CAssetId w4, u32 p11,
               const CDamageInfo& dInfo, const zeus::CVector3f& orientedForce, ETriggerFlags triggerFlags, bool p15,
               float p16, float p17, float p18, float p19);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   [[nodiscard]] std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Render(CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;

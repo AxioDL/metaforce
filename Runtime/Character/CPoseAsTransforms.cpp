@@ -5,7 +5,7 @@
 namespace metaforce {
 
 CPoseAsTransforms::CPoseAsTransforms(u8 boneCount)
-: x1_count(boneCount), xd0_transformArr(std::make_unique<zeus::CTransform[]>(boneCount)) {}
+: x1_count(boneCount), xd0_transformArr(std::make_unique<zeus::CTransform4f[]>(boneCount)) {}
 
 bool CPoseAsTransforms::ContainsDataFor(const CSegId& id) const {
   const std::pair<CSegId, CSegId>& link = x8_links[id];
@@ -22,7 +22,7 @@ void CPoseAsTransforms::AccumulateScaledTransform(const CSegId& id, zeus::CMatri
   rotation.addScaledMatrix(GetRotation(id), scale);
 }
 
-const zeus::CTransform& CPoseAsTransforms::GetTransform(const CSegId& id) const {
+const zeus::CTransform4f& CPoseAsTransforms::GetTransform(const CSegId& id) const {
   const std::pair<CSegId, CSegId>& link = x8_links[id];
   assert(link.second.IsValid());
   return xd0_transformArr[link.second];
@@ -41,7 +41,7 @@ const zeus::CMatrix3f& CPoseAsTransforms::GetRotation(const CSegId& id) const {
 }
 
 void CPoseAsTransforms::Insert(const CSegId& id, const zeus::CMatrix3f& rotation, const zeus::CVector3f& offset) {
-  xd0_transformArr[x0_nextId] = zeus::CTransform(rotation, offset);
+  xd0_transformArr[x0_nextId] = zeus::CTransform4f(rotation, offset);
 
   std::pair<CSegId, CSegId>& link = x8_links[id];
   link.first = xd4_lastInserted;

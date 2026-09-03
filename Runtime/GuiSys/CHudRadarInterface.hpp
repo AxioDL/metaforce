@@ -5,7 +5,7 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -17,8 +17,8 @@ class CStateManager;
 class CHudRadarInterface {
   struct SRadarPaintDrawParms {
     zeus::CVector3f x0_playerPos;
-    zeus::CTransform xc_preTranslate;
-    zeus::CTransform x3c_postTranslate;
+    zeus::CTransform4f xc_preTranslate;
+    zeus::CTransform4f x3c_postTranslate;
     float x6c_scopeRadius;
     float x70_scopeScalar;
     float x74_alpha;
@@ -27,7 +27,7 @@ class CHudRadarInterface {
     float x80_ZCloseRadius;
   };
   TLockedToken<CTexture> x0_txtrRadarPaint;
-  zeus::CTransform xc_radarStuffXf;
+  zeus::CTransform4f xc_radarStuffXf;
   bool x3c_24_visibleGame : 1 = true;
   bool x3c_25_visibleDebug : 1 = true;
   CGuiWidget* x40_BaseWidget_RadarStuff;

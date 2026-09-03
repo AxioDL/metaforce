@@ -38,7 +38,7 @@ private:
                                      zeus::CSphere& a, zeus::CSphere& b);
   void GenerateParticlesAgainstActors(CStateManager& mgr, const zeus::CAABox& box, const zeus::CSphere& a,
                                       const zeus::CSphere& b);
-  void GenerateParticlesAgainstOBBTree(CStateManager& mgr, const COBBTree& tree, const zeus::CTransform& xf,
+  void GenerateParticlesAgainstOBBTree(CStateManager& mgr, const COBBTree& tree, const zeus::CTransform4f& xf,
                                        const zeus::CSphere& a, const zeus::CSphere& b);
   void GenerateParticlesAgainstAABox(CStateManager& mgr, const zeus::CAABox& box, const zeus::CSphere& a,
                                      const zeus::CSphere& b);
@@ -48,13 +48,13 @@ private:
 public:
   DEFINE_ENTITY
   CIceImpact(const TLockedToken<CGenDescription>& particle, TUniqueId uid, TAreaId aid, bool active,
-             std::string_view name, const zeus::CTransform& xf, u32 flags, const zeus::CVector3f& scale,
+             std::string_view name, const zeus::CTransform4f& xf, u32 flags, const zeus::CVector3f& scale,
              const zeus::CColor& color);
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   void Render(CStateManager& frustum) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override { return x118_grid.GetBounds(); }
   void Touch(CActor& actor, CStateManager& mgr) override;

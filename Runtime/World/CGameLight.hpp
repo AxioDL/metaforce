@@ -19,7 +19,7 @@ class CGameLight : public CActor {
 
 public:
   DEFINE_ENTITY
-  CGameLight(TUniqueId uid, TAreaId aid, bool active, std::string_view name, const zeus::CTransform& xf,
+  CGameLight(TUniqueId uid, TAreaId aid, bool active, std::string_view name, const zeus::CTransform4f& xf,
              TUniqueId parentId, const CLight& light, u32 sourceId, u32 priority, float lifeTime);
 
   void Accept(IVisitor& visitor) override;

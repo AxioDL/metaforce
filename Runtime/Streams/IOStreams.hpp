@@ -10,7 +10,7 @@ namespace zeus {
 class CVector2f;
 class CVector3f;
 class CVector4f;
-class CTransform;
+class CTransform4f;
 class CMatrix3f;
 class CMatrix4f;
 class CAABox;
@@ -36,7 +36,7 @@ zeus::COBBox cinput_stream_helper(CInputStream& in);
 template <>
 zeus::CColor cinput_stream_helper(CInputStream& in);
 template <>
-zeus::CTransform cinput_stream_helper(CInputStream& in);
+zeus::CTransform4f cinput_stream_helper(CInputStream& in);
 template <>
 zeus::CMatrix3f cinput_stream_helper(CInputStream& in);
 template <>

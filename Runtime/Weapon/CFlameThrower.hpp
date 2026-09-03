@@ -14,7 +14,7 @@ public:
 
 private:
   static const zeus::CVector3f kLightOffset;
-  zeus::CTransform x2e8_flameXf;
+  zeus::CTransform4f x2e8_flameXf;
   zeus::CAABox x318_flameBounds = zeus::skNullBox;
   float x330_particleWaitDelayTimer = 0.f;
   float x334_fireStopTimer = 0.f;
@@ -40,20 +40,20 @@ private:
 public:
   DEFINE_ENTITY
   CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
-                const CFlameInfo& flameInfo, const zeus::CTransform& xf, EMaterialTypes matType,
+                const CFlameInfo& flameInfo, const zeus::CTransform4f& xf, EMaterialTypes matType,
                 const CDamageInfo& dInfo, TUniqueId uid, TAreaId aId, TUniqueId owner, EProjectileAttrib attribs,
                 CAssetId playerSteamTxtr, s16 playerHitSfx, CAssetId playerIceTxtr);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager& mgr) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Touch(CActor& actor, CStateManager& mgr) override;
-  void SetTransform(const zeus::CTransform& xf, float);
+  void SetTransform(const zeus::CTransform4f& xf, float);
   void Reset(CStateManager&, bool);
-  void Fire(const zeus::CTransform&, CStateManager&, bool);
+  void Fire(const zeus::CTransform4f&, CStateManager&, bool);
   bool GetParticlesActive() const { return x400_25_particlesActive; }
 };
 } // namespace metaforce

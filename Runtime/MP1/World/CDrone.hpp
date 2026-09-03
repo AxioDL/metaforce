@@ -99,7 +99,7 @@ class CDrone : public CPatterned {
   void AddToTeam(CStateManager& mgr) const;
   void RemoveFromTeam(CStateManager& mgr) const;
   void UpdateLaser(CStateManager& mgr, u32 laserIdx, bool active);
-  void FireProjectile(CStateManager& mgr, const zeus::CTransform& xf, const TToken<CWeaponDescription>& weapon);
+  void FireProjectile(CStateManager& mgr, const zeus::CTransform4f& xf, const TToken<CWeaponDescription>& weapon);
   void StrafeFromCompanions(CStateManager& mgr);
   void UpdateScanner(CStateManager& mgr, float dt);
 
@@ -107,12 +107,12 @@ class CDrone : public CPatterned {
   void sub_801633a8(CStateManager& mgr);
   void sub_8015f25c(float dt, CStateManager& mgr);
   void sub_8015f158(float dt);
-  void sub_80165984(CStateManager& mgr, const zeus::CTransform& xf);
-  void sub_801656d4(const zeus::CTransform& xf, CStateManager& mgr);
+  void sub_80165984(CStateManager& mgr, const zeus::CTransform4f& xf);
+  void sub_801656d4(const zeus::CTransform4f& xf, CStateManager& mgr);
 
 public:
   DEFINE_PATTERNED(Drone);
-  CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info, const zeus::CTransform& xf,
+  CDrone(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info, const zeus::CTransform4f& xf,
          float f1, CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
          EMovementType movement, EColliderType colliderType, EBodyType bodyType, const CDamageInfo& dInfo1,
          CAssetId aId1, const CDamageInfo& dInfo2, CAssetId aId2, std::vector<CVisorFlare::CFlareDef> flares, float f2,
@@ -123,8 +123,8 @@ public:
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   void Render(CStateManager& mgr) override;
   bool CanRenderUnsorted(const CStateManager& mgr) const override;
   const CDamageVulnerability* GetDamageVulnerability() const override { return CAi::GetDamageVulnerability(); }

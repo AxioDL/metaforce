@@ -34,10 +34,10 @@ void CGameCubeDoll::Draw(float alpha) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CGameCubeDoll::Draw", zeus::skPurple);
 
   g_Renderer->SetPerspective(55.f, CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(), 0.2f, 4096.f);
-  CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(0.f, -2.f, 0.f));
+  CGraphics::SetViewPointMatrix(zeus::CTransform4f::Translate(0.f, -2.f, 0.f));
   x18_actorLights->ActivateLights();
-  CGraphics::SetModelMatrix(zeus::CTransform::RotateZ(zeus::degToRad(360.f * CGraphics::GetSecondsMod900() * -0.25f)) *
-                            zeus::CTransform::Scale(0.2f));
+  CGraphics::SetModelMatrix(zeus::CTransform4f::RotateZ(zeus::degToRad(360.f * CGraphics::GetSecondsMod900() * -0.25f)) *
+                            zeus::CTransform4f::Scale(0.2f));
   CModelFlags flags(5, 0, 3, zeus::CColor(1.f, alpha * x1c_fader));
   x0_model->Draw(flags);
   CGraphics::DisableAllLights();

@@ -19,7 +19,7 @@ private:
 public:
   DEFINE_PATTERNED(PhazonHealingNodule);
 
-  CPhazonHealingNodule(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CPhazonHealingNodule(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                        CModelData&& mData, const CActorParameters& actParams, const CPatternedInfo& pInfo,
                        CAssetId particleDescId, std::string actorLctr);
 

@@ -22,7 +22,7 @@ constexpr auto skPlatformMaterialList =
     CMaterialList{EMaterialTypes::Solid, EMaterialTypes::Immovable, EMaterialTypes::Platform, EMaterialTypes::Occluder};
 
 CScriptPlatform::CScriptPlatform(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                 const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParms,
+                                 const zeus::CTransform4f& xf, CModelData&& mData, const CActorParameters& actParms,
                                  const zeus::CAABox& aabb, float speed, bool detectCollision, float xrayAlpha,
                                  bool active, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
                                  std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>> dcln, bool rainSplashes,
@@ -62,7 +62,7 @@ void CScriptPlatform::DragSlave(CStateManager& mgr, rstl::reserved_vector<u16, k
   }
 
   draggedSet.push_back(actor->GetUniqueId().Value());
-  zeus::CTransform newXf = actor->GetTransform();
+  zeus::CTransform4f newXf = actor->GetTransform();
   newXf.origin += delta;
   actor->SetTransform(newXf);
   if (const TCastToPtr<CScriptPlatform> plat = actor) {
@@ -168,15 +168,15 @@ void CScriptPlatform::DecayRiders(std::vector<SRiders>& riders, float dt, CState
 }
 
 void CScriptPlatform::MoveRiders(CStateManager& mgr, float dt, bool active, std::vector<SRiders>& riders,
-                                 std::vector<SRiders>& collidedRiders, const zeus::CTransform& oldXf,
-                                 const zeus::CTransform& newXf, const zeus::CVector3f& dragDelta,
+                                 std::vector<SRiders>& collidedRiders, const zeus::CTransform4f& oldXf,
+                                 const zeus::CTransform4f& newXf, const zeus::CVector3f& dragDelta,
                                  const zeus::CQuaternion& rotDelta) {
   for (auto it = riders.begin(); it != riders.end();) {
     if (active) {
       if (TCastToPtr<CPhysicsActor> act = mgr.ObjectById(it->x0_uid)) {
         if (act->GetActive()) {
           zeus::CVector3f delta =
-              newXf.rotate(it->x8_transform.origin) - oldXf.rotate(it->x8_transform.origin) + dragDelta;
+              newXf.Rotate(it->x8_transform.origin) - oldXf.Rotate(it->x8_transform.origin) + dragDelta;
           zeus::CVector3f newPos = act->GetTranslation() + delta;
           act->MoveCollisionPrimitive(delta);
           bool collision = CGameCollision::DetectStaticCollisionBoolean(
@@ -194,7 +194,7 @@ void CScriptPlatform::MoveRiders(CStateManager& mgr, float dt, bool active, std:
               continue;
             }
           }
-          zeus::CTransform xf = (rotDelta * zeus::CQuaternion(act->GetTransform().basis)).toTransform();
+          zeus::CTransform4f xf = (rotDelta * zeus::CQuaternion(act->GetTransform().basis)).toTransform();
           xf.origin = act->GetTranslation();
           act->SetTransform(xf);
         }
@@ -220,12 +220,12 @@ void CScriptPlatform::PreThink(float dt, CStateManager& mgr) {
   x260_moveDelay -= dt;
   if (x260_moveDelay <= 0.f) {
     x270_dragDelta = zeus::skZero3f;
-    zeus::CTransform oldXf = x34_transform;
+    zeus::CTransform4f oldXf = x34_transform;
     CMotionState mState = GetMotionState();
     if (GetActive()) {
       for (SRiders& rider : x318_riders) {
         if (const TCastToConstPtr<CPhysicsActor> act = mgr.ObjectById(rider.x0_uid)) {
-          rider.x8_transform.origin = x34_transform.transposeRotate(act->GetTranslation() - GetTranslation());
+          rider.x8_transform.origin = x34_transform.TransposeRotate(act->GetTranslation() - GetTranslation());
         }
       }
       x27c_rotDelta = Move(dt, mgr);
@@ -286,7 +286,7 @@ void CScriptPlatform::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CScriptPlatform::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CScriptPlatform::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   CActor::PreRender(mgr, frustum);
 
   if (!xe4_30_outOfFrustum && !zeus::close_enough(x348_xrayAlpha, 1.f)) {
@@ -328,8 +328,8 @@ std::optional<zeus::CAABox> CScriptPlatform::GetTouchBounds() const {
   return {CPhysicsActor::GetBoundingBox()};
 }
 
-zeus::CTransform CScriptPlatform::GetPrimitiveTransform() const {
-  zeus::CTransform ret = GetTransform();
+zeus::CTransform4f CScriptPlatform::GetPrimitiveTransform() const {
+  zeus::CTransform4f ret = GetTransform();
   ret.origin += GetPrimitiveOffset();
   return ret;
 }
@@ -380,7 +380,7 @@ void CScriptPlatform::BuildSlaveList(CStateManager& mgr) {
     if (conn.x0_state == EScriptObjectState::Play && conn.x4_msg == EScriptObjectMessage::Activate) {
       if (const TCastToPtr<CActor> act = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId))) {
         act->AddMaterial(EMaterialTypes::PlatformSlave, mgr);
-        zeus::CTransform xf = act->GetTransform();
+        zeus::CTransform4f xf = act->GetTransform();
         xf.origin = act->GetTranslation() - GetTranslation();
         x328_slavesStatic.emplace_back(act->GetUniqueId(), 0.166667f, xf);
       }
@@ -400,9 +400,9 @@ void CScriptPlatform::AddRider(std::vector<SRiders>& riders, TUniqueId riderId, 
   const auto& search =
       std::find_if(riders.begin(), riders.end(), [riderId](const SRiders& r) { return r.x0_uid == riderId; });
   if (search == riders.end()) {
-    zeus::CTransform xf;
+    zeus::CTransform4f xf;
     if (const TCastToPtr<CPhysicsActor> act = mgr.ObjectById(riderId)) {
-      xf.origin = ridee->GetTransform().transposeRotate(act->GetTranslation() - ridee->GetTranslation());
+      xf.origin = ridee->GetTransform().TransposeRotate(act->GetTranslation() - ridee->GetTranslation());
       mgr.SendScriptMsg(act.GetPtr(), ridee->GetUniqueId(), EScriptObjectMessage::AddPlatformRider);
     }
     riders.emplace_back(riderId, 0.166667f, xf);
@@ -420,7 +420,7 @@ void CScriptPlatform::AddSlave(TUniqueId id, CStateManager& mgr) {
 
   if (const TCastToPtr<CActor> act = mgr.ObjectById(id)) {
     act->AddMaterial(EMaterialTypes::PlatformSlave, mgr);
-    const zeus::CTransform localXf = x34_transform.inverse() * act->GetTransform();
+    const zeus::CTransform4f localXf = x34_transform.Inverse() * act->GetTransform();
     x338_slavesDynamic.emplace_back(id, 0.166667f, localXf);
   }
 }

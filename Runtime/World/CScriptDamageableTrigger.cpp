@@ -30,7 +30,7 @@ CScriptDamageableTrigger::CScriptDamageableTrigger(TUniqueId uid, std::string_vi
                                                    u32 faceFlag, CAssetId patternTex1, CAssetId patternTex2,
                                                    CAssetId colorTex, ECanOrbit canOrbit, bool active,
                                                    const CVisorParameters& vParams)
-: CActor(uid, active, name, info, zeus::CTransform::Translate(position), CModelData::CModelDataNull(),
+: CActor(uid, active, name, info, zeus::CTransform4f::Translate(position), CModelData::CModelDataNull(),
          MakeDamageableTriggerMaterial(canOrbit), MakeDamageableTriggerActorParms(CActorParameters::None(), vParams),
          kInvalidUniqueId)
 , x14c_bounds(-extent * 0.5f, extent * 0.5f)
@@ -42,25 +42,25 @@ CScriptDamageableTrigger::CScriptDamageableTrigger(TUniqueId uid, std::string_vi
 , x300_28_canOrbit(canOrbit == ECanOrbit::Orbit) {
   if (x1dc_faceFlag & 0x1) {
     x244_faceTranslate = zeus::CVector3f(0.f, x14c_bounds.max.y(), 0.f);
-    x1e4_faceDir = zeus::CTransform::RotateX(-M_PIF / 2.f);
+    x1e4_faceDir = zeus::CTransform4f::RotateX(-M_PIF / 2.f);
   } else if (x1dc_faceFlag & 0x2) {
     x244_faceTranslate = zeus::CVector3f(0.f, x14c_bounds.min.y(), 0.f);
-    x1e4_faceDir = zeus::CTransform::RotateX(M_PIF / 2.f);
+    x1e4_faceDir = zeus::CTransform4f::RotateX(M_PIF / 2.f);
   } else if (x1dc_faceFlag & 0x4) {
     x244_faceTranslate = zeus::CVector3f(x14c_bounds.min.x(), 0.f, 0.f);
-    x1e4_faceDir = zeus::CTransform::RotateY(-M_PIF / 2.f);
+    x1e4_faceDir = zeus::CTransform4f::RotateY(-M_PIF / 2.f);
   } else if (x1dc_faceFlag & 0x8) {
     x244_faceTranslate = zeus::CVector3f(x14c_bounds.max.x(), 0.f, 0.f);
-    x1e4_faceDir = zeus::CTransform::RotateY(M_PIF / 2.f);
+    x1e4_faceDir = zeus::CTransform4f::RotateY(M_PIF / 2.f);
   } else if (x1dc_faceFlag & 0x10) {
     x244_faceTranslate = zeus::CVector3f(0.f, 0.f, x14c_bounds.max.z());
-    x1e4_faceDir = zeus::CTransform();
+    x1e4_faceDir = zeus::CTransform4f();
   } else if (x1dc_faceFlag & 0x20) {
     x244_faceTranslate = zeus::CVector3f(0.f, 0.f, x14c_bounds.min.z());
-    x1e4_faceDir = zeus::CTransform::RotateY(M_PIF);
+    x1e4_faceDir = zeus::CTransform4f::RotateY(M_PIF);
   }
 
-  x214_faceDirInv = x1e4_faceDir.inverse();
+  x214_faceDirInv = x1e4_faceDir.Inverse();
 }
 
 void CScriptDamageableTrigger::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -113,15 +113,15 @@ EWeaponCollisionResponseTypes CScriptDamageableTrigger::GetCollisionResponseType
 void CScriptDamageableTrigger::Render(CStateManager& mgr) {
   if (x30_24_active && x1dc_faceFlag != 0 && std::fabs(x1e0_alpha) >= 0.00001f) {
     const zeus::CAABox aabb = x14c_bounds.getTransformedAABox(x214_faceDirInv);
-    const zeus::CTransform xf = x34_transform * zeus::CTransform::Translate(x244_faceTranslate) * x1e4_faceDir;
-    x254_fluidPlane.Render(mgr, x1e0_alpha, aabb, xf, zeus::CTransform(), false, xe8_frustum, {}, kInvalidUniqueId,
+    const zeus::CTransform4f xf = x34_transform * zeus::CTransform4f::Translate(x244_faceTranslate) * x1e4_faceDir;
+    x254_fluidPlane.Render(mgr, x1e0_alpha, aabb, xf, zeus::CTransform4f(), false, xe8_frustum, {}, kInvalidUniqueId,
                            nullptr, 0, 0, zeus::skZero3f);
   }
 
   CActor::Render(mgr);
 }
 
-void CScriptDamageableTrigger::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManager& mgr) {
+void CScriptDamageableTrigger::AddToRenderer(const zeus::CFrustumPlanes& /*frustum*/, CStateManager& mgr) {
   if (x300_26_outOfFrustum) {
     return;
   }
@@ -129,7 +129,7 @@ void CScriptDamageableTrigger::AddToRenderer(const zeus::CFrustum& /*frustum*/, 
   EnsureRendered(mgr, GetTranslation() - x244_faceTranslate, GetSortingBounds(mgr));
 }
 
-void CScriptDamageableTrigger::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CScriptDamageableTrigger::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   x300_26_outOfFrustum = !frustum.aabbFrustumTest(x14c_bounds.getTransformedAABox(x34_transform));
 
   if (x300_26_outOfFrustum) {

@@ -29,7 +29,7 @@ class CFire : public CActor {
 
 public:
   DEFINE_ENTITY
-  CFire(TToken<CGenDescription>, TUniqueId, TAreaId, bool, TUniqueId, const zeus::CTransform&, const CDamageInfo&,
+  CFire(TToken<CGenDescription>, TUniqueId, TAreaId, bool, TUniqueId, const zeus::CTransform4f&, const CDamageInfo&,
         const zeus::CAABox&, const zeus::CVector3f&, bool, CAssetId, bool, bool, bool, float, float, float, float);
 
   void Accept(IVisitor&) override;
@@ -44,6 +44,6 @@ public:
   }
 
   void Touch(CActor&, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
 };
 } // namespace metaforce

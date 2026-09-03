@@ -17,7 +17,7 @@ constexpr std::array skBombLocators{
     "bomb4_LCTR"sv,
 };
 
-CAtomicBeta::CAtomicBeta(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CAtomicBeta::CAtomicBeta(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                          CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
                          CAssetId electricId, CAssetId weaponId, const CDamageInfo& dInfo, CAssetId particleId,
                          float f1, float beamRadius, float f3, const CDamageVulnerability& dVuln, float f4, float f5,
@@ -30,7 +30,7 @@ CAtomicBeta::CAtomicBeta(TUniqueId uid, std::string_view name, const CEntityInfo
 , x584_currentSpeed(x578_minSpeed)
 , x588_frozenDamage(dVuln)
 , x5f0_moveSpeed(f4)
-, x5f4_(xf.basis[1])
+, x5f4_(xf.GetForward())
 , x600_electricWeapon(g_SimplePool->GetObj({SBIG('ELSC'), electricId}))
 , x608_(g_SimplePool->GetObj({SBIG('WPSC'), weaponId}))
 , x610_projectileDamage(dInfo)
@@ -66,7 +66,7 @@ void CAtomicBeta::UpdateBeams(CStateManager& mgr, bool fireBeam) {
 
   for (size_t i = 0; i < x568_projectileIds.size(); ++i) {
     // zeus::CTransform xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
-    // zeus::CTransform newXf = zeus::lookAt(xf.origin, xf.origin + xf.basis[1], zeus::skUp);
+    // zeus::CTransform newXf = zeus::lookAt(xf.origin, xf.origin + xf.frontVector(), zeus::skUp);
     if (auto* const proj = static_cast<CElectricBeamProjectile*>(mgr.ObjectById(x568_projectileIds[i]))) {
       if (fireBeam) {
         proj->Fire(GetTransform() * GetScaledLocatorTransform(skBombLocators[i]), mgr, false);
@@ -144,8 +144,8 @@ void CAtomicBeta::Think(float dt, CStateManager& mgr) {
       if (!proj->GetActive()) {
         continue;
       }
-      const zeus::CTransform xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
-      proj->UpdateFx(zeus::lookAt(xf.origin, xf.origin + xf.frontVector(), zeus::skUp), dt, mgr);
+      const zeus::CTransform4f xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
+      proj->UpdateFx(zeus::CTransform4f::LookAt(xf.origin, xf.origin + xf.GetForward(), zeus::skUp), dt, mgr);
     }
   }
 

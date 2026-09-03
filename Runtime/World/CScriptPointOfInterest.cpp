@@ -9,7 +9,7 @@
 namespace metaforce {
 
 CScriptPointOfInterest::CScriptPointOfInterest(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                               const zeus::CTransform& xf, bool active,
+                                               const zeus::CTransform4f& xf, bool active,
                                                const CScannableParameters& parms, float f1)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(u64(EMaterialTypes::Orbit)),
          CActorParameters::None().Scannable(parms), kInvalidUniqueId)
@@ -26,7 +26,7 @@ void CScriptPointOfInterest::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
   CActor::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CScriptPointOfInterest::AddToRenderer(const zeus::CFrustum&, CStateManager&) {}
+void CScriptPointOfInterest::AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) {}
 
 void CScriptPointOfInterest::Render(CStateManager&) {}
 

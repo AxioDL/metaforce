@@ -20,9 +20,9 @@ public:
   CCollidableAABox();
   CCollidableAABox(const zeus::CAABox&, const CMaterialList&);
 
-  zeus::CAABox Transform(const zeus::CTransform&) const;
+  zeus::CAABox Transform(const zeus::CTransform4f&) const;
   u32 GetTableIndex() const override;
-  zeus::CAABox CalculateAABox(const zeus::CTransform&) const override;
+  zeus::CAABox CalculateAABox(const zeus::CTransform4f&) const override;
   zeus::CAABox CalculateLocalAABox() const override;
   FourCC GetPrimType() const override;
   CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const override;

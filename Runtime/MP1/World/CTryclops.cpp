@@ -19,7 +19,7 @@ const CDamageVulnerability CTryclops::skVulnerabilities = CDamageVulnerability(
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectionType::RetargetPlayer);
 
-CTryclops::CTryclops(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CTryclops::CTryclops(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                      CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float f1,
                      float f2, float f3, float launchSpeed)
 : CPatterned(EPatternedAI::Tryclops, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
@@ -102,7 +102,7 @@ void CTryclops::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
 void CTryclops::PathFind(CStateManager& mgr, EStateMsg msg, float arg) {
   CPatterned::PathFind(mgr, msg, arg);
   const auto moveVec = x450_bodyController->GetCommandMgr().GetMoveVector();
-  if (GetTransform().frontVector().dot(moveVec) < 0.f && moveVec.canBeNormalized()) {
+  if (GetTransform().GetForward().dot(moveVec) < 0.f && moveVec.canBeNormalized()) {
     x450_bodyController->GetCommandMgr().ClearLocomotionCmds();
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(zeus::skZero3f, moveVec.normalized(), 1.f));
   }
@@ -217,12 +217,12 @@ void CTryclops::TurnAround(CStateManager& mgr, EStateMsg msg, float) {
 
     if (TCastToConstPtr<CActor> wp = mgr.GetObjectById(uid)) {
       zeus::CVector3f destVec =
-          (retreat ? wp->GetTransform().frontVector() : wp->GetTranslation() - GetTranslation()).normalized();
+          (retreat ? wp->GetTransform().GetForward() : wp->GetTranslation() - GetTranslation()).normalized();
       destVec.z() = 0.f;
       SetDestPos(GetTranslation() + destVec);
 
       if (std::fabs(
-              zeus::CVector3f(GetTransform().frontVector().x(), GetTransform().frontVector().y(), 0.f).dot(destVec)) <
+              zeus::CVector3f(GetTransform().GetForward().x(), GetTransform().GetForward().y(), 0.f).dot(destVec)) <
           0.9998) {
         x32c_animState = EAnimState::Ready;
       }
@@ -479,8 +479,8 @@ bool CTryclops::CoverBlown(CStateManager&, float) {
 }
 
 bool CTryclops::Inside(CStateManager& mgr, float arg) {
-  const zeus::CTransform xf = mgr.GetPlayer().GetTransform();
-  x64c_ = xf.getRotation();
+  const zeus::CTransform4f xf = mgr.GetPlayer().GetTransform();
+  x64c_ = xf.GetRotation();
 
   return InRangeToLocator(xf.origin + zeus::CVector3f(0.f, 0.f, mgr.GetPlayer().GetMorphBall()->GetBallRadius()), arg);
 }
@@ -496,7 +496,7 @@ bool CTryclops::ShouldRetreat(CStateManager& mgr, float) {
 
 bool CTryclops::IsDizzy(CStateManager&, float) { return x698_27_dizzy; }
 
-void CTryclops::LaunchPlayer(CStateManager& mgr, const zeus::CTransform& xf, float f1) {
+void CTryclops::LaunchPlayer(CStateManager& mgr, const zeus::CTransform4f& xf, float f1) {
   CPlayer& player = mgr.GetPlayer();
   player.SetLeaveMorphBallAllowed(true);
 
@@ -507,20 +507,20 @@ void CTryclops::LaunchPlayer(CStateManager& mgr, const zeus::CTransform& xf, flo
   x698_24_ = true;
   x68c_ = 1.5f;
   player.Stop();
-  zeus::CTransform tmpXf = (xf * x64c_);
+  zeus::CTransform4f tmpXf = (xf * x64c_);
   tmpXf.origin += zeus::CVector3f(0.f, 0.f, -0.5f);
   player.Teleport(tmpXf, mgr, false);
-  player.ApplyImpulseWR(f1 * (player.GetMass() * xf.frontVector().normalized()), zeus::CAxisAngle());
+  player.ApplyImpulseWR(f1 * (player.GetMass() * xf.GetForward().normalized()), zeus::CAxisAngle());
   player.SetMoveState(CPlayer::EPlayerMovementState::ApplyJump, mgr);
   player.AddMaterial(EMaterialTypes::Solid, mgr);
   mgr.ApplyDamage(GetUniqueId(), player.GetUniqueId(), GetUniqueId(), GetContactDamage(),
                   CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
 }
 
-void CTryclops::DragBomb(CStateManager& mgr, const zeus::CTransform& xf) {
+void CTryclops::DragBomb(CStateManager& mgr, const zeus::CTransform4f& xf) {
   if (x694_bombId != kInvalidUniqueId) {
     if (TCastToPtr<CBomb> bomb = mgr.ObjectById(x694_bombId)) {
-      bomb->SetVelocityWR((5.f * mgr.GetActiveRandom()->Float() + 20.f) * xf.frontVector().normalized());
+      bomb->SetVelocityWR((5.f * mgr.GetActiveRandom()->Float() + 20.f) * xf.GetForward().normalized());
       bomb->SetConstantAccelerationWR({0.f, 0.f, -CPhysicsActor::GravityConstant()});
     }
   }
@@ -547,7 +547,7 @@ void CTryclops::ApplySeparation(CStateManager& mgr) {
 
 void CTryclops::GrabBomb(CStateManager& mgr) {
   if (TCastToPtr<CBomb> bomb = mgr.ObjectById(x694_bombId)) {
-    zeus::CTransform grabLctr = GetLctrTransform("ballGrab_locator"sv);
+    zeus::CTransform4f grabLctr = GetLctrTransform("ballGrab_locator"sv);
     grabLctr.origin += zeus::CVector3f(0.f, 0.f, -.3f);
     bomb->SetTransform(grabLctr);
   }
@@ -557,7 +557,7 @@ void CTryclops::DragPlayer(CStateManager& mgr, const zeus::CVector3f& locOrig) {
   CPlayer& player = mgr.GetPlayer();
   player.Stop();
   player.RemoveMaterial(EMaterialTypes::Solid, mgr);
-  zeus::CTransform xf = GetLctrTransform("ballGrab_locator"sv) * x64c_;
+  zeus::CTransform4f xf = GetLctrTransform("ballGrab_locator"sv) * x64c_;
   xf.origin += {0.f, 0.f, -.5f};
   player.SetTransform(xf);
 }
@@ -573,11 +573,11 @@ bool CTryclops::sub80260180(const zeus::CVector3f& vec1, const zeus::CVector3f& 
     return true;
   }
 
-  zeus::CTransform xf = GetLctrTransform("ballGrab_locator"sv);
-  zeus::CVector3f tmpVec2 = vec2 - (xf.origin - (1.f * GetTransform().frontVector()));
-  float tmpVec2Dot = tmpVec2.normalized().dot(GetTransform().frontVector());
-  zeus::CVector3f tmpVec1 = vec1 - (xf.origin - (4.f * GetTransform().frontVector()));
-  float tmpVec1Dot = tmpVec1.normalized().dot(GetTransform().frontVector());
+  zeus::CTransform4f xf = GetLctrTransform("ballGrab_locator"sv);
+  zeus::CVector3f tmpVec2 = vec2 - (xf.origin - (1.f * GetTransform().GetForward()));
+  float tmpVec2Dot = tmpVec2.normalized().dot(GetTransform().GetForward());
+  zeus::CVector3f tmpVec1 = vec1 - (xf.origin - (4.f * GetTransform().GetForward()));
+  float tmpVec1Dot = tmpVec1.normalized().dot(GetTransform().GetForward());
   float tmpVec2Mag = tmpVec2.magnitude();
 
   if (tmpVec2Mag > 2.f) {
@@ -598,7 +598,7 @@ void CTryclops::SuckPlayer(CStateManager& mgr, float arg) {
     return;
   }
   CPlayer& player = mgr.GetPlayer();
-  zeus::CTransform xf = GetLctrTransform("ballGrab_locator"sv);
+  zeus::CTransform4f xf = GetLctrTransform("ballGrab_locator"sv);
   zeus::CVector3f diff = (player.GetTranslation() - xf.origin);
   float diffMag = diff.magnitude();
   if (diffMag < 3.f) {
@@ -626,7 +626,7 @@ void CTryclops::AttractBomb(CStateManager& mgr, float arg) {
 }
 
 bool CTryclops::sub8025dbd0(CStateManager& mgr) {
-  const auto result = mgr.RayStaticIntersection(GetLctrTransform("Skeleton_Root").origin, GetTransform().frontVector(),
+  const auto result = mgr.RayStaticIntersection(GetLctrTransform("Skeleton_Root").origin, GetTransform().GetForward(),
                                                 3.f, CMaterialFilter::skPassEverything);
   if (result.IsValid()) {
     return true;
@@ -640,7 +640,7 @@ bool CTryclops::sub8025dbd0(CStateManager& mgr) {
   EntityList nearList;
   mgr.BuildColliderList(nearList, player, colSphere.CalculateLocalAABox());
   constexpr auto matFilter = CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::Player});
-  const zeus::CTransform skIdentity4f{}; // TODO move to zeus & make constexpr
+  const zeus::CTransform4f skIdentity4f{}; // TODO move to zeus & make constexpr
   if (CGameCollision::DetectStaticCollisionBoolean(mgr, colSphere, skIdentity4f, matFilter)) {
     return true;
   }

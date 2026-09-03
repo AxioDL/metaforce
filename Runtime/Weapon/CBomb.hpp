@@ -29,12 +29,12 @@ class CBomb : public CWeapon {
 public:
   DEFINE_ENTITY
   CBomb(const TCachedToken<CGenDescription>& particle1, const TCachedToken<CGenDescription>& particle2, TUniqueId uid,
-        TAreaId aid, TUniqueId playerId, float f1, const zeus::CTransform& xf, const CDamageInfo& dInfo);
+        TAreaId aid, TUniqueId playerId, float f1, const zeus::CTransform4f& xf, const CDamageInfo& dInfo);
 
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager&) override {}
   void Touch(CActor&, CStateManager&) override;
   void Explode(const zeus::CVector3f&, CStateManager&);

@@ -57,7 +57,7 @@ void CHudRadarInterface::DrawRadarPaint(const zeus::CVector3f& enemyPos, float r
   const zeus::CVector2f scopeScaled = playerToEnemy * parms.x70_scopeScalar;
   g_Renderer->SetModelMatrix(
       parms.x3c_postTranslate *
-      zeus::CTransform::Translate(parms.xc_preTranslate * zeus::CVector3f(scopeScaled.x(), 0.f, scopeScaled.y())));
+      zeus::CTransform4f::Translate(parms.xc_preTranslate * zeus::CVector3f(scopeScaled.x(), 0.f, scopeScaled.y())));
 
   zeus::CColor color = g_tweakGuiColors->GetRadarEnemyPaintColor();
   color.a() *= alpha;
@@ -116,7 +116,7 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) {
       zeus::CEulerAngles(zeus::CQuaternion(mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().basis)).z();
   zeus::CRelAngle angleZ(camZ);
   angleZ.makeRel();
-  drawParms.xc_preTranslate = zeus::CTransform::RotateY(angleZ);
+  drawParms.xc_preTranslate = zeus::CTransform4f::RotateY(angleZ);
   drawParms.x3c_postTranslate = x40_BaseWidget_RadarStuff->GetWorldTransform();
   const float enemyRadius = g_tweakGui->GetRadarEnemyPaintRadius();
 

@@ -11,7 +11,7 @@
 #include "Runtime/World/CPlayerEnergyDrain.hpp"
 
 #include <zeus/CAABox.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -220,14 +220,14 @@ private:
   TReservedAverage<float, 20> x4a4_moveSpeedAvg;
   float x4f8_moveSpeed = 0.f;
   float x4fc_flatMoveSpeed = 0.f;
-  zeus::CVector3f x500_lookDir = x34_transform.basis[1];
-  zeus::CVector3f x50c_moveDir = x34_transform.basis[1];
-  zeus::CVector3f x518_leaveMorphDir = x34_transform.basis[1];
+  zeus::CVector3f x500_lookDir = x34_transform.GetForward();
+  zeus::CVector3f x50c_moveDir = x34_transform.GetForward();
+  zeus::CVector3f x518_leaveMorphDir = x34_transform.GetForward();
   zeus::CVector3f x524_lastPosForDirCalc = x34_transform.origin;
-  zeus::CVector3f x530_gunDir = x34_transform.basis[1];
+  zeus::CVector3f x530_gunDir = x34_transform.GetForward();
   float x53c_timeMoving = 0.f;
-  zeus::CVector3f x540_controlDir = x34_transform.basis[1];
-  zeus::CVector3f x54c_controlDirFlat = x34_transform.basis[1];
+  zeus::CVector3f x540_controlDir = x34_transform.GetForward();
+  zeus::CVector3f x54c_controlDirFlat = x34_transform.GetForward();
   bool x558_wasDamaged = false;
   float x55c_damageAmt = 0.f;
   float x560_prevDamageAmt = 0.f;
@@ -241,8 +241,8 @@ private:
   float x588_alpha = 1.f;
   float x58c_transitionVel = 0.f;
   bool x590_leaveMorphballAllowed = true;
-  TReservedAverage<zeus::CTransform, 4> x594_transisionBeamXfs;
-  TReservedAverage<zeus::CTransform, 4> x658_transitionModelXfs;
+  TReservedAverage<zeus::CTransform4f, 4> x594_transisionBeamXfs;
+  TReservedAverage<zeus::CTransform4f, 4> x658_transitionModelXfs;
   TReservedAverage<float, 4> x71c_transitionModelAlphas;
   std::vector<std::unique_ptr<CModelData>> x730_transitionModels;
   float x740_staticTimer = 0.f;
@@ -275,7 +275,7 @@ private:
   u32 x7e8_ = 0;
   CPlayerState::EBeamId x7ec_beam = CPlayerState::EBeamId::Power;
   std::unique_ptr<CModelData> x7f0_ballTransitionBeamModel;
-  zeus::CTransform x7f4_gunWorldXf;
+  zeus::CTransform4f x7f4_gunWorldXf;
   float x824_transitionFilterTimer = 0.f;
   float x828_distanceUnderWater = 0.f;
   bool x82c_inLava = false;
@@ -347,7 +347,7 @@ private:
 
 public:
   DEFINE_ENTITY
-  CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& aabb, CAssetId resId,
+  CPlayer(TUniqueId uid, const zeus::CTransform4f& xf, const zeus::CAABox& aabb, CAssetId resId,
           const zeus::CVector3f& playerScale, float mass, float stepUp, float stepDown, float ballRadius,
           const CMaterialList& ml);
 
@@ -397,9 +397,9 @@ public:
   void RenderGun(const CStateManager& mgr, const zeus::CVector3f& pos) const;
   void Render(CStateManager& mgr) override;
   void RenderReflectedPlayer(CStateManager& mgr);
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   void CalculateRenderBounds() override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   void ComputeFreeLook(const CFinalInput& input);
   void UpdateFreeLookState(const CFinalInput& input, float dt, CStateManager& mgr);
   void UpdateFreeLook(float dt);
@@ -441,15 +441,15 @@ public:
   void UpdateGunState(const CFinalInput& input, CStateManager& mgr);
   void ResetGun(CStateManager& mgr);
   void UpdateArmAndGunTransforms(float dt, CStateManager& mgr);
-  void ForceGunOrientation(const zeus::CTransform&, CStateManager& mgr);
+  void ForceGunOrientation(const zeus::CTransform4f&, CStateManager& mgr);
   void UpdateCameraState(CStateManager& mgr);
   void UpdateDebugCamera(CStateManager& mgr);
   void UpdateCameraTimers(float dt, const CFinalInput& input);
   void UpdateMorphBallState(float dt, const CFinalInput&, CStateManager& mgr);
   CFirstPersonCamera& GetFirstPersonCamera(CStateManager& mgr);
   void UpdateGunTransform(const zeus::CVector3f& gunPos, CStateManager& mgr);
-  void UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManager& mgr);
-  void UpdateAimTargetPrediction(const zeus::CTransform& xf, const CStateManager& mgr);
+  void UpdateAssistedAiming(const zeus::CTransform4f& xf, const CStateManager& mgr);
+  void UpdateAimTargetPrediction(const zeus::CTransform4f& xf, const CStateManager& mgr);
   void ResetAimTargetPrediction(TUniqueId target);
   void DrawGun(CStateManager& mgr);
   void HolsterGun(CStateManager& mgr);
@@ -517,12 +517,12 @@ public:
   float GetUnbiasedEyeHeight() const;
   float GetStepUpHeight() const override;
   float GetStepDownHeight() const override;
-  void Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool resetBallCam);
+  void Teleport(const zeus::CTransform4f& xf, CStateManager& mgr, bool resetBallCam);
   void BombJump(const zeus::CVector3f& pos, CStateManager& mgr);
-  zeus::CTransform CreateTransformFromMovementDirection() const;
+  zeus::CTransform4f CreateTransformFromMovementDirection() const;
   const CCollisionPrimitive* GetCollisionPrimitive() const override;
   const CCollidableSphere* GetCollidableSphere() const;
-  zeus::CTransform GetPrimitiveTransform() const override;
+  zeus::CTransform4f GetPrimitiveTransform() const override;
   void CollidedWith(TUniqueId id, const CCollisionInfoList& list, CStateManager& mgr) override;
   float GetBallMaxVelocity() const;
   float GetActualBallMaxVelocity(float dt) const;
@@ -588,7 +588,7 @@ public:
   CPlayerEnergyDrain& GetEnergyDrain() { return x274_energyDrain; }
   EPlayerZoneInfo GetOrbitZone() const { return x330_orbitZoneMode; }
   EPlayerZoneType GetOrbitType() const { return x334_orbitType; }
-  const zeus::CTransform& GetFirstPersonCameraTransform(const CStateManager& mgr) const;
+  const zeus::CTransform4f& GetFirstPersonCameraTransform(const CStateManager& mgr) const;
   const std::vector<TUniqueId>& GetNearbyOrbitObjects() const { return x344_nearbyOrbitObjects; }
   const std::vector<TUniqueId>& GetOnScreenOrbitObjects() const { return x354_onScreenOrbitObjects; }
   const std::vector<TUniqueId>& GetOffScreenOrbitObjects() const { return x364_offScreenOrbitObjects; }

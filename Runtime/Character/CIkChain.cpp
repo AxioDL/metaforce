@@ -13,7 +13,7 @@ void CIkChain::Update(float dt) {
 
 void CIkChain::Deactivate() { x44_24_activated = false; }
 
-void CIkChain::Activate(const CAnimData& animData, const CSegId& segId, const zeus::CTransform& xf) {
+void CIkChain::Activate(const CAnimData& animData, const CSegId& segId, const zeus::CTransform4f& xf) {
   x0_bone = segId;
   const auto& info = animData.GetPoseBuilder().CharLayoutInfo();
   x1_p1 = info->GetRootNode()->GetBoneMap()[x0_bone].x0_parentId;
@@ -31,12 +31,12 @@ void CIkChain::Activate(const CAnimData& animData, const CSegId& segId, const ze
   }
 }
 
-void CIkChain::PreRender(CAnimData& animData, const zeus::CTransform& xf, const zeus::CVector3f& scale) {
+void CIkChain::PreRender(CAnimData& animData, const zeus::CTransform4f& xf, const zeus::CVector3f& scale) {
   if (x40_time > 0.f) {
-    zeus::CTransform p2Xf = animData.GetLocatorTransform(x2_p2, nullptr);
-    zeus::CVector3f localDelta = xf.transposeRotate(x34_holdPos - xf.origin);
+    zeus::CTransform4f p2Xf = animData.GetLocatorTransform(x2_p2, nullptr);
+    zeus::CVector3f localDelta = xf.TransposeRotate(x34_holdPos - xf.origin);
     localDelta /= scale;
-    localDelta = p2Xf.transposeRotate(localDelta - p2Xf.origin);
+    localDelta = p2Xf.TransposeRotate(localDelta - p2Xf.origin);
     zeus::CQuaternion p2Rot = animData.PoseBuilder().GetTreeMap()[x2_p2].x4_rotation;
     zeus::CQuaternion p1Rot = animData.PoseBuilder().GetTreeMap()[x1_p1].x4_rotation;
     zeus::CQuaternion boneRot = animData.PoseBuilder().GetTreeMap()[x0_bone].x4_rotation;

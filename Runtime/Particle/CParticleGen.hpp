@@ -8,7 +8,7 @@
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -35,18 +35,18 @@ public:
 
   virtual bool Update(double) = 0;
   virtual void Render() = 0;
-  virtual void SetOrientation(const zeus::CTransform&) = 0;
+  virtual void SetOrientation(const zeus::CTransform4f&) = 0;
   virtual void SetTranslation(const zeus::CVector3f&) = 0;
-  virtual void SetGlobalOrientation(const zeus::CTransform&) = 0;
+  virtual void SetGlobalOrientation(const zeus::CTransform4f&) = 0;
   virtual void SetGlobalTranslation(const zeus::CVector3f&) = 0;
   virtual void SetGlobalScale(const zeus::CVector3f&) = 0;
   virtual void SetLocalScale(const zeus::CVector3f&) = 0;
   virtual void SetParticleEmission(bool) = 0;
   virtual void SetModulationColor(const zeus::CColor&) = 0;
   virtual void SetGeneratorRate(float rate) {}
-  virtual const zeus::CTransform& GetOrientation() const = 0;
+  virtual const zeus::CTransform4f& GetOrientation() const = 0;
   virtual const zeus::CVector3f& GetTranslation() const = 0;
-  virtual const zeus::CTransform& GetGlobalOrientation() const = 0;
+  virtual const zeus::CTransform4f& GetGlobalOrientation() const = 0;
   virtual const zeus::CVector3f& GetGlobalTranslation() const = 0;
   virtual const zeus::CVector3f& GetGlobalScale() const = 0;
   virtual const zeus::CColor& GetModulationColor() const = 0;

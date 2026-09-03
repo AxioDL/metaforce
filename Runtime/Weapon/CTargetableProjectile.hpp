@@ -13,7 +13,7 @@ class CTargetableProjectile : public CEnergyProjectile {
 
 public:
   DEFINE_ENTITY
-  CTargetableProjectile(const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform& xf,
+  CTargetableProjectile(const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform4f& xf,
                         EMaterialTypes materials, const CDamageInfo& damage, const CDamageInfo& damage2, TUniqueId uid,
                         TAreaId aid, TUniqueId owner, const TLockedToken<CWeaponDescription>& weapDesc,
                         TUniqueId homingTarget, EProjectileAttrib attribs,

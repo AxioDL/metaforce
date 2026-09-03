@@ -8,7 +8,7 @@
 namespace metaforce {
 
 CScriptWaypoint::CScriptWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                 const zeus::CTransform& xf, bool active, float speed, float pause,
+                                 const zeus::CTransform4f& xf, bool active, float speed, float pause,
                                  u32 patternTranslate, u32 patternOrient, u32 patternFit, u32 behaviour,
                                  u32 behaviourOrient, u32 behaviourModifiers, u32 animation)
 : CActor(uid, active, name, info, xf, CModelData(), CMaterialList(), CActorParameters::None(), kInvalidUniqueId)
@@ -33,7 +33,7 @@ void CScriptWaypoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender
     SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
 }
 
-void CScriptWaypoint::AddToRenderer(const zeus::CFrustum&, CStateManager&) {
+void CScriptWaypoint::AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) {
   // Empty
 }
 

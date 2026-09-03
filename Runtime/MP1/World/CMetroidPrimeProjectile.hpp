@@ -35,7 +35,7 @@ class CMetroidPrimeProjectile : public CEnergyProjectile {
 public:
   DEFINE_ENTITY
   CMetroidPrimeProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type,
-                          const zeus::CTransform& xf, EMaterialTypes materials, const CDamageInfo& damage,
+                          const zeus::CTransform4f& xf, EMaterialTypes materials, const CDamageInfo& damage,
                           TUniqueId uid, TAreaId aid, TUniqueId owner, const SPrimeProjectileInfo& auxData,
                           TUniqueId homingTarget, EProjectileAttrib attribs, const zeus::CVector3f& scale,
                           const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,

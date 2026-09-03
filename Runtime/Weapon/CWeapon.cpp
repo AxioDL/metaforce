@@ -9,7 +9,7 @@
 namespace metaforce {
 
 CWeapon::CWeapon(TUniqueId uid, TAreaId aid, bool active, TUniqueId owner, EWeaponType type, std::string_view name,
-                 const zeus::CTransform& xf, const CMaterialFilter& filter, const CMaterialList& mList,
+                 const zeus::CTransform4f& xf, const CMaterialFilter& filter, const CMaterialList& mList,
                  const CDamageInfo& dInfo, EProjectileAttrib attribs, CModelData&& mData)
 : CActor(uid, active, name, CEntityInfo(aid, CEntity::NullConnectionList), xf, std::move(mData), mList,
          CActorParameters::None().HotInThermal(true), kInvalidUniqueId)

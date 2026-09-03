@@ -892,9 +892,9 @@ void ImGuiConsole::ShowDebugOverlay() {
       hasPrevious = true;
 
       const CPlayer& pl = g_StateManager->GetPlayer();
-      const zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
-      const zeus::CTransform camXf = g_StateManager->GetCameraManager()->GetCurrentCameraTransform(*g_StateManager);
-      const zeus::CQuaternion camQ = zeus::CQuaternion(camXf.getRotation().buildMatrix3f());
+      const zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().GetRotation().BuildMatrix3f());
+      const zeus::CTransform4f camXf = g_StateManager->GetCameraManager()->GetCurrentCameraTransform(*g_StateManager);
+      const zeus::CQuaternion camQ = zeus::CQuaternion(camXf.GetRotation().BuildMatrix3f());
       ImGuiStringViewText(
           fmt::format("Player Position x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
                       "       Roll: {: .2f}, Pitch: {: .2f}, Yaw: {: .2f}\n"
@@ -1825,7 +1825,7 @@ void ImGuiConsole::ShowPlayerTransformEditor() {
         angles.y() = zeus::clamp(-89.999f, float(angles.y()), 89.999f);
         angles.z() = zeus::clamp(-179.999f, float(angles.z()), 179.999f);
         auto xf = g_StateManager->GetPlayer().GetTransform();
-        xf.setRotation(zeus::CQuaternion(angles * zeus::skDegToRadVec).toTransform().buildMatrix3f());
+        xf.SetRotation(zeus::CQuaternion(angles * zeus::skDegToRadVec).toTransform().BuildMatrix3f());
         g_StateManager->GetPlayer().SetTransform(xf);
       }
 
@@ -1835,7 +1835,7 @@ void ImGuiConsole::ShowPlayerTransformEditor() {
       ImGui::SameLine();
       if (ImGui::Button("Load") && m_savedRotation) {
         auto xf = g_StateManager->GetPlayer().GetTransform();
-        xf.setRotation(zeus::CQuaternion((*m_savedRotation) * zeus::skDegToRadVec).toTransform().buildMatrix3f());
+        xf.SetRotation(zeus::CQuaternion((*m_savedRotation) * zeus::skDegToRadVec).toTransform().BuildMatrix3f());
         g_StateManager->GetPlayer().SetTransform(xf);
       }
       ImGui::SameLine();

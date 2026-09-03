@@ -55,7 +55,7 @@ void CFireFlea::CDeathCameraEffect::Think(float dt, CStateManager& mgr) { sCurre
 
 s32 CFireFlea::sLightIdx = 0;
 
-CFireFlea::CFireFlea(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CFireFlea::CFireFlea(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                      CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo, float f1)
 : CPatterned(EPatternedAI::FireFlea, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, actParms, EKnockBackVariant::Small)

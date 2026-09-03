@@ -148,14 +148,14 @@ private:
 public:
   DEFINE_PATTERNED(ElitePirate);
 
-  CElitePirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CElitePirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
                CElitePirateData data);
 
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   const CDamageVulnerability* GetDamageVulnerability() const override;
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                                                      const CDamageInfo& dInfo) const override;
@@ -227,7 +227,7 @@ private:
   void SetupCollisionManager(CStateManager& mgr);
   void SetupCollisionActorInfo(CStateManager& mgr);
   void ApplyDamageToHead(CStateManager& mgr, TUniqueId uid);
-  void CreateEnergyAbsorb(CStateManager& mgr, const zeus::CTransform& xf);
+  void CreateEnergyAbsorb(CStateManager& mgr, const zeus::CTransform4f& xf);
   bool CanKnockBack(const CDamageInfo& info) const;
   void UpdateDestPos(CStateManager& mgr);
   void CheckAttackChance(CStateManager& mgr);

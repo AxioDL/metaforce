@@ -102,7 +102,7 @@ bool CGuiModel::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& 
   if (!xb8_model || !xb8_model.IsLoaded()) {
     return false;
   }
-  return xb8_model->GetAABB().projectedPointTest(vp * x34_worldXF.toMatrix4f(), point);
+  return xb8_model->GetAABB().projectedPointTest(vp * x34_worldXF.ToMatrix4f(), point);
 }
 
 std::shared_ptr<CGuiWidget> CGuiModel::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {

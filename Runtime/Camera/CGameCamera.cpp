@@ -7,7 +7,7 @@
 namespace metaforce {
 
 CGameCamera::CGameCamera(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
-                         const zeus::CTransform& xf, float fovy, float znear, float zfar, float aspect,
+                         const zeus::CTransform4f& xf, float fovy, float znear, float zfar, float aspect,
                          TUniqueId watchedId, bool disableInput, u32 controllerIdx)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
@@ -52,7 +52,7 @@ zeus::CMatrix4f CGameCamera::GetPerspectiveMatrix() const {
 }
 
 zeus::CVector3f CGameCamera::ConvertToScreenSpace(const zeus::CVector3f& v) const {
-  zeus::CVector3f rVec = x34_transform.transposeRotate(v - x34_transform.origin);
+  zeus::CVector3f rVec = x34_transform.TransposeRotate(v - x34_transform.origin);
 
   if (rVec.isZero())
     return {-1.f, -1.f, 1.f};
@@ -60,23 +60,23 @@ zeus::CVector3f CGameCamera::ConvertToScreenSpace(const zeus::CVector3f& v) cons
   return GetPerspectiveMatrix().multiplyOneOverW(rVec);
 }
 
-zeus::CTransform CGameCamera::ValidateCameraTransform(const zeus::CTransform& newXf,
-                                                      const zeus::CTransform& oldXf) const {
-  zeus::CTransform xfCpy(newXf);
-  if (!zeus::close_enough(newXf.rightVector().magnitude(), 1.f) ||
-      !zeus::close_enough(newXf.frontVector().magnitude(), 1.f) ||
-      !zeus::close_enough(newXf.upVector().magnitude(), 1.f))
-    xfCpy.orthonormalize();
-  float f2 = zeus::clamp(-1.f, newXf.frontVector().dot(zeus::skUp), 1.f);
+zeus::CTransform4f CGameCamera::ValidateCameraTransform(const zeus::CTransform4f& newXf,
+                                                      const zeus::CTransform4f& oldXf) const {
+  zeus::CTransform4f xfCpy(newXf);
+  if (!zeus::close_enough(newXf.GetRight().magnitude(), 1.f) ||
+      !zeus::close_enough(newXf.GetForward().magnitude(), 1.f) ||
+      !zeus::close_enough(newXf.GetUp().magnitude(), 1.f))
+    xfCpy.Orthonormalize();
+  float f2 = zeus::clamp(-1.f, newXf.GetForward().dot(zeus::skUp), 1.f);
   if (std::fabs(f2) > 0.999f)
     xfCpy = oldXf;
 
-  if (xfCpy.upVector().z() < -0.2f)
-    xfCpy = zeus::CQuaternion::fromAxisAngle(xfCpy.frontVector(), M_PIF).toTransform() * xfCpy;
+  if (xfCpy.GetUp().z() < -0.2f)
+    xfCpy = zeus::CQuaternion::fromAxisAngle(xfCpy.GetForward(), M_PIF).toTransform() * xfCpy;
 
-  if (!zeus::close_enough(xfCpy.rightVector().z(), 0.f) && !zeus::close_enough(xfCpy.upVector().z(), 0.f)) {
-    if (xfCpy.frontVector().canBeNormalized())
-      xfCpy = zeus::lookAt(zeus::skZero3f, xfCpy.frontVector());
+  if (!zeus::close_enough(xfCpy.GetRight().z(), 0.f) && !zeus::close_enough(xfCpy.GetUp().z(), 0.f)) {
+    if (xfCpy.GetForward().canBeNormalized())
+      xfCpy = zeus::CTransform4f::LookAt(zeus::skZero3f, xfCpy.GetForward());
     else
       xfCpy = oldXf;
   }

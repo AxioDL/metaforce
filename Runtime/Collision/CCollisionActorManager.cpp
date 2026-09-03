@@ -13,16 +13,16 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
                                                const std::vector<CJointCollisionDescription>& descs, bool active)
 : x10_ownerId(owner), x12_active(active) {
   if (TCastToConstPtr<CActor> act = mgr.GetObjectById(x10_ownerId)) {
-    const zeus::CTransform xf = act->GetTransform();
+    const zeus::CTransform4f xf = act->GetTransform();
     const CAnimData* animData = act->GetModelData()->GetAnimationData();
     const zeus::CVector3f scale = act->GetModelData()->GetScale();
-    const zeus::CTransform scaleXf = zeus::CTransform::Scale(scale);
+    const zeus::CTransform4f scaleXf = zeus::CTransform4f::Scale(scale);
 
     x0_jointDescriptions.reserve(descs.size());
     for (const CJointCollisionDescription& desc : descs) {
       CJointCollisionDescription modDesc = desc;
       modDesc.ScaleAllBounds(scale);
-      const zeus::CTransform locXf = GetWRLocatorTransform(*animData, modDesc.GetPivotId(), xf, scaleXf);
+      const zeus::CTransform4f locXf = GetWRLocatorTransform(*animData, modDesc.GetPivotId(), xf, scaleXf);
 
       if (modDesc.GetNextId().IsInvalid()) {
         // We only have the pivot id
@@ -45,7 +45,7 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
         x0_jointDescriptions.push_back(desc);
         x0_jointDescriptions.back().SetCollisionActorId(newId);
       } else { // We have another bone in to connect to!
-        const zeus::CTransform locXf2 = GetWRLocatorTransform(*animData, modDesc.GetNextId(), xf, scaleXf);
+        const zeus::CTransform4f locXf2 = GetWRLocatorTransform(*animData, modDesc.GetNextId(), xf, scaleXf);
         const float dist = (locXf2.origin - locXf.origin).magnitude();
 
         if (modDesc.GetType() != CJointCollisionDescription::ECollisionType::OBBAutoSize) {
@@ -73,17 +73,17 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
               auto* newAct2 = new CCollisionActor(newId2, area, x10_ownerId, active, modDesc.GetRadius(),
                                                   modDesc.GetMass(), desc.GetName());
               if (modDesc.GetOrientationType() == CJointCollisionDescription::EOrientationType::Zero) {
-                newAct2->SetTransform(zeus::CTransform::Translate(locXf.origin + (separation * locXf.basis[1])));
+                newAct2->SetTransform(zeus::CTransform4f::Translate(locXf.origin + (separation * locXf.GetForward())));
               } else {
                 const zeus::CVector3f delta = (locXf2.origin - locXf.origin).normalized();
-                zeus::CVector3f upVector = locXf.basis[2];
+                zeus::CVector3f upVector = locXf.GetUp();
 
                 if (zeus::close_enough(std::fabs(delta.dot(upVector)), 1.f)) {
-                  upVector = locXf.basis[1];
+                  upVector = locXf.GetForward();
                 }
 
-                const zeus::CTransform lookAt = zeus::lookAt(zeus::skZero3f, delta, upVector);
-                newAct2->SetTransform(zeus::CTransform::Translate(locXf.origin + (separation * lookAt.basis[1])));
+                const zeus::CTransform4f lookAt = zeus::CTransform4f::LookAt(zeus::skZero3f, delta, upVector);
+                newAct2->SetTransform(zeus::CTransform4f::Translate(locXf.origin + (separation * lookAt.GetForward())));
               }
 
               mgr.AddObject(newAct2);
@@ -105,13 +105,13 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
             newAct->SetTransform(locXf);
           } else {
             const zeus::CVector3f delta = (locXf2.origin - locXf.origin).normalized();
-            zeus::CVector3f upVector = locXf.basis[2];
+            zeus::CVector3f upVector = locXf.GetUp();
 
             if (zeus::close_enough(std::fabs(delta.dot(upVector)), 1.f)) {
-              upVector = locXf.basis[1];
+              upVector = locXf.GetForward();
             }
 
-            newAct->SetTransform(zeus::lookAt(locXf.origin, locXf.origin + delta, upVector));
+            newAct->SetTransform(zeus::CTransform4f::LookAt(locXf.origin, locXf.origin + delta, upVector));
           }
 
           mgr.AddObject(newAct);
@@ -180,12 +180,12 @@ void CCollisionActorManager::Update(float dt, CStateManager& mgr, EUpdateOptions
 
   if (const TCastToConstPtr<CActor> act = mgr.ObjectById(x10_ownerId)) {
     const CAnimData& animData = *act->GetModelData()->GetAnimationData();
-    const zeus::CTransform actXf = act->GetTransform();
-    const zeus::CTransform scaleXf = zeus::CTransform::Scale(act->GetModelData()->GetScale());
+    const zeus::CTransform4f actXf = act->GetTransform();
+    const zeus::CTransform4f scaleXf = zeus::CTransform4f::Scale(act->GetModelData()->GetScale());
 
     for (const CJointCollisionDescription& jDesc : x0_jointDescriptions) {
       if (TCastToPtr<CCollisionActor> cAct = mgr.ObjectById(jDesc.GetCollisionActorId())) {
-        const zeus::CTransform pivotXf = GetWRLocatorTransform(animData, jDesc.GetPivotId(), actXf, scaleXf);
+        const zeus::CTransform4f pivotXf = GetWRLocatorTransform(animData, jDesc.GetPivotId(), actXf, scaleXf);
         zeus::CVector3f origin = pivotXf.origin;
 
         if (jDesc.GetType() == CJointCollisionDescription::ECollisionType::OBB ||
@@ -193,21 +193,21 @@ void CCollisionActorManager::Update(float dt, CStateManager& mgr, EUpdateOptions
           if (jDesc.GetOrientationType() == CJointCollisionDescription::EOrientationType::Zero) {
             cAct->SetTransform(zeus::CQuaternion(pivotXf.basis).toTransform(cAct->GetTranslation()));
           } else {
-            const zeus::CTransform nextXf = GetWRLocatorTransform(animData, jDesc.GetNextId(), actXf, scaleXf);
-            cAct->SetTransform(zeus::CQuaternion(zeus::lookAt(pivotXf.origin, nextXf.origin, pivotXf.basis[2]).basis)
+            const zeus::CTransform4f nextXf = GetWRLocatorTransform(animData, jDesc.GetNextId(), actXf, scaleXf);
+            cAct->SetTransform(zeus::CQuaternion(zeus::CTransform4f::LookAt(pivotXf.origin, nextXf.origin, pivotXf.GetUp()).basis)
                                    .toTransform(cAct->GetTranslation()));
           }
         } else if (jDesc.GetType() == CJointCollisionDescription::ECollisionType::SphereSubdivide) {
           if (jDesc.GetOrientationType() == CJointCollisionDescription::EOrientationType::Zero) {
-            origin += jDesc.GetMaxSeparation() * pivotXf.basis[1];
+            origin += jDesc.GetMaxSeparation() * pivotXf.GetForward();
           } else {
-            const zeus::CTransform nextXf = GetWRLocatorTransform(animData, jDesc.GetNextId(), actXf, scaleXf);
-            origin += zeus::lookAt(origin, nextXf.origin, pivotXf.basis[2]).basis[1] * jDesc.GetMaxSeparation();
+            const zeus::CTransform4f nextXf = GetWRLocatorTransform(animData, jDesc.GetNextId(), actXf, scaleXf);
+            origin += zeus::CTransform4f::LookAt(origin, nextXf.origin, pivotXf.GetUp()).GetForward() * jDesc.GetMaxSeparation();
           }
         }
 
         if (opts == EUpdateOptions::ObjectSpace) {
-          cAct->MoveToOR(cAct->GetTransform().transposeRotate(origin - cAct->GetTranslation()), dt);
+          cAct->MoveToOR(cAct->GetTransform().TransposeRotate(origin - cAct->GetTranslation()), dt);
         } else {
           cAct->SetTranslation(origin);
         }
@@ -216,12 +216,12 @@ void CCollisionActorManager::Update(float dt, CStateManager& mgr, EUpdateOptions
   }
 }
 
-zeus::CTransform CCollisionActorManager::GetWRLocatorTransform(const CAnimData& animData, CSegId id,
-                                                               const zeus::CTransform& worldXf,
-                                                               const zeus::CTransform& localXf) {
-  zeus::CTransform locXf = animData.GetLocatorTransform(id, nullptr);
+zeus::CTransform4f CCollisionActorManager::GetWRLocatorTransform(const CAnimData& animData, CSegId id,
+                                                               const zeus::CTransform4f& worldXf,
+                                                               const zeus::CTransform4f& localXf) {
+  zeus::CTransform4f locXf = animData.GetLocatorTransform(id, nullptr);
   const zeus::CVector3f origin = worldXf * (localXf * locXf.origin);
-  locXf = worldXf.multiplyIgnoreTranslation(locXf);
+  locXf = worldXf.MultiplyIgnoreTranslation(locXf);
   locXf.origin = origin;
   return locXf;
 }
@@ -234,9 +234,9 @@ std::optional<zeus::CVector3f> CCollisionActorManager::GetDeviation(const CState
 
     if (const TCastToConstPtr<CActor> act = mgr.GetObjectById(x10_ownerId)) {
       if (const TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(desc.GetCollisionActorId())) {
-        const zeus::CTransform xf =
+        const zeus::CTransform4f xf =
             GetWRLocatorTransform(*act->GetModelData()->GetAnimationData(), desc.GetPivotId(), act->GetTransform(),
-                                  zeus::CTransform::Scale(act->GetModelData()->GetScale()));
+                                  zeus::CTransform4f::Scale(act->GetModelData()->GetScale()));
 
         return {colAct->GetTranslation() - xf.origin};
       }

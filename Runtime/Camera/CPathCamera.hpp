@@ -23,7 +23,7 @@ private:
 
 public:
   DEFINE_ENTITY
-  CPathCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, bool active,
+  CPathCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf, bool active,
               float lengthExtent, float filterMag, float filterProportion, float minEaseDist, float maxEaseDist,
               u32 flags, EInitialSplinePosition initPos);
 
@@ -32,8 +32,8 @@ public:
   void Think(float, CStateManager&) override;
   void Render(CStateManager&) override {}
   void ProcessInput(const CFinalInput&, CStateManager& mgr) override;
-  void Reset(const zeus::CTransform&, CStateManager& mgr) override;
-  zeus::CTransform MoveAlongSpline(float, CStateManager&);
+  void Reset(const zeus::CTransform4f&, CStateManager& mgr) override;
+  zeus::CTransform4f MoveAlongSpline(float, CStateManager&);
   void ClampToClosedDoor(CStateManager&);
 };
 

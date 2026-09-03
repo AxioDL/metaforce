@@ -12,7 +12,7 @@
 
 namespace metaforce::MP1 {
 CGrenadeLauncher::CGrenadeLauncher(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                   const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& bounds,
+                                   const zeus::CTransform4f& xf, CModelData&& mData, const zeus::CAABox& bounds,
                                    const CHealthInfo& healthInfo, const CDamageVulnerability& vulnerability,
                                    const CActorParameters& actParams, TUniqueId parentId,
                                    const SGrenadeLauncherData& data, float f1)
@@ -118,7 +118,7 @@ void CGrenadeLauncher::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
   }
 }
 
-void CGrenadeLauncher::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CGrenadeLauncher::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   CActor::AddToRenderer(frustum, mgr);
 }
 
@@ -126,7 +126,7 @@ std::optional<zeus::CAABox> CGrenadeLauncher::GetTouchBounds() const {
   return x328_cSphere.CalculateAABox(GetTransform());
 }
 
-void CGrenadeLauncher::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CGrenadeLauncher::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   if (x3f4_damageAddColor.a() == 1.f) {
     // Original code redundantly sets a() = 1.f
     xb4_drawFlags = CModelFlags{2, 0, 3, x3f4_damageAddColor};
@@ -219,7 +219,7 @@ void CGrenadeLauncher::UpdateFollowPlayer(CStateManager& mgr, float dt) {
   if (modelData != nullptr && (animData = modelData->GetAnimationData()) != nullptr && x258_started == 1 &&
       x3fe_followPlayer) {
     const zeus::CVector3f target = mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation();
-    const zeus::CVector3f rot = GetTransform().transposeRotate({target.x(), target.y(), 0.f});
+    const zeus::CVector3f rot = GetTransform().TransposeRotate({target.x(), target.y(), 0.f});
 
     if (rot.canBeNormalized()) {
       constexpr float p36d = zeus::degToRad(36.476f);
@@ -307,7 +307,7 @@ void CGrenadeLauncher::LaunchGrenade(CStateManager& mgr) {
   if (anim.first > 0.f) {
     animData->AddAdditiveAnimation(anim.second, 1.f, false, true);
     const zeus::CVector3f origin =
-        GetTranslation() + GetTransform().rotate(GetLocatorTransform("grenade_LCTR"sv).origin);
+        GetTranslation() + GetTransform().Rotate(GetLocatorTransform("grenade_LCTR"sv).origin);
     const zeus::CVector3f target = GrenadeTarget(mgr);
     float angleOut = x2d0_data.GetGrenadeTrajectoryInfo().GetAngleMin();
     float velocityOut = x2d0_data.GetGrenadeTrajectoryInfo().GetVelocityMin();
@@ -315,7 +315,7 @@ void CGrenadeLauncher::LaunchGrenade(CStateManager& mgr) {
 
     zeus::CVector3f dist = target - origin;
     dist.z() = 0.f;
-    const zeus::CVector3f front = GetTransform().frontVector();
+    const zeus::CVector3f front = GetTransform().GetForward();
     if (dist.canBeNormalized()) {
       dist.normalize();
     } else {
@@ -328,7 +328,7 @@ void CGrenadeLauncher::LaunchGrenade(CStateManager& mgr) {
     }
 
     const zeus::CVector3f look = zeus::CVector3f::slerp(dist, zeus::skUp, angleOut);
-    const zeus::CTransform xf = zeus::lookAt(origin, origin + look, zeus::skUp);
+    const zeus::CTransform4f xf = zeus::CTransform4f::LookAt(origin, origin + look, zeus::skUp);
     CModelData mData{CStaticRes{x2d0_data.GetGrenadeModelId(), GetModelData()->GetScale()}};
     mgr.AddObject(new CBouncyGrenade(mgr.AllocateUniqueId(), "Bouncy Grenade"sv,
                                      {GetAreaIdAlways(), CEntity::NullConnectionList}, xf, std::move(mData),

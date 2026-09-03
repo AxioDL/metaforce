@@ -45,7 +45,7 @@ class CScriptEffect : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptEffect(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptEffect(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                 const zeus::CVector3f& scale, CAssetId partId, CAssetId elscId, bool hotInThermal,
                 bool noTimerUnlessAreaOccluded, bool rebuildSystemsOnActivate, bool active, bool useRateInverseCamDist,
                 float rateInverseCamDist, float rateInverseCamDistRate, float duration, float durationResetWhileVisible,
@@ -55,8 +55,8 @@ public:
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustumPlanes&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager&) override;
   void Think(float, CStateManager&) override;
   bool CanRenderUnsorted(const CStateManager&) const override { return false; }

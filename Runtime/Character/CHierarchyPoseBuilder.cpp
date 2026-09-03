@@ -75,7 +75,7 @@ void CHierarchyPoseBuilder::RecursivelyBuild(const CSegId& boneId, const CTreeNo
   }
 }
 
-void CHierarchyPoseBuilder::BuildTransform(const CSegId& boneId, zeus::CTransform& xfOut) const {
+void CHierarchyPoseBuilder::BuildTransform(const CSegId& boneId, zeus::CTransform4f& xfOut) const {
   TLockedToken<CCharLayoutInfo> layoutInfoTok;
   float scale;
   if (x0_layoutDesc.GetScaledLayoutDescription()) {
@@ -111,7 +111,7 @@ void CHierarchyPoseBuilder::BuildTransform(const CSegId& boneId, zeus::CTransfor
       accumXF = accumXF * zeus::CMatrix3f(node.x4_rotation) * zeus::CMatrix3f(scale);
   }
 
-  xfOut.setRotation(accumXF);
+  xfOut.SetRotation(accumXF);
   xfOut.origin = accumPos;
 }
 

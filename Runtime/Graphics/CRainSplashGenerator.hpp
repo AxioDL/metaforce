@@ -60,7 +60,7 @@ class CRainSplashGenerator {
   bool x48_25_raining : 1 = true;
   void UpdateRainSplashRange(CStateManager& mgr, int start, int end, float dt);
   void UpdateRainSplashes(CStateManager& mgr, float magnitude, float dt);
-  void DoDraw(const zeus::CTransform& xf);
+  void DoDraw(const zeus::CTransform4f& xf);
   static u32 GetNextBestPt(u32 pt, const SSkinningWorkspace& workspace, CRandom16& rand, float minZ);
   void AddPoint(const zeus::CVector3f& pos);
 
@@ -68,7 +68,7 @@ public:
   CRainSplashGenerator(const zeus::CVector3f& scale, u32 maxSplashes, u32 genRate, float minZ, float alpha);
   void Update(float dt, CStateManager& mgr);
   void GeneratePoints(const SSkinningWorkspace& workspace);
-  void Draw(const zeus::CTransform& xf);
+  void Draw(const zeus::CTransform4f& xf);
   bool IsRaining() const { return x48_25_raining; }
 };
 

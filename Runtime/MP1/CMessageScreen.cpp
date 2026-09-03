@@ -94,9 +94,9 @@ bool CMessageScreen::Update(float dt, float blurAmt) {
     else
       scaleX = 0.1f * ((xT - 0.7f - 0.15f) / 0.3f) + 0.9f;
 
-    x24_basewidget_center->SetLocalTransform(zeus::CTransform::Scale(scaleX, 1.f, 1.f));
-    x20_basewidget_top->SetLocalTransform(zeus::CTransform::Translate(0.f, 0.f, 12.f * (1.f - xT)));
-    x28_basewidget_bottom->SetLocalTransform(zeus::CTransform::Translate(0.f, 0.f, -12.f * (1.f - xT)));
+    x24_basewidget_center->SetLocalTransform(zeus::CTransform4f::Scale(scaleX, 1.f, 1.f));
+    x20_basewidget_top->SetLocalTransform(zeus::CTransform4f::Translate(0.f, 0.f, 12.f * (1.f - xT)));
+    x28_basewidget_bottom->SetLocalTransform(zeus::CTransform4f::Translate(0.f, 0.f, -12.f * (1.f - xT)));
 
     float alpha = std::max(0.f, (x70_blurAmt - 0.7f) / 0.3f);
     zeus::CColor color = g_tweakGuiColors->GetHudFrameColor();
@@ -115,7 +115,7 @@ bool CMessageScreen::Update(float dt, float blurAmt) {
 
     x40_model_videoband->SetColor(zeus::CColor(1.f, 0.04f * (rand() / float(RAND_MAX)) + 0.08f));
     x40_model_videoband->SetLocalTransform(
-        zeus::CTransform::Translate(x5c_videoBandPos + zeus::CVector3f(0.f, 0.f, x68_videoBandOffset)));
+        zeus::CTransform4f::Translate(x5c_videoBandPos + zeus::CVector3f(0.f, 0.f, x68_videoBandOffset)));
 
     x18_loadedMsgScreen->Update(dt);
   }

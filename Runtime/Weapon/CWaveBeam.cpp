@@ -25,7 +25,7 @@ CWaveBeam::CWaveBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId,
   x240_wave2nd3 = g_SimplePool->GetObj("Wave2nd_3");
 }
 
-void CWaveBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
+void CWaveBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) {
   if (x1cc_enabledSecondaryEffect != ESecondaryFxType::None) {
     if (x254_chargeFx)
       x254_chargeFx->Render();
@@ -35,7 +35,7 @@ void CWaveBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform
   CGunWeapon::PostRenderGunFx(mgr, xf);
 }
 
-void CWaveBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf) {
+void CWaveBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform4f& xf) {
   if (x1cc_enabledSecondaryEffect != ESecondaryFxType::None) {
     if (x258_25_effectTimerActive && x24c_effectTimer < 0.f) {
       x1cc_enabledSecondaryEffect = ESecondaryFxType::None;
@@ -44,12 +44,12 @@ void CWaveBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, 
     } else {
       if (x254_chargeFx) {
         x254_chargeFx->SetGlobalTranslation(xf.origin);
-        x254_chargeFx->SetGlobalOrientation(xf.getRotation());
+        x254_chargeFx->SetGlobalOrientation(xf.GetRotation());
         x254_chargeFx->Update(dt);
       }
       if (x250_chargeElec) {
         x250_chargeElec->SetGlobalTranslation(xf.origin);
-        x250_chargeElec->SetGlobalOrientation(xf.getRotation());
+        x250_chargeElec->SetGlobalOrientation(xf.GetRotation());
         x250_chargeElec->Update(dt);
       }
     }
@@ -59,7 +59,7 @@ void CWaveBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, 
   CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
 
-void CWaveBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
+void CWaveBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform4f& xf,
                      CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
   if (chargeState == EChargeState::Charged) {
     CGunWeapon::Fire(underwater, dt, chargeState, xf, mgr, homingTarget, chargeFactor1, chargeFactor2);
@@ -67,7 +67,7 @@ void CWaveBeam::Fire(bool underwater, float dt, EChargeState chargeState, const 
     float randAng = mgr.GetActiveRandom()->Float() * 360.f;
     auto& weaponDesc = x144_weapons[int(chargeState)];
     for (int i = 0; i < 3; ++i) {
-      zeus::CTransform shotXf = xf * zeus::CTransform::RotateY(zeus::degToRad((randAng + i) * skShotAnglePitch));
+      zeus::CTransform4f shotXf = xf * zeus::CTransform4f::RotateY(zeus::degToRad((randAng + i) * skShotAnglePitch));
       CEnergyProjectile* proj = new CEnergyProjectile(
           true, weaponDesc, x1c0_weaponType, shotXf, x1c8_playerMaterial,
           GetDamageInfo(mgr, chargeState, chargeFactor1), mgr.AllocateUniqueId(), kInvalidAreaId, x1c4_playerId,

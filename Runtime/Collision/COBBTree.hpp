@@ -50,7 +50,7 @@ public:
 
   public:
     CNode() = default;
-    CNode(const zeus::CTransform&, const zeus::CVector3f&, std::unique_ptr<CNode>&&, std::unique_ptr<CNode>&&,
+    CNode(const zeus::CTransform4f&, const zeus::CVector3f&, std::unique_ptr<CNode>&&, std::unique_ptr<CNode>&&,
           std::unique_ptr<CLeafData>&&);
     explicit CNode(CInputStream&);
 
@@ -87,9 +87,9 @@ public:
   const zeus::CVector3f& GetVert(int idx) const { return x18_indexData.x60_vertices[idx]; }
   u32 GetVertMaterial(u16 idx) const { return x18_indexData.x0_materials[x18_indexData.x10_vertMaterials[idx]]; }
   u32 GetEdgeMaterial(u16 idx) const { return x18_indexData.x0_materials[x18_indexData.x20_edgeMaterials[idx]]; }
-  CCollisionSurface GetTransformedSurface(u16 idx, const zeus::CTransform& xf) const;
+  CCollisionSurface GetTransformedSurface(u16 idx, const zeus::CTransform4f& xf) const;
   zeus::CAABox CalculateLocalAABox() const;
-  zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
+  zeus::CAABox CalculateAABox(const zeus::CTransform4f&) const;
   const CNode& GetRoot() const { return *x88_root; }
   u32 NumSurfaceMaterials() const { return x18_indexData.x30_surfaceMaterials.size(); }
 };

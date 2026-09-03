@@ -40,14 +40,14 @@ class CBloodFlower : public CPatterned {
   void UpdateFire(CStateManager& mgr);
   void TurnEffectsOn(u32, CStateManager&);
   void TurnEffectsOff(u32, CStateManager&);
-  void LaunchPollenProjectile(const zeus::CTransform&, CStateManager&, float, s32);
-  CTargetableProjectile* CreateArcProjectile(CStateManager&, const TToken<CWeaponDescription>&, const zeus::CTransform&,
+  void LaunchPollenProjectile(const zeus::CTransform4f&, CStateManager&, float, s32);
+  CTargetableProjectile* CreateArcProjectile(CStateManager&, const TToken<CWeaponDescription>&, const zeus::CTransform4f&,
                                              const CDamageInfo&, TUniqueId);
 
 public:
   DEFINE_PATTERNED(BloodFlower);
 
-  CBloodFlower(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CBloodFlower(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
                const CPatternedInfo&, CAssetId, CAssetId, const CActorParameters&, CAssetId, const CDamageInfo&,
                const CDamageInfo&, const CDamageInfo&, CAssetId, CAssetId, CAssetId, float, CAssetId, u32);
 

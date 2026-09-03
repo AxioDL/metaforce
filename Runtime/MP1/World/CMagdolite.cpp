@@ -32,7 +32,7 @@ constexpr std::array<SOBBJointInfo, 2> skHeadJoints{{
 }};
 } // namespace
 
-CMagdolite::CMagdolite(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CMagdolite::CMagdolite(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                        CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float f1,
                        float f2, const CDamageInfo& dInfo1, const CDamageInfo& dInfo2,
                        const CDamageVulnerability& dVuln1, const CDamageVulnerability& dVuln2, CAssetId modelId,
@@ -230,11 +230,11 @@ void CMagdolite::Think(float dt, CStateManager& mgr) {
 
   zeus::CVector3f plPos = mgr.GetPlayer().GetTranslation();
   zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
-  zeus::CTransform xf = GetLctrTransform("LCTR_MAGMOUTH"sv);
+  zeus::CTransform4f xf = GetLctrTransform("LCTR_MAGMOUTH"sv);
   zeus::CVector3f aimDir = (aimPos - xf.origin).normalized();
-  float angleDiff = zeus::CVector3f::getAngleDiff(xf.frontVector(), aimDir);
+  float angleDiff = zeus::CVector3f::getAngleDiff(xf.GetForward(), aimDir);
   float dVar7 = std::min(angleDiff, zeus::degToRad(x57c_));
-  if (xf.upVector().dot(aimDir) < 0.f) {
+  if (xf.GetUp().dot(aimDir) < 0.f) {
     dVar7 = -dVar7;
   }
 
@@ -254,8 +254,8 @@ void CMagdolite::Think(float dt, CStateManager& mgr) {
       }
     }
     x580_collisionManager->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
-    zeus::CTransform headXf = GetLocatorTransform("head"sv);
-    MoveCollisionPrimitive(GetTransform().rotate(GetModelData()->GetScale() * headXf.origin));
+    zeus::CTransform4f headXf = GetLocatorTransform("head"sv);
+    MoveCollisionPrimitive(GetTransform().Rotate(GetModelData()->GetScale() * headXf.origin));
     xe4_27_notInSortedLists = true;
   }
 
@@ -304,7 +304,7 @@ void CMagdolite::Death(CStateManager& mgr, const zeus::CVector3f& direction, ESc
   if (!IsAlive()) {
     return;
   }
-  zeus::CTransform tmpXf = GetTransform();
+  zeus::CTransform4f tmpXf = GetTransform();
   SetTransform(GetLctrTransform("head"sv));
   SendScriptMsgs(EScriptObjectState::MassiveDeath, mgr, EScriptObjectMessage::None);
   GenerateDeathExplosion(mgr);
@@ -379,7 +379,7 @@ void CMagdolite::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
     x32c_animState = EAnimState::Ready;
     x584_boneTracker.SetActive(false);
     zeus::CVector3f plPos = mgr.GetPlayer().GetTranslation();
-    zeus::CTransform headXf = GetLctrTransform("head"sv);
+    zeus::CTransform4f headXf = GetLctrTransform("head"sv);
     float zDiff = headXf.origin.z() - plPos.z();
 
     float fVar1 = (zDiff - x74c_);
@@ -404,8 +404,8 @@ void CMagdolite::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, 1);
     zeus::CVector3f direction = (mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f()).normalized();
-    float angle = zeus::CVector3f::getAngleDiff(GetTransform().frontVector(), direction);
-    if (GetTransform().rightVector().dot(direction) > 0.f) {
+    float angle = zeus::CVector3f::getAngleDiff(GetTransform().GetForward(), direction);
+    if (GetTransform().GetRight().dot(direction) > 0.f) {
       angle *= -1.f;
     }
 
@@ -441,7 +441,7 @@ void CMagdolite::Active(CStateManager& mgr, EStateMsg msg, float arg) {
     zeus::CVector3f posDiff = (mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f());
     if (posDiff.canBeNormalized()) {
       posDiff.normalize();
-      if (GetTransform().frontVector().dot(posDiff) < x578_losMaxDistance) {
+      if (GetTransform().GetForward().dot(posDiff) < x578_losMaxDistance) {
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCLocomotionCmd({}, posDiff, 1.f));
       }
     }
@@ -563,7 +563,7 @@ void CMagdolite::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
 }
 
 bool CMagdolite::InAttackPosition(CStateManager& mgr, float arg) {
-  zeus::CTransform xf = GetLctrTransform("head"sv);
+  zeus::CTransform4f xf = GetLctrTransform("head"sv);
   zeus::CVector3f plAimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
   zeus::CVector3f diff = (plAimPos - GetTranslation());
   if (GetTranslation().z() < plAimPos.z() && plAimPos.z() < xf.origin.z()) {
@@ -571,7 +571,7 @@ bool CMagdolite::InAttackPosition(CStateManager& mgr, float arg) {
   }
 
   if (std::fabs(diff.magnitude()) >= FLT_EPSILON) {
-    return ((1.f / diff.magnitude()) * diff).dot(GetTransform().frontVector()) < x578_losMaxDistance;
+    return ((1.f / diff.magnitude()) * diff).dot(GetTransform().GetForward()) < x578_losMaxDistance;
   }
 
   return false;
@@ -588,11 +588,11 @@ bool CMagdolite::HasAttackPattern(CStateManager& mgr, float arg) {
 }
 
 bool CMagdolite::LineOfSight(CStateManager& mgr, float arg) {
-  zeus::CTransform mouthXf = GetLctrTransform("LCTR_MAGMOUTH"sv);
+  zeus::CTransform4f mouthXf = GetLctrTransform("LCTR_MAGMOUTH"sv);
   zeus::CVector3f diff = x710_attackOffset - mouthXf.origin;
   if (diff.canBeNormalized()) {
     diff.normalize();
-    if (diff.dot(GetTransform().frontVector()) < x578_losMaxDistance) {
+    if (diff.dot(GetTransform().GetForward()) < x578_losMaxDistance) {
       return false;
     }
   }
@@ -610,8 +610,8 @@ bool CMagdolite::ShouldRetreat(CStateManager& mgr, float arg) { return x754_24_r
 void CMagdolite::UpdateOrientation(CStateManager& mgr) {
   zeus::CVector3f plDiff = (mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f());
   plDiff = plDiff.normalized();
-  float angle = zeus::CVector3f::getAngleDiff(GetTransform().frontVector(), plDiff);
-  if (GetTransform().rightVector().dot(plDiff) > 0.f) {
+  float angle = zeus::CVector3f::getAngleDiff(GetTransform().GetForward(), plDiff);
+  if (GetTransform().GetRight().dot(plDiff) > 0.f) {
     angle *= -1.f;
   }
   zeus::CQuaternion q = GetTransform().basis;

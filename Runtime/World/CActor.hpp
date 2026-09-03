@@ -29,7 +29,7 @@ class CActor : public CEntity {
   friend class ImGuiConsole;
 
 protected:
-  zeus::CTransform x34_transform;
+  zeus::CTransform4f x34_transform;
   std::unique_ptr<CModelData> x64_modelData;
   CMaterialList x68_material;
   CMaterialFilter x70_materialFilter;
@@ -95,7 +95,7 @@ public:
   };
 
   DEFINE_ENTITY
-  CActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform&,
+  CActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f&,
          CModelData&& mData, const CMaterialList& list, const CActorParameters& params, TUniqueId otherUid);
   ~CActor();
 
@@ -107,8 +107,8 @@ public:
     xe7_29_drawEnabled = active;
     CEntity::SetActive(active);
   }
-  virtual void PreRender(CStateManager&, const zeus::CFrustum&);
-  virtual void AddToRenderer(const zeus::CFrustum&, CStateManager&);
+  virtual void PreRender(CStateManager&, const zeus::CFrustumPlanes&);
+  virtual void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&);
   virtual void Render(CStateManager&);
   virtual bool CanRenderUnsorted(const CStateManager&) const;
   virtual void CalculateRenderBounds();
@@ -132,10 +132,10 @@ public:
   void RemoveEmitter();
   void SetVolume(float vol);
   void SetMuted(bool);
-  const zeus::CTransform& GetTransform() const { return x34_transform; }
+  const zeus::CTransform4f& GetTransform() const { return x34_transform; }
   const zeus::CVector3f& GetTranslation() const { return x34_transform.origin; }
-  zeus::CTransform GetScaledLocatorTransform(std::string_view segName) const;
-  zeus::CTransform GetLocatorTransform(std::string_view segName) const;
+  zeus::CTransform4f GetScaledLocatorTransform(std::string_view segName) const;
+  zeus::CTransform4f GetLocatorTransform(std::string_view segName) const;
   void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
   void RemoveMaterial(EMaterialTypes, EMaterialTypes, EMaterialTypes, CStateManager&);
   void RemoveMaterial(EMaterialTypes, EMaterialTypes, CStateManager&);
@@ -162,7 +162,7 @@ public:
   void SetSoundEventPitchBend(s32);
   void SetRotation(const zeus::CQuaternion& q);
   void SetTranslation(const zeus::CVector3f& tr);
-  void SetTransform(const zeus::CTransform& tr);
+  void SetTransform(const zeus::CTransform4f& tr);
   void SetAddedToken(u32 tok);
   float GetPitch() const;
   float GetYaw() const;

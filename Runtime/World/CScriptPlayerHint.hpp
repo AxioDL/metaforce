@@ -19,7 +19,7 @@ class CScriptPlayerHint : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptPlayerHint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptPlayerHint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                     bool active, u32 priority, u32 overrideFlags);
   void Accept(IVisitor& visit) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;

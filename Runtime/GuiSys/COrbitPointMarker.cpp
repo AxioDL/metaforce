@@ -71,9 +71,9 @@ void COrbitPointMarker::Draw(const CStateManager& mgr) {
       x28_orbitPointModel.IsLoaded()) {
     SCOPED_GRAPHICS_DEBUG_GROUP("COrbitPointMarker::Draw", zeus::skCyan);
     const CGameCamera* curCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
-    zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+    zeus::CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     CGraphics::SetViewPointMatrix(camXf);
-    zeus::CFrustum frustum = mgr.SetupDrawFrustum(CGraphics::mViewport);
+    zeus::CFrustumPlanes frustum = mgr.SetupDrawFrustum(CGraphics::mViewport);
     frustum.updatePlanes(
         camXf, zeus::SProjPersp(zeus::degToRad(curCam->GetFov()), CGraphics::GetViewportAspect(), 1.f, 100.f));
     g_Renderer->SetClippingPlanes(frustum);
@@ -84,8 +84,8 @@ void COrbitPointMarker::Draw(const CStateManager& mgr) {
       scale = 1.f - x20_interpTimer / g_tweakTargeting->GetOrbitPointInTime();
     else
       scale = x20_interpTimer / g_tweakTargeting->GetOrbitPointOutTime();
-    zeus::CTransform modelXf = zeus::CTransform::RotateZ(x8_lagAzimuth);
-    modelXf.scaleBy(scale);
+    zeus::CTransform4f modelXf = zeus::CTransform4f::RotateZ(x8_lagAzimuth);
+    modelXf.ScaleBy(scale);
     modelXf.origin += x10_lagTargetPos;
     CGraphics::SetModelMatrix(modelXf);
     zeus::CColor color = g_tweakTargeting->GetOrbitPointColor();

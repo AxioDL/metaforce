@@ -46,7 +46,7 @@ void CCollidableOBBTreeGroup::ResetTestStats() const { /* Remove me? */
 
 u32 CCollidableOBBTreeGroup::GetTableIndex() const { return sTableIndex; }
 
-zeus::CAABox CCollidableOBBTreeGroup::CalculateAABox(const zeus::CTransform& xf) const {
+zeus::CAABox CCollidableOBBTreeGroup::CalculateAABox(const zeus::CTransform4f& xf) const {
   return x10_container->x20_aabox.getTransformedAABox(xf);
 }
 
@@ -65,7 +65,7 @@ CRayCastResult CCollidableOBBTreeGroup::CastRayInternal(const CInternalRayCastSt
     float tMin = 0.f;
     float tMax = 0.f;
     if (CollisionUtil::RayAABoxIntersection(xfRay, *aabbIt++, tMin, tMax) != 0u) {
-      CInternalRayCastStructure localCast(xfRay.start, xfRay.dir, mag, zeus::CTransform(), rayCast.GetFilter());
+      CInternalRayCastStructure localCast(xfRay.start, xfRay.dir, mag, zeus::CTransform4f(), rayCast.GetFilter());
       CRayCastResult localResult = obbTree.CastRayInternal(localCast);
       if (localResult.IsValid()) {
         if (ret.IsInvalid() || localResult.GetT() < ret.GetT()) {
@@ -90,7 +90,7 @@ bool CCollidableOBBTreeGroup::SphereCollide(const CInternalCollisionStructure& c
   const auto& p1 = static_cast<const CCollidableOBBTreeGroup&>(collision.GetRight().GetPrim());
 
   zeus::CSphere s0 = p0.Transform(collision.GetLeft().GetTransform());
-  zeus::COBBox obb1 = zeus::COBBox::FromAABox(p0.CalculateLocalAABox(), collision.GetRight().GetTransform().inverse() *
+  zeus::COBBox obb1 = zeus::COBBox::FromAABox(p0.CalculateLocalAABox(), collision.GetRight().GetTransform().Inverse() *
                                                                             collision.GetLeft().GetTransform());
 
   for (const std::unique_ptr<COBBTree>& tree : p1.x10_container->x0_trees) {
@@ -109,7 +109,7 @@ bool CCollidableOBBTreeGroup::SphereCollideBoolean(const CInternalCollisionStruc
   const auto& p1 = static_cast<const CCollidableOBBTreeGroup&>(collision.GetRight().GetPrim());
 
   zeus::CSphere s0 = p0.Transform(collision.GetLeft().GetTransform());
-  zeus::COBBox obb1 = zeus::COBBox::FromAABox(p0.CalculateLocalAABox(), collision.GetRight().GetTransform().inverse() *
+  zeus::COBBox obb1 = zeus::COBBox::FromAABox(p0.CalculateLocalAABox(), collision.GetRight().GetTransform().Inverse() *
                                                                             collision.GetLeft().GetTransform());
 
   for (const std::unique_ptr<COBBTree>& tree : p1.x10_container->x0_trees) {
@@ -136,7 +136,7 @@ bool CCollidableOBBTreeGroup::CollideMovingSphere(const CInternalCollisionStruct
   movedAABB.accumulateBounds(movedAABB.min + moveVec);
   movedAABB.accumulateBounds(movedAABB.max + moveVec);
 
-  zeus::COBBox p0Obb = zeus::COBBox::FromAABox(movedAABB, collision.GetRight().GetTransform().inverse() *
+  zeus::COBBox p0Obb = zeus::COBBox::FromAABox(movedAABB, collision.GetRight().GetTransform().Inverse() *
                                                               collision.GetLeft().GetTransform());
 
   for (const std::unique_ptr<COBBTree>& tree : p1.x10_container->x0_trees) {
@@ -158,7 +158,7 @@ bool CCollidableOBBTreeGroup::AABoxCollide(const CInternalCollisionStructure& co
 
   const zeus::CAABox b0 = p0.CalculateAABox(collision.GetLeft().GetTransform());
   const zeus::COBBox p0Obb = zeus::COBBox::FromAABox(
-      p0.CalculateLocalAABox(), collision.GetRight().GetTransform().inverse() * collision.GetLeft().GetTransform());
+      p0.CalculateLocalAABox(), collision.GetRight().GetTransform().Inverse() * collision.GetLeft().GetTransform());
 
   const std::array<zeus::CPlane, 6> planes{{
       {zeus::skRight, b0.min.dot(zeus::skRight)},
@@ -185,7 +185,7 @@ bool CCollidableOBBTreeGroup::AABoxCollideBoolean(const CInternalCollisionStruct
   const auto& p1 = static_cast<const CCollidableOBBTreeGroup&>(collision.GetRight().GetPrim());
 
   zeus::CAABox b0 = p0.CalculateAABox(collision.GetLeft().GetTransform());
-  zeus::COBBox p0Obb = zeus::COBBox::FromAABox(p0.CalculateLocalAABox(), collision.GetRight().GetTransform().inverse() *
+  zeus::COBBox p0Obb = zeus::COBBox::FromAABox(p0.CalculateLocalAABox(), collision.GetRight().GetTransform().Inverse() *
                                                                              collision.GetLeft().GetTransform());
 
   for (const std::unique_ptr<COBBTree>& tree : p1.x10_container->x0_trees) {
@@ -214,7 +214,7 @@ bool CCollidableOBBTreeGroup::CollideMovingAABox(const CInternalCollisionStructu
   movedAABB.accumulateBounds(movedAABB.min + moveVec);
   movedAABB.accumulateBounds(movedAABB.max + moveVec);
 
-  zeus::COBBox p0Obb = zeus::COBBox::FromAABox(movedAABB, collision.GetRight().GetTransform().inverse() *
+  zeus::COBBox p0Obb = zeus::COBBox::FromAABox(movedAABB, collision.GetRight().GetTransform().Inverse() *
                                                               collision.GetLeft().GetTransform());
 
   for (const std::unique_ptr<COBBTree>& tree : p1.x10_container->x0_trees) {

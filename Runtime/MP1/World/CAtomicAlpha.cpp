@@ -17,7 +17,7 @@ constexpr std::array skBombLocators{
     "bomb4_LCTR"sv,
 };
 
-CAtomicAlpha::CAtomicAlpha(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CAtomicAlpha::CAtomicAlpha(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                            CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
                            CAssetId bombWeapon, const CDamageInfo& bombDamage, float bombDropDelay, float f2, float f3,
                            CAssetId cmdl, bool invisible, bool b2)
@@ -55,16 +55,16 @@ void CAtomicAlpha::Render(CStateManager& mgr) {
 
   CPatterned::Render(mgr);
   for (const SBomb& bomb : x6dc_bombLocators) {
-    zeus::CTransform locatorXf =
+    zeus::CTransform4f locatorXf =
         GetTransform() * GetScaledLocatorTransform(bomb.x0_locatorName) *
-        zeus::CTransform::Scale(
+        zeus::CTransform4f::Scale(
             std::min(1.f, std::max(0.f, bomb.x14_scaleTime - x570_bombReappearDelay) / x570_bombReappearDelay));
     CModelFlags flags{0, 0, 3, zeus::skWhite};
     x690_bombModel.Render(mgr, locatorXf, x90_actorLights.get(), flags);
   }
 }
 
-void CAtomicAlpha::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CAtomicAlpha::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay && x568_25_invisible) {
     return;
   }
@@ -86,7 +86,7 @@ void CAtomicAlpha::Think(float dt, CStateManager& mgr) {
 void CAtomicAlpha::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
   if (type == EUserEventType::Projectile) {
     zeus::CVector3f origin = GetLctrTransform(node.GetLocatorName()).origin;
-    zeus::CTransform xf = zeus::lookAt(origin, origin + zeus::skDown, zeus::skUp);
+    zeus::CTransform4f xf = zeus::CTransform4f::LookAt(origin, origin + zeus::skDown, zeus::skUp);
     LaunchProjectile(xf, mgr, 4, EProjectileAttrib::None, false, {}, 0xFFFF, false, zeus::skOne3f);
     x578_bombTime = 0.f;
     x6dc_bombLocators[x57c_curBomb].x14_scaleTime = 0.f;

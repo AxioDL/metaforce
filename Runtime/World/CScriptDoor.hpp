@@ -40,7 +40,7 @@ public:
 
 public:
   DEFINE_ENTITY
-  CScriptDoor(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CTransform&, CModelData&&,
+  CScriptDoor(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f&, CModelData&&,
               const CActorParameters&, const zeus::CVector3f&, const zeus::CAABox&, bool active, bool open, bool, float,
               bool ballDoor);
 
@@ -48,7 +48,7 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Think(float, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager& mgr) override;
   void Render(CStateManager&) override {}
   void ForceClosed(CStateManager&);
   bool IsConnectedToArea(const CStateManager& mgr, TAreaId area) const;

@@ -419,7 +419,7 @@ void CScriptWater::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, CS
   CScriptTrigger::AcceptScriptMsg(msg, other, mgr);
 }
 
-void CScriptWater::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CScriptWater::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   if (!x2e8_27_allowRender) {
     xe4_30_outOfFrustum = true;
     return;
@@ -444,7 +444,7 @@ void CScriptWater::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) 
   x150_frustum = frustum;
 }
 
-void CScriptWater::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManager& mgr) {
+void CScriptWater::AddToRenderer(const zeus::CFrustumPlanes& /*frustum*/, CStateManager& mgr) {
   if (xe4_30_outOfFrustum) {
     return;
   }
@@ -457,9 +457,9 @@ void CScriptWater::AddToRenderer(const zeus::CFrustum& /*frustum*/, CStateManage
 void CScriptWater::Render(CStateManager& mgr) {
   if (x30_24_active && !xe4_30_outOfFrustum) {
     const float zOffset = 0.5f * (x9c_renderBounds.max.z() + x9c_renderBounds.min.z()) - x34_transform.origin.z();
-    const zeus::CAABox aabb = x9c_renderBounds.getTransformedAABox(zeus::CTransform::Translate(
+    const zeus::CAABox aabb = x9c_renderBounds.getTransformedAABox(zeus::CTransform4f::Translate(
         -x34_transform.origin.x(), -x34_transform.origin.y(), -x34_transform.origin.z() - zOffset));
-    zeus::CTransform xf = x34_transform;
+    zeus::CTransform4f xf = x34_transform;
     xf.origin.z() += zOffset;
     const zeus::CVector3f areaCenter = mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId())->GetAABB().center();
     const std::optional<CRippleManager> rippleMan(mgr.GetFluidPlaneManager()->GetRippleManager());
@@ -474,8 +474,8 @@ void CScriptWater::Render(CStateManager& mgr) {
           zeus::CAABox fogBox = GetTriggerBoundsWR();
           fogBox.min.z() = float(fogBox.max.z());
           fogBox.max.z() += fogLevel;
-          const zeus::CTransform modelXf =
-              zeus::CTransform::Translate(fogBox.center()) * zeus::CTransform::Scale((fogBox.max - fogBox.min) * 0.5f);
+          const zeus::CTransform4f modelXf =
+              zeus::CTransform4f::Translate(fogBox.center()) * zeus::CTransform4f::Scale((fogBox.max - fogBox.min) * 0.5f);
           const zeus::CAABox renderAABB(zeus::skNegOne3f, zeus::skOne3f);
           CGraphics::SetModelMatrix(modelXf);
           g_Renderer->SetAmbientColor(zeus::skWhite);

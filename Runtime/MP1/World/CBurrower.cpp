@@ -20,7 +20,7 @@ constexpr CDamageVulnerability skVulnerability{
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectionType::None};
 } // namespace
 
-CBurrower::CBurrower(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CBurrower::CBurrower(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                      CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, CAssetId aId1,
                      CAssetId aId2, CAssetId aId3, const CDamageInfo& damageInfo, CAssetId aId4, u32 sfxId,
                      CAssetId aId5)
@@ -68,11 +68,11 @@ void CBurrower::Think(float dt, CStateManager& mgr) {
   }
 
   if (x6ac_24_doFacePlayer) {
-    zeus::CVector3f front = GetTransform().frontVector().normalized();
+    zeus::CVector3f front = GetTransform().GetForward().normalized();
     zeus::CVector3f diffPos = (mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized();
     if (front.dot(diffPos) < 0.9993) {
       zeus::CQuaternion q = zeus::CQuaternion::lookAt(front, diffPos, zeus::degToRad(360.f * dt));
-      q.setImaginary(GetTransform().transposeRotate(q.getImaginary()));
+      q.setImaginary(GetTransform().TransposeRotate(q.getImaginary()));
       RotateToOR(q, dt);
     }
   } else if (x69c_attackTime > 0.f) {
@@ -84,7 +84,7 @@ void CBurrower::Think(float dt, CStateManager& mgr) {
     if (!x6ac_25_inAir && x6a0_lurkTimer <= 0.f) {
       if (IsAlive()) {
         x674_jumpParticle->SetParticleEmission(true);
-        x674_jumpParticle->SetOrientation(GetTransform().getRotation());
+        x674_jumpParticle->SetOrientation(GetTransform().GetRotation());
         x674_jumpParticle->SetTranslation(GetTranslation());
         x674_jumpParticle->ForceParticleCreation(1);
         x674_jumpParticle->SetOrientation({});
@@ -117,7 +117,7 @@ void CBurrower::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   }
 }
 
-void CBurrower::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CBurrower::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   if (GetActive() && x678_trailParticle) {
     g_Renderer->AddParticleGen(*x678_trailParticle);
   }
@@ -161,7 +161,7 @@ void CBurrower::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
     const zeus::CVector3f gunPos = GetLctrTransform(node.GetLocatorName()).origin;
     const zeus::CVector3f interPos =
         GetProjectileInfo()->PredictInterceptPos(gunPos, aimPos, mgr.GetPlayer(), true, dt);
-    const zeus::CTransform gunXf = zeus::lookAt(gunPos, interPos);
+    const zeus::CTransform4f gunXf = zeus::CTransform4f::LookAt(gunPos, interPos);
     LaunchProjectile(gunXf, mgr, 1, EProjectileAttrib::None, false, x67c_visorParticle, x6aa_visorSfx, false,
                      GetModelData()->GetScale());
     return;
@@ -222,7 +222,7 @@ void CBurrower::TurnAround(CStateManager& mgr, EStateMsg msg, float dt) {
     return;
   }
   GetBodyController()->GetCommandMgr().DeliverCmd(
-      CBCLocomotionCmd{-GetTransform().frontVector(), GetTransform().frontVector(), 1.f});
+      CBCLocomotionCmd{-GetTransform().GetForward(), GetTransform().GetForward(), 1.f});
 }
 
 void CBurrower::Active(CStateManager& mgr, EStateMsg msg, float dt) {

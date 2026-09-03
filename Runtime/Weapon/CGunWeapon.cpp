@@ -146,16 +146,16 @@ void CGunWeapon::PlayAnim(NWeaponTypes::EGunAnimType type, bool loop) {
   x10_solidModelData->GetAnimationData()->SetAnimation(parms, false);
 }
 
-void CGunWeapon::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
+void CGunWeapon::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) {
   // Empty
 }
 
-void CGunWeapon::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
+void CGunWeapon::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) {
   if (x218_26_loaded && x1b8_frozenGenerator && x204_frozenEffect != EFrozenFxType::None)
     x1b8_frozenGenerator->Render();
 }
 
-void CGunWeapon::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf) {
+void CGunWeapon::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform4f& xf) {
   if (x218_26_loaded && x204_frozenEffect != EFrozenFxType::None) {
     if (x204_frozenEffect == EFrozenFxType::Thawed) {
       if (x1b8_frozenGenerator->IsSystemDeletable()) {
@@ -163,7 +163,7 @@ void CGunWeapon::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr,
         x1b8_frozenGenerator.reset();
       } else {
         x1b8_frozenGenerator->SetTranslation(xf.origin);
-        x1b8_frozenGenerator->SetOrientation(xf.getRotation());
+        x1b8_frozenGenerator->SetOrientation(xf.GetRotation());
       }
     } else {
       x1b8_frozenGenerator->SetGlobalOrientAndTrans(xf);
@@ -175,7 +175,7 @@ void CGunWeapon::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr,
 
 constexpr std::array<s32, 2> CGunWeapon::skShootAnim{4, 3};
 
-void CGunWeapon::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
+void CGunWeapon::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform4f& xf,
                       CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
   //OPTICK_EVENT();
   CDamageInfo dInfo = GetDamageInfo(mgr, chargeState, chargeFactor1);
@@ -251,12 +251,12 @@ void CGunWeapon::TouchHolo(const CStateManager& mgr) {
     x60_holoModelData->Touch(mgr, 0);
 }
 
-void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
+void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform4f& xf, const CModelFlags& flags,
                       const CActorLights* lights) {
   if (!x218_26_loaded)
     return;
 
-  zeus::CTransform armXf = xf * x10_solidModelData->GetScaledLocatorTransform("elbow");
+  zeus::CTransform4f armXf = xf * x10_solidModelData->GetScaledLocatorTransform("elbow");
 
   if (x1bc_rainSplashGenerator && x1bc_rainSplashGenerator->IsRaining())
     CSkinnedModel::SetPointGeneratorFunc(
@@ -497,7 +497,7 @@ void CGunWeapon::Unload(CStateManager& mgr) {
 
 bool CGunWeapon::IsLoaded() const { return x218_26_loaded; }
 
-void CGunWeapon::DrawHologram(const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags) {
+void CGunWeapon::DrawHologram(const CStateManager& mgr, const zeus::CTransform4f& xf, const CModelFlags& flags) {
   if (!x218_26_loaded)
     return;
 
@@ -506,7 +506,7 @@ void CGunWeapon::DrawHologram(const CStateManager& mgr, const zeus::CTransform& 
     CModelFlags useFlags = flags;
     x60_holoModelData->FlatDraw(CModelData::EWhichModel::Normal, xf, false, useFlags);
   } else {
-    CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x10_solidModelData->GetScale()));
+    CGraphics::SetModelMatrix(xf * zeus::CTransform4f::Scale(x10_solidModelData->GetScale()));
     CGraphics::DisableAllLights();
     g_Renderer->SetAmbientColor(zeus::skWhite);
     CSkinnedModel& model = *x60_holoModelData->GetAnimationData()->GetModelData();
@@ -579,7 +579,7 @@ zeus::CAABox CGunWeapon::GetBounds() const {
   return zeus::skNullBox;
 }
 
-zeus::CAABox CGunWeapon::GetBounds(const zeus::CTransform& xf) const {
+zeus::CAABox CGunWeapon::GetBounds(const zeus::CTransform4f& xf) const {
   if (x10_solidModelData)
     return x10_solidModelData->GetBounds(xf);
   return zeus::skNullBox;

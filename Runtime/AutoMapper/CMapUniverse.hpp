@@ -9,7 +9,7 @@
 #include "Runtime/AutoMapper/CMapArea.hpp"
 
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -23,12 +23,12 @@ public:
     int xc_closestHex;
     float x10_flashPulse;
     // const CStateManager& x14_mgr;
-    const zeus::CTransform& x18_model;
-    const zeus::CTransform& x1c_view;
+    const zeus::CTransform4f& x18_model;
+    const zeus::CTransform4f& x1c_view;
 
   public:
     CMapUniverseDrawParms(float alpha, int wldIdx, CAssetId wldRes, int closestHex, float flashPulse,
-                          const CStateManager& mgr, const zeus::CTransform& model, const zeus::CTransform& view)
+                          const CStateManager& mgr, const zeus::CTransform4f& model, const zeus::CTransform4f& view)
     : x0_alpha(alpha)
     , x4_wldIdx(wldIdx)
     , x8_wldRes(wldRes)
@@ -39,8 +39,8 @@ public:
     x18_model(model)
     , x1c_view(view) {}
     int GetFocusWorldIndex() const { return x4_wldIdx; }
-    const zeus::CTransform& GetCameraTransform() const { return x1c_view; }
-    const zeus::CTransform& GetPaneProjectionTransform() const { return x18_model; }
+    const zeus::CTransform4f& GetCameraTransform() const { return x1c_view; }
+    const zeus::CTransform4f& GetPaneProjectionTransform() const { return x18_model; }
     float GetAlpha() const { return x0_alpha; }
     CAssetId GetWorldAssetId() const { return x8_wldRes; }
     int GetClosestArea() const { return xc_closestHex; }
@@ -75,8 +75,8 @@ public:
   class CMapWorldData {
     std::string x0_label;
     CAssetId x10_worldAssetId;
-    zeus::CTransform x14_transform;
-    std::vector<zeus::CTransform> x44_hexagonXfs;
+    zeus::CTransform4f x14_transform;
+    std::vector<zeus::CTransform4f> x44_hexagonXfs;
     zeus::CColor x54_surfColorSelected;
     zeus::CColor x58_outlineColorSelected = zeus::CColor(1.0f, 0.0f, 1.0f);
     zeus::CColor x5c_surfColorUnselected = zeus::CColor(1.0f, 0.0f, 1.0f);
@@ -88,8 +88,8 @@ public:
     CAssetId GetWorldAssetId() const { return x10_worldAssetId; }
     const zeus::CVector3f& GetWorldCenterPoint() const { return x64_centerPoint; }
     std::string_view GetWorldLabel() const { return x0_label; }
-    const zeus::CTransform& GetWorldTransform() const { return x14_transform; }
-    const zeus::CTransform& GetMapAreaData(s32 idx) const { return x44_hexagonXfs[idx]; }
+    const zeus::CTransform4f& GetWorldTransform() const { return x14_transform; }
+    const zeus::CTransform4f& GetMapAreaData(s32 idx) const { return x44_hexagonXfs[idx]; }
     u32 GetNumMapAreaDatas() const { return x44_hexagonXfs.size(); }
     const zeus::CColor& GetOutlineColorUnselected() const { return x60_outlineColorUnselected; }
     const zeus::CColor& GetOutlineColorSelected() const { return x58_outlineColorSelected; }

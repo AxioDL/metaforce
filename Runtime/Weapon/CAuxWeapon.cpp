@@ -123,7 +123,7 @@ void CAuxWeapon::StopComboFx(CStateManager& mgr, bool deactivate) {
 }
 
 bool CAuxWeapon::UpdateComboFx(float dt, const zeus::CVector3f& scale, const zeus::CVector3f& pos,
-                               const zeus::CTransform& xf, CStateManager& mgr) {
+                               const zeus::CTransform4f& xf, CStateManager& mgr) {
   if (!x80_24_isLoaded || x74_firingBeamId == CPlayerState::EBeamId::Invalid)
     return false;
 
@@ -204,7 +204,7 @@ void CAuxWeapon::DeleteFlameThrower(CStateManager& mgr) {
   }
 }
 
-void CAuxWeapon::CreateFlameThrower(const zeus::CTransform& xf, CStateManager& mgr, float dt) {
+void CAuxWeapon::CreateFlameThrower(const zeus::CTransform4f& xf, CStateManager& mgr, float dt) {
   DeleteFlameThrower(mgr);
   if (x6e_flameThrowerId != kInvalidUniqueId)
     return;
@@ -244,7 +244,7 @@ void CAuxWeapon::DeleteWaveBusterBeam(CStateManager& mgr) {
   }
 }
 
-void CAuxWeapon::CreateWaveBusterBeam(EProjectileAttrib attribs, TUniqueId homingTarget, const zeus::CTransform& xf,
+void CAuxWeapon::CreateWaveBusterBeam(EProjectileAttrib attribs, TUniqueId homingTarget, const zeus::CTransform4f& xf,
                                       CStateManager& mgr) {
   DeleteFlameThrower(mgr);
   if (x70_waveBusterId != kInvalidUniqueId)
@@ -263,7 +263,7 @@ void CAuxWeapon::CreateWaveBusterBeam(EProjectileAttrib attribs, TUniqueId homin
 }
 
 void CAuxWeapon::LaunchMissile(float dt, bool underwater, bool charged, CPlayerState::EBeamId currentBeam,
-                               EProjectileAttrib attrib, const zeus::CTransform& xf, TUniqueId homingId,
+                               EProjectileAttrib attrib, const zeus::CTransform4f& xf, TUniqueId homingId,
                                CStateManager& mgr) {
   const SShotParam& info =
       charged ? g_tweakPlayerGun->GetComboShotInfo(int(currentBeam)) : g_tweakPlayerGun->GetMissileInfo();
@@ -284,7 +284,7 @@ void CAuxWeapon::LaunchMissile(float dt, bool underwater, bool charged, CPlayerS
 }
 
 void CAuxWeapon::Fire(float dt, bool underwater, CPlayerState::EBeamId currentBeam, EChargeState chargeState,
-                      const zeus::CTransform& xf, CStateManager& mgr, EWeaponType type, TUniqueId homingId) {
+                      const zeus::CTransform4f& xf, CStateManager& mgr, EWeaponType type, TUniqueId homingId) {
   if (!x80_24_isLoaded)
     return;
 

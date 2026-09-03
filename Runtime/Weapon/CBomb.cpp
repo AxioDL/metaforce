@@ -14,7 +14,7 @@
 namespace metaforce {
 
 CBomb::CBomb(const TCachedToken<CGenDescription>& particle1, const TCachedToken<CGenDescription>& particle2,
-             TUniqueId uid, TAreaId aid, TUniqueId playerId, float f1, const zeus::CTransform& xf,
+             TUniqueId uid, TAreaId aid, TUniqueId playerId, float f1, const zeus::CTransform4f& xf,
              const CDamageInfo& dInfo)
 : CWeapon(uid, aid, true, playerId, EWeaponType::Bomb, "Bomb", xf,
           CMaterialFilter::MakeIncludeExclude(
@@ -113,12 +113,12 @@ void CBomb::Think(float dt, metaforce::CStateManager& mgr) {
   x184_particle2->SetGlobalTranslation(GetTranslation());
 }
 
-void CBomb::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CBomb::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   zeus::CVector3f origin = GetTranslation();
   float ballRadius = mgr.GetPlayer().GetMorphBall()->GetBallRadius();
 
   zeus::CAABox aabox(origin - (0.9f * ballRadius), origin + (0.9f * ballRadius));
-  zeus::CVector3f closestPoint = aabox.closestPointAlongVector(CGraphics::mViewMatrix.frontVector());
+  zeus::CVector3f closestPoint = aabox.closestPointAlongVector(CGraphics::mViewMatrix.GetForward());
 
   if (x190_24_isNotDetonated) {
     if (x17c_fuseTime > 0.5f) {

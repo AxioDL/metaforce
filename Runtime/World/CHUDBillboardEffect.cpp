@@ -19,7 +19,7 @@ CHUDBillboardEffect::CHUDBillboardEffect(const std::optional<TToken<CGenDescript
                                          bool active, std::string_view name, float dist, const zeus::CVector3f& scale0,
                                          const zeus::CColor& color, const zeus::CVector3f& scale1,
                                          const zeus::CVector3f& translation)
-: CEffect(uid, CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), active, name, zeus::CTransform()) {
+: CEffect(uid, CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), active, name, zeus::CTransform4f()) {
   xec_translation = translation;
   xec_translation.y() += dist;
   xf8_localScale = scale1 * scale0;
@@ -74,15 +74,15 @@ void CHUDBillboardEffect::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CHUDBillboardEffect::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CHUDBillboardEffect::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   if (x104_25_enableRender && x104_24_renderAsParticleGen) {
     g_Renderer->AddParticleGen(*xe8_generator);
   }
 }
 
-void CHUDBillboardEffect::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CHUDBillboardEffect::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   if (mgr.GetPlayer().GetCameraState() == CPlayer::EPlayerCameraState::FirstPerson) {
-    zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+    zeus::CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     xe8_generator->SetGlobalTranslation(camXf * xec_translation);
     xe8_generator->SetGlobalOrientation(camXf);
     x104_25_enableRender = true;

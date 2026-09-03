@@ -74,17 +74,17 @@ private:
     CFlyingPirateRagDoll(CStateManager& mgr, CFlyingPirate* actor, u16 w1, u16 w2);
 
     void PreRender(const zeus::CVector3f& v, CModelData& mData) override;
-    void Prime(CStateManager& mgr, const zeus::CTransform& xf, CModelData& mData) override;
+    void Prime(CStateManager& mgr, const zeus::CTransform4f& xf, CModelData& mData) override;
     void Update(CStateManager& mgr, float dt, float waterTop) override;
   };
 
 public:
-  CFlyingPirate(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CFlyingPirate(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
                 const CActorParameters&, const CPatternedInfo&, CInputStream&, u32);
 
   void Accept(IVisitor& visitor) override { visitor.Visit(this); }
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   bool AnimOver(CStateManager& mgr, float arg) override;
   void CalculateRenderBounds() override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
@@ -94,7 +94,7 @@ public:
   bool IsListening() const override { return true; }
   bool KnockbackWhenFrozen() const override { return false; }
   bool Listen(const zeus::CVector3f& pos, EListenNoiseType type) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   CProjectileInfo* GetProjectileInfo() override { return &x568_data.xc_gunProjectileInfo; }
   void Think(float dt, CStateManager& mgr) override;
 

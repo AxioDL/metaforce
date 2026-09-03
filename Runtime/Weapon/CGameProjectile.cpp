@@ -17,7 +17,7 @@
 
 namespace metaforce {
 CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& wDesc, std::string_view name,
-                                 EWeaponType wType, const zeus::CTransform& xf, EMaterialTypes excludeMat,
+                                 EWeaponType wType, const zeus::CTransform4f& xf, EMaterialTypes excludeMat,
                                  const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                                  TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater,
                                  const zeus::CVector3f& scale,
@@ -46,7 +46,7 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
 void CGameProjectile::Accept(metaforce::IVisitor& visitor) { visitor.Visit(this); }
 
 void CGameProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr) {
-  const zeus::CVector3f revDir = -x34_transform.basis[1].normalized();
+  const zeus::CVector3f revDir = -x34_transform.GetForward().normalized();
   const TCastToConstPtr<CPlayer> player(act);
 
   if (!player) {
@@ -58,7 +58,7 @@ void CGameProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CActo
   }
 
   if (zeus::radToDeg(
-          std::acos(mgr.GetCameraManager()->GetCurrentCameraTransform(mgr).basis[1].normalized().dot(revDir))) > 45.f) {
+          std::acos(mgr.GetCameraManager()->GetCurrentCameraTransform(mgr).GetForward().normalized().dot(revDir))) > 45.f) {
     return;
   }
 
@@ -160,7 +160,7 @@ void CGameProjectile::Chase(float dt, CStateManager& mgr) {
           projToPos.z() += (tb->max.z() - tb->min.z()) * 0.5f;
 
       zeus::CQuaternion qDelta =
-          zeus::CQuaternion::shortestRotationArc(x170_projectile.GetTransform().basis[1], projToPos);
+          zeus::CQuaternion::shortestRotationArc(x170_projectile.GetTransform().GetForward(), projToPos);
 
       float wThres = qDelta.w() * qDelta.w() * 2.f - 1.f;
       if (wThres > 0.99f)
@@ -181,8 +181,8 @@ void CGameProjectile::Chase(float dt, CStateManager& mgr) {
                               (std::sin(maxTurnDelta * 0.5f) / std::sin(turnDelta * 0.5f)) * qDelta.getImaginary());
       }
 
-      zeus::CTransform xf = qDelta.toTransform() * x170_projectile.GetTransform();
-      xf.orthonormalize();
+      zeus::CTransform4f xf = qDelta.toTransform() * x170_projectile.GetTransform();
+      xf.Orthonormalize();
       x170_projectile.SetWorldSpaceOrientation(xf);
     }
   }
@@ -229,7 +229,7 @@ CRayCastResult CGameProjectile::DoCollisionCheck(TUniqueId& idOut, CStateManager
 void CGameProjectile::ApplyDamageToActors(CStateManager& mgr, const CDamageInfo& dInfo) {
   if (x2c6_pendingDamagee != kInvalidUniqueId) {
     if (const TCastToConstPtr<CActor> act = mgr.ObjectById(x2c6_pendingDamagee)) {
-      mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), xec_ownerId, dInfo, xf8_filter, x34_transform.basis[1]);
+      mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), xec_ownerId, dInfo, xf8_filter, x34_transform.GetForward());
       if ((xe8_projectileAttribs & EProjectileAttrib::PlayerUnFreeze) == EProjectileAttrib::PlayerUnFreeze &&
           mgr.GetPlayer().GetUniqueId() == act->GetUniqueId() && mgr.GetPlayer().GetFrozenState()) {
         mgr.GetPlayer().UnFreeze(mgr);
@@ -240,7 +240,7 @@ void CGameProjectile::ApplyDamageToActors(CStateManager& mgr, const CDamageInfo&
 
   for (const CProjectileTouchResult& res : x2d0_touchResults) {
     if (const TCastToConstPtr<CActor> act = mgr.GetObjectById(res.GetActorId())) {
-      mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), xec_ownerId, dInfo, xf8_filter, x34_transform.basis[1]);
+      mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), xec_ownerId, dInfo, xf8_filter, x34_transform.GetForward());
       if ((xe8_projectileAttribs & EProjectileAttrib::PlayerUnFreeze) == EProjectileAttrib::PlayerUnFreeze &&
           mgr.GetPlayer().GetUniqueId() == act->GetUniqueId() && mgr.GetPlayer().GetFrozenState()) {
         mgr.GetPlayer().UnFreeze(mgr);
@@ -361,7 +361,7 @@ CProjectileTouchResult CGameProjectile::CanCollideWithComplexCollision(const CAc
   }
 
   const CCollisionPrimitive* prim = useAct->GetCollisionPrimitive();
-  const zeus::CTransform xf = useAct->GetPrimitiveTransform();
+  const zeus::CTransform4f xf = useAct->GetPrimitiveTransform();
   const zeus::CVector3f deltaPos = GetTranslation() - x298_previousPos;
   if (!deltaPos.canBeNormalized()) {
     return {kInvalidUniqueId, std::nullopt};

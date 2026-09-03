@@ -11,13 +11,13 @@
 
 namespace metaforce {
 
-CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                              CModelData&& mData, const CActorParameters& aParams, CAssetId particleId,
                              const zeus::CVector3f& particleScale, float zImpulse, const zeus::CVector3f& velocity,
                              const zeus::CColor& endsColor, float mass, float restitution, float duration,
                              EScaleType scaleType, bool b1, bool randomAngImpulse, bool active)
 : CPhysicsActor(uid, active, name, info, xf, std::move(mData),
-                CMaterialList(EMaterialTypes::Solid, EMaterialTypes::Debris), mData.GetBounds(xf.getRotation()),
+                CMaterialList(EMaterialTypes::Solid, EMaterialTypes::Debris), mData.GetBounds(xf.GetRotation()),
                 SMoverData(mass), aParams, 0.3f, 0.1f)
 , x258_velocity(velocity)
 , x264_color(1.f, 0.5f, 0.5f, 1.f)
@@ -64,7 +64,7 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
   }
 }
 
-CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                              CModelData&& mData, const CActorParameters& aParams, float linConeAngle, float linMinMag,
                              float linMaxMag, float angMinMag, float angMaxMag, float minDuration, float maxDuration,
                              float colorInT, float colorOutT, const zeus::CColor& color, const zeus::CColor& endsColor,
@@ -78,7 +78,7 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
                              bool dieOnProjectile, bool noBounce, bool active)
 : CPhysicsActor(
       uid, active, name, info, xf, std::move(mData), CMaterialList(EMaterialTypes::Solid, EMaterialTypes::Debris),
-      (mData.HasAnimData() || mData.HasNormalModel() ? mData.GetBounds(xf.getRotation()) : zeus::CAABox{-0.5f, 0.5f}),
+      (mData.HasAnimData() || mData.HasNormalModel() ? mData.GetBounds(xf.GetRotation()) : zeus::CAABox{-0.5f, 0.5f}),
       SMoverData(1.f), aParams, 0.3f, 0.1f)
 , x264_color(color)
 , x268_endsColor(endsColor)
@@ -110,7 +110,7 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
 
   SetUseInSortedLists(false);
 
-  SetTranslation(x34_transform.rotate(localOffset) + x34_transform.origin);
+  SetTranslation(x34_transform.Rotate(localOffset) + x34_transform.origin);
 
   if (solid) {
     SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
@@ -147,7 +147,7 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
 
 void CScriptDebris::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-void CScriptDebris::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CScriptDebris::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   if (x2d4_particleGens[0]) {
     if (x270_curTime < x274_duration || x281_26_deferDeleteTillParticle1Done) {
       g_Renderer->AddParticleGen(*x2d4_particleGens[0]);
@@ -195,7 +195,7 @@ void CScriptDebris::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, 
           x26c_zImpulse;
       linImpulse.y() = (mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) * xe8_mass * x258_velocity.y();
       linImpulse.x() = (mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) * xe8_mass * x258_velocity.x();
-      linImpulse += x34_transform.basis[2];
+      linImpulse += x34_transform.GetUp();
       zeus::CAxisAngle angImpulse;
       if (x281_24_randomAngImpulse) {
         if (mgr.GetActiveRandom()->Next() % 100 < 50) {
@@ -254,12 +254,12 @@ void CScriptDebris::Think(float dt, CStateManager& mgr) {
       if (x283_particleOrs[0] == EOrientationType::AlongVelocity) {
         if (x138_velocity.canBeNormalized()) {
           const zeus::CVector3f normVel = x138_velocity.normalized();
-          const zeus::CTransform orient =
-              zeus::lookAt(zeus::skZero3f, normVel, std::fabs(normVel.z()) < 0.99f ? zeus::skUp : zeus::skForward);
+          const zeus::CTransform4f orient =
+              zeus::CTransform4f::LookAt(zeus::skZero3f, normVel, std::fabs(normVel.z()) < 0.99f ? zeus::skUp : zeus::skForward);
           x2d4_particleGens[0]->SetOrientation(orient);
         }
       } else if (x283_particleOrs[0] == EOrientationType::ToObject) {
-        x2d4_particleGens[0]->SetOrientation(x34_transform.getRotation());
+        x2d4_particleGens[0]->SetOrientation(x34_transform.GetRotation());
       }
     }
 
@@ -285,12 +285,12 @@ void CScriptDebris::Think(float dt, CStateManager& mgr) {
       if (x283_particleOrs[1] == EOrientationType::AlongVelocity) {
         if (x138_velocity.canBeNormalized()) {
           const zeus::CVector3f normVel = x138_velocity.normalized();
-          const zeus::CTransform orient =
-              zeus::lookAt(zeus::skZero3f, normVel, std::fabs(normVel.z()) < 0.99f ? zeus::skUp : zeus::skForward);
+          const zeus::CTransform4f orient =
+              zeus::CTransform4f::LookAt(zeus::skZero3f, normVel, std::fabs(normVel.z()) < 0.99f ? zeus::skUp : zeus::skForward);
           x2d4_particleGens[1]->SetOrientation(orient);
         }
       } else if (x283_particleOrs[1] == EOrientationType::ToObject) {
-        x2d4_particleGens[1]->SetOrientation(x34_transform.getRotation());
+        x2d4_particleGens[1]->SetOrientation(x34_transform.GetRotation());
       }
     }
 
@@ -311,18 +311,18 @@ void CScriptDebris::Think(float dt, CStateManager& mgr) {
       if (x283_particleOrs[2] == EOrientationType::AlongVelocity) {
         if (x138_velocity.canBeNormalized()) {
           const zeus::CVector3f normVel = x138_velocity.normalized();
-          const zeus::CTransform orient =
-              zeus::lookAt(zeus::skZero3f, normVel, std::fabs(normVel.z()) < 0.99f ? zeus::skUp : zeus::skForward);
+          const zeus::CTransform4f orient =
+              zeus::CTransform4f::LookAt(zeus::skZero3f, normVel, std::fabs(normVel.z()) < 0.99f ? zeus::skUp : zeus::skForward);
           x2d4_particleGens[2]->SetOrientation(orient);
         }
       } else if (x283_particleOrs[2] == EOrientationType::ToObject) {
-        x2d4_particleGens[2]->SetOrientation(x34_transform.getRotation());
+        x2d4_particleGens[2]->SetOrientation(x34_transform.GetRotation());
       } else if (x283_particleOrs[2] == EOrientationType::AlongCollisionNormal) {
         if (x2c8_collisionNormal.magSquared() == 0.f) {
           x2c8_collisionNormal = zeus::skUp;
         }
-        const zeus::CTransform orient =
-            zeus::lookAt(zeus::skZero3f, x2c8_collisionNormal,
+        const zeus::CTransform4f orient =
+            zeus::CTransform4f::LookAt(zeus::skZero3f, x2c8_collisionNormal,
                          std::fabs(x2c8_collisionNormal.dot(zeus::skUp)) > 0.99f ? zeus::skRight : zeus::skUp);
         x2d4_particleGens[2]->SetOrientation(orient);
       }
@@ -384,7 +384,7 @@ std::optional<zeus::CAABox> CScriptDebris::GetTouchBounds() const {
   return std::nullopt;
 }
 
-void CScriptDebris::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CScriptDebris::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   CActor::PreRender(mgr, frustum);
 
   float t = x270_curTime / x274_duration;

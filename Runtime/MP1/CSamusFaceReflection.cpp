@@ -10,7 +10,7 @@
 
 namespace metaforce::MP1 {
 
-static const zeus::CTransform PreXf = zeus::CTransform::Scale(0.3f) * zeus::CTransform::Translate(0.f, 0.5f, 0.f);
+static const zeus::CTransform4f PreXf = zeus::CTransform4f::Scale(0.3f) * zeus::CTransform4f::Translate(0.f, 0.5f, 0.f);
 
 CSamusFaceReflection::CSamusFaceReflection(CStateManager& stateMgr)
 : x0_modelData(CAnimRes(g_ResFactory->GetResourceIdByName("ACS_SamusFace")->id, 0, zeus::skOne3f, 0, true))
@@ -46,9 +46,9 @@ void CSamusFaceReflection::Draw(const CStateManager& mgr) {
     float orthoHeight =
         ITweakGui::FaceReflectionOrthoHeightDebugValueToActualValue(g_tweakGui->GetFaceReflectionOrthoHeight());
 
-    zeus::CTransform modelXf =
-        zeus::CTransform(camRot * x50_lookRot, fpCam->GetTransform().basis[1] * dist + fpCam->GetTransform().origin +
-                                                   fpCam->GetTransform().basis[2] * height) *
+    zeus::CTransform4f modelXf =
+        zeus::CTransform4f(camRot * x50_lookRot, fpCam->GetTransform().GetForward() * dist + fpCam->GetTransform().origin +
+                                                   fpCam->GetTransform().GetUp() * height) *
         PreXf;
 
     CGraphics::SetViewPointMatrix(fpCam->GetTransform());
@@ -83,7 +83,7 @@ void CSamusFaceReflection::Update(float dt, const CStateManager& mgr, CRandom16&
     const CGameArea* area = mgr.GetWorld()->GetAreaAlways(areaId);
     x4c_lights->BuildFaceLightList(mgr, *area, aabb);
 
-    zeus::CUnitVector3f lookDir(fpCam->GetTransform().basis[1]);
+    zeus::CUnitVector3f lookDir(fpCam->GetTransform().GetForward());
     zeus::CUnitVector3f xfLook =
         zeus::CQuaternion::lookAt(lookDir, zeus::skForward, 2.f * M_PIF).transform(x60_lookDir);
     zeus::CQuaternion xfLook2 = zeus::CQuaternion::lookAt(zeus::skForward, xfLook, 2.f * M_PIF);

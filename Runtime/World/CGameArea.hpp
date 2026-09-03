@@ -20,7 +20,7 @@
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector2f.hpp>
 
 namespace metaforce {
@@ -30,7 +30,7 @@ class CScriptAreaAttributes;
 // Metaforce addition: store byte-swapped data for later use
 struct SMREAHeader {
   u32 version = 0;
-  zeus::CTransform xf;
+  zeus::CTransform4f xf;
   u32 modelCount;
   u32 secCount;
   u32 geomSecIdx;
@@ -50,7 +50,7 @@ class CDummyGameArea final : public IGameArea {
   CAssetId x8_nameSTRG;
   CAssetId xc_mrea;
   s32 x10_areaId;
-  zeus::CTransform x14_transform;
+  zeus::CTransform4f x14_transform;
   std::vector<u16> x44_attachedAreaIndices;
   std::vector<Dock> x54_docks;
 
@@ -64,7 +64,7 @@ public:
   TAreaId IGetAttachedAreaId(int) const override;
   u32 IGetNumAttachedAreas() const override;
   CAssetId IGetStringTableAssetId() const override;
-  const zeus::CTransform& IGetTM() const override;
+  const zeus::CTransform4f& IGetTM() const override;
 };
 
 struct CAreaRenderOctTree {
@@ -102,8 +102,8 @@ class CGameArea final : public IGameArea {
 
   TAreaId x4_selfIdx;
   CAssetId x8_nameSTRG;
-  zeus::CTransform xc_transform;
-  zeus::CTransform x3c_invTransform;
+  zeus::CTransform4f xc_transform;
+  zeus::CTransform4f x3c_invTransform;
   zeus::CAABox x6c_aabb;
   CAssetId x84_mrea;
   s32 x88_areaId;
@@ -289,7 +289,7 @@ public:
   TAreaId IGetAttachedAreaId(int) const override;
   u32 IGetNumAttachedAreas() const override;
   CAssetId IGetStringTableAssetId() const override;
-  const zeus::CTransform& IGetTM() const override;
+  const zeus::CTransform4f& IGetTM() const override;
 
   void SetXRaySpeedAndTarget(float speed, float target);
   void SetThermalSpeedAndTarget(float speed, float target);
@@ -341,8 +341,8 @@ public:
     return GetAreaVisSet() ? GetAreaVisSet()->Get2ndLightIndex(lightIdx) : UINT32_MAX;
   }
 
-  const zeus::CTransform& GetTransform() const { return xc_transform; }
-  const zeus::CTransform& GetInverseTransform() const { return x3c_invTransform; }
+  const zeus::CTransform4f& GetTransform() const { return xc_transform; }
+  const zeus::CTransform4f& GetInverseTransform() const { return x3c_invTransform; }
   const zeus::CAABox& GetAABB() const { return x6c_aabb; }
 
   const std::vector<Dock>& GetDocks() const { return xcc_docks; }

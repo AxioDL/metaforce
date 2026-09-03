@@ -190,14 +190,14 @@ class CIceSheegoth : public CPatterned {
 
 public:
   DEFINE_PATTERNED(IceSheeegoth);
-  CIceSheegoth(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform& xf, CModelData&& mData,
+  CIceSheegoth(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform4f& xf, CModelData&& mData,
                const CPatternedInfo& pInfo, const CActorParameters& actorParameters,
                const CIceSheegothData& sheegothData);
 
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   [[nodiscard]] const CDamageVulnerability* GetDamageVulnerability() const override {
     return &CDamageVulnerability::PassThroughVulnerability();
   }

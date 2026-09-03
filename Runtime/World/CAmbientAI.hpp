@@ -10,7 +10,7 @@
 #include <zeus/CAABox.hpp>
 
 namespace zeus {
-class CTransform;
+class CTransform4f;
 }
 
 namespace metaforce {
@@ -31,7 +31,7 @@ class CAmbientAI : public CPhysicsActor {
 
 public:
   DEFINE_ENTITY
-  CAmbientAI(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CAmbientAI(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
              const zeus::CAABox&, const CMaterialList&, float, const CHealthInfo&, const CDamageVulnerability&,
              const CActorParameters&, float, float, s32, s32, bool);
 

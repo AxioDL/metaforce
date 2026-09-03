@@ -4,7 +4,7 @@
 #include "Runtime/Weapon/CGameProjectile.hpp"
 
 #include <zeus/CAABox.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -25,7 +25,7 @@ private:
   float x308_travelSpeed;
   zeus::CVector3f x30c_collisionNormal = zeus::skUp;
   zeus::CVector3f x318_collisionPoint = zeus::skZero3f;
-  zeus::CTransform x324_xf;
+  zeus::CTransform4f x324_xf;
   zeus::CAABox x354_ = zeus::skNullBox;
   zeus::CAABox x36c_ = zeus::skNullBox;
   rstl::reserved_vector<zeus::CVector3f, 10> x384_;
@@ -38,7 +38,7 @@ private:
 public:
   DEFINE_ENTITY
   CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
-                  const zeus::CTransform& xf, s32 maxLength, float beamRadius, float travelSpeed,
+                  const zeus::CTransform4f& xf, s32 maxLength, float beamRadius, float travelSpeed,
                   EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                   EProjectileAttrib attribs, bool growingBeam);
 
@@ -50,7 +50,7 @@ public:
   rstl::reserved_vector<zeus::CVector3f, 8>& PointCache() { return x400_pointCache; }
   const rstl::reserved_vector<zeus::CVector3f, 8>& GetPointCache() const { return x400_pointCache; }
   void CauseDamage(bool b) { x464_25_enableTouchDamage = b; }
-  const zeus::CTransform& GetBeamTransform() const { return x324_xf; }
+  const zeus::CTransform4f& GetBeamTransform() const { return x324_xf; }
   float GetInvMaxLength() const { return x2f0_invMaxLength; }
   float GetCurrentLength() const { return x304_beamLength; }
   float GetMaxLength() const { return x2ec_maxLength; }
@@ -60,7 +60,7 @@ public:
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   void CalculateRenderBounds() override;
   virtual void ResetBeam(CStateManager&, bool);
-  virtual void UpdateFx(const zeus::CTransform&, float, CStateManager&);
-  virtual void Fire(const zeus::CTransform&, CStateManager&, bool) = 0;
+  virtual void UpdateFx(const zeus::CTransform4f&, float, CStateManager&);
+  virtual void Fire(const zeus::CTransform4f&, CStateManager&, bool) = 0;
 };
 } // namespace metaforce

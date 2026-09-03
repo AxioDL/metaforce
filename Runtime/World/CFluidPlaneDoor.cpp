@@ -57,8 +57,8 @@ static CFluidPlane::Heights lc_heights{};
 static CFluidPlane::Flags lc_flags{};
 
 void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb,
-                             const zeus::CTransform& xf, const zeus::CTransform& areaXf, bool noNormals,
-                             const zeus::CFrustum& frustum, const std::optional<CRippleManager>& rippleManager,
+                             const zeus::CTransform4f& xf, const zeus::CTransform4f& areaXf, bool noNormals,
+                             const zeus::CFrustumPlanes& frustum, const std::optional<CRippleManager>& rippleManager,
                              TUniqueId waterId, const bool* gridFlags, u32 gridDimX, u32 gridDimY,
                              const zeus::CVector3f& areaCenter) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CFluidPlaneDoor::Render", zeus::skCyan);

@@ -2,7 +2,7 @@
 
 #include "Runtime/Camera/CGameCamera.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -11,7 +11,7 @@ class CInterpolationCamera : public CGameCamera {
   TUniqueId x188_targetId = kInvalidUniqueId;
   float x18c_time = 0.f;
   float x190_maxTime = 0.f;
-  zeus::CTransform x194_;
+  zeus::CTransform4f x194_;
   zeus::CVector3f x1c4_lookPos;
   float x1d0_positionSpeed = 0.f;
   float x1d4_rotationSpeed = 0.f;
@@ -19,22 +19,22 @@ class CInterpolationCamera : public CGameCamera {
   bool x1d8_24_sinusoidal : 1 = false;
   float x1dc_closeInAngle = M_PIF * 2.f;
 
-  bool InterpolateSinusoidal(zeus::CTransform& xf, const zeus::CVector3f& targetOrigin, const zeus::CVector3f& lookPos,
+  bool InterpolateSinusoidal(zeus::CTransform4f& xf, const zeus::CVector3f& targetOrigin, const zeus::CVector3f& lookPos,
                              float maxTime, float curTime);
-  bool InterpolateWithDistance(zeus::CTransform& xf, const zeus::CVector3f& targetOrigin,
+  bool InterpolateWithDistance(zeus::CTransform4f& xf, const zeus::CVector3f& targetOrigin,
                                const zeus::CVector3f& lookPos, float positionSpeed, float rotationSpeed, float dt,
                                float maxTime, float curTime);
 
 public:
   DEFINE_ENTITY
-  explicit CInterpolationCamera(TUniqueId uid, const zeus::CTransform& xf);
+  explicit CInterpolationCamera(TUniqueId uid, const zeus::CTransform4f& xf);
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void ProcessInput(const CFinalInput&, CStateManager& mgr) override;
   void Render(CStateManager&) override;
-  void Reset(const zeus::CTransform&, CStateManager& mgr) override;
+  void Reset(const zeus::CTransform4f&, CStateManager& mgr) override;
   void Think(float, CStateManager&) override;
-  void SetInterpolation(const zeus::CTransform& xf, const zeus::CVector3f& lookPos, float maxTime, float positionSpeed,
+  void SetInterpolation(const zeus::CTransform4f& xf, const zeus::CVector3f& lookPos, float maxTime, float positionSpeed,
                         float rotationSpeed, TUniqueId camId, bool sinusoidal, CStateManager& mgr);
   void DeactivateInterpCamera(CStateManager&);
 };

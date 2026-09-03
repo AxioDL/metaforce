@@ -61,7 +61,7 @@ private:
 public:
   DEFINE_PATTERNED(Magdolite);
 
-  CMagdolite(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CMagdolite(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
              CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float f1, float f2,
              const CDamageInfo& dInfo1, const CDamageInfo& dInfo2, const CDamageVulnerability& dVuln1,
              const CDamageVulnerability& dVuln2, CAssetId modelId, CAssetId skinId, float f3, float f4, float f5,

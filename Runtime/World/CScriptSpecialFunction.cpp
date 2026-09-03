@@ -25,7 +25,7 @@
 namespace metaforce {
 
 CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                               const zeus::CTransform& xf, ESpecialFunction func,
+                                               const zeus::CTransform4f& xf, ESpecialFunction func,
                                                std::string_view lcName, float f1, float f2, float f3, float f4,
                                                const zeus::CVector3f& vec, const zeus::CColor& col, bool active,
                                                const CDamageInfo& dInfo, s32 aId1, s32 aId2,
@@ -243,7 +243,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
 
           for (SRingController& cont : x198_ringControllers) {
             if (const TCastToPtr<CActor> act = mgr.ObjectById(cont.x0_id)) {
-              cont.xc_ = act->GetTransform().frontVector();
+              cont.xc_ = act->GetTransform().GetForward();
             } else {
               cont.xc_ = zeus::skForward;
             }
@@ -503,7 +503,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
   }
 }
 
-void CScriptSpecialFunction::PreRender(CStateManager&, const zeus::CFrustum& frustum) {
+void CScriptSpecialFunction::PreRender(CStateManager&, const zeus::CFrustumPlanes& frustum) {
   if (xe8_function != ESpecialFunction::FogVolume && xe8_function != ESpecialFunction::ViewFrustumTester) {
     return;
   }
@@ -529,7 +529,7 @@ void CScriptSpecialFunction::PreRender(CStateManager&, const zeus::CFrustum& fru
   x1e4_30_ = val;
 }
 
-void CScriptSpecialFunction::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) {
+void CScriptSpecialFunction::AddToRenderer(const zeus::CFrustumPlanes&, CStateManager& mgr) {
   if (!GetActive()) {
     return;
   }
@@ -546,8 +546,8 @@ void CScriptSpecialFunction::Render(CStateManager& mgr) {
       zeus::CVector3f max = GetTranslation() + x10c_vector3f;
       max.z() += z;
       const zeus::CAABox box(GetTranslation() - x10c_vector3f, max);
-      const zeus::CTransform modelMtx =
-          zeus::CTransform::Translate(box.center()) * zeus::CTransform::Scale(box.extents());
+      const zeus::CTransform4f modelMtx =
+          zeus::CTransform4f::Translate(box.center()) * zeus::CTransform4f::Scale(box.extents());
       g_Renderer->SetModelMatrix(modelMtx);
       g_Renderer->RenderFogVolume(x118_color, zeus::CAABox(-1.f, 1.f), nullptr, nullptr);
     }
@@ -577,8 +577,8 @@ void CScriptSpecialFunction::ThinkIntroBossRingController(float dt, CStateManage
   if (x1a8_ringState != ERingState::Breakup) {
     for (const auto& rc : x198_ringControllers) {
       if (const TCastToPtr<CActor> act = mgr.ObjectById(rc.x0_id)) {
-        zeus::CTransform newXf = act->GetTransform();
-        newXf.rotateLocalZ(zeus::degToRad(rc.x4_rotateSpeed * dt));
+        zeus::CTransform4f newXf = act->GetTransform();
+        newXf.RotateLocalZ(zeus::degToRad(rc.x4_rotateSpeed * dt));
         act->SetTransform(newXf);
       }
     }
@@ -588,7 +588,7 @@ void CScriptSpecialFunction::ThinkIntroBossRingController(float dt, CStateManage
     float minMag = 0.f;
     for (const auto& rc : x198_ringControllers) {
       if (const TCastToPtr<CActor> act = mgr.ObjectById(rc.x0_id)) {
-        act->SetTranslation(act->GetTransform().basis[1] * 50.f * dt + act->GetTranslation());
+        act->SetTranslation(act->GetTransform().GetForward() * 50.f * dt + act->GetTranslation());
         minMag = std::min(act->GetTranslation().magnitude(), minMag);
       }
     }
@@ -611,12 +611,12 @@ void CScriptSpecialFunction::ThinkIntroBossRingController(float dt, CStateManage
     bool allReachedTarget = true;
     for (auto& rc : x198_ringControllers) {
       if (const TCastToPtr<CActor> act = mgr.ObjectById(rc.x0_id)) {
-        zeus::CVector3f lookDirFlat = act->GetTransform().basis[1];
+        zeus::CVector3f lookDirFlat = act->GetTransform().GetForward();
         lookDirFlat.z() = 0.f;
         lookDirFlat.normalize();
         if (std::acos(zeus::clamp(-1.f, lookDirFlat.dot(x1ac_ringRotateTarget), 1.f)) <=
             zeus::degToRad((xfc_float1 + std::fabs(rc.x4_rotateSpeed)) / 30.f)) {
-          zeus::CTransform newXf = zeus::lookAt(zeus::skZero3f, x1ac_ringRotateTarget);
+          zeus::CTransform4f newXf = zeus::CTransform4f::LookAt(zeus::skZero3f, x1ac_ringRotateTarget);
           newXf.origin = act->GetTranslation();
           act->SetTransform(newXf);
           rc.x4_rotateSpeed = (x1b8_ringReverse ? 1.f : -1.f) * xfc_float1;
@@ -654,7 +654,7 @@ void CScriptSpecialFunction::ThinkPlayerFollowLocator(float, CStateManager& mgr)
           continue;
         }
 
-        const zeus::CTransform xf = act->GetTransform() * act->GetLocatorTransform(xec_locatorName);
+        const zeus::CTransform4f xf = act->GetTransform() * act->GetLocatorTransform(xec_locatorName);
         CPlayer& pl = mgr.GetPlayer();
         pl.SetTransform(xf);
         pl.SetVelocityWR({});

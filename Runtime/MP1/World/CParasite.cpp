@@ -26,7 +26,7 @@ const float CParasite::flt_805A8FB8 = 2.f * std::sqrt(2.5f / CPhysicsActor::Grav
 const float CParasite::skRetreatVelocity = 3.f / 2.f * std::sqrt(2.5f / CPhysicsActor::GravityConstant());
 
 CParasite::CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
-                     const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, EBodyType bodyType,
+                     const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pInfo, EBodyType bodyType,
                      float maxTelegraphReactDist, float advanceWpRadius, float f3, float alignAngVel, float f5,
                      float stuckTimeThreshold, float collisionCloseMargin, float parasiteSearchRadius,
                      float parasiteSeparationDist, float parasiteSeparationWeight, float parasiteAlignmentWeight,
@@ -388,7 +388,7 @@ void CParasite::UpdatePFDestination(CStateManager& mgr) {
 }
 
 void CParasite::DoFlockingBehavior(CStateManager& mgr) {
-  zeus::CVector3f upVec = x34_transform.basis[2];
+  zeus::CVector3f upVec = x34_transform.GetUp();
   EntityList parasiteList;
   zeus::CAABox aabb(GetTranslation() - x6e4_parasiteSearchRadius, GetTranslation() + x6e4_parasiteSearchRadius);
   if ((x5d4_thinkCounter % 6) == 0) {
@@ -453,7 +453,7 @@ void CParasite::DoFlockingBehavior(CStateManager& mgr) {
             ProjectVectorToPlane(x45c_steeringBehaviors.Seek(*this, x2e0_destPos), upVec) * x604_activeSpeed, upVec),
         zeus::skZero3f, x6f8_destinationSeekWeight));
     x450_bodyController->GetCommandMgr().DeliverCmd(
-        CBCLocomotionCmd(x34_transform.basis[1] * x604_activeSpeed, zeus::skZero3f, x6fc_forwardMoveWeight));
+        CBCLocomotionCmd(x34_transform.GetForward() * x604_activeSpeed, zeus::skZero3f, x6fc_forwardMoveWeight));
   }
 }
 
@@ -488,7 +488,7 @@ void CParasite::TargetPlayer(CStateManager& mgr, EStateMsg msg, float dt) {
     break;
   case EStateMsg::Update:
     x450_bodyController->FaceDirection3D(
-        ProjectVectorToPlane(x5f8_targetPos - GetTranslation(), x34_transform.basis[2]), x34_transform.basis[1], 2.f);
+        ProjectVectorToPlane(x5f8_targetPos - GetTranslation(), x34_transform.GetUp()), x34_transform.GetForward(), 2.f);
     break;
   default:
     break;
@@ -737,7 +737,7 @@ void CParasite::Jump(CStateManager& mgr, EStateMsg msg, float) {
 
 void CParasite::FaceTarget(const zeus::CVector3f& target) {
   zeus::CQuaternion q =
-      zeus::CQuaternion::lookAt(zeus::CTransform().basis[1], target - GetTranslation(), zeus::degToRad(360.f));
+      zeus::CQuaternion::lookAt(zeus::CTransform4f().GetForward(), target - GetTranslation(), zeus::degToRad(360.f));
   SetTransform(q.toTransform(GetTranslation()));
 }
 
@@ -749,7 +749,7 @@ void CParasite::Retreat(CStateManager& mgr, EStateMsg msg, float) {
     if (dir.canBeNormalized())
       dir.normalize();
     else
-      dir = mgr.GetPlayer().GetTransform().basis[1];
+      dir = mgr.GetPlayer().GetTransform().GetForward();
     x5f8_targetPos = GetTranslation() - dir * 3.f;
     FaceTarget(x5f8_targetPos);
     x5e8_stateProgress = 0;
@@ -827,10 +827,10 @@ void CParasite::UpdateJumpVelocity() {
   zeus::CVector3f vec;
 
   if (!x742_30_attackOver) {
-    vec = skAttackVelocity * GetTransform().frontVector();
+    vec = skAttackVelocity * GetTransform().GetForward();
     vec.z() = 0.5f * skRetreatVelocity;
   } else {
-    vec = skRetreatVelocity * GetTransform().frontVector();
+    vec = skRetreatVelocity * GetTransform().GetForward();
     vec.z() = 0.5f * skAttackVelocity;
   }
 

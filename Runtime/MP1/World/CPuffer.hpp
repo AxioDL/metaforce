@@ -29,7 +29,7 @@ class CPuffer : public CPatterned {
 public:
   DEFINE_PATTERNED(Puffer);
 
-  CPuffer(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CPuffer(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
           const CActorParameters&, const CPatternedInfo&, float, CAssetId, const CDamageInfo&, CAssetId, float, bool,
           bool, bool, const CDamageInfo&, s16);
 

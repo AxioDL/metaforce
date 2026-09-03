@@ -2,7 +2,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/GuiSys/CHudInterface.hpp"
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 
 namespace metaforce {
 class CAuiEnergyBarT01;
@@ -19,7 +19,7 @@ class CHudMissileInterface {
   int x4_missileCapacity;
   int x8_numMissles;
   float xc_arrowTimer = 0.f;
-  zeus::CTransform x10_missleIconXf;
+  zeus::CTransform4f x10_missleIconXf;
   float x40_missileWarningAlpha = 0.f;
   EInventoryStatus x44_latestStatus = EInventoryStatus::Normal;
   float x48_missileWarningPulse = 0.f;

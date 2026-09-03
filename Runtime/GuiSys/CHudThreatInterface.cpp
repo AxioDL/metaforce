@@ -136,7 +136,7 @@ void CHudThreatInterface::Update(float dt) {
 
   if (x54_27_notXRay) {
     x5c_basewidget_threaticon->SetLocalTransform(
-        x18_threatIconXf * zeus::CTransform::Translate(0.f, 0.f,
+        x18_threatIconXf * zeus::CTransform4f::Translate(0.f, 0.f,
                                                        std::max(0.f, maxThreatEnergy - x10_threatDist) *
                                                            IconTranslateRanges[size_t(x4_hudType)] / maxThreatEnergy));
   }

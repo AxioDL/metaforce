@@ -24,7 +24,7 @@ class CSeedling : public CWallWalker {
 
 public:
   DEFINE_PATTERNED(Seedling);
-  CSeedling(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CSeedling(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
             const CPatternedInfo&, const CActorParameters&, CAssetId, CAssetId, const CDamageInfo&, const CDamageInfo&,
             float, float, float, float);
 

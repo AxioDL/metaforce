@@ -15,7 +15,7 @@
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -27,8 +27,8 @@ class CProjectileWeapon {
   static u16 g_GlobalSeed;
   TLockedToken<CWeaponDescription> x4_weaponDesc;
   CRandom16 x10_random;
-  zeus::CTransform x14_localToWorldXf;
-  zeus::CTransform x44_localXf;
+  zeus::CTransform4f x14_localToWorldXf;
+  zeus::CTransform4f x44_localXf;
   zeus::CVector3f x74_worldOffset;
   zeus::CVector3f x80_localOffset = zeus::skZero3f;
   zeus::CVector3f x8c_projOffset = zeus::skZero3f;
@@ -64,7 +64,7 @@ class CProjectileWeapon {
 
 public:
   CProjectileWeapon(const TToken<CWeaponDescription>& wDesc, const zeus::CVector3f& worldOffset,
-                    const zeus::CTransform& orient, const zeus::CVector3f& scale, s32);
+                    const zeus::CTransform4f& orient, const zeus::CVector3f& scale, s32);
   virtual ~CProjectileWeapon() = default;
   bool IsProjectileActive() const { return x124_24_active; }
   std::optional<zeus::CAABox> GetBounds() const;
@@ -86,10 +86,10 @@ public:
   bool IsSystemDeletable() const;
   void UpdateChildParticleSystems(float);
   void UpdatePSTranslationAndOrientation();
-  void SetWorldSpaceOrientation(const zeus::CTransform& xf);
-  void SetRelativeOrientation(const zeus::CTransform& xf) { x44_localXf = xf; }
+  void SetWorldSpaceOrientation(const zeus::CTransform4f& xf);
+  void SetRelativeOrientation(const zeus::CTransform4f& xf) { x44_localXf = xf; }
   virtual zeus::CVector3f GetTranslation() const;
-  virtual zeus::CTransform GetTransform() const;
+  virtual zeus::CTransform4f GetTransform() const;
   void UpdateParticleFX();
   virtual void Update(float dt);
   void SetGravity(const zeus::CVector3f& grav) { xbc_gravity = grav; }

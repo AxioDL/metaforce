@@ -57,7 +57,7 @@ public:
                                                          const CWeaponMode& mode,
                                                          EProjectileAttrib attribute) const override;
   void SetWeaponCollisionResponseType(EWeaponCollisionResponseTypes type) { x300_responseType = type; }
-  zeus::CTransform GetPrimitiveTransform() const override;
+  zeus::CTransform4f GetPrimitiveTransform() const override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   void SetDamageVulnerability(const CDamageVulnerability& vuln);
   const zeus::CVector3f& GetBoxSize() const { return x260_boxSize; }

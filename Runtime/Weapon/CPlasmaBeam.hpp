@@ -26,14 +26,14 @@ public:
   }
   void CreateBeam(CStateManager& mgr) { /* Empty */
   }
-  void UpdateBeam(float dt, const zeus::CTransform& targetXf, const zeus::CVector3f& localBeamPos,
+  void UpdateBeam(float dt, const zeus::CTransform4f& targetXf, const zeus::CVector3f& localBeamPos,
                   CStateManager& mgr) { /* Empty */
   }
   void DeleteBeam(CStateManager& mgr);
 
-  void PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) override;
-  void UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf) override;
-  void Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf, CStateManager& mgr,
+  void PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) override;
+  void UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform4f& xf) override;
+  void Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform4f& xf, CStateManager& mgr,
             TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) override;
   void EnableSecondaryFx(ESecondaryFxType type) override;
   void Update(float dt, CStateManager& mgr) override;

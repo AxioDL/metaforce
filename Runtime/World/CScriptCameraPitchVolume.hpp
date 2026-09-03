@@ -23,7 +23,7 @@ class CScriptCameraPitchVolume : public CActor {
 public:
   DEFINE_ENTITY
   CScriptCameraPitchVolume(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CVector3f&,
-                           const zeus::CTransform&, const zeus::CRelAngle&, const zeus::CRelAngle&, float);
+                           const zeus::CTransform4f&, const zeus::CRelAngle&, const zeus::CRelAngle&, float);
 
   void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager&) override;

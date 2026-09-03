@@ -6,7 +6,7 @@
 #include "Runtime/Character/CParticleData.hpp"
 
 #include <zeus/CAABox.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -27,7 +27,7 @@ class CParticleGenInfo {
   zeus::CVector3f x30_particleScale;
   float x3c_finishTime = 0.f;
   bool x40_grabInitialData = false;
-  zeus::CTransform x44_transform;
+  zeus::CTransform4f x44_transform;
   zeus::CVector3f x74_offset;
   EParticleGenType x80_type;
 
@@ -39,9 +39,9 @@ public:
   virtual void AddToRenderer() = 0;
   virtual void Render() = 0;
   virtual void Update(float dt, CStateManager& stateMgr) = 0;
-  virtual void SetOrientation(const zeus::CTransform& xf, CStateManager& stateMgr) = 0;
+  virtual void SetOrientation(const zeus::CTransform4f& xf, CStateManager& stateMgr) = 0;
   virtual void SetTranslation(const zeus::CVector3f& trans, CStateManager& stateMgr) = 0;
-  virtual void SetGlobalOrientation(const zeus::CTransform& xf, CStateManager& stateMgr) = 0;
+  virtual void SetGlobalOrientation(const zeus::CTransform4f& xf, CStateManager& stateMgr) = 0;
   virtual void SetGlobalTranslation(const zeus::CVector3f& trans, CStateManager& stateMgr) = 0;
   virtual void SetGlobalScale(const zeus::CVector3f& scale) = 0;
   virtual void SetParticleEmission(bool isActive, CStateManager& stateMgr) = 0;
@@ -63,8 +63,8 @@ public:
   void OffsetTime(float dt) { x20_curTime += dt; }
   const zeus::CVector3f& GetCurOffset() const { return x74_offset; }
   void SetCurOffset(const zeus::CVector3f& offset) { x74_offset = offset; }
-  const zeus::CTransform& GetCurTransform() const { return x44_transform; }
-  void SetCurTransform(const zeus::CTransform& xf) { x44_transform = xf; }
+  const zeus::CTransform4f& GetCurTransform() const { return x44_transform; }
+  void SetCurTransform(const zeus::CTransform4f& xf) { x44_transform = xf; }
   const zeus::CVector3f& GetCurScale() const { return x30_particleScale; }
   void SetCurScale(const zeus::CVector3f& scale) { x30_particleScale = scale; }
   void SetInactiveStartTime(float seconds) { xc_seconds = seconds; }
@@ -92,9 +92,9 @@ public:
   void AddToRenderer() override;
   void Render() override;
   void Update(float dt, CStateManager& stateMgr) override;
-  void SetOrientation(const zeus::CTransform& xf, CStateManager& stateMgr) override;
+  void SetOrientation(const zeus::CTransform4f& xf, CStateManager& stateMgr) override;
   void SetTranslation(const zeus::CVector3f& trans, CStateManager& stateMgr) override;
-  void SetGlobalOrientation(const zeus::CTransform& xf, CStateManager& stateMgr) override;
+  void SetGlobalOrientation(const zeus::CTransform4f& xf, CStateManager& stateMgr) override;
   void SetGlobalTranslation(const zeus::CVector3f& trans, CStateManager& stateMgr) override;
   void SetGlobalScale(const zeus::CVector3f& scale) override;
   void SetParticleEmission(bool isActive, CStateManager& stateMgr) override;

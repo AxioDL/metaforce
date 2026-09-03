@@ -104,7 +104,7 @@ void CGrappleArm::AsyncLoadSuit(CStateManager& mgr) {
 void CGrappleArm::ResetAuxParams(bool resetGunController) {
   x3b2_24_active = false;
   x3b2_27_armMoving = false;
-  x2e0_auxXf = zeus::CTransform();
+  x2e0_auxXf = zeus::CTransform4f();
   if (resetGunController)
     x328_gunController->Reset();
 }
@@ -189,7 +189,7 @@ void CGrappleArm::RenderGrappleBeam(const CStateManager& mgr, const zeus::CVecto
     return;
   }
 
-  const zeus::CTransform tmpXf = zeus::CTransform::Translate(pos) * x220_xf;
+  const zeus::CTransform4f tmpXf = zeus::CTransform4f::Translate(pos) * x220_xf;
   if (!x3b2_25_beamActive) {
     return;
   }
@@ -201,9 +201,9 @@ void CGrappleArm::RenderGrappleBeam(const CStateManager& mgr, const zeus::CVecto
   x394_grappleClawGen->Render();
   x3a0_grappleSwooshGen->Render();
   x390_grappleSegmentGen->Render();
-  const zeus::CTransform backupViewMtx = CGraphics::mViewMatrix;
-  CGraphics::SetViewPointMatrix(tmpXf.inverse() * backupViewMtx);
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  const zeus::CTransform4f backupViewMtx = CGraphics::mViewMatrix;
+  CGraphics::SetViewPointMatrix(tmpXf.Inverse() * backupViewMtx);
+  CGraphics::SetModelMatrix(zeus::CTransform4f());
   x39c_grappleMuzzleGen->Render();
   CGraphics::SetViewPointMatrix(backupViewMtx);
 }
@@ -313,7 +313,7 @@ void CGrappleArm::UpdateGrappleBeamFx(const zeus::CVector3f& beamGunPos, const z
   segmentDelta = (1.f / float(numSegments)) * segmentDelta;
 
   zeus::CVector3f segmentPos = beamGunPos;
-  zeus::CTransform rotation = x220_xf.getRotation();
+  zeus::CTransform4f rotation = x220_xf.GetRotation();
   for (int i = 0; i < numSegments; ++i) {
     zeus::CVector3f vec;
     if (i > 0)
@@ -329,7 +329,7 @@ void CGrappleArm::UpdateGrappleBeamFx(const zeus::CVector3f& beamGunPos, const z
                                          swooshSegmentDelta);
 }
 
-bool CGrappleArm::UpdateGrappleBeam(float dt, const zeus::CTransform& beamLoc, CStateManager& mgr) {
+bool CGrappleArm::UpdateGrappleBeam(float dt, const zeus::CTransform4f& beamLoc, CStateManager& mgr) {
   bool beamConnected = false;
   if (TCastToConstPtr<CActor> act = mgr.GetObjectById(mgr.GetPlayer().GetOrbitTargetId()))
     x310_grapplePointPos = act->GetTranslation();
@@ -386,7 +386,7 @@ void CGrappleArm::UpdateSwingAction(float grappleSwingT, float dt, CStateManager
   if (x334_animState == EArmState::FireGrapple)
     DoUserAnimEvents(mgr);
 
-  zeus::CTransform beamLocXf = x0_grappleArmModel->GetScaledLocatorTransform("LGBeam");
+  zeus::CTransform4f beamLocXf = x0_grappleArmModel->GetScaledLocatorTransform("LGBeam");
   bool grappleConnected = UpdateGrappleBeam(dt, beamLocXf, mgr);
 
   if ((grappleSwingT > 0.175f && grappleSwingT < 0.3f) || (grappleSwingT > 0.7f && grappleSwingT < 0.9f)) {
@@ -478,7 +478,7 @@ void CGrappleArm::Update(float grappleSwingT, float dt, CStateManager& mgr) {
     x3a4_rainSplashGenerator->Update(dt, mgr);
 }
 
-void CGrappleArm::PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos) {
+void CGrappleArm::PreRender(const CStateManager& mgr, const zeus::CFrustumPlanes& frustum, const zeus::CVector3f& camPos) {
   if (!x3b2_24_active || x3b2_29_suitLoading) {
     return;
   }
@@ -489,8 +489,8 @@ void CGrappleArm::PreRender(const CStateManager& mgr, const zeus::CFrustum& frus
   }
 }
 
-void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransform& modelXf, const CModelFlags& flags) {
-  CGraphics::SetModelMatrix(modelXf * zeus::CTransform::Scale(x0_grappleArmModel->GetScale()));
+void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransform4f& modelXf, const CModelFlags& flags) {
+  CGraphics::SetModelMatrix(modelXf * zeus::CTransform4f::Scale(x0_grappleArmModel->GetScale()));
   // TODO
   // CGraphics::DisableAllLights();
   // g_Renderer->SetAmbientColor(zeus::skWhite);
@@ -508,7 +508,7 @@ void CGrappleArm::Render(const CStateManager& mgr, const zeus::CVector3f& pos, c
   }
 
   SCOPED_GRAPHICS_DEBUG_GROUP("CGrappleArm::Render", zeus::skOrange);
-  const zeus::CTransform modelXf = zeus::CTransform::Translate(pos) * x220_xf * x2e0_auxXf;
+  const zeus::CTransform4f modelXf = zeus::CTransform4f::Translate(pos) * x220_xf * x2e0_auxXf;
   if (x50_grappleArmSkeletonModel) {
     RenderXRayModel(mgr, modelXf, flags);
   }

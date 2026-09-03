@@ -29,7 +29,7 @@ std::array<u32, 3> skUnkInts2{{1, 2, 3}};
 
 } // namespace
 CMetroidPrimeStage2::CMetroidPrimeStage2(metaforce::TUniqueId uid, std::string_view name,
-                                           const metaforce::CEntityInfo& info, const zeus::CTransform& xf,
+                                           const metaforce::CEntityInfo& info, const zeus::CTransform4f& xf,
                                            metaforce::CModelData&& mData, const metaforce::CPatternedInfo& pInfo,
                                            const metaforce::CActorParameters& actParms, metaforce::CAssetId particle1,
                                            const metaforce::CDamageInfo& dInfo, float f1, metaforce::CAssetId electric,
@@ -131,7 +131,7 @@ void CMetroidPrimeStage2::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId ot
             TakeDamage(zeus::skForward, 1.f);
             if (!x70e_24_ && !x70e_26_) {
               GetBodyController()->GetCommandMgr().DeliverCmd(
-                  CBCKnockBackCmd{GetTransform().frontVector(), pas::ESeverity::One});
+                  CBCKnockBackCmd{GetTransform().GetForward(), pas::ESeverity::One});
               sub8027cce0(mgr);
             }
           }
@@ -148,11 +148,11 @@ void CMetroidPrimeStage2::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId ot
   }
 }
 
-void CMetroidPrimeStage2::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CMetroidPrimeStage2::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   CPatterned::PreRender(mgr, frustum);
 }
 
-void CMetroidPrimeStage2::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CMetroidPrimeStage2::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
 
   if (GetActive() && x65c_) {
     g_Renderer->AddParticleGen(*x65c_);
@@ -186,7 +186,7 @@ void CMetroidPrimeStage2::DoUserAnimEvent(CStateManager& mgr, const CInt32POINod
           x668_ * zeus::CVector3f{2.f * -std::sin(ang1), (2.f * (2.f * std::cos(ang1)) * std::sin(ang2)),
                                   2.f * ((2.f * std::cos(ang1)) * std::cos(ang2))};
       if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(x704_bossUtilityWaypointId)) {
-        wp->SetTransform(zeus::lookAt(pos, mgr.GetPlayer().GetAimPosition(mgr, 0.f)));
+        wp->SetTransform(zeus::CTransform4f::LookAt(pos, mgr.GetPlayer().GetAimPosition(mgr, 0.f)));
         if (sub8027e870(wp->GetTransform(), mgr)) {
           SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
           x6b4_ = wp->GetTranslation();
@@ -258,7 +258,7 @@ void CMetroidPrimeStage2::Generate(CStateManager& mgr, EStateMsg msg, float dt) 
   if (msg == EStateMsg::Activate) {
     zeus::CVector3f lookPos = mgr.GetPlayer().GetTranslation();
     lookPos.z() = GetTranslation().z();
-    zeus::CTransform xf = zeus::lookAt(GetTranslation(), lookPos);
+    zeus::CTransform4f xf = zeus::CTransform4f::LookAt(GetTranslation(), lookPos);
     xf.origin = GetTranslation();
     SetTransform(xf);
   } else if (msg == EStateMsg::Deactivate) {
@@ -408,7 +408,7 @@ void CMetroidPrimeStage2::sub8027cb40(const zeus::CVector3f& vec) {
   pas::EStepDirection stepDir = GetStepDirection(GetBodyController()->GetCommandMgr().GetMoveVector());
   GetBodyController()->GetCommandMgr().ClearLocomotionCmds();
   if (stepDir == pas::EStepDirection::Forward &&
-      GetTransform().frontVector().normalized().dot((x2e0_destPos - GetTranslation()).normalized()) <
+      GetTransform().GetForward().normalized().dot((x2e0_destPos - GetTranslation()).normalized()) <
           zeus::degToRad(-15.f)) {
     stepDir = pas::EStepDirection::Backward;
   }
@@ -427,7 +427,7 @@ void CMetroidPrimeStage2::sub8027cce0(CStateManager& mgr) {
   x708_ = CSfxManager::AddEmitter(emitterData, true, 127, false, GetAreaIdAlways());
 }
 
-zeus::CTransform CMetroidPrimeStage2::GetTargetTransform(CStateManager& mgr) {
+zeus::CTransform4f CMetroidPrimeStage2::GetTargetTransform(CStateManager& mgr) {
   if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x706_lockOnTargetCollider)) {
     return colAct->GetTransform();
   }
@@ -467,10 +467,10 @@ void CMetroidPrimeStage2::sub8027cee0(CStateManager& mgr) {
 
 u32 CMetroidPrimeStage2::sub8027cfd4(CStateManager& mgr, bool w1) {
   auto startIndex = static_cast<size_t>(!w1);
-  zeus::CTransform xf = GetTargetTransform(mgr);
+  zeus::CTransform4f xf = GetTargetTransform(mgr);
   std::array<zeus::CVector3f, 3> directions;
-  directions[0] = -xf.frontVector();
-  directions[2] = xf.rightVector();
+  directions[0] = -xf.GetForward();
+  directions[2] = xf.GetRight();
   directions[1] = -directions[2];
   u32 uVar5 = 1 << size_t(startIndex);
   for (auto i = size_t(startIndex); i < 3; ++i) {
@@ -513,9 +513,9 @@ void CMetroidPrimeStage2::DoPhaseTransition(CStateManager& mgr) {
                                           CElementGen::EOptionalSystemFlags::One);
 
     if (x65c_) {
-      zeus::CTransform xf = GetTargetTransform(mgr);
+      zeus::CTransform4f xf = GetTargetTransform(mgr);
       x65c_->SetGlobalScale(GetModelData()->GetScale());
-      x65c_->SetGlobalOrientation(xf.getRotation());
+      x65c_->SetGlobalOrientation(xf.GetRotation());
       x65c_->SetGlobalTranslation(xf.origin);
     }
   }
@@ -544,7 +544,7 @@ void CMetroidPrimeStage2::CreateShockWave(CStateManager& mgr, const CShockWaveIn
   }
 
   mgr.AddObject(new CShockWave(mgr.AllocateUniqueId(), "Shockwave", CEntityInfo(GetAreaIdAlways(), NullConnectionList),
-                               zeus::CTransform::Translate(res.GetPoint()), GetUniqueId(), shockWaveData, 1.5f, 0.5f));
+                               zeus::CTransform4f::Translate(res.GetPoint()), GetUniqueId(), shockWaveData, 1.5f, 0.5f));
 }
 
 CRayCastResult CMetroidPrimeStage2::RayStaticIntersection(CStateManager& mgr) {
@@ -562,7 +562,7 @@ void CMetroidPrimeStage2::sub8027d824(CStateManager& mgr) {
     return;
   }
 
-  x668_ = zeus::CTransform::Translate(res.GetPoint());
+  x668_ = zeus::CTransform4f::Translate(res.GetPoint());
   if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(x704_bossUtilityWaypointId)) {
     wp->SetTransform(x668_);
     SendScriptMsgs(EScriptObjectState::AboutToMassivelyDie, mgr, EScriptObjectMessage::None);
@@ -570,7 +570,7 @@ void CMetroidPrimeStage2::sub8027d824(CStateManager& mgr) {
   }
 }
 
-bool CMetroidPrimeStage2::sub8027e870(const zeus::CTransform& xf, CStateManager& mgr) {
+bool CMetroidPrimeStage2::sub8027e870(const zeus::CTransform4f& xf, CStateManager& mgr) {
   EntityList nearList;
   mgr.BuildNearList(nearList, {xf.origin - 2.f, xf.origin + 2.f}, CMaterialFilter::MakeInclude(EMaterialTypes::AIBlock),
                     this);
@@ -641,7 +641,7 @@ void CMetroidPrimeStage2::UpdatePhase(float dt, CStateManager& mgr) {
     }
   }
 
-  zeus::CTransform xf = GetTargetTransform(mgr);
+  zeus::CTransform4f xf = GetTargetTransform(mgr);
   if (x70e_26_) {
     x6c8_ -= 0.5f * dt;
     x6b4_ = xf.origin;
@@ -657,7 +657,7 @@ void CMetroidPrimeStage2::UpdatePhase(float dt, CStateManager& mgr) {
   }
 
   if (!x65c_->IsSystemDeletable()) {
-    x65c_->SetGlobalOrientation(xf.getRotation());
+    x65c_->SetGlobalOrientation(xf.GetRotation());
     x65c_->SetGlobalTranslation(xf.origin);
     x65c_->Update(dt);
   } else {

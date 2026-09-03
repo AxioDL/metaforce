@@ -13,12 +13,12 @@ class CScriptCameraWaypoint : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptCameraWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptCameraWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                         bool active, float hfov, u32);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override {}
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override {}
   void Render(CStateManager&) override {}
   TUniqueId GetRandomNextWaypointId(CStateManager& mgr) const;
   float GetHFov() const { return xe8_hfov; }

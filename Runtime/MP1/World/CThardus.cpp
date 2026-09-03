@@ -67,7 +67,7 @@ constexpr std::array skRockJoints{
 };
 } // Anonymous namespace
 
-CThardus::CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CThardus::CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                    CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
                    std::vector<CStaticRes> mData1, std::vector<CStaticRes> mData2, CAssetId particle1,
                    CAssetId particle2, CAssetId particle3, float f1, float f2, float f3, float f4, float f5, float f6,
@@ -150,7 +150,7 @@ void CThardus::UpdateRockThermalState(float dt, CStateManager& mgr) {
   if (!x939_) {
     CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
     zeus::CVector3f posDiff = x92c_currentRockPos - cam->GetTranslation();
-    zeus::CVector3f camFront = cam->GetTransform().frontVector();
+    zeus::CVector3f camFront = cam->GetTransform().GetForward();
     zeus::CVector3f direction = posDiff.normalized();
     dVar13 = 0.f;
     float dVar11 = direction.dot(camFront);
@@ -230,8 +230,8 @@ void CThardus::sub801dd608(CStateManager& mgr) {
   zeus::CVector3f scale = GetModelData()->GetScale();
   CAnimData* animData = GetModelData()->GetAnimationData();
   for (size_t i = 0; i < x610_destroyableRocks.size(); ++i) {
-    zeus::CTransform xf =
-        GetTransform() * (zeus::CTransform::Scale(scale) * animData->GetLocatorTransform(skRockJoints[i], nullptr));
+    zeus::CTransform4f xf =
+        GetTransform() * (zeus::CTransform4f::Scale(scale) * animData->GetLocatorTransform(skRockJoints[i], nullptr));
     if (TCastToPtr<CActor> act = mgr.ObjectById(x610_destroyableRocks[i])) {
       act->SetTransform(xf);
     }
@@ -487,7 +487,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
           mgr.GetPlayer().UnFreeze(mgr);
         }
 
-        knockBack = GetTransform().buildMatrix3f() * knockBack;
+        knockBack = GetTransform().BuildMatrix3f() * knockBack;
         CDamageInfo dInfo = GetContactDamage();
         dInfo.SetDamage(damageMult * dInfo.GetDamage());
         mgr.ApplyDamage(GetUniqueId(), pl->GetUniqueId(), GetUniqueId(), dInfo,
@@ -653,7 +653,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
   }
 }
 
-void CThardus::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CThardus::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   CPatterned::PreRender(mgr, frustum);
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
     xb4_drawFlags = CModelFlags(0, 0, 1, zeus::skWhite);
@@ -686,11 +686,11 @@ zeus::CAABox CThardus::GetSortingBounds(const CStateManager& mgr) const {
 void CThardus::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
   switch (type) {
   case EUserEventType::Projectile: {
-    zeus::CTransform wristXf = GetLctrTransform("L_wrist"sv);
+    zeus::CTransform4f wristXf = GetLctrTransform("L_wrist"sv);
     CRayCastResult res = mgr.RayStaticIntersection(wristXf.origin, zeus::skDown, 100.f,
                                                    CMaterialFilter::MakeInclude(EMaterialTypes::Solid));
-    zeus::CTransform xf = zeus::lookAt(res.GetPoint() + zeus::CVector3f{0.f, 0.f, 1.f}, GetTranslation());
-    xf.rotateLocalZ(zeus::degToRad(mgr.GetActiveRandom()->Range(-5.f, 5.f)));
+    zeus::CTransform4f xf = zeus::CTransform4f::LookAt(res.GetPoint() + zeus::CVector3f{0.f, 0.f, 1.f}, GetTranslation());
+    xf.RotateLocalZ(zeus::degToRad(mgr.GetActiveRandom()->Range(-5.f, 5.f)));
     mgr.AddObject(new CIceAttackProjectile(
         g_SimplePool->GetObj({SBIG('PART'), x600_}), g_SimplePool->GetObj({SBIG('PART'), x604_}),
         g_SimplePool->GetObj({SBIG('PART'), x608_}), mgr.AllocateUniqueId(), GetAreaIdAlways(),
@@ -710,7 +710,7 @@ void CThardus::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EU
     break;
   case EUserEventType::DamageOn: {
     x7c8_ = true;
-    x7cc_ = (zeus::CTransform::Scale(GetModelData()->GetScale()) *
+    x7cc_ = (zeus::CTransform4f::Scale(GetModelData()->GetScale()) *
              GetModelData()->GetAnimationData()->GetLocatorTransform("R_ankle"sv, nullptr))
                 .origin;
     break;
@@ -892,7 +892,7 @@ void CThardus::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) {
     if (x658_ == 1) {
       const zeus::CVector3f offset = thisPos + zeus::CVector3f{0.f, 0.f, 10.f};
       CRayCastResult result = mgr.RayStaticIntersection(
-          offset, zeus::CQuaternion(GetTransform().buildMatrix3f()).toTransform() * zeus::CVector3f{0.f, 1.f, 0.f},
+          offset, zeus::CQuaternion(GetTransform().BuildMatrix3f()).toTransform() * zeus::CVector3f{0.f, 1.f, 0.f},
           100.f, CMaterialFilter::MakeInclude({EMaterialTypes::Wall, EMaterialTypes::Floor, EMaterialTypes::Ceiling}));
       if (result.IsInvalid()) {
         zeus::CVector2f vec = GetSteeringVector(mgr);
@@ -1178,7 +1178,7 @@ bool CThardus::PatternOver(CStateManager& mgr, float arg) { return x570_ != 0 ||
 bool CThardus::AnimOver(CStateManager& mgr, float arg) { return x5ec_stateProg == 3; }
 bool CThardus::InPosition(CStateManager& mgr, float arg) { return x660_ > 3; }
 bool CThardus::ShouldTurn(CStateManager& mgr, float arg) {
-  return std::fabs(zeus::CVector2f::getAngleDiff(GetTransform().frontVector().toVec2f(),
+  return std::fabs(zeus::CVector2f::getAngleDiff(GetTransform().GetForward().toVec2f(),
                                                  mgr.GetPlayer().GetTranslation().toVec2f() -
                                                      GetTranslation().toVec2f())) > zeus::degToRad(30.f);
 }
@@ -1390,9 +1390,9 @@ void CThardus::RenderFlare(const CStateManager& mgr, float t) {
   x91c_flareTexture->Load(GX_TEXMAP0, EClampMode::Repeat);
 
   const float scale = 30.f * t;
-  zeus::CVector3f offset = scale * CGraphics::mViewMatrix.basis[2];
-  zeus::CVector3f max = x92c_currentRockPos + (scale * CGraphics::mViewMatrix.basis[0]);
-  zeus::CVector3f min = x92c_currentRockPos - (scale * CGraphics::mViewMatrix.basis[0]);
+  zeus::CVector3f offset = scale * CGraphics::mViewMatrix.GetUp();
+  zeus::CVector3f max = x92c_currentRockPos + (scale * CGraphics::mViewMatrix.GetRight());
+  zeus::CVector3f min = x92c_currentRockPos - (scale * CGraphics::mViewMatrix.GetRight());
   CGraphics::SetModelMatrix({});
   CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::One, ERglBlendFactor::One, ERglLogicOp::Clear);
   CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);

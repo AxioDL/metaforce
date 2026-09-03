@@ -6,7 +6,7 @@
 
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector3f.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 
 namespace metaforce {
 
@@ -64,7 +64,7 @@ private:
   ECameraBobState x24_curState = ECameraBobState::Unspecified;
   bool x28_applyLandingTrans = false;
   bool x29_hardLand = false;
-  zeus::CTransform x2c_cameraBobTransform;
+  zeus::CTransform4f x2c_cameraBobTransform;
   zeus::CVector3f x5c_playerVelocity;
   float x68_playerPeakFallVel = 0.f;
   float x6c_landingVelocity = 0.f;
@@ -76,22 +76,22 @@ private:
   float xc4_wanderTime = 0.f;
   float xc8_viewWanderSpeed = kViewWanderSpeedMin;
   u32 xcc_wanderIndex = 0;
-  zeus::CTransform xd0_viewWanderXf;
+  zeus::CTransform4f xd0_viewWanderXf;
   float x100_wanderMagnitude = FLT_EPSILON;
   float x104_targetWanderMagnitude = 0.f;
 
 public:
   CPlayerCameraBob(ECameraBobType type, const zeus::CVector2f& vec, float bobPeriod);
 
-  zeus::CTransform GetViewWanderTransform() const;
+  zeus::CTransform4f GetViewWanderTransform() const;
   zeus::CVector3f GetHelmetBobTranslation() const;
-  zeus::CTransform GetGunBobTransformation() const;
-  zeus::CTransform GetCameraBobTransformation() const;
+  zeus::CTransform4f GetGunBobTransformation() const;
+  zeus::CTransform4f GetCameraBobTransformation() const;
   void SetPlayerVelocity(const zeus::CVector3f& velocity);
   void SetBobMagnitude(float);
   void SetBobTimeScale(float);
   void ResetCameraBobTime();
-  void SetCameraBobTransform(const zeus::CTransform&);
+  void SetCameraBobTransform(const zeus::CTransform4f&);
   void SetState(ECameraBobState, CStateManager&);
   void InitViewWander(CStateManager&);
   void UpdateViewWander(float, CStateManager&);
@@ -100,7 +100,7 @@ public:
   float CalculateRandomViewWanderPitch(CStateManager&) const;
   void CalculateMovingTranslation(float& x, float& y) const;
   float CalculateLandingTranslation() const;
-  zeus::CTransform CalculateCameraBobTransformation() const;
+  zeus::CTransform4f CalculateCameraBobTransformation() const;
   static void ReadTweaks(CInputStream& in);
 };
 } // namespace metaforce

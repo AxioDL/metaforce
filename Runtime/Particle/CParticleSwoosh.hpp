@@ -11,7 +11,7 @@
 #include "Runtime/Particle/CUVElement.hpp"
 
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -29,14 +29,14 @@ public:
     zeus::CVector3f x24_useOffset;    // Combination of POFS and NPOS, once per particle instance
     float x30_irot;                   // Rotation bias once per system update
     float x34_rotm;                   // Rotation bias once per particle instance
-    zeus::CTransform x38_orientation; // Updated by user code
+    zeus::CTransform4f x38_orientation; // Updated by user code
     int x68_frame = 0;                // Frame index of evaluated data
     zeus::CColor x6c_color;           // Updated by COLR
     int x70_startFrame;
     zeus::CVector3f x74_velocity;
 
     SSwooshData(const zeus::CVector3f& translation, const zeus::CVector3f& offset, float irot, float rotm,
-                int startFrame, bool active, const zeus::CTransform& orient, const zeus::CVector3f& vel, float leftRad,
+                int startFrame, bool active, const zeus::CTransform4f& orient, const zeus::CVector3f& vel, float leftRad,
                 float rightRad, const zeus::CColor& color)
     : x0_active(active)
     , x4_leftRad(leftRad)
@@ -58,13 +58,13 @@ private:
   int x2c_PSLT = 0;
   double x30_curTime = 0.0;
   zeus::CVector3f x38_translation;
-  zeus::CTransform x44_orientation;
-  zeus::CTransform x74_invOrientation;
+  zeus::CTransform4f x44_orientation;
+  zeus::CTransform4f x74_invOrientation;
   zeus::CVector3f xa4_globalTranslation;
-  zeus::CTransform xb0_globalOrientation;
+  zeus::CTransform4f xb0_globalOrientation;
   zeus::CVector3f xe0_globalScale = {1.f, 1.f, 1.f};
-  zeus::CTransform xec_scaleXf;
-  zeus::CTransform x11c_invScaleXf;
+  zeus::CTransform4f xec_scaleXf;
+  zeus::CTransform4f x11c_invScaleXf;
   zeus::CVector3f x14c_localScale = {1.f, 1.f, 1.f};
   u32 x158_curParticle = 0;
   std::vector<SSwooshData> x15c_swooshes;
@@ -129,17 +129,17 @@ public:
 
   bool Update(double) override;
   void Render() override;
-  void SetOrientation(const zeus::CTransform&) override;
+  void SetOrientation(const zeus::CTransform4f&) override;
   void SetTranslation(const zeus::CVector3f&) override;
-  void SetGlobalOrientation(const zeus::CTransform&) override;
+  void SetGlobalOrientation(const zeus::CTransform4f&) override;
   void SetGlobalTranslation(const zeus::CVector3f&) override;
   void SetGlobalScale(const zeus::CVector3f&) override;
   void SetLocalScale(const zeus::CVector3f&) override;
   void SetParticleEmission(bool) override;
   void SetModulationColor(const zeus::CColor&) override;
-  const zeus::CTransform& GetOrientation() const override;
+  const zeus::CTransform4f& GetOrientation() const override;
   const zeus::CVector3f& GetTranslation() const override;
-  const zeus::CTransform& GetGlobalOrientation() const override;
+  const zeus::CTransform4f& GetGlobalOrientation() const override;
   const zeus::CVector3f& GetGlobalTranslation() const override;
   const zeus::CVector3f& GetGlobalScale() const override;
   const zeus::CColor& GetModulationColor() const override;
@@ -186,7 +186,7 @@ public:
     }
   }
 
-  void DoGrappleUpdate(const zeus::CVector3f& beamGunPos, const zeus::CTransform& rotation, float anglePhase,
+  void DoGrappleUpdate(const zeus::CVector3f& beamGunPos, const zeus::CTransform4f& rotation, float anglePhase,
                        float xAmplitude, float zAmplitude, const zeus::CVector3f& swooshSegDelta) {
     float rot = x15c_swooshes.back().x30_irot;
     zeus::CVector3f trans = beamGunPos;
@@ -202,7 +202,7 @@ public:
   }
 
   void DoSpiderBallWarmup(zeus::CVector3f& translation, const zeus::CVector3f& transInc) {
-    SetOrientation(zeus::lookAt(zeus::skZero3f, transInc));
+    SetOrientation(zeus::CTransform4f::LookAt(zeus::skZero3f, transInc));
     for (int i = 0; i < 6; ++i) {
       SetTranslation(translation);
       x1d0_26_forceOneUpdate = true;

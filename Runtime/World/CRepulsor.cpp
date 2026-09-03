@@ -7,7 +7,7 @@
 namespace metaforce {
 CRepulsor::CRepulsor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
                      const zeus::CVector3f& pos, float radius)
-: CActor(uid, active, name, info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(), CMaterialList(),
+: CActor(uid, active, name, info, zeus::CTransform4f::Translate(pos), CModelData::CModelDataNull(), CMaterialList(),
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_affectRadius(radius) {}
 

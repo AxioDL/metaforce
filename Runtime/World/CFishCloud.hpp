@@ -131,7 +131,7 @@ class CFishCloud : public CActor {
 public:
   DEFINE_ENTITY
   CFishCloud(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& scale,
-             const zeus::CTransform& xf, CModelData&& mData, const CAnimRes& aRes, u32 numBoids, float speed,
+             const zeus::CTransform4f& xf, CModelData&& mData, const CAnimRes& aRes, u32 numBoids, float speed,
              float separationRadius, float cohesionMagnitude, float alignmentWeight, float separationMagnitude,
              float weaponRepelMagnitude, float playerRepelMagnitude, float containmentMagnitude, float scatterVel,
              float maxScatterAngle, float weaponRepelDampingSpeed, float playerRepelDampingSpeed,
@@ -142,7 +142,7 @@ public:
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   void Render(CStateManager& mgr) override;
   void CalculateRenderBounds() override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;

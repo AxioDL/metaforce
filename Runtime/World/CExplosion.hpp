@@ -24,17 +24,17 @@ class CExplosion : public CEffect {
 public:
   DEFINE_ENTITY
   CExplosion(const TLockedToken<CGenDescription>& particle, TUniqueId uid, bool active, const CEntityInfo& info,
-             std::string_view name, const zeus::CTransform& xf, u32, const zeus::CVector3f& scale,
+             std::string_view name, const zeus::CTransform4f& xf, u32, const zeus::CVector3f& scale,
              const zeus::CColor& color);
   CExplosion(const TLockedToken<CElectricDescription>& electric, TUniqueId uid, bool active, const CEntityInfo& info,
-             std::string_view name, const zeus::CTransform& xf, u32, const zeus::CVector3f& scale,
+             std::string_view name, const zeus::CTransform4f& xf, u32, const zeus::CVector3f& scale,
              const zeus::CColor& color);
 
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustumPlanes&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager&) override;
   bool CanRenderUnsorted(const CStateManager&) const override;
 };

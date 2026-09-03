@@ -14,7 +14,7 @@
 
 namespace metaforce::MP1 {
 
-CBeetle::CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CBeetle::CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                  CModelData&& mData, const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor,
                  CBeetle::EEntranceType entranceType, const CDamageInfo& touchDamage,
                  const CDamageVulnerability& platingVuln, const zeus::CVector3f& tailAimReference,
@@ -130,7 +130,7 @@ void CBeetle::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
     CPatterned::AcceptScriptMsg(msg, sender, mgr);
 }
 
-void CBeetle::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CBeetle::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   if (x400_25_alive) {
     switch (mgr.GetPlayerState()->GetActiveVisor(mgr)) {
     case CPlayerState::EPlayerVisor::XRay:
@@ -152,7 +152,7 @@ void CBeetle::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
 
 void CBeetle::Render(CStateManager& mgr) {
   if (x3fc_flavor == EFlavorType::One && x400_25_alive) {
-    zeus::CTransform tailXf = GetLctrTransform("Target_Tail"sv);
+    zeus::CTransform4f tailXf = GetLctrTransform("Target_Tail"sv);
     if (x428_damageCooldownTimer >= 0.f && x42c_color.a() == 1.f) {
       if (x5ac_tailModel) {
         CModelFlags flags(2, 0, 3, zeus::skWhite);
@@ -182,8 +182,8 @@ const CDamageVulnerability* CBeetle::GetDamageVulnerability(const zeus::CVector3
   if (x3fc_flavor == EFlavorType::One) {
     if (dInfo.GetWeaponMode().IsComboed() && dInfo.GetWeaponMode().GetType() == EWeaponType::Wave)
       return &x7ac_tailVuln;
-    if (GetTransform().basis[1].dot(dir) > 0.f &&
-        GetTransform().basis[1].dot(zeus::CUnitVector3f(pos - GetBoundingBox().center())) < -0.5f)
+    if (GetTransform().GetForward().dot(dir) > 0.f &&
+        GetTransform().GetForward().dot(zeus::CUnitVector3f(pos - GetBoundingBox().center())) < -0.5f)
       return &x7ac_tailVuln;
     else
       return &x744_platingVuln;
@@ -199,7 +199,7 @@ zeus::CVector3f CBeetle::GetOrbitPosition(const CStateManager& mgr) const {
 
 zeus::CVector3f CBeetle::GetAimPosition(const CStateManager& mgr, float dt) const {
   if (x3fc_flavor == EFlavorType::One || x3fc_flavor == EFlavorType::Two) {
-    zeus::CTransform tailXf = GetLctrTransform("Target_Tail"sv);
+    zeus::CTransform4f tailXf = GetLctrTransform("Target_Tail"sv);
     zeus::CVector3f scaleRange = tailXf * x574_tailAimReference - GetTranslation();
     zeus::CAABox aabb = GetBoundingBox();
     float minFactor = 10.f;
@@ -228,8 +228,8 @@ EWeaponCollisionResponseTypes CBeetle::GetCollisionResponseType(const zeus::CVec
   if (x838_25_burrowing)
     return EWeaponCollisionResponseTypes::Unknown69;
   if (x3fc_flavor == EFlavorType::One) {
-    if (GetTransform().basis[1].dot(dir) > 0.f &&
-        GetTransform().basis[1].dot(zeus::CUnitVector3f(pos - GetBoundingBox().center())) < -0.5f)
+    if (GetTransform().GetForward().dot(dir) > 0.f &&
+        GetTransform().GetForward().dot(zeus::CUnitVector3f(pos - GetBoundingBox().center())) < -0.5f)
       return EWeaponCollisionResponseTypes::Unknown44;
     if (!x744_platingVuln.WeaponHurts(wMode, false))
       return EWeaponCollisionResponseTypes::Unknown69;
@@ -287,7 +287,7 @@ void CBeetle::CollidedWith(TUniqueId uid, const CCollisionInfoList& list, CState
 void CBeetle::Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) {
   if (x400_25_alive) {
     if (x3fc_flavor == EFlavorType::One) {
-      zeus::CTransform backupXf = GetTransform();
+      zeus::CTransform4f backupXf = GetTransform();
       SetTransform(GetLctrTransform("Target_Tail"sv));
       SendScriptMsgs(EScriptObjectState::DeathRattle, mgr, EScriptObjectMessage::None);
       SetTransform(backupXf);
@@ -307,7 +307,7 @@ zeus::CVector3f CBeetle::GetOrigin(const CStateManager& mgr, const CTeamAiRole& 
   if (playerToThis.canBeNormalized())
     return aimPos + playerToThis.normalized() * midRange;
   else
-    return aimPos + GetTransform().basis[1] * midRange;
+    return aimPos + GetTransform().GetForward() * midRange;
 }
 
 void CBeetle::FollowPattern(CStateManager& mgr, EStateMsg msg, float dt) {
@@ -350,7 +350,7 @@ void CBeetle::RefinePathFindDest(CStateManager& mgr, zeus::CVector3f& dest) {
     dest = role->GetTeamPosition();
   } else {
     zeus::CVector3f thisToDest = dest - GetTranslation();
-    dest += (thisToDest.canBeNormalized() ? thisToDest.normalized() : GetTransform().basis[1]) *
+    dest += (thisToDest.canBeNormalized() ? thisToDest.normalized() : GetTransform().GetForward()) *
             (0.5f * (x2fc_minAttackRange + x300_maxAttackRange));
   }
 }
@@ -390,10 +390,10 @@ void CBeetle::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
     } else {
       move = x45c_steeringBehaviors.Arrival(*this, dest, 5.f);
     }
-    if (GetTransform().basis[1].dot(move) >= 0.f || GetTransform().basis[1].dot(delta) <= 0.f) {
+    if (GetTransform().GetForward().dot(move) >= 0.f || GetTransform().GetForward().dot(delta) <= 0.f) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(move, zeus::skZero3f, 1.f));
     } else {
-      zeus::CVector3f face = delta.canBeNormalized() ? delta.normalized() : GetTransform().basis[1];
+      zeus::CVector3f face = delta.canBeNormalized() ? delta.normalized() : GetTransform().GetForward();
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(move, face, 1.f));
     }
     SeparateFromMelees(mgr);
@@ -421,7 +421,7 @@ void CBeetle::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
   case EStateMsg::Activate:
     if (x56c_entranceType == EEntranceType::FacePlayer || x450_bodyController->GetActive()) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Zero));
-      SetTransform(zeus::lookAt(GetTranslation(), mgr.GetPlayer().GetTranslation()));
+      SetTransform(zeus::CTransform4f::LookAt(GetTranslation(), mgr.GetPlayer().GetTranslation()));
     } else {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Zero, x388_anim));
     }
@@ -654,18 +654,18 @@ void CBeetle::Shuffle(CStateManager& mgr, EStateMsg msg, float dt) {
     if (playerToThis.canBeNormalized())
       playerLimit = playerToThis.normalized() * midRange + playerPos;
     else
-      playerLimit = GetTransform().basis[1] * midRange + playerPos;
+      playerLimit = GetTransform().GetForward() * midRange + playerPos;
     if ((GetTranslation() - playerLimit).magSquared() > 4.f) {
       pas::EStepDirection dir = GetStepDirection(-playerToThis);
       switch (dir) {
       case pas::EStepDirection::Forward:
       case pas::EStepDirection::Backward: {
         zeus::CVector3f move = x45c_steeringBehaviors.Arrival(*this, x2e0_destPos, x300_maxAttackRange);
-        if (GetTransform().basis[1].dot(move) >= 0.f || GetTransform().basis[1].dot(playerToThis) >= 0.f) {
+        if (GetTransform().GetForward().dot(move) >= 0.f || GetTransform().GetForward().dot(playerToThis) >= 0.f) {
           x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(move, zeus::skZero3f, 1.f));
         } else {
           x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(
-              move, playerToThis.canBeNormalized() ? -playerToThis.normalized() : GetTransform().basis[1], 1.f));
+              move, playerToThis.canBeNormalized() ? -playerToThis.normalized() : GetTransform().GetForward(), 1.f));
         }
         break;
       }
@@ -722,7 +722,7 @@ void CBeetle::Skid(CStateManager&, EStateMsg msg, float dt) {
   switch (msg) {
   case EStateMsg::Activate:
     if (IsOnGround() && x838_26_canSkid) {
-      x450_bodyController->GetCommandMgr().DeliverCmd(CBCSlideCmd(pas::ESlideType::Zero, GetTransform().basis[1]));
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBCSlideCmd(pas::ESlideType::Zero, GetTransform().GetForward()));
       x568_stateProg = 2;
     }
     break;
@@ -889,13 +889,13 @@ bool CBeetle::ShouldDoubleSnap(CStateManager& mgr, float arg) {
     if (CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x570_aiMgr, GetUniqueId()))
       targetPos = role->GetTeamPosition();
     zeus::CVector3f delta = targetPos - GetTranslation();
-    if (delta.magSquared() > dist * dist && GetTransform().basis[1].dot(delta.normalized()) > 0.98f) {
+    if (delta.magSquared() > dist * dist && GetTransform().GetForward().dot(delta.normalized()) > 0.98f) {
       EntityList nearList;
-      mgr.BuildNearList(nearList, GetTranslation(), GetTransform().basis[1], x5a0_headbuttDist,
+      mgr.BuildNearList(nearList, GetTranslation(), GetTransform().GetForward(), x5a0_headbuttDist,
                         CMaterialFilter::MakeInclude({EMaterialTypes::Character}), this);
       TUniqueId bestId = kInvalidUniqueId;
       CRayCastResult res =
-          mgr.RayWorldIntersection(bestId, GetTranslation(), GetTransform().basis[1], x5a0_headbuttDist,
+          mgr.RayWorldIntersection(bestId, GetTranslation(), GetTransform().GetForward(), x5a0_headbuttDist,
                                    CMaterialFilter::MakeInclude({EMaterialTypes::Solid}), nearList);
       if (res.IsInvalid())
         return true;
@@ -905,7 +905,7 @@ bool CBeetle::ShouldDoubleSnap(CStateManager& mgr, float arg) {
 }
 
 bool CBeetle::ShouldTurn(CStateManager& mgr, float arg) {
-  return zeus::CVector2f::getAngleDiff(GetTransform().basis[1].toVec2f(),
+  return zeus::CVector2f::getAngleDiff(GetTransform().GetForward().toVec2f(),
                                        (mgr.GetPlayer().GetTranslation() - GetTranslation()).toVec2f()) >
          zeus::degToRad(30.f);
 }
@@ -913,7 +913,7 @@ bool CBeetle::ShouldTurn(CStateManager& mgr, float arg) {
 bool CBeetle::HitSomething(CStateManager&, float arg) { return x838_24_hitSomething; }
 
 bool CBeetle::ShouldJumpBack(CStateManager& mgr, float arg) {
-  zeus::CVector3f backDir = -GetTransform().basis[1];
+  zeus::CVector3f backDir = -GetTransform().GetForward();
   const auto& aabb = GetBaseBoundingBox();
   zeus::CVector3f pos = GetTranslation() + zeus::CVector3f(0.f, 0.f, (aabb.max.z() - aabb.min.z()) * 0.5f);
   EntityList nearList;

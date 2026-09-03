@@ -25,7 +25,7 @@
 #include "Runtime/World/ScriptObjectSupport.hpp"
 
 #include <zeus/CAABox.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 
 namespace metaforce {
 struct CFinalInput;
@@ -117,7 +117,7 @@ private:
   public:
     static void SetExtendDistance(float d) { gGunExtendDistance = d; }
     void SetState(EMotionState state) { x20_state = state; }
-    void Update(bool firing, float dt, zeus::CTransform& xf, CStateManager& mgr);
+    void Update(bool firing, float dt, zeus::CTransform4f& xf, CStateManager& mgr);
   };
 
   CActorLights x0_lights;
@@ -174,13 +174,13 @@ private:
   float x3a0_missileExitTimer = 0.f;
   CFidget x3a4_fidget;
   zeus::CVector3f x3dc_damageLocation;
-  zeus::CTransform x3e8_xf;
-  zeus::CTransform x418_beamLocalXf;
-  zeus::CTransform x448_elbowWorldXf;
-  zeus::CTransform x478_assistAimXf;
-  zeus::CTransform x4a8_gunWorldXf;
-  zeus::CTransform x4d8_gunLocalXf;
-  zeus::CTransform x508_elbowLocalXf;
+  zeus::CTransform4f x3e8_xf;
+  zeus::CTransform4f x418_beamLocalXf;
+  zeus::CTransform4f x448_elbowWorldXf;
+  zeus::CTransform4f x478_assistAimXf;
+  zeus::CTransform4f x4a8_gunWorldXf;
+  zeus::CTransform4f x4d8_gunLocalXf;
+  zeus::CTransform4f x508_elbowLocalXf;
   TUniqueId x538_playerId;
   TUniqueId x53a_powerBomb = kInvalidUniqueId;
   TUniqueId x53c_lightId = kInvalidUniqueId;
@@ -262,7 +262,7 @@ private:
   void LoadHandAnimTokens();
   void CreateGunLight(CStateManager& mgr);
   void DeleteGunLight(CStateManager& mgr);
-  void UpdateGunLight(const zeus::CTransform& xf, CStateManager& mgr);
+  void UpdateGunLight(const zeus::CTransform4f& xf, CStateManager& mgr);
   void SetGunLightActive(bool active, CStateManager& mgr);
   void SetPhazonBeamMorph(bool intoPhazonBeam);
   void Reset(CStateManager& mgr, bool b1);
@@ -275,7 +275,7 @@ private:
   void ReturnArmAndGunToDefault(CStateManager& mgr, bool returnToDefault);
   void ReturnToRestPose();
   void ChangeWeapon(const CPlayerState& playerState, CStateManager& mgr);
-  void GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mData, std::string_view lctrName, bool shake,
+  void GetLctrWithShake(zeus::CTransform4f& xfOut, const CModelData& mData, std::string_view lctrName, bool shake,
                         bool dyn) const;
   void UpdateLeftArmTransform(const CModelData& mData, const CStateManager& mgr);
   void ProcessGunMorph(float dt, CStateManager& mgr);
@@ -284,7 +284,7 @@ private:
   void ProcessPhazonGunMorph(float dt, CStateManager& mgr);
   void EnableChargeFx(EChargeState state, CStateManager& mgr);
   void UpdateChargeState(float dt, CStateManager& mgr);
-  void UpdateAuxWeapons(float dt, const zeus::CTransform& targetXf, CStateManager& mgr);
+  void UpdateAuxWeapons(float dt, const zeus::CTransform4f& targetXf, CStateManager& mgr);
   void DoUserAnimEvent(float dt, CStateManager& mgr, const CInt32POINode& node, EUserEventType type);
   void DoUserAnimEvents(float dt, CStateManager& mgr);
   TUniqueId GetTargetId(CStateManager& mgr) const;
@@ -327,8 +327,8 @@ public:
   CPlayerState::EBeamId GetNextBeam() const { return x314_nextBeam; }
   const CGunMorph& GetGunMorph() const { return x678_morph; }
   float GetHoloTransitionFactor() const { return x678_morph.GetTransitionFactor(); }
-  void SetTransform(const zeus::CTransform& xf) { x3e8_xf = xf; }
-  void SetAssistAimTransform(const zeus::CTransform& xf) { x478_assistAimXf = xf; }
+  void SetTransform(const zeus::CTransform4f& xf) { x3e8_xf = xf; }
+  void SetAssistAimTransform(const zeus::CTransform4f& xf) { x478_assistAimXf = xf; }
   CGrappleArm& GetGrappleArm() { return *x740_grappleArm; }
   const CGrappleArm& GetGrappleArm() const { return *x740_grappleArm; }
   void DamageRumble(const zeus::CVector3f& location, float damage, const CStateManager& mgr);
@@ -342,9 +342,9 @@ public:
   float GetBeamVelocity() const;
   void StopContinuousBeam(CStateManager& mgr, bool b1);
   void Update(float grappleSwingT, float cameraBobT, float dt, CStateManager& mgr);
-  void PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos);
+  void PreRender(const CStateManager& mgr, const zeus::CFrustumPlanes& frustum, const zeus::CVector3f& camPos);
   void Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags);
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, const CStateManager& mgr) const;
   u32 GetLastFireButtonStates() const { return x2ec_lastFireButtonStates; }
   void DropBomb(EBWeapon weapon, CStateManager& mgr);
   TUniqueId DropPowerBomb(CStateManager& mgr);

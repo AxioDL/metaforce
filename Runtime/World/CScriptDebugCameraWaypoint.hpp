@@ -12,7 +12,7 @@ class CScriptDebugCameraWaypoint : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptDebugCameraWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptDebugCameraWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                              u32 w1);
 
   void Accept(IVisitor&) override;

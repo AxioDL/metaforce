@@ -11,7 +11,7 @@
 #include "Runtime/World/CScriptTrigger.hpp"
 
 #include <zeus/CColor.hpp>
-#include <zeus/CFrustum.hpp>
+#include <zeus/CFrustumPlanes.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -20,7 +20,7 @@ class CDamageInfo;
 class CFluidUVMotion;
 
 class CScriptWater : public CScriptTrigger {
-  zeus::CFrustum x150_frustum;
+  zeus::CFrustumPlanes x150_frustum;
   std::unique_ptr<CFluidPlaneCPU> x1b4_fluidPlane;
   zeus::CVector3f x1b8_positionMorphed;
   zeus::CVector3f x1c4_extentMorphed;
@@ -100,8 +100,8 @@ public:
   void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustumPlanes&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager&) override;
   void Touch(CActor&, CStateManager&) override;
   void CalculateRenderBounds() override;
@@ -120,8 +120,8 @@ public:
   void SetMorphing(bool);
   float GetMorphFactor() const { return x1f8_morphFactor; }
   zeus::CColor GetSplashColor() const { return x2a4_splashColor; }
-  void SetFrustumPlanes(const zeus::CFrustum& frustum) { x150_frustum = frustum; }
-  const zeus::CFrustum& GetFrustumPlanes() const { return x150_frustum; }
+  void SetFrustumPlanes(const zeus::CFrustumPlanes& frustum) { x150_frustum = frustum; }
+  const zeus::CFrustumPlanes& GetFrustumPlanes() const { return x150_frustum; }
   CFluidPlaneCPU& GetFluidPlane() const { return *x1b4_fluidPlane; }
   const std::optional<TLockedToken<CGenDescription>>& GetVisorRunoffEffect() const { return x23c_visorRunoffEffect; }
   u16 GetVisorRunoffSfx() const { return x260_visorRunoffSfx; }

@@ -10,7 +10,7 @@
 
 namespace metaforce {
 
-CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf, TUniqueId watchedObj,
+CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform4f& xf, TUniqueId watchedObj,
                                        float orbitCameraSpeed, float fov, float nearz, float farz, float aspect)
 : CGameCamera(uid, true, "First Person Camera", CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), xf, fov,
               nearz, farz, aspect, watchedObj, false, 0)
@@ -44,7 +44,7 @@ void CFirstPersonCamera::Think(float dt, CStateManager& mgr) {
     } else {
       x1c6_24_deferBallTransitionProcessing = false;
     }
-    zeus::CTransform backupXf = x34_transform;
+    zeus::CTransform4f backupXf = x34_transform;
     UpdateElevation(mgr);
     UpdateTransform(mgr, dt);
     SetTransform(ValidateCameraTransform(x34_transform, backupXf));
@@ -57,7 +57,7 @@ void CFirstPersonCamera::ProcessInput(const CFinalInput&, CStateManager& mgr) {
   // Empty
 }
 
-void CFirstPersonCamera::Reset(const zeus::CTransform& xf, CStateManager& mgr) {
+void CFirstPersonCamera::Reset(const zeus::CTransform4f& xf, CStateManager& mgr) {
   SetTransform(xf);
   SetTranslation(mgr.GetPlayer().GetEyePosition());
   x190_gunFollowXf = x34_transform;
@@ -68,9 +68,9 @@ void CFirstPersonCamera::SkipCinematic() {
   x1d4_closeInTimer = 0.f;
 }
 
-void CFirstPersonCamera::CalculateGunFollowOrientationAndTransform(zeus::CTransform& gunXf, zeus::CQuaternion& gunQ,
+void CFirstPersonCamera::CalculateGunFollowOrientationAndTransform(zeus::CTransform4f& gunXf, zeus::CQuaternion& gunQ,
                                                                    float dt, zeus::CVector3f& rVec) const {
-  zeus::CVector3f gunFrontVec = x190_gunFollowXf.frontVector();
+  zeus::CVector3f gunFrontVec = x190_gunFollowXf.GetForward();
   gunFrontVec.z() = 0.f;
   if (gunFrontVec.canBeNormalized())
     gunFrontVec.normalize();
@@ -80,9 +80,9 @@ void CFirstPersonCamera::CalculateGunFollowOrientationAndTransform(zeus::CTransf
   if (rVecNoZ.canBeNormalized())
     rVecNoZ.normalize();
 
-  gunXf = zeus::CQuaternion::lookAt(gunFrontVec, rVecNoZ, 2.f * M_PIF).toTransform() * x190_gunFollowXf.getRotation();
+  gunXf = zeus::CQuaternion::lookAt(gunFrontVec, rVecNoZ, 2.f * M_PIF).toTransform() * x190_gunFollowXf.GetRotation();
 
-  zeus::CVector3f newgunFront = gunXf.frontVector();
+  zeus::CVector3f newgunFront = gunXf.GetForward();
   if (newgunFront.canBeNormalized())
     newgunFront.normalize();
 
@@ -94,12 +94,12 @@ void CFirstPersonCamera::CalculateGunFollowOrientationAndTransform(zeus::CTransf
 void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
   TCastToPtr<CPlayer> player(mgr.ObjectById(GetWatchedObject()));
   if (!player) {
-    SetTransform(zeus::CTransform());
+    SetTransform(zeus::CTransform4f());
     return;
   }
 
-  zeus::CTransform playerXf = player->GetTransform();
-  zeus::CVector3f rVec = playerXf.rotate(
+  zeus::CTransform4f playerXf = player->GetTransform();
+  zeus::CVector3f rVec = playerXf.Rotate(
       {0.f, zeus::clamp(-1.f, std::cos(x1c0_pitch), 1.0f), zeus::clamp(-1.f, std::sin(x1c0_pitch), 1.0f)});
   if (player->x3dc_inFreeLook) {
     float angle = player->x3ec_freeLookPitchAngle;
@@ -122,7 +122,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
   if (x1d4_closeInTimer > 0.f) {
     eyePos += zeus::clamp(0.f, 0.5f * x1d4_closeInTimer, 1.f) * x1c8_closeInVec;
     player->GetCameraBob()->ResetCameraBobTime();
-    player->GetCameraBob()->SetCameraBobTransform(zeus::CTransform());
+    player->GetCameraBob()->SetCameraBobTransform(zeus::CTransform4f());
   }
 
   switch (player->GetOrbitState()) {
@@ -161,7 +161,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
         rVec.y() = std::cos(angle);
         rVec.z() = -std::sin(angle);
 
-        rVec = playerXf.rotate(rVec);
+        rVec = playerXf.Rotate(rVec);
       } else if (player->x29c_fallCameraTimer > 0.f) {
         float angle = zeus::clamp(0.f,
                                   (player->x29c_fallCameraTimer - g_tweakPlayer->GetFallCameraPitchDownStart()) /
@@ -172,7 +172,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
         rVec.y() = std::cos(angle);
         rVec.z() = -std::sin(angle);
 
-        rVec = playerXf.rotate(rVec);
+        rVec = playerXf.Rotate(rVec);
       }
     }
     break;
@@ -184,7 +184,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
   if (rVec.canBeNormalized())
     rVec.normalize();
 
-  zeus::CTransform gunXf = x190_gunFollowXf;
+  zeus::CTransform4f gunXf = x190_gunFollowXf;
   zeus::CQuaternion qGun;
 
   if (!player->x3dc_inFreeLook) {
@@ -204,7 +204,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
     }
     case CPlayer::EPlayerOrbitState::ForcedOrbitObject:
     case CPlayer::EPlayerOrbitState::OrbitObject: {
-      zeus::CVector3f gunFrontVec = x190_gunFollowXf.frontVector();
+      zeus::CVector3f gunFrontVec = x190_gunFollowXf.GetForward();
 
       if (gunFrontVec.canBeNormalized())
         gunFrontVec.normalize();
@@ -221,7 +221,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
       const CScriptGrapplePoint* gPoint =
           TCastToConstPtr<CScriptGrapplePoint>(mgr.GetObjectById(player->x310_orbitTargetId));
       if (gPoint && player->x29c_fallCameraTimer > 0.f) {
-        gunFrontVec = x190_gunFollowXf.frontVector();
+        gunFrontVec = x190_gunFollowXf.GetForward();
         if (gunFrontVec.canBeNormalized())
           gunFrontVec.normalize();
 
@@ -231,9 +231,9 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
           rVecCpy.normalize();
 
         gunXf =
-            zeus::CQuaternion::lookAt(gunFrontVec, rVecCpy, 2.f * M_PIF).toTransform() * x190_gunFollowXf.getRotation();
+            zeus::CQuaternion::lookAt(gunFrontVec, rVecCpy, 2.f * M_PIF).toTransform() * x190_gunFollowXf.GetRotation();
 
-        gunFrontVec = gunXf.frontVector();
+        gunFrontVec = gunXf.GetForward();
         if (gunFrontVec.canBeNormalized())
           gunFrontVec.normalize();
 
@@ -248,7 +248,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
     }
     }
   } else {
-    zeus::CVector3f gunFront = x190_gunFollowXf.frontVector();
+    zeus::CVector3f gunFront = x190_gunFollowXf.GetForward();
     gunFront.z() = 0.f;
     if (gunFront.canBeNormalized())
       gunFront.normalize();
@@ -258,8 +258,8 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
     if (rVecCpy.canBeNormalized())
       rVecCpy.normalize();
 
-    gunXf = zeus::CQuaternion::lookAt(gunFront, rVecCpy, 2.f * M_PIF).toTransform() * x190_gunFollowXf.getRotation();
-    gunFront = gunXf.frontVector();
+    gunXf = zeus::CQuaternion::lookAt(gunFront, rVecCpy, 2.f * M_PIF).toTransform() * x190_gunFollowXf.GetRotation();
+    gunFront = gunXf.GetForward();
     if (gunFront.canBeNormalized())
       gunFront.normalize();
 
@@ -270,22 +270,22 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
         gunFront, rVec,
         sdt * zeus::clamp(0.f, g_tweakPlayer->GetFreeLookDampenFactor() * (std::acos(angle) / sdt), 1.f));
   }
-  zeus::CTransform bobXf = player->GetCameraBob()->GetCameraBobTransformation();
+  zeus::CTransform4f bobXf = player->GetCameraBob()->GetCameraBobTransformation();
 
   if (player->GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ||
       player->GetOrbitState() == CPlayer::EPlayerOrbitState::Grapple ||
       player->GetGrappleState() != CPlayer::EGrappleState::None ||
       mgr.GetGameState() == CStateManager::EGameState::SoftPaused || mgr.GetCameraManager()->IsInCinematicCamera() ||
       x1d4_closeInTimer > 0.f) {
-    bobXf = zeus::CTransform();
+    bobXf = zeus::CTransform4f();
     player->GetCameraBob()->SetCameraBobTransform(bobXf);
   }
 
   x190_gunFollowXf = qGun.toTransform() * gunXf;
-  SetTransform(x190_gunFollowXf * bobXf.getRotation());
+  SetTransform(x190_gunFollowXf * bobXf.GetRotation());
   x190_gunFollowXf.origin = eyePos;
-  CActor::SetTranslation(eyePos + player->GetTransform().rotate(bobXf.origin));
-  x190_gunFollowXf.orthonormalize();
+  CActor::SetTranslation(eyePos + player->GetTransform().Rotate(bobXf.origin));
+  x190_gunFollowXf.Orthonormalize();
 }
 
 void CFirstPersonCamera::UpdateElevation(CStateManager& mgr) {
@@ -293,12 +293,12 @@ void CFirstPersonCamera::UpdateElevation(CStateManager& mgr) {
   if (TCastToConstPtr<CPlayer> player = mgr.GetObjectById(xe8_watchedObject)) {
     if (x1c4_pitchId != kInvalidUniqueId) {
       if (TCastToConstPtr<CScriptCameraPitchVolume> pvol = mgr.GetObjectById(x1c4_pitchId)) {
-        zeus::CVector3f pitchDirFlat = pvol->GetTransform().basis[1];
+        zeus::CVector3f pitchDirFlat = pvol->GetTransform().GetForward();
         pitchDirFlat.z() = 0.f;
         if (!pitchDirFlat.canBeNormalized())
           pitchDirFlat = zeus::skForward;
 
-        zeus::CVector3f playerDirFlat = player->GetTransform().basis[1];
+        zeus::CVector3f playerDirFlat = player->GetTransform().GetForward();
         playerDirFlat.z() = 0.f;
         playerDirFlat.normalize();
 

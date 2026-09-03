@@ -227,8 +227,8 @@ void CGuiTextSupport::Render() {
   CheckAndRebuildRenderBuffer();
   if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
     SCOPED_GRAPHICS_DEBUG_GROUP("CGuiTextSupport::Render", zeus::skBlue);
-    zeus::CTransform oldModel = CGraphics::mModelMatrix;
-    CGraphics::SetModelMatrix(oldModel * zeus::CTransform::Scale(1.f, 1.f, -1.f));
+    zeus::CTransform4f oldModel = CGraphics::mModelMatrix;
+    CGraphics::SetModelMatrix(oldModel * zeus::CTransform4f::Scale(1.f, 1.f, -1.f));
     buf->Render(x2c_geometryColor, x10_curTimeMod900);
     CGraphics::SetModelMatrix(oldModel);
   }

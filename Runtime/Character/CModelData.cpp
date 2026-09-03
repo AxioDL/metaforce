@@ -40,7 +40,7 @@ SAdvancementDeltas CModelData::GetAdvancementDeltas(const CCharAnimTime& a, cons
     return {};
 }
 
-void CModelData::Render(const CStateManager& stateMgr, const zeus::CTransform& xf, const CActorLights* lights,
+void CModelData::Render(const CStateManager& stateMgr, const zeus::CTransform4f& xf, const CActorLights* lights,
                         const CModelFlags& drawFlags) {
   Render(GetRenderingModel(stateMgr), xf, lights, drawFlags);
 }
@@ -190,7 +190,7 @@ void CModelData::EnableLooping(bool enable) {
   x10_animData->EnableLooping(enable);
 }
 
-void CModelData::AdvanceParticles(const zeus::CTransform& xf, float dt, CStateManager& stateMgr) {
+void CModelData::AdvanceParticles(const zeus::CTransform4f& xf, float dt, CStateManager& stateMgr) {
   if (!x10_animData)
     return;
   x10_animData->AdvanceParticles(xf, dt, x0_scale, stateMgr);
@@ -198,41 +198,41 @@ void CModelData::AdvanceParticles(const zeus::CTransform& xf, float dt, CStateMa
 
 zeus::CAABox CModelData::GetBounds() const {
   if (x10_animData) {
-    return x10_animData->GetBoundingBox(zeus::CTransform::Scale(x0_scale));
+    return x10_animData->GetBoundingBox(zeus::CTransform4f::Scale(x0_scale));
   } else {
     const zeus::CAABox& aabb = x1c_normalModel->GetAABB();
     return zeus::CAABox(aabb.min * x0_scale, aabb.max * x0_scale);
   }
 }
 
-zeus::CAABox CModelData::GetBounds(const zeus::CTransform& xf) const {
-  zeus::CTransform xf2 = xf * zeus::CTransform::Scale(x0_scale);
+zeus::CAABox CModelData::GetBounds(const zeus::CTransform4f& xf) const {
+  zeus::CTransform4f xf2 = xf * zeus::CTransform4f::Scale(x0_scale);
   if (x10_animData)
     return x10_animData->GetBoundingBox(xf2);
   else
     return x1c_normalModel->GetAABB().getTransformedAABox(xf2);
 }
 
-zeus::CTransform CModelData::GetScaledLocatorTransformDynamic(std::string_view name, const CCharAnimTime* time) const {
-  zeus::CTransform xf = GetLocatorTransformDynamic(name, time);
+zeus::CTransform4f CModelData::GetScaledLocatorTransformDynamic(std::string_view name, const CCharAnimTime* time) const {
+  zeus::CTransform4f xf = GetLocatorTransformDynamic(name, time);
   xf.origin *= x0_scale;
   return xf;
 }
 
-zeus::CTransform CModelData::GetScaledLocatorTransform(std::string_view name) const {
-  zeus::CTransform xf = GetLocatorTransform(name);
+zeus::CTransform4f CModelData::GetScaledLocatorTransform(std::string_view name) const {
+  zeus::CTransform4f xf = GetLocatorTransform(name);
   xf.origin *= x0_scale;
   return xf;
 }
 
-zeus::CTransform CModelData::GetLocatorTransformDynamic(std::string_view name, const CCharAnimTime* time) const {
+zeus::CTransform4f CModelData::GetLocatorTransformDynamic(std::string_view name, const CCharAnimTime* time) const {
   if (x10_animData)
     return x10_animData->GetLocatorTransform(name, time);
   else
     return {};
 }
 
-zeus::CTransform CModelData::GetLocatorTransform(std::string_view name) const {
+zeus::CTransform4f CModelData::GetLocatorTransform(std::string_view name) const {
   if (x10_animData)
     return x10_animData->GetLocatorTransform(name, nullptr);
   else
@@ -259,13 +259,13 @@ bool CModelData::IsAnimating() const {
   return x10_animData->IsAnimating();
 }
 
-bool CModelData::IsInFrustum(const zeus::CTransform& xf, const zeus::CFrustum& frustum) const {
+bool CModelData::IsInFrustum(const zeus::CTransform4f& xf, const zeus::CFrustumPlanes& frustum) const {
   if (!x10_animData && !x1c_normalModel)
     return true;
   return frustum.aabbFrustumTest(GetBounds(xf));
 }
 
-void CModelData::RenderParticles(const zeus::CFrustum& frustum) const {
+void CModelData::RenderParticles(const zeus::CFrustumPlanes& frustum) const {
   if (x10_animData)
     x10_animData->RenderAuxiliary(frustum);
 }
@@ -279,9 +279,9 @@ void CModelData::Touch(EWhichModel which, int shaderIdx) {
 
 void CModelData::Touch(const CStateManager& stateMgr, int shaderIdx) { Touch(GetRenderingModel(stateMgr), shaderIdx); }
 
-void CModelData::RenderThermal(const zeus::CTransform& xf, const zeus::CColor& mulColor, const zeus::CColor& addColor,
+void CModelData::RenderThermal(const zeus::CTransform4f& xf, const zeus::CColor& mulColor, const zeus::CColor& addColor,
                                const CModelFlags& flags) {
-  CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
+  CGraphics::SetModelMatrix(xf * zeus::CTransform4f::Scale(x0_scale));
   CGraphics::DisableAllLights();
 
   if (x10_animData) {
@@ -294,7 +294,7 @@ void CModelData::RenderThermal(const zeus::CTransform& xf, const zeus::CColor& m
   }
 }
 
-void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
+void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform4f& xf, const CActorLights* lights,
                                      const CModelFlags& drawFlags) {
   if ((x14_25_sortThermal && which == EWhichModel::ThermalHot) || x10_animData || !x1c_normalModel ||
       drawFlags.x0_blendMode > 4) {
@@ -302,7 +302,7 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
     return;
   }
 
-  CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
+  CGraphics::SetModelMatrix(xf * zeus::CTransform4f::Scale(x0_scale));
 
   if (lights != nullptr) {
     lights->ActivateLights();
@@ -317,7 +317,7 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
   x14_24_renderSorted = true;
 }
 
-void CModelData::Render(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
+void CModelData::Render(EWhichModel which, const zeus::CTransform4f& xf, const CActorLights* lights,
                         const CModelFlags& drawFlags) {
   if (x14_25_sortThermal && which == EWhichModel::ThermalHot) {
     zeus::CColor mul(drawFlags.x4_color.a(), drawFlags.x4_color.a());
@@ -325,7 +325,7 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf, const CAc
     return;
   }
 
-  CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
+  CGraphics::SetModelMatrix(xf * zeus::CTransform4f::Scale(x0_scale));
 
   if (lights != nullptr) {
     lights->ActivateLights();
@@ -353,8 +353,8 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf, const CAc
   x14_24_renderSorted = false;
 }
 
-void CModelData::FlatDraw(EWhichModel which, const zeus::CTransform& xf, bool unsortedOnly, const CModelFlags& flags) {
-  g_Renderer->SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
+void CModelData::FlatDraw(EWhichModel which, const zeus::CTransform4f& xf, bool unsortedOnly, const CModelFlags& flags) {
+  g_Renderer->SetModelMatrix(xf * zeus::CTransform4f::Scale(x0_scale));
   CGraphics::DisableAllLights();
   if (!x10_animData) {
     g_Renderer->DrawModelFlat(*PickStaticModel(which), flags, unsortedOnly, {}, {});
@@ -368,7 +368,7 @@ void CModelData::FlatDraw(EWhichModel which, const zeus::CTransform& xf, bool un
   }
 }
 
-void CModelData::MultiLightingDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
+void CModelData::MultiLightingDraw(EWhichModel which, const zeus::CTransform4f& xf, const CActorLights* lights,
                                    const zeus::CColor& alphaColor, const zeus::CColor& additiveColor) {
   CModel* model = nullptr;
   const auto callback = [&](TConstVectorRef positions, TConstVectorRef normals) {
@@ -392,7 +392,7 @@ void CModelData::MultiLightingDraw(EWhichModel which, const zeus::CTransform& xf
       model->Draw(positions, normals, flags3);
     }
   };
-  CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
+  CGraphics::SetModelMatrix(xf * zeus::CTransform4f::Scale(x0_scale));
   if (x10_animData) {
     auto& skinnedModel = PickAnimatedModel(which);
     x10_animData->SetupRender(skinnedModel, nullptr, {});
@@ -404,9 +404,9 @@ void CModelData::MultiLightingDraw(EWhichModel which, const zeus::CTransform& xf
   }
 }
 
-void CModelData::MultiPassDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
+void CModelData::MultiPassDraw(EWhichModel which, const zeus::CTransform4f& xf, const CActorLights* lights,
                                const CModelFlags* flags, u32 count) {
-  CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
+  CGraphics::SetModelMatrix(xf * zeus::CTransform4f::Scale(x0_scale));
   if (lights == nullptr) {
     CGraphics::DisableAllLights();
     g_Renderer->SetAmbientColor(x18_ambientColor);
@@ -430,14 +430,14 @@ void CModelData::MultiPassDraw(EWhichModel which, const zeus::CTransform& xf, co
   }
 }
 
-void CModelData::DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform& xf, CTexture& tex,
+void CModelData::DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform4f& xf, CTexture& tex,
                                   const zeus::CColor& addColor, float t) {
   DisintegrateDraw(GetRenderingModel(mgr), xf, tex, addColor, t);
 }
 
-void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf, CTexture& tex,
+void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform4f& xf, CTexture& tex,
                                   const zeus::CColor& addColor, float t) {
-  zeus::CTransform scaledXf = xf * zeus::CTransform::Scale(x0_scale);
+  zeus::CTransform4f scaledXf = xf * zeus::CTransform4f::Scale(x0_scale);
   CGraphics::SetModelMatrix(scaledXf);
   CGraphics::DisableAllLights();
   const auto aabb = GetBounds(scaledXf);

@@ -8,12 +8,12 @@ namespace metaforce {
 
 CScriptSpiderBallAttractionSurface::CScriptSpiderBallAttractionSurface(TUniqueId uid, std::string_view name,
                                                                        const CEntityInfo& info,
-                                                                       const zeus::CTransform& xf,
+                                                                       const zeus::CTransform4f& xf,
                                                                        const zeus::CVector3f& scale, bool active)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), {EMaterialTypes::NoStepLogic},
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_scale(scale)
-, xf4_aabb(zeus::CAABox(scale * -0.5f, scale * 0.5f).getTransformedAABox(xf.getRotation())) {}
+, xf4_aabb(zeus::CAABox(scale * -0.5f, scale * 0.5f).getTransformedAABox(xf.GetRotation())) {}
 
 void CScriptSpiderBallAttractionSurface::Accept(IVisitor& visitor) { visitor.Visit(this); }
 

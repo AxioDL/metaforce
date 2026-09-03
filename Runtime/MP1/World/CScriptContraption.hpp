@@ -21,7 +21,7 @@ class CScriptContraption : public CScriptActor {
 
 public:
   DEFINE_ENTITY
-  CScriptContraption(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptContraption(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                     CModelData&& mData, const zeus::CAABox& aabox, const CMaterialList& matList, float mass,
                     float zMomentum, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
                     const CActorParameters& aParams, CAssetId part, const CDamageInfo& dInfo, bool active);

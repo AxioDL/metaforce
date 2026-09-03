@@ -12,7 +12,7 @@ namespace metaforce {
 CScriptVisorFlare::CScriptVisorFlare(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
                                      const zeus::CVector3f& pos, CVisorFlare::EBlendMode blendMode, bool b1, float f1,
                                      float f2, float f3, u32 w1, u32 w2, std::vector<CVisorFlare::CFlareDef> flares)
-: CActor(uid, active, name, info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(),
+: CActor(uid, active, name, info, zeus::CTransform4f::Translate(pos), CModelData::CModelDataNull(),
          CMaterialList(EMaterialTypes::NoStepLogic), CActorParameters::None(), kInvalidUniqueId)
 , xe8_flare(blendMode, b1, f1, f2, f3, w1, w2, std::move(flares))
 , x11c_notInRenderLast(true) {
@@ -31,11 +31,11 @@ void CScriptVisorFlare::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objI
   CActor::AcceptScriptMsg(msg, objId, stateMgr);
 }
 
-void CScriptVisorFlare::PreRender(CStateManager& stateMgr, const zeus::CFrustum&) {
+void CScriptVisorFlare::PreRender(CStateManager& stateMgr, const zeus::CFrustumPlanes&) {
   x11c_notInRenderLast = !stateMgr.RenderLast(x8_uid);
 }
 
-void CScriptVisorFlare::AddToRenderer(const zeus::CFrustum&, CStateManager& stateMgr) {
+void CScriptVisorFlare::AddToRenderer(const zeus::CFrustumPlanes&, CStateManager& stateMgr) {
   if (x11c_notInRenderLast) {
     EnsureRendered(stateMgr, stateMgr.GetPlayer().GetTranslation(), GetSortingBounds(stateMgr));
   }

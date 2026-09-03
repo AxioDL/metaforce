@@ -6,7 +6,7 @@
 namespace metaforce {
 
 CBeamProjectile::CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
-                                 const zeus::CTransform& xf, s32 maxLength, float beamRadius, float travelSpeed,
+                                 const zeus::CTransform4f& xf, s32 maxLength, float beamRadius, float travelSpeed,
                                  EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid,
                                  TUniqueId owner, EProjectileAttrib attribs, bool growingBeam)
 : CGameProjectile(false, wDesc, name, wType, xf, matType, dInfo, uid, aid, owner, kInvalidUniqueId, attribs, false,
@@ -52,11 +52,11 @@ void CBeamProjectile::SetCollisionResultData(EDamageType dType, CRayCastResult& 
   SetTranslation(res.GetPoint());
 }
 
-void CBeamProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr) {
+void CBeamProjectile::UpdateFx(const zeus::CTransform4f& xf, float dt, CStateManager& mgr) {
   if (!GetActive())
     return;
 
-  SetTransform(xf.getRotation());
+  SetTransform(xf.GetRotation());
   if (x464_24_growingBeam) {
     x300_intBeamLength += x308_travelSpeed * dt;
     if (x300_intBeamLength > x2ec_maxLength)
@@ -65,7 +65,7 @@ void CBeamProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CStateManag
   x304_beamLength = x300_intBeamLength;
   x2f8_damageType = EDamageType::None;
   x298_previousPos = xf.origin;
-  zeus::CVector3f beamEnd = xf.basis[1].normalized() * x300_intBeamLength + xf.origin;
+  zeus::CVector3f beamEnd = xf.GetForward().normalized() * x300_intBeamLength + xf.origin;
   SetTranslation(beamEnd);
   x354_ = zeus::CAABox(zeus::CVector3f{-x2f4_beamRadius, 0.f, -x2f4_beamRadius},
                        zeus::CVector3f{x2f4_beamRadius, x304_beamLength, x2f4_beamRadius});

@@ -22,8 +22,8 @@ public:
                  const CScriptWater& water, CStateManager& mgr, const zeus::CVector3f& upVec) override {}
   void AddRipple(const CRipple& ripple, const CScriptWater& water, CStateManager& mgr) override {}
 
-  void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
-              const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
+  void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform4f& xf,
+              const zeus::CTransform4f& areaXf, bool noNormals, const zeus::CFrustumPlanes& frustum,
               const std::optional<CRippleManager>& rippleManager, TUniqueId waterId, const bool* gridFlags,
               u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) override;
 };

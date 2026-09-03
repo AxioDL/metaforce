@@ -12,7 +12,7 @@
 
 namespace metaforce {
 CElectricBeamProjectile::CElectricBeamProjectile(const TToken<CWeaponDescription>& wDesc, EWeaponType wType,
-                                                 const SElectricBeamInfo& elec, const zeus::CTransform& xf,
+                                                 const SElectricBeamInfo& elec, const zeus::CTransform4f& xf,
                                                  EMaterialTypes matTypes, const CDamageInfo& dInfo, TUniqueId uid,
                                                  TAreaId areaId, TUniqueId owner, EProjectileAttrib attribs)
 : CBeamProjectile(wDesc, "ElectricBeamProjectile"sv, wType, xf, u32(elec.x8_maxLength), elec.xc_radius,
@@ -38,7 +38,7 @@ void CElectricBeamProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueI
   CGameProjectile::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CElectricBeamProjectile::PreRender(CStateManager&, const zeus::CFrustum&) {
+void CElectricBeamProjectile::PreRender(CStateManager&, const zeus::CFrustumPlanes&) {
   if (!GetActive())
     return;
 
@@ -46,7 +46,7 @@ void CElectricBeamProjectile::PreRender(CStateManager&, const zeus::CFrustum&) {
   g_Renderer->AddParticleGen(*x468_electric);
 }
 
-void CElectricBeamProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr) {
+void CElectricBeamProjectile::UpdateFx(const zeus::CTransform4f& xf, float dt, CStateManager& mgr) {
   if (!GetActive())
     return;
 
@@ -74,7 +74,7 @@ void CElectricBeamProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CSt
   x478_elementGen->SetModulationColor(zeus::CColor::lerp(zeus::skBlack, zeus::skWhite, x480_intensity));
   bool hasDamage = GetDamageType() != EDamageType::None;
   if (hasDamage) {
-    x478_elementGen->SetGlobalOrientation(zeus::lookAt(zeus::skZero3f, GetSurfaceNormal(), zeus::skUp));
+    x478_elementGen->SetGlobalOrientation(zeus::CTransform4f::LookAt(zeus::skZero3f, GetSurfaceNormal(), zeus::skUp));
     x478_elementGen->SetGlobalTranslation(GetCurrentPos() + (0.001f * GetSurfaceNormal()));
   }
   x478_elementGen->SetParticleEmission(hasDamage);
@@ -104,7 +104,7 @@ void CElectricBeamProjectile::ResetBeam(CStateManager& mgr, bool b) {
   }
 }
 
-void CElectricBeamProjectile::Fire(const zeus::CTransform&, CStateManager&, bool) {
+void CElectricBeamProjectile::Fire(const zeus::CTransform4f&, CStateManager&, bool) {
   x48c_ = true;
   SetActive(true);
   x480_intensity = 0.f;

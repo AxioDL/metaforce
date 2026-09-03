@@ -28,12 +28,12 @@ class CScriptCoverPoint : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptCoverPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform xf, bool active,
+  CScriptCoverPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform4f xf, bool active,
                     u32 flags, bool crouch, float horizontalAngle, float verticalAngle, float coverTime);
 
   void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override {}
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override {}
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Render(CStateManager&) override {}
   std::optional<zeus::CAABox> GetTouchBounds() const override;

@@ -53,7 +53,7 @@ class CScriptPlayerActor : public CScriptActor {
 
 public:
   DEFINE_ENTITY
-  CScriptPlayerActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptPlayerActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                      const CAnimRes& animRes, CModelData&& mData, const zeus::CAABox& aabox, bool setBoundingBox,
                      const CMaterialList& list, float mass, float zMomentum, const CHealthInfo& hInfo,
                      const CDamageVulnerability& dVuln, const CActorParameters& aParams, bool loop, bool active,
@@ -62,8 +62,8 @@ public:
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void SetActive(bool active) override;
-  void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustumPlanes&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager& mgr) override;
   void TouchModels(const CStateManager& mgr) const;
 };

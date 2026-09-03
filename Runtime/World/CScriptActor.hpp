@@ -33,7 +33,7 @@ protected:
 
 public:
   DEFINE_ENTITY
-  CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                CModelData&& mData, const zeus::CAABox& aabb, float mass, float zMomentum, const CMaterialList& matList,
                const CHealthInfo& hInfo, const CDamageVulnerability& dVuln, const CActorParameters& actParms,
                bool looping, bool active, s32 shaderIdx, float xrayAlpha, bool noThermalHotZ, bool castsShadow,
@@ -41,7 +41,7 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void PreRender(CStateManager&, const zeus::CFrustum&) override;
+  void PreRender(CStateManager&, const zeus::CFrustumPlanes&) override;
   zeus::CAABox GetSortingBounds(const CStateManager&) const override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                          const CWeaponMode&, EProjectileAttrib) const override;

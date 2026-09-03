@@ -25,13 +25,13 @@ class CBurrower : public CPatterned {
 
 public:
   DEFINE_PATTERNED(Burrower);
-  CBurrower(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CBurrower(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
             const CPatternedInfo&, const CActorParameters&, CAssetId, CAssetId, CAssetId, const CDamageInfo&, CAssetId,
             u32, CAssetId);
 
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager& mgr) override;
   const CDamageVulnerability* GetDamageVulnerability() const override;
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,

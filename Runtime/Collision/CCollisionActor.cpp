@@ -15,7 +15,7 @@ constexpr CMaterialList skDefaultCollisionActorMaterials =
 
 CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, const zeus::CVector3f& extent,
                                  const zeus::CVector3f& center, bool active, float mass, std::string_view name)
-: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList), zeus::CTransform(),
+: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList), zeus::CTransform4f(),
                 CModelData::CModelDataNull(), skDefaultCollisionActorMaterials, zeus::skNullBox, SMoverData(mass),
                 CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::OBBTreeGroup)
@@ -34,7 +34,7 @@ CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner,
 
 CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, const zeus::CVector3f& boxSize,
                                  bool active, float mass, std::string_view name)
-: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList), zeus::CTransform(),
+: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList), zeus::CTransform4f(),
                 CModelData::CModelDataNull(), skDefaultCollisionActorMaterials, zeus::skNullBox, SMoverData(mass),
                 CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::AABox)
@@ -53,7 +53,7 @@ CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner,
 
 CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner, bool active, float radius, float mass,
                                  std::string_view name)
-: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList), zeus::CTransform(),
+: CPhysicsActor(uid, active, "CollisionActor", CEntityInfo(areaId, CEntity::NullConnectionList), zeus::CTransform4f(),
                 CModelData::CModelDataNull(), skDefaultCollisionActorMaterials, zeus::skNullBox, SMoverData(mass),
                 CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::Sphere)
@@ -141,8 +141,8 @@ EWeaponCollisionResponseTypes CCollisionActor::GetCollisionResponseType(const ze
   return x300_responseType;
 }
 
-zeus::CTransform CCollisionActor::GetPrimitiveTransform() const {
-  zeus::CTransform xf = x34_transform;
+zeus::CTransform4f CCollisionActor::GetPrimitiveTransform() const {
+  zeus::CTransform4f xf = x34_transform;
   xf.origin = CPhysicsActor::GetPrimitiveTransform().origin;
   return xf;
 }

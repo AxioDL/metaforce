@@ -77,7 +77,7 @@ std::unique_ptr<COBBTree> COBBTree::BuildOrientedBoundingBoxTree(const zeus::CVe
   for (int i = 0; i < 12; ++i) {
     surface.push_back(i);
   }
-  ret->x88_root = std::make_unique<CNode>(zeus::CTransform::Translate(center), extent * 0.5f, nullptr, nullptr,
+  ret->x88_root = std::make_unique<CNode>(zeus::CTransform4f::Translate(center), extent * 0.5f, nullptr, nullptr,
                                           std::make_unique<CLeafData>(std::move(surface)));
   return ret;
 }
@@ -126,7 +126,7 @@ std::array<u16, 3> COBBTree::GetTriangleVertexIndices(u16 idx) const {
   return indices;
 }
 
-CCollisionSurface COBBTree::GetTransformedSurface(u16 idx, const zeus::CTransform& xf) const {
+CCollisionSurface COBBTree::GetTransformedSurface(u16 idx, const zeus::CTransform4f& xf) const {
   const auto surfIdx = size_t{idx} * 3;
   const CCollisionEdge e0 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx]];
   const CCollisionEdge e1 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx + 1]];
@@ -148,9 +148,9 @@ CCollisionSurface COBBTree::GetTransformedSurface(u16 idx, const zeus::CTransfor
                            xf * x18_indexData.x60_vertices[vert3], mat);
 }
 
-zeus::CAABox COBBTree::CalculateLocalAABox() const { return CalculateAABox(zeus::CTransform()); }
+zeus::CAABox COBBTree::CalculateLocalAABox() const { return CalculateAABox(zeus::CTransform4f()); }
 
-zeus::CAABox COBBTree::CalculateAABox(const zeus::CTransform& xf) const {
+zeus::CAABox COBBTree::CalculateAABox(const zeus::CTransform4f& xf) const {
   if (x88_root) {
     return x88_root->GetOBB().calculateAABox(xf);
   }
@@ -193,7 +193,7 @@ COBBTree::SIndexData::SIndexData(CInputStream& in) {
   }
 }
 
-COBBTree::CNode::CNode(const zeus::CTransform& xf, const zeus::CVector3f& point, std::unique_ptr<CNode>&& left,
+COBBTree::CNode::CNode(const zeus::CTransform4f& xf, const zeus::CVector3f& point, std::unique_ptr<CNode>&& left,
                        std::unique_ptr<CNode>&& right, std::unique_ptr<CLeafData>&& leaf)
 : x0_obb(xf, point)
 , x3c_isLeaf(leaf != nullptr)

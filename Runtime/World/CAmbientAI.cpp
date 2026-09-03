@@ -7,7 +7,7 @@
 
 namespace metaforce {
 
-CAmbientAI::CAmbientAI(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CAmbientAI::CAmbientAI(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                        CModelData&& mData, const zeus::CAABox& aabox, const CMaterialList& matList, float mass,
                        const CHealthInfo& hInfo, const CDamageVulnerability& dVuln, const CActorParameters& aParms,
                        float alertRange, float impactRange, s32 alertAnim, s32 impactAnim, bool active)

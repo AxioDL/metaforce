@@ -190,7 +190,7 @@ void CCameraFilterPass::DrawFullScreenTexturedQuadQuarters(const zeus::CColor& c
   }
   CGraphics::SetCullMode(ERglCullMode::None);
   for (int i = 0; i < 4; ++i) {
-    g_Renderer->SetModelMatrix(zeus::CTransform::Scale((i & 1) != 0 ? 1.f : -1.f, 0.f, (i & 2) != 0 ? 1.f : -1.f));
+    g_Renderer->SetModelMatrix(zeus::CTransform4f::Scale((i & 1) != 0 ? 1.f : -1.f, 0.f, (i & 2) != 0 ? 1.f : -1.f));
     CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
     CGraphics::StreamColor(color);
     CGraphics::StreamTexcoord(lod, lod);

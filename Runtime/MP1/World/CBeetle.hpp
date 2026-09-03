@@ -51,7 +51,7 @@ private:
 
 public:
   DEFINE_PATTERNED(Beetle);
-  CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
+  CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf, CModelData&& mData,
           const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor, CBeetle::EEntranceType entranceType,
           const CDamageInfo& touchDamage, const CDamageVulnerability& platingVuln,
           const zeus::CVector3f& tailAimReference, float initialAttackDelay, float retreatTime, float f3,
@@ -61,7 +61,7 @@ public:
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   void Render(CStateManager& mgr) override;
 
   const CDamageVulnerability* GetDamageVulnerability() const override;

@@ -10,7 +10,7 @@
 #include "Runtime/Input/CKeyboardMouseController.hpp"
 
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -63,8 +63,8 @@ public:
 protected:
   s16 x70_selfId;
   s16 x72_parentId;
-  zeus::CTransform m_initTransform;
-  zeus::CTransform x74_transform;
+  zeus::CTransform4f m_initTransform;
+  zeus::CTransform4f x74_transform;
   zeus::CColor m_initColor;
   zeus::CColor xa4_color;
   zeus::CColor xa8_color2;
@@ -113,10 +113,10 @@ public:
   s16 GetSelfId() const { return x70_selfId; }
   s16 GetParentId() const { return x72_parentId; }
   s16 GetWorkerId() const { return xb4_workerId; }
-  const zeus::CTransform& GetTransform() const { return x74_transform; }
-  zeus::CTransform& GetTransform() { return x74_transform; }
+  const zeus::CTransform4f& GetTransform() const { return x74_transform; }
+  zeus::CTransform4f& GetTransform() { return x74_transform; }
   const zeus::CVector3f& GetIdlePosition() const { return x74_transform.origin; }
-  void SetTransform(const zeus::CTransform& xf);
+  void SetTransform(const zeus::CTransform4f& xf);
   const zeus::CColor& GetIntermediateColor() const { return xa4_color; }
   const zeus::CColor& GetGeometryColor() const { return xa8_color2; }
   void SetIdlePosition(const zeus::CVector3f& pos, bool reapply);

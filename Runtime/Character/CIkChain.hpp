@@ -4,7 +4,7 @@
 #include "Runtime/Character/CSegId.hpp"
 
 #include <zeus/CQuaternion.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -29,8 +29,8 @@ public:
   bool GetActive() const { return x44_24_activated; }
   void Update(float);
   void Deactivate();
-  void Activate(const CAnimData&, const CSegId&, const zeus::CTransform&);
-  void PreRender(CAnimData&, const zeus::CTransform&, const zeus::CVector3f&);
+  void Activate(const CAnimData&, const CSegId&, const zeus::CTransform4f&);
+  void PreRender(CAnimData&, const zeus::CTransform4f&, const zeus::CVector3f&);
   void Solve(zeus::CQuaternion&, zeus::CQuaternion&, const zeus::CVector3f&);
 };
 } // namespace metaforce

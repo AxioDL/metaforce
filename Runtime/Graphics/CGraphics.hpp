@@ -10,7 +10,7 @@
 #include <vector>
 
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector2i.hpp>
 
@@ -168,7 +168,7 @@ enum class ETexelFormat;
 class CGraphics {
 public:
   using CVector3f = zeus::CVector3f;
-  using CTransform4f = zeus::CTransform;
+  using CTransform4f = zeus::CTransform4f;
   using CColor = zeus::CColor;
   using uchar = unsigned char;
   using uint = unsigned int;
@@ -348,9 +348,9 @@ public:
   static void EndScene();
   static void Render2D(CTexture& tex, int x, int y, int w, int h, const zeus::CColor& col, bool scale);
   static void SetAlphaCompare(ERglAlphaFunc comp0, u8 ref0, ERglAlphaOp op, ERglAlphaFunc comp1, u8 ref1);
-  static void SetViewPointMatrix(const zeus::CTransform& xf);
+  static void SetViewPointMatrix(const zeus::CTransform4f& xf);
   static void SetViewMatrix();
-  static void SetModelMatrix(const zeus::CTransform& xf);
+  static void SetModelMatrix(const zeus::CTransform4f& xf);
   static zeus::CMatrix4f CalculatePerspectiveMatrix(float fovy, float aspect, float znear, float zfar);
   static zeus::CMatrix4f GetPerspectiveProjectionMatrix();
   static const CProjectionState& GetProjectionState();

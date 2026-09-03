@@ -20,8 +20,8 @@ private:
 
     void Accept(IVisitor& visitor) override;
     void Think(float dt, CStateManager& mgr) override;
-    void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-    void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+    void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
+    void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
     void Render(CStateManager& mgr) override;
   };
 
@@ -69,7 +69,7 @@ private:
   TUniqueId xa46_ = kInvalidUniqueId;
   TUniqueId xa48_ = kInvalidUniqueId;
   bool xa4a_heartVisible = false;
-  zeus::CTransform xa4c_initialXf;
+  zeus::CTransform4f xa4c_initialXf;
   enum class EXRayFadeState {
     None,
     FadeIn,
@@ -119,13 +119,13 @@ private:
 
 public:
   DEFINE_ENTITY
-  COmegaPirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  COmegaPirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, CElitePirateData data,
                CAssetId skeletonModelId, CAssetId skeletonSkinRulesId, CAssetId skeletonLayoutInfoId);
 
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   void Render(CStateManager& mgr) override;
   zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;

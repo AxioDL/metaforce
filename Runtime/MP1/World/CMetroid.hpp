@@ -106,7 +106,7 @@ private:
 public:
   DEFINE_PATTERNED(Metroid);
   CMetroid(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
-           const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& aParms,
+           const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& aParms,
            const CMetroidData& metroidData, TUniqueId);
 
   void Accept(IVisitor& visitor) override { visitor.Visit(this); }
@@ -188,7 +188,7 @@ private:
   void RestoreSolidCollision(CStateManager& mgr);
   void PreventWorldCollisions(CStateManager& mgr, float dt);
   void SetupExitFaceHugDirection(CActor* actor, CStateManager& mgr, const zeus::CVector3f& vec,
-                                 const zeus::CTransform& xf);
+                                 const zeus::CTransform4f& xf);
   void DetachFromTarget(CStateManager& mgr);
   bool AttachToTarget(CStateManager& mgr);
   void SwarmRemove(CStateManager& mgr);

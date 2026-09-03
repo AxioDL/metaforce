@@ -110,10 +110,10 @@ public:
   void AsyncLoadSuitArm(CStateManager& mgr);
   virtual void Reset(CStateManager& mgr);
   virtual void PlayAnim(NWeaponTypes::EGunAnimType type, bool loop);
-  virtual void PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf);
-  virtual void PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf);
-  virtual void UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf);
-  virtual void Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf, CStateManager& mgr,
+  virtual void PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf);
+  virtual void PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf);
+  virtual void UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform4f& xf);
+  virtual void Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform4f& xf, CStateManager& mgr,
                     TUniqueId homingTarget, float chargeFactor1, float chargeFactor2);
   virtual void EnableFx(bool enable);
   virtual void EnableSecondaryFx(ESecondaryFxType type);
@@ -121,14 +121,14 @@ public:
   void ActivateCharge(bool enable, bool resetEffect);
   void Touch(const CStateManager& mgr);
   void TouchHolo(const CStateManager& mgr);
-  virtual void Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
+  virtual void Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform4f& xf, const CModelFlags& flags,
                     const CActorLights* lights);
   virtual void DrawMuzzleFx(const CStateManager& mgr) const;
   virtual void Update(float dt, CStateManager& mgr);
   virtual void Load(CStateManager& mgr, bool subtypeBasePose);
   virtual void Unload(CStateManager& mgr);
   virtual bool IsLoaded() const;
-  void DrawHologram(const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags);
+  void DrawHologram(const CStateManager& mgr, const zeus::CTransform4f& xf, const CModelFlags& flags);
   void UpdateMuzzleFx(float dt, const zeus::CVector3f& scale, const zeus::CVector3f& pos, bool emitting);
   const CVelocityInfo& GetVelocityInfo() const { return x1d0_velInfo; }
   void SetRainSplashGenerator(CRainSplashGenerator* g) { x1bc_rainSplashGenerator = g; }
@@ -146,7 +146,7 @@ public:
   CDamageInfo GetDamageInfo(CStateManager& mgr, EChargeState chargeState, float chargeFactor) const;
   EWeaponType GetWeaponType() const { return x1c0_weaponType; }
   zeus::CAABox GetBounds() const;
-  zeus::CAABox GetBounds(const zeus::CTransform& xf) const;
+  zeus::CAABox GetBounds(const zeus::CTransform4f& xf) const;
   bool ComboFireOver() const { return x100_gunController->IsComboOver(); }
   bool IsChargeAnimOver() const;
   void SetDrawHologram(bool d) { x218_29_drawHologram = d; }

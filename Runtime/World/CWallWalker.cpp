@@ -10,7 +10,7 @@
 
 namespace metaforce {
 CWallWalker::CWallWalker(EPatternedAI chr, TUniqueId uid, std::string_view name, EFlavorType flavType,
-                         const CEntityInfo& eInfo, const zeus::CTransform& xf, CModelData&& mData,
+                         const CEntityInfo& eInfo, const zeus::CTransform4f& xf, CModelData&& mData,
                          const CPatternedInfo& pInfo, EMovementType mType, EColliderType colType, EBodyType bType,
                          const CActorParameters& aParms, float collisionCloseMargin, float alignAngVel,
                          EKnockBackVariant kbVariant, float advanceWpRadius, EWalkerType wType,
@@ -27,11 +27,11 @@ CWallWalker::CWallWalker(EPatternedAI chr, TUniqueId uid, std::string_view name,
 , x5d6_27_disableMove(disableMove) {}
 
 void CWallWalker::OrientToSurfaceNormal(const zeus::CVector3f& normal, float clampAngle) {
-  float dot = x34_transform.basis[2].dot(normal);
+  float dot = x34_transform.GetUp().dot(normal);
   if (zeus::close_enough(dot, 1.f) || dot < -0.999f)
     return;
-  zeus::CQuaternion q = zeus::CQuaternion::clampedRotateTo(x34_transform.basis[2], normal, zeus::degToRad(clampAngle));
-  q.setImaginary(x34_transform.transposeRotate(q.getImaginary()));
+  zeus::CQuaternion q = zeus::CQuaternion::clampedRotateTo(x34_transform.GetUp(), normal, zeus::degToRad(clampAngle));
+  q.setImaginary(x34_transform.TransposeRotate(q.getImaginary()));
   SetTransform((zeus::CQuaternion(x34_transform.basis) * q).normalized().toTransform(GetTranslation()));
 }
 
@@ -80,7 +80,7 @@ void CWallWalker::AlignToFloor(CStateManager& mgr, float radius, const zeus::CVe
     x5d6_28_addBendingWeight = false;
   } else {
     float angDelta = zeus::radToDeg(x138_velocity.magnitude()) / x590_colSphere.GetSphere().radius * dt;
-    OrientToSurfaceNormal(x34_transform.basis[1], angDelta);
+    OrientToSurfaceNormal(x34_transform.GetForward(), angDelta);
     if (x450_bodyController->HasBodyState(pas::EAnimationState::Step)) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection::Down, pas::EStepType::Normal));
     } else {

@@ -24,7 +24,7 @@ namespace metaforce {
 //, m_motionBlurStrip(16, CColoredStripShader::Mode::Alpha, {}) {}
 
 CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
-                                     const CBeamInfo& bInfo, const zeus::CTransform& xf, EMaterialTypes matType,
+                                     const CBeamInfo& bInfo, const zeus::CTransform4f& xf, EMaterialTypes matType,
                                      const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                                      const PlayerEffectResources& res, bool growingBeam, EProjectileAttrib attribs)
 : CBeamProjectile(wDesc, name, wType, xf, bInfo.GetLength(), bInfo.GetRadius(), bInfo.GetTravelSpeed(), matType, dInfo,
@@ -333,7 +333,7 @@ void CPlasmaProjectile::UpdatePlayerEffects(float dt, CStateManager& mgr) {
   }
 }
 
-void CPlasmaProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr) {
+void CPlasmaProjectile::UpdateFx(const zeus::CTransform4f& xf, float dt, CStateManager& mgr) {
   if (!GetActive())
     return;
 
@@ -349,7 +349,7 @@ void CPlasmaProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CStateMan
   if (x518_contactGen) {
     x4d4_contactPulseTimer -= dt;
     if ((GetDamageType() != EDamageType::None ? x548_25_enableEnergyPulse : false) && x4d4_contactPulseTimer <= 0.f) {
-      x518_contactGen->SetOrientation(zeus::lookAt(zeus::skZero3f, GetSurfaceNormal()));
+      x518_contactGen->SetOrientation(zeus::CTransform4f::LookAt(zeus::skZero3f, GetSurfaceNormal()));
       x518_contactGen->SetTranslation(GetSurfaceNormal() * 0.001f + GetCurrentPos());
       x518_contactGen->SetParticleEmission(true);
       x4d4_contactPulseTimer = 1.f / 16.f;
@@ -371,7 +371,7 @@ void CPlasmaProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CStateMan
   UpdateLights(modulation, dt, mgr);
 }
 
-void CPlasmaProjectile::Fire(const zeus::CTransform& xf, CStateManager& mgr, bool b) {
+void CPlasmaProjectile::Fire(const zeus::CTransform4f& xf, CStateManager& mgr, bool b) {
   SetActive(true);
   SetLightsActive(true, mgr);
   x548_25_enableEnergyPulse = true;
@@ -388,7 +388,7 @@ void CPlasmaProjectile::Touch(CActor& other, CStateManager& mgr) {
 
 bool CPlasmaProjectile::CanRenderUnsorted(const CStateManager& mgr) const { return false; }
 
-void CPlasmaProjectile::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CPlasmaProjectile::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   if (GetActive()) {
     g_Renderer->AddParticleGen(*x518_contactGen);
     if (x478_beamAttributes & 0x2) {
@@ -405,7 +405,7 @@ void CPlasmaProjectile::Render(CStateManager& mgr) {
   // TODO
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlasmaProjectile::Render", zeus::skOrange);
 
-  zeus::CTransform xf = GetBeamTransform();
+  zeus::CTransform4f xf = GetBeamTransform();
 
   // Subtractive blending for xray
   s32 flags = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay ? 0x10 : 0x0;
@@ -424,12 +424,12 @@ void CPlasmaProjectile::Render(CStateManager& mgr) {
 //             (flags & 0x10) ? m_renderObjs->m_beamStrip1Sub : m_renderObjs->m_beamStrip1);
 
   // Pass2: textured
-  CGraphics::SetModelMatrix(xf * zeus::CTransform::RotateY(zeus::degToRad(x4c8_beamAngle)));
+  CGraphics::SetModelMatrix(xf * zeus::CTransform4f::RotateY(zeus::degToRad(x4c8_beamAngle)));
 //  RenderBeam(4, 0.5f * x4b8_beamWidth, x490_innerColor, flags | 0x1,
 //             (flags & 0x10) ? m_renderObjs->m_beamStrip2Sub : m_renderObjs->m_beamStrip2);
 
   // Pass3: textured | length-controlled UVY
-  CGraphics::SetModelMatrix(xf * zeus::CTransform::RotateY(zeus::degToRad(-x4c8_beamAngle)));
+  CGraphics::SetModelMatrix(xf * zeus::CTransform4f::RotateY(zeus::degToRad(-x4c8_beamAngle)));
 //  RenderBeam(8, x4b8_beamWidth, x494_outerColor, flags | 0x3,
 //             (flags & 0x10) ? m_renderObjs->m_beamStrip3Sub : m_renderObjs->m_beamStrip3);
 

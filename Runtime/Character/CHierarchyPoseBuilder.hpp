@@ -40,7 +40,7 @@ public:
 
   const TLockedToken<CCharLayoutInfo>& CharLayoutInfo() const { return x0_layoutDesc.ScaledLayout(); }
   bool HasRoot() const { return x34_hasRoot; }
-  void BuildTransform(const CSegId& boneId, zeus::CTransform& xfOut) const;
+  void BuildTransform(const CSegId& boneId, zeus::CTransform4f& xfOut) const;
   void BuildNoScale(CPoseAsTransforms& pose);
   void Insert(const CSegId& boneId, const zeus::CQuaternion& quat);
   void Insert(const CSegId& boneId, const zeus::CQuaternion& quat, const zeus::CVector3f& offset);

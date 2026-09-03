@@ -20,7 +20,7 @@ class CRipper : public CPatterned {
 
 public:
   DEFINE_PATTERNED(Ripper);
-  CRipper(TUniqueId uid, std::string_view name, EFlavorType type, const CEntityInfo& info, const zeus::CTransform& xf,
+  CRipper(TUniqueId uid, std::string_view name, EFlavorType type, const CEntityInfo& info, const zeus::CTransform4f& xf,
           CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
           const CGrappleParameters& grappleParms);
 
@@ -45,7 +45,7 @@ class CRipperControlledPlatform : public CScriptPlatform {
 
 public:
   DEFINE_ENTITY
-  CRipperControlledPlatform(TUniqueId, TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&,
+  CRipperControlledPlatform(TUniqueId, TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&,
                             const zeus::CAABox&, bool, const std::optional<TLockedToken<CCollidableOBBTreeGroup>>&);
 
   zeus::CQuaternion Move(float, CStateManager&) override;

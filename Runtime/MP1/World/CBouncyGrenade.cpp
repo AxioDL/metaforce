@@ -10,7 +10,7 @@
 
 namespace metaforce::MP1 {
 CBouncyGrenade::CBouncyGrenade(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                               const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParams,
+                               const zeus::CTransform4f& xf, CModelData&& mData, const CActorParameters& actParams,
                                TUniqueId parentId, const SBouncyGrenadeData& data, float velocity,
                                float explodePlayerDistance)
 : CPhysicsActor(uid, true, name, info, xf, std::move(mData), {EMaterialTypes::Projectile, EMaterialTypes::Solid},
@@ -24,7 +24,7 @@ CBouncyGrenade::CBouncyGrenade(TUniqueId uid, std::string_view name, const CEnti
 , x2ac_elementGen4(std::make_unique<CElementGen>(g_SimplePool->GetObj({'PART', data.GetElementGenId4()})))
 , x2b0_explodePlayerDistance(explodePlayerDistance) {
   SetMomentumWR({0.f, 0.f, -GravityConstant() * GetMass()});
-  SetVelocityWR(velocity * xf.frontVector());
+  SetVelocityWR(velocity * xf.GetForward());
   x2a0_elementGenCombat->SetParticleEmission(false);
   x2a4_elementGenXRay->SetParticleEmission(false);
   x2a8_elementGenThermal->SetParticleEmission(false);
@@ -34,7 +34,7 @@ CBouncyGrenade::CBouncyGrenade(TUniqueId uid, std::string_view name, const CEnti
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(filter.IncludeList(), filter.ExcludeList()));
 }
 
-void CBouncyGrenade::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CBouncyGrenade::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   CActor::AddToRenderer(frustum, mgr);
   if (!x2b4_24_exploded) {
     g_Renderer->AddParticleGen(*x2ac_elementGen4);
@@ -112,7 +112,7 @@ void CBouncyGrenade::Render(CStateManager& mgr) {
 
 void CBouncyGrenade::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {
-    const zeus::CTransform& orientation = GetTransform().getRotation();
+    const zeus::CTransform4f& orientation = GetTransform().GetRotation();
     const zeus::CVector3f& translation = GetTranslation();
     const zeus::CVector3f& scale = GetModelData()->GetScale();
     auto UpdateElementGen = [orientation, translation, scale, dt](CElementGen& gen) {

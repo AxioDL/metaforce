@@ -143,7 +143,7 @@ static bool EnsurePropertyCount(int count, int expected, const char* structName)
 
 struct SActorHead {
   std::string x0_name;
-  zeus::CTransform x10_transform;
+  zeus::CTransform4f x10_transform;
 };
 
 struct SScaledActorHead : SActorHead {
@@ -152,13 +152,13 @@ struct SScaledActorHead : SActorHead {
   SScaledActorHead(SActorHead&& head) : SActorHead(std::move(head)) {}
 };
 
-static zeus::CTransform LoadEditorTransform(CInputStream& in) {
+static zeus::CTransform4f LoadEditorTransform(CInputStream& in) {
   zeus::CVector3f position = in.Get<zeus::CVector3f>();
   zeus::CVector3f orientation = in.Get<zeus::CVector3f>();
   return ScriptLoader::ConvertEditorEulerToTransform4f(orientation, position);
 }
 
-static zeus::CTransform LoadEditorTransformPivotOnly(CInputStream& in) {
+static zeus::CTransform4f LoadEditorTransformPivotOnly(CInputStream& in) {
   zeus::CVector3f position = in.Get<zeus::CVector3f>();
   zeus::CVector3f orientation = in.Get<zeus::CVector3f>();
   orientation.x() = 0.f;
@@ -182,7 +182,7 @@ static SScaledActorHead LoadScaledActorHead(CInputStream& in, CStateManager& sta
 static zeus::CAABox GetCollisionBox(CStateManager& stateMgr, TAreaId id, const zeus::CVector3f& extent,
                                     const zeus::CVector3f& offset) {
   zeus::CAABox box(-extent * 0.5f + offset, extent * 0.5f + offset);
-  const zeus::CTransform& rot = stateMgr.GetWorld()->GetGameAreas()[id]->GetTransform().getRotation();
+  const zeus::CTransform4f& rot = stateMgr.GetWorld()->GetGameAreas()[id]->GetTransform().GetRotation();
   return box.getTransformedAABox(rot);
 }
 
@@ -372,11 +372,11 @@ CFluidUVMotion ScriptLoader::LoadFluidUVMotion(CInputStream& in) {
   return CFluidUVMotion(a, b, colorLayer, pattern1Layer, pattern2Layer);
 }
 
-zeus::CTransform ScriptLoader::ConvertEditorEulerToTransform4f(const zeus::CVector3f& orientation,
+zeus::CTransform4f ScriptLoader::ConvertEditorEulerToTransform4f(const zeus::CVector3f& orientation,
                                                                const zeus::CVector3f& position) {
   zeus::simd_floats f(orientation.mSimd);
-  return zeus::CTransform::RotateZ(zeus::degToRad(f[2])) * zeus::CTransform::RotateY(zeus::degToRad(f[1])) *
-             zeus::CTransform::RotateX(zeus::degToRad(f[0])) +
+  return zeus::CTransform4f::RotateZ(zeus::degToRad(f[2])) * zeus::CTransform4f::RotateY(zeus::degToRad(f[1])) *
+             zeus::CTransform4f::RotateX(zeus::degToRad(f[0])) +
          position;
 }
 
@@ -439,7 +439,7 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
   }
 
   if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) || collisionExtent.isZero())
-    aabb = data.GetBounds(head.x10_transform.getRotation());
+    aabb = data.GetBounds(head.x10_transform.GetRotation());
 
   return new CScriptActor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), aabb, mass,
                           zMomentum, list, hInfo, dVuln, actParms, looping, active, shaderIdx, xrayAlpha, noThermalHotZ,
@@ -492,7 +492,7 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCo
 
   CModelData mData{CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, 0, false)};
   if (collisionExtent.isZero())
-    aabb = mData.GetBounds(head.x10_transform.getRotation());
+    aabb = mData.GetBounds(head.x10_transform.GetRotation());
 
   bool isMorphballDoor = false;
   if (propCount == 13) {
@@ -526,7 +526,7 @@ CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int pro
 
   zeus::CAABox box(-extent * 0.5f, extent * 0.5f);
 
-  const zeus::CTransform& areaXf = mgr.GetWorld()->GetGameAreas()[info.GetAreaId()]->GetTransform();
+  const zeus::CTransform4f& areaXf = mgr.GetWorld()->GetGameAreas()[info.GetAreaId()]->GetTransform();
   zeus::CVector3f orientedForce = areaXf.basis * forceVec;
 
   return new CScriptTrigger(mgr.AllocateUniqueId(), name, info, position, box, dInfo, orientedForce, flags, active, b2,
@@ -656,7 +656,7 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int pr
   }
 
   if (extent.isZero())
-    aabb = data.GetBounds(head.x10_transform.getRotation());
+    aabb = data.GetBounds(head.x10_transform.GetRotation());
 
   return new CScriptPlatform(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), actParms,
                              aabb, speed, detectCollision, xrayAlpha, active, hInfo, dInfo, dclnToken, rainSplashes,
@@ -917,7 +917,7 @@ CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int prop
   }
 
   if (extent.isZero()) {
-    aabb = data.GetBounds(head.x10_transform.getRotation());
+    aabb = data.GetBounds(head.x10_transform.GetRotation());
   }
 
   return new CScriptPickup(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), actorParms,
@@ -968,7 +968,7 @@ CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in, int prop
     return nullptr;
   std::string name = mgr.HashInstanceName(in);
   CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.ReadLong());
-  zeus::CTransform xfrm = LoadEditorTransform(in);
+  zeus::CTransform4f xfrm = LoadEditorTransform(in);
   zeus::CVector3f scale =  in.Get<zeus::CVector3f>();
   std::pair<bool, u32> pcount = CPatternedInfo::HasCorrectParameterCount(in);
   if (!pcount.first)
@@ -1072,7 +1072,7 @@ u32 ClassifyVector(const zeus::CVector3f& dir) {
 
 u32 TransformDamagableTriggerFlags(CStateManager& mgr, TAreaId aId, u32 flags) {
   CGameArea* area = mgr.GetWorld()->GetGameAreas().at(u32(aId)).get();
-  zeus::CTransform rotation = area->GetTransform().getRotation();
+  zeus::CTransform4f rotation = area->GetTransform().GetRotation();
 
   u32 ret = 0;
   if (flags & 0x01)
@@ -1288,7 +1288,7 @@ CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in, int pro
 
   std::string name = mgr.HashInstanceName(in);
   CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.ReadLong());
-  zeus::CTransform xf = LoadEditorTransformPivotOnly(in);
+  zeus::CTransform4f xf = LoadEditorTransformPivotOnly(in);
   zeus::CVector3f scale = in.Get<zeus::CVector3f>();
 
   std::pair<bool, u32> verifyPair = CPatternedInfo::HasCorrectParameterCount(in);
@@ -1395,7 +1395,7 @@ CEntity* ScriptLoader::LoadMetroidBeta(CStateManager& mgr, CInputStream& in, int
 
 #if 0
   std::string name = mgr.HashInstanceName(in);
-  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CTransform4f xf = LoadEditorTransform(in);
   zeus::CVector3f scale =  in.Get<zeus::CVector3f>();
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
   if (!pair.first)
@@ -1538,7 +1538,7 @@ CEntity* ScriptLoader::LoadFlickerBat(CStateManager& mgr, CInputStream& in, int 
 
   std::string name = mgr.HashInstanceName(in);
   CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.ReadLong());
-  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CTransform4f xf = LoadEditorTransform(in);
   zeus::CVector3f scale =  in.Get<zeus::CVector3f>();
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
   if (!pair.first)
@@ -1584,7 +1584,7 @@ CEntity* ScriptLoader::LoadGrapplePoint(CStateManager& mgr, CInputStream& in, in
     return nullptr;
 
   std::string name = mgr.HashInstanceName(in);
-  zeus::CTransform grappleXf = LoadEditorTransform(in);
+  zeus::CTransform4f grappleXf = LoadEditorTransform(in);
   bool active = in.ReadBool();
   CGrappleParameters parameters = LoadGrappleParameters(in);
   return new CScriptGrapplePoint(mgr.AllocateUniqueId(), name, info, grappleXf, active, parameters);
@@ -1596,7 +1596,7 @@ CEntity* ScriptLoader::LoadPuddleSpore(CStateManager& mgr, CInputStream& in, int
 
   std::string name = mgr.HashInstanceName(in);
   CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.ReadLong());
-  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CTransform4f xf = LoadEditorTransform(in);
   zeus::CVector3f scale =  in.Get<zeus::CVector3f>();
 
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
@@ -1652,7 +1652,7 @@ CEntity* ScriptLoader::LoadPuddleToadGamma(CStateManager& mgr, CInputStream& in,
 
   std::string name = mgr.HashInstanceName(in);
   CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.ReadLong());
-  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CTransform4f xf = LoadEditorTransform(in);
   zeus::CVector3f scale =  in.Get<zeus::CVector3f>();
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
   if (!pair.first)
@@ -1739,7 +1739,7 @@ CEntity* ScriptLoader::LoadMetaree(CStateManager& mgr, CInputStream& in, int pro
     return nullptr;
 
   std::string name = mgr.HashInstanceName(in);
-  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CTransform4f xf = LoadEditorTransform(in);
   zeus::CVector3f scale =  in.Get<zeus::CVector3f>();
 
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
@@ -1853,7 +1853,7 @@ CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int pr
 
   std::string name = mgr.HashInstanceName(in);
   CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.ReadLong());
-  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CTransform4f xf = LoadEditorTransform(in);
   zeus::CVector3f scale =  in.Get<zeus::CVector3f>();
 
   std::pair<bool, u32> pcount = CPatternedInfo::HasCorrectParameterCount(in);
@@ -1914,7 +1914,7 @@ CEntity* ScriptLoader::LoadRipper(CStateManager& mgr, CInputStream& in, int prop
 
   std::string name = mgr.HashInstanceName(in);
   CPatterned::EFlavorType type = CPatterned::EFlavorType(in.ReadLong());
-  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CTransform4f xf = LoadEditorTransform(in);
   zeus::CVector3f scale =  in.Get<zeus::CVector3f>();
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
   if (!pair.first)
@@ -1988,7 +1988,7 @@ CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propC
 
   std::string name = mgr.HashInstanceName(in);
   CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.ReadLong());
-  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CTransform4f xf = LoadEditorTransform(in);
   zeus::CVector3f scale =  in.Get<zeus::CVector3f>();
   float f1 = in.ReadFloat();
   const auto [patternedValid, patternedPropCount] = CPatternedInfo::HasCorrectParameterCount(in);
@@ -2063,7 +2063,7 @@ CEntity* ScriptLoader::LoadMetroid(CStateManager& mgr, CInputStream& in, int pro
 
   std::string name = mgr.HashInstanceName(in);
   CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.ReadLong());
-  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CTransform4f xf = LoadEditorTransform(in);
   zeus::CVector3f scale =  in.Get<zeus::CVector3f>();
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
   if (!pair.first)
@@ -2501,7 +2501,7 @@ CEntity* ScriptLoader::LoadVisorGoo(CStateManager& mgr, CInputStream& in, int pr
 
   std::string name = mgr.HashInstanceName(in);
   zeus::CVector3f position = in.Get<zeus::CVector3f>();
-  zeus::CTransform xf = zeus::CTransform::Translate(position);
+  zeus::CTransform4f xf = zeus::CTransform4f::Translate(position);
   CAssetId particle(in);
   CAssetId electric(in);
   float minDist = in.ReadFloat();
@@ -2898,7 +2898,7 @@ CEntity* ScriptLoader::LoadGunTurret(CStateManager& mgr, CInputStream& in, int p
 
   std::string name = mgr.HashInstanceName(in);
   CScriptGunTurret::ETurretComponent component = CScriptGunTurret::ETurretComponent(in.ReadLong());
-  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CTransform4f xf = LoadEditorTransform(in);
   zeus::CVector3f scale =  in.Get<zeus::CVector3f>();
   zeus::CVector3f collisionExtent =  in.Get<zeus::CVector3f>();
   zeus::CVector3f collisionOffset =  in.Get<zeus::CVector3f>();
@@ -2916,7 +2916,7 @@ CEntity* ScriptLoader::LoadGunTurret(CStateManager& mgr, CInputStream& in, int p
   zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, collisionOffset);
 
   if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) || collisionExtent.isZero())
-    aabb = mData.GetBounds(xf.getRotation());
+    aabb = mData.GetBounds(xf.GetRotation());
 
   return new CScriptGunTurret(mgr.AllocateUniqueId(), name, component, info, xf, std::move(mData), aabb, hInfo, dVuln,
                               actParms, turretData);
@@ -2972,7 +2972,7 @@ CEntity* ScriptLoader::LoadEyeball(CStateManager& mgr, CInputStream& in, int pro
 
   std::string name = mgr.HashInstanceName(in);
   CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.ReadLong());
-  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CTransform4f xf = LoadEditorTransform(in);
   zeus::CVector3f scale =  in.Get<zeus::CVector3f>();
 
   auto pair = CPatternedInfo::HasCorrectParameterCount(in);
@@ -3017,7 +3017,7 @@ CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in, in
   bool active = in.ReadBool();
   CDamageInfo dInfo(in);
   float radius = in.ReadFloat();
-  zeus::CTransform xf = ConvertEditorEulerToTransform4f(zeus::skZero3f, center);
+  zeus::CTransform4f xf = ConvertEditorEulerToTransform4f(zeus::skZero3f, center);
 
   return new CScriptSpecialFunction(
       mgr.AllocateUniqueId(), name, info, xf, CScriptSpecialFunction::ESpecialFunction::RadialDamage, "", radius, 0.f,
@@ -3049,7 +3049,7 @@ CEntity* ScriptLoader::LoadEnvFxDensityController(CStateManager& mgr, CInputStre
   float density = in.ReadFloat();
   u32 maxDensityDeltaSpeed = in.ReadLong();
 
-  return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, zeus::CTransform(),
+  return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, zeus::CTransform4f(),
                                     CScriptSpecialFunction::ESpecialFunction::EnvFxDensityController, "", density,
                                     maxDensityDeltaSpeed, 0.f, 0.f, zeus::skZero3f, zeus::skBlack, active,
                                     CDamageInfo(), -1, -1, CPlayerState::EItemType::Invalid, -1, -1, -1);
@@ -3182,7 +3182,7 @@ CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in
                            animParams.GetInitialAnimation(), true));
 
   if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) || collisionExtent.isZero())
-    aabb = data.GetBounds(head.x10_transform.getRotation());
+    aabb = data.GetBounds(head.x10_transform.GetRotation());
 
   return new MP1::CScriptContraption(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data),
                                     aabb, list, mass, zMomentum, hInfo, dVuln, actParams, flameFxId, dInfo, active);
@@ -3341,8 +3341,8 @@ CEntity* ScriptLoader::LoadCameraHintTrigger(CStateManager& mgr, CInputStream& i
   bool deactivateOnEnter = in.ReadBool();
   bool deactivateOnExit = in.ReadBool();
 
-  zeus::CTransform xfRot = aHead.x10_transform.getRotation();
-  if (xfRot == zeus::CTransform())
+  zeus::CTransform4f xfRot = aHead.x10_transform.GetRotation();
+  if (xfRot == zeus::CTransform4f())
     return new CScriptTrigger(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform.origin,
                               zeus::CAABox(-scale, scale), CDamageInfo(), zeus::skZero3f, ETriggerFlags::DetectPlayer,
                               active, deactivateOnEnter, deactivateOnExit);
@@ -3396,7 +3396,7 @@ CEntity* ScriptLoader::LoadAmbientAI(CStateManager& mgr, CInputStream& in, int p
   CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale,
                             animParms.GetInitialAnimation(), true));
   if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) || collisionExtent.isZero())
-    aabox = mData.GetBounds(head.x10_transform.getRotation());
+    aabox = mData.GetBounds(head.x10_transform.GetRotation());
 
   return new CAmbientAI(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData), aabox,
                         matList, mass, hInfo, dVuln, actParms, alertRange, impactRange, alertAnim, impactAnim, active);
@@ -3780,7 +3780,7 @@ CEntity* ScriptLoader::LoadPhazonPool(CStateManager& mgr, CInputStream& in, int 
   float f4 = in.ReadFloat();
 
   return new MP1::CPhazonPool(mgr.AllocateUniqueId(), actHead.x0_name, info,
-                              zeus::CTransform::Translate(actHead.x10_transform.origin), actHead.x40_scale, active, w1,
+                              zeus::CTransform4f::Translate(actHead.x10_transform.origin), actHead.x40_scale, active, w1,
                               w2, w3, w4, u1, dInfo, orientedForce, triggerFlags, b2, f1, f2, f3, f4);
 }
 
@@ -3849,7 +3849,7 @@ CEntity* ScriptLoader::LoadShadowProjector(CStateManager& mgr, CInputStream& in,
   float f4 = in.ReadFloat();
   bool b2 = in.ReadBool();
   u32 w1 = in.ReadLong();
-  return new CScriptShadowProjector(mgr.AllocateUniqueId(), name, info, zeus::CTransform::Translate(position), b1, vec2,
+  return new CScriptShadowProjector(mgr.AllocateUniqueId(), name, info, zeus::CTransform4f::Translate(position), b1, vec2,
                                     b2, f1, f2, f3, f4, w1);
 }
 

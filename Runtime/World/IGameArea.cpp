@@ -2,7 +2,7 @@
 #include "Runtime/Streams/IOStreams.hpp"
 
 namespace metaforce {
-IGameArea::Dock::Dock(metaforce::CInputStream& in, const zeus::CTransform& xf) {
+IGameArea::Dock::Dock(metaforce::CInputStream& in, const zeus::CTransform4f& xf) {
   u32 refCount = in.ReadLong();
   x4_dockReferences.reserve(refCount);
   for (u32 i = 0; i < refCount; i++) {

@@ -10,7 +10,7 @@
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
-#include <zeus/CFrustum.hpp>
+#include <zeus/CFrustumPlanes.hpp>
 #include <zeus/CPlane.hpp>
 #include <zeus/CRectangle.hpp>
 
@@ -51,18 +51,18 @@ public:
   virtual void DrawStaticGeometry(s32 areaIdx, s32 mask, s32 targetMask) = 0;
   virtual void DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) = 0;
   virtual void PostRenderFogs() = 0;
-  virtual void SetModelMatrix(const zeus::CTransform& xf) = 0;
+  virtual void SetModelMatrix(const zeus::CTransform4f& xf) = 0;
   virtual void AddParticleGen(CParticleGen& gen) = 0;
   virtual void AddParticleGen(CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds) = 0;
   virtual void AddPlaneObject(void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, s32 type) = 0;
   virtual void AddDrawable(void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, s32 mode,
                            EDrawableSorting sorting) = 0;
   virtual void SetDrawableCallback(TDrawableCallback cb, void* ctx) = 0;
-  virtual void SetWorldViewpoint(const zeus::CTransform& xf) = 0;
+  virtual void SetWorldViewpoint(const zeus::CTransform4f& xf) = 0;
   virtual void SetPerspective(float fovy, float width, float height, float znear, float zfar) = 0;
   virtual void SetPerspective(float fovy, float aspect, float znear, float zfar) = 0;
   virtual std::pair<zeus::CVector2f, zeus::CVector2f> SetViewportOrtho(bool centered, float znear, float zfar) = 0;
-  virtual void SetClippingPlanes(const zeus::CFrustum& frustum) = 0;
+  virtual void SetClippingPlanes(const zeus::CFrustumPlanes& frustum) = 0;
   virtual void SetViewport(s32 left, s32 bottom, s32 width, s32 height) = 0;
   virtual void SetDepthReadWrite(bool, bool) = 0;
   virtual void SetBlendMode_AdditiveAlpha() = 0;

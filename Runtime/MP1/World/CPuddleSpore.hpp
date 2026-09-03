@@ -39,7 +39,7 @@ class CPuddleSpore : public CPatterned {
 public:
   DEFINE_PATTERNED(PuddleSpore);
 
-  CPuddleSpore(TUniqueId, std::string_view, EFlavorType, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CPuddleSpore(TUniqueId, std::string_view, EFlavorType, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
                const CPatternedInfo&, EColliderType, CAssetId, float, float, float, float, float,
                const CActorParameters&, CAssetId, const CDamageInfo&);
 

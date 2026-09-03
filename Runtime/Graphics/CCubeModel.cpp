@@ -12,7 +12,7 @@ bool CCubeModel::sRenderModelBlack = false;
 bool CCubeModel::sRenderModelShadow = false;
 bool CCubeModel::sUsingPackedLightmaps = false;
 CTexture* CCubeModel::sShadowTexture = nullptr;
-zeus::CTransform CCubeModel::sTextureProjectionTransform;
+zeus::CTransform4f CCubeModel::sTextureProjectionTransform;
 GX::LightMask CCubeModel::sChannel0DisableLightMask;
 GX::LightMask CCubeModel::sChannel1EnableLightMask;
 
@@ -246,7 +246,7 @@ void CCubeModel::DrawSurfaceWireframe(const CCubeSurface& surface) {
   // TODO convert vertices to line strips and draw
 }
 
-void CCubeModel::EnableShadowMaps(CTexture& shadowTex, const zeus::CTransform& textureProjXf,
+void CCubeModel::EnableShadowMaps(CTexture& shadowTex, const zeus::CTransform4f& textureProjXf,
                                   GX::LightMask chan0DisableMask, GX::LightMask chan1EnableLightMask) {
   sRenderModelShadow = true;
   sShadowTexture = &shadowTex;

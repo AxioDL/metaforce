@@ -25,7 +25,7 @@ class CScriptPickup : public CPhysicsActor {
 
 public:
   DEFINE_ENTITY
-  CScriptPickup(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptPickup(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                 CModelData&& mData, const CActorParameters& aParams, const zeus::CAABox& aabb,
                 CPlayerState::EItemType itemType, s32 amount, s32 capacity, CAssetId pickupEffect, float possibility,
                 float lifeTime, float fadeInTime, float startDelay, bool active);

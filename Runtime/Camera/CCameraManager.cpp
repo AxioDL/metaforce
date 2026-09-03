@@ -31,12 +31,12 @@ bool CCameraManager::IsInFirstPersonCamera() const { return x7c_fpCamera->GetUni
 
 zeus::CVector3f CCameraManager::GetGlobalCameraTranslation(const CStateManager& stateMgr) const {
   const CGameCamera* camera = GetCurrentCamera(stateMgr);
-  return camera->GetTransform().rotate(x30_shakeOffset);
+  return camera->GetTransform().Rotate(x30_shakeOffset);
 }
 
-zeus::CTransform CCameraManager::GetCurrentCameraTransform(const CStateManager& stateMgr) const {
+zeus::CTransform4f CCameraManager::GetCurrentCameraTransform(const CStateManager& stateMgr) const {
   const CGameCamera* camera = GetCurrentCamera(stateMgr);
-  return camera->GetTransform() * zeus::CTransform::Translate(x30_shakeOffset);
+  return camera->GetTransform() * zeus::CTransform4f::Translate(x30_shakeOffset);
 }
 
 void CCameraManager::RemoveCameraShaker(u32 id) {
@@ -138,17 +138,17 @@ const CGameCamera* CCameraManager::GetCurrentCamera(const CStateManager& stateMg
 void CCameraManager::CreateStandardCameras(CStateManager& stateMgr) {
   TUniqueId fpId = stateMgr.AllocateUniqueId();
   x7c_fpCamera =
-      new CFirstPersonCamera(fpId, zeus::CTransform(), stateMgr.Player()->GetUniqueId(),
+      new CFirstPersonCamera(fpId, zeus::CTransform4f(), stateMgr.Player()->GetUniqueId(),
                              g_tweakPlayer->GetOrbitCameraSpeed(), sFirstPersonFOV, NearPlane(), FarPlane(), Aspect());
   stateMgr.AddObject(x7c_fpCamera);
   stateMgr.Player()->SetCameraState(CPlayer::EPlayerCameraState::FirstPerson, stateMgr);
   SetCurrentCameraId(fpId, stateMgr);
 
-  x80_ballCamera = new CBallCamera(stateMgr.AllocateUniqueId(), stateMgr.Player()->GetUniqueId(), zeus::CTransform(),
+  x80_ballCamera = new CBallCamera(stateMgr.AllocateUniqueId(), stateMgr.Player()->GetUniqueId(), zeus::CTransform4f(),
                                    ThirdPersonFOV(), NearPlane(), FarPlane(), Aspect());
   stateMgr.AddObject(x80_ballCamera);
 
-  x88_interpCamera = new CInterpolationCamera(stateMgr.AllocateUniqueId(), zeus::CTransform());
+  x88_interpCamera = new CInterpolationCamera(stateMgr.AllocateUniqueId(), zeus::CTransform4f());
   stateMgr.AddObject(x88_interpCamera);
 }
 
@@ -180,7 +180,7 @@ void CCameraManager::SetSpindleCamera(TUniqueId id, CStateManager& mgr) {
   }
 }
 
-void CCameraManager::InterpolateToBallCamera(const zeus::CTransform& xf, TUniqueId camId,
+void CCameraManager::InterpolateToBallCamera(const zeus::CTransform4f& xf, TUniqueId camId,
                                              const zeus::CVector3f& lookPos, float maxTime, float positionSpeed,
                                              float rotationSpeed, bool sinusoidal, CStateManager& mgr) {
   if (!IsInFirstPersonCamera()) {
@@ -192,7 +192,7 @@ void CCameraManager::InterpolateToBallCamera(const zeus::CTransform& xf, TUnique
 
 void CCameraManager::RestoreHintlessCamera(CStateManager& mgr) {
   const TCastToConstPtr<CScriptCameraHint> hint = mgr.ObjectById(xa6_camHintId);
-  const zeus::CTransform ballCamXf = x80_ballCamera->GetTransform();
+  const zeus::CTransform4f ballCamXf = x80_ballCamera->GetTransform();
 
   xa6_camHintId = kInvalidUniqueId;
   xa8_hintPriority = 1000;
@@ -245,7 +245,7 @@ void CCameraManager::ApplyCameraHint(const CScriptCameraHint& hint, CStateManage
   xa6_camHintId = hint.GetUniqueId();
   xa8_hintPriority = hint.GetPriority();
 
-  const zeus::CTransform camXf = GetCurrentCameraTransform(mgr);
+  const zeus::CTransform4f camXf = GetCurrentCameraTransform(mgr);
   x80_ballCamera->ApplyCameraHint(mgr);
 
   if ((hint.GetHint().GetOverrideFlags() & 0x20) != 0) {
@@ -334,7 +334,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
   if (inactiveHintRemoved || activeHintAdded || invalidHintRemoved) {
     std::sort(xac_cameraHints.begin(), xac_cameraHints.end(),
               [](const auto& a, const auto& b) { return a.first < b.first; });
-    zeus::CTransform ballCamXf = x80_ballCamera->GetTransform();
+    zeus::CTransform4f ballCamXf = x80_ballCamera->GetTransform();
     if ((inactiveHintRemoved || invalidHintRemoved) && xac_cameraHints.empty()) {
       RestoreHintlessCamera(mgr);
       return;
@@ -361,7 +361,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
           if (camToBall.canBeNormalized()) {
             camToBall.normalize();
           } else {
-            camToBall = ballCamXf.basis[1];
+            camToBall = ballCamXf.GetForward();
           }
 
           for (auto it = xac_cameraHints.begin() + 1; it != xac_cameraHints.end(); ++it) {
@@ -372,7 +372,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
                 if (hintToBall.canBeNormalized()) {
                   hintToBall.normalize();
                 } else {
-                  hintToBall = bestHint->GetTransform().basis[1];
+                  hintToBall = bestHint->GetTransform().GetForward();
                 }
 
                 const float camHintDot = zeus::clamp(-1.f, camToBall.dot(hintToBall), 1.f);
@@ -381,7 +381,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
                 if (thisHintToBall.canBeNormalized()) {
                   thisHintToBall.normalize();
                 } else {
-                  thisHintToBall = hint->GetTransform().basis[1];
+                  thisHintToBall = hint->GetTransform().GetForward();
                 }
 
                 const float camThisHintDot = zeus::clamp(-1.f, camToBall.dot(thisHintToBall), 1.f);
@@ -403,7 +403,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
             if (ballToHelper.canBeNormalized()) {
               ballToHelper.normalize();
             } else {
-              ballToHelper = bestHint->GetTransform().basis[1];
+              ballToHelper = bestHint->GetTransform().GetForward();
             }
 
             for (auto it = xac_cameraHints.begin() + 1; it != xac_cameraHints.end(); ++it) {
@@ -415,7 +415,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
                   if (hintToHelper.canBeNormalized()) {
                     hintToHelper.normalize();
                   } else {
-                    hintToHelper = bestHint->GetTransform().basis[1];
+                    hintToHelper = bestHint->GetTransform().GetForward();
                   }
 
                   const float ballHintDot = zeus::clamp(-1.f, ballToHelper.dot(hintToHelper), 1.f);
@@ -424,14 +424,14 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
                   if (thisBallToHelper.canBeNormalized()) {
                     thisBallToHelper.normalize();
                   } else {
-                    thisBallToHelper = hint->GetTransform().basis[1];
+                    thisBallToHelper = hint->GetTransform().GetForward();
                   }
 
                   zeus::CVector3f thisHintToHelper = act->GetTranslation() - hint->GetTranslation();
                   if (thisHintToHelper.canBeNormalized()) {
                     thisHintToHelper.normalize();
                   } else {
-                    thisHintToHelper = hint->GetTransform().basis[1];
+                    thisHintToHelper = hint->GetTransform().GetForward();
                   }
 
                   const float thisBallHintDot = zeus::clamp(-1.f, thisBallToHelper.dot(thisHintToHelper), 1.f);
@@ -455,7 +455,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr) {
       } else if (xa6_camHintId != bestHint->GetUniqueId()) {
         if (bestHint->GetHint().GetBehaviourType() == CBallCamera::EBallCameraBehaviour::HintInitializePosition) {
           if ((bestHint->GetHint().GetOverrideFlags() & 0x20) != 0) {
-            x80_ballCamera->TeleportCamera(zeus::lookAt(bestHint->GetTranslation(), x80_ballCamera->GetLookPos()), mgr);
+            x80_ballCamera->TeleportCamera(zeus::CTransform4f::LookAt(bestHint->GetTranslation(), x80_ballCamera->GetLookPos()), mgr);
           }
           DeleteCameraHint(bestHint->GetUniqueId(), mgr);
           if ((bestHint->GetHint().GetOverrideFlags() & 0x2000) != 0) {
@@ -557,8 +557,8 @@ void CCameraManager::UpdateRumble(float dt, CStateManager& mgr) {
 }
 
 void CCameraManager::UpdateListener(CStateManager& mgr) {
-  const zeus::CTransform xf = GetCurrentCameraTransform(mgr);
-  CSfxManager::UpdateListener(xf.origin, zeus::skZero3f, xf.frontVector(), xf.upVector(), 1.f);
+  const zeus::CTransform4f xf = GetCurrentCameraTransform(mgr);
+  CSfxManager::UpdateListener(xf.origin, zeus::skZero3f, xf.GetForward(), xf.GetUp(), 1.f);
 }
 
 float CCameraManager::CalculateFogDensity(CStateManager& mgr, const CScriptWater* water) const {
@@ -575,7 +575,7 @@ float CCameraManager::CalculateFogDensity(CStateManager& mgr, const CScriptWater
 }
 
 void CCameraManager::ResetCameras(CStateManager& mgr) {
-  zeus::CTransform xf = mgr.GetPlayer().CreateTransformFromMovementDirection();
+  zeus::CTransform4f xf = mgr.GetPlayer().CreateTransformFromMovementDirection();
   xf.origin = mgr.GetPlayer().GetEyePosition();
 
   for (CEntity* ent : mgr.GetCameraObjectList()) {
@@ -632,7 +632,7 @@ void CCameraManager::SetPlayerCamera(CStateManager& mgr, TUniqueId newCamId) {
 
 float CCameraManager::GetCameraBobMagnitude() const {
   return 1.f - zeus::clamp(-1.f,
-                           std::fabs(zeus::clamp(-1.f, x7c_fpCamera->GetTransform().basis[1].dot(zeus::skUp), 1.f)) /
+                           std::fabs(zeus::clamp(-1.f, x7c_fpCamera->GetTransform().GetForward().dot(zeus::skUp), 1.f)) /
                                std::cos(2.f * M_PIF / 12.f),
                            1.f);
 }

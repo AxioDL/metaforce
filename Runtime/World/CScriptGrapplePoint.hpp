@@ -14,7 +14,7 @@ class CScriptGrapplePoint : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptGrapplePoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& transform,
+  CScriptGrapplePoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& transform,
                       bool active, const CGrappleParameters& params);
 
   void Accept(IVisitor& visitor) override;
@@ -22,7 +22,7 @@ public:
   void Think(float, CStateManager&) override;
   void Render(CStateManager&) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   const CGrappleParameters& GetGrappleParameters() const { return x100_parameters; }
 };
 } // namespace metaforce

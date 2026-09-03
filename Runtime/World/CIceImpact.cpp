@@ -22,7 +22,7 @@ static bool PointInSphere(zeus::CSphere const& sphere, zeus::CVector3f const& po
 }
 
 CIceImpact::CIceImpact(const TLockedToken<CGenDescription>& particle, TUniqueId uid, TAreaId aid, bool active,
-                       std::string_view name, const zeus::CTransform& xf, u32 flags, const zeus::CVector3f& scale,
+                       std::string_view name, const zeus::CTransform4f& xf, u32 flags, const zeus::CVector3f& scale,
                        const zeus::CColor& color)
 : CEffect(uid, CEntityInfo(aid, CEntity::NullConnectionList), active, name, xf)
 , xe8_elementGen(std::make_unique<CElementGen>(particle, CElementGen::EModelOrientationType::One,
@@ -57,7 +57,7 @@ void CIceImpact::CalculateRenderBounds() {
   }
 }
 
-void CIceImpact::PreRender(CStateManager& mgr, zeus::CFrustum const& planes) {
+void CIceImpact::PreRender(CStateManager& mgr, zeus::CFrustumPlanes const& planes) {
   CActor::PreRender(mgr, planes);
   bool out_of_frustum = false;
   if (!x598_25_hasRenderBounds || !planes.aabbFrustumTest(x9c_renderBounds)) {
@@ -67,7 +67,7 @@ void CIceImpact::PreRender(CStateManager& mgr, zeus::CFrustum const& planes) {
   xe4_30_outOfFrustum = out_of_frustum;
 }
 
-void CIceImpact::AddToRenderer(zeus::CFrustum const& planes, CStateManager& mgr) {
+void CIceImpact::AddToRenderer(zeus::CFrustumPlanes const& planes, CStateManager& mgr) {
   if (xe4_30_outOfFrustum) {
     return;
   }
@@ -116,7 +116,7 @@ void CIceImpact::Think(float dt, CStateManager& mgr) {
       }
     }
   }
-  xe8_elementGen->SetOrientation(zeus::CTransform());
+  xe8_elementGen->SetOrientation(zeus::CTransform4f());
   xe8_elementGen->Update(dt);
 
   if (xec_ != kInvalidUniqueId) {
@@ -282,7 +282,7 @@ void CIceImpact::GenerateParticlesAgainstActors(CStateManager& mgr, const zeus::
   }
 }
 
-void CIceImpact::GenerateParticlesAgainstOBBTree(CStateManager& mgr, const COBBTree& tree, const zeus::CTransform& xf,
+void CIceImpact::GenerateParticlesAgainstOBBTree(CStateManager& mgr, const COBBTree& tree, const zeus::CTransform4f& xf,
                                                  const zeus::CSphere& a, const zeus::CSphere& b) {
   auto filter = CMaterialFilter::MakeExclude(EMaterialTypes::Solid);
 
@@ -359,7 +359,7 @@ bool CIceImpact::SubdivideAndGenerateParticles(CStateManager& mgr, zeus::CVector
         norm_xprod.x() = (mgr.GetActiveRandom()->Float() - 0.5f) * 0.4f + norm_xprod.x();
         norm_xprod.y() = (mgr.GetActiveRandom()->Float() - 0.5f) * 0.4f + norm_xprod.y();
         norm_xprod.z() = (mgr.GetActiveRandom()->Float() - 0.5f) * 0.4f + norm_xprod.z();
-        xe8_elementGen->SetOrientation(zeus::lookAt(zeus::CVector3f(), norm_xprod.normalized(), vec));
+        xe8_elementGen->SetOrientation(zeus::CTransform4f::LookAt(zeus::CVector3f(), norm_xprod.normalized(), vec));
         xe8_elementGen->SetTranslation(point);
         xe8_elementGen->ForceParticleCreation(1);
         if (xe8_elementGen->GetParticleCount() == xe8_elementGen->GetMaxParticles()) {

@@ -117,12 +117,12 @@ CFluidPlaneCPU::CFluidPlaneCPU(CAssetId texPattern1, CAssetId texPattern2, CAsse
 
 void CFluidPlaneCPU::CreateRipple(const CRipple& ripple, CStateManager& mgr) {}
 
-void CFluidPlaneCPU::CalculateLightmapMatrix(const zeus::CTransform& areaXf, const zeus::CTransform& xf,
+void CFluidPlaneCPU::CalculateLightmapMatrix(const zeus::CTransform4f& areaXf, const zeus::CTransform4f& xf,
                                              const zeus::CAABox& aabb, int idx) const {
   int width = GetLightMap().GetWidth();
   int height = GetLightMap().GetHeight();
 
-  zeus::CTransform toLocal = areaXf.getRotation().inverse();
+  zeus::CTransform4f toLocal = areaXf.GetRotation().Inverse();
   zeus::CAABox areaLocalAABB = aabb.getTransformedAABox(toLocal);
   float f26 = (areaLocalAABB.max.x() - areaLocalAABB.min.x()) / (width * x11c_unitsPerLightmapTexel);
   float f25 = (areaLocalAABB.max.y() - areaLocalAABB.min.y()) / (height * x11c_unitsPerLightmapTexel);
@@ -136,11 +136,11 @@ void CFluidPlaneCPU::CalculateLightmapMatrix(const zeus::CTransform& areaXf, con
   float offX = f24 + f26 * -areaLocalAABB.min.x() / (areaLocalAABB.max.x() - areaLocalAABB.min.x());
   float offY = f25 * areaLocalAABB.min.y() / (areaLocalAABB.max.y() - areaLocalAABB.min.y()) - f6;
 
-  zeus::CTransform result =
-      zeus::CTransform(zeus::CMatrix3f(zeus::CVector3f(scaleX, scaleY, 0.f)), zeus::CVector3f(offX, offY, 0.f)) *
+  zeus::CTransform4f result =
+      zeus::CTransform4f(zeus::CMatrix3f(zeus::CVector3f(scaleX, scaleY, 0.f)), zeus::CVector3f(offX, offY, 0.f)) *
       toLocal;
   float mtx[2][4];
-  result.toCStyleMatrix(mtx);
+  result.GetCStyleMatrix(mtx);
   CGX::LoadTexMtxImm(mtx, idx, GX_MTX2x4);
 }
 
@@ -156,8 +156,8 @@ static void InitializeSineWave() {
   sSineWaveInitialized = true;
 }
 
-void CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::CTransform& xf,
-                                 const zeus::CTransform& areaXf, const zeus::CAABox& aabb, const CScriptWater* water) {
+void CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::CTransform4f& xf,
+                                 const zeus::CTransform4f& areaXf, const zeus::CAABox& aabb, const CScriptWater* water) {
   const SFluidTexMtxTable* tbl = &kTexMtxTable;
 
   if (!sRenderFog) {
@@ -287,9 +287,9 @@ void CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const ze
 
   if (hasBumpMap) {
     float bumpScale = GetBumpScale();
-    zeus::CTransform nrmMtxSrc(CGraphics::GetViewMatrix().getRotation().quickInverse());
+    zeus::CTransform4f nrmMtxSrc(CGraphics::GetViewMatrix().GetRotation().QuickInverse());
     Mtx nrmMtx;
-    nrmMtxSrc.toCStyleMatrix(nrmMtx);
+    nrmMtxSrc.GetCStyleMatrix(nrmMtx);
     MTXScaleApply(nrmMtx, nrmMtx, bumpScale, bumpScale, bumpScale);
     GXLoadNrmMtxImm(nrmMtx, GX_PNMTX0);
   }
@@ -434,13 +434,13 @@ void CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const ze
   }
 
   CVector3f upVec(0.f, 0.f, 1.f);
-  CVector3f xfUp(xf.transposeRotate(upVec));
+  CVector3f xfUp(xf.TransposeRotate(upVec));
   float xfUpX = xfUp.x();
   float xfUpY = xfUp.y();
   float xfUpZ = xfUp.z();
   CVector3f camUp(0.f, 1.f, 0.f);
-  zeus::CTransform invView(CGraphics::GetViewMatrix().quickInverse());
-  CVector3f viewUp(invView.transposeRotate(camUp));
+  zeus::CTransform4f invView(CGraphics::GetViewMatrix().QuickInverse());
+  CVector3f viewUp(invView.TransposeRotate(camUp));
   float dot = xfUpX * viewUp.x() + xfUpY * viewUp.y() + xfUpZ * viewUp.z();
   if (dot < 0.f) {
     dot = -dot;
@@ -1144,8 +1144,8 @@ bool CFluidPlaneCPU::UpdatePatch(float time, const CFluidPlaneRender::SPatchInfo
 static CFluidPlane::Heights lc_heights{};
 static CFluidPlane::Flags lc_flags{};
 
-void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
-                            const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
+void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform4f& xf,
+                            const zeus::CTransform4f& areaXf, bool noNormals, const zeus::CFrustumPlanes& frustum,
                             const std::optional<CRippleManager>& rippleManager, TUniqueId waterId,
                             const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) {
   if (!sRenderFog) {
@@ -1297,7 +1297,7 @@ void CFluidPlaneCPU::RenderCleanup() const {
   CGX::ResetVtxDescv();
 
   float mtx[3][4];
-  CGraphics::GetViewMatrix().getRotation().quickInverse().toCStyleMatrix(mtx);
+  CGraphics::GetViewMatrix().GetRotation().QuickInverse().GetCStyleMatrix(mtx);
   GXLoadNrmMtxImm(mtx, GX_PNMTX0);
 
   CGX::SetChanCtrl(CGX::EChannelId::Channel1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_CLAMP, GX_AF_SPOT);

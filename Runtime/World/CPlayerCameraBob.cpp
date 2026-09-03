@@ -33,7 +33,7 @@ CPlayerCameraBob::CPlayerCameraBob(ECameraBobType type, const zeus::CVector2f& v
   x7c_wanderPoints.fill(zeus::skForward);
 }
 
-zeus::CTransform CPlayerCameraBob::GetViewWanderTransform() const { return xd0_viewWanderXf; }
+zeus::CTransform4f CPlayerCameraBob::GetViewWanderTransform() const { return xd0_viewWanderXf; }
 
 zeus::CVector3f CPlayerCameraBob::GetHelmetBobTranslation() const {
   return {kHelmetBobMagnitude * x2c_cameraBobTransform.origin.x(),
@@ -41,11 +41,11 @@ zeus::CVector3f CPlayerCameraBob::GetHelmetBobTranslation() const {
           kHelmetBobMagnitude * (x2c_cameraBobTransform.origin.z() - x78_camTranslation)};
 }
 
-zeus::CTransform CPlayerCameraBob::GetGunBobTransformation() const {
-  return zeus::CTransform::Translate((1.f + kGunBobMagnitude) * x2c_cameraBobTransform.origin);
+zeus::CTransform4f CPlayerCameraBob::GetGunBobTransformation() const {
+  return zeus::CTransform4f::Translate((1.f + kGunBobMagnitude) * x2c_cameraBobTransform.origin);
 }
 
-zeus::CTransform CPlayerCameraBob::GetCameraBobTransformation() const { return x2c_cameraBobTransform; }
+zeus::CTransform4f CPlayerCameraBob::GetCameraBobTransformation() const { return x2c_cameraBobTransform; }
 
 void CPlayerCameraBob::SetPlayerVelocity(const zeus::CVector3f& velocity) {
   x5c_playerVelocity = velocity;
@@ -58,7 +58,7 @@ void CPlayerCameraBob::SetBobTimeScale(float ts) { x18_bobTimeScale = zeus::clam
 
 void CPlayerCameraBob::ResetCameraBobTime() { x1c_bobTime = 0.f; }
 
-void CPlayerCameraBob::SetCameraBobTransform(const zeus::CTransform& xf) { x2c_cameraBobTransform = xf; }
+void CPlayerCameraBob::SetCameraBobTransform(const zeus::CTransform4f& xf) { x2c_cameraBobTransform = xf; }
 
 void CPlayerCameraBob::SetState(CPlayerCameraBob::ECameraBobState state, CStateManager& mgr) {
   if (x24_curState == state)
@@ -102,12 +102,12 @@ void CPlayerCameraBob::UpdateViewWander(float dt, CStateManager& mgr) {
 
   pt.x() *= x100_wanderMagnitude;
   pt.z() *= x100_wanderMagnitude;
-  zeus::CTransform orient = zeus::CTransform::RotateY(
+  zeus::CTransform4f orient = zeus::CTransform4f::RotateY(
       (zeus::getCatmullRomSplinePoint(xb0_wanderPitches[xcc_wanderIndex], xb0_wanderPitches[(xcc_wanderIndex + 1) & 3],
                                       xb0_wanderPitches[(xcc_wanderIndex + 2) & 3],
                                       xb0_wanderPitches[(xcc_wanderIndex + 3) & 3], xc4_wanderTime) *
        x100_wanderMagnitude));
-  xd0_viewWanderXf = zeus::lookAt(zeus::skZero3f, pt, zeus::skUp) * orient;
+  xd0_viewWanderXf = zeus::CTransform4f::LookAt(zeus::skZero3f, pt, zeus::skUp) * orient;
 
   xc4_wanderTime += xc8_viewWanderSpeed * dt;
   if (xc4_wanderTime >= 1.f) {
@@ -165,7 +165,7 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr) {
   UpdateViewWander(dt, mgr);
 
   x2c_cameraBobTransform = CalculateCameraBobTransformation() * GetViewWanderTransform() *
-                           zeus::lookAt(zeus::skZero3f, {0.f, 2.f, x78_camTranslation}, zeus::skUp);
+                           zeus::CTransform4f::LookAt(zeus::skZero3f, {0.f, 2.f, x78_camTranslation}, zeus::skUp);
 }
 
 zeus::CVector3f CPlayerCameraBob::CalculateRandomViewWanderPosition(CStateManager& mgr) const {
@@ -198,14 +198,14 @@ void CPlayerCameraBob::CalculateMovingTranslation(float& x, float& y) const {
 
 float CPlayerCameraBob::CalculateLandingTranslation() const { return x70_landingTranslation; }
 
-zeus::CTransform CPlayerCameraBob::CalculateCameraBobTransformation() const {
+zeus::CTransform4f CPlayerCameraBob::CalculateCameraBobTransformation() const {
   float x = 0.f;
   float y = 0.f;
   CalculateMovingTranslation(x, y);
   if (x28_applyLandingTrans)
     y += CalculateLandingTranslation();
 
-  return zeus::CTransform::Translate(x, 0.f, y);
+  return zeus::CTransform4f::Translate(x, 0.f, y);
 }
 
 void CPlayerCameraBob::ReadTweaks(CInputStream& in) {

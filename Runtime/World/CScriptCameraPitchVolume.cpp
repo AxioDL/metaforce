@@ -14,7 +14,7 @@ const zeus::CVector3f CScriptCameraPitchVolume::skScaleFactor = zeus::CVector3f(
 
 CScriptCameraPitchVolume::CScriptCameraPitchVolume(TUniqueId uid, bool active, std::string_view name,
                                                    const CEntityInfo& info, const zeus::CVector3f& scale,
-                                                   const zeus::CTransform& xf, const zeus::CRelAngle& upPitch,
+                                                   const zeus::CTransform4f& xf, const zeus::CRelAngle& upPitch,
                                                    const zeus::CRelAngle& downPitch, float maxInterpDistance)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Trigger),
          CActorParameters::None(), kInvalidUniqueId)
@@ -41,7 +41,7 @@ void CScriptCameraPitchVolume::Think(float, CStateManager& mgr) {
 }
 
 std::optional<zeus::CAABox> CScriptCameraPitchVolume::GetTouchBounds() const {
-  return {xe8_obbox.calculateAABox(zeus::CTransform())};
+  return {xe8_obbox.calculateAABox(zeus::CTransform4f())};
 }
 
 void CScriptCameraPitchVolume::Touch(CActor& act, CStateManager& mgr) {

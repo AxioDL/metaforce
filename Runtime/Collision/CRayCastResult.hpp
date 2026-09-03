@@ -4,7 +4,7 @@
 #include "Runtime/Collision/CMaterialList.hpp"
 
 #include <zeus/CPlane.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -40,6 +40,6 @@ public:
   const zeus::CPlane& GetPlane() const { return x10_plane; }
   const CMaterialList& GetMaterial() const { return x28_material; }
 
-  void Transform(const zeus::CTransform&);
+  void Transform(const zeus::CTransform4f&);
 };
 } // namespace metaforce

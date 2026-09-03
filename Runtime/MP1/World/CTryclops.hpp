@@ -3,14 +3,14 @@
 #include "Runtime/World/CPathFindSearch.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 
 namespace metaforce::MP1 {
 class CTryclops : public CPatterned {
 
   static const CDamageVulnerability skVulnerabilities;
   CPathFindSearch x568_pathFindSearch;
-  zeus::CTransform x64c_;
+  zeus::CTransform4f x64c_;
   float x67c_;
   float x680_;
   float x684_;
@@ -24,8 +24,8 @@ class CTryclops : public CPatterned {
   bool x698_26_ : 1 = false;
   bool x698_27_dizzy : 1 = false;
   bool sub8025dbd0(CStateManager& mgr);
-  void LaunchPlayer(CStateManager& mgr, const zeus::CTransform& xf, float);
-  void DragBomb(CStateManager& mgr, const zeus::CTransform& xf);
+  void LaunchPlayer(CStateManager& mgr, const zeus::CTransform4f& xf, float);
+  void DragBomb(CStateManager& mgr, const zeus::CTransform4f& xf);
   void ApplySeparation(CStateManager&);
   void GrabBomb(CStateManager& mgr);
   void DragPlayer(CStateManager& mgr, const zeus::CVector3f& locOrig);
@@ -37,7 +37,7 @@ class CTryclops : public CPatterned {
 
 public:
   DEFINE_PATTERNED(Tryclops);
-  CTryclops(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CTryclops(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
             CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float f1, float f2,
             float f3, float launchSpeed);
 

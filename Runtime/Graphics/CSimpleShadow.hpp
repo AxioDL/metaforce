@@ -6,14 +6,14 @@
 #include <optional>
 
 #include <zeus/CAABox.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 
 namespace metaforce {
 class CTexture;
 class CStateManager;
 
 class CSimpleShadow {
-  zeus::CTransform x0_xf;
+  zeus::CTransform4f x0_xf;
   float x30_scale;
   float x34_radius = 1.f;
   float x38_userAlpha;
@@ -32,8 +32,8 @@ public:
   void SetAlwaysCalculateRadius(bool b) { x48_25_alwaysCalculateRadius = b; }
   float GetMaxObjectHeight() const { return x40_maxObjHeight; }
   void SetUserAlpha(float a) { x38_userAlpha = a; }
-  const zeus::CTransform& GetTransform() const { return x0_xf; }
+  const zeus::CTransform4f& GetTransform() const { return x0_xf; }
   void Render(TLockedToken<CTexture>& tex);
-  void Calculate(const zeus::CAABox& aabb, const zeus::CTransform& xf, const CStateManager& mgr);
+  void Calculate(const zeus::CAABox& aabb, const zeus::CTransform4f& xf, const CStateManager& mgr);
 };
 } // namespace metaforce

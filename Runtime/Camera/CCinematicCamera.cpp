@@ -12,7 +12,7 @@
 namespace metaforce {
 
 CCinematicCamera::CCinematicCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                   const zeus::CTransform& xf, bool active, float shotDuration, float fovy, float znear,
+                                   const zeus::CTransform4f& xf, bool active, float shotDuration, float fovy, float znear,
                                    float zfar, float aspect, u32 flags)
 : CGameCamera(uid, active, name, info, xf, fovy, znear, zfar, aspect, kInvalidUniqueId, (flags & 0x20) != 0, 0)
 , x1e8_duration(shotDuration)
@@ -28,7 +28,7 @@ void CCinematicCamera::ProcessInput(const CFinalInput&, CStateManager& mgr) {
   // Empty
 }
 
-void CCinematicCamera::Reset(const zeus::CTransform&, CStateManager& mgr) {
+void CCinematicCamera::Reset(const zeus::CTransform4f&, CStateManager& mgr) {
   // Empty
 }
 
@@ -181,10 +181,10 @@ void CCinematicCamera::Think(float dt, CStateManager& mgr) {
         if ((target - viewPoint).toVec2f().magnitude() < 0.0011920929f) {
           SetTranslation(target);
         } else {
-          SetTransform(zeus::lookAt(viewPoint, target, upVec));
+          SetTransform(zeus::CTransform4f::LookAt(viewPoint, target, upVec));
         }
       } else {
-        SetTransform(zeus::CTransform(orientation, viewPoint));
+        SetTransform(zeus::CTransform4f(orientation, viewPoint));
       }
     } else {
       zeus::CVector3f target = mgr.GetPlayer().GetTranslation();
@@ -198,7 +198,7 @@ void CCinematicCamera::Think(float dt, CStateManager& mgr) {
       if ((target - viewPoint).toVec2f().magnitude() < 0.0011920929f) {
         SetTranslation(target);
       } else {
-        SetTransform(zeus::lookAt(viewPoint, target, upVec));
+        SetTransform(zeus::CTransform4f::LookAt(viewPoint, target, upVec));
       }
     }
 

@@ -23,7 +23,7 @@ class CDestroyableRock : public CAi {
 public:
   DEFINE_ENTITY
   CDestroyableRock(TUniqueId id, bool active, std::string_view name, const CEntityInfo& info,
-                   const zeus::CTransform& xf, CModelData&& modelData, float mass, const CHealthInfo& health,
+                   const zeus::CTransform4f& xf, CModelData&& modelData, float mass, const CHealthInfo& health,
                    const CDamageVulnerability& vulnerability, const CMaterialList& matList, CAssetId fsm,
                    const CActorParameters& actParams, const CStaticRes& phazonModel, s32);
 
@@ -45,7 +45,7 @@ public:
   zeus::CVector3f GetOrbitPosition(const CStateManager&) const override { return GetTranslation(); }
   std::optional<zeus::CAABox> GetTouchBounds() const override { return GetModelData()->GetBounds(GetTransform()); }
   bool CanRenderUnsorted(const CStateManager&) const override { return true; }
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   void TakeDamage(const zeus::CVector3f&, float) override {
     x324_ = 1.f;
     x328_ = 2.f;

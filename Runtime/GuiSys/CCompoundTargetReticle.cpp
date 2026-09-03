@@ -42,8 +42,8 @@ constexpr CTargetReticleRenderState CTargetReticleRenderState::skZeroRenderState
 CCompoundTargetReticle::SOuterItemInfo::SOuterItemInfo(std::string_view res) : x0_model(g_SimplePool->GetObj(res)) {}
 
 CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
-: x0_leadingOrientation(mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().buildMatrix3f())
-, x10_laggingOrientation(mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().buildMatrix3f())
+: x0_leadingOrientation(mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().BuildMatrix3f())
+, x10_laggingOrientation(mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().BuildMatrix3f())
 , x2c_overshootOffsetHalf(0.5f * g_tweakTargeting->GetChargeGaugeOvershootOffset())
 , x30_premultOvershootOffset(
       calculate_premultiplied_overshoot_offset(g_tweakTargeting->GetChargeGaugeOvershootOffset()))
@@ -487,7 +487,7 @@ void CCompoundTargetReticle::Draw(const CStateManager& mgr, bool hideLockon) {
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed &&
       !mgr.GetCameraManager()->IsInCinematicCamera()) {
     SCOPED_GRAPHICS_DEBUG_GROUP("CCompoundTargetReticle::Draw", zeus::skCyan);
-    const zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+    const zeus::CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     CGraphics::SetViewPointMatrix(camXf);
     if (!hideLockon) {
       DrawCurrLockOnGroup(camXf.basis, mgr);
@@ -518,7 +518,7 @@ void CCompoundTargetReticle::DrawGrapplePoint(const CScriptGrapplePoint& point, 
       CalculateClampedScale(orbitPos, 1.f, g_tweakTargeting->GetGrappleClampMin(),
                             g_tweakTargeting->GetGrappleClampMax(), mgr) *
       ((1.f - t) * g_tweakTargeting->GetGrappleScale() + t * g_tweakTargeting->GetGrappleSelectScale()));
-  zeus::CTransform modelXf(rot * scale, orbitPos);
+  zeus::CTransform4f modelXf(rot * scale, orbitPos);
   CGraphics::SetModelMatrix(modelXf);
   CModelFlags flags(7, 0, 0, color);
   x94_grapple->Draw(flags);
@@ -619,7 +619,7 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
                                                           g_tweakTargeting->GetLockConfirmClampMin(),
                                                       g_tweakTargeting->GetLockConfirmClampMax(), mgr) *
                                 g_tweakTargeting->GetLockConfirmScale() / x10c_currGroupInterp.GetFactor());
-    const zeus::CTransform modelXf(lockBreakXf * (rot * zeus::CMatrix3f::RotateY(x1ec_seekerAngle) * scale),
+    const zeus::CTransform4f modelXf(lockBreakXf * (rot * zeus::CMatrix3f::RotateY(x1ec_seekerAngle) * scale),
                                    x10c_currGroupInterp.GetTargetPositionWorld());
     CGraphics::SetModelMatrix(modelXf);
     zeus::CColor color = g_tweakTargeting->GetLockConfirmColor();
@@ -636,7 +636,7 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
                                                             g_tweakTargeting->GetTargetFlowerClampMin(),
                                                         g_tweakTargeting->GetTargetFlowerClampMax(), mgr) *
                                   g_tweakTargeting->GetTargetFlowerScale() / lockBreakAlpha);
-      const zeus::CTransform modelXf(lockBreakXf * (rot * zeus::CMatrix3f::RotateY(x1f0_xrayRetAngle) * scale),
+      const zeus::CTransform4f modelXf(lockBreakXf * (rot * zeus::CMatrix3f::RotateY(x1f0_xrayRetAngle) * scale),
                                      x10c_currGroupInterp.GetTargetPositionWorld());
       CGraphics::SetModelMatrix(modelXf);
       zeus::CColor color = g_tweakTargeting->GetTargetFlowerColor();
@@ -659,7 +659,7 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
                                   std::fabs(x1f8_missileBracketTimer) / g_tweakTargeting->GetMissileBracketDuration() *
                                   tscale / x10c_currGroupInterp.GetFactor());
       for (int i = 0; i < 4; ++i) {
-        const zeus::CTransform modelXf(
+        const zeus::CTransform4f modelXf(
             lockBreakXf * rot * zeus::CMatrix3f(zeus::CVector3f{i < 2 ? 1.f : -1.f, 1.f, i & 0x1 ? 1.f : -1.f}) * scale,
             x10c_currGroupInterp.GetTargetPositionWorld());
         CGraphics::SetModelMatrix(modelXf);
@@ -680,7 +680,7 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
     for (int i = 0; i < 9; ++i) {
       SOuterItemInfo& info = xe0_outerBeamIconSquares[i];
       if (info.x0_model.IsLoaded()) {
-        zeus::CTransform modelXf(lockBreakXf * outerBeamXf * zeus::CMatrix3f::RotateY(info.x10_rotAng),
+        zeus::CTransform4f modelXf(lockBreakXf * outerBeamXf * zeus::CMatrix3f::RotateY(info.x10_rotAng),
                                  x10c_currGroupInterp.GetTargetPositionWorld());
         CGraphics::SetModelMatrix(modelXf);
         zeus::CColor color = g_tweakTargeting->GetOuterBeamSquareColor();
@@ -709,7 +709,7 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
                                                     : (g_tweakTargeting->GetChargeGaugePulsePeriod() - pulseT) /
                                                           (0.5f * g_tweakTargeting->GetChargeGaugePulsePeriod())),
                              x214_fullChargeFadeTimer / g_tweakTargeting->GetFullChargeFadeDuration());
-      zeus::CTransform modelXf(lockBreakXf * chargeGaugeXf, x10c_currGroupInterp.GetTargetPositionWorld());
+      zeus::CTransform4f modelXf(lockBreakXf * chargeGaugeXf, x10c_currGroupInterp.GetTargetPositionWorld());
       CGraphics::SetModelMatrix(modelXf);
       zeus::CColor color = gaugeColor;
       color.a() *= lockBreakAlpha * visorFactor;
@@ -723,7 +723,7 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
         for (int i = 0; i < numTicks; ++i) {
           const CModelFlags tickFlags(7, 0, 0, lockBreakColor + color);
           xa0_chargeTickFirst->Draw(tickFlags);
-          modelXf.rotateLocalY(g_tweakTargeting->GetChargeTickAnglePitch());
+          modelXf.RotateLocalY(g_tweakTargeting->GetChargeTickAnglePitch());
           CGraphics::SetModelMatrix(modelXf);
         }
       }
@@ -753,7 +753,7 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
                                 g_tweakTargeting->GetInnerBeamClampMax(), mgr) *
           g_tweakTargeting->GetInnerBeamScale() * (x208_lockonTimer / g_tweakTargeting->GetLockonDuration()) /
           x10c_currGroupInterp.GetFactor());
-      const zeus::CTransform modelXf(lockBreakXf * rot * scale, x10c_currGroupInterp.GetTargetPositionWorld());
+      const zeus::CTransform4f modelXf(lockBreakXf * rot * scale, x10c_currGroupInterp.GetTargetPositionWorld());
       CGraphics::SetModelMatrix(modelXf);
       zeus::CColor color = *iconColor;
       color.a() *= lockBreakAlpha * visorFactor;
@@ -768,7 +768,7 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
                                                             g_tweakTargeting->GetLockFireClampMin(),
                                                         g_tweakTargeting->GetLockFireClampMax(), mgr) *
                                   g_tweakTargeting->GetLockFireScale() / x10c_currGroupInterp.GetFactor());
-      const zeus::CTransform modelXf(lockBreakXf * rot * scale * zeus::CMatrix3f::RotateY(x1f0_xrayRetAngle),
+      const zeus::CTransform4f modelXf(lockBreakXf * rot * scale * zeus::CMatrix3f::RotateY(x1f0_xrayRetAngle),
                                      x10c_currGroupInterp.GetTargetPositionWorld());
       CGraphics::SetModelMatrix(modelXf);
       zeus::CColor color = g_tweakTargeting->GetLockFireColor();
@@ -802,7 +802,7 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
           ang = g_tweakTargeting->GetLockDaggerAngle2();
           break;
         }
-        const zeus::CTransform modelXf(lockBreakXf * lockDaggerXf * zeus::CMatrix3f::RotateY(ang),
+        const zeus::CTransform4f modelXf(lockBreakXf * lockDaggerXf * zeus::CMatrix3f::RotateY(ang),
                                        x10c_currGroupInterp.GetTargetPositionWorld());
         CGraphics::SetModelMatrix(modelXf);
         zeus::CColor color = g_tweakTargeting->GetLockDaggerColor();
@@ -845,7 +845,7 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, con
                               x174_nextGroupInterp.GetMinViewportClampScale() * g_tweakTargeting->GetSeekerClampMin(),
                               g_tweakTargeting->GetSeekerClampMax(), mgr) *
         g_tweakTargeting->GetSeekerScale());
-    const zeus::CTransform modelXf(rot * zeus::CMatrix3f::RotateY(x1ec_seekerAngle) * scale,
+    const zeus::CTransform4f modelXf(rot * zeus::CMatrix3f::RotateY(x1ec_seekerAngle) * scale,
                                    x174_nextGroupInterp.GetTargetPositionWorld());
     CGraphics::SetModelMatrix(modelXf);
     zeus::CColor color = g_tweakTargeting->GetSeekerColor();
@@ -860,7 +860,7 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, con
                               x174_nextGroupInterp.GetMinViewportClampScale() * g_tweakTargeting->GetReticuleClampMin(),
                               g_tweakTargeting->GetReticuleClampMax(), mgr) *
         g_tweakTargeting->GetReticuleScale());
-    const zeus::CTransform modelXf(rot * scale * zeus::CMatrix3f::RotateY(x1f0_xrayRetAngle),
+    const zeus::CTransform4f modelXf(rot * scale * zeus::CMatrix3f::RotateY(x1f0_xrayRetAngle),
                                    x174_nextGroupInterp.GetTargetPositionWorld());
     CGraphics::SetModelMatrix(modelXf);
     zeus::CColor color = g_tweakTargeting->GetXRayRetRingColor();
@@ -875,7 +875,7 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, con
                               x174_nextGroupInterp.GetMinViewportClampScale() * g_tweakTargeting->GetReticuleClampMin(),
                               g_tweakTargeting->GetReticuleClampMax(), mgr) *
         g_tweakTargeting->GetReticuleScale());
-    const zeus::CTransform modelXf(rot * scale, x174_nextGroupInterp.GetTargetPositionWorld());
+    const zeus::CTransform4f modelXf(rot * scale, x174_nextGroupInterp.GetTargetPositionWorld());
     CGraphics::SetModelMatrix(modelXf);
     zeus::CColor color = g_tweakTargeting->GetThermalReticuleColor();
     color.a() *= visorFactor;
@@ -890,7 +890,7 @@ void CCompoundTargetReticle::DrawNextLockOnGroup(const zeus::CMatrix3f& rot, con
                                                           g_tweakTargeting->GetScanTargetClampMin(),
                                                       g_tweakTargeting->GetScanTargetClampMax(), mgr) *
                                 (1.f / factor));
-    const zeus::CTransform modelXf(rot * scale, x174_nextGroupInterp.GetTargetPositionWorld());
+    const zeus::CTransform4f modelXf(rot * scale, x174_nextGroupInterp.GetTargetPositionWorld());
     CGraphics::SetModelMatrix(modelXf);
     // compare, GX_LESS, no update
     float alpha = 0.5f * factor;
@@ -932,7 +932,7 @@ void CCompoundTargetReticle::DrawOrbitZoneGroup(const zeus::CMatrix3f& rot, cons
   }
 
   if (x1e8_crosshairsScale > 0.f && x34_crosshairs.IsLoaded()) {
-    CGraphics::SetModelMatrix(zeus::CTransform(rot, xf4_targetPos) * zeus::CTransform::Scale(x1e8_crosshairsScale));
+    CGraphics::SetModelMatrix(zeus::CTransform4f(rot, xf4_targetPos) * zeus::CTransform4f::Scale(x1e8_crosshairsScale));
     zeus::CColor color = g_tweakTargeting->GetCrosshairsColor();
     color.a() *= x1e8_crosshairsScale;
     const CModelFlags flags(7, 0, 0, color);
@@ -987,8 +987,8 @@ zeus::CVector3f CCompoundTargetReticle::CalculateOrbitZoneReticlePosition(const 
   const CGameCamera* curCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   const float distMul =
       224.f / float(g_tweakPlayer->GetOrbitScreenBoxHalfExtentY(0)) / std::tan(zeus::degToRad(0.5f * curCam->GetFov()));
-  const zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
-  zeus::CVector3f lookDir = camXf.basis[1];
+  const zeus::CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+  zeus::CVector3f lookDir = camXf.GetForward();
   if (lag) {
     lookDir = x10_laggingOrientation.transform(lookDir);
   }
@@ -1003,7 +1003,7 @@ float CCompoundTargetReticle::CalculateClampedScale(const zeus::CVector3f& pos, 
                                                     float clampMax, const CStateManager& mgr) {
   const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
-  zeus::CVector3f viewPos = cam->GetTransform().transposeRotate(pos - cam->GetTransform().origin);
+  zeus::CVector3f viewPos = cam->GetTransform().TransposeRotate(pos - cam->GetTransform().origin);
   const float realX = cam->GetPerspectiveMatrix().multiplyOneOverW(viewPos).x();
   const float offsetX = cam->GetPerspectiveMatrix().multiplyOneOverW(viewPos + zeus::CVector3f(scale, 0.f, 0.f)).x();
   const float unclampedX = (offsetX - realX) * 640;

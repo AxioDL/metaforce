@@ -22,13 +22,13 @@ class CScriptEMPulse : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptEMPulse(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool, float, float, float,
+  CScriptEMPulse(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, bool, float, float, float,
                  float, float, float, float, CAssetId);
 
   void Accept(IVisitor&) override;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void CalculateRenderBounds() override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Touch(CActor&, CStateManager&) override;

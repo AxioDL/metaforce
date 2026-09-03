@@ -214,7 +214,7 @@ private:
 public:
   DEFINE_ENTITY
   CScriptGunTurret(TUniqueId uid, std::string_view name, ETurretComponent comp, const CEntityInfo& info,
-                   const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& aabb, const CHealthInfo& hInfo,
+                   const zeus::CTransform4f& xf, CModelData&& mData, const zeus::CAABox& aabb, const CHealthInfo& hInfo,
                    const CDamageVulnerability& dVuln, const CActorParameters& aParms,
                    const CScriptGunTurretData& turretData);
   ~CScriptGunTurret() override;
@@ -223,7 +223,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
   void Touch(CActor&, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager&) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   zeus::CVector3f GetOrbitPosition(const CStateManager&) const override;

@@ -119,7 +119,7 @@ void CTeamAiMgr::SpacingSort(CStateManager& mgr, const zeus::CVector3f& pos) {
       if (delta.canBeNormalized()) {
         newPos = pos + delta.normalized() * curTierDist;
       } else {
-        newPos = pos + ai->GetTransform().basis[1] * curTierDist;
+        newPos = pos + ai->GetTransform().GetForward() * curTierDist;
       }
       role.x1c_position = newPos;
       role.x1c_position.z() = ai->GetTranslation().z();

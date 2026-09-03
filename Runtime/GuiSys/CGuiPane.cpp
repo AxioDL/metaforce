@@ -11,7 +11,7 @@ CGuiPane::CGuiPane(const CGuiWidgetParms& parms, const zeus::CVector2f& dim, con
 }
 
 void CGuiPane::Draw(const CGuiWidgetDrawParms& parms) {
-  CGraphics::SetModelMatrix(x34_worldXF * zeus::CTransform::Translate(xc8_scaleCenter));
+  CGraphics::SetModelMatrix(x34_worldXF * zeus::CTransform4f::Translate(xc8_scaleCenter));
   if (GetIsVisible()) {
     auto col = xa8_color2;
     col.a() = parms.x0_alphaMod * xa8_color2.a();

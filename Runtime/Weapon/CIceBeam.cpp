@@ -15,11 +15,11 @@ CIceBeam::CIceBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId, E
   x234_ice2nd2 = g_SimplePool->GetObj("Ice2nd_2");
 }
 
-void CIceBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
+void CIceBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) {
   // Empty
 }
 
-void CIceBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
+void CIceBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) {
   bool subtractBlend = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot;
   if (subtractBlend)
     CElementGen::SetSubtractBlend(true);
@@ -32,11 +32,11 @@ void CIceBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform&
     CElementGen::SetSubtractBlend(false);
 }
 
-void CIceBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf) {
+void CIceBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform4f& xf) {
   if (x240_smokeGen) {
-    zeus::CTransform beamLoc = x10_solidModelData->GetScaledLocatorTransform("LBEAM");
+    zeus::CTransform4f beamLoc = x10_solidModelData->GetScaledLocatorTransform("LBEAM");
     x240_smokeGen->SetTranslation(beamLoc.origin);
-    x240_smokeGen->SetOrientation(beamLoc.getRotation());
+    x240_smokeGen->SetOrientation(beamLoc.GetRotation());
     x240_smokeGen->Update(dt);
   }
 
@@ -48,7 +48,7 @@ void CIceBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, c
     if (x1cc_enabledSecondaryEffect != ESecondaryFxType::None) {
       if (x248_25_inEndFx) {
         x244_chargeFx->SetTranslation(xf.origin);
-        x244_chargeFx->SetOrientation(xf.getRotation());
+        x244_chargeFx->SetOrientation(xf.GetRotation());
       } else {
         x244_chargeFx->SetGlobalOrientAndTrans(xf);
       }
@@ -59,7 +59,7 @@ void CIceBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, c
   CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
 
-void CIceBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf, CStateManager& mgr,
+void CIceBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform4f& xf, CStateManager& mgr,
                     TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
   static constexpr std::array<u16, 2> soundId{SFXwpn_fire_ice_normal, SFXwpn_fire_ice_charged};
 

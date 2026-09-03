@@ -379,11 +379,11 @@ void CCubeRenderer::ReallyDrawPhazonSuitIndirectEffect(const zeus::CColor& vertC
   CGX::SetVtxDescv(vtxDesc);
 
   const CGraphics::CProjectionState backupProjection = CGraphics::GetProjectionState();
-  const zeus::CTransform backupView(CGraphics::mViewMatrix);
+  const zeus::CTransform4f backupView(CGraphics::mViewMatrix);
 
   CGraphics::SetOrtho(0.f, static_cast<float>(width), 0.f, static_cast<float>(height), -4096.f, 4096.f);
-  CGraphics::SetViewPointMatrix(zeus::CTransform());
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  CGraphics::SetViewPointMatrix(zeus::CTransform4f());
+  CGraphics::SetModelMatrix(zeus::CTransform4f());
 
   CGX::SetZMode(false, GX_ALWAYS, false);
   GXSetCullMode(GX_CULL_NONE);
@@ -522,8 +522,8 @@ void CCubeRenderer::DoPhazonSuitIndirectAlphaBlur(float blurRadius, float blurRa
   const int height = CGraphics::mViewport.mHeight;
 
   CGraphics::SetOrtho(0.f, 1.f, 1.f, 0.f, -1.f, 1.f);
-  CGraphics::SetViewPointMatrix(zeus::CTransform());
-  SetModelMatrix(zeus::CTransform());
+  CGraphics::SetViewPointMatrix(zeus::CTransform4f());
+  SetModelMatrix(zeus::CTransform4f());
   CGraphics::SetDepthWriteMode(false, ERglEnum::GEqual, false);
 
   CopyTex(1, true, GetRenderToTexBuffer(8), GX_TF_A8, true);
@@ -952,8 +952,8 @@ void CCubeRenderer::PostRenderFogs() {
       return insideA;
     }
 
-    float dotA = aabbA.furthestPointAlongVector(CGraphics::mViewMatrix.basis[1]).dot(CGraphics::mViewMatrix.basis[1]);
-    float dotB = aabbB.furthestPointAlongVector(CGraphics::mViewMatrix.basis[1]).dot(CGraphics::mViewMatrix.basis[1]);
+    float dotA = aabbA.furthestPointAlongVector(CGraphics::mViewMatrix.GetForward()).dot(CGraphics::mViewMatrix.GetForward());
+    float dotB = aabbB.furthestPointAlongVector(CGraphics::mViewMatrix.GetForward()).dot(CGraphics::mViewMatrix.GetForward());
     return dotA < dotB;
   });
   for (const CFogVolumeListItem& fog : x2ac_fogVolumes) {
@@ -963,7 +963,7 @@ void CCubeRenderer::PostRenderFogs() {
   x2ac_fogVolumes.clear();
 }
 
-void CCubeRenderer::SetModelMatrix(const zeus::CTransform& xf) { CGraphics::SetModelMatrix(xf); }
+void CCubeRenderer::SetModelMatrix(const zeus::CTransform4f& xf) { CGraphics::SetModelMatrix(xf); }
 
 void CCubeRenderer::HandleUnsortedModel(CAreaListItem* areaItem, CCubeModel& model, const CModelFlags& flags) {
   if (model.GetFirstUnsortedSurface() == nullptr) {
@@ -1094,9 +1094,9 @@ void CCubeRenderer::SetDrawableCallback(IRenderer::TDrawableCallback cb, void* c
   xac_drawableCallbackUserData = ctx;
 }
 
-void CCubeRenderer::SetWorldViewpoint(const zeus::CTransform& xf) {
+void CCubeRenderer::SetWorldViewpoint(const zeus::CTransform4f& xf) {
   CGraphics::SetViewPointMatrix(xf);
-  auto front = xf.frontVector();
+  auto front = xf.GetForward();
   xb0_viewPlane = zeus::CPlane(front, front.dot(xf.origin));
 }
 
@@ -1123,7 +1123,7 @@ std::pair<zeus::CVector2f, zeus::CVector2f> CCubeRenderer::SetViewportOrtho(bool
   return {{left, bottom}, {right, top}};
 }
 
-void CCubeRenderer::SetClippingPlanes(const zeus::CFrustum& frustum) { x44_frustumPlanes = frustum; }
+void CCubeRenderer::SetClippingPlanes(const zeus::CFrustumPlanes& frustum) { x44_frustumPlanes = frustum; }
 
 void CCubeRenderer::SetViewport(s32 left, s32 bottom, s32 width, s32 height) {
   CGraphics::SetViewport(left, bottom, width, height);
@@ -1140,7 +1140,7 @@ void CCubeRenderer::BeginScene() {
   CGraphics::SetBlendMode(ERglBlendMode::Blend, ERglBlendFactor::SrcAlpha, ERglBlendFactor::InvSrcAlpha,
                           ERglLogicOp::Clear);
   CGraphics::SetPerspective(75.f, CGraphics::mViewport.mWidth / CGraphics::mViewport.mHeight, 1.f, 4096.f);
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  CGraphics::SetModelMatrix(zeus::CTransform4f());
   if (x310_phazonSuitMaskCountdown != 0) {
     --x310_phazonSuitMaskCountdown;
     if (x310_phazonSuitMaskCountdown == 0) {
@@ -1313,12 +1313,12 @@ void CCubeRenderer::DrawModelDisintegrate(CModel& model, CTexture& tex, const ze
   CGX::SetTevKColorSel(GX_TEVSTAGE1, GX_TEV_KCSEL_K0);
   CGX::SetTevKColor(GX_KCOLOR0, color);
   const auto bounds = model.GetInstance().GetBounds();
-  const auto rotation = zeus::CTransform::RotateX(zeus::degToRad(-45.f));
+  const auto rotation = zeus::CTransform4f::RotateX(zeus::degToRad(-45.f));
   const auto transformedBounds = bounds.getTransformedAABox(rotation);
-  const auto xf = zeus::CTransform::Scale(5.f / (transformedBounds.max - transformedBounds.min)) *
-                  zeus::CTransform::Translate(-transformedBounds.min) * rotation;
+  const auto xf = zeus::CTransform4f::Scale(5.f / (transformedBounds.max - transformedBounds.min)) *
+                  zeus::CTransform4f::Translate(-transformedBounds.min) * rotation;
   Mtx mtx;
-  xf.toCStyleMatrix(mtx);
+  xf.GetCStyleMatrix(mtx);
   float f1 = -(1.f - t) * 6.f + 1.f;
   float f2 = t * -0.85f - 0.15f;
   const Mtx ptTex0 = {
@@ -1622,7 +1622,7 @@ void CCubeRenderer::DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirect
                                                  const zeus::CColor& indirectColor, float blurRadius, float scale,
                                                  float offX, float offY) {
   if (x318_27_currentRGBA6 && x310_phazonSuitMaskCountdown != 0) {
-    const zeus::CTransform backupView(CGraphics::mViewMatrix);
+    const zeus::CTransform4f backupView(CGraphics::mViewMatrix);
     const CGraphics::CProjectionState backupProjection = CGraphics::GetProjectionState();
 
     if (!x314_phazonSuitMask || x314_phazonSuitMask->GetWidth() != CGraphics::mViewport.mWidth >> 2 ||
@@ -1860,10 +1860,10 @@ void CCubeRenderer::DoThermalModelDraw(CCubeModel& model, const zeus::CColor& mu
   CGX::SetNumTexGens(1);
   CGX::SetNumChans(0);
   x220_sphereRamp.Load(GX_TEXMAP0, EClampMode::Clamp);
-  zeus::CTransform xf = CGraphics::mViewMatrix.quickInverse().multiplyIgnoreTranslation(CGraphics::mModelMatrix);
+  zeus::CTransform4f xf = CGraphics::mViewMatrix.QuickInverse().MultiplyIgnoreTranslation(CGraphics::mModelMatrix);
   xf.origin.zeroOut();
   Mtx mtx;
-  xf.toCStyleMatrix(mtx);
+  xf.GetCStyleMatrix(mtx);
   GXLoadTexMtxImm(mtx, GX_TEXMTX0, GX_MTX3x4);
   GXLoadTexMtxImm(MvPostXf, GX_PTTEXMTX0, GX_MTX3x4);
   CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
@@ -1989,12 +1989,12 @@ void CCubeRenderer::ReallyDrawSpaceWarp(const zeus::CVector3f& point, float stre
   CGX::SetVtxDescv(vtxDescrs);
 
   CGraphics::CProjectionState backupProj(CGraphics::GetProjectionState());
-  zeus::CTransform backupViewMtx(CGraphics::mViewMatrix);
+  zeus::CTransform4f backupViewMtx(CGraphics::mViewMatrix);
 
   CGraphics::SetOrtho(static_cast<float>(vpLeft), static_cast<float>(vpLeft + vpWidth), static_cast<float>(vpTop),
                       static_cast<float>(vpTop + vpHeight), -4096.f, 4096.f);
-  CGraphics::SetViewPointMatrix(zeus::CTransform());
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  CGraphics::SetViewPointMatrix(zeus::CTransform4f());
+  CGraphics::SetModelMatrix(zeus::CTransform4f());
 
   CGX::SetZMode(false, GX_ALWAYS, false);
   GXSetCullMode(GX_CULL_NONE);
@@ -2059,8 +2059,8 @@ void CCubeRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus:
   int drawTop = 0;
   bool recalcChunk = true;
 
-  const zeus::CTransform modelXf(CGraphics::mModelMatrix);
-  const zeus::CTransform viewXf(CGraphics::mViewMatrix);
+  const zeus::CTransform4f modelXf(CGraphics::mModelMatrix);
+  const zeus::CTransform4f viewXf(CGraphics::mViewMatrix);
   const zeus::CMatrix4f projMtx = CGraphics::GetPerspectiveProjectionMatrix();
 
   zeus::CVector2i minBounds(vpWidth, vpHeight);
@@ -2073,7 +2073,7 @@ void CCubeRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus:
     const zeus::CVector3f worldPoint = modelXf * point;
 
     const zeus::CVector3f viewVec = worldPoint - viewXf.origin;
-    const zeus::CVector3f rotated = viewXf.transposeRotate(viewVec);
+    const zeus::CVector3f rotated = viewXf.TransposeRotate(viewVec);
 
     float w = 0.f;
     const auto pt = projMtx.multiplyOneOverW(rotated, w);
@@ -2282,11 +2282,11 @@ void CCubeRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus:
 
       const CGraphics::CProjectionState oldProjection(CGraphics::GetProjectionState());
       CGX::SetVtxDescv(vtxDescrs);
-      const zeus::CTransform oldView(CGraphics::mViewMatrix);
+      const zeus::CTransform4f oldView(CGraphics::mViewMatrix);
 
       CGraphics::SetOrtho(0.f, static_cast<float>(vpWidth), 0.f, static_cast<float>(vpHeight), -4096.f, 4096.f);
-      CGraphics::SetViewPointMatrix(zeus::CTransform());
-      CGraphics::SetModelMatrix(zeus::CTransform());
+      CGraphics::SetViewPointMatrix(zeus::CTransform4f());
+      CGraphics::SetModelMatrix(zeus::CTransform4f());
 
       CGX::SetZMode(false, GX_ALWAYS, false);
       GXSetCullMode(GX_CULL_NONE);
@@ -2370,8 +2370,8 @@ void CCubeRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus:
   CGraphics::SetUseVideoFilter(oldVideoFilter);
 }
 
-void CCubeRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* model, const zeus::CTransform& modelXf,
-                                         const zeus::CTransform& viewXf, const CSkinnedModel* skinnedModel) {
+void CCubeRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* model, const zeus::CTransform4f& modelXf,
+                                         const zeus::CTransform4f& viewXf, const CSkinnedModel* skinnedModel) {
   if (model == nullptr && skinnedModel == nullptr) {
     const zeus::CAABox transformedAabb = aabb.getTransformedAABox(modelXf);
     zeus::CAABox worldAabb = transformedAabb;
@@ -2382,7 +2382,7 @@ void CCubeRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel*
     };
     CGX::SetVtxDescv(vtxDescrs2);
 
-    const zeus::CUnitVector3f viewPlaneFwd(viewXf.frontVector());
+    const zeus::CUnitVector3f viewPlaneFwd(viewXf.GetForward());
     const zeus::CVector3f min = worldAabb.min;
     const zeus::CVector3f max = -worldAabb.max;
 

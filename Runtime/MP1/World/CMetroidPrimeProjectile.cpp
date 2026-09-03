@@ -21,7 +21,7 @@ SPrimeProjectileInfo::SPrimeProjectileInfo(CInputStream& in)
 }
 
 CMetroidPrimeProjectile::CMetroidPrimeProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type,
-                                                 const zeus::CTransform& xf, EMaterialTypes materials,
+                                                 const zeus::CTransform4f& xf, EMaterialTypes materials,
                                                  const CDamageInfo& damage, TUniqueId uid, TAreaId aid, TUniqueId owner,
                                                  const SPrimeProjectileInfo& auxData, TUniqueId homingTarget,
                                                  EProjectileAttrib attribs, const zeus::CVector3f& scale,
@@ -40,7 +40,7 @@ bool CMetroidPrimeProjectile::Explode(const zeus::CVector3f& pos, const zeus::CV
 
     zeus::CAABox box = zeus::CAABox(zeus::CVector3f(-1.f, -1.f, -1.f), zeus::CVector3f(1.f, 1.f, 1.f))
             .getTransformedAABox(GetTransform() *
-                                 zeus::CTransform::Scale(x3d8_auxData.GetDamageInfo().GetRadius()));
+                                 zeus::CTransform4f::Scale(x3d8_auxData.GetDamageInfo().GetRadius()));
 
     CFire* fire = new CFire(x3d8_auxData.x4_particle, newId, GetAreaIdAlways(), true, GetUniqueId(), GetTransform(),
                             x3d8_auxData.GetDamageInfo(), box, zeus::CVector3f(1.f, 1.f, 1.f),

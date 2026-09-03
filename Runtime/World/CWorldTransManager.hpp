@@ -13,7 +13,7 @@
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 #include "Runtime/GuiSys/CStringTable.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector3f.hpp>
 
@@ -33,7 +33,7 @@ public:
     TLockedToken<CModel> x14c_beamModel;
     TLockedToken<CModel> x158_suitModel;
     TLockedToken<CSkinRules> x164_suitSkin;
-    zeus::CTransform x170_gunXf;
+    zeus::CTransform4f x170_gunXf;
     std::vector<CLight> x1a0_lights;
     // std::unique_ptr<u8> x1b0_dissolveTextureBuffer;
     zeus::CVector2f x1b4_shakeResult;

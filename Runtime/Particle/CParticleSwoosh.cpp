@@ -54,11 +54,11 @@ CParticleSwoosh::CParticleSwoosh(const TToken<CSwooshDescription>& desc, int len
     x15c_swooshes.clear();
     x15c_swooshes.reserve(x1b4_LENG);
     for (int i = 0; i < x1b4_LENG; ++i) {
-      x15c_swooshes.emplace_back(zeus::skZero3f, zeus::skZero3f, 0.f, 0.f, 0, false, zeus::CTransform(), zeus::skZero3f,
+      x15c_swooshes.emplace_back(zeus::skZero3f, zeus::skZero3f, 0.f, 0.f, 0, false, zeus::CTransform4f(), zeus::skZero3f,
                                  0.f, 0.f, zeus::skClear);
     }
 
-    CParticleSwoosh::SetOrientation(zeus::CTransform());
+    CParticleSwoosh::SetOrientation(zeus::CTransform4f());
 
     x16c_p0.resize(x1b8_SIDE);
     x17c_p1.resize(x1b8_SIDE);
@@ -778,7 +778,7 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
   if (x1c_desc->x3c_TEXR) {
     if (x1c_desc->x45_25_ORNT) {
       const zeus::CVector3f camToParticle =
-          ((zeus::CTransform::Translate(xa4_globalTranslation) * xb0_globalOrientation * xec_scaleXf).inverse() *
+          ((zeus::CTransform4f::Translate(xa4_globalTranslation) * xb0_globalOrientation * xec_scaleXf).Inverse() *
            CGraphics::mViewMatrix)
               .origin;
       zeus::CVector3f dotVec = zeus::skZero3f;
@@ -948,8 +948,8 @@ void CParticleSwoosh::Render() {
   // Z-test, Z-update if x45_24_ZBUF
   // Additive if x1d0_25_AALP, otherwise alpha blend
 
-  CGraphics::SetModelMatrix(zeus::CTransform::Translate(xa4_globalTranslation) * xb0_globalOrientation * xec_scaleXf *
-                            zeus::CTransform::Scale(x14c_localScale));
+  CGraphics::SetModelMatrix(zeus::CTransform4f::Translate(xa4_globalTranslation) * xb0_globalOrientation * xec_scaleXf *
+                            zeus::CTransform4f::Scale(x14c_localScale));
 
   // Disable face culling
 
@@ -1014,9 +1014,9 @@ void CParticleSwoosh::Render() {
 //  }
 }
 
-void CParticleSwoosh::SetOrientation(const zeus::CTransform& xf) {
+void CParticleSwoosh::SetOrientation(const zeus::CTransform4f& xf) {
   x44_orientation = xf;
-  x74_invOrientation = xf.inverse();
+  x74_invOrientation = xf.Inverse();
   x15c_swooshes[x158_curParticle].x38_orientation = xf;
 }
 
@@ -1025,14 +1025,14 @@ void CParticleSwoosh::SetTranslation(const zeus::CVector3f& translation) {
   UpdateSwooshTranslation(x38_translation);
 }
 
-void CParticleSwoosh::SetGlobalOrientation(const zeus::CTransform& xf) { xb0_globalOrientation = xf.getRotation(); }
+void CParticleSwoosh::SetGlobalOrientation(const zeus::CTransform4f& xf) { xb0_globalOrientation = xf.GetRotation(); }
 
 void CParticleSwoosh::SetGlobalTranslation(const zeus::CVector3f& translation) { xa4_globalTranslation = translation; }
 
 void CParticleSwoosh::SetGlobalScale(const zeus::CVector3f& scale) {
   xe0_globalScale = scale;
-  xec_scaleXf = zeus::CTransform::Scale(scale);
-  x11c_invScaleXf = zeus::CTransform::Scale(1.f / scale);
+  xec_scaleXf = zeus::CTransform4f::Scale(scale);
+  x11c_invScaleXf = zeus::CTransform4f::Scale(1.f / scale);
 }
 
 void CParticleSwoosh::SetLocalScale(const zeus::CVector3f& scale) { x14c_localScale = scale; }
@@ -1041,11 +1041,11 @@ void CParticleSwoosh::SetParticleEmission(bool e) { x1d0_24_emitting = e; }
 
 void CParticleSwoosh::SetModulationColor(const zeus::CColor& color) { x20c_moduColor = color; }
 
-const zeus::CTransform& CParticleSwoosh::GetOrientation() const { return x44_orientation; }
+const zeus::CTransform4f& CParticleSwoosh::GetOrientation() const { return x44_orientation; }
 
 const zeus::CVector3f& CParticleSwoosh::GetTranslation() const { return x38_translation; }
 
-const zeus::CTransform& CParticleSwoosh::GetGlobalOrientation() const { return xb0_globalOrientation; }
+const zeus::CTransform4f& CParticleSwoosh::GetGlobalOrientation() const { return xb0_globalOrientation; }
 
 const zeus::CVector3f& CParticleSwoosh::GetGlobalTranslation() const { return xa4_globalTranslation; }
 
@@ -1066,8 +1066,8 @@ std::optional<zeus::CAABox> CParticleSwoosh::GetBounds() const {
     const zeus::CVector3f trans = x38_translation + xa4_globalTranslation;
     return zeus::CAABox(trans, trans);
   } else {
-    const zeus::CTransform xf =
-        zeus::CTransform::Translate(xa4_globalTranslation) * xb0_globalOrientation * xec_scaleXf;
+    const zeus::CTransform4f xf =
+        zeus::CTransform4f::Translate(xa4_globalTranslation) * xb0_globalOrientation * xec_scaleXf;
     return zeus::CAABox(x1f0_aabbMin - x208_maxRadius, x1fc_aabbMax + x208_maxRadius).getTransformedAABox(xf);
   }
 }

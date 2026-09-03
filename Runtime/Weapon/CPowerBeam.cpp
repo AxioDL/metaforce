@@ -15,23 +15,23 @@ CPowerBeam::CPowerBeam(CAssetId characterId, EWeaponType type, TUniqueId playerI
   x228_power2nd1 = g_SimplePool->GetObj("Power2nd_1");
 }
 
-void CPowerBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
-  zeus::CTransform backupView = CGraphics::mViewMatrix;
-  CGraphics::SetViewPointMatrix(xf.inverse() * backupView);
-  g_Renderer->SetModelMatrix(zeus::CTransform());
+void CPowerBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) {
+  zeus::CTransform4f backupView = CGraphics::mViewMatrix;
+  CGraphics::SetViewPointMatrix(xf.Inverse() * backupView);
+  g_Renderer->SetModelMatrix(zeus::CTransform4f());
   
   if (x234_shotSmokeGen && x240_smokeState != ESmokeState::Inactive)
     x234_shotSmokeGen->Render();
   CGraphics::SetViewPointMatrix(backupView);
 }
 
-void CPowerBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
+void CPowerBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) {
   if (x1cc_enabledSecondaryEffect != ESecondaryFxType::None && x238_power2ndGen)
     x238_power2ndGen->Render();
   CGunWeapon::PostRenderGunFx(mgr, xf);
 }
 
-void CPowerBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf) {
+void CPowerBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform4f& xf) {
   switch (x240_smokeState) {
   case ESmokeState::Inactive:
     if (shotSmoke) {
@@ -52,7 +52,7 @@ void CPowerBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr,
     [[fallthrough]];
   case ESmokeState::Done:
     if (x234_shotSmokeGen) {
-      zeus::CTransform locator = x10_solidModelData->GetScaledLocatorTransform("LBEAM");
+      zeus::CTransform4f locator = x10_solidModelData->GetScaledLocatorTransform("LBEAM");
       x234_shotSmokeGen->SetGlobalTranslation(locator.origin);
       x234_shotSmokeGen->Update(dt);
       if (x240_smokeState == ESmokeState::Done && x234_shotSmokeGen->GetSystemCount() == 0)
@@ -71,7 +71,7 @@ void CPowerBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr,
   CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
 
-void CPowerBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
+void CPowerBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform4f& xf,
                       CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
   static constexpr std::array<u16, 2> skSoundId{
       SFXwpn_fire_power_normal,

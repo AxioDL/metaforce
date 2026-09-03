@@ -9,7 +9,7 @@ class CFlaahgraProjectile : public CEnergyProjectile {
 
 public:
   DEFINE_ENTITY
-  CFlaahgraProjectile(bool bigStrike, const TToken<CWeaponDescription>& desc, const zeus::CTransform& xf,
+  CFlaahgraProjectile(bool bigStrike, const TToken<CWeaponDescription>& desc, const zeus::CTransform4f& xf,
                       const CDamageInfo& damage, TUniqueId uid, TAreaId aid, TUniqueId owner);
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;

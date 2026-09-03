@@ -7,7 +7,7 @@
 #include "Runtime/Weapon/CProjectileInfo.hpp"
 #include "Runtime/World/CPatterned.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -40,7 +40,7 @@ class CNewIntroBoss : public CPatterned {
   float x638_ = 0.2f;
   float x63c_attackTime = 8.f;
   float x640_initialHp = 0.f;
-  zeus::CTransform x644_initialXf;
+  zeus::CTransform4f x644_initialXf;
   s16 x674_rumbleVoice = -1;
   TUniqueId x676_curProjectile = kInvalidUniqueId;
   bool x678_ = false;
@@ -53,7 +53,7 @@ class CNewIntroBoss : public CPatterned {
 
 public:
   DEFINE_PATTERNED(NewIntroBoss);
-  CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                 CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float minTurnAngle,
                 CAssetId projectile, const CDamageInfo& dInfo, CAssetId beamContactFxId, CAssetId beamPulseFxId,
                 CAssetId beamTextureId, CAssetId beamGlowTextureId);
@@ -61,7 +61,7 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager&) override;
   void Think(float dt, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void OnScanStateChanged(EScanState, CStateManager&) override;
   CProjectileInfo* GetProjectileInfo() override { return &x5ac_projectileInfo; }
   zeus::CAABox GetSortingBounds(const CStateManager&) const override {

@@ -20,13 +20,13 @@ class CScriptWaypoint : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                   bool active, float speed, float pause, u32 patternTranslate, u32 patternOrient, u32 patternFit,
                   u32 behaviour, u32 behaviourOrient, u32 behaviourModifiers, u32 animation);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   TUniqueId FollowWaypoint(CStateManager& mgr) const;
   TUniqueId NextWaypoint(CStateManager& mgr) const;
   float GetSpeed() const { return xe8_speed; }

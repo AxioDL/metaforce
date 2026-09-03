@@ -20,7 +20,7 @@ constexpr std::array<SSphereJointInfo, 3> skJointList{{
 } // Anonymous namespace
 
 CFlaahgraTentacle::CFlaahgraTentacle(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                     const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
+                                     const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                                      const CActorParameters& actParms)
 : CPatterned(EPatternedAI::FlaahgraTentacle, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Large) {

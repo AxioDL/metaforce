@@ -16,7 +16,7 @@
 
 namespace metaforce {
 
-CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                            CModelData&& mData, const zeus::CAABox& aabb, float mass, float zMomentum,
                            const CMaterialList& matList, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
                            const CActorParameters& actParms, bool looping, bool active, s32 shaderIdx, float xrayAlpha,
@@ -104,7 +104,7 @@ void CScriptActor::Think(float dt, CStateManager& mgr) {
       x2e2_26_animating = true;
 
       if (x2e2_30_scaleAdvancementDelta) {
-        MoveToOR(x34_transform.rotate(x64_modelData->GetScale() * x34_transform.transposeRotate(deltas.x0_posDelta)),
+        MoveToOR(x34_transform.Rotate(x64_modelData->GetScale() * x34_transform.TransposeRotate(deltas.x0_posDelta)),
                  dt);
       } else {
         MoveToOR(deltas.x0_posDelta, dt);
@@ -125,7 +125,7 @@ void CScriptActor::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CScriptActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CScriptActor::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   CActor::PreRender(mgr, frustum);
 
   if (xe4_30_outOfFrustum && TCastToConstPtr<CCinematicCamera>(mgr.GetCameraManager()->GetCurrentCamera(mgr))) {

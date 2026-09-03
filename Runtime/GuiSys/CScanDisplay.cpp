@@ -14,7 +14,7 @@
 #include "Runtime/Input/CFinalInput.hpp"
 #include "Runtime/MP1/CPauseScreenBase.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 
 namespace metaforce {
 void CScanDisplay::CDataDot::Update(float dt) {
@@ -40,7 +40,7 @@ void CScanDisplay::CDataDot::Draw(const zeus::CColor& col, float radius) {
     return;
   }
 
-  const zeus::CTransform xf = zeus::CTransform::Translate(xc_curPos.x(), 0.f, xc_curPos.y());
+  const zeus::CTransform4f xf = zeus::CTransform4f::Translate(xc_curPos.x(), 0.f, xc_curPos.y());
   g_Renderer->SetModelMatrix(xf);
   CGraphics::StreamBegin(ERglPrimitive::TriangleStrip);
   zeus::CColor useColor = col;

@@ -112,7 +112,7 @@ class CSamusHud {
   CSfxHandle x3a4_damageSfx;
   CCameraFilterPass x3a8_camFilter;
   CGuiLight* x3d4_damageLight = nullptr;
-  std::vector<zeus::CTransform> x3d8_lightTransforms;
+  std::vector<zeus::CTransform4f> x3d8_lightTransforms;
   float x3e8_damageTIme = 0.f;
   float x3ec_damageLightPulser = 0.f;
   float x3f0_damageFilterAmtInit = 1.f;
@@ -130,7 +130,7 @@ class CSamusHud {
   float x45c_decoShakeAmtInit = 0.f;
   float x460_decoShakeAmt = 0.f;
   float x464_decoShakeAmtGain = 0.f;
-  rstl::reserved_vector<zeus::CTransform, 3> x46c_;
+  rstl::reserved_vector<zeus::CTransform4f, 3> x46c_;
   zeus::CVector2f x500_viewportScale = {1.f, 1.f};
   CSfxHandle x508_staticSfxHi;
   CSfxHandle x50c_staticSfxLo;
@@ -216,7 +216,7 @@ public:
   void Touch();
   CTargetingManager& GetTargetingManager() { return x8_targetingMgr; }
   const zeus::CVector2f& GetViewportScale() const { return x500_viewportScale; }
-  static zeus::CTransform BuildFinalCameraTransform(const zeus::CQuaternion& rot, const zeus::CVector3f& pos,
+  static zeus::CTransform4f BuildFinalCameraTransform(const zeus::CQuaternion& rot, const zeus::CVector3f& pos,
                                                     const zeus::CVector3f& camPos);
   static void DisplayHudMemo(std::u16string_view text, const CHUDMemoParms& info) {
     if (g_SamusHud)

@@ -8,7 +8,7 @@
 #include "Runtime/Collision/CRayCastResult.hpp"
 
 #include <zeus/CAABox.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -20,14 +20,14 @@ public:
   class CPrimDesc {
     const CCollisionPrimitive& x0_prim;
     const CMaterialFilter& x4_filter;
-    zeus::CTransform x8_xf;
+    zeus::CTransform4f x8_xf;
 
   public:
-    CPrimDesc(const CCollisionPrimitive& prim, const CMaterialFilter& filter, const zeus::CTransform& xf)
+    CPrimDesc(const CCollisionPrimitive& prim, const CMaterialFilter& filter, const zeus::CTransform4f& xf)
     : x0_prim(prim), x4_filter(filter), x8_xf(xf) {}
     const CCollisionPrimitive& GetPrim() const { return x0_prim; }
     const CMaterialFilter& GetFilter() const { return x4_filter; }
-    const zeus::CTransform& GetTransform() const { return x8_xf; }
+    const zeus::CTransform4f& GetTransform() const { return x8_xf; }
   };
 
 private:
@@ -138,13 +138,13 @@ public:
   virtual u32 GetTableIndex() const = 0;
   virtual void SetMaterial(const CMaterialList&);
   virtual const CMaterialList& GetMaterial() const;
-  virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const = 0;
+  virtual zeus::CAABox CalculateAABox(const zeus::CTransform4f&) const = 0;
   virtual zeus::CAABox CalculateLocalAABox() const = 0;
   virtual FourCC GetPrimType() const = 0;
   virtual ~CCollisionPrimitive() = default;
   virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const = 0;
   CRayCastResult CastRay(const zeus::CVector3f& start, const zeus::CVector3f& dir, float length,
-                         const CMaterialFilter& filter, const zeus::CTransform& xf) const;
+                         const CMaterialFilter& filter, const zeus::CTransform4f& xf) const;
 
   static bool Collide(const CInternalCollisionStructure::CPrimDesc& prim0,
                       const CInternalCollisionStructure::CPrimDesc& prim1, CCollisionInfoList& list);

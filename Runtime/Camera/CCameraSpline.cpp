@@ -39,7 +39,7 @@ void CCameraSpline::CalculateKnots(TUniqueId cameraId, const std::vector<SConnec
                                        [&waypoint](const auto& a) { return a == waypoint->GetUniqueId(); });
       if (search == x14_wpTracker.cend()) {
         x14_wpTracker.push_back(waypoint->GetUniqueId());
-        AddKnot(waypoint->GetTranslation(), waypoint->GetTransform().basis[1]);
+        AddKnot(waypoint->GetTranslation(), waypoint->GetTransform().GetForward());
         waypoint = mgr.ObjectById(waypoint->GetRandomNextWaypointId(mgr));
       }
     }
@@ -175,9 +175,9 @@ bool CCameraSpline::GetSurroundingPoints(size_t idx, rstl::reserved_vector<zeus:
   return true;
 }
 
-zeus::CTransform CCameraSpline::GetInterpolatedSplinePointByLength(float pos) const {
+zeus::CTransform4f CCameraSpline::GetInterpolatedSplinePointByLength(float pos) const {
   if (x4_positions.empty())
-    return zeus::CTransform();
+    return zeus::CTransform4f();
 
   size_t baseIdx = 0;
   size_t i;
@@ -221,11 +221,11 @@ zeus::CTransform CCameraSpline::GetInterpolatedSplinePointByLength(float pos) co
   if (GetSurroundingPoints(baseIdx, positions, directions)) {
     float f1 = zeus::clamp(-1.f, directions[1].dot(directions[2]), 1.f);
     if (f1 >= 1.f) {
-      zeus::CTransform ret = zeus::lookAt(zeus::skZero3f, directions[2]);
+      zeus::CTransform4f ret = zeus::CTransform4f::LookAt(zeus::skZero3f, directions[2]);
       ret.origin = zeus::getCatmullRomSplinePoint(positions[0], positions[1], positions[2], positions[3], t);
       return ret;
     } else {
-      zeus::CTransform ret = zeus::lookAt(
+      zeus::CTransform4f ret = zeus::CTransform4f::LookAt(
           zeus::skZero3f,
           zeus::CQuaternion::lookAt(directions[1], directions[2], std::acos(f1) * t).transform(directions[1]));
       ret.origin = zeus::getCatmullRomSplinePoint(positions[0], positions[1], positions[2], positions[3], t);
@@ -233,7 +233,7 @@ zeus::CTransform CCameraSpline::GetInterpolatedSplinePointByLength(float pos) co
     }
   }
 
-  return zeus::CTransform();
+  return zeus::CTransform4f();
 }
 
 zeus::CVector3f CCameraSpline::GetInterpolatedSplinePointByTime(float time, float range) const {

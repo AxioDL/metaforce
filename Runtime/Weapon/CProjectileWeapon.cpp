@@ -10,7 +10,7 @@ namespace metaforce {
 u16 CProjectileWeapon::g_GlobalSeed = 99;
 
 CProjectileWeapon::CProjectileWeapon(const TToken<CWeaponDescription>& wDesc, const zeus::CVector3f& worldOffset,
-                                     const zeus::CTransform& localToWorld, const zeus::CVector3f& scale, s32 flags)
+                                     const zeus::CTransform4f& localToWorld, const zeus::CVector3f& scale, s32 flags)
 : x4_weaponDesc(wDesc)
 , x10_random(g_GlobalSeed)
 , x14_localToWorldXf(localToWorld)
@@ -50,15 +50,15 @@ CProjectileWeapon::CProjectileWeapon(const TToken<CWeaponDescription>& wDesc, co
   if (CVectorElement* ivec = x4_weaponDesc->x4_IVEC.get())
     ivec->GetValue(0, xb0_velocity);
   if (CVectorElement* iorn = x4_weaponDesc->x0_IORN.get()) {
-    zeus::CTransform xf;
+    zeus::CTransform4f xf;
     zeus::CVector3f orn;
     iorn->GetValue(0, orn);
-    xf.rotateLocalX(zeus::degToRad(orn.x()));
-    xf.rotateLocalY(zeus::degToRad(orn.y()));
-    xf.rotateLocalZ(zeus::degToRad(orn.z()));
+    xf.RotateLocalX(zeus::degToRad(orn.x()));
+    xf.RotateLocalY(zeus::degToRad(orn.y()));
+    xf.RotateLocalZ(zeus::degToRad(orn.z()));
     SetRelativeOrientation(xf);
   } else {
-    SetRelativeOrientation(zeus::CTransform());
+    SetRelativeOrientation(zeus::CTransform4f());
   }
   x108_model = x4_weaponDesc->x84_OHEF.x0_res;
   x124_26_AP11 = x4_weaponDesc->x2a_AP11;
@@ -69,7 +69,7 @@ CProjectileWeapon::CProjectileWeapon(const TToken<CWeaponDescription>& wDesc, co
   UpdateChildParticleSystems(1.f / 60.f);
 }
 
-zeus::CTransform CProjectileWeapon::GetTransform() const { return x14_localToWorldXf * x44_localXf; }
+zeus::CTransform4f CProjectileWeapon::GetTransform() const { return x14_localToWorldXf * x44_localXf; }
 
 zeus::CVector3f CProjectileWeapon::GetTranslation() const {
   return x14_localToWorldXf * (x44_localXf * x8c_projOffset + x80_localOffset) + x74_worldOffset;
@@ -151,15 +151,15 @@ std::optional<TLockedToken<CGenDescription>> CProjectileWeapon::CollisionOccured
                                                                                  const zeus::CVector3f& pos,
                                                                                  const zeus::CVector3f& normal,
                                                                                  const zeus::CVector3f& target) {
-  x80_localOffset = x14_localToWorldXf.transposeRotate(pos - x74_worldOffset) - x8c_projOffset;
+  x80_localOffset = x14_localToWorldXf.TransposeRotate(pos - x74_worldOffset) - x8c_projOffset;
   zeus::CVector3f posToTarget = target - GetTranslation();
   if (deflected) {
     if (useTarget && posToTarget.canBeNormalized()) {
-      SetWorldSpaceOrientation(zeus::lookAt(zeus::skZero3f, posToTarget.normalized()));
+      SetWorldSpaceOrientation(zeus::CTransform4f::LookAt(zeus::skZero3f, posToTarget.normalized()));
     } else {
-      zeus::CTransform xf = GetTransform();
+      zeus::CTransform4f xf = GetTransform();
       SetWorldSpaceOrientation(
-          zeus::lookAt(zeus::skZero3f, xf.basis[1] - normal * (normal.dot(xf.basis[1]) * 2.f), normal));
+          zeus::CTransform4f::LookAt(zeus::skZero3f, xf.GetForward() - normal * (normal.dot(xf.GetForward()) * 2.f), normal));
     }
     return std::nullopt;
   } else {
@@ -221,9 +221,9 @@ void CProjectileWeapon::Render() {
     return;
 
   CGraphics::SetModelMatrix(
-      zeus::CTransform::Translate(x74_worldOffset) * x14_localToWorldXf *
-      zeus::CTransform::Translate(x44_localXf * x8c_projOffset + x80_localOffset + xa4_localOffset2) *
-      zeus::CTransform::Scale(x98_scale) * x44_localXf);
+      zeus::CTransform4f::Translate(x74_worldOffset) * x14_localToWorldXf *
+      zeus::CTransform4f::Translate(x44_localXf * x8c_projOffset + x80_localOffset + xa4_localOffset2) *
+      zeus::CTransform4f::Scale(x98_scale) * x44_localXf);
 
   // TODO
 //  std::vector<CLight> useLights;
@@ -374,10 +374,10 @@ void CProjectileWeapon::UpdatePSTranslationAndOrientation() {
     zeus::CVector3f orient;
     psov->GetValue(xf4_curFrame, orient);
 
-    zeus::CTransform xf = x44_localXf;
-    xf.rotateLocalX(zeus::degToRad(orient.x()));
-    xf.rotateLocalY(zeus::degToRad(orient.y()));
-    xf.rotateLocalZ(zeus::degToRad(orient.z()));
+    zeus::CTransform4f xf = x44_localXf;
+    xf.RotateLocalX(zeus::degToRad(orient.x()));
+    xf.RotateLocalY(zeus::degToRad(orient.y()));
+    xf.RotateLocalZ(zeus::degToRad(orient.z()));
     SetRelativeOrientation(xf);
   }
 
@@ -394,8 +394,8 @@ void CProjectileWeapon::UpdatePSTranslationAndOrientation() {
     ofst->GetValue(xf4_curFrame, x8c_projOffset);
 }
 
-void CProjectileWeapon::SetWorldSpaceOrientation(const zeus::CTransform& xf) {
-  x44_localXf = x14_localToWorldXf.inverse() * xf;
+void CProjectileWeapon::SetWorldSpaceOrientation(const zeus::CTransform4f& xf) {
+  x44_localXf = x14_localToWorldXf.Inverse() * xf;
 }
 
 void CProjectileWeapon::UpdateParticleFX() {

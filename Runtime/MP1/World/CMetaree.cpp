@@ -9,7 +9,7 @@
 
 namespace metaforce::MP1 {
 CMetaree::CMetaree(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
-                   const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
+                   const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                    const CDamageInfo& dInfo, float f1, const zeus::CVector3f& v1, float f2, EBodyType bodyType,
                    float f3, float f4, const CActorParameters& aParms)
 : CPatterned(EPatternedAI::Metaree, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
@@ -87,7 +87,7 @@ void CMetaree::Flee(CStateManager& mgr, EStateMsg msg, float) {
     ApplyImpulseWR(5.f * (GetMass() * (x590_projectileDelta * zeus::CVector3f{1.f, 1.f, 0.f})), zeus::CAxisAngle());
 
     SetMomentumWR({0.f, 0.f, -GetGravityConstant() * GetMass()});
-    SetTransform(zeus::CTransform::Translate(GetTranslation()));
+    SetTransform(zeus::CTransform4f::Translate(GetTranslation()));
     x5a8_ = 0;
   } else if (msg == EStateMsg::Update) {
     if (x5a8_ != 0) {
@@ -141,7 +141,7 @@ void CMetaree::Halt(CStateManager& mgr, EStateMsg msg, float) {
   SetMomentumWR(zeus::skZero3f);
   x450_bodyController->SetLocomotionType(pas::ELocomotionType::Lurk);
   x584_lookPos = x574_offset + mgr.GetPlayer().GetTranslation();
-  SetTransform(zeus::lookAt(GetTranslation(), x584_lookPos));
+  SetTransform(zeus::CTransform4f::LookAt(GetTranslation(), x584_lookPos));
   x330_stateMachineState.SetDelay(x56c_haltDelay);
 }
 

@@ -100,7 +100,7 @@ private:
 public:
   DEFINE_PATTERNED(ChozoGhost);
 
-  CChozoGhost(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CChozoGhost(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
               const CActorParameters&, const CPatternedInfo&, float, float, float, float, CAssetId, const CDamageInfo&,
               CAssetId, const CDamageInfo&, const CChozoGhost::CBehaveChance&, const CChozoGhost::CBehaveChance&,
               const CBehaveChance&, u16, float, u16, u16, u32, float, u32, float, CAssetId, s16, float, float, u32,
@@ -108,7 +108,7 @@ public:
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Think(float dt, CStateManager&) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   void Render(CStateManager& mgr) override;
   void Touch(CActor& act, CStateManager& mgr) override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f& pos, const zeus::CVector3f& dir,

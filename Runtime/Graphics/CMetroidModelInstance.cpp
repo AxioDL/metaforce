@@ -12,7 +12,7 @@ CMetroidModelInstance::CMetroidModelInstance(std::span<const u8> modelHeader, co
   {
     CMemoryInStream stream{modelHeader.data(), static_cast<u32>(modelHeader.size_bytes())};
     x0_visorFlags = stream.ReadUint32();
-    x4_worldXf = stream.Get<zeus::CTransform>();
+    x4_worldXf = stream.Get<zeus::CTransform4f>();
     x34_worldAABB = stream.Get<zeus::CAABox>();
   }
   {

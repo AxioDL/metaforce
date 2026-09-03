@@ -41,7 +41,7 @@ private:
   int x54_c;
   mutable bool x58_24_loaded : 1 = false;
 
-  zeus::CTransform m_aspectTransform;
+  zeus::CTransform4f m_aspectTransform;
   float m_aspectConstraint = -1.f;
   float m_maxAspect = -1.f;
 
@@ -77,7 +77,7 @@ public:
   void RegisterLight(std::shared_ptr<CGuiLight>&& light);
   bool GetIsFinishedLoading() const;
   void Touch() const;
-  const zeus::CTransform& GetAspectTransform() const { return m_aspectTransform; }
+  const zeus::CTransform4f& GetAspectTransform() const { return m_aspectTransform; }
   void SetAspectConstraint(float c);
   void SetMaxAspect(float c);
   void SetMouseOverChangeCallback(std::function<void(CGuiWidget*, CGuiWidget*)>&& cb) {

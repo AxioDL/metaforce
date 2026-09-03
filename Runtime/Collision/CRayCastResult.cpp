@@ -14,9 +14,9 @@ void CRayCastResult::MakeInvalid() {
   x20_invalid = EInvalid::Invalid;
 }
 
-void CRayCastResult::Transform(const zeus::CTransform& xf) {
+void CRayCastResult::Transform(const zeus::CTransform4f& xf) {
   x4_point = xf * x4_point;
-  x10_plane = zeus::CPlane(xf.rotate(x10_plane.normal()), x10_plane.normal().dot(x4_point));
+  x10_plane = zeus::CPlane(xf.Rotate(x10_plane.normal()), x10_plane.normal().dot(x4_point));
 }
 
 } // namespace metaforce

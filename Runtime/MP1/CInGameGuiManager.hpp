@@ -23,7 +23,7 @@
 #include "Runtime/MP1/CSaveGameScreen.hpp"
 
 #include <zeus/CQuaternion.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -81,7 +81,7 @@ private:
   zeus::CVector3f x164_automapperOffset;
   zeus::CQuaternion x170_camRotate;
   zeus::CVector3f x180_camOffset;
-  zeus::CTransform x18c_mapCamXf;
+  zeus::CTransform4f x18c_mapCamXf;
   EInGameGuiState x1bc_prevState = EInGameGuiState::Zero;
   EInGameGuiState x1c0_nextState = EInGameGuiState::Zero;
   SOnScreenTex x1c4_onScreenTex;

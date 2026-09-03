@@ -15,11 +15,11 @@ class CDroneLaser : public CActor {
 
 public:
   DEFINE_ENTITY
-  CDroneLaser(TUniqueId uid, TAreaId aId, const zeus::CTransform& xf, CAssetId particle);
+  CDroneLaser(TUniqueId uid, TAreaId aId, const zeus::CTransform4f& xf, CAssetId particle);
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   void Render(CStateManager& mgr) override;
   void CalculateRenderBounds() override;
 

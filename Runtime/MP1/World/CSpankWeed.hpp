@@ -31,7 +31,7 @@ class CSpankWeed : public CPatterned {
 public:
   DEFINE_PATTERNED(SpankWeed);
 
-  CSpankWeed(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CSpankWeed(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
              const CActorParameters&, const CPatternedInfo&, float, float, float, float);
 
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;

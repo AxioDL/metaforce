@@ -8,7 +8,7 @@
 namespace metaforce {
 
 CTargetableProjectile::CTargetableProjectile(
-    const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform& xf, EMaterialTypes materials,
+    const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform4f& xf, EMaterialTypes materials,
     const CDamageInfo& damage, const CDamageInfo& damage2, TUniqueId uid, TAreaId aid, TUniqueId owner,
     const TLockedToken<CWeaponDescription>& weapDesc, TUniqueId homingTarget, EProjectileAttrib attribs,
     const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx, bool sendCollideMsg)
@@ -42,7 +42,7 @@ bool CTargetableProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVec
 
   if (TCastToConstPtr<CActor> act = mgr.GetObjectById(xec_ownerId)) {
     TUniqueId uid = mgr.AllocateUniqueId();
-    zeus::CTransform xf = zeus::lookAt(x170_projectile.GetTranslation(), act->GetAimPosition(mgr, 0.f), zeus::skUp);
+    zeus::CTransform4f xf = zeus::CTransform4f::LookAt(x170_projectile.GetTranslation(), act->GetAimPosition(mgr, 0.f), zeus::skUp);
     auto* projectile = new CEnergyProjectile(true, x3d8_weaponDesc, xf0_weaponType, xf, EMaterialTypes::Player,
                                              x3e0_damage, uid, GetAreaIdAlways(), x2c4_hitProjectileOwner, xec_ownerId,
                                              EProjectileAttrib::None, false, zeus::skOne3f, {}, 0xFFFF, false);
@@ -57,7 +57,7 @@ bool CTargetableProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVec
 }
 
 void CTargetableProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr) {
-  zeus::CTransform xf = zeus::lookAt(GetTranslation(), GetAimPosition(mgr, 0.1f));
+  zeus::CTransform4f xf = zeus::CTransform4f::LookAt(GetTranslation(), GetAimPosition(mgr, 0.1f));
   xf.origin = GetTranslation();
   SetTransform(xf);
   CEnergyProjectile::ResolveCollisionWithActor(res, act, mgr);

@@ -82,7 +82,7 @@ class CThardus : public CPatterned {
   s32 x758_;
   s32 x75c_;
   s32 x760_;
-  zeus::CTransform x764_startTransform;
+  zeus::CTransform4f x764_startTransform;
   u32 x794_ = 0;
   std::vector<TUniqueId> x798_;
   std::vector<TUniqueId> x7a8_timers;
@@ -188,7 +188,7 @@ class CThardus : public CPatterned {
 
 public:
   DEFINE_PATTERNED(Thardus);
-  CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
            CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
            std::vector<CStaticRes> mData1, std::vector<CStaticRes> mData2, CAssetId particle1, CAssetId particle2,
            CAssetId particle3, float f1, float f2, float f3, float f4, float f5, float f6, CAssetId stateMachine,
@@ -197,7 +197,7 @@ public:
 
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   void Render(CStateManager& mgr) override;
   bool CanRenderUnsorted(const CStateManager&) const override { return false; }
   void Touch(CActor& act, CStateManager& mgr) override;

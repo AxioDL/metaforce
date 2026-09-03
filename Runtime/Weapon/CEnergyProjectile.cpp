@@ -18,14 +18,14 @@
 namespace metaforce {
 
 CEnergyProjectile::CEnergyProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type,
-                                     const zeus::CTransform& xf, EMaterialTypes excludeMat, const CDamageInfo& damage,
+                                     const zeus::CTransform4f& xf, EMaterialTypes excludeMat, const CDamageInfo& damage,
                                      TUniqueId uid, TAreaId aid, TUniqueId owner, TUniqueId homingTarget,
                                      EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
                                      const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
                                      bool sendCollideMsg)
 : CGameProjectile(active, desc, "GameProjectile"sv, type, xf, excludeMat, damage, uid, aid, owner, homingTarget,
                   attribs, underwater, scale, visorParticle, visorSfx, sendCollideMsg)
-, x2ec_dir(xf.frontVector())
+, x2ec_dir(xf.GetForward())
 , x2f8_mag(x2ec_dir.magnitude())
 , x2fc_camShake(CCameraShakeData::BuildProjectileCameraShake(0.5f, 0.75f)) {
   xe6_27_thermalVisorFlags = 2;
@@ -147,7 +147,7 @@ void CEnergyProjectile::ResolveCollisionWithWorld(const CRayCastResult& res, CSt
 
 void CEnergyProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr) {
   x2c2_lastResolvedObj = act.GetUniqueId();
-  const auto crType = act.GetCollisionResponseType(res.GetPoint(), x34_transform.basis[1].normalized(),
+  const auto crType = act.GetCollisionResponseType(res.GetPoint(), x34_transform.GetForward().normalized(),
                                                    x12c_curDamageInfo.GetWeaponMode(), xe8_projectileAttribs);
   act.Touch(*this, mgr);
   const CDamageVulnerability* dVuln = act.GetDamageVulnerability();
@@ -160,7 +160,7 @@ void CEnergyProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CAc
   }
   if (const TCastToPtr<CEnergyProjectile> proj = act) {
     proj->SetHitProjectileOwner(xec_ownerId);
-    proj->Explode(GetTranslation(), x34_transform.basis[1], EWeaponCollisionResponseTypes::OtherProjectile, mgr,
+    proj->Explode(GetTranslation(), x34_transform.GetForward(), EWeaponCollisionResponseTypes::OtherProjectile, mgr,
                   *GetDamageVulnerability(), GetUniqueId());
   }
 }
@@ -246,7 +246,7 @@ void CEnergyProjectile::Render(CStateManager& mgr) {
   }
 }
 
-void CEnergyProjectile::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CEnergyProjectile::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   const auto bounds = x170_projectile.GetBounds();
   if (bounds && !frustum.aabbFrustumTest(*bounds)) {
     return;
@@ -328,7 +328,7 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
   PlayImpactSound(pos, type);
   mgr.InformListeners(pos, EListenNoiseType::ProjectileExplode);
   if (auto particle = x170_projectile.CollisionOccured(type, !done, retargetPlayer, offsetPos, normal, targetPos)) {
-    zeus::CTransform particleXf = zeus::lookAt(zeus::skZero3f, normal);
+    zeus::CTransform4f particleXf = zeus::CTransform4f::LookAt(zeus::skZero3f, normal);
     particleXf.origin = offsetPos;
     if (xf0_weaponType != EWeaponType::Power || !xf8_filter.GetExcludeList().HasMaterial(EMaterialTypes::Player) ||
         !x2e4_27_inWater) {

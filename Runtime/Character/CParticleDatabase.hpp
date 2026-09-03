@@ -12,7 +12,7 @@
 #include "Runtime/Particle/CElectricDescription.hpp"
 
 #include <zeus/CColor.hpp>
-#include <zeus/CFrustum.hpp>
+#include <zeus/CFrustumPlanes.hpp>
 
 namespace metaforce {
 class CCharLayoutInfo;
@@ -38,11 +38,11 @@ class CParticleDatabase {
   static void DeleteAllLightsForParticleDB(CStateManager& mgr, DrawMap& map);
   static void RenderParticleGenMap(const DrawMap& map);
   static void RenderParticleGenMapMasked(const DrawMap& map, int mask, int target);
-  static void AddToRendererClippedParticleGenMap(const DrawMap& map, const zeus::CFrustum& frustum);
-  static void AddToRendererClippedParticleGenMapMasked(const DrawMap& map, const zeus::CFrustum& frustum, int mask,
+  static void AddToRendererClippedParticleGenMap(const DrawMap& map, const zeus::CFrustumPlanes& frustum);
+  static void AddToRendererClippedParticleGenMapMasked(const DrawMap& map, const zeus::CFrustumPlanes& frustum, int mask,
                                                        int target);
   static void UpdateParticleGenDB(float dt, const CPoseAsTransforms& pose, const CCharLayoutInfo& charInfo,
-                                  const zeus::CTransform& xf, const zeus::CVector3f& vec, CStateManager& stateMgr,
+                                  const zeus::CTransform4f& xf, const zeus::CVector3f& vec, CStateManager& stateMgr,
                                   DrawMap& map, bool deleteIfDone);
 
 public:
@@ -52,14 +52,14 @@ public:
   void SetModulationColorAllActiveEffects(const zeus::CColor& color);
   void SuspendAllActiveEffects(CStateManager& stateMgr);
   void DeleteAllLights(CStateManager& stateMgr);
-  void Update(float dt, const CPoseAsTransforms& pose, const CCharLayoutInfo& charInfo, const zeus::CTransform& xf,
+  void Update(float dt, const CPoseAsTransforms& pose, const CCharLayoutInfo& charInfo, const zeus::CTransform4f& xf,
               const zeus::CVector3f& scale, CStateManager& stateMgr);
   void RenderSystemsToBeDrawnLastMasked(int mask, int target) const;
   void RenderSystemsToBeDrawnLast() const;
   void RenderSystemsToBeDrawnFirstMasked(int mask, int target) const;
   void RenderSystemsToBeDrawnFirst() const;
-  void AddToRendererClippedMasked(const zeus::CFrustum& frustum, int mask, int target) const;
-  void AddToRendererClipped(const zeus::CFrustum& frustum) const;
+  void AddToRendererClippedMasked(const zeus::CFrustumPlanes& frustum, int mask, int target) const;
+  void AddToRendererClipped(const zeus::CFrustumPlanes& frustum) const;
   CParticleGenInfo* GetParticleEffect(std::string_view name) const;
   void SetParticleEffectState(std::string_view name, bool active, CStateManager& mgr);
   void SetCEXTValue(std::string_view name, int idx, float value);

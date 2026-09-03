@@ -10,13 +10,13 @@ CWorldShadow::CWorldShadow(u32 w, u32 h, bool rgba8)
 : x0_texture(
       std::make_unique<CTexture>(rgba8 ? ETexelFormat::RGBA8 : ETexelFormat::RGB565, w, h, 1, "World Shadow"sv)) {}
 
-void CWorldShadow::EnableModelProjectedShadow(const zeus::CTransform& pos, s32 lightIdx, float f1) {
-  zeus::CTransform texTransform = zeus::lookAt(zeus::skZero3f, x74_lightPos - x68_objPos);
-  zeus::CTransform posXf = pos;
+void CWorldShadow::EnableModelProjectedShadow(const zeus::CTransform4f& pos, s32 lightIdx, float f1) {
+  zeus::CTransform4f texTransform = zeus::CTransform4f::LookAt(zeus::skZero3f, x74_lightPos - x68_objPos);
+  zeus::CTransform4f posXf = pos;
   posXf.origin = zeus::skZero3f;
-  texTransform = posXf.inverse() * texTransform;
-  texTransform = (texTransform * zeus::CTransform::Scale(float(M_SQRT2) * x64_objHalfExtent * f1)).inverse();
-  texTransform = zeus::CTransform::Translate(0.5f, 0.f, 0.5f) * texTransform;
+  texTransform = posXf.Inverse() * texTransform;
+  texTransform = (texTransform * zeus::CTransform4f::Scale(float(M_SQRT2) * x64_objHalfExtent * f1)).Inverse();
+  texTransform = zeus::CTransform4f::Translate(0.5f, 0.f, 0.5f) * texTransform;
   GX::LightMask lightMask;
   lightMask.set(lightIdx);
   CCubeModel::EnableShadowMaps(*x0_texture, texTransform, lightMask, lightMask);
@@ -51,11 +51,11 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
       float fov = zeus::radToDeg(std::atan2(x64_objHalfExtent, distance)) * 2.f;
       if (fov >= 0.00001f) {
         lightToPoint.normalize();
-        x4_view = zeus::lookAt(light.GetPosition(), centerPoint, zeus::skDown);
+        x4_view = zeus::CTransform4f::LookAt(light.GetPosition(), centerPoint, zeus::skDown);
         x68_objPos = centerPoint;
         x74_lightPos = light.GetPosition();
         CGraphics::SetViewPointMatrix(x4_view);
-        zeus::CFrustum frustum;
+        zeus::CFrustumPlanes frustum;
         frustum.updatePlanes(x4_view, zeus::SProjPersp(zeus::degToRad(fov), 1.f, 0.1f, distance + x64_objHalfExtent));
         g_Renderer->SetClippingPlanes(frustum);
         g_Renderer->SetPerspective(fov, x0_texture->GetWidth(), x0_texture->GetHeight(), 0.1f, 1000.f);
@@ -66,7 +66,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
         g_Renderer->SetViewport(0, 0, x0_texture->GetWidth() * 2, x0_texture->GetHeight() * 2);
 
         float extent = float(M_SQRT2) * x64_objHalfExtent;
-        x34_model = zeus::lookAt(centerPoint - zeus::CVector3f(0.f, 0.f, 0.1f), light.GetPosition());
+        x34_model = zeus::CTransform4f::LookAt(centerPoint - zeus::CVector3f(0.f, 0.f, 0.1f), light.GetPosition());
         g_Renderer->SetModelMatrix(x34_model);
 
         g_Renderer->PrimColor(zeus::skWhite);
@@ -84,7 +84,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
         g_Renderer->PrimVertex({extent, 0.f, -extent});
         g_Renderer->EndPrimitive();
 
-        CGraphics::SetModelMatrix(zeus::CTransform());
+        CGraphics::SetModelMatrix(zeus::CTransform4f());
         CCubeModel::SetRenderModelBlack(true);
         CCubeModel::SetDrawingOccluders(true);
         g_Renderer->PrepareDynamicLights({});

@@ -6,13 +6,13 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
 
 class CWaveBuster : public CGameProjectile {
-  zeus::CTransform x2e8_originalXf;
+  zeus::CTransform4f x2e8_originalXf;
   // Wavebuster is rendered as a cubic bezier
   // points A & D are at the arm cannon and endpoint/target respectively
   zeus::CVector3f x318_bezierB;
@@ -65,17 +65,17 @@ class CWaveBuster : public CGameProjectile {
 
 public:
   DEFINE_ENTITY
-  CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform& xf,
+  CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform4f& xf,
               EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
               TUniqueId homingTarget, EProjectileAttrib attrib);
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   void Render(CStateManager& mgr) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   bool IsFiring() const { return x3d0_24_firing; }
-  void UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr);
+  void UpdateFx(const zeus::CTransform4f& xf, float dt, CStateManager& mgr);
   void ResetBeam(bool deactivate);
   void SetNewTarget(TUniqueId id, CStateManager& mgr);
 };

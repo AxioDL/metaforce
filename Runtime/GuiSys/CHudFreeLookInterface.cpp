@@ -66,10 +66,10 @@ void CHudFreeLookInterface::SetFreeLookState(bool inFreeLook, bool lookControlHe
   x70_25_lookControlHeld = lookControlHeld;
   x70_26_lockedOnObj = lockedOnObj;
 
-  x7c_model_freelookleft->SetLocalTransform(x8_freeLookLeftXf * zeus::CTransform::Translate(0.f, 0.f, vertLookAngle));
+  x7c_model_freelookleft->SetLocalTransform(x8_freeLookLeftXf * zeus::CTransform4f::Translate(0.f, 0.f, vertLookAngle));
 
   x88_model_freelookright->SetLocalTransform(x38_freeLookRightXf *
-                                             zeus::CTransform::Translate(0.f, 0.f, vertLookAngle));
+                                             zeus::CTransform4f::Translate(0.f, 0.f, vertLookAngle));
 
   zeus::CColor color = zeus::skWhite;
   float totalInterp = x68_freeLookInterp * (1.f - x6c_lockOnInterp);
@@ -133,9 +133,9 @@ void CHudFreeLookInterfaceXRay::SetFreeLookState(bool inFreeLook, bool lookContr
   x21_lookControlHeld = lookControlHeld;
 
   x2c_model_freelookleft->SetLocalTransform(
-      zeus::CTransform(zeus::CMatrix3f::RotateY(vertLookAngle), x4_freeLookLeftPos));
+      zeus::CTransform4f(zeus::CMatrix3f::RotateY(vertLookAngle), x4_freeLookLeftPos));
   x30_model_freelookright->SetLocalTransform(
-      zeus::CTransform(zeus::CMatrix3f::RotateY(-vertLookAngle), x10_freeLookRightPos));
+      zeus::CTransform4f(zeus::CMatrix3f::RotateY(-vertLookAngle), x10_freeLookRightPos));
 
   zeus::CColor color = zeus::skWhite;
   color.a() = x1c_freeLookInterp;

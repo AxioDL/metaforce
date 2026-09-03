@@ -11,7 +11,7 @@
 namespace metaforce::MP1 {
 
 CFlickerBat::CFlickerBat(TUniqueId uid, std::string_view name, CPatterned::EFlavorType flavor, const CEntityInfo& info,
-                         const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
+                         const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                          EColliderType colType, bool startsHidden, const CActorParameters& actParms,
                          bool enableLineOfSight)
 : CPatterned(EPatternedAI::FlickerBat, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
@@ -173,7 +173,7 @@ void CFlickerBat::Taunt(CStateManager& mgr, EStateMsg msg, float) {
 }
 
 bool CFlickerBat::InPosition(CStateManager& mgr, float arg) {
-  return GetTransform().frontVector().dot(mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation()) > 0.f;
+  return GetTransform().GetForward().dot(mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation()) > 0.f;
 }
 
 bool CFlickerBat::HearShot(CStateManager&, float) {

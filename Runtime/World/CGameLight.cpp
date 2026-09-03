@@ -10,7 +10,7 @@
 
 namespace metaforce {
 
-CGameLight::CGameLight(TUniqueId uid, TAreaId aid, bool active, std::string_view name, const zeus::CTransform& xf,
+CGameLight::CGameLight(TUniqueId uid, TAreaId aid, bool active, std::string_view name, const zeus::CTransform4f& xf,
                        TUniqueId parentId, const CLight& light, u32 sourceId, u32 priority, float lifeTime)
 : CActor(uid, active, name, CEntityInfo(aid, CEntity::NullConnectionList), xf, CModelData::CModelDataNull(),
          CMaterialList(), CActorParameters::None(), kInvalidUniqueId)
@@ -52,7 +52,7 @@ CLight CGameLight::GetLight() const {
   ret.SetPosition(x34_transform * xec_light.GetPosition());
 
   if (ret.GetType() != ELightType::Point)
-    ret.SetDirection(x34_transform.rotate(xec_light.GetDirection()).normalized());
+    ret.SetDirection(x34_transform.Rotate(xec_light.GetDirection()).normalized());
 
   return ret;
 }
@@ -77,7 +77,7 @@ void CGameLight::DebugDraw() {
     modelFlags.x0_blendMode = 5;
     modelFlags.x4_color = zeus::skWhite;
     modelFlags.x4_color.a() = 0.5f;
-    m_debugModel->Render(CModelData::EWhichModel::Normal, zeus::CTransform::Translate(xec_light.GetPosition()), nullptr,
+    m_debugModel->Render(CModelData::EWhichModel::Normal, zeus::CTransform4f::Translate(xec_light.GetPosition()), nullptr,
                          modelFlags);
     m_debugModel->Render(CModelData::EWhichModel::Normal, x34_transform, nullptr, modelFlags);
   }

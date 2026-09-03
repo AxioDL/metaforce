@@ -14,7 +14,7 @@ namespace metaforce::MP1 {
 constexpr std::string_view skEyeLocator = "Laser_LCTR"sv;
 
 CEyeball::CEyeball(TUniqueId uid, std::string_view name, CPatterned::EFlavorType flavor, const CEntityInfo& info,
-                   const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, float attackDelay,
+                   const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pInfo, float attackDelay,
                    float attackStartTime, CAssetId wpscId, const CDamageInfo& dInfo, CAssetId beamContactFxId,
                    CAssetId beamPulseFxId, CAssetId beamTextureId, CAssetId beamGlowTextureId, u32 anim0, u32 anim1,
                    u32 anim2, u32 anim3, u32 beamSfx, bool attackDisabled, const CActorParameters& actParms)
@@ -105,7 +105,7 @@ void CEyeball::Think(float dt, CStateManager& mgr) {
   constexpr float minAngle = 0.707106769f;
 
   x60c_25_playerInRange = (player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed &&
-                           direction.dot(GetTransform().frontVector()) > minAngle);
+                           direction.dot(GetTransform().GetForward()) > minAngle);
 
   if (x60c_25_playerInRange) {
     x570_boneTracking.SetActive(true);
@@ -142,7 +142,7 @@ void CEyeball::CreateBeam(CStateManager& mgr) {
                      150.f);
   x5ec_projectileId = mgr.AllocateUniqueId();
   mgr.AddObject(new CPlasmaProjectile(x5b4_projectileInfo.Token(), "EyeBall_Beam"sv, EWeaponType::AI, beamInfo,
-                                      zeus::CTransform(), EMaterialTypes::Character, x5b4_projectileInfo.GetDamage(),
+                                      zeus::CTransform4f(), EMaterialTypes::Character, x5b4_projectileInfo.GetDamage(),
                                       x5ec_projectileId, GetAreaIdAlways(), GetUniqueId(), {}, false,
                                       EProjectileAttrib::KeepInCinematic));
 }
@@ -171,7 +171,7 @@ void CEyeball::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
 }
 
 void CEyeball::TryFlinch(CStateManager&, int arg) {
-  x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(GetTransform().basis[0], pas::ESeverity(arg)));
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(GetTransform().GetRight(), pas::ESeverity(arg)));
 }
 
 void CEyeball::Active(CStateManager& mgr, EStateMsg msg, float) {
@@ -235,7 +235,7 @@ void CEyeball::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EU
     CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
-void CEyeball::FireBeam(CStateManager& mgr, const zeus::CTransform& xf) {
+void CEyeball::FireBeam(CStateManager& mgr, const zeus::CTransform4f& xf) {
   if (CPlasmaProjectile* projectile = static_cast<CPlasmaProjectile*>(mgr.ObjectById(x5ec_projectileId))) {
     if (!projectile->GetActive()) {
       projectile->Fire(xf, mgr, false);
@@ -249,14 +249,14 @@ void CEyeball::FireBeam(CStateManager& mgr, const zeus::CTransform& xf) {
   }
 }
 
-void CEyeball::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CEyeball::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   CPatterned::PreRender(mgr, frustum);
   x570_boneTracking.PreRender(mgr, *GetModelData()->GetAnimationData(), GetTransform(), GetModelData()->GetScale(),
                               *x450_bodyController);
 }
 
 void CEyeball::Death(CStateManager& mgr, const zeus::CVector3f& pos, EScriptObjectState state) {
-  zeus::CTransform oldXf = GetTransform();
+  zeus::CTransform4f oldXf = GetTransform();
   CPatterned::Death(mgr, pos, state);
   SetTransform(oldXf);
 }

@@ -544,8 +544,8 @@ void CMapWorld::DrawAreas(const CMapWorldDrawParms& parms, int selArea, const st
       finalOutlineColor = zeus::CColor::lerp(finalOutlineColor, flashCol, pulse);
     }
 
-    zeus::CTransform modelView =
-        parms.GetCameraTransform().inverse() * mapa->GetAreaPostTransform(parms.GetWorld(), thisArea);
+    zeus::CTransform4f modelView =
+        parms.GetCameraTransform().Inverse() * mapa->GetAreaPostTransform(parms.GetWorld(), thisArea);
     for (u32 i = 0; i < mapa->GetNumSurfaces(); ++i) {
       const CMapArea::CMapAreaSurface& surf = mapa->GetSurface(i);
       zeus::CVector3f pos = modelView * surf.GetCenterPosition();
@@ -593,11 +593,11 @@ void CMapWorld::DrawAreas(const CMapWorldDrawParms& parms, int selArea, const st
     CMapObjectSortInfo::EObjectCode lastType = CMapObjectSortInfo::EObjectCode::Invalid;
     for (const CMapObjectSortInfo& info : sortInfos) {
       CMapArea* mapa = GetMapArea(info.GetAreaIndex());
-      zeus::CTransform areaPostXf = mapa->GetAreaPostTransform(parms.GetWorld(), info.GetAreaIndex());
+      zeus::CTransform4f areaPostXf = mapa->GetAreaPostTransform(parms.GetWorld(), info.GetAreaIndex());
       if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Surface) {
         CMapArea::CMapAreaSurface& surf = mapa->GetSurface(info.GetLocalObjectIndex());
         zeus::CColor color(
-            std::max(0.f, (-parms.GetCameraTransform().basis[1]).dot(areaPostXf.rotate(surf.GetNormal()))) *
+            std::max(0.f, (-parms.GetCameraTransform().GetForward()).dot(areaPostXf.Rotate(surf.GetNormal()))) *
                 g_tweakAutoMapper->GetMapSurfaceNormColorLinear() +
             g_tweakAutoMapper->GetMapSurfaceNormColorConstant());
         color *= info.GetSurfaceColor();
@@ -615,23 +615,23 @@ void CMapWorld::DrawAreas(const CMapWorldDrawParms& parms, int selArea, const st
       if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door ||
           info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Object) {
         CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex());
-        const zeus::CTransform objXf =
-            zeus::CTransform::Translate(CMapArea::GetAreaPostTranslate(parms.GetWorld(), info.GetAreaIndex())) *
+        const zeus::CTransform4f objXf =
+            zeus::CTransform4f::Translate(CMapArea::GetAreaPostTranslate(parms.GetWorld(), info.GetAreaIndex())) *
             mapObj.GetTransform();
         if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::Door) {
           CGraphics::SetModelMatrix(parms.GetPlaneProjectionTransform() * objXf);
         } else {
           CGraphics::SetModelMatrix(
               parms.GetPlaneProjectionTransform() * objXf *
-              zeus::CTransform(parms.GetCameraTransform().buildMatrix3f() * zeus::CMatrix3f(parms.GetObjectScale())));
+              zeus::CTransform4f(parms.GetCameraTransform().BuildMatrix3f() * zeus::CMatrix3f(parms.GetObjectScale())));
         }
         mapObj.Draw(selArea, mwInfo, parms.GetAlpha(), lastType != info.GetObjectCode());
         lastType = info.GetObjectCode();
       } else if (info.GetObjectCode() == CMapObjectSortInfo::EObjectCode::DoorSurface) {
         CMappableObject& mapObj = mapa->GetMappableObject(info.GetLocalObjectIndex() / 6);
-        const zeus::CTransform objXf =
+        const zeus::CTransform4f objXf =
             parms.GetPlaneProjectionTransform() *
-            zeus::CTransform::Translate(CMapArea::GetAreaPostTranslate(parms.GetWorld(), info.GetAreaIndex())) *
+            zeus::CTransform4f::Translate(CMapArea::GetAreaPostTranslate(parms.GetWorld(), info.GetAreaIndex())) *
             mapObj.GetTransform();
         CGraphics::SetModelMatrix(objXf);
         mapObj.DrawDoorSurface(selArea, mwInfo, parms.GetAlpha(), info.GetLocalObjectIndex() % 6,

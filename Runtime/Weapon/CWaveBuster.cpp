@@ -14,13 +14,13 @@
 
 namespace metaforce {
 
-CWaveBuster::CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform& xf,
+CWaveBuster::CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform4f& xf,
                          EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                          TUniqueId homingTarget, EProjectileAttrib attrib)
 : CGameProjectile(true, desc, "WaveBuster"sv, type, xf, matType, dInfo, uid, aid, owner, homingTarget, attrib, false,
                   zeus::skOne3f, {}, -1, false)
 , x2e8_originalXf(xf)
-, x348_targetPoint(x2e8_originalXf.frontVector().normalized() * 25.f + x2e8_originalXf.origin)
+, x348_targetPoint(x2e8_originalXf.GetForward().normalized() * 25.f + x2e8_originalXf.origin)
 , x354_busterSwoosh1(g_SimplePool->GetObj("BusterSwoosh1"))
 , x360_busterSwoosh2(g_SimplePool->GetObj("BusterSwoosh2"))
 , x36c_busterSparks(g_SimplePool->GetObj("BusterSparks"))
@@ -53,7 +53,7 @@ void CWaveBuster::Think(float dt, CStateManager& mgr) {
   }
   x3d0_27_ = false;
   x3d0_28_ = false;
-  const zeus::CVector3f beamForward = x2e8_originalXf.frontVector().normalized();
+  const zeus::CVector3f beamForward = x2e8_originalXf.GetForward().normalized();
 
   float beamDistance = 25.f;
   if (!x3d0_25_ && !x3d0_26_trackingTarget) {
@@ -63,7 +63,7 @@ void CWaveBuster::Think(float dt, CStateManager& mgr) {
       if (TCastToPtr<CActor> act = mgr.ObjectById(uid)) {
         act->Touch(*this, mgr);
         mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), GetOwnerId(), CDamageInfo(x12c_curDamageInfo, dt),
-                        xf8_filter, GetTransform().basis[1]);
+                        xf8_filter, GetTransform().GetForward());
       } else {
         x3d0_28_ = true;
       }
@@ -92,8 +92,8 @@ void CWaveBuster::Think(float dt, CStateManager& mgr) {
   }
 
   zeus::CVector3f vec = x2c0_homingTargetId != kInvalidUniqueId && x3d0_26_trackingTarget
-                        ? GetTransform() * zeus::CTransform::RotateY(x3c4_) * zeus::CVector3f{0.f, -3.f, -1.5f}
-                        : (GetTransform().frontVector() * -1.5f) + GetTransform().origin;
+                        ? GetTransform() * zeus::CTransform4f::RotateY(x3c4_) * zeus::CVector3f{0.f, -3.f, -1.5f}
+                        : (GetTransform().GetForward() * -1.5f) + GetTransform().origin;
   if (x3a0_ >= 0.5f || x2c0_homingTargetId == kInvalidUniqueId) {
     x330_ = x324_bezierC;
     x324_bezierC = vec;
@@ -123,7 +123,7 @@ void CWaveBuster::Think(float dt, CStateManager& mgr) {
   x38c_busterSparksGen->Update(dt);
 }
 
-void CWaveBuster::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CWaveBuster::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   EnsureRendered(mgr, x2e8_originalXf.origin, GetSortingBounds(mgr));
 }
 
@@ -161,7 +161,7 @@ std::optional<zeus::CAABox> CWaveBuster::GetTouchBounds() const {
   return GetProjectileBounds();
 }
 
-void CWaveBuster::UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr) {
+void CWaveBuster::UpdateFx(const zeus::CTransform4f& xf, float dt, CStateManager& mgr) {
   if (!GetActive()) {
     return;
   }
@@ -204,7 +204,7 @@ void CWaveBuster::RenderParticles() {
       {1.f, 0.f, 0.f, 1.f},
       {0.f, 0.f, 1.f, 1.f},
   }};
-  zeus::CTransform originalRotation = x2e8_originalXf.getRotation();
+  zeus::CTransform4f originalRotation = x2e8_originalXf.GetRotation();
   x38c_busterSparksGen->SetParticleEmission(true);
   const zeus::CColor col = zeus::CColor::lerp(skCols[x3cc_innerSwooshColorIdx], skCols[x3cc_innerSwooshColorIdx + 1], x3c8_innerSwooshColorT);
   float prevSwoosh2Rot = x388_busterSwoosh2Gen->GetSwooshData(x388_busterSwoosh2Gen->GetSwooshDataCount() - 1).x30_irot;
@@ -245,7 +245,7 @@ void CWaveBuster::RenderParticles() {
 }
 
 void CWaveBuster::RenderBeam() {
-  const zeus::CTransform inv = x2e8_originalXf.inverse();
+  const zeus::CTransform4f inv = x2e8_originalXf.Inverse();
   const zeus::CVector3f vecA = inv * x2e8_originalXf.origin;
   const zeus::CVector3f vecB = inv * x318_bezierB;
   const zeus::CVector3f vecC = inv * x324_bezierC;
@@ -317,7 +317,7 @@ bool CWaveBuster::ApplyDamageToTarget(TUniqueId damagee, const CRayCastResult& a
       if (TCastToPtr<CActor> act = mgr.ObjectById(damagee)) {
         act->Touch(*this, mgr);
         mgr.ApplyDamage(GetUniqueId(), damagee, GetOwnerId(), CDamageInfo(x12c_curDamageInfo, dt), xf8_filter,
-                        GetTransform().basis[1]);
+                        GetTransform().GetForward());
       }
     }
     return true;
@@ -354,7 +354,7 @@ void CWaveBuster::UpdateTargetDamage(float dt, CStateManager& mgr) {
     }
   }
 
-  SetTransform(zeus::lookAt(GetTranslation(), x348_targetPoint + (0.001f * x2e8_originalXf.basis[1].normalized())));
+  SetTransform(zeus::CTransform4f::LookAt(GetTranslation(), x348_targetPoint + (0.001f * x2e8_originalXf.GetForward().normalized())));
   x2c0_homingTargetId = kInvalidUniqueId;
   x39c_ = 0.f;
   x3a0_ = 0.f;
@@ -396,7 +396,7 @@ bool CWaveBuster::UpdateBeamFrame(CStateManager& mgr, float dt) {
   x3ac_ += x3a4_ * dt;
   x3b0_ += x3b4_ * dt;
   x3c4_ += x3bc_ * dt;
-  x318_bezierB = x2e8_originalXf * zeus::CTransform::RotateY(x3ac_) *
+  x318_bezierB = x2e8_originalXf * zeus::CTransform4f::RotateY(x3ac_) *
           zeus::CVector3f(0.f, 2.f, 1.5f * ((x2c0_homingTargetId == kInvalidUniqueId ? 1.f : 1.25f) - x3b0_ * x3b0_));
   return viewAngle > zeus::degToRad(90.f);
 }
@@ -404,12 +404,12 @@ bool CWaveBuster::UpdateBeamFrame(CStateManager& mgr, float dt) {
 float CWaveBuster::GetViewAngleToTarget(zeus::CVector3f& p1, const CActor& act) {
   p1 = act.GetTranslation() - x2e8_originalXf.origin;
   if (!p1.canBeNormalized()) {
-    p1 = GetTransform().basis[1];
+    p1 = GetTransform().GetForward();
   } else {
     p1.normalize();
   }
 
-  return zeus::CVector2f::getAngleDiff(x2e8_originalXf.frontVector().toVec2f(), p1.toVec2f());
+  return zeus::CVector2f::getAngleDiff(x2e8_originalXf.GetForward().toVec2f(), p1.toVec2f());
 }
 
 void CWaveBuster::RayCastTarget(CStateManager& mgr, TUniqueId& physId, TUniqueId& actId, const zeus::CVector3f& start,
@@ -439,7 +439,7 @@ void CWaveBuster::RayCastTarget(CStateManager& mgr, TUniqueId& physId, TUniqueId
     } else if (const TCastToConstPtr<CActor> act = mgr.GetObjectById(uid)) {
       if (auto bounds = act->GetTouchBounds()) {
         CCollidableAABox collidableBox(*bounds, act->GetMaterialList());
-        CRayCastResult res = collidableBox.CastRay(start, end, length, xf8_filter, zeus::CTransform{});
+        CRayCastResult res = collidableBox.CastRay(start, end, length, xf8_filter, zeus::CTransform4f{});
         if (!res.IsValid() || res.GetT() >= nearestActorT) {
           continue;
         }

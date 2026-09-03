@@ -8,7 +8,7 @@
 #include "Runtime/AutoMapper/CMapArea.hpp"
 
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -88,8 +88,8 @@ public:
     float x10_alpha;
     float x14_outlineWidthScale;
     const CStateManager& x18_mgr;
-    const zeus::CTransform& x1c_modelXf;
-    const zeus::CTransform& x20_viewXf;
+    const zeus::CTransform4f& x1c_modelXf;
+    const zeus::CTransform4f& x20_viewXf;
     const IWorld& x24_wld;
     const CMapWorldInfo& x28_mwInfo;
     float x2c_playerFlashIntensity;
@@ -99,8 +99,8 @@ public:
 
   public:
     CMapWorldDrawParms(float alphaSurfVisited, float alphaOlVisited, float alphaSurfUnvisited, float alphaOlUnvisited,
-                       float alpha, float outlineWidthScale, const CStateManager& mgr, const zeus::CTransform& modelXf,
-                       const zeus::CTransform& viewXf, const IWorld& wld, const CMapWorldInfo& mwInfo,
+                       float alpha, float outlineWidthScale, const CStateManager& mgr, const zeus::CTransform4f& modelXf,
+                       const zeus::CTransform4f& viewXf, const IWorld& wld, const CMapWorldInfo& mwInfo,
                        float playerFlash, float hintFlash, float objectScale, bool sortDoorSurfs)
     : x0_alphaSurfVisited(alphaSurfVisited)
     , x4_alphaOlVisited(alphaOlVisited)
@@ -119,10 +119,10 @@ public:
     , x38_sortDoorSurfs(sortDoorSurfs) {}
     const IWorld& GetWorld() const { return x24_wld; }
     float GetOutlineWidthScale() const { return x14_outlineWidthScale; }
-    const zeus::CTransform& GetPlaneProjectionTransform() const { return x1c_modelXf; }
+    const zeus::CTransform4f& GetPlaneProjectionTransform() const { return x1c_modelXf; }
     float GetHintAreaFlashIntensity() const { return x30_hintFlashIntensity; }
     float GetPlayerAreaFlashIntensity() const { return x2c_playerFlashIntensity; }
-    const zeus::CTransform& GetCameraTransform() const { return x20_viewXf; }
+    const zeus::CTransform4f& GetCameraTransform() const { return x20_viewXf; }
     float GetAlphaOutlineUnvisited() const { return xc_alphaOlUnvisited; }
     float GetAlphaSurfaceUnvisited() const { return x8_alphaSurfUnvisited; }
     float GetAlphaOutlineVisited() const { return x4_alphaOlVisited; }

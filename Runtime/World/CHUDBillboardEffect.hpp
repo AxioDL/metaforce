@@ -38,8 +38,8 @@ public:
   ~CHUDBillboardEffect() override;
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   void Render(CStateManager& mgr) override;
   bool IsElementGen() const { return x104_26_isElementGen; }
   void SetRunIndefinitely(bool b) { x104_27_runIndefinitely = b; }

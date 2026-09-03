@@ -79,7 +79,7 @@ protected:
   bool UpdatePatch(float time, const CFluidPlaneRender::SPatchInfo& info, Heights& heights, Flags& flags,
                    const zeus::CVector3f& areaCenter, const std::optional<CRippleManager>& rippleManager, int fromX,
                    int toX, int fromY, int toY) const;
-  void CalculateLightmapMtx(const zeus::CTransform& areaXf, const zeus::CTransform& xf, const zeus::CAABox& aabb,
+  void CalculateLightmapMtx(const zeus::CTransform4f& areaXf, const zeus::CTransform4f& xf, const zeus::CAABox& aabb,
                             int idx);
   void RenderCleanup() const;
 
@@ -92,12 +92,12 @@ public:
                  float turbAmplitudeMin, float specularMin, float specularMax, float reflectionBlend,
                  float reflectionSize, float rippleIntensity, u32 maxVertCount);
   void CreateRipple(const CRipple& ripple, CStateManager& mgr);
-  void CalculateLightmapMatrix(const zeus::CTransform& areaXf, const zeus::CTransform& xf, const zeus::CAABox& aabb,
+  void CalculateLightmapMatrix(const zeus::CTransform4f& areaXf, const zeus::CTransform4f& xf, const zeus::CAABox& aabb,
                                int idx) const;
-  void RenderSetup(const CStateManager& mgr, float, const zeus::CTransform& xf, const zeus::CTransform& areaXf,
+  void RenderSetup(const CStateManager& mgr, float, const zeus::CTransform4f& xf, const zeus::CTransform4f& areaXf,
                    const zeus::CAABox& aabb, const CScriptWater* water);
-  void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
-              const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
+  void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform4f& xf,
+              const zeus::CTransform4f& areaXf, bool noNormals, const zeus::CFrustumPlanes& frustum,
               const std::optional<CRippleManager>& rippleManager, TUniqueId waterId, const bool* gridFlags,
               u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) override;
   float GetReflectionBlend() const { return x114_reflectionBlend; }

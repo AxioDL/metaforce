@@ -14,7 +14,7 @@ std::array<s32, 300> sMazeSeeds;
 std::array<zeus::CVector3f, skMazeRows * skMazeCols> sDebugCellPos;
 
 CScriptMazeNode::CScriptMazeNode(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                 const zeus::CTransform& xf, bool active, s32 col, s32 row, s32 side,
+                                 const zeus::CTransform4f& xf, bool active, s32 col, s32 row, s32 side,
                                  const zeus::CVector3f& actorPos, const zeus::CVector3f& triggerPos,
                                  const zeus::CVector3f& effectPos)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(),

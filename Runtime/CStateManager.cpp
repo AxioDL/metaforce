@@ -257,7 +257,7 @@ void CStateManager::UpdateThermalVisor() {
   }
 
   CGameArea* area = x850_world->GetArea(x8cc_nextAreaId);
-  const zeus::CTransform& playerXf = x84c_player->GetTransform();
+  const zeus::CTransform4f& playerXf = x84c_player->GetTransform();
   const zeus::CVector3f playerXYPos(playerXf.origin.x(), playerXf.origin.y(), 0.f);
   CGameArea* lastArea = nullptr;
   float closestDist = FLT_MAX;
@@ -498,9 +498,9 @@ void CStateManager::DrawReflection(const zeus::CVector3f& reflectPoint) {
   zeus::CVector3f surfToPlayer = playerPos - reflectPoint;
   surfToPlayer.z() = 0.f;
   const zeus::CVector3f viewPos = playerPos - surfToPlayer.normalized() * 3.5f;
-  const zeus::CTransform look = zeus::lookAt(viewPos, playerPos, {0.f, 0.f, -1.f});
+  const zeus::CTransform4f look = zeus::CTransform4f::LookAt(viewPos, playerPos, {0.f, 0.f, -1.f});
 
-  const zeus::CTransform backupView = CGraphics::mViewMatrix;
+  const zeus::CTransform4f backupView = CGraphics::mViewMatrix;
   CGraphics::SetViewPointMatrix(look);
   const CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
@@ -573,7 +573,7 @@ void CStateManager::DrawDebugStuff() const {
     return;
   }
 
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  CGraphics::SetModelMatrix(zeus::CTransform4f());
   for (CEntity* ent : GetActorObjectList()) {
     if (const TCastToPtr<CPatterned> ai = ent) {
       if (CPathFindSearch* path = ai->GetSearchPath()) {
@@ -649,10 +649,10 @@ void CStateManager::DrawAdditionalFilters() {
   CCameraFilterPass::DrawFilter(EFilterType::Add, EFilterShape::Fullscreen, color, nullptr, 1.f);
 }
 
-zeus::CFrustum CStateManager::SetupDrawFrustum(const CViewport& vp) const {
-  zeus::CFrustum ret;
+zeus::CFrustumPlanes CStateManager::SetupDrawFrustum(const CViewport& vp) const {
+  zeus::CFrustumPlanes ret;
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
-  const zeus::CTransform camXf = x870_cameraManager->GetCurrentCameraTransform(*this);
+  const zeus::CTransform4f camXf = x870_cameraManager->GetCurrentCameraTransform(*this);
   const int vpWidth = static_cast<int>(xf2c_viewportScale.x() * vp.mWidth);
   const int vpHeight = static_cast<int>(xf2c_viewportScale.y() * vp.mHeight);
   const int vpLeft = (vp.mWidth - vpWidth) / 2 + vp.mLeft;
@@ -667,9 +667,9 @@ zeus::CFrustum CStateManager::SetupDrawFrustum(const CViewport& vp) const {
   return ret;
 }
 
-zeus::CFrustum CStateManager::SetupViewForDraw(const CViewport& vp) const {
+zeus::CFrustumPlanes CStateManager::SetupViewForDraw(const CViewport& vp) const {
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
-  const zeus::CTransform camXf = x870_cameraManager->GetCurrentCameraTransform(*this);
+  const zeus::CTransform4f camXf = x870_cameraManager->GetCurrentCameraTransform(*this);
   g_Renderer->SetWorldViewpoint(camXf);
   CCubeModel::SetNewPlayerPositionAndTime(x84c_player->GetTranslation(), CStopwatch::GetGlobalTimerObj());
   const int vpWidth = static_cast<int>(xf2c_viewportScale.x() * vp.mWidth);
@@ -682,24 +682,24 @@ zeus::CFrustum CStateManager::SetupViewForDraw(const CViewport& vp) const {
   const float width = xf2c_viewportScale.x() * vp.mWidth;
   const float height = xf2c_viewportScale.y() * vp.mHeight;
   g_Renderer->SetPerspective(zeus::radToDeg(fov), width, height, cam->GetNearClipDistance(), cam->GetFarClipDistance());
-  zeus::CFrustum frustum;
+  zeus::CFrustumPlanes frustum;
   zeus::CProjection proj;
   proj.setPersp(zeus::SProjPersp{fov, width / height, cam->GetNearClipDistance(), cam->GetFarClipDistance()});
   frustum.updatePlanes(camXf, proj);
   g_Renderer->SetClippingPlanes(frustum);
   g_Renderer->PrimColor(zeus::skWhite);
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  CGraphics::SetModelMatrix(zeus::CTransform4f());
   x87c_fluidPlaneManager->StartFrame(false);
   g_Renderer->SetDebugOption(IRenderer::EDebugOption::PVSState, static_cast<int>(EPVSVisSetState::NodeFound));
   return frustum;
 }
 
 void CStateManager::ResetViewAfterDraw(const CViewport& backupViewport,
-                                       const zeus::CTransform& backupViewMatrix) const {
+                                       const zeus::CTransform4f& backupViewMatrix) const {
   g_Renderer->SetViewport(backupViewport.mLeft, backupViewport.mTop, backupViewport.mWidth, backupViewport.mHeight);
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
 
-  zeus::CFrustum frustum;
+  zeus::CFrustumPlanes frustum;
   frustum.updatePlanes(backupViewMatrix, zeus::SProjPersp(zeus::degToRad(cam->GetFov()), CGraphics::GetViewportAspect(),
                                                           cam->GetNearClipDistance(), cam->GetFarClipDistance()));
   g_Renderer->SetClippingPlanes(frustum);
@@ -718,8 +718,8 @@ void CStateManager::DrawWorld() {
 
   x850_world->TouchSky();
 
-  const zeus::CFrustum frustum = SetupViewForDraw(CGraphics::mViewport);
-  const zeus::CTransform backupViewMatrix = CGraphics::mViewMatrix;
+  const zeus::CFrustumPlanes frustum = SetupViewForDraw(CGraphics::mViewport);
+  const zeus::CTransform4f backupViewMatrix = CGraphics::mViewMatrix;
 
   int areaCount = 0;
   std::array<const CGameArea*, 10> areaArr;
@@ -788,7 +788,7 @@ void CStateManager::DrawWorld() {
     g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
   }
 
-  x850_world->DrawSky(zeus::CTransform::Translate(CGraphics::mViewPoint));
+  x850_world->DrawSky(zeus::CTransform4f::Translate(CGraphics::mViewPoint));
 
   if (areaCount != 0) {
     SetupFogForArea(*areaArr[areaCount - 1]);
@@ -1073,7 +1073,7 @@ void CStateManager::PreRender() {
   }
 
   SCOPED_GRAPHICS_DEBUG_GROUP("CStateManager::PreRender", zeus::skBlue);
-  const zeus::CFrustum frustum = SetupDrawFrustum(CGraphics::mViewport);
+  const zeus::CFrustumPlanes frustum = SetupDrawFrustum(CGraphics::mViewport);
   x86c_stateManagerContainer->xf370_.clear();
   x86c_stateManagerContainer->xf39c_renderLast.clear();
   xf7c_projectedShadow = nullptr;
@@ -1911,7 +1911,7 @@ bool CStateManager::ApplyDamage(TUniqueId damagerId, TUniqueId damageeId, TUniqu
       const bool alive = hInfo->GetHP() > 0.f;
       if (damager) {
         position = damager->GetTranslation();
-        direction = damager->GetTransform().basis[1];
+        direction = damager->GetTransform().GetForward();
       }
 
       const CDamageVulnerability* dVuln = (damager != nullptr || isPlayer)
@@ -2406,10 +2406,10 @@ void CStateManager::InitializeState(CAssetId mlvlId, TAreaId aid, CAssetId mreaI
   for (CEntity* ent : GetAllObjectList()) {
     CScriptSpawnPoint* sp = TCastToPtr<CScriptSpawnPoint>(ent);
     if (sp != nullptr && sp->x30_24_active && sp->FirstSpawn()) {
-      const zeus::CTransform& xf = sp->GetTransform();
-      const zeus::CVector3f lookVec = xf.frontVector();
+      const zeus::CTransform4f& xf = sp->GetTransform();
+      const zeus::CVector3f lookVec = xf.GetForward();
       if (lookVec.canBeNormalized()) {
-        const auto lookXf = zeus::lookAt(xf.origin, xf.origin + lookVec);
+        const auto lookXf = zeus::CTransform4f::LookAt(xf.origin, xf.origin + lookVec);
         x84c_player->Teleport(lookXf, *this, true);
       }
 
@@ -2458,7 +2458,7 @@ void CStateManager::CreateStandardGameObjects() {
   const auto q = zeus::CQuaternion::fromAxisAngle(zeus::CVector3f{0.f, 0.f, 1.f}, zeus::degToRad(129.6f));
 
   x84c_player = std::make_unique<CPlayer>(
-      AllocateUniqueId(), zeus::CTransform(q), pBounds, g_tweakPlayerRes->xc4_ballTransitionsANCS,
+      AllocateUniqueId(), zeus::CTransform4f(q), pBounds, g_tweakPlayerRes->xc4_ballTransitionsANCS,
       zeus::CVector3f{1.65f, 1.65f, 1.65f}, 200.f, stepUp, stepDown, ballRadius,
       CMaterialList(EMaterialTypes::Player, EMaterialTypes::Solid, EMaterialTypes::GroundCollider));
   AddObject(*x84c_player);

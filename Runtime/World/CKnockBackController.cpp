@@ -377,7 +377,7 @@ void CKnockBackController::ApplyImpulse(float dt, CPatterned& parent) {
 
   parent.ApplyImpulseWR(
       parent.GetMoveToORImpulseWR(
-          parent.GetTransform().transposeRotate(
+          parent.GetTransform().TransposeRotate(
               x50_impulseDir * (remFac * x5c_impulseMag * dt / ImpulseDurationTable[x20_impulseDurationIdx])),
           dt),
       zeus::CAxisAngle());
@@ -514,7 +514,7 @@ void CKnockBackController::ResetKnockBackImpulse(const CPatterned& parent, const
       x4_activeParms.x4_animFollowup == EKnockBackAnimationFollowUp::Freeze) {
     return;
   }
-  x50_impulseDir = backVec.canBeNormalized() ? backVec.normalized() : -parent.GetTransform().frontVector();
+  x50_impulseDir = backVec.canBeNormalized() ? backVec.normalized() : -parent.GetTransform().GetForward();
   if (x60_impulseRemTime <= 0.f) {
     x5c_impulseMag = magnitude;
   } else {
@@ -529,7 +529,7 @@ void CKnockBackController::DoDeferredKnockBack(CStateManager& mgr, CPatterned& p
                                         [size_t(GetKnockBackCharacterState(parent))];
     ValidateState(parent);
     if (parent.HealthInfo(mgr) != nullptr) {
-      const zeus::CVector3f backVec = -parent.GetTransform().basis[1];
+      const zeus::CVector3f backVec = -parent.GetTransform().GetForward();
       DoKnockBackAnimation(backVec, mgr, parent, 10.f);
       ResetKnockBackImpulse(parent, backVec, 2.f);
       x82_25_inDeferredKnockBack = true;
@@ -625,7 +625,7 @@ void CKnockBackController::KnockBack(const zeus::CVector3f& backVec, CStateManag
 
   zeus::CVector3f vec(backVec.toVec2f());
   if (!vec.isMagnitudeSafe()) {
-    vec = -parent.GetTransform().frontVector();
+    vec = -parent.GetTransform().GetForward();
   }
 
   SelectDamageState(parent, info, info.GetWeaponMode().GetType(), type);

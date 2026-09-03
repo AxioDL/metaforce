@@ -50,7 +50,7 @@ void CDecalManager::Shutdown() {
   m_DecalPool.clear();
 }
 
-void CDecalManager::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) {
+void CDecalManager::AddToRenderer(const zeus::CFrustumPlanes& frustum, const CStateManager& mgr) {
   for (s32 idx : m_ActiveIndexList) {
     CDecalManager::SDecal& decal = m_DecalPool[idx];
     if (decal.x75_24_notIce || mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot) {
@@ -86,7 +86,7 @@ void CDecalManager::Update(float dt, CStateManager& mgr) {
   }
 }
 
-void CDecalManager::AddDecal(const TToken<CDecalDescription>& decal, const zeus::CTransform& xf, bool notIce,
+void CDecalManager::AddDecal(const TToken<CDecalDescription>& decal, const zeus::CTransform4f& xf, bool notIce,
                              CStateManager& mgr) {
   //OPTICK_EVENT();
   if (m_LastDecalCreatedIndex != -1 && m_DeltaTimeSinceLastDecalCreation < 0.75f &&

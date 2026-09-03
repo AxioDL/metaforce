@@ -15,7 +15,7 @@
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -54,13 +54,13 @@ private:
   int x2c_LIFE;
   double x30_curTime = 0.0;
   zeus::CVector3f x38_translation;
-  zeus::CTransform x44_orientation;
-  zeus::CTransform x74_invOrientation;
+  zeus::CTransform4f x44_orientation;
+  zeus::CTransform4f x74_invOrientation;
   zeus::CVector3f xa4_globalTranslation;
-  zeus::CTransform xb0_globalOrientation;
+  zeus::CTransform4f xb0_globalOrientation;
   zeus::CVector3f xe0_globalScale = zeus::skOne3f;
   zeus::CVector3f xec_localScale = zeus::skOne3f;
-  zeus::CTransform xf8_cachedXf;
+  zeus::CTransform4f xf8_cachedXf;
   float x128 = 0.f;
   float x12c = 0.f;
   zeus::CAABox x130_buildBounds = zeus::CAABox();
@@ -109,9 +109,9 @@ public:
 
   bool Update(double) override;
   void Render() override;
-  void SetOrientation(const zeus::CTransform& orientation) override;
+  void SetOrientation(const zeus::CTransform4f& orientation) override;
   void SetTranslation(const zeus::CVector3f& translation) override;
-  void SetGlobalOrientation(const zeus::CTransform& orientation) override;
+  void SetGlobalOrientation(const zeus::CTransform4f& orientation) override;
   void SetGlobalTranslation(const zeus::CVector3f& translation) override;
   void SetGlobalScale(const zeus::CVector3f& scale) override;
   void SetLocalScale(const zeus::CVector3f& scale) override;
@@ -121,9 +121,9 @@ public:
   void SetOverrideIVel(const zeus::CVector3f& vec) { x188_overrideIVel.emplace(vec); }
   void SetOverrideFPos(const zeus::CVector3f& vec) { x198_overrideFPos.emplace(vec); }
   void SetOverrideFVel(const zeus::CVector3f& vec) { x1a8_overrideFVel.emplace(vec); }
-  const zeus::CTransform& GetOrientation() const override;
+  const zeus::CTransform4f& GetOrientation() const override;
   const zeus::CVector3f& GetTranslation() const override;
-  const zeus::CTransform& GetGlobalOrientation() const override;
+  const zeus::CTransform4f& GetGlobalOrientation() const override;
   const zeus::CVector3f& GetGlobalTranslation() const override;
   const zeus::CVector3f& GetGlobalScale() const override;
   const zeus::CColor& GetModulationColor() const override;

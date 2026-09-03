@@ -9,8 +9,8 @@
 #include "Runtime/World/CHealthInfo.hpp"
 
 #include <zeus/CAABox.hpp>
-#include <zeus/CFrustum.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CFrustumPlanes.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -18,15 +18,15 @@ class CVisorParameters;
 
 class CScriptDamageableTrigger : public CActor {
 private:
-  zeus::CFrustum xe8_frustum;
+  zeus::CFrustumPlanes xe8_frustum;
   zeus::CAABox x14c_bounds;
   CHealthInfo x164_origHInfo;
   CHealthInfo x16c_hInfo;
   CDamageVulnerability x174_dVuln;
   u32 x1dc_faceFlag;
   float x1e0_alpha = 1.f;
-  zeus::CTransform x1e4_faceDir;
-  zeus::CTransform x214_faceDirInv;
+  zeus::CTransform4f x1e4_faceDir;
+  zeus::CTransform4f x214_faceDirInv;
   zeus::CVector3f x244_faceTranslate;
   float x250_alphaTimer = 0.f;
   CFluidPlaneDoor x254_fluidPlane;
@@ -56,8 +56,8 @@ public:
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                          const CWeaponMode&, EProjectileAttrib) const override;
   void Render(CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   const CDamageVulnerability* GetDamageVulnerability() const override { return &x174_dVuln; }
   CHealthInfo* HealthInfo(CStateManager&) override { return &x16c_hInfo; }
   void Think(float, CStateManager&) override;

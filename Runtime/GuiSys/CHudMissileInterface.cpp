@@ -124,7 +124,7 @@ void CHudMissileInterface::Update(float dt, const CStateManager& mgr) {
   if (x58_28_notXRay) {
     x74_basewidget_missileicon->SetLocalTransform(
         x10_missleIconXf *
-        zeus::CTransform::Translate(
+        zeus::CTransform4f::Translate(
             0.f, 0.f, x8_numMissles * IconTranslateRanges[size_t(x0_hudType)] / float(x4_missileCapacity)));
   }
 

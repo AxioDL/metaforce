@@ -2,7 +2,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/GuiSys/CHudInterface.hpp"
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 
 namespace metaforce {
 class CAuiEnergyBarT01;
@@ -19,7 +19,7 @@ class CHudThreatInterface {
   float xc_damagePulse = 0.f;
   float x10_threatDist;
   float x14_arrowTimer = 0.f;
-  zeus::CTransform x18_threatIconXf;
+  zeus::CTransform4f x18_threatIconXf;
   float x48_warningLerpAlpha = 0.f;
   EThreatStatus x4c_threatStatus = EThreatStatus::Normal;
   float x50_warningColorLerp = 0.f;

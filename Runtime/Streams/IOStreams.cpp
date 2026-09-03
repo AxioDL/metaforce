@@ -49,7 +49,7 @@ zeus::CAABox cinput_stream_helper(CInputStream& in) {
 template <>
 zeus::COBBox cinput_stream_helper(CInputStream& in) {
   zeus::COBBox ret;
-  ret.transform = in.Get<zeus::CTransform>();
+  ret.transform = in.Get<zeus::CTransform4f>();
   ret.extents = in.Get<zeus::CVector3f>();
   return ret;
 }
@@ -64,8 +64,8 @@ zeus::CColor cinput_stream_helper(CInputStream& in) {
 }
 
 template <>
-zeus::CTransform cinput_stream_helper(CInputStream& in) {
-  zeus::CTransform ret;
+zeus::CTransform4f cinput_stream_helper(CInputStream& in) {
+  zeus::CTransform4f ret;
   auto r0 = in.Get<zeus::CVector4f>();
   auto r1 = in.Get<zeus::CVector4f>();
   auto r2 = in.Get<zeus::CVector4f>();

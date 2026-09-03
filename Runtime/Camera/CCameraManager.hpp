@@ -57,7 +57,7 @@ class CCameraManager {
   void SetPathCamera(TUniqueId id, CStateManager& mgr);
   void SetSpindleCamera(TUniqueId id, CStateManager& mgr);
   void RestoreHintlessCamera(CStateManager& mgr);
-  void InterpolateToBallCamera(const zeus::CTransform& xf, TUniqueId camId, const zeus::CVector3f& lookPos,
+  void InterpolateToBallCamera(const zeus::CTransform4f& xf, TUniqueId camId, const zeus::CVector3f& lookPos,
                                float maxTime, float positionSpeed, float rotationSpeed, bool sinusoidal,
                                CStateManager& mgr);
   void SkipBallCameraCinematic(CStateManager& mgr);
@@ -79,7 +79,7 @@ public:
   bool IsInCinematicCamera() const { return x4_cineCameras.size() != 0; }
   bool IsInFirstPersonCamera() const;
   zeus::CVector3f GetGlobalCameraTranslation(const CStateManager& stateMgr) const;
-  zeus::CTransform GetCurrentCameraTransform(const CStateManager& stateMgr) const;
+  zeus::CTransform4f GetCurrentCameraTransform(const CStateManager& stateMgr) const;
   void RemoveCameraShaker(u32 id);
   int AddCameraShaker(const CCameraShakeData& data, bool sfx);
   void AddCinemaCamera(TUniqueId id, CStateManager& stateMgr);

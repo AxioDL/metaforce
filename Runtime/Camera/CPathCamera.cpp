@@ -12,7 +12,7 @@
 
 namespace metaforce {
 
-CPathCamera::CPathCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CPathCamera::CPathCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                          bool active, float lengthExtent, float filterMag, float filterProportion, float minEaseDist,
                          float maxEaseDist, u32 flags, EInitialSplinePosition initPos)
 : CGameCamera(uid, active, name, info, xf, CCameraManager::ThirdPersonFOV(), CCameraManager::NearPlane(),
@@ -45,7 +45,7 @@ void CPathCamera::Think(float dt, CStateManager& mgr) {
   if (x188_spline.GetSize() <= 0)
     return;
 
-  zeus::CTransform xf = GetTransform();
+  zeus::CTransform4f xf = GetTransform();
   zeus::CVector3f ballLook = mgr.GetCameraManager()->GetBallCamera()->GetLookPos();
   if ((x1ec_flags & 0x10)) {
     if (const CScriptCameraHint* hint = mgr.GetCameraManager()->GetCameraHint(mgr))
@@ -56,7 +56,7 @@ void CPathCamera::Think(float dt, CStateManager& mgr) {
     if (x1ec_flags & 4)
       SetTransform(x188_spline.GetInterpolatedSplinePointByLength(x1d4_pos));
     else
-      SetTransform(zeus::lookAt(GetTranslation(), ballLook));
+      SetTransform(zeus::CTransform4f::LookAt(GetTranslation(), ballLook));
     return;
   }
 
@@ -69,7 +69,7 @@ void CPathCamera::Think(float dt, CStateManager& mgr) {
   zeus::CVector3f tmp = ballLook - GetTranslation();
   tmp.z() = 0.f;
   if (tmp.canBeNormalized())
-    SetTransform(zeus::lookAt(GetTranslation(), ballLook));
+    SetTransform(zeus::CTransform4f::LookAt(GetTranslation(), ballLook));
 
   if (x1ec_flags & 4)
     SetTransform(xf);
@@ -82,7 +82,7 @@ void CPathCamera::ProcessInput(const CFinalInput&, CStateManager& mgr) {
 constexpr CMaterialFilter kLineOfSightFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
 
-void CPathCamera::Reset(const zeus::CTransform&, CStateManager& mgr) {
+void CPathCamera::Reset(const zeus::CTransform4f&, CStateManager& mgr) {
   CPlayer& player = mgr.GetPlayer();
   zeus::CVector3f playerPt =
       player.GetTranslation() + zeus::CVector3f(0.f, 0.f, g_tweakPlayer->GetPlayerBallHalfExtent());
@@ -94,7 +94,7 @@ void CPathCamera::Reset(const zeus::CTransform&, CStateManager& mgr) {
   float posLength = std::min(x188_spline.GetLength(), closestLength + x1dc_lengthExtent);
   zeus::CVector3f posPoint = x188_spline.GetInterpolatedSplinePointByLength(posLength).origin;
 
-  zeus::CTransform camXf = mgr.GetCameraManager()->GetBallCamera()->GetTransform();
+  zeus::CTransform4f camXf = mgr.GetCameraManager()->GetBallCamera()->GetTransform();
   if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed)
     camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
 
@@ -102,7 +102,7 @@ void CPathCamera::Reset(const zeus::CTransform&, CStateManager& mgr) {
   if (x1e8_initPos == EInitialSplinePosition::BallCamBasis) {
     zeus::CVector3f tmp = playerPt - negPoint;
     if (tmp.canBeNormalized()) {
-      if (tmp.normalized().dot(camXf.basis[1]) > 0.f)
+      if (tmp.normalized().dot(camXf.GetForward()) > 0.f)
         neg = true;
     }
   } else {
@@ -135,11 +135,11 @@ void CPathCamera::Reset(const zeus::CTransform&, CStateManager& mgr) {
     }
   }
 
-  SetTransform(zeus::lookAt(viewPoint, mgr.GetCameraManager()->GetBallCamera()->GetFixedLookPos()));
+  SetTransform(zeus::CTransform4f::LookAt(viewPoint, mgr.GetCameraManager()->GetBallCamera()->GetFixedLookPos()));
 }
 
-zeus::CTransform CPathCamera::MoveAlongSpline(float t, CStateManager& mgr) {
-  zeus::CTransform ret = x34_transform;
+zeus::CTransform4f CPathCamera::MoveAlongSpline(float t, CStateManager& mgr) {
+  zeus::CTransform4f ret = x34_transform;
   x1d8_time = x188_spline.FindClosestLengthOnSpline(x1d8_time, mgr.GetPlayer().GetTranslation());
   float f30 = x1dc_lengthExtent;
   if (x1ec_flags & 0x8) {

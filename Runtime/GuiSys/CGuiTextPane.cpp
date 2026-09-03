@@ -70,8 +70,8 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) {
     dims.y() = 0.f;
   }
 
-  const zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front() + xc8_scaleCenter) *
-                                 zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
+  const zeus::CTransform4f local = zeus::CTransform4f::Translate(xc0_verts.front() + xc8_scaleCenter) *
+                                 zeus::CTransform4f::Scale(dims.x(), 1.f, dims.y());
   CGraphics::SetModelMatrix(x34_worldXF * local);
 
   zeus::CColor geomCol = xa8_color2;
@@ -108,9 +108,9 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) {
 
 bool CGuiTextPane::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const {
   const zeus::CVector2f dims = GetDimensions();
-  const zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front() + xc8_scaleCenter) *
-                                 zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
-  const zeus::CMatrix4f mvp = vp * (x34_worldXF * local).toMatrix4f();
+  const zeus::CTransform4f local = zeus::CTransform4f::Translate(xc0_verts.front() + xc8_scaleCenter) *
+                                 zeus::CTransform4f::Scale(dims.x(), 1.f, dims.y());
+  const zeus::CMatrix4f mvp = vp * (x34_worldXF * local).ToMatrix4f();
 
   std::array<zeus::CVector2f, 4> projPoints;
   for (size_t i = 0; i < projPoints.size(); ++i) {

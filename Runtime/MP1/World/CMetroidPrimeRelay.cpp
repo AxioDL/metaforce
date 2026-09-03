@@ -7,7 +7,7 @@
 namespace metaforce::MP1 {
 
 CMetroidPrimeRelay::CMetroidPrimeRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
-                                       const zeus::CTransform& xf, const zeus::CVector3f& scale,
+                                       const zeus::CTransform4f& xf, const zeus::CVector3f& scale,
                                        CMetroidPrimeData&& parms, float f1, float f2, float f3, u32 w1, bool b1, u32 w2,
                                        const CHealthInfo& hInfo1, const CHealthInfo& hInfo2, u32 w3, u32 w4, u32 w5,
                                        rstl::reserved_vector<CMetroidPrimeAttackWeights, 4>&& roomParms)

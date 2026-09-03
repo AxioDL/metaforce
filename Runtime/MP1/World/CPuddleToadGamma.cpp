@@ -22,7 +22,7 @@ constexpr CMaterialFilter skSolidFilter =
 } // Anonymous namespace
 
 CPuddleToadGamma::CPuddleToadGamma(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
-                                   const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
+                                   const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                                    const CActorParameters& aParms, float suckForceMultiplier, float suckAngle,
                                    float playerSuckRange, const zeus::CVector3f& localShootDir, float playerShootSpeed,
                                    float shouldAttackWaitTime, float spotPlayerWaitTime,
@@ -66,8 +66,8 @@ const CCollisionPrimitive* CPuddleToadGamma::GetCollisionPrimitive() const {
   return x5e4_collisionTreePrim.get();
 }
 
-zeus::CTransform CPuddleToadGamma::GetPrimitiveTransform() const {
-  zeus::CTransform xf = GetTransform();
+zeus::CTransform4f CPuddleToadGamma::GetPrimitiveTransform() const {
+  zeus::CTransform4f xf = GetTransform();
   xf.origin += GetPrimitiveOffset();
   return xf;
 }
@@ -77,8 +77,8 @@ void CPuddleToadGamma::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
 
   if (msg == EScriptObjectMessage::Registered) {
     x450_bodyController->Activate(mgr);
-    const zeus::CTransform bellyXf = GetLctrTransform(skBellyLocatorName);
-    const zeus::CVector3f bellyOffset = GetTransform().rotate(skBellyOffset);
+    const zeus::CTransform4f bellyXf = GetLctrTransform(skBellyLocatorName);
+    const zeus::CVector3f bellyOffset = GetTransform().Rotate(skBellyOffset);
     x5d8_damageablePoint = x5cc_suckPoint = bellyXf.origin + bellyOffset;
     RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
     AddMaterial(EMaterialTypes::Immovable, mgr);
@@ -133,7 +133,7 @@ bool CPuddleToadGamma::LostInterest(CStateManager& mgr, float) {
 }
 
 void CPuddleToadGamma::ShootPlayer(CStateManager& mgr, float speed) {
-  zeus::CVector3f shootDir = x34_transform.rotate(x5b4_localShootDir.normalized());
+  zeus::CVector3f shootDir = x34_transform.Rotate(x5b4_localShootDir.normalized());
   mgr.GetPlayer().SetLeaveMorphBallAllowed(true);
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed) {
     x5e8_26_shotPlayer = true;
@@ -162,11 +162,11 @@ bool CPuddleToadGamma::InAttackPosition(CStateManager& mgr, float) {
 
 bool CPuddleToadGamma::PlayerInVortexArea(const CStateManager& mgr) const {
   const CPlayer& player = mgr.GetPlayer();
-  const zeus::CTransform xf = GetLctrTransform(skMouthLocatorName);
+  const zeus::CTransform4f xf = GetLctrTransform(skMouthLocatorName);
 
   const zeus::CVector3f playerOffset =
       player.GetTranslation() + zeus::CVector3f{0.f, 0.f, player.GetMorphBall()->GetBallRadius()};
-  const zeus::CVector3f rotatedDir = GetTransform().rotate(zeus::skForward);
+  const zeus::CVector3f rotatedDir = GetTransform().Rotate(zeus::skForward);
 
   const zeus::CVector3f suckPointToPlayer = (playerOffset - (xf.origin - (1.f * rotatedDir)));
   const float suckProj = suckPointToPlayer.normalized().dot(rotatedDir);
@@ -195,8 +195,8 @@ void CPuddleToadGamma::InActive(CStateManager& mgr, EStateMsg msg, float) {
 void CPuddleToadGamma::Active(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Lurk);
-    const zeus::CTransform xf = GetLctrTransform(skBellyLocatorName);
-    x5cc_suckPoint = xf.origin + GetTransform().rotate(skBellyOffset);
+    const zeus::CTransform4f xf = GetLctrTransform(skBellyLocatorName);
+    x5cc_suckPoint = xf.origin + GetTransform().Rotate(skBellyOffset);
     x56c_waitTimer = 0.f;
     x5e8_25_waitTimerActive = true;
     SetSolid(mgr, true);
@@ -253,8 +253,8 @@ void CPuddleToadGamma::Attack(CStateManager& mgr, EStateMsg msg, float) {
     mgr.GetPlayer().GetMorphBall()->SetBombJumpState(CMorphBall::EBombJumpState::BombJumpDisabled);
   } else if (msg == EStateMsg::Update) {
     if (!x5e8_26_shotPlayer) {
-      const zeus::CTransform xf = GetLctrTransform(skBellyLocatorName);
-      x5cc_suckPoint = xf.origin + GetTransform().rotate(skBellyOffset);
+      const zeus::CTransform4f xf = GetLctrTransform(skBellyLocatorName);
+      x5cc_suckPoint = xf.origin + GetTransform().Rotate(skBellyOffset);
       SetPlayerPosition(mgr, x5cc_suckPoint);
     } else if (LostInterest(mgr, 0.f))
       SetSolid(mgr, true);
@@ -299,7 +299,7 @@ bool CPuddleToadGamma::Inside(CStateManager& mgr, float) {
     return false;
 
   zeus::CVector3f posDiff = mgr.GetPlayer().GetTranslation() - x5cc_suckPoint;
-  return posDiff.dot(GetTransform().frontVector()) <= 0.f && posDiff.magSquared() < 2.f;
+  return posDiff.dot(GetTransform().GetForward()) <= 0.f && posDiff.magSquared() < 2.f;
 }
 
 void CPuddleToadGamma::Crouch(CStateManager& mgr, EStateMsg msg, float) {
@@ -319,8 +319,8 @@ void CPuddleToadGamma::Crouch(CStateManager& mgr, EStateMsg msg, float) {
     mgr.GetPlayer().GetMorphBall()->DisableHalfPipeStatus();
     SetSolid(mgr, false);
   } else if (msg == EStateMsg::Update) {
-    const zeus::CTransform xf = GetLctrTransform(skBellyLocatorName);
-    x5cc_suckPoint = xf.origin + GetTransform().rotate(skBellyOffset);
+    const zeus::CTransform4f xf = GetLctrTransform(skBellyLocatorName);
+    x5cc_suckPoint = xf.origin + GetTransform().Rotate(skBellyOffset);
     SetPlayerPosition(mgr, x5cc_suckPoint);
     if (x568_stateProg == 0) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Locomotion)

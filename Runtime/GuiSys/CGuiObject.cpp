@@ -32,15 +32,15 @@ void CGuiObject::RotateReset() {
   RecalculateTransforms();
 }
 
-zeus::CVector3f CGuiObject::RotateW2O(const zeus::CVector3f& vec) const { return x34_worldXF.transposeRotate(vec); }
+zeus::CVector3f CGuiObject::RotateW2O(const zeus::CVector3f& vec) const { return x34_worldXF.TransposeRotate(vec); }
 
-zeus::CVector3f CGuiObject::RotateO2P(const zeus::CVector3f& vec) const { return x4_localXF.rotate(vec); }
+zeus::CVector3f CGuiObject::RotateO2P(const zeus::CVector3f& vec) const { return x4_localXF.Rotate(vec); }
 
 zeus::CVector3f CGuiObject::RotateTranslateW2O(const zeus::CVector3f& vec) const {
-  return x34_worldXF.transposeRotate(vec - x34_worldXF.origin);
+  return x34_worldXF.TransposeRotate(vec - x34_worldXF.origin);
 }
 
-void CGuiObject::MultiplyO2P(const zeus::CTransform& xf) {
+void CGuiObject::MultiplyO2P(const zeus::CTransform4f& xf) {
   x4_localXF = xf * x4_localXF;
   RecalculateTransforms();
 }
@@ -65,11 +65,11 @@ void CGuiObject::AddChildObject(CGuiObject* obj, bool makeWorldLocal, bool atEnd
 
   if (makeWorldLocal) {
     zeus::CVector3f negParentWorld = -x34_worldXF.origin;
-    zeus::CMatrix3f basisMat(x34_worldXF.basis[0] / x34_worldXF.basis[0].magnitude(),
-                             x34_worldXF.basis[1] / x34_worldXF.basis[1].magnitude(),
-                             x34_worldXF.basis[2] / x34_worldXF.basis[2].magnitude());
+    zeus::CMatrix3f basisMat(x34_worldXF.GetRight() / x34_worldXF.GetRight().magnitude(),
+                             x34_worldXF.GetForward() / x34_worldXF.GetForward().magnitude(),
+                             x34_worldXF.GetUp() / x34_worldXF.GetUp().magnitude());
     zeus::CVector3f xfWorld = basisMat * negParentWorld;
-    obj->x4_localXF = zeus::CTransform(basisMat, xfWorld) * obj->x34_worldXF;
+    obj->x4_localXF = zeus::CTransform4f(basisMat, xfWorld) * obj->x34_worldXF;
   }
 
   RecalculateTransforms();
@@ -107,12 +107,12 @@ void CGuiObject::RecalculateTransforms() {
     x68_child->RecalculateTransforms();
 }
 
-void CGuiObject::SetO2WTransform(const zeus::CTransform& xf) {
-  x4_localXF = GetParent()->x34_worldXF.inverse() * xf;
+void CGuiObject::SetO2WTransform(const zeus::CTransform4f& xf) {
+  x4_localXF = GetParent()->x34_worldXF.Inverse() * xf;
   RecalculateTransforms();
 }
 
-void CGuiObject::SetLocalTransform(const zeus::CTransform& xf) {
+void CGuiObject::SetLocalTransform(const zeus::CTransform4f& xf) {
   x4_localXF = xf;
   RecalculateTransforms();
 }

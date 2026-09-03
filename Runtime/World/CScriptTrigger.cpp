@@ -14,7 +14,7 @@ CScriptTrigger::CScriptTrigger(TUniqueId uid, std::string_view name, const CEnti
                                const zeus::CVector3f& pos, const zeus::CAABox& bounds, const CDamageInfo& dInfo,
                                const zeus::CVector3f& forceField, ETriggerFlags triggerFlags, bool active,
                                bool deactivateOnEntered, bool deactivateOnExited)
-: CActor(uid, active, name, info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(),
+: CActor(uid, active, name, info, zeus::CTransform4f::Translate(pos), CModelData::CModelDataNull(),
          CMaterialList(EMaterialTypes::Trigger), CActorParameters::None(), kInvalidUniqueId)
 , x100_damageInfo(dInfo)
 , x11c_forceField(forceField)

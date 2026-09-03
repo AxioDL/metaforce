@@ -11,7 +11,7 @@
 namespace metaforce {
 bool CScriptSound::sFirstInFrame = false;
 
-CScriptSound::CScriptSound(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CScriptSound::CScriptSound(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                            u16 soundId, bool active, float maxDist, float distComp, float startDelay, u32 minVol,
                            u32 vol, u32 w3, u32 prio, u32 pan, u32 w6, bool looped, bool nonEmitter, bool autoStart,
                            bool occlusionTest, bool acoustics, bool worldSfx, bool allowDuplicates, s32 pitch)
@@ -52,7 +52,7 @@ constexpr CMaterialFilter kSolidFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough});
 
 float CScriptSound::GetOccludedVolumeAmount(const zeus::CVector3f& pos, const CStateManager& mgr) {
-  const zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+  const zeus::CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
   const zeus::CVector3f soundToCam = camXf.origin - pos;
   const float soundToCamMag = soundToCam.magnitude();
   const zeus::CVector3f soundToCamNorm = soundToCam * (1.f / soundToCamMag);

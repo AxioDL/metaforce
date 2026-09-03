@@ -28,12 +28,12 @@ class CAuxWeapon {
   void InitComboData();
   void FreeComboVoiceId();
   void DeleteFlameThrower(CStateManager& mgr);
-  void CreateFlameThrower(const zeus::CTransform& xf, CStateManager& mgr, float dt);
+  void CreateFlameThrower(const zeus::CTransform4f& xf, CStateManager& mgr, float dt);
   void DeleteWaveBusterBeam(CStateManager& mgr);
-  void CreateWaveBusterBeam(EProjectileAttrib attribs, TUniqueId homingTarget, const zeus::CTransform& xf,
+  void CreateWaveBusterBeam(EProjectileAttrib attribs, TUniqueId homingTarget, const zeus::CTransform4f& xf,
                             CStateManager& mgr);
   void LaunchMissile(float dt, bool underwater, bool charged, CPlayerState::EBeamId currentBeam,
-                     EProjectileAttrib attrib, const zeus::CTransform& xf, TUniqueId homingId, CStateManager& mgr);
+                     EProjectileAttrib attrib, const zeus::CTransform4f& xf, TUniqueId homingId, CStateManager& mgr);
 
 public:
   explicit CAuxWeapon(TUniqueId playerId);
@@ -41,10 +41,10 @@ public:
   bool IsComboFxActive(const CStateManager& mgr) const;
   void Load(CPlayerState::EBeamId curBeam, CStateManager& mgr);
   void StopComboFx(CStateManager& mgr, bool deactivate);
-  bool UpdateComboFx(float dt, const zeus::CVector3f& scale, const zeus::CVector3f& pos, const zeus::CTransform& xf,
+  bool UpdateComboFx(float dt, const zeus::CVector3f& scale, const zeus::CVector3f& pos, const zeus::CTransform4f& xf,
                      CStateManager& mgr);
   void Fire(float dt, bool underwater, CPlayerState::EBeamId currentBeam, EChargeState chargeState,
-            const zeus::CTransform& xf, CStateManager& mgr, EWeaponType type, TUniqueId homingId);
+            const zeus::CTransform4f& xf, CStateManager& mgr, EWeaponType type, TUniqueId homingId);
   void LoadIdle();
   bool IsLoaded() const { return x80_24_isLoaded; }
   void RenderMuzzleFx() const;

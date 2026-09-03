@@ -12,7 +12,7 @@
 namespace metaforce {
 
 MP1::CScriptContraption::CScriptContraption(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                          const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& aabox,
+                                          const zeus::CTransform4f& xf, CModelData&& mData, const zeus::CAABox& aabox,
                                           const CMaterialList& matList, float mass, float zMomentum,
                                           const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
                                           const CActorParameters& aParams, CAssetId part, const CDamageInfo& dInfo,
@@ -92,7 +92,7 @@ CFlameThrower* MP1::CScriptContraption::CreateFlameThrower(std::string_view name
 
   const TUniqueId id = mgr.AllocateUniqueId();
   const CFlameInfo flameInfo(6, 6, x308_flameFxId, 20, 0.5f, 1.f, 1.f);
-  auto* ret = new CFlameThrower(x300_flameThrowerGen, name, EWeaponType::Missile, flameInfo, zeus::CTransform(),
+  auto* ret = new CFlameThrower(x300_flameThrowerGen, name, EWeaponType::Missile, flameInfo, zeus::CTransform4f(),
                                 EMaterialTypes::CollisionActor, x30c_dInfo, id, GetAreaId(), GetUniqueId(),
                                 EProjectileAttrib::None, CAssetId(), -1, CAssetId());
 

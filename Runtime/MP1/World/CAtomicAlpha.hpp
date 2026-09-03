@@ -34,13 +34,13 @@ class CAtomicAlpha : public CPatterned {
 public:
   DEFINE_PATTERNED(AtomicAlpha);
 
-  CAtomicAlpha(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CAtomicAlpha(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
                const CActorParameters&, const CPatternedInfo&, CAssetId, const CDamageInfo&, float, float, float,
                CAssetId, bool, bool);
 
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Render(CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   void Think(float, CStateManager&) override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
 

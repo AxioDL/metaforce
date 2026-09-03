@@ -17,7 +17,7 @@
 namespace metaforce {
 
 CFishCloud::CFishCloud(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
-                       const zeus::CVector3f& scale, const zeus::CTransform& xf, CModelData&& mData,
+                       const zeus::CVector3f& scale, const zeus::CTransform4f& xf, CModelData&& mData,
                        const CAnimRes& aRes, u32 numBoids, float speed, float separationRadius, float cohesionMagnitude,
                        float alignmentWeight, float separationMagnitude, float weaponRepelMagnitude,
                        float playerRepelMagnitude, float containmentMagnitude, float scatterVel, float maxScatterAngle,
@@ -109,7 +109,7 @@ bool CFishCloud::PointInBox(const zeus::CAABox& aabb, const zeus::CVector3f& poi
   if (!x250_25_worldSpace) {
     return aabb.pointInside(point);
   }
-  return GetUntransformedBoundingBox().pointInside(GetTransform().transposeRotate(point - GetTranslation()));
+  return GetUntransformedBoundingBox().pointInside(GetTransform().TransposeRotate(point - GetTranslation()));
 }
 
 zeus::CPlane CFishCloud::FindClosestPlane(const zeus::CAABox& aabb, const zeus::CVector3f& point) const {
@@ -127,7 +127,7 @@ zeus::CPlane CFishCloud::FindClosestPlane(const zeus::CAABox& aabb, const zeus::
     const auto tri = aabb.getTri(minFace, 0);
     return zeus::CPlane(tri.x10_verts[0], tri.x10_verts[2], tri.x10_verts[1]);
   } else {
-    const auto unPoint = GetTransform().transposeRotate(point - GetTranslation());
+    const auto unPoint = GetTransform().TransposeRotate(point - GetTranslation());
     const auto unAabb = GetUntransformedBoundingBox();
     float minDist = FLT_MAX;
     auto minFace = zeus::CAABox::EBoxFaceId::YMin;
@@ -551,7 +551,7 @@ void CFishCloud::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
   }
 }
 
-void CFishCloud::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CFishCloud::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   CActor::PreRender(mgr, frustum);
   if (x250_27_validModel) {
     for (auto& m : x1b0_models) {
@@ -580,7 +580,7 @@ void CFishCloud::RenderBoid(int idx, const CBoid& boid, u32& drawMask, bool ther
     model.Calculate(mData.GetAnimationData()->GetPose(), nullptr, {}, &x178_workspaces[modelIndex]);
   }
 
-  CGraphics::SetModelMatrix(zeus::lookAt(boid.x0_pos, boid.x0_pos + boid.xc_vel));
+  CGraphics::SetModelMatrix(zeus::CTransform4f::LookAt(boid.x0_pos, boid.x0_pos + boid.xc_vel));
   const auto& positions = x178_workspaces[modelIndex].m_vertexWorkspace;
   const auto& normals = x178_workspaces[modelIndex].m_normalWorkspace;
   if (thermalHot) {
@@ -626,7 +626,7 @@ void CFishCloud::Render(CStateManager& mgr) {
     for (const auto& b : xe8_boids) {
       if (b.x20_active) {
         x64_modelData->SetScale(zeus::CVector3f(b.x18_scale));
-        x64_modelData->Render(mgr, zeus::lookAt(b.x0_pos, b.x0_pos + b.xc_vel), nullptr, flags);
+        x64_modelData->Render(mgr, zeus::CTransform4f::LookAt(b.x0_pos, b.x0_pos + b.xc_vel), nullptr, flags);
       }
     }
   }

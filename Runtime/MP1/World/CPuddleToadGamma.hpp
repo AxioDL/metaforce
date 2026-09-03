@@ -41,7 +41,7 @@ public:
   DEFINE_PATTERNED(PuddleToad);
 
   CPuddleToadGamma(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
-                   const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
+                   const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                    const CActorParameters& aParms, float suckForceMultiplier, float suckAngle, float playerSuckRange,
                    const zeus::CVector3f& localShootDir, float playerShootSpeed, float shouldAttackWaitTime,
                    float spotPlayerWaitTime, const CDamageInfo& playerShootDamage, const CDamageInfo& dInfo2,
@@ -61,7 +61,7 @@ public:
 
   const CCollisionPrimitive* GetCollisionPrimitive() const override;
 
-  zeus::CTransform GetPrimitiveTransform() const override;
+  zeus::CTransform4f GetPrimitiveTransform() const override;
 
   void InActive(CStateManager&, EStateMsg, float) override;
   void Active(CStateManager&, EStateMsg, float) override;

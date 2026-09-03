@@ -43,13 +43,13 @@ class CScriptSound : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptSound(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, u16 soundId,
+  CScriptSound(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf, u16 soundId,
                bool active, float maxDist, float distComp, float startDelay, u32 minVol, u32 vol, u32 w3, u32 prio,
                u32 pan, u32 w6, bool looped, bool nonEmitter, bool autoStart, bool occlusionTest, bool acoustics,
                bool worldSfx, bool allowDuplicates, s32 pitch);
 
   void Accept(IVisitor& visitor) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override {}
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override {}
   void PreThink(float, CStateManager&) override;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;

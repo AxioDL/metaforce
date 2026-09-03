@@ -123,12 +123,12 @@ bool CMapArea::GetIsVisibleToAutoMapper(bool worldVis, bool areaVis) const {
   }
 }
 
-zeus::CTransform CMapArea::GetAreaPostTransform(const IWorld& world, TAreaId aid) const {
+zeus::CTransform4f CMapArea::GetAreaPostTransform(const IWorld& world, TAreaId aid) const {
   if (world.IGetWorldAssetId() == 0xB1AC4D65) // Phazon Mines
   {
-    const zeus::CTransform& areaXf = world.IGetAreaAlways(aid)->IGetTM();
+    const zeus::CTransform4f& areaXf = world.IGetAreaAlways(aid)->IGetTM();
     const zeus::CVector3f& postVec = MinesPostTransforms[MinesPostTransformIndices[aid]];
-    return zeus::CTransform::Translate(postVec) * areaXf;
+    return zeus::CTransform4f::Translate(postVec) * areaXf;
   } else {
     return world.IGetAreaAlways(aid)->IGetTM();
   }

@@ -75,7 +75,7 @@ CMetroidData::CMetroidData(CInputStream& in)
 }
 
 CMetroid::CMetroid(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
-                   const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
+                   const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                    const CActorParameters& aParms, const CMetroidData& metroidData, TUniqueId other)
 : CPatterned(EPatternedAI::Metroid, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              EColliderType::One, EBodyType::Flyer, aParms, EKnockBackVariant::Medium)
@@ -206,7 +206,7 @@ zeus::CVector3f CMetroid::GetOrigin(const CStateManager& mgr, const CTeamAiRole&
   TUniqueId target = x7b0_attackTarget;
   if (target == player.GetUniqueId()) {
     const zeus::CVector3f& playerPos = player.GetTranslation();
-    const zeus::CVector3f& playerFace = player.GetTransform().frontVector();
+    const zeus::CVector3f& playerFace = player.GetTransform().GetForward();
     if (player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed) {
       zeus::CVector3f face = pos - playerPos;
       face.z() = 0.f;
@@ -226,7 +226,7 @@ zeus::CVector3f CMetroid::GetOrigin(const CStateManager& mgr, const CTeamAiRole&
     if (face.canBeNormalized()) {
       face.normalize();
     } else {
-      face = actor->GetTransform().frontVector();
+      face = actor->GetTransform().GetForward();
     }
     return actorPos + zeus::CVector3f{range * face.x(), range * face.y(), 0.5f};
   }
@@ -296,7 +296,7 @@ void CMetroid::Touch(CActor& act, CStateManager& mgr) {
         if (GetDamageVulnerability()->WeaponHits(CWeaponMode{EWeaponType::Ice, false}, false)) {
           float timeScale = proj->HasAttrib(EProjectileAttrib::Charged) ? 2.f : 1.f;
           const zeus::CVector3f& projPos = proj->GetTranslation();
-          Freeze(mgr, projPos - GetTranslation(), x34_transform.transposeRotate(projPos - proj->GetPreviousPos()),
+          Freeze(mgr, projPos - GetTranslation(), x34_transform.TransposeRotate(projPos - proj->GetPreviousPos()),
                  timeScale * x4fc_freezeDur);
         }
       }
@@ -519,7 +519,7 @@ bool CMetroid::IsSuckingEnergy() const {
 void CMetroid::UpdateVolume() { SetVolume(0.25f * std::clamp(GetGrowthStage() - 1.f, 0.f, 1.f) + 0.75f); }
 
 void CMetroid::UpdateTouchBounds() {
-  const zeus::CTransform locXf = GetLocatorTransform("lockon_target_LCTR"sv);
+  const zeus::CTransform4f locXf = GetLocatorTransform("lockon_target_LCTR"sv);
   x6a0_collisionPrimitive.SetSphereCenter(locXf * GetModelData()->GetScale());
 }
 
@@ -591,7 +591,7 @@ void CMetroid::DetachFromTarget(CStateManager& mgr) {
   CPlayer& player = mgr.GetPlayer();
   CActor* target = nullptr;
   zeus::CVector3f vec;
-  zeus::CTransform xf;
+  zeus::CTransform4f xf;
   if (x7b0_attackTarget == player.GetUniqueId()) {
     if (player.GetAttachedActor() == GetUniqueId()) {
       player.DetachActorFromPlayer();
@@ -600,9 +600,9 @@ void CMetroid::DetachFromTarget(CStateManager& mgr) {
         const auto q2 = zeus::CQuaternion::fromAxisAngle({0.f, 0.f, 1.f}, GetYaw());
         const auto mat = zeus::CMatrix3f{q2 * q1};
         vec = mat * zeus::skForward;
-        xf = zeus::CTransform{mat, player.GetTranslation()};
+        xf = zeus::CTransform4f{mat, player.GetTranslation()};
       } else {
-        vec = player.GetTransform().frontVector();
+        vec = player.GetTransform().GetForward();
         xf = player.GetTransform();
       }
       mgr.GetPlayer().GetEnergyDrain().RemoveEnergyDrainSource(GetUniqueId());
@@ -613,7 +613,7 @@ void CMetroid::DetachFromTarget(CStateManager& mgr) {
     if (auto* pirate = CPatterned::CastTo<CSpacePirate>(mgr.ObjectById(x7b0_attackTarget))) {
       if (pirate->GetAttachedActor() == GetUniqueId()) {
         pirate->DetachActorFromPirate();
-        vec = pirate->GetTransform().frontVector();
+        vec = pirate->GetTransform().GetForward();
         xf = pirate->GetTransform();
         x80c_detachPos = GetTranslation();
         target = pirate;
@@ -655,7 +655,7 @@ void CMetroid::DisableSolidCollision(CMetroid* target) {
 }
 
 void CMetroid::SetupExitFaceHugDirection(CActor* actor, CStateManager& mgr, const zeus::CVector3f& vec,
-                                         const zeus::CTransform& xf) {
+                                         const zeus::CTransform4f& xf) {
   if (actor == nullptr || x7c8_attackState == EAttackState::Over) {
     return;
   }
@@ -1031,7 +1031,7 @@ bool CMetroid::InAttackPosition(CStateManager& mgr, float arg) {
   const zeus::CVector3f& actorPos = actor->GetTranslation();
   const zeus::CVector3f& pos = GetTranslation();
   const zeus::CVector3f dir = pos - actorPos;
-  const zeus::CVector2f actorFrontXY = actor->GetTransform().frontVector().toVec2f();
+  const zeus::CVector2f actorFrontXY = actor->GetTransform().GetForward().toVec2f();
   float maxAngle = M_PIF;
   if (x7b0_attackTarget == player.GetUniqueId()) {
     if (IsPlayerUnderwater(mgr)) {
@@ -1042,7 +1042,7 @@ bool CMetroid::InAttackPosition(CStateManager& mgr, float arg) {
     }
   }
   if (zeus::CVector2f::getAngleDiff(dir.toVec2f(), actorFrontXY) < maxAngle &&
-      dir.dot(GetTransform().frontVector()) < 0.f) {
+      dir.dot(GetTransform().GetForward()) < 0.f) {
     const zeus::CVector3f dir2 = x7a4_ - pos;
     if (dir2.magSquared() < x300_maxAttackRange * x300_maxAttackRange && actorPos.z() < pos.z() &&
         pos.z() < 0.5f + x7a4_.z()) {
@@ -1142,7 +1142,7 @@ void CMetroid::ComputeSuckPlayerPosRot(CStateManager& mgr, zeus::CVector3f& outP
   const auto morphBallState = player.GetMorphballTransitionState();
   if (morphBallState == CPlayer::EPlayerMorphBallState::Morphing) {
     outPos += zeus::CVector3f{0.f, 0.f, 0.4f + ComputeMorphingPlayerSuckZPos(player)};
-    outPos += 0.5f * playerXf.frontVector() - player.GetMorphBall()->GetBallRadius() * GetTransform().upVector();
+    outPos += 0.5f * playerXf.GetForward() - player.GetMorphBall()->GetBallRadius() * GetTransform().GetUp();
     const auto xRot = zeus::CQuaternion::fromAxisAngle(zeus::skRight, zeus::degToRad(-90.f));
     const auto yRot = zeus::CQuaternion::fromAxisAngle(zeus::skForward, 0.f);
     const auto zRot = zeus::CQuaternion::fromAxisAngle(zeus::skUp, M_PIF);
@@ -1157,14 +1157,14 @@ void CMetroid::ComputeSuckPlayerPosRot(CStateManager& mgr, zeus::CVector3f& outP
   } else if (morphBallState == CPlayer::EPlayerMorphBallState::Morphed) {
     const float ballRadius = player.GetMorphBall()->GetBallRadius();
     outPos += (2.f * ballRadius + 0.25f) * zeus::skUp;
-    outPos -= ballRadius * (scale.y() * GetTransform().upVector());
+    outPos -= ballRadius * (scale.y() * GetTransform().GetUp());
     const auto xRot = zeus::CQuaternion::fromAxisAngle(zeus::skRight, zeus::degToRad(-90.f));
     const auto yRot = zeus::CQuaternion::fromAxisAngle(zeus::skForward, 0.f);
     const auto zRot = zeus::CQuaternion::fromAxisAngle(zeus::skUp, GetYaw());
     outRot = zRot * xRot * yRot;
   } else if (morphBallState == CPlayer::EPlayerMorphBallState::Unmorphing) {
     outPos += zeus::CVector3f{0.f, 0.f, 0.4f + ComputeMorphingPlayerSuckZPos(player)};
-    outPos += 0.5f * playerXf.frontVector() - player.GetMorphBall()->GetBallRadius() * GetTransform().upVector();
+    outPos += 0.5f * playerXf.GetForward() - player.GetMorphBall()->GetBallRadius() * GetTransform().GetUp();
     const auto xRot = zeus::CQuaternion::fromAxisAngle(zeus::skRight, zeus::degToRad(-90.f));
     const auto yRot = zeus::CQuaternion::fromAxisAngle(zeus::skForward, 0.f);
     const auto zRot = zeus::CQuaternion::fromAxisAngle(zeus::skUp, M_PIF);
@@ -1198,7 +1198,7 @@ float CMetroid::ComputeMorphingPlayerSuckZPos(const CPlayer& player) const {
   const float scaleZ = modelData->GetScale().z();
   if (modelData != nullptr && modelData->GetAnimationData() != nullptr) { // && modelData->GetNormalModel() ?
     for (const auto& joint : skJointNameList) {
-      const zeus::CTransform xf = player.GetLocatorTransform(joint);
+      const zeus::CTransform4f xf = player.GetLocatorTransform(joint);
       const float z = xf.origin.z() * scaleZ;
       if (z > ret) {
         ret = z;
@@ -1315,7 +1315,7 @@ bool CMetroid::ShouldDodge(CStateManager& mgr, float arg) {
   if (nearList.empty()) {
     return false;
   }
-  const auto front = xf.frontVector();
+  const auto front = xf.GetForward();
   for (const auto& id : nearList) {
     if (TCastToConstPtr<CGameProjectile> projectile = mgr.GetObjectById(id)) {
       if (!projectile->HasAttrib(EProjectileAttrib::Ice)) {
@@ -1326,7 +1326,7 @@ bool CMetroid::ShouldDodge(CStateManager& mgr, float arg) {
         continue;
       }
       pas::EStepDirection dodgeDirection = pas::EStepDirection::Right;
-      if (xf.rightVector().dot(dir) <= 0.f) {
+      if (xf.GetRight().dot(dir) <= 0.f) {
         dodgeDirection = pas::EStepDirection::Left;
       }
       x818_dodgeDirection = dodgeDirection;
@@ -1341,9 +1341,9 @@ bool CMetroid::ShouldTurn(CStateManager& mgr, float arg) {
     return false;
   }
   if (TCastToConstPtr<CActor> actor = mgr.GetObjectById(x7b0_attackTarget)) {
-    const zeus::CTransform& xf = GetTransform();
+    const zeus::CTransform4f& xf = GetTransform();
     const zeus::CVector2f dir = (actor->GetTranslation() - xf.origin).toVec2f();
-    const float diff = zeus::CVector2f::getAngleDiff(xf.frontVector().toVec2f(), dir);
+    const float diff = zeus::CVector2f::getAngleDiff(xf.GetForward().toVec2f(), dir);
     return diff > zeus::degToRad(15.f);
   }
   return false;

@@ -40,37 +40,37 @@ class CCollidableOBBTree : public CCollisionPrimitive {
   bool LineIntersectsOBBTree(const COBBTree::CNode& n0, const COBBTree::CNode& n1, CRayCastInfo& info) const;
   bool LineIntersectsOBBTree(const COBBTree::CNode& node, CRayCastInfo& info) const;
   CRayCastResult LineIntersectsTree(const zeus::CMRay& ray, const CMaterialFilter& filter, float maxTime,
-                                    const zeus::CTransform& xf) const;
-  static zeus::CPlane TransformPlane(const zeus::CPlane& pl, const zeus::CTransform& xf);
-  bool SphereCollideWithLeafMoving(const COBBTree::CLeafData& leaf, const zeus::CTransform& xf,
+                                    const zeus::CTransform4f& xf) const;
+  static zeus::CPlane TransformPlane(const zeus::CPlane& pl, const zeus::CTransform4f& xf);
+  bool SphereCollideWithLeafMoving(const COBBTree::CLeafData& leaf, const zeus::CTransform4f& xf,
                                    const zeus::CSphere& sphere, const CMaterialList& material,
                                    const CMaterialFilter& filter, const zeus::CVector3f& dir, double& dOut,
                                    CCollisionInfo& info) const;
-  bool SphereCollisionMoving(const COBBTree::CNode& node, const zeus::CTransform& xf, const zeus::CSphere& sphere,
+  bool SphereCollisionMoving(const COBBTree::CNode& node, const zeus::CTransform4f& xf, const zeus::CSphere& sphere,
                              const zeus::COBBox& obb, const CMaterialList& material, const CMaterialFilter& filter,
                              const zeus::CVector3f& dir, double& dOut, CCollisionInfo& info) const;
-  bool AABoxCollideWithLeafMoving(const COBBTree::CLeafData& leaf, const zeus::CTransform& xf, const zeus::CAABox& aabb,
+  bool AABoxCollideWithLeafMoving(const COBBTree::CLeafData& leaf, const zeus::CTransform4f& xf, const zeus::CAABox& aabb,
                                   const CMaterialList& material, const CMaterialFilter& filter,
                                   const CMovingAABoxComponents& components, const zeus::CVector3f& dir, double& dOut,
                                   CCollisionInfo& info) const;
-  bool AABoxCollisionMoving(const COBBTree::CNode& node, const zeus::CTransform& xf, const zeus::CAABox& aabb,
+  bool AABoxCollisionMoving(const COBBTree::CNode& node, const zeus::CTransform4f& xf, const zeus::CAABox& aabb,
                             const zeus::COBBox& obb, const CMaterialList& material, const CMaterialFilter& filter,
                             const CMovingAABoxComponents& components, const zeus::CVector3f& dir, double& dOut,
                             CCollisionInfo& info) const;
-  bool SphereCollisionBoolean(const COBBTree::CNode& node, const zeus::CTransform& xf, const zeus::CSphere& sphere,
+  bool SphereCollisionBoolean(const COBBTree::CNode& node, const zeus::CTransform4f& xf, const zeus::CSphere& sphere,
                               const zeus::COBBox& obb, const CMaterialFilter& filter) const;
-  bool AABoxCollisionBoolean(const COBBTree::CNode& node, const zeus::CTransform& xf, const zeus::CAABox& aabb,
+  bool AABoxCollisionBoolean(const COBBTree::CNode& node, const zeus::CTransform4f& xf, const zeus::CAABox& aabb,
                              const zeus::COBBox& obb, const CMaterialFilter& filter) const;
-  bool SphereCollideWithLeaf(const COBBTree::CLeafData& leaf, const zeus::CTransform& xf, const zeus::CSphere& sphere,
+  bool SphereCollideWithLeaf(const COBBTree::CLeafData& leaf, const zeus::CTransform4f& xf, const zeus::CSphere& sphere,
                              const CMaterialList& material, const CMaterialFilter& filter,
                              CCollisionInfoList& infoList) const;
-  bool SphereCollision(const COBBTree::CNode& node, const zeus::CTransform& xf, const zeus::CSphere& sphere,
+  bool SphereCollision(const COBBTree::CNode& node, const zeus::CTransform4f& xf, const zeus::CSphere& sphere,
                        const zeus::COBBox& obb, const CMaterialList& material, const CMaterialFilter& filter,
                        CCollisionInfoList& infoList) const;
-  bool AABoxCollideWithLeaf(const COBBTree::CLeafData& leaf, const zeus::CTransform& xf, const zeus::CAABox& aabb,
+  bool AABoxCollideWithLeaf(const COBBTree::CLeafData& leaf, const zeus::CTransform4f& xf, const zeus::CAABox& aabb,
                             const CMaterialList& material, const CMaterialFilter& filter,
                             const std::array<zeus::CPlane, 6>& planes, CCollisionInfoList& infoList) const;
-  bool AABoxCollision(const COBBTree::CNode& node, const zeus::CTransform& xf, const zeus::CAABox& aabb,
+  bool AABoxCollision(const COBBTree::CNode& node, const zeus::CTransform4f& xf, const zeus::CAABox& aabb,
                       const zeus::COBBox& obb, const CMaterialList& material, const CMaterialFilter& filter,
                       const std::array<zeus::CPlane, 6>& planes, CCollisionInfoList& infoList) const;
 
@@ -80,7 +80,7 @@ public:
   void ResetTestStats() const;
   void ResetTestStatsRecurse(const COBBTree::CNode&) const;
   u32 GetTableIndex() const override { return sTableIndex; }
-  zeus::CAABox CalculateAABox(const zeus::CTransform&) const override;
+  zeus::CAABox CalculateAABox(const zeus::CTransform4f&) const override;
   zeus::CAABox CalculateLocalAABox() const override;
   FourCC GetPrimType() const override;
   CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const override;

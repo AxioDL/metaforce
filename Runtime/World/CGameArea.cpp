@@ -267,7 +267,7 @@ std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& 
     return {};
   }
 
-  header.xf = r.Get<zeus::CTransform>();
+  header.xf = r.Get<zeus::CTransform4f>();
   header.modelCount = r.ReadLong();
   header.secCount = r.ReadLong();
   header.geomSecIdx = r.ReadLong();
@@ -298,7 +298,7 @@ std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& 
 
 CDummyGameArea::CDummyGameArea(CInputStream& in, int idx, int mlvlVersion) {
   x8_nameSTRG = in.Get<CAssetId>();
-  x14_transform = in.Get<zeus::CTransform>();
+  x14_transform = in.Get<zeus::CTransform4f>();
   zeus::CAABox aabb = in.Get<zeus::CAABox>();
   xc_mrea = in.Get<CAssetId>();
   if (mlvlVersion > 15) {
@@ -343,12 +343,12 @@ u32 CDummyGameArea::IGetNumAttachedAreas() const { return x44_attachedAreaIndice
 
 CAssetId CDummyGameArea::IGetStringTableAssetId() const { return x8_nameSTRG; }
 
-const zeus::CTransform& CDummyGameArea::IGetTM() const { return x14_transform; }
+const zeus::CTransform4f& CDummyGameArea::IGetTM() const { return x14_transform; }
 
 CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion) : x4_selfIdx(idx) {
   x8_nameSTRG = in.Get<CAssetId>();
-  xc_transform = in.Get<zeus::CTransform>();
-  x3c_invTransform = xc_transform.inverse();
+  xc_transform = in.Get<zeus::CTransform4f>();
+  x3c_invTransform = xc_transform.Inverse();
   x6c_aabb = in.Get<zeus::CAABox>();
 
   x84_mrea = in.Get<CAssetId>();
@@ -420,7 +420,7 @@ u32 CGameArea::IGetNumAttachedAreas() const { return x8c_attachedAreaIndices.siz
 
 CAssetId CGameArea::IGetStringTableAssetId() const { return x8_nameSTRG; }
 
-const zeus::CTransform& CGameArea::IGetTM() const { return xc_transform; }
+const zeus::CTransform4f& CGameArea::IGetTM() const { return xc_transform; }
 
 void CGameArea::SetLoadPauseState(bool paused) {
   if (xf0_26_tokensReady)
@@ -1098,7 +1098,7 @@ SMREAHeader CGameArea::VerifyHeader() const {
     return {};
   }
 
-  header.xf = r.Get<zeus::CTransform>();
+  header.xf = r.Get<zeus::CTransform4f>();
   header.modelCount = r.ReadLong();
   header.secCount = r.ReadLong();
   header.geomSecIdx = r.ReadLong();
@@ -1176,15 +1176,15 @@ void CGameArea::DebugDrawLight(const CLight& light) {
   modelFlags.x4_color.a() = 0.5f;
   if ((light.GetType() == ELightType::Spot || light.GetType() == ELightType::Directional) && m_debugConeModel) {
     m_debugConeModel->Render(CModelData::EWhichModel::Normal,
-                             zeus::lookAt(light.GetPosition(), light.GetPosition() + light.GetDirection()) *
-                                 zeus::CTransform::Scale(zeus::clamp(-90.f, light.GetRadius(), 90.f)),
+                             zeus::CTransform4f::LookAt(light.GetPosition(), light.GetPosition() + light.GetDirection()) *
+                                 zeus::CTransform4f::Scale(zeus::clamp(-90.f, light.GetRadius(), 90.f)),
                              nullptr, modelFlags);
   } else if (m_debugSphereModel) {
-    m_debugSphereModel->Render(CModelData::EWhichModel::Normal, zeus::CTransform::Translate(light.GetPosition()),
+    m_debugSphereModel->Render(CModelData::EWhichModel::Normal, zeus::CTransform4f::Translate(light.GetPosition()),
                                nullptr, modelFlags);
     m_debugSphereModel->Render(CModelData::EWhichModel::Normal,
-                               zeus::CTransform::Translate(light.GetPosition()) *
-                                   zeus::CTransform::Scale(light.GetRadius()),
+                               zeus::CTransform4f::Translate(light.GetPosition()) *
+                                   zeus::CTransform4f::Scale(light.GetRadius()),
                                nullptr, modelFlags);
   }
 }

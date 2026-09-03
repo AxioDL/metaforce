@@ -16,7 +16,7 @@ class CScriptBeam : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptBeam(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool,
+  CScriptBeam(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, bool,
               const TToken<CWeaponDescription>&, const CBeamInfo&, const CDamageInfo&);
 
   void Accept(IVisitor& visitor) override;

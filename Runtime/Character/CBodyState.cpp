@@ -94,7 +94,7 @@ void CBSAttack::UpdatePhysicsActor(const CBodyController& bc, float dt) {
     if (dur > 0.f) {
       delta *= zeus::CVector3f(dt / dur);
     }
-    const zeus::CVector3f localDelta = act->GetTransform().transposeRotate(delta);
+    const zeus::CVector3f localDelta = act->GetTransform().TransposeRotate(delta);
     act->ApplyImpulseWR(act->GetMoveToORImpulseWR(localDelta, dt), zeus::CAxisAngle());
   }
 }
@@ -117,7 +117,7 @@ void CBSProjectileAttack::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd =
       static_cast<const CBCProjectileAttackCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::ProjectileAttack));
   zeus::CVector3f localDelta =
-      bc.GetOwner().GetTransform().transposeRotate(cmd->GetTargetPosition() - bc.GetOwner().GetTranslation());
+      bc.GetOwner().GetTransform().TransposeRotate(cmd->GetTargetPosition() - bc.GetOwner().GetTranslation());
   zeus::CRelAngle angle = std::atan2(localDelta.y(), localDelta.x());
   angle.makeRel();
   const float attackAngle = angle.asDegrees();
@@ -208,7 +208,7 @@ pas::EAnimationState CBSDie::UpdateBody(float dt, CBodyController& bc, CStateMan
 
 void CBSFall::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCKnockDownCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown));
-  zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetHitDirection());
+  zeus::CVector3f localDir = bc.GetOwner().GetTransform().TransposeRotate(cmd->GetHitDirection());
   zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.x());
   angle.makeRel();
   const CPASAnimParmData parms(pas::EAnimationState::Fall, CPASAnimParm::FromReal32(angle.asDegrees()),
@@ -295,7 +295,7 @@ void CBSGetup::Shutdown(CBodyController& bc) { bc.SetFallState(x4_fallState); }
 
 void CBSKnockBack::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCKnockBackCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockBack));
-  const zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetHitDirection());
+  const zeus::CVector3f localDir = bc.GetOwner().GetTransform().TransposeRotate(cmd->GetHitDirection());
   zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.x());
   angle.makeRel();
   const CPASAnimParmData parms(pas::EAnimationState::KnockBack, CPASAnimParm::FromReal32(angle.asDegrees()),
@@ -448,7 +448,7 @@ pas::EAnimationState CBSStep::UpdateBody(float dt, CBodyController& bc, CStateMa
 }
 
 void CBSTurn::Start(CBodyController& bc, CStateManager& mgr) {
-  const zeus::CVector3f& lookDir = bc.GetOwner().GetTransform().basis[1];
+  const zeus::CVector3f& lookDir = bc.GetOwner().GetTransform().GetForward();
   const zeus::CVector2f lookDir2d(lookDir.toVec2f());
   x8_dest = zeus::CVector2f(bc.GetCommandMgr().GetFaceVector().toVec2f());
   const float deltaAngle = zeus::radToDeg(zeus::CVector2f::getAngleDiff(lookDir2d, x8_dest));
@@ -470,7 +470,7 @@ void CBSTurn::Start(CBodyController& bc, CStateManager& mgr) {
 }
 
 bool CBSTurn::FacingDest(const CBodyController& bc) const {
-  const zeus::CVector3f& lookDir = bc.GetOwner().GetTransform().basis[1];
+  const zeus::CVector3f& lookDir = bc.GetOwner().GetTransform().GetForward();
   const zeus::CVector2f lookDir2d(lookDir.toVec2f());
   const zeus::CVector2f leftDir(lookDir2d.y(), -lookDir2d.x());
 
@@ -548,7 +548,7 @@ void CBSFlyerTurn::Start(CBodyController& bc, CStateManager& mgr) {
     CBSTurn::Start(bc, mgr);
   } else {
     x8_dest = zeus::CVector2f(bc.GetCommandMgr().GetFaceVector().toVec2f());
-    const zeus::CVector3f& lookDir = bc.GetOwner().GetTransform().basis[1];
+    const zeus::CVector3f& lookDir = bc.GetOwner().GetTransform().GetForward();
     const zeus::CVector2f lookDir2d(lookDir.toVec2f());
     x10_turnDir = pas::ETurnDirection(zeus::CVector2f(lookDir2d.y(), -lookDir2d.x()).dot(x8_dest) > 0.f);
     const CPASAnimParmData parms(pas::EAnimationState::Locomotion, CPASAnimParm::FromEnum(0),
@@ -570,7 +570,7 @@ pas::EAnimationState CBSFlyerTurn::UpdateBody(float dt, CBodyController& bc, CSt
   if (st == pas::EAnimationState::Invalid) {
     if (!bc.GetCommandMgr().GetFaceVector().isZero()) {
       x8_dest = zeus::CVector2f(bc.GetCommandMgr().GetFaceVector().toVec2f());
-      const zeus::CVector3f& lookDir = bc.GetOwner().GetTransform().basis[1];
+      const zeus::CVector3f& lookDir = bc.GetOwner().GetTransform().GetForward();
       const zeus::CVector2f lookDir2d(lookDir.toVec2f());
       x10_turnDir = pas::ETurnDirection(zeus::CVector2f(lookDir2d.y(), -lookDir2d.x()).dot(x8_dest) > 0.f);
     }
@@ -820,7 +820,7 @@ pas::EAnimationState CBSLoopReaction::UpdateBody(float dt, CBodyController& bc, 
 
 void CBSGroundHit::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCKnockBackCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockBack));
-  const zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetHitDirection());
+  const zeus::CVector3f localDir = bc.GetOwner().GetTransform().TransposeRotate(cmd->GetHitDirection());
   zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.x());
   angle.makeRel();
   const CPASAnimParmData parms(pas::EAnimationState::GroundHit, CPASAnimParm::FromEnum(s32(bc.GetFallState())),
@@ -1099,7 +1099,7 @@ bool CBSJump::CanShoot() const { return x4_state == pas::EJumpState::AmbushJump 
 void CBSHurled::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCHurledCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled));
   x4_state = pas::EHurledState(cmd->GetSkipLaunchState());
-  const zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetHitDirection());
+  const zeus::CVector3f localDir = bc.GetOwner().GetTransform().TransposeRotate(cmd->GetHitDirection());
   zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.x());
   angle.makeRel();
   x8_knockAngle = angle.asDegrees();
@@ -1301,7 +1301,7 @@ pas::EAnimationState CBSHurled::UpdateBody(float dt, CBodyController& bc, CState
 
 void CBSSlide::Start(CBodyController& bc, CStateManager& mgr) {
   const auto* cmd = static_cast<const CBCSlideCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::Slide));
-  const zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetSlideDirection());
+  const zeus::CVector3f localDir = bc.GetOwner().GetTransform().TransposeRotate(cmd->GetSlideDirection());
   const float angle = std::atan2(localDir.y(), localDir.x());
   const CPASAnimParmData parms(pas::EAnimationState::Slide, CPASAnimParm::FromEnum(s32(cmd->GetSlideType())),
                                CPASAnimParm::FromReal32(zeus::radToDeg(angle)));
@@ -1660,8 +1660,8 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
         if (const TCastToConstPtr<CActor> wp = mgr.ObjectById(x8_wpId)) {
           if (const TCastToConstPtr<CActor> act = bc.GetOwner()) {
             const zeus::CVector3f lookDir = bc.GetCommandMgr().GetTargetVector().normalized();
-            const float actorDotWp = act->GetTransform().basis[1].dot(wp->GetTransform().basis[1]);
-            const float lookDotWp = lookDir.dot(wp->GetTransform().basis[1]);
+            const float actorDotWp = act->GetTransform().GetForward().dot(wp->GetTransform().GetForward());
+            const float lookDotWp = lookDir.dot(wp->GetTransform().GetForward());
             if (actorDotWp < -0.5f || lookDotWp > 0.5f) {
               bc.FaceDirection(lookDir, dt);
             }
@@ -1702,10 +1702,10 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
           mgr.SendScriptMsg(act.GetPtr(), kInvalidUniqueId, EScriptObjectMessage::Jumped);
           x18_24_launched = false;
           if (const TCastToConstPtr<CActor> wp = mgr.ObjectById(x8_wpId)) {
-            xc_launchVel = 15.f * wp->GetTransform().basis[1];
+            xc_launchVel = 15.f * wp->GetTransform().GetForward();
             xc_launchVel.z() = 5.f;
           } else {
-            xc_launchVel = -15.f * act->GetTransform().basis[1];
+            xc_launchVel = -15.f * act->GetTransform().GetForward();
           }
           act->SetAngularMomentum(zeus::CAxisAngle());
         }
@@ -1842,11 +1842,11 @@ float CBSLocomotion::ApplyLocomotionPhysics(float dt, CBodyController& bc) {
       if (IsPitchable()) {
         zeus::CVector3f tmp = vec;
         tmp.z() = 0.f;
-        zeus::CVector3f lookVec = act->GetTransform().basis[1];
+        zeus::CVector3f lookVec = act->GetTransform().GetForward();
         lookVec.z() = 0.f;
         lookVec.normalize();
         bc.FaceDirection3D(tmp, lookVec, dt);
-        zeus::CVector3f lookVec2 = act->GetTransform().basis[1];
+        zeus::CVector3f lookVec2 = act->GetTransform().GetForward();
         lookVec2.z() = float(vec.z());
         lookVec2.normalize();
         if (!zeus::close_enough(lookVec, lookVec2, 0.0001f)) {
@@ -1854,10 +1854,10 @@ float CBSLocomotion::ApplyLocomotionPhysics(float dt, CBodyController& bc) {
               std::min(bc.GetBodyStateInfo().GetMaximumPitch(), zeus::CVector3f::getAngleDiff(vec, tmp));
           lookVec2 = zeus::CVector3f::slerp(lookVec, lookVec2, pitchAngle);
         }
-        bc.FaceDirection3D(lookVec2, act->GetTransform().basis[1], dt);
-        zeus::CVector3f lookVec3 = act->GetTransform().basis[1];
+        bc.FaceDirection3D(lookVec2, act->GetTransform().GetForward(), dt);
+        zeus::CVector3f lookVec3 = act->GetTransform().GetForward();
         lookVec3.z() = 0.f;
-        bc.FaceDirection3D(lookVec3, act->GetTransform().basis[1], dt);
+        bc.FaceDirection3D(lookVec3, act->GetTransform().GetForward(), dt);
       } else {
         bc.FaceDirection(vec.normalized(), dt);
       }
@@ -2022,7 +2022,7 @@ constexpr std::array Strafes{
 
 float CBSBiPedLocomotion::UpdateStrafe(float vel, CBodyController& bc, pas::ELocomotionAnim anim) {
   if (const TCastToConstPtr<CPhysicsActor> act = bc.GetOwner()) {
-    const zeus::CVector3f localVec = act->GetTransform().transposeRotate(bc.GetCommandMgr().GetMoveVector());
+    const zeus::CVector3f localVec = act->GetTransform().TransposeRotate(bc.GetCommandMgr().GetMoveVector());
     const zeus::CVector3f localVecSq = localVec * localVec;
     int maxComp = 0;
     for (int i = 0; i < 3; ++i) {
@@ -2117,9 +2117,9 @@ float CBSWallWalkerLocomotion::ApplyLocomotionPhysics(float dt, CBodyController&
              ? scaledMove
              : bc.GetCommandMgr().GetFaceVector())
             .canBeNormalized()) {
-      bc.FaceDirection3D(scaledMove.normalized(), act->GetTransform().basis[1], dt);
+      bc.FaceDirection3D(scaledMove.normalized(), act->GetTransform().GetForward(), dt);
     }
-    zeus::CVector3f impulse = act->GetMoveToORImpulseWR(act->GetTransform().transposeRotate(scaledMove * dt), dt);
+    zeus::CVector3f impulse = act->GetMoveToORImpulseWR(act->GetTransform().TransposeRotate(scaledMove * dt), dt);
     impulse = act->GetMass() > FLT_EPSILON ? impulse / act->GetMass()
                                            : zeus::CVector3f(0.f, act->GetVelocity().magnitude(), 0.f);
     if (maxSpeed > FLT_EPSILON) {
@@ -2147,7 +2147,7 @@ float CBSNewFlyerLocomotion::UpdateLocomotionAnimation(float dt, float velMag, C
   if (const TCastToConstPtr<CPhysicsActor> act = bc.GetOwner()) {
     pas::ELocomotionAnim strafeType = pas::ELocomotionAnim::Idle;
     if (bc.GetCommandMgr().GetMoveVector().canBeNormalized()) {
-      const zeus::CVector3f localVec = act->GetTransform().transposeRotate(bc.GetCommandMgr().GetMoveVector());
+      const zeus::CVector3f localVec = act->GetTransform().TransposeRotate(bc.GetCommandMgr().GetMoveVector());
       const zeus::CVector3f localVecSq = localVec * localVec;
       int maxComp = 0;
       for (int i = 0; i < 3; ++i) {

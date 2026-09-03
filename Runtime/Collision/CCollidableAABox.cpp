@@ -13,13 +13,13 @@ CCollidableAABox::CCollidableAABox() = default;
 CCollidableAABox::CCollidableAABox(const zeus::CAABox& aabox, const CMaterialList& list)
 : CCollisionPrimitive(list), x10_aabox(aabox) {}
 
-zeus::CAABox CCollidableAABox::Transform(const zeus::CTransform& xf) const {
+zeus::CAABox CCollidableAABox::Transform(const zeus::CTransform4f& xf) const {
   return {xf.origin + x10_aabox.min, xf.origin + x10_aabox.max};
 }
 
 u32 CCollidableAABox::GetTableIndex() const { return sTableIndex; }
 
-zeus::CAABox CCollidableAABox::CalculateAABox(const zeus::CTransform& xf) const { return Transform(xf); }
+zeus::CAABox CCollidableAABox::CalculateAABox(const zeus::CTransform4f& xf) const { return Transform(xf); }
 
 zeus::CAABox CCollidableAABox::CalculateLocalAABox() const { return x10_aabox; }
 
@@ -28,9 +28,9 @@ FourCC CCollidableAABox::GetPrimType() const { return SBIG('AABX'); }
 CRayCastResult CCollidableAABox::CastRayInternal(const CInternalRayCastStructure& rayCast) const {
   if (!rayCast.GetFilter().Passes(GetMaterial()))
     return {};
-  zeus::CTransform rayCastXfInv = rayCast.GetTransform().inverse();
+  zeus::CTransform4f rayCastXfInv = rayCast.GetTransform().Inverse();
   zeus::CVector3f localRayStart = rayCastXfInv * rayCast.GetRay().start;
-  zeus::CVector3f localRayDir = rayCastXfInv.rotate(rayCast.GetRay().dir);
+  zeus::CVector3f localRayDir = rayCastXfInv.Rotate(rayCast.GetRay().dir);
   float tMin, tMax;
   int axis;
   bool sign;

@@ -16,7 +16,7 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
-CScriptPickup::CScriptPickup(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CScriptPickup::CScriptPickup(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                              CModelData&& mData, const CActorParameters& aParams, const zeus::CAABox& aabb,
                              CPlayerState::EItemType itemType, s32 amount, s32 capacity, CAssetId pickupEffect,
                              float possibility, float lifeTime, float fadeInTime, float startDelay, bool active)
@@ -108,7 +108,7 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
       const zeus::CVector3f posDelta =
           GetTranslation() - mgr.GetCameraManager()->GetFirstPersonCamera()->GetTranslation();
       const float relFov = zeus::CRelAngle(zeus::degToRad(g_tweakGame->GetFirstPersonFOV())).asRel();
-      if (mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().frontVector().dot(posDelta.normalized()) >
+      if (mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().GetForward().dot(posDelta.normalized()) >
               std::cos(relFov) &&
           posDelta.magSquared() < (30.f * 30.f)) {
         x28c_25_inTractor = true;

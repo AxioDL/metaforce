@@ -9,7 +9,7 @@
 namespace metaforce {
 
 CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                     const zeus::CTransform& xf,
+                                     const zeus::CTransform4f& xf,
                                      const rstl::reserved_vector<u32, int(CPlayerState::EItemType::Max)>& itemCounts,
                                      bool defaultSpawn, bool active, bool morphed)
 : CEntity(uid, info, active, name)

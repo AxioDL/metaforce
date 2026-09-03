@@ -16,7 +16,7 @@
 #include <array>
 #include <string_view>
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CQuaternion.hpp>
 
 namespace metaforce::MP1 {
@@ -92,19 +92,19 @@ private:
 
 public:
   DEFINE_ENTITY
-  CGrenadeLauncher(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CGrenadeLauncher(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                    CModelData&& mData, const zeus::CAABox& bounds, const CHealthInfo& healthInfo,
                    const CDamageVulnerability& vulnerability, const CActorParameters& actParams, TUniqueId parentId,
                    const SGrenadeLauncherData& data, float f1);
 
   void Accept(IVisitor& visitor) override { visitor.Visit(this); }
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   [[nodiscard]] const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x328_cSphere; }
   [[nodiscard]] const CDamageVulnerability* GetDamageVulnerability() const override { return &x264_vulnerability; }
   [[nodiscard]] std::optional<zeus::CAABox> GetTouchBounds() const override;
   CHealthInfo* HealthInfo(CStateManager& mgr) override { return &x25c_healthInfo; }
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   void Render(CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   void Touch(CActor& act, CStateManager& mgr) override;

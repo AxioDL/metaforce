@@ -121,7 +121,7 @@ public:
   }
   [[nodiscard]] TCachedToken<CTexture>& GetTexture(u32 idx) const { return x1c_textures->at(idx); }
 
-  static void EnableShadowMaps(CTexture& shadowTex, const zeus::CTransform& textureProjXf,
+  static void EnableShadowMaps(CTexture& shadowTex, const zeus::CTransform4f& textureProjXf,
                                GX::LightMask chan0DisableMask, GX::LightMask chan1EnableLightMask);
   static void DisableShadowMaps();
   static void MakeTexturesFromMats(const u8* ptr, std::vector<TCachedToken<CTexture>>& texture, IObjectStore* store,
@@ -143,7 +143,7 @@ private:
   static bool sUsingPackedLightmaps;
   static bool sRenderModelShadow;
   static CTexture* sShadowTexture;
-  static zeus::CTransform sTextureProjectionTransform;
+  static zeus::CTransform4f sTextureProjectionTransform;
   static GX::LightMask sChannel0DisableLightMask;
   static GX::LightMask sChannel1EnableLightMask;
 };

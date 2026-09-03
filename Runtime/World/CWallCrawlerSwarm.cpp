@@ -35,7 +35,7 @@ static CMaterialList MakeMaterialList() {
 
 CWallCrawlerSwarm::CWallCrawlerSwarm(
     TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
-    const zeus::CVector3f& boundingBoxExtent, const zeus::CTransform& xf, EFlavor flavor, const CAnimRes& animRes,
+    const zeus::CVector3f& boundingBoxExtent, const zeus::CTransform4f& xf, EFlavor flavor, const CAnimRes& animRes,
     s32 launchAnim, s32 attractAnim, CAssetId part1, CAssetId part2, CAssetId part3, CAssetId part4,
     const CDamageInfo& crabDamage, const CDamageInfo& scarabExplodeDamage, float crabDamageCooldown, float boidRadius,
     float touchRadius, float playerTouchRadius, u32 numBoids, u32 maxCreatedBoids, float animPlaybackSpeed,
@@ -162,7 +162,7 @@ void CWallCrawlerSwarm::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
   case EScriptObjectMessage::Registered:
     x108_boids.reserve(size_t(x548_numBoids));
     for (int i = 0; i < x548_numBoids; ++i) {
-      x108_boids.emplace_back(zeus::CTransform(), i);
+      x108_boids.emplace_back(zeus::CTransform4f(), i);
     }
     AllocateSkinnedModels(mgr, CModelData::EWhichModel::Normal);
     AddDoorRepulsors(mgr);
@@ -180,14 +180,14 @@ void CWallCrawlerSwarm::UpdateParticles(float dt) {
 }
 
 int CWallCrawlerSwarm::SelectLockOnIdx(CStateManager& mgr) const {
-  const zeus::CTransform fpCamXf = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform();
+  const zeus::CTransform4f fpCamXf = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform();
   if (x42c_lockOnIdx != -1) {
     const CBoid& b = x108_boids[x42c_lockOnIdx];
     if (b.GetActive()) {
       zeus::CVector3f dir = b.GetTranslation() - fpCamXf.origin;
       const float mag = dir.magnitude();
       dir = dir / mag;
-      if (fpCamXf.basis[1].dot(dir) > 0.92388f) {
+      if (fpCamXf.GetForward().dot(dir) > 0.92388f) {
         if (mgr.RayStaticIntersection(fpCamXf.origin, dir, mag, CMaterialFilter::MakeInclude(EMaterialTypes::Solid))
                 .IsInvalid()) {
           return x42c_lockOnIdx;
@@ -209,7 +209,7 @@ int CWallCrawlerSwarm::SelectLockOnIdx(CStateManager& mgr) const {
         continue;
       }
       if (delta.canBeNormalized()) {
-        const float thisDot = fpCamXf.basis[1].dot(delta.normalized());
+        const float thisDot = fpCamXf.GetForward().dot(delta.normalized());
         if (thisDot > maxDot) {
           ret = static_cast<int>(i);
           maxDot = thisDot;
@@ -290,10 +290,10 @@ CCollisionSurface CWallCrawlerSwarm::FindBestCollisionInBox(CStateManager& mgr, 
   return ret;
 }
 
-static zeus::CTransform LookAt(const zeus::CUnitVector3f& a, const zeus::CUnitVector3f& b, const zeus::CRelAngle& ang) {
+static zeus::CTransform4f LookAt(const zeus::CUnitVector3f& a, const zeus::CUnitVector3f& b, const zeus::CRelAngle& ang) {
   const float dot = a.dot(b);
   if (zeus::close_enough(dot, 1.f)) {
-    return zeus::CTransform();
+    return zeus::CTransform4f();
   }
   if (dot > -0.99981f) {
     return zeus::CQuaternion::clampedRotateTo(a, b, ang).toTransform();
@@ -310,13 +310,13 @@ void CWallCrawlerSwarm::CreateBoid(CStateManager& mgr, int idx) {
   if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(wpId)) {
     const CCollisionSurface surf = FindBestCollisionInBox(mgr, wp->GetTranslation());
     x108_boids[idx].Transform() =
-        zeus::CTransform::Translate(ProjectPointToPlane(wp->GetTranslation(), surf.GetVert(0), surf.GetNormal()) +
+        zeus::CTransform4f::Translate(ProjectPointToPlane(wp->GetTranslation(), surf.GetVert(0), surf.GetNormal()) +
                                     surf.GetNormal() * x374_boidRadius);
     if (zeus::close_enough(zeus::skUp.dot(surf.GetNormal()), -1.f)) {
-      x108_boids[idx].Transform().setRotation(
-          zeus::CTransform(zeus::skRight, zeus::skBack, zeus::skDown, zeus::skZero3f));
+      x108_boids[idx].Transform().SetRotation(
+          zeus::CTransform4f(zeus::skRight, zeus::skBack, zeus::skDown, zeus::skZero3f));
     } else {
-      x108_boids[idx].Transform().setRotation(LookAt(zeus::skUp, surf.GetNormal(), M_PIF));
+      x108_boids[idx].Transform().SetRotation(LookAt(zeus::skUp, surf.GetNormal(), M_PIF));
     }
     x108_boids[idx].x80_24_active = true;
     x108_boids[idx].x30_velocity = zeus::skZero3f;
@@ -407,9 +407,9 @@ void CWallCrawlerSwarm::ApplySeparation(const CBoid& boid, const zeus::CVector3f
 }
 
 void CWallCrawlerSwarm::ScatterScarabBoid(CBoid& boid, CStateManager& mgr) const {
-  const zeus::CVector3f oldDir = boid.GetTransform().basis[1];
-  boid.Transform().setRotation(zeus::CTransform());
-  boid.Transform() = LookAt(boid.GetTransform().basis[1], oldDir, M_PIF).multiplyIgnoreTranslation(boid.GetTransform());
+  const zeus::CVector3f oldDir = boid.GetTransform().GetForward();
+  boid.Transform().SetRotation(zeus::CTransform4f());
+  boid.Transform() = LookAt(boid.GetTransform().GetForward(), oldDir, M_PIF).MultiplyIgnoreTranslation(boid.GetTransform());
   boid.x30_velocity = zeus::skZero3f;
   const float angle = mgr.GetActiveRandom()->Float() * (2.f * M_PIF);
   const float mag = mgr.GetActiveRandom()->Float() * x158_scarabScatterXYVelocity;
@@ -476,11 +476,11 @@ void CWallCrawlerSwarm::ApplyAlignment(const CBoid& boid, const rstl::reserved_v
 
   zeus::CVector3f avg;
   for (const CBoid* b : nearList) {
-    avg += b->GetTransform().basis[1];
+    avg += b->GetTransform().GetForward();
   }
 
   avg = avg / float(nearList.size());
-  aheadVec += zeus::CVector3f::getAngleDiff(boid.GetTransform().basis[1], avg) / M_PIF * (avg * x144_alignmentWeight);
+  aheadVec += zeus::CVector3f::getAngleDiff(boid.GetTransform().GetForward(), avg) / M_PIF * (avg * x144_alignmentWeight);
 }
 
 void CWallCrawlerSwarm::ApplyAttraction(const CBoid& boid, const zeus::CVector3f& attractTo, float attractionRadius,
@@ -515,8 +515,8 @@ void CWallCrawlerSwarm::UpdateBoid(const CAreaCollisionCache& ccache, CStateMana
       if (FindBestSurface(ccache, boid.x30_velocity * dt * 1.5f + f28, radius, surf) &&
           boid.x7c_remainingLaunchNotOnSurfaceFrames == 0) {
         if (x558_flavor != EFlavor::Scarab) {
-          boid.Transform() = LookAt(boid.GetTransform().basis[2], surf.GetNormal(), M_PIF)
-                                 .multiplyIgnoreTranslation(boid.GetTransform());
+          boid.Transform() = LookAt(boid.GetTransform().GetUp(), surf.GetNormal(), M_PIF)
+                                 .MultiplyIgnoreTranslation(boid.GetTransform());
         }
         const auto plane = surf.GetPlane();
         boid.Translation() +=
@@ -550,8 +550,8 @@ void CWallCrawlerSwarm::UpdateBoid(const CAreaCollisionCache& ccache, CStateMana
     CCollisionSurface surf(zeus::skRight, zeus::skForward, zeus::skUp, 0xffffffff);
     if (FindBestSurface(ccache, boid.GetTranslation() + boid.x30_velocity * dt * 1.5f, radius, surf)) {
       boid.x50_surface = surf;
-      boid.Transform() = LookAt(boid.GetTransform().basis[2], surf.GetNormal(), zeus::degToRad(180.f * dt))
-                             .multiplyIgnoreTranslation(boid.GetTransform());
+      boid.Transform() = LookAt(boid.GetTransform().GetUp(), surf.GetNormal(), zeus::degToRad(180.f * dt))
+                             .MultiplyIgnoreTranslation(boid.GetTransform());
       const auto plane = surf.GetPlane();
       const float dist = plane.pointToPlaneDist(boid.GetTranslation());
       if (dist <= 1.5f * x374_boidRadius) {
@@ -561,14 +561,14 @@ void CWallCrawlerSwarm::UpdateBoid(const CAreaCollisionCache& ccache, CStateMana
       }
     }
     if (!found) {
-      boid.Transform() = LookAt(boid.GetTransform().basis[2], boid.GetTransform().basis[1],
+      boid.Transform() = LookAt(boid.GetTransform().GetUp(), boid.GetTransform().GetForward(),
                                 boid.x30_velocity.magnitude() / x374_boidRadius * dt)
-                             .multiplyIgnoreTranslation(boid.GetTransform());
+                             .MultiplyIgnoreTranslation(boid.GetTransform());
       boid.x7c_framesNotOnSurface += 1;
     }
     rstl::reserved_vector<CBoid*, 50> nearList;
     BuildBoidNearList(boid, x13c_separationRadius, nearList);
-    zeus::CVector3f aheadVec = boid.GetTransform().basis[1] * 0.3f;
+    zeus::CVector3f aheadVec = boid.GetTransform().GetForward() * 0.3f;
     for (int r26 = 0; r26 < 8; ++r26) {
       switch (r26) {
       case 0:
@@ -601,9 +601,9 @@ void CWallCrawlerSwarm::UpdateBoid(const CAreaCollisionCache& ccache, CStateMana
         break;
       }
     }
-    boid.Transform() = LookAt(boid.GetTransform().basis[1],
-                              ProjectVectorToPlane(aheadVec, boid.GetTransform().basis[2]).normalized(), M_PIF * dt)
-                           .multiplyIgnoreTranslation(boid.GetTransform());
+    boid.Transform() = LookAt(boid.GetTransform().GetForward(),
+                              ProjectVectorToPlane(aheadVec, boid.GetTransform().GetUp()).normalized(), M_PIF * dt)
+                           .MultiplyIgnoreTranslation(boid.GetTransform());
   }
 }
 
@@ -615,10 +615,10 @@ void CWallCrawlerSwarm::LaunchBoid(CBoid& boid, const zeus::CVector3f& dir) {
   const float deltaZ = deltaFlat.z();
   deltaFlat.z() = 0.f;
   const float deltaMag = deltaFlat.magnitude();
-  boid.Transform().setRotation(zeus::CTransform());
-  boid.Transform() = LookAt(boid.GetTransform().basis[1], deltaFlat.normalized(), M_PIF)
-                         .multiplyIgnoreTranslation(boid.GetTransform());
-  zeus::CVector3f vec(skAttackVelocity * boid.GetTransform().basis[1].toVec2f(), 0.5f * skAttackVelocity);
+  boid.Transform().SetRotation(zeus::CTransform4f());
+  boid.Transform() = LookAt(boid.GetTransform().GetForward(), deltaFlat.normalized(), M_PIF)
+                         .MultiplyIgnoreTranslation(boid.GetTransform());
+  zeus::CVector3f vec(skAttackVelocity * boid.GetTransform().GetForward().toVec2f(), 0.5f * skAttackVelocity);
   if (deltaMag > FLT_EPSILON) {
     deltaFlat = deltaFlat / deltaMag;
     const float dot = deltaFlat.dot(vec);
@@ -645,7 +645,7 @@ void CWallCrawlerSwarm::LaunchBoid(CBoid& boid, const zeus::CVector3f& dir) {
   CSfxManager::AddEmitter(x55c_launchSfx, pos, zeus::skZero3f, true, false, 0x7f, x4_areaId);
 }
 
-void CWallCrawlerSwarm::AddParticle(const zeus::CTransform& xf) {
+void CWallCrawlerSwarm::AddParticle(const zeus::CTransform4f& xf) {
   static constexpr std::array particleCounts{8, 2, 0, 0};
 
   size_t i = 0;
@@ -910,10 +910,10 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
             KillBoid(b, mgr, 1.f, 0.05f);
           }
         } else if (b.x80_27_scarabExplodeTimerEnabled || b.x80_28_nearPlayer) {
-          b.x30_velocity = b.GetTransform().rotate(deltas2.x0_posDelta) * 1.5f / dt;
+          b.x30_velocity = b.GetTransform().Rotate(deltas2.x0_posDelta) * 1.5f / dt;
           b.Translation() += b.x30_velocity * dt;
         } else {
-          b.x30_velocity = b.GetTransform().rotate(deltas1.x0_posDelta) * 1.5f / dt;
+          b.x30_velocity = b.GetTransform().Rotate(deltas1.x0_posDelta) * 1.5f / dt;
           b.Translation() += b.x30_velocity * dt;
         }
       }
@@ -955,7 +955,7 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CWallCrawlerSwarm::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CWallCrawlerSwarm::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   for (size_t i = 0; i < 5; ++i) {
     x4b0_modelDatas[i]->GetAnimationData()->PreRender();
   }
@@ -977,7 +977,7 @@ void CWallCrawlerSwarm::RenderParticles() const {
   }
 }
 
-void CWallCrawlerSwarm::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) {
+void CWallCrawlerSwarm::AddToRenderer(const zeus::CFrustumPlanes&, CStateManager& mgr) {
   if (!GetActive()) {
     return;
   }

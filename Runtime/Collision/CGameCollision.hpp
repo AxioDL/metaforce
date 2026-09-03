@@ -60,44 +60,44 @@ public:
   static void BuildAreaCollisionCache(const CStateManager& mgr, CAreaCollisionCache& cache);
   static float GetMinExtentForCollisionPrimitive(const CCollisionPrimitive& prim);
   static bool DetectCollisionBoolean(const CStateManager& mgr, const CCollisionPrimitive& prim,
-                                     const zeus::CTransform& xf, const CMaterialFilter& filter,
+                                     const zeus::CTransform4f& xf, const CMaterialFilter& filter,
                                      const EntityList& nearList);
   static bool DetectCollisionBoolean_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
-                                            const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                            const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                             const CMaterialFilter& filter, const EntityList& nearList);
   static bool DetectStaticCollisionBoolean(const CStateManager& mgr, const CCollisionPrimitive& prim,
-                                           const zeus::CTransform& xf, const CMaterialFilter& filter);
+                                           const zeus::CTransform4f& xf, const CMaterialFilter& filter);
   static bool DetectStaticCollisionBoolean_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
-                                                  const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                                  const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                                   const CMaterialFilter& filter);
-  static bool DetectDynamicCollisionBoolean(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+  static bool DetectDynamicCollisionBoolean(const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                             const EntityList& nearList, const CStateManager& mgr);
   static bool DetectCollision_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
-                                     const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                     const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                      const CMaterialFilter& filter, const EntityList& nearList, TUniqueId& idOut,
                                      CCollisionInfoList& infoList);
   static bool DetectCollision_Cached_Moving(const CStateManager& mgr, CAreaCollisionCache& cache,
-                                            const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                            const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                             const CMaterialFilter& filter, const EntityList& nearList,
                                             const zeus::CVector3f& vec, TUniqueId& idOut, CCollisionInfo& infoOut,
                                             double&);
   static bool DetectStaticCollision(const CStateManager& mgr, const CCollisionPrimitive& prim,
-                                    const zeus::CTransform& xf, const CMaterialFilter& filter,
+                                    const zeus::CTransform4f& xf, const CMaterialFilter& filter,
                                     CCollisionInfoList& list);
   static bool DetectStaticCollision_Cached(const CStateManager& mgr, CAreaCollisionCache& cache,
-                                           const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                           const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                            const CMaterialFilter& filter, CCollisionInfoList& list);
   static bool DetectStaticCollision_Cached_Moving(const CStateManager& mgr, CAreaCollisionCache& cache,
-                                                  const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+                                                  const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                                   const CMaterialFilter& filter, const zeus::CVector3f& vec,
                                                   CCollisionInfo& infoOut, double& d);
-  static bool DetectDynamicCollision(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+  static bool DetectDynamicCollision(const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                      const EntityList& nearList, TUniqueId& idOut, CCollisionInfoList& list,
                                      const CStateManager& mgr);
-  static bool DetectDynamicCollisionMoving(const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+  static bool DetectDynamicCollisionMoving(const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                                            const EntityList& nearList, const zeus::CVector3f& vec, TUniqueId& idOut,
                                            CCollisionInfo& infoOut, double& d, const CStateManager& mgr);
-  static bool DetectCollision(const CStateManager& mgr, const CCollisionPrimitive& prim, const zeus::CTransform& xf,
+  static bool DetectCollision(const CStateManager& mgr, const CCollisionPrimitive& prim, const zeus::CTransform4f& xf,
                               const CMaterialFilter& filter, const EntityList& nearList, TUniqueId& idOut,
                               CCollisionInfoList& infoOut);
   static void MakeCollisionCallbacks(CStateManager& mgr, CPhysicsActor& actor, TUniqueId id,

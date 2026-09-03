@@ -12,13 +12,13 @@ private:
 
 public:
   DEFINE_ENTITY
-  CScriptPointOfInterest(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool,
+  CScriptPointOfInterest(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, bool,
                          const CScannableParameters&, float);
 
   void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager&) override;
   void CalculateRenderBounds() override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;

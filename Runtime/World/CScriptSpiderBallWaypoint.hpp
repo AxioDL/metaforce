@@ -17,11 +17,11 @@ class CScriptSpiderBallWaypoint : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptSpiderBallWaypoint(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool, u32);
+  CScriptSpiderBallWaypoint(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, bool, u32);
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Render(CStateManager& mgr) override { CActor::Render(mgr); }
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override {}
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override {}
   std::optional<zeus::CAABox> GetTouchBounds() const override { return xfc_aabox; }
   void AccumulateBounds(const zeus::CVector3f& v);
   void BuildWaypointListAndBounds(CStateManager& mgr);

@@ -8,7 +8,7 @@
 namespace metaforce {
 
 CScriptCameraHint::CScriptCameraHint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                     const zeus::CTransform& xf, bool active, s32 priority,
+                                     const zeus::CTransform4f& xf, bool active, s32 priority,
                                      CBallCamera::EBallCameraBehaviour behaviour, u32 overrideFlags, float minDist,
                                      float maxDist, float backwardsDist, const zeus::CVector3f& lookAtOffset,
                                      const zeus::CVector3f& chaseLookAtOffset, const zeus::CVector3f& ballToCam,
@@ -116,11 +116,11 @@ void CScriptCameraHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
         if (followerToThisFlat.canBeNormalized()) {
           followerToThisFlat.normalize();
         } else {
-          followerToThisFlat = act->GetTransform().basis[1];
+          followerToThisFlat = act->GetTransform().GetForward();
         }
         zeus::CVector3f target = act->GetTranslation() + followerToThisFlat;
         target.z() = x168_origXf.origin.z() + followerToThisFlat.z();
-        SetTransform(zeus::lookAt(act->GetTranslation(), target));
+        SetTransform(zeus::CTransform4f::LookAt(act->GetTranslation(), target));
       }
     }
     AddHelper(sender);

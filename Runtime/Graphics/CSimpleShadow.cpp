@@ -54,7 +54,7 @@ void CSimpleShadow::Render(TLockedToken<CTexture>& tex) {
   CGraphics::StreamEnd();
 }
 
-void CSimpleShadow::Calculate(const zeus::CAABox& aabb, const zeus::CTransform& xf, const CStateManager& mgr) {
+void CSimpleShadow::Calculate(const zeus::CAABox& aabb, const zeus::CTransform4f& xf, const CStateManager& mgr) {
   x48_24_collision = false;
   float halfHeight = (aabb.max.z() - aabb.min.z()) * 0.5f;
   zeus::CVector3f pos = xf.origin + zeus::CVector3f(0.f, 0.f, halfHeight);
@@ -82,7 +82,7 @@ void CSimpleShadow::Calculate(const zeus::CAABox& aabb, const zeus::CTransform& 
 
   if (x48_24_collision) {
     x3c_heightAlpha = 1.f - height / x40_maxObjHeight;
-    x0_xf = zeus::lookAt(res.GetPlane().normal(), zeus::skZero3f);
+    x0_xf = zeus::CTransform4f::LookAt(res.GetPlane().normal(), zeus::skZero3f);
     x0_xf.origin = res.GetPlane().normal() * x44_displacement + res.GetPoint();
     if (x48_25_alwaysCalculateRadius || !x48_26_radiusCalculated) {
       float xExtent = aabb.max.x() - aabb.min.x();

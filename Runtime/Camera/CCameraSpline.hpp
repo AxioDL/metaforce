@@ -29,7 +29,7 @@ public:
   float GetKnotT(size_t idx) const;
   float CalculateSplineLength();
   void UpdateSplineLength() { x44_length = CalculateSplineLength(); }
-  zeus::CTransform GetInterpolatedSplinePointByLength(float pos) const;
+  zeus::CTransform4f GetInterpolatedSplinePointByLength(float pos) const;
   zeus::CVector3f GetInterpolatedSplinePointByTime(float time, float range) const;
   float FindClosestLengthOnSpline(float time, const zeus::CVector3f& p) const;
   float ValidateLength(float t) const;

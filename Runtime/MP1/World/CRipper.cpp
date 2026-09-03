@@ -12,7 +12,7 @@
 
 namespace metaforce::MP1 {
 CRipper::CRipper(TUniqueId uid, std::string_view name, EFlavorType type, const CEntityInfo& info,
-                 const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
+                 const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                  const CActorParameters& actParms, const CGrappleParameters& grappleParms)
 : CPatterned(EPatternedAI::Ripper, uid, name, type, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              EColliderType::One, EBodyType::Flyer, actParms, EKnockBackVariant::Medium)
@@ -126,7 +126,7 @@ void CRipper::AddPlatform(CStateManager& mgr) {
     return;
 
   x59a_platformId = mgr.AllocateUniqueId();
-  const zeus::CAABox bounds = GetModelData()->GetBounds(GetTransform().getRotation());
+  const zeus::CAABox bounds = GetModelData()->GetBounds(GetTransform().GetRotation());
 
   const auto& platform = new CRipperControlledPlatform(x59a_platformId, GetUniqueId(), "Ripper Controlled Platform"sv,
                                                        CEntityInfo(GetAreaIdAlways(), NullConnectionList),
@@ -143,7 +143,7 @@ void CRipper::RemovePlatform(CStateManager& mgr) {
 }
 
 CRipperControlledPlatform::CRipperControlledPlatform(
-    TUniqueId uid, TUniqueId owner, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+    TUniqueId uid, TUniqueId owner, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
     const zeus::CAABox& bounds, bool active, const std::optional<TLockedToken<CCollidableOBBTreeGroup>>& colTree)
 : CScriptPlatform(uid, name, info, xf, CModelData::CModelDataNull(), CActorParameters::None(), bounds, 0.f, false, 1.f,
                   active, CHealthInfo(FLT_MAX, 10.f), CDamageVulnerability::ImmuneVulnerability(), colTree, false, 1, 1)

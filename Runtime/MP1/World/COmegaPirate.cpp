@@ -41,7 +41,7 @@ constexpr std::array<SOBBJointInfo, 11> skObbJoints{{
 
 COmegaPirate::CFlash::CFlash(TUniqueId uid, const CEntityInfo& info, const zeus::CVector3f& pos,
                              TLockedToken<CTexture>& thermalSpot, float delay)
-: CActor(uid, true, "Omega Pirate Flash", info, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(), {},
+: CActor(uid, true, "Omega Pirate Flash", info, zeus::CTransform4f::Translate(pos), CModelData::CModelDataNull(), {},
          CActorParameters::None(), kInvalidUniqueId)
 , xf4_delay(delay) {}
 
@@ -63,7 +63,7 @@ void COmegaPirate::CFlash::Think(float dt, CStateManager& mgr) {
   }
   const CGameCamera* const camera = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   const zeus::CVector3f dist = (GetTranslation() - camera->GetTranslation()).normalized();
-  float dot = dist.dot(camera->GetTransform().frontVector());
+  float dot = dist.dot(camera->GetTransform().GetForward());
   float dVar4 = 0.f;
   if (dot >= 0.f) {
     dVar4 = dot * dot;
@@ -74,14 +74,14 @@ void COmegaPirate::CFlash::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void COmegaPirate::CFlash::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void COmegaPirate::CFlash::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   mgr.RenderLast(GetUniqueId());
   if (xf0_thermalSpot == nullptr && xe8_thermalSpotToken.IsLocked() && xe8_thermalSpotToken.HasReference()) {
     xf0_thermalSpot = xe8_thermalSpotToken.GetObj();
   }
 }
 
-void COmegaPirate::CFlash::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {}
+void COmegaPirate::CFlash::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {}
 
 void COmegaPirate::CFlash::Render(CStateManager& mgr) {
   const CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
@@ -102,11 +102,11 @@ void COmegaPirate::CFlash::Render(CStateManager& mgr) {
   }
 
   float size = xfc_size * sizeMul;
-  const auto rightVec = size * CGraphics::mViewMatrix.rightVector();
-  const auto upVec = size * CGraphics::mViewMatrix.upVector();
+  const auto rightVec = size * CGraphics::mViewMatrix.GetRight();
+  const auto upVec = size * CGraphics::mViewMatrix.GetUp();
   const auto rvS = GetTranslation() - rightVec;
   const auto rvP = GetTranslation() + rightVec;
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  CGraphics::SetModelMatrix(zeus::CTransform4f());
   CGraphics::SetTevOp(ERglTevStage::Stage0, CTevCombiners::kEnvModulate);
   CGraphics::SetTevOp(ERglTevStage::Stage1, CTevCombiners::kEnvPassthru);
   CGraphics::SetDepthWriteMode(false, ERglEnum::Always, false);
@@ -123,7 +123,7 @@ void COmegaPirate::CFlash::Render(CStateManager& mgr) {
   CGraphics::StreamEnd();
 }
 
-COmegaPirate::COmegaPirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+COmegaPirate::COmegaPirate(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                            CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
                            CElitePirateData data, CAssetId skeletonModelId, CAssetId skeletonSkinRulesId,
                            CAssetId skeletonLayoutInfoId)
@@ -297,7 +297,7 @@ void COmegaPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
   case EScriptObjectMessage::Damage:
     if (uid == x990_launcherId2 && x990_launcherId2 != kInvalidUniqueId) {
       GetBodyController()->GetCommandMgr().DeliverCmd(
-          CBCKnockBackCmd(GetTransform().frontVector(), pas::ESeverity::Eight));
+          CBCKnockBackCmd(GetTransform().GetForward(), pas::ESeverity::Eight));
     }
     CElitePirate::AcceptScriptMsg(msg, uid, mgr);
     if (uid == xa46_ && xa7c_xrayAlphaState == EXRayFadeState::WaitForTrigger) {
@@ -590,7 +590,7 @@ void COmegaPirate::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
     xa40_locomotionType = GetBodyController()->GetLocomotionType();
     GetBodyController()->SetLocomotionType(pas::ELocomotionType::Internal5);
     GetBodyController()->GetCommandMgr().DeliverCmd(
-        CBCKnockBackCmd(GetTransform().frontVector(), pas::ESeverity::Five));
+        CBCKnockBackCmd(GetTransform().GetForward(), pas::ESeverity::Five));
     for (const auto& entry : x9dc_scriptPlatforms) {
       if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
         platform->SetActive(false);
@@ -633,7 +633,7 @@ void COmegaPirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
   CElitePirate::PathFind(mgr, msg, dt);
 }
 
-void COmegaPirate::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void COmegaPirate::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   CElitePirate::PreRender(mgr, frustum);
   if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay) {
     xb4_drawFlags = CModelFlags{1, 0, 3, zeus::CColor{xa80_xrayAlpha}};
@@ -644,7 +644,7 @@ void COmegaPirate::Render(CStateManager& mgr) {
   auto* mData = GetModelData();
   auto* animData = mData->GetAnimationData();
 
-  CGraphics::SetModelMatrix(GetTransform() * zeus::CTransform::Scale(mData->GetScale()));
+  CGraphics::SetModelMatrix(GetTransform() * zeus::CTransform4f::Scale(mData->GetScale()));
 
   if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay && xa2c_skeletonAlpha > 0.f) {
     const CModelFlags flags{5, 0, 3, zeus::CColor{1.f, xa2c_skeletonAlpha}};
@@ -1157,10 +1157,10 @@ void COmegaPirate::TeleportToFurthestPlatform(CStateManager& mgr) {
   }
 
   const zeus::CVector2f distXY = (mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f()).normalized();
-  const zeus::CVector2f frontVecXY = GetTransform().frontVector().toVec2f().normalized();
+  const zeus::CVector2f frontVecXY = GetTransform().GetForward().toVec2f().normalized();
   const zeus::CQuaternion quat =
       zeus::CQuaternion::shortestRotationArc(zeus::CVector3f{frontVecXY, 0.f}, zeus::CVector3f{distXY, 0.f});
-  SetTransform(zeus::CTransform{GetTransform().basis * zeus::CMatrix3f{quat}, GetTranslation()});
+  SetTransform(zeus::CTransform4f{GetTransform().basis * zeus::CMatrix3f{quat}, GetTranslation()});
 }
 
 zeus::CVector3f COmegaPirate::FindGround(const zeus::CVector3f& pos, CStateManager& mgr) const {

@@ -25,7 +25,7 @@ protected:
 public:
   DEFINE_ENTITY
   CWeapon(TUniqueId uid, TAreaId aid, bool active, TUniqueId owner, EWeaponType type, std::string_view name,
-          const zeus::CTransform& xf, const CMaterialFilter& filter, const CMaterialList& mList, const CDamageInfo&,
+          const zeus::CTransform4f& xf, const CMaterialFilter& filter, const CMaterialList& mList, const CDamageInfo&,
           EProjectileAttrib attribs, CModelData&& mData);
 
   void Accept(IVisitor& visitor) override;

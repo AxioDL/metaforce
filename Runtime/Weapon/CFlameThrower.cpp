@@ -17,7 +17,7 @@ namespace metaforce {
 const zeus::CVector3f CFlameThrower::kLightOffset(0, 3.f, 2.f);
 
 CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
-                             const CFlameInfo& flameInfo, const zeus::CTransform& xf, EMaterialTypes matType,
+                             const CFlameInfo& flameInfo, const zeus::CTransform4f& xf, EMaterialTypes matType,
                              const CDamageInfo& dInfo, TUniqueId uid, TAreaId aId, TUniqueId owner,
                              EProjectileAttrib attribs, CAssetId playerSteamTxtr, s16 playerHitSfx,
                              CAssetId playerIceTxtr)
@@ -48,7 +48,7 @@ void CFlameThrower::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
   CGameProjectile::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CFlameThrower::SetTransform(const zeus::CTransform& xf, float) { x2e8_flameXf = xf; }
+void CFlameThrower::SetTransform(const zeus::CTransform4f& xf, float) { x2e8_flameXf = xf; }
 
 void CFlameThrower::Reset(CStateManager& mgr, bool resetWarp) {
   SetFlameLightActive(mgr, false);
@@ -68,7 +68,7 @@ void CFlameThrower::Reset(CStateManager& mgr, bool resetWarp) {
   }
 }
 
-void CFlameThrower::Fire(const zeus::CTransform&, CStateManager& mgr, bool) {
+void CFlameThrower::Fire(const zeus::CTransform4f&, CStateManager& mgr, bool) {
   SetActive(true);
   x400_25_particlesActive = true;
   x400_24_active = true;
@@ -86,7 +86,7 @@ void CFlameThrower::CreateFlameParticles(CStateManager& mgr) {
     CreateProjectileLight("FlameThrower_Light"sv, x348_flameGen->GetLight(), mgr);
 }
 
-void CFlameThrower::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) {
+void CFlameThrower::AddToRenderer(const zeus::CFrustumPlanes&, CStateManager& mgr) {
   g_Renderer->AddParticleGen(*x348_flameGen);
   EnsureRendered(mgr, x2e8_flameXf.origin, GetRenderBounds());
 }
@@ -143,7 +143,7 @@ CRayCastResult CFlameThrower::DoCollisionCheck(TUniqueId& idOut, const zeus::CAA
 
     for (size_t i = 1; i < colPoints.size(); ++i) {
       const zeus::CVector3f delta = colPoints[i] - colPoints[i - 1];
-      zeus::CTransform lookXf = zeus::lookAt(colPoints[i - 1], colPoints[i]);
+      zeus::CTransform4f lookXf = zeus::CTransform4f::LookAt(colPoints[i - 1], colPoints[i]);
       lookXf.origin = delta * 0.5f + colPoints[i - 1];
       const zeus::COBBox obb(lookXf, {curRadius, delta.magnitude() * 0.5f, curRadius});
 
@@ -216,7 +216,7 @@ void CFlameThrower::Think(float dt, CStateManager& mgr) {
     x34c_flameWarp.SetWarpPoint(flamePoint);
     x34c_flameWarp.SetStateManager(mgr);
     x348_flameGen->SetTranslation(flamePoint);
-    x348_flameGen->SetOrientation(x2e8_flameXf.getRotation());
+    x348_flameGen->SetOrientation(x2e8_flameXf.GetRotation());
   } else {
     x34c_flameWarp.Activate(false);
   }
@@ -238,7 +238,7 @@ void CFlameThrower::Think(float dt, CStateManager& mgr) {
     }
   }
 
-  CActor::SetTransform(x2e8_flameXf.getRotation());
+  CActor::SetTransform(x2e8_flameXf.GetRotation());
   CActor::SetTranslation(x2e8_flameXf.origin);
 
   if (x2c8_projectileLight != kInvalidUniqueId) {

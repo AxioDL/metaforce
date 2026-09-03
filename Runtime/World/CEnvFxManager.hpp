@@ -10,7 +10,7 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 
 #include <zeus/CAABox.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector2i.hpp>
 
 namespace metaforce {
@@ -65,14 +65,14 @@ class CEnvFxManagerGrid {
 
   float m_uvyOffset = 0.f;
 
-  void RenderSnowParticles(const zeus::CTransform& camXf);
-  void RenderRainParticles(const zeus::CTransform& camXf);
-  void RenderUnderwaterParticles(const zeus::CTransform& camXf);
+  void RenderSnowParticles(const zeus::CTransform4f& camXf);
+  void RenderRainParticles(const zeus::CTransform4f& camXf);
+  void RenderUnderwaterParticles(const zeus::CTransform4f& camXf);
 
 public:
   CEnvFxManagerGrid(const zeus::CVector2i& position, const zeus::CVector2i& extent,
                     std::vector<CVectorFixed8_8> initialParticles, int reserve, CEnvFxManager& parent);
-  void Render(const zeus::CTransform& xf, const zeus::CTransform& invXf, const zeus::CTransform& camXf, float fxDensity,
+  void Render(const zeus::CTransform4f& xf, const zeus::CTransform4f& invXf, const zeus::CTransform4f& camXf, float fxDensity,
               EEnvFxType fxType, CEnvFxManager& parent);
 };
 
@@ -112,21 +112,21 @@ class CEnvFxManager {
   void SetSplashEffectRate(float f, const CStateManager& mgr);
   void UpdateRainSounds(const CStateManager& mgr);
   zeus::CVector3f GetParticleBoundsToWorldScale() const;
-  zeus::CTransform GetParticleBoundsToWorldTransform() const;
-  void UpdateVisorSplash(CStateManager& mgr, float dt, const zeus::CTransform& camXf);
+  zeus::CTransform4f GetParticleBoundsToWorldTransform() const;
+  void UpdateVisorSplash(CStateManager& mgr, float dt, const zeus::CTransform4f& camXf);
   void MoveWrapCells(s32, s32);
   void CalculateSnowForces(const CVectorFixed8_8& zVec, rstl::reserved_vector<CVectorFixed8_8, 256>& snowForces,
                            EEnvFxType type, const zeus::CVector3f& oopbtws, float dt);
   static void BuildBlockObjectList(EntityList& list, CStateManager& mgr);
-  void UpdateBlockedGrids(CStateManager& mgr, EEnvFxType type, const zeus::CTransform& camXf,
-                          const zeus::CTransform& xf, const zeus::CTransform& invXf);
+  void UpdateBlockedGrids(CStateManager& mgr, EEnvFxType type, const zeus::CTransform4f& camXf,
+                          const zeus::CTransform4f& xf, const zeus::CTransform4f& invXf);
   void CreateNewParticles(EEnvFxType type);
   void UpdateSnowParticles(const rstl::reserved_vector<CVectorFixed8_8, 256>& snowForces);
   void UpdateRainParticles(const CVectorFixed8_8& zVec, const zeus::CVector3f& oopbtws, float dt);
   void UpdateUnderwaterParticles(const CVectorFixed8_8& zVec);
   void SetupSnowTevs(const CStateManager& mgr);
   void SetupRainTevs() const;
-  void SetupUnderwaterTevs(const zeus::CTransform& invXf, const CStateManager& mgr) const;
+  void SetupUnderwaterTevs(const zeus::CTransform4f& invXf, const CStateManager& mgr) const;
 
 public:
   CEnvFxManager();

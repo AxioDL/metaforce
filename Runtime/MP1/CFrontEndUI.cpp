@@ -264,7 +264,7 @@ void CFrontEndUI::SNewFileSelectFrame::HandleActiveChange(CGuiTableGroup* active
   active->SetColors(zeus::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 
   if (active == x20_tablegroup_fileselect) {
-    x24_model_erase->SetLocalTransform(zeus::CTransform::Translate(
+    x24_model_erase->SetLocalTransform(zeus::CTransform4f::Translate(
         zeus::CVector3f{0.f, 0.f, active->GetUserSelection() * x104_rowPitch} + xf8_model_erase_position));
   }
 
@@ -288,7 +288,7 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateEraseGamePopup() {
   x40_tablegroup_popup->SetIsActive(true);
   x40_tablegroup_popup->SetIsVisible(true);
   x40_tablegroup_popup->SetLocalTransform(
-      zeus::CTransform::Translate(0.f, 0.f, x20_tablegroup_fileselect->GetUserSelection() * x104_rowPitch) *
+      zeus::CTransform4f::Translate(0.f, 0.f, x20_tablegroup_fileselect->GetUserSelection() * x104_rowPitch) *
       x40_tablegroup_popup->GetTransform());
   x20_tablegroup_fileselect->SetIsActive(false);
 
@@ -326,7 +326,7 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateNewGamePopup() {
   x40_tablegroup_popup->SetIsVisible(true);
   x40_tablegroup_popup->SetUserSelection(0);
   x40_tablegroup_popup->SetLocalTransform(
-      zeus::CTransform::Translate(0.f, 0.f, x20_tablegroup_fileselect->GetUserSelection() * x104_rowPitch) *
+      zeus::CTransform4f::Translate(0.f, 0.f, x20_tablegroup_fileselect->GetUserSelection() * x104_rowPitch) *
       x40_tablegroup_popup->GetTransform());
   x20_tablegroup_fileselect->SetIsActive(false);
 
@@ -1343,8 +1343,8 @@ void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveGameScreen* saveUi) const {
   if (xc_textSupport->GetIsTextSupportFinishedLoading()) {
     float aspect = CGraphics::GetViewportAspect() / 1.33f;
     CGraphics::SetOrtho(-320.f * aspect, 320.f * aspect, 240.f, -240.f, -4096.f, 4096.f);
-    CGraphics::SetViewPointMatrix(zeus::CTransform());
-    CGraphics::SetModelMatrix(zeus::CTransform::Translate(-220.f, 0.f, -200.f));
+    CGraphics::SetViewPointMatrix(zeus::CTransform4f());
+    CGraphics::SetModelMatrix(zeus::CTransform4f::Translate(-220.f, 0.f, -200.f));
     xc_textSupport->Render();
   }
 }
@@ -1436,7 +1436,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::HandleRightSelectionChange() {
     x34_slidergroup_slider->SetMaxVal(option.maxVal);
     x34_slidergroup_slider->SetIncrement(option.increment);
     x34_slidergroup_slider->SetCurVal(CGameOptions::GetOption(option.option));
-    x34_slidergroup_slider->SetLocalTransform(zeus::CTransform::Translate(0.f, 0.f, rightSel * x38_rowPitch) *
+    x34_slidergroup_slider->SetLocalTransform(zeus::CTransform4f::Translate(0.f, 0.f, rightSel * x38_rowPitch) *
                                               x34_slidergroup_slider->GetTransform());
     break;
 
@@ -1444,7 +1444,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::HandleRightSelectionChange() {
     x2c_tablegroup_double->SetUserSelection(CGameOptions::GetOption(option.option));
     x2c_tablegroup_double->SetIsVisible(true);
     x2c_tablegroup_double->SetIsActive(true);
-    x2c_tablegroup_double->SetLocalTransform(zeus::CTransform::Translate(0.f, 0.f, rightSel * x38_rowPitch) *
+    x2c_tablegroup_double->SetLocalTransform(zeus::CTransform4f::Translate(0.f, 0.f, rightSel * x38_rowPitch) *
                                              x2c_tablegroup_double->GetTransform());
     SetTableColors(x2c_tablegroup_double);
     break;
@@ -1453,7 +1453,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::HandleRightSelectionChange() {
     x30_tablegroup_triple->SetUserSelection(CGameOptions::GetOption(option.option));
     x30_tablegroup_triple->SetIsVisible(true);
     x30_tablegroup_triple->SetIsActive(true);
-    x30_tablegroup_triple->SetLocalTransform(zeus::CTransform::Translate(0.f, 0.f, rightSel * x38_rowPitch) *
+    x30_tablegroup_triple->SetLocalTransform(zeus::CTransform4f::Translate(0.f, 0.f, rightSel * x38_rowPitch) *
                                              x30_tablegroup_triple->GetTransform());
     SetTableColors(x30_tablegroup_triple);
     break;

@@ -36,7 +36,7 @@ void CPhazonBeam::StopBeam(CStateManager& mgr, bool b1) {
     x234_chargeFxGen->SetParticleEmission(false);
 }
 
-void CPhazonBeam::UpdateBeam(float dt, const zeus::CTransform& targetXf, const zeus::CVector3f& localBeamPos,
+void CPhazonBeam::UpdateBeam(float dt, const zeus::CTransform4f& targetXf, const zeus::CVector3f& localBeamPos,
                              CStateManager& mgr) {
   if (x234_chargeFxGen) {
     x234_chargeFxGen->SetParticleEmission(IsFiring());
@@ -52,24 +52,24 @@ void CPhazonBeam::CreateBeam(CStateManager& mgr) {
   }
 }
 
-void CPhazonBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
+void CPhazonBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) {
   if (IsFiring()) {
-    zeus::CTransform backupView = CGraphics::mViewMatrix;
-    CGraphics::SetViewPointMatrix(xf.inverse() * backupView);
-    CGraphics::SetModelMatrix(zeus::CTransform());
+    zeus::CTransform4f backupView = CGraphics::mViewMatrix;
+    CGraphics::SetViewPointMatrix(xf.Inverse() * backupView);
+    CGraphics::SetModelMatrix(zeus::CTransform4f());
     CGunWeapon::DrawMuzzleFx(mgr);
     CGraphics::SetViewPointMatrix(backupView);
   }
 }
 
-void CPhazonBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
+void CPhazonBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) {
   if (x234_chargeFxGen) {
     x234_chargeFxGen->Render();
   }
   CGunWeapon::PostRenderGunFx(mgr, xf);
 }
 
-void CPhazonBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf) {
+void CPhazonBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform4f& xf) {
   if (x234_chargeFxGen) {
     x234_chargeFxGen->SetGlobalOrientAndTrans(xf);
     x234_chargeFxGen->Update(dt);
@@ -78,7 +78,7 @@ void CPhazonBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr
   CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
 
-void CPhazonBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
+void CPhazonBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform4f& xf,
                        CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
   if (chargeState == EChargeState::Normal) {
     ActivateCharge(false, false);
@@ -178,7 +178,7 @@ void CPhazonBeam::DrawClipTranslateCube() {
   // m_aaboxShaderTranslate.draw(zeus::skClear);
 }
 
-void CPhazonBeam::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
+void CPhazonBeam::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform4f& xf, const CModelFlags& flags,
                        const CActorLights* lights) {
   CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
   bool drawIndirect = visor == CPlayerState::EPlayerVisor::Combat || visor == CPlayerState::EPlayerVisor::Scan;
@@ -199,16 +199,16 @@ void CPhazonBeam::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::C
   }
 
   if (x224_phazonVeinsData) {
-    zeus::CTransform modelXf = xf * x10_solidModelData->GetScaledLocatorTransform("elbow");
+    zeus::CTransform4f modelXf = xf * x10_solidModelData->GetScaledLocatorTransform("elbow");
     if (x274_25_clipWipeActive) {
-      CGraphics::SetModelMatrix(modelXf * zeus::CTransform::Scale(1.f - x268_clipWipeScale));
+      CGraphics::SetModelMatrix(modelXf * zeus::CTransform4f::Scale(1.f - x268_clipWipeScale));
       DrawClipScaleCube();
-      CGraphics::SetModelMatrix(modelXf * zeus::CTransform::Translate(0.f, x26c_clipWipeTranslate, 0.f));
+      CGraphics::SetModelMatrix(modelXf * zeus::CTransform4f::Translate(0.f, x26c_clipWipeTranslate, 0.f));
       DrawClipTranslateCube();
     }
     if (x274_26_veinsAlphaActive) {
       CModelFlags useFlags(5, 0, 3, zeus::CColor(1.f, 0.5f * x270_indirectAlpha));
-      x224_phazonVeinsData->Render(mgr, modelXf * zeus::CTransform::Scale(x270_indirectAlpha), lights, useFlags);
+      x224_phazonVeinsData->Render(mgr, modelXf * zeus::CTransform4f::Scale(x270_indirectAlpha), lights, useFlags);
     } else {
       x224_phazonVeinsData->Render(mgr, modelXf, lights, flags);
     }

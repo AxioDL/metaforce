@@ -11,7 +11,7 @@
 
 namespace metaforce {
 CFire::CFire(TToken<CGenDescription> effect, TUniqueId uid, TAreaId aId, bool active, TUniqueId owner,
-             const zeus::CTransform& xf, const CDamageInfo& dInfo, const zeus::CAABox& aabox,
+             const zeus::CTransform4f& xf, const CDamageInfo& dInfo, const zeus::CAABox& aabox,
              const zeus::CVector3f& vec, bool b1, CAssetId visorEffect, bool b2, bool b3, bool b4, float f1, float f2,
              float f3, float f4)
 : CActor(uid, active, "Fire"sv, CEntityInfo(aId, NullConnectionList), xf, CModelData::CModelDataNull(),
@@ -83,7 +83,7 @@ void CFire::Touch(CActor& act, CStateManager& mgr) {
                   CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
 }
 
-void CFire::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CFire::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   bool drawParticles = true;
   if (!x148_27_) {
     using EPlayerVisor = CPlayerState::EPlayerVisor;

@@ -19,7 +19,7 @@ class CEnergyProjectile : public CGameProjectile {
 
 public:
   DEFINE_ENTITY
-  CEnergyProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform& xf,
+  CEnergyProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform4f& xf,
                     EMaterialTypes excludeMat, const CDamageInfo& damage, TUniqueId uid, TAreaId aid, TUniqueId owner,
                     TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
                     const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
@@ -36,7 +36,7 @@ public:
   void ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   void Render(CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   void Touch(CActor& act, CStateManager& mgr) override;
   virtual bool Explode(const zeus::CVector3f& pos, const zeus::CVector3f& normal, EWeaponCollisionResponseTypes type,
                        CStateManager& mgr, const CDamageVulnerability& dVuln, TUniqueId hitActor);

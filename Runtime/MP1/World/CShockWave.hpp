@@ -58,12 +58,12 @@ private:
 
 public:
   DEFINE_ENTITY
-  CShockWave(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CShockWave(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
              TUniqueId parent, const CShockWaveInfo& data, float minActiveTime, float knockback);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   [[nodiscard]] std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Render(CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;

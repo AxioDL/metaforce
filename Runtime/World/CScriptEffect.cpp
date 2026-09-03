@@ -21,7 +21,7 @@ namespace metaforce {
 u32 CScriptEffect::g_NumParticlesUpdating = 0;
 u32 CScriptEffect::g_NumParticlesRendered = 0;
 
-CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                              const zeus::CVector3f& scale, CAssetId partId, CAssetId elscId, bool hotInThermal,
                              bool noTimerUnlessAreaOccluded, bool rebuildSystemsOnActivate, bool active,
                              bool useRateInverseCamDist, float rateInverseCamDist, float rateInverseCamDistRate,
@@ -55,7 +55,7 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
   if (partId.IsValid()) {
     xf8_particleSystemToken = g_SimplePool->GetObj({FOURCC('PART'), partId});
     x104_particleSystem = std::make_unique<CElementGen>(xf8_particleSystemToken);
-    zeus::CTransform newXf = xf;
+    zeus::CTransform4f newXf = xf;
     newXf.origin = zeus::skZero3f;
     x104_particleSystem->SetOrientation(newXf);
     x104_particleSystem->SetGlobalTranslation(xf.origin);
@@ -68,7 +68,7 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
   if (elscId.IsValid()) {
     xe8_electricToken = g_SimplePool->GetObj({FOURCC('ELSC'), elscId});
     xf4_electric = std::make_unique<CParticleElectric>(xe8_electricToken);
-    zeus::CTransform newXf = xf;
+    zeus::CTransform4f newXf = xf;
     newXf.origin = zeus::skZero3f;
     xf4_electric->SetOrientation(newXf);
     xf4_electric->SetGlobalTranslation(xf.origin);
@@ -91,7 +91,7 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
         const zeus::CVector3f scale = x104_particleSystem->GetGlobalScale();
         const zeus::CColor color = x104_particleSystem->GetModulationColor();
         x104_particleSystem = std::make_unique<CElementGen>(xf8_particleSystemToken);
-        zeus::CTransform newXf = GetTransform();
+        zeus::CTransform4f newXf = GetTransform();
         newXf.origin = zeus::skZero3f;
         x104_particleSystem->SetOrientation(newXf);
         x104_particleSystem->SetGlobalTranslation(GetTranslation());
@@ -104,7 +104,7 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
         const zeus::CVector3f scale = xf4_electric->GetGlobalScale();
         const zeus::CColor color = xf4_electric->GetModulationColor();
         xf4_electric = std::make_unique<CParticleElectric>(xe8_electricToken);
-        zeus::CTransform newXf = GetTransform();
+        zeus::CTransform4f newXf = GetTransform();
         newXf.origin = zeus::skZero3f;
         xf4_electric->SetOrientation(newXf);
         xf4_electric->SetGlobalTranslation(GetTranslation());
@@ -189,7 +189,7 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
   }
 }
 
-void CScriptEffect::PreRender(CStateManager& mgr, const zeus::CFrustum&) {
+void CScriptEffect::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes&) {
   if (x110_27_useRateInverseCamDist || x111_24_useRateCamDistRange) {
     float genRate = 1.f;
     const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
@@ -216,7 +216,7 @@ void CScriptEffect::PreRender(CStateManager& mgr, const zeus::CFrustum&) {
   }
 }
 
-void CScriptEffect::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CScriptEffect::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   if (!x111_26_canRender) {
     x12c_remTime = zeus::max(x12c_remTime, x134_durationResetWhileVisible);
     return;
@@ -265,13 +265,13 @@ void CScriptEffect::Render(CStateManager& mgr) {
 void CScriptEffect::Think(float dt, CStateManager& mgr) {
   if (xe4_28_transformDirty) {
     if (x104_particleSystem) {
-      zeus::CTransform newXf = x34_transform;
+      zeus::CTransform4f newXf = x34_transform;
       newXf.origin = zeus::skZero3f;
       x104_particleSystem->SetOrientation(newXf);
       x104_particleSystem->SetGlobalTranslation(x34_transform.origin);
     }
     if (xf4_electric) {
-      zeus::CTransform newXf = x34_transform;
+      zeus::CTransform4f newXf = x34_transform;
       newXf.origin = zeus::skZero3f;
       xf4_electric->SetOrientation(newXf);
       xf4_electric->SetGlobalTranslation(x34_transform.origin);

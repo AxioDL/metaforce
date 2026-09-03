@@ -25,7 +25,7 @@ class CVirtualBone {
 
   rstl::reserved_vector<SSkinWeighting, 3> x0_weights;
   u32 x1c_vertexCount;
-  zeus::CTransform x20_xf;
+  zeus::CTransform4f x20_xf;
   zeus::CMatrix3f x50_rotation;
 
 public:

@@ -316,7 +316,7 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
         SAdvancementResults res = node->VGetAdvancementResults(poi.GetTime(), 0.f);
         orient = zeus::CQuaternion::slerp(zeus::CQuaternion(),
                                           *parms.GetDeltaOrient() *
-                                              zeus::CQuaternion(parms.GetObjectXform()->buildMatrix3f().inverted()) *
+                                              zeus::CQuaternion(parms.GetObjectXform()->BuildMatrix3f().inverted()) *
                                               res.x8_deltas.xc_rotDelta.inverse(),
                                           1.f / (60.f * poi.GetTime().GetSeconds()));
         x1e8_alignRot = orient;
@@ -367,7 +367,7 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
         zeus::CVector3f scaleStart = *parms.GetObjectScale() * posStart;
         zeus::CVector3f scaleAlign = *parms.GetObjectScale() * posAlign;
         x1dc_alignPos =
-            (parms.GetObjectXform()->inverse() * *parms.GetTargetPos() - scaleStart - (scaleAlign - scaleStart)) /
+            (parms.GetObjectXform()->Inverse() * *parms.GetTargetPos() - scaleStart - (scaleAlign - scaleStart)) /
             *parms.GetObjectScale() * (1.f / (timeAlign.GetSeconds() - timeStart.GetSeconds()));
         x220_28_ = true;
         x220_26_aligningPos = false;
@@ -425,7 +425,7 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
         zeus::CVector3f scaleStart = startPos * *parms.GetObjectScale();
         zeus::CVector3f scaleAlign = pos * *parms.GetObjectScale();
         x1dc_alignPos =
-            (parms.GetObjectXform()->inverse() * *parms.GetTargetPos() - scaleStart - (scaleAlign - scaleStart)) /
+            (parms.GetObjectXform()->Inverse() * *parms.GetTargetPos() - scaleStart - (scaleAlign - scaleStart)) /
             *parms.GetObjectScale() * (1.f / (timeAlign.GetSeconds() - timeStart.GetSeconds()));
         x220_28_ = true;
         x220_26_aligningPos = false;
@@ -442,7 +442,7 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
   }
 }
 
-zeus::CTransform CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* time) const {
+zeus::CTransform4f CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* time) const {
   if (id.IsInvalid()) {
     return {};
   }
@@ -452,17 +452,17 @@ zeus::CTransform CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* 
     const_cast<CAnimData*>(this)->x220_31_poseCached = time == nullptr;
   }
 
-  zeus::CTransform ret;
+  zeus::CTransform4f ret;
   if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildTransform(id, ret);
   } else {
-    ret.setRotation(x224_pose.GetRotation(id));
+    ret.SetRotation(x224_pose.GetRotation(id));
     ret.origin = x224_pose.GetOffset(id);
   }
   return ret;
 }
 
-zeus::CTransform CAnimData::GetLocatorTransform(std::string_view name, const CCharAnimTime* time) const {
+zeus::CTransform4f CAnimData::GetLocatorTransform(std::string_view name, const CCharAnimTime* time) const {
   return GetLocatorTransform(xcc_layoutData->GetSegIdFromString(name), time);
 }
 
@@ -542,7 +542,7 @@ void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time) {
   }
 }
 
-void CAnimData::RenderAuxiliary(const zeus::CFrustum& frustum) const { x120_particleDB.AddToRendererClipped(frustum); }
+void CAnimData::RenderAuxiliary(const zeus::CFrustumPlanes& frustum) const { x120_particleDB.AddToRendererClipped(frustum); }
 
 void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags, CVertexMorphEffect* morphEffect,
                        TConstVectorRef averagedNormals) {
@@ -814,7 +814,7 @@ void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& 
   model.Calculate(pose, morphEffect, averagedNormals, nullptr);
 }
 
-void CAnimData::AdvanceParticles(const zeus::CTransform& xf, float dt, const zeus::CVector3f& vec,
+void CAnimData::AdvanceParticles(const zeus::CTransform4f& xf, float dt, const zeus::CVector3f& vec,
                                  CStateManager& stateMgr) {
   x120_particleDB.Update(dt, x224_pose, *xcc_layoutData, xf, vec, stateMgr);
 }
@@ -868,7 +868,7 @@ void CAnimData::ResetPOILists() {
 
 CSegId CAnimData::GetLocatorSegId(std::string_view name) const { return xcc_layoutData->GetSegIdFromString(name); }
 
-zeus::CAABox CAnimData::GetBoundingBox(const zeus::CTransform& xf) const {
+zeus::CAABox CAnimData::GetBoundingBox(const zeus::CTransform4f& xf) const {
   return GetBoundingBox().getTransformedAABox(xf);
 }
 

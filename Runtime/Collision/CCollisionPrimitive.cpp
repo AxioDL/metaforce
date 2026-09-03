@@ -31,7 +31,7 @@ void CCollisionPrimitive::SetMaterial(const CMaterialList& material) { x8_materi
 const CMaterialList& CCollisionPrimitive::GetMaterial() const { return x8_material; }
 
 CRayCastResult CCollisionPrimitive::CastRay(const zeus::CVector3f& start, const zeus::CVector3f& dir, float length,
-                                            const CMaterialFilter& filter, const zeus::CTransform& xf) const {
+                                            const CMaterialFilter& filter, const zeus::CTransform4f& xf) const {
   return CastRayInternal(CInternalRayCastStructure(start, dir, length, xf, filter));
 }
 

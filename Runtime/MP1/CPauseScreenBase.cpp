@@ -87,7 +87,7 @@ void CPauseScreenBase::InitializeFrameGlue() {
   for (int i = 0; i < x84_tablegroup_rightlog->GetElementCount(); ++i) {
     CGuiWidget* w = x84_tablegroup_rightlog->GetWorkerWidget(i);
     w->SetLocalTransform(
-        zeus::CTransform::Translate(x2c_rightTableStart + zeus::CVector3f(0.f, 0.f, x38_highlightPitch * i)));
+        zeus::CTransform4f::Translate(x2c_rightTableStart + zeus::CVector3f(0.f, 0.f, x38_highlightPitch * i)));
     w->SetIsSelectable(true);
   }
 
@@ -271,7 +271,7 @@ void CPauseScreenBase::UpdateSideTable(CGuiTableGroup* table) {
   if (table == x84_tablegroup_rightlog) {
     int sel = x1c_rightSel - x18_firstViewRightSel;
     x8c_model_righthighlight->SetLocalTransform(x8c_model_righthighlight->GetTransform() *
-                                                zeus::CTransform::Translate(0.f, 0.f, x38_highlightPitch * sel));
+                                                zeus::CTransform4f::Translate(0.f, 0.f, x38_highlightPitch * sel));
     x8c_model_righthighlight->SetVisibility(x10_mode == EMode::RightTable, ETraversalMode::Children);
     int selInView = x1c_rightSel % 5;
     if (IsRightLogDynamic()) {
@@ -283,7 +283,7 @@ void CPauseScreenBase::UpdateSideTable(CGuiTableGroup* table) {
   } else {
     int sel = x70_tablegroup_leftlog->GetUserSelection();
     x78_model_lefthighlight->SetLocalTransform(x78_model_lefthighlight->GetTransform() *
-                                               zeus::CTransform::Translate(0.f, 0.f, x38_highlightPitch * sel));
+                                               zeus::CTransform4f::Translate(0.f, 0.f, x38_highlightPitch * sel));
     for (size_t i = 0; i < xc0_model_categories.size(); ++i)
       xc0_model_categories[i]->SetColor(i == sel ? selColor : deselColor);
   }

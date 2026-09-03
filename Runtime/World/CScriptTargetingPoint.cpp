@@ -7,7 +7,7 @@
 namespace metaforce {
 
 CScriptTargetingPoint::CScriptTargetingPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                             const zeus::CTransform& xf, bool active)
+                                             const zeus::CTransform4f& xf, bool active)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId) {}
 

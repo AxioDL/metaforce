@@ -35,13 +35,13 @@ class CCubeRenderer final : public IRenderer {
   };
 
   struct CFogVolumeListItem {
-    zeus::CTransform x0_transform;
+    zeus::CTransform4f x0_transform;
     zeus::CColor x30_color;
     zeus::CAABox x34_aabb;
     TLockedToken<CModel> x4c_model;
     // bool x58_b; Optional for model token
     const CSkinnedModel* x5c_skinnedModel = nullptr;
-    CFogVolumeListItem(const zeus::CTransform& xf, const zeus::CColor& color, const zeus::CAABox& aabb,
+    CFogVolumeListItem(const zeus::CTransform4f& xf, const zeus::CColor& color, const zeus::CAABox& aabb,
                        const TLockedToken<CModel>* model, const CSkinnedModel* sModel)
     : x0_transform(xf), x30_color(color), x34_aabb(aabb), x5c_skinnedModel(sModel) {
       if (model)
@@ -56,7 +56,7 @@ private:
   u32 x18_primVertCount = 0;
   std::list<CAreaListItem> x1c_areaListItems;
   // TODO x34...x40
-  zeus::CFrustum x44_frustumPlanes; // {zeus::skIdentityMatrix4f, 1.5707964f, 1.f, 1.f, false, 100.f}
+  zeus::CFrustumPlanes x44_frustumPlanes; // {zeus::skIdentityMatrix4f, 1.5707964f, 1.f, 1.f, false, 100.f}
   TDrawableCallback xa8_drawableCallback = nullptr;
   void* xac_drawableCallbackUserData = nullptr;
   zeus::CPlane xb0_viewPlane{0.f, 1.f, 0.f, 0.f};
@@ -124,18 +124,18 @@ public:
   void DrawStaticGeometry(s32 areaIdx, s32 mask, s32 targetMask) override;
   void DrawAreaGeometry(s32 areaIdx, s32 mask, s32 targetMask) override;
   void PostRenderFogs() override;
-  void SetModelMatrix(const zeus::CTransform& xf) override;
+  void SetModelMatrix(const zeus::CTransform4f& xf) override;
   void AddParticleGen(CParticleGen& gen) override;
   void AddParticleGen(CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds) override;
   void AddPlaneObject(void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, s32 type) override;
   void AddDrawable(void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb, s32 mode,
                    EDrawableSorting sorting) override;
   void SetDrawableCallback(TDrawableCallback cb, void* ctx) override;
-  void SetWorldViewpoint(const zeus::CTransform& xf) override;
+  void SetWorldViewpoint(const zeus::CTransform4f& xf) override;
   void SetPerspective(float fovy, float aspect, float znear, float zfar) override;
   void SetPerspective(float fovy, float width, float height, float znear, float zfar) override;
   std::pair<zeus::CVector2f, zeus::CVector2f> SetViewportOrtho(bool centered, float znear, float zfar) override;
-  void SetClippingPlanes(const zeus::CFrustum& frustum) override;
+  void SetClippingPlanes(const zeus::CFrustumPlanes& frustum) override;
   void SetViewport(s32 left, s32 right, s32 width, s32 height) override;
   void SetDepthReadWrite(bool read, bool write) override {
     CGraphics::SetDepthWriteMode(read, ERglEnum::LEqual, write);
@@ -217,8 +217,8 @@ public:
   void DrawOverlappingWorldModelShadows(s32 alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb);
   void RenderBucketItems(const CAreaListItem* lights);
   void DrawRenderBucketsDebug() {}
-  void RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* model, const zeus::CTransform& modelXf,
-                            const zeus::CTransform& viewXf, const CSkinnedModel* skinnedModel);
+  void RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* model, const zeus::CTransform4f& modelXf,
+                            const zeus::CTransform4f& viewXf, const CSkinnedModel* skinnedModel);
   void DrawFogSlices(const zeus::CPlane* planes, int planeCount, int planeIdx, const zeus::CVector3f& point,
                      float extent);
   void DrawFogFans(const zeus::CPlane* planes, int planeCount, const zeus::CVector3f* verts, int vertCount,

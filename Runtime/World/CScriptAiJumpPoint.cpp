@@ -8,7 +8,7 @@
 
 namespace metaforce {
 CScriptAiJumpPoint::CScriptAiJumpPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                       zeus::CTransform& xf, bool active, float apex)
+                                       zeus::CTransform4f& xf, bool active, float apex)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_apex(apex)

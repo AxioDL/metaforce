@@ -67,7 +67,7 @@ void CVisorFlare::Update(float dt, const zeus::CVector3f& pos, const CActor* act
 
     const auto* curCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
     const auto dir = (pos - curCam->GetTranslation()).normalized();
-    float dot = dir.dot(curCam->GetTransform().frontVector());
+    float dot = dir.dot(curCam->GetTransform().GetForward());
     x24_ *= std::max(0.f, 1.f - (x1c_f2 * 4.f * (1.f - dot)));
 
     if (x2c_w1 == 2) {
@@ -101,8 +101,8 @@ void CVisorFlare::Render(const zeus::CVector3f& pos, const CStateManager& mgr) c
   g_Renderer->SetDepthReadWrite(false, false);
   const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   zeus::CVector3f camPos = cam->GetTranslation();
-  zeus::CVector3f camFront = cam->GetTransform().frontVector();
-  const auto invPos = CGraphics::mViewMatrix.inverse() * pos;
+  zeus::CVector3f camFront = cam->GetTransform().GetForward();
+  const auto invPos = CGraphics::mViewMatrix.Inverse() * pos;
   const auto invPos2 = CGraphics::mViewMatrix * zeus::CVector3f{-invPos.x(), invPos.y(), -invPos.z()};
   if (!zeus::close_enough(x24_, 0.f, 1.0E-5f)) {
     float acos = 0.f;
@@ -120,7 +120,7 @@ void CVisorFlare::Render(const zeus::CVector3f& pos, const CStateManager& mgr) c
     SetupRenderState(mgr);
     for (const auto& item : x4_flareDefs) {
       const auto origin = pos * (1.f - item.GetPosition()) + invPos2 * item.GetPosition();
-      g_Renderer->SetModelMatrix(zeus::lookAt(origin, camPos));
+      g_Renderer->SetModelMatrix(zeus::CTransform4f::LookAt(origin, camPos));
       float scale = 0.5f * x24_ * item.GetScale();
       if (x14_b1) {
         auto dist = origin - camPos;

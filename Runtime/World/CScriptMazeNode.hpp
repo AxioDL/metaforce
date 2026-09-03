@@ -98,7 +98,7 @@ class CScriptMazeNode : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptMazeNode(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptMazeNode(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                   bool active, s32 col, s32 row, s32 side, const zeus::CVector3f& actorPos,
                   const zeus::CVector3f& triggerPos, const zeus::CVector3f& effectPos);
 

@@ -13,7 +13,7 @@
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -71,14 +71,14 @@ private:
   zeus::CVector3f xe8_globalTranslation;
   zeus::CVector3f xf4_POFS;
   zeus::CVector3f x100_globalScale = {1.f, 1.f, 1.f};
-  zeus::CTransform x10c_globalScaleTransform = zeus::CTransform();
-  zeus::CTransform x13c_globalScaleTransformInverse = zeus::CTransform();
+  zeus::CTransform4f x10c_globalScaleTransform = zeus::CTransform4f();
+  zeus::CTransform4f x13c_globalScaleTransformInverse = zeus::CTransform4f();
   zeus::CVector3f x16c_localScale = {1.f, 1.f, 1.f};
-  zeus::CTransform x178_localScaleTransform = zeus::CTransform();
-  zeus::CTransform x1a8_localScaleTransformInverse = zeus::CTransform();
-  zeus::CTransform x1d8_orientation = zeus::CTransform();
+  zeus::CTransform4f x178_localScaleTransform = zeus::CTransform4f();
+  zeus::CTransform4f x1a8_localScaleTransformInverse = zeus::CTransform4f();
+  zeus::CTransform4f x1d8_orientation = zeus::CTransform4f();
   zeus::CMatrix3f x208_orientationInverse = zeus::CMatrix3f();
-  zeus::CTransform x22c_globalOrientation = zeus::CTransform();
+  zeus::CTransform4f x22c_globalOrientation = zeus::CTransform4f();
 
   u32 x25c_activeParticleCount = 0;
   u32 x260_cumulativeParticles = 0;
@@ -174,19 +174,19 @@ public:
 
   bool Update(double t) override;
   void Render() override;
-  void SetOrientation(const zeus::CTransform& orientation) override;
+  void SetOrientation(const zeus::CTransform4f& orientation) override;
   void SetTranslation(const zeus::CVector3f& translation) override;
-  void SetGlobalOrientation(const zeus::CTransform& orientation) override;
+  void SetGlobalOrientation(const zeus::CTransform4f& orientation) override;
   void SetGlobalTranslation(const zeus::CVector3f& translation) override;
   void SetGlobalScale(const zeus::CVector3f& scale) override;
   void SetLocalScale(const zeus::CVector3f& scale) override;
-  void SetGlobalOrientAndTrans(const zeus::CTransform& xf);
+  void SetGlobalOrientAndTrans(const zeus::CTransform4f& xf);
   void SetParticleEmission(bool enabled) override;
   void SetModulationColor(const zeus::CColor& color) override;
   void SetGeneratorRate(float rate) override;
-  const zeus::CTransform& GetOrientation() const override;
+  const zeus::CTransform4f& GetOrientation() const override;
   const zeus::CVector3f& GetTranslation() const override;
-  const zeus::CTransform& GetGlobalOrientation() const override;
+  const zeus::CTransform4f& GetGlobalOrientation() const override;
   const zeus::CVector3f& GetGlobalTranslation() const override;
   const zeus::CVector3f& GetGlobalScale() const override;
   const zeus::CColor& GetModulationColor() const override;
@@ -213,10 +213,10 @@ public:
   std::vector<CParticle>& GetParticles() { return x30_particles; }
 
 private:
-  void RenderBasicParticlesNoRotNoTS(const zeus::CTransform& xf) noexcept;
-  void RenderBasicParticlesNoRotTS(const zeus::CTransform& xf) noexcept;
-  void RenderBasicParticlesRotNoTS(const zeus::CTransform& xf) noexcept;
-  void RenderBasicParticlesRotTS(const zeus::CTransform& xf) noexcept;
+  void RenderBasicParticlesNoRotNoTS(const zeus::CTransform4f& xf) noexcept;
+  void RenderBasicParticlesNoRotTS(const zeus::CTransform4f& xf) noexcept;
+  void RenderBasicParticlesRotNoTS(const zeus::CTransform4f& xf) noexcept;
+  void RenderBasicParticlesRotTS(const zeus::CTransform4f& xf) noexcept;
 };
 ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 

@@ -95,7 +95,7 @@ void CHudBallInterface::SetBombParams(int pbAmount, int pbCapacity, int availabl
 void CHudBallInterface::SetBallModeFactor(float t) {
   float tmp = 0.5f * 448.f * g_tweakGui->GetBallViewportYReduction();
   x0_camera->SetLocalTransform(
-      zeus::CTransform::Translate(x34_camPos + zeus::CVector3f(0.f, 0.f, (t * tmp - tmp) * 0.01f)));
+      zeus::CTransform4f::Translate(x34_camPos + zeus::CVector3f(0.f, 0.f, (t * tmp - tmp) * 0.01f)));
 }
 
 } // namespace metaforce

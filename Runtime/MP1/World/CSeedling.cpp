@@ -32,7 +32,7 @@ constexpr std::array<std::array<std::string_view, 6>, 2> skNeedleLocators{{
 }};
 } // Anonymous namespace
 
-CSeedling::CSeedling(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CSeedling::CSeedling(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                      CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
                      CAssetId needleId, CAssetId weaponId, const CDamageInfo& dInfo1, const CDamageInfo& dInfo2,
                      float f1, float f2, float f3, float f4)
@@ -155,13 +155,13 @@ void CSeedling::Patrol(CStateManager& mgr, EStateMsg msg, float) {
       x2dc_destObj = id;
   } else if (msg == EStateMsg::Update) {
     UpdateWPDestination(mgr);
-    zeus::CVector3f upVec = GetTransform().upVector();
+    zeus::CVector3f upVec = GetTransform().GetUp();
     x450_bodyController->GetCommandMgr().DeliverCmd(
         CBCLocomotionCmd(ProjectVectorToPlane((x2e0_destPos - GetTranslation()).normalized(), upVec), {}, 0.f));
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(
         ProjectVectorToPlane(ProjectVectorToPlane(x45c_steeringBehaviors.Seek(*this, x2e0_destPos), upVec), upVec), {},
         1.f));
-    x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(1.f * GetTransform().frontVector(), {}, 0.f));
+    x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(1.f * GetTransform().GetForward(), {}, 0.f));
   } else if (msg == EStateMsg::Deactivate) {
     x720_prevObj = x2dc_destObj;
   }

@@ -55,7 +55,7 @@ void CActorLights::BuildFakeLightList(const std::vector<CLight>& lights, const z
 }
 
 void CActorLights::BuildFaceLightList(const CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb) {
-  zeus::CTransform fpTransform = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform();
+  zeus::CTransform4f fpTransform = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform();
   x298_26_hasAreaLights = true;
   x288_ambientColor = zeus::skBlack;
   x144_dynamicLights.clear();
@@ -72,7 +72,7 @@ void CActorLights::BuildFaceLightList(const CStateManager& mgr, const CGameArea&
           explosionLight.GetAttenuationLinear() * g_tweakGui->GetExplosionLightFalloffMultLinear(),
           explosionLight.GetAttenuationQuadratic() * g_tweakGui->GetExplosionLightFalloffMultQuadratic());
       zeus::CVector3f camToExplo = explosion->GetTranslation() - fpTransform.origin;
-      if (fpTransform.transposeRotate(camToExplo).dot(zeus::skForward) >= 0.f) {
+      if (fpTransform.TransposeRotate(camToExplo).dot(zeus::skForward) >= 0.f) {
         camToExplo.y() = -camToExplo.y() + ITweakGui::FaceReflectionDistanceDebugValueToActualValue(
                                                g_tweakGui->GetFaceReflectionDistance());
         camToExplo.z() = -camToExplo.z() +

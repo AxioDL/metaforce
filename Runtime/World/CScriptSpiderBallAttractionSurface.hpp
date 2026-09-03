@@ -16,7 +16,7 @@ class CScriptSpiderBallAttractionSurface : public CActor {
 public:
   DEFINE_ENTITY
   CScriptSpiderBallAttractionSurface(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                     const zeus::CTransform& xf, const zeus::CVector3f& scale, bool active);
+                                     const zeus::CTransform4f& xf, const zeus::CVector3f& scale, bool active);
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;

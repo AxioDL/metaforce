@@ -238,7 +238,7 @@ CRidleyData::CRidleyData(CInputStream& in, u32 propCount)
 , x3f8_(CSfxManager::TranslateSFXID(in.ReadLong()))
 , x3fc_(propCount > 47 ? CDamageInfo(in) : x48_) {}
 
-CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                  CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, CInputStream& in,
                  u32 propCount)
 : CPatterned(EPatternedAI::Ridley, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
@@ -261,7 +261,7 @@ CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
 , xb68_(x568_data.x44_, x568_data.x48_)
 , xb90_headSegId(GetModelData()->GetAnimationData()->GetLocatorSegId("Head_1"sv))
 , xb91_mouthSegId(GetModelData()->GetAnimationData()->GetLocatorSegId("mouth_LCTR"sv))
-, xb94_(zeus::CTransform::RotateX(zeus::degToRad(-40.f)))
+, xb94_(zeus::CTransform4f::RotateX(zeus::degToRad(-40.f)))
 , xc14_(x568_data.xac_, x568_data.xb0_)
 , xc3c_(x568_data.x1a0_, x568_data.x1a4_)
 , xc8c_(CPatterned::GetContactDamage())
@@ -436,7 +436,7 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
             if (xb10_ >= xcbc_ && xa33_26_ && !xa31_31_ && lowHealth > x568_data.x3f4_) {
               dontKnockback = true;
               x450_bodyController->GetCommandMgr().DeliverCmd(
-                  CBCKnockBackCmd(GetTransform().basis[1], pas::ESeverity::Zero));
+                  CBCKnockBackCmd(GetTransform().GetForward(), pas::ESeverity::Zero));
             } else {
               xa32_27_ = true;
               dontKnockback = true;
@@ -467,8 +467,8 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
         }
       } else if (xc64_aiStage == 3) {
         if (xa32_29_) {
-          zeus::CTransform xf = GetLctrTransform(xb90_headSegId);
-          if ((mgr.GetPlayer().GetTranslation() - xf.origin).dot(xf.frontVector()) < 0.5f) {
+          zeus::CTransform4f xf = GetLctrTransform(xb90_headSegId);
+          if ((mgr.GetPlayer().GetTranslation() - xf.origin).dot(xf.GetForward()) < 0.5f) {
             HealthInfo(mgr)->SetHP(xb1c_ + xb10_ + xb18_);
             break;
           }
@@ -503,7 +503,7 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
               xcbc_ = 0.6667f * x568_data.x40_;
             } else if (xb18_ < xcbc_) {
               x450_bodyController->GetCommandMgr().DeliverCmd(
-                  CBCKnockBackCmd(GetTransform().basis[1], pas::ESeverity::Six));
+                  CBCKnockBackCmd(GetTransform().GetForward(), pas::ESeverity::Six));
               xcbc_ -= (0.333f * x568_data.x3c_);
             }
           } else {
@@ -515,7 +515,7 @@ void CRidley::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMan
             } else if (xb1c_ < xcbc_) {
               dontKnockback = true;
               x450_bodyController->GetCommandMgr().DeliverCmd(
-                  CBCKnockBackCmd(GetTransform().basis[1], pas::ESeverity::Six));
+                  CBCKnockBackCmd(GetTransform().GetForward(), pas::ESeverity::Six));
               xcbc_ -= (0.333f * x568_data.x40_);
             }
           }
@@ -603,7 +603,7 @@ void CRidley::Think(float dt, CStateManager& mgr) {
   xb2c_.Update(dt);
 }
 
-void CRidley::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CRidley::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   CPatterned::PreRender(mgr, frustum);
   xb2c_.PreRender(mgr, *GetModelData()->GetAnimationData(), x34_transform, GetModelData()->GetScale(),
                   *x450_bodyController);
@@ -647,7 +647,7 @@ void CRidley::Render(CStateManager& mgr) {
   }
   g_Renderer->SetGXRegister1Color(multiplyColor);
 
-  const zeus::CTransform xf = GetLctrTransform(xa30_breastPlateSegId);
+  const zeus::CTransform4f xf = GetLctrTransform(xa30_breastPlateSegId);
 
   if (xa31_25_) {
     if (xb24_ > 0.f) {
@@ -668,7 +668,7 @@ void CRidley::Render(CStateManager& mgr) {
   CPatterned::Render(mgr);
 }
 
-void CRidley::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CRidley::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   CPatterned::AddToRenderer(frustum, mgr);
   if (xce0_ && frustum.aabbFrustumTest(*xce0_->GetBounds())) {
     g_Renderer->AddParticleGen(*xce0_);
@@ -691,8 +691,8 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
       return;
     }
 
-    zeus::CTransform xf = GetLctrTransform(xa30_breastPlateSegId) * zeus::CTransform::RotateX(zeus::degToRad(-90.f));
-    xf = xf * zeus::CTransform::RotateY(
+    zeus::CTransform4f xf = GetLctrTransform(xa30_breastPlateSegId) * zeus::CTransform4f::RotateX(zeus::degToRad(-90.f));
+    xf = xf * zeus::CTransform4f::RotateY(
                   std::atan2(mgr.GetActiveRandom()->Range(-1.f, 1.f), mgr.GetActiveRandom()->Range(-1.f, 1.f)));
     xf.origin = xf * zeus::CVector3f(0.f, 1.f, 1.f);
     auto* proj =
@@ -719,7 +719,7 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
       const float z = mgr.GetActiveRandom()->Range(-1.f, 1.f);
       const auto vec = GetLctrTransform(xa30_breastPlateSegId) * zeus::CVector3f{x, 1.f, z};
       const auto dir = mgr.GetPlayer().GetTranslation() + zeus::CVector3f{10.f * x, 10.f * z, 0.f};
-      auto* proj = new CEnergyProjectile(true, xc3c_.Token(), EWeaponType::AI, zeus::lookAt(vec, dir),
+      auto* proj = new CEnergyProjectile(true, xc3c_.Token(), EWeaponType::AI, zeus::CTransform4f::LookAt(vec, dir),
                                          EMaterialTypes::Character, xc3c_.GetDamage(), mgr.AllocateUniqueId(),
                                          GetAreaIdAlways(), GetUniqueId(), mgr.GetPlayer().GetUniqueId(),
                                          EProjectileAttrib::None, false, zeus::skOne3f, {}, -1, false);
@@ -776,14 +776,14 @@ void CRidley::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUs
       break;
     }
 
-    xbf0_ = xa84_.basis[0];
+    xbf0_ = xa84_.GetRight();
     zeus::CVector3f ourPos = GetTranslation();
     if ((ourPos - xa84_.origin).dot(xbf0_) >= 30.f) {
       xbf0_ *= zeus::CVector3f(-1.f);
     }
     xbfc_ = xbf0_;
     xbe4_ = xa84_.origin - xabc_ * xbf0_;
-    xbe4_ += (mgr.GetPlayer().GetTranslation() - xa84_.origin).dot(xa84_.frontVector()) * xa84_.frontVector();
+    xbe4_ += (mgr.GetPlayer().GetTranslation() - xa84_.origin).dot(xa84_.GetForward()) * xa84_.GetForward();
     break;
   }
   case EUserEventType::EndAction: {
@@ -934,7 +934,7 @@ void CRidley::ConstrainToHenge(float dt) {
     zeus::CVector3f posDiff = GetTranslation() - xa84_.origin;
     float mag = posDiff.magnitude();
     posDiff *= zeus::CVector3f(1.f / mag);
-    if (xab4_ + -6.f * zeus::clamp(-1.f, posDiff.dot(xa84_.basis[1]), 0.f) < mag && GetVelocity().dot(posDiff) > 0.f) {
+    if (xab4_ + -6.f * zeus::clamp(-1.f, posDiff.dot(xa84_.GetForward()), 0.f) < mag && GetVelocity().dot(posDiff) > 0.f) {
       Stop();
     }
 
@@ -948,11 +948,11 @@ void CRidley::UpdateBeam(float dt, CStateManager& mgr) {
       return;
     }
 
-    zeus::CTransform mouthXf = GetLctrTransform(xb91_mouthSegId);
+    zeus::CTransform4f mouthXf = GetLctrTransform(xb91_mouthSegId);
     if (xc64_aiStage == 3) {
       proj->UpdateFx(mouthXf, dt, mgr);
     } else {
-      zeus::CTransform xf = zeus::lookAt(xf.origin, xbe4_);
+      zeus::CTransform4f xf = zeus::CTransform4f::LookAt(xf.origin, xbe4_);
       proj->UpdateFx(xf, dt, mgr);
       float d;
       if (xbf0_.cross(zeus::skUp).dot(mgr.GetPlayer().GetTranslation() + zeus::skUp) <= 0.f)
@@ -977,7 +977,7 @@ void CRidley::UpdateBeam(float dt, CStateManager& mgr) {
 
 void CRidley::UpdateWingElectricity(float dt, CStateManager& mgr) {
   if (xce0_) {
-    xce0_->SetGlobalOrientation(GetTransform().getRotation());
+    xce0_->SetGlobalOrientation(GetTransform().GetRotation());
     xce0_->SetGlobalTranslation(GetTranslation());
     xce0_->SetGlobalScale(GetModelData()->GetScale());
 
@@ -999,7 +999,7 @@ void CRidley::UpdateWingElectricity(float dt, CStateManager& mgr) {
           max = xce4_wingBoneIds.size() - 6;
         else
           min = xce4_wingBoneIds.size() - 12;
-        zeus::CTransform xf = GetModelData()->GetAnimationData()->GetLocatorTransform(
+        zeus::CTransform4f xf = GetModelData()->GetAnimationData()->GetLocatorTransform(
             xce4_wingBoneIds[mgr.GetActiveRandom()->Range(min, max)], nullptr);
         xce0_->SetOverrideFPos(xf.origin);
         xce0_->ForceParticleCreation(1);
@@ -1040,8 +1040,8 @@ void CRidley::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
 
 void CRidley::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    xbe4_ = (GetTranslation() + zeus::skUp) - (8.f * GetTransform().rightVector());
-    xbfc_ = xbf0_ = GetTransform().rightVector();
+    xbe4_ = (GetTranslation() + zeus::skUp) - (8.f * GetTransform().GetRight());
+    xbfc_ = xbf0_ = GetTransform().GetRight();
     xc08_ = xc0c_ = 0.f;
     xc10_ = 240.f;
     x32c_animState = EAnimState::Ready;
@@ -1068,7 +1068,7 @@ void CRidley::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) {
     if (xa32_31_) {
       xa33_24_ = false;
       xbc4_ = GetTranslation();
-      xbd0_ = GetTransform().basis[1];
+      xbd0_ = GetTransform().GetForward();
     } else {
       xa33_24_ = (GetTranslation() - xa84_.origin).magSquared() < 0.f;
 
@@ -1082,10 +1082,10 @@ void CRidley::LoopedAttack(CStateManager& mgr, EStateMsg msg, float arg) {
 
         if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(uid)) {
           zeus::CVector3f wpPos = wp->GetTranslation();
-          const float mag = xa84_.basis[0].dot(wpPos - xa84_.origin);
+          const float mag = xa84_.GetRight().dot(wpPos - xa84_.origin);
           if ((xa33_24_ && mag > 0.f) || (!xa33_24_ && mag <= 0.f)) {
             xbc4_ = wp->GetTranslation();
-            xbd0_ = wp->GetTransform().basis[1];
+            xbd0_ = wp->GetTransform().GetForward();
             x2ec_reflectedDestPos = GetTranslation();
             break;
           }
@@ -1199,7 +1199,7 @@ void CRidley::JumpBack(CStateManager& mgr, EStateMsg msg, float arg) {
     x32c_animState = EAnimState::Ready;
     SetMomentumWR(zeus::skZero3f);
     x328_25_verticalMovement = true;
-    SetDestPos(xa84_.origin + (xabc_ * xa84_.basis[1]) + zeus::CVector3f(0.f, 0.f, xac0_));
+    SetDestPos(xa84_.origin + (xabc_ * xa84_.GetForward()) + zeus::CVector3f(0.f, 0.f, xac0_));
     RemoveMaterial(EMaterialTypes::Solid, mgr);
     CMaterialList include = GetMaterialFilter().GetIncludeList();
     CMaterialList exclude = GetMaterialFilter().GetExcludeList();
@@ -1208,9 +1208,9 @@ void CRidley::JumpBack(CStateManager& mgr, EStateMsg msg, float arg) {
     SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(include, exclude));
     xa32_26_ = false;
     xc7c_ =
-        zeus::CVector2f::getAngleDiff((x2e0_destPos - GetTranslation()).toVec2f(), GetTransform().basis[1].toVec2f());
+        zeus::CVector2f::getAngleDiff((x2e0_destPos - GetTranslation()).toVec2f(), GetTransform().GetForward().toVec2f());
 
-    if (GetTransform().basis[0].dot(x2e0_destPos - GetTranslation()) > 0.f)
+    if (GetTransform().GetRight().dot(x2e0_destPos - GetTranslation()) > 0.f)
       xc7c_ = -xc7c_;
     xc78_ = 0.f;
 
@@ -1284,7 +1284,7 @@ void CRidley::Crouch(metaforce::CStateManager& mgr, metaforce::EStateMsg msg, fl
       return;
 
     zeus::CVector3f faceDir = (mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized();
-    if (faceDir.dot(GetTransform().basis[1]) < 0.9f)
+    if (faceDir.dot(GetTransform().GetForward()) < 0.9f)
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(zeus::skZero3f, faceDir, 1.f));
   }
 }
@@ -1335,8 +1335,8 @@ void CRidley::Lurk(metaforce::CStateManager& mgr, metaforce::EStateMsg msg, floa
     if (!xa33_25_) {
       zeus::CVector3f vec = GetTranslation() - xa84_.origin;
       vec.z() = 0.f;
-      arg = zeus::CVector3f::getAngleDiff(xa84_.basis[1], vec);
-      if (vec.dot(xa84_.basis[0]) < 0.f)
+      arg = zeus::CVector3f::getAngleDiff(xa84_.GetForward(), vec);
+      if (vec.dot(xa84_.GetRight()) < 0.f)
         arg = -arg;
 
       if (std::fabs(mgr.GetActiveRandom()->Range(-1.2566371f, 1.2566371f) - arg) >= 0.39269909f) {
@@ -1352,8 +1352,8 @@ void CRidley::Lurk(metaforce::CStateManager& mgr, metaforce::EStateMsg msg, floa
     float f0 = xabc_ * std::sin(0.f);
     zeus::CVector3f destPos = xa84_ * zeus::CVector3f(f0, f31, f30);
     SetDestPos(destPos);
-    zeus::CVector3f vec = GetTransform().basis[1].toVec2f().normalized();
-    zeus::CTransform xf(vec.cross(zeus::skUp), vec, zeus::skUp, GetTranslation());
+    zeus::CVector3f vec = GetTransform().GetForward().toVec2f().normalized();
+    zeus::CTransform4f xf(vec.cross(zeus::skUp), vec, zeus::skUp, GetTranslation());
     SetTransform(xf);
     xa33_27_ = false;
     xa34_26_ = false;
@@ -1396,7 +1396,7 @@ void CRidley::Hurled(CStateManager& mgr, EStateMsg msg, float arg) {
     return;
 
   SetStage3BreastVulnerability(mgr);
-  x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(GetTransform().frontVector(), pas::ESeverity::Four));
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(GetTransform().GetForward(), pas::ESeverity::Four));
 }
 
 void CRidley::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float arg) {
@@ -1452,7 +1452,7 @@ void CRidley::Explode(CStateManager& mgr, EStateMsg msg, float arg) {
 void CRidley::Dodge(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     const zeus::CVector3f vec = zeus::CVector3f{GetTranslation().toVec2f() - xa84_.origin.toVec2f()}.normalized();
-    float dist = zeus::clamp(0.f, 2.f * vec.dot(xa84_.rightVector()) + 1.f, 1.f);
+    float dist = zeus::clamp(0.f, 2.f * vec.dot(xa84_.GetRight()) + 1.f, 1.f);
 
     xc84_ = 2;
     if (dist < mgr.GetActiveRandom()->Float()) {
@@ -1513,7 +1513,7 @@ void CRidley::Enraged(CStateManager& mgr, EStateMsg msg, float arg) {
     zeus::CVector3f vec = (mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f()).normalized();
     mgr.AddObject(new CExplosion(
         x98c_, mgr.AllocateUniqueId(), true, CEntityInfo(GetAreaIdAlways(), NullConnectionList), ""sv,
-        zeus::CTransform(vec.cross(zeus::skUp), vec, zeus::skUp, mgr.GetPlayer().GetTranslation() - (20.f * vec)), 0,
+        zeus::CTransform4f(vec.cross(zeus::skUp), vec, zeus::skUp, mgr.GetPlayer().GetTranslation() - (20.f * vec)), 0,
         zeus::skOne3f, zeus::skWhite));
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::Step, &CPatterned::TryDodge, 4);
@@ -1583,7 +1583,7 @@ bool CRidley::TooClose(CStateManager& mgr, float arg) {
     return false;
 
   zeus::CVector3f diff = mgr.GetPlayer().GetTranslation() - GetTranslation();
-  if (diff.magnitude() < x2fc_minAttackRange && 0.7f * diff.magnitude() < diff.dot(GetTransform().basis[1])) {
+  if (diff.magnitude() < x2fc_minAttackRange && 0.7f * diff.magnitude() < diff.dot(GetTransform().GetForward())) {
     xb0c_ = 4;
     return true;
   }
@@ -1624,7 +1624,7 @@ bool CRidley::ShouldMove(metaforce::CStateManager& mgr, float arg) {
 
   zeus::CVector3f diffVec = mgr.GetPlayer().GetTranslation() - GetTranslation();
   float mag = diffVec.magnitude();
-  if (x300_maxAttackRange < mag && 0.8f * mag < diffVec.dot(GetTransform().basis[1]) && sub80253960()) {
+  if (x300_maxAttackRange < mag && 0.8f * mag < diffVec.dot(GetTransform().GetForward()) && sub80253960()) {
     xa34_25_ = true;
     xb0c_ = 5;
     return true;
@@ -1649,7 +1649,7 @@ bool CRidley::IsDizzy(CStateManager& mgr, float arg) {
 
   if (xb08_ != 3) {
     zeus::CVector3f diff = mgr.GetPlayer().GetTranslation() - GetTranslation();
-    if (diff.magnitude() < x300_maxAttackRange && diff.dot(GetTransform().basis[1]) < 0.f) {
+    if (diff.magnitude() < x300_maxAttackRange && diff.dot(GetTransform().GetForward()) < 0.f) {
       xb0c_ = 3;
       return true;
     }
@@ -1717,7 +1717,7 @@ void CRidley::ChooseStage3Attack(metaforce::CStateManager& mgr) {
 
   zeus::CVector3f diff = mgr.GetPlayer().GetTranslation() - GetTranslation();
   float diffMag = diff.magnitude();
-  float frontMag = (diff * (1.f / diffMag)).dot(GetTransform().basis[1]);
+  float frontMag = (diff * (1.f / diffMag)).dot(GetTransform().GetForward());
   if ((xb0c_ == 2 && frontMag < 0.5f) || (xb0c_ == 5 && frontMag < 0.8f))
     xb0c_ = 0;
 

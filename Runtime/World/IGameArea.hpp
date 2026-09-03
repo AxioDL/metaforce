@@ -7,7 +7,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -34,7 +34,7 @@ public:
     const rstl::reserved_vector<zeus::CVector3f, 4>& GetPlaneVertices() const { return x14_planeVertices; }
     s32 GetReferenceCount() const { return x0_referenceCount; }
     const std::vector<SDockReference>& GetDockRefs() const { return x4_dockReferences; }
-    Dock(CInputStream& in, const zeus::CTransform& xf);
+    Dock(CInputStream& in, const zeus::CTransform4f& xf);
     TAreaId GetConnectedAreaId(s32 other) const;
     s16 GetOtherDockNumber(s32 other) const;
     bool GetShouldLoadOther(s32 other) const;
@@ -55,7 +55,7 @@ public:
   virtual TAreaId IGetAttachedAreaId(int) const = 0;
   virtual u32 IGetNumAttachedAreas() const = 0;
   virtual CAssetId IGetStringTableAssetId() const = 0;
-  virtual const zeus::CTransform& IGetTM() const = 0;
+  virtual const zeus::CTransform4f& IGetTM() const = 0;
 };
 
 enum class EChain {

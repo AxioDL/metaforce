@@ -67,7 +67,7 @@ void CFluidPlaneManager::CreateSplash(TUniqueId splasher, CStateManager& mgr, co
     if (water.GetSplashEffect(factor)) {
       CExplosion* expl = new CExplosion(*water.GetSplashEffect(factor), mgr.AllocateUniqueId(), true,
                                         CEntityInfo(water.GetAreaIdAlways(), CEntity::NullConnectionList), "Splash",
-                                        zeus::CTransform(zeus::CMatrix3f(), pos), 1, zeus::CVector3f{splashScale},
+                                        zeus::CTransform4f(zeus::CMatrix3f(), pos), 1, zeus::CVector3f{splashScale},
                                         water.GetSplashColor());
       mgr.AddObject(expl);
     }

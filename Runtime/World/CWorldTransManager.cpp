@@ -176,20 +176,20 @@ void CWorldTransManager::DrawPlatformModels(CActorLights* lights) {
   // TODO flags.m_extendedShader = EExtendedShader::Lighting;
 
   if (!x4_modelData->x100_bgModelData[0].IsNull()) {
-    zeus::CTransform xf0 = zeus::CTransform::Translate(0.f, 0.f, -(2.f * x1c_bgHeight - x18_bgOffset));
+    zeus::CTransform4f xf0 = zeus::CTransform4f::Translate(0.f, 0.f, -(2.f * x1c_bgHeight - x18_bgOffset));
     x4_modelData->x100_bgModelData[0].Render(CModelData::EWhichModel::Normal, xf0, lights, flags);
   }
   if (!x4_modelData->x100_bgModelData[1].IsNull()) {
-    zeus::CTransform xf1 = zeus::CTransform::Translate(0.f, 0.f, x18_bgOffset - x1c_bgHeight);
+    zeus::CTransform4f xf1 = zeus::CTransform4f::Translate(0.f, 0.f, x18_bgOffset - x1c_bgHeight);
     x4_modelData->x100_bgModelData[1].Render(CModelData::EWhichModel::Normal, xf1, lights, flags);
   }
   if (!x4_modelData->x100_bgModelData[2].IsNull()) {
-    zeus::CTransform xf2 = zeus::CTransform::Translate(0.f, 0.f, x18_bgOffset);
+    zeus::CTransform4f xf2 = zeus::CTransform4f::Translate(0.f, 0.f, x18_bgOffset);
     x4_modelData->x100_bgModelData[2].Render(CModelData::EWhichModel::Normal, xf2, lights, flags);
   }
 
   if (!x4_modelData->xb4_platformModelData.IsNull()) {
-    x4_modelData->xb4_platformModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform(), lights, flags);
+    x4_modelData->xb4_platformModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform4f(), lights, flags);
   }
 }
 
@@ -204,7 +204,7 @@ void CWorldTransManager::DrawAllModels(CActorLights* lights) {
     // TODO flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
 
     x4_modelData->x1c_samusModelData.GetAnimationData()->PreRender();
-    x4_modelData->x1c_samusModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform(), lights, flags);
+    x4_modelData->x1c_samusModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform4f(), lights, flags);
 
     if (!x4_modelData->x68_beamModelData.IsNull()) {
       x4_modelData->x68_beamModelData.Render(CModelData::EWhichModel::Normal, x4_modelData->x170_gunXf, lights, flags);
@@ -213,11 +213,11 @@ void CWorldTransManager::DrawAllModels(CActorLights* lights) {
 }
 
 void CWorldTransManager::DrawFirstPass(CActorLights* lights) {
-  zeus::CTransform translateXf = zeus::CTransform::Translate(
+  zeus::CTransform4f translateXf = zeus::CTransform4f::Translate(
       x4_modelData->x1b4_shakeResult.x(), -3.5f * (1.f - zeus::clamp(0.f, x0_curTime / 10.f, 1.f)) - 3.5f,
       x4_modelData->x1b4_shakeResult.y() + 2.f);
-  zeus::CTransform rotateXf =
-      zeus::CTransform::RotateZ(zeus::degToRad(zeus::clamp(0.f, x0_curTime / 25.f, 100.f) * 360.f + 180.f - 90.f));
+  zeus::CTransform4f rotateXf =
+      zeus::CTransform4f::RotateZ(zeus::degToRad(zeus::clamp(0.f, x0_curTime / 25.f, 100.f) * 360.f + 180.f - 90.f));
   CGraphics::SetViewPointMatrix(rotateXf * translateXf);
   DrawAllModels(lights);
   if (x4_modelData->x1c8_blurResult > 0.f) {
@@ -231,9 +231,9 @@ void CWorldTransManager::DrawFirstPass(CActorLights* lights) {
 
 void CWorldTransManager::DrawSecondPass(CActorLights* lights) {
   const zeus::CVector3f& samusScale = x4_modelData->x0_samusRes.GetScale();
-  zeus::CTransform translateXf =
-      zeus::CTransform::Translate(-0.1f * samusScale.x(), -0.5f * samusScale.y(), 1.5f * samusScale.z());
-  zeus::CTransform rotateXf = zeus::CTransform::RotateZ(zeus::degToRad(
+  zeus::CTransform4f translateXf =
+      zeus::CTransform4f::Translate(-0.1f * samusScale.x(), -0.5f * samusScale.y(), 1.5f * samusScale.z());
+  zeus::CTransform4f rotateXf = zeus::CTransform4f::RotateZ(zeus::degToRad(
       48.f * zeus::clamp(0.f, (x0_curTime - x4_modelData->x1d0_dissolveStartTime + 2.f) / 5.f, 1.f) + 180.f - 24.f));
   CGraphics::SetViewPointMatrix(rotateXf * translateXf);
   DrawAllModels(lights);
@@ -286,8 +286,8 @@ void CWorldTransManager::DrawText() {
   SCOPED_GRAPHICS_DEBUG_GROUP("CWorldTransManager::DrawText", zeus::skPurple);
   float width = 448.f * CGraphics::GetViewportAspect();
   CGraphics::SetOrtho(0.f, width, 448.f, 0.f, -4096.f, 4096.f);
-  CGraphics::SetViewPointMatrix(zeus::CTransform());
-  CGraphics::SetModelMatrix(zeus::CTransform::Translate((width - 640.f) / 2.f, 0.f, 448.f));
+  CGraphics::SetViewPointMatrix(zeus::CTransform4f());
+  CGraphics::SetModelMatrix(zeus::CTransform4f::Translate((width - 640.f) / 2.f, 0.f, 448.f));
   // g_Renderer->SetViewportOrtho(false, -4096.f, 4096.f);
   // g_Renderer->SetModelMatrix(zeus::CTransform::Translate(0.f, 0.f, 0.f));
   CGraphics::SetCullMode(ERglCullMode::None);

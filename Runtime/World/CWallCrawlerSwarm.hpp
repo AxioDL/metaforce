@@ -14,7 +14,7 @@
 
 #include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -25,7 +25,7 @@ public:
   enum class EFlavor { Parasite, Scarab, Crab };
   class CBoid {
     friend class CWallCrawlerSwarm;
-    zeus::CTransform x0_xf;
+    zeus::CTransform4f x0_xf;
     zeus::CVector3f x30_velocity;
     TUniqueId x3c_targetWaypoint = kInvalidUniqueId;
     zeus::CColor x40_ambientLighting = zeus::CColor(0.3f, 0.3f, 0.3f, 1.f);
@@ -45,11 +45,11 @@ public:
     bool x80_28_nearPlayer : 1 = false;
 
   public:
-    CBoid(const zeus::CTransform& xf, int idx) : x0_xf(xf), x7c_idx(idx) {}
+    CBoid(const zeus::CTransform4f& xf, int idx) : x0_xf(xf), x7c_idx(idx) {}
 
-    zeus::CTransform& Transform() { return x0_xf; }
+    zeus::CTransform4f& Transform() { return x0_xf; }
     zeus::CVector3f& Translation() { return x0_xf.origin; }
-    const zeus::CTransform& GetTransform() const { return x0_xf; }
+    const zeus::CTransform4f& GetTransform() const { return x0_xf; }
     const zeus::CVector3f& GetTranslation() const { return x0_xf.origin; }
     bool GetActive() const { return x80_24_active; }
   };
@@ -154,7 +154,7 @@ private:
                        float attractionMagnitude, zeus::CVector3f& aheadVec) const;
   void UpdateBoid(const CAreaCollisionCache& ccache, CStateManager& mgr, float dt, CBoid& boid);
   void LaunchBoid(CBoid& boid, const zeus::CVector3f& dir);
-  void AddParticle(const zeus::CTransform& xf);
+  void AddParticle(const zeus::CTransform4f& xf);
   void KillBoid(CBoid& boid, CStateManager& mgr, float deathRattleChance, float deadChance);
   void UpdatePartition();
   zeus::CVector3f FindClosestCell(const zeus::CVector3f& pos) const;
@@ -168,7 +168,7 @@ private:
 public:
   DEFINE_ENTITY
   CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
-                    const zeus::CVector3f& boundingBoxExtent, const zeus::CTransform& xf, EFlavor flavor,
+                    const zeus::CVector3f& boundingBoxExtent, const zeus::CTransform4f& xf, EFlavor flavor,
                     const CAnimRes& animRes, s32 launchAnim, s32 attractAnim, CAssetId part1, CAssetId part2,
                     CAssetId part3, CAssetId part4, const CDamageInfo& crabDamage,
                     const CDamageInfo& scarabExplodeDamage, float crabDamageCooldown, float boidRadius,
@@ -182,8 +182,8 @@ public:
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustumPlanes&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager&) override;
   bool CanRenderUnsorted(const CStateManager&) const override;
   void CalculateRenderBounds() override;

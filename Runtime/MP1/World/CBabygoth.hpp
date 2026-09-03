@@ -164,7 +164,7 @@ private:
 
   void DestroyShell(CStateManager& mgr);
 
-  void CrackShell(CStateManager&, const TLockedToken<CGenDescription>&, const zeus::CTransform&, u16, bool);
+  void CrackShell(CStateManager&, const TLockedToken<CGenDescription>&, const zeus::CTransform4f&, u16, bool);
 
   void UpdateHealth(CStateManager&);
 
@@ -179,12 +179,12 @@ private:
 public:
   DEFINE_PATTERNED(Babygoth);
 
-  CBabygoth(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CBabygoth(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
             const CPatternedInfo&, const CActorParameters&, const CBabygothData&);
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override {
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override {
     CPatterned::PreRender(mgr, frustum);
     xb4_drawFlags.x1_matSetIdx = u8(xa04_drawMaterialIdx);
   }

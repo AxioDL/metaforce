@@ -15,7 +15,7 @@ class CMetroidPrimeStage2 : public CPatterned {
   std::unique_ptr<CElementGen> x65c_;
   CAssetId x660_;
   CAssetId x664_;
-  zeus::CTransform x668_;
+  zeus::CTransform4f x668_;
   CDamageInfo x698_;
   zeus::CVector3f x6b4_;
   float x6c0_ = 0.f;
@@ -50,7 +50,7 @@ class CMetroidPrimeStage2 : public CPatterned {
 
   void sub8027cb40(const zeus::CVector3f& vec);
   void sub8027cce0(CStateManager& mgr);
-  zeus::CTransform GetTargetTransform(CStateManager& mgr);
+  zeus::CTransform4f GetTargetTransform(CStateManager& mgr);
   void sub8027ce5c(float f1);
   void sub8027cee0(CStateManager& mgr);
   u32 sub8027cfd4(CStateManager& mgr, bool w1);
@@ -61,7 +61,7 @@ class CMetroidPrimeStage2 : public CPatterned {
   CRayCastResult RayStaticIntersection(CStateManager& mgr);
   void SetParticleEffectState(CStateManager& mgr, bool active);
   void sub8027d824(CStateManager& mgr);
-  bool sub8027e870(const zeus::CTransform& xf, CStateManager& mgr);
+  bool sub8027e870(const zeus::CTransform4f& xf, CStateManager& mgr);
   void KillAiInArea(CStateManager& mgr);
   void CountListeningAi(CStateManager& mgr);
   void UpdatePhase(float dt, CStateManager& mgr);
@@ -73,15 +73,15 @@ class CMetroidPrimeStage2 : public CPatterned {
 public:
   DEFINE_PATTERNED(MetroidPrimeEssence);
 
-  CMetroidPrimeStage2(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CMetroidPrimeStage2(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                        CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
                        CAssetId particle1, const CDamageInfo& dInfo, float f1, CAssetId electric, u32 w1,
                        CAssetId particle2);
 
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, CStateManager& mgr) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   void Render(CStateManager& mgr) override;
   zeus::CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;

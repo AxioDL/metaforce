@@ -74,7 +74,7 @@ void CActorModelParticles::CItem::GeneratePoints(const SSkinningWorkspace& works
       zeus::CVector3f v{normA.x, normA.y, normA.z};
       if (v.canBeNormalized()) {
         v.normalize();
-        x78_ashGen->SetOrientation(zeus::CTransform{v.cross(zeus::skUp), v, zeus::skUp, zeus::skZero3f});
+        x78_ashGen->SetOrientation(zeus::CTransform4f{v.cross(zeus::skUp), v, zeus::skUp, zeus::skZero3f});
       }
       x78_ashGen->ForceParticleCreation(1);
     }
@@ -98,7 +98,7 @@ void CActorModelParticles::CItem::GeneratePoints(const SSkinningWorkspace& works
 
     iceGen->SetTranslation(xec_particleOffsetScale * vert);
 
-    iceGen->SetOrientation(zeus::CTransform::MakeRotationsBasedOnY(zeus::CUnitVector3f(norm)));
+    iceGen->SetOrientation(zeus::CTransform4f::MakeRotationsBasedOnY(zeus::CUnitVector3f(norm)));
 
     x8c_iceGens.push_back(std::move(iceGen));
     xb0_icePointIterator = (x8c_iceGens.size() == 4 ? -1 : idx);
@@ -268,7 +268,7 @@ bool CActorModelParticles::CItem::UpdateElectric(float dt, CActor* actor, CState
       xc0_electricGen.reset();
     } else {
       if (actor && actor->GetActive()) {
-        xc0_electricGen->SetGlobalOrientation(actor->GetTransform().getRotation());
+        xc0_electricGen->SetGlobalOrientation(actor->GetTransform().GetRotation());
         xc0_electricGen->SetGlobalTranslation(actor->GetTranslation());
       }
       if (!actor || actor->GetActive()) {
@@ -655,7 +655,7 @@ void CActorModelParticles::RemoveRainSplashGenerator(CActor& act) {
 }
 
 void CActorModelParticles::Render(const CStateManager& mgr, const CActor& actor) const {
-  zeus::CTransform backupModel = CGraphics::mModelMatrix;
+  zeus::CTransform4f backupModel = CGraphics::mModelMatrix;
   auto search = FindSystem(actor.GetUniqueId());
   if (search == x0_items.end())
     return;

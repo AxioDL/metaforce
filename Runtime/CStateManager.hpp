@@ -250,9 +250,9 @@ public:
   void RenderCamerasAndAreaLights();
   void DrawE3DeathEffect();
   void DrawAdditionalFilters();
-  zeus::CFrustum SetupDrawFrustum(const CViewport& vp) const;
-  zeus::CFrustum SetupViewForDraw(const CViewport& vp) const;
-  void ResetViewAfterDraw(const CViewport& backupViewport, const zeus::CTransform& backupViewMatrix) const;
+  zeus::CFrustumPlanes SetupDrawFrustum(const CViewport& vp) const;
+  zeus::CFrustumPlanes SetupViewForDraw(const CViewport& vp) const;
+  void ResetViewAfterDraw(const CViewport& backupViewport, const zeus::CTransform4f& backupViewMatrix) const;
   void DrawWorld();
   void SetupFogForArea3XRange(TAreaId area) const;
   void SetupFogForArea(TAreaId area) const;

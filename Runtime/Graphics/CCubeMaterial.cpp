@@ -386,18 +386,18 @@ u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, GXTexMtx texMtx, GXPTTexM
   const float* params = reinterpret_cast<const float*>(uvAnim + 1);
   switch (type) {
   case 0: {
-    auto xf = CGraphics::GetViewMatrix().quickInverse().multiplyIgnoreTranslation(CGraphics::GetModelMatrix());
+    auto xf = CGraphics::GetViewMatrix().QuickInverse().MultiplyIgnoreTranslation(CGraphics::GetModelMatrix());
     xf.origin.zeroOut();
     Mtx mtx;
-    xf.toCStyleMatrix(mtx);
+    xf.GetCStyleMatrix(mtx);
     GXLoadTexMtxImm(mtx, texMtx, GX_MTX3x4);
     GXLoadTexMtxImm(postMtx, ptTexMtx, GX_MTX3x4);
     return 1;
   }
   case 1: {
-    auto xf = CGraphics::GetViewMatrix().quickInverse() * CGraphics::GetModelMatrix();
+    auto xf = CGraphics::GetViewMatrix().QuickInverse() * CGraphics::GetModelMatrix();
     Mtx mtx;
-    xf.toCStyleMatrix(mtx);
+    xf.GetCStyleMatrix(mtx);
     GXLoadTexMtxImm(mtx, texMtx, GX_MTX3x4);
     GXLoadTexMtxImm(postMtx, ptTexMtx, GX_MTX3x4);
     return 1;
@@ -459,19 +459,19 @@ u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, GXTexMtx texMtx, GXPTTexM
         {0.f, 0.f, 0.5f, 0.f},
         {0.f, 0.f, 0.f, 1.f},
     };
-    const zeus::CTransform& mm = CGraphics::GetModelMatrix();
+    const zeus::CTransform4f& mm = CGraphics::GetModelMatrix();
     Mtx tmpTexMtx;
     Mtx tmpPtMtx;
     memcpy(&tmpTexMtx, &sTexMtx, sizeof(Mtx));
-    tmpTexMtx[0][0] = mm.basis[0][0];
-    tmpTexMtx[0][1] = mm.basis[1][0];
-    tmpTexMtx[0][2] = mm.basis[2][0];
-    tmpTexMtx[1][0] = mm.basis[0][1];
-    tmpTexMtx[1][1] = mm.basis[1][1];
-    tmpTexMtx[1][2] = mm.basis[2][1];
-    tmpTexMtx[2][0] = mm.basis[0][2];
-    tmpTexMtx[2][1] = mm.basis[1][2];
-    tmpTexMtx[2][2] = mm.basis[2][2];
+    tmpTexMtx[0][0] = mm.GetRight()[0];
+    tmpTexMtx[0][1] = mm.GetForward()[0];
+    tmpTexMtx[0][2] = mm.GetUp()[0];
+    tmpTexMtx[1][0] = mm.GetRight()[1];
+    tmpTexMtx[1][1] = mm.GetForward()[1];
+    tmpTexMtx[1][2] = mm.GetUp()[1];
+    tmpTexMtx[2][0] = mm.GetRight()[2];
+    tmpTexMtx[2][1] = mm.GetForward()[2];
+    tmpTexMtx[2][2] = mm.GetUp()[2];
     memcpy(&tmpPtMtx, &sPtMtx, sizeof(Mtx));
     tmpPtMtx[0][3] = mm.origin.x() * 0.05f;
     tmpPtMtx[1][3] = mm.origin.y() * 0.05f;
@@ -485,8 +485,8 @@ u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, GXTexMtx texMtx, GXPTTexM
         {0.f, 0.f, 0.f, 0.f},
         {0.f, 0.f, 0.f, 1.f},
     };
-    const zeus::CTransform& vm = CGraphics::GetViewMatrix();
-    zeus::CTransform xf = vm.quickInverse().multiplyIgnoreTranslation(CGraphics::GetModelMatrix());
+    const zeus::CTransform4f& vm = CGraphics::GetViewMatrix();
+    zeus::CTransform4f xf = vm.QuickInverse().MultiplyIgnoreTranslation(CGraphics::GetModelMatrix());
     float v = SBig(params[0]) / 2.f;
     float v03 = 0.025f * (vm.origin.x() + vm.origin.y()) * SBig(params[1]);
     float v13 = 0.05f * vm.origin.z() * SBig(params[1]);
@@ -494,7 +494,7 @@ u32 CCubeMaterial::HandleAnimatedUV(const u32* uvAnim, GXTexMtx texMtx, GXPTTexM
     float v13f = std::fmod(v13, 1.f);
     xf.origin.zeroOut();
     Mtx mtx;
-    xf.toCStyleMatrix(mtx);
+    xf.GetCStyleMatrix(mtx);
     Mtx tmpPtMtx;
     memcpy(&tmpPtMtx, &sPtMtx, sizeof(Mtx));
     tmpPtMtx[0][0] = v;
@@ -614,8 +614,8 @@ void CCubeMaterial::DoModelShadow(u32 texCount, u32 tcgCount) {
   CCubeModel::sShadowTexture->Load(static_cast<GXTexMapID>(texCount), EClampMode::Repeat);
   const auto& xf = CCubeModel::sTextureProjectionTransform;
   Mtx mtx = {
-      {xf.basis[0][0], xf.basis[1][0], xf.basis[2][0], xf.origin.x()},
-      {xf.basis[0][2], xf.basis[1][2], xf.basis[2][2], xf.origin.z()},
+      {xf.GetRight()[0], xf.GetForward()[0], xf.GetUp()[0], xf.origin.x()},
+      {xf.GetRight()[2], xf.GetForward()[2], xf.GetUp()[2], xf.origin.z()},
       {0.f, 0.f, 0.f, 1.f},
   };
   GXLoadTexMtxImm(mtx, GX_TEXMTX5, GX_MTX3x4);

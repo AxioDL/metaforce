@@ -188,13 +188,13 @@ bool Sphere_Sphere_Bool(const CInternalCollisionStructure& collision) {
 CCollidableSphere::CCollidableSphere(const zeus::CSphere& sphere, const CMaterialList& list)
 : CCollisionPrimitive(list), x10_sphere(sphere) {}
 
-zeus::CSphere CCollidableSphere::Transform(const zeus::CTransform& xf) const {
+zeus::CSphere CCollidableSphere::Transform(const zeus::CTransform4f& xf) const {
   return zeus::CSphere(xf * x10_sphere.position, x10_sphere.radius);
 }
 
 u32 CCollidableSphere::GetTableIndex() const { return sTableIndex; }
 
-zeus::CAABox CCollidableSphere::CalculateAABox(const zeus::CTransform& xf) const {
+zeus::CAABox CCollidableSphere::CalculateAABox(const zeus::CTransform4f& xf) const {
   zeus::CVector3f xfPos = xf * x10_sphere.position;
   return {xfPos - x10_sphere.radius, xfPos + x10_sphere.radius};
 }

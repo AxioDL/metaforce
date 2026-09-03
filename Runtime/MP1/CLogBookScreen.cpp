@@ -106,7 +106,7 @@ void CLogBookScreen::UpdateRightTitles() {
   const int rightSelRem = 5 - rightSelMod;
   for (size_t i = 0; i < x144_model_titles.size(); ++i) {
     const float zOff = float(((int(i) >= rightSelMod) ? rightSelRem - 5 : rightSelRem)) * x38_highlightPitch;
-    x144_model_titles[i]->SetLocalTransform(zeus::CTransform::Translate(0.f, 0.f, zOff) *
+    x144_model_titles[i]->SetLocalTransform(zeus::CTransform4f::Translate(0.f, 0.f, zOff) *
                                             x144_model_titles[i]->GetTransform());
   }
 }

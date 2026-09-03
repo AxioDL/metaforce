@@ -7,7 +7,7 @@
 #include "Runtime/World/CPlayer.hpp"
 
 namespace metaforce::MP1 {
-CEnergyBall::CEnergyBall(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CEnergyBall::CEnergyBall(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                          CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo, s32 w1,
                          float f1, const CDamageInfo& dInfo1, float f2, const CAssetId& a1, s16 sfxId1,
                          const CAssetId& a2, const CAssetId& a3, s16 sfxId2, float f3, float f4, const CAssetId& a4,
@@ -95,7 +95,7 @@ void CEnergyBall::Generate(CStateManager& mgr, EStateMsg msg, float /*arg*/) {
 void CEnergyBall::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Update) {
     zeus::CVector3f seekPos = x568_steeringBehaviors.Seek(*this, mgr.GetPlayer().GetEyePosition());
-    x450_bodyController->FaceDirection3D(seekPos, GetTransform().basis[1], arg);
+    x450_bodyController->FaceDirection3D(seekPos, GetTransform().GetForward(), arg);
   }
 }
 void CEnergyBall::Detonate(CStateManager& mgr) {}

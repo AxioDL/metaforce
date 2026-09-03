@@ -12,7 +12,7 @@
 namespace metaforce {
 
 CScriptPlayerHint::CScriptPlayerHint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                     const zeus::CTransform& xf, bool active, u32 priority, u32 overrideFlags)
+                                     const zeus::CTransform4f& xf, bool active, u32 priority, u32 overrideFlags)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), {EMaterialTypes::NoStepLogic},
          CActorParameters::None(), kInvalidUniqueId)
 , x100_priority(priority)

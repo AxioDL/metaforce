@@ -6,7 +6,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/Particle/CDecal.hpp"
-#include <zeus/CFrustum.hpp>
+#include <zeus/CFrustumPlanes.hpp>
 
 namespace metaforce {
 class CStateManager;
@@ -35,9 +35,9 @@ public:
   static void Initialize();
   static void Reinitialize();
   static void Shutdown();
-  static void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr);
+  static void AddToRenderer(const zeus::CFrustumPlanes& frustum, const CStateManager& mgr);
   static void Update(float dt, CStateManager& mgr);
-  static void AddDecal(const TToken<CDecalDescription>& decal, const zeus::CTransform& xf, bool notIce,
+  static void AddDecal(const TToken<CDecalDescription>& decal, const zeus::CTransform4f& xf, bool notIce,
                        CStateManager& mgr);
 };
 

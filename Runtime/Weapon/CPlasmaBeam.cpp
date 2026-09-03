@@ -46,24 +46,24 @@ void CPlasmaBeam::DeleteBeam(CStateManager& mgr) {
     SetWorldLighting(mgr, mgr.GetPlayer().GetAreaIdAlways(), 2.f, 1.f);
 }
 
-void CPlasmaBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
+void CPlasmaBeam::PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) {
   if (x228_chargeFx && x1cc_enabledSecondaryEffect != ESecondaryFxType::None)
     x228_chargeFx->Render();
   CGunWeapon::PostRenderGunFx(mgr, xf);
 }
 
-void CPlasmaBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf) {
+void CPlasmaBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform4f& xf) {
   if (x228_chargeFx && x1cc_enabledSecondaryEffect != ESecondaryFxType::None) {
     if (x228_chargeFx->IsSystemDeletable())
       x1cc_enabledSecondaryEffect = ESecondaryFxType::None;
     x228_chargeFx->SetTranslation(xf.origin);
-    x228_chargeFx->SetOrientation(xf.getRotation());
+    x228_chargeFx->SetOrientation(xf.GetRotation());
     x228_chargeFx->Update(dt);
   }
   CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
 
-void CPlasmaBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
+void CPlasmaBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform4f& xf,
                        CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
   bool fired = false;
   if (chargeState == EChargeState::Normal) {

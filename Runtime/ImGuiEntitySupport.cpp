@@ -406,13 +406,13 @@ IMGUI_ENTITY_INSPECT(CActor, CEntity, Actor, {
   if (ImGuiVector3fInput("Position", x34_transform.origin)) {
     SetTranslation(x34_transform.origin);
   }
-  EulerAngles angles = ToEulerAngles(zeus::CQuaternion(GetTransform().getRotation().buildMatrix3f()));
+  EulerAngles angles = ToEulerAngles(zeus::CQuaternion(GetTransform().GetRotation().BuildMatrix3f()));
   zeus::CVector3f rotation = zeus::CVector3f(angles.roll, angles.pitch, angles.yaw) * zeus::skRadToDegVec;
   if (ImGuiVector3fInput("Rotation", rotation)) {
     rotation.x() = zeus::clamp(-179.999f, float(rotation.x()), 179.999f);
     rotation.y() = zeus::clamp(-89.999f, float(rotation.y()), 89.999f);
     rotation.z() = zeus::clamp(-179.999f, float(rotation.z()), 179.999f);
-    x34_transform.setRotation(zeus::CQuaternion(rotation * zeus::skDegToRadVec).toTransform().buildMatrix3f());
+    x34_transform.SetRotation(zeus::CQuaternion(rotation * zeus::skDegToRadVec).toTransform().BuildMatrix3f());
     SetTransform(x34_transform);
   }
   {

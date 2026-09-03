@@ -22,7 +22,7 @@ CBoneTracking::CBoneTracking(const CAnimData& animData, std::string_view bone, f
 
 void CBoneTracking::Update(float dt) { x18_time += dt; }
 
-void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform& xf,
+void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform4f& xf,
                               const zeus::CVector3f& vec, const CBodyController& bodyController) {
   TCastToPtr<CPatterned> patterned = bodyController.GetOwner();
 
@@ -30,7 +30,7 @@ void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, con
             (bodyController.GetBodyStateInfo().ApplyHeadTracking() && patterned && patterned->ApplyBoneTracking()));
 }
 
-void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform& worldXf,
+void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform4f& worldXf,
                               const zeus::CVector3f& localOffsetScale, bool tracking) {
   if (x14_segId == 0)
     return;
@@ -44,24 +44,24 @@ void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, con
       bone = x14_segId;
     else
       bone = layoutInfo->GetRootNode()->GetBoneMap()[x14_segId].x0_parentId;
-    zeus::CTransform parentBoneXf;
+    zeus::CTransform4f parentBoneXf;
     pb.BuildTransform(bone, parentBoneXf);
     zeus::CVector3f pos = parentBoneXf.origin;
     if (x36_27_noParentOrigin && !x36_26_noParent) {
-      zeus::CTransform thisBoneXf;
+      zeus::CTransform4f thisBoneXf;
       pb.BuildTransform(x14_segId, thisBoneXf);
       pos = thisBoneXf.origin;
     }
     parentBoneXf.origin = pos * localOffsetScale;
-    zeus::CTransform finalXf = worldXf * parentBoneXf;
+    zeus::CTransform4f finalXf = worldXf * parentBoneXf;
     zeus::CVector3f localDir =
         finalXf
-            .transposeRotate((targetAct ? targetAct->GetAimPosition(mgr, 0.f) : *x24_targetPosition) - finalXf.origin)
+            .TransposeRotate((targetAct ? targetAct->GetAimPosition(mgr, 0.f) : *x24_targetPosition) - finalXf.origin)
             .normalized();
     if (x36_28_noHorizontalAim)
       localDir = zeus::CVector3f(0.f, localDir.toVec2f().magnitude(), localDir.z());
     if (x36_29_parentIk) {
-      float negElev = -parentBoneXf.basis[1].z();
+      float negElev = -parentBoneXf.GetForward().z();
       zeus::CVector3f ikBase(0.f, std::sqrt(1.f - negElev * negElev), negElev);
       float angle = zeus::CVector3f::getAngleDiff(ikBase, localDir);
       angle = std::min(angle, x1c_maxTrackingAngle);

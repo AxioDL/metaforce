@@ -57,7 +57,7 @@ protected:
 public:
   DEFINE_ENTITY
   CGameProjectile(bool active, const TToken<CWeaponDescription>&, std::string_view name, EWeaponType wType,
-                  const zeus::CTransform& xf, EMaterialTypes excludeMat, const CDamageInfo& dInfo, TUniqueId uid,
+                  const zeus::CTransform4f& xf, EMaterialTypes excludeMat, const CDamageInfo& dInfo, TUniqueId uid,
                   TAreaId aid, TUniqueId owner, TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater,
                   const zeus::CVector3f& scale, std::optional<TLockedToken<CGenDescription>> visorParticle,
                   u16 visorSfx, bool sendCollideMsg);

@@ -34,19 +34,19 @@ public:
   void SetClipWipeActive(bool b) { x274_25_clipWipeActive = b; }
   void SetVeinsAlphaActive(bool b) { x274_26_veinsAlphaActive = b; }
   void StopBeam(CStateManager& mgr, bool b1);
-  void UpdateBeam(float dt, const zeus::CTransform& targetXf, const zeus::CVector3f& localBeamPos, CStateManager& mgr);
+  void UpdateBeam(float dt, const zeus::CTransform4f& targetXf, const zeus::CVector3f& localBeamPos, CStateManager& mgr);
   void CreateBeam(CStateManager& mgr);
 
-  void PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) override;
-  void PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) override;
-  void UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf) override;
-  void Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf, CStateManager& mgr,
+  void PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) override;
+  void PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) override;
+  void UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform4f& xf) override;
+  void Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform4f& xf, CStateManager& mgr,
             TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) override;
   void Update(float dt, CStateManager& mgr) override;
   void Load(CStateManager& mgr, bool subtypeBasePose) override;
   void Unload(CStateManager& mgr) override;
   bool IsLoaded() const override;
-  void Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
+  void Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform4f& xf, const CModelFlags& flags,
             const CActorLights* lights) override;
   void DrawMuzzleFx(const CStateManager& mgr) const override;
 };

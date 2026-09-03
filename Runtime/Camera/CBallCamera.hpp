@@ -8,7 +8,7 @@
 #include "Runtime/Camera/CGameCamera.hpp"
 
 #include <zeus/CAABox.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -70,8 +70,8 @@ public:
 
 private:
   struct SFailsafeState {
-    zeus::CTransform x0_playerXf;
-    zeus::CTransform x30_camXf;
+    zeus::CTransform4f x0_playerXf;
+    zeus::CTransform4f x30_camXf;
     zeus::CVector3f x60_lookPos;
     zeus::CVector3f x6c_behindPos;
     zeus::CVector3f x78_;
@@ -114,7 +114,7 @@ private:
   zeus::CVector3f x1c0_lookPosAhead;
   zeus::CVector3f x1cc_fixedLookPos;
   zeus::CVector3f x1d8_lookPos;
-  zeus::CTransform x1e4_nextLookXf;
+  zeus::CTransform4f x1e4_nextLookXf;
   CCameraSpring x214_ballCameraSpring;
   CCameraSpring x228_ballCameraCentroidSpring;
   CCameraSpring x23c_ballCameraLookAtSpring;
@@ -211,10 +211,10 @@ private:
   [[nodiscard]] zeus::CVector3f CalculateCollidersCentroid(const std::vector<CCameraCollider>& colliderList,
                                                            int numObscured) const;
   zeus::CVector3f ApplyColliders();
-  void UpdateColliders(const zeus::CTransform& xf, std::vector<CCameraCollider>& colliderList, int& it, int count,
+  void UpdateColliders(const zeus::CTransform4f& xf, std::vector<CCameraCollider>& colliderList, int& it, int count,
                        float tolerance, const EntityList& nearList, float dt, CStateManager& mgr);
-  zeus::CVector3f AvoidGeometry(const zeus::CTransform& xf, const EntityList& nearList, float dt, CStateManager& mgr);
-  zeus::CVector3f AvoidGeometryFull(const zeus::CTransform& xf, const EntityList& nearList, float dt,
+  zeus::CVector3f AvoidGeometry(const zeus::CTransform4f& xf, const EntityList& nearList, float dt, CStateManager& mgr);
+  zeus::CVector3f AvoidGeometryFull(const zeus::CTransform4f& xf, const EntityList& nearList, float dt,
                                     CStateManager& mgr);
   zeus::CAABox CalculateCollidersBoundingBox(const std::vector<CCameraCollider>& colliderList,
                                              CStateManager& mgr) const;
@@ -225,7 +225,7 @@ private:
   zeus::CVector3f ClampElevationToWater(zeus::CVector3f& pos, CStateManager& mgr) const;
   void UpdateTransitionFromBallCamera(CStateManager& mgr);
   void UpdateUsingTransitions(float dt, CStateManager& mgr);
-  zeus::CTransform UpdateCameraPositions(float dt, const zeus::CTransform& oldXf, const zeus::CTransform& newXf);
+  zeus::CTransform4f UpdateCameraPositions(float dt, const zeus::CTransform4f& oldXf, const zeus::CTransform4f& newXf);
   static zeus::CVector3f GetFailsafeSplinePoint(const std::vector<zeus::CVector3f>& points, float t);
   bool CheckFailsafeFromMorphBallState(CStateManager& mgr) const;
   bool SplineIntersectTest(CMaterialList& intersectMat, CStateManager& mgr) const;
@@ -240,13 +240,13 @@ private:
                                          float& eyeToOccDist, float colRadius, CStateManager& mgr);
 
 public:
-  CBallCamera(TUniqueId uid, TUniqueId watchedId, const zeus::CTransform& xf, float fovy, float znear, float zfar,
+  CBallCamera(TUniqueId uid, TUniqueId watchedId, const zeus::CTransform4f& xf, float fovy, float znear, float zfar,
               float aspect);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   void ProcessInput(const CFinalInput& input, CStateManager& mgr) override;
-  void Reset(const zeus::CTransform&, CStateManager& mgr) override;
+  void Reset(const zeus::CTransform4f&, CStateManager& mgr) override;
   void Render(CStateManager& mgr) override;
   [[nodiscard]] EBallCameraBehaviour GetBehaviour() const { return x188_behaviour; }
   [[nodiscard]] EBallCameraState GetState() const { return x400_state; }
@@ -256,11 +256,11 @@ public:
   [[nodiscard]] TUniqueId GetTooCloseActorId() const { return x3dc_tooCloseActorId; }
   [[nodiscard]] float GetTooCloseActorDistance() const { return x3e0_tooCloseActorDist; }
   void TeleportCamera(const zeus::CVector3f& pos, CStateManager& mgr);
-  void TeleportCamera(const zeus::CTransform& xf, CStateManager& mgr);
+  void TeleportCamera(const zeus::CTransform4f& xf, CStateManager& mgr);
   [[nodiscard]] const zeus::CVector3f& GetLookPos() const { return x1d8_lookPos; }
   void ResetToTweaks(CStateManager& mgr);
   void UpdateLookAtPosition(float dt, CStateManager& mgr);
-  zeus::CTransform UpdateLookDirection(const zeus::CVector3f& dir, CStateManager& mgr);
+  zeus::CTransform4f UpdateLookDirection(const zeus::CVector3f& dir, CStateManager& mgr);
   void SetClampVelTimer(float f) { x470_clampVelTimer = f; }
   void SetClampVelRange(float f) { x474_clampVelRange = f; }
   void ApplyCameraHint(CStateManager& mgr);

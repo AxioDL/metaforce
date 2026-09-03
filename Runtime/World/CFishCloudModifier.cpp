@@ -10,7 +10,7 @@ namespace metaforce {
 CFishCloudModifier::CFishCloudModifier(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& eInfo,
                                        const zeus::CVector3f& pos, bool isRepulsor, bool swirl, float radius,
                                        float priority)
-: CActor(uid, active, name, eInfo, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(),
+: CActor(uid, active, name, eInfo, zeus::CTransform4f::Translate(pos), CModelData::CModelDataNull(),
          {EMaterialTypes::NoStepLogic}, CActorParameters::None(), kInvalidUniqueId)
 , xe8_radius(radius)
 , xec_priority(priority)

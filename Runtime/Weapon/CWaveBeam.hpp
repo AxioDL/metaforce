@@ -23,9 +23,9 @@ public:
   CWaveBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId, EMaterialTypes playerMaterial,
             const zeus::CVector3f& scale);
 
-  void PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) override;
-  void UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf) override;
-  void Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf, CStateManager& mgr,
+  void PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform4f& xf) override;
+  void UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform4f& xf) override;
+  void Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform4f& xf, CStateManager& mgr,
             TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) override;
   void EnableSecondaryFx(ESecondaryFxType type) override;
   void Update(float dt, CStateManager& mgr) override;

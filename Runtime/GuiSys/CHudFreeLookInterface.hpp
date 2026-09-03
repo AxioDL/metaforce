@@ -2,7 +2,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/GuiSys/CHudInterface.hpp"
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 
 namespace metaforce {
 class CGuiFrame;
@@ -20,8 +20,8 @@ public:
 
 class CHudFreeLookInterface : public IFreeLookInterface {
   EHudType x4_hudType;
-  zeus::CTransform x8_freeLookLeftXf;
-  zeus::CTransform x38_freeLookRightXf;
+  zeus::CTransform4f x8_freeLookLeftXf;
+  zeus::CTransform4f x38_freeLookRightXf;
   float x68_freeLookInterp = 0.f;
   float x6c_lockOnInterp;
   bool x70_24_inFreeLook : 1;

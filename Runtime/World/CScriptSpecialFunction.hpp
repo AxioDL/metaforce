@@ -11,7 +11,7 @@
 #include "Runtime/ConsoleVariables/CVar.hpp"
 
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -83,7 +83,7 @@ private:
   zeus::CColor x118_color;
   CDamageInfo x11c_damageInfo;
   float x138_ = 0.f;
-  zeus::CTransform x13c_spinnerInitialXf = zeus::CTransform();
+  zeus::CTransform4f x13c_spinnerInitialXf = zeus::CTransform4f();
   float x16c_ = 0.f;
   u16 x170_sfx1;
   u16 x172_sfx2;
@@ -118,15 +118,15 @@ private:
 
 public:
   DEFINE_ENTITY
-  CScriptSpecialFunction(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, ESpecialFunction,
+  CScriptSpecialFunction(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, ESpecialFunction,
                          std::string_view, float, float, float, float, const zeus::CVector3f&, const zeus::CColor&,
                          bool, const CDamageInfo&, s32, s32, CPlayerState::EItemType, s16, s16, s16);
 
   void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustumPlanes&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager&) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override { return x1c8_touchBounds; }
 

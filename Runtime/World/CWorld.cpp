@@ -654,7 +654,7 @@ void CWorld::TouchSky() {
     xb4_skyboxOverride.value()->Touch(0);
 }
 
-void CWorld::DrawSky(const zeus::CTransform& xf) {
+void CWorld::DrawSky(const zeus::CTransform4f& xf) {
   CModel* model;
   if (xa4_skyboxWorldLoaded)
     model = xa4_skyboxWorldLoaded->GetObj();

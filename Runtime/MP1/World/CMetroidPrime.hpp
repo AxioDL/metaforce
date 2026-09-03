@@ -265,7 +265,7 @@ class CMetroidPrime : public CPatterned {
 
 public:
   DEFINE_PATTERNED(MetroidPrimeExo);
-  CMetroidPrime(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CMetroidPrime(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                    CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& aParms, u32 pw1,
                    const CCameraShakeData& shakeData1, const CCameraShakeData& shakeData2,
                    const CCameraShakeData& shakeData3, const SPrimeStruct2B& struct2b, CAssetId particle1,
@@ -278,8 +278,8 @@ public:
   void PreThink(float dt, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, CStateManager& mgr) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   void Render(CStateManager& mgr) override;
   bool CanRenderUnsorted(const CStateManager& mgr) const override;
   void Touch(CActor& act, CStateManager& mgr) override;

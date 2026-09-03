@@ -225,7 +225,7 @@ void CPlayerGun::TakeDamage(bool bigStrike, bool notFromMetroid, CStateManager& 
     x384_gunStrikeDelayTimer = 20.f;
     x364_gunStrikeCoolTimer = 0.75f;
     if (x678_morph.GetGunState() == CGunMorph::EGunState::OutWipeDone) {
-      zeus::CVector3f localDamageLoc = mgr.GetPlayer().GetTransform().transposeRotate(x3dc_damageLocation);
+      zeus::CVector3f localDamageLoc = mgr.GetPlayer().GetTransform().TransposeRotate(x3dc_damageLocation);
       angle = zeus::CRelAngle(std::atan2(localDamageLoc.y(), localDamageLoc.x())).asRel().asDegrees();
       hasStrikeAngle = true;
     }
@@ -260,7 +260,7 @@ void CPlayerGun::DeleteGunLight(CStateManager& mgr) {
   x53c_lightId = kInvalidUniqueId;
 }
 
-void CPlayerGun::UpdateGunLight(const zeus::CTransform& xf, CStateManager& mgr) {
+void CPlayerGun::UpdateGunLight(const zeus::CTransform4f& xf, CStateManager& mgr) {
   if (x53c_lightId == kInvalidUniqueId || x32c_chargePhase == EChargePhase::NotCharging)
     return;
 
@@ -801,7 +801,7 @@ void CPlayerGun::StopContinuousBeam(CStateManager& mgr, bool b1) {
   }
 }
 
-void CPlayerGun::CMotionState::Update(bool firing, float dt, zeus::CTransform& xf, CStateManager& mgr) {
+void CPlayerGun::CMotionState::Update(bool firing, float dt, zeus::CTransform4f& xf, CStateManager& mgr) {
   if (firing) {
     x24_fireState = EFireState::StartFire;
     x8_fireTime = 0.f;
@@ -813,7 +813,7 @@ void CPlayerGun::CMotionState::Update(bool firing, float dt, zeus::CTransform& x
 
   if (x0_24_extendParabola && x20_state == EMotionState::LockOn) {
     float extendT = xc_curExtendDist / gGunExtendDistance;
-    xf = xf * zeus::CTransform(zeus::CMatrix3f::RotateZ(zeus::degToRad(extendT * -4.f * (extendT - 1.f) * 15.f)),
+    xf = xf * zeus::CTransform4f(zeus::CMatrix3f::RotateZ(zeus::degToRad(extendT * -4.f * (extendT - 1.f) * 15.f)),
                                {0.f, xc_curExtendDist, 0.f});
   } else if (x24_fireState == EFireState::StartFire || x24_fireState == EFireState::Firing) {
     if (std::fabs(x14_rotationT - 1.f) < 0.1f) {
@@ -834,13 +834,13 @@ void CPlayerGun::CMotionState::Update(bool firing, float dt, zeus::CTransform& x
     }
 
     x14_rotationT += (1.f - x14_rotationT) * 0.8f * (10.f * dt);
-    zeus::CTransform tmpXf =
-        zeus::CQuaternion::fromAxisAngle(xf.frontVector(), zeus::degToRad(x10_curRotation)).toTransform() *
-        xf.getRotation();
+    zeus::CTransform4f tmpXf =
+        zeus::CQuaternion::fromAxisAngle(xf.GetForward(), zeus::degToRad(x10_curRotation)).toTransform() *
+        xf.GetRotation();
     tmpXf.origin = xf.origin;
-    xf = tmpXf * zeus::CTransform::Translate(0.f, xc_curExtendDist, 0.f);
+    xf = tmpXf * zeus::CTransform4f::Translate(0.f, xc_curExtendDist, 0.f);
   } else {
-    xf = xf * zeus::CTransform::Translate(0.f, xc_curExtendDist, 0.f);
+    xf = xf * zeus::CTransform4f::Translate(0.f, xc_curExtendDist, 0.f);
   }
 
   switch (x20_state) {
@@ -889,7 +889,7 @@ void CPlayerGun::ChangeWeapon(const CPlayerState& playerState, CStateManager& mg
   x678_morph.StartWipe(CGunMorph::EDir::In);
 }
 
-void CPlayerGun::GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mData, std::string_view lctrName,
+void CPlayerGun::GetLctrWithShake(zeus::CTransform4f& xfOut, const CModelData& mData, std::string_view lctrName,
                                   bool shake, bool dyn) const {
   if (dyn)
     xfOut = mData.GetScaledLocatorTransformDynamic(lctrName, nullptr);
@@ -902,7 +902,7 @@ void CPlayerGun::GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mDa
 
 void CPlayerGun::UpdateLeftArmTransform(const CModelData& mData, const CStateManager& mgr) {
   if (x834_26_animPlaying)
-    x740_grappleArm->AuxTransform() = zeus::CTransform();
+    x740_grappleArm->AuxTransform() = zeus::CTransform4f();
   else
     GetLctrWithShake(x740_grappleArm->AuxTransform(), mData, "elbow", true, false);
 
@@ -1219,7 +1219,7 @@ void CPlayerGun::UpdateChargeState(float dt, CStateManager& mgr) {
   }
 }
 
-void CPlayerGun::UpdateAuxWeapons(float dt, const zeus::CTransform& targetXf, CStateManager& mgr) {
+void CPlayerGun::UpdateAuxWeapons(float dt, const zeus::CTransform4f& targetXf, CStateManager& mgr) {
   zeus::CVector3f firePoint =
       x4a8_gunWorldXf * x418_beamLocalXf.origin + mgr.GetCameraManager()->GetGlobalCameraTranslation(mgr);
   bool done = x744_auxWeapon->UpdateComboFx(dt, sGunScale, firePoint, targetXf, mgr);
@@ -1361,7 +1361,7 @@ void CPlayerGun::FireSecondary(float dt, CStateManager& mgr) {
     if (x832_26_comboFiring && targetId == kInvalidUniqueId && x310_currentBeam == CPlayerState::EBeamId::Wave) {
       targetId = mgr.GetPlayer().GetAimTarget();
     }
-    zeus::CTransform fireXf = x833_29_pointBlankWorldSurface ? x448_elbowWorldXf : x4a8_gunWorldXf * x418_beamLocalXf;
+    zeus::CTransform4f fireXf = x833_29_pointBlankWorldSurface ? x448_elbowWorldXf : x4a8_gunWorldXf * x418_beamLocalXf;
     if (!x833_29_pointBlankWorldSurface && x364_gunStrikeCoolTimer <= 0.f) {
       zeus::CVector3f backupOrigin = fireXf.origin;
       fireXf = x478_assistAimXf;
@@ -1461,7 +1461,7 @@ void CPlayerGun::UpdateNormalShotCycle(float dt, CStateManager& mgr) {
   x832_25_chargeEffectVisible = x833_28_phazonBeamActive || x310_currentBeam != CPlayerState::EBeamId::Plasma ||
                                 x32c_chargePhase != EChargePhase::NotCharging;
   x30c_rapidFireShots += 1;
-  zeus::CTransform xf = x833_29_pointBlankWorldSurface ? x448_elbowWorldXf : x4a8_gunWorldXf * x418_beamLocalXf;
+  zeus::CTransform4f xf = x833_29_pointBlankWorldSurface ? x448_elbowWorldXf : x4a8_gunWorldXf * x418_beamLocalXf;
   if (!x833_29_pointBlankWorldSurface && x364_gunStrikeCoolTimer <= 0.f) {
     zeus::CVector3f oldOrigin = xf.origin;
     xf = x478_assistAimXf;
@@ -1951,7 +1951,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
   x72c_currentBeam->UpdateGunFx(x380_shotSmokeTimer > 2.f && x378_shotSmokeStartTimer > 0.15f, dt, mgr,
                                 x508_elbowLocalXf);
 
-  zeus::CTransform beamWorldXf = x4a8_gunWorldXf * x418_beamLocalXf;
+  zeus::CTransform4f beamWorldXf = x4a8_gunWorldXf * x418_beamLocalXf;
 
   if (player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed &&
       !mgr.GetCameraManager()->IsInCinematicCamera()) {
@@ -1959,7 +1959,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
     zeus::CAABox aabb = x72c_currentBeam->GetBounds().getTransformedAABox(x4a8_gunWorldXf);
     mgr.BuildNearList(nearList, aabb, sAimFilter, &player);
     TUniqueId bestId = kInvalidUniqueId;
-    zeus::CVector3f dir = x4a8_gunWorldXf.frontVector().normalized();
+    zeus::CVector3f dir = x4a8_gunWorldXf.GetForward().normalized();
     zeus::CVector3f pos = dir * -0.5f + x4a8_gunWorldXf.origin;
     CRayCastResult result = mgr.RayWorldIntersection(bestId, pos, dir, 3.5f, sAimFilter, nearList);
     x833_29_pointBlankWorldSurface = result.IsValid();
@@ -1972,7 +1972,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
     x833_29_pointBlankWorldSurface = false;
   }
 
-  zeus::CTransform beamTargetXf = x833_29_pointBlankWorldSurface ? x448_elbowWorldXf : beamWorldXf;
+  zeus::CTransform4f beamTargetXf = x833_29_pointBlankWorldSurface ? x448_elbowWorldXf : beamWorldXf;
 
   zeus::CVector3f camTrans = mgr.GetCameraManager()->GetGlobalCameraTranslation(mgr);
   beamWorldXf.origin += camTrans;
@@ -1999,7 +1999,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
 
   if (x832_26_comboFiring && x77c_comboXferGen) {
     x77c_comboXferGen->SetGlobalTranslation(x418_beamLocalXf.origin);
-    x77c_comboXferGen->SetGlobalOrientation(x418_beamLocalXf.getRotation());
+    x77c_comboXferGen->SetGlobalOrientation(x418_beamLocalXf.GetRotation());
     x77c_comboXferGen->Update(advDt);
     x344_comboXferTimer += advDt * 4.f;
   }
@@ -2067,7 +2067,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
   }
 }
 
-void CPlayerGun::PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos) {
+void CPlayerGun::PreRender(const CStateManager& mgr, const zeus::CFrustumPlanes& frustum, const zeus::CVector3f& camPos) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerGun::PreRender", zeus::skBlue);
   const CPlayerState& playerState = *mgr.GetPlayerState();
   if (playerState.GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan)
@@ -2080,7 +2080,7 @@ void CPlayerGun::PreRender(const CStateManager& mgr, const zeus::CFrustum& frust
         zeus::CColor(zeus::clamp(0.6f, 0.5f * x380_shotSmokeTimer + 0.6f - x378_shotSmokeStartTimer, 1.f), 1.f));
     break;
   case CPlayerState::EPlayerVisor::Combat: {
-    zeus::CAABox aabb = x72c_currentBeam->GetBounds(zeus::CTransform::Translate(camPos) * x4a8_gunWorldXf);
+    zeus::CAABox aabb = x72c_currentBeam->GetBounds(zeus::CTransform4f::Translate(camPos) * x4a8_gunWorldXf);
     if (mgr.GetNextAreaId() != kInvalidAreaId) {
       x0_lights.SetFindShadowLight(true);
       x0_lights.SetShadowDynamicRangeThreshold(0.25f);
@@ -2129,7 +2129,7 @@ void CPlayerGun::DrawArm(const CStateManager& mgr, const zeus::CVector3f& pos, c
     return;
 
   if (player.GetGrappleState() != CPlayer::EGrappleState::None ||
-      x740_grappleArm->GetTransform().basis[1].dot(player.GetTransform().basis[1]) > 0.1f) {
+      x740_grappleArm->GetTransform().GetForward().dot(player.GetTransform().GetForward()) > 0.1f) {
     CModelFlags useFlags;
     if (x740_grappleArm->IsArmMoving())
       useFlags = flags;
@@ -2260,15 +2260,15 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
 
   const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   CGraphics::SetDepthRange(DEPTH_GUN, DEPTH_WORLD);
-  zeus::CTransform offsetWorldXf = zeus::CTransform::Translate(pos) * x4a8_gunWorldXf;
-  zeus::CTransform elbowOffsetXf = offsetWorldXf * x508_elbowLocalXf;
+  zeus::CTransform4f offsetWorldXf = zeus::CTransform4f::Translate(pos) * x4a8_gunWorldXf;
+  zeus::CTransform4f elbowOffsetXf = offsetWorldXf * x508_elbowLocalXf;
   if (x32c_chargePhase != EChargePhase::NotCharging && (x2f8_stateFlags & 0x10) != 0x10) {
     offsetWorldXf.origin += zeus::CVector3f(x34c_shakeX, 0.f, x350_shakeZ);
   }
 
-  zeus::CTransform oldViewMtx = CGraphics::mViewMatrix;
-  CGraphics::SetViewPointMatrix(offsetWorldXf.inverse() * oldViewMtx);
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  zeus::CTransform4f oldViewMtx = CGraphics::mViewMatrix;
+  CGraphics::SetViewPointMatrix(offsetWorldXf.Inverse() * oldViewMtx);
+  CGraphics::SetModelMatrix(zeus::CTransform4f());
   if (x32c_chargePhase >= EChargePhase::FxGrown && x32c_chargePhase < EChargePhase::ComboXfer) {
     x800_auxMuzzleGenerators[size_t(x320_currentAuxBeam)]->Render();
   }
@@ -2297,7 +2297,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
     if (x0_lights.HasShadowLight())
       x82c_shadow->EnableModelProjectedShadow(offsetWorldXf, x0_lights.GetShadowLightArrIndex(), 2.15f);
     if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay) {
-      x6e0_rightHandModel.Render(mgr, elbowOffsetXf * zeus::CTransform::Translate(0.f, -0.2f, 0.02f), &x0_lights,
+      x6e0_rightHandModel.Render(mgr, elbowOffsetXf * zeus::CTransform4f::Translate(0.f, -0.2f, 0.02f), &x0_lights,
                                  mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal
                                      ? kHandThermalFlag
                                      : kHandHoloFlag);
@@ -2310,9 +2310,9 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
   case CGunMorph::EGunState::InWipe:
   case CGunMorph::EGunState::OutWipe:
     if (x678_morph.GetGunState() != CGunMorph::EGunState::InWipeDone) {
-      zeus::CTransform morphXf = elbowOffsetXf * zeus::CTransform::Translate(0.f, x678_morph.GetYLerp(), 0.f);
+      zeus::CTransform4f morphXf = elbowOffsetXf * zeus::CTransform4f::Translate(0.f, x678_morph.GetYLerp(), 0.f);
       CopyScreenTex();
-      x6e0_rightHandModel.Render(mgr, elbowOffsetXf * zeus::CTransform::Translate(0.f, -0.2f, 0.02f), &x0_lights,
+      x6e0_rightHandModel.Render(mgr, elbowOffsetXf * zeus::CTransform4f::Translate(0.f, -0.2f, 0.02f), &x0_lights,
                                  mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal
                                      ? kHandThermalFlag
                                      : kHandHoloFlag);
@@ -2325,7 +2325,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
       x72c_currentBeam->Draw(drawSuitArm, mgr, offsetWorldXf, beamFlags, &x0_lights);
       x82c_shadow->DisableModelProjectedShadow();
     } else {
-      x6e0_rightHandModel.Render(mgr, elbowOffsetXf * zeus::CTransform::Translate(0.f, -0.2f, 0.02f), &x0_lights,
+      x6e0_rightHandModel.Render(mgr, elbowOffsetXf * zeus::CTransform4f::Translate(0.f, -0.2f, 0.02f), &x0_lights,
                                  mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal
                                      ? kHandThermalFlag
                                      : kHandHoloFlag);
@@ -2339,8 +2339,8 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
   }
 
   oldViewMtx = CGraphics::mViewMatrix;
-  CGraphics::SetViewPointMatrix(offsetWorldXf.inverse() * oldViewMtx);
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  CGraphics::SetViewPointMatrix(offsetWorldXf.Inverse() * oldViewMtx);
+  CGraphics::SetModelMatrix(zeus::CTransform4f());
   x72c_currentBeam->PostRenderGunFx(mgr, offsetWorldXf);
   if (x832_26_comboFiring && x77c_comboXferGen)
     x77c_comboXferGen->Render();
@@ -2352,7 +2352,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
   CGraphics::SetProjectionState(projState);
 }
 
-void CPlayerGun::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+void CPlayerGun::AddToRenderer(const zeus::CFrustumPlanes& frustum, const CStateManager& mgr) const {
   if (x72c_currentBeam->HasSolidModelData())
     x72c_currentBeam->GetSolidModelData().RenderParticles(frustum);
 }
@@ -2368,8 +2368,8 @@ void CPlayerGun::DropBomb(EBWeapon weapon, CStateManager& mgr) {
       return;
 
     const zeus::CVector3f plPos = mgr.GetPlayer().GetTranslation();
-    const zeus::CTransform xf =
-        zeus::CTransform::Translate({plPos.x(), plPos.y(), plPos.z() + g_tweakPlayer->GetPlayerBallHalfExtent()});
+    const zeus::CTransform4f xf =
+        zeus::CTransform4f::Translate({plPos.x(), plPos.y(), plPos.z() + g_tweakPlayer->GetPlayerBallHalfExtent()});
     CBomb* bomb = new CBomb(x784_bombEffects[u32(weapon)][0], x784_bombEffects[u32(weapon)][1], mgr.AllocateUniqueId(),
                             mgr.GetPlayer().GetAreaId(), x538_playerId, x354_bombFuseTime, xf,
                             CDamageInfo{g_tweakPlayerGun->GetBombInfo()});
@@ -2393,8 +2393,8 @@ TUniqueId CPlayerGun::DropPowerBomb(CStateManager& mgr) {
 
   TUniqueId uid = mgr.AllocateUniqueId();
   zeus::CVector3f plVec = mgr.GetPlayer().GetTranslation();
-  zeus::CTransform xf =
-      zeus::CTransform::Translate({plVec.x(), plVec.y(), plVec.z() + g_tweakPlayer->GetPlayerBallHalfExtent()});
+  zeus::CTransform4f xf =
+      zeus::CTransform4f::Translate({plVec.x(), plVec.y(), plVec.z() + g_tweakPlayer->GetPlayerBallHalfExtent()});
   CPowerBomb* pBomb = new CPowerBomb(x784_bombEffects[1][0], uid, kInvalidAreaId, x538_playerId, xf, dInfo);
   mgr.AddObject(*pBomb);
   return uid;

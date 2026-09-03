@@ -9,6 +9,6 @@ zeus::CAABox CProjectedShadow::CalculateRenderBounds() { return {}; }
 
 void CProjectedShadow::Render(const CStateManager& mgr) {}
 
-void CProjectedShadow::RenderShadowBuffer(const CStateManager&, const CModelData&, const zeus::CTransform&, s32,
+void CProjectedShadow::RenderShadowBuffer(const CStateManager&, const CModelData&, const zeus::CTransform4f&, s32,
                                           const zeus::CVector3f&, float, float) {}
 } // namespace metaforce

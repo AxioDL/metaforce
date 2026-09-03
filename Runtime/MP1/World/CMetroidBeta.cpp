@@ -36,7 +36,7 @@ CMetroidBetaData::CMetroidBetaData(CInputStream& in)
 , x104_(in)
 , x108_24_(in.ReadBool()) {}
 
-CMetroidBeta::CMetroidBeta(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CMetroidBeta::CMetroidBeta(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                            CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& aParms,
                            const CMetroidBetaData& metroidData)
 : CPatterned(EPatternedAI::MetroidBeta, uid, name, EFlavorType::One, info, xf, std::move(mData), pInfo,
@@ -172,7 +172,7 @@ void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
   }
 }
 
-void CMetroidBeta::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CMetroidBeta::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   CPatterned::AddToRenderer(frustum, mgr);
 }
 

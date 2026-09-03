@@ -5,7 +5,7 @@
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 
 namespace metaforce {
 class CMapWorldInfo;
@@ -48,16 +48,16 @@ private:
   EVisMode x4_visibilityMode;
   TEditorId x8_objId;
   u32 xc_;
-  zeus::CTransform x10_transform;
+  zeus::CTransform4f x10_transform;
 
-  zeus::CTransform AdjustTransformForType() const;
+  zeus::CTransform4f AdjustTransformForType() const;
   std::pair<zeus::CColor, zeus::CColor> GetDoorColors(int idx, const CMapWorldInfo& mwInfo, float alpha) const;
 
 public:
   explicit CMappableObject(const void* buf);
   CMappableObject(CMappableObject&&) = default;
   void PostConstruct(const void*);
-  const zeus::CTransform& GetTransform() const { return x10_transform; }
+  const zeus::CTransform4f& GetTransform() const { return x10_transform; }
   EMappableObjectType GetType() const { return x0_type; }
   void Draw(int, const CMapWorldInfo&, float, bool);
   void DrawDoorSurface(int curArea, const CMapWorldInfo& mwInfo, float alpha, int surfIdx, bool needsVtxLoad);

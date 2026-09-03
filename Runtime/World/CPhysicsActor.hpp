@@ -7,7 +7,7 @@
 
 #include <zeus/CAxisAngle.hpp>
 #include <zeus/CQuaternion.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -113,7 +113,7 @@ protected:
 
 public:
   DEFINE_ENTITY
-  CPhysicsActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CPhysicsActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                 CModelData&& mData, const CMaterialList& matList, const zeus::CAABox& box, const SMoverData& moverData,
                 const CActorParameters& actorParms, float stepUp, float stepDown);
 
@@ -121,7 +121,7 @@ public:
   zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const override;
   zeus::CVector3f GetAimPosition(const CStateManager& mgr, float val) const override;
   virtual const CCollisionPrimitive* GetCollisionPrimitive() const;
-  virtual zeus::CTransform GetPrimitiveTransform() const;
+  virtual zeus::CTransform4f GetPrimitiveTransform() const;
   virtual void CollidedWith(TUniqueId id, const CCollisionInfoList& list, CStateManager& mgr);
   virtual float GetStepUpHeight() const;
   virtual float GetStepDownHeight() const;

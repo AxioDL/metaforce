@@ -8,7 +8,7 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce::MP1 {
-CPhazonPool::CPhazonPool(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CPhazonPool::CPhazonPool(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                          const zeus::CVector3f& scale, bool active, CAssetId w1, CAssetId w2, CAssetId w3, CAssetId w4,
                          u32 p11, const CDamageInfo& dInfo, const zeus::CVector3f& orientedForce,
                          ETriggerFlags triggerFlags, bool p15, float p16, float p17, float p18, float p19)
@@ -74,7 +74,7 @@ void CPhazonPool::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
   CScriptTrigger::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CPhazonPool::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CPhazonPool::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   if (GetActive()) {
     if (x170_elementGen1) {
       g_Renderer->AddParticleGen(*x170_elementGen1);
@@ -94,11 +94,11 @@ void CPhazonPool::Render(CStateManager& mgr) {
   bool discard = x1a4_ < 0.25f;
   const CModelFlags flags{5, 0, static_cast<u16>(discard ? 3 : 0), zeus::CColor{1.f, x1a4_}};
   if (x168_modelData1) {
-    x168_modelData1->Render(mgr, GetTransform() * zeus::CTransform::RotateZ(x1ac_rotZ), nullptr, flags);
+    x168_modelData1->Render(mgr, GetTransform() * zeus::CTransform4f::RotateZ(x1ac_rotZ), nullptr, flags);
   }
   if (x16c_modelData2) {
-    const zeus::CTransform rot = zeus::CTransform::RotateZ(x1ac_rotZ) * zeus::CTransform::RotateX(x1ac_rotZ) *
-                                 zeus::CTransform::RotateY(x1a8_rotY);
+    const zeus::CTransform4f rot = zeus::CTransform4f::RotateZ(x1ac_rotZ) * zeus::CTransform4f::RotateX(x1ac_rotZ) *
+                                 zeus::CTransform4f::RotateY(x1a8_rotY);
     x16c_modelData2->Render(mgr, GetTransform() * rot, nullptr, flags);
   }
 }

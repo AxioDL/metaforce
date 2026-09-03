@@ -25,7 +25,7 @@ private:
 
 public:
   DEFINE_PATTERNED(FlickerBat);
-  CFlickerBat(TUniqueId, std::string_view name, EFlavorType, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CFlickerBat(TUniqueId, std::string_view name, EFlavorType, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
               const CPatternedInfo&, EColliderType, bool, const CActorParameters&, bool);
 
   void Accept(IVisitor&) override;

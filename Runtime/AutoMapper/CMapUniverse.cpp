@@ -16,11 +16,11 @@ CMapUniverse::CMapUniverse(CInputStream& in, u32 version) : x0_hexagonId(in.Get<
 
 CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
 : x0_label(in.Get<std::string>()), x10_worldAssetId(in) {
-  x14_transform = in.Get<zeus::CTransform>();
+  x14_transform = in.Get<zeus::CTransform4f>();
   const u32 worldCount = in.ReadLong();
   x44_hexagonXfs.reserve(worldCount);
   for (u32 i = 0; i < worldCount; ++i) {
-    x44_hexagonXfs.emplace_back() = in.Get<zeus::CTransform>();
+    x44_hexagonXfs.emplace_back() = in.Get<zeus::CTransform4f>();
   }
 
   if (version != 0)
@@ -32,7 +32,7 @@ CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
   x5c_surfColorUnselected = zeus::CColor::lerp(zeus::skBlack, x54_surfColorSelected, 0.5f);
   x60_outlineColorUnselected = zeus::CColor::lerp(zeus::skWhite, x5c_surfColorUnselected, 0.5f);
 
-  for (const zeus::CTransform& xf : x44_hexagonXfs)
+  for (const zeus::CTransform4f& xf : x44_hexagonXfs)
     x64_centerPoint += xf.origin;
 
   x64_centerPoint *= zeus::CVector3f(1.0f / float(x44_hexagonXfs.size()));
@@ -70,7 +70,7 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
     }
 
     for (u32 h = 0; h < data.GetNumMapAreaDatas(); ++h) {
-      zeus::CTransform hexXf = parms.GetCameraTransform().inverse() * data.GetMapAreaData(h);
+      zeus::CTransform4f hexXf = parms.GetCameraTransform().Inverse() * data.GetMapAreaData(h);
       for (u32 s = 0; s < x4_hexagonToken->GetNumSurfaces(); ++s) {
         const CMapArea::CMapAreaSurface& surf = x4_hexagonToken->GetSurface(s);
         zeus::CVector3f centerPos = hexXf * surf.GetCenterPosition();
@@ -100,10 +100,10 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
         outlineColor.a() = info.GetOutlineColor().a();
       }
 
-      zeus::CTransform hexXf = mwData.GetMapAreaData(info.GetAreaIndex());
-      hexXf.orthonormalize();
+      zeus::CTransform4f hexXf = mwData.GetMapAreaData(info.GetAreaIndex());
+      hexXf.Orthonormalize();
       CMapArea::CMapAreaSurface& surf = x4_hexagonToken->GetSurface(info.GetObjectIndex());
-      zeus::CColor color(std::max(0.f, (-parms.GetCameraTransform().basis[1]).dot(hexXf.rotate(surf.GetNormal()))) *
+      zeus::CColor color(std::max(0.f, (-parms.GetCameraTransform().GetForward()).dot(hexXf.Rotate(surf.GetNormal()))) *
                              g_tweakAutoMapper->GetMapSurfaceNormColorLinear() +
                          g_tweakAutoMapper->GetMapSurfaceNormColorConstant());
       surfColor *= color;

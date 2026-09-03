@@ -7,7 +7,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/World/CEntity.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -17,7 +17,7 @@ class CScriptActorRotate : public CEntity {
   zeus::CVector3f x34_rotation;
   float x40_maxTime;
   float x44_currentTime = 0.f;
-  std::map<TUniqueId, zeus::CTransform> x48_actors;
+  std::map<TUniqueId, zeus::CTransform4f> x48_actors;
   bool x58_24_updateRotation : 1 = false;
   bool x58_25_updateSpiderBallWaypoints : 1 = false;
   bool x58_26_updateActors : 1;
@@ -25,8 +25,8 @@ class CScriptActorRotate : public CEntity {
 
   void UpdateActors(bool, CStateManager&);
   void UpdateSpiderBallWaypoints(CStateManager&);
-  void UpdatePlatformRiders(CScriptPlatform&, const zeus::CTransform&, CStateManager&);
-  void UpdatePlatformRiders(std::vector<SRiders>&, CScriptPlatform&, const zeus::CTransform&, CStateManager&);
+  void UpdatePlatformRiders(CScriptPlatform&, const zeus::CTransform4f&, CStateManager&);
+  void UpdatePlatformRiders(std::vector<SRiders>&, CScriptPlatform&, const zeus::CTransform4f&, CStateManager&);
 
 public:
   DEFINE_ENTITY

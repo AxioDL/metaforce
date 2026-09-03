@@ -101,7 +101,7 @@ class CRidley : public CPatterned {
   bool xa34_25_ : 1 = false;
   bool xa34_26_ : 1 = false;
   CModelData xa38_;
-  zeus::CTransform xa84_;
+  zeus::CTransform4f xa84_;
   float xab4_ = 20.f;
   float xab8_ = 12.f;
   float xabc_ = 40.f;
@@ -130,7 +130,7 @@ class CRidley : public CPatterned {
   CSegId xb91_mouthSegId;
   u8 xb92_;
   u8 xb93_;
-  zeus::CTransform xb94_;
+  zeus::CTransform4f xb94_;
   zeus::CVector3f xbc4_;
   zeus::CVector3f xbd0_;
   float xbdc_;
@@ -196,20 +196,20 @@ class CRidley : public CPatterned {
 
   void ChooseStage3Attack(metaforce::CStateManager& mgr);
   bool sub80253960() {
-    const float mag = ((GetTranslation() + ((0.5f * xae4_) * GetTransform().frontVector())) - xa84_.origin).magnitude();
+    const float mag = ((GetTranslation() + ((0.5f * xae4_) * GetTransform().GetForward())) - xa84_.origin).magnitude();
     return mag < 0.5f * (xab4_ + xabc_);
   }
 
 public:
   DEFINE_PATTERNED(Ridley);
-  CRidley(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&, const CPatternedInfo&,
+  CRidley(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&, const CPatternedInfo&,
           const CActorParameters&, CInputStream&, u32);
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   void Render(CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   zeus::CAABox GetSortingBounds(const CStateManager&) const override { return GetBoundingBox(); }
   const CDamageVulnerability* GetDamageVulnerability() const override {
     return &CDamageVulnerability::ImmuneVulnerability();

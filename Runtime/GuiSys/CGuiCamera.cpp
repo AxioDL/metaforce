@@ -32,7 +32,7 @@ void CGuiCamera::Draw(const CGuiWidgetDrawParms& parms) {
                         m_proj.xd0_zfar);
   }
   CGraphics::SetViewPointMatrix(GetGuiFrame()->GetAspectTransform() *
-                                zeus::CTransform::Translate(parms.x4_cameraOffset) * x34_worldXF);
+                                zeus::CTransform4f::Translate(parms.x4_cameraOffset) * x34_worldXF);
   CGuiWidget::Draw(parms);
 }
 

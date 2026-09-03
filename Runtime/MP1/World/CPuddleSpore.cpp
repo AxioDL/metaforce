@@ -22,7 +22,7 @@ constexpr std::array kEyeLocators{
 };
 
 CPuddleSpore::CPuddleSpore(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
-                           const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
+                           const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                            EColliderType colType, CAssetId glowFx, float f1, float f2, float f3, float f4, float f5,
                            const CActorParameters& actParms, CAssetId weapon, const CDamageInfo& dInfo)
 : CPatterned(EPatternedAI::PuddleSpore, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
@@ -68,7 +68,7 @@ void CPuddleSpore::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
 bool CPuddleSpore::HitShell(const zeus::CVector3f& point) const {
   if (x5c8_ != 1)
     return true;
-  float distance = GetTransform().upVector().dot(zeus::CUnitVector3f(point - GetBoundingBox().center()));
+  float distance = GetTransform().GetUp().dot(zeus::CUnitVector3f(point - GetBoundingBox().center()));
   return (distance <= -0.5f || distance >= 0.5f);
 }
 
@@ -80,7 +80,7 @@ void CPuddleSpore::KnockPlayer(CStateManager& mgr, float arg) {
       selfBox.min.y() <= playerBox.max.y() && playerBox.min.z() - selfBox.max.z() < 0.2f) {
     const float scale =
         mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ? 1.5f : 1.f;
-    mgr.GetPlayer().ApplyImpulseWR(scale * (arg * mgr.GetPlayer().GetMass()) * x34_transform.rotate({1.f, 0.f, 0.3f}),
+    mgr.GetPlayer().ApplyImpulseWR(scale * (arg * mgr.GetPlayer().GetMass()) * x34_transform.Rotate({1.f, 0.f, 0.3f}),
                                    {});
     mgr.GetPlayer().SetMoveState(CPlayer::EPlayerMovementState::ApplyJump, mgr);
   }

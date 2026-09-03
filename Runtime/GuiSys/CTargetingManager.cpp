@@ -23,9 +23,9 @@ void CTargetingManager::Draw(const CStateManager& mgr, bool hideLockon) {
   CGraphics::DisableAllLights();
   x21c_orbitPointMarker.Draw(mgr);
   const CGameCamera* curCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
-  zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+  zeus::CTransform4f camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
   CGraphics::SetViewPointMatrix(camXf);
-  zeus::CFrustum frustum;
+  zeus::CFrustumPlanes frustum;
   frustum.updatePlanes(camXf,
                        zeus::SProjPersp(zeus::degToRad(curCam->GetFov()), CGraphics::GetViewportAspect(), 1.f, 100.f));
   g_Renderer->SetClippingPlanes(frustum);

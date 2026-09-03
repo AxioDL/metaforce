@@ -8,7 +8,7 @@ namespace metaforce {
 CRandom16 CDecal::sDecalRandom;
 bool CDecal::sMoveRedToAlphaBuffer = false;
 
-CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf)
+CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform4f& xf)
 : x0_description(desc), xc_transform(xf) {
   CGlobalRandom gr(sDecalRandom);
 
@@ -85,7 +85,7 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
     off->GetValue(x58_frameIdx, offset);
     offset.y() = 0.f;
   }
-  zeus::CTransform modXf = xc_transform;
+  zeus::CTransform4f modXf = xc_transform;
   modXf.origin += offset;
   CGraphics::SetModelMatrix(modXf);
   CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
@@ -193,21 +193,21 @@ void CDecal::RenderMdl() {
   CDecalDescription& desc = *x0_description;
   zeus::CColor color = zeus::skWhite;
   zeus::CVector3f dmop;
-  zeus::CTransform rotXf;
+  zeus::CTransform4f rotXf;
 
   if (!desc.x5c_25_DMOO)
-    rotXf = xc_transform.getRotation();
+    rotXf = xc_transform.GetRotation();
 
   bool dmrtIsConst = false;
   if (CVectorElement* dmrt = desc.x50_DMRT.get())
     dmrtIsConst = dmrt->IsFastConstant();
 
-  zeus::CTransform dmrtXf;
+  zeus::CTransform4f dmrtXf;
   if (dmrtIsConst) {
     desc.x50_DMRT->GetValue(x58_frameIdx, x60_rotation);
-    dmrtXf = zeus::CTransform::RotateZ(zeus::degToRad(x60_rotation.z()));
-    dmrtXf.rotateLocalY(zeus::degToRad(x60_rotation.y()));
-    dmrtXf.rotateLocalX(zeus::degToRad(x60_rotation.x()));
+    dmrtXf = zeus::CTransform4f::RotateZ(zeus::degToRad(x60_rotation.z()));
+    dmrtXf.RotateLocalY(zeus::degToRad(x60_rotation.y()));
+    dmrtXf.RotateLocalX(zeus::degToRad(x60_rotation.x()));
   }
 
   dmrtXf = rotXf * dmrtXf;
@@ -215,7 +215,7 @@ void CDecal::RenderMdl() {
   if (CVectorElement* dmopo = desc.x4c_DMOP.get())
     dmopo->GetValue(x58_frameIdx, dmop);
 
-  zeus::CTransform worldXf = zeus::CTransform::Translate(rotXf * dmop + xc_transform.origin);
+  zeus::CTransform4f worldXf = zeus::CTransform4f::Translate(rotXf * dmop + xc_transform.origin);
 
   if (dmrtIsConst) {
     worldXf = worldXf * dmrtXf;
@@ -223,9 +223,9 @@ void CDecal::RenderMdl() {
     if (CVectorElement* dmrt = desc.x50_DMRT.get()) {
       zeus::CVector3f dmrtVec;
       dmrt->GetValue(x58_frameIdx, dmrtVec);
-      dmrtXf = zeus::CTransform::RotateZ(zeus::degToRad(dmrtVec.z()));
-      dmrtXf.rotateLocalY(zeus::degToRad(dmrtVec.y()));
-      dmrtXf.rotateLocalX(zeus::degToRad(dmrtVec.x()));
+      dmrtXf = zeus::CTransform4f::RotateZ(zeus::degToRad(dmrtVec.z()));
+      dmrtXf.RotateLocalY(zeus::degToRad(dmrtVec.y()));
+      dmrtXf.RotateLocalX(zeus::degToRad(dmrtVec.x()));
       worldXf = worldXf * rotXf * dmrtXf;
     } else {
       worldXf = worldXf * dmrtXf;
@@ -235,7 +235,7 @@ void CDecal::RenderMdl() {
   if (CVectorElement* dmsc = desc.x54_DMSC.get()) {
     zeus::CVector3f dmscVec;
     dmsc->GetValue(x58_frameIdx, dmscVec);
-    worldXf = worldXf * zeus::CTransform::Scale(dmscVec);
+    worldXf = worldXf * zeus::CTransform4f::Scale(dmscVec);
   }
 
   if (CColorElement* dmcl = desc.x58_DMCL.get())

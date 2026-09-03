@@ -11,7 +11,7 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 
 namespace metaforce::MP1 {
 namespace {
@@ -95,12 +95,12 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
 
   alpha *= x24_fader;
   g_Renderer->SetPerspective(55.f, CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(), 0.2f, 4096.f);
-  CGraphics::SetViewPointMatrix(zeus::CTransform::Translate(0.f, -10.f, 0.f));
+  CGraphics::SetViewPointMatrix(zeus::CTransform4f::Translate(0.f, -10.f, 0.f));
 
   float angle = CGraphics::GetSecondsMod900() * 2.f * M_PIF * 0.25f;
-  CGraphics::SetModelMatrix(zeus::CTransform::RotateX(zeus::degToRad(std::sin(angle) * 8.f)) *
-                            zeus::CTransform::RotateZ(zeus::degToRad(std::cos(angle) * 8.f)) *
-                            zeus::CTransform::RotateX(M_PIF / 2.f) * zeus::CTransform::Scale(0.2f));
+  CGraphics::SetModelMatrix(zeus::CTransform4f::RotateX(zeus::degToRad(std::sin(angle) * 8.f)) *
+                            zeus::CTransform4f::RotateZ(zeus::degToRad(std::cos(angle) * 8.f)) *
+                            zeus::CTransform4f::RotateX(M_PIF / 2.f) * zeus::CTransform4f::Scale(0.2f));
 
   CPlayerState& playerState = *mgr.GetPlayerState();
   for (size_t i = 0; i < x0_models.size(); ++i) {

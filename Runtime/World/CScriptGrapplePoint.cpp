@@ -8,7 +8,7 @@
 
 namespace metaforce {
 CScriptGrapplePoint::CScriptGrapplePoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                         const zeus::CTransform& transform, bool active,
+                                         const zeus::CTransform4f& transform, bool active,
                                          const CGrappleParameters& params)
 : CActor(uid, active, name, info, transform, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Orbit),
          CActorParameters::None(), kInvalidUniqueId)
@@ -46,6 +46,6 @@ void CScriptGrapplePoint::Render(CStateManager&) {
 
 std::optional<zeus::CAABox> CScriptGrapplePoint::GetTouchBounds() const { return {xe8_touchBounds}; }
 
-void CScriptGrapplePoint::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) { CActor::EnsureRendered(mgr); }
+void CScriptGrapplePoint::AddToRenderer(const zeus::CFrustumPlanes&, CStateManager& mgr) { CActor::EnsureRendered(mgr); }
 
 } // namespace metaforce

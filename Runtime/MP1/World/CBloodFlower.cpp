@@ -13,7 +13,7 @@
 #include "Runtime/World/CScriptTrigger.hpp"
 
 namespace metaforce::MP1 {
-CBloodFlower::CBloodFlower(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CBloodFlower::CBloodFlower(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                            CModelData&& mData, const CPatternedInfo& pInfo, CAssetId partId1, CAssetId wpscId1,
                            const CActorParameters& actParms, CAssetId wpscId2, const CDamageInfo& dInfo1,
                            const CDamageInfo& dInfo2, const CDamageInfo& dInfo3, CAssetId partId2, CAssetId partId3,
@@ -33,7 +33,7 @@ CBloodFlower::CBloodFlower(TUniqueId uid, std::string_view name, const CEntityIn
 , x620_(partId4) {
   x588_projectileOffset = GetModelData()->GetScale().z() * GetLocatorTransform("LCTR_FLOFLOWER"sv).origin.z();
   x574_podEffect->SetParticleEmission(false);
-  x574_podEffect->SetOrientation(xf.getRotation());
+  x574_podEffect->SetOrientation(xf.GetRotation());
   x574_podEffect->SetGlobalTranslation(xf.origin);
   x574_podEffect->SetGlobalScale(GetModelData()->GetScale());
   x590_projectileInfo.Token().Lock();
@@ -116,7 +116,7 @@ void CBloodFlower::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
-void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateManager& mgr, float var_f1,
+void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform4f& xf, CStateManager& mgr, float var_f1,
                                           s32 maxProjectiles) {
   CProjectileInfo* proj = GetProjectileInfo();
   TLockedToken<CWeaponDescription> projToken = proj->Token();
@@ -135,7 +135,7 @@ void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateMana
   zeus::CVector3f vel{f4 * (aimPos.x() - xf.origin.x()), f4 * (aimPos.y() - xf.origin.y()),
                       2.4525f * f7 + (-zDiff / f7)};
   if (CTargetableProjectile* targProj =
-          CreateArcProjectile(mgr, GetProjectileInfo()->Token(), zeus::CTransform::Translate(xf.origin),
+          CreateArcProjectile(mgr, GetProjectileInfo()->Token(), zeus::CTransform4f::Translate(xf.origin),
                               GetProjectileInfo()->GetDamage(), kInvalidUniqueId)) {
     targProj->ProjectileWeapon().SetVelocity(CProjectileWeapon::GetTickPeriod() * vel);
     targProj->ProjectileWeapon().SetGravity(CProjectileWeapon::GetTickPeriod() * zeus::CVector3f(0.f, 0.f, -4.905f));
@@ -175,7 +175,7 @@ bool CBloodFlower::ShouldTurn(CStateManager& mgr, float) {
   if (TooClose(mgr, 0.f))
     return false;
 
-  zeus::CVector3f frontVec = GetTransform().basis[1];
+  zeus::CVector3f frontVec = GetTransform().GetForward();
   frontVec.z() = 0.f;
   frontVec.normalize();
   zeus::CVector3f posDiff = mgr.GetPlayer().GetTranslation() - GetTranslation();
@@ -193,7 +193,7 @@ void CBloodFlower::Active(CStateManager& mgr, EStateMsg msg, float arg) {
     TryCommand(mgr, pas::EAnimationState::LoopReaction, &CPatterned::TryLoopReaction, 0);
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCAdditiveAimCmd());
     x584_curAttackTime += arg;
-    zeus::CVector3f targetPos = GetTransform().transposeRotate(mgr.GetPlayer().GetTranslation() - GetTranslation());
+    zeus::CVector3f targetPos = GetTransform().TransposeRotate(mgr.GetPlayer().GetTranslation() - GetTranslation());
     const float y = targetPos.y();
     targetPos.y() = static_cast<float>(targetPos.z());
     targetPos.z() = y;
@@ -253,7 +253,7 @@ void CBloodFlower::TriggerPodSteam(CStateManager& mgr, bool activate) {
 }
 
 CTargetableProjectile* CBloodFlower::CreateArcProjectile(CStateManager& mgr, const TToken<CWeaponDescription>& desc,
-                                                         const zeus::CTransform& xf, const CDamageInfo& damage,
+                                                         const zeus::CTransform4f& xf, const CDamageInfo& damage,
                                                          TUniqueId uid) {
 
   if (!x578_projectileDesc) {

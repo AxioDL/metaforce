@@ -14,7 +14,7 @@
 #include "Runtime/Particle/CParticleSwoosh.hpp"
 
 #include <zeus/CColor.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -54,7 +54,7 @@ public:
     TToken<CTexture> xdc_ashy;
     std::unique_ptr<CElementGen> xe4_icePopGen;
     zeus::CVector3f xec_particleOffsetScale = zeus::skOne3f;
-    zeus::CTransform xf8_iceXf;
+    zeus::CTransform4f xf8_iceXf;
     CActorModelParticles& x128_parent;
     bool x12c_24_thermalCold : 1 = false;
     bool x12c_25_thermalHot : 1 = false;

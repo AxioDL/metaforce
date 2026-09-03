@@ -110,18 +110,18 @@ private:
 public:
   DEFINE_ENTITY
   CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
-                    const CBeamInfo& bInfo, const zeus::CTransform& xf, EMaterialTypes matType,
+                    const CBeamInfo& bInfo, const zeus::CTransform4f& xf, EMaterialTypes matType,
                     const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                     const PlayerEffectResources& res, bool growingBeam, EProjectileAttrib attribs);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void ResetBeam(CStateManager& mgr, bool fullReset) override;
-  void UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr) override;
-  void Fire(const zeus::CTransform& xf, CStateManager& mgr, bool b) override;
+  void UpdateFx(const zeus::CTransform4f& xf, float dt, CStateManager& mgr) override;
+  void Fire(const zeus::CTransform4f& xf, CStateManager& mgr, bool b) override;
   void Touch(CActor& other, CStateManager& mgr) override;
   bool CanRenderUnsorted(const CStateManager& mgr) const override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   void Render(CStateManager& mgr) override;
   zeus::CColor GetInnerColor() const { return x490_innerColor; }
   zeus::CColor GetOuterColor() const { return x494_outerColor; }

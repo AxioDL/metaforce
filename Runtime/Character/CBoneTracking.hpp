@@ -7,7 +7,7 @@
 #include "Runtime/Character/CSegId.hpp"
 
 #include <zeus/CQuaternion.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -38,9 +38,9 @@ public:
   CBoneTracking(const CAnimData& animData, std::string_view bone, float maxTrackingAngle, float angSpeed,
                 EBoneTrackingFlags flags);
   void Update(float dt);
-  void PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform& xf, const zeus::CVector3f& vec,
+  void PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform4f& xf, const zeus::CVector3f& vec,
                  const CBodyController& bodyController);
-  void PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform& worldXf,
+  void PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform4f& worldXf,
                  const zeus::CVector3f& localOffsetScale, bool tracking);
   void SetActive(bool active);
   void SetTarget(TUniqueId id);

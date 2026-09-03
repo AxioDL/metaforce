@@ -6,7 +6,7 @@
 namespace metaforce {
 
 CDestroyableRock::CDestroyableRock(TUniqueId id, bool active, std::string_view name, const CEntityInfo& info,
-                                   const zeus::CTransform& xf, CModelData&& modelData, float mass,
+                                   const zeus::CTransform4f& xf, CModelData&& modelData, float mass,
                                    const CHealthInfo& health, const CDamageVulnerability& vulnerability,
                                    const CMaterialList& matList, CAssetId fsm, const CActorParameters& actParams,
                                    const CStaticRes& phazonModel, s32 w1)
@@ -23,7 +23,7 @@ CDestroyableRock::CDestroyableRock(TUniqueId id, bool active, std::string_view n
 }
 
 void CDestroyableRock::Accept(metaforce::IVisitor& visitor) { visitor.Visit(this); }
-void CDestroyableRock::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CDestroyableRock::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   if (GetActive()) {
     if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
       xb4_drawFlags = CModelFlags(0, 0, 1, zeus::skWhite);

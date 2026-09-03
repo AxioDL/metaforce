@@ -24,14 +24,14 @@ class CScriptVisorGoo : public CActor {
 
 public:
   DEFINE_ENTITY
-  CScriptVisorGoo(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptVisorGoo(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                   CAssetId particle, CAssetId electric, float minDist, float maxDist, float nearProb, float farProb,
                   const zeus::CColor& color, int sfx, bool forceShow, bool active);
 
   void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager& stateMgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager&) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Touch(CActor&, CStateManager&) override;

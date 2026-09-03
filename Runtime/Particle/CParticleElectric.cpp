@@ -118,9 +118,9 @@ void CParticleElectric::RenderLines() {
   // Z-test, no write
   // Additive blend
 
-  CGraphics::SetModelMatrix(zeus::CTransform::Translate(xa4_globalTranslation) * xb0_globalOrientation *
-                            zeus::CTransform::Translate(x38_translation) * x44_orientation *
-                            zeus::CTransform::Scale(xe0_globalScale) * zeus::CTransform::Scale(xec_localScale));
+  CGraphics::SetModelMatrix(zeus::CTransform4f::Translate(xa4_globalTranslation) * xb0_globalOrientation *
+                            zeus::CTransform4f::Translate(x38_translation) * x44_orientation *
+                            zeus::CTransform4f::Scale(xe0_globalScale) * zeus::CTransform4f::Scale(xec_localScale));
   // Disable culling
   SetupLineGXMaterial();
   for (CParticleElectricManager& elec : x3e8_electricManagers) {
@@ -141,8 +141,8 @@ void CParticleElectric::RenderLines() {
 }
 
 void CParticleElectric::UpdateCachedTransform() {
-  xf8_cachedXf = zeus::CTransform::Translate(xa4_globalTranslation) * xb0_globalOrientation *
-                 zeus::CTransform::Translate(x38_translation) * x44_orientation;
+  xf8_cachedXf = zeus::CTransform4f::Translate(xa4_globalTranslation) * xb0_globalOrientation *
+                 zeus::CTransform4f::Translate(x38_translation) * x44_orientation;
   x450_29_transformDirty = false;
 }
 
@@ -326,12 +326,12 @@ void CParticleElectric::CalculatePoints() {
       dot = -dot;
     }
     if (std::fabs(dot - 1.f) < 0.00001f) {
-      upVec = zeus::lookAt(x420_calculatedVerts[0], x420_calculatedVerts[1]).basis[2];
+      upVec = zeus::CTransform4f::LookAt(x420_calculatedVerts[0], x420_calculatedVerts[1]).GetUp();
     } else {
       upVec = v0.cross(v1).normalized();
     }
   } else if (x420_calculatedVerts[0] != x420_calculatedVerts[1]) {
-    upVec = zeus::lookAt(x420_calculatedVerts[0], x420_calculatedVerts[1]).basis[2];
+    upVec = zeus::CTransform4f::LookAt(x420_calculatedVerts[0], x420_calculatedVerts[1]).GetUp();
   }
 
   const float commonRand = x14c_randState.Range(0.f, 360.f);
@@ -361,7 +361,7 @@ void CParticleElectric::CreateNewParticles(int count) {
 
   for (int i = 0; i < count; ++i) {
     if (x3e8_electricManagers.size() < size_t(x154_SCNT)) {
-      const zeus::CTransform cachedRot = xf8_cachedXf.getRotation();
+      const zeus::CTransform4f cachedRot = xf8_cachedXf.GetRotation();
 
       const size_t toAdd = x1bc_allocated.size() - allocIdx;
       for (size_t j = 0; j < toAdd; ++j, ++allocIdx) {
@@ -414,8 +414,8 @@ void CParticleElectric::CreateNewParticles(int count) {
           for (int k = 0; k < x154_SCNT; ++k) {
             CElementGen& gen = *x400_gpsmGenerators[k];
             if (!gen.GetParticleEmission()) {
-              const zeus::CTransform scale =
-                  zeus::CTransform::Scale(xe0_globalScale) * zeus::CTransform::Scale(xec_localScale);
+              const zeus::CTransform4f scale =
+                  zeus::CTransform4f::Scale(xe0_globalScale) * zeus::CTransform4f::Scale(xec_localScale);
               gen.SetTranslation(scale * x420_calculatedVerts.front());
               gen.SetParticleEmission(true);
               elec.x10_gpsmIdx = k;
@@ -428,8 +428,8 @@ void CParticleElectric::CreateNewParticles(int count) {
           for (int k = 0; k < x154_SCNT; ++k) {
             CElementGen& gen = *x410_epsmGenerators[k];
             if (!gen.GetParticleEmission()) {
-              const zeus::CTransform scale =
-                  zeus::CTransform::Scale(xe0_globalScale) * zeus::CTransform::Scale(xec_localScale);
+              const zeus::CTransform4f scale =
+                  zeus::CTransform4f::Scale(xe0_globalScale) * zeus::CTransform4f::Scale(xec_localScale);
               gen.SetTranslation(scale * x420_calculatedVerts.back());
               gen.SetParticleEmission(true);
               elec.x14_epsmIdx = k;
@@ -485,8 +485,8 @@ void CParticleElectric::BuildBounds() {
     }
     if (!tmp.invalid()) {
       x160_systemBounds.accumulateBounds(tmp.getTransformedAABox(
-          zeus::CTransform::Translate(xa4_globalTranslation) * xb0_globalOrientation *
-          zeus::CTransform::Translate(x38_translation) * x44_orientation * zeus::CTransform::Scale(xe0_globalScale)));
+          zeus::CTransform4f::Translate(xa4_globalTranslation) * xb0_globalOrientation *
+          zeus::CTransform4f::Translate(x38_translation) * x44_orientation * zeus::CTransform4f::Scale(xe0_globalScale)));
     }
   }
 
@@ -534,7 +534,7 @@ bool CParticleElectric::Update(double dt) {
 
   if (x450_29_transformDirty) {
     UpdateCachedTransform();
-    const zeus::CTransform globalOrient = xf8_cachedXf.getRotation();
+    const zeus::CTransform4f globalOrient = xf8_cachedXf.GetRotation();
     if (x450_27_haveSSWH) {
       for (const CParticleElectricManager& elec : x3e8_electricManagers) {
         CParticleSwoosh& swoosh = *x1e0_swooshGenerators[elec.x0_idx];
@@ -637,9 +637,9 @@ void CParticleElectric::Render() {
   }
 }
 
-void CParticleElectric::SetOrientation(const zeus::CTransform& orientation) {
+void CParticleElectric::SetOrientation(const zeus::CTransform4f& orientation) {
   x44_orientation = orientation;
-  x74_invOrientation = x44_orientation.inverse();
+  x74_invOrientation = x44_orientation.Inverse();
   x450_29_transformDirty = true;
 }
 
@@ -648,7 +648,7 @@ void CParticleElectric::SetTranslation(const zeus::CVector3f& translation) {
   x450_29_transformDirty = true;
 }
 
-void CParticleElectric::SetGlobalOrientation(const zeus::CTransform& orientation) {
+void CParticleElectric::SetGlobalOrientation(const zeus::CTransform4f& orientation) {
   xb0_globalOrientation = orientation;
   x450_29_transformDirty = true;
 
@@ -729,11 +729,11 @@ void CParticleElectric::SetParticleEmission(bool emitting) { x450_24_emitting = 
 
 void CParticleElectric::SetModulationColor(const zeus::CColor& color) { x1b8_moduColor = color; }
 
-const zeus::CTransform& CParticleElectric::GetOrientation() const { return x44_orientation; }
+const zeus::CTransform4f& CParticleElectric::GetOrientation() const { return x44_orientation; }
 
 const zeus::CVector3f& CParticleElectric::GetTranslation() const { return x38_translation; }
 
-const zeus::CTransform& CParticleElectric::GetGlobalOrientation() const { return xb0_globalOrientation; }
+const zeus::CTransform4f& CParticleElectric::GetGlobalOrientation() const { return xb0_globalOrientation; }
 
 const zeus::CVector3f& CParticleElectric::GetGlobalTranslation() const { return xa4_globalTranslation; }
 

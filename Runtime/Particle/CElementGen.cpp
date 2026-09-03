@@ -389,8 +389,8 @@ bool CElementGen::UpdateVelocitySource(size_t idx, s32 particleFrame, CParticle&
     zeus::CVector3f localVel = x208_orientationInverse * particle.x1c_vel;
     zeus::CVector3f localPos = x208_orientationInverse * (particle.x4_pos - xdc_translation);
     err = x280_VELSources[idx]->GetValue(particleFrame, localVel, localPos);
-    particle.x1c_vel = x1d8_orientation.rotate(localVel);
-    particle.x4_pos = x1d8_orientation.rotate(localPos) + xdc_translation;
+    particle.x1c_vel = x1d8_orientation.Rotate(localVel);
+    particle.x4_pos = x1d8_orientation.Rotate(localPos) + xdc_translation;
   } else {
     err = x280_VELSources[idx]->GetValue(particleFrame, particle.x1c_vel, particle.x4_pos);
   }
@@ -516,7 +516,7 @@ void CElementGen::CreateNewParticles(int count) {
     ++x25c_activeParticleCount;
     ++x260_cumulativeParticles;
     if (x2c_orientType == EModelOrientationType::One) {
-      x50_parentMatrices[x30_particles.size() - 1] = x1d8_orientation.buildMatrix3f();
+      x50_parentMatrices[x30_particles.size() - 1] = x1d8_orientation.BuildMatrix3f();
     }
 
     particle.x28_startFrame = x74_curFrame;
@@ -540,9 +540,9 @@ void CElementGen::CreateNewParticles(int count) {
     if (CEmitterElement* emtr = desc->x40_x2c_EMTR.get()) {
       emtr->GetValue(x74_curFrame, particle.x4_pos, particle.x1c_vel);
       zeus::CVector3f compXf1 = (x13c_globalScaleTransformInverse * x1a8_localScaleTransformInverse) * xdc_translation;
-      zeus::CVector3f compXf2 = x1d8_orientation.rotate(particle.x4_pos);
+      zeus::CVector3f compXf2 = x1d8_orientation.Rotate(particle.x4_pos);
       particle.x4_pos = compXf1 + compXf2 + xf4_POFS;
-      particle.x1c_vel = x1d8_orientation.rotate(particle.x1c_vel);
+      particle.x1c_vel = x1d8_orientation.Rotate(particle.x1c_vel);
     } else {
       zeus::CVector3f compXf1 = (x13c_globalScaleTransformInverse * x1a8_localScaleTransformInverse) * xdc_translation;
       particle.x4_pos = compXf1 + xf4_POFS;
@@ -795,7 +795,7 @@ void CElementGen::BuildParticleSystemBounds() {
   x264_recursiveParticleCount = GetParticleCountAllInternal();
   if (GetParticleCount() > 0) {
     zeus::CVector3f scale = x100_globalScale * x2ec_maxSize;
-    zeus::CTransform xf = (x10c_globalScaleTransform * x22c_globalOrientation) * x178_localScaleTransform;
+    zeus::CTransform4f xf = (x10c_globalScaleTransform * x22c_globalOrientation) * x178_localScaleTransform;
     zeus::CAABox box = zeus::CAABox(x2d4_aabbMin, x2e0_aabbMax).getTransformedAABox(xf);
     zeus::CVector3f min = box.min + xe8_globalTranslation - scale;
     zeus::CVector3f max = box.max + xe8_globalTranslation + scale;
@@ -930,7 +930,7 @@ void CElementGen::RenderModels() {
     }
   }
 
-  zeus::CTransform orient = zeus::CTransform();
+  zeus::CTransform4f orient = zeus::CTransform4f();
   if (!desc->x45_25_x31_27_PMOO)
     orient = x1d8_orientation;
   orient = orient * x22c_globalOrientation;
@@ -942,13 +942,13 @@ void CElementGen::RenderModels() {
 
   zeus::CVector3f trans = (x13c_globalScaleTransformInverse * x1a8_localScaleTransformInverse) * xe8_globalTranslation;
 
-  zeus::CTransform rot = zeus::CTransform();
+  zeus::CTransform4f rot = zeus::CTransform4f();
   if (pmrtConst) {
     zeus::CVector3f pmrtVal;
     pmrt->GetValue(x74_curFrame, pmrtVal);
-    rot = zeus::CTransform::RotateZ(zeus::degToRad(pmrtVal[2]));
-    rot.rotateLocalY(zeus::degToRad(pmrtVal[1]));
-    rot.rotateLocalX(zeus::degToRad(pmrtVal[0]));
+    rot = zeus::CTransform4f::RotateZ(zeus::degToRad(pmrtVal[2]));
+    rot.RotateLocalY(zeus::degToRad(pmrtVal[1]));
+    rot.RotateLocalX(zeus::degToRad(pmrtVal[0]));
   }
   rot = orient * rot;
 
@@ -977,9 +977,9 @@ void CElementGen::RenderModels() {
     if (pmop)
       pmop->GetValue(partFrame, pmopVec);
 
-    zeus::CTransform partTrans = zeus::CTransform::Translate(particle.x4_pos + trans);
+    zeus::CTransform4f partTrans = zeus::CTransform4f::Translate(particle.x4_pos + trans);
     if (x2c_orientType == EModelOrientationType::One) {
-      zeus::CTransform partRot(*matrixIt);
+      zeus::CTransform4f partRot(*matrixIt);
       zeus::CVector3f pmopRotateOffset = (orient * partRot) * pmopVec;
       partTrans = partTrans * partRot;
       partTrans += pmopRotateOffset;
@@ -993,9 +993,9 @@ void CElementGen::RenderModels() {
       if (pmrt) {
         zeus::CVector3f pmrtVal;
         pmrt->GetValue(partFrame, pmrtVal);
-        rot = zeus::CTransform::RotateZ(zeus::degToRad(pmrtVal[2]));
-        rot.rotateLocalY(zeus::degToRad(pmrtVal[1]));
-        rot.rotateLocalX(zeus::degToRad(pmrtVal[0]));
+        rot = zeus::CTransform4f::RotateZ(zeus::degToRad(pmrtVal[2]));
+        rot.RotateLocalY(zeus::degToRad(pmrtVal[1]));
+        rot.RotateLocalX(zeus::degToRad(pmrtVal[0]));
         partTrans = partTrans * (orient * rot);
       } else {
         partTrans = partTrans * rot;
@@ -1006,7 +1006,7 @@ void CElementGen::RenderModels() {
     if (pmsc) {
       zeus::CVector3f pmscVal;
       pmsc->GetValue(partFrame, pmscVal);
-      partTrans = partTrans * zeus::CTransform::Scale(pmscVal);
+      partTrans = partTrans * zeus::CTransform4f::Scale(pmscVal);
     }
 
     CColorElement* pmcl = desc->x78_x64_PMCL.get();
@@ -1081,11 +1081,11 @@ void CElementGen::RenderLines() {
   CGenDescription* desc = x1c_genDesc.GetObj();
   CGlobalRandom gr(x27c_randState);
 
-  zeus::CTransform systemViewPointMatrix(CGraphics::mViewMatrix);
+  zeus::CTransform4f systemViewPointMatrix(CGraphics::mViewMatrix);
   systemViewPointMatrix.origin.zeroOut();
-  zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x22c_globalOrientation;
+  zeus::CTransform4f systemCameraMatrix = systemViewPointMatrix.Inverse() * x22c_globalOrientation;
   systemViewPointMatrix =
-      ((zeus::CTransform::Translate(xe8_globalTranslation) * x10c_globalScaleTransform) * systemViewPointMatrix) *
+      ((zeus::CTransform4f::Translate(xe8_globalTranslation) * x10c_globalScaleTransform) * systemViewPointMatrix) *
       x178_localScaleTransform;
   CGraphics::SetModelMatrix(systemViewPointMatrix);
 
@@ -1200,11 +1200,11 @@ void CElementGen::RenderParticles() {
 
   bool hasModuColor = x338_moduColor != zeus::skWhite;
   CGraphics::SetCullMode(ERglCullMode::None);
-  zeus::CTransform systemModelMatrix(CGraphics::mViewMatrix);
+  zeus::CTransform4f systemModelMatrix(CGraphics::mViewMatrix);
   systemModelMatrix.origin.zeroOut();
-  zeus::CTransform systemCameraMatrix = systemModelMatrix.inverse() * x22c_globalOrientation;
+  zeus::CTransform4f systemCameraMatrix = systemModelMatrix.Inverse() * x22c_globalOrientation;
   systemModelMatrix =
-      ((zeus::CTransform::Translate(xe8_globalTranslation) * x10c_globalScaleTransform) * systemModelMatrix) *
+      ((zeus::CTransform4f::Translate(xe8_globalTranslation) * x10c_globalScaleTransform) * systemModelMatrix) *
       x178_localScaleTransform;
   if (x26c_29_ORNT)
     CGraphics::SetModelMatrix(systemModelMatrix * systemCameraMatrix);
@@ -1470,7 +1470,7 @@ void CElementGen::RenderParticles() {
         zeus::CVector3f foreVec = particle.x2c_lineLengthOrSize * dir;
         zeus::CVector3f rightVec;
         if (desc->x30_31_RSOP) {
-          rightVec = dir.cross(CGraphics::mViewMatrix.basis[1]);
+          rightVec = dir.cross(CGraphics::mViewMatrix.GetForward());
           if (rightVec.canBeNormalized()) {
             rightVec = rightVec.normalized() * (particle.x2c_lineLengthOrSize * width);
           } else {
@@ -1480,7 +1480,7 @@ void CElementGen::RenderParticles() {
             }
           }
         } else {
-          rightVec = foreVec.cross(CGraphics::mViewMatrix.basis[1]) * width;
+          rightVec = foreVec.cross(CGraphics::mViewMatrix.GetForward()) * width;
         }
 
         if (!constUVs) {
@@ -1663,11 +1663,11 @@ void CElementGen::RenderParticlesIndirectTexture() {
 
   CGenDescription* desc = x1c_genDesc.GetObj();
 
-  zeus::CTransform systemViewPointMatrix(CGraphics::mViewMatrix);
+  zeus::CTransform4f systemViewPointMatrix(CGraphics::mViewMatrix);
   systemViewPointMatrix.origin.zeroOut();
-  zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x22c_globalOrientation;
+  zeus::CTransform4f systemCameraMatrix = systemViewPointMatrix.Inverse() * x22c_globalOrientation;
   systemViewPointMatrix =
-      ((zeus::CTransform::Translate(xe8_globalTranslation) * x10c_globalScaleTransform) * systemViewPointMatrix) *
+      ((zeus::CTransform4f::Translate(xe8_globalTranslation) * x10c_globalScaleTransform) * systemViewPointMatrix) *
       x178_localScaleTransform;
   CGraphics::SetModelMatrix(systemViewPointMatrix);
 
@@ -1807,7 +1807,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
 //  }
 }
 
-void CElementGen::SetOrientation(const zeus::CTransform& orientation) {
+void CElementGen::SetOrientation(const zeus::CTransform4f& orientation) {
   x1d8_orientation = orientation;
   x208_orientationInverse = x1d8_orientation.basis.transposed();
 
@@ -1833,8 +1833,8 @@ void CElementGen::SetTranslation(const zeus::CVector3f& translation) {
   }
 }
 
-void CElementGen::SetGlobalOrientation(const zeus::CTransform& rotation) {
-  x22c_globalOrientation.setRotation(rotation);
+void CElementGen::SetGlobalOrientation(const zeus::CTransform4f& rotation) {
+  x22c_globalOrientation.SetRotation(rotation);
 
   for (const std::unique_ptr<CParticleGen>& ch : x290_activePartChildren)
     ch->SetGlobalOrientation(x22c_globalOrientation);
@@ -1849,8 +1849,8 @@ void CElementGen::SetGlobalTranslation(const zeus::CVector3f& translation) {
 
 void CElementGen::SetGlobalScale(const zeus::CVector3f& scale) {
   x100_globalScale = scale;
-  x10c_globalScaleTransform = zeus::CTransform::Scale(scale);
-  x13c_globalScaleTransformInverse = zeus::CTransform::Scale(zeus::skOne3f / scale);
+  x10c_globalScaleTransform = zeus::CTransform4f::Scale(scale);
+  x13c_globalScaleTransformInverse = zeus::CTransform4f::Scale(zeus::skOne3f / scale);
 
   for (const std::unique_ptr<CParticleGen>& ch : x290_activePartChildren)
     ch->SetGlobalScale(scale);
@@ -1858,14 +1858,14 @@ void CElementGen::SetGlobalScale(const zeus::CVector3f& scale) {
 
 void CElementGen::SetLocalScale(const zeus::CVector3f& scale) {
   x16c_localScale = scale;
-  x178_localScaleTransform = zeus::CTransform::Scale(scale);
-  x1a8_localScaleTransformInverse = zeus::CTransform::Scale(zeus::skOne3f / scale);
+  x178_localScaleTransform = zeus::CTransform4f::Scale(scale);
+  x1a8_localScaleTransformInverse = zeus::CTransform4f::Scale(zeus::skOne3f / scale);
 
   for (const std::unique_ptr<CParticleGen>& ch : x290_activePartChildren)
     ch->SetLocalScale(scale);
 }
 
-void CElementGen::SetGlobalOrientAndTrans(const zeus::CTransform& xf) {
+void CElementGen::SetGlobalOrientAndTrans(const zeus::CTransform4f& xf) {
   SetGlobalOrientation(xf);
   SetGlobalTranslation(xf.origin);
 }
@@ -1896,11 +1896,11 @@ void CElementGen::SetGeneratorRate(float rate) {
   }
 }
 
-const zeus::CTransform& CElementGen::GetOrientation() const { return x1d8_orientation; }
+const zeus::CTransform4f& CElementGen::GetOrientation() const { return x1d8_orientation; }
 
 const zeus::CVector3f& CElementGen::GetTranslation() const { return xdc_translation; }
 
-const zeus::CTransform& CElementGen::GetGlobalOrientation() const { return x22c_globalOrientation; }
+const zeus::CTransform4f& CElementGen::GetGlobalOrientation() const { return x22c_globalOrientation; }
 
 const zeus::CVector3f& CElementGen::GetGlobalTranslation() const { return xe8_globalTranslation; }
 
@@ -1967,7 +1967,7 @@ void CElementGen::Reset() {
 
 void CElementGen::SetMoveRedToAlphaBuffer(bool move) { sMoveRedToAlphaBuffer = move; }
 
-void CElementGen::RenderBasicParticlesNoRotNoTS(const zeus::CTransform& xf) noexcept {
+void CElementGen::RenderBasicParticlesNoRotNoTS(const zeus::CTransform4f& xf) noexcept {
   for (const auto& particle : x30_particles) {
     const auto pos = xf * particle.x4_pos;
     const auto size = 0.5f * particle.x2c_lineLengthOrSize;
@@ -1986,7 +1986,7 @@ void CElementGen::RenderBasicParticlesNoRotNoTS(const zeus::CTransform& xf) noex
   }
 }
 
-void CElementGen::RenderBasicParticlesNoRotTS(const zeus::CTransform& xf) noexcept {
+void CElementGen::RenderBasicParticlesNoRotTS(const zeus::CTransform4f& xf) noexcept {
   for (const auto& particle : x30_particles) {
     const auto pos = xf * (x80_timeDeltaScale * (particle.x4_pos - particle.x10_prevPos) + particle.x10_prevPos);
     const auto size = 0.5f * particle.x2c_lineLengthOrSize;
@@ -2005,7 +2005,7 @@ void CElementGen::RenderBasicParticlesNoRotTS(const zeus::CTransform& xf) noexce
   }
 }
 
-void CElementGen::RenderBasicParticlesRotNoTS(const zeus::CTransform& xf) noexcept {
+void CElementGen::RenderBasicParticlesRotNoTS(const zeus::CTransform4f& xf) noexcept {
   for (const auto& particle : x30_particles) {
     const auto pos = xf * particle.x4_pos;
     const auto size = 0.5f * particle.x2c_lineLengthOrSize;
@@ -2027,7 +2027,7 @@ void CElementGen::RenderBasicParticlesRotNoTS(const zeus::CTransform& xf) noexce
   }
 }
 
-void CElementGen::RenderBasicParticlesRotTS(const zeus::CTransform& xf) noexcept {
+void CElementGen::RenderBasicParticlesRotTS(const zeus::CTransform4f& xf) noexcept {
   for (const auto& particle : x30_particles) {
     const auto pos = xf * (x80_timeDeltaScale * (particle.x4_pos - particle.x10_prevPos) + particle.x10_prevPos);
     const auto size = 0.5f * particle.x2c_lineLengthOrSize;

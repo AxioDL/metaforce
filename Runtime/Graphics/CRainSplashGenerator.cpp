@@ -40,7 +40,7 @@ void CRainSplashGenerator::SRainSplash::Draw(float alpha, float dt, const zeus::
   }
 }
 
-void CRainSplashGenerator::DoDraw(const zeus::CTransform& xf) {
+void CRainSplashGenerator::DoDraw(const zeus::CTransform4f& xf) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CRainSplashGenerator::DoDraw", zeus::skYellow);
   CGraphics::SetModelMatrix(xf);
   if (x40_queueSize > 0) {
@@ -62,7 +62,7 @@ void CRainSplashGenerator::DoDraw(const zeus::CTransform& xf) {
   }
 }
 
-void CRainSplashGenerator::Draw(const zeus::CTransform& xf) {
+void CRainSplashGenerator::Draw(const zeus::CTransform4f& xf) {
   if (!x48_25_raining) {
     return;
   }

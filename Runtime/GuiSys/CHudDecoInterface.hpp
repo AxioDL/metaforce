@@ -171,7 +171,7 @@ class CHudDecoInterfaceThermal : public IHudDecoInterface {
   CGuiWidget* x78_basewidget_pivot;
   CGuiWidget* x7c_basewidget_reticle;
   CGuiModel* x80_model_retflash;
-  std::vector<std::pair<CGuiWidget*, zeus::CTransform>> x84_lockonWidgets;
+  std::vector<std::pair<CGuiWidget*, zeus::CTransform4f>> x84_lockonWidgets;
   void UpdateVisibility();
 
 public:

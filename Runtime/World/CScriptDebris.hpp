@@ -56,13 +56,13 @@ private:
 
 public:
   DEFINE_ENTITY
-  CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                 CModelData&& mData, const CActorParameters& aParams, CAssetId particleId,
                 const zeus::CVector3f& particleScale, float zImpulse, const zeus::CVector3f& velocity,
                 const zeus::CColor& endsColor, float mass, float restitution, float duration, EScaleType scaleType,
                 bool b1, bool randomAngImpulse, bool active);
 
-  CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                 CModelData&& mData, const CActorParameters& aParams, float linConeAngle, float linMinMag,
                 float linMaxMag, float angMinMag, float angMaxMag, float minDuration, float maxDuration, float colorInT,
                 float colorOutT, const zeus::CColor& color, const zeus::CColor& endsColor, float scaleOutStartT,
@@ -75,12 +75,12 @@ public:
                 bool noBounce, bool active);
 
   void Accept(IVisitor& visitor) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   void Touch(CActor& other, CStateManager& mgr) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) override;
   void Render(CStateManager& mgr) override;
 
   void CollidedWith(TUniqueId uid, const CCollisionInfoList&, CStateManager&) override;

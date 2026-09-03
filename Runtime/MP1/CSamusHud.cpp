@@ -29,7 +29,7 @@ CSamusHud::CSamusHud(CStateManager& stateMgr)
   x33c_lights = std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 1, true, 0, 0, 0.1f);
   x340_hudLights.resize(3, SCachedHudLight(zeus::skZero3f, zeus::skWhite, 0.f, 0.f, 0.f, 0.f));
   x46c_.resize(3);
-  x568_fpCamDir = stateMgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().basis[1];
+  x568_fpCamDir = stateMgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().GetForward();
   x5a4_videoBands.resize(4);
   x5d8_guiLights.resize(4);
   x7ac_.resize(15);
@@ -317,24 +317,24 @@ void CSamusHud::InitializeDamageLight() {
   x3d4_damageLight->SetAngleQ(g_tweakGui->GetDamageLightAngleQ());
   x3d4_damageLight->SetLightId(4);
 
-  x3d4_damageLight->SetLocalTransform(zeus::CTransform());
+  x3d4_damageLight->SetLocalTransform(zeus::CTransform4f());
 
   x288_loadedSelectedHud->RegisterLight(std::move(light));
   x288_loadedSelectedHud->FindWidget(parentId)->AddChildWidget(x3d4_damageLight, false, true);
   x288_loadedSelectedHud->AddLight(x3d4_damageLight);
 
-  zeus::CTransform lightXf = zeus::CTransform::Translate(g_tweakGui->GetDamageLightPreTranslate());
+  zeus::CTransform4f lightXf = zeus::CTransform4f::Translate(g_tweakGui->GetDamageLightPreTranslate());
 
   x3d8_lightTransforms.clear();
   x3d8_lightTransforms.reserve(10);
 
-  zeus::CTransform negX = zeus::CTransform::RotateX(zeus::degToRad(-g_tweakGui->GetDamageLightXfXAngle()));
-  zeus::CTransform posX = zeus::CTransform::RotateX(zeus::degToRad(g_tweakGui->GetDamageLightXfXAngle()));
-  zeus::CTransform negZ = zeus::CTransform::RotateZ(zeus::degToRad(-g_tweakGui->GetDamageLightXfZAngle()));
-  zeus::CTransform posZ = zeus::CTransform::RotateZ(zeus::degToRad(g_tweakGui->GetDamageLightXfZAngle()));
+  zeus::CTransform4f negX = zeus::CTransform4f::RotateX(zeus::degToRad(-g_tweakGui->GetDamageLightXfXAngle()));
+  zeus::CTransform4f posX = zeus::CTransform4f::RotateX(zeus::degToRad(g_tweakGui->GetDamageLightXfXAngle()));
+  zeus::CTransform4f negZ = zeus::CTransform4f::RotateZ(zeus::degToRad(-g_tweakGui->GetDamageLightXfZAngle()));
+  zeus::CTransform4f posZ = zeus::CTransform4f::RotateZ(zeus::degToRad(g_tweakGui->GetDamageLightXfZAngle()));
 
   x3d8_lightTransforms.push_back(lightXf);
-  x3d8_lightTransforms.push_back(zeus::CTransform::Translate(g_tweakGui->GetDamageLightCenterTranslate()) * lightXf);
+  x3d8_lightTransforms.push_back(zeus::CTransform4f::Translate(g_tweakGui->GetDamageLightCenterTranslate()) * lightXf);
   x3d8_lightTransforms.push_back(posX * lightXf);
   x3d8_lightTransforms.push_back(posX * negZ * lightXf);
   x3d8_lightTransforms.push_back(negZ * lightXf);
@@ -414,7 +414,7 @@ void CSamusHud::UpdateFreeLook(float dt, const CStateManager& mgr) {
   if (!fpCam)
     fpCamDir = x568_fpCamDir;
   else
-    fpCamDir = fpCam->GetTransform().basis[1];
+    fpCamDir = fpCam->GetTransform().GetForward();
 
   bool lookAdj = inFreeLook ? lookControlHeld : false;
 
@@ -445,7 +445,7 @@ void CSamusHud::UpdateFreeLook(float dt, const CStateManager& mgr) {
   }
 
   if (fpCam) {
-    zeus::CMatrix3f camRot = fpCam->GetTransform().buildMatrix3f();
+    zeus::CMatrix3f camRot = fpCam->GetTransform().BuildMatrix3f();
     zeus::CVector3f camDir(camRot[1]);
     zeus::CUnitVector3f camDirNoZ = camDir;
     camDirNoZ.z() = 0.f;
@@ -624,7 +624,7 @@ void CSamusHud::ApplyClassicLag(const zeus::CUnitVector3f& lookDir, zeus::CQuate
   }
 
   zeus::CQuaternion doubleRot = lookRot2 * lookRot2;
-  float dot = doubleRot.toTransform().basis[1].dot(rot.toTransform().basis[1]);
+  float dot = doubleRot.toTransform().GetForward().dot(rot.toTransform().GetForward());
   if (std::fabs(dot) > 1.f)
     dot = (dot >= 0.f) ? 1.f : -1.f;
 
@@ -654,14 +654,14 @@ void CSamusHud::UpdateHudLag(float dt, const CStateManager& mgr) {
       x29c_decoIntf->SetHudOffset(zeus::skZero3f);
     }
     x588_base_basewidget_pivot->SetTransform(
-        zeus::CTransform::Translate(x588_base_basewidget_pivot->GetWorldPosition()));
+        zeus::CTransform4f::Translate(x588_base_basewidget_pivot->GetWorldPosition()));
     x274_loadedFrmeBaseHud->GetFrameCamera()->SetO2WTransform(
         BuildFinalCameraTransform(zeus::CQuaternion(), x304_basewidgetIdlePos, x310_cameraPos));
     x8_targetingMgr.CompoundTargetReticle().SetLeadingOrientation(zeus::CQuaternion());
   } else {
     zeus::CVector3f fpCamDir = x2f8_fpCamDir;
     if (TCastToConstPtr<CFirstPersonCamera> fpCam = mgr.GetCameraManager()->GetCurrentCamera(mgr))
-      fpCamDir = fpCam->GetTransform().buildMatrix3f()[1];
+      fpCamDir = fpCam->GetTransform().BuildMatrix3f()[1];
 
     ApplyClassicLag(fpCamDir, x31c_hudLag, mgr, dt, false);
     ApplyClassicLag(fpCamDir, x32c_invHudLag, mgr, dt, true);
@@ -743,7 +743,7 @@ zeus::CColor CSamusHud::GetVisorHudLightColor(const zeus::CColor& color, const C
 
 void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr) {
   if (TCastToConstPtr<CFirstPersonCamera> fpCam = mgr.GetCameraManager()->GetCurrentCamera(mgr)) {
-    zeus::CVector3f lookDir = fpCam->GetTransform().basis[1];
+    zeus::CVector3f lookDir = fpCam->GetTransform().GetForward();
     zeus::CAABox camAABB(fpCam->GetTranslation() - 0.125f, fpCam->GetTranslation() + 0.125f);
     TAreaId playerArea = mgr.GetPlayer().GetAreaIdAlways();
     if (playerArea == kInvalidAreaId)
@@ -801,13 +801,13 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr) {
       SCachedHudLight& light = x340_hudLights[i];
       CGuiLight* lightWidget = *lightIt++;
       zeus::CVector3f lightToCam = fpCam->GetTranslation() - light.x0_pos;
-      zeus::CVector3f lightNormal = fpCam->GetTransform().buildMatrix3f() * lightToCam.normalized();
+      zeus::CVector3f lightNormal = fpCam->GetTransform().BuildMatrix3f() * lightToCam.normalized();
       float dist = std::max(lightToCam.magnitude(), FLT_EPSILON);
       float falloffMul = 1.f / (dist * dist * light.x18_distQ * g_tweakGui->GetHudLightAttMulQuadratic() +
                                 dist * light.x14_distL * g_tweakGui->GetHudLightAttMulLinear() +
                                 light.x10_distC * g_tweakGui->GetHudLightAttMulConstant());
       falloffMul = std::min(falloffMul, 1.f);
-      lightWidget->SetO2WTransform(zeus::lookAt(zeus::skZero3f, lightNormal));
+      lightWidget->SetO2WTransform(zeus::CTransform4f::LookAt(zeus::skZero3f, lightNormal));
       float fadedFalloff = falloffMul * std::fabs(light.x1c_fader);
       zeus::CColor lightColor = GetVisorHudLightColor(light.xc_color * zeus::CColor(fadedFalloff), mgr);
       lightWidget->SetColor(lightColor);
@@ -848,7 +848,7 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr) {
       if (brightestGameLight.GetType() == ELightType::Spot) {
         float quarterCicleFactor = zeus::clamp(
             0.f,
-            std::asin(std::max(0.f, fpCam->GetTransform().basis[1].dot(brightestGameLight.GetDirection()))) *
+            std::asin(std::max(0.f, fpCam->GetTransform().GetForward().dot(brightestGameLight.GetDirection()))) *
                 (M_PIF / 2.f),
             1.f);
         falloffColor *= zeus::CColor(quarterCicleFactor);
@@ -858,9 +858,9 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr) {
 
     const CGuiLight& brightestLight = *x5d8_guiLights[maxIntensityIdx];
     lightAdd += x33c_lights->GetAmbientColor() * zeus::CColor(0.25f, 1.f);
-    zeus::CVector3f revDir = -brightestLight.GetWorldTransform().basis[1];
+    zeus::CVector3f revDir = -brightestLight.GetWorldTransform().GetForward();
     float foreDot = revDir.dot(zeus::skForward);
-    x5d8_guiLights[3]->SetO2WTransform(zeus::lookAt(zeus::skZero3f, zeus::skForward * 2.f * foreDot - revDir));
+    x5d8_guiLights[3]->SetO2WTransform(zeus::CTransform4f::LookAt(zeus::skZero3f, zeus::skForward * 2.f * foreDot - revDir));
     x5d8_guiLights[3]->SetColor(g_tweakGui->GetHudReflectivityLightColor() * brightestLight.GetIntermediateColor());
     x5d8_guiLights[3]->SetAmbientLightColor(lightAdd);
   }
@@ -923,7 +923,7 @@ void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr, Tweaks::ITwe
   }
 
   if (x3a4_damageSfx)
-    CSfxManager::UpdateEmitter(x3a4_damageSfx, player.GetTranslation(), player.GetTransform().basis[1], 1.f);
+    CSfxManager::UpdateEmitter(x3a4_damageSfx, player.GetTranslation(), player.GetTransform().GetForward(), 1.f);
 
   if (x400_hudDamagePracticals > 0.f) {
     x400_hudDamagePracticals = std::max(0.f, x400_hudDamagePracticals - dt);
@@ -1019,7 +1019,7 @@ int CSamusHud::GetRelativeDirection(const zeus::CVector3f& position, const CStat
   TCastToConstPtr<CFirstPersonCamera> fpCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   if (!fpCam)
     return 0;
-  zeus::CVector3f camToPosLocal = fpCam->GetTransform().transposeRotate(position - fpCam->GetTranslation());
+  zeus::CVector3f camToPosLocal = fpCam->GetTransform().TransposeRotate(position - fpCam->GetTranslation());
   if (camToPosLocal == position)
     return 0;
   float y = std::cos(2.f * M_PIF * 0.0027777778f * 0.5f * fpCam->GetFov());
@@ -1064,14 +1064,14 @@ void CSamusHud::ShowDamage(const zeus::CVector3f& position, float dam, float pre
       g_tweakGui->GetHudDamageFilterInitLinear() * dam + g_tweakGui->GetHudDamageFilterInitConstant();
   x3f4_damageFilterAmt = x3f0_damageFilterAmtInit;
   if (!x3a4_damageSfx) {
-    x3a4_damageSfx = CSfxManager::AddEmitter(SFXui_damage_lp, player.GetTranslation(), player.GetTransform().basis[1],
+    x3a4_damageSfx = CSfxManager::AddEmitter(SFXui_damage_lp, player.GetTranslation(), player.GetTransform().GetForward(),
                                              0.f, false, true, 0xff, kInvalidAreaId);
   }
   if (fpCam) {
     x418_decoShakeTranslateAmtVel =
         g_tweakGui->GetHudDecoShakeTranslateVelLinear() * prevDam + g_tweakGui->GetHudDecoShakeTranslateVelConstant();
     x414_decoShakeTranslateAmt = x418_decoShakeTranslateAmtVel;
-    x408_damagerToPlayerNorm = -(fpCam->GetTransform().inverse() * position).normalized();
+    x408_damagerToPlayerNorm = -(fpCam->GetTransform().Inverse() * position).normalized();
     x464_decoShakeAmtGain = g_tweakGui->GetDecoShakeGainLinear() * prevDam + g_tweakGui->GetDecoShakeGainConstant();
     x45c_decoShakeAmtInit = g_tweakGui->GetDecoShakeInitLinear() * prevDam + g_tweakGui->GetDecoShakeInitConstant();
     x460_decoShakeAmt = x45c_decoShakeAmtInit;
@@ -1284,7 +1284,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr, CInGameGuiManager::EH
     }
 
     x598_base_basewidget_message->SetLocalTransform(x598_base_basewidget_message->GetTransform() *
-                                                    zeus::CTransform::Scale(textScale, 1.f, 1.f));
+                                                    zeus::CTransform4f::Scale(textScale, 1.f, 1.f));
   }
 
   float nextSfxChars = x55c_lastSfxChars + g_tweakGui->GetWorldTransManagerCharsPerSfx();
@@ -1604,10 +1604,10 @@ void CSamusHud::Touch() {
     x288_loadedSelectedHud->Touch();
 }
 
-zeus::CTransform CSamusHud::BuildFinalCameraTransform(const zeus::CQuaternion& rot, const zeus::CVector3f& pos,
+zeus::CTransform4f CSamusHud::BuildFinalCameraTransform(const zeus::CQuaternion& rot, const zeus::CVector3f& pos,
                                                       const zeus::CVector3f& camPos) {
   zeus::CQuaternion invRot = rot.inverse();
-  return zeus::CTransform(invRot, invRot.transform(camPos - pos) + pos);
+  return zeus::CTransform4f(invRot, invRot.transform(camPos - pos) + pos);
 }
 
 void CSamusHud::SetMessage(std::u16string_view text, const CHUDMemoParms& info) {

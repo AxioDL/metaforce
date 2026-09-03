@@ -13,7 +13,7 @@
 #include "Runtime/World/CWorldShadow.hpp"
 #include "Runtime/World/ScriptObjectSupport.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector3f.hpp>
 
@@ -73,7 +73,7 @@ private:
   bool x18be_spiderBallSwinging = false;
   bool x18bf_spiderSwingInAir = true;
   bool x18c0_isSpiderSurface = false;
-  zeus::CTransform x18c4_spiderSurfaceTransform;
+  zeus::CTransform4f x18c4_spiderSurfaceTransform;
   float x18f4_spiderSurfacePivotAngle = 0.f;
   float x18f8_spiderSurfacePivotTargetAngle = 0.f;
   float x18fc_refPullVel = 0.f;
@@ -85,7 +85,7 @@ private:
   float x1918_spiderViewControlMag = 0.f;
   float x191c_damageTimer = 0.f;
   bool x1920_spiderForcesReset = false;
-  zeus::CTransform x1924_surfaceToWorld;
+  zeus::CTransform4f x1924_surfaceToWorld;
   bool x1954_isProjectile = false;
   std::vector<CToken> x1958_animationTokens;
   TToken<CSwooshDescription> x1968_slowBlueTailSwoosh;
@@ -194,7 +194,7 @@ public:
   bool FindClosestSpiderBallWaypoint(CStateManager& mgr, const zeus::CVector3f& ballCenter,
                                      zeus::CVector3f& closestPoint, zeus::CVector3f& interpDeltaBetweenPoints,
                                      zeus::CVector3f& deltaBetweenPoints, float& distance, zeus::CVector3f& normal,
-                                     bool& isSurface, zeus::CTransform& surfaceTransform) const;
+                                     bool& isSurface, zeus::CTransform4f& surfaceTransform) const;
   void SetSpiderBallSwingingState(bool active);
   float GetSpiderBallControllerMovement(const CFinalInput& input) const;
   void ResetSpiderBallSwingControllerMovementTimer();
@@ -203,9 +203,9 @@ public:
   void CreateSpiderBallParticles(const zeus::CVector3f& ballPos, const zeus::CVector3f& trackPoint);
   void ComputeMarioMovement(const CFinalInput& input, CStateManager& mgr, float dt);
   void SetSpiderBallState(ESpiderBallState state) { x187c_spiderBallState = state; }
-  zeus::CTransform GetSwooshToWorld() const;
-  zeus::CTransform GetBallToWorld() const;
-  zeus::CTransform CalculateSurfaceToWorld(const zeus::CVector3f& trackNormal, const zeus::CVector3f& trackPoint,
+  zeus::CTransform4f GetSwooshToWorld() const;
+  zeus::CTransform4f GetBallToWorld() const;
+  zeus::CTransform4f CalculateSurfaceToWorld(const zeus::CVector3f& trackNormal, const zeus::CVector3f& trackPoint,
                                            const zeus::CVector3f& ballDir) const;
   bool CalculateBallContactInfo(zeus::CVector3f& normal, zeus::CVector3f& point) const;
   void UpdateBallDynamics(CStateManager& mgr, float dt);
@@ -225,7 +225,7 @@ public:
   void ApplyFriction(float);
   void DampLinearAndAngularVelocities(float linDamp, float angDamp);
   float GetMinimumAlignmentSpeed() const;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum);
+  void PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum);
   void Render(const CStateManager& mgr, const CActorLights* lights) const;
   void ResetMorphBallTransitionFlash();
   void UpdateMorphBallTransitionFlash(float dt);
@@ -233,7 +233,7 @@ public:
   void UpdateIceBreakEffect(float dt);
   void RenderIceBreakEffect(const CStateManager& mgr) const;
   bool IsMorphBallTransitionFlashValid() const { return x19dc_morphBallTransitionFlashGen != nullptr; }
-  void RenderDamageEffects(const CStateManager& mgr, const zeus::CTransform& xf) const;
+  void RenderDamageEffects(const CStateManager& mgr, const zeus::CTransform4f& xf) const;
   void UpdateHalfPipeStatus(CStateManager& mgr, float dt);
   bool GetIsInHalfPipeMode() const { return x1df8_24_inHalfPipeMode; }
   void SetIsInHalfPipeMode(bool b) { x1df8_24_inHalfPipeMode = b; }
@@ -244,7 +244,7 @@ public:
   void DisableHalfPipeStatus();
   bool BallCloseToCollision(const CStateManager& mgr, float dist, const CMaterialFilter& filter) const;
   void CollidedWith(TUniqueId id, const CCollisionInfoList& list, CStateManager& mgr);
-  bool IsInFrustum(const zeus::CFrustum& frustum) const;
+  bool IsInFrustum(const zeus::CFrustumPlanes& frustum) const;
   void ComputeLiftForces(const zeus::CVector3f& controlForce, const zeus::CVector3f& velocity,
                          const CStateManager& mgr);
   float CalculateSurfaceFriction() const;

@@ -15,7 +15,7 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 #include <zeus/CQuaternion.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 #ifndef DEFINE_PATTERNED
@@ -249,7 +249,7 @@ protected:
 public:
   DEFINE_ENTITY
   CPatterned(EPatternedAI character, TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
-             const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,
+             const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pinfo,
              CPatterned::EMovementType movement, EColliderType collider, EBodyType body, const CActorParameters& params,
              EKnockBackVariant kbVariant);
 
@@ -260,8 +260,8 @@ public:
     CEntity::Think(x500_preThinkDt, mgr);
   }
   void Think(float, CStateManager&) override;
-  void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustumPlanes&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Render(CStateManager& mgr) override;
 
   void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr) override;
@@ -270,8 +270,8 @@ public:
   bool CanRenderUnsorted(const CStateManager& mgr) const override;
   zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const override { return GetAimPosition(mgr, 0.f); }
   zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const override;
-  zeus::CTransform GetLctrTransform(std::string_view name) const;
-  zeus::CTransform GetLctrTransform(CSegId id) const;
+  zeus::CTransform4f GetLctrTransform(std::string_view name) const;
+  zeus::CTransform4f GetLctrTransform(CSegId id) const;
 
   bool ApplyBoneTracking() const;
 
@@ -369,7 +369,7 @@ public:
   const CKnockBackController& GetKnockBackController() const { return x460_knockBackController; }
   CKnockBackController& GetKnockBackController() { return x460_knockBackController; }
   void SetupPlayerCollision(bool);
-  CGameProjectile* LaunchProjectile(const zeus::CTransform& gunXf, CStateManager& mgr, int maxAllowed,
+  CGameProjectile* LaunchProjectile(const zeus::CTransform4f& gunXf, CStateManager& mgr, int maxAllowed,
                                     EProjectileAttrib attrib, bool playerHoming,
                                     const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
                                     bool sendCollideMsg, const zeus::CVector3f& scale);

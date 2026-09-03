@@ -106,8 +106,8 @@ public:
   void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr);
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void PreRender(CStateManager&, const zeus::CFrustum&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustumPlanes&) override;
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override;
   void Touch(CActor&, CStateManager&) override;
   void Think(float, CStateManager&) override;
   void HandleRadiusDamage(float radius, CStateManager& mgr, const zeus::CVector3f& pos);

@@ -2,7 +2,7 @@
 
 #include "Runtime/Streams/IOStreams.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -30,7 +30,7 @@ public:
   static CLightParameters LoadLightParameters(CInputStream& in);
   static CAnimationParameters LoadAnimationParameters(CInputStream& in);
   static CFluidUVMotion LoadFluidUVMotion(CInputStream& in);
-  static zeus::CTransform ConvertEditorEulerToTransform4f(const zeus::CVector3f& orientation,
+  static zeus::CTransform4f ConvertEditorEulerToTransform4f(const zeus::CVector3f& orientation,
                                                           const zeus::CVector3f& position);
 
   static CEntity* LoadActor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);

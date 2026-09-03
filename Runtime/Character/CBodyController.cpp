@@ -109,9 +109,9 @@ void CBodyController::FaceDirection(const zeus::CVector3f& v0, float dt) {
   noZ.z() = 0.f;
   if (noZ.canBeNormalized()) {
     if (TCastToPtr<CPhysicsActor> act = x0_actor) {
-      zeus::CQuaternion rot = zeus::CQuaternion::lookAt(act->GetTransform().basis[1], noZ.normalized(),
+      zeus::CQuaternion rot = zeus::CQuaternion::lookAt(act->GetTransform().GetForward(), noZ.normalized(),
                                                         zeus::degToRad(dt * x2fc_turnSpeed));
-      rot.setImaginary(act->GetTransform().transposeRotate(rot.getImaginary()));
+      rot.setImaginary(act->GetTransform().TransposeRotate(rot.getImaginary()));
       act->RotateInOneFrameOR(rot, dt);
     }
   }
@@ -128,12 +128,12 @@ void CBodyController::FaceDirection3D(const zeus::CVector3f& v0, const zeus::CVe
       if (!zeus::close_enough(dot, 1.f)) {
         if (dot < -0.9999f) {
           zeus::CQuaternion rot =
-              zeus::CQuaternion::fromAxisAngle(act->GetTransform().basis[2], zeus::degToRad(dt * x2fc_turnSpeed));
-          rot.setImaginary(act->GetTransform().transposeRotate(rot.getImaginary()));
+              zeus::CQuaternion::fromAxisAngle(act->GetTransform().GetUp(), zeus::degToRad(dt * x2fc_turnSpeed));
+          rot.setImaginary(act->GetTransform().TransposeRotate(rot.getImaginary()));
           act->RotateInOneFrameOR(rot, dt);
         } else {
           zeus::CQuaternion rot = zeus::CQuaternion::clampedRotateTo(uv1, uv0, zeus::degToRad(dt * x2fc_turnSpeed));
-          rot.setImaginary(x0_actor.GetTransform().transposeRotate(rot.getImaginary()));
+          rot.setImaginary(x0_actor.GetTransform().TransposeRotate(rot.getImaginary()));
           act->RotateInOneFrameOR(rot, dt);
         }
       }

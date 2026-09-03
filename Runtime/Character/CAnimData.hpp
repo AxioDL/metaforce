@@ -177,8 +177,8 @@ public:
   void SetPlaybackRate(float set);
   void SetRandomPlaybackRate(CRandom16& r);
   void CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms, const std::shared_ptr<CAnimTreeNode>& node);
-  zeus::CTransform GetLocatorTransform(CSegId id, const CCharAnimTime* time) const;
-  zeus::CTransform GetLocatorTransform(std::string_view name, const CCharAnimTime* time) const;
+  zeus::CTransform4f GetLocatorTransform(CSegId id, const CCharAnimTime* time) const;
+  zeus::CTransform4f GetLocatorTransform(std::string_view name, const CCharAnimTime* time) const;
   bool IsAnimTimeRemaining(float rem, std::string_view name) const;
   float GetAnimTimeRemaining(std::string_view name) const;
   float GetAnimationDuration(int animIn) const;
@@ -193,7 +193,7 @@ public:
   std::shared_ptr<CAnimSysContext> GetAnimSysContext() const;
   std::shared_ptr<CAnimationManager> GetAnimationManager() const;
   void RecalcPoseBuilder(const CCharAnimTime* time);
-  void RenderAuxiliary(const zeus::CFrustum& frustum) const;
+  void RenderAuxiliary(const zeus::CFrustumPlanes& frustum) const;
   void Render(CSkinnedModel& model, const CModelFlags& drawFlags, CVertexMorphEffect* morphEffect,
               TConstVectorRef averagedNormals);
   void SetupRender(CSkinnedModel& model, CVertexMorphEffect* morphEffect, TConstVectorRef averagedNormals);
@@ -219,11 +219,11 @@ public:
 
   static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, CVertexMorphEffect* morphEffect,
                                TConstVectorRef averagedNormals);
-  void AdvanceParticles(const zeus::CTransform& xf, float dt, const zeus::CVector3f&, CStateManager& stateMgr);
+  void AdvanceParticles(const zeus::CTransform4f& xf, float dt, const zeus::CVector3f&, CStateManager& stateMgr);
   float GetAverageVelocity(int animIn) const;
   void ResetPOILists();
   CSegId GetLocatorSegId(std::string_view name) const;
-  zeus::CAABox GetBoundingBox(const zeus::CTransform& xf) const;
+  zeus::CAABox GetBoundingBox(const zeus::CTransform4f& xf) const;
   zeus::CAABox GetBoundingBox() const;
   void SubstituteModelData(const TCachedToken<CSkinnedModel>& model);
   static void FreeCache();

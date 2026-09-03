@@ -247,7 +247,7 @@ bool CInGameGuiManager::CheckLoadComplete(CStateManager& stateMgr) {
         x14c_basehud_camera->GetLocalPosition() + zeus::CVector3f(0.f, 2.f, g_tweakAutoMapper->GetCamVerticalOffset());
 
     zeus::CMatrix3f mtx(x170_camRotate);
-    x18c_mapCamXf = zeus::CTransform(mtx, x180_camOffset);
+    x18c_mapCamXf = zeus::CTransform4f(mtx, x180_camOffset);
 
     BeginStateTransition(EInGameGuiState::InGame, stateMgr);
     x18_loadPhase = ELoadPhase::Done;
@@ -282,26 +282,26 @@ void CInGameGuiManager::OnNewPauseScreenState(CArchitectureQueue& archQueue) {
 
 void CInGameGuiManager::UpdateAutoMapper(float dt, CStateManager& stateMgr) {
   x38_autoMapper->Update(dt, stateMgr);
-  zeus::CTransform xf =
+  zeus::CTransform4f xf =
       x148_model_automapper->GetParent()->GetWorldTransform() * x144_basewidget_automapper->GetTransform();
   x154_automapperRotate = zeus::CQuaternion(xf.basis);
   x164_automapperOffset = xf.origin;
 
   x170_camRotate = zeus::CQuaternion(x14c_basehud_camera->GetWorldTransform().basis);
-  x180_camOffset = x14c_basehud_camera->GetWorldTransform().basis[1] * 2.f + x14c_basehud_camera->GetWorldPosition() +
-                   x14c_basehud_camera->GetWorldTransform().basis[2] * g_tweakAutoMapper->GetCamVerticalOffset();
+  x180_camOffset = x14c_basehud_camera->GetWorldTransform().GetForward() * 2.f + x14c_basehud_camera->GetWorldPosition() +
+                   x14c_basehud_camera->GetWorldTransform().GetUp() * g_tweakAutoMapper->GetCamVerticalOffset();
 
   float frameLength = std::tan(zeus::degToRad(x14c_basehud_camera->GetProjection().xbc_fov) / 2.f) / 0.7f;
   float scaleX = frameLength * g_tweakAutoMapper->GetAutomapperScaleX();
   float scaleZ = frameLength * g_tweakAutoMapper->GetAutomapperScaleZ();
   if (x38_autoMapper->IsFullyOutOfMiniMapState()) {
-    x148_model_automapper->SetO2WTransform(zeus::CTransform(x170_camRotate, x180_camOffset) *
-                                           zeus::CTransform::Scale(scaleX, 1.f, scaleZ));
+    x148_model_automapper->SetO2WTransform(zeus::CTransform4f(x170_camRotate, x180_camOffset) *
+                                           zeus::CTransform4f::Scale(scaleX, 1.f, scaleZ));
     x18c_mapCamXf =
-        zeus::CTransform(x170_camRotate, x180_camOffset) * zeus::CTransform::Scale(frameLength, 1.f, frameLength);
+        zeus::CTransform4f(x170_camRotate, x180_camOffset) * zeus::CTransform4f::Scale(frameLength, 1.f, frameLength);
     x148_model_automapper->SetColor(g_tweakAutoMapper->GetAutomapperWidgetColor());
   } else if (x38_autoMapper->IsFullyInMiniMapState()) {
-    x148_model_automapper->SetO2WTransform(zeus::CTransform(x154_automapperRotate, x164_automapperOffset));
+    x148_model_automapper->SetO2WTransform(zeus::CTransform4f(x154_automapperRotate, x164_automapperOffset));
     x18c_mapCamXf = x148_model_automapper->GetWorldTransform();
     x148_model_automapper->SetColor(g_tweakAutoMapper->GetAutomapperWidgetMiniColor());
   } else {
@@ -313,10 +313,10 @@ void CInGameGuiManager::UpdateAutoMapper(float dt, CStateManager& stateMgr) {
     float st = t * (frameLength - 1.f) + 1.f;
     zeus::CQuaternion rotate = zeus::CQuaternion::slerp(x154_automapperRotate, x170_camRotate, t);
     zeus::CVector3f offset = x164_automapperOffset * (1.f - t) + x180_camOffset * t;
-    x18c_mapCamXf = zeus::CTransform(rotate, offset) * zeus::CTransform::Scale(st, 1.f, st);
+    x18c_mapCamXf = zeus::CTransform4f(rotate, offset) * zeus::CTransform4f::Scale(st, 1.f, st);
     x148_model_automapper->SetO2WTransform(
-        zeus::CTransform(rotate, offset) *
-        zeus::CTransform::Scale(t * (scaleX - 1.f) + 1.f, 1.f, t * (scaleZ - 1.f) + 1.f));
+        zeus::CTransform4f(rotate, offset) *
+        zeus::CTransform4f::Scale(t * (scaleX - 1.f) + 1.f, 1.f, t * (scaleZ - 1.f) + 1.f));
     x148_model_automapper->SetColor(zeus::CColor::lerp(g_tweakAutoMapper->GetAutomapperWidgetMiniColor(),
                                                        g_tweakAutoMapper->GetAutomapperWidgetColor(), t));
   }
@@ -549,7 +549,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
     x148_model_automapper->SetIsVisible(true);
     x148_model_automapper->Draw(CGuiWidgetDrawParms(1.f, zeus::skZero3f));
     CGraphics::SetDepthWriteMode(true, ERglEnum::GEqual, false);
-    x38_autoMapper->Draw(stateMgr, zeus::CTransform::Translate(0.f, 0.02f, 0.f) * x18c_mapCamXf,
+    x38_autoMapper->Draw(stateMgr, zeus::CTransform4f::Translate(0.f, 0.02f, 0.f) * x18c_mapCamXf,
                          mapAlpha * x1f4_visorStaticAlpha * t);
     CGraphics::SetDepthWriteMode(true, ERglEnum::LEqual, true);
     x148_model_automapper->SetIsVisible(false);

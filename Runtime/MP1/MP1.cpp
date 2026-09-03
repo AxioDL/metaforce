@@ -231,8 +231,8 @@ CMain::~CMain() { g_Main = nullptr; }
 void CMain::RegisterResourceTweaks() {}
 
 void CGameGlobalObjects::AddPaksAndFactories() {
-  CGraphics::SetViewPointMatrix(zeus::CTransform());
-  CGraphics::SetModelMatrix(zeus::CTransform());
+  CGraphics::SetViewPointMatrix(zeus::CTransform4f());
+  CGraphics::SetModelMatrix(zeus::CTransform4f());
   if (CResLoader* loader = g_ResFactory->GetResLoader()) {
     loader->AddPakFileAsync("Tweaks", false, false);
     loader->AddPakFileAsync("NoARAM", false, false);

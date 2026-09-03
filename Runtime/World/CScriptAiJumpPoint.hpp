@@ -20,12 +20,12 @@ private:
 
 public:
   DEFINE_ENTITY
-  CScriptAiJumpPoint(TUniqueId, std::string_view, const CEntityInfo&, zeus::CTransform&, bool, float);
+  CScriptAiJumpPoint(TUniqueId, std::string_view, const CEntityInfo&, zeus::CTransform4f&, bool, float);
 
   void Accept(IVisitor& visitor) override;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) override {}
+  void AddToRenderer(const zeus::CFrustumPlanes&, CStateManager&) override {}
   void Render(CStateManager&) override {}
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   bool GetInUse(TUniqueId uid) const;

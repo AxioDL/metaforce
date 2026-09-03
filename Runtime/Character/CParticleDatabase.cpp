@@ -80,7 +80,7 @@ void CParticleDatabase::DeleteAllLights(CStateManager& mgr) {
 }
 
 void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& pose, const CCharLayoutInfo& charInfo,
-                                            const zeus::CTransform& xf, const zeus::CVector3f& scale,
+                                            const zeus::CTransform4f& xf, const zeus::CVector3f& scale,
                                             CStateManager& stateMgr, DrawMap& map, bool deleteIfDone) {
   for (auto it = map.begin(); it != map.end();) {
     CParticleGenInfo& info = *it->second;
@@ -99,10 +99,10 @@ void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& p
         switch (info.GetParentedMode()) {
         case CParticleData::EParentedMode::Initial: {
           if (info.GetIsGrabInitialData()) {
-            zeus::CTransform segXf((info.GetFlags() & 0x10) ? zeus::CMatrix3f() : pose.GetRotation(segId),
+            zeus::CTransform4f segXf((info.GetFlags() & 0x10) ? zeus::CMatrix3f() : pose.GetRotation(segId),
                                    off * scale);
-            zeus::CTransform compXf = xf * segXf;
-            info.SetCurTransform(compXf.getRotation());
+            zeus::CTransform4f compXf = xf * segXf;
+            info.SetCurTransform(compXf.GetRotation());
             info.SetCurOffset(compXf.origin);
             info.SetCurrentTime(0.f);
             info.SetIsGrabInitialData(false);
@@ -125,21 +125,21 @@ void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& p
             info.SetIsGrabInitialData(false);
           }
 
-          zeus::CTransform segXf(pose.GetRotation(segId), off * scale);
-          zeus::CTransform compXf = xf * segXf;
+          zeus::CTransform4f segXf(pose.GetRotation(segId), off * scale);
+          zeus::CTransform4f compXf = xf * segXf;
 
           if (info.GetParentedMode() == CParticleData::EParentedMode::ContinuousEmitter) {
             info.SetTranslation(compXf.origin, stateMgr);
             if (info.GetFlags() & 0x10)
-              info.SetOrientation(xf.getRotation(), stateMgr);
+              info.SetOrientation(xf.GetRotation(), stateMgr);
             else
-              info.SetOrientation(compXf.getRotation(), stateMgr);
+              info.SetOrientation(compXf.GetRotation(), stateMgr);
           } else {
             info.SetGlobalTranslation(compXf.origin, stateMgr);
             if (info.GetFlags() & 0x10)
-              info.SetGlobalOrientation(xf.getRotation(), stateMgr);
+              info.SetGlobalOrientation(xf.GetRotation(), stateMgr);
             else
-              info.SetGlobalOrientation(compXf.getRotation(), stateMgr);
+              info.SetGlobalOrientation(compXf.GetRotation(), stateMgr);
           }
 
           if (info.GetFlags() & 0x2000)
@@ -184,7 +184,7 @@ void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& p
 }
 
 void CParticleDatabase::Update(float dt, const CPoseAsTransforms& pose, const CCharLayoutInfo& charInfo,
-                               const zeus::CTransform& xf, const zeus::CVector3f& scale, CStateManager& stateMgr) {
+                               const zeus::CTransform4f& xf, const zeus::CVector3f& scale, CStateManager& stateMgr) {
   if (!xb4_24_updatesEnabled)
     return;
 
@@ -213,7 +213,7 @@ void CParticleDatabase::RenderParticleGenMapMasked(const DrawMap& map, int mask,
   }
 }
 
-void CParticleDatabase::AddToRendererClippedParticleGenMap(const DrawMap& map, const zeus::CFrustum& frustum) {
+void CParticleDatabase::AddToRendererClippedParticleGenMap(const DrawMap& map, const zeus::CFrustumPlanes& frustum) {
   for (const auto& e : map) {
     const auto bounds = e.second->GetBounds();
     if (bounds && frustum.aabbFrustumTest(*bounds)) {
@@ -222,7 +222,7 @@ void CParticleDatabase::AddToRendererClippedParticleGenMap(const DrawMap& map, c
   }
 }
 
-void CParticleDatabase::AddToRendererClippedParticleGenMapMasked(const DrawMap& map, const zeus::CFrustum& frustum,
+void CParticleDatabase::AddToRendererClippedParticleGenMapMasked(const DrawMap& map, const zeus::CFrustumPlanes& frustum,
                                                                  int mask, int target) {
   for (const auto& e : map) {
     if ((e.second->GetFlags() & mask) == target) {
@@ -254,12 +254,12 @@ void CParticleDatabase::RenderSystemsToBeDrawnFirst() const {
   RenderParticleGenMap(x50_firstDrawLoop);
 }
 
-void CParticleDatabase::AddToRendererClippedMasked(const zeus::CFrustum& frustum, int mask, int target) const {
+void CParticleDatabase::AddToRendererClippedMasked(const zeus::CFrustumPlanes& frustum, int mask, int target) const {
   AddToRendererClippedParticleGenMapMasked(x78_rendererDraw, frustum, mask, target);
   AddToRendererClippedParticleGenMapMasked(x3c_rendererDrawLoop, frustum, mask, target);
 }
 
-void CParticleDatabase::AddToRendererClipped(const zeus::CFrustum& frustum) const {
+void CParticleDatabase::AddToRendererClipped(const zeus::CFrustumPlanes& frustum) const {
   AddToRendererClippedParticleGenMap(x78_rendererDraw, frustum);
   AddToRendererClippedParticleGenMap(x3c_rendererDrawLoop, frustum);
 }

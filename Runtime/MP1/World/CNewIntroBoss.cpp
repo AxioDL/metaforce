@@ -36,7 +36,7 @@ constexpr std::array<SOBBJointInfo, 13> skOBBJoints{{
     {"L_elbow_back", "L_wrist_back", {.5f, .5f, .5f}},
 }};
 
-CNewIntroBoss::CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CNewIntroBoss::CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                              CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
                              float minTurnAngle, CAssetId projectile, const CDamageInfo& dInfo,
                              CAssetId beamContactFxId, CAssetId beamPulseFxId, CAssetId beamTextureId,
@@ -231,14 +231,14 @@ void CNewIntroBoss::Think(float dt, CStateManager& mgr) {
   CPlasmaProjectile* curProjectile = static_cast<CPlasmaProjectile*>(mgr.ObjectById(x676_curProjectile));
   if (curProjectile && curProjectile->GetActive()) {
     x628_firingTime += dt;
-    zeus::CTransform xf = GetLctrTransform(x5dc_damageLocator);
+    zeus::CTransform4f xf = GetLctrTransform(x5dc_damageLocator);
 
     if (x400_25_alive) {
       zeus::CQuaternion clampedQuat = zeus::CQuaternion::clampedRotateTo(
-          xf.frontVector(),
+          xf.GetForward(),
           (x610_lookPos + (zeus::min(x628_firingTime / 1.5f, 1.f) * (x61c_startPlayerPos - x610_lookPos))) - xf.origin,
           zeus::CRelAngle::FromDegrees(30.f));
-      zeus::CTransform newXf = clampedQuat.toTransform() * xf.getRotation();
+      zeus::CTransform4f newXf = clampedQuat.toTransform() * xf.GetRotation();
       newXf.origin = xf.origin;
       curProjectile->UpdateFx(newXf, dt, mgr);
     } else
@@ -267,14 +267,14 @@ void CNewIntroBoss::Think(float dt, CStateManager& mgr) {
     x450_bodyController->SetPlaybackRate(1.f);
     SetTransform(x644_initialXf);
     StopRumble(mgr);
-    Death(mgr, GetTransform().frontVector(), EScriptObjectState::DeathRattle);
+    Death(mgr, GetTransform().GetForward(), EScriptObjectState::DeathRattle);
   }
 }
 
 void CNewIntroBoss::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType event, float dt) {
   if (event == EUserEventType::DamageOn) {
     x5dc_damageLocator = node.GetLocatorName();
-    zeus::CTransform xf = GetLctrTransform(x5dc_damageLocator);
+    zeus::CTransform4f xf = GetLctrTransform(x5dc_damageLocator);
     zeus::CVector3f playerPos = PlayerPos(mgr);
     x604_predictedPlayerPos = x610_lookPos = x62c_targetPos = playerPos;
     x61c_startPlayerPos = playerPos;
@@ -288,7 +288,7 @@ void CNewIntroBoss::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& nod
 
     if (CPlasmaProjectile* projectile = static_cast<CPlasmaProjectile*>(mgr.ObjectById(x676_curProjectile))) {
       if (!projectile->GetActive()) {
-        projectile->Fire(zeus::lookAt(xf.origin, x610_lookPos), mgr, false);
+        projectile->Fire(zeus::CTransform4f::LookAt(xf.origin, x610_lookPos), mgr, false);
 
         if (x674_rumbleVoice == -1)
           x674_rumbleVoice =
@@ -308,7 +308,7 @@ void CNewIntroBoss::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& nod
   }
 }
 
-void CNewIntroBoss::AddToRenderer(const zeus::CFrustum&, CStateManager& mgr) { EnsureRendered(mgr); }
+void CNewIntroBoss::AddToRenderer(const zeus::CFrustumPlanes&, CStateManager& mgr) { EnsureRendered(mgr); }
 
 float CNewIntroBoss::GetNextAttackTime(CStateManager& mgr) const {
   float attackTime = 2.f * mgr.GetActiveRandom()->Float() + 6.f;
@@ -338,7 +338,7 @@ bool CNewIntroBoss::ShouldTurn(CStateManager& mgr, float dt) {
 
   zeus::CVector2f diffPos = (x604_predictedPlayerPos - GetTranslation()).toVec2f();
 
-  return zeus::CVector2f::getAngleDiff(GetTransform().frontVector().toVec2f(), diffPos) >
+  return zeus::CVector2f::getAngleDiff(GetTransform().GetForward().toVec2f(), diffPos) >
          zeus::degToRad(x570_minTurnAngle);
 }
 

@@ -30,7 +30,7 @@ class CFlaahgraTentacle : public CPatterned {
 
 public:
   DEFINE_PATTERNED(FlaahgraTentacle);
-  CFlaahgraTentacle(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+  CFlaahgraTentacle(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, CModelData&&,
                     const CPatternedInfo&, const CActorParameters&);
 
   void Accept(IVisitor&) override;

@@ -20,7 +20,7 @@ class CScriptCameraHintTrigger : public CActor {
 public:
   DEFINE_ENTITY
   CScriptCameraHintTrigger(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
-                           const zeus::CVector3f& scale, const zeus::CTransform& xf, bool deactivateOnEnter,
+                           const zeus::CVector3f& scale, const zeus::CTransform4f& xf, bool deactivateOnEnter,
                            bool deactivateOnExit);
 
   void Accept(IVisitor& visitor) override;

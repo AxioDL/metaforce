@@ -67,15 +67,15 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) {
   g_Renderer->SetViewportOrtho(true, 0.f, 4096.f);
 
   float vpScale = CGraphics::GetViewportHeight() / 448.f;
-  CGraphics::SetModelMatrix(zeus::CTransform::Scale(x48_interpWindowDims.x() * 17.f * vpScale, 1.f,
+  CGraphics::SetModelMatrix(zeus::CTransform4f::Scale(x48_interpWindowDims.x() * 17.f * vpScale, 1.f,
                                                     x48_interpWindowDims.y() * 17.f * vpScale));
 
   x114_scanShield->Draw(CModelFlags(5, 0, 3, zeus::skClear));
 
   const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
-  zeus::CTransform camMtx = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+  zeus::CTransform4f camMtx = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
   CGraphics::SetViewPointMatrix(camMtx);
-  zeus::CFrustum frustum;
+  zeus::CFrustumPlanes frustum;
   frustum.updatePlanes(
       camMtx, zeus::CProjection(zeus::SProjPersp(
                   cam->GetFov(), CGraphics::GetViewportWidth() / float(CGraphics::GetViewportHeight()), 1.f, 100.f)));
@@ -106,7 +106,7 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) {
       zeus::CVector3f scanPos = act->GetScanObjectIndicatorPosition(mgr);
       float scale = CCompoundTargetReticle::CalculateClampedScale(
           scanPos, 1.f, g_tweakTargeting->GetScanTargetClampMin(), g_tweakTargeting->GetScanTargetClampMax(), mgr);
-      zeus::CTransform xf(zeus::CMatrix3f(scale) * camMtx.basis, scanPos);
+      zeus::CTransform4f xf(zeus::CMatrix3f(scale) * camMtx.basis, scanPos);
 
       float scanRange = g_tweakPlayer->GetScanningRange();
       float farRange = g_tweakPlayer->GetScanMaxLockDistance() - scanRange;
@@ -364,9 +364,9 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
 
   g_Renderer->SetViewportOrtho(true, -1.f, 1.f);
 
-  const zeus::CTransform windowScale = zeus::CTransform::Scale(x48_interpWindowDims.x(), 1.f, x48_interpWindowDims.y());
-  const zeus::CTransform seventeenScale = zeus::CTransform::Scale(17.f * vpScale, 1.f, 17.f * vpScale);
-  const zeus::CTransform mm = seventeenScale * windowScale;
+  const zeus::CTransform4f windowScale = zeus::CTransform4f::Scale(x48_interpWindowDims.x(), 1.f, x48_interpWindowDims.y());
+  const zeus::CTransform4f seventeenScale = zeus::CTransform4f::Scale(17.f * vpScale, 1.f, 17.f * vpScale);
+  const zeus::CTransform4f mm = seventeenScale * windowScale;
   g_Renderer->SetModelMatrix(mm);
 
   const float logicalScale = CGraphics::GetViewportHeight() / 448.f;
@@ -388,12 +388,12 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
                     frameColor + g_tweakGuiColors->GetScanFrameImpulseColor() *
                                      zeus::CColor(x550_scanFrameColorImpulseInterp, x550_scanFrameColorImpulseInterp));
 
-  const zeus::CTransform verticalFlip = zeus::CTransform::Scale(1.f, 1.f, -1.f);
-  const zeus::CTransform horizontalFlip = zeus::CTransform::Scale(-1.f, 1.f, 1.f);
+  const zeus::CTransform4f verticalFlip = zeus::CTransform4f::Scale(1.f, 1.f, -1.f);
+  const zeus::CTransform4f horizontalFlip = zeus::CTransform4f::Scale(-1.f, 1.f, 1.f);
 
   if (xe4_scanFrameCenterTop.IsLoaded()) {
-    const zeus::CTransform modelXf =
-        seventeenScale * zeus::CTransform::Translate(windowScale * zeus::CVector3f(0.f, 0.f, 4.553f));
+    const zeus::CTransform4f modelXf =
+        seventeenScale * zeus::CTransform4f::Translate(windowScale * zeus::CVector3f(0.f, 0.f, 4.553f));
     CGraphics::SetModelMatrix(modelXf);
     xe4_scanFrameCenterTop->Draw(flags);
     CGraphics::SetModelMatrix(verticalFlip * modelXf);
@@ -401,8 +401,8 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   }
 
   if (xd8_scanFrameCenterSide.IsLoaded()) {
-    const zeus::CTransform modelXf =
-        seventeenScale * zeus::CTransform::Translate(windowScale * zeus::CVector3f(-5.f, 0.f, 0.f));
+    const zeus::CTransform4f modelXf =
+        seventeenScale * zeus::CTransform4f::Translate(windowScale * zeus::CVector3f(-5.f, 0.f, 0.f));
     CGraphics::SetModelMatrix(modelXf);
     xd8_scanFrameCenterSide->Draw(flags);
     CGraphics::SetModelMatrix(horizontalFlip * modelXf);
@@ -410,8 +410,8 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   }
 
   if (xcc_scanFrameCorner.IsLoaded()) {
-    const zeus::CTransform modelXf =
-        seventeenScale * zeus::CTransform::Translate(windowScale * zeus::CVector3f(-5.f, 0.f, 4.553f));
+    const zeus::CTransform4f modelXf =
+        seventeenScale * zeus::CTransform4f::Translate(windowScale * zeus::CVector3f(-5.f, 0.f, 4.553f));
     CGraphics::SetModelMatrix(modelXf);
     xcc_scanFrameCorner->Draw(flags);
     CGraphics::SetModelMatrix(horizontalFlip * modelXf);
@@ -423,9 +423,9 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   }
 
   if (xfc_scanFrameStretchTop.IsLoaded()) {
-    const zeus::CTransform modelXf = seventeenScale *
-                                     zeus::CTransform::Translate(-1.f, 0.f, 4.553f * windowScale.basis[2][2]) *
-                                     zeus::CTransform::Scale(5.f * windowScale.basis[0][0] - 1.f - 1.884f, 1.f, 1.f);
+    const zeus::CTransform4f modelXf = seventeenScale *
+                                     zeus::CTransform4f::Translate(-1.f, 0.f, 4.553f * windowScale.GetUp()[2]) *
+                                     zeus::CTransform4f::Scale(5.f * windowScale.GetRight()[0] - 1.f - 1.884f, 1.f, 1.f);
     CGraphics::SetModelMatrix(modelXf);
     xfc_scanFrameStretchTop->Draw(flags);
     CGraphics::SetModelMatrix(horizontalFlip * modelXf);
@@ -437,9 +437,9 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, CTargetingManager* t
   }
 
   if (xf0_scanFrameStretchSide.IsLoaded()) {
-    const zeus::CTransform modelXf = seventeenScale *
-                                     zeus::CTransform::Translate(-5.f * windowScale.basis[0][0], 0.f, 1.f) *
-                                     zeus::CTransform::Scale(1.f, 1.f, 4.553f * windowScale.basis[2][2] - 1.f - 1.886f);
+    const zeus::CTransform4f modelXf = seventeenScale *
+                                     zeus::CTransform4f::Translate(-5.f * windowScale.GetRight()[0], 0.f, 1.f) *
+                                     zeus::CTransform4f::Scale(1.f, 1.f, 4.553f * windowScale.GetUp()[2] - 1.f - 1.886f);
     CGraphics::SetModelMatrix(modelXf);
     xf0_scanFrameStretchSide->Draw(flags);
     CGraphics::SetModelMatrix(horizontalFlip * modelXf);

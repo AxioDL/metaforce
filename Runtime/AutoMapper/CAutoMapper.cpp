@@ -92,7 +92,7 @@ CAutoMapper::CAutoMapper(CStateManager& stateMgr) : x24_world(stateMgr.GetWorld(
   x3c_hintBeacon = g_SimplePool->GetObj("TXTR_HintBeacon");
 
   xa0_curAreaId = xa4_otherAreaId = stateMgr.GetWorld()->IGetCurrentAreaId();
-  zeus::CMatrix3f camRot = stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr)->GetTransform().buildMatrix3f();
+  zeus::CMatrix3f camRot = stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr)->GetTransform().BuildMatrix3f();
   xa8_renderStates[0] = xa8_renderStates[1] = xa8_renderStates[2] =
       BuildMiniMapWorldRenderState(stateMgr, camRot, xa0_curAreaId);
 
@@ -208,8 +208,8 @@ bool CAutoMapper::CheckDummyWorldLoad(CStateManager& mgr) {
 
   CWorldState& worldState = g_GameState->StateForWorld(dummyWorld->IGetWorldAssetId());
   CMapWorldInfo& mwInfo = *worldState.MapWorldInfo();
-  zeus::CVector3f localPoint = mapuWld.GetWorldTransform().inverse() * xa8_renderStates[0].x20_areaPoint;
-  zeus::CMatrix3f camRot = xa8_renderStates[0].x8_camOrientation.toTransform().buildMatrix3f();
+  zeus::CVector3f localPoint = mapuWld.GetWorldTransform().Inverse() * xa8_renderStates[0].x20_areaPoint;
+  zeus::CMatrix3f camRot = xa8_renderStates[0].x8_camOrientation.toTransform().BuildMatrix3f();
   TAreaId aid = FindClosestVisibleArea(localPoint, zeus::CUnitVector3f(camRot[1]), mgr, *dummyWorld, mwInfo);
   if (aid == -1) {
     x32c_loadingDummyWorld = false;
@@ -675,7 +675,7 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
     }
   }
 
-  zeus::CTransform camRot = xa8_renderStates[0].x8_camOrientation.toTransform();
+  zeus::CTransform4f camRot = xa8_renderStates[0].x8_camOrientation.toTransform();
   if (forward > 0.f || back > 0.f || left > 0.f || right > 0.f || mouseHeld) {
     float deltaFrames = 60.f * input.DeltaTime();
     float speed = GetFinalMapScreenCameraMoveSpeed();
@@ -724,7 +724,7 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
     SetShouldPanningSoundBePlaying(deltaVec.magnitude() > input.DeltaTime());
 
     if (x1bc_state == EAutoMapperState::MapScreen) {
-      xa8_renderStates[0].x20_areaPoint = x24_world->IGetMapWorld()->ConstrainToWorldVolume(newPoint, camRot.basis[1]);
+      xa8_renderStates[0].x20_areaPoint = x24_world->IGetMapWorld()->ConstrainToWorldVolume(newPoint, camRot.GetForward());
     } else {
       zeus::CVector3f localPoint = newPoint - x8_mapu->GetMapUniverseCenterPoint();
       if (localPoint.magnitude() > x8_mapu->GetMapUniverseRadius())
@@ -744,8 +744,8 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
       else
         xa8_renderStates[0].x20_areaPoint += viewPoint.normalized() * speed;
     } else {
-      std::pair<int, int> areas = FindClosestVisibleWorld(xa8_renderStates[0].x20_areaPoint, camRot.basis[1], mgr);
-      const zeus::CTransform& hex = x8_mapu->GetMapWorldData(areas.first).GetMapAreaData(areas.second);
+      std::pair<int, int> areas = FindClosestVisibleWorld(xa8_renderStates[0].x20_areaPoint, camRot.GetForward(), mgr);
+      const zeus::CTransform4f& hex = x8_mapu->GetMapWorldData(areas.first).GetMapAreaData(areas.second);
       zeus::CVector3f areaToHex = hex.origin - xa8_renderStates[0].x20_areaPoint;
       if (areaToHex.magnitude() < speed)
         xa8_renderStates[0].x20_areaPoint = hex.origin;
@@ -786,14 +786,14 @@ void CAutoMapper::SetShouldRotatingSoundBePlaying(bool shouldBePlaying) {
 }
 
 void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, CStateManager& mgr) {
-  zeus::CMatrix3f camRot = xa8_renderStates[0].x8_camOrientation.toTransform().buildMatrix3f();
+  zeus::CMatrix3f camRot = xa8_renderStates[0].x8_camOrientation.toTransform().BuildMatrix3f();
   if (x1bc_state == EAutoMapperState::MapScreen) {
     if ((input.PA() || input.PSpecialKey(ESpecialKey::Enter)) && x328_ == 0 && HasCurrentMapUniverseWorld())
       BeginMapperStateTransition(EAutoMapperState::MapScreenUniverse, mgr);
   } else if (x1bc_state == EAutoMapperState::MapScreenUniverse &&
              (input.PA() || input.PSpecialKey(ESpecialKey::Enter))) {
     const CMapUniverse::CMapWorldData& mapuWld = x8_mapu->GetMapWorldData(x9c_worldIdx);
-    zeus::CVector3f pointLocal = mapuWld.GetWorldTransform().inverse() * xa8_renderStates[0].x20_areaPoint;
+    zeus::CVector3f pointLocal = mapuWld.GetWorldTransform().Inverse() * xa8_renderStates[0].x20_areaPoint;
     if (mapuWld.GetWorldAssetId() != g_GameState->CurrentWorldAssetId()) {
       x32c_loadingDummyWorld = true;
       CheckDummyWorldLoad(mgr);
@@ -833,7 +833,7 @@ void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, CStateManager&
 
 zeus::CQuaternion CAutoMapper::GetMiniMapCameraOrientation(const CStateManager& stateMgr) const {
   const CGameCamera* cam = stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr);
-  zeus::CEulerAngles camAngles(zeus::CQuaternion(cam->GetTransform().buildMatrix3f()));
+  zeus::CEulerAngles camAngles(zeus::CQuaternion(cam->GetTransform().BuildMatrix3f()));
   zeus::CRelAngle angle(camAngles.z());
   angle.makeRel();
 
@@ -1000,7 +1000,7 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
     }
   }
 
-  zeus::CMatrix3f camRot = xa8_renderStates[0].x8_camOrientation.toTransform().buildMatrix3f();
+  zeus::CMatrix3f camRot = xa8_renderStates[0].x8_camOrientation.toTransform().BuildMatrix3f();
   if (IsInMapperState(EAutoMapperState::MapScreen)) {
     CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
     TAreaId aid = FindClosestVisibleArea(xa8_renderStates[0].x20_areaPoint, camRot[1], mgr, *x24_world, mwInfo);
@@ -1170,17 +1170,17 @@ void CAutoMapper::Update(float dt, CStateManager& mgr) {
   if (x30c_basewidget_leftPane) {
     float vpAspectRatio = std::max(1.78f, CGraphics::GetViewportAspect());
     x30c_basewidget_leftPane->SetLocalTransform(
-        zeus::CTransform::Translate(x318_leftPanePos * vpAspectRatio * -9.f, 0.f, 0.f) *
+        zeus::CTransform4f::Translate(x318_leftPanePos * vpAspectRatio * -9.f, 0.f, 0.f) *
         x30c_basewidget_leftPane->GetTransform());
   }
 
   if (x310_basewidget_yButtonPane) {
-    x310_basewidget_yButtonPane->SetLocalTransform(zeus::CTransform::Translate(0.f, 0.f, x31c_yButtonPanePos * -3.5f) *
+    x310_basewidget_yButtonPane->SetLocalTransform(zeus::CTransform4f::Translate(0.f, 0.f, x31c_yButtonPanePos * -3.5f) *
                                                    x310_basewidget_yButtonPane->GetTransform());
   }
 
   if (x314_basewidget_bottomPane) {
-    x314_basewidget_bottomPane->SetLocalTransform(zeus::CTransform::Translate(0.f, 0.f, x320_bottomPanePos * -7.f) *
+    x314_basewidget_bottomPane->SetLocalTransform(zeus::CTransform4f::Translate(0.f, 0.f, x320_bottomPanePos * -7.f) *
                                                   x314_basewidget_bottomPane->GetTransform());
   }
 
@@ -1290,7 +1290,7 @@ void CAutoMapper::Update(float dt, CStateManager& mgr) {
       wld->ICheckWorldComplete();
 }
 
-void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, float alpha) {
+void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform4f& xf, float alpha) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CAutoMapper::Draw", zeus::skPurple);
   alpha *= g_GameState->GameOptions().GetHUDAlpha() / 255.f;
   g_Renderer->SetBlendMode_AlphaBlended();
@@ -1318,11 +1318,11 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
   float yScale = xa8_renderStates[0].x18_camDist /
                  std::tan(M_PIF / 2.f - 0.5f * 2.f * M_PIF * (xa8_renderStates[0].x1c_camAngle / 360.f));
   float xScale = yScale * aspect;
-  zeus::CTransform camXf(xa8_renderStates[0].x8_camOrientation, xa8_renderStates[0].x20_areaPoint);
-  zeus::CTransform distScale = zeus::CTransform::Scale(1.f / xScale, 0.001f, 1.f / yScale);
-  zeus::CTransform tweakScale =
-      zeus::CTransform::Scale(g_tweakAutoMapper->GetMapPlaneScaleX(), 0.f, g_tweakAutoMapper->GetMapPlaneScaleZ());
-  zeus::CTransform planeXf = xf * tweakScale * distScale * camXf.inverse();
+  zeus::CTransform4f camXf(xa8_renderStates[0].x8_camOrientation, xa8_renderStates[0].x20_areaPoint);
+  zeus::CTransform4f distScale = zeus::CTransform4f::Scale(1.f / xScale, 0.001f, 1.f / yScale);
+  zeus::CTransform4f tweakScale =
+      zeus::CTransform4f::Scale(g_tweakAutoMapper->GetMapPlaneScaleX(), 0.f, g_tweakAutoMapper->GetMapPlaneScaleZ());
+  zeus::CTransform4f planeXf = xf * tweakScale * distScale * camXf.Inverse();
 
   float universeInterp = 0.f;
   if (x1c0_nextState == EAutoMapperState::MapScreenUniverse) {
@@ -1334,7 +1334,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
     universeInterp = 1.f - GetInterp();
   }
 
-  zeus::CTransform preXf;
+  zeus::CTransform4f preXf;
   if (x1bc_state == EAutoMapperState::MapScreenUniverse || x1c0_nextState == EAutoMapperState::MapScreenUniverse)
     preXf = x8_mapu->GetMapWorldData(x9c_worldIdx).GetWorldTransform();
 
@@ -1363,7 +1363,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
           }
         }
       }
-      const zeus::CTransform modelXf = planeXf * preXf;
+      const zeus::CTransform4f modelXf = planeXf * preXf;
       const CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
                                                 xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
                                                 xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
@@ -1387,7 +1387,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
   } else {
     CMapWorld* mw = x24_world->IGetMapWorld();
     const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(x24_world->IGetWorldAssetId()).MapWorldInfo();
-    zeus::CTransform modelXf = planeXf * preXf;
+    zeus::CTransform4f modelXf = planeXf * preXf;
     const CMapWorld::CMapWorldDrawParms parms(xa8_renderStates[0].x34_alphaSurfaceVisited * alphaInterp,
                                               xa8_renderStates[0].x38_alphaOutlineVisited * alphaInterp,
                                               xa8_renderStates[0].x3c_alphaSurfaceUnvisited * alphaInterp,
@@ -1399,12 +1399,12 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
   }
 
   if (universeInterp > 0.f) {
-    zeus::CTransform areaXf = mgr.GetWorld()
+    zeus::CTransform4f areaXf = mgr.GetWorld()
                                   ->GetMapWorld()
                                   ->GetMapArea(mgr.GetNextAreaId())
                                   ->GetAreaPostTransform(*mgr.GetWorld(), mgr.GetNextAreaId());
     const CMapUniverse::CMapWorldData& mwData = x8_mapu->GetMapWorldDataByWorldId(g_GameState->CurrentWorldAssetId());
-    zeus::CTransform universeAreaXf = mwData.GetWorldTransform() * areaXf;
+    zeus::CTransform4f universeAreaXf = mwData.GetWorldTransform() * areaXf;
     float minMag = FLT_MAX;
     int hexIdx = -1;
     for (u32 i = 0; i < mwData.GetNumMapAreaDatas(); ++i) {
@@ -1421,7 +1421,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
   }
 
   if (!IsInMapperState(EAutoMapperState::MapScreenUniverse)) {
-    zeus::CTransform mapXf = planeXf * preXf;
+    zeus::CTransform4f mapXf = planeXf * preXf;
     if (x24_world == mgr.GetWorld()) {
       float func = zeus::clamp(0.f, 0.5f * (1.f + std::sin(5.f * CGraphics::GetSecondsMod900() - (M_PIF / 2.f))), 1.f);
       float scale =
@@ -1429,10 +1429,10 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
       zeus::CEulerAngles eulers(mgr.GetCameraManager()->GetCurrentCameraTransform(mgr));
       zeus::CRelAngle angle(eulers.z());
       angle.makeRel();
-      zeus::CTransform playerXf(zeus::CMatrix3f::RotateZ(angle),
+      zeus::CTransform4f playerXf(zeus::CMatrix3f::RotateZ(angle),
                                 CMapArea::GetAreaPostTranslate(*x24_world, mgr.GetNextAreaId()) +
                                     mgr.GetPlayer().GetTranslation());
-      CGraphics::SetModelMatrix(mapXf * playerXf * zeus::CTransform::Scale(scale * (0.25f * func + 0.75f)));
+      CGraphics::SetModelMatrix(mapXf * playerXf * zeus::CTransform4f::Scale(scale * (0.25f * func + 0.75f)));
       float colorAlpha;
       if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
         colorAlpha = 1.f;
@@ -1457,10 +1457,10 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
         const CMapArea* mapa = mw->GetMapArea(loc.xc_areaId);
         if (!mapa)
           continue;
-        zeus::CTransform camRot(camXf.buildMatrix3f(), zeus::skZero3f);
+        zeus::CTransform4f camRot(camXf.BuildMatrix3f(), zeus::skZero3f);
         CGraphics::SetModelMatrix(
-            mapXf * zeus::CTransform::Translate(mapa->GetAreaPostTransform(*x24_world, loc.xc_areaId).origin) *
-            zeus::CTransform::Translate(mapa->GetAreaCenterPoint()) * zeus::CTransform::Scale(objectScale) * camRot);
+            mapXf * zeus::CTransform4f::Translate(mapa->GetAreaPostTransform(*x24_world, loc.xc_areaId).origin) *
+            zeus::CTransform4f::Translate(mapa->GetAreaCenterPoint()) * zeus::CTransform4f::Scale(objectScale) * camRot);
         float beaconAlpha = 0.f;
         if (loc.x0_showBeacon == 1) {
           beaconAlpha = loc.x4_beaconAlpha;
@@ -1518,7 +1518,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
 
 void CAutoMapper::TransformRenderStatesWorldToUniverse() {
   const CMapUniverse::CMapWorldData& mapuWld = x8_mapu->GetMapWorldData(x9c_worldIdx);
-  zeus::CQuaternion rot = zeus::CQuaternion(mapuWld.GetWorldTransform().buildMatrix3f());
+  zeus::CQuaternion rot = zeus::CQuaternion(mapuWld.GetWorldTransform().BuildMatrix3f());
   xa8_renderStates[2].x8_camOrientation *= rot;
   xa8_renderStates[2].x20_areaPoint = mapuWld.GetWorldTransform() * xa8_renderStates[2].x20_areaPoint;
   xa8_renderStates[0].x8_camOrientation *= rot;
@@ -1529,8 +1529,8 @@ void CAutoMapper::TransformRenderStatesWorldToUniverse() {
 
 void CAutoMapper::TransformRenderStatesUniverseToWorld() {
   const CMapUniverse::CMapWorldData& mapuWld = x8_mapu->GetMapWorldData(x9c_worldIdx);
-  zeus::CTransform inv = mapuWld.GetWorldTransform().inverse();
-  zeus::CQuaternion invRot = zeus::CQuaternion(inv.buildMatrix3f());
+  zeus::CTransform4f inv = mapuWld.GetWorldTransform().Inverse();
+  zeus::CQuaternion invRot = zeus::CQuaternion(inv.BuildMatrix3f());
   xa8_renderStates[2].x8_camOrientation *= invRot;
   xa8_renderStates[2].x20_areaPoint = inv * xa8_renderStates[2].x20_areaPoint;
   xa8_renderStates[0].x8_camOrientation *= invRot;

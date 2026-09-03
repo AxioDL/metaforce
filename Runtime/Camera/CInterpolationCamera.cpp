@@ -10,7 +10,7 @@
 
 namespace metaforce {
 
-CInterpolationCamera::CInterpolationCamera(TUniqueId uid, const zeus::CTransform& xf)
+CInterpolationCamera::CInterpolationCamera(TUniqueId uid, const zeus::CTransform4f& xf)
 : CGameCamera(uid, false, "Interpolation Camera",
               CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList, kInvalidEditorId), xf,
               CCameraManager::ThirdPersonFOV(), CCameraManager::NearPlane(), CCameraManager::FarPlane(),
@@ -30,7 +30,7 @@ void CInterpolationCamera::Render(CStateManager& mgr) {
   // Empty
 }
 
-void CInterpolationCamera::Reset(const zeus::CTransform&, CStateManager& mgr) {
+void CInterpolationCamera::Reset(const zeus::CTransform4f&, CStateManager& mgr) {
   // Empty
 }
 
@@ -47,7 +47,7 @@ void CInterpolationCamera::Think(float dt, CStateManager& mgr) {
   if (x18c_time > x190_maxTime)
     x18c_time = x190_maxTime;
 
-  zeus::CTransform xf = GetTransform();
+  zeus::CTransform4f xf = GetTransform();
 
   if (TCastToConstPtr<CGameCamera> cam = mgr.GetObjectById(x188_targetId)) {
     zeus::CVector3f targetOrigin = cam->GetTranslation();
@@ -56,7 +56,7 @@ void CInterpolationCamera::Think(float dt, CStateManager& mgr) {
       if (TCastToConstPtr<CScriptSpindleCamera> spindle =
               mgr.GetObjectById(mgr.GetCameraManager()->GetSpindleCameraId())) {
         float mag = (mgr.GetPlayer().GetTranslation() - spindle->GetTranslation()).magnitude();
-        ballLookPos = spindle->GetTranslation() + (mag * spindle->GetTransform().frontVector());
+        ballLookPos = spindle->GetTranslation() + (mag * spindle->GetTransform().GetForward());
       }
     }
     bool deactivate = false;
@@ -74,7 +74,7 @@ void CInterpolationCamera::Think(float dt, CStateManager& mgr) {
     DeactivateInterpCamera(mgr);
 }
 
-void CInterpolationCamera::SetInterpolation(const zeus::CTransform& xf, const zeus::CVector3f& lookPos, float maxTime,
+void CInterpolationCamera::SetInterpolation(const zeus::CTransform4f& xf, const zeus::CVector3f& lookPos, float maxTime,
                                             float positionSpeed, float rotationSpeed, TUniqueId camId, bool sinusoidal,
                                             CStateManager& mgr) {
   SetActive(true);
@@ -100,7 +100,7 @@ void CInterpolationCamera::DeactivateInterpCamera(CStateManager& mgr) {
     mgr.GetCameraManager()->SetCurrentCameraId(x188_targetId, mgr);
 }
 
-bool CInterpolationCamera::InterpolateSinusoidal(zeus::CTransform& xf, const zeus::CVector3f& targetOrigin,
+bool CInterpolationCamera::InterpolateSinusoidal(zeus::CTransform4f& xf, const zeus::CVector3f& targetOrigin,
                                                  const zeus::CVector3f& lookPos, float maxTime, float curTime) {
   if (curTime > maxTime)
     curTime = maxTime;
@@ -113,21 +113,21 @@ bool CInterpolationCamera::InterpolateSinusoidal(zeus::CTransform& xf, const zeu
   if (lookDir.canBeNormalized())
     lookDir.normalize();
   else
-    lookDir = x34_transform.basis[1];
+    lookDir = x34_transform.GetForward();
   zeus::CVector3f lookDirFlat = lookDir;
   lookDirFlat.z() = 0.f;
   if (lookDirFlat.canBeNormalized()) {
     t = zeus::clamp(-1.f, t, 1.f);
-    float lookProj = zeus::clamp(-1.f, x34_transform.basis[1].dot(lookDir), 1.f);
+    float lookProj = zeus::clamp(-1.f, x34_transform.GetForward().dot(lookDir), 1.f);
     float ang = (1.f - t) * std::acos(lookProj);
     if (ang > x1dc_closeInAngle)
       ang = x1dc_closeInAngle;
     else
       x1dc_closeInAngle = ang;
-    zeus::CTransform lookXf = zeus::lookAt(interpOrigin, interpOrigin + lookDir);
+    zeus::CTransform4f lookXf = zeus::CTransform4f::LookAt(interpOrigin, interpOrigin + lookDir);
     if (std::fabs(lookProj) < 0.999999f) {
-      zeus::CVector3f xfLookDir = zeus::CQuaternion::lookAt(lookDir, x34_transform.basis[1], ang).transform(lookDir);
-      lookXf = zeus::lookAt(interpOrigin, interpOrigin + xfLookDir);
+      zeus::CVector3f xfLookDir = zeus::CQuaternion::lookAt(lookDir, x34_transform.GetForward(), ang).transform(lookDir);
+      lookXf = zeus::CTransform4f::LookAt(interpOrigin, interpOrigin + xfLookDir);
     }
     xf = lookXf;
   } else {
@@ -138,7 +138,7 @@ bool CInterpolationCamera::InterpolateSinusoidal(zeus::CTransform& xf, const zeu
   return curTime >= maxTime;
 }
 
-bool CInterpolationCamera::InterpolateWithDistance(zeus::CTransform& xf, const zeus::CVector3f& targetOrigin,
+bool CInterpolationCamera::InterpolateWithDistance(zeus::CTransform4f& xf, const zeus::CVector3f& targetOrigin,
                                                    const zeus::CVector3f& lookPos, float positionSpeed,
                                                    float rotationSpeed, float dt, float maxTime, float curTime) {
   zeus::CVector3f interpOrigin = xf.origin;
@@ -174,18 +174,18 @@ bool CInterpolationCamera::InterpolateWithDistance(zeus::CTransform& xf, const z
   if (lookDir.canBeNormalized())
     lookDir.normalize();
   else
-    lookDir = x34_transform.basis[1];
+    lookDir = x34_transform.GetForward();
 
-  float lookProj = zeus::clamp(-1.f, xf.basis[1].dot(lookDir), 1.f);
+  float lookProj = zeus::clamp(-1.f, xf.GetForward().dot(lookDir), 1.f);
   float ang = zeus::clamp(-1.f, std::acos(lookProj) / (M_PIF / 6.f), 1.f) * rotationSpeed * dt;
 
   zeus::CVector3f lookDirFlat = lookDir;
   lookDirFlat.z() = 0.f;
   bool rotationFail = false;
   if (lookDirFlat.canBeNormalized()) {
-    zeus::CTransform lookXf = zeus::lookAt(interpOrigin, interpOrigin + lookDir);
+    zeus::CTransform4f lookXf = zeus::CTransform4f::LookAt(interpOrigin, interpOrigin + lookDir);
     if (lookProj < 0.999999f)
-      lookXf = zeus::CQuaternion::lookAt(xf.basis[1], lookDir, ang).toTransform() * xf.getRotation();
+      lookXf = zeus::CQuaternion::lookAt(xf.GetForward(), lookDir, ang).toTransform() * xf.GetRotation();
     else
       rotationFail = true;
     lookXf.origin = interpOrigin;

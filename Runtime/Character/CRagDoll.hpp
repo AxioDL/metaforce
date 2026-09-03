@@ -121,7 +121,7 @@ public:
 
   virtual void PreRender(const zeus::CVector3f& v, CModelData& mData);
   virtual void Update(CStateManager& mgr, float dt, float waterTop);
-  virtual void Prime(CStateManager& mgr, const zeus::CTransform& xf, CModelData& mData);
+  virtual void Prime(CStateManager& mgr, const zeus::CTransform4f& xf, CModelData& mData);
 
   zeus::CAABox CalculateRenderBounds() const;
   bool IsPrimed() const { return x68_26_primed; }

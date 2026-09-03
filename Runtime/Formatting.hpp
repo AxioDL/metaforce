@@ -7,7 +7,7 @@
 
 #include <zeus/CMatrix3f.hpp>
 #include <zeus/CMatrix4f.hpp>
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector3f.hpp>
 
@@ -55,9 +55,9 @@ FMT_CUSTOM_FORMATTER(zeus::CMatrix4f,
                      "\n({} {} {} {})",
                      obj[0][0], obj[1][0], obj[2][0], obj[3][0], obj[0][1], obj[1][1], obj[2][1], obj[3][1], obj[0][2],
                      obj[1][2], obj[2][2], obj[3][2], obj[0][3], obj[1][3], obj[2][3], obj[3][3]);
-FMT_CUSTOM_FORMATTER(zeus::CTransform,
+FMT_CUSTOM_FORMATTER(zeus::CTransform4f,
                      "\n({} {} {} {})"
                      "\n({} {} {} {})"
                      "\n({} {} {} {})",
-                     obj.basis[0][0], obj.basis[1][0], obj.basis[2][0], obj.origin[0], obj.basis[0][1], obj.basis[1][1],
-                     obj.basis[2][1], obj.origin[1], obj.basis[0][2], obj.basis[1][2], obj.basis[2][2], obj.origin[2]);
+                     obj.GetRight()[0], obj.GetForward()[0], obj.GetUp()[0], obj.origin[0], obj.GetRight()[1], obj.GetForward()[1],
+                     obj.GetUp()[1], obj.origin[1], obj.GetRight()[2], obj.GetForward()[2], obj.GetUp()[2], obj.origin[2]);

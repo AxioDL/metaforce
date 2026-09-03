@@ -15,7 +15,7 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce::MP1 {
-CWarWasp::CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CWarWasp::CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                    CModelData&& mData, const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor,
                    CPatterned::EColliderType collider, const CDamageInfo& dInfo1, const CActorParameters& actorParms,
                    CAssetId projectileWeapon, const CDamageInfo& projectileDamage, CAssetId projectileVisorParticle,
@@ -81,7 +81,7 @@ void CWarWasp::Think(float dt, CStateManager& mgr) {
     float rate = 1.f;
     if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed)
       rate =
-          1.f - zeus::CVector2f::getAngleDiff(mgr.GetPlayer().GetTransform().basis[1].toVec2f(),
+          1.f - zeus::CVector2f::getAngleDiff(mgr.GetPlayer().GetTransform().GetForward().toVec2f(),
                                               GetTranslation().toVec2f() - mgr.GetPlayer().GetTranslation().toVec2f()) /
                     M_PIF * 0.666f;
     x700_attackRemTime -= rate * dt;
@@ -96,8 +96,8 @@ void CWarWasp::SetUpCircleBurstWaypoint(CStateManager& mgr) {
     if (conn.x0_state == EScriptObjectState::CloseIn && conn.x4_msg == EScriptObjectMessage::Follow) {
       if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId))) {
         x6b0_circleBurstPos = wp->GetTranslation();
-        x6bc_circleBurstDir = wp->GetTransform().basis[1];
-        x6c8_circleBurstRight = wp->GetTransform().basis[0];
+        x6bc_circleBurstDir = wp->GetTransform().GetForward();
+        x6c8_circleBurstRight = wp->GetTransform().GetRight();
         break;
       }
     }
@@ -136,7 +136,7 @@ void CWarWasp::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EU
   bool handled = false;
   switch (type) {
   case EUserEventType::Projectile: {
-    zeus::CTransform xf = GetLctrTransform(node.GetLocatorName());
+    zeus::CTransform4f xf = GetLctrTransform(node.GetLocatorName());
     zeus::CVector3f aimPos = GetProjectileAimPos(mgr, -0.07f);
     if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
       zeus::CVector3f delta = aimPos - xf.origin;
@@ -150,7 +150,7 @@ void CWarWasp::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EU
       }
     }
     LaunchProjectile(
-        zeus::lookAt(xf.origin, GetProjectileInfo()->PredictInterceptPos(xf.origin, aimPos, mgr.GetPlayer(), true, dt)),
+        zeus::CTransform4f::LookAt(xf.origin, GetProjectileInfo()->PredictInterceptPos(xf.origin, aimPos, mgr.GetPlayer(), true, dt)),
         mgr, 4, EProjectileAttrib::None, false, {x71c_projectileVisorParticle}, x72c_projectileVisorSfx, true,
         zeus::skOne3f);
     handled = true;
@@ -213,13 +213,13 @@ zeus::CVector3f CWarWasp::GetCloseInPos(const CStateManager& mgr, const zeus::CV
   float midRange = (x2fc_minAttackRange + x300_maxAttackRange) * 0.5f;
   zeus::CVector3f ret;
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed) {
-    ret = mgr.GetPlayer().GetTransform().basis[1] * midRange + aimPos;
+    ret = mgr.GetPlayer().GetTransform().GetForward() * midRange + aimPos;
   } else {
     zeus::CVector3f delta = GetTranslation() - aimPos;
     if (delta.canBeNormalized())
       ret = delta.normalized() * midRange + aimPos;
     else
-      ret = GetTransform().basis[1] * midRange + aimPos;
+      ret = GetTransform().GetForward() * midRange + aimPos;
   }
   ret.z() = 0.5f + GetCloseInZBasis(mgr);
   return ret;
@@ -236,7 +236,7 @@ zeus::CVector3f CWarWasp::GetOrigin(const CStateManager& mgr, const CTeamAiRole&
 void CWarWasp::UpdateTouchBounds() {
   zeus::CAABox aabb = x64_modelData->GetAnimationData()->GetBoundingBox();
   x570_cSphere.SetSphereCenter(aabb.center());
-  SetBoundingBox(aabb.getTransformedAABox(zeus::CTransform(GetTransform().basis)));
+  SetBoundingBox(aabb.getTransformedAABox(zeus::CTransform4f(GetTransform().basis)));
 }
 
 void CWarWasp::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
@@ -355,7 +355,7 @@ void CWarWasp::ApplySeparationBehavior(CStateManager& mgr, float sep) {
 
 bool CWarWasp::PathToHiveIsClear(CStateManager& mgr) const {
   zeus::CVector3f delta = x3a0_latestLeashPosition - GetTranslation();
-  if (GetTransform().basis[1].dot(delta) > 0.f) {
+  if (GetTransform().GetForward().dot(delta) > 0.f) {
     zeus::CAABox aabb(GetTranslation() - 10.f, GetTranslation() + 10.f);
     EntityList nearList;
     mgr.BuildNearList(nearList, aabb, CMaterialFilter::MakeInclude({EMaterialTypes::Character}), nullptr);
@@ -365,7 +365,7 @@ bool CWarWasp::PathToHiveIsClear(CStateManager& mgr) const {
         if (other->GetUniqueId() != GetUniqueId() && other->x72e_30_isRetreating &&
             zeus::close_enough(other->x3a0_latestLeashPosition, x3a0_latestLeashPosition, 3.f)) {
           zeus::CVector3f waspDelta = other->GetTranslation() - GetTranslation();
-          if (GetTransform().basis[1].dot(waspDelta) > 0.f && waspDelta.magSquared() < 3.f &&
+          if (GetTransform().GetForward().dot(waspDelta) > 0.f && waspDelta.magSquared() < 3.f &&
               (other->GetTranslation() - x3a0_latestLeashPosition).magSquared() < deltaMagSq) {
             return false;
           }
@@ -393,7 +393,7 @@ bool CWarWasp::SteerToDeactivatePos(CStateManager& mgr, EStateMsg msg, float dt)
       if (arrival1.canBeNormalized())
         moveVec = arrival1.normalized() * moveFactor;
       else
-        moveVec = GetTransform().basis[1] * moveFactor;
+        moveVec = GetTransform().GetForward() * moveFactor;
       x450_bodyController->GetCommandMgr().SetSteeringBlendMode(ESteeringBlendMode::FullSpeed);
       x450_bodyController->GetCommandMgr().SetSteeringSpeedRange(moveFactor, moveFactor);
       if (distSq > 64.f + x570_cSphere.GetSphere().radius) {
@@ -654,7 +654,7 @@ void CWarWasp::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
 
 zeus::CVector3f CWarWasp::CalcShuffleDest(const CStateManager& mgr) const {
   zeus::CVector2f aimPos2d = GetProjectileAimPos(mgr, -1.25f).toVec2f();
-  zeus::CVector3f playerDir2d = mgr.GetPlayer().GetTransform().basis[1];
+  zeus::CVector3f playerDir2d = mgr.GetPlayer().GetTransform().GetForward();
   playerDir2d.z() = 0.f;
   zeus::CVector3f useDir;
   if (playerDir2d.canBeNormalized())
@@ -888,7 +888,7 @@ float CWarWasp::CalcSeekMagnitude(const CStateManager& mgr) const {
           for (const CTeamAiRole& role : aimgr->GetRoles()) {
             if (const CWarWasp* other = CPatterned::CastTo<CWarWasp>(mgr.GetObjectById(role.GetOwnerId()))) {
               if (x708_circleAttackTeam == other->x708_circleAttackTeam &&
-                  GetTransform().basis[1].dot(other->GetTranslation() - GetTranslation()) > 0.f) {
+                  GetTransform().GetForward().dot(other->GetTranslation() - GetTranslation()) > 0.f) {
                 const float angle =
                     zeus::CVector3f::getAngleDiff(fromPlatformCenter, other->GetTranslation() - x6b0_circleBurstPos);
                 if (angle < minAngle)
@@ -940,7 +940,7 @@ void CWarWasp::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) {
       TryCircleTeamMerge(mgr);
       zeus::CVector3f closeInDelta = GetTranslation() - x6b0_circleBurstPos;
       closeInDelta.z() = 0.f;
-      zeus::CVector3f moveVec = GetTransform().basis[1];
+      zeus::CVector3f moveVec = GetTransform().GetForward();
       if (closeInDelta.canBeNormalized()) {
         zeus::CVector3f closeInDeltaNorm = closeInDelta.normalized();
         moveVec = closeInDeltaNorm.cross(zeus::skUp);
@@ -1021,7 +1021,7 @@ void CWarWasp::SpecialAttack(CStateManager& mgr, EStateMsg msg, float dt) {
     case 2:
       if (x450_bodyController->GetCurrentStateId() != pas::EAnimationState::MeleeAttack) {
         x568_stateProg = 3;
-      } else if (GetTransform().basis[1].dot(x6b0_circleBurstPos - GetTranslation()) > 0.f) {
+      } else if (GetTransform().GetForward().dot(x6b0_circleBurstPos - GetTranslation()) > 0.f) {
         x450_bodyController->GetCommandMgr().DeliverTargetVector(x6b0_circleBurstPos - GetTranslation());
       }
       break;
@@ -1100,7 +1100,7 @@ bool CWarWasp::InPosition(CStateManager& mgr, float arg) {
 }
 
 bool CWarWasp::ShouldTurn(CStateManager& mgr, float arg) {
-  return zeus::CVector2f::getAngleDiff(GetTransform().basis[1].toVec2f(),
+  return zeus::CVector2f::getAngleDiff(GetTransform().GetForward().toVec2f(),
                                        (mgr.GetPlayer().GetTranslation() - GetTranslation()).toVec2f()) >
          zeus::degToRad(arg);
 }
@@ -1118,7 +1118,7 @@ bool CWarWasp::ShouldFire(CStateManager& mgr, float arg) {
     if (CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x674_aiMgr, GetUniqueId())) {
       if (role->GetTeamAiRole() == CTeamAiRole::ETeamAiRole::Ranged) {
         zeus::CVector3f delta = GetProjectileAimPos(mgr, -1.25f) - GetTranslation();
-        if (delta.canBeNormalized() && GetTransform().basis[1].dot(delta.normalized()) >= 0.906f) {
+        if (delta.canBeNormalized() && GetTransform().GetForward().dot(delta.normalized()) >= 0.906f) {
           if (TCastToPtr<CTeamAiMgr> aimgr = mgr.ObjectById(x674_aiMgr)) {
             return !aimgr->HasRangedAttackers();
           }
@@ -1127,7 +1127,7 @@ bool CWarWasp::ShouldFire(CStateManager& mgr, float arg) {
     } else if (x3fc_flavor == EFlavorType::Two) {
       zeus::CVector3f delta = GetProjectileAimPos(mgr, -1.25f) - GetTranslation();
       if (delta.canBeNormalized()) {
-        return GetTransform().basis[1].dot(delta.normalized()) >= 0.906f;
+        return GetTransform().GetForward().dot(delta.normalized()) >= 0.906f;
       }
     }
   }
@@ -1142,9 +1142,9 @@ bool CWarWasp::ShouldDodge(CStateManager& mgr, float arg) {
     if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(id)) {
       if (mgr.GetPlayer().GetUniqueId() == proj->GetOwnerId()) {
         zeus::CVector3f delta = proj->GetTranslation() - GetTranslation();
-        if (zeus::CVector3f::getAngleDiff(GetTransform().basis[1], delta) < zeus::degToRad(45.f)) {
+        if (zeus::CVector3f::getAngleDiff(GetTransform().GetForward(), delta) < zeus::degToRad(45.f)) {
           x704_dodgeDir =
-              GetTransform().basis[0].dot(delta) > 0.f ? pas::EStepDirection::Right : pas::EStepDirection::Left;
+              GetTransform().GetRight().dot(delta) > 0.f ? pas::EStepDirection::Right : pas::EStepDirection::Left;
           return true;
         }
       }
@@ -1167,7 +1167,7 @@ bool CWarWasp::CheckCircleAttackSpread(const CStateManager& mgr, s32 team) const
           continue;
         if (const CWarWasp* wasp2 = CPatterned::CastTo<CWarWasp>(mgr.GetObjectById(role.GetOwnerId()))) {
           if (wasp2->x708_circleAttackTeam == team) {
-            if (leaderWasp->GetTransform().basis[1].dot(wasp2->GetTranslation() - leaderWasp->GetTranslation()) > 0.f)
+            if (leaderWasp->GetTransform().GetForward().dot(wasp2->GetTranslation() - leaderWasp->GetTranslation()) > 0.f)
               return false;
             const float angle =
                 zeus::CVector3f::getAngleDiff(wasp2->GetTranslation() - x6b0_circleBurstPos, platformToLeaderWasp);

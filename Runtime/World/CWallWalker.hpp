@@ -48,7 +48,7 @@ protected:
 
 public:
   CWallWalker(EPatternedAI chr, TUniqueId uid, std::string_view name, EFlavorType flavType, const CEntityInfo& eInfo,
-              const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, EMovementType mType,
+              const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pInfo, EMovementType mType,
               EColliderType colType, EBodyType bType, const CActorParameters& aParms, float collisionCloseMargin,
               float alignAngVel, EKnockBackVariant kbVariant, float advanceWpRadius, EWalkerType wType,
               float playerObstructionMinDist, bool disableMove);

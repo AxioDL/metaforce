@@ -214,8 +214,8 @@ void CCredits::DrawText() {
   float width = 896.f * CGraphics::GetViewportAspect();
   CGraphics::SetOrtho(0.f, width, 896.f, 0.f, -4096.f, 4096.f);
   auto region = std::make_pair(zeus::CVector2f{0.f, 0.f}, zeus::CVector2f{width, 896.f});
-  CGraphics::SetViewPointMatrix(zeus::CTransform());
-  CGraphics::SetModelMatrix(zeus::CTransform::Translate((width - 1280.f) / 2.f, 0.f, 896.f));
+  CGraphics::SetViewPointMatrix(zeus::CTransform4f());
+  CGraphics::SetModelMatrix(zeus::CTransform4f::Translate((width - 1280.f) / 2.f, 0.f, 896.f));
   float dVar5 = (x48_ - (region.second.y() - region.first.y()));
   for (const auto& [text, offset] : x30_text) {
     if (offset.y + offset.x >= dVar5 && offset.x <= x48_) {
@@ -228,7 +228,7 @@ void CCredits::DrawText() {
 void CCredits::DrawText(CGuiTextSupport& text, const zeus::CVector3f& translation) {
   CGraphics::SetCullMode(ERglCullMode::None);
   g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
-  g_Renderer->SetModelMatrix(zeus::CTransform::Translate(translation));
+  g_Renderer->SetModelMatrix(zeus::CTransform4f::Translate(translation));
   g_Renderer->SetDepthReadWrite(false, false);
   text.Render();
 }

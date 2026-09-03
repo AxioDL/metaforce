@@ -279,7 +279,7 @@ CMetroidPrimeAttackWeights::CMetroidPrimeAttackWeights(CInputStream& in) {
 }
 
 CMetroidPrime::CMetroidPrime(
-    TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
+    TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf, CModelData&& mData,
     const CPatternedInfo& pInfo, const CActorParameters& aParms, u32 pw1, const CCameraShakeData& shakeData1,
     const CCameraShakeData& shakeData2, const CCameraShakeData& shakeData3, const SPrimeStruct2B& struct2b,
     CAssetId particle1, const rstl::reserved_vector<SPrimeStruct4, 4>& struct4s, CAssetId wpsc1,
@@ -430,13 +430,13 @@ void CMetroidPrime::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, C
   CPatterned::AcceptScriptMsg(msg, other, mgr);
 }
 
-void CMetroidPrime::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CMetroidPrime::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   CPatterned::PreRender(mgr, frustum);
   x143c_->RenderShadowBuffer(mgr, *GetModelData(), GetTransform(), 1, zeus::skZero3f, 1.f, 5.f);
   x143c_->Set_x98(0.8f);
 }
 
-void CMetroidPrime::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CMetroidPrime::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   CPatterned::AddToRenderer(frustum, mgr);
 
   if (frustum.aabbFrustumTest(*xc50_->GetBounds())) {
@@ -510,10 +510,10 @@ void CMetroidPrime::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& nod
   }
   if (type == EUserEventType::Projectile) {
     if (x92c_ == 6) {
-      auto xf = zeus::lookAt(GetLctrTransform(node.GetLocatorName()).origin + zeus::CVector3f{0.f, 0.f, 1.5f},
+      auto xf = zeus::CTransform4f::LookAt(GetLctrTransform(node.GetLocatorName()).origin + zeus::CVector3f{0.f, 0.f, 1.5f},
                              mgr.GetPlayer().GetTranslation());
       float randAngle = zeus::degToRad(mgr.GetActiveRandom()->Range(-20.f, 20.f));
-      xf.rotateLocalZ(randAngle);
+      xf.RotateLocalZ(randAngle);
       TUniqueId uid = mgr.AllocateUniqueId();
       auto gen1 = g_SimplePool->GetObj(SObjectTag{SBIG('PART'), x930_.x4_particle1});
       auto gen2 = g_SimplePool->GetObj(SObjectTag{SBIG('PART'), x930_.x8_particle2});
@@ -648,7 +648,7 @@ void CMetroidPrime::CoverAttack(CStateManager& mgr, EStateMsg msg, float arg) {
     x1084_ = 1.9666666f;
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, sub80275e34(0));
-    zeus::CVector3f vec = (16.f * GetTransform().frontVector()) + GetTranslation();
+    zeus::CVector3f vec = (16.f * GetTransform().GetForward()) + GetTranslation();
     zeus::CVector3f direction = (vec - GetTranslation()).normalized();
     if (direction.dot(mgr.GetPlayer().GetTranslation() - GetTranslation()) < 15.f) {
       sub802747b8(arg, mgr, vec - mgr.GetPlayer().GetTranslation());
@@ -887,7 +887,7 @@ bool CMetroidPrime::ShouldDoubleSnap(CStateManager& mgr, float arg) {
 bool CMetroidPrime::InPosition(CStateManager& mgr, float arg) { return x1084_ <= 0.f; }
 
 bool CMetroidPrime::ShouldTurn(CStateManager& mgr, float arg) {
-  return GetTransform().frontVector().dot(mgr.GetPlayer().GetTranslation() - GetTranslation()) < 0.f;
+  return GetTransform().GetForward().dot(mgr.GetPlayer().GetTranslation() - GetTranslation()) < 0.f;
 }
 
 bool CMetroidPrime::CoverCheck(CStateManager& mgr, float arg) { return sub80277224(-8.f, mgr); }
@@ -984,7 +984,7 @@ void CMetroidPrime::UpdatePhysicsDummy(CStateManager& mgr) {
     zeus::CVector3f diffVec = mgr.GetPlayer().GetTranslation() - GetTranslation();
     if (!zeus::close_enough(diffVec, zeus::skZero3f)) {
       zeus::CVector3f direction = diffVec.normalized();
-      physAct->SetVelocityWR((direction.dot(GetTransform().frontVector()) > 0.f ? 7.5f : 5.f) * direction);
+      physAct->SetVelocityWR((direction.dot(GetTransform().GetForward()) > 0.f ? 7.5f : 5.f) * direction);
     } else {
       physAct->SetVelocityWR(zeus::skZero3f);
     }
@@ -1064,7 +1064,7 @@ void CMetroidPrime::sub802749e8(float f1, float f2, float f3, const zeus::CVecto
 
   if (!zeus::close_enough(diffVec, zeus::skZero3f)) {
     zeus::CVector3f v1 = vec1;
-    auto lookAtXf = zeus::lookAt(zeus::skZero3f, diffVec);
+    auto lookAtXf = zeus::CTransform4f::LookAt(zeus::skZero3f, diffVec);
     elemGen->SetParticleEmission(true);
     s32 count = static_cast<s32>(2.f * dist + 1.f);
     for (s32 i = 0; i < count; ++i) {
@@ -1124,7 +1124,7 @@ void CMetroidPrime::UpdateParticles(float f1, CStateManager& mgr) {
   for (size_t i = 0; i < 2; ++i) {
     x102c_[i] -= f1;
     x1038_[i] += f1;
-    zeus::CTransform xf = GetLctrTransform(EyeLocators[i]);
+    zeus::CTransform4f xf = GetLctrTransform(EyeLocators[i]);
     zeus::CVector3f off =
         (mgr.GetPlayer().GetTranslation() + (g_tweakPlayer->GetPlayerBallHalfExtent() * zeus::skUp) +
          (g_tweakPlayer->GetPlayerBallHalfExtent() * xf.origin - mgr.GetPlayer().GetTranslation()).normalized());
@@ -1171,7 +1171,7 @@ void CMetroidPrime::UpdateParticles(float f1, CStateManager& mgr) {
       x1054_25_ = true;
     }
   }
-  zeus::CTransform jawXf = GetLctrTransform("Jaw_1"sv);
+  zeus::CTransform4f jawXf = GetLctrTransform("Jaw_1"sv);
   zeus::CVector3f direction = (jawXf.origin - mgr.GetPlayer().GetTranslation()).normalized();
 
   float offX = (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ? 31.49f
@@ -1247,7 +1247,7 @@ void CMetroidPrime::sub80275800(CStateManager& mgr) {
   if (!x1054_27_) {
     flags |= 0x400;
   }
-  if (GetTransform().frontVector().dot(mgr.GetPlayer().GetTranslation() - GetTranslation()) > 30.f) {
+  if (GetTransform().GetForward().dot(mgr.GetPlayer().GetTranslation() - GetTranslation()) > 30.f) {
     flags |= 0x3c;
   }
 
@@ -1359,7 +1359,7 @@ void CMetroidPrime::UpdateElectricEffect(float dt, CStateManager& mgr) {
     return;
   }
 
-  xfac_->SetGlobalOrientation(GetTransform().getRotation());
+  xfac_->SetGlobalOrientation(GetTransform().GetRotation());
   xfac_->SetGlobalTranslation(GetTranslation());
   xfac_->SetGlobalScale(GetModelData()->GetScale());
   if (xfc0_) {
@@ -1511,7 +1511,7 @@ TUniqueId CMetroidPrime::GetNextAttackWaypoint(CStateManager& mgr, bool b1) {
   TUniqueId lastUid = kInvalidUniqueId;
   while (uid != kInvalidUniqueId) {
     if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(uid)) {
-      float dot = GetTransform().frontVector().dot(wp->GetTranslation() - GetTranslation());
+      float dot = GetTransform().GetForward().dot(wp->GetTranslation() - GetTranslation());
 
       if ((b1 && dot > 0.f && dot > lastDot) || (!b1 && dot < 0.f && dot < lastDot)) {
         lastUid = uid;
@@ -1600,7 +1600,7 @@ bool CMetroidPrime::sub80277224(float f1, CStateManager& mgr) {
 
   if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(uid)) {
     const float scaleMag = f1 * (0.57735026 * GetModelData()->GetScale().magnitude());
-    const float dist = GetTransform().frontVector().dot(wp->GetTranslation() - GetTranslation());
+    const float dist = GetTransform().GetForward().dot(wp->GetTranslation() - GetTranslation());
     return f1 < 0.f ? dist < scaleMag : dist > scaleMag;
   }
   return false;
@@ -1619,7 +1619,7 @@ void CMetroidPrime::FirePlasmaProjectile(CStateManager& mgr, bool b1) {
       xc60_ = GetTargetVector(mgr);
       xc6c_ = xc60_;
       xc5c_ = 0.f;
-      proj->Fire(zeus::lookAt(GetLctrTransform("Jaw_1"sv).origin, xc60_), mgr, false);
+      proj->Fire(zeus::CTransform4f::LookAt(GetLctrTransform("Jaw_1"sv).origin, xc60_), mgr, false);
     }
   } else {
     for (const auto& plasmaId : xb24_plasmaProjectileIds) {
@@ -1633,9 +1633,9 @@ void CMetroidPrime::FirePlasmaProjectile(CStateManager& mgr, bool b1) {
 }
 
 void CMetroidPrime::UpdatePlasmaProjectile(float dt, CStateManager& mgr) {
-  zeus::CTransform jawXf = GetLctrTransform("Jaw_1"sv);
+  zeus::CTransform4f jawXf = GetLctrTransform("Jaw_1"sv);
   xc50_->SetTranslation(jawXf.origin);
-  xc50_->SetOrientation(jawXf.getRotation());
+  xc50_->SetOrientation(jawXf.GetRotation());
   xc50_->Update(dt);
   if (xc58_curPlasmaProjectile >= 0 && xc58_curPlasmaProjectile < 4) {
     if (auto* ent =
@@ -1648,18 +1648,18 @@ void CMetroidPrime::UpdatePlasmaProjectile(float dt, CStateManager& mgr) {
         FirePlasmaProjectile(mgr, false);
       }
 
-      zeus::CTransform xf;
+      zeus::CTransform4f xf;
       xc5c_ = zeus::clamp(0.f, xc5c_ + dt, 1.4f);
       const float fVar1 = xc5c_ / 1.f;
       const float fVar2 = 1.f - fVar1;
       zeus::CVector3f vec1 = xc60_ * fVar2 + xc6c_ * fVar1;
       zeus::CVector3f vec2 = vec1 - jawXf.origin;
-      if (vec2.normalized().dot(GetTransform().frontVector()) <= zeus::degToRad(40.f)) {
-        xf = (zeus::CQuaternion::lookAt(GetTransform().frontVector(), vec2.normalized(), zeus::degToRad(45.f)) *
-              zeus::CQuaternion(GetTransform().buildMatrix3f()))
+      if (vec2.normalized().dot(GetTransform().GetForward()) <= zeus::degToRad(40.f)) {
+        xf = (zeus::CQuaternion::lookAt(GetTransform().GetForward(), vec2.normalized(), zeus::degToRad(45.f)) *
+              zeus::CQuaternion(GetTransform().BuildMatrix3f()))
                  .toTransform();
       } else {
-        xf = zeus::lookAt(jawXf.origin, vec1);
+        xf = zeus::CTransform4f::LookAt(jawXf.origin, vec1);
       }
 
       ent->UpdateFx(xf, dt, mgr);
@@ -1949,8 +1949,8 @@ void CMetroidPrime::DoContactDamage(TUniqueId uid, CStateManager& mgr) {
 
 void CMetroidPrime::UpdateCollision(float dt, CStateManager& mgr) {
   x56c_collisionManager->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
-  zeus::CTransform xf = GetLocatorTransform("Skeleton_Root"sv);
-  MoveCollisionPrimitive(GetTransform().rotate(GetModelData()->GetScale() * xf.origin));
+  zeus::CTransform4f xf = GetLocatorTransform("Skeleton_Root"sv);
+  MoveCollisionPrimitive(GetTransform().Rotate(GetModelData()->GetScale() * xf.origin));
 }
 
 void CMetroidPrime::SetupBoneTracking() {

@@ -30,7 +30,7 @@ static TUniqueId _initializeLight(const std::weak_ptr<CParticleGen>& system, CSt
     ret = stateMgr.AllocateUniqueId();
     stateMgr.AddObject(
         new CGameLight(ret, areaId, false, "ParticleLight",
-                       zeus::CTransform(systemRef->GetOrientation().buildMatrix3f(), systemRef->GetTranslation()),
+                       zeus::CTransform4f(systemRef->GetOrientation().BuildMatrix3f(), systemRef->GetTranslation()),
                        kInvalidUniqueId, systemRef->GetLight(), u32(lightId), 0, 0.f));
   }
   return ret;
@@ -64,7 +64,7 @@ void CParticleGenInfoGeneric::Update(float dt, CStateManager& stateMgr) {
   }
 }
 
-void CParticleGenInfoGeneric::SetOrientation(const zeus::CTransform& xf, CStateManager& stateMgr) {
+void CParticleGenInfoGeneric::SetOrientation(const zeus::CTransform4f& xf, CStateManager& stateMgr) {
   x84_system->SetOrientation(xf);
 
   if (x88_lightId == kInvalidUniqueId) {
@@ -72,7 +72,7 @@ void CParticleGenInfoGeneric::SetOrientation(const zeus::CTransform& xf, CStateM
   }
 
   if (const TCastToPtr<CGameLight> gl = stateMgr.ObjectById(x88_lightId)) {
-    gl->SetRotation(zeus::CQuaternion(xf.buildMatrix3f()));
+    gl->SetRotation(zeus::CQuaternion(xf.BuildMatrix3f()));
   }
 }
 
@@ -88,7 +88,7 @@ void CParticleGenInfoGeneric::SetTranslation(const zeus::CVector3f& trans, CStat
   }
 }
 
-void CParticleGenInfoGeneric::SetGlobalOrientation(const zeus::CTransform& xf, CStateManager& stateMgr) {
+void CParticleGenInfoGeneric::SetGlobalOrientation(const zeus::CTransform4f& xf, CStateManager& stateMgr) {
   x84_system->SetGlobalOrientation(xf);
 
   if (x88_lightId == kInvalidUniqueId) {
@@ -96,7 +96,7 @@ void CParticleGenInfoGeneric::SetGlobalOrientation(const zeus::CTransform& xf, C
   }
 
   if (const TCastToPtr<CGameLight> gl = stateMgr.ObjectById(x88_lightId)) {
-    gl->SetRotation(zeus::CQuaternion(xf.buildMatrix3f()));
+    gl->SetRotation(zeus::CQuaternion(xf.BuildMatrix3f()));
   }
 }
 

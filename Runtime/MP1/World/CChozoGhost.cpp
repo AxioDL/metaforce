@@ -66,7 +66,7 @@ EBehaveType CChozoGhost::CBehaveChance::GetBehave(EBehaveType type, CStateManage
   return EBehaveType::Move;
 }
 
-CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CChozoGhost::CChozoGhost(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                          CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
                          float hearingRadius, float fadeOutDelay, float attackDelay, float freezeTime, CAssetId wpsc1,
                          const CDamageInfo& dInfo1, CAssetId wpsc2, const CDamageInfo& dInfo2,
@@ -171,7 +171,7 @@ void CChozoGhost::Think(float dt, CStateManager& mgr) {
   xe7_31_targetable = IsVisibleEnough(mgr);
 }
 
-void CChozoGhost::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CChozoGhost::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   x402_29_drawParticles = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay;
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
     SetCalculateLighting(false);
@@ -257,8 +257,8 @@ void CChozoGhost::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
     x664_29_fadedIn = true;
     return;
   } else if (type == EUserEventType::Projectile) {
-    const zeus::CTransform& xf =
-        zeus::lookAt(GetLctrTransform(node.GetLocatorName()).origin, mgr.GetPlayer().GetAimPosition(mgr, 0.f));
+    const zeus::CTransform4f& xf =
+        zeus::CTransform4f::LookAt(GetLctrTransform(node.GetLocatorName()).origin, mgr.GetPlayer().GetAimPosition(mgr, 0.f));
     if (x67c_attackType == 2) {
       CGameProjectile* proj =
           LaunchProjectile(xf, mgr, 2, EProjectileAttrib::BigStrike | EProjectileAttrib::StaticInterference, true,
@@ -548,7 +548,7 @@ void CChozoGhost::WallDetach(CStateManager& mgr, EStateMsg msg, float) {
     x664_29_fadedIn = false;
     if (x56c_fadeOutDelay > 0.f) {
       x6c8_spaceWarpTime = x56c_fadeOutDelay;
-      FindSpaceWarpPosition(mgr, GetTransform().basis[1]);
+      FindSpaceWarpPosition(mgr, GetTransform().GetForward());
     }
     TUniqueId wpId = GetWaypointForState(mgr, EScriptObjectState::Attack, EScriptObjectMessage::Follow);
     TCastToConstPtr<CScriptWaypoint> wp;
@@ -558,7 +558,7 @@ void CChozoGhost::WallDetach(CStateManager& mgr, EStateMsg msg, float) {
     if (wp)
       SetDestPos(wp->GetTranslation());
     else
-      SetDestPos(GetTranslation() + GetTransform().basis[1] * (2.f * x66c_));
+      SetDestPos(GetTranslation() + GetTransform().GetForward() * (2.f * x66c_));
 
     SendScriptMsgs(EScriptObjectState::Attack, mgr, EScriptObjectMessage::Follow);
   } else if (msg == EStateMsg::Deactivate) {
@@ -721,7 +721,7 @@ void CChozoGhost::FindBestAnchor(CStateManager& mgr) {
                 if (dist < prevDist) {
                   fVar17 = 1.f / fVar17;
                   diff = diff * fVar17;
-                  dist += (10.f * x658_) * (1.f - mgr.GetPlayer().GetTransform().basis[1].dot(diff));
+                  dist += (10.f * x658_) * (1.f - mgr.GetPlayer().GetTransform().GetForward().dot(diff));
                 }
               }
             } else {
@@ -729,7 +729,7 @@ void CChozoGhost::FindBestAnchor(CStateManager& mgr) {
               if (dist < prevDist) {
                 fVar17 = 1.f / fVar17;
                 diff = diff * fVar17;
-                dist += (10.f * x658_) * (1.f - mgr.GetPlayer().GetTransform().basis[1].dot(diff));
+                dist += (10.f * x658_) * (1.f - mgr.GetPlayer().GetTransform().GetForward().dot(diff));
               }
             }
             if (dist < prevDist) {

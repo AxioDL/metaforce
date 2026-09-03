@@ -44,10 +44,10 @@ void CScriptActorRotate::Think(float dt, CStateManager& mgr) {
 
     for (const auto& actorPair : x48_actors) {
       if (const TCastToPtr<CActor> act = mgr.ObjectById(actorPair.first)) {
-        const zeus::CTransform xf = zeus::CTransform::RotateX(zeus::degToRad(timeOffset * x34_rotation.x())) *
-                                    zeus::CTransform::RotateY(zeus::degToRad(timeOffset * x34_rotation.y())) *
-                                    zeus::CTransform::RotateZ(zeus::degToRad(timeOffset * x34_rotation.z()));
-        zeus::CTransform localRot = actorPair.second * xf;
+        const zeus::CTransform4f xf = zeus::CTransform4f::RotateX(zeus::degToRad(timeOffset * x34_rotation.x())) *
+                                    zeus::CTransform4f::RotateY(zeus::degToRad(timeOffset * x34_rotation.y())) *
+                                    zeus::CTransform4f::RotateZ(zeus::degToRad(timeOffset * x34_rotation.z()));
+        zeus::CTransform4f localRot = actorPair.second * xf;
         localRot.origin += act->GetTranslation();
         act->SetTransform(localRot);
 
@@ -69,16 +69,16 @@ void CScriptActorRotate::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CScriptActorRotate::UpdatePlatformRiders(CScriptPlatform& plat, const zeus::CTransform& xf, CStateManager& mgr) {
+void CScriptActorRotate::UpdatePlatformRiders(CScriptPlatform& plat, const zeus::CTransform4f& xf, CStateManager& mgr) {
   UpdatePlatformRiders(plat.GetStaticSlaves(), plat, xf, mgr);
   UpdatePlatformRiders(plat.GetDynamicSlaves(), plat, xf, mgr);
 }
 
 void CScriptActorRotate::UpdatePlatformRiders(std::vector<SRiders>& riders, CScriptPlatform& plat,
-                                              const zeus::CTransform& xf, CStateManager& mgr) {
+                                              const zeus::CTransform4f& xf, CStateManager& mgr) {
   for (SRiders& rider : riders) {
     if (const TCastToPtr<CActor> act = mgr.ObjectById(rider.x0_uid)) {
-      zeus::CTransform& riderXf = rider.x8_transform;
+      zeus::CTransform4f& riderXf = rider.x8_transform;
       act->SetTransform(xf * rider.x8_transform);
       act->SetTranslation(act->GetTranslation() + plat.GetTranslation());
       if (!x58_24_updateRotation) {
@@ -111,7 +111,7 @@ void CScriptActorRotate::UpdateActors(bool next, CStateManager& mgr) {
     auto search = mgr.GetIdListForScript(conn.x8_objId);
     for (auto it = search.first; it != search.second; ++it) {
       if (const TCastToConstPtr<CActor> act = mgr.ObjectById(it->second)) {
-        x48_actors.insert_or_assign(it->second, act->GetTransform().getRotation());
+        x48_actors.insert_or_assign(it->second, act->GetTransform().GetRotation());
       }
     }
   }

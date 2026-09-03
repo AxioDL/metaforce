@@ -12,7 +12,7 @@
 namespace metaforce {
 
 CScriptVisorGoo::CScriptVisorGoo(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                 const zeus::CTransform& xf, CAssetId particle, CAssetId electric, float minDist,
+                                 const zeus::CTransform4f& xf, CAssetId particle, CAssetId electric, float minDist,
                                  float maxDist, float nearProb, float farProb, const zeus::CColor& color, int sfx,
                                  bool forceShow, bool active)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), {}, CActorParameters::None(), kInvalidUniqueId)
@@ -60,7 +60,7 @@ void CScriptVisorGoo::Think(float, CStateManager& mgr) {
         if (eyeToGooDist >= x104_minDist && eyeToGooDist <= x108_maxDist) {
           if (x118_24_angleTest) {
             const float angle = zeus::radToDeg(
-                std::acos(mgr.GetCameraManager()->GetCurrentCameraTransform(mgr).basis[1].normalized().dot(
+                std::acos(mgr.GetCameraManager()->GetCurrentCameraTransform(mgr).GetForward().normalized().dot(
                     eyeToGoo.normalized())));
             float angleThresh = 45.f;
             if (eyeToGooDist < 4.f) {
@@ -107,7 +107,7 @@ void CScriptVisorGoo::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
   CActor::AcceptScriptMsg(msg, objId, mgr);
 }
 
-void CScriptVisorGoo::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CScriptVisorGoo::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   // Empty
 }
 

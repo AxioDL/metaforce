@@ -7,7 +7,7 @@
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Particle/CDecalDescription.hpp"
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace metaforce {
@@ -26,7 +26,7 @@ class CDecal {
   static CRandom16 sDecalRandom;
 
   TLockedToken<CDecalDescription> x0_description;
-  zeus::CTransform xc_transform;
+  zeus::CTransform4f xc_transform;
   std::array<CQuadDecal, 2> x3c_decalQuads;
   s32 x54_modelLifetime = 0;
   s32 x58_frameIdx = 0;
@@ -37,7 +37,7 @@ class CDecal {
   bool InitQuad(CQuadDecal& quad, const SQuadDescr& desc);
 
 public:
-  CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf);
+  CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform4f& xf);
   void RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const;
   void RenderMdl();
   void Render();

@@ -53,7 +53,7 @@ void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWid
     xb4_workerId = in.ReadInt16();
   zeus::CVector3f trans = in.Get<zeus::CVector3f>();
   zeus::CMatrix3f orient = in.Get<zeus::CMatrix3f>();
-  x74_transform = zeus::CTransform(orient, trans);
+  x74_transform = zeus::CTransform4f(orient, trans);
   m_initTransform = x74_transform;
   ReapplyXform();
   in.Get<zeus::CVector3f>(); // Unused
@@ -128,7 +128,7 @@ void CGuiWidget::InitializeRGBAFactor() {
 
 bool CGuiWidget::GetIsFinishedLoadingWidgetSpecific() { return true; }
 
-void CGuiWidget::SetTransform(const zeus::CTransform& xf) {
+void CGuiWidget::SetTransform(const zeus::CTransform4f& xf) {
   x74_transform = xf;
   ReapplyXform();
 }

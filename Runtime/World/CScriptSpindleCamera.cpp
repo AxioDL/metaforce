@@ -31,7 +31,7 @@ SSpindleProperty::SSpindleProperty(CInputStream& in) {
 }
 
 CScriptSpindleCamera::CScriptSpindleCamera(
-    TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, bool active, u32 flags,
+    TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf, bool active, u32 flags,
     float hintToCamDistMin, float hintToCamDistMax, float hintToCamVOffMin, float hintToCamVOffMax,
     const SSpindleProperty& targetHintToCamDeltaAngleVel, const SSpindleProperty& deltaAngleScaleWithCamDist,
     const SSpindleProperty& hintToCamDist, const SSpindleProperty& distOffsetFromBallDist,
@@ -63,7 +63,7 @@ CScriptSpindleCamera::CScriptSpindleCamera(
 , x2e0_targetHintToCamDeltaAngleVelRange(targetHintToCamDeltaAngleVelRange)
 , x2f8_deleteHintBallDist(deleteHintBallDist)
 , x310_recoverClampedAzimuthFromHintDir(recoverClampedAzimuthFromHintDir)
-, x330_lookDir(xf.basis[1]) {}
+, x330_lookDir(xf.GetForward()) {}
 
 void CScriptSpindleCamera::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
@@ -71,7 +71,7 @@ void CScriptSpindleCamera::ProcessInput(const CFinalInput& input, CStateManager&
   // Empty
 }
 
-void CScriptSpindleCamera::Reset(const zeus::CTransform& xf, CStateManager& mgr) {
+void CScriptSpindleCamera::Reset(const zeus::CTransform4f& xf, CStateManager& mgr) {
   const CScriptCameraHint* hint = mgr.GetCameraManager()->GetCameraHint(mgr);
   if (!GetActive() || hint == nullptr) {
     return;
@@ -129,7 +129,7 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
   const float hintToBallVOff = hintToBallDir.z();
   hintToBallDir.z() = 0.f;
 
-  zeus::CVector3f hintDir = hint->GetTransform().basis[1];
+  zeus::CVector3f hintDir = hint->GetTransform().GetForward();
   hintDir.z() = 0.f;
   if (hintDir.canBeNormalized()) {
     hintDir.normalize();
@@ -285,7 +285,7 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
     }
 
     if ((x188_flags & 0x20) != 0) {
-      zeus::CVector3f hintDir2 = hint->GetTransform().basis[1];
+      zeus::CVector3f hintDir2 = hint->GetTransform().GetForward();
       hintDir2.z() = 0.f;
       if (hintDir2.canBeNormalized()) {
         hintDir2.normalize();
@@ -354,7 +354,7 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
       newLookDelta = lookAheadPos - hintPos.toVec2f();
     }
     if (newLookDelta.canBeNormalized()) {
-      SetTransform(zeus::lookAt(newCamPos, newCamPos + newLookDelta.normalized()));
+      SetTransform(zeus::CTransform4f::LookAt(newCamPos, newCamPos + newLookDelta.normalized()));
     }
   }
 }

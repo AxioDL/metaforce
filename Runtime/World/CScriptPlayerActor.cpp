@@ -16,7 +16,7 @@
 
 namespace metaforce {
 CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                       const zeus::CTransform& xf, const CAnimRes& animRes, CModelData&& mData,
+                                       const zeus::CTransform4f& xf, const CAnimRes& animRes, CModelData&& mData,
                                        const zeus::CAABox& aabox, bool setBoundingBox, const CMaterialList& list,
                                        float mass, float zMomentum, const CHealthInfo& hInfo,
                                        const CDamageVulnerability& dVuln, const CActorParameters& aParams, bool loop,
@@ -178,7 +178,7 @@ void CScriptPlayerActor::SetupOnlineModelData() {
   const CAnimPlaybackParms parms(x2e8_suitRes.GetDefaultAnim(), -1, 1.f, true);
   x64_modelData->GetAnimationData()->SetAnimation(parms, false);
   if (x354_24_setBoundingBox) {
-    SetBoundingBox(x64_modelData->GetBounds(GetTransform().getRotation()));
+    SetBoundingBox(x64_modelData->GetBounds(GetTransform().GetRotation()));
   }
 }
 
@@ -375,7 +375,7 @@ void CScriptPlayerActor::SetActive(bool active) {
   xe7_29_drawEnabled = true;
 }
 
-void CScriptPlayerActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CScriptPlayerActor::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   if (x328_backupModelData) {
     if (x348_deallocateBackupCountdown == 0) {
       x328_backupModelData = TLockedToken<CSkinnedModel>();
@@ -389,7 +389,7 @@ void CScriptPlayerActor::PreRender(CStateManager& mgr, const zeus::CFrustum& fru
   CScriptActor::PreRender(mgr, frustum);
 }
 
-void CScriptPlayerActor::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CScriptPlayerActor::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   TouchModels_Internal(mgr);
   if (GetActive()) {
     CActor::AddToRenderer(frustum, mgr);

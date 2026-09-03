@@ -9,7 +9,7 @@
 namespace metaforce {
 
 CScriptShadowProjector::CScriptShadowProjector(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                               const zeus::CTransform& xf, bool active, const zeus::CVector3f& offset,
+                                               const zeus::CTransform4f& xf, bool active, const zeus::CVector3f& offset,
                                                bool persistent, float scale, float f2, float opacity, float opacityQ,
                                                s32 textureSize)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(),
@@ -91,5 +91,5 @@ void CScriptShadowProjector::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
   }
 }
 
-void CScriptShadowProjector::PreRender(CStateManager&, const zeus::CFrustum&) {}
+void CScriptShadowProjector::PreRender(CStateManager&, const zeus::CFrustumPlanes&) {}
 } // namespace metaforce

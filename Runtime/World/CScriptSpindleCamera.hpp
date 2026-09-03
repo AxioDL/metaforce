@@ -84,7 +84,7 @@ class CScriptSpindleCamera : public CGameCamera {
 
 public:
   DEFINE_ENTITY
-  CScriptSpindleCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CScriptSpindleCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                        bool active, u32 flags, float hintToCamDistMin, float hintToCamDistMax, float hintToCamVOffMin,
                        float hintToCamVOffMax, const SSpindleProperty& targetHintToCamDeltaAngleVel,
                        const SSpindleProperty& deltaAngleScaleWithCamDist, const SSpindleProperty& hintToCamDist,
@@ -101,7 +101,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
   void Render(CStateManager&) override;
-  void Reset(const zeus::CTransform& xf, CStateManager& mgr) override;
+  void Reset(const zeus::CTransform4f& xf, CStateManager& mgr) override;
   void ProcessInput(const CFinalInput& input, CStateManager& mgr) override;
 };
 

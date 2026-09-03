@@ -6,7 +6,7 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce {
-CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform xf,
+CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform4f xf,
                                      bool active, u32 flags, bool crouch, float horizontalAngle, float verticalAngle,
                                      float coverTime)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
@@ -61,7 +61,7 @@ bool CScriptCoverPoint::Blown(const zeus::CVector3f& point) const {
     posDif *= zeus::CVector3f(1.f / posDif.magnitude());
     zeus::CVector3f normDif = posDif.normalized();
 
-    zeus::CVector3f frontVec = x34_transform.frontVector();
+    zeus::CVector3f frontVec = x34_transform.GetForward();
     frontVec.normalize();
 
     if (frontVec.dot(normDif) <= GetCosHorizontalAngle() || (posDif.z() * posDif.z()) >= GetSinSqVerticalAngle())

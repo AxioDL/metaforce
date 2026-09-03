@@ -78,7 +78,7 @@ CIceSheegothData::CIceSheegothData(CInputStream& in, [[maybe_unused]] s32 proper
 , x1f0_24_(in.ReadBool())
 , x1f0_25_(in.ReadBool()) {}
 
-CIceSheegoth::CIceSheegoth(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform& xf,
+CIceSheegoth::CIceSheegoth(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform4f& xf,
                            CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
                            const CIceSheegothData& sheegothData)
 : CPatterned(EPatternedAI::IceSheeegoth, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
@@ -229,7 +229,7 @@ void CIceSheegoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, C
           TakeDamage(zeus::skZero3f, 0.f);
           if (IsGillCollider(colAct.GetPtr())) {
             x97c_ = 0.2f;
-            x980_ = GetTransform().basis[1];
+            x980_ = GetTransform().GetForward();
           }
         }
       }
@@ -270,7 +270,7 @@ void CIceSheegoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, C
   CPatterned::AcceptScriptMsg(msg, sender, mgr);
 }
 
-void CIceSheegoth::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CIceSheegoth::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   CPatterned::AddToRenderer(frustum, mgr);
 
   if (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot) {
@@ -386,22 +386,22 @@ zeus::CAABox CIceSheegoth::GetSortingBounds(const CStateManager& mgr) const {
 void CIceSheegoth::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
   switch (type) {
   case EUserEventType::Projectile: {
-    zeus::CTransform gunPos = GetLctrTransform(node.GetLocatorName());
+    zeus::CTransform4f gunPos = GetLctrTransform(node.GetLocatorName());
     zeus::CVector3f interceptPos = GetProjectileInfo()->PredictInterceptPos(
         gunPos.origin, mgr.GetPlayer().GetAimPosition(mgr, 0.f), mgr.GetPlayer(), true, dt);
     zeus::CVector3f predictOffset = interceptPos - gunPos.origin;
     zeus::CVector3f lookPos;
-    if (zeus::CVector3f::getAngleDiff(GetTransform().frontVector(), predictOffset) > zeus::degToRad(60.f)) {
+    if (zeus::CVector3f::getAngleDiff(GetTransform().GetForward(), predictOffset) > zeus::degToRad(60.f)) {
       if (!predictOffset.canBeNormalized()) {
-        lookPos = gunPos.origin + predictOffset.magnitude() * gunPos.frontVector();
+        lookPos = gunPos.origin + predictOffset.magnitude() * gunPos.GetForward();
       } else {
         lookPos = gunPos.origin + (predictOffset.magnitude() *
-                                   zeus::CVector3f::slerp(GetTransform().frontVector(), predictOffset.normalized(),
+                                   zeus::CVector3f::slerp(GetTransform().GetForward(), predictOffset.normalized(),
                                                           zeus::CRelAngle::FromDegrees(60.f)));
       }
     }
 
-    LaunchProjectile(zeus::lookAt(gunPos.origin, lookPos), mgr, 4, EProjectileAttrib::None, false, std::nullopt, -1,
+    LaunchProjectile(zeus::CTransform4f::LookAt(gunPos.origin, lookPos), mgr, 4, EProjectileAttrib::None, false, std::nullopt, -1,
                      false, zeus::skOne3f);
     x974_ = std::max(0.f, x974_ - 0.3333f * x56c_sheegothData.Get_x170());
     if (xb28_27_ && !ShouldSpecialAttack(mgr, 0.f)) {
@@ -459,7 +459,7 @@ void CIceSheegoth::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
       CPatterned::PathFind(mgr, EStateMsg::Update, dt);
       x968_interestTimer = 0.f;
       zeus::CVector3f moveVec = GetBodyController()->GetCommandMgr().GetMoveVector();
-      if (GetTransform().basis[1].dot(moveVec) < 0.f && moveVec.canBeNormalized()) {
+      if (GetTransform().GetForward().dot(moveVec) < 0.f && moveVec.canBeNormalized()) {
         GetBodyController()->GetCommandMgr().ClearLocomotionCmds();
         GetBodyController()->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(zeus::skZero3f, moveVec.normalized(), 1.f));
       }
@@ -525,7 +525,7 @@ void CIceSheegoth::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
 void CIceSheegoth::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
     x568_ = 0;
-    x938_ = GetTransform().basis[1];
+    x938_ = GetTransform().GetForward();
   } else if (msg == EStateMsg::Update) {
     if (x568_ == 0) {
       if (GetBodyController()->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Generate) {
@@ -561,7 +561,7 @@ void CIceSheegoth::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
         x568_ = 2;
       }
     } else if (x568_ == 2) {
-      const float angleDiff = zeus::CVector3f::getAngleDiff(GetTransform().frontVector(), x938_);
+      const float angleDiff = zeus::CVector3f::getAngleDiff(GetTransform().GetForward(), x938_);
       if (angleDiff <= zeus::degToRad(5.f)) {
         x568_ = 0;
       } else {
@@ -596,8 +596,8 @@ void CIceSheegoth::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
         GetBodyController()->GetCommandMgr().DeliverCmd(
             CBCMeleeAttackCmd{isPlayerMorphed ? pas::ESeverity::Two : pas::ESeverity::One});
       } else if (xb28_29_) {
-        const zeus::CTransform mouthXf = GetLctrTransform(xaf4_mouthLocator);
-        if (GetTransform().frontVector().dot(mgr.GetPlayer().GetTranslation() - mouthXf.origin) > 0.f) {
+        const zeus::CTransform4f mouthXf = GetLctrTransform(xaf4_mouthLocator);
+        if (GetTransform().GetForward().dot(mgr.GetPlayer().GetTranslation() - mouthXf.origin) > 0.f) {
           SetPathFindMode(EPathFindMode::Normal);
           if (GetSearchPath() != nullptr && !PathShagged(mgr, 0.f)) {
             CPatterned::PathFind(mgr, EStateMsg::Update, dt);
@@ -920,7 +920,7 @@ bool CIceSheegoth::ShouldAttack(CStateManager& mgr, float arg) {
   if (GetAreaIdAlways() == mgr.GetPlayer().GetAreaId() && x954_attackTimeLeft <= 0.f &&
       x974_ >= 0.3333f * x56c_sheegothData.Get_x170() && sub_8019ecbc()) {
     const zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
-    const zeus::CTransform lctrXf = GetLctrTransform(xaf4_mouthLocator);
+    const zeus::CTransform4f lctrXf = GetLctrTransform(xaf4_mouthLocator);
     if ((aimPos - lctrXf.origin).magSquared() > x2fc_minAttackRange * x2fc_minAttackRange &&
         !ShouldTurn(mgr, zeus::degToRad(15.f))) {
       return !IsPatternObstructed(mgr, lctrXf.origin, aimPos);
@@ -947,7 +947,7 @@ bool CIceSheegoth::ShouldTurn(CStateManager& mgr, float arg) {
   if (arg == 0.f) {
     arg = zeus::degToRad(45.f);
   }
-  return zeus::CVector2f::getAngleDiff(GetTransform().frontVector().toVec2f(),
+  return zeus::CVector2f::getAngleDiff(GetTransform().GetForward().toVec2f(),
                                        mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f()) > arg;
 }
 
@@ -960,7 +960,7 @@ bool CIceSheegoth::ShouldFire(CStateManager& mgr, float arg) {
     return false;
   }
   zeus::CVector3f pos = mgr.GetPlayer().GetTranslation();
-  zeus::CTransform lctrXf = GetLctrTransform(xaf4_mouthLocator);
+  zeus::CTransform4f lctrXf = GetLctrTransform(xaf4_mouthLocator);
   if ((pos - lctrXf.origin).magSquared() <= x300_maxAttackRange * x300_maxAttackRange &&
       std::fabs(pos.z() - GetTranslation().z()) < (lctrXf.origin.z() - GetTranslation().z()) &&
       !ShouldTurn(mgr, 0.2617994f)) {
@@ -977,7 +977,7 @@ bool CIceSheegoth::ShouldSpecialAttack(CStateManager& mgr, float arg) {
   if (GetAreaIdAlways() == mgr.GetPlayer().GetAreaId() && x954_attackTimeLeft <= 0.f &&
       x974_ >= 0.3333f * x56c_sheegothData.Get_x170() && sub_8019ecbc()) {
     const zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
-    const zeus::CTransform lctrXf = GetLctrTransform(xaf4_mouthLocator);
+    const zeus::CTransform4f lctrXf = GetLctrTransform(xaf4_mouthLocator);
     if ((aimPos - lctrXf.origin).magSquared() > x2fc_minAttackRange * x2fc_minAttackRange &&
         !ShouldTurn(mgr, zeus::degToRad(15.f))) {
       return !IsPatternObstructed(mgr, lctrXf.origin, aimPos);
@@ -1187,8 +1187,8 @@ void CIceSheegoth::AttractProjectiles(CStateManager& mgr) {
         return;
       }
 
-      zeus::CTransform xf = zeus::lookAt(zeus::skZero3f, lookPos);
-      xf.orthonormalize();
+      zeus::CTransform4f xf = zeus::CTransform4f::LookAt(zeus::skZero3f, lookPos);
+      xf.Orthonormalize();
       proj->ProjectileWeapon().SetWorldSpaceOrientation(xf);
       zeus::CVector3f velocity = 0.8f * proj->GetProjectileWeapon().GetVelocity().normalized();
       proj->ProjectileWeapon().SetVelocity(proj->ProjectileWeapon().GetVelocity() * (0.3999f + (velocity * 0.6f)));
@@ -1262,7 +1262,7 @@ void CIceSheegoth::PreventWorldCollisions(float dt, CStateManager& mgr) {
   }
 
   zeus::CVector3f posDiff = GetTranslation() - mgr.GetPlayer().GetTranslation();
-  const zeus::CVector3f direction = GetTransform().transposeRotate(
+  const zeus::CVector3f direction = GetTransform().TransposeRotate(
       (posDiff.dot(posDiff * maxDeviation.normalized()) / posDiff.magSquared()) * posDiff);
   ApplyImpulseOR(GetMoveToORImpulseWR(direction, dt), zeus::CAxisAngle{});
 }
@@ -1347,7 +1347,7 @@ void CIceSheegoth::UpdateParticleEffects(float dt, CStateManager& mgr) {
       xad8_->SetParticleEmission(false);
     }
 
-    const zeus::CTransform rotation = GetTransform().getRotation();
+    const zeus::CTransform4f rotation = GetTransform().GetRotation();
     const zeus::CVector3f pos = colAct->GetTranslation();
     xa9c_->SetOrientation(rotation);
     xa9c_->SetGlobalTranslation(pos);
@@ -1400,7 +1400,7 @@ bool CIceSheegoth::sub_8019ecdc(CStateManager& mgr, float minAngle) {
       mgr.GetPlayer().GetAimPosition(mgr, GetModelData()->GetAnimationData()->GetSpeedScale() > 0.f
                                               ? 1.25f / GetModelData()->GetAnimationData()->GetSpeedScale()
                                               : 0.f);
-  return zeus::CVector2f::getAngleDiff(GetTransform().basis[1].toVec2f(),
+  return zeus::CVector2f::getAngleDiff(GetTransform().GetForward().toVec2f(),
                                        plAimPos.toVec2f() - GetTranslation().toVec2f()) > minAngle;
 }
 
@@ -1475,7 +1475,7 @@ bool CIceSheegoth::ShouldAttractProjectile(const CGameProjectile& proj, CStateMa
     const CActor* ent = static_cast<const CActor*>(mgr.GetObjectById(proj.GetOwnerId()));
     if (ent != nullptr) {
       if (CPatterned::CastTo<CIceSheegoth>(ent) == nullptr && ent->GetAreaIdAlways() == GetAreaIdAlways()) {
-        zeus::CVector3f r = GetTransform().rotate(x56c_sheegothData.Get_x8());
+        zeus::CVector3f r = GetTransform().Rotate(x56c_sheegothData.Get_x8());
         zeus::CVector3f posDiff = proj.GetTranslation() - ent->GetTranslation();
         if (proj.GetType() == EWeaponType::Wave && !proj.GetDamageInfo().GetWeaponMode().IsCharged() &&
             !proj.GetDamageInfo().GetWeaponMode().IsComboed() && posDiff.magSquared() < 100.f) {
@@ -1483,8 +1483,8 @@ bool CIceSheegoth::ShouldAttractProjectile(const CGameProjectile& proj, CStateMa
         }
 
         zeus::CVector3f xyPos = posDiff.toVec2f() - GetTranslation().toVec2f() + r.toVec2f();
-        if (zeus::CVector3f::getAngleDiff(GetTransform().frontVector(), xyPos) <= x56c_sheegothData.Get_x4()) {
-          if (zeus::CVector3f::getAngleDiff(GetTransform().frontVector(), -xyPos) >= x56c_sheegothData.Get_x0()) {
+        if (zeus::CVector3f::getAngleDiff(GetTransform().GetForward(), xyPos) <= x56c_sheegothData.Get_x4()) {
+          if (zeus::CVector3f::getAngleDiff(GetTransform().GetForward(), -xyPos) >= x56c_sheegothData.Get_x0()) {
             return false;
           }
         }

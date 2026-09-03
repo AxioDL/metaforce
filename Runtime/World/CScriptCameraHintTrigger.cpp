@@ -9,7 +9,7 @@ namespace metaforce {
 
 CScriptCameraHintTrigger::CScriptCameraHintTrigger(TUniqueId uid, bool active, std::string_view name,
                                                    const CEntityInfo& info, const zeus::CVector3f& scale,
-                                                   const zeus::CTransform& xf, bool deactivateOnEnter,
+                                                   const zeus::CTransform4f& xf, bool deactivateOnEnter,
                                                    bool deactivateOnExit)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Trigger),
          CActorParameters::None(), kInvalidUniqueId)

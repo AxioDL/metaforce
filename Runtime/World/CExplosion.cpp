@@ -10,7 +10,7 @@
 namespace metaforce {
 
 CExplosion::CExplosion(const TLockedToken<CGenDescription>& particle, TUniqueId uid, bool active,
-                       const CEntityInfo& info, std::string_view name, const zeus::CTransform& xf, u32 flags,
+                       const CEntityInfo& info, std::string_view name, const zeus::CTransform4f& xf, u32 flags,
                        const zeus::CVector3f& scale, const zeus::CColor& color)
 : CEffect(uid, info, active, name, xf) {
   xe8_particleGen = std::make_unique<CElementGen>(particle, CElementGen::EModelOrientationType::Normal,
@@ -21,13 +21,13 @@ CExplosion::CExplosion(const TLockedToken<CGenDescription>& particle, TUniqueId 
   xf4_26_renderXray = flags & 0x8;
   xe6_27_thermalVisorFlags = flags & 0x1 ? 1 : 2;
   xe8_particleGen->SetGlobalTranslation(xf.origin);
-  xe8_particleGen->SetOrientation(xf.getRotation());
+  xe8_particleGen->SetOrientation(xf.GetRotation());
   xe8_particleGen->SetGlobalScale(scale);
   xe8_particleGen->SetModulationColor(color);
 }
 
 CExplosion::CExplosion(const TLockedToken<CElectricDescription>& electric, TUniqueId uid, bool active,
-                       const CEntityInfo& info, std::string_view name, const zeus::CTransform& xf, u32 flags,
+                       const CEntityInfo& info, std::string_view name, const zeus::CTransform4f& xf, u32 flags,
                        const zeus::CVector3f& scale, const zeus::CColor& color)
 : CEffect(uid, info, active, name, xf) {
   xe8_particleGen = std::make_unique<CParticleElectric>(electric);
@@ -36,7 +36,7 @@ CExplosion::CExplosion(const TLockedToken<CElectricDescription>& electric, TUniq
   xf4_26_renderXray = flags & 0x8;
   xe6_27_thermalVisorFlags = flags & 0x1 ? 1 : 2;
   xe8_particleGen->SetGlobalTranslation(xf.origin);
-  xe8_particleGen->SetOrientation(xf.getRotation());
+  xe8_particleGen->SetOrientation(xf.GetRotation());
   xe8_particleGen->SetGlobalScale(scale);
   xe8_particleGen->SetModulationColor(color);
 }
@@ -64,7 +64,7 @@ void CExplosion::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
 void CExplosion::Think(float dt, CStateManager& mgr) {
   if (xe4_28_transformDirty) {
     xe8_particleGen->SetGlobalTranslation(GetTranslation());
-    xe8_particleGen->SetOrientation(GetTransform().getRotation());
+    xe8_particleGen->SetOrientation(GetTransform().GetRotation());
     xe4_28_transformDirty = false;
   }
   xe8_particleGen->Update(dt);
@@ -81,12 +81,12 @@ void CExplosion::Think(float dt, CStateManager& mgr) {
     mgr.FreeScriptObject(GetUniqueId());
 }
 
-void CExplosion::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+void CExplosion::PreRender(CStateManager& mgr, const zeus::CFrustumPlanes& frustum) {
   CActor::PreRender(mgr, frustum);
   xe4_30_outOfFrustum = !xf4_25_ || !frustum.aabbFrustumTest(x9c_renderBounds);
 }
 
-void CExplosion::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CExplosion::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   if (xe4_30_outOfFrustum) {
     return;
   }

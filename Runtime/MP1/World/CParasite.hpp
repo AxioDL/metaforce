@@ -99,7 +99,7 @@ class CParasite : public CWallWalker {
 public:
   DEFINE_PATTERNED(Parasite);
   CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
-            const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, EBodyType bodyType,
+            const zeus::CTransform4f& xf, CModelData&& mData, const CPatternedInfo& pInfo, EBodyType bodyType,
             float maxTelegraphReactDist, float advanceWpRadius, float f3, float alignAngVel, float f5,
             float stuckTimeThreshold, float collisionCloseMargin, float parasiteSearchRadius,
             float parasiteSeparationDist, float parasiteSeparationWeight, float parasiteAlignmentWeight,

@@ -13,7 +13,7 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace metaforce::MP1 {
-CShockWave::CShockWave(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CShockWave::CShockWave(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                        TUniqueId parent, const CShockWaveInfo& data, float minActiveTime, float knockback)
 : CActor(uid, true, name, info, xf, CModelData::CModelDataNull(), {EMaterialTypes::Projectile},
          CActorParameters::None(), kInvalidUniqueId)
@@ -30,7 +30,7 @@ CShockWave::CShockWave(TUniqueId uid, std::string_view name, const CEntityInfo& 
     x974_electricDesc = g_SimplePool->GetObj({SBIG('ELSC'), data.GetWeaponDescId()});
   }
   x110_elementGen->SetParticleEmission(true);
-  x110_elementGen->SetOrientation(GetTransform().getRotation());
+  x110_elementGen->SetOrientation(GetTransform().GetRotation());
   x110_elementGen->SetGlobalTranslation(GetTranslation());
   xe6_27_thermalVisorFlags = 2;
 }
@@ -53,7 +53,7 @@ void CShockWave::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
   mgr.SendScriptMsgAlways(x980_id2, uid, msg);
 }
 
-void CShockWave::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CShockWave::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   CActor::AddToRenderer(frustum, mgr);
   g_Renderer->AddParticleGen(*x110_elementGen);
 }
@@ -132,11 +132,11 @@ void CShockWave::Touch(CActor& actor, CStateManager& mgr) {
 
   if (isPlayer) {
     if (mgr.GetPlayer().GetPlayerMovementState() == CPlayer::EPlayerMovementState::OnGround) {
-      const zeus::CTransform& playerTransform = mgr.GetPlayer().GetTransform();
+      const zeus::CTransform4f& playerTransform = mgr.GetPlayer().GetTransform();
       zeus::CVector3f playerDir = GetTranslation() - playerTransform.origin;
       if (playerDir.canBeNormalized()) {
         playerDir.normalize();
-        float dot = std::abs(playerDir.dot(playerTransform.frontVector()));
+        float dot = std::abs(playerDir.dot(playerTransform.GetForward()));
         knockBackScale = std::max(0.12f, 0.88f * dot * dot);
       }
     }

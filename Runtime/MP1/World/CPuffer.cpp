@@ -22,14 +22,14 @@ constexpr std::array GesJetLocators{
     "GasJet08"sv, "GasJet09"sv, "GasJet10"sv, "GasJet11"sv, "GasJet12"sv, "GasJet13"sv, "GasJet14"sv,
 };
 
-CPuffer::CPuffer(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CPuffer::CPuffer(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                  CModelData&& modelData, const CActorParameters& actorParameters, const CPatternedInfo& patternedInfo,
                  float hoverSpeed, CAssetId cloudEffect, const CDamageInfo& cloudDamage, CAssetId cloudSteam, float f2,
                  bool b1, bool b2, bool b3, const CDamageInfo& explosionDamage, s16 sfxId)
 : CPatterned(EPatternedAI::Puffer, uid, name, EFlavorType::Zero, info, xf, std::move(modelData), patternedInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::RestrictedFlyer, actorParameters,
              EKnockBackVariant::Small)
-, x568_face(xf.frontVector())
+, x568_face(xf.GetForward())
 , x574_cloudEffect(g_SimplePool->GetObj({SBIG('PART'), cloudEffect}))
 , x57c_cloudDamage(cloudDamage)
 , x598_24_(b1)
@@ -103,7 +103,7 @@ void CPuffer::Death(CStateManager& mgr, const zeus::CVector3f& vec, EScriptObjec
   CPatterned::Death(mgr, vec, state);
   mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), x59c_explosionDamage,
                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}));
-  zeus::CTransform xf = GetTransform() * zeus::CTransform::Scale(x57c_cloudDamage.GetRadius());
+  zeus::CTransform4f xf = GetTransform() * zeus::CTransform4f::Scale(x57c_cloudDamage.GetRadius());
   zeus::CAABox aabox(-1.f, 1.f);
   mgr.AddObject(new CFire(x574_cloudEffect, mgr.AllocateUniqueId(), GetAreaIdAlways(), true, GetUniqueId(),
                           GetTransform(), x57c_cloudDamage, aabox.getTransformedAABox(xf), {1.f, 1.f, 1.f}, true,
@@ -115,14 +115,14 @@ void CPuffer::sub8025bfa4(CStateManager& mgr) {
 
   if (x5d4_gasLocators.empty()) {
     for (const auto& gasLocator : GasLocators) {
-      x5d4_gasLocators.push_back(GetScaledLocatorTransform(gasLocator).basis[1]);
+      x5d4_gasLocators.push_back(GetScaledLocatorTransform(gasLocator).GetForward());
     }
   }
 
   if (moveVector.canBeNormalized()) {
     const zeus::CVector3f moveNorm = -moveVector.normalized();
     for (size_t i = 0; i < GesJetLocators.size(); ++i) {
-      const zeus::CVector3f tmp = GetTransform().rotate(x5d4_gasLocators[i]);
+      const zeus::CVector3f tmp = GetTransform().Rotate(x5d4_gasLocators[i]);
       const bool enable = std::cos(zeus::degToRad(45.f)) < moveNorm.dot(tmp);
 
       if ((x5d0_enabledParticles & (1 << i)) != enable) {

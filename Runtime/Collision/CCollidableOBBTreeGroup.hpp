@@ -34,7 +34,7 @@ public:
 
   void ResetTestStats() const;
   u32 GetTableIndex() const override;
-  zeus::CAABox CalculateAABox(const zeus::CTransform&) const override;
+  zeus::CAABox CalculateAABox(const zeus::CTransform4f&) const override;
   zeus::CAABox CalculateLocalAABox() const override;
   FourCC GetPrimType() const override;
   CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const override;

@@ -98,36 +98,36 @@ public:
   bool GetIsLoop() const;
   float GetAnimationDuration(int idx) const;
   void EnableLooping(bool enable);
-  void AdvanceParticles(const zeus::CTransform& xf, float dt, CStateManager& stateMgr);
+  void AdvanceParticles(const zeus::CTransform4f& xf, float dt, CStateManager& stateMgr);
   zeus::CAABox GetBounds() const;
-  zeus::CAABox GetBounds(const zeus::CTransform& xf) const;
-  zeus::CTransform GetScaledLocatorTransformDynamic(std::string_view name, const CCharAnimTime* time) const;
-  zeus::CTransform GetScaledLocatorTransform(std::string_view name) const;
-  zeus::CTransform GetLocatorTransformDynamic(std::string_view name, const CCharAnimTime* time) const;
-  zeus::CTransform GetLocatorTransform(std::string_view name) const;
+  zeus::CAABox GetBounds(const zeus::CTransform4f& xf) const;
+  zeus::CTransform4f GetScaledLocatorTransformDynamic(std::string_view name, const CCharAnimTime* time) const;
+  zeus::CTransform4f GetScaledLocatorTransform(std::string_view name) const;
+  zeus::CTransform4f GetLocatorTransformDynamic(std::string_view name, const CCharAnimTime* time) const;
+  zeus::CTransform4f GetLocatorTransform(std::string_view name) const;
   SAdvancementDeltas AdvanceAnimationIgnoreParticles(float dt, CRandom16& rand, bool advTree);
   SAdvancementDeltas AdvanceAnimation(float dt, CStateManager& stateMgr, TAreaId aid, bool advTree);
   bool IsAnimating() const;
-  bool IsInFrustum(const zeus::CTransform& xf, const zeus::CFrustum& frustum) const;
-  void RenderParticles(const zeus::CFrustum& frustum) const;
+  bool IsInFrustum(const zeus::CTransform4f& xf, const zeus::CFrustumPlanes& frustum) const;
+  void RenderParticles(const zeus::CFrustumPlanes& frustum) const;
   void Touch(EWhichModel, int shaderIdx);
   void Touch(const CStateManager& stateMgr, int shaderIdx);
-  void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& mulColor, const zeus::CColor& addColor,
+  void RenderThermal(const zeus::CTransform4f& xf, const zeus::CColor& mulColor, const zeus::CColor& addColor,
                      const CModelFlags& flags);
-  void RenderUnsortedParts(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights,
+  void RenderUnsortedParts(EWhichModel, const zeus::CTransform4f& xf, const CActorLights* lights,
                            const CModelFlags& drawFlags);
-  void Render(const CStateManager& stateMgr, const zeus::CTransform& xf, const CActorLights* lights,
+  void Render(const CStateManager& stateMgr, const zeus::CTransform4f& xf, const CActorLights* lights,
               const CModelFlags& drawFlags);
-  void Render(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights, const CModelFlags& drawFlags);
-  void FlatDraw(EWhichModel which, const zeus::CTransform& xf, bool unsortedOnly, const CModelFlags& flags);
+  void Render(EWhichModel, const zeus::CTransform4f& xf, const CActorLights* lights, const CModelFlags& drawFlags);
+  void FlatDraw(EWhichModel which, const zeus::CTransform4f& xf, bool unsortedOnly, const CModelFlags& flags);
 
-  void MultiLightingDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
+  void MultiLightingDraw(EWhichModel which, const zeus::CTransform4f& xf, const CActorLights* lights,
                          const zeus::CColor& alphaColor, const zeus::CColor& additiveColor);
-  void MultiPassDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
+  void MultiPassDraw(EWhichModel which, const zeus::CTransform4f& xf, const CActorLights* lights,
                      const CModelFlags* flags, u32 count);
-  void DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform& xf, CTexture& tex,
+  void DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform4f& xf, CTexture& tex,
                         const zeus::CColor& addColor, float t);
-  void DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf, CTexture& tex, const zeus::CColor& addColor,
+  void DisintegrateDraw(EWhichModel which, const zeus::CTransform4f& xf, CTexture& tex, const zeus::CColor& addColor,
                         float t);
   static void ThermalDraw(CSkinnedModel& model, const zeus::CColor& mulColor, const zeus::CColor& addColor,
                           const CModelFlags& flags);

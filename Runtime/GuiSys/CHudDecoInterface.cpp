@@ -31,7 +31,7 @@ CHudDecoInterfaceCombat::CHudDecoInterfaceCombat(CGuiFrame& selHud) {
   x14_pivotPosition = x70_basewidget_pivot->GetIdlePosition();
   x78_basewidget_tickdeco0->SetColor(g_tweakGuiColors->GetTickDecoColor());
   x38_basePosition = x7c_basewidget_frame->GetLocalPosition();
-  x44_baseRotation = x7c_basewidget_frame->GetLocalTransform().buildMatrix3f();
+  x44_baseRotation = x7c_basewidget_frame->GetLocalTransform().BuildMatrix3f();
   CHudDecoInterfaceCombat::UpdateHudAlpha();
 }
 
@@ -56,7 +56,7 @@ void CHudDecoInterfaceCombat::SetHudRotation(const zeus::CQuaternion& rot) { x4_
 void CHudDecoInterfaceCombat::SetHudOffset(const zeus::CVector3f& off) { x20_offset = off; }
 
 void CHudDecoInterfaceCombat::SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position) {
-  x7c_basewidget_frame->SetLocalTransform(zeus::CTransform(rotation * x44_baseRotation, position + x38_basePosition));
+  x7c_basewidget_frame->SetLocalTransform(zeus::CTransform4f(rotation * x44_baseRotation, position + x38_basePosition));
 }
 
 void CHudDecoInterfaceCombat::SetFrameColorValue(float v) {
@@ -93,27 +93,27 @@ CHudDecoInterfaceScan::CHudDecoInterfaceScan(CGuiFrame& selHud) : x14_selHud(sel
     deco->SetColor(g_tweakGuiColors->GetHudFrameColor());
 
   x218_leftsidePosition = x24c_basewidget_leftside->GetLocalPosition();
-  zeus::CTransform leftXf(zeus::CMatrix3f::RotateZ(g_tweakGui->GetScanSidesAngle()), x218_leftsidePosition);
+  zeus::CTransform4f leftXf(zeus::CMatrix3f::RotateZ(g_tweakGui->GetScanSidesAngle()), x218_leftsidePosition);
   x24c_basewidget_leftside->SetLocalTransform(leftXf);
   if (CGuiWidget* w = selHud.FindWidget("basewidget_databankl")) {
-    zeus::CTransform xf(zeus::CMatrix3f::RotateZ(g_tweakGui->GetScanSidesAngle() * -1.f), w->GetLocalPosition());
+    zeus::CTransform4f xf(zeus::CMatrix3f::RotateZ(g_tweakGui->GetScanSidesAngle() * -1.f), w->GetLocalPosition());
     w->SetLocalTransform(xf);
   }
   if (CGuiWidget* w = selHud.FindWidget("basewidget_leftguages")) {
-    zeus::CTransform xf(zeus::CMatrix3f(zeus::CVector3f{g_tweakGui->GetScanSidesXScale(), 1.f, 1.f}),
+    zeus::CTransform4f xf(zeus::CMatrix3f(zeus::CVector3f{g_tweakGui->GetScanSidesXScale(), 1.f, 1.f}),
                         w->GetLocalPosition());
     w->SetLocalTransform(xf);
   }
 
   x224_rightsidePosition = x250_basewidget_rightside->GetLocalPosition();
-  zeus::CTransform rightXf(zeus::CMatrix3f::RotateZ(g_tweakGui->GetScanSidesAngle() * -1.f), x224_rightsidePosition);
+  zeus::CTransform4f rightXf(zeus::CMatrix3f::RotateZ(g_tweakGui->GetScanSidesAngle() * -1.f), x224_rightsidePosition);
   x250_basewidget_rightside->SetLocalTransform(rightXf);
   if (CGuiWidget* w = selHud.FindWidget("basewidget_databankr")) {
-    zeus::CTransform xf(zeus::CMatrix3f::RotateZ(g_tweakGui->GetScanSidesAngle()), w->GetLocalPosition());
+    zeus::CTransform4f xf(zeus::CMatrix3f::RotateZ(g_tweakGui->GetScanSidesAngle()), w->GetLocalPosition());
     w->SetLocalTransform(xf);
   }
   if (CGuiWidget* w = selHud.FindWidget("basewidget_rightguages")) {
-    zeus::CTransform xf(zeus::CMatrix3f(zeus::CVector3f{g_tweakGui->GetScanSidesXScale(), 1.f, 1.f}),
+    zeus::CTransform4f xf(zeus::CMatrix3f(zeus::CVector3f{g_tweakGui->GetScanSidesXScale(), 1.f, 1.f}),
                         w->GetLocalPosition());
     w->SetLocalTransform(xf);
   }
@@ -159,7 +159,7 @@ void CHudDecoInterfaceScan::SetFrameColorValue(float v) {
 void CHudDecoInterfaceScan::InitializeFlatFrame() {
   x10_loadedScanHudFlat = x4_scanHudFlat.GetObj();
   x10_loadedScanHudFlat->SetMaxAspect(1.33f);
-  x10_loadedScanHudFlat->GetFrameCamera()->SetO2WTransform(zeus::CTransform::Translate(x20c_camPos));
+  x10_loadedScanHudFlat->GetFrameCamera()->SetO2WTransform(zeus::CTransform4f::Translate(x20c_camPos));
   x258_flat_basewidget_scanguage = x10_loadedScanHudFlat->FindWidget("basewidget_scanguage");
   x258_flat_basewidget_scanguage->SetVisibility(false, ETraversalMode::Children);
   x254_flat_textpane_scanning = static_cast<CGuiTextPane*>(x10_loadedScanHudFlat->FindWidget("textpane_scanning"));
@@ -396,7 +396,7 @@ void CHudDecoInterfaceXRay::SetReticuleTransform(const zeus::CMatrix3f& xf) { x3
 
 void CHudDecoInterfaceXRay::SetDecoRotation(float angle) {
   xac_basewidget_rotate->SetLocalTransform(
-      zeus::CTransform(zeus::CMatrix3f::RotateY(angle), xac_basewidget_rotate->GetLocalPosition()));
+      zeus::CTransform4f(zeus::CMatrix3f::RotateY(angle), xac_basewidget_rotate->GetLocalPosition()));
 }
 
 void CHudDecoInterfaceXRay::SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position) {
@@ -417,7 +417,7 @@ void CHudDecoInterfaceXRay::Update(float dt, const CStateManager& stateMgr) {
       MP1::CSamusHud::BuildFinalCameraTransform(x8_rotation, x18_pivotPosition + x24_offset, x30_camPos));
 
   xa8_basewidget_seeker->SetLocalTransform(
-      zeus::CTransform(zeus::CMatrix3f(x4_seekerScale) * x3c_reticuleXf, x60_seekerPosition));
+      zeus::CTransform4f(zeus::CMatrix3f(x4_seekerScale) * x3c_reticuleXf, x60_seekerPosition));
 }
 
 void CHudDecoInterfaceXRay::UpdateCameraDebugSettings(float fov, float y, float z) {
@@ -468,7 +468,7 @@ CHudDecoInterfaceThermal::CHudDecoInterfaceThermal(CGuiFrame& selHud) {
     for (CGuiWidget* c = static_cast<CGuiWidget*>(w->GetChildObject()); c;
          c = static_cast<CGuiWidget*>(c->GetNextSibling())) {
       x84_lockonWidgets.emplace_back(c, c->GetLocalTransform());
-      c->SetLocalTransform(c->GetLocalTransform() * zeus::CTransform::Scale(x68_lockonScale));
+      c->SetLocalTransform(c->GetLocalTransform() * zeus::CTransform4f::Scale(x68_lockonScale));
     }
   }
 
@@ -509,7 +509,7 @@ void CHudDecoInterfaceThermal::Update(float dt, const CStateManager& stateMgr) {
 
   if (oldLockonScale != x68_lockonScale)
     for (auto& lockWidget : x84_lockonWidgets)
-      lockWidget.first->SetLocalTransform(lockWidget.second * zeus::CTransform::Scale(x68_lockonScale));
+      lockWidget.first->SetLocalTransform(lockWidget.second * zeus::CTransform4f::Scale(x68_lockonScale));
 
   x6c_retflashTimer += dt;
   if (x6c_retflashTimer > 1.f)
@@ -522,7 +522,7 @@ void CHudDecoInterfaceThermal::Update(float dt, const CStateManager& stateMgr) {
   x74_camera->SetO2WTransform(
       MP1::CSamusHud::BuildFinalCameraTransform(x4_rotation, x14_pivotPosition + x20_offset, x2c_camPos));
 
-  x7c_basewidget_reticle->SetLocalTransform(zeus::CTransform(x38_reticuleXf, x5c_reticulePosition));
+  x7c_basewidget_reticle->SetLocalTransform(zeus::CTransform4f(x38_reticuleXf, x5c_reticulePosition));
 }
 
 void CHudDecoInterfaceThermal::UpdateCameraDebugSettings(float fov, float y, float z) {

@@ -6,7 +6,7 @@
 
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
-#include <zeus/CTransform.hpp>
+#include <zeus/CTransform4f.hpp>
 
 namespace metaforce::MP1 {
 struct SGrenadeVelocityInfo {
@@ -74,12 +74,12 @@ private:
 
 public:
   DEFINE_ENTITY
-  CBouncyGrenade(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+  CBouncyGrenade(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                  CModelData&& mData, const CActorParameters& actParams, TUniqueId parentId,
                  const SBouncyGrenadeData& data, float velocity, float explodePlayerDistance);
 
   void Accept(IVisitor& visitor) override { visitor.Visit(this); }
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   void CollidedWith(TUniqueId id, const CCollisionInfoList& list, CStateManager& mgr) override;
   [[nodiscard]] std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Render(CStateManager& mgr) override;

@@ -59,9 +59,9 @@ class CFlaahgraRenderer : public CActor {
 
 public:
   DEFINE_ENTITY
-  CFlaahgraRenderer(TUniqueId, TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&);
+  CFlaahgraRenderer(TUniqueId, TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&);
 
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   void Accept(IVisitor& visitor) override;
   [[nodiscard]] std::optional<zeus::CAABox> GetTouchBounds() const override { return {}; }
 };
@@ -78,12 +78,12 @@ class CFlaahgraPlants : public CActor {
 public:
   DEFINE_ENTITY
   CFlaahgraPlants(const TToken<CGenDescription>&, const CActorParameters&, TUniqueId, TAreaId, TUniqueId,
-                  const zeus::CTransform&, const CDamageInfo&, const zeus::CVector3f&);
+                  const zeus::CTransform4f&, const CDamageInfo&, const zeus::CVector3f&);
 
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   [[nodiscard]] std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Touch(CActor& actor, CStateManager& mgr) override;
 };
@@ -184,21 +184,21 @@ class CFlaahgra : public CPatterned {
 
   [[nodiscard]] u32 sub801ae828(const CStateManager&) const;
   [[nodiscard]] zeus::CVector3f sub801ae754(const CStateManager&) const;
-  CFlaahgraProjectile* CreateProjectile(const zeus::CTransform& xf, CStateManager& mgr);
+  CFlaahgraProjectile* CreateProjectile(const zeus::CTransform4f& xf, CStateManager& mgr);
 
   [[nodiscard]] TUniqueId GetMirrorNearestPlayer(const CStateManager&) const;
   bool sub_801ae638();
 
 public:
   DEFINE_PATTERNED(Flaahgra);
-  CFlaahgra(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, const CAnimRes&,
+  CFlaahgra(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform4f&, const CAnimRes&,
             const CPatternedInfo&, const CActorParameters&, CFlaahgraData);
 
   void Accept(IVisitor& visitor) override;
   void Think(float dt, CStateManager& mgr) override;
   void PreThink(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
-  void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) override;
   [[nodiscard]] bool CanRenderUnsorted(const CStateManager& mgr) const override { return true; }
   [[nodiscard]] zeus::CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override {
     return x820_aimPosition;

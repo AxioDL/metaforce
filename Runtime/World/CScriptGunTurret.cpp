@@ -142,7 +142,7 @@ CScriptGunTurretData::CScriptGunTurretData(CInputStream& in, s32 propCount)
 , xa0_scriptedStartOnly(propCount >= 46 ? in.ReadBool() : false) {}
 
 CScriptGunTurret::CScriptGunTurret(TUniqueId uid, std::string_view name, ETurretComponent comp, const CEntityInfo& info,
-                                   const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& aabb,
+                                   const zeus::CTransform4f& xf, CModelData&& mData, const zeus::CAABox& aabb,
                                    const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
                                    const CActorParameters& aParms, const CScriptGunTurretData& turretData)
 : CPhysicsActor(uid, true, name, info, xf, std::move(mData),
@@ -170,9 +170,9 @@ CScriptGunTurret::CScriptGunTurret(TUniqueId uid, std::string_view name, ETurret
   x488_chargingEffect = std::make_unique<CElementGen>(x440_chargingEffectDesc);
   x490_panningEffect = std::make_unique<CElementGen>(x44c_panningEffectDesc);
   x4fc_extensionOffset = xf.origin;
-  x514_lastFrontVector = xf.frontVector();
-  x544_originalFrontVec = xf.frontVector();
-  x550_originalRightVec = xf.rightVector();
+  x514_lastFrontVector = xf.GetForward();
+  x544_originalFrontVec = xf.GetForward();
+  x550_originalRightVec = xf.GetRight();
 
   if (comp == ETurretComponent::Base && HasModelData() && GetModelData()->HasAnimData()) {
     GetModelData()->EnableLooping(true);
@@ -362,7 +362,7 @@ zeus::CVector3f CScriptGunTurret::GetOrbitPosition(const CStateManager& mgr) con
 
 zeus::CVector3f CScriptGunTurret::GetAimPosition(const CStateManager&, float) const {
   if (x258_type == ETurretComponent::Base) {
-    return GetTranslation() + x34_transform.rotate(GetLocatorTransform("Gun_SDK"sv).origin);
+    return GetTranslation() + x34_transform.Rotate(GetLocatorTransform("Gun_SDK"sv).origin);
   }
 
   return GetTranslation();
@@ -421,22 +421,22 @@ void CScriptGunTurret::LaunchProjectile(CStateManager& mgr) {
     return;
   }
 
-  const zeus::CTransform xf = GetLocatorTransform("Blast_LCTR"sv);
-  const zeus::CVector3f projPt = GetTranslation() + GetTransform().rotate(xf.origin);
+  const zeus::CTransform4f xf = GetLocatorTransform("Blast_LCTR"sv);
+  const zeus::CVector3f projPt = GetTranslation() + GetTransform().Rotate(xf.origin);
   zeus::CVector3f lookPt = x404_targetPosition;
   const zeus::CVector3f aimDelta = x404_targetPosition - projPt;
-  if (zeus::CVector3f::getAngleDiff(GetTransform().frontVector(), aimDelta) > zeus::degToRad(20.f)) {
+  if (zeus::CVector3f::getAngleDiff(GetTransform().GetForward(), aimDelta) > zeus::degToRad(20.f)) {
     if (aimDelta.canBeNormalized()) {
       const zeus::CVector3f lookDir =
-          zeus::CVector3f::slerp(GetTransform().frontVector(), aimDelta.normalized(), zeus::degToRad(20.f));
+          zeus::CVector3f::slerp(GetTransform().GetForward(), aimDelta.normalized(), zeus::degToRad(20.f));
       lookPt = lookDir * aimDelta.magnitude() + projPt;
     } else {
-      lookPt = projPt + GetTransform().frontVector();
+      lookPt = projPt + GetTransform().GetForward();
     }
   } else if (!aimDelta.canBeNormalized()) {
-    lookPt = projPt + GetTransform().frontVector();
+    lookPt = projPt + GetTransform().GetForward();
   }
-  const zeus::CTransform useXf = zeus::lookAt(projPt, lookPt);
+  const zeus::CTransform4f useXf = zeus::CTransform4f::LookAt(projPt, lookPt);
   auto* proj = new CEnergyProjectile(true, x37c_projectileInfo.Token(), EWeaponType::AI, useXf,
                                      EMaterialTypes::Character, x37c_projectileInfo.GetDamage(), mgr.AllocateUniqueId(),
                                      GetAreaIdAlways(), GetUniqueId(), kInvalidUniqueId, EProjectileAttrib::None, false,
@@ -461,7 +461,7 @@ void CScriptGunTurret::PlayAdditiveFlinchAnimation(CStateManager& mgr) {
   }
 }
 
-void CScriptGunTurret::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CScriptGunTurret::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   CActor::AddToRenderer(frustum, mgr);
 
   if (x258_type != ETurretComponent::Gun) {
@@ -538,7 +538,7 @@ void CScriptGunTurret::Render(CStateManager& mgr) {
     }
   } else if (x258_type == ETurretComponent::Base) {
     if (x4a4_extensionModel && x4f8_extensionT > 0.f) {
-      zeus::CTransform xf = GetTransform();
+      zeus::CTransform4f xf = GetTransform();
       xf.origin = x4fc_extensionOffset + (x4f4_extensionRange * 0.5f * zeus::skDown);
       CModelFlags flags{0, 0, 3, zeus::skWhite};
       x4a4_extensionModel->Render(mgr, xf, x90_actorLights.get(), flags);
@@ -577,8 +577,8 @@ void CScriptGunTurret::UpdateGunParticles(float dt, CStateManager& mgr) {
   }
 
   if (!x560_25_frozen) {
-    const zeus::CTransform lightXf = GetLocatorTransform("light_LCTR"sv);
-    zeus::CVector3f pos = x34_transform.rotate(lightXf.origin);
+    const zeus::CTransform4f lightXf = GetLocatorTransform("light_LCTR"sv);
+    zeus::CVector3f pos = x34_transform.Rotate(lightXf.origin);
     pos += GetTranslation();
     if (light) {
       light->SetActive(true);
@@ -595,7 +595,7 @@ void CScriptGunTurret::UpdateGunParticles(float dt, CStateManager& mgr) {
       x480_frozenEffect->SetParticleEmission(false);
       x488_chargingEffect->SetParticleEmission(false);
       x490_panningEffect->SetParticleEmission(false);
-      x470_deactivateLight->SetOrientation(GetTransform().getRotation());
+      x470_deactivateLight->SetOrientation(GetTransform().GetRotation());
       x470_deactivateLight->SetGlobalTranslation(pos);
       x470_deactivateLight->SetGlobalScale(GetModelData()->GetScale());
       x470_deactivateLight->Update(dt);
@@ -614,7 +614,7 @@ void CScriptGunTurret::UpdateGunParticles(float dt, CStateManager& mgr) {
       x480_frozenEffect->SetParticleEmission(false);
       x488_chargingEffect->SetParticleEmission(false);
       x490_panningEffect->SetParticleEmission(false);
-      x468_idleLight->SetOrientation(GetTransform().getRotation());
+      x468_idleLight->SetOrientation(GetTransform().GetRotation());
       x468_idleLight->SetGlobalTranslation(pos);
       x468_idleLight->SetGlobalScale(GetModelData()->GetScale());
       x468_idleLight->Update(dt);
@@ -630,7 +630,7 @@ void CScriptGunTurret::UpdateGunParticles(float dt, CStateManager& mgr) {
       x480_frozenEffect->SetParticleEmission(false);
       x488_chargingEffect->SetParticleEmission(false);
       x490_panningEffect->SetParticleEmission(true);
-      x490_panningEffect->SetOrientation(GetTransform().getRotation());
+      x490_panningEffect->SetOrientation(GetTransform().GetRotation());
       x490_panningEffect->SetGlobalTranslation(GetTranslation());
       x490_panningEffect->SetGlobalScale(GetModelData()->GetScale());
       x490_panningEffect->Update(dt);
@@ -648,7 +648,7 @@ void CScriptGunTurret::UpdateGunParticles(float dt, CStateManager& mgr) {
       x478_targettingLight->SetParticleEmission(true);
       x480_frozenEffect->SetParticleEmission(false);
       x488_chargingEffect->SetParticleEmission(doEmission);
-      x478_targettingLight->SetOrientation(GetTransform().getRotation());
+      x478_targettingLight->SetOrientation(GetTransform().GetRotation());
       x478_targettingLight->SetGlobalTranslation(pos);
       x478_targettingLight->SetGlobalScale(GetModelData()->GetScale());
       x478_targettingLight->Update(dt);
@@ -659,10 +659,10 @@ void CScriptGunTurret::UpdateGunParticles(float dt, CStateManager& mgr) {
       }
 
       if (doEmission) {
-        const zeus::CTransform blastXf = GetLocatorTransform("Blast_LCTR"sv);
-        zeus::CVector3f blastPos = GetTransform().rotate(blastXf.origin);
+        const zeus::CTransform4f blastXf = GetLocatorTransform("Blast_LCTR"sv);
+        zeus::CVector3f blastPos = GetTransform().Rotate(blastXf.origin);
         blastPos += GetTranslation();
-        x488_chargingEffect->SetOrientation(GetTransform().getRotation());
+        x488_chargingEffect->SetOrientation(GetTransform().GetRotation());
         x488_chargingEffect->SetGlobalTranslation(blastPos);
         x488_chargingEffect->SetGlobalScale(GetModelData()->GetScale());
         x488_chargingEffect->Update(dt);
@@ -689,7 +689,7 @@ void CScriptGunTurret::UpdateGunParticles(float dt, CStateManager& mgr) {
     x480_frozenEffect->SetParticleEmission(true);
     x488_chargingEffect->SetParticleEmission(false);
     x490_panningEffect->SetParticleEmission(false);
-    x480_frozenEffect->SetOrientation(GetTransform().getRotation());
+    x480_frozenEffect->SetOrientation(GetTransform().GetRotation());
     x480_frozenEffect->SetGlobalTranslation(GetTranslation());
     x480_frozenEffect->SetGlobalScale(GetModelData()->GetScale());
     x480_frozenEffect->Update(dt);
@@ -859,8 +859,8 @@ void CScriptGunTurret::ProcessTargettingState(EStateMsg msg, CStateManager& mgr,
         if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId)) {
           zeus::CVector3f vec = x404_targetPosition;
           if (IsPlayerInFiringRange(mgr)) {
-            const zeus::CTransform blastXf = gun->GetLocatorTransform("Blast_LCTR"sv);
-            const zeus::CVector3f rotatedBlastVec = GetTransform().rotate(blastXf.origin) + GetTranslation();
+            const zeus::CTransform4f blastXf = gun->GetLocatorTransform("Blast_LCTR"sv);
+            const zeus::CVector3f rotatedBlastVec = GetTransform().Rotate(blastXf.origin) + GetTranslation();
             x404_targetPosition = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
             vec = x37c_projectileInfo.PredictInterceptPos(rotatedBlastVec, mgr.GetPlayer().GetAimPosition(mgr, dt),
                                                           mgr.GetPlayer(), false, dt);
@@ -869,7 +869,7 @@ void CScriptGunTurret::ProcessTargettingState(EStateMsg msg, CStateManager& mgr,
           zeus::CVector3f compensated = x3a4_burstFire.GetDistanceCompensatedError(
               (x404_targetPosition - gun->GetTranslation()).magnitude(), 20.f);
 
-          compensated = gun->GetTransform().rotate(compensated);
+          compensated = gun->GetTransform().Rotate(compensated);
 
           gun->x404_targetPosition = x404_targetPosition + (vec - x404_targetPosition) + compensated;
         }
@@ -879,11 +879,11 @@ void CScriptGunTurret::ProcessTargettingState(EStateMsg msg, CStateManager& mgr,
       diffVec.z() = 0.f;
       if (diffVec.canBeNormalized()) {
         const zeus::CVector3f normDiff = diffVec.normalized();
-        const float angDif = zeus::CVector3f::getAngleDiff(normDiff, GetTransform().frontVector());
-        zeus::CQuaternion quat = zeus::CQuaternion::lookAt(GetTransform().frontVector(), normDiff,
+        const float angDif = zeus::CVector3f::getAngleDiff(normDiff, GetTransform().GetForward());
+        zeus::CQuaternion quat = zeus::CQuaternion::lookAt(GetTransform().GetForward(), normDiff,
                                                            std::min(angDif, (dt * x2d4_data.GetTurnSpeed())));
 
-        quat.setImaginary(GetTransform().transposeRotate(quat.getImaginary()));
+        quat.setImaginary(GetTransform().TransposeRotate(quat.getImaginary()));
         RotateInOneFrameOR(quat, dt);
       }
 
@@ -911,7 +911,7 @@ void CScriptGunTurret::ProcessExitTargettingState(EStateMsg msg, CStateManager& 
   if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId)) {
     // zeus::CTransform gunXf = GetTransform() * GetLocatorTransform("Gun_SDK"sv);
 
-    if (zeus::CVector3f::getAngleDiff(gun->GetTransform().frontVector(), x544_originalFrontVec) < zeus::degToRad(0.9f))
+    if (zeus::CVector3f::getAngleDiff(gun->GetTransform().GetForward(), x544_originalFrontVec) < zeus::degToRad(0.9f))
       SetTurretState(ETurretState::Ready, mgr);
   }
 }
@@ -931,7 +931,7 @@ void CScriptGunTurret::ProcessFrenzyState(EStateMsg msg, CStateManager& mgr, flo
       return;
     }
 
-    const zeus::CVector3f frontVec = GetTransform().frontVector();
+    const zeus::CVector3f frontVec = GetTransform().GetForward();
     if (x560_31_frenzyReverse && x550_originalRightVec.magSquared() < 0.f &&
         zeus::CVector3f::getAngleDiff(x544_originalFrontVec, frontVec) >= zeus::degToRad(45.f)) {
       x560_31_frenzyReverse = false;
@@ -946,7 +946,7 @@ void CScriptGunTurret::ProcessFrenzyState(EStateMsg msg, CStateManager& mgr, flo
         return;
       }
 
-      x404_targetPosition = gun->GetTranslation() + (100.f * gun->GetTransform().frontVector());
+      x404_targetPosition = gun->GetTranslation() + (100.f * gun->GetTransform().GetForward());
       SendScriptMsgs(EScriptObjectState::Attack, mgr, EScriptObjectMessage::None);
       x534_fireCycleRemTime = 0.15f;
     }
@@ -978,8 +978,8 @@ bool CScriptGunTurret::LineOfSightTest(CStateManager& mgr) const {
       return true;
     }
 
-    const zeus::CTransform xf = GetLocatorTransform("Blast_LCTR"sv);
-    const zeus::CVector3f muzzlePos = gun->GetTransform().rotate(xf.origin) + gun->GetTranslation();
+    const zeus::CTransform4f xf = GetLocatorTransform("Blast_LCTR"sv);
+    const zeus::CVector3f muzzlePos = gun->GetTransform().Rotate(xf.origin) + gun->GetTranslation();
     zeus::CVector3f dir = mgr.GetPlayer().GetAimPosition(mgr, 0.f) - muzzlePos;
     const float mag = dir.magnitude();
     dir = dir / mag;
@@ -997,7 +997,7 @@ bool CScriptGunTurret::InDetectionRange(CStateManager& mgr) const {
   const zeus::CVector3f delta = mgr.GetPlayer().GetTranslation() - GetTranslation();
 
   if (delta.dot(zeus::skDown) < 0.f &&
-      zeus::CVector3f::getAngleDiff(GetTransform().frontVector(), delta) > zeus::degToRad(20.f)) {
+      zeus::CVector3f::getAngleDiff(GetTransform().GetForward(), delta) > zeus::degToRad(20.f)) {
     return false;
   }
 
@@ -1086,29 +1086,29 @@ void CScriptGunTurret::UpdateGunOrientation(float dt, CStateManager& mgr) {
   }
 
   if (const TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId)) {
-    zeus::CTransform xf = GetLocatorTransform("Gun_SDK"sv);
+    zeus::CTransform4f xf = GetLocatorTransform("Gun_SDK"sv);
     xf = GetTransform() * xf;
 
     switch (x520_state) {
     case ETurretState::Targeting:
     case ETurretState::Firing: {
-      const float xyMagSq = xf.frontVector().toVec2f().magSquared();
+      const float xyMagSq = xf.GetForward().toVec2f().magSquared();
       float useYaw = 0.f;
       if (std::sqrt(xyMagSq) > 0.001f) {
-        useYaw = -std::atan2(xf.frontVector().x(), xf.frontVector().y());
+        useYaw = -std::atan2(xf.GetForward().x(), xf.GetForward().y());
       }
 
       const float oldPitch = gun->GetPitch();
       float usePitch = 0.f;
       if (!gun->PlayerInsideTurretSphere(mgr)) {
-        zeus::CTransform newXf;
+        zeus::CTransform4f newXf;
         if ((x404_targetPosition - xf.origin).canBeNormalized()) {
-          newXf = zeus::lookAt(xf.origin, x404_targetPosition);
+          newXf = zeus::CTransform4f::LookAt(xf.origin, x404_targetPosition);
         } else {
           newXf = GetTransform();
         }
 
-        const float newPitch = -std::atan2(-newXf.frontVector().z(), newXf.frontVector().toVec2f().magnitude());
+        const float newPitch = -std::atan2(-newXf.GetForward().z(), newXf.GetForward().toVec2f().magnitude());
         const float newPitchDelta = newPitch - oldPitch;
         const float f2 = newPitchDelta > 0.f ? dt * x2d4_data.GetTurnSpeed() : dt * -x2d4_data.GetTurnSpeed();
         usePitch = std::max(std::fabs(newPitchDelta) <= std::fabs(f2) ? newPitch : oldPitch + f2,
@@ -1122,22 +1122,22 @@ void CScriptGunTurret::UpdateGunOrientation(float dt, CStateManager& mgr) {
       break;
     }
     case ETurretState::ExitTargeting: {
-      const zeus::CVector3f frontVec = GetTransform().frontVector();
-      const zeus::CVector3f gunFrontVec = gun->GetTransform().frontVector();
+      const zeus::CVector3f frontVec = GetTransform().GetForward();
+      const zeus::CVector3f gunFrontVec = gun->GetTransform().GetForward();
       const float rotAngle = 0.3f * dt * x2d4_data.GetTurnSpeed();
       zeus::CQuaternion quat = zeus::CQuaternion::lookAt(gunFrontVec, frontVec, rotAngle);
-      quat.setImaginary(gun->GetTransform().transposeRotate(quat.getImaginary()));
+      quat.setImaginary(gun->GetTransform().TransposeRotate(quat.getImaginary()));
       gun->RotateInOneFrameOR(quat, dt);
       zeus::CQuaternion quat2 = zeus::CQuaternion::lookAt(frontVec, x544_originalFrontVec, rotAngle);
-      quat2.setImaginary(GetTransform().transposeRotate(quat2.getImaginary()));
+      quat2.setImaginary(GetTransform().TransposeRotate(quat2.getImaginary()));
       RotateInOneFrameOR(quat2, dt);
       break;
     }
     case ETurretState::Frenzy: {
-      const float xyMagSq = xf.frontVector().toVec2f().magSquared();
+      const float xyMagSq = xf.GetForward().toVec2f().magSquared();
       float useYaw = 0.f;
       if (std::sqrt(xyMagSq) > 0.001f) {
-        useYaw = -std::atan2(xf.frontVector().x(), xf.frontVector().y());
+        useYaw = -std::atan2(xf.GetForward().x(), xf.GetForward().y());
       }
 
       const float f28 =
@@ -1154,8 +1154,8 @@ void CScriptGunTurret::UpdateGunOrientation(float dt, CStateManager& mgr) {
       qz.rotateZ(useYaw);
       gun->SetTransform((qz * qx * qy).toTransform(xf.origin));
       zeus::CQuaternion rot = zeus::CQuaternion::lookAt(
-          GetTransform().frontVector(), x560_31_frenzyReverse ? -x550_originalRightVec : x550_originalRightVec, f31);
-      rot.setImaginary(GetTransform().transposeRotate(rot.getImaginary()));
+          GetTransform().GetForward(), x560_31_frenzyReverse ? -x550_originalRightVec : x550_originalRightVec, f31);
+      rot.setImaginary(GetTransform().TransposeRotate(rot.getImaginary()));
       RotateInOneFrameOR(rot, dt);
       break;
     }
@@ -1169,7 +1169,7 @@ void CScriptGunTurret::UpdateGunOrientation(float dt, CStateManager& mgr) {
 void CScriptGunTurret::UpdateTargettingSound(float dt) {
   x510_timeSinceLastTargetSfx += dt;
   const float angleDiff2D =
-      zeus::CVector2f::getAngleDiff(x514_lastFrontVector.toVec2f(), GetTransform().frontVector().toVec2f());
+      zeus::CVector2f::getAngleDiff(x514_lastFrontVector.toVec2f(), GetTransform().GetForward().toVec2f());
 
   if (x560_30_needsStopClankSound && angleDiff2D < zeus::degToRad(20.f) &&
       (x520_state == ETurretState::Targeting || x520_state == ETurretState::Firing)) {
@@ -1203,7 +1203,7 @@ void CScriptGunTurret::UpdateTargettingSound(float dt) {
     x50c_targetingEmitter.reset();
   }
 
-  x514_lastFrontVector = GetTransform().frontVector();
+  x514_lastFrontVector = GetTransform().GetForward();
 }
 
 void CScriptGunTurret::PlayAdditiveChargingAnimation(CStateManager& mgr) {
@@ -1260,8 +1260,8 @@ void CScriptGunTurret::UpdateBurstType(CStateManager& mgr) {
   if (x560_27_burstSet) {
     bool inView = true;
     if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
-      const zeus::CVector3f frontVec = GetTransform().frontVector();
-      const zeus::CVector3f plFrontVec = mgr.GetPlayer().GetTransform().frontVector();
+      const zeus::CVector3f frontVec = GetTransform().GetForward();
+      const zeus::CVector3f plFrontVec = mgr.GetPlayer().GetTransform().GetForward();
       const float dot = frontVec.dot(plFrontVec);
 
       if (dot >= 0.f) {
@@ -1300,7 +1300,7 @@ bool CScriptGunTurret::ShouldFire(CStateManager& mgr) const {
 }
 
 bool CScriptGunTurret::IsInsignificantRotation(float dt) const {
-  return zeus::CVector2f::getAngleDiff(x514_lastFrontVector.toVec2f(), GetTransform().frontVector().toVec2f()) <
+  return zeus::CVector2f::getAngleDiff(x514_lastFrontVector.toVec2f(), GetTransform().GetForward().toVec2f()) <
          zeus::degToRad(2.f) * dt;
 }
 

@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-#include <zeus/CFrustum.hpp>
+#include <zeus/CFrustumPlanes.hpp>
 
 #include "Runtime/rstl.hpp"
 #include "Runtime/Weapon/CGameProjectile.hpp"
@@ -93,20 +93,20 @@ public:
   //  <invalid>
   DEFINE_ENTITY
   CNewFlameThrower(const TToken<CWeaponDescription>& desc, std::string_view name, EWeaponType wType,
-                   const std::array<CAssetId, 8>& resInfo, const zeus::CTransform& xf, EMaterialTypes matType,
+                   const std::array<CAssetId, 8>& resInfo, const zeus::CTransform4f& xf, EMaterialTypes matType,
                    const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner, EProjectileAttrib attribs);
-  void StartFiring(const zeus::CTransform& xf, CStateManager& mgr);
+  void StartFiring(const zeus::CTransform4f& xf, CStateManager& mgr);
   bool CanRenderAuxEffects() const { return x37c_24_renderAuxEffects; }
   bool IsFiring() const { return x37c_25_firing; }
   bool AreEffectsFinished() const;
-  void UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr);
+  void UpdateFx(const zeus::CTransform4f& xf, float dt, CStateManager& mgr);
   void Reset(CStateManager& mgr, bool deactivate);
   void Render(CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   std::optional<zeus::CAABox> GetTouchBounds() const override { return {}; }
   void Accept(IVisitor& visitor) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  void AddToRenderer(zeus::CFrustum const& planes, CStateManager& mgr) override;
+  void AddToRenderer(zeus::CFrustumPlanes const& planes, CStateManager& mgr) override;
 };
 
 } // namespace metaforce

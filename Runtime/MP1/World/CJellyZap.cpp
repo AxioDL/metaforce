@@ -9,7 +9,7 @@
 namespace metaforce::MP1 {
 constexpr CMaterialFilter kPlayerFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Player});
 
-CJellyZap::CJellyZap(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CJellyZap::CJellyZap(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                      CModelData&& mData, const CDamageInfo& attackDamage, bool b1, float attackRadius, float f2,
                      float f3, float f4, float attackDelay, float f6, float f7, float f8, float priority,
                      float repulseRadius, float attractRadius, float f12, const CPatternedInfo& pInfo,
@@ -77,7 +77,7 @@ void CJellyZap::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
 void CJellyZap::KnockBack(const zeus::CVector3f& pos, CStateManager& mgr, const CDamageInfo& info, EKnockBackType type,
                           bool inDeferred, float magnitude) {
   if (info.GetWeaponMode().GetType() == EWeaponType::Ice) {
-    Freeze(mgr, {}, GetTransform().transposeRotate(pos), x4fc_freezeDur);
+    Freeze(mgr, {}, GetTransform().TransposeRotate(pos), x4fc_freezeDur);
   }
 }
 
@@ -153,7 +153,7 @@ void CJellyZap::Active(CStateManager& mgr, EStateMsg msg, float arg) {
     x450_bodyController->GetCommandMgr().DeliverTargetVector(targetVector);
     if (x5b8_26_) {
       const zeus::CVector3f tmpMove = arg * (x598_ * zeus::CVector3f(0.f, 1.f, 0.f));
-      const zeus::CVector3f moveToImpulse = GetMoveToORImpulseWR(GetTransform().transposeRotate(tmpMove), arg);
+      const zeus::CVector3f moveToImpulse = GetMoveToORImpulseWR(GetTransform().TransposeRotate(tmpMove), arg);
       ApplyImpulseOR(moveToImpulse, zeus::CAxisAngle());
     }
   } else if (msg == EStateMsg::Deactivate) {

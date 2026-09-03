@@ -13,7 +13,7 @@
 namespace metaforce {
 using CVector3f = zeus::CVector3f;
 using CVector2i = zeus::CVector2i;
-using CTransform4f = zeus::CTransform;
+using CTransform4f = zeus::CTransform4f;
 using CColor = zeus::CColor;
 using uchar = unsigned char;
 using uint = unsigned int;
@@ -354,19 +354,19 @@ void CGraphics::SetAlphaCompare(ERglAlphaFunc comp0, uchar ref0, ERglAlphaOp op,
                        ref1);
 }
 
-void CGraphics::SetViewPointMatrix(const zeus::CTransform& xf) {
+void CGraphics::SetViewPointMatrix(const zeus::CTransform4f& xf) {
   mViewMatrix = xf;
-  mGXViewPointMatrix[0][0] = xf.basis[0][0];
-  mGXViewPointMatrix[0][1] = xf.basis[0][1];
-  mGXViewPointMatrix[0][2] = xf.basis[0][2];
+  mGXViewPointMatrix[0][0] = xf.GetRight()[0];
+  mGXViewPointMatrix[0][1] = xf.GetRight()[1];
+  mGXViewPointMatrix[0][2] = xf.GetRight()[2];
   mGXViewPointMatrix[0][3] = 0.f;
-  mGXViewPointMatrix[1][0] = xf.basis[2][0];
-  mGXViewPointMatrix[1][1] = xf.basis[2][1];
-  mGXViewPointMatrix[1][2] = xf.basis[2][2];
+  mGXViewPointMatrix[1][0] = xf.GetUp()[0];
+  mGXViewPointMatrix[1][1] = xf.GetUp()[1];
+  mGXViewPointMatrix[1][2] = xf.GetUp()[2];
   mGXViewPointMatrix[1][3] = 0.f;
-  mGXViewPointMatrix[2][0] = -xf.basis[1][0];
-  mGXViewPointMatrix[2][1] = -xf.basis[1][1];
-  mGXViewPointMatrix[2][2] = -xf.basis[1][2];
+  mGXViewPointMatrix[2][0] = -xf.GetForward()[0];
+  mGXViewPointMatrix[2][1] = -xf.GetForward()[1];
+  mGXViewPointMatrix[2][2] = -xf.GetForward()[2];
   mGXViewPointMatrix[2][3] = 0.f;
   mViewPoint = xf.origin;
   SetViewMatrix();
@@ -399,8 +399,8 @@ void CGraphics::SetViewMatrix() {
   GXLoadNrmMtxImm(nrmMtx, GX_PNMTX0);
 }
 
-void CGraphics::SetModelMatrix(const zeus::CTransform& xf) {
-  if (xf == zeus::CTransform()) {
+void CGraphics::SetModelMatrix(const zeus::CTransform4f& xf) {
+  if (xf == zeus::CTransform4f()) {
     if (!mIsGXModelMatrixIdentity) {
       mModelMatrix = xf;
       mIsGXModelMatrixIdentity = true;
@@ -411,17 +411,17 @@ void CGraphics::SetModelMatrix(const zeus::CTransform& xf) {
 
   mModelMatrix = xf;
   mIsGXModelMatrixIdentity = false;
-  mGXModelMatrix[0][0] = xf.basis[0][0];
-  mGXModelMatrix[0][1] = xf.basis[1][0];
-  mGXModelMatrix[0][2] = xf.basis[2][0];
+  mGXModelMatrix[0][0] = xf.GetRight()[0];
+  mGXModelMatrix[0][1] = xf.GetForward()[0];
+  mGXModelMatrix[0][2] = xf.GetUp()[0];
   mGXModelMatrix[0][3] = xf.origin.x();
-  mGXModelMatrix[1][0] = xf.basis[0][1];
-  mGXModelMatrix[1][1] = xf.basis[1][1];
-  mGXModelMatrix[1][2] = xf.basis[2][1];
+  mGXModelMatrix[1][0] = xf.GetRight()[1];
+  mGXModelMatrix[1][1] = xf.GetForward()[1];
+  mGXModelMatrix[1][2] = xf.GetUp()[1];
   mGXModelMatrix[1][3] = xf.origin.y();
-  mGXModelMatrix[2][0] = xf.basis[0][2];
-  mGXModelMatrix[2][1] = xf.basis[1][2];
-  mGXModelMatrix[2][2] = xf.basis[2][2];
+  mGXModelMatrix[2][0] = xf.GetRight()[2];
+  mGXModelMatrix[2][1] = xf.GetForward()[2];
+  mGXModelMatrix[2][2] = xf.GetUp()[2];
   mGXModelMatrix[2][3] = xf.origin.z();
   SetViewMatrix();
 }
@@ -534,7 +534,7 @@ zeus::CVector2i CGraphics::ProjectPoint(const zeus::CVector3f& point) {
 }
 
 static CVector3f TransposeMultiply(const CTransform4f& self, const CVector3f& in) {
-  return self.transposeRotate({in.x() - self.origin.x(), in.y() - self.origin.y(), in.z() - self.origin.z()});
+  return self.TransposeRotate({in.x() - self.origin.x(), in.y() - self.origin.y(), in.z() - self.origin.z()});
 }
 
 CGraphics::CClippedScreenRect CGraphics::ClipScreenRectFromMS(const CVector3f& p1, const CVector3f& p2,

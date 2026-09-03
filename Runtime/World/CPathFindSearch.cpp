@@ -13,8 +13,8 @@ CPathFindSearch::EResult CPathFindSearch::FindClosestReachablePoint(const zeus::
     return EResult::InvalidArea;
 
   /* Work in local PFArea coordinates */
-  zeus::CVector3f localP1 = x0_area->x188_transform.transposeRotate(p1 - x0_area->x188_transform.origin);
-  zeus::CVector3f localP2 = x0_area->x188_transform.transposeRotate(p2 - x0_area->x188_transform.origin);
+  zeus::CVector3f localP1 = x0_area->x188_transform.TransposeRotate(p1 - x0_area->x188_transform.origin);
+  zeus::CVector3f localP2 = x0_area->x188_transform.TransposeRotate(p2 - x0_area->x188_transform.origin);
 
   /* Raise a bit above ground for step-up resolution */
   if (!(xdc_flags & 0x2) && !(xdc_flags & 0x4)) {
@@ -45,8 +45,8 @@ CPathFindSearch::EResult CPathFindSearch::PathExists(const zeus::CVector3f& p1, 
     return EResult::InvalidArea;
 
   /* Work in local PFArea coordinates */
-  zeus::CVector3f localP1 = x0_area->x188_transform.transposeRotate(p1 - x0_area->x188_transform.origin);
-  zeus::CVector3f localP2 = x0_area->x188_transform.transposeRotate(p2 - x0_area->x188_transform.origin);
+  zeus::CVector3f localP1 = x0_area->x188_transform.TransposeRotate(p1 - x0_area->x188_transform.origin);
+  zeus::CVector3f localP2 = x0_area->x188_transform.TransposeRotate(p2 - x0_area->x188_transform.origin);
 
   /* Raise a bit above ground for step-up resolution */
   if (!(xdc_flags & 0x2) && !(xdc_flags & 0x4)) {
@@ -75,7 +75,7 @@ CPathFindSearch::EResult CPathFindSearch::OnPath(const zeus::CVector3f& p1) cons
     return EResult::InvalidArea;
 
   /* Work in local PFArea coordinates */
-  zeus::CVector3f localP1 = x0_area->x188_transform.transposeRotate(p1 - x0_area->x188_transform.origin);
+  zeus::CVector3f localP1 = x0_area->x188_transform.TransposeRotate(p1 - x0_area->x188_transform.origin);
 
   /* Raise a bit above ground for step-up resolution */
   if (!(xdc_flags & 0x2) && !(xdc_flags & 0x4))
@@ -107,8 +107,8 @@ CPathFindSearch::EResult CPathFindSearch::Search(const zeus::CVector3f& p1, cons
   }
 
   /* Work in local PFArea coordinates */
-  zeus::CVector3f localP1 = x0_area->x188_transform.transposeRotate(p1 - x0_area->x188_transform.origin);
-  zeus::CVector3f localP2 = x0_area->x188_transform.transposeRotate(p2 - x0_area->x188_transform.origin);
+  zeus::CVector3f localP1 = x0_area->x188_transform.TransposeRotate(p1 - x0_area->x188_transform.origin);
+  zeus::CVector3f localP2 = x0_area->x188_transform.TransposeRotate(p2 - x0_area->x188_transform.origin);
 
   /* Raise a bit above ground for step-up resolution */
   if (!(xdc_flags & 0x2) && !(xdc_flags & 0x4)) {

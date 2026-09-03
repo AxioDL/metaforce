@@ -64,12 +64,12 @@ CFlaahgraData::CFlaahgraData(CInputStream& in)
 , x158_(in) {}
 
 CFlaahgraRenderer::CFlaahgraRenderer(TUniqueId uid, TUniqueId owner, std::string_view name, const CEntityInfo& info,
-                                     const zeus::CTransform& xf)
+                                     const zeus::CTransform4f& xf)
 : CActor(uid, true, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Character),
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_owner(owner) {}
 
-void CFlaahgraRenderer::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CFlaahgraRenderer::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   if (const auto* act = static_cast<const CActor*>(mgr.GetObjectById(xe8_owner))) {
     if (act->HasModelData() && (act->GetModelData()->HasAnimData() || act->GetModelData()->HasNormalModel())) {
       act->GetModelData()->RenderParticles(frustum);
@@ -79,7 +79,7 @@ void CFlaahgraRenderer::AddToRenderer(const zeus::CFrustum& frustum, CStateManag
 
 void CFlaahgraRenderer::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-CFlaahgra::CFlaahgra(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+CFlaahgra::CFlaahgra(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform4f& xf,
                      const CAnimRes& animRes, const CPatternedInfo& pInfo, const CActorParameters& actParms,
                      CFlaahgraData flaahgraData)
 : CPatterned(EPatternedAI::Flaahgra, uid, name, EFlavorType::Zero, info, xf, CModelData::CModelDataNull(), pInfo,
@@ -90,7 +90,7 @@ CFlaahgra::CFlaahgra(TUniqueId uid, std::string_view name, const CEntityInfo& in
 , x704_bigStrikeProjectileInfo(x56c_data.x98_, x56c_data.x9c_)
 , x7dc_halfContactDamage(x404_contactDamage)
 , x820_aimPosition(xf.origin)
-, x8a0_(xf.frontVector())
+, x8a0_(xf.GetForward())
 , x8ac_(animRes) {
   xe7_30_doTargetDistanceTest = false;
   x6dc_normalProjectileInfo.Token().Lock();
@@ -108,8 +108,8 @@ CFlaahgra::CFlaahgra(TUniqueId uid, std::string_view name, const CEntityInfo& in
 
   float curAngle = zeus::degToRad(17.5f);
   while (curAngle < zeus::degToRad(360.f)) {
-    x82c_.push_back(GetTransform().rotate(zeus::CVector3f(std::cos(curAngle), std::sin(curAngle), 0.f)));
-    x860_.push_back(GetTransform().rotate(
+    x82c_.push_back(GetTransform().Rotate(zeus::CVector3f(std::cos(curAngle), std::sin(curAngle), 0.f)));
+    x860_.push_back(GetTransform().Rotate(
         zeus::CVector3f(std::cos(curAngle + zeus::degToRad(45.f)), std::sin(curAngle + zeus::degToRad(45.f)), 0.f)));
 
     curAngle += zeus::degToRad(90.f);
@@ -207,7 +207,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
                       proj->GetDamageInfo().GetWeaponMode().IsComboed() ||
                       proj->GetDamageInfo().GetWeaponMode().GetType() == EWeaponType::Missile)) {
             x450_bodyController->GetCommandMgr().DeliverCmd(
-                CBCKnockBackCmd(-GetTransform().frontVector(), pas::ESeverity::One));
+                CBCKnockBackCmd(-GetTransform().GetForward(), pas::ESeverity::One));
           }
         } else {
           if (x8e5_30_) {
@@ -265,7 +265,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CFlaahgra::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CFlaahgra::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   if ((!GetModelData()->HasAnimData() && !GetModelData()->HasNormalModel()) || xe4_30_outOfFrustum) {
     return;
   }
@@ -307,12 +307,12 @@ void CFlaahgra::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
         const auto rot = zeus::CMatrix3f::RotateZ(zeus::degToRad(x7b4_ == 1 ? -4.f : 4.f));
         for (int i = 1; i < x730_projectileDirs.capacity(); ++i) {
           basis = basis * rot;
-          const auto vec = basis * xf.transposeRotate(interceptPos - xf.origin);
+          const auto vec = basis * xf.TransposeRotate(interceptPos - xf.origin);
           x730_projectileDirs.push_back(
               zeus::CVector3f{xf.origin.x() + vec.x(), xf.origin.y() + vec.y(), interceptPos.z()});
         }
         if (x72c_projectilesCreated > -1 && x730_projectileDirs.size() > x72c_projectilesCreated) {
-          CreateProjectile(zeus::lookAt(lctrXf.origin, x730_projectileDirs[x72c_projectilesCreated]), mgr);
+          CreateProjectile(zeus::CTransform4f::LookAt(lctrXf.origin, x730_projectileDirs[x72c_projectilesCreated]), mgr);
           x72c_projectilesCreated++;
         }
       }
@@ -323,16 +323,16 @@ void CFlaahgra::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
       auto target = interceptPos;
       auto dir = interceptPos - lctrXf.origin;
       dir.z() = 0.f;
-      const auto frontVec = GetTransform().frontVector();
+      const auto frontVec = GetTransform().GetForward();
       if (zeus::CVector3f::getAngleDiff(frontVec, dir) > zeus::degToRad(45.f)) {
         if (dir.canBeNormalized()) {
           target = lctrXf.origin +
                    (dir.magnitude() * zeus::CVector3f::slerp(frontVec, dir.normalized(), zeus::degToRad(45.f)));
         } else {
-          target = lctrXf.origin + dir.magnitude() * lctrXf.frontVector();
+          target = lctrXf.origin + dir.magnitude() * lctrXf.GetForward();
         }
       }
-      CreateProjectile(zeus::lookAt(lctrXf.origin, target), mgr);
+      CreateProjectile(zeus::CTransform4f::LookAt(lctrXf.origin, target), mgr);
     }
     return;
   }
@@ -361,7 +361,7 @@ void CFlaahgra::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
     zeus::CVector3f boneOrigin = GetLctrTransform(node.GetLocatorName()).origin;
     zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
     boneOrigin.z() = zeus::max<float>(aimPos.z(), boneOrigin.z());
-    zeus::CTransform xf = GetTransform();
+    zeus::CTransform4f xf = GetTransform();
     xf.origin = boneOrigin;
 
     CRayCastResult res = mgr.RayStaticIntersection(xf.origin, zeus::skDown, 100.f,
@@ -611,8 +611,8 @@ void CFlaahgra::sub801ae980(CStateManager& mgr) {
 }
 
 void CFlaahgra::CalculateFallDirection() {
-  const auto front = GetTransform().frontVector();
-  const auto right = x7ac_ ? GetTransform().rightVector() : -GetTransform().rightVector();
+  const auto front = GetTransform().GetForward();
+  const auto right = x7ac_ ? GetTransform().GetRight() : -GetTransform().GetRight();
   x894_fallDirection = right;
 
   const rstl::reserved_vector<zeus::CVector3f, 4>& vec = x7ac_ ? x82c_ : x860_;
@@ -647,7 +647,7 @@ bool CFlaahgra::ShouldAttack(CStateManager& mgr, float /*unused*/) {
   if ((player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed && minSq <= dist &&
        dist <= maxSq) ||
       (x7cc_generateEndCooldown <= 0.f && player.GetVelocity().magSquared() > 25.f)) {
-    return zeus::CVector2f::getAngleDiff(GetTransform().frontVector().toVec2f(), diff) < zeus::degToRad(45.f);
+    return zeus::CVector2f::getAngleDiff(GetTransform().GetForward().toVec2f(), diff) < zeus::degToRad(45.f);
   }
   return false;
 }
@@ -800,7 +800,7 @@ void CFlaahgra::SetMaterialProperties(const std::unique_ptr<CCollisionActorManag
 
 bool CFlaahgra::ShouldTurn(CStateManager& mgr, float /*arg*/) {
   zeus::CVector2f posDiff = mgr.GetPlayer().GetTranslation().toVec2f() - GetTranslation().toVec2f();
-  zeus::CVector2f frontVec = x34_transform.frontVector().toVec2f();
+  zeus::CVector2f frontVec = x34_transform.GetForward().toVec2f();
   return zeus::CVector2f::getAngleDiff(frontVec, posDiff) > zeus::degToRad(15.f);
 }
 
@@ -986,7 +986,7 @@ void CFlaahgra::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
     SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
     SendScriptMsgs(EScriptObjectState::Retreat, mgr, EScriptObjectMessage::None);
     x450_bodyController->GetCommandMgr().DeliverCmd(
-        CBCKnockDownCmd(-GetTransform().frontVector(), kSeverities[size_t(x7ac_)]));
+        CBCKnockDownCmd(-GetTransform().GetForward(), kSeverities[size_t(x7ac_)]));
   } else if (msg == EStateMsg::Update) {
     if (x568_state == EState::Zero) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Fall) {
@@ -995,7 +995,7 @@ void CFlaahgra::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
         UpdateHeadDamageVulnerability(mgr, true);
       } else {
         x450_bodyController->GetCommandMgr().DeliverCmd(
-            CBCKnockDownCmd(-GetTransform().frontVector(), kSeverities[size_t(x7ac_)]));
+            CBCKnockDownCmd(-GetTransform().GetForward(), kSeverities[size_t(x7ac_)]));
       }
     } else if (x568_state == EState::Two) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::LieOnGround) {
@@ -1030,10 +1030,10 @@ void CFlaahgra::Dead(CStateManager& mgr, EStateMsg msg, float /*arg*/) {
 
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Fall) {
         x450_bodyController->GetCommandMgr().DeliverCmd(
-            CBCKnockDownCmd(-GetTransform().frontVector(), pas::ESeverity::Two));
+            CBCKnockDownCmd(-GetTransform().GetForward(), pas::ESeverity::Two));
       } else {
         x568_state = EState::Two;
-        zeus::CTransform xf = zeus::lookAt(GetTranslation(), GetTranslation() + x8a0_, zeus::skUp);
+        zeus::CTransform4f xf = zeus::CTransform4f::LookAt(GetTranslation(), GetTranslation() + x8a0_, zeus::skUp);
         xf.origin = GetTranslation();
         SetTransform(xf);
         SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
@@ -1123,7 +1123,7 @@ u32 CFlaahgra::sub801ae828(const CStateManager& mgr) const {
     return 3;
   }
 
-  if (GetTransform().basis[0].dot(player.GetVelocity()) > 0.f) {
+  if (GetTransform().GetRight().dot(player.GetVelocity()) > 0.f) {
     return 1;
   }
 
@@ -1202,7 +1202,7 @@ void CFlaahgra::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float /*arg*
           x7b4_ = 2;
           severity = pas::ESeverity::Six;
         } else if (mgr.GetPlayer().GetVelocity().magSquared() > 100.f) {
-          if (mgr.GetPlayer().GetTransform().basis[0].magSquared() < 0.f) {
+          if (mgr.GetPlayer().GetTransform().GetRight().magSquared() < 0.f) {
             x7b4_ = 1;
             severity = pas::ESeverity::Four;
             x72c_projectilesCreated = 0;
@@ -1251,7 +1251,7 @@ void CFlaahgra::Cover(CStateManager& mgr, EStateMsg msg, float /*arg*/) {
     } else if (x568_state == EState::One) {
       if (TCastToConstPtr<CActor> wp = mgr.GetObjectById(x77c_targetMirrorWaypointId)) {
         zeus::CVector3f direction = wp->GetTranslation() - GetTranslation();
-        if (zeus::CVector2f::getAngleDiff(GetTransform().basis[1].toVec2f(), direction.toVec2f()) >
+        if (zeus::CVector2f::getAngleDiff(GetTransform().GetForward().toVec2f(), direction.toVec2f()) >
                 zeus::degToRad(15.f) &&
             direction.canBeNormalized()) {
           x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd({}, direction.normalized(), 1.f));
@@ -1369,7 +1369,7 @@ void CFlaahgra::Enraged(CStateManager& /*mgr*/, EStateMsg msg, float /*arg*/) {
   }
 }
 
-CFlaahgraProjectile* CFlaahgra::CreateProjectile(const zeus::CTransform& xf, CStateManager& mgr) {
+CFlaahgraProjectile* CFlaahgra::CreateProjectile(const zeus::CTransform4f& xf, CStateManager& mgr) {
   CProjectileInfo* projectileInfo = GetProjectileInfo();
   if (!projectileInfo->Token() || !mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, 6)) {
     return nullptr;
@@ -1398,11 +1398,11 @@ bool CFlaahgra::ShouldFire(CStateManager& mgr, float arg) {
     return false;
   }
   const auto dir = player.GetTranslation().toVec2f() - GetTranslation().toVec2f();
-  return zeus::CVector2f::getAngleDiff(GetTransform().frontVector().toVec2f(), dir) < zeus::degToRad(45.f);
+  return zeus::CVector2f::getAngleDiff(GetTransform().GetForward().toVec2f(), dir) < zeus::degToRad(45.f);
 }
 
 CFlaahgraPlants::CFlaahgraPlants(const TToken<CGenDescription>& genDesc, const CActorParameters& actParms,
-                                 TUniqueId uid, TAreaId aId, TUniqueId owner, const zeus::CTransform& xf,
+                                 TUniqueId uid, TAreaId aId, TUniqueId owner, const zeus::CTransform4f& xf,
                                  const CDamageInfo& dInfo, const zeus::CVector3f& extents)
 : CActor(uid, true, "Flaahgra Plants"sv, CEntityInfo(aId, NullConnectionList), xf, CModelData::CModelDataNull(),
          CMaterialList(EMaterialTypes::Projectile), actParms, kInvalidUniqueId)
@@ -1410,7 +1410,7 @@ CFlaahgraPlants::CFlaahgraPlants(const TToken<CGenDescription>& genDesc, const C
 , xf0_ownerId(owner)
 , xf4_damageInfo(dInfo)
 , x130_obbox(xf, extents) {
-  xe8_elementGen->SetOrientation(xf.getRotation());
+  xe8_elementGen->SetOrientation(xf.GetRotation());
   xe8_elementGen->SetTranslation(xf.origin);
   xe8_elementGen->SetModelsUseLights(true);
   x110_aabox = {x130_obbox.calculateAABox()};
@@ -1457,7 +1457,7 @@ void CFlaahgraPlants::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CFlaahgraPlants::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) {
+void CFlaahgraPlants::AddToRenderer(const zeus::CFrustumPlanes& frustum, CStateManager& mgr) {
   g_Renderer->AddParticleGen(*xe8_elementGen);
   CActor::AddToRenderer(frustum, mgr);
 }
@@ -1482,7 +1482,7 @@ void CFlaahgraPlants::Touch(CActor& act, CStateManager& mgr) {
   zeus::CVector3f diffVec = mgr.GetPlayer().GetTranslation() - GetTranslation();
   mgr.ApplyDamage(GetUniqueId(), act.GetUniqueId(), GetUniqueId(), dInfo,
                   CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}),
-                  diffVec.dot(GetTransform().basis[0]) > 0.f ? GetTransform().basis[0] : -GetTransform().basis[0]);
+                  diffVec.dot(GetTransform().GetRight()) > 0.f ? GetTransform().GetRight() : -GetTransform().GetRight());
 }
 
 std::optional<zeus::CAABox> CFlaahgraPlants::GetTouchBounds() const {
