@@ -99,7 +99,7 @@ private:
   u8 xade_armorPiecesDestroyed = 0;
   bool xadf_launcher1FollowPlayer = true;
   bool xae0_launcher2FollowPlayer = true;
-  CDamageVulnerability xae4_platformVuln = CDamageVulnerability::NormalVulnerabilty();
+  CDamageVulnerability xae4_platformVuln = CDamageVulnerability::NormalVulnerability();
   int xb4c_armorPiecesHealed = 0;
   float xb50_armorPieceHealTime = 0.f;
   zeus::CColor xb54_platformColor = zeus::skWhite;

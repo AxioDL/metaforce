@@ -186,8 +186,8 @@ EWeaponCollisionResponseTypes CScriptActor::GetCollisionResponseType(const zeus:
                                                                      EProjectileAttrib w) const {
   const CDamageVulnerability* dVuln = GetDamageVulnerability();
   if (dVuln->GetVulnerability(wMode, false) == EVulnerability::Deflect) {
-    const EDeflectType deflectType = dVuln->GetDeflectionType(wMode);
-    if (deflectType < EDeflectType::Max && deflectType >= EDeflectType::Ricochet) {
+    const EDeflectionType deflectType = dVuln->GetDeflectionType(wMode);
+    if (deflectType < EDeflectionType::Max && deflectType >= EDeflectionType::Ricochet) {
       return EWeaponCollisionResponseTypes::Unknown15;
     }
   }

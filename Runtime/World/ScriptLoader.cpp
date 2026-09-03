@@ -1892,7 +1892,7 @@ CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int pr
                             parasiteSeparationWeight, parasiteAlignmentWeight, parasiteCohesionWeight,
                             destinationSeekWeight, forwardMoveWeight, playerSeparationDist, playerSeparationWeight,
                             playerObstructionMinDist, 0.f, disableMove, CWallWalker::EWalkerType::Parasite,
-                            CDamageVulnerability::NormalVulnerabilty(), CDamageInfo(), -1, -1, -1, {}, {}, 0.f, aParms);
+                            CDamageVulnerability::NormalVulnerability(), CDamageInfo(), -1, -1, -1, {}, {}, 0.f, aParms);
 }
 
 CEntity* ScriptLoader::LoadPlayerHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -3253,7 +3253,7 @@ CEntity* ScriptLoader::LoadGeemer(CStateManager& mgr, CInputStream& in, int prop
                             actHead.x10_transform, std::move(mData), pInfo, EBodyType::WallWalker, 0.f, advanceWpRadius,
                             f2, alignAngVel, f4, 0.2f, 0.4f, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f, forwardMoveWeight, 0.f, 0.f,
                             playerObstructionMinDist, haltDelay, false, CWallWalker::EWalkerType::Geemer,
-                            CDamageVulnerability::NormalVulnerabilty(), CDamageInfo(), haltSfx, getUpSfx, crouchSfx, {},
+                            CDamageVulnerability::NormalVulnerability(), CDamageInfo(), haltSfx, getUpSfx, crouchSfx, {},
                             {}, 0.f, actParms);
 }
 

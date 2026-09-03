@@ -18,35 +18,35 @@ constexpr CDamageVulnerability skGammaRedDamageVulnerability{
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Immune,
     EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
-    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectionType::None,
 };
 
 constexpr CDamageVulnerability skGammaWhiteDamageVulnerability{
     EVulnerability::Deflect, EVulnerability::Immune,  EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
-    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectionType::None,
 };
 
 constexpr CDamageVulnerability skGammaPurpleDamageVulnerability{
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Immune,  EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
-    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectionType::None,
 };
 
 constexpr CDamageVulnerability skGammaOrangeDamageVulnerability{
     EVulnerability::Immune,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
-    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectionType::None,
 };
 
 constexpr CDamageVulnerability skNormalDamageVulnerability{
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
-    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None,
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectionType::None,
 };
 
 constexpr auto skPirateSuckJoint = "Head_1"sv;

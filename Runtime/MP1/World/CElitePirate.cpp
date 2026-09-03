@@ -277,12 +277,12 @@ void CElitePirate::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) 
 }
 
 const CDamageVulnerability* CElitePirate::GetDamageVulnerability() const {
-  return &CDamageVulnerability::PassThroughVulnerabilty();
+  return &CDamageVulnerability::PassThroughVulnerability();
 }
 
 const CDamageVulnerability* CElitePirate::GetDamageVulnerability(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                                                                  const CDamageInfo& dInfo) const {
-  return &CDamageVulnerability::PassThroughVulnerabilty();
+  return &CDamageVulnerability::PassThroughVulnerability();
 }
 
 zeus::CVector3f CElitePirate::GetOrbitPosition(const CStateManager& mgr) const {
@@ -651,7 +651,7 @@ void CElitePirate::Cover(CStateManager& mgr, EStateMsg msg, float dt) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Crouch);
     if (HasWeakPointHead()) {
       if (TCastToPtr<CCollisionActor> actor = mgr.ObjectById(x770_collisionHeadId)) {
-        actor->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
+        actor->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerability());
       }
     }
     x5d4_collisionActorMgr->SetActive(mgr, true);
@@ -877,7 +877,7 @@ void CElitePirate::SetupCollisionActorInfo(CStateManager& mgr) {
           x788_collisionLJointIds.push_back(uid);
         }
         if (uid != x770_collisionHeadId) {
-          act->SetDamageVulnerability(CDamageVulnerability::ReflectVulnerabilty());
+          act->SetDamageVulnerability(CDamageVulnerability::ReflectVulnerability());
         }
       }
     }

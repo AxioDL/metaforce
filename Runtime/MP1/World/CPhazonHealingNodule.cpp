@@ -40,7 +40,7 @@ void CPhazonHealingNodule::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId u
       GetBodyController()->Activate(mgr);
     }
     // TODO remove const_cast
-    *const_cast<CDamageVulnerability*>(GetDamageVulnerability()) = CDamageVulnerability::ImmuneVulnerabilty();
+    *const_cast<CDamageVulnerability*>(GetDamageVulnerability()) = CDamageVulnerability::ImmuneVulnerability();
     GetKnockBackController().SetAutoResetImpulse(false);
     GetBodyController()->SetLocomotionType(pas::ELocomotionType::Relaxed);
     RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);

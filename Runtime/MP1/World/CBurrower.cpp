@@ -17,7 +17,7 @@ constexpr CDamageVulnerability skVulnerability{
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Normal,  EVulnerability::Normal,  EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
-    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::None};
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectionType::None};
 } // namespace
 
 CBurrower::CBurrower(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,

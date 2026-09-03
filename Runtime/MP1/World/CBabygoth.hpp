@@ -210,12 +210,12 @@ public:
   }
 
   const CDamageVulnerability* GetDamageVulnerability() const override {
-    return &CDamageVulnerability::ReflectVulnerabilty();
+    return &CDamageVulnerability::ReflectVulnerability();
   }
 
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
                                                      const CDamageInfo&) const override {
-    return &CDamageVulnerability::ReflectVulnerabilty();
+    return &CDamageVulnerability::ReflectVulnerability();
   }
 
   zeus::CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override;

@@ -133,7 +133,7 @@ void CNewIntroBoss::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
           CHealthInfo* thisHealthInfo = HealthInfo(mgr);
           CHealthInfo* colHealthInfo = colAct->HealthInfo(mgr);
           *colHealthInfo = *thisHealthInfo;
-          colAct->SetDamageVulnerability(CDamageVulnerability::NormalVulnerabilty());
+          colAct->SetDamageVulnerability(CDamageVulnerability::NormalVulnerability());
           colAct->AddMaterial(EMaterialTypes::Orbit, mgr);
           MoveScannableObjectInfoToActor(colAct, mgr);
         }

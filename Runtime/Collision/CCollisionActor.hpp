@@ -27,7 +27,7 @@ class CCollisionActor : public CPhysicsActor {
   std::unique_ptr<CCollidableSphere> x284_spherePrimitive;
   float x288_sphereRadius;
   CHealthInfo x28c_healthInfo = CHealthInfo(0.f);
-  CDamageVulnerability x294_damageVuln = CDamageVulnerability::NormalVulnerabilty();
+  CDamageVulnerability x294_damageVuln = CDamageVulnerability::NormalVulnerability();
   TUniqueId x2fc_lastTouched = kInvalidUniqueId;
   EWeaponCollisionResponseTypes x300_responseType = EWeaponCollisionResponseTypes::EnemyNormal;
   zeus::CVector3f x304_extendedTouchBounds = zeus::skZero3f;

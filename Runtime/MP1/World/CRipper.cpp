@@ -146,7 +146,7 @@ CRipperControlledPlatform::CRipperControlledPlatform(
     TUniqueId uid, TUniqueId owner, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
     const zeus::CAABox& bounds, bool active, const std::optional<TLockedToken<CCollidableOBBTreeGroup>>& colTree)
 : CScriptPlatform(uid, name, info, xf, CModelData::CModelDataNull(), CActorParameters::None(), bounds, 0.f, false, 1.f,
-                  active, CHealthInfo(FLT_MAX, 10.f), CDamageVulnerability::ImmuneVulnerabilty(), colTree, false, 1, 1)
+                  active, CHealthInfo(FLT_MAX, 10.f), CDamageVulnerability::ImmuneVulnerability(), colTree, false, 1, 1)
 , x358_owner(owner)
 , x35c_yaw(GetYaw()) {}
 

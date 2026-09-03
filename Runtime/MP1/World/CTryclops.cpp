@@ -17,7 +17,7 @@ const CDamageVulnerability CTryclops::skVulnerabilities = CDamageVulnerability(
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Normal, EVulnerability::Deflect, EVulnerability::Deflect,
     EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
-    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::RetargetPlayer);
+    EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectionType::RetargetPlayer);
 
 CTryclops::CTryclops(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                      CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float f1,

@@ -766,7 +766,7 @@ void COmegaPirate::Suck(CStateManager& mgr, EStateMsg msg, float dt) {
   } else if (msg == EStateMsg::Deactivate) {
     for (const auto& entry : x9dc_scriptPlatforms) {
       if (auto* platform = static_cast<CScriptPlatform*>(mgr.ObjectById(entry.first))) {
-        platform->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
+        platform->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerability());
         platform->RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
         platform->SetDisableXRayAlpha(true);
         CModelFlags flags{5, 0, 3, zeus::CColor{1.f, 0.f}};
@@ -1072,7 +1072,7 @@ void COmegaPirate::SetupCollisionActorInfo2(const std::unique_ptr<CCollisionActo
       filter.ExcludeList().Add(EMaterialTypes::Platform);
       act->SetMaterialFilter(filter);
       act->RemoveMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
-      act->SetDamageVulnerability(CDamageVulnerability::ReflectVulnerabilty());
+      act->SetDamageVulnerability(CDamageVulnerability::ReflectVulnerability());
     }
   }
 }

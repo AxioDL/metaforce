@@ -137,7 +137,7 @@ void CEnergyProjectile::ResolveCollisionWithWorld(const CRayCastResult& res, CSt
   }
 
   // Not wavebuster
-  if (Explode(res.GetPoint(), res.GetPlane().normal(), crType, mgr, CDamageVulnerability::NormalVulnerabilty(),
+  if (Explode(res.GetPoint(), res.GetPlane().normal(), crType, mgr, CDamageVulnerability::NormalVulnerability(),
               kInvalidUniqueId)) {
     mgr.ApplyDamageToWorld(xec_ownerId, *this, res.GetPoint(), x12c_curDamageInfo, xf8_filter);
   }
@@ -186,7 +186,7 @@ void CEnergyProjectile::Think(float dt, CStateManager& mgr) {
   x170_projectile.UpdateParticleFX();
   if (x2e4_24_active && x3d0_26_) {
     Explode(GetTranslation(), zeus::skUp, EWeaponCollisionResponseTypes::Default, mgr,
-            CDamageVulnerability::NormalVulnerabilty(), kInvalidUniqueId);
+            CDamageVulnerability::NormalVulnerability(), kInvalidUniqueId);
   }
 
   if (x2c8_projectileLight != kInvalidUniqueId) {
@@ -277,14 +277,14 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
 
   if (vulnType == EVulnerability::Deflect) {
     deflect = true;
-    EDeflectType deflectType = dVuln.GetDeflectionType(x12c_curDamageInfo.GetWeaponMode());
+    EDeflectionType deflectType = dVuln.GetDeflectionType(x12c_curDamageInfo.GetWeaponMode());
     switch (deflectType) {
-    case EDeflectType::None:
+    case EDeflectionType::None:
       deflect = false;
       break;
-    case EDeflectType::RetargetPlayer:
-    case EDeflectType::RetargetPlayerCombo:
-      if (deflectType != EDeflectType::RetargetPlayer ||
+    case EDeflectionType::RetargetPlayer:
+    case EDeflectionType::RetargetPlayerCombo:
+      if (deflectType != EDeflectionType::RetargetPlayer ||
           (xf0_weaponType != EWeaponType::Missile &&
            (xe8_projectileAttribs & EProjectileAttrib::ComboShot) != EProjectileAttrib::ComboShot)) {
         if (xf8_filter.GetExcludeList().HasMaterial(EMaterialTypes::Player)) {

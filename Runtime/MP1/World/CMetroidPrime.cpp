@@ -1822,7 +1822,7 @@ void CMetroidPrime::sub80278508(CStateManager& mgr, int w1, bool b1) {
   sub80278130(x588_[x570_].x6c_color);
   if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x8cc_headColActor)) {
     if (!b1) {
-      colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
+      colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerability());
       mgr.GetPlayer().TryToBreakOrbit(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
       colAct->RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
     } else {

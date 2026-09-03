@@ -544,7 +544,7 @@ void CChozoGhost::Hurled(CStateManager& mgr, EStateMsg msg, float) {
 void CChozoGhost::WallDetach(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     x330_stateMachineState.SetDelay(x56c_fadeOutDelay);
-    x3e8_alphaDelta = 0.f;
+    x3e8_alphaDelta = 1.f;
     x664_29_fadedIn = false;
     if (x56c_fadeOutDelay > 0.f) {
       x6c8_spaceWarpTime = x56c_fadeOutDelay;
@@ -558,7 +558,7 @@ void CChozoGhost::WallDetach(CStateManager& mgr, EStateMsg msg, float) {
     if (wp)
       SetDestPos(wp->GetTranslation());
     else
-      SetDestPos(GetTranslation() + (2.f * x66c_) * GetTranslation());
+      SetDestPos(GetTranslation() + GetTransform().basis[1] * (2.f * x66c_));
 
     SendScriptMsgs(EScriptObjectState::Attack, mgr, EScriptObjectMessage::Follow);
   } else if (msg == EStateMsg::Deactivate) {
@@ -581,7 +581,7 @@ void CChozoGhost::Growth(CStateManager& mgr, EStateMsg msg, float) {
     }
   } else if (msg == EStateMsg::Deactivate) {
     x665_24_ = false;
-    x68c_boneTracking.SetActive(false);
+    x68c_boneTracking.SetActive(true);
     x68c_boneTracking.SetTarget(mgr.GetPlayer().GetUniqueId());
   }
 }

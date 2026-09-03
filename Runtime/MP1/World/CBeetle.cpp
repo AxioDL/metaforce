@@ -169,7 +169,7 @@ void CBeetle::Render(CStateManager& mgr) {
 
 const CDamageVulnerability* CBeetle::GetDamageVulnerability() const {
   if (x838_25_burrowing)
-    return &CDamageVulnerability::PassThroughVulnerabilty();
+    return &CDamageVulnerability::PassThroughVulnerability();
   if (x3fc_flavor == EFlavorType::One)
     return x450_bodyController->IsOnFire() ? &x7ac_tailVuln : &x744_platingVuln;
   return CAi::GetDamageVulnerability();
@@ -178,7 +178,7 @@ const CDamageVulnerability* CBeetle::GetDamageVulnerability() const {
 const CDamageVulnerability* CBeetle::GetDamageVulnerability(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                                                             const CDamageInfo& dInfo) const {
   if (x838_25_burrowing)
-    return &CDamageVulnerability::PassThroughVulnerabilty();
+    return &CDamageVulnerability::PassThroughVulnerability();
   if (x3fc_flavor == EFlavorType::One) {
     if (dInfo.GetWeaponMode().IsComboed() && dInfo.GetWeaponMode().GetType() == EWeaponType::Wave)
       return &x7ac_tailVuln;

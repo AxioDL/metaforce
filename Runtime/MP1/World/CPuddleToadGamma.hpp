@@ -56,7 +56,7 @@ public:
                                                      const CDamageInfo&) const override;
 
   const CDamageVulnerability* GetDamageVulnerability() const override {
-    return &CDamageVulnerability::ImmuneVulnerabilty();
+    return &CDamageVulnerability::ImmuneVulnerability();
   }
 
   const CCollisionPrimitive* GetCollisionPrimitive() const override;

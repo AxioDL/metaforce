@@ -1068,12 +1068,12 @@ void CIceSheegoth::SetupCollisionActorManager(CStateManager& mgr) {
   for (size_t i = 0; i < xa2c_collisionManager->GetNumCollisionActors(); ++i) {
     const auto& desc = xa2c_collisionManager->GetCollisionDescFromIndex(i);
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(desc.GetCollisionActorId())) {
-      colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
+      colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerability());
       if (desc.GetName() == "LCTR_SHEMOUTH"sv) {
         xaf8_mouthCollider = desc.GetCollisionActorId();
         colAct->SetDamageVulnerability(x98c_mouthVulnerability);
       } else if (desc.GetName() == "Jaw_end_LCTR"sv) {
-        colAct->SetDamageVulnerability(CDamageVulnerability::PassThroughVulnerabilty());
+        colAct->SetDamageVulnerability(CDamageVulnerability::PassThroughVulnerability());
       } else if (desc.GetName() == "Ice_Shards_LCTR"sv) {
         xaf6_iceShardsCollider = desc.GetCollisionActorId();
         colAct->SetWeaponCollisionResponseType(EWeaponCollisionResponseTypes::None);
@@ -1414,7 +1414,7 @@ void CIceSheegoth::SetGillVulnerability(CStateManager& mgr, bool isVulnerable) {
   for (TUniqueId uid : xafc_gillColliders) {
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
       colAct->SetDamageVulnerability(isVulnerable ? x56c_sheegothData.Get_x18()
-                                                  : CDamageVulnerability::ImmuneVulnerabilty());
+                                                  : CDamageVulnerability::ImmuneVulnerability());
     }
   }
 }

@@ -141,7 +141,7 @@ void CThardusRockProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
                                 CScannableParameters(), {}, {}, {}, true, true, false, false, 0.f, 0.f, 1.f);
       auto rock = new CDestroyableRock(uid, true, skRockCollisions[i].name,
                                        CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), zeus::CTransform(),
-                                       std::move(mData), 0.f, hInfo, CDamageVulnerability::NormalVulnerabilty(),
+                                       std::move(mData), 0.f, hInfo, CDamageVulnerability::NormalVulnerability(),
                                        GetMaterialList(), x59c_stateMachine, actParms, x57c_[i], 1);
       rock->Set_x340(false);
       rock->SetThermalMag(x50c_baseDamageMag);

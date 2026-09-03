@@ -256,7 +256,7 @@ void CThardus::sub801dcfa4(CStateManager& mgr) {
           colAct->SetDamageVulnerability(*rock->GetDamageVulnerability());
           rock->SetThermalMag(0.8f);
         } else {
-          colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
+          colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerability());
           rock->SetThermalMag(0.f);
         }
 
@@ -519,7 +519,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
               EVulnerability::Normal, EVulnerability::Deflect, EVulnerability::Normal, EVulnerability::Normal,
               EVulnerability::Normal, EVulnerability::Normal, EVulnerability::Normal, EVulnerability::Deflect,
               EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
-              EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::Ricochet),
+              EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectionType::Ricochet),
           GetMaterialList(), x630_,
           CActorParameters(CLightParameters(false, 0.f, CLightParameters::EShadowTesselation::Invalid, 0.f, 0.f,
                                             zeus::skWhite, true, CLightParameters::EWorldLightingOptions::NoShadowCast,
@@ -1261,7 +1261,7 @@ void CThardus::_SetupCollisionManagers(CStateManager& mgr) {
           colAct->SetDamageVulnerability(*rock->GetDamageVulnerability());
           rock->SetThermalMag(0.8f);
         } else {
-          colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
+          colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerability());
           rock->SetThermalMag(0.f);
         }
 

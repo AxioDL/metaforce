@@ -322,7 +322,7 @@ void CActor::CalculateRenderBounds() {
 CHealthInfo* CActor::HealthInfo(CStateManager&) { return nullptr; }
 
 const CDamageVulnerability* CActor::GetDamageVulnerability() const {
-  return &CDamageVulnerability::NormalVulnerabilty();
+  return &CDamageVulnerability::NormalVulnerability();
 }
 
 const CDamageVulnerability* CActor::GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,

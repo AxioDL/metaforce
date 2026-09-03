@@ -212,7 +212,7 @@ public:
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   zeus::CAABox GetSortingBounds(const CStateManager&) const override { return GetBoundingBox(); }
   const CDamageVulnerability* GetDamageVulnerability() const override {
-    return &CDamageVulnerability::ImmuneVulnerabilty();
+    return &CDamageVulnerability::ImmuneVulnerability();
   }
 
   zeus::CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override {

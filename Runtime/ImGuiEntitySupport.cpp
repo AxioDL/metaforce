@@ -233,7 +233,7 @@ void CDamageVulnerability::ImGuiEditWindow(const char* title, bool& open) {
     return;
   }
   if (ImGui::Begin(title, &open, ImGuiWindowFlags_AlwaysAutoResize)) {
-    ImGuiEnumInput("Deflected", x5c_deflected);
+    ImGuiEnumInput("Deflected", x5c_deflect);
     if (ImGui::CollapsingHeader("Normal")) {
       constexpr size_t max = std::tuple_size_v<decltype(x0_normal)>;
       constexpr std::array<const char*, max> names{

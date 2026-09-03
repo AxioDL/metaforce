@@ -260,6 +260,6 @@ const CDamageVulnerability* CJellyZap::GetDamageVulnerability(const zeus::CVecto
     return GetDamageVulnerability();
   }
 
-  return &CDamageVulnerability::ReflectVulnerabilty();
+  return &CDamageVulnerability::ReflectVulnerability();
 }
 } // namespace metaforce::MP1

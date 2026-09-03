@@ -199,11 +199,11 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) override;
   [[nodiscard]] const CDamageVulnerability* GetDamageVulnerability() const override {
-    return &CDamageVulnerability::PassThroughVulnerabilty();
+    return &CDamageVulnerability::PassThroughVulnerability();
   }
   [[nodiscard]] const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
                                                                    const CDamageInfo&) const override {
-    return &CDamageVulnerability::PassThroughVulnerabilty();
+    return &CDamageVulnerability::PassThroughVulnerability();
   }
 
   [[nodiscard]] zeus::CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override;

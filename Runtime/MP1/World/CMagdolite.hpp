@@ -71,7 +71,7 @@ public:
   void Think(float dt, CStateManager& mgr) override;
   void Touch(CActor& actor, CStateManager& mgr) override {}
   const CDamageVulnerability* GetDamageVulnerability() const override {
-    return x400_25_alive ? CAi::GetDamageVulnerability() : &CDamageVulnerability::ImmuneVulnerabilty();
+    return x400_25_alive ? CAi::GetDamageVulnerability() : &CDamageVulnerability::ImmuneVulnerability();
   }
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
                                                      const CDamageInfo&) const override {

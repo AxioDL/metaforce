@@ -110,7 +110,7 @@ const CDamageVulnerability* CPuddleToadGamma::GetDamageVulnerability(const zeus:
   if (x5e8_24_playerInside && (x5d8_damageablePoint - pos).magSquared() < 4.f)
     return CAi::GetDamageVulnerability();
 
-  return &CDamageVulnerability::ImmuneVulnerabilty();
+  return &CDamageVulnerability::ImmuneVulnerability();
 }
 
 void CPuddleToadGamma::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {

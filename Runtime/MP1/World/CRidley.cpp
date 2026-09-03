@@ -184,7 +184,7 @@ constexpr CDamageVulnerability skDirectNormal{EVulnerability::DirectNormal, EVul
                                               EVulnerability::DirectNormal, EVulnerability::DirectNormal,
                                               EVulnerability::DirectNormal, EVulnerability::DirectNormal,
                                               EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                              EVulnerability::DirectNormal, EDeflectType::None};
+                                              EVulnerability::DirectNormal, EDeflectionType::None};
 constexpr CDamageVulnerability skIceWeakness{EVulnerability::DirectNormal, EVulnerability::DirectWeak,
                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
@@ -192,7 +192,7 @@ constexpr CDamageVulnerability skIceWeakness{EVulnerability::DirectNormal, EVuln
                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
                                              EVulnerability::DirectNormal, EVulnerability::DirectNormal,
-                                             EVulnerability::DirectNormal, EDeflectType::None};
+                                             EVulnerability::DirectNormal, EDeflectionType::None};
 } // namespace
 CRidleyData::CRidleyData(CInputStream& in, u32 propCount)
 : x0_(in)
@@ -336,7 +336,7 @@ void CRidley::SetupCollisionActors(CStateManager& mgr) {
   for (size_t i = 0; i < x980_tailCollision->GetNumCollisionActors(); ++i) {
     const auto& colDesc = x980_tailCollision->GetCollisionDescFromIndex(i);
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(colDesc.GetCollisionActorId())) {
-      colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
+      colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerability());
       colAct->HealthInfo(mgr)->SetHP(1000.f);
       colAct->SetMaterialFilter(CMaterialFilter::MakeInclude({EMaterialTypes::Player, EMaterialTypes::Platform}));
       colAct->SetWeaponCollisionResponseType(EWeaponCollisionResponseTypes::EnemyNormal);
@@ -828,7 +828,7 @@ void CRidley::SetStage3ThroatVulnerability(CStateManager& mgr) {
   for (size_t i = 0; i < x984_bodyCollision->GetNumCollisionActors(); ++i) {
     const auto& colDesc = x984_bodyCollision->GetCollisionDescFromIndex(i);
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(colDesc.GetCollisionActorId())) {
-      colAct->SetDamageVulnerability(i == 3 ? skIceWeakness : CDamageVulnerability::ImmuneVulnerabilty());
+      colAct->SetDamageVulnerability(i == 3 ? skIceWeakness : CDamageVulnerability::ImmuneVulnerability());
       colAct->HealthInfo(mgr)->SetHP(1000.f);
       colAct->CreateShadow(true);
     }
@@ -857,7 +857,7 @@ void CRidley::SetStage3Immunity(metaforce::CStateManager& mgr) {
   for (size_t i = 0; i < x984_bodyCollision->GetNumCollisionActors(); ++i) {
     const auto& colDesc = x984_bodyCollision->GetCollisionDescFromIndex(i);
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(colDesc.GetCollisionActorId())) {
-      colAct->SetDamageVulnerability(i == 2 ? skDirectNormal : CDamageVulnerability::ImmuneVulnerabilty());
+      colAct->SetDamageVulnerability(i == 2 ? skDirectNormal : CDamageVulnerability::ImmuneVulnerability());
       colAct->HealthInfo(mgr)->SetHP(1000.f);
       colAct->CreateShadow(true);
     }
@@ -889,7 +889,7 @@ void CRidley::SetStage3BreastVulnerability(CStateManager& mgr) {
   for (size_t i = 0; i < x984_bodyCollision->GetNumCollisionActors(); ++i) {
     const auto& colDesc = x984_bodyCollision->GetCollisionDescFromIndex(i);
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(colDesc.GetCollisionActorId())) {
-      colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerabilty());
+      colAct->SetDamageVulnerability(CDamageVulnerability::ImmuneVulnerability());
       colAct->HealthInfo(mgr)->SetHP(1000.f);
       colAct->CreateShadow(true);
     }

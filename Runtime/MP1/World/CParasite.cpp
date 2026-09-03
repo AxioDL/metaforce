@@ -310,7 +310,7 @@ const CDamageVulnerability* CParasite::GetDamageVulnerability() const {
     break;
   case EWalkerType::IceZoomer:
     if (!x743_25_vulnerable)
-      return &CDamageVulnerability::ImmuneVulnerabilty();
+      return &CDamageVulnerability::ImmuneVulnerability();
     break;
   default:
     break;
