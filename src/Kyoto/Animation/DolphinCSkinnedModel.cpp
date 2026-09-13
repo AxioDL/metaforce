@@ -122,16 +122,13 @@ void CSkinnedModel::Draw(const CModelFlags& flags) const {
 }
 
 void CSkinnedModel::Draw(const TDrawFunc func, void* data) {
-  const float* normals;
   if (x39_disableWorkspaces) {
     CTransform4f saved(CGraphics::GetModelMatrix());
     CGraphics::SetModelMatrix(saved * x10_skinRules->GetVirtualBones()[0].GetTransform());
-    normals = x4_model->GetNormals();
-    func(x4_model->GetPositions(), normals, data);
+    Draw(func, x4_model->GetPositions(), x4_model->GetNormals(), data);
     CGraphics::SetModelMatrix(saved);
   } else if (x28_vertWorkspace.null()) {
-    normals = x4_model->GetNormals();
-    func(x4_model->GetPositions(), normals, data);
+    Draw(func, x4_model->GetPositions(), x4_model->GetNormals(), data);
   } else {
     func(x28_vertWorkspace.get(), x30_normalWorkspace.get(), data);
     uint vertSize = (x10_skinRules->GetNumPoints() * 12 + 31) & ~31u;
@@ -152,9 +149,18 @@ void CSkinnedModel::Draw(const float* positions, const float* normals,
 void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
                               const rstl::optional_object< CVertexMorphEffect >& morphEffect,
                               const float* averagedNormals, float* workVerts) {
-  uint vertSize = x10_skinRules->GetNumPoints() * 12;
-  uint normSize = x10_skinRules->GetNumNormals() * 12;
-  float* verts;
+  uint alignedNormSize = 0;
+  uint alignedVertSize = 0;
+  uint totalSize = 0;
+  uint vertSize = x10_skinRules->GetNumPoints() * sizeof(CVector3f);
+  uint normSize = x10_skinRules->GetNumNormals() * sizeof(CVector3f);
+  BOOL interruptState = FALSE;
+  float* verts = nullptr;
+  volatile void* pipe;
+  const CVector3f* positions;
+  int numWords = 0;
+  int padWords = 0;
+  int i = 0;
 
   if (workVerts != nullptr) {
     verts = workVerts;
@@ -167,20 +173,21 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
     verts = x28_vertWorkspace.get();
   }
 
-  uint alignedVertSize = (vertSize + 31) & ~31u;
-  uint totalSize = alignedVertSize + ((normSize + 31) & ~31u);
+  alignedNormSize = ((normSize + 31) & ~31u);
+  alignedVertSize = ((vertSize + 31) & ~31u);
+  totalSize = alignedVertSize + alignedNormSize;
 
   DCFlushRange(verts, totalSize);
-  BOOL interruptState = OSDisableInterrupts();
-  volatile void* pipe = GXRedirectWriteGatherPipe(verts);
+  interruptState = OSDisableInterrupts();
+  pipe = GXRedirectWriteGatherPipe(verts);
 
   x10_skinRules->InitLockedCacheState(**x4_model);
   x10_skinRules->BuildAccumulatedTransforms(pose, **x1c_layoutInfo);
   x10_skinRules->BuildPoints(pipe);
 
-  int numWords = x10_skinRules->GetNumPoints() * 3;
-  int padWords = ((numWords + 7) & ~7) - numWords;
-  for (int i = 0; i < padWords; i++) {
+  numWords = x10_skinRules->GetNumPoints() * 3;
+  padWords = ((numWords + 7) & ~7) - numWords;
+  for (i = 0; i < padWords; i++) {
     *reinterpret_cast< volatile u32* >(pipe) = 0;
   }
 
@@ -197,7 +204,7 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
   }
 
   if (sPointGen != nullptr) {
-    const CVector3f* positions = reinterpret_cast< const CVector3f* >(verts);
+    positions = reinterpret_cast< const CVector3f* >(verts);
     sPointGen(sPointGenData, positions, positions + x10_skinRules->GetNumPoints(),
               x10_skinRules->GetNumPoints());
     DCInvalidateRange(verts, totalSize);

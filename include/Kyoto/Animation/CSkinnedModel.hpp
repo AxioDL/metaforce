@@ -47,7 +47,8 @@ public:
 
   float* AllocateNewWorkspace(float** vertOut);
 
-  static void SetPointGeneratorFunc(void*, void (*)(void*, const CVector3f*, const CVector3f*, int));
+  static void SetPointGeneratorFunc(void*,
+                                    void (*)(void*, const CVector3f*, const CVector3f*, int));
   static void ClearPointGeneratorFunc();
   static void AddDummySkinnedModelRef();
   static void RemoveDummySkinnedModelRef();
@@ -60,6 +61,10 @@ public:
   typedef void (*TPointGenFunc)(void*, const CVector3f*, const CVector3f*, int);
   static TPointGenFunc sPointGen;
   static void* sPointGenData;
+
+  static void Draw(const TDrawFunc func, const float* positions, const float* normals, void* data) {
+    func(positions, normals, data);
+  }
 
 private:
   TLockedToken< CModel > x4_model;
