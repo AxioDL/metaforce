@@ -121,8 +121,7 @@ void CSkinnedModel::Draw(const CModelFlags& flags) const {
   }
 }
 
-void CSkinnedModel::DoDrawCallback(void (*func)(const float*, const float*, const void*),
-                                   void* data) {
+void CSkinnedModel::Draw(const TDrawFunc func, void* data) {
   const float* normals;
   if (x39_disableWorkspaces) {
     CTransform4f saved(CGraphics::GetModelMatrix());

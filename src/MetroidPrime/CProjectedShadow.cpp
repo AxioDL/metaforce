@@ -102,7 +102,7 @@ void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& 
   animData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
   SShadowDrawContext context(model, flags == 0);
   CGraphics::SetModelMatrix(xf * CTransform4f::Scale(CVector3f(modelData.GetScale())));
-  model.DoDrawCallback(reinterpret_cast< TDrawFunc >(ModelDrawCallback), &context);
+  model.Draw(reinterpret_cast< TDrawFunc >(ModelDrawCallback), &context);
 
   bool useVideoFilter = CGraphics::GetUseVideoFilter();
   CGraphics::SetUseVideoFilter(false);

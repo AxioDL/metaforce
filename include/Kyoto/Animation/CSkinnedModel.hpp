@@ -42,7 +42,7 @@ public:
                  const float*, float*);
   void Draw(const CModelFlags&) const;
   void Draw(const float* positions, const float* normals, const CModelFlags& flags) const;
-  void DoDrawCallback(TDrawFunc func, void* data);
+  void Draw(TDrawFunc func, void* data);
   void PostDrawFunc() const;
 
   float* AllocateNewWorkspace(float** vertOut);
