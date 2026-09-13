@@ -3095,9 +3095,13 @@ dolphin/ai.c:
 
 dolphin/ar/ar.c:
 	.text       start:0x803579CC end:0x80359558
+	.data       start:0x803D77C0 end:0x803D7808
+	.sdata      start:0x8046AB60 end:0x8046AB68
+	.sbss       start:0x8046B840 end:0x8046B860
 
 dolphin/ar/arq.c:
 	.text       start:0x80359558 end:0x803598FC
+	.data       start:0x803D7808 end:0x803D7850
 	.sdata      start:0x8046AB68 end:0x8046AB70
 	.sbss       start:0x8046B860 end:0x8046B888
 
@@ -3156,6 +3160,7 @@ dolphin/dvd/dvdidutils.c:
 dolphin/dvd/dvdfatal.c:
 	.text       start:0x8035EB44 end:0x8035EC70
 	.rodata     start:0x803C3A08 end:0x803C3A20
+	.data       start:0x803D7FE0 end:0x803D8410
 	.sdata      start:0x8046ABA0 end:0x8046ABA8
 	.sbss       start:0x8046B960 end:0x8046B968
 	.sdata2     start:0x80470D88 end:0x80470D90
@@ -3169,7 +3174,7 @@ dolphin/dvd/fstload.c:
 
 dolphin/gx/GXInit.c:
 	.text       start:0x8035EEB0 end:0x80360080
-	.data       start:0x803D84C4 end:0x803D85B0
+	.data       start:0x803D8480 end:0x803D85B0
 	.bss        start:0x80402D28 end:0x804032A0
 	.sdata      start:0x8046ABB8 end:0x8046ABC0
 	.sbss       start:0x8046B978 end:0x8046B988
@@ -3238,7 +3243,7 @@ dolphin/mtx/mtx.c:
 	.sdata      start:0x8046AC10 end:0x8046AC18
 	.sdata2     start:0x80470E68 end:0x80470E70
 
-dolphin/mtx/mtx44vec.c:
+dolphin/mtx/mtxvec.c:
 	.text       start:0x803672DC end:0x80367384
 
 dolphin/mtx/mtx44.c:
@@ -3424,9 +3429,13 @@ runtime/errno.c:
 runtime/ansi_files.c:
 	.text       start:0x803750C0 end:0x803751C8
 	.data       start:0x803DA610 end:0x803DA750
+	.bss        start:0x80404370 end:0x80404670
 
 runtime/ansi_fp.c:
 	.text       start:0x803751C8 end:0x80376E34
+	.rodata     start:0x803C3A70 end:0x803C3B50
+	.data       start:0x803DA750 end:0x803DA8B8
+	.sdata2     start:0x80470ED0 end:0x80470F00
 
 runtime/arith.c:
 	.text       start:0x80376E34 end:0x80376E44
@@ -3439,6 +3448,7 @@ runtime/ctype.c:
 	.data       start:0x803DA8B8 end:0x803DABB8
 
 runtime/locale.c:
+	.rodata     start:0x803C3B50 end:0x803C3B58
 	.data       start:0x803DABB8 end:0x803DABF0
 
 runtime/direct_io.c:
@@ -3492,7 +3502,8 @@ runtime/strtold.c:
 	.sdata2     start:0x80470F10 end:0x80470F28
 
 runtime/uart_console_io.c:
-	.text       start:0x8037B294 end:0x8037B358
+	.text       start:0x8037B28C end:0x8037B358
+	.sbss       start:0x8046BB18 end:0x8046BB20
 
 runtime/wchar_io.c:
 	.text       start:0x8037B358 end:0x8037B3E0

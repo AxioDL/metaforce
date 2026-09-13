@@ -208,7 +208,7 @@ if args.map:
     # config.ldflags.append("-listclosure") # For Wii linkers
 
 # Build the NES emulator module alongside the main executable.
-config.build_rels = config.version in ("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8E01_48", "GM8P01_00")
+config.build_rels = config.version in ("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02")
 
 # Use for any additional files that should cause a re-configure when modified
 config.reconfig_deps = []
@@ -484,7 +484,7 @@ config.libs = [
         "TRK_MINNOW_DOLPHIN",
         [
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), "MetroTRK/nubinit.c"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "MetroTRK/nubinit.c"
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8J01_00", "GM8E01_02"), "MetroTRK/mslsupp.c"
@@ -2011,10 +2011,10 @@ config.libs = [
         "ar",
         [
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"), "dolphin/ar/ar.c"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "dolphin/ar/ar.c"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"), "dolphin/ar/arq.c"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "dolphin/ar/arq.c"
             ),
         ],
     ),
@@ -2052,7 +2052,7 @@ config.libs = [
         "dvd",
         [
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "dolphin/dvd/dvdlow.c",
             ),
             Object(
@@ -2075,7 +2075,7 @@ config.libs = [
                 "dolphin/dvd/dvdidutils.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "dolphin/dvd/dvdfatal.c",
             ),
             Object(
@@ -2088,7 +2088,7 @@ config.libs = [
         "gx",
         [
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "dolphin/gx/GXInit.c",
             ),
             Object(
@@ -2165,7 +2165,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "dolphin/mtx/mtx.c"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "dolphin/mtx/mtxvec.c",
             ),
             Object(NonMatching, "dolphin/mtx/mtxstack.c"),
@@ -2344,11 +2344,11 @@ config.libs = [
                 "runtime/alloc.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "runtime/ansi_files.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"), "runtime/ansi_fp.c"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "runtime/ansi_fp.c"
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "runtime/arith.c"
@@ -2361,7 +2361,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "runtime/ctype.c"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"), "runtime/locale.c"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "runtime/locale.c"
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
@@ -2406,10 +2406,10 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "runtime/float.c"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"), "runtime/strtold.c"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "runtime/strtold.c"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "runtime/uart_console_io.c",
             ),
             Object(
@@ -2668,7 +2668,7 @@ config.libs = [
                 "dolphin/card/CARDBios.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "dolphin/card/CARDUnlock.c",
             ),
             Object(
