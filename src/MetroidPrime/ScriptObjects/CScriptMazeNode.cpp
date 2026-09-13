@@ -258,7 +258,7 @@ CScriptMazeNode::CScriptMazeNode(TUniqueId uid, const rstl::string& name, const 
 , x13c_25_hasGate(false)
 , x13c_26_gateActive(true) {}
 
-void CScriptMazeNode::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptMazeNode)
 
 void CScriptMazeNode::GenerateBarrier(CStateManager& mgr) {
   rstl::vector< SConnection >::iterator conn = ConnectionList().begin();

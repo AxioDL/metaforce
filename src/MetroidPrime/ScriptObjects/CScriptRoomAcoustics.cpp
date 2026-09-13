@@ -28,7 +28,7 @@ CScriptRoomAcoustics::CScriptRoomAcoustics(
 , x80_delayInfo(delayL, delayR, delayS, feedbackL, feedbackR, feedbackS, outputL, outputR,
                 outputS) {}
 
-void CScriptRoomAcoustics::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptRoomAcoustics)
 
 void CScriptRoomAcoustics::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
                                            CStateManager& stateMgr) {

@@ -226,4 +226,4 @@ CScriptDamageableTrigger::GetCollisionResponseType(const CVector3f&, const CVect
                                                                       : kWCR_Unknown15;
 }
 
-void CScriptDamageableTrigger::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptDamageableTrigger)

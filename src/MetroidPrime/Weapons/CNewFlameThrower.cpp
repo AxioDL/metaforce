@@ -73,7 +73,7 @@ rstl::optional_object< CAABox > CNewFlameThrower::GetTouchBounds() const {
   return rstl::optional_object_null();
 }
 
-void CNewFlameThrower::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CNewFlameThrower)
 
 void CNewFlameThrower::Touch(CActor& actor, CStateManager& mgr) {}
 

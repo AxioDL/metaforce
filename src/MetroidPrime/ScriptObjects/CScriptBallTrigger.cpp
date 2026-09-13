@@ -89,7 +89,7 @@ void CScriptBallTrigger::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CScriptBallTrigger::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptBallTrigger)
 
 void CScriptBallTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                          CStateManager& mgr) {

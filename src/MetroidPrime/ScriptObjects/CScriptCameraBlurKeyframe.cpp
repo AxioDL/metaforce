@@ -38,4 +38,4 @@ void CScriptCameraBlurKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqu
   }
 }
 
-void CScriptCameraBlurKeyframe::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptCameraBlurKeyframe)

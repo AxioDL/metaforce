@@ -351,7 +351,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CFlaahgra::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CFlaahgra)
 
 bool CFlaahgra::CanRenderUnsorted(const CStateManager& mgr) const { return true; }
 
@@ -1579,7 +1579,7 @@ CFlaahgraRenderer::CFlaahgraRenderer(TUniqueId uid, TUniqueId owner, const rstl:
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_owner(owner) {}
 
-void CFlaahgraRenderer::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CFlaahgraRenderer)
 
 void CFlaahgraRenderer::AddToRenderer(const CFrustumPlanes& frustum,
                                       const CStateManager& mgr) const {

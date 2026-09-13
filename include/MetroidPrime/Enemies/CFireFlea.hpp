@@ -12,7 +12,7 @@ public:
     ~CDeathCameraEffect() {}
     void PreThink(float, CStateManager& mgr) override;
     void Think(float, CStateManager& mgr) override;
-    void Accept(IVisitor& visitor) override;
+    DECLARE_TYPES_MATCH_OR_ACCEPT;
 
     CDeathCameraEffect(const TUniqueId uid, const TAreaId aid, const rstl::string& name);
 
@@ -32,7 +32,7 @@ public:
             const CTransform4f& xf, const CModelData& mData, const CActorParameters& actParams,
             const CPatternedInfo& pInfo, float f1);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
 

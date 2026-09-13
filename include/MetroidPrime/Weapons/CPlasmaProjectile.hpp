@@ -17,7 +17,7 @@ public:
                     TUniqueId owner, const CWeaponAssetInfo& res, bool growingBeam,
                     EProjectileAttrib attribs);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void ResetBeam(CStateManager& mgr, bool fullReset) override;
   void UpdateFx(const CTransform4f& xf, float dt, CStateManager& mgr) override;

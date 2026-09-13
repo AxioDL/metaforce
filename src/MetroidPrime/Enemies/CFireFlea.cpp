@@ -72,7 +72,7 @@ void CFireFlea::CDeathCameraEffect::Think(float dt, CStateManager& mgr) {
   sCurrentFadeColor = CColor(0.f, 0.f, 0.f, 0.f);
 }
 
-void CFireFlea::CDeathCameraEffect::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CFireFlea::CDeathCameraEffect)
 
 CFireFlea::CFireFlea(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
                      const CTransform4f& xf, const CModelData& mData,
@@ -92,7 +92,7 @@ CFireFlea::CFireFlea(TUniqueId uid, const rstl::string& name, const CEntityInfo&
   ++sLightIdx;
 }
 
-void CFireFlea::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CFireFlea)
 void CFireFlea::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, sender, mgr);
 

@@ -27,7 +27,7 @@ public:
   ~CScriptCameraFilterKeyframe();
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 };
 
 #endif // _CSCRIPTCAMERAFILTERKEYFRAME

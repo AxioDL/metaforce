@@ -2489,7 +2489,7 @@ void CBallCamera::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
   }
 }
 
-void CBallCamera::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CBallCamera)
 
 void CBallCamera::OverrideCameraInfo(CStateManager& mgr) {
   const CScriptCameraHint* hint = mgr.CameraManager()->GetCameraHint(mgr);

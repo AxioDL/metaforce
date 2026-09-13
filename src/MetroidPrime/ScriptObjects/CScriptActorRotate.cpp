@@ -176,6 +176,6 @@ void CScriptActorRotate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
   }
 }
 
-void CScriptActorRotate::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptActorRotate)
 
 CScriptActorRotate::~CScriptActorRotate() {}

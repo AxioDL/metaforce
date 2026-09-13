@@ -58,7 +58,7 @@ CEyeBall::CEyeBall(const TUniqueId uid, const rstl::string& name, const EFlavorT
   KnockBackCtrl().SetAutoResetImpulse(false);
 }
 
-void CEyeBall::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CEyeBall)
 
 void CEyeBall::CreateBeam(CStateManager& mgr) {
   if (mProjectileId != kInvalidUniqueId) {

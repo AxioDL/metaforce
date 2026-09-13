@@ -19,7 +19,7 @@ CScriptVisorFlare::CScriptVisorFlare(TUniqueId uid, const rstl::string& name,
 
 CScriptVisorFlare::~CScriptVisorFlare() {}
 
-void CScriptVisorFlare::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptVisorFlare)
 
 void CScriptVisorFlare::Think(float dt, CStateManager& stateMgr) {
   if (GetActive()) {

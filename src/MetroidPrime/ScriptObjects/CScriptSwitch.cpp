@@ -7,7 +7,7 @@ CScriptSwitch::CScriptSwitch(TUniqueId uid, const rstl::string& name, const CEnt
   mCloseOnOpened = closeOnOpened;
 }
 
-void CScriptSwitch::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptSwitch)
 
 void CScriptSwitch::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr) {
   if (GetActive()) {

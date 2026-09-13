@@ -256,7 +256,7 @@ void CScriptPhazonPool::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
   CScriptTrigger::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CScriptPhazonPool::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptPhazonPool)
 
 void CScriptPhazonPool::AddToRenderer(const CFrustumPlanes& frustum,
                                       const CStateManager& mgr) const {

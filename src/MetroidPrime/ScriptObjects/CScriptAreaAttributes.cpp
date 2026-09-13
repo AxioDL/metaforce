@@ -44,4 +44,4 @@ void CScriptAreaAttributes::AcceptScriptMsg(const EScriptObjectMessage msg, cons
   }
 }
 
-void CScriptAreaAttributes::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptAreaAttributes)

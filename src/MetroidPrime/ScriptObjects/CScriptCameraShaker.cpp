@@ -33,6 +33,6 @@ void CScriptCameraShaker::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId ob
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
 }
 
-void CScriptCameraShaker::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptCameraShaker)
 
 CScriptCameraShaker::~CScriptCameraShaker() {}

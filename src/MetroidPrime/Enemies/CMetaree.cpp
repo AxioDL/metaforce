@@ -32,7 +32,7 @@ CMetaree::CMetaree(TUniqueId uid, const rstl::string& name, EFlavorType flavor,
 , x5ca_25_started(false)
 , x5ca_26_deactivated(false) {}
 
-void CMetaree::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CMetaree)
 
 void CMetaree::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);

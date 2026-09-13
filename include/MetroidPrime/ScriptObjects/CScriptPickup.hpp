@@ -36,7 +36,7 @@ public:
   rstl::optional_object< CAABox > GetTouchBounds() const override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Render(const CStateManager&) const override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 
   float GetPossibility() const;
   CPlayerState::EItemType GetItem() const;

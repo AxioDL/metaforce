@@ -284,7 +284,7 @@ CMetroidPrime::CMetroidPrime(
   x1038_.push_back(2.f);
 }
 
-void CMetroidPrime::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CMetroidPrime)
 
 bool CMetroidPrime::CodeTrigger(CStateManager& mgr, float arg) { return x1444_24_; }
 
@@ -1128,7 +1128,7 @@ CMetroidPrime::CMissileTarget::CMissileTarget(TUniqueId uid, bool active, const 
 
 CMetroidPrime::CMissileTarget::~CMissileTarget() {}
 
-void CMetroidPrime::CMissileTarget::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CMetroidPrime::CMissileTarget)
 
 void CMetroidPrime::CreateMissileTarget(CStateManager& mgr) {
   xeac_ = mgr.AllocateUniqueId();

@@ -108,7 +108,7 @@ void CScriptShadowProjector::PreRender(CStateManager& mgr, const CFrustumPlanes&
   }
 }
 
-void CScriptShadowProjector::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptShadowProjector)
 
 void CScriptShadowProjector::Think(float dt, CStateManager& mgr) {
   if (GetActive() && x110_25_shadowInvalidated) {

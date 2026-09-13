@@ -332,7 +332,7 @@ void CScriptEffect::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum)
   }
 }
 
-void CScriptEffect::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptEffect)
 
 void CScriptEffect::ResetParticleCounts() {
   mNumParticlesDrawing = 0;

@@ -44,4 +44,4 @@ void CScriptRipple::AcceptScriptMsg(const EScriptObjectMessage msg, const TUniqu
 
 void CScriptRipple::Think(float, CStateManager&) {}
 
-void CScriptRipple::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptRipple)

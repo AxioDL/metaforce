@@ -590,7 +590,7 @@ CSpacePirate::CSpacePirate(TUniqueId uid, const rstl::string& name, const CEntit
   }
 }
 
-void CSpacePirate::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CSpacePirate)
 
 void CSpacePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   if (x637_29_inWallHang || x634_25_ceilingAmbush) {

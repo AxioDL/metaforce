@@ -1737,7 +1737,7 @@ void COmegaPirate::CFlash::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void COmegaPirate::CFlash::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(COmegaPirate::CFlash)
 
 void COmegaPirate::KillOmegaPirate(CStateManager& mgr) {
   RemoveEmitter();

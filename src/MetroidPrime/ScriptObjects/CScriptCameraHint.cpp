@@ -185,4 +185,4 @@ void CScriptCameraHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
   CActor::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CScriptCameraHint::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptCameraHint)

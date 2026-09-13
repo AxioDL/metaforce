@@ -39,7 +39,7 @@ CRipper::CRipper(TUniqueId uid, const rstl::string& name, EFlavorType type, cons
 
 CRipper::~CRipper() {}
 
-void CRipper::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CRipper)
 
 void CRipper::Think(float dt, CStateManager& mgr) {
   if (!GetActive()) {

@@ -75,7 +75,7 @@ CBeetle::CBeetle(TUniqueId uid, const rstl::string& name, const CEntityInfo& inf
 
 CBeetle::~CBeetle() {}
 
-void CBeetle::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CBeetle)
 
 void CBeetle::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   bool forward = true;

@@ -226,7 +226,7 @@ void CPatterned::BuildBodyController(EBodyType bodyType) {
   x460_knockBackController.x81_26_enableShock = bestAnim.first > 0.f;
 }
 
-void CPatterned::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CPatterned)
 
 void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CAi::AcceptScriptMsg(msg, uid, mgr);

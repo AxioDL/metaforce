@@ -108,7 +108,7 @@ public:
                const CActorParameters& actParms, const CElitePirateData& data);
   ~CElitePirate() override;
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;

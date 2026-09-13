@@ -27,7 +27,7 @@ public:
   ~CScriptHUDMemo();
 
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 };
 CHECK_SIZEOF(CScriptHUDMemo, 0x54)
 

@@ -468,7 +468,7 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
 
 void CScriptSpindleCamera::ProcessInput(const CFinalInput&, CStateManager&) {}
 
-void CScriptSpindleCamera::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptSpindleCamera)
 
 void CScriptSpindleCamera::Render(const CStateManager&) const {}
 

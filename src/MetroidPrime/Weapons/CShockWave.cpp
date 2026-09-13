@@ -47,7 +47,7 @@ CShockWave::CShockWave(const TUniqueId uid, const rstl::string& name, const CEnt
   SetThermalFlags(kTF_Hot);
 }
 
-void CShockWave::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CShockWave)
 
 void CShockWave::Think(const float dt, CStateManager& mgr) {
   if (GetActive()) {

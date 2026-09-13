@@ -85,7 +85,7 @@ public:
 
   // CEntity
   ~CFlaahgraRenderer() override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 
   // CActor
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;
@@ -104,7 +104,7 @@ public:
 
   // CEntity
   ~CFlaahgra() override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void PreThink(float dt, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;

@@ -100,7 +100,7 @@ CCollisionActor::CCollisionActor(TUniqueId uid, TAreaId areaId, TUniqueId owner,
       CMaterialList(kMT_Solid), CMaterialList(kMT_CollisionActor, kMT_NoStaticCollision)));
 }
 
-void CCollisionActor::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CCollisionActor)
 
 rstl::optional_object< CAABox > CCollisionActor::GetTouchBounds() const {
   rstl::optional_object< CAABox > bounds;

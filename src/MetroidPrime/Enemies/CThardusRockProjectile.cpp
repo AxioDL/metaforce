@@ -57,7 +57,7 @@ CThardusRockProjectile::CThardusRockProjectile(const TUniqueId uid, const rstl::
   x50c_baseDamageMag = 1.f;
 }
 
-void CThardusRockProjectile::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CThardusRockProjectile)
 
 void CThardusRockProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                              CStateManager& mgr) {

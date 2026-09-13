@@ -11,7 +11,7 @@ public:
   CScriptEMPulse(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&, bool,
                  float, float, float, float, float, float, float, CAssetId);
 
-  void Accept(IVisitor&) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void AddToRenderer(const CFrustumPlanes&, const CStateManager&) const override;

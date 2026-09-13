@@ -16,7 +16,7 @@ CScriptCameraHintTrigger::CScriptCameraHintTrigger(TUniqueId uid, const bool act
 , x130_26_playerInside(false)
 , x130_27_playerWasInside(false) {}
 
-void CScriptCameraHintTrigger::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptCameraHintTrigger)
 
 rstl::optional_object< CAABox > CScriptCameraHintTrigger::GetTouchBounds() const {
   return xe8_obb.CalculateAABox(CTransform4f::Identity());

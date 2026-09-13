@@ -16,7 +16,7 @@ public:
            const uint anim3, const uint beamSfx, bool attackDisabled,
            const CActorParameters& actParams);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType event,
                        float dt) override;

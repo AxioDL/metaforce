@@ -8,6 +8,6 @@ CScriptDebugCameraWaypoint::CScriptDebugCameraWaypoint(TUniqueId uid, const rstl
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_value(value) {}
 
-void CScriptDebugCameraWaypoint::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptDebugCameraWaypoint)
 
 CScriptDebugCameraWaypoint::~CScriptDebugCameraWaypoint() {}

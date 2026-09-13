@@ -35,4 +35,4 @@ void CScriptSpiderBallAttractionSurface::Think(float dt, CStateManager& mgr) {
   // Empty
 }
 
-void CScriptSpiderBallAttractionSurface::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptSpiderBallAttractionSurface)

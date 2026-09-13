@@ -16,7 +16,7 @@ public:
   void PreThink(float dt, CStateManager& mgr) override;
   void Think(float dt, CStateManager&) override;
   void AddToRenderer(const CFrustumPlanes& planes, const CStateManager& mgr) const override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 
   void PlaySound(CStateManager& mgr);
   void StopSound(CStateManager& mgr);

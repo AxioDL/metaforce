@@ -130,7 +130,7 @@ CMetroidPrimeRelay::CMetroidPrimeRelay(
 , xcb4_w5(w5)
 , xcb8_roomParms(roomParms) {}
 
-void CMetroidPrimeRelay::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CMetroidPrimeRelay)
 
 void CMetroidPrimeRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                          CStateManager& mgr) {

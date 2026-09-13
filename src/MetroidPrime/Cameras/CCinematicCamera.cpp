@@ -117,7 +117,7 @@ void CCinematicCamera::Think(float dt, CStateManager& mgr) {
 
 void CCinematicCamera::ProcessInput(const CFinalInput& input, CStateManager& mgr) {}
 
-void CCinematicCamera::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CCinematicCamera)
 
 void CCinematicCamera::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                        CStateManager& mgr) {

@@ -14,7 +14,7 @@ CScriptControllerAction::CScriptControllerAction(TUniqueId uid, const rstl::stri
 , x3c_25_deactivateOnClose(deactivateOnClose)
 , x3c_26_pressed(false) {}
 
-void CScriptControllerAction::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptControllerAction)
 
 void CScriptControllerAction::Think(float dt, CStateManager& stateMgr) {
   bool oldPressed = x3c_26_pressed;

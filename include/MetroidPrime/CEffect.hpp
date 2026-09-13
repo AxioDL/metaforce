@@ -12,6 +12,7 @@ public:
 
   // CEntity
   ~CEffect() override {}
+  DECLARE_TYPES_MATCH;
 
   // CActor
   void AddToRenderer(const CFrustumPlanes&, const CStateManager&) const override;

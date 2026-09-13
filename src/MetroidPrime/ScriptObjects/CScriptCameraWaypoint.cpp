@@ -51,4 +51,4 @@ void CScriptCameraWaypoint::AddToRenderer(const CFrustumPlanes&, const CStateMan
 
 void CScriptCameraWaypoint::Render(const CStateManager&) const {}
 
-void CScriptCameraWaypoint::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptCameraWaypoint)

@@ -63,4 +63,4 @@ void CScriptCounter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
 }
 
-void CScriptCounter::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptCounter)

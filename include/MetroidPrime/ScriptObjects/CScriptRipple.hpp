@@ -15,7 +15,7 @@ public:
 
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
-  void Accept(IVisitor&) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 };
 
 #endif // _CSCRIPTRIPPLE

@@ -15,7 +15,7 @@ public:
           const CPatternedInfo& patternedInfo, const CActorParameters& actorParams,
           const CGrappleParameters& grappleParams);
   ~CRipper();
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const CVector3f& position, const CVector3f& direction, const CWeaponMode& mode, int projectileAtrib) const override;

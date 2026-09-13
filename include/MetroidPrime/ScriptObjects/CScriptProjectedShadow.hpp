@@ -12,7 +12,7 @@ public:
   CScriptShadowProjector(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&,
                          bool, const CVector3f&, bool, float, float, float, float, int);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void PreRender(CStateManager&, const CFrustumPlanes&) override;

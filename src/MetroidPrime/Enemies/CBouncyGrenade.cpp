@@ -50,7 +50,7 @@ CBouncyGrenade::CBouncyGrenade(TUniqueId uid, const rstl::string& name, const CE
       CMaterialFilter::MakeIncludeExclude(GetMaterialFilter().GetIncludeList(), exclude));
 }
 
-void CBouncyGrenade::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CBouncyGrenade)
 
 void CBouncyGrenade::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {

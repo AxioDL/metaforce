@@ -14,12 +14,12 @@ public:
                       const CTransform4f& transform, bool active, const CGrappleParameters& params);
   ~CScriptGrapplePoint();
 
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AddToRenderer(const CFrustumPlanes&, const CStateManager&) const;
   rstl::optional_object< CAABox > GetTouchBounds() const;
   void Render(const CStateManager&) const;
   void Think(float, CStateManager&);
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Accept(IVisitor&);
 
   const CGrappleParameters& GetGrappleParameters() const { return x100_parameters; }
 };

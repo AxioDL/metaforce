@@ -16,7 +16,7 @@ CScriptPlayerStateChange::CScriptPlayerStateChange(TUniqueId uid, const rstl::st
 , x40_ctrl(control)
 , x44_ctrlCmdOpt(controlCmdOpt) {}
 
-void CScriptPlayerStateChange::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptPlayerStateChange)
 
 void CScriptPlayerStateChange::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
                                                CStateManager& stateMgr) {

@@ -195,4 +195,4 @@ void CScriptPickupGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
   CEntity::AcceptScriptMsg(msg, sender, stateMgr);
 }
 
-void CScriptPickupGenerator::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptPickupGenerator)

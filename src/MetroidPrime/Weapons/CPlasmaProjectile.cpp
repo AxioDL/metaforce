@@ -86,7 +86,7 @@ CPlasmaProjectile::CPlasmaProjectile(const TToken< CWeaponDescription >& wDesc,
   x51c_pulseGen->SetParticleEmission(false);
 }
 
-void CPlasmaProjectile::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CPlasmaProjectile)
 
 void CPlasmaProjectile::Touch(CActor&, CStateManager&) {}
 

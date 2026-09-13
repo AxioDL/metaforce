@@ -98,6 +98,6 @@ void CScriptPlayerHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
   CActor::AcceptScriptMsg(msg, sender, mgr);
 }
 
-void CScriptPlayerHint::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptPlayerHint)
 
 CScriptPlayerHint::~CScriptPlayerHint() {}

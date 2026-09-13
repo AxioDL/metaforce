@@ -22,6 +22,7 @@ public:
 
   // CEntity
   ~CSeedling() override;
+  DECLARE_TYPES_MATCH;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 

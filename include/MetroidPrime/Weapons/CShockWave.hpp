@@ -54,7 +54,7 @@ public:
              const CTransform4f& xf, const TUniqueId parent, const CShockWaveInfo& data,
              const float minActiveTime, const float knockback);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void Render(const CStateManager& mgr) const override;
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;

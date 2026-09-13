@@ -15,7 +15,7 @@ public:
                         bool);
   ~CScriptTargetingPoint();
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   
   bool GetLocked() const;

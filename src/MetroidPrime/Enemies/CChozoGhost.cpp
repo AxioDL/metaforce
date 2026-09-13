@@ -165,7 +165,7 @@ CChozoGhost::CChozoGhost(
   MakeThermalColdAndHot();
 }
 
-void CChozoGhost::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CChozoGhost)
 
 void CChozoGhost::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);

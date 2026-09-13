@@ -12,7 +12,7 @@ public:
                         const CTransform4f& xf, const bool active, float hfov, uint);
   ~CScriptCameraWaypoint();
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void AddToRenderer(const CFrustumPlanes&, const CStateManager&) const override;
   void Render(const CStateManager&) const override;

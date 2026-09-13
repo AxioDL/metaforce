@@ -14,6 +14,7 @@ class CStateMachine;
 
 class CAi : public CPhysicsActor {
 public:
+  DECLARE_TYPES_MATCH;
   static void CreateFuncLookup(CAiFuncMap* funcMap);
   static const CAiStateFunc GetStateFunc(const char* func);
   static const CAiTriggerFunc GetTriggerFunc(const char* func);

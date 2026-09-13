@@ -89,7 +89,7 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(
 
 CScriptWorldTeleporter::~CScriptWorldTeleporter() {}
 
-void CScriptWorldTeleporter::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptWorldTeleporter)
 
 void CScriptWorldTeleporter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                              CStateManager& mgr) {

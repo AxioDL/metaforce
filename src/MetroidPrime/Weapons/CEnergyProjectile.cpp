@@ -335,7 +335,7 @@ void CEnergyProjectile::ResolveCollisionWithWorld(const CRayCastResult& res, CSt
   }
 }
 
-void CEnergyProjectile::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CEnergyProjectile)
 
 void CEnergyProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                         CStateManager& mgr) {

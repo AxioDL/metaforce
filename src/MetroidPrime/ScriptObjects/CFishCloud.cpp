@@ -36,7 +36,7 @@ CFishCloudModifier::CFishCloudModifier(TUniqueId uid, const bool active, const r
 , xf0_isRepulsor(isRepulsor)
 , xf1_swirl(swirl) {}
 
-void CFishCloudModifier::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CFishCloudModifier)
 
 void CFishCloudModifier::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender,
                                          CStateManager& mgr) {
@@ -220,7 +220,7 @@ void CFishCloud::InitAnimBoids(CStateManager& mgr, CModelData::EWhichModel which
   x230_whichModel = which;
 }
 
-void CFishCloud::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CFishCloud)
 
 void CFishCloud::CalculateRenderBounds() {
   const CAABox aabb = GetBoundingBox();

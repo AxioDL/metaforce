@@ -118,7 +118,7 @@ void CGrenadeLauncher::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
   }
 }
 
-void CGrenadeLauncher::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CGrenadeLauncher)
 
 void CGrenadeLauncher::Render(const CStateManager& mgr) const {
   if (x3fd_visible)

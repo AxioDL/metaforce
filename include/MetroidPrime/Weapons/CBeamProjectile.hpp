@@ -21,7 +21,7 @@ public:
                   EProjectileAttrib attribs, bool growingBeam);
 
   // CEntity
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   ~CBeamProjectile() override;
 
   // CActor

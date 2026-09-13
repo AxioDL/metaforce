@@ -57,7 +57,7 @@ public:
          const CTransform4f& xf, const CModelData& mData, const CMaterialList& list,
          const CActorParameters& params, TUniqueId nextDrawNode);
   ~CActor() override;
-
+  DECLARE_TYPES_MATCH;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void SetActive(const bool active) override;
 

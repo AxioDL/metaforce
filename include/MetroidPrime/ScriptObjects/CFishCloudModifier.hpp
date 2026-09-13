@@ -14,7 +14,7 @@ public:
                      const CVector3f& pos, bool isRepulsor, bool swirl, float radius,
                      float priority);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 
   void AddSelf(CStateManager& mgr);

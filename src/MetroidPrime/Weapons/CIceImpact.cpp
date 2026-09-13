@@ -226,7 +226,7 @@ void CIceImpact::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CIceImpact::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CIceImpact)
 
 void CIceImpact::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   switch (msg) {

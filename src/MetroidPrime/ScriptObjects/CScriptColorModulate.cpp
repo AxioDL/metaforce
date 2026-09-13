@@ -257,4 +257,4 @@ void CScriptColorModulate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId u
   }
 }
 
-void CScriptColorModulate::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptColorModulate)

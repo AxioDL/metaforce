@@ -527,7 +527,7 @@ CAABox CNewIntroBoss::GetSortingBounds(const CStateManager&) const {
   return CAABox(-0.5f, -0.5f, minZ, 0.5f, 0.5f, maxZ).GetTransformedAABox(GetTransform());
 }
 
-void CNewIntroBoss::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CNewIntroBoss)
 
 void CNewIntroBoss::DeleteBeam(CStateManager& mgr) {
   if (x5d4_stage1Projectile != kInvalidUniqueId) {

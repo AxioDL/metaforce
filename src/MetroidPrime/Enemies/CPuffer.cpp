@@ -47,7 +47,7 @@ CPuffer::CPuffer(TUniqueId uid, const rstl::string& name, const CEntityInfo& inf
 
 CPuffer::~CPuffer() {}
 
-void CPuffer::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CPuffer)
 
 void CPuffer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);

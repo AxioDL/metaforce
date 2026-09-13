@@ -608,7 +608,7 @@ void CScriptSpecialFunction::SkipCinematic(CStateManager& mgr) {
   mgr.SetCinematicSkipObject(kInvalidUniqueId);
 }
 
-void CScriptSpecialFunction::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptSpecialFunction)
 
 void CScriptSpecialFunction::RingScramble(CStateManager& mgr) {
   SendScriptMsgs(kSS_Zero, mgr, kSM_None);

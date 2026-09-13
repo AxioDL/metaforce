@@ -14,7 +14,7 @@ public:
                   int sfx, bool noViewCheck, bool active);
   ~CScriptVisorGoo();
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float, CStateManager& stateMgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   void AddToRenderer(const CFrustumPlanes&, const CStateManager&) const override;

@@ -52,7 +52,7 @@ void CFlaahgraTentacle::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CFlaahgraTentacle::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CFlaahgraTentacle)
 
 void CFlaahgraTentacle::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                         CStateManager& mgr) {

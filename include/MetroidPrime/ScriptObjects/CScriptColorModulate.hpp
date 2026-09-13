@@ -34,7 +34,7 @@ public:
   CModelFlags CalculateFlags(const CColor& col) const;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void SetParent(const TUniqueId& parent) { mParent = parent; }
   void SetDoReverse(const bool doReverse) { mDoReverse = doReverse; }
   void SetResetTargetWhenDone(const bool resetTargetWhenDone) {

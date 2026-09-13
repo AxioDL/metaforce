@@ -129,7 +129,7 @@ CParasite::CParasite(TUniqueId uid, const rstl::string& name, CPatterned::EFlavo
   }
 }
 
-void CParasite::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CParasite)
 
 void CParasite::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);

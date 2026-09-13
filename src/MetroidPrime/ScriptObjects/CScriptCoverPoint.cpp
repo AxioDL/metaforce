@@ -21,7 +21,7 @@ CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, const rstl::string& name,
 , x100_touchBounds(CAABox(xf.GetTranslation(), xf.GetTranslation()))
 , x11c_timeLeft(0.f) {}
 
-void CScriptCoverPoint::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptCoverPoint)
 
 void CScriptCoverPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                         CStateManager& mgr) {

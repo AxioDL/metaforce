@@ -113,7 +113,7 @@ CMetroidBeta::CMetroidBeta(const TUniqueId uid, const rstl::string& name, const 
 
 CMetroidBeta::~CMetroidBeta() {}
 
-void CMetroidBeta::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CMetroidBeta)
 
 void CMetroidBeta::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {

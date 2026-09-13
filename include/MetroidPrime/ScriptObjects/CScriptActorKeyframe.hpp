@@ -10,7 +10,7 @@ public:
                        bool looping, float lifetime, bool isPassive, int fadeOut, bool active,
                        float totalPlayback);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   void Think(float, CStateManager&) override;
   void UpdateEntity(TUniqueId, CStateManager&);

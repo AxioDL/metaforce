@@ -8,7 +8,7 @@
 class CScriptStreamedMusic : public CEntity {
 public:
   ~CScriptStreamedMusic() {}
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 
   CScriptStreamedMusic(TUniqueId id, const CEntityInfo& info, const rstl::string& name, bool active,

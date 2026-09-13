@@ -51,7 +51,7 @@ rstl::optional_object< CAABox > CFlameThrower::GetTouchBounds() const {
       kProjectileBoxAllowance + translation.GetY(), kProjectileBoxAllowance + translation.GetZ());
 }
 
-void CFlameThrower::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CFlameThrower)
 
 void CFlameThrower::Touch(CActor&, CStateManager&) {}
 

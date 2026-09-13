@@ -87,7 +87,7 @@ void CIceAttackProjectile::Render(const CStateManager& mgr) const {
   x100_movingGen->Render();
 }
 
-void CIceAttackProjectile::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CIceAttackProjectile)
 
 void CIceAttackProjectile::CreateTrailObject(CStateManager& mgr, const CVector3f& normal,
                                              float dt) {

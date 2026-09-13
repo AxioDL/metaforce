@@ -223,7 +223,7 @@ CPlane CScriptDock::GetPlane(const CStateManager& mgr) const {
   return plane;
 }
 
-void CScriptDock::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptDock)
 
 int CScriptDock::GetDockReference(const CStateManager& mgr) const {
   return mgr.GetWorld()->GetAreaAlways(x260_area).GetDock(x25c_dock).GetReferenceCount();

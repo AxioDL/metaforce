@@ -230,7 +230,7 @@ void CScriptSpiderBallWaypoint::AddToRenderer(const CFrustumPlanes& frustum,
 
 void CScriptSpiderBallWaypoint::Render(const CStateManager& mgr) const { CActor::Render(mgr); }
 
-void CScriptSpiderBallWaypoint::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptSpiderBallWaypoint)
 
 rstl::optional_object< CAABox > CScriptSpiderBallWaypoint::GetTouchBounds() const {
   return xfc_aabox;

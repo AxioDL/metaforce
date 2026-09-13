@@ -45,4 +45,4 @@ void CScriptCameraFilterKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUni
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
 }
 
-void CScriptCameraFilterKeyframe::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptCameraFilterKeyframe)

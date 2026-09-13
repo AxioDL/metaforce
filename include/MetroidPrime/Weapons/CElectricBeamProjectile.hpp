@@ -32,7 +32,7 @@ public:
                           const CDamageInfo&, TUniqueId, TAreaId, TUniqueId, EProjectileAttrib);
 
   // CEntity
-  void Accept(IVisitor&) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 
   // CActor

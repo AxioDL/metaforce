@@ -347,7 +347,7 @@ const CScriptTrigger::CObjectTracker* CScriptTrigger::FindObject(TUniqueId id) {
   return nullptr;
 }
 
-void CScriptTrigger::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptTrigger)
 
 void CScriptTrigger::InhabitantAdded(CActor&, CStateManager&) {}
 

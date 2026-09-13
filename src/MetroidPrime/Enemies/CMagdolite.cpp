@@ -93,7 +93,7 @@ CMagdolite::CMagdolite(TUniqueId uid, const rstl::string& name, const CEntityInf
   x690_headlessModel->SetLayoutInfo(GetAnimationData()->GetModelData()->GetLayoutInfo());
 }
 
-void CMagdolite::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CMagdolite)
 
 void CMagdolite::Think(float dt, CStateManager& mgr) {
   CPatterned::Think(dt, mgr);

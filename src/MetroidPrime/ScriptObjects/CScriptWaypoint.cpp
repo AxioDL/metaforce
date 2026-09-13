@@ -78,4 +78,4 @@ void CScriptWaypoint::AddToRenderer(const CFrustumPlanes&, const CStateManager&)
 
 void CScriptWaypoint::Render(const CStateManager&) const {}
 
-void CScriptWaypoint::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptWaypoint)

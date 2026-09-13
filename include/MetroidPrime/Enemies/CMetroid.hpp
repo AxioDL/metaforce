@@ -29,7 +29,7 @@ public:
   bool IsAttacking() const { return mIsAttacking; }
   TUniqueId GetAttackTargetId() const { return mAttackTarget; }
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Render(const CStateManager& mgr) const override;

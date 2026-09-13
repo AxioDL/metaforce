@@ -46,4 +46,4 @@ void CSustainedPlayerDamage::StopDamaging(CStateManager& mgr) {
   x58_24 = false;
 }
 
-void CSustainedPlayerDamage::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CSustainedPlayerDamage)

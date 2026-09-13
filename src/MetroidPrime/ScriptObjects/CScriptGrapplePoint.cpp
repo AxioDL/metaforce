@@ -45,4 +45,4 @@ void CScriptGrapplePoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId ui
   }
 }
 
-void CScriptGrapplePoint::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptGrapplePoint)

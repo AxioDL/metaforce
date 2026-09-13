@@ -46,7 +46,7 @@ void CScriptEMPulse::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
   }
 }
 
-void CScriptEMPulse::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptEMPulse)
 
 void CScriptEMPulse::Think(float dt, CStateManager& mgr) {
   if (!GetActive()) {

@@ -11,7 +11,7 @@ public:
             float f7, float f8, float priority, float repulseRadius, float attractRadius, float f12,
             const CPatternedInfo& pInfo, const CActorParameters& actParms);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type,

@@ -18,7 +18,7 @@ public:
       const CHealthInfo& hInfo2, int w3, int w4, int w5,
       const rstl::reserved_vector< CMetroidPrime::CMetroidPrimeAttackWeights, 4 >& roomParms);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 
   TUniqueId GetMetroidPrimeExoId() const { return x34_mpUid; }

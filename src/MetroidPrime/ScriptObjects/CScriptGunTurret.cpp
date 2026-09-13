@@ -378,7 +378,7 @@ void CScriptGunTurret::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
   }
 }
 
-void CScriptGunTurret::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptGunTurret)
 
 void CScriptGunTurret::Render(const CStateManager& mgr) const {
   CPhysicsActor::Render(mgr);

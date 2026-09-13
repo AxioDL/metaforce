@@ -81,7 +81,7 @@ CSpankWeed::CSpankWeed(const TUniqueId uid, const rstl::string& name, const CEnt
   KnockBackCtrl().SetAutoResetImpulse(false);
 }
 
-void CSpankWeed::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CSpankWeed)
 
 void CSpankWeed::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   bool oldActive = GetActive();

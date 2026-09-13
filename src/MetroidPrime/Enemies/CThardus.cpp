@@ -132,7 +132,7 @@ void CDestroyableRock::PreRender(CStateManager& mgr, const CFrustumPlanes& frust
 
 void CDestroyableRock::Render(const CStateManager& mgr) const { CPhysicsActor::Render(mgr); }
 
-void CDestroyableRock::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CDestroyableRock)
 
 void CDestroyableRock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                        CStateManager& mgr) {
@@ -299,7 +299,7 @@ CThardus::CThardus(TUniqueId uid, const rstl::string& name, const CEntityInfo& i
   SetMass(100000.f);
 }
 
-void CThardus::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CThardus)
 
 void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);

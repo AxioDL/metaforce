@@ -18,7 +18,7 @@ public:
           const CDamageInfo& explosionDamage, ushort sfxId);
 
   ~CPuffer() override;
-  void Accept(IVisitor&) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
   rstl::optional_object< CAABox > GetTouchBounds() const override;

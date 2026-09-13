@@ -11,7 +11,7 @@ public:
   void Think(float dt, CStateManager& mgr) override;
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;
   void Render(const CStateManager& mgr) const override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 
   enum EDoorAnimType {
     kDAT_Open,

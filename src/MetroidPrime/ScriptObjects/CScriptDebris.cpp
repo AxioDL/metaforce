@@ -418,7 +418,7 @@ void CScriptDebris::AddToRenderer(const CFrustumPlanes& frustum, const CStateMan
   }
 }
 
-void CScriptDebris::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptDebris)
 
 void CScriptDebris::CollidedWith(const TUniqueId& id, const CCollisionInfoList& list,
                                  CStateManager& mgr) {

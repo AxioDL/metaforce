@@ -62,7 +62,7 @@ public:
   ~CGrenadeLauncher() override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Render(const CStateManager& mgr) const override;
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;

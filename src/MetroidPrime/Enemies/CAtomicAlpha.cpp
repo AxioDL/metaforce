@@ -39,7 +39,7 @@ CAtomicAlpha::CAtomicAlpha(TUniqueId uid, const rstl::string& name, const CEntit
   x6dc_bombLocators.push_back(SBomb(rstl::string_l("bomb4_LCTR"), pas::kLT_Internal13, FLT_MAX));
 }
 
-void CAtomicAlpha::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CAtomicAlpha)
 
 void CAtomicAlpha::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);

@@ -12,7 +12,7 @@ public:
               const CAssetId a4, const CDamageInfo& dInfo2, const float f5);
   ~CEnergyBall();
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Generate(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Attack(CStateManager& mgr, EStateMsg msg, float arg) override;

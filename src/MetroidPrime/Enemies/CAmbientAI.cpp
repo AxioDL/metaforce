@@ -157,4 +157,4 @@ void CAmbientAI::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
   CPhysicsActor::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CAmbientAI::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CAmbientAI)

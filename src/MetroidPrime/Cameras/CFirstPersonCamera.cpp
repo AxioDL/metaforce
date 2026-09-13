@@ -390,6 +390,6 @@ void CFirstPersonCamera::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CFirstPersonCamera::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CFirstPersonCamera)
 
 const CTransform4f& CFirstPersonCamera::GetGunFollowTransform() const { return x190_gunFollowXf; }

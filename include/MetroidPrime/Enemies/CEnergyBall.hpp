@@ -14,7 +14,7 @@ public:
               uint a4, const CDamageInfo& dInfo2, float f5);
   ~CEnergyBall();
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   int GetBallType() const { return x570_ballType; }
 
 private:

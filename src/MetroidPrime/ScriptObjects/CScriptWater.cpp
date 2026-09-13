@@ -506,7 +506,7 @@ int CScriptWater::GetPatchRenderFlags(int x, int y) const {
 
 CScriptWater::~CScriptWater() {}
 
-void CScriptWater::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptWater)
 
 void CScriptWater::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   switch (msg) {

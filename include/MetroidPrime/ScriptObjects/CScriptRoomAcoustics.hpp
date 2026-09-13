@@ -81,7 +81,7 @@ public:
 
   void Think(float dt, CStateManager& stateMgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void EnableAuxCallbacks();
 
   static void DisableAuxCallbacks();

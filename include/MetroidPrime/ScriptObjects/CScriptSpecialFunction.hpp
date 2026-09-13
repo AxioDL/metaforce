@@ -123,7 +123,7 @@ public:
                          const CVector3f&, const CColor&, const bool, const CDamageInfo&, int, int,
                          CPlayerState::EItemType, const ushort, const ushort, const ushort);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void PreRender(CStateManager&, const CFrustumPlanes&) override;

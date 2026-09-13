@@ -81,7 +81,7 @@ public:
   void UpdateInhabitants(float, CStateManager&);
   const rstl::list< CObjectTracker >& GetInhabitants() const;
   const CScriptTrigger::CObjectTracker* FindObject(TUniqueId);
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   virtual void InhabitantAdded(CActor&, CStateManager&);
   virtual void InhabitantIdle(CActor&, CStateManager&);
   virtual void InhabitantExited(CActor&, CStateManager&);

@@ -239,7 +239,7 @@ void CPathCamera::ProcessInput(const CFinalInput&, CStateManager& mgr) {
   // Empty
 }
 
-void CPathCamera::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CPathCamera)
 
 void CPathCamera::Render(const CStateManager& mgr) const {}
 

@@ -11,7 +11,7 @@ public:
                              const CTransform4f& xf, uint value);
   ~CScriptDebugCameraWaypoint() override;
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 
 private:
   uint xe8_value;

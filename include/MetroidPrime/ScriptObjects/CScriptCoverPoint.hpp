@@ -11,7 +11,7 @@ public:
                     const CTransform4f& xf, bool active, uint flags, bool crouch, float horizontalAngle,
                     float verticalAngle, float coverTime);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float, CStateManager&) override;
   void AddToRenderer(const CFrustumPlanes&, const CStateManager&) const override;
   void Render(const CStateManager&) const override;

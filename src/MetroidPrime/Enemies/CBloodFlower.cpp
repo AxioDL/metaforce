@@ -58,7 +58,7 @@ CBloodFlower::CBloodFlower(const TUniqueId uid, const rstl::string& name, const 
   }
 }
 
-void CBloodFlower::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CBloodFlower)
 
 void CBloodFlower::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);

@@ -19,7 +19,7 @@ public:
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;
   void Render(const CStateManager& mgr) const override;
   void Think(float dt, CStateManager& mgr) override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   rstl::optional_object< CAABox > GetTouchBounds() const override;
   void UpdateLight(float dt, CStateManager& mgr);

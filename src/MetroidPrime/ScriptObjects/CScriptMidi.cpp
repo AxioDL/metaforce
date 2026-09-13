@@ -14,7 +14,7 @@ CScriptMidi::CScriptMidi(const TUniqueId id, const CEntityInfo& info, const rstl
 , x44_fadeOutTime(fadeOut)
 , x48_volume(volume) {}
 
-void CScriptMidi::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptMidi)
 
 void CScriptMidi::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
                                   CStateManager& stateMgr) {

@@ -8,7 +8,7 @@ CRepulsor::CRepulsor(TUniqueId uid, const bool active, const rstl::string& name,
          CMaterialList(kMT_NoStepLogic), CActorParameters::None(), kInvalidUniqueId)
 , xe8_affectRadius(radius) {}
 
-void CRepulsor::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CRepulsor)
 
 void CRepulsor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
                                 CStateManager& stateMgr) {

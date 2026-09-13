@@ -10,7 +10,7 @@
   class cls : public parent {                                                                      \
   public:                                                                                          \
     ~cls() override;                                                                               \
-    void Accept(IVisitor& visitor) override;                                                       \
+    DECLARE_TYPES_MATCH_OR_ACCEPT;                                                       \
   };
 STUB(CWeapon, CActor)
 STUB(CBomb, CWeapon)

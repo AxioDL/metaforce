@@ -45,7 +45,7 @@ void CGameLight::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CGameLight::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CGameLight)
 
 void CGameLight::SetLightPriorityAndId() {
   xec_light.SetPriority(x140_priority);

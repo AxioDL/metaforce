@@ -185,7 +185,7 @@ CMetroid::CMetroid(const TUniqueId uid, const rstl::string& name, const EFlavorT
 
 CMetroid::~CMetroid() {}
 
-void CMetroid::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CMetroid)
 
 void CMetroid::Think(float dt, CStateManager& mgr) {
   if (!GetActive()) {

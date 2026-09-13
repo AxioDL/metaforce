@@ -12,7 +12,7 @@ public:
 
   void SetDockReference(CStateManager& mgr, int);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   rstl::optional_object< CAABox > GetTouchBounds() const override;

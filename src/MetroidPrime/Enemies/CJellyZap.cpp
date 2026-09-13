@@ -37,7 +37,7 @@ CJellyZap::CJellyZap(const TUniqueId uid, const rstl::string& name, const CEntit
   SetBaseDamageMag(0.f);
 }
 
-void CJellyZap::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CJellyZap)
 
 void CJellyZap::Think(const float dt, CStateManager& mgr) {
   CPatterned::Think(dt, mgr);

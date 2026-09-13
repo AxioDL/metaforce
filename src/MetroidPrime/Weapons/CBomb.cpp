@@ -136,7 +136,7 @@ void CBomb::Think(float dt, CStateManager& mgr) {
   mParticle2->SetGlobalTranslation(GetTranslation());
 }
 
-void CBomb::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CBomb)
 
 void CBomb::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   switch (msg) {

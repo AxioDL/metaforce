@@ -15,7 +15,7 @@ public:
                     const rstl::vector<CVisorFlare::CFlareDef>& flares);
   ~CScriptVisorFlare();
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float, CStateManager& stateMgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   void PreRender(CStateManager&, const CFrustumPlanes&) override;

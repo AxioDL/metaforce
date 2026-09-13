@@ -58,7 +58,7 @@ void CFlaahgraPlants::AddToRenderer(const CFrustumPlanes& frustum, const CStateM
   CActor::AddToRenderer(frustum, mgr);
 }
 
-void CFlaahgraPlants::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CFlaahgraPlants)
 
 void CFlaahgraPlants::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {

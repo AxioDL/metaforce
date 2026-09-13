@@ -29,7 +29,7 @@ CElectricBeamProjectile::CElectricBeamProjectile(const TToken< CWeaponDescriptio
   x468_electric->SetParticleEmission(false);
 }
 
-void CElectricBeamProjectile::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CElectricBeamProjectile)
 
 void CElectricBeamProjectile::Touch(CActor&, CStateManager&) {}
 

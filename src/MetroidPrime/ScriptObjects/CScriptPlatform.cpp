@@ -451,7 +451,7 @@ void CScriptPlatform::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
   CPhysicsActor::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CScriptPlatform::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptPlatform)
 
 const CCollisionPrimitive* CScriptPlatform::GetCollisionPrimitive() const {
   if (x314_treeGroup.null()) {

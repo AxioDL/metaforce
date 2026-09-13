@@ -44,4 +44,4 @@ void CScriptHUDMemo::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
   CEntity::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CScriptHUDMemo::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptHUDMemo)

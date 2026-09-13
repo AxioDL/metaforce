@@ -66,6 +66,6 @@ void CScriptRelay::Think(float, CStateManager& stateMgr) {
   }
 }
 
-void CScriptRelay::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptRelay)
 
 CScriptRelay::~CScriptRelay() {}

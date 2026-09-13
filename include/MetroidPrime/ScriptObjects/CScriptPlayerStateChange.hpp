@@ -18,7 +18,7 @@ private:
 public:
   CScriptPlayerStateChange(TUniqueId, const rstl::string&, const CEntityInfo&, bool, int, int, int, EControl,
                            EControlCommandOption);
-  void Accept(IVisitor& visit) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   ~CScriptPlayerStateChange();
 

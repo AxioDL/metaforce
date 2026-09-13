@@ -142,7 +142,7 @@ CBabygoth::CBabygoth(TUniqueId uid, const rstl::string& name, const CEntityInfo&
 }
 
 CBabygoth::~CBabygoth() {}
-void CBabygoth::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CBabygoth)
 
 void CBabygoth::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {

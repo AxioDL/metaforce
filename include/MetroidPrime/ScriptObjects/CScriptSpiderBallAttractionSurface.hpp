@@ -13,7 +13,7 @@ public:
                                      const CVector3f& scale, bool active);
   ~CScriptSpiderBallAttractionSurface();
   
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   rstl::optional_object< CAABox > GetTouchBounds() const override;

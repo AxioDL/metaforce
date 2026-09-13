@@ -28,7 +28,7 @@ CScriptDistanceFog::CScriptDistanceFog(TUniqueId uid, const rstl::string& name,
 
 CScriptDistanceFog::~CScriptDistanceFog() {}
 
-void CScriptDistanceFog::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptDistanceFog)
 
 void CScriptDistanceFog::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
                                          CStateManager& stateMgr) {

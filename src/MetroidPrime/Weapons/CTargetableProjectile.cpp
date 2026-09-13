@@ -22,7 +22,7 @@ CTargetableProjectile::CTargetableProjectile(
   MaterialList().Add(kMT_Orbit);
 }
 
-void CTargetableProjectile::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CTargetableProjectile)
 
 const bool CTargetableProjectile::Explode(const CVector3f& pos, const CVector3f& normal,
                                     const EWeaponCollisionResponseTypes type, CStateManager& mgr,

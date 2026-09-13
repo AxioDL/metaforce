@@ -14,7 +14,7 @@ public:
                      float, bool, bool, bool);
   ~CScriptActorRotate();
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager&) override;
 

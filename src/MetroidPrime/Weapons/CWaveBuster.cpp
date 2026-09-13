@@ -73,7 +73,7 @@ CWaveBuster::CWaveBuster(const TToken< CWeaponDescription >& desc, EWeaponType t
   }
 }
 
-void CWaveBuster::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CWaveBuster)
 
 void CWaveBuster::Touch(CActor& actor, CStateManager& mgr) { CActor::Touch(actor, mgr); }
 

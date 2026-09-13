@@ -391,12 +391,16 @@ MetroidPrime/CMapWorld.cpp:
 MetroidPrime/Enemies/CAi.cpp:
 	.text       start:0x800A1ED4 end:0x800A4894
 	.ctors      start:0x803B4FC4 end:0x803B4FC8
-	.data       start:0x803C62B0 end:0x803C7024
+	.data       start:0x803C62B0 end:0x803C72B8
 	.sdata      start:0x80469288 end:0x80469290
 	.sbss       start:0x8046AF90 end:0x8046AF9C
 
+MetroidPrime/TypesMatch.cpp:
+	.text       start:0x800A4894 end:0x800A954C
+	.data       start:0x803C72B8 end:0x803C9738
+
 MetroidPrime/ScriptObjects/CScriptSound.cpp:
-	.text       start:0x800A9890 end:0x800AA090
+	.text       start:0x800A954C end:0x800AA090
 	.data       start:0x803C9738 end:0x803C97A4
 
 MetroidPrime/ScriptObjects/CScriptPlatform.cpp:

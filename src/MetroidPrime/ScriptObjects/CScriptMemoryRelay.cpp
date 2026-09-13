@@ -35,4 +35,4 @@ void CScriptMemoryRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId obj
   }
 }
 
-void CScriptMemoryRelay::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptMemoryRelay)

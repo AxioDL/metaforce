@@ -17,7 +17,7 @@ public:
   CScriptBeam(TUniqueId, const rstl::string&, const CEntityInfo&, const CTransform4f&, bool,
               const TToken< CWeaponDescription >&, const CBeamInfo&, const CDamageInfo&);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 };

@@ -171,7 +171,7 @@ CWallCrawlerSwarm::CWallCrawlerSwarm(
 
 CWallCrawlerSwarm::~CWallCrawlerSwarm() {}
 
-void CWallCrawlerSwarm::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CWallCrawlerSwarm)
 
 void CWallCrawlerSwarm::AddDoorRepulsors(CStateManager& mgr) {
   CObjectList& objects = mgr.ObjectListById(kOL_PhysicsActor);

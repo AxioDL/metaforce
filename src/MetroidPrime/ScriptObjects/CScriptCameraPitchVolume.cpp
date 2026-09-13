@@ -24,7 +24,7 @@ CScriptCameraPitchVolume::CScriptCameraPitchVolume(TUniqueId uid, const bool act
 , x13c_24_entered(false)
 , x13c_25_occupied(false) {}
 
-void CScriptCameraPitchVolume::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptCameraPitchVolume)
 
 rstl::optional_object< CAABox > CScriptCameraPitchVolume::GetTouchBounds() const {
   return xe8_obbox.CalculateAABox(CTransform4f::Identity());

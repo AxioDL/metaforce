@@ -51,7 +51,7 @@ void CScriptBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CSt
   CActor::AcceptScriptMsg(msg, objId, mgr);
 }
 
-void CScriptBeam::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptBeam)
 
 void CScriptBeam::Think(float dt, CStateManager& mgr) {
   if (CPlasmaProjectile* proj =

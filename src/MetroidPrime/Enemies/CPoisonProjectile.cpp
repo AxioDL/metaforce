@@ -16,7 +16,7 @@ CPoisonProjectile::CPoisonProjectile(
                     attribs, false, scale, visorParticle, visorSfx, sendCollideMsg)
 , x3d8_auxData(auxData) {}
 
-void CPoisonProjectile::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CPoisonProjectile)
 
 // CEnergyProjectile
 const bool CPoisonProjectile::Explode(const CVector3f& pos, const CVector3f& normal,

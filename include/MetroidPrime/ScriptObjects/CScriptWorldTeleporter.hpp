@@ -23,7 +23,7 @@ public:
                          bool fadeWhite, float charFadeIn, float charsPerSecond, float showDelay);
   ~CScriptWorldTeleporter();
 
-  void Accept(IVisitor&) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void StartTransition(CStateManager&);
 

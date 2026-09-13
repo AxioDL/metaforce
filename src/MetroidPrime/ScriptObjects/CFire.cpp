@@ -87,7 +87,7 @@ void CFire::AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mg
   CActor::AddToRenderer(frustum, mgr);
 }
 
-void CFire::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CFire)
 
 void CFire::Think(float dt, CStateManager& mgr) {
   const float particleCount = static_cast< float >(xe8_->GetParticleCount()) /

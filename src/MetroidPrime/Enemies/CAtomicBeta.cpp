@@ -59,7 +59,7 @@ CAtomicBeta::~CAtomicBeta() {
   StopLoopedSound(x64c_sfxHandle1);
 }
 
-void CAtomicBeta::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CAtomicBeta)
 
 void CAtomicBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   switch (msg) {

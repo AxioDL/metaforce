@@ -117,7 +117,7 @@ CSnakeWeedSwarm::CSnakeWeedSwarm(TUniqueId uid, const bool active, const rstl::s
   }
 }
 
-void CSnakeWeedSwarm::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CSnakeWeedSwarm)
 
 void CSnakeWeedSwarm::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, uid, mgr);

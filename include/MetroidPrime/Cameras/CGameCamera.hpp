@@ -19,7 +19,7 @@ public:
 
   // CEntity
   ~CGameCamera() override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void SetActive(const bool active) override;
 

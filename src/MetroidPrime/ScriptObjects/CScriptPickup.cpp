@@ -203,7 +203,7 @@ void CScriptPickup::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
 
 void CScriptPickup::Render(const CStateManager& mgr) const { CPhysicsActor::Render(mgr); }
 
-void CScriptPickup::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptPickup)
 
 CPlayerState::EItemType CScriptPickup::GetItem() const { return x258_itemType; }
 

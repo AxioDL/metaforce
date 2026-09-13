@@ -274,7 +274,7 @@ CRayCastResult CGameProjectile::RayCollisionCheckWithWorld(TUniqueId& idOut, con
   return result;
 }
 
-void CGameProjectile::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CGameProjectile)
 
 void CGameProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   switch (msg) {

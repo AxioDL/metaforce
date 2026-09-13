@@ -46,7 +46,7 @@ void CBeamProjectile::CalculateRenderBounds() {
   SetRenderBounds(x354_.GetTransformedAABox(x324_xf));
 }
 
-void CBeamProjectile::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CBeamProjectile)
 
 void CBeamProjectile::Touch(CActor&, CStateManager&) {}
 

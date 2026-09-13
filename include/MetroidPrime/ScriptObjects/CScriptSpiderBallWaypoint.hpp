@@ -29,7 +29,7 @@ public:
                                      CVector3f& interpDeltaBetweenPoints) const;
 
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Render(const CStateManager& mgr) const override;
 
   rstl::optional_object< CAABox > GetTouchBounds() const override;

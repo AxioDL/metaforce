@@ -350,7 +350,7 @@ CRidley::CRidley(TUniqueId uid, const rstl::string& name, const CEntityInfo& inf
   SetDrawShadow(false);
 }
 
-void CRidley::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CRidley)
 
 void CRidley::Touch(CActor& actor, CStateManager& mgr) { CPatterned::Touch(actor, mgr); }
 

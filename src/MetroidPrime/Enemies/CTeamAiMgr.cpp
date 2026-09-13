@@ -144,7 +144,7 @@ void CTeamAiMgr::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CSta
   CEntity::AcceptScriptMsg(msg, objId, mgr);
 }
 
-void CTeamAiMgr::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CTeamAiMgr)
 
 void CTeamAiMgr::Think(float dt, CStateManager& mgr) {
   CEntity::Think(dt, mgr);

@@ -437,7 +437,7 @@ CFlyingPirate::CFlyingPirate(TUniqueId uid, const rstl::string& name, const CEnt
   KnockBackCtrl().SetLocomotionDuringElectrocution(true);
 }
 
-void CFlyingPirate::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CFlyingPirate)
 
 bool CFlyingPirate::Listen(const CVector3f& pos, EListenNoiseType type) {
   bool heard = false;

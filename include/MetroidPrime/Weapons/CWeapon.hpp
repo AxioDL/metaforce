@@ -38,6 +38,7 @@ public:
 
   // CEntity
   ~CWeapon() override;
+  DECLARE_TYPES_MATCH;
   void Think(float dt, CStateManager& mgr) override;
 
   // CActor

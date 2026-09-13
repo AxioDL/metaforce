@@ -198,7 +198,7 @@ void CScriptActor::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) 
   }
 }
 
-void CScriptActor::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptActor)
 
 EWeaponCollisionResponseTypes CScriptActor::GetCollisionResponseType(const CVector3f& v1,
                                                                      const CVector3f& v2,

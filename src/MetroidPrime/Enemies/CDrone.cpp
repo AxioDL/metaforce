@@ -93,7 +93,7 @@ void CDroneLaser::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CS
   }
 }
 
-void CDroneLaser::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CDroneLaser)
 
 void CDroneLaser::CalculateRenderBounds() {
   CAABox bounds = CAABox::MakeMaxInvertedBox();
@@ -265,7 +265,7 @@ CDrone::CDrone(TUniqueId uid, const rstl::string& name, EFlavorType flavor, cons
   SetDrawShadow(x3fc_flavor != kFT_One);
 }
 
-void CDrone::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CDrone)
 
 void CDrone::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, sender, mgr);

@@ -9,7 +9,7 @@ public:
                     const CTransform4f& xf, bool active, int priority, int overrideFlags);
   ~CScriptPlayerHint();
 
-  void Accept(IVisitor& visit) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   int GetPriority() const { return x100_priority; }
   int GetOverrideFlags() const { return x104_overrideFlags; }

@@ -15,11 +15,11 @@ class CScriptTimer : public CEntity {
     CScriptTimer(TUniqueId, const rstl::string&, const CEntityInfo&, float, float, bool, bool, bool);
     ~CScriptTimer();
 
+    DECLARE_TYPES_MATCH_OR_ACCEPT;
     void Reset(CStateManager&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void ApplyTime(float, CStateManager&);
     void Think(float, CStateManager&);
-    void Accept(IVisitor&);
 
     bool IsTiming() const { return x42_isTiming; }
     void StartTiming(bool isTiming) {

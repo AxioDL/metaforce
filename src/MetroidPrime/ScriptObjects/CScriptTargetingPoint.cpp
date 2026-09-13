@@ -11,7 +11,7 @@ CScriptTargetingPoint::CScriptTargetingPoint(TUniqueId uid, const rstl::string& 
 , xea_(kInvalidUniqueId)
 , xec_time(0.f) {}
 
-void CScriptTargetingPoint::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptTargetingPoint)
 
 void CScriptTargetingPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                             CStateManager& mgr) {

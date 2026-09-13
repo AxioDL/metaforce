@@ -112,4 +112,4 @@ void CHUDBillboardEffect::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CHUDBillboardEffect::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CHUDBillboardEffect)

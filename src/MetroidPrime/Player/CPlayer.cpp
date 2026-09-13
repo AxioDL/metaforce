@@ -2621,7 +2621,7 @@ float CPlayer::GetTransitionAlpha(const CVector3f& camPos, float zNear) const {
 
 CHealthInfo* CPlayer::HealthInfo(CStateManager& mgr) { return mgr.PlayerState()->HealthInfo(); }
 
-void CPlayer::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CPlayer)
 
 void CPlayer::TakeDamage(bool significant, const CVector3f& location, float damage,
                          EWeaponType type, CStateManager& mgr) {

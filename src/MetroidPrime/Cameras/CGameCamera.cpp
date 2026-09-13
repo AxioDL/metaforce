@@ -589,7 +589,7 @@ void CGameCamera::SetActive(const bool active) {
   SetDrawEnabled(false);
 }
 
-void CGameCamera::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CGameCamera)
 
 CTransform4f CGameCamera::ValidateCameraTransform(const CTransform4f& newXf,
                                                   const CTransform4f& oldXf) {

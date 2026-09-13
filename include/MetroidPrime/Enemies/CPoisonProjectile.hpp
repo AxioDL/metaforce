@@ -44,7 +44,7 @@ public:
 
   // CEntity
   ~CPoisonProjectile() override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 
   // CEnergyProjectile
   const bool Explode(const CVector3f& pos, const CVector3f& normal, EWeaponCollisionResponseTypes type,

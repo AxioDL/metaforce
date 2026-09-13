@@ -13,7 +13,7 @@ public:
   void UpdateObjectRef(CStateManager& stateMgr);
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   void Think(float, CStateManager& stateMgr) override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 
   ~CScriptRelay();
 };

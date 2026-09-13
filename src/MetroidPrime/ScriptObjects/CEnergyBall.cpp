@@ -50,7 +50,7 @@ CEnergyBall::CEnergyBall(const TUniqueId uid, const rstl::string& name, const CE
 
 CEnergyBall::~CEnergyBall() {}
 
-void CEnergyBall::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CEnergyBall)
 
 void CEnergyBall::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   if (msg == kSM_Registered) {

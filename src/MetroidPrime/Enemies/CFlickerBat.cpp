@@ -32,7 +32,7 @@ CFlickerBat::CFlickerBat(const TUniqueId uid, const rstl::string& name, const EF
 
 CFlickerBat::~CFlickerBat() {}
 
-void CFlickerBat::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CFlickerBat)
 
 void CFlickerBat::AcceptScriptMsg(const EScriptObjectMessage msg, const TUniqueId uid,
                                   CStateManager& mgr) {

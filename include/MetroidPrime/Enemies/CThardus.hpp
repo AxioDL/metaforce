@@ -20,7 +20,7 @@ public:
                    const CMaterialList& matList, CAssetId fsm, const CActorParameters& actParams,
                    const CModelData& phazonModel, int w1);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
   void Render(const CStateManager& mgr) const override;
@@ -60,7 +60,7 @@ CHECK_SIZEOF(CDestroyableRock, 0x348)
 
 class CThardus : public CPatterned {
 public:
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;

@@ -138,7 +138,7 @@ CElitePirate::CElitePirate(TUniqueId uid, const rstl::string& name, const CEntit
 
 CElitePirate::~CElitePirate() {}
 
-void CElitePirate::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CElitePirate)
 
 void CElitePirate::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {

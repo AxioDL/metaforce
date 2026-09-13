@@ -17,7 +17,7 @@ public:
 
   // CEntity
   ~CFlaahgraPlants() override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
 

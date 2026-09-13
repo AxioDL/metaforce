@@ -226,7 +226,7 @@ void CInterpolationCamera::Think(float dt, CStateManager& mgr) {
 
 void CInterpolationCamera::ProcessInput(const CFinalInput&, CStateManager&) {}
 
-void CInterpolationCamera::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CInterpolationCamera)
 
 void CInterpolationCamera::Render(const CStateManager&) const {}
 

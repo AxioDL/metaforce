@@ -56,7 +56,7 @@ CPuddleSpore::CPuddleSpore(const TUniqueId uid, const rstl::string& name, const 
   KnockBackCtrl().SetAutoResetImpulse(false);
 }
 
-void CPuddleSpore::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CPuddleSpore)
 
 void CPuddleSpore::PreThink(float dt, CStateManager& mgr) {
   const CAABox box = CalculateBoundingBox();

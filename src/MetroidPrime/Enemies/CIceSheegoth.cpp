@@ -169,7 +169,7 @@ CIceSheegoth::CIceSheegoth(TUniqueId uid, const rstl::string& name, const CEntit
 
 CIceSheegoth::~CIceSheegoth() {}
 
-void CIceSheegoth::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CIceSheegoth)
 
 void CIceSheegoth::Think(float dt, CStateManager& mgr) {
   if (!GetActive()) {

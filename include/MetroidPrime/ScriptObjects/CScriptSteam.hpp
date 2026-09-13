@@ -12,7 +12,7 @@ public:
 
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
   void Think(float, CStateManager&);
-  void Accept(IVisitor&);
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 
 private:
   bool x150_;

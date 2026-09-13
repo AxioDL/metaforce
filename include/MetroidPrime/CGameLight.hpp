@@ -16,7 +16,7 @@ public:
   CLight GetLight() const;
   TUniqueId GetParentId() const { return xe8_parentId; }
   void Think(float dt, CStateManager& mgr) override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void SetLightPriorityAndId();
 
 private:

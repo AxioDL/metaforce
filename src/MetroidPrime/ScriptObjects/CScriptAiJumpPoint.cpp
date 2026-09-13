@@ -16,7 +16,7 @@ CScriptAiJumpPoint::CScriptAiJumpPoint(TUniqueId uid, const rstl::string& name,
 , x10e_nextWaypoint(kInvalidUniqueId)
 , x110_timeRemaining(0.f) {}
 
-void CScriptAiJumpPoint::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptAiJumpPoint)
 
 void CScriptAiJumpPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other,
                                          CStateManager& mgr) {

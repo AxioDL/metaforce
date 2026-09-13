@@ -165,4 +165,4 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sende
   CEntity::AcceptScriptMsg(msg, sender, stateMgr);
 }
 
-void CScriptGenerator::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptGenerator)

@@ -65,4 +65,4 @@ void CScriptSteam::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CScriptSteam::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptSteam)

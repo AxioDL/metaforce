@@ -20,7 +20,7 @@ public:
                     bool, bool, const bool);
 
   ~CScriptSpawnPoint() override;
-  void Accept(IVisitor&) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 
   bool FirstSpawn() const { return x10c_24_firstSpawn; }

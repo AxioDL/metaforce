@@ -36,6 +36,6 @@ void CScriptDockAreaChange::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
 }
 
-void CScriptDockAreaChange::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptDockAreaChange)
 
 CScriptDockAreaChange::~CScriptDockAreaChange() {}

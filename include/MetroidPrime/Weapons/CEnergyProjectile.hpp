@@ -20,7 +20,7 @@ public:
                     const ushort visorSfx, const bool sendCollideMsg);
 
   // CEntity
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   ~CEnergyProjectile() override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;

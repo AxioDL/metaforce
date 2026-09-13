@@ -114,4 +114,4 @@ void CScriptContraption::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode
     break;
   }
 }
-void CScriptContraption::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptContraption)

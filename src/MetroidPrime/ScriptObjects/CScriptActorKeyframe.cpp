@@ -59,7 +59,7 @@ void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId u
   CEntity::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CScriptActorKeyframe::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptActorKeyframe)
 
 void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr) {
   CEntity* ent = mgr.ObjectById(uid);

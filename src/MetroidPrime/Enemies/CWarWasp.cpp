@@ -77,7 +77,7 @@ CWarWasp::CWarWasp(TUniqueId uid, const rstl::string& name, const CEntityInfo& i
 
 CWarWasp::~CWarWasp() {}
 
-void CWarWasp::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CWarWasp)
 
 void CWarWasp::AcceptScriptMsg(const EScriptObjectMessage msg, const TUniqueId uid,
                                CStateManager& mgr) {

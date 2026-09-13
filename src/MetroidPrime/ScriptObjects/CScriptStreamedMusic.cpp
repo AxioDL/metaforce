@@ -82,7 +82,7 @@ void CScriptStreamedMusic::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId o
   }
 }
 
-void CScriptStreamedMusic::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptStreamedMusic)
 
 void CScriptStreamedMusic::Play(CStateManager& mgr) {
   TweakOverride(mgr);

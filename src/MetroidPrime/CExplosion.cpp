@@ -96,7 +96,7 @@ void CExplosion::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CExplosion::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CExplosion)
 
 void CExplosion::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   switch (msg) {

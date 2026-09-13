@@ -94,4 +94,4 @@ void CScriptTimer::Think(float dt, CStateManager& mgr) {
   }
 }
 
-void CScriptTimer::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptTimer)

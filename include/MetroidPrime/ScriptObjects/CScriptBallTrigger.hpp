@@ -9,7 +9,7 @@ public:
                      const CVector3f&, bool, float, float, float, CVector3f, bool);
   ~CScriptBallTrigger();
 
-  void Accept(IVisitor&) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float, CStateManager& mgr) override;
   void InhabitantAdded(CActor&, CStateManager&) override;

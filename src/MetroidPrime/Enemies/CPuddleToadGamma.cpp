@@ -181,7 +181,7 @@ void CPuddleToadGamma::CenterPlayer(CStateManager& mgr, const CVector3f& pos, fl
   player.SetVelocityWR(velocity);
 }
 
-void CPuddleToadGamma::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CPuddleToadGamma)
 
 void CPuddleToadGamma::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
                                        CStateManager& mgr) {

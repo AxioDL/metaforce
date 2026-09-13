@@ -18,7 +18,7 @@ public:
                      float);
   ~CScriptAiJumpPoint();
   
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float, CStateManager&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void AddToRenderer(const CFrustumPlanes&, const CStateManager&) const override;

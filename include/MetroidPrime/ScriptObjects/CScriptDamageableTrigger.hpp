@@ -27,7 +27,7 @@ public:
                            CAssetId colorTex, ECanOrbit canOrbit, bool active,
                            const CVisorParameters& vParams);
 
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const CVector3f&, const CVector3f&,
                                                          const CWeaponMode&, int) const override;

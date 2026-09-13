@@ -99,7 +99,7 @@ CHECK_SIZEOF(CMetroidPrimeParasiteQueenAttack, 0xA8)
 class CMetroidPrime : public CPatterned {
 public:
   ~CMetroidPrime() override;
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void PreThink(float dt, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId other, CStateManager& mgr) override;
@@ -198,7 +198,7 @@ public:
   public:
     CMissileTarget(TUniqueId uid, bool active, const rstl::string& name, const CEntityInfo& info);
     ~CMissileTarget() override;
-    void Accept(IVisitor& visitor) override;
+    DECLARE_TYPES_MATCH_OR_ACCEPT;
   };
 
 private:

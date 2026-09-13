@@ -93,7 +93,7 @@ void CPowerBomb::Think(float dt, CStateManager& mgr) {
   x15c_curTime += dt;
 }
 
-void CPowerBomb::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CPowerBomb)
 
 void CPowerBomb::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   switch (msg) {

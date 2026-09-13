@@ -410,4 +410,4 @@ void CScriptDoor::AddToRenderer(const CFrustumPlanes& /*frustum*/, const CStateM
 
 void CScriptDoor::Render(const CStateManager& mgr) const {}
 
-void CScriptDoor::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptDoor)

@@ -19,7 +19,7 @@ public:
                 const TAreaId aId, const TUniqueId owner, EProjectileAttrib attribs,
                 const CAssetId playerSteamTxtr, const ushort playerHitSfx,
                 const CAssetId playerIceTxtr);
-  void Accept(IVisitor& visitor) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void Think(float dt, CStateManager& mgr) override;
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;

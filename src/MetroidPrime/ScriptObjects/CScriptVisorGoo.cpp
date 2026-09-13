@@ -143,4 +143,4 @@ void CScriptVisorGoo::AddToRenderer(const CFrustumPlanes& frustum, const CStateM
   // Empty
 }
 
-void CScriptVisorGoo::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptVisorGoo)

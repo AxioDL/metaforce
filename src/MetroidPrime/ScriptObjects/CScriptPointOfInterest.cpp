@@ -28,7 +28,7 @@ void CScriptPointOfInterest::Render(const CStateManager&) const {}
 
 void CScriptPointOfInterest::AddToRenderer(const CFrustumPlanes&, const CStateManager&) const {}
 
-void CScriptPointOfInterest::Accept(IVisitor& visitor) { visitor.Visit(*this); }
+ENTITY_ACCEPT_IMPL(CScriptPointOfInterest)
 
 void CScriptPointOfInterest::Think(float dt, CStateManager& mgr) {
   SetTargetable(mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_Scan);
