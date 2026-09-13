@@ -14,12 +14,16 @@
 class CEntity {
 public:
   virtual ~CEntity();
+#if VERSION < 3
+  virtual void Accept(IVisitor& visitor) = 0;
+#else
   virtual CEntity* TypesMatch(int type) {
     if (type == 0) {
       return this;
     }
     return nullptr;
   }
+#endif
   virtual void PreThink(float dt, CStateManager& mgr);
   virtual void Think(float dt, CStateManager& mgr);
   virtual void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
