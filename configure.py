@@ -2688,7 +2688,7 @@ config.libs = [
                 "dolphin/card/CARDCheck.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "dolphin/card/CARDMount.c",
             ),
             Object(
