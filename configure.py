@@ -2215,7 +2215,7 @@ config.libs = [
                 "dolphin/os/OSError.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), 
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
                 "dolphin/os/OSFatal.c",
             ),
             Object(
@@ -2263,7 +2263,7 @@ config.libs = [
                 "dolphin/os/OSSync.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                 "dolphin/os/OSThread.c",
             ),
             Object(

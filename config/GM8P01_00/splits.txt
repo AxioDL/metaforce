@@ -3320,6 +3320,7 @@ dolphin/os/OSMutex.c:
 
 dolphin/os/OSReboot.c:
 	.text       start:0x8036CD34 end:0x8036D0B0
+	.bss        start:0x80403620 end:0x80403640
 	.sbss       start:0x8046BA28 end:0x8046BA30
 
 dolphin/os/OSReset.c:
@@ -3328,7 +3329,7 @@ dolphin/os/OSReset.c:
 
 dolphin/os/OSResetSW.c:
 	.text       start:0x8036D520 end:0x8036D8AC
-	.sbss       start:0x8046BA40 end:0x8046BA5C
+	.sbss       start:0x8046BA40 end:0x8046BA60
 
 dolphin/os/OSRtc.c:
 	.text       start:0x8036D8AC end:0x8036E468
@@ -3338,7 +3339,7 @@ dolphin/os/OSSync.c:
 	.text       start:0x8036E468 end:0x8036E4EC
 
 dolphin/os/OSThread.c:
-	.text       start:0x8036E4F0 end:0x8036F42C
+	.text       start:0x8036E4EC end:0x8036F42C
 	.bss        start:0x80403698 end:0x80404090
 	.sdata      start:0x8046AC40 end:0x8046AC48
 	.sbss       start:0x8046BA60 end:0x8046BA70
