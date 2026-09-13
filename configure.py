@@ -2096,7 +2096,7 @@ config.libs = [
                 "dolphin/gx/GXFifo.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "dolphin/gx/GXAttr.c",
             ),
             Object(
@@ -2108,11 +2108,11 @@ config.libs = [
                 "dolphin/gx/GXGeometry.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "dolphin/gx/GXFrameBuf.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "dolphin/gx/GXLight.c",
                 extra_cflags=["-fp_contract off"],
             ),
@@ -2121,11 +2121,11 @@ config.libs = [
                 "dolphin/gx/GXTexture.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "dolphin/gx/GXBump.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "dolphin/gx/GXTev.c",
             ),
             Object(
@@ -2142,7 +2142,7 @@ config.libs = [
                 "dolphin/gx/GXDisplayList.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "dolphin/gx/GXTransform.c",
                 extra_cflags=["-fp_contract off"],
             ),
@@ -2358,7 +2358,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "runtime/file_io.c"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"), "runtime/errno.c"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "runtime/errno.c"
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "runtime/FILE_POS.c"
