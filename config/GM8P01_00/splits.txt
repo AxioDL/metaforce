@@ -3357,7 +3357,7 @@ dolphin/pad/PadClamp.c:
 
 dolphin/pad/pad.c:
 	.text       start:0x8036FB80 end:0x80371708
-	.data       start:0x803DA230 end:0x803DA240
+	.data       start:0x803DA1E8 end:0x803DA240
 	.bss        start:0x80404090 end:0x804040E0
 	.sdata      start:0x8046AC48 end:0x8046AC68
 	.sbss       start:0x8046BA70 end:0x8046BA98

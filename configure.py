@@ -2271,7 +2271,7 @@ config.libs = [
                 "dolphin/pad/PadClamp.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8E01_02"), "dolphin/pad/pad.c"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "dolphin/pad/pad.c"
             ),
         ],
     ),
