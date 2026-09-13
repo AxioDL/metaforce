@@ -175,6 +175,7 @@ MetroidPrime/CEntity.cpp:
 	.text       start:0x800521C0 end:0x80052644
 	.ctors      start:0x803B4FAC end:0x803B4FB0
 	.data       start:0x803C5210 end:0x803C5230
+	.bss        start:0x803F4310 end:0x803F4320
 
 MetroidPrime/CArchMsgParmInt32.cpp:
 	.text       start:0x80052644 end:0x800526C0
