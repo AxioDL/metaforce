@@ -41,20 +41,6 @@ public:
   void RemoveAttractor(TUniqueId source);
 
 private:
-  class CBoid {
-    friend class CFishCloud;
-    CVector3f x0_pos;
-    CVector3f xc_vel;
-    float x18_scale;
-    CBoid* x1c_next;
-    bool x20_active;
-
-  public:
-    CBoid(const CVector3f& pos, const CVector3f& vel, float scale);
-    CVector3f& Translation() { return x0_pos; }
-    const CVector3f& GetTranslation() const { return x0_pos; }
-  };
-
   class CModifierSource {
     TUniqueId x0_source;
     float x4_radius;
@@ -74,6 +60,24 @@ private:
     const TUniqueId& GetSource() const { return x0_source; }
     bool operator<(const CModifierSource& other) const;
   };
+  typedef rstl::vector<CModifierSource> TModifierSourceVector;
+  class CBoid {
+    friend class CFishCloud;
+    CVector3f x0_pos;
+    CVector3f xc_vel;
+    float x18_scale;
+    CBoid* x1c_next;
+    bool x20_active;
+
+  public:
+    CBoid(const CVector3f& pos, const CVector3f& vel, float scale);
+    CVector3f& Translation() { return x0_pos; }
+    const CVector3f& GetTranslation() const { return x0_pos; }
+  };
+  typedef rstl::vector<CBoid*> TBoidPtrVector;
+  typedef rstl::vector<CBoid> TBoidVector;
+
+
 
   void InitAnimBoids(CStateManager& mgr, CModelData::EWhichModel which);
   CAABox GetBoundingBox() const;
@@ -106,9 +110,9 @@ private:
   void UpdateParticles(float dt);
   void RenderParticles() const;
 
-  rstl::vector< CBoid > xe8_boids;
-  rstl::vector< CBoid* > xf8_boidPartitionLists;
-  rstl::vector< CModifierSource > x108_modifierSources;
+  TBoidVector xe8_boids;
+  TBoidPtrVector xf8_boidPartitionLists;
+  TModifierSourceVector x108_modifierSources;
   int x118_thinkCounter;
   int x11c_updateMask;
   CVector3f x120_scale;
