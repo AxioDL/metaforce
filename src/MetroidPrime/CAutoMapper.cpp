@@ -1819,8 +1819,8 @@ int CAutoMapper::FindClosestVisibleArea(const CVector3f& point, const CUnitVecto
   }
   for (int i = 0; i < areas.size(); ++i) {
     int areaId = areas[i];
-    const CMapArea* mapa = mw->GetMapArea(areaId);
-    CTransform4f xf = const_cast< CMapArea* >(mapa)->GetAreaPostTransform(wld, areaId);
+    CMapArea* mapa = mw->GetMapArea(areaId);
+    CTransform4f xf = mapa->GetAreaPostTransform(wld, areaId);
     CVector3f xfPoint = xf * mapa->GetAreaCenterPoint();
     CVector3f pointToArea = xfPoint - point;
     CVector3f projPoint = pointToArea.CanBeNormalized()
@@ -1834,14 +1834,16 @@ int CAutoMapper::FindClosestVisibleArea(const CVector3f& point, const CUnitVecto
       minDist = dist;
     }
   }
-  return closestArea;
+  const int result = closestArea;
+  return result;
 }
 
 rstl::pair< int, int > CAutoMapper::FindClosestVisibleWorld(const CVector3f& point,
                                                             const CUnitVector3f& camDir,
                                                             const CStateManager& mgr) const {
-  rstl::pair< int, int > closestWorld(xa0_curAreaId.value, xa0_curAreaId.value);
-  CMapUniverse* mapu = x8_mapu.GetObject();
+  CMapUniverse* const mapu = x8_mapu.GetObject();
+  int closestWorld = xa0_curAreaId.value;
+  int closestArea = xa0_curAreaId.value;
   float minDist = 29999.f;
   for (int w = 0; w < static_cast< int >(mapu->GetNumMapWorldDatas()); ++w) {
     const CMapUniverse::CMapWorldData& mwData = mapu->GetMapWorldData(w);
@@ -1862,12 +1864,12 @@ rstl::pair< int, int > CAutoMapper::FindClosestVisibleWorld(const CVector3f& poi
       float dist = (projPoint - mwOrigin).Magnitude();
       if (dist < minDist) {
         minDist = dist;
-        closestWorld.first = w;
-        closestWorld.second = i;
+        closestWorld = w;
+        closestArea = i;
       }
     }
   }
-  return closestWorld;
+  return rstl::pair< int, int >(closestWorld, closestArea);
 }
 
 CVector2i CAutoMapper::GetMiniMapViewportSize() {
