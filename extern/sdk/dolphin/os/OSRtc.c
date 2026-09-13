@@ -271,6 +271,7 @@ u32 OSGetProgressiveMode() {
   OSSram* sram;
   u32 mode;
 
+  // TODO: version difference in PAL
   sram = __OSLockSramHACK();
   mode = (sram->flags & 0x80) >> 7;
   __OSUnlockSram(FALSE);

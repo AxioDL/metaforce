@@ -4,7 +4,7 @@
 #include "dolphin/os/OSBootInfo.h"
 
 extern OSTime __OSGetSystemTime();
-#if VERSION < 4
+#if VERSION < 3
 static const char* __OSVersion =
     "<< Dolphin SDK - OS\trelease build: Sep  5 2002 05:32:39 (0x2301) >>";
 #else
@@ -283,7 +283,7 @@ void OSInit(void) {
     }
 
     // begin OS reporting
-#if VERSION < 4
+#if VERSION < 3
     OSReport("\nDolphin OS $Revision: 58 $.\n");
     OSReport("Kernel built : %s %s\n", "Sep  5 2002", "05:32:39");
 #else 

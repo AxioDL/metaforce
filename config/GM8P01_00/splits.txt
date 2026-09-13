@@ -3254,7 +3254,7 @@ dolphin/mtx/psmtx.c:
 
 dolphin/os/OS.c:
 	.text       start:0x80367584 end:0x80367ECC
-	.data       start:0x803D8C38 end:0x803D8C7C
+	.data       start:0x803D8C38 end:0x803D8E40
 	.bss        start:0x804032A0 end:0x804032F0
 	.sdata      start:0x8046AC18 end:0x8046AC20
 	.sbss       start:0x8046B9C0 end:0x8046B9F0
@@ -3297,7 +3297,7 @@ dolphin/os/OSFont.c:
 	.data       start:0x803D95E8 end:0x803DA0F8
 	.sdata      start:0x8046AC38 end:0x8046AC40
 	.sbss       start:0x8046BA00 end:0x8046BA10
-	.sdata2     start:0x80470EC8 end:0x80470ECC
+	.sdata2     start:0x80470EC8 end:0x80470ED0
 
 dolphin/os/OSInterrupt.c:
 	.text       start:0x8036B4C4 end:0x8036BD30
@@ -3339,6 +3339,9 @@ dolphin/os/OSSync.c:
 
 dolphin/os/OSThread.c:
 	.text       start:0x8036E4F0 end:0x8036F42C
+	.bss        start:0x80403698 end:0x80404090
+	.sdata      start:0x8046AC40 end:0x8046AC48
+	.sbss       start:0x8046BA60 end:0x8046BA70
 
 dolphin/os/OSTime.c:
 	.text       start:0x8036F42C end:0x8036F8A8
