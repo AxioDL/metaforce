@@ -429,3 +429,8 @@ void CAreaOctTree::Node::LineTestExInternal(const CLine& line, const CMaterialFi
     }
   }
 }
+
+static void hack() {
+  static float hack1 = 1.f;
+  static float hack2 = 0.f;
+}

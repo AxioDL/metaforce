@@ -1319,7 +1319,7 @@ config.libs = [
         "WorldFormat",
         "core",
         [
-            Object(NonMatching, "WorldFormat/CAreaOctTree_Tests.cpp"),
+            Object(MatchingFor("GM8E01_00"), "WorldFormat/CAreaOctTree_Tests.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "WorldFormat/CCollisionSurface.cpp",

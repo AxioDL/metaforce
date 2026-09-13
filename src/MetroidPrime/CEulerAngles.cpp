@@ -64,7 +64,7 @@ CEulerAngles CEulerAngles::FromQuaternion(const CQuaternion& quat) {
   return CEulerAngles(roll, pitch, 0.f);
 }
 
-float hack() {
+static float hack() {
   static float hack = 1.f;
   static float hack2 = 0.f;
   static float hack3 = 2.f;
