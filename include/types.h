@@ -9,7 +9,7 @@
 
 // MWCC 1.3.2 rejects template-dependent alignment attributes. Keep its original
 // layouts, and enforce the stored type's alignment on modern compilers.
-#ifdef __MWERKS__
+#if defined(__MWERKS__) || defined(CLANGD)
 #define ALIGNAS(N)
 #else
 #define ALIGNAS(N) alignas(N)

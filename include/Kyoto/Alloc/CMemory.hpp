@@ -24,7 +24,7 @@ public:
   static void OffsetFakeStatics(int);
 };
 
-#ifdef __MWERKS__
+#if defined(__MWERKS__) || defined(CLANGD)
 // placement new
 inline void* operator new(size_t n, void* ptr) { return ptr; };
 #else

@@ -2907,6 +2907,7 @@ config.progress_code_fancy_frac = 1499
 config.progress_code_fancy_item = "Energy"
 config.progress_data_fancy_frac = 250
 config.progress_data_fancy_item = "Missiles"
+config.extra_clang_flags = ["-DCLANGD"]
 
 if args.mode == "configure":
     # Write build.ninja and objdiff.json

@@ -61,6 +61,7 @@ class CPlayer : public CPhysicsActor, public TOneStatic< CPlayer > {
     bool AffectsThermal() const { return x28_affectsThermal; }
   };
 
+public:
   class CPlayerStuckTracker {
   public:
     enum EPlayerState {
@@ -82,7 +83,6 @@ class CPlayer : public CPhysicsActor, public TOneStatic< CPlayer > {
     TReservedAverage< CVector2f, 20 > x23c_inputs;
   };
 
-public:
   enum EOrbitValidationResult {
     kOVR_OK,
     kOVR_InvalidTarget,

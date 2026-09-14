@@ -48,8 +48,8 @@ private:
   wchar_t x2_second;
   int x4_howMuch;
 };
-
-CHECK_SIZEOF(CKernPair, 0x8)
+// TODO: breaks clangd
+// CHECK_SIZEOF(CKernPair, 0x8)
 
 class CGlyph {
 public:

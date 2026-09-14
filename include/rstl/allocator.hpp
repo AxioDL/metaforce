@@ -17,7 +17,7 @@ struct rmemory_allocator {
 
   template < typename T >
   static void allocate(T*& out, int count) {
-#ifdef __MWERKS__
+#if defined(__MWERKS__) || defined(CLANGD)
     int size = count * sizeof(T);
 #else
     if (count < 0 || static_cast< size_t >(count) > static_cast< size_t >(-1) / sizeof(T)) {
