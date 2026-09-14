@@ -302,9 +302,9 @@ CSfxHandle CSfxManager::AddEmitter(const SND_FXID id, const CVector3f& pos, cons
                                    const uchar vol, bool useAcoustics, const bool looped,
                                    const short prio, const int areaId) {
   CAudioSys::C3DEmitterParmData emitterParm(150.f, 0.1f, 1, vol > 20 ? vol : 21, 20);
-  emitterParm.x24_sfxId = id;
   emitterParm.x0_pos = pos;
   emitterParm.xc_dir = dir;
+  emitterParm.x24_sfxId = id;
 
   return AddEmitter(emitterParm, useAcoustics, prio, looped, areaId);
 }

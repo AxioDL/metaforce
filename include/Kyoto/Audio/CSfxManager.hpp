@@ -145,7 +145,11 @@ public:
                           const CVector3f vec1 = CVector3f::Zero(),
                           const CVector3f vec2 = CVector3f::Zero(), const float f1 = 0.f,
                           const float f2 = 0.f, const float f3 = 0.f, const uint w1 = 0,
+#if VERSION >= VERSION_GM8P_00
+                          uchar maxVolume = 0)
+#else
                           const uchar maxVolume = 0)
+#endif
     : x0_(pos)
     , xc_(dir)
     , x18_(vec1)

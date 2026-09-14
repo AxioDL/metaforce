@@ -1543,7 +1543,7 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/IMetaAnim.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Audio/CSfxHandle.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Audio/CSfxManager.cpp",
                 extra_cflags=(
                     ['-pragma "inline_max_size(140)"']

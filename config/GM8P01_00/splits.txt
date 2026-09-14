@@ -2259,11 +2259,13 @@ Kyoto/Audio/CSfxHandle.cpp:
 	.sbss       start:0x8046B3E0 end:0x8046B3E8
 
 Kyoto/Audio/CSfxManager.cpp:
-	.text       start:0x802D1D18 end:0x802D5474
+	.text       start:0x802D18A4 end:0x802D5520
 	.ctors      start:0x803B50CC end:0x803B50D0
 	.rodata     start:0x803C2288 end:0x803C2290
 	.data       start:0x803D4C60 end:0x803D4D98
-	.sdata      start:0x8046A840 end:0x8046A850
+	.bss        start:0x80401C60 end:0x80401C90
+	.bss        start:0x80461DE8 end:0x80467468 align:4 common
+	.sdata      start:0x8046A840 end:0x8046A858
 	.sbss       start:0x8046B3E8 end:0x8046B408
 	.sdata2     start:0x80470558 end:0x80470588
 
@@ -2486,6 +2488,7 @@ Kyoto/Text/CFont.cpp:
 Kyoto/Graphics/CLight.cpp:
 	.text       start:0x802EED80 end:0x802EF38C
 	.ctors      start:0x803B50D0 end:0x803B50D4
+	.bss        start:0x80467468 end:0x8046748C align:4 common
 	.sdata      start:0x8046A8E8 end:0x8046A8F8
 	.sdata2     start:0x804706D8 end:0x804706F8
 
@@ -2498,18 +2501,21 @@ Kyoto/Graphics/CGX.cpp:
 	.text       start:0x802F0894 end:0x802F1D08
 	.ctors      start:0x803B50D4 end:0x803B50D8
 	.rodata     start:0x803C2840 end:0x803C2868
+	.bss        start:0x8046748C end:0x804676EC align:4 common
 	.sdata2     start:0x804706F8 end:0x80470708
 	.sbss2      start:0x80471730 end:0x80471738
 
 Kyoto/Graphics/CTevCombiners.cpp:
 	.text       start:0x802F1D08 end:0x802F2158
 	.ctors      start:0x803B50D8 end:0x803B50DC
+	.bss        start:0x804676EC end:0x80467738 align:4 common
 
 Kyoto/Graphics/DolphinCGraphics.cpp:
 	.text       start:0x802F2158 end:0x802F6C00
 	.ctors      start:0x803B50DC end:0x803B50E0
 	.rodata     start:0x803C2868 end:0x803C2888
 	.data       start:0x803D5788 end:0x803D57E0
+	.bss        start:0x80467738 end:0x8046869C align:4 common
 	.sdata      start:0x8046A900 end:0x8046A930
 	.sbss       start:0x8046B490 end:0x8046B568
 	.sdata2     start:0x80470708 end:0x80470798
@@ -2536,10 +2542,12 @@ Kyoto/Math/CloseEnough.cpp:
 Kyoto/Math/CMatrix3f.cpp:
 	.text       start:0x802F8DD0 end:0x802F94D0
 	.ctors      start:0x803B50E4 end:0x803B50E8
+	.bss        start:0x8046869C end:0x804686C0 align:4 common
 	.sdata2     start:0x804707B0 end:0x804707B8
 
 Kyoto/Math/CMatrix4f.cpp:
 	.text       start:0x802F94D0 end:0x802F9690
+	.bss        start:0x804686C0 end:0x80468700 align:4 common
 	.sdata2     start:0x804707B8 end:0x804707BC
 
 Kyoto/Math/CNUQuaternion.cpp:
@@ -2549,6 +2557,7 @@ Kyoto/Math/CQuaternion.cpp:
 	.text       start:0x802F9D5C end:0x802FB2AC
 	.ctors      start:0x803B50EC end:0x803B50F0
 	.bss        start:0x80401DD8 end:0x80401E00
+	.bss        start:0x80468700 end:0x80468710 align:4 common
 	.sdata      start:0x8046A930 end:0x8046A948
 	.sdata2     start:0x804707D0 end:0x80470820
 
@@ -2560,6 +2569,7 @@ Kyoto/CRandom16.cpp:
 Kyoto/Math/CTransform4f.cpp:
 	.text       start:0x802FB4B0 end:0x802FCB5C
 	.ctors      start:0x803B50F0 end:0x803B50F4
+	.bss        start:0x80468710 end:0x80468740 align:4 common
 
 Kyoto/Math/CUnitVector3f.cpp:
 	.text       start:0x802FCB5C end:0x802FCBF0
@@ -2581,6 +2591,7 @@ Kyoto/Math/CVector3d.cpp:
 Kyoto/Math/CVector3f.cpp:
 	.text       start:0x802FD33C end:0x802FD964
 	.ctors      start:0x803B50F8 end:0x803B50FC
+	.bss        start:0x80468740 end:0x804687DC align:4 common
 
 Kyoto/Math/CVector3i.cpp:
 	.text       start:0x802FD964 end:0x802FD974
