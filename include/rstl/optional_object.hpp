@@ -19,7 +19,15 @@ public:
       construct< T >(m_data, other.data());
     }
   }
-  ~optional_object() { clear(); }
+  ~optional_object() {
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    if (m_valid) {
+      rstl::destroy(&data());
+    }
+#else
+    clear();
+#endif
+  }
 
   optional_object& operator=(const optional_object& other) {
     if (this == &other) {
