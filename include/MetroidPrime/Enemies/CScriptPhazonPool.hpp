@@ -66,6 +66,6 @@ private:
   void RemoveInhabitants(CStateManager& mgr);
   void SetEmitParticles(bool val);
 };
-CHECK_SIZEOF(CScriptPhazonPool, 0x1e8)
+CHECK_SIZEOF(CScriptPhazonPool, (VERSION >= VERSION_GM8P_00 ? 0x1f8 : 0x1e8))
 
 #endif // _CSCRIPTPHAZONPOOL

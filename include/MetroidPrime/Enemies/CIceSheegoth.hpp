@@ -288,6 +288,6 @@ private:
   static const char* const skpLeftGillJoint;
   static const char* const skpRightGillJoint;
 };
-CHECK_SIZEOF(CIceSheegoth, 0xb30)
+CHECK_SIZEOF(CIceSheegoth, (VERSION >= VERSION_GM8P_00 ? 0xb40 : 0xb30))
 
 #endif // _CICESHEEGOTH

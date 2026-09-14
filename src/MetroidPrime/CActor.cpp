@@ -59,6 +59,9 @@ CActor::CActor(const TUniqueId uid, const bool active, const rstl::string& name,
 , xcc_addedToken(-1)
 , xd0_damageMag(params.GetThermalMag())
 , xd4_maxVol(CAudioSys::kMaxVolume)
+#if VERSION >= VERSION_GM8P_00
+, xd8_fluidIds(kInvalidUniqueId)
+#endif
 , xd8_nonLoopingSfxHandles(CSfxHandle())
 , xe4_24_nextNonLoopingSfxHandle(0)
 , xe4_27_notInSortedLists(true)
@@ -601,7 +604,11 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     break;
   }
   case kSM_RemoveSplashInhabitant: {
+#if VERSION >= VERSION_GM8P_00
+    SetInFluid(false, uid);
+#else
     SetInFluid(false, kInvalidUniqueId);
+#endif
     break;
   }
   case kSM_InitializedInArea: {
@@ -686,6 +693,38 @@ void CActor::SetSoundEventPitchBend(int v) {
 CSfxHandle CActor::GetSfxHandle() const { return x8c_loopingSfxHandle; }
 
 void CActor::SetInFluid(bool in, TUniqueId uid) {
+#if VERSION >= VERSION_GM8P_00
+  if (in) {
+    bool found = false;
+    for (int i = 0; i < 4; ++i) {
+      if (xd8_fluidIds[i] == uid) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      for (int i = 3; i > 0; --i) {
+        xd8_fluidIds[i] = xd8_fluidIds[i - 1];
+      }
+      xd8_fluidIds[0] = uid;
+      if (xe6_24_fluidCounter < 4) {
+        ++xe6_24_fluidCounter;
+      }
+    }
+  } else {
+    for (int i = 0; i < 4; ++i) {
+      if (xd8_fluidIds[i] == uid) {
+        --xe6_24_fluidCounter;
+        for (int j = i + 1; j < 4; ++j) {
+          xd8_fluidIds[j - 1] = xd8_fluidIds[j];
+        }
+        xd8_fluidIds[3] = kInvalidUniqueId;
+        break;
+      }
+    }
+  }
+  xc4_fluidId = xd8_fluidIds[0];
+#else
   if (in) {
     xe6_24_fluidCounter += 1;
     xc4_fluidId = uid;
@@ -695,6 +734,7 @@ void CActor::SetInFluid(bool in, TUniqueId uid) {
       xc4_fluidId = kInvalidUniqueId;
     }
   }
+#endif
 }
 
 // TODO nonmatching

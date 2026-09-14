@@ -496,7 +496,7 @@ config.libs = [
         "game",
         [
             Object(NonMatching, "MetroidPrime/main.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Cameras/CCameraManager.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "MetroidPrime/Cameras/CCameraManager.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8J01_00"), "MetroidPrime/CControlMapper.cpp"
             ),

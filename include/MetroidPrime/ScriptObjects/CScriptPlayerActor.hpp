@@ -87,6 +87,6 @@ private:
   bool x355_24_areaTrackingLoad : 1;
   TUniqueId x356_nextPlayerActor;
 };
-CHECK_SIZEOF(CScriptPlayerActor, 0x358)
+CHECK_SIZEOF(CScriptPlayerActor, (VERSION >= VERSION_GM8P_00 ? 0x368 : 0x358))
 
 #endif // _CSCRIPTPLAYERACTOR

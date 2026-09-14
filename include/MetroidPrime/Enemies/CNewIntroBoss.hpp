@@ -84,6 +84,6 @@ private:
   bool x678_;
 };
 
-CHECK_SIZEOF(CNewIntroBoss, 0x680)
+CHECK_SIZEOF(CNewIntroBoss, (VERSION >= VERSION_GM8P_00 ? 0x690 : 0x680))
 
 #endif // _CNEWINTROBOSS

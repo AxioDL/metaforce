@@ -77,6 +77,6 @@ private:
 
   static const char* skBombLocators[];
 };
-CHECK_SIZEOF(CAtomicBeta, 0x658)
+CHECK_SIZEOF(CAtomicBeta, (VERSION >= VERSION_GM8P_00 ? 0x668 : 0x658))
 
 #endif // _CATOMICBETA

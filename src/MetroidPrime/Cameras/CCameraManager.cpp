@@ -19,6 +19,9 @@
 #include "MetroidPrime/Tweaks/CTweakGame.hpp"
 #include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
 #include "MetroidPrime/Weapons/CWeapon.hpp"
+#if VERSION >= VERSION_GM8P_00
+#include "MetroidPrime/Enemies/CEnergyBall.hpp"
+#endif
 
 #include "Kyoto/Audio/CSfxManager.hpp"
 #include "Kyoto/Graphics/CGraphics.hpp"
@@ -64,7 +67,10 @@ CCameraManager::CCameraManager(TUniqueId curCamera)
                            CVector3f(1.f, 0.f, 0.f), CVector3f(0.f, 0.f, 1.f), 50.f, 50.f, 1000.f,
                            1, CAudioSys::kMaxVolume);
   sAspectRatio =
-      static_cast< float >(CGraphics::GetViewport().mWidth) / CGraphics::GetViewport().mHeight;
+#if VERSION >= VERSION_GM8P_00
+      CGraphics::GetPixelAspectRatio() *
+#endif
+      (static_cast< float >(CGraphics::GetViewport().mWidth) / CGraphics::GetViewport().mHeight);
   sFirstPersonFOV = gpTweakGame->GetFirstPersonFOV();
 }
 
@@ -231,7 +237,7 @@ void CCameraManager::UpdateFilters(float dt, CStateManager& mgr) {
 
   CCameraFilterPass& pass = mgr.CameraFilterPass(CStateManager::kCFS_Four);
   if (x74_fluidCounter) {
-    const CScriptWater* water = TCastToConstPtr< CScriptWater >(mgr.GetObjectById(GetFluidId()));
+    const CScriptWater* const water = TCastToConstPtr< CScriptWater >(mgr.GetObjectById(GetFluidId()));
     const CGameCamera& camera = GetCurrentCamera(mgr);
     if (water) {
       const float near = camera.GetNearClipDistance();
@@ -342,19 +348,27 @@ void CCameraManager::EnterCinematic(CStateManager& mgr) {
   mgr.Player()->BreakFrozenState(mgr);
 
   CObjectList& objList = mgr.ObjectListById(kOL_All);
-  int idx = objList.GetFirstObjectIndex();
+  long idx = objList.GetFirstObjectIndex();
   while (idx != -1) {
     if (CExplosion* explosion = TCastToPtr< CExplosion >(objList[idx])) {
       mgr.DeleteObjectRequest(explosion->GetUniqueId());
-    } else if (CWeapon* const weapon = TCastToPtr< CWeapon >(objList[idx])) {
-      if (weapon->GetActive() && (weapon->GetAttribField() & CWeapon::kPA_KeepInCinematic) !=
-                                     CWeapon::kPA_KeepInCinematic) {
+    } else {
+      CWeapon* const weapon = TCastToPtr< CWeapon >(objList[idx]);
+      if (weapon && weapon->GetActive() &&
+          (weapon->GetAttribField() & CWeapon::kPA_KeepInCinematic) != CWeapon::kPA_KeepInCinematic) {
         CPatterned* patterned = TCastToPtr< CPatterned >(mgr.ObjectById(weapon->GetOwnerId()));
         CPlayer* player = TCastToPtr< CPlayer >(mgr.ObjectById(weapon->GetOwnerId()));
         if (patterned || player) {
           mgr.DeleteObjectRequest(weapon->GetUniqueId());
         }
       }
+#if VERSION >= VERSION_GM8P_00
+      else if (CEnergyBall* ball = TCastToPtr< CEnergyBall >(objList[idx])) {
+        if (ball->GetActive()) {
+          mgr.DeleteObjectRequest(ball->GetUniqueId());
+        }
+      }
+#endif
     }
     idx = objList.GetNextObjectIndex(idx);
   }

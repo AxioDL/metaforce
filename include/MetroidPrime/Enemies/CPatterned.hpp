@@ -494,6 +494,6 @@ protected:
   CVector3f x55c_moveScale;
 };
 NESTED_CHECK_SIZEOF(CPatterned, CPatternNode, 0x24)
-CHECK_SIZEOF(CPatterned, 0x568)
+CHECK_SIZEOF(CPatterned, (VERSION >= VERSION_GM8P_00 ? 0x578 : 0x568))
 
 #endif // _CPATTERNED

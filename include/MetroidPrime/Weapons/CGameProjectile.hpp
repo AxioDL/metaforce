@@ -113,6 +113,6 @@ protected:
   bool x2e4_27_inWater : 1;
   bool x2e4_28_sendProjectileCollideMsg : 1;
 };
-CHECK_SIZEOF(CGameProjectile, 0x2e8)
+CHECK_SIZEOF(CGameProjectile, (VERSION >= VERSION_GM8P_00 ? 0x2f8 : 0x2e8))
 
 #endif // _CGAMEPROJECTILE

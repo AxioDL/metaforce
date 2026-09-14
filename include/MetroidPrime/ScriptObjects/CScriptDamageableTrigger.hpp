@@ -63,6 +63,6 @@ private:
   const CFluidPlane& GetFluidPlane() const { return x254_fluidPlane; }
   const CFrustumPlanes& GetFrustumPlanes() const { return xe8_frustum; }
 };
-CHECK_SIZEOF(CScriptDamageableTrigger, 0x308)
+CHECK_SIZEOF(CScriptDamageableTrigger, (VERSION >= VERSION_GM8P_00 ? 0x318 : 0x308))
 
 #endif // _CSCRIPTDAMAGEABLETRIGGER

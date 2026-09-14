@@ -231,7 +231,7 @@ private:
   TUniqueId x8a0_patrolTarget;
   float x8a4_;
 };
-CHECK_SIZEOF(CFlyingPirate, 0x8A8)
+CHECK_SIZEOF(CFlyingPirate, (VERSION >= VERSION_GM8P_00 ? 0x8b8 : 0x8A8))
 
 NESTED_CHECK_SIZEOF(CFlyingPirate, CFlyingPirateData, 0xF4)
 

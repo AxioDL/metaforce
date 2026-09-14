@@ -132,6 +132,6 @@ private:
   bool x70e_30_isMorphing : 1;
   bool x70e_31_hasEventStarted : 1;
 };
-CHECK_SIZEOF(CMetroidPrimeStage2, 0x710)
+CHECK_SIZEOF(CMetroidPrimeStage2, (VERSION >= VERSION_GM8P_00 ? 0x720 : 0x710))
 
 #endif // _CMETROIDPRIMESTAGE2

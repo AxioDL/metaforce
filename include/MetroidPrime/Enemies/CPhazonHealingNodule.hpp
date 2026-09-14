@@ -66,6 +66,6 @@ private:
 
   void UpdateParticleElectric(CStateManager& mgr);
 };
-CHECK_SIZEOF(CPhazonHealingNodule, 0x5A0)
+CHECK_SIZEOF(CPhazonHealingNodule, (VERSION >= VERSION_GM8P_00 ? 0x5b0 : 0x5A0))
 
 #endif // _CPHAZONHEALINGNODULE

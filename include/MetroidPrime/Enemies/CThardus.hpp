@@ -56,7 +56,7 @@ private:
   bool x341_;
 };
 
-CHECK_SIZEOF(CDestroyableRock, 0x348)
+CHECK_SIZEOF(CDestroyableRock, (VERSION >= VERSION_GM8P_00 ? 0x358 : 0x348))
 
 class CThardus : public CPatterned {
 public:
@@ -295,6 +295,6 @@ private:
   uchar x95d_;
   bool x95e_;
 };
-CHECK_SIZEOF(CThardus, 0x960)
+CHECK_SIZEOF(CThardus, (VERSION >= VERSION_GM8P_00 ? 0x970 : 0x960))
 
 #endif // _CTHARDUS

@@ -51,6 +51,6 @@ private:
   CAssetId x308_flameFxId;
   CDamageInfo x30c_dInfo;
 };
-CHECK_SIZEOF(CScriptContraption, 0x328)
+CHECK_SIZEOF(CScriptContraption, (VERSION >= VERSION_GM8P_00 ? 0x338 : 0x328))
 
 #endif // _CSCRIPTCONTRAPTION

@@ -156,6 +156,6 @@ private:
   bool x2e8_30_alphaOut : 1;
 };
 
-CHECK_SIZEOF(CScriptWater, 0x2f0)
+CHECK_SIZEOF(CScriptWater, (VERSION >= VERSION_GM8P_00 ? 0x300 : 0x2f0))
 
 #endif // _CSCRIPTWATER

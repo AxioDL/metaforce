@@ -175,6 +175,6 @@ private:
   bool x743_26_oculusShotAt : 1;
   bool x743_27_inJump : 1;
 };
-CHECK_SIZEOF(CParasite, 0x748)
+CHECK_SIZEOF(CParasite, (VERSION >= VERSION_GM8P_00 ? 0x758 : 0x748))
 
 #endif // _CPARASITE

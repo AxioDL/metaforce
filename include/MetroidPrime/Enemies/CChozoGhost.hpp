@@ -176,6 +176,6 @@ private:
 
   static const rstl::string skSpeedSwooshName;
 };
-CHECK_SIZEOF(CChozoGhost, 0x6E0)
+CHECK_SIZEOF(CChozoGhost, (VERSION >= VERSION_GM8P_00 ? 0x6f0 : 0x6E0))
 
 #endif // _CCHOZOGHOST

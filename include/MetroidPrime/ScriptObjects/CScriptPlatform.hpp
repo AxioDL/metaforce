@@ -133,6 +133,6 @@ private:
   bool x356_30_disableXrayAlpha : 1;
   bool x356_31_xrayFog : 1;
 };
-CHECK_SIZEOF(CScriptPlatform, 0x358)
+CHECK_SIZEOF(CScriptPlatform, (VERSION >= VERSION_GM8P_00 ? 0x368 : 0x358))
 
 #endif // _CSCRIPTPLATFORM

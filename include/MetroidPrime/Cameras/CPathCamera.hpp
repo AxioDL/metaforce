@@ -40,6 +40,6 @@ private:
   float mMinEaseDist;
   float mMaxEaseDist;
 };
-CHECK_SIZEOF(CPathCamera, 0x1f8)
+CHECK_SIZEOF(CPathCamera, (VERSION >= VERSION_GM8P_00 ? 0x208 : 0x1f8))
 
 #endif // _CPATHCAMERA

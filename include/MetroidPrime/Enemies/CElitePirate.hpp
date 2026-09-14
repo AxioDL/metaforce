@@ -268,6 +268,6 @@ protected:
   bool x988_31_running : 1;
   bool x989_24_onPath : 1;
 };
-CHECK_SIZEOF(CElitePirate, 0x990)
+CHECK_SIZEOF(CElitePirate, (VERSION >= VERSION_GM8P_00 ? 0x9a0 : 0x990))
 
 #endif // _CELITEPIRATE

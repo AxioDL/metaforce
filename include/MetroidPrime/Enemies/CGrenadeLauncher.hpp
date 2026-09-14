@@ -122,5 +122,5 @@ private:
   bool x3fd_visible;
   bool x3fe_followPlayer;
 };
-CHECK_SIZEOF(CGrenadeLauncher, 0x400)
+CHECK_SIZEOF(CGrenadeLauncher, (VERSION >= VERSION_GM8P_00 ? 0x410 : 0x400))
 #endif // _CGRENADELAUNCHER

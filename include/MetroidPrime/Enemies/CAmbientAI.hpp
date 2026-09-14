@@ -15,7 +15,7 @@ public:
              float impactRange, int alertAnim, int impactAnim, bool Active);
 
   /* CEntity */
-  void Accept(IVisitor& visitor);
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr);
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
   /* CActor */

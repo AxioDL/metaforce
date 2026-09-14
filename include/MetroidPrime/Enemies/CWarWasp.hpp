@@ -130,6 +130,6 @@ private:
   bool x72e_30_isRetreating : 1;
   bool x72e_31_heardNoise : 1;
 };
-CHECK_SIZEOF(CWarWasp, 0x730)
+CHECK_SIZEOF(CWarWasp, (VERSION >= VERSION_GM8P_00 ? 0x740 : 0x730))
 
 #endif // _CWARWASP

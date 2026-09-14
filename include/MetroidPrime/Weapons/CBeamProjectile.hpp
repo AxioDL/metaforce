@@ -70,6 +70,6 @@ private:
 
   void SetCollisionResultData(EDamageType dType, CRayCastResult& res, TUniqueId id);
 };
-CHECK_SIZEOF(CBeamProjectile, 0x468)
+CHECK_SIZEOF(CBeamProjectile, (VERSION >= VERSION_GM8P_00 ? 0x478 : 0x468))
 
 #endif // _CBEAMPROJECTILE

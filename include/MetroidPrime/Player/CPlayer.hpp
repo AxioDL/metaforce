@@ -721,7 +721,7 @@ private:
   float xa30_samusExhaustedVoiceTimer;
 };
 NESTED_CHECK_SIZEOF(CPlayer, CPlayerStuckTracker, 0x2e0);
-CHECK_SIZEOF(CPlayer, 0xa38)
+CHECK_SIZEOF(CPlayer, (VERSION >= VERSION_GM8P_00 ? 0xa48 : 0xa38))
 
 extern const bool gkAutoAim;
 extern const bool gkAutoAimAtOrbitedObject;

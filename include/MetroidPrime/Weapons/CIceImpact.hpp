@@ -97,6 +97,6 @@ private:
   bool x598_24_followPlayerArea : 1;
   bool x598_25_hasRenderBounds : 1;
 };
-CHECK_SIZEOF(CIceImpact, 0x5a0)
+CHECK_SIZEOF(CIceImpact, (VERSION >= VERSION_GM8P_00 ? 0x5b0 : 0x5a0))
 
 #endif // _CICEIMPACT

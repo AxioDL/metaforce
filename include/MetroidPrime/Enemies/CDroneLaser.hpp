@@ -26,6 +26,6 @@ private:
   TLockedToken< CGenDescription > xf8_beamDesc;
   rstl::single_ptr< CElementGen > x104_beamParticle;
 };
-CHECK_SIZEOF(CDroneLaser, 0x108)
+CHECK_SIZEOF(CDroneLaser, (VERSION >= VERSION_GM8P_00 ? 0x118 : 0x108))
 
 #endif // _CDRONELASER

@@ -81,6 +81,6 @@ private:
   bool x5e8_25_waitTimerActive : 1;
   bool x5e8_26_shotPlayer : 1;
 };
-CHECK_SIZEOF(CPuddleToadGamma, 0x5F0)
+CHECK_SIZEOF(CPuddleToadGamma, (VERSION >= VERSION_GM8P_00 ? 0x600 : 0x5F0))
 
 #endif // _CPUDDLETOADGAMMA

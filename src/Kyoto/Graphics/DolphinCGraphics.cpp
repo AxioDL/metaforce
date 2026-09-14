@@ -258,6 +258,9 @@ ERglEnum CGraphics::mDepthFunc = kE_LEqual;
 ERglPrimitive CGraphics::mCurrentPrimitive = kP_Points;
 float CGraphics::mDepthFar = 1.f;
 u32 CGraphics::mClearDepthValue = GX_MAX_Z24;
+#if VERSION >= VERSION_GM8P_00
+float CGraphics::mPixelAspectRatio = 1.f;
+#endif
 bool CGraphics::mIsGXModelMatrixIdentity = true;
 bool CGraphics::mFirstFrame = true;
 bool CGraphics::mUseVideoFilter = true;

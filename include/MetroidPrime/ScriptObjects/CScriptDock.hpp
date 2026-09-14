@@ -40,6 +40,6 @@ private:
   bool x268_25_loadConnected : 1;
   bool x268_26_areaPostConstructed : 1;
 };
-CHECK_SIZEOF(CScriptDock, 0x270)
+CHECK_SIZEOF(CScriptDock, (VERSION >= VERSION_GM8P_00 ? 0x280 : 0x270))
 
 #endif // _CSCRIPTDOCK

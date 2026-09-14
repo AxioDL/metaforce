@@ -22,6 +22,6 @@ private:
   int x570_ballType;
   uchar x574_pad[0x5F0 - 0x574];
 };
-CHECK_SIZEOF(CEnergyBall, 0x5F0)
+CHECK_SIZEOF(CEnergyBall, (VERSION >= VERSION_GM8P_00 ? 0x600 : 0x5F0))
 
 #endif // _CENERGYBALL

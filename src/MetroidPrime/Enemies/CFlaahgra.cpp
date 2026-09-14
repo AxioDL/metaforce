@@ -64,7 +64,7 @@ public:
 private:
   bool x3d8_bigStrike;
 };
-CHECK_SIZEOF(CFlaahgraProjectile, 0x3e0)
+CHECK_SIZEOF(CFlaahgraProjectile, (VERSION >= VERSION_GM8P_00 ? 0x3f0 : 0x3e0))
 
 rstl::optional_object< CAABox > CFlaahgra::GetTouchBounds() const {
   return rstl::optional_object< CAABox >();

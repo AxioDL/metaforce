@@ -345,6 +345,9 @@ public:
   static void VideoPostCallback(u32 retraceCount);
 
   static const CViewport& GetViewport() { return mViewport; }
+#if VERSION >= VERSION_GM8P_00
+  static float GetPixelAspectRatio() { return mPixelAspectRatio; }
+#endif
   static int GetViewportWidth() { return mViewport.mWidth; }
   static int GetViewportHeight() { return mViewport.mHeight; }
   static void GetViewport(int& left, int& top, int& width, int& height) {
@@ -480,6 +483,9 @@ private:
   static ERglPrimitive mCurrentPrimitive;
   static float mDepthFar;
   static u32 mClearDepthValue; // = GX_MAX_Z24
+#if VERSION >= VERSION_GM8P_00
+  static float mPixelAspectRatio;
+#endif
   static bool mIsGXModelMatrixIdentity;
   static bool mFirstFrame;
   static bool mUseVideoFilter;

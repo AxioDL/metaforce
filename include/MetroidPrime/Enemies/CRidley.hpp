@@ -273,6 +273,6 @@ private:
   static const rstl::string skHead;
   static const rstl::string skRoot;
 };
-CHECK_SIZEOF(CRidley, 0xD18)
+CHECK_SIZEOF(CRidley, (VERSION >= VERSION_GM8P_00 ? 0xd28 : 0xD18))
 
 #endif // _CRIDLEY

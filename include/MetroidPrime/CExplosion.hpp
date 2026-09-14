@@ -45,6 +45,6 @@ public:
   bool xf4_26_renderXray : 1;
   float xf8_time;
 };
-CHECK_SIZEOF(CExplosion, 0x100)
+CHECK_SIZEOF(CExplosion, (VERSION >= VERSION_GM8P_00 ? 0x110 : 0x100))
 
 #endif // _CEXPLOSION

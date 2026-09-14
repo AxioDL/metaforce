@@ -81,6 +81,6 @@ private:
   CModelData x690_bombModel;
   rstl::reserved_vector< SBomb, kBombCount > x6dc_bombLocators;
 };
-CHECK_SIZEOF(CAtomicAlpha, 0x740)
+CHECK_SIZEOF(CAtomicAlpha, (VERSION >= VERSION_GM8P_00 ? 0x750 : 0x740))
 
 #endif // _CATOMICALPHA

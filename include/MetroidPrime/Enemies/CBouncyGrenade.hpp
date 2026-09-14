@@ -95,6 +95,6 @@ private:
   bool x2b4_24_exploded : 1;
   bool x2b4_25_ : 1;
 };
-CHECK_SIZEOF(CBouncyGrenade, 0x2b8)
+CHECK_SIZEOF(CBouncyGrenade, (VERSION >= VERSION_GM8P_00 ? 0x2c8 : 0x2b8))
 
 #endif // _CBOUNCYGRENADE

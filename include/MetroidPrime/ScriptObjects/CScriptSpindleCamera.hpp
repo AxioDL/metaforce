@@ -99,6 +99,6 @@ private:
   CVector3f x330_lookDir;
   bool x33c_24_inResetThink : 1;
 };
-CHECK_SIZEOF(CScriptSpindleCamera, 0x340)
+CHECK_SIZEOF(CScriptSpindleCamera, (VERSION >= VERSION_GM8P_00 ? 0x350 : 0x340))
 
 #endif // _CSCRIPTSPINDLECAMERA

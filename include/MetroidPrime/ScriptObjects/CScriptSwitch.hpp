@@ -9,7 +9,7 @@ class CScriptSwitch : public CEntity {
 public:
   CScriptSwitch(TUniqueId uid, const rstl::string& name, const CEntityInfo& info, bool, bool, bool);
 
-  void Accept(IVisitor& visitor);
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
   ~CScriptSwitch();
 

@@ -87,6 +87,6 @@ private:
   bool x192_useWorldRay;
   CSfxHandle x194_explosionSfxHandle;
 };
-CHECK_SIZEOF(CIceAttackProjectile, 0x198)
+CHECK_SIZEOF(CIceAttackProjectile, (VERSION >= VERSION_GM8P_00 ? 0x1a8 : 0x198))
 
 #endif // _CICEATTACKPROJECTILE

@@ -74,6 +74,6 @@ private:
 
   static const CDamageVulnerability skBombVulnerability;
 };
-CHECK_SIZEOF(CBurrower, 0x6B0)
+CHECK_SIZEOF(CBurrower, (VERSION >= VERSION_GM8P_00 ? 0x6c0 : 0x6B0))
 
 #endif // _CBURROWER

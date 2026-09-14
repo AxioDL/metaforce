@@ -130,6 +130,6 @@ private:
   bool x838_26_canSkid : 1;
   uchar x839_pad[7];
 };
-CHECK_SIZEOF(CBeetle, 0x840)
+CHECK_SIZEOF(CBeetle, (VERSION >= VERSION_GM8P_00 ? 0x850 : 0x840))
 
 #endif // _CBEETLE

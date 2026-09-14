@@ -217,6 +217,6 @@ private:
   rstl::vector< uchar > xb7c_;
   float xb8c_avoidStaticCollisionTime;
 };
-CHECK_SIZEOF(COmegaPirate, 0xB90)
+CHECK_SIZEOF(COmegaPirate, (VERSION >= VERSION_GM8P_00 ? 0xba0 : 0xB90))
 
 #endif // _COMEGAPIRATE
