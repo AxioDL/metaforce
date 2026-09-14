@@ -1,10 +1,12 @@
+#include "GameVersions.h"
+
 #include <dolphin/DVDPriv.h>
 #include <dolphin/dvd.h>
 #include <dolphin/hw_regs.h>
 #include <dolphin/os.h>
 #include <dolphin/os/OSBootInfo.h>
 
-#if VERSION < 3
+#if VERSION < VERSION_GM8P_00
 const char* __DVDVersion = "<< Dolphin SDK - DVD\trelease build: Sep  5 2002 05:34:06 (0x2301) >>";
 #else
 const char* __DVDVersion = "<< Dolphin SDK - DVD\trelease build: Oct 29 2002 09:56:49 (0x2301) >>";
@@ -112,7 +114,7 @@ static void stateReadingFST() {
   LastState = (stateFunc)stateReadingFST;
 
   if (bootInfo->FSTMaxLength < BB2.FSTLength) {
-#if VERSION < 3
+#if VERSION < VERSION_GM8P_00
 #define LINE 630
 #else
 #define LINE 647
@@ -591,7 +593,7 @@ static void stateReady() {
   if (ResumeFromHere) {
     switch (ResumeFromHere) {
     case 1:
-#if VERSION < 3
+#if VERSION < VERSION_GM8P_00
       executing->state = 1;
       stateCoverClosed();
 #else
@@ -1140,7 +1142,7 @@ void DVDResume(void) {
 BOOL DVDCancelAsync(DVDCommandBlock* block, DVDCBCallback callback) {
   BOOL enabled;
   DVDLowCallback old;
-#if VERSION >= 3
+#if VERSION >= VERSION_GM8P_00
   DVDCommandBlock* finished;
 #endif
 
@@ -1218,7 +1220,7 @@ BOOL DVDCancelAsync(DVDCommandBlock* block, DVDCBCallback callback) {
       ResumeFromHere = 2;
     if (block->state == 7)
       ResumeFromHere = 7;
-#if VERSION >= 3
+#if VERSION >= VERSION_GM8P_00
     executing = &DummyCommandBlock;
 #endif
     block->state = 10;
@@ -1377,7 +1379,7 @@ BOOL DVDCheckDisk(void) {
     coverReg = __DIRegs[1];
     if (((coverReg >> 2) & 1) || (coverReg & 1)) {
       retVal = FALSE;
-#if VERSION >= 3
+#if VERSION >= VERSION_GM8P_00
     } else if (ResumeFromHere) {
       retVal = FALSE;
 #endif

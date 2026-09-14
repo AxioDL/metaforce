@@ -1,6 +1,7 @@
 #ifndef _RSTL_RMEMORY_ALLOCATOR
 #define _RSTL_RMEMORY_ALLOCATOR
 
+#include "GameVersions.h"
 #include "types.h"
 
 #include "Kyoto/Alloc/CMemory.hpp"
@@ -10,7 +11,7 @@ struct rmemory_allocator {
   rmemory_allocator() {}
   rmemory_allocator(const rmemory_allocator&) {}
 
-#if defined(__MWERKS__) && (VERSION == 3 || VERSION == 4)
+#if defined(__MWERKS__) && (VERSION >= VERSION_GM8P_00)
   static void* allocate(int size);
 #endif
 
@@ -31,7 +32,7 @@ struct rmemory_allocator {
     }
 #endif
 #endif
-#if defined(__MWERKS__) && (VERSION == 3 || VERSION == 4)
+#if defined(__MWERKS__) && (VERSION >= VERSION_GM8P_00)
     out = reinterpret_cast< T* >(allocate(size));
 #else
     if (size == 0) {

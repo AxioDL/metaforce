@@ -423,7 +423,7 @@ u32 DISK_FRAME_SAMPLE = 0x215;
 u32 FRAME_SAMPLE = 0x215;
 u32 PHASE_SAMPLE = 0x85;
 
-#if VERSION == 3
+#if VERSION == VERSION_GM8P_00
 u32 SOUND_SAMPLE_RATE = 2;
 f32 NES_CLOCK_RATE = 1789882.75f;
 u32 NES_FRAME_RATE = 60;
@@ -1616,7 +1616,7 @@ void __CreateDiskSubWave() {
 }
 
 u32 __PitchTo32_DISKFM(u16 v) {
-#if VERSION == 3
+#if VERSION == VERSION_GM8P_00
   return (NES_CLOCK_RATE / 8.f / 262144.f * static_cast< int >(v)) / 500.4375f * 32768.f;
 #else
   return (0.85343015f * static_cast< int >(v)) / 500.4375f * 32768.f;
@@ -2052,7 +2052,7 @@ void Sound_Write(u16 event, u8 value, u16 frames) {
     static f32 sampleRate;
     BOOL interrupts = OSDisableInterrupts();
     if (buffer_remain < 0x460) {
-#if VERSION == 3
+#if VERSION == VERSION_GM8P_00
       sampleRate = ((5.f * (0x460 - buffer_remain) + 1680.f) / 1680.f) * SOUND_SAMPLE_RATE;
 #else
       sampleRate = SOUND_SAMPLE_RATE * ((5.f * (0x460 - buffer_remain) + 1680.f) / 1680.f);
@@ -2129,7 +2129,7 @@ void Sound_Reset() {
   SoundP._0D = 0;
   WriteBias(0);
   Buffer_Reset();
-#if VERSION == 3
+#if VERSION == VERSION_GM8P_00
   OSReport("*******-------- HVC Sound Emulator \n");
   switch (VIGetTvFormat()) {
   case VI_NTSC:
@@ -2170,7 +2170,7 @@ u8 Sound_Read(u16 reg_addr) {
     }
     return z << 2 | y << 1 | (x);
   } else if (reg_addr == 0x4015) {
-#if VERSION == 3
+#if VERSION == VERSION_GM8P_00
     u8 a = SoundA._00;
     if (DUMMY_ACTIVE[0]) {
       a = DUMMY_ACTIVE[0] - 1;
@@ -2231,7 +2231,7 @@ u8 Sound_Read(u16 reg_addr) {
     case 0x92:
       return SoundF._39;
     default:
-#if VERSION == 3
+#if VERSION == VERSION_GM8P_00
       OSReport("Unsupported SoundRead %x\n", reg_addr);
 #endif
       return 0;
@@ -2288,7 +2288,7 @@ void __Sound_Write_HVC(u16 index, u8 v) {
           PHASE_SAMPLE = 0xa0;
           beforemode = 0;
         } else {
-#if VERSION == 3
+#if VERSION == VERSION_GM8P_00
           FRAME_SAMPLE = 32028 / NES_FRAME_RATE;
           PHASE_SAMPLE = FRAME_SAMPLE / 4;
 #else

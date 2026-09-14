@@ -1,6 +1,7 @@
 #ifndef _CGRAPHICS
 #define _CGRAPHICS
 
+#include "GameVersions.h"
 #include "types.h"
 
 #include "Kyoto/CTimeProvider.hpp"
@@ -274,7 +275,7 @@ public:
 
   static bool Startup(const COsContext& osContext, uint fifoSize, void* fifoBase);
   static GXTexRegion* TexRegionCallback(const GXTexObj* obj, GXTexMapID id);
-#if VERSION >= 4
+#if VERSION >= VERSION_GM8J_00
   static void InitGraphicsFifo(GXFifoObj* obj, void* base, uint fifoSize);
 #endif
   static void InitGraphicsVariables();
@@ -445,7 +446,7 @@ private:
   static GXTexRegionCallback mGXDefaultTexRegionCallback;
   static void* mpFifo;
   static GXFifoObj* mpFifoObj;
-#if VERSION >= 4
+#if VERSION >= VERSION_GM8J_00
   static uint mFifoSize;
 #endif
   static uint mRenderTimings;

@@ -1,3 +1,5 @@
+#include "GameVersions.h"
+
 #include "dolphin/PPCArch.h"
 #include "dolphin/os.h"
 
@@ -331,7 +333,7 @@ asm u32 LCQueueLength() {
 
 asm void LCQueueWait(register u32 len) {
   nofralloc
-#if VERSION < 3
+#if VERSION < VERSION_GM8P_00
   addi len, len, 1
 @1
   mfspr r4, HID2

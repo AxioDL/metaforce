@@ -1,3 +1,4 @@
+#include "GameVersions.h"
 #include "MetroidPrime/CGBASupport.hpp"
 #include "Kyoto/Alloc/CCallStack.hpp"
 #include "Kyoto/Alloc/CMemory.hpp"
@@ -8,7 +9,7 @@
 #include "rstl/math.hpp"
 
 void joyboot_callback(s32 chan, s32 ret) {}
-#if VERSION < 2
+#if VERSION < VERSION_GM8E_48
 const uint MAGIC = 0x414d5445;
 #endif
 
@@ -17,7 +18,7 @@ CGBASupport* g_GBA;
 inline bool GetFontEncoding() { return OSGetFontEncode() == 1; }
 
 CGBASupport::CGBASupport()
-#if VERSION >= 2
+#if VERSION >= VERSION_GM8E_48
 : x0_file(GetFontEncoding() ? "client_jap.bin" : "client_pad.bin")
 #else
 : x0_file("client_pad.bin")
@@ -33,7 +34,7 @@ CGBASupport::CGBASupport()
 , x45_fusionBeat(false) {
   GBAInit();
   g_GBA = this;
-#if VERSION >= 2
+#if VERSION >= VERSION_GM8E_48
   OSGetFontEncode();
 #endif
 }
@@ -66,7 +67,7 @@ inline bool CGBASupport::CheckReadyStatus() {
     buff[0xc9] = (tick >> 8);
     buff[0xca] = (tick >> 16);
     buff[0xcb] = (tick >> 24);
-#if VERSION < 2
+#if VERSION < VERSION_GM8E_48
     buff[0xaf] = 'E'; // set region to 'E' instead of 'J'
     buff[0xbd] = 0xc9;
 #else
@@ -185,7 +186,7 @@ bool CGBASupport::PollResponse() {
     return false;
   }
 
-#if VERSION >= 2
+#if VERSION >= VERSION_GM8E_48
   const uint targetMagic = GetFontEncoding() ? 0x414D544A : 0x414D5445;
 #endif
 
@@ -193,7 +194,7 @@ bool CGBASupport::PollResponse() {
   if (GBARead(x40_siChan, (u8*)(&magic), &gbaStatus) == GBA_NOT_READY) {
     return false;
   }
-#if VERSION < 2
+#if VERSION < VERSION_GM8E_48
   if (magic != 0x414d5445) { // "AMTE"
     return false;
   }
@@ -208,7 +209,7 @@ bool CGBASupport::PollResponse() {
   if (gbaStatus != 0x20) {
     return false;
   }
-#if VERSION < 2
+#if VERSION < VERSION_GM8E_48
   if (GBAWrite(x40_siChan, (u8*)(&MAGIC), &gbaStatus) == GBA_NOT_READY) {
     return false;
   }

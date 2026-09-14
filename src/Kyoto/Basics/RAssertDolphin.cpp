@@ -1,3 +1,4 @@
+#include "GameVersions.h"
 
 #include "Kyoto/Basics/RAssertDolphin.hpp"
 
@@ -43,7 +44,7 @@ void ErrorHandler(OSError code, OSContext* context, int dsisr, int dar) {
   VISetBlack(1);
   VIFlush();
 
-#if VERSION >= 1
+#if VERSION >= VERSION_GM8E_01
   // Pivot to a new context for a clean CPU state
   OSClearContext(&newContext);
   OSSetCurrentContext(&newContext);
@@ -55,7 +56,7 @@ void ErrorHandler(OSError code, OSContext* context, int dsisr, int dar) {
   while (loopExitCriteria < 4) {
     PADRead(pads);
 
-#if VERSION >= 1
+#if VERSION >= VERSION_GM8E_01
     // If port 1 is unpopulated, spin until a controller is plugged in
     while (pads[1].err == PAD_ERR_NO_CONTROLLER) {
       // Reset port 1

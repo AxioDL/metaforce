@@ -1,6 +1,7 @@
 #ifndef _TYPES
 #define _TYPES
 
+#include "GameVersions.h"
 #include "ByteOrder.hpp"
 
 #ifdef __cplusplus

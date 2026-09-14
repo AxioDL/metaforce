@@ -1,3 +1,5 @@
+#include "GameVersions.h"
+
 #include "dolphin/os.h"
 
 #define EXI_TX 0x800400u
@@ -117,7 +119,7 @@ static int QueueLength(void) {
 
 u32 WriteUARTN(const void* buf, unsigned long len) {
   u32 cmd;
-#if VERSION >= 3
+#if VERSION >= VERSION_GM8P_00
   s32 enabled;
 #endif
   int qLen;
@@ -129,12 +131,12 @@ u32 WriteUARTN(const void* buf, unsigned long len) {
   if (Enabled != EXI_MAGIC)
     return 2;
 
-#if VERSION >= 3
+#if VERSION >= VERSION_GM8P_00
   enabled = OSDisableInterrupts();
 #endif
   locked = EXILock(Chan, Dev, 0);
   if (!locked) {
-#if VERSION >= 3
+#if VERSION >= VERSION_GM8P_00
     OSRestoreInterrupts(enabled);
 #endif
     return 0;
@@ -179,7 +181,7 @@ u32 WriteUARTN(const void* buf, unsigned long len) {
   }
 
   EXIUnlock(Chan);
-#if VERSION >= 3
+#if VERSION >= VERSION_GM8P_00
   OSRestoreInterrupts(enabled);
 #endif
   return error;

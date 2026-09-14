@@ -1,5 +1,7 @@
 #include "MetroidPrime/CFrontEndUI.hpp"
 
+#include "GameVersions.h"
+
 #include "Kyoto/Audio/CAudioGroupSet.hpp"
 #include "Kyoto/Audio/CAudioSys.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"
@@ -72,9 +74,9 @@ static const FEMovie FEMovies[] = {
     {"Video/08_GBA_fileselect.thp", false},
 };
 
-#if VERSION == 0
+#if VERSION == VERSION_GM8E_00
 const char MetroidBuildInfo[] = BUILD_INFO_TAG "Build v1.088 10/29/2002 2:21:25\0PAD";
-#elif VERSION == 1
+#elif VERSION == VERSION_GM8E_01
 const char MetroidBuildInfo[] = BUILD_INFO_TAG "Build v1.093 11/5/2002 19:50:01\0PAD";
 #else
 const char MetroidBuildInfo[] = BUILD_INFO;

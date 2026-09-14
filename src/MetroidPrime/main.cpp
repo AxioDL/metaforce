@@ -608,7 +608,7 @@ bool CMain::CheckReset() {
     }
     GXDrawDone();
     GXAbortFrame();
-#if VERSION == 0
+#if VERSION == VERSION_GM8E_00
     CAudioSys::TrkFlushTracks();
     AISetStreamPlayState(0);
 #endif

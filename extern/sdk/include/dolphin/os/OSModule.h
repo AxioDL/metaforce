@@ -1,12 +1,14 @@
 #ifndef _DOLPHIN_OSMODULE
 #define _DOLPHIN_OSMODULE
 
+#include "GameVersions.h"
+
 #include <dolphin/types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-#if VERSION >= 3
+#if VERSION >= VERSION_GM8P_00
 #define OS_MODULE_VERSION 3
 #else
 #define OS_MODULE_VERSION 2

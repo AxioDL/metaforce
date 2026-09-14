@@ -1,6 +1,7 @@
 #ifndef _TCASTTO
 #define _TCASTTO
 
+#include "GameVersions.h"
 #include "types.h"
 
 class CEntity;
@@ -106,7 +107,7 @@ static inline const T* TCastToConstPtr(const CEntity& p) {
   return TCastToPtr< T >(const_cast< CEntity& >(p));
 }
 
-#if VERSION < 3 || VERSION == 5
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
 // NTSC 0-02 still uses the visitor API
 
 #define DECLARE_TYPES_MATCH

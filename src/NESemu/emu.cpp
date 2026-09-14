@@ -1,4 +1,5 @@
 #include "NESemu/ksNes.hpp"
+#include "GameVersions.h"
 #include "dolphin/PPCArch.h"
 #include "dolphin/gx.h"
 #include "dolphin/os.h"
@@ -1013,7 +1014,7 @@ asm u32 ksNesResetAsm(register ksNesCommonWorkObj* work, register ksNesStateObj*
     blt init_mapper
 
 mapper_error:
-#if VERSION == 2
+#if VERSION == VERSION_GM8E_48
     li r3, 0x79d
 #else
     li r3, 0x788
