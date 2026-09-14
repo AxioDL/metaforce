@@ -2642,7 +2642,12 @@ Kyoto/Particles/CModVectorElement.cpp:
 	.sdata2     start:0x804709C8 end:0x804709D8
 
 Kyoto/Particles/CParticleDataFactory.cpp:
-	.text       start:0x8030D564 end:0x80313098
+	.text       start:0x8030D564 end:0x80313164
+	.ctors      start:0x803B5100 end:0x803B5104
+	.rodata     start:0x803C2DB0 end:0x803C2DB8
+	.bss        start:0x80401FA8 end:0x80401FB8
+	.bss        start:0x804687DC end:0x804687F4 align:4 common
+	.sbss       start:0x8046B5C8 end:0x8046B5D0
 
 Kyoto/Particles/CParticleGlobals.cpp:
 	.text       start:0x803131B8 end:0x803132E4
@@ -2700,6 +2705,7 @@ Kyoto/Math/CAABox.cpp:
 	.text       start:0x8031FBDC end:0x80320C08
 	.ctors      start:0x803B5104 end:0x803B5108
 	.data       start:0x803D6190 end:0x803D61B0
+	.bss        start:0x804687F4 end:0x8046883C align:4 common
 	.sdata2     start:0x80470AE8 end:0x80470B00
 
 Kyoto/CFactoryMgr.cpp:
@@ -2825,6 +2831,7 @@ Kyoto/CARAMManager.cpp:
 	.text       start:0x8032CD8C end:0x8032D7A0
 	.ctors      start:0x803B5114 end:0x803B5118
 	.rodata     start:0x803C33C0 end:0x803C33C8
+	.bss        start:0x8046883C end:0x80468854 align:4 common
 	.sdata      start:0x8046AA00 end:0x8046AA08
 	.sbss       start:0x8046B660 end:0x8046B680
 	.sdata2     start:0x80470B08 end:0x80470B10
@@ -2838,6 +2845,7 @@ Kyoto/Graphics/CCubeMaterial.cpp:
 	.ctors      start:0x803B5118 end:0x803B511C
 	.rodata     start:0x803C33C8 end:0x803C34B8
 	.data       start:0x803D7488 end:0x803D74D8
+	.bss        start:0x80468854 end:0x80468860 align:4 common
 	.sdata      start:0x8046AA08 end:0x8046AA18
 	.sbss       start:0x8046B684 end:0x8046B6A8
 	.sdata2     start:0x80470B24 end:0x80470B78
@@ -2845,6 +2853,7 @@ Kyoto/Graphics/CCubeMaterial.cpp:
 Kyoto/Graphics/CCubeSurface.cpp:
 	.text       start:0x803305BC end:0x80330640
 	.ctors      start:0x803B511C end:0x803B5120
+	.bss        start:0x80468860 end:0x8046886C align:4 common
 	.sdata2     start:0x80470B78 end:0x80470B80
 
 Kyoto/Animation/CCharAnimTime.cpp:
@@ -2874,10 +2883,12 @@ Kyoto/Audio/DolphinCAudioGroupSet.cpp:
 Kyoto/Audio/DolphinCAudioSys.cpp:
 	.text       start:0x80332A2C end:0x803359AC
 	.ctors      start:0x803B5124 end:0x803B5128
+	.bss        start:0x8046886C end:0x8046887C align:4 common
 
 Kyoto/DolphinCMemoryCardSys.cpp:
 	.text       start:0x803359AC end:0x80337E48
 	.ctors      start:0x803B5128 end:0x803B512C
+	.bss        start:0x8046887C end:0x804688AC align:4 common
 
 Kyoto/Input/DolphinIController.cpp:
 	.text       start:0x80337E48 end:0x80337EF4
@@ -2968,12 +2979,14 @@ Kyoto/CTimeProvider.cpp:
 Kyoto/CARAMToken.cpp:
 	.text       start:0x80341B64 end:0x80342394
 	.rodata     start:0x803C37C0 end:0x803C37C8
+	.bss        start:0x804688AC end:0x804688C8 align:4 common
 
 Kyoto/Audio/CMidiManager.cpp:
 	.text       start:0x80342394 end:0x80342C6C
 	.ctors      start:0x803B5134 end:0x803B5138
 	.rodata     start:0x803C37C8 end:0x803C37D0
 	.data       start:0x803D7600 end:0x803D7610
+	.bss        start:0x804688C8 end:0x80468900 align:4 common
 
 Kyoto/Text/CFontImageDef.cpp:
 	.text       start:0x80342CC4 end:0x80342D04
@@ -3019,6 +3032,7 @@ Kyoto/Audio/CDSPStreamManager.cpp:
 	.text       start:0x8034D4A8 end:0x8034EF1C
 	.ctors      start:0x803B5138 end:0x803B513C
 	.rodata     start:0x803C38A8 end:0x803C38B0
+	.bss        start:0x80468900 end:0x80468C00 align:4 common
 	.sbss       start:0x8046B7C0 end:0x8046B7C8
 
 Kyoto/CDependencyGroup.cpp:
@@ -3030,6 +3044,7 @@ Kyoto/Audio/CStreamAudioManager.cpp:
 	.text       start:0x8034F45C end:0x803507AC
 	.ctors      start:0x803B513C end:0x803B5140
 	.rodata     start:0x803C38B8 end:0x803C38C0
+	.bss        start:0x80468C00 end:0x80468C50 align:4 common
 	.sdata      start:0x8046AB18 end:0x8046AB30
 	.sbss       start:0x8046B7C8 end:0x8046B7D8
 	.sdata2     start:0x80470D30 end:0x80470D58
