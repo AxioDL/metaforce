@@ -1791,8 +1791,12 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Math/CMatrix4f.cpp",
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Math/CNUQuaternion.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Math/CQuaternion.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Math/CNUQuaternion.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "Kyoto/Math/CQuaternion.cpp",
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
+            ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/CRandom16.cpp"),
             Object(NonMatching, "Kyoto/Math/CTransform4f.cpp"),
             Object(
@@ -1802,7 +1806,7 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Math/CVector2f.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"), "Kyoto/Math/CVector2i.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Math/CVector3d.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Math/CVector3f.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Math/CVector3f.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "Kyoto/Math/CVector3i.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Math/RMathUtils.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/CCrc32.cpp"),

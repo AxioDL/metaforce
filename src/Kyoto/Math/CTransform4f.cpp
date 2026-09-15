@@ -58,8 +58,7 @@ CTransform4f CTransform4f::MakeRotationsBasedOnY(const CUnitVector3f& yRot) {
   v[i] = 1.f;
 
   CUnitVector3f xRot(CVector3f::Cross(yRot, v));
-  const CVector3f& zRot = CVector3f::Cross(xRot, yRot);
-  return CTransform4f::FromColumns(xRot, yRot, zRot, CVector3f::Zero());
+  return CTransform4f::FromColumns(xRot, yRot, CVector3f::Cross(xRot, yRot), CVector3f::Zero());
 }
 
 CTransform4f CTransform4f::RotateX(const CRelAngle& x) {
@@ -169,13 +168,9 @@ void CTransform4f::RotateLocalZ(const CRelAngle& z) {
 void CTransform4f::Orthonormalize() {
   const CVector3f xNorm = GetRight().AsNormalized();
   const CVector3f& yCol = GetForward();
-  CVector3f zCross(xNorm.GetY() * yCol.GetZ() - yCol.GetY() * xNorm.GetZ(),
-                   xNorm.GetZ() * yCol.GetX() - yCol.GetZ() * xNorm.GetX(),
-                   xNorm.GetX() * yCol.GetY() - yCol.GetX() * xNorm.GetY());
+  CVector3f zCross = CVector3f::Cross(xNorm, yCol);
   const CVector3f zNorm = zCross.AsNormalized();
-  CVector3f yNew(zNorm.GetY() * xNorm.GetZ() - xNorm.GetY() * zNorm.GetZ(),
-                 zNorm.GetZ() * xNorm.GetX() - xNorm.GetZ() * zNorm.GetX(),
-                 zNorm.GetX() * xNorm.GetY() - xNorm.GetX() * zNorm.GetY());
+  CVector3f yNew = CVector3f::Cross(zNorm, xNorm);
   m00 = xNorm.GetX();
   m10 = xNorm.GetY();
   m20 = xNorm.GetZ();

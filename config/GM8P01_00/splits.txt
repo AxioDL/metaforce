@@ -2615,6 +2615,7 @@ Kyoto/Math/CMatrix4f.cpp:
 
 Kyoto/Math/CNUQuaternion.cpp:
 	.text       start:0x802F9704 end:0x802F9D5C
+	.sdata2     start:0x804707C0 end:0x804707D0
 
 Kyoto/Math/CQuaternion.cpp:
 	.text       start:0x802F9D5C end:0x802FB2AC
@@ -2622,6 +2623,7 @@ Kyoto/Math/CQuaternion.cpp:
 	.bss        start:0x80401DD8 end:0x80401E00
 	.bss        start:0x80468700 end:0x80468710 align:4 common
 	.sdata      start:0x8046A930 end:0x8046A948
+	.sbss       start:0x8046B588 end:0x8046B590
 	.sdata2     start:0x804707D0 end:0x80470820
 
 Kyoto/CRandom16.cpp:
@@ -2633,6 +2635,7 @@ Kyoto/Math/CTransform4f.cpp:
 	.text       start:0x802FB4B0 end:0x802FCB5C
 	.ctors      start:0x803B50F0 end:0x803B50F4
 	.bss        start:0x80468710 end:0x80468740 align:4 common
+	.sdata2     start:0x80470830 end:0x80470850
 
 Kyoto/Math/CUnitVector3f.cpp:
 	.text       start:0x802FCB5C end:0x802FCBF0
@@ -2655,6 +2658,7 @@ Kyoto/Math/CVector3f.cpp:
 	.text       start:0x802FD33C end:0x802FD964
 	.ctors      start:0x803B50F8 end:0x803B50FC
 	.bss        start:0x80468740 end:0x804687DC align:4 common
+	.sdata2     start:0x80470870 end:0x80470888
 
 Kyoto/Math/CVector3i.cpp:
 	.text       start:0x802FD964 end:0x802FD974

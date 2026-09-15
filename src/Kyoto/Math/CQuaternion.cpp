@@ -184,10 +184,10 @@ CQuaternion CQuaternion::LookAt(const CUnitVector3f& source, const CUnitVector3f
   const float maxRadians = maxAngle.AsRadians();
   destNoZ.SetZ(0.f);
   sourceNoZ.SetZ(0.f);
+  CQuaternion yaw = NoRotation();
   const float sourceMag = sourceNoZ.MagSquared();
   const float destMag = destNoZ.MagSquared();
-  CQuaternion yaw = NoRotation();
-  CVector3f horizontal;
+  CVector3f horizontal(1.f, 0.f, 0.f);
   if (sourceMag > 0.0001f && destMag > 0.0001f) {
     sourceNoZ.Normalize();
     destNoZ.Normalize();
@@ -262,11 +262,13 @@ CVector3f CQuaternion::Transform(const CVector3f& vector) const {
 }
 
 CQuaternion CQuaternion::operator*(const CQuaternion& rhs) const {
+  const CVector3f& leftVector = GetVector();
+  const CVector3f& rightVector = rhs.GetVector();
   const float leftScalar = GetScalar();
   const float rightScalar = rhs.GetScalar();
-  return CQuaternion(leftScalar * rightScalar - CVector3f::Dot(imaginary, rhs.imaginary),
-                     leftScalar * rhs.imaginary + rightScalar * imaginary +
-                         CVector3f::Cross(imaginary, rhs.imaginary));
+  const float scalar = leftScalar * rightScalar - CVector3f::Dot(leftVector, rightVector);
+  return CQuaternion(scalar, leftScalar * rightVector + rightScalar * leftVector +
+                                 CVector3f::Cross(leftVector, rightVector));
 }
 
 CQuaternion CQuaternion::XRotation(const CRelAngle& angle) { return AxisAngle(XAxis, angle); }
