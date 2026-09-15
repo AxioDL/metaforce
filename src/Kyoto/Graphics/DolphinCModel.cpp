@@ -88,7 +88,7 @@ CModel::CModel(const rstl::auto_ptr< uchar >& data, int length, IObjectStore& st
   x28_modelInstance = rs_new CCubeModel(
       &x8_surfaces, &x18_matSets.front().x0_textures, x18_matSets.front().x10_data, positions,
       normals, vtxColors, floatUvs, shortUvs, *reinterpret_cast< const CAABox* >(dataPtr + 0xc),
-      visorFlags != 0, true, -1);
+      visorFlags ? 1 : 0, true, -1);
   sThisFrameList = this;
   if (x34_next != nullptr) {
     x34_next->x30_prev = this;

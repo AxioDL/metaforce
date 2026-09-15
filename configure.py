@@ -2028,7 +2028,7 @@ config.libs = [
             ),
             Object(NonMatching, "Kyoto/Animation/DolphinCSkinRules.cpp"),
             Object(NonMatching, "Kyoto/Animation/DolphinCVirtualBone.cpp"),
-            Object(NonMatching, "Kyoto/Graphics/DolphinCModel.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Graphics/DolphinCModel.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "Kyoto/Text/CStringTable.cpp",
