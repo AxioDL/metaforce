@@ -2360,7 +2360,7 @@ Kyoto/Animation/CAnimTreeDoubleChild.cpp:
 	.sdata2     start:0x804705F0 end:0x80470600
 
 Kyoto/Animation/CAnimTreeNode.cpp:
-	.text       start:0x802DCEF4 end:0x802DD018
+	.text       start:0x802DCEEC end:0x802DD018
 	.rodata     start:0x803C22C0 end:0x803C22C8
 	.data       start:0x803D5020 end:0x803D5090
 
