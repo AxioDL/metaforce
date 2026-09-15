@@ -125,7 +125,11 @@ public:
                 const rstl::ncrc_ptr< CScriptLayerManager >&);
   ~CStateManager();
 
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  void SetProjectedShadow(CProjectedShadow* shadow);
+#else
   void SetProjectedShadow(CProjectedShadow* shadow) { xf7c_projectedShadow = shadow; }
+#endif
 
   void PreRender();
   bool RenderLast(const TUniqueId&);

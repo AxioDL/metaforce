@@ -807,7 +807,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Player/CPlayerVisor.cpp"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CModelData.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "MetroidPrime/CModelData.cpp"
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),

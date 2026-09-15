@@ -31,7 +31,12 @@ CProjectedShadow::CProjectedShadow(const int w, const int h, const uchar persist
 , x84_scale(1.f)
 , x88_translation(CVector3f::Zero())
 , x94_zDistanceAdjust(0.f)
-, x98_opacity(1.f) {}
+, x98_opacity(1.f)
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+, x9c_nextShadow(nullptr)
+#endif
+{
+}
 
 CProjectedShadow::~CProjectedShadow() { x0_texture.ScheduleDeletion(); }
 
@@ -50,11 +55,36 @@ void CProjectedShadow::ExpandBoundsForTexture() {
   x68_bounds = CAABox(x68_bounds.GetMinPoint() - offset, x68_bounds.GetMaxPoint() + offset);
 }
 
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& modelData,
+                                          const CTransform4f& xf, int flags,
+                                          const CVector3f& translation, float scale,
+                                          float zDistanceAdjust) {
+  const CModelData* model = &modelData;
+  const CTransform4f* transform = &xf;
+  RenderShadowBuffer(mgr, 1, &model, &transform, flags, translation, scale, zDistanceAdjust);
+}
+
+void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, int count,
+                                          const CModelData* const* models,
+                                          const CTransform4f* const* transforms, int flags,
+                                          const CVector3f& translation, float scale,
+                                          float zDistanceAdjust) {
+  if (count < 1) {
+    return;
+  }
+
+  x68_bounds = models[0]->GetBounds(*transforms[0]);
+  for (int i = 1; i < count; ++i) {
+    x68_bounds.Include(models[i]->GetBounds(*transforms[i]));
+  }
+#else
 void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& modelData,
                                           const CTransform4f& xf, int flags,
                                           const CVector3f& translation, float scale,
                                           float zDistanceAdjust) {
   x68_bounds = modelData.GetBounds(xf);
+#endif
   x84_scale = scale;
   x88_translation = translation;
   x94_zDistanceAdjust = zDistanceAdjust;
@@ -70,7 +100,11 @@ void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& 
   const short height = x0_texture.GetHeight();
   const int renderWidth = width * 2;
   const int renderHeight = height * 2;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  const CVector3f center = (x68_bounds.GetMinPoint() + x68_bounds.GetMaxPoint()) * 0.5f;
+#else
   const CVector3f center = x68_bounds.CenterPoint();
+#endif
   const CTransform4f view = CTransform4f::FromColumns(
       CVector3f::Right(), CVector3f::Down(), CVector3f::Forward(),
       CVector3f(center.GetX(), center.GetY(), x68_bounds.GetMaxPoint().GetZ()));
@@ -97,12 +131,31 @@ void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& 
   CGX::SetBlendMode(GX_BM_BLEND, GX_BL_ONE, GX_BL_ZERO, GX_LO_CLEAR);
   CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
 
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  for (int i = 0; i < count; ++i) {
+    const CModelData& modelData = *models[i];
+    const CTransform4f& xf = *transforms[i];
+    CGraphics::SetModelMatrix(xf * CTransform4f::Scale(CVector3f(modelData.GetScale())));
+    if (const CAnimData* animData = modelData.GetAnimationData()) {
+      CSkinnedModel& model = modelData.PickAnimatedModel(CModelData::kWM_Normal);
+      animData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
+      SShadowDrawContext context(model, flags == 0);
+      model.Draw(reinterpret_cast< TDrawFunc >(ModelDrawCallback), &context);
+    } else {
+      const TLockedToken< CModel >& model = modelData.PickStaticModel(CModelData::kWM_Normal);
+      model->UpdateLastFrame();
+      model->GetCubeModel()->DrawFlat(nullptr, nullptr, flags == 0 ? kSS_All : kSS_Unsorted);
+    }
+  }
+#else
   const CAnimData* animData = modelData.GetAnimationData();
   CSkinnedModel& model = modelData.PickAnimatedModel(CModelData::kWM_Normal);
   animData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
   SShadowDrawContext context(model, flags == 0);
   CGraphics::SetModelMatrix(xf * CTransform4f::Scale(CVector3f(modelData.GetScale())));
   model.Draw(reinterpret_cast< TDrawFunc >(ModelDrawCallback), &context);
+
+#endif
 
   bool useVideoFilter = CGraphics::GetUseVideoFilter();
   CGraphics::SetUseVideoFilter(false);

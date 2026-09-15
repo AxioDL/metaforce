@@ -171,7 +171,7 @@ MetroidPrime/Player/CPlayerGun.cpp:
 	.sdata2     start:0x8046C2D0 end:0x8046C3C8
 
 MetroidPrime/CStateManager.cpp:
-	.text       start:0x80045118 end:0x800520E0
+	.text       start:0x80045108 end:0x800520E0
 	.rodata     start:0x803B7888 end:0x803B78C0
 	.bss        start:0x803E4478 end:0x803F38A4
 	.sdata      start:0x80468EC8 end:0x80468F10
@@ -1836,7 +1836,11 @@ MetroidPrime/CArtifactDoll.cpp:
 	.sdata2     start:0x8046FF88 end:0x8046FFD8
 
 MetroidPrime/CProjectedShadow.cpp:
-	.text       start:0x8028AB14 end:0x8028BA00
+	.text       start:0x8028AB08 end:0x8028BA00
+	.rodata     start:0x803C1340 end:0x803C1370
+	.sdata      start:0x8046A6B8 end:0x8046A6C0
+	.sdata2     start:0x8046FFD8 end:0x8046FFF8
+	.sbss2      start:0x80471710 end:0x80471718
 
 MetroidPrime/CPreFrontEnd.cpp:
 	.text       start:0x8028BA00 end:0x8028BBA0

@@ -2325,9 +2325,16 @@ void CStateManager::DrawWorld() const {
     }
     ++x8dc_objectDrawToken;
     x84c_player->MorphBall()->DrawBallShadow(const_cast< CStateManager& >(*this));
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    for (const CProjectedShadow* shadow = xf7c_projectedShadow; shadow != nullptr;
+         shadow = shadow->GetNextShadow()) {
+      shadow->Render(*this);
+    }
+#else
     if (xf7c_projectedShadow != nullptr) {
       xf7c_projectedShadow->Render(*this);
     }
+#endif
     gpRender->EnablePVS(&set, area.GetId().Value());
     gpRender->DrawSortedGeometry(area.GetId().Value(), mask, targetMask);
   }
@@ -3032,3 +3039,10 @@ float CStateManager::IntegrateVisorFog(float f) const {
   }
   return f;
 }
+
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+void CStateManager::SetProjectedShadow(CProjectedShadow* shadow) {
+  shadow->SetNextShadow(xf7c_projectedShadow);
+  xf7c_projectedShadow = shadow;
+}
+#endif
