@@ -34,5 +34,3 @@ void CScriptCameraShaker::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId ob
 }
 
 ENTITY_ACCEPT_IMPL(CScriptCameraShaker)
-
-CScriptCameraShaker::~CScriptCameraShaker() {}

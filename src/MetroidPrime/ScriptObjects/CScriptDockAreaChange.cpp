@@ -37,5 +37,3 @@ void CScriptDockAreaChange::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
 }
 
 ENTITY_ACCEPT_IMPL(CScriptDockAreaChange)
-
-CScriptDockAreaChange::~CScriptDockAreaChange() {}

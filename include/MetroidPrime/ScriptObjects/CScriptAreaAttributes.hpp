@@ -22,7 +22,6 @@ public:
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   DECLARE_ACCEPT;
-  ~CScriptAreaAttributes() {}
 
   bool GetNeedsSky() const { return x34_24_showSkybox; }
   bool GetNeedsEnvFx() const { return x38_envFx != kEFX_None; }

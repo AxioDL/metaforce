@@ -11,8 +11,6 @@ public:
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   DECLARE_ACCEPT;
-
-  ~CScriptDockAreaChange();
 };
 
 #endif // _CSCRIPTDOCKAREACHANGE
