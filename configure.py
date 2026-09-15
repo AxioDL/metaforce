@@ -593,7 +593,7 @@ config.libs = [
                 "MetroidPrime/Tweaks/CTweakPlayerControl.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Tweaks/CTweakPlayerGun.cpp",
                 cflags=cflags_retro,
             ),
@@ -619,7 +619,7 @@ config.libs = [
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Weapons/CBomb.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Tweaks/CTweakBall.cpp",
             ),
             Object(
@@ -680,7 +680,7 @@ config.libs = [
             ),
             Object(NonMatching, "MetroidPrime/CParticleDatabase.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Tweaks/CTweakGunRes.cpp",
                 cflags=cflags_retro,
             ),
