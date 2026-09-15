@@ -107,11 +107,10 @@ public:
 
   CTeamAiMgr(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
              const CUnknown& data);
-  ~CTeamAiMgr() override {}
 
   // CEntity
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr) override;
 
   void UpdateTeamCaptain();

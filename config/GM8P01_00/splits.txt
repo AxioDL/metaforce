@@ -1595,7 +1595,7 @@ MetroidPrime/Enemies/CMagdolite.cpp:
 	.sdata2     start:0x8046F638 end:0x8046F670
 
 MetroidPrime/Enemies/CTeamAiMgr.cpp:
-	.text       start:0x80227EA4 end:0x8022AFD8
+	.text       start:0x80227D90 end:0x8022B3D4
 	.data       start:0x803D0DE0 end:0x803D0E00
 	.sdata2     start:0x8046F670 end:0x8046F680
 

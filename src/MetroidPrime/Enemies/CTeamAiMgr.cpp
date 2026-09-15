@@ -441,8 +441,8 @@ void CTeamAiMgr::SpacingSort(CStateManager& mgr, const CVector3f& pos) {
   rstl::sort(x58_roles.begin(), x58_roles.end(), CRoleSorter(pos, 2));
 
   float tierStagger = 4.5f;
-  rstl::vector< CTeamAiRole >::iterator role = x58_roles.begin();
-  for (; role != x58_roles.end(); ++role) {
+  for (rstl::vector< CTeamAiRole >::iterator role = x58_roles.begin();
+       role != x58_roles.end(); ++role) {
     if (CPatterned* ai = TCastToPtr< CPatterned >(mgr.ObjectById(role->GetOwnerId()))) {
       const CAABox& aabb = ai->GetBaseBoundingBox();
       const float length = (aabb.GetMaxPoint().GetY() - aabb.GetMinPoint().GetY()) * 1.5f;
@@ -455,8 +455,8 @@ void CTeamAiMgr::SpacingSort(CStateManager& mgr, const CVector3f& pos) {
   float curTierDist = tierStagger;
   int tierTeamSize = 0;
   int maxTierTeamSize = 3;
-  role = x58_roles.begin();
-  for (; role != x58_roles.end(); ++role) {
+  for (rstl::vector< CTeamAiRole >::iterator role = x58_roles.begin();
+       role != x58_roles.end(); ++role) {
     CPatterned* const ai = TCastToPtr< CPatterned >(mgr.ObjectById(role->GetOwnerId()));
     if (ai) {
       CVector3f delta = ai->GetTranslation() - pos;

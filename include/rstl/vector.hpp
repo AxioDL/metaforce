@@ -209,15 +209,21 @@ void vector< T, Alloc >::insert_into(iterator at, int n, In in) {
     T* newData;
     x0_allocator.allocate(newData, newCapacity);
     long atIdx = at - begin();
+    // The const alias makes MWCC retain a separate allocation-base register on PAL.
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    T* const newItems = newData;
+#else
+    T* newItems = newData;
+#endif
     int newIdx = 0;
     for (int i = 0; i < atIdx; ++newIdx, ++i) {
-      construct(newData + newIdx, data()[i]);
+      construct(newItems + newIdx, data()[i]);
     }
     for (int i = 0; i < n; ++input, ++newIdx, ++i) {
-      construct(newData + newIdx, *input);
+      construct(newItems + newIdx, *input);
     }
     for (int i = atIdx; i < size(); ++newIdx, ++i) {
-      construct(newData + newIdx, data()[i]);
+      construct(newItems + newIdx, data()[i]);
     }
 
     destroy(oldData, oldData + size());

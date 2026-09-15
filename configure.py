@@ -1262,7 +1262,10 @@ config.libs = [
                 "MetroidPrime/CScriptLayerManager.cpp",
             ),
             Object(NonMatching, "MetroidPrime/Enemies/CMagdolite.cpp"),
-            Object(NonMatching, "MetroidPrime/Enemies/CTeamAiMgr.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "MetroidPrime/Enemies/CTeamAiMgr.cpp",
+            ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Enemies/CSnakeWeedSwarm.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8J01_00"), "MetroidPrime/Cameras/CBallCameraFailsafeState.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Enemies/CScriptContraption.cpp"),
