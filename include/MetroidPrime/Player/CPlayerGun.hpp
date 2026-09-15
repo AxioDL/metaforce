@@ -133,6 +133,10 @@ public:
   void SetPhazonBeamMorph(bool);
   void HandlePhazonBeamChange(CStateManager&);
   void InitBeamData();
+#if VERSION >= VERSION_GM8P_00
+  void SetBeam(CPlayerState::EItemType item, CStateManager& mgr);
+  void LoadBeam(CPlayerState::EBeamId beam, CStateManager& mgr);
+#endif
   void InitBombData();
   void InitMuzzleData();
   void InitCTData();

@@ -959,6 +959,11 @@ void CPlayerGun::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
   }
 
   if (x832_24_coolingCharge || damageNotMorphed || IsWeaponStateSet(0x8)) {
+#if VERSION >= VERSION_GM8P_00
+    if (IsWeaponStateSet(0x8)) {
+      x2f4_fireButtonStates = 0;
+    }
+#endif
     return;
   }
 
@@ -1372,8 +1377,13 @@ void CPlayerGun::Reset(CStateManager& mgr, bool b1) {
 }
 
 void CPlayerGun::ResetCharge(CStateManager& mgr, bool resetBeam) {
-  if (x32c_chargePhase != kCP_NotCharging)
+  if (x32c_chargePhase != kCP_NotCharging) {
+#if VERSION >= VERSION_GM8P_00
+    x72c_currentBeam->ActivateCharge(false, false);
+    SetGunLightActive(false, mgr);
+#endif
     StopChargeSound(mgr);
+  }
 
   if (!IsWeaponStateSet(0x8) && !IsWeaponStateSet(0x10)) {
     bool doResetBeam =
@@ -2106,6 +2116,9 @@ void CPlayerGun::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
   case kSM_Registered: {
     CreateGunLight(mgr);
     const CPlayerState::EBeamId currentBeam = playerState.GetCurrentBeam();
+#if VERSION >= VERSION_GM8P_00
+    LoadBeam(currentBeam, mgr);
+#else
     const CPlayerState::EBeamId beam = mCurrentBeamId[currentBeam];
     x320_currentAuxBeam = beam;
     x314_nextBeam = beam;
@@ -2115,6 +2128,7 @@ void CPlayerGun::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
     x72c_currentBeam->Load(mgr, true);
     x72c_currentBeam->x1bc_rainSplashGenerator = x748_rainSplashGenerator.get();
     x744_auxWeapon->Load(x310_currentBeam, mgr);
+#endif
     x6e0_rightHandModel.AnimationData()->SetAnimation(
         CAnimPlaybackParms(mHandAnimId[currentBeam], -1, 1.f, true), false);
     break;
@@ -2187,8 +2201,14 @@ void CPlayerGun::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
         bigStrike = true;
         const TUniqueId attachedActor = player.GetAttachedActor();
         if (attachedActor != kInvalidUniqueId) {
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+          metroidAttached =
+              TCastToPtr< CMetroid >(const_cast< CEntity* >(mgr.GetObjectById(attachedActor))) !=
+              nullptr;
+#else
           metroidAttached = CPatterned::CastTo(TPatternedCast< CMetroid >(const_cast< CEntity* >(
                                 mgr.GetObjectById(attachedActor)))) != nullptr;
+#endif
         }
       }
     }
@@ -2268,8 +2288,13 @@ void CPlayerGun::RenderEnergyDrainEffects(const CStateManager& mgr) const {
     it = player->GetPlayerEnergyDrain().GetEnergyDrainSources().data();
     while (it != player->GetPlayerEnergyDrain().GetEnergyDrainSources().data() +
                      player->GetPlayerEnergyDrain().GetEnergyDrainSources().size()) {
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+      CMetroidBeta* metroid = TCastToPtr< CMetroidBeta >(
+          const_cast< CEntity* >(mgr.GetObjectById(it->GetEnergyDrainSourceId())));
+#else
       CMetroidBeta* metroid = CPatterned::CastTo(TPatternedCast< CMetroidBeta >(
           const_cast< CEntity* >(mgr.GetObjectById(it->GetEnergyDrainSourceId()))));
+#endif
       if (metroid != nullptr) {
         metroid->RenderHitGunEffect();
         return;
@@ -2812,3 +2837,41 @@ void CPlayerGun::SetPhazonBeamFeedback(bool active) {
         NWeaponTypes::play_sfx(SFXsam_a_phazup_lp_00, x834_27_underwater, false, 0x4a);
   }
 }
+
+#if VERSION >= VERSION_GM8P_00
+void CPlayerGun::SetBeam(CPlayerState::EItemType item, CStateManager& mgr) {
+  CPlayerState::EBeamId beam = CPlayerState::kBI_Power;
+  switch (item) {
+  case CPlayerState::kIT_IceBeam:
+    beam = CPlayerState::kBI_Ice;
+    break;
+  case CPlayerState::kIT_WaveBeam:
+    beam = CPlayerState::kBI_Wave;
+    break;
+  case CPlayerState::kIT_PlasmaBeam:
+    beam = CPlayerState::kBI_Plasma;
+    break;
+  }
+
+  if (mgr.GetPlayerState()->HasPowerUp(item) && beam != x310_currentBeam) {
+    x72c_currentBeam->Unload(mgr);
+    mgr.PlayerState()->SetCurrentBeam(beam);
+    x678_morph =
+        CGunMorph(gpTweakPlayerGun->GetGunTransformTime(), gpTweakPlayerGun->GetHoloHoldTime());
+    LoadBeam(beam, mgr);
+  }
+}
+
+void CPlayerGun::LoadBeam(CPlayerState::EBeamId beamId, CStateManager& mgr) {
+  const CPlayerState::EBeamId& beam = beamId;
+  x310_currentBeam = x314_nextBeam = x320_currentAuxBeam = mCurrentBeamId[beam];
+  x72c_currentBeam = x760_selectableBeams[beam];
+  x738_nextBeam = x72c_currentBeam;
+  x338_nextState = kNS_StatusQuo;
+  x72c_currentBeam->Load(mgr, true);
+  x72c_currentBeam->x1bc_rainSplashGenerator = x748_rainSplashGenerator.get();
+  x744_auxWeapon->Load(beam, mgr);
+  DisableWeaponState(0x8);
+  ResetToBeam();
+}
+#endif
