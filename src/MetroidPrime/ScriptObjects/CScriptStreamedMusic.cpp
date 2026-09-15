@@ -11,8 +11,8 @@
 
 extern "C" void nullsub_42(CScriptStreamedMusic*);
 
-CStreamAudioManager::ESoftwareChannel CScriptStreamedMusic::IsOneShot(bool b) {
-  return b ? CStreamAudioManager::kSC_OneShot : CStreamAudioManager::kSC_Default;
+CStreamAudioManager::ESoftwareChannel CScriptStreamedMusic::IsOneShot(bool loop) {
+  return loop ? CStreamAudioManager::kSC_Default : CStreamAudioManager::kSC_OneShot;
 }
 
 CScriptStreamedMusic::CScriptStreamedMusic(TUniqueId id, const CEntityInfo& info,

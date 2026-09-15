@@ -248,14 +248,14 @@ void CDSPStream::Silence(int handle) {
   OSRestoreInterrupts(ints);
 }
 
-void CDSPStream::UpdateStreamVolume(char vol) {
+void CDSPStream::UpdateStreamVolume(int vol) {
   x4c_vol = vol;
   if (x0_state != 0 && xe8_silenced == 0) {
     sndStreamMixParameterEx(xc8_streamId, x4c_vol, x4d_pan, 0, 0, 0);
   }
 }
 
-void CDSPStream::UpdateVolume(int handle, char vol) {
+void CDSPStream::UpdateVolume(int handle, int vol) {
   BOOL ints = OSDisableInterrupts();
   int idx = FindStreamIdx(handle);
   if (static_cast< uint >(idx) != 0xFFFFFFFF) {

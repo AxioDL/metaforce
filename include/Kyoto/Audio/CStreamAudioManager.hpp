@@ -23,14 +23,15 @@ struct SDSPStreamCacheEntry {
 class CStreamAudioManager {
 public:
   enum ESoftwareChannel {
-    kSC_OneShot = 0,
-    kSC_Default = 1,
+    kSC_Default = 0,
+    kSC_OneShot = 1,
   };
 
   static void Update(float dt);
   static void StopAll();
   static void FadeBackIn(float time);
   static void StopOneShot();
+  static void StopSfx();
   static void SetMusicVolume(uint vol);
   static void SetSfxVolume(uint vol);
   static void SetMusicUnmute(bool unmute);

@@ -3126,6 +3126,7 @@ Kyoto/Audio/CDSPStreamManager.cpp:
 	.text       start:0x8034D4A8 end:0x8034EF1C
 	.ctors      start:0x803B5138 end:0x803B513C
 	.rodata     start:0x803C38A8 end:0x803C38B0
+	.bss        start:0x804025C0 end:0x804025F0
 	.bss        start:0x80468900 end:0x80468C00 align:4 common
 	.sbss       start:0x8046B7C0 end:0x8046B7C8
 
@@ -3135,9 +3136,10 @@ Kyoto/CDependencyGroup.cpp:
 	.data       start:0x803D76A8 end:0x803D76B8
 
 Kyoto/Audio/CStreamAudioManager.cpp:
-	.text       start:0x8034F45C end:0x803507AC
+	.text       start:0x8034F370 end:0x803507AC
 	.ctors      start:0x803B513C end:0x803B5140
 	.rodata     start:0x803C38B8 end:0x803C38C0
+	.bss        start:0x804025F0 end:0x804026E0
 	.bss        start:0x80468C00 end:0x80468C50 align:4 common
 	.sdata      start:0x8046AB18 end:0x8046AB30
 	.sbss       start:0x8046B7C8 end:0x8046B7D8

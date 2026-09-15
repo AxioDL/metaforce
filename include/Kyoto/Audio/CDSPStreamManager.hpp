@@ -13,14 +13,14 @@ public:
   enum EState { kCDSPSM_Looping, kCDSPSM_Oneshot, kCDSPSM_Preparing };
 
   CDSPStreamManager(int unused = 0);
-  CDSPStreamManager(const rstl::string& fileName, int handle, char volume, bool oneshot);
+  CDSPStreamManager(const rstl::string& fileName, int handle, int volume, bool oneshot);
   CDSPStreamManager& operator=(const CDSPStreamManager& other);
 
   static void Initialize();
   static void Shutdown();
-  static int StartStreaming(const rstl::string& fileName, char volume, int oneshot);
+  static int StartStreaming(const rstl::string& fileName, int volume, int oneshot);
   static void StopStreaming(int handle);
-  static void UpdateVolume(int handle, char volume);
+  static void UpdateVolume(int handle, int volume);
   static bool IsStreamAvailable(int handle);
   static bool CanStop(int handle);
   static EState GetStreamState(int handle);

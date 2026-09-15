@@ -21,7 +21,7 @@ public:
   ~CInterruptGuard() { OSRestoreInterrupts(x0_enabled); }
 };
 
-CDSPStreamManager::CDSPStreamManager(const rstl::string& fileName, int handle, char volume,
+CDSPStreamManager::CDSPStreamManager(const rstl::string& fileName, int handle, int volume,
                                      bool oneshot)
 : x60_fileName(fileName)
 , x70_24_unclaimed(false)
@@ -94,7 +94,7 @@ void CDSPStreamManager::Shutdown() {
   }
 }
 
-int CDSPStreamManager::StartStreaming(const rstl::string& fileName, char volume, int oneshot) {
+int CDSPStreamManager::StartStreaming(const rstl::string& fileName, int volume, int oneshot) {
   CInterruptGuard interrupts;
   const bool isOneshot = oneshot;
   const int sep = fileName.find('|', 0);
@@ -252,7 +252,7 @@ SStreamInfo MakeDSPStreamInfo(const CDSPStreamManager& stream) {
   return info;
 }
 
-void CDSPStreamManager::UpdateVolume(int handle, char volume) {
+void CDSPStreamManager::UpdateVolume(int handle, int volume) {
   CInterruptGuard interrupts;
   int idx = FindClaimedStreamIdx(handle);
   if (idx == -1) {

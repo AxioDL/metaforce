@@ -78,18 +78,14 @@ void CStreamAudioManager::UpdateSoftwareChannel(ESoftwareChannel chan, float dt)
     }
   }
 
-  if (p.x10_playState == 1 || p.x10_playState == 3 || p.x10_playState == 4) {
-    if (CDSPStreamManager::IsStreamAvailable(p.x20_handle)) {
-      goto doFade;
+  if ((p.x10_playState != 1 && p.x10_playState != 3 && p.x10_playState != 4) ||
+      !CDSPStreamManager::IsStreamAvailable(p.x20_handle)) {
+    if (p.x10_playState == 2) {
+      CDSPStreamManager::UpdateVolume(p.x20_handle, GetTargetDSPVolume(p.x14_volume, p.x28_music));
     }
+    return;
   }
 
-  if (p.x10_playState == 2) {
-    CDSPStreamManager::UpdateVolume(p.x20_handle, GetTargetDSPVolume(p.x14_volume, p.x28_music));
-  }
-  return;
-
-doFade:
   if (p.x10_playState == 1) {
     float newFade = p.x24_fadeFactor + dt / p.x18_fadeIn;
     if (newFade >= 1.f) {
@@ -125,17 +121,16 @@ void CStreamAudioManager::StopStreaming(int idx) {
 }
 
 void CStreamAudioManager::UpdateSoftwareChannels(float dt) {
-  UpdateSoftwareChannel(kSC_OneShot, dt);
   UpdateSoftwareChannel(kSC_Default, dt);
+  UpdateSoftwareChannel(kSC_OneShot, dt);
 }
 
 void CStreamAudioManager::FadeOutSoftwareAudio(CStreamAudioManager::ESoftwareChannel chan,
                                                float fadeTime) {
   SDSPStreamCacheEntry& p = s_Players[chan];
-  if (p.x10_playState == 3)
+  if (p.x10_playState == 3 || p.x10_playState == 0) {
     return;
-  if (p.x10_playState == 0)
-    return;
+  }
   p.x1c_fadeOut = fadeTime;
   p.x10_playState = 4;
 }
@@ -158,14 +153,15 @@ void CStreamAudioManager::StopSoftwareAudio(CStreamAudioManager::ESoftwareChanne
 
   if (CStringExtras::CompareCaseInsensitive(qp.x0_fileName, fileName) == 0) {
     qp = SDSPStreamCacheEntry();
-  } else if (CStringExtras::CompareCaseInsensitive(p.x0_fileName, fileName) == 0 &&
-             p.x20_handle != -1) {
-    if (p.x10_playState != 0) {
-      if (p.x1c_fadeOut <= FLT_EPSILON) {
-        StopStreaming(chan);
-      } else if (p.x10_playState != 3) {
-        p.x10_playState = 3;
-      }
+  } else {
+    if (CStringExtras::CompareCaseInsensitive(p.x0_fileName, fileName) != 0 || p.x20_handle == -1 ||
+        p.x10_playState == 0) {
+      return;
+    }
+    if (p.x1c_fadeOut <= FLT_EPSILON) {
+      StopStreaming(chan);
+    } else if (p.x10_playState != 3) {
+      p.x10_playState = 3;
     }
   }
 }
@@ -203,10 +199,7 @@ void CStreamAudioManager::PlaySoftwareAudio(ESoftwareChannel chan, const rstl::s
       state = 2;
     }
     int handle = CDSPStreamManager::StartStreaming(fileName, GetTargetDSPVolume(vol, music),
-                                                   // ?
-                                                   chan == CStreamAudioManager::kSC_OneShot
-                                                       ? CStreamAudioManager::kSC_OneShot
-                                                       : CStreamAudioManager::kSC_Default);
+                                                   chan == kSC_Default ? 0 : 1);
     if (handle != -1) {
       p = SDSPStreamCacheEntry(state, fileName, volume & 0xFF, fadeIn, fadeOut, handle, music);
     }
@@ -333,8 +326,7 @@ void CStreamAudioManager::FadeBackIn(float fadeTime) {
     mVolumeIncrement = mTargetVolume / fadeTime;
   }
   mNewAudioFile = mDefaultAudioFile;
-  if (mDefaultAudioFile != "" &&
-      mCurrentAudioFile != mDefaultAudioFile) {
+  if (mDefaultAudioFile != "" && mCurrentAudioFile != mDefaultAudioFile) {
     mCurrentState = 2;
   } else {
     mDefaultAudioFile = rstl::string();
@@ -359,9 +351,9 @@ void CStreamAudioManager::StopAll() {
 }
 
 void CStreamAudioManager::StopOneShot() {
-  StopStreaming(1);
-  s_Players[1] = SDSPStreamCacheEntry();
-  s_QueuedPlayers[1] = SDSPStreamCacheEntry();
+  StopStreaming(kSC_OneShot);
+  s_Players[kSC_OneShot] = SDSPStreamCacheEntry();
+  s_QueuedPlayers[kSC_OneShot] = SDSPStreamCacheEntry();
 }
 
 void CStreamAudioManager::StopAudio() {
@@ -433,3 +425,19 @@ void CStreamAudioManager::fn_803653F8(float fadeTime) {
   mVolumeIncrement = step;
   mCurrentState = 4;
 }
+
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+void CStreamAudioManager::StopSfx() {
+  for (int i = 0; i < 2; ++i) {
+    SDSPStreamCacheEntry& qp = s_QueuedPlayers[i];
+    if (qp.x10_playState != 0 && !qp.x28_music) {
+      qp = SDSPStreamCacheEntry();
+    }
+
+    SDSPStreamCacheEntry& p = s_Players[i];
+    if (!p.x28_music && p.x10_playState != 0) {
+      StopSoftwareAudio(static_cast< ESoftwareChannel >(i), p.x0_fileName);
+    }
+  }
+}
+#endif

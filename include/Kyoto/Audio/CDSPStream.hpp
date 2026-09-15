@@ -52,8 +52,8 @@ public:
 
   static bool IsStreamAvailable(int handle);
   static bool IsStreamActive(int handle);
-  static void UpdateVolume(int handle, char vol);
-  void UpdateStreamVolume(char vol);
+  static void UpdateVolume(int handle, int vol);
+  void UpdateStreamVolume(int vol);
 
   static void Silence(int handle);
   void SilenceStream();
