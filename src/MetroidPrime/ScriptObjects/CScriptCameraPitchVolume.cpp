@@ -64,5 +64,3 @@ void CScriptCameraPitchVolume::Exited(CStateManager& mgr) {
   x13c_25_occupied = false;
   mgr.CameraManager()->FirstPersonCamera()->SetScriptPitchId(kInvalidUniqueId);
 }
-
-CScriptCameraPitchVolume::~CScriptCameraPitchVolume() {}

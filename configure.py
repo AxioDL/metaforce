@@ -1230,7 +1230,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CIkChain.cpp"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/ScriptObjects/CScriptCameraPitchVolume.cpp",
             ),
             Object(

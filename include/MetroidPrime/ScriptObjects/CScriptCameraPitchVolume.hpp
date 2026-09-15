@@ -11,7 +11,6 @@ public:
   CScriptCameraPitchVolume(TUniqueId, bool, const rstl::string&, const CEntityInfo&,
                            const CVector3f&, const CTransform4f&, const CRelAngle&,
                            const CRelAngle&, float);
-  ~CScriptCameraPitchVolume();
 
   DECLARE_TYPES_MATCH_OR_ACCEPT;
   void Think(float, CStateManager&) override;
