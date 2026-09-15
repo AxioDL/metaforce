@@ -2957,7 +2957,12 @@ Kyoto/Audio/DolphinCAudioGroupSet.cpp:
 Kyoto/Audio/DolphinCAudioSys.cpp:
 	.text       start:0x80332A2C end:0x803359AC
 	.ctors      start:0x803B5124 end:0x803B5128
+	.rodata     start:0x803C3580 end:0x803C3690
+	.bss        start:0x80402038 end:0x80402044
 	.bss        start:0x8046886C end:0x8046887C align:4 common
+	.sdata      start:0x8046AA78 end:0x8046AA88
+	.sbss       start:0x8046B6D0 end:0x8046B700
+	.sdata2     start:0x80470BA0 end:0x80470BB0
 
 Kyoto/DolphinCMemoryCardSys.cpp:
 	.text       start:0x803359AC end:0x80337E48
