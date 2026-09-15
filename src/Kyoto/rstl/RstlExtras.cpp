@@ -2,14 +2,12 @@
 #include "rstl/StringExtras.hpp"
 #include "rstl/math.hpp"
 #include "rstl/rc_ptr.hpp"
+#include "stdio.h"
 
 #include "Kyoto/Basics/CCast.hpp"
 #include "Kyoto/Streams/CInputStream.hpp"
 
 #include <string.h>
-
-// The retail pool retains the format from the stripped CreateFromReal helper.
-static const char* const skStringLiterals[] = {"??(??)", "%%.%df"};
 
 namespace rstl {
 CRefData CRefData::sNull(nullptr, 0x1000000 - 1);
@@ -95,6 +93,15 @@ rstl::string CStringExtras::CreateFromInteger(int v) {
   }
 
   return ret;
+}
+
+rstl::string CStringExtras::CreateFromReal(float v, int i) {
+  char a[16];
+  char b[136];
+  
+  sprintf(b, "%%.%df", (i > 12) ? 12 : i);
+  sprintf(b, a, v);
+  return rstl::string(b);
 }
 
 rstl::string CStringExtras::ConvertToANSI(const rstl::wstring& str) {
