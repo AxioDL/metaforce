@@ -17,13 +17,13 @@
 
 #include "Kyoto/Animation/CCharAnimTime.hpp"
 #include "Kyoto/Animation/CCharLayoutInfo.hpp"
+#include "Kyoto/Animation/CAnimationManager.hpp"
 #include "Kyoto/Animation/CSkinnedModel.hpp"
 #include "Kyoto/TToken.hpp"
 
 #include "rstl/reserved_vector.hpp"
 #include "rstl/set.hpp"
 
-class CAnimationManager;
 class CAnimSysContext;
 class CAnimTreeNode;
 class CCharacterFactory;

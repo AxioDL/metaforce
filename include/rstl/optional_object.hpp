@@ -22,7 +22,7 @@ public:
   ~optional_object() {
 #if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
     if (m_valid) {
-      rstl::destroy(&data());
+      rstl::destroy(get_ptr());
     }
 #else
     clear();
@@ -73,7 +73,7 @@ private:
       construct< T >(m_data, item);
       m_valid = true;
     } else {
-      data() = item;
+      *get_ptr() = item;
     }
   }
 };

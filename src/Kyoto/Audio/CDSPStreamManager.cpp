@@ -2,7 +2,6 @@
 
 #include "Kyoto/Alloc/CMemory.hpp"
 #include "Kyoto/CDvdFile.hpp"
-#include "rstl/construct.hpp"
 
 #include "dolphin/dvd.h"
 #include "dolphin/os.h"
@@ -76,8 +75,8 @@ void CDSPStreamManager::WaitForReadCompletion() {
 }
 
 CDSPStreamManager& CDSPStreamManager::operator=(const CDSPStreamManager& other) {
-  rstl::destroy(this);
-  rstl::construct(this, other);
+  this->~CDSPStreamManager();
+  new (this) CDSPStreamManager(other);
   return *this;
 }
 

@@ -20,7 +20,6 @@
 #include "Kyoto/Math/CVector3f.hpp"
 #include "MetroidPrime/Factories/CCharacterFactory.hpp"
 #include "MetroidPrime/CStateManager.hpp"
-#include "MetroidPrime/CAnimRes.hpp"
 
 #include <math.h>
 
@@ -28,8 +27,6 @@
 
 #include "rstl/algorithm.hpp"
 #include "rstl/math.hpp"
-
-const int CAnimRes::kDefaultCharIdx = 0;
 
 typedef rstl::vector< rstl::pair< rstl::string, CAABox > > TAabbList;
 typedef rstl::vector< rstl::pair< rstl::string, rstl::vector< CEffectComponent > > > TEffectList;
@@ -555,10 +552,22 @@ void CAnimData::RenderAuxiliary(const CFrustumPlanes& frustum) const {
   x120_particleDB.AddToRendererClipped(frustum);
 }
 
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+void CHierarchyPoseBuilder::Insert(const CSegId& id, const CQuaternion& rot) {
+  x38_treeMap[id].SetRotation(rot);
+}
+
+void CHierarchyPoseBuilder::Insert(const CSegId& id, const CVector3f& off) {
+  x38_treeMap[id].SetOffset(off);
+}
+#endif
+
 void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time) const {
   const CSegIdList* segIdList = &xcc_layoutData->GetBodyPartSegIds();
 
   CStackSegStatementSet statementSet;
+  CHierarchyPoseBuilder& poseBuilder = x2fc_poseBuilder;
+
   if (time == nullptr) {
     x1f8_animRoot->VGetSegStatementSet(*segIdList, statementSet);
   } else {
@@ -572,9 +581,9 @@ void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time) const {
   while (i < segCount) {
     const CSegId& seg = (*segIdList)[i];
     if (seg.val() != 3) {
-      x2fc_poseBuilder.Insert(seg, statementSet.GetData(seg).Orientation());
+      poseBuilder.Insert(seg, statementSet.GetData(seg).Orientation());
       if (statementSet.GetData(seg).OffsetValid()) {
-        x2fc_poseBuilder.Insert(seg, statementSet.GetData(seg).Offset());
+        poseBuilder.Insert(seg, statementSet.GetData(seg).Offset());
       }
     }
     ++i;
@@ -582,8 +591,6 @@ void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time) const {
 }
 
 rstl::rc_ptr< CAnimationManager > CAnimData::GetAnimationManager() const { return x100_animMgr; }
-
-rstl::ncrc_ptr< CAnimSysContext > CAnimData::GetAnimSysContext() const { return xfc_animCtx; }
 
 float CAnimData::GetAnimationDuration(int animIn) const {
   const uint animRes = xc_charInfo.GetAnimationIndexList()[animIn];
@@ -611,6 +618,8 @@ float CAnimData::GetAnimationDuration(int animIn) const {
 
   return duration;
 }
+
+inline rstl::ncrc_ptr< CAnimSysContext > CAnimData::GetAnimSysContext() const { return xfc_animCtx; }
 
 float CAnimData::GetAnimTimeRemaining(const rstl::string&) const {
   float remTime = x1f8_animRoot->VGetTimeRemaining().GetSeconds();
@@ -904,8 +913,8 @@ CCharAnimTime CAnimData::GetTimeOfUserEvent(EUserEventType type, const CCharAnim
       const int value = poi.GetValue();
       if (value == static_cast< int >(type)) {
         CCharAnimTime ret = poi.GetTime();
-        for (; i < count; ++i) {
-          sInt32TransientCacheData[i] =
+        for (int j = i; j < count; ++j) {
+          sInt32TransientCacheData[j] =
               CInt32POINode(rstl::string_l(""), kPT_EmptyInt32, CCharAnimTime(0.f), -1, false, 1.f,
                             -1, 0, 0, rstl::string_l("root"));
         }

@@ -6,7 +6,7 @@
 class CAnimTreeNode;
 class CTransitionManager {
 public:
-  CTransitionManager(const CAnimSysContext& context) : x0_context(context) {}
+  CTransitionManager(const CAnimSysContext& context);
 
   rstl::ncrc_ptr< CAnimTreeNode > GetTransitionTree(const rstl::ncrc_ptr< CAnimTreeNode >& a,
                                                   const rstl::ncrc_ptr< CAnimTreeNode >& b) const;

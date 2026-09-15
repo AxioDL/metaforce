@@ -14,6 +14,13 @@
 #include "Kyoto/Graphics/CModel.hpp"
 #include "rstl/algorithm.hpp"
 
+inline CAnimationManager::CAnimationManager(const TToken< CAnimationDatabase >& animDB,
+                                          const CAnimSysContext& sysCtx)
+: x0_animDB(animDB)
+, x8_sysCtx(sysCtx) {}
+
+inline CTransitionManager::CTransitionManager(const CAnimSysContext& context) : x0_context(context) {}
+
 rstl::auto_ptr< IObj > CCharacterFactory::CDummyFactory::Build(const SObjectTag& tag,
                                                                const CVParamTransfer& params) {
   const CVParamTransfer paramCopy(params);

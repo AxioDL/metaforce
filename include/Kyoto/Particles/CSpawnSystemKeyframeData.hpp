@@ -16,7 +16,8 @@ public:
     CSpawnSystemKeyframeInfo(CInputStream& in);
     ~CSpawnSystemKeyframeInfo() {
       if (x10_token) {
-        x10_token->Unlock();
+        CToken& token = *x10_token;
+        token.Unlock();
       }
     }
     void LoadToken(CSimplePool* pool);

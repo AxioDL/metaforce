@@ -20,14 +20,15 @@ public:
   }
   ~ownership_transfer() { dec_ref_count(); }
 
-  ownership_transfer& operator=(const ownership_transfer& other) {
+  void operator=(const ownership_transfer& other) {
     if (&other != this) {
-      dec_ref_count();
+      if (x0_owns) {
+        delete x4_ptr;
+      }
       x0_owns = other.x0_owns;
       x4_ptr = other.x4_ptr;
       other.x0_owns = false;
     }
-    return *this;
   }
 
   void dec_ref_count() {

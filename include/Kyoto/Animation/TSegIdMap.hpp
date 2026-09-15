@@ -6,14 +6,11 @@
 template < typename T >
 class TSegIdMap {
 public:
-  TSegIdMap(uchar count)
-  : x0_boneCount(0)
-  , x1_capacity(count)
-  , x8_indirectionMap(100, rstl::pair< char, char >(-1, -1))
-  , xd0_nodes(nullptr)
-  , xd4_curPrevBone(0) {
-    xd0_nodes = reinterpret_cast< T* >(rs_new uchar[count * sizeof(T)]);
-  }
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  TSegIdMap(uchar count);
+#else
+  inline TSegIdMap(uchar count);
+#endif
 
   TSegIdMap(CInputStream& in)
   : x0_boneCount(0)
@@ -57,6 +54,16 @@ private:
   T* xd0_nodes;
   char xd4_curPrevBone;
 };
+
+template < typename T >
+TSegIdMap< T >::TSegIdMap(uchar count)
+: x0_boneCount(0)
+, x1_capacity(count)
+, x8_indirectionMap(100, rstl::pair< char, char >(-1, -1))
+, xd0_nodes(nullptr)
+, xd4_curPrevBone(0) {
+  xd0_nodes = reinterpret_cast< T* >(rs_new uchar[count * sizeof(T)]);
+}
 
 template < typename T >
 TSegIdMap< T >::~TSegIdMap() {

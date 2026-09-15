@@ -22,8 +22,8 @@ void CHierarchyPoseBuilder::BuildIntoHeirarchy(const CCharLayoutInfo& layout, co
     CSegId parent = layout.GetOriginalParent(seg);
     if (parent == root) {
       x30_rootId.build(seg);
-      CVector3f offset = layout.GetFromParentUnrotated(seg);
-      x38_treeMap.insert(seg, CTreeNode(CSegId::Null(), CSegId::Null(), offset));
+      x38_treeMap.insert(seg, CTreeNode(CSegId::Null(), CSegId::Null(),
+                                     layout.GetFromParentUnrotated(seg)));
     } else {
       BuildIntoHeirarchy(layout, parent, root);
       x38_treeMap.insert(seg, x38_treeMap[parent].NodeForNextChildInserted(

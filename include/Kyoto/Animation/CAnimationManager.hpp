@@ -10,8 +10,7 @@ class CAnimTreeContext;
 class IMetaAnim;
 class CAnimationManager {
 public:
-  CAnimationManager(const TToken< CAnimationDatabase >& animDB, const CAnimSysContext& sysCtx)
-  : x0_animDB(animDB), x8_sysCtx(sysCtx) {}
+  CAnimationManager(const TToken< CAnimationDatabase >& animDB, const CAnimSysContext& sysCtx);
 
   rstl::ncrc_ptr< CAnimTreeNode >
   GetAnimationTree(uint animIdx, const CMetaAnimTreeBuildOrders& orders) const;

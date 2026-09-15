@@ -26,7 +26,7 @@ public:
 
   class CTreeNode {
   public:
-    CTreeNode(const CSegId& child, const CSegId& sibling, const CVector3f& offset)
+    CTreeNode(const CSegId& sibling, const CSegId& child, const CVector3f& offset)
     : x0_child(child)
     , x1_sibling(sibling)
     , x4_rotation(CQuaternion::NoRotation())
@@ -42,7 +42,7 @@ public:
                                        const CVector3f& offset) {
       CSegId sibling = x0_child;
       x0_child = child;
-      return CTreeNode(nullId, sibling, offset);
+      return CTreeNode(sibling, nullId, offset);
     }
 
   private:
@@ -52,8 +52,13 @@ public:
     CVector3f x14_offset;
   };
 
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  void Insert(const CSegId& id, const CQuaternion& rot);
+  void Insert(const CSegId& id, const CVector3f& off);
+#else
   void Insert(const CSegId& id, const CQuaternion& rot) { x38_treeMap[id].SetRotation(rot); }
   void Insert(const CSegId& id, const CVector3f& off) { x38_treeMap[id].SetOffset(off); }
+#endif
   CQuaternion GetSegRotation(const CSegId& id) const { return x38_treeMap[id].GetRotation(); }
   const TLockedToken< CCharLayoutInfo >& CharLayoutInfo() const {
     return x0_layoutDesc.ScaledLayout();

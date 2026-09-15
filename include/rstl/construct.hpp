@@ -11,8 +11,13 @@ static inline void construct(void* dest, const T& src) {
   new (dest) T(src);
 }
 
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+template < typename T >
+static inline void destroy(T* const in) {
+#else
 template < typename T >
 static inline void destroy(T* in) {
+#endif
   in->~T();
 }
 

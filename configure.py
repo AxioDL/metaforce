@@ -525,7 +525,15 @@ config.libs = [
             Object(MatchingFor("GM8E01_00"), "MetroidPrime/CMFGame.cpp"),
             Object(NonMatching, "MetroidPrime/CCredits.cpp"),
             Object(MatchingFor("GM8E01_00"), "MetroidPrime/CSplashScreen.cpp"),
-            Object(NonMatching, "MetroidPrime/CAnimData.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
+                "MetroidPrime/CAnimData.cpp",
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
+            ),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"),
+                "MetroidPrime/CAnimRes.cpp",
+            ),
             Object(NonMatching, "MetroidPrime/Factories/CCharacterFactory.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
@@ -719,7 +727,9 @@ config.libs = [
             Object(MatchingFor("GM8E01_00"), "MetroidPrime/Weapons/CWaveBeam.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Weapons/CIceBeam.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CScriptMailbox.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01"),
+                "MetroidPrime/CScriptMailbox.cpp",
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
@@ -1104,7 +1114,11 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "MetroidPrime/CHealthInfo.cpp"
             ),
-            Object(NonMatching, "MetroidPrime/Player/CGameState.cpp"),
+            Object(
+                NonMatching,
+                "MetroidPrime/Player/CGameState.cpp",
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/ScriptObjects/CScriptVisorFlare.cpp",
@@ -1362,7 +1376,11 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "WorldFormat/CAreaOctTree.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "WorldFormat/CMetroidAreaCollider.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "WorldFormat/CWorldLight.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "WorldFormat/COBBTree.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01"),
+                "WorldFormat/COBBTree.cpp",
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
+            ),
             Object(
                 NonMatching,
                 "WorldFormat/CCollidableOBBTree.cpp",
@@ -1713,7 +1731,9 @@ config.libs = [
                 "Kyoto/Text/CRemoveColorOverrideInstruction.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Text/CSaveableState.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01"),
+                "Kyoto/Text/CSaveableState.cpp",
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Text/CTextExecuteBuffer.cpp"

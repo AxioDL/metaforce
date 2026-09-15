@@ -133,7 +133,10 @@ MetroidPrime/CAnimData.cpp:
 	.bss        start:0x8056A600 end:0x8056D404 align:4 common
 	.sdata      start:0x805A6D98 end:0x805A6DB8
 	.sbss       start:0x805A8CC8 end:0x805A8CD0
-	.sdata2     start:0x805AA0F0 end:0x805AA118
+	.sdata2     start:0x805AA0F0 end:0x805AA110
+
+MetroidPrime/CAnimRes.cpp:
+	.sdata2     start:0x805AA110 end:0x805AA118
 
 MetroidPrime/Factories/CCharacterFactory.cpp:
 	.text       start:0x80031C9C end:0x8003484C

@@ -189,7 +189,12 @@ void vector< T, Alloc >::insert_into(iterator at, int n, In in) {
     int i = moveCount - 1;
     for (; i >= 0; --i) {
       construct(oldData + atIdx + n + i, data()[atIdx + i]);
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+      T* const item = oldData + atIdx + i;
+      destroy(item);
+#else
       destroy(oldData + atIdx + i);
+#endif
     }
     for (i = 0; i < n; ++input, ++i) {
       construct(oldData + atIdx + i, *input);

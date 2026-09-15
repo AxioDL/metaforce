@@ -11,7 +11,7 @@ struct rmemory_allocator {
   rmemory_allocator() {}
   rmemory_allocator(const rmemory_allocator&) {}
 
-#if defined(__MWERKS__) && (VERSION >= VERSION_GM8P_00)
+#if defined(__MWERKS__) && (VERSION >= VERSION_GM8P_00) && VERSION != VERSION_GM8E_02
   static void* allocate(int size);
 #endif
 
@@ -32,7 +32,7 @@ struct rmemory_allocator {
     }
 #endif
 #endif
-#if defined(__MWERKS__) && (VERSION >= VERSION_GM8P_00)
+#if defined(__MWERKS__) && (VERSION >= VERSION_GM8P_00) && VERSION != VERSION_GM8E_02
     out = reinterpret_cast< T* >(allocate(size));
 #else
     if (size == 0) {

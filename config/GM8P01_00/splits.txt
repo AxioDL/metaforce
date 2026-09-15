@@ -117,9 +117,14 @@ MetroidPrime/CAnimData.cpp:
 	.ctors      start:0x803B4FA4 end:0x803B4FA8
 	.rodata     start:0x803B76C8 end:0x803B7720
 	.data       start:0x803C4F48 end:0x803C4F88
+	.bss        start:0x803E3050 end:0x803E3090
+	.bss        start:0x8042C6A0 end:0x8042F4A4 align:4 common
 	.sdata      start:0x80468E40 end:0x80468E60
 	.sbss       start:0x8046ADE0 end:0x8046ADE8
-	.sdata2     start:0x8046C250 end:0x8046C278
+	.sdata2     start:0x8046C250 end:0x8046C270
+
+MetroidPrime/CAnimRes.cpp:
+	.sdata2     start:0x8046C270 end:0x8046C278
 
 MetroidPrime/Factories/CCharacterFactory.cpp:
 	.text       start:0x80033508 end:0x800361D8
@@ -2431,7 +2436,9 @@ Kyoto/Animation/CFBStreamedCompression.cpp:
 	.sdata2     start:0x80470658 end:0x80470670
 
 Kyoto/Animation/CHierarchyPoseBuilder.cpp:
-	.text       start:0x802E4E78 end:0x802E54B8
+	.text       start:0x802E4E78 end:0x802E5AF0
+	.rodata     start:0x803C2300 end:0x803C2308
+	.sdata      start:0x8046A8C0 end:0x8046A8C8
 	.sdata2     start:0x80470670 end:0x80470678
 
 Kyoto/Animation/CInt32POINode.cpp:
