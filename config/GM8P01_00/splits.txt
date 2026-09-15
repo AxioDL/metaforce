@@ -533,7 +533,7 @@ MetroidPrime/CScriptMailbox.cpp:
 	.text       start:0x800D9B40 end:0x800DA114
 
 MetroidPrime/ScriptObjects/CScriptRelay.cpp:
-	.text       start:0x800DA174 end:0x800DA3EC
+	.text       start:0x800DA114 end:0x800DA3EC
 	.data       start:0x803C9DD0 end:0x803C9DF0
 
 MetroidPrime/ScriptObjects/CScriptSpawnPoint.cpp:

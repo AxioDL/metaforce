@@ -12,7 +12,7 @@ public:
   ~CScriptMemoryRelay();
 
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
 };
 
 #endif // _CSCRIPTMEMORYRELAY
