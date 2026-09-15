@@ -741,8 +741,7 @@ void CParasite::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float) {
   case kStateMsg_Activate: {
     rstl::list< TUniqueId >& parasites = mgr.ActiveParasites();
     for (AUTO(it, parasites.begin()); it != parasites.end();) {
-      CParasite* other =
-          CPatterned::CastTo< CParasite >(TPatternedCast< CParasite >(mgr.ObjectById(*it)));
+      CParasite* other = PATTERNED_CAST_TO(CParasite, mgr.ObjectById(*it));
       if (!other) {
         it = parasites.erase(it);
         continue;
@@ -829,8 +828,7 @@ void CParasite::DoFlockingBehavior(CStateManager& mgr) {
     float minDistSq = 2.f + x6e8_parasiteSeparationDist * x6e8_parasiteSeparationDist;
     mgr.BuildNearList(nearList, aabb, filter, nullptr);
     for (AUTO(it, nearList.begin()); it != nearList.end(); ++it) {
-      if (CParasite* parasite =
-              CPatterned::CastTo< CParasite >(TPatternedCast< CParasite >(mgr.ObjectById(*it)))) {
+      if (CParasite* parasite = PATTERNED_CAST_TO(CParasite, mgr.ObjectById(*it))) {
         if (parasite->GetUniqueId() != GetUniqueId() && parasite->IsAlive()) {
           parasiteList.push_back(parasite->GetUniqueId());
           float distSq = (parasite->GetTranslation() - GetTranslation()).MagSquared();

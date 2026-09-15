@@ -335,7 +335,7 @@ bool CJellyZap::ClosestToPlayer(CStateManager& mgr) const {
   float closestDistance = ourDistance;
   for (int i = list.GetFirstObjectIndex(); i != -1; i = list.GetNextObjectIndex(i)) {
     CEntity* entity = list[i];
-    const CJellyZap* zap = CPatterned::CastTo< CJellyZap >(TPatternedCast< CJellyZap >(entity));
+    const CJellyZap* zap = PATTERNED_CAST_TO(CJellyZap, entity);
     if (zap && zap->GetCurrentAreaId() == GetCurrentAreaId() && zap != this) {
       const float distance = (playerPos - zap->GetTranslation()).MagSquared();
       if (distance < closestDistance) {

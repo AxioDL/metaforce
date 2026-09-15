@@ -978,8 +978,7 @@ void CSpacePirate::AvoidActors(CStateManager& mgr) {
         if (separation.IsNonZero()) {
           BodyCtrl()->CommandMgr().DeliverCmd(CBCLocomotionCmd(separation, CVector3f::Zero(), 1.f));
           if (!x748_steeringDelayTimer) {
-            if (CSpacePirate* pirate = CPatterned::CastTo(
-                    TPatternedCast< CSpacePirate >(const_cast< CPatterned* >(ai)))) {
+            if (CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CPatterned* >(ai))) {
               if (!pirate->x748_steeringDelayTimer) {
                 CVector3f delta = pirate->GetTranslation() - GetTranslation();
                 if (CVector3f::Dot(GetTransform().GetForward(), delta) > 0.f &&
@@ -1017,8 +1016,7 @@ pas::EStepDirection CSpacePirate::GetStrafeDir(CStateManager& mgr, float dist) {
   bool right = true;
   bool left = true;
   for (int i = list.GetFirstObjectIndex(); i != -1; i = list.GetNextObjectIndex(i)) {
-    if (CSpacePirate* pirate =
-            CPatterned::CastTo(TPatternedCast< CSpacePirate >(const_cast< CEntity* >(list[i])))) {
+    if (CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CEntity* >(list[i]))) {
       if (pirate != this && pirate->GetCurrentAreaId() == GetCurrentAreaId()) {
         CVector3f delta = pirate->GetTranslation() - GetTranslation();
         float deltaSq = delta.MagSquared();
@@ -1359,8 +1357,7 @@ void CSpacePirate::Taunt(CStateManager& mgr, EStateMsg msg, float dt) {
           bool withOtherPirate = false;
           const CObjectList& list = mgr.GetObjectListById(kOL_ListeningAi);
           for (int i = list.GetFirstObjectIndex(); i != -1; i = list.GetNextObjectIndex(i)) {
-            if (CSpacePirate* pirate = CPatterned::CastTo(
-                    TPatternedCast< CSpacePirate >(const_cast< CEntity* >(list[i])))) {
+            if (CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CEntity* >(list[i]))) {
               if (pirate != this && !pirate->x637_25_enableAim && pirate->IsAlive() &&
                   pirate->GetCurrentAreaId() == GetCurrentAreaId()) {
                 if ((pirate->GetTranslation() - GetTranslation()).MagSquared() <
@@ -1559,8 +1556,7 @@ bool CSpacePirate::CoveringFire(CStateManager& mgr, float arg) {
   bool result = false;
   const CObjectList& list = mgr.GetObjectListById(kOL_ListeningAi);
   for (int i = list.GetFirstObjectIndex(); i != -1; i = list.GetNextObjectIndex(i)) {
-    if (CSpacePirate* pirate =
-            CPatterned::CastTo(TPatternedCast< CSpacePirate >(const_cast< CEntity* >(list[i])))) {
+    if (CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CEntity* >(list[i]))) {
       if (pirate != this && pirate->x636_31_inAttackState &&
           pirate->GetCurrentAreaId() == GetCurrentAreaId()) {
         result = true;
@@ -1578,8 +1574,7 @@ bool CSpacePirate::ShouldAttack(CStateManager& mgr, float arg) {
     float distSq = (GetTranslation() - target).MagSquared();
     const CObjectList& list = mgr.GetObjectListById(kOL_ListeningAi);
     for (int i = list.GetFirstObjectIndex(); i != -1; i = list.GetNextObjectIndex(i)) {
-      if (CSpacePirate* pirate =
-              CPatterned::CastTo(TPatternedCast< CSpacePirate >(const_cast< CEntity* >(list[i])))) {
+      if (CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CEntity* >(list[i]))) {
         if (pirate != this && pirate->x636_31_inAttackState && pirate->x400_25_alive &&
             pirate->GetCurrentAreaId() == GetCurrentAreaId()) {
           if ((pirate->GetTranslation() - target).MagSquared() < distSq) {
@@ -2069,8 +2064,7 @@ bool CSpacePirate::ShouldDodge(CStateManager& mgr, float arg) {
       }
     }
     if (!result) {
-      if (const CMetroid* metroid = CPatterned::CastTo(TPatternedCast< CMetroid >(
-              const_cast< CEntity* >(mgr.GetObjectById(x7c0_targetId))))) {
+      if (const CMetroid* metroid = PATTERNED_CAST_TO(CMetroid, const_cast< CEntity* >(mgr.GetObjectById(x7c0_targetId)))) {
         if (metroid->IsAttacking()) {
           CVector3f delta = GetTranslation() - metroid->GetTranslation();
           if (CVector3f::Dot(delta, metroid->GetTransform().GetForward()) > 0.f) {
@@ -2803,8 +2797,7 @@ void CSpacePirate::UpdateAttacks(float dt, CStateManager& mgr) {
               if (CVector3f::Dot(fromPlayer, forward) < 0.9f) {
                 const CObjectList& list = mgr.GetObjectListById(kOL_ListeningAi);
                 for (int i = list.GetFirstObjectIndex(); i != -1; i = list.GetNextObjectIndex(i)) {
-                  if (CSpacePirate* pirate = CPatterned::CastTo(
-                          TPatternedCast< CSpacePirate >(const_cast< CEntity* >(list[i])))) {
+                  if (CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CEntity* >(list[i]))) {
                     if (pirate != this && pirate->x637_25_enableAim &&
                         pirate->GetCurrentAreaId() == GetCurrentAreaId()) {
                       x7bc_attackRemTime += 0.2f;

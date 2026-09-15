@@ -1118,8 +1118,7 @@ void CPlayer::SetOrbitTargetId(TUniqueId id, CStateManager& mgr) {
   if (id != kInvalidUniqueId) {
     const CPatterned* patterned = TCastToConstPtr< CPatterned >(mgr.GetObjectById(id));
     const CWallCrawlerSwarm* swarm = TCastToConstPtr< CWallCrawlerSwarm >(mgr.GetObjectById(id));
-    const CThardusRockProjectile* rock = CPatterned::CastTo< CThardusRockProjectile >(
-        TPatternedCast< CThardusRockProjectile >(const_cast< CEntity* >(mgr.GetObjectById(id))));
+    const CThardusRockProjectile* rock = PATTERNED_CAST_TO(CThardusRockProjectile, const_cast< CEntity* >(mgr.GetObjectById(id)));
     const CScriptGunTurret* turret = TCastToConstPtr< CScriptGunTurret >(mgr.GetObjectById(id));
     if (patterned || swarm || rock || turret) {
       x394_orbitingEnemy = true;

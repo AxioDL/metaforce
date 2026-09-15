@@ -2594,8 +2594,7 @@ bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const {
     const rstl::vector< CEnergyDrainSource >& sources = x274_energyDrain.GetEnergyDrainSources();
     for (rstl::vector< CEnergyDrainSource >::const_iterator it = sources.begin();
          it != sources.end(); ++it) {
-      if (CPatterned::CastTo(TPatternedCast< CMetroidBeta >(
-              const_cast< CEntity* >(mgr.GetObjectById(it->GetEnergyDrainSourceId()))))) {
+      if (PATTERNED_CAST_TO(CMetroidBeta, const_cast< CEntity* >(mgr.GetObjectById(it->GetEnergyDrainSourceId())))) {
         return true;
       }
     }

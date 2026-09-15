@@ -1023,8 +1023,7 @@ void CFlyingPirate::Taunt(CStateManager& mgr, EStateMsg msg, float dt) {
     bool foundPirate = false;
     const CObjectList& list = mgr.GetObjectListById(kOL_ListeningAi);
     for (int i = list.GetFirstObjectIndex(); i != -1; i = list.GetNextObjectIndex(i)) {
-      if (const CSpacePirate* pirate = CPatterned::CastTo< CSpacePirate >(
-              TPatternedCast< CSpacePirate >(const_cast< CEntity* >(list[i])))) {
+      if (const CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CEntity* >(list[i]))) {
         if (!pirate->GetEnableAim() && pirate->IsAlive() &&
             pirate->GetCurrentAreaId() == GetCurrentAreaId() &&
             (pirate->GetTranslation() - GetTranslation()).MagSquared() <
@@ -1824,8 +1823,7 @@ void CFlyingPirate::Think(const float dt, CStateManager& mgr) {
             if (CVector3f::Dot(delta, mgr.GetPlayer()->GetTransform().GetForward()) < 0.9f) {
               const CObjectList& list = mgr.GetObjectListById(kOL_ListeningAi);
               for (int i = list.GetFirstObjectIndex(); i != -1; i = list.GetNextObjectIndex(i)) {
-                const CSpacePirate* pirate = CPatterned::CastTo< CSpacePirate >(
-                    TPatternedCast< CSpacePirate >(const_cast< CEntity* >(list[i])));
+                const CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CEntity* >(list[i]));
                 if (pirate != nullptr && pirate->GetEnableAim() &&
                     pirate->GetCurrentAreaId() == GetCurrentAreaId()) {
                   x7e4_ += 0.2f;

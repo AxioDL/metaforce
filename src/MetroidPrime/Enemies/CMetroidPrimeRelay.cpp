@@ -147,8 +147,7 @@ void CMetroidPrimeRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
 }
 
 void CMetroidPrimeRelay::ForwardScriptMessageToMP(EScriptObjectMessage msg, CStateManager& mgr) {
-  CMetroidPrime* pat =
-      CPatterned::CastTo(TPatternedCast< CMetroidPrime >(mgr.ObjectById(x34_mpUid)));
+  CMetroidPrime* pat = PATTERNED_CAST_TO(CMetroidPrime, mgr.ObjectById(x34_mpUid));
   if (!pat) {
     return;
   }
@@ -165,7 +164,7 @@ void CMetroidPrimeRelay::CreateMetroidPrime(CStateManager& mgr) {
   CObjectList& list = mgr.ObjectListById(kOL_PhysicsActor);
   for (int i = list.GetFirstObjectIndex(); i != -1; i = list.GetNextObjectIndex(i)) {
     CEntity* ent = list[i];
-    if (CPatterned::CastTo(TPatternedCast< CMetroidPrime >(ent)) != nullptr) {
+    if (PATTERNED_CAST_TO(CMetroidPrime, ent) != nullptr) {
       return;
     }
   }

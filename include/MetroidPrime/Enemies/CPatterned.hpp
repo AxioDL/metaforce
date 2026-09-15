@@ -25,11 +25,13 @@ class CSegId;
 class CScriptCoverPoint;
 class CScriptWaypoint;
 
+#ifndef HAS_TYPES_MATCH
 template < typename T >
 struct TPatternedCast {
   CEntity* ent;
   TPatternedCast(CEntity* ent);
 };
+#endif
 
 class CPatterned;
 typedef void (CPatterned::*FTryCommandCallback)(CStateManager& mgr, int arg);
@@ -307,8 +309,11 @@ public:
   u8 ApplyBoneTracking() const;
   CVector3f GetGunEyePos() const;
 
+  
+#ifndef HAS_TYPES_MATCH
   template < class T >
   static T* CastTo(const TPatternedCast< T >& ent);
+#endif
 
   void TryKnockBack(CStateManager& mgr, int arg);
   void TryKnockBack_Front(CStateManager& mgr, int arg);
@@ -495,5 +500,11 @@ protected:
 };
 NESTED_CHECK_SIZEOF(CPatterned, CPatternNode, 0x24)
 CHECK_SIZEOF(CPatterned, (VERSION >= VERSION_GM8P_00 ? 0x578 : 0x568))
+
+#ifdef HAS_TYPES_MATCH
+#define PATTERNED_CAST_TO(CLS, obj) TCastToPtr< CLS >(obj)
+#else
+#define PATTERNED_CAST_TO(CLS, obj) CPatterned::CastTo(TPatternedCast< CLS >(obj))
+#endif
 
 #endif // _CPATTERNED

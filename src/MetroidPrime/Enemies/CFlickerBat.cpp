@@ -221,7 +221,7 @@ void CFlickerBat::NotifyNeighbors(CStateManager& mgr) {
   CVector3f translation = GetTranslation();
   rstl::list< TUniqueId >& flickBats = mgr.GetActiveFlickerBats();
   for (AUTO(iter, flickBats.begin()); iter != flickBats.end();) {
-    CFlickerBat* flick = CastTo(TPatternedCast< CFlickerBat >(mgr.ObjectById(*iter)));
+    CFlickerBat* flick = PATTERNED_CAST_TO(CFlickerBat, mgr.ObjectById(*iter));
     if (flick == nullptr) {
       iter = flickBats.erase(iter);
     } else {

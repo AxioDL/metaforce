@@ -656,7 +656,7 @@ bool CNewFlameThrower::CanDamage(CActor& actor, CStateManager& mgr) {
     return CanCollideWithTrigger(actor, mgr).GetActorId() != kInvalidUniqueId;
   }
   if (TCastToPtr< CScriptPlatform >(actor) || TCastToPtr< CCollisionActor >(actor) ||
-      CPatterned::CastTo< CPuddleToadGamma >(TPatternedCast< CPuddleToadGamma >(&actor))) {
+      PATTERNED_CAST_TO(CPuddleToadGamma, &actor)) {
     return true;
   }
   return CanCollideWithGameObject(actor, mgr).GetActorId() != kInvalidUniqueId;

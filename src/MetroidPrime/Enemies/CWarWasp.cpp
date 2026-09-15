@@ -334,8 +334,7 @@ bool CWarWasp::ShouldSpecialAttack(CStateManager& mgr, float arg) {
             }
           }
         } else {
-          if (const CWarWasp* leader = CPatterned::CastTo(TPatternedCast< CWarWasp >(
-                  const_cast< CEntity* >(mgr.GetObjectById(leaderId))))) {
+          if (const CWarWasp* leader = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(leaderId)))) {
             if (leader->x72e_27_teamMatesMelee) {
               return CTeamAiMgr::AddAttacker(kAT_Melee, mgr, x674_aiMgr, GetUniqueId());
             }
@@ -1053,8 +1052,7 @@ bool CWarWasp::PathToHiveIsClear(CStateManager& mgr) const {
     if (nearList.size() > 0) {
       float distanceSq = delta.MagSquared();
       for (AUTO(it, nearList.begin()); it != nearList.end(); ++it) {
-        if (const CWarWasp* other = CPatterned::CastTo(
-                TPatternedCast< CWarWasp >(const_cast< CEntity* >(mgr.GetObjectById(*it))))) {
+        if (const CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(*it)))) {
           if (other->GetUniqueId() != GetUniqueId() && other->x72e_30_isRetreating &&
               close_enough(other->x3a0_latestLeashPosition, x3a0_latestLeashPosition, 3.f)) {
             CVector3f otherDelta = other->GetTranslation() - GetTranslation();
@@ -1211,8 +1209,7 @@ float CWarWasp::CalcSeekMagnitude(const CStateManager& mgr) const {
           if (it->GetOwnerId() == GetUniqueId()) {
             continue;
           }
-          if (const CWarWasp* other = CPatterned::CastTo(TPatternedCast< CWarWasp >(
-                  const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId()))))) {
+          if (const CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId())))) {
             if (other->x708_circleAttackTeam == x708_circleAttackTeam) {
               CVector3f delta = other->GetTranslation() - GetTranslation();
               if (CVector3f::Dot(forward, delta) > 0.f) {
@@ -1244,8 +1241,7 @@ bool CWarWasp::CheckCircleAttackSpread(const CStateManager& mgr, int team) const
       return true;
     }
     TUniqueId leaderId = GetAttackTeamLeader(mgr, team);
-    if (const CWarWasp* leader = CPatterned::CastTo(
-            TPatternedCast< CWarWasp >(const_cast< CEntity* >(mgr.GetObjectById(leaderId))))) {
+    if (const CWarWasp* leader = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(leaderId)))) {
       CVector3f leaderPos = leader->GetTranslation();
       CVector3f leaderForward = leader->GetTransform().GetForward();
       CVector3f fromCenter = leaderPos - x6b0_circleBurstPos;
@@ -1255,8 +1251,7 @@ bool CWarWasp::CheckCircleAttackSpread(const CStateManager& mgr, int team) const
         if (it->GetOwnerId() == leaderId) {
           continue;
         }
-        if (const CWarWasp* other = CPatterned::CastTo(TPatternedCast< CWarWasp >(
-                const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId()))))) {
+        if (const CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId())))) {
           if (team == other->x708_circleAttackTeam) {
             CVector3f otherPos = other->GetTranslation();
             CVector3f delta = otherPos - leaderPos;
@@ -1290,8 +1285,7 @@ void CWarWasp::SetUpCircleTelegraphTeam(CStateManager& mgr) {
           bool rejoinInitial = false;
           const rstl::vector< CTeamAiRole >& roles = teamMgr->GetTeamAiRoles();
           for (AUTO(it, roles.begin()); it != roles.end(); it++) {
-            if (const CWarWasp* other = CPatterned::CastTo(TPatternedCast< CWarWasp >(
-                    const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId()))))) {
+            if (const CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId())))) {
               if (x70c_initialCircleAttackTeam != -1 &&
                   x70c_initialCircleAttackTeam == other->x70c_initialCircleAttackTeam &&
                   other->x708_circleAttackTeam >= 0) {
@@ -1328,8 +1322,7 @@ void CWarWasp::TryCircleTeamMerge(CStateManager& mgr) {
             GetAttackTeamSize(mgr, team - 1) == 0) {
           const rstl::vector< CTeamAiRole >& roles = teamMgr->GetTeamAiRoles();
           for (AUTO(it, roles.begin()); it != roles.end(); it++) {
-            if (CWarWasp* other = CPatterned::CastTo(
-                    TPatternedCast< CWarWasp >(mgr.ObjectById(it->GetOwnerId())))) {
+            if (CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, mgr.ObjectById(it->GetOwnerId()))) {
               if (team == other->x708_circleAttackTeam) {
                 other->JoinCircleAttackTeam(team - 1, mgr);
               }
@@ -1346,8 +1339,7 @@ TUniqueId CWarWasp::GetAttackTeamLeader(const CStateManager& mgr, int team) cons
     if (teamMgr->IsPartOfTeam(GetUniqueId())) {
       for (AUTO(it, teamMgr->GetTeamAiRoles().begin()); it != teamMgr->GetTeamAiRoles().end();
            it++) {
-        if (const CWarWasp* other = CPatterned::CastTo(TPatternedCast< CWarWasp >(
-                const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId()))))) {
+        if (const CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId())))) {
           if (team == other->x708_circleAttackTeam) {
             return it->GetOwnerId();
           }
@@ -1364,8 +1356,7 @@ int CWarWasp::GetAttackTeamSize(const CStateManager& mgr, int team) const {
     if (teamMgr->IsPartOfTeam(GetUniqueId())) {
       for (AUTO(it, teamMgr->GetTeamAiRoles().begin()); it != teamMgr->GetTeamAiRoles().end();
            it++) {
-        if (const CWarWasp* other = CPatterned::CastTo(TPatternedCast< CWarWasp >(
-                const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId()))))) {
+        if (const CWarWasp* other = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId())))) {
           if (team == other->x708_circleAttackTeam) {
             ++count;
           }
@@ -1395,8 +1386,7 @@ float CWarWasp::CalcOffTotemAngle(CStateManager& mgr) const {
 
 void CWarWasp::UpdateTelegraphMoveSpeed(CStateManager& mgr) {
   TUniqueId leaderId = GetAttackTeamLeader(mgr, x708_circleAttackTeam);
-  if (const CWarWasp* leader = CPatterned::CastTo(
-          TPatternedCast< CWarWasp >(const_cast< CEntity* >(mgr.GetObjectById(leaderId))))) {
+  if (const CWarWasp* leader = PATTERNED_CAST_TO(CWarWasp, const_cast< CEntity* >(mgr.GetObjectById(leaderId)))) {
     if (leaderId == GetUniqueId()) {
       float time = x330_stateMachineState.GetTime();
       float cycleTime = CMath::FastFmod(time, 2.8f);

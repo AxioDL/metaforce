@@ -2744,8 +2744,7 @@ void CMorphBall::RenderEnergyDrainEffects(const CStateManager& mgr) const {
   const rstl::vector< CEnergyDrainSource >& sources =
       x0_player.x274_energyDrain.GetEnergyDrainSources();
   for (const CEnergyDrainSource* it = sources.data(); it != sources.data() + sources.size(); ++it) {
-    const CMetroidBeta* metroid = CPatterned::CastTo(TPatternedCast< CMetroidBeta >(
-        const_cast< CEntity* >(mgr.GetObjectById(it->GetEnergyDrainSourceId()))));
+    const CMetroidBeta* metroid = PATTERNED_CAST_TO(CMetroidBeta, const_cast< CEntity* >(mgr.GetObjectById(it->GetEnergyDrainSourceId())));
     if (metroid != nullptr) {
       metroid->RenderHitBallEffect();
       break;

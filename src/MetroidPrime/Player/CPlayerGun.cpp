@@ -2201,14 +2201,7 @@ void CPlayerGun::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
         bigStrike = true;
         const TUniqueId attachedActor = player.GetAttachedActor();
         if (attachedActor != kInvalidUniqueId) {
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-          metroidAttached =
-              TCastToPtr< CMetroid >(const_cast< CEntity* >(mgr.GetObjectById(attachedActor))) !=
-              nullptr;
-#else
-          metroidAttached = CPatterned::CastTo(TPatternedCast< CMetroid >(const_cast< CEntity* >(
-                                mgr.GetObjectById(attachedActor)))) != nullptr;
-#endif
+          metroidAttached = PATTERNED_CAST_TO(CMetroid, const_cast< CEntity* >(mgr.GetObjectById(attachedActor))) != nullptr;
         }
       }
     }
@@ -2288,13 +2281,7 @@ void CPlayerGun::RenderEnergyDrainEffects(const CStateManager& mgr) const {
     it = player->GetPlayerEnergyDrain().GetEnergyDrainSources().data();
     while (it != player->GetPlayerEnergyDrain().GetEnergyDrainSources().data() +
                      player->GetPlayerEnergyDrain().GetEnergyDrainSources().size()) {
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
-      CMetroidBeta* metroid = TCastToPtr< CMetroidBeta >(
-          const_cast< CEntity* >(mgr.GetObjectById(it->GetEnergyDrainSourceId())));
-#else
-      CMetroidBeta* metroid = CPatterned::CastTo(TPatternedCast< CMetroidBeta >(
-          const_cast< CEntity* >(mgr.GetObjectById(it->GetEnergyDrainSourceId()))));
-#endif
+      CMetroidBeta* metroid = PATTERNED_CAST_TO(CMetroidBeta, const_cast< CEntity* >(mgr.GetObjectById(it->GetEnergyDrainSourceId())));
       if (metroid != nullptr) {
         metroid->RenderHitGunEffect();
         return;

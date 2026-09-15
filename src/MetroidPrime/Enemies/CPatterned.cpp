@@ -1194,8 +1194,7 @@ void CPatterned::Freeze(CStateManager& mgr, const CVector3f& pos, CUnitVector3f 
     const CVector3f& posOut = GetTranslation();
     CSfxManager::AddEmitter(
         x460_knockBackController.GetCreatureSize() != kCS_Small &&
-                CPatterned::CastTo< CMetroid >(TPatternedCast< CMetroid >(
-                    const_cast< CEntity* >(mgr.GetObjectById(GetUniqueId())))) != nullptr
+                PATTERNED_CAST_TO(CMetroid, const_cast< CEntity* >(mgr.GetObjectById(GetUniqueId()))) != nullptr
             ? (SND_FXID)0x701
             : (SND_FXID)0x708,
         posOut, CVector3f::Zero(), true, false, CSfxManager::kMedPriority, CSfxManager::kAllAreas);

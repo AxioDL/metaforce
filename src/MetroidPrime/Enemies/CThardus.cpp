@@ -392,9 +392,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
               rstl::reserved_vector< TUniqueId, 16 > waypoints;
               GetWaypoints(*waypoint, mgr, waypoints);
               x578_waypoints.push_back(waypoints);
-            } else if (CThardusRockProjectile* projectile =
-                           CPatterned::CastTo< CThardusRockProjectile >(
-                               TPatternedCast< CThardusRockProjectile >(mgr.ObjectById(id)))) {
+            } else if (CThardusRockProjectile* projectile = PATTERNED_CAST_TO(CThardusRockProjectile, mgr.ObjectById(id))) {
               x5fc_projectileId = id;
               x60c_projectileEditorId = connection.x8_objId;
               projectile->SetActive(false);
@@ -538,8 +536,7 @@ void CThardus::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EU
       if (id == kInvalidUniqueId) {
         continue;
       }
-      if (CThardusRockProjectile* rock = CPatterned::CastTo< CThardusRockProjectile >(
-              TPatternedCast< CThardusRockProjectile >(mgr.ObjectById(id)))) {
+      if (CThardusRockProjectile* rock = PATTERNED_CAST_TO(CThardusRockProjectile, mgr.ObjectById(id))) {
         rock->SetActive(true);
         rock->SetChildrenActive(mgr, true);
         const CVector3f scale = GetModelData()->GetScale();
@@ -1536,8 +1533,7 @@ void CThardus::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
     x5ec_stateProg = 0;
     const uint count = x798_.size();
     for (uint i = 0; i < count; ++i) {
-      if (CThardusRockProjectile* rock = CPatterned::CastTo< CThardusRockProjectile >(
-              TPatternedCast< CThardusRockProjectile >(mgr.ObjectById(x798_[i])))) {
+      if (CThardusRockProjectile* rock = PATTERNED_CAST_TO(CThardusRockProjectile, mgr.ObjectById(x798_[i]))) {
         rock->AddGravity(mgr);
       }
     }
@@ -2028,8 +2024,7 @@ void CThardus::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
     SetThardusState(kTS_Invalid, mgr);
     const uint count = x798_.size();
     for (uint i = 0; i < count; ++i) {
-      if (CThardusRockProjectile* rock = CPatterned::CastTo< CThardusRockProjectile >(
-              TPatternedCast< CThardusRockProjectile >(mgr.ObjectById(x798_[i])))) {
+      if (CThardusRockProjectile* rock = PATTERNED_CAST_TO(CThardusRockProjectile, mgr.ObjectById(x798_[i]))) {
         rock->AddGravity(mgr);
       }
     }

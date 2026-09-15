@@ -1156,13 +1156,12 @@ void CMetroidPrime::LaunchEnergyBall(CStateManager& mgr) {
   }
   static uint locator = 0;
   for (AUTO(it, x1058_.begin()); it != x1058_.end(); ++it) {
-    const CEnergyBall* const original =
-        CPatterned::CastTo< CEnergyBall >(TPatternedCast< CEnergyBall >(
-            const_cast< CEntity* >(mgr.GetObjectById(mgr.GetIdForScript(*it)))));
+    const CEnergyBall* const original = PATTERNED_CAST_TO(CEnergyBall, 
+      const_cast< CEntity* >(mgr.GetObjectById(mgr.GetIdForScript(*it)))
+    );
     if (original && original->GetBallType() == type) {
       const TUniqueId id = mgr.GenerateObject(*it).second;
-      CEnergyBall* const ball =
-          CPatterned::CastTo< CEnergyBall >(TPatternedCast< CEnergyBall >(mgr.ObjectById(id)));
+      CEnergyBall* const ball = PATTERNED_CAST_TO(CEnergyBall, mgr.ObjectById(id));
       if (ball) {
         ball->SetTransform(GetLctrTransform(rstl::string_l(skDrillerLocators[locator++ & 1])));
         ball->AcceptScriptMsg(kSM_Activate, GetUniqueId(), mgr);
@@ -1206,8 +1205,7 @@ void CMetroidPrime::UpdateEnergyBall(CStateManager& mgr, float dt) {
     x1074_ -= dt;
     int locator = 0;
     for (AUTO(it, x106c_energyBallIds.begin()); it != x106c_energyBallIds.end(); ++it) {
-      CEnergyBall* const ball =
-          CPatterned::CastTo< CEnergyBall >(TPatternedCast< CEnergyBall >(mgr.ObjectById(*it)));
+      CEnergyBall* const ball = PATTERNED_CAST_TO(CEnergyBall, mgr.ObjectById(*it));
       if (ball) {
         ball->SetTransform(GetLctrTransform(rstl::string_l(skDrillerLocators[locator++])));
       }
@@ -1400,8 +1398,7 @@ int CMetroidPrime::GetActiveEnergyBallCount(CStateManager& mgr) {
   CObjectList& list = mgr.ObjectListById(kOL_PhysicsActor);
   for (int i = list.GetFirstObjectIndex(); i != -1; i = list.GetNextObjectIndex(i)) {
     CEntity* entity = list[i];
-    const CEnergyBall* const ball =
-        CPatterned::CastTo< CEnergyBall >(TPatternedCast< CEnergyBall >(entity));
+    const CEnergyBall* const ball = PATTERNED_CAST_TO(CEnergyBall, entity);
     if (ball && ball->GetCurrentAreaId() == GetCurrentAreaId() && ball->GetActive()) {
       ++count;
     }

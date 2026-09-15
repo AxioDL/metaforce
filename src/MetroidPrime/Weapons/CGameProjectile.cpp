@@ -137,7 +137,7 @@ CProjectileTouchResult CGameProjectile::CanCollideWithComplexCollision(CActor& a
     if (platform->HasComplexCollision()) {
       useAct = platform;
     }
-  } else if (CPatterned::CastTo< CPuddleToadGamma >(TPatternedCast< CPuddleToadGamma >(&act))) {
+  } else if (PATTERNED_CAST_TO(CPuddleToadGamma, &act)) {
     useAct = static_cast< CPhysicsActor* >(&act);
   } else if (CCollisionActor* const collisionActor = TCastToPtr< CCollisionActor >(act)) {
     if (collisionActor->GetOwnerId() == GetOwnerId()) {
@@ -197,7 +197,7 @@ CProjectileTouchResult CGameProjectile::CanCollideWith(CActor& act, CStateManage
   if (TCastToPtr< CScriptTrigger >(act)) {
     return CanCollideWithTrigger(act, mgr);
   } else if (TCastToPtr< CScriptPlatform >(act) || TCastToPtr< CCollisionActor >(act) ||
-             CPatterned::CastTo< CPuddleToadGamma >(TPatternedCast< CPuddleToadGamma >(&act))) {
+             PATTERNED_CAST_TO(CPuddleToadGamma, &act)) {
     return CanCollideWithComplexCollision(act, mgr);
   } else {
     return CanCollideWithGameObject(act, mgr);

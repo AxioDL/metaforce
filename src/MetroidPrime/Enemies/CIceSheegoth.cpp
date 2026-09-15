@@ -1238,8 +1238,7 @@ bool CIceSheegoth::IsClosestSheegoth(CStateManager& mgr,
   CVector3f delta = pos - GetTranslation();
   const float distanceSquared = delta.MagSquared();
   for (AUTO(it, nearList.begin()); it != nearList.end(); ++it) {
-    const CIceSheegoth* sheegoth = CPatterned::CastTo< CIceSheegoth >(
-        TPatternedCast< CIceSheegoth >(const_cast< CEntity* >(mgr.GetObjectById(*it))));
+    const CIceSheegoth* sheegoth = PATTERNED_CAST_TO(CIceSheegoth, const_cast< CEntity* >(mgr.GetObjectById(*it)));
     if (sheegoth && sheegoth->GetUniqueId() != GetUniqueId()) {
       delta = pos - sheegoth->GetTranslation();
       if (delta.MagSquared() < distanceSquared) {
@@ -1258,8 +1257,7 @@ bool CIceSheegoth::ShouldAttractProjectile(const CGameProjectile& projectile,
       (!projectile.GetCurrentDamageInfo().GetWeaponMode().IsComboed() || type != kWT_Power);
   const CActor* owner = static_cast< const CActor* >(mgr.GetObjectById(projectile.GetOwnerId()));
   if (canAttract && owner) {
-    if (!CPatterned::CastTo< CIceSheegoth >(
-            TPatternedCast< CIceSheegoth >(const_cast< CActor* >(owner))) &&
+    if (!PATTERNED_CAST_TO(CIceSheegoth, const_cast< CActor* >(owner)) &&
         projectile.GetCurrentAreaId() == GetCurrentAreaId()) {
       const CVector3f offset = GetTransform().Rotate(x56c_data.GetX8());
       const CVector3f attractionPos = GetTranslation() + offset;
