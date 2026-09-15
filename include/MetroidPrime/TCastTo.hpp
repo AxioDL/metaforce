@@ -80,6 +80,7 @@ template < class T >
 T* TCastToPtr(CEntity& p);
 
 #define DECLARE_TYPES_MATCH virtual CEntity* TypesMatch(int type) override
+#define DECLARE_ACCEPT
 #define DECLARE_TYPES_MATCH_OR_ACCEPT DECLARE_TYPES_MATCH
 #define ENTITY_ACCEPT_IMPL(CLS)
 #define HAS_TYPES_MATCH 1
@@ -116,7 +117,8 @@ private:
 
 
 #define DECLARE_TYPES_MATCH
-#define DECLARE_TYPES_MATCH_OR_ACCEPT void Accept(IVisitor& visitor) override
+#define DECLARE_ACCEPT void Accept(IVisitor& visitor) override
+#define DECLARE_TYPES_MATCH_OR_ACCEPT DECLARE_ACCEPT
 #define ENTITY_ACCEPT_IMPL(CLS) void CLS::Accept(IVisitor& visitor) { visitor.Visit(*this); }
 
 #endif
