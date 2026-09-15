@@ -1561,7 +1561,10 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Animation/CAnimSourceReaderBase.cpp",
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CAnimTreeAnimReaderContainer.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "Kyoto/Animation/CAnimTreeAnimReaderContainer.cpp",
+            ),
             Object(MatchingFor("GM8E01_00"), "Kyoto/Animation/CAnimTreeBlend.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CAnimTreeContinuousPhaseBlend.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CAnimTreeDoubleChild.cpp"),
