@@ -1485,7 +1485,10 @@ config.libs = [
                 "Kyoto/Animation/CAnimationManager.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CAnimationSet.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CAnimCharacterSet.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "Kyoto/Animation/CAnimCharacterSet.cpp",
+            ),
             Object(
                 MatchingFor("GM8E01_00"), 
                 "Kyoto/Animation/CAnimTreeLoopIn.cpp",
@@ -1496,11 +1499,14 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "Kyoto/Animation/CCharacterSet.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CMetaAnimBlend.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Animation/CMetaAnimFactory.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CMetaAnimPhaseBlend.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CMetaAnimPlay.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "Kyoto/Animation/CMetaAnimPlay.cpp",
+            ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/CMetaAnimRandom.cpp"),
             Object(NonMatching, "Kyoto/Animation/CMetaAnimSequence.cpp"),
             Object(
@@ -1616,7 +1622,10 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/IAnimReader.cpp"
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CAllFormatsAnimSource.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "Kyoto/Animation/CAllFormatsAnimSource.cpp",
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/CDvdRequestManager.cpp"
             ),
@@ -1889,7 +1898,7 @@ config.libs = [
                 "Kyoto/Graphics/CCubeSurface.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "Kyoto/Animation/CCharAnimTime.cpp",
             ),
             Object(

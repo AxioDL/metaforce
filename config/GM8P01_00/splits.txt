@@ -2217,11 +2217,14 @@ Kyoto/Animation/CMetaAnimPhaseBlend.cpp:
 	.sdata2     start:0x80470508 end:0x80470510
 
 Kyoto/Animation/CMetaAnimPlay.cpp:
-	.text       start:0x802CB408 end:0x802CB508
+	.text       start:0x802CB408 end:0x802CB914
+	.rodata     start:0x803C2250 end:0x803C2258
 	.data       start:0x803D4B80 end:0x803D4BA0
+	.sdata      start:0x8046A7F8 end:0x8046A800
 
 Kyoto/Animation/CMetaAnimRandom.cpp:
-	.text       start:0x802CBC64 end:0x802CBE70
+	.text       start:0x802CB914 end:0x802CBFE4
+	.data       start:0x803D4BA0 end:0x803D4BC0
 
 Kyoto/Animation/CMetaAnimSequence.cpp:
 	.text       start:0x802CC18C end:0x802CC488
@@ -2908,7 +2911,7 @@ Kyoto/Graphics/CCubeSurface.cpp:
 
 Kyoto/Animation/CCharAnimTime.cpp:
 	.text       start:0x80330640 end:0x80331180
-	.sdata      start:0x8046AA1C end:0x8046AA38
+	.sdata      start:0x8046AA18 end:0x8046AA38
 	.sdata2     start:0x80470B80 end:0x80470B88
 
 Kyoto/Animation/CSegIdList.cpp:
