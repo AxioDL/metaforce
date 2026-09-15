@@ -409,8 +409,12 @@ MetroidPrime/TypesMatch.cpp:
 	.data       start:0x803C72B8 end:0x803C9738
 
 MetroidPrime/ScriptObjects/CScriptSound.cpp:
-	.text       start:0x800A954C end:0x800AA090
-	.data       start:0x803C9738 end:0x803C97A4
+	.text       start:0x800A954C end:0x800AA344
+	.data       start:0x803C9738 end:0x803C9830
+	.bss        start:0x803F4390 end:0x803F43A8
+	.sdata      start:0x80469290 end:0x804692A0
+	.sbss       start:0x8046AFA8 end:0x8046AFC0
+	.sdata2     start:0x8046CB28 end:0x8046CB50
 
 MetroidPrime/ScriptObjects/CScriptPlatform.cpp:
 	.text       start:0x800AA538 end:0x800AD8E4
@@ -1197,7 +1201,9 @@ MetroidPrime/CFluidPlaneDoor.cpp:
 	.sdata2     start:0x8046E5F8 end:0x8046E610
 
 MetroidPrime/ScriptObjects/CScriptRoomAcoustics.cpp:
-	.text       start:0x80192804 end:0x80192C9C
+	.text       start:0x80192804 end:0x80192CA8
+	.ctors      start:0x803B5030 end:0x803B5034
+	.sbss       start:0x8046B160 end:0x8046B168
 
 MetroidPrime/Enemies/CIceSheegoth.cpp:
 	.text       start:0x80192CCC end:0x8019B380

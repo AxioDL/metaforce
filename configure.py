@@ -660,7 +660,11 @@ config.libs = [
                 NonMatching,
                 "MetroidPrime/TypesMatch.cpp",
             ),
-            Object(MatchingFor("GM8E01_00"), "MetroidPrime/ScriptObjects/CScriptSound.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8P01_00"),
+                "MetroidPrime/ScriptObjects/CScriptSound.cpp",
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
+            ),
             Object(NonMatching, "MetroidPrime/ScriptObjects/CScriptPlatform.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "MetroidPrime/UserNames.cpp"),
             Object(NonMatching, "MetroidPrime/ScriptObjects/CScriptGenerator.cpp"),
@@ -1057,7 +1061,7 @@ config.libs = [
                 cflags=cflags_retro,
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/ScriptObjects/CScriptRoomAcoustics.cpp",
             ),
             Object(NonMatching, "MetroidPrime/Enemies/CIceSheegoth.cpp"),

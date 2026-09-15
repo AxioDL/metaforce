@@ -120,5 +120,3 @@ void CScriptRoomAcoustics::DisableAuxCallbacks() {
   s_ActiveAcousticsAreaId = kInvalidAreaId;
   CAudioSys::SetVolumeScale(CAudioSys::GetDefaultVolumeScale());
 }
-
-CScriptRoomAcoustics::~CScriptRoomAcoustics() {}

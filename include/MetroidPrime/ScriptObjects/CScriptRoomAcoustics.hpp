@@ -77,11 +77,10 @@ public:
                        float revStdMix, float revStdTime, float revStdDamping, float revStdPreDelay,
                        bool delay, int delayL, int delayR, int delayS, int feedbackL, int feedbackR,
                        int feedbackS, int outputL, int outputR, int outputS);
-  virtual ~CScriptRoomAcoustics();
+  DECLARE_TYPES_MATCH_OR_ACCEPT;
 
   void Think(float dt, CStateManager& stateMgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
   void EnableAuxCallbacks();
 
   static void DisableAuxCallbacks();
