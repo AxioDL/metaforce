@@ -122,12 +122,12 @@ MetroidPrime/CAnimData.cpp:
 	.sdata2     start:0x8046C250 end:0x8046C278
 
 MetroidPrime/Factories/CCharacterFactory.cpp:
-	.text       start:0x80033508 end:0x800361E8
+	.text       start:0x80033508 end:0x800361D8
 	.rodata     start:0x803B7720 end:0x803B7728
 	.data       start:0x803C4F88 end:0x803C5068
 
 MetroidPrime/Factories/CAssetFactory.cpp:
-	.text       start:0x800361E8 end:0x800367D8
+	.text       start:0x800361D8 end:0x800367D8
 	.rodata     start:0x803B7728 end:0x803B7730
 	.data       start:0x803C5068 end:0x803C5098
 
@@ -205,7 +205,7 @@ MetroidPrime/CIOWinManager.cpp:
 	.rodata     start:0x803B78C8 end:0x803B7908
 
 MetroidPrime/CIOWin.cpp:
-	.text       start:0x80053CB0 end:0x80053D60
+	.text       start:0x80053CA0 end:0x80053D60
 	.data       start:0x803C5270 end:0x803C5290
 
 MetroidPrime/CActor.cpp:
