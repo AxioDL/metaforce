@@ -32,5 +32,3 @@ void CScriptSwitch::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, C
   }
   CEntity::AcceptScriptMsg(msg, objId, mgr);
 }
-
-CScriptSwitch::~CScriptSwitch() {}

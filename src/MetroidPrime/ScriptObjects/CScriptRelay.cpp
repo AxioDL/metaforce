@@ -67,5 +67,3 @@ void CScriptRelay::Think(float, CStateManager& stateMgr) {
 }
 
 ENTITY_ACCEPT_IMPL(CScriptRelay)
-
-CScriptRelay::~CScriptRelay() {}

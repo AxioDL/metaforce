@@ -14,8 +14,6 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   void Think(float, CStateManager& stateMgr) override;
   DECLARE_ACCEPT;
-
-  ~CScriptRelay();
 };
 
 #endif // _CSCRIPTRELAY

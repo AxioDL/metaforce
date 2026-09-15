@@ -20,7 +20,6 @@ public:
                            EControlCommandOption);
   DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
-  ~CScriptPlayerStateChange();
 
   bool Filtered() { return x44_ctrlCmdOpt == kCCO_Filtered; }
 };

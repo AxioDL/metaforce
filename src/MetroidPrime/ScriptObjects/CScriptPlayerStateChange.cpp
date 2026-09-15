@@ -44,5 +44,3 @@ void CScriptPlayerStateChange::AcceptScriptMsg(EScriptObjectMessage msg, TUnique
 
   CEntity::AcceptScriptMsg(msg, objId, stateMgr);
 }
-
-CScriptPlayerStateChange::~CScriptPlayerStateChange() {}

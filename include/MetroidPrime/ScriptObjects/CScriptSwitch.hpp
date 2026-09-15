@@ -11,7 +11,6 @@ public:
 
   DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
-  ~CScriptSwitch();
 
 private:
   bool mOpened;
