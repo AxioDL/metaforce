@@ -1446,7 +1446,8 @@ config.libs = [
             Object(NonMatching, "Collision/CollisionUtil.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Collision/CCollidableSphere.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"), "Collision/CMaterialFilter.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                "Collision/CMaterialFilter.cpp",
             ),
             Object(
                 NonMatching,
@@ -1634,7 +1635,8 @@ config.libs = [
                 "Kyoto/Animation/CAllFormatsAnimSource.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/CDvdRequestManager.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "Kyoto/CDvdRequestManager.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/CDvdRequest.cpp"),
             Object(
@@ -1808,7 +1810,7 @@ config.libs = [
                 "Kyoto/Streams/CInputStream.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "Kyoto/Streams/CMemoryInStream.cpp",
             ),
             Object(

@@ -2070,9 +2070,6 @@ GuiSys/CGuiWidgetDrawParms.cpp:
 	.bss        start:0x80461DA8 end:0x80461DB8 align:4 common
 	.sdata2     start:0x80470380 end:0x80470388
 
-Collision/CMaterialFilter.cpp:
-	.bss        start:0x80461DB8 end:0x80461DD0 align:4 common
-
 GuiSys/CAuiEnergyBarT01.cpp:
 	.text       start:0x802B71C4 end:0x802B7C7C
 	.rodata     start:0x803C1EA0 end:0x803C1EB8
@@ -2137,6 +2134,11 @@ Collision/CCollidableSphere.cpp:
 	.bss        start:0x80401618 end:0x80401660
 	.sdata      start:0x8046A7D0 end:0x8046A7D8
 	.sdata2     start:0x80470490 end:0x804704A8
+
+Collision/CMaterialFilter.cpp:
+	.text       start:0x802C1008 end:0x802C1150
+	.ctors      start:0x803B50C4 end:0x803B50C8
+	.bss        start:0x80461DB8 end:0x80461DD0 align:4 common
 
 Collision/COBBox.cpp:
 	.text       start:0x802C1150 end:0x802C1C10
@@ -2809,7 +2811,7 @@ Kyoto/Streams/CInputStream.cpp:
 	.sbss       start:0x8046B630 end:0x8046B648
 
 Kyoto/Streams/CMemoryInStream.cpp:
-	.text       start:0x803279BC end:0x80327A40
+	.text       start:0x803279B4 end:0x80327A40
 	.data       start:0x803D6210 end:0x803D6220
 
 Kyoto/Streams/CMemoryStreamOut.cpp:
