@@ -68,7 +68,13 @@ private:
   CTransform4f x14_localToWorldXf;
   CTransform4f x44_localXf;
   CVector3f x74_worldOffset;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  CVector3f x80_previousLocalOffset;
+#endif
   CVector3f x80_localOffset;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  CVector3f x98_interpolationOffset;
+#endif
   CVector3f x8c_projOffset;
   CVector3f x98_scale;
   CVector3f xa4_localOffset2;
@@ -100,5 +106,7 @@ private:
   bool x124_30_AS13 : 1;
   bool x124_31_VMD2 : 1;
 };
+CHECK_SIZEOF(CProjectileWeapon,
+             (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0x140 : 0x128))
 
 #endif // _CPROJECTILEWEAPON_HPP

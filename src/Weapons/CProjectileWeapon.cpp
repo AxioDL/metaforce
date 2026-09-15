@@ -31,7 +31,13 @@ CProjectileWeapon::CProjectileWeapon(const TToken< CWeaponDescription >& descrip
 , x14_localToWorldXf(localToWorld)
 , x44_localXf(CTransform4f::Identity())
 , x74_worldOffset(worldOffset)
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+, x80_previousLocalOffset(CVector3f::Zero())
+#endif
 , x80_localOffset(CVector3f::Zero())
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+, x98_interpolationOffset(CVector3f::Zero())
+#endif
 , x8c_projOffset(CVector3f::Zero())
 , x98_scale(CVector3f(1.f, 1.f, 1.f))
 , xa4_localOffset2(CVector3f::Zero())
@@ -134,15 +140,14 @@ CProjectileWeapon::~CProjectileWeapon() {
   delete x120_swoosh3;
 }
 
-inline f32 val() { return 1.0f; }
-
 bool CProjectileWeapon::Update(float dt) {
   CGlobalRandom __(x10_random);
 
   double actualTime = xf4_curFrame * (1.0 / 60.0);
   xec_childSystemUpdateRate = 0;
   double useDt = close_enough(dt, 1.f / 60.f, 1.6666666851961054e-5f) ? (1.0 / 60.0) : dt;
-  useDt *= val();
+  double timeScale = 1.0;
+  useDt *= timeScale;
   if (useDt < 0.f) {
     useDt = 0.f;
   }
@@ -166,6 +171,10 @@ bool CProjectileWeapon::Update(float dt) {
   }
 
   xd8_remainderTime = (float)((actualTime - xd0_curTime) / (1.f / 60.0));
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  x98_interpolationOffset =
+      static_cast< float >(xd8_remainderTime) * (x80_previousLocalOffset - x80_localOffset);
+#endif
 
   if (xf4_curFrame < xe8_lifetime) {
     xe0_maxTurnRate = 0.f;
@@ -178,6 +187,14 @@ bool CProjectileWeapon::Update(float dt) {
 }
 
 void CProjectileWeapon::UpdateParticleFX() {
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  if (xfc_APSMGen && x4_weaponDesc->x28_30_SPS1) {
+    xfc_APSMGen->Update(1.f / 60.f);
+  }
+  if (x100_APS2Gen && x4_weaponDesc->x29_24_SPS2) {
+    x100_APS2Gen->Update(1.f / 60.f);
+  }
+#endif
   for (int i = 0; i < xec_childSystemUpdateRate; ++i) {
     UpdateChildParticleSystems(1.f / 60.f);
   }
@@ -188,8 +205,15 @@ const CTransform4f CProjectileWeapon::GetTransform() const {
 }
 
 CTransform4f CProjectileWeapon::GetTransform() { return x14_localToWorldXf * x44_localXf; }
+
 const CVector3f CProjectileWeapon::GetTranslation() const {
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  return x14_localToWorldXf *
+             (x80_localOffset + x98_interpolationOffset + x44_localXf * x8c_projOffset) +
+         x74_worldOffset;
+#else
   return x14_localToWorldXf * (x80_localOffset + x44_localXf * x8c_projOffset) + x74_worldOffset;
+#endif
 }
 
 void CProjectileWeapon::SetRelativeOrientation(const CTransform4f& orient) { x44_localXf = orient; }
@@ -200,13 +224,20 @@ void CProjectileWeapon::SetWorldSpaceOrientation(const CTransform4f& orient) {
 
 void CProjectileWeapon::UpdatePSTranslationAndOrientation() {
   if (xe8_lifetime >= xf4_curFrame && x124_24_active) {
-
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    x80_previousLocalOffset = x80_localOffset;
+#endif
     if (CModVectorElement* psvm = x4_weaponDesc->xc_PSVM) {
       psvm->GetValue(xf4_curFrame, xb0_velocity, x80_localOffset);
     }
 
     if (x124_31_VMD2) {
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+      CVector3f velocity = x44_localXf * xb0_velocity;
+      x80_localOffset += velocity;
+#else
       x80_localOffset += x44_localXf * xb0_velocity;
+#endif
     } else {
       x80_localOffset += xb0_velocity;
     }
@@ -262,7 +293,10 @@ void CProjectileWeapon::UpdateChildParticleSystems(float dt) {
         }
       }
     }
-    xfc_APSMGen->Update(useDt);
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    if (!x4_weaponDesc->x28_30_SPS1)
+#endif
+      xfc_APSMGen->Update(useDt);
     if (xfc_APSMGen->IsSystemDeletable() == TRUE) {
       delete xfc_APSMGen;
       xfc_APSMGen = nullptr;
@@ -287,7 +321,10 @@ void CProjectileWeapon::UpdateChildParticleSystems(float dt) {
       }
     }
 
-    x100_APS2Gen->Update(useDt);
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    if (!x4_weaponDesc->x29_24_SPS2)
+#endif
+      x100_APS2Gen->Update(useDt);
     if (x100_APS2Gen->IsSystemDeletable() == TRUE) {
       delete x100_APS2Gen;
       x100_APS2Gen = nullptr;
@@ -391,7 +428,12 @@ const bool CProjectileWeapon::IsSystemDeletable() const {
 void CProjectileWeapon::Render() const {
   if (xf4_curFrame <= xe8_lifetime && x124_24_active && x108_model) {
     CTransform4f localXf = CTransform4f::Translate(
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+        x80_localOffset + x98_interpolationOffset + (x44_localXf * x8c_projOffset) +
+        xa4_localOffset2);
+#else
         x80_localOffset + (x44_localXf * x8c_projOffset) + xa4_localOffset2);
+#endif
     CTransform4f worldXf = CTransform4f::Translate(x74_worldOffset);
     CTransform4f scaleXf =
         CTransform4f::Scale(x98_scale.GetX(), x98_scale.GetY(), x98_scale.GetZ());
@@ -441,16 +483,18 @@ rstl::optional_object< TLockedToken< CGenDescription > > CProjectileWeapon::Coll
     const EWeaponCollisionResponseTypes colType, const bool deflected, const bool useTarget,
     const CVector3f& pos, const CVector3f& normal, const CVector3f& target) {
   x80_localOffset = x14_localToWorldXf.TransposeRotate(pos - x74_worldOffset) - x8c_projOffset;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  x98_interpolationOffset = CVector3f::Zero();
+#endif
 
   if (deflected) {
     CVector3f posToTarget = target - GetTranslation();
     if (useTarget && posToTarget.CanBeNormalized()) {
       SetWorldSpaceOrientation(CTransform4f::LookAt(CVector3f::Zero(), posToTarget.AsNormalized()));
     } else {
-      CVector3f col = GetTransform().GetColumn(kDY);
+      const CVector3f& col = GetTransform().GetColumn(kDY);
       CTransform4f lookXf = CTransform4f::LookAt(
-          CVector3f::Zero(), col - ((CVector3f::Dot(normal, *(CVector3f*)&col) * 2.f) * normal),
-          normal);
+          CVector3f::Zero(), col - ((CVector3f::Dot(normal, col) * 2.f) * normal), normal);
       SetWorldSpaceOrientation(lookXf);
     }
     return rstl::optional_object_null();

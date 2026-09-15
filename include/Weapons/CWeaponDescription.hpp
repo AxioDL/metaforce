@@ -35,6 +35,24 @@ public:
   CColorElement* x1c_PCOL;
   CVectorElement* x20_POFS;
   CVectorElement* x24_OFST;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  bool x28_APSO : 1;
+  bool x28_25_F60H : 1;
+  bool x28_26_SVBD : 1;
+  bool x28_27_NDTT : 1;
+  bool x29_HOMG : 1;
+  bool x2a_AP11 : 1;
+  bool x28_30_SPS1 : 1;
+  bool x2b_AP21 : 1;
+  bool x29_24_SPS2 : 1;
+  bool x2c_AS11 : 1;
+  bool x2d_AS12 : 1;
+  bool x2e_AS13 : 1;
+  bool xa4_EWTR : 1;
+  bool xa5_LWTR : 1;
+  bool xa6_SWTR : 1;
+  bool x29_31_FC60 : 1;
+#else
   bool x28_APSO;
   bool x29_HOMG;
   bool x2a_AP11;
@@ -42,6 +60,7 @@ public:
   bool x2c_AS11;
   bool x2d_AS12;
   bool x2e_AS13;
+#endif
   CRealElement* x30_TRAT;
   TChildGeneratorDesc x34_APSM;
   TChildGeneratorDesc x44_APS2;
@@ -50,13 +69,16 @@ public:
   TSwooshGeneratorDesc x74_ASW3;
   TParticleModel x84_OHEF;
   TCollisionResponseDesc x94_COLR;
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
   bool xa4_EWTR;
   bool xa5_LWTR;
   bool xa6_SWTR;
+#endif
   int xa8_PJFX;
   CRealElement* xac_RNGE;
   CRealElement* xb0_FOFF;
 };
-CHECK_SIZEOF(CWeaponDescription, 0xb4)
+CHECK_SIZEOF(CWeaponDescription,
+             (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0xac : 0xb4))
 
 #endif // _CWEAPONDESCRIPTION

@@ -1151,7 +1151,11 @@ WorldFormat/CAreaRenderOctTree.cpp:
 	.text       start:0x802AF3AC end:0x802AF64C
 
 Weapons/CProjectileWeapon.cpp:
-	.text       start:0x802B051C end:0x802B0C50
+	.text       start:0x802AF724 end:0x802B1B60
+	.rodata     start:0x803D7248 end:0x803D7250
+	.data       start:0x803ED4E0 end:0x803ED520
+	.sdata      start:0x805A96D8 end:0x805A96E0
+	.sdata2     start:0x805AEFD8 end:0x805AF028
 
 Weapons/CProjectileWeaponDataFactory.cpp:
 	.text       start:0x802B1B60 end:0x802B2830

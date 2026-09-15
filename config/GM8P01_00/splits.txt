@@ -1922,7 +1922,7 @@ WorldFormat/CAreaRenderOctTree.cpp:
 	.sdata2     start:0x80470138 end:0x80470140
 
 Weapons/CProjectileWeapon.cpp:
-	.text       start:0x8029B3F0 end:0x8029D590
+	.text       start:0x8029B16C end:0x8029D598
 	.rodata     start:0x803C1670 end:0x803C1678
 	.data       start:0x803D4318 end:0x803D4358
 	.sdata      start:0x8046A720 end:0x8046A728
@@ -1957,7 +1957,7 @@ Weapons/CDecal.cpp:
 	.sdata2     start:0x804701A0 end:0x804701B8
 
 Weapons/CWeaponDescription.cpp:
-	.text       start:0x802A1E18 end:0x802A1E78
+	.text       start:0x802A1B18 end:0x802A1F90
 	.data       start:0x803D4418 end:0x803D4428
 
 Weapons/CDecalDescription.cpp:

@@ -171,6 +171,26 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
     case 'SWTR':
       desc->xa6_SWTR = CParticleDataFactory::GetBool(in);
       break;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    case 'F60H':
+      desc->x28_25_F60H = CParticleDataFactory::GetBool(in);
+      break;
+    case 'SVBD':
+      desc->x28_26_SVBD = CParticleDataFactory::GetBool(in);
+      break;
+    case 'NDTT':
+      desc->x28_27_NDTT = CParticleDataFactory::GetBool(in);
+      break;
+    case 'SPS1':
+      desc->x28_30_SPS1 = CParticleDataFactory::GetBool(in);
+      break;
+    case 'SPS2':
+      desc->x29_24_SPS2 = CParticleDataFactory::GetBool(in);
+      break;
+    case 'FC60':
+      desc->x29_31_FC60 = CParticleDataFactory::GetBool(in);
+      break;
+#endif
     case '_END':
       done = true;
       break;

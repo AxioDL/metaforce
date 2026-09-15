@@ -83,6 +83,8 @@ private:
   bool x3d0_27_collided : 1;
   bool x3d0_28_collidedWithWorld : 1;
 };
-CHECK_SIZEOF(CWaveBuster, (VERSION >= VERSION_GM8P_00 ? 0x3e8 : 0x3d8))
+CHECK_SIZEOF(CWaveBuster, (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0x400
+                           : VERSION >= VERSION_GM8P_00                             ? 0x3e8
+                                                                                    : 0x3d8))
 
 #endif // _CWAVEBUSTER

@@ -1379,7 +1379,15 @@ config.libs = [
         "Weapons",
         "core",
         [
-            Object(NonMatching, "Weapons/CProjectileWeapon.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00"),
+                "Weapons/CProjectileWeapon.cpp",
+                extra_cflags=(
+                    ['-pragma "inline_max_size(250)"']
+                    if version_num == VERSIONS.index("GM8E01_02")
+                    else []
+                ),
+            ),
             Object(NonMatching, "Weapons/CProjectileWeaponDataFactory.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Weapons/CCollisionResponseData.cpp"),
             Object(

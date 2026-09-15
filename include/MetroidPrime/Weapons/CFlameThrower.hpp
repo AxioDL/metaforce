@@ -60,6 +60,8 @@ private:
 
   static const CVector3f kLightOffset;
 };
-CHECK_SIZEOF(CFlameThrower, (VERSION >= VERSION_GM8P_00 ? 0x418 : 0x408))
+CHECK_SIZEOF(CFlameThrower, (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0x430
+                             : VERSION >= VERSION_GM8P_00                             ? 0x418
+                                                                                      : 0x408))
 
 #endif // _CFLAMETHROWER
