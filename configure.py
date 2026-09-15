@@ -1263,7 +1263,7 @@ config.libs = [
                 "MetroidPrime/ScriptObjects/CScriptCameraHintTrigger.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Enemies/CAmbientAI.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CMemoryCardDriver.cpp"),
@@ -1337,7 +1337,7 @@ config.libs = [
                 "MetroidPrime/Enemies/CPoisonProjectile.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Enemies/SPositionHistory.cpp",
             ),
             Object(Equivalent, "dummy.c"),

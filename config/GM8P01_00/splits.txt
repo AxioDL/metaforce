@@ -1641,8 +1641,9 @@ MetroidPrime/ScriptObjects/CScriptCameraHintTrigger.cpp:
 	.sdata      start:0x8046A3A0 end:0x8046A3A8
 
 MetroidPrime/Enemies/CAmbientAI.cpp:
-	.text       start:0x8023BAB4 end:0x8023BB84
-	.sdata2     start:0x8046F7B4 end:0x8046F7BC
+	.text       start:0x8023B46C end:0x8023BDE4
+	.rodata     start:0x803BF2D0 end:0x803BF2E0
+	.sdata2     start:0x8046F7A8 end:0x8046F7C4
 
 MetroidPrime/CMemoryCardDriver.cpp:
 	.text       start:0x8023BDE4 end:0x8023D63C
