@@ -2003,7 +2003,7 @@ GuiSys/CGuiCamera.cpp:
 	.sdata2     start:0x804702C0 end:0x804702D0
 
 GuiSys/CGuiCompoundWidget.cpp:
-	.text       start:0x802ADB04 end:0x802ADCD8
+	.text       start:0x802ADAFC end:0x802ADCD8
 	.data       start:0x803D45C8 end:0x803D4608
 
 GuiSys/CGuiFeeHelper.cpp:
@@ -2017,19 +2017,20 @@ GuiSys/CGuiFrame.cpp:
 	.rodata     start:0x803C1D90 end:0x803C1D98
 
 GuiSys/CGuiGroup.cpp:
-	.text       start:0x802AF554 end:0x802AF704
+	.text       start:0x802AF548 end:0x802AF704
 	.rodata     start:0x803C1D98 end:0x803C1DA0
 	.data       start:0x803D4618 end:0x803D4658
 
 GuiSys/CGuiHeadWidget.cpp:
-	.text       start:0x802AF704 end:0x802AF844
+	.text       start:0x802AF704 end:0x802AF850
 	.rodata     start:0x803C1DA0 end:0x803C1DA8
 	.data       start:0x803D4658 end:0x803D4698
 
 GuiSys/CGuiLight.cpp:
-	.text       start:0x802AFA14 end:0x802AFDDC
+	.text       start:0x802AF850 end:0x802AFDDC
 	.rodata     start:0x803C1DA8 end:0x803C1DB0
 	.data       start:0x803D4698 end:0x803D46D8
+	.sdata2     start:0x804702D0 end:0x804702D8
 
 GuiSys/CGuiModel.cpp:
 	.text       start:0x802AFE98 end:0x802B058C
@@ -2043,15 +2044,16 @@ GuiSys/CGuiObject.cpp:
 	.sdata2     start:0x804702E8 end:0x804702F0
 
 GuiSys/CGuiPane.cpp:
-	.text       start:0x802B1344 end:0x802B18A0
+	.text       start:0x802B1338 end:0x802B199C
 	.rodata     start:0x803C1DB8 end:0x803C1DC0
 	.data       start:0x803D4730 end:0x803D4780
 	.sdata2     start:0x804702F0 end:0x80470308
 
 GuiSys/CGuiSliderGroup.cpp:
-	.text       start:0x802B199C end:0x802B20D4
+	.text       start:0x802B199C end:0x802B219C
+	.rodata     start:0x803C1DC0 end:0x803C1DC8
 	.data       start:0x803D4780 end:0x803D47C0
-	.sdata2     start:0x80470308 end:0x80470310
+	.sdata2     start:0x80470308 end:0x80470318
 
 GuiSys/CGuiSys.cpp:
 	.text       start:0x802B219C end:0x802B236C
@@ -2059,7 +2061,7 @@ GuiSys/CGuiSys.cpp:
 	.sbss       start:0x8046B318 end:0x8046B320
 
 GuiSys/CGuiTableGroup.cpp:
-	.text       start:0x802B2380 end:0x802B32FC
+	.text       start:0x802B236C end:0x802B32FC
 	.rodata     start:0x803C1DD0 end:0x803C1DD8
 	.data       start:0x803D47C0 end:0x803D4808
 	.sdata      start:0x8046A798 end:0x8046A7A0
@@ -2075,6 +2077,9 @@ GuiSys/CGuiTextSupport.cpp:
 
 GuiSys/CGuiWidget.cpp:
 	.text       start:0x802B6600 end:0x802B6F5C
+	.rodata     start:0x803C1DF0 end:0x803C1E40
+	.data       start:0x803D4860 end:0x803D48A0
+	.sdata2     start:0x80470378 end:0x80470380
 
 GuiSys/CGuiWidgetIdDB.cpp:
 	.text       start:0x802B6F5C end:0x802B7198
