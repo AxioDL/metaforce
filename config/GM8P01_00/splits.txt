@@ -367,8 +367,9 @@ MetroidPrime/Player/CPlayerState.cpp:
 	.sdata2     start:0x8046C998 end:0x8046C9C0
 
 MetroidPrime/ScriptObjects/CScriptTimer.cpp:
-	.text       start:0x80092D40 end:0x80092DA0
+	.text       start:0x80092AD8 end:0x80092E48
 	.data       start:0x803C6130 end:0x803C6150
+	.sdata2     start:0x8046C9C0 end:0x8046C9C8
 
 MetroidPrime/Cameras/CCinematicCamera.cpp:
 	.text       start:0x80092E48 end:0x8009551C
