@@ -52,7 +52,7 @@ CPVSVisOctree CPVSVisOctree::MakePVSVisOctree(const char* data, int len) {
   return CPVSVisOctree(bounds, numObjects, numLights, data + in.GetReadPosition());
 }
 
-CPVSVisSet CPVSVisOctree::GetVisSet(const CVector3f& point) {
+CPVSVisSet CPVSVisOctree::GetVisSet(const CVector3f& point) const {
   if (!GetBounds().PointInside(point)) {
     return CPVSVisSet(kVSS_OutOfBounds);
   }
@@ -75,7 +75,8 @@ CPVSVisSet CPVSVisOctree::GetVisSet(const CVector3f& point) {
         data += CBasics::SwapBytes(offset);
 #endif
       } else if (nodeData & 0x20) {
-        data += CCast::ToUint8(data[child - 1]);
+        --child;
+        data += CCast::ToUint8(data[child]);
       } else {
         const uchar* offset = reinterpret_cast< const uchar* >(data) + (child - 1) * 3;
         data += (offset[0] << 16) + (offset[1] << 8) + offset[2];
@@ -95,8 +96,7 @@ CPVSVisSet CPVSVisOctree::GetVisSet(const CVector3f& point) {
   case 24: {
     rstl::auto_ptr< const char > leaf(data);
     leaf.release();
-    const int numObjects = GetNumObjects();
-    return CPVSVisSet(numObjects, GetNumLights(), rstl::auto_ptr< const char >(leaf));
+    return CPVSVisSet(GetNumObjects(), GetNumLights(), rstl::auto_ptr< const char >(leaf));
   }
   case 8:
     return CPVSVisSet(kVSS_OutOfBounds);

@@ -26,13 +26,14 @@ rstl::auto_ptr< CPVSAreaSet > CPVSAreaSet::MakeAreaSet(const char* data, int len
   const int numActors = in.ReadLong();
   const int leafSize = in.ReadLong();
   const int lightIndexCount = in.ReadLong();
-  const char* const entityIndex = data + in.GetReadPosition();
-  const char* const entityIndexEnd = entityIndex + numActors * 4;
+
+  data += in.GetReadPosition();
+  const char* const entityIndexEnd = data + numActors * 4;
   const char* const octreeData = entityIndexEnd + lightIndexCount * leafSize;
 
   return rstl::auto_ptr< CPVSAreaSet >(rs_new CPVSAreaSet(numFeatures, numLights, num2ndLights,
-                                                          numActors, leafSize, lightIndexCount,
-                                                          entityIndex, entityIndexEnd, octreeData));
+                                                       numActors, leafSize, lightIndexCount, data,
+                                                       entityIndexEnd, octreeData));
 }
 
 CPVSVisOctree& CPVSAreaSet::GetVisOctree() const { return x20_octree; }

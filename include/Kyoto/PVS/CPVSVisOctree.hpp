@@ -22,7 +22,7 @@ public:
   // const CAABox& GetSearchBounds() const { return mSearchBounds; }
   // void SetSearchBounds(const CAABox& bounds) { mSearchBounds = bounds; }
 
-  CPVSVisSet GetVisSet(const CVector3f& point);
+  CPVSVisSet GetVisSet(const CVector3f& point) const;
 
 private:
   CAABox mBounds;

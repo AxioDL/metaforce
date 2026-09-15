@@ -1399,7 +1399,9 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "WorldFormat/CCollidableOBBTreeGroup.cpp"
             ),
             Object(NonMatching, "WorldFormat/CPVSAreaSet.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "WorldFormat/CAreaRenderOctTree.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "WorldFormat/CAreaRenderOctTree.cpp"
+            ),
         ],
     ),
     RetroLib(
@@ -1819,7 +1821,7 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Alloc/CMemory.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Alloc/IAllocator.cpp"),
             Object(NonMatching, "Kyoto/PVS/CPVSVisOctree.cpp"),
-            Object(NonMatching, "Kyoto/PVS/CPVSVisSet.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/PVS/CPVSVisSet.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Particles/CColorElement.cpp",
