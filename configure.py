@@ -1490,7 +1490,11 @@ config.libs = [
         "Collision",
         "core",
         [
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Collision/CCollidableAABox.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "Collision/CCollidableAABox.cpp",
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Collision/CCollidableCollisionSurface.cpp",
@@ -1511,7 +1515,11 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8J01_00", "GM8E01_02"), "Collision/CMaterialList.cpp"
             ),
             Object(NonMatching, "Collision/CollisionUtil.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Collision/CCollidableSphere.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "Collision/CCollidableSphere.cpp",
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "Collision/CMaterialFilter.cpp",

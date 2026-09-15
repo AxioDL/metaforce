@@ -110,8 +110,8 @@ CRayCastResult CCollidableAABox::CastRayInternal(const CInternalRayCastStructure
   planeNormal[axis] = signValue;
   const CUnitVector3f vec(planeNormal.GetX(), planeNormal.GetY(), planeNormal.GetZ());
   const float planeD = axis != 0 ? GetBox().GetMinPoint()[axis] : -GetBox().GetMaxPoint()[axis];
-  const CMaterialList& list = GetMaterial();
-  CRayCastResult result(tMin, localRayStart + tMin * localRayDir, CPlane(planeD, vec), list);
+  const CPlane plane(planeD, vec);
+  CRayCastResult result(tMin, localRayStart + tMin * localRayDir, plane, GetMaterial());
   result.Transform(rayCastXf);
   return result;
 }

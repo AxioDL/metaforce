@@ -248,7 +248,7 @@ CCollidableSphere::CastRayInternal(const CInternalRayCastStructure& internalRayC
     } else {
       normal = internalRayCast.GetNormal();
     }
-    return CRayCastResult(t, point, CPlane(point, CUnitVector3f(normal)), GetMaterial());
+    return CRayCastResult(t, point, CPlane(CVector3f(point), CUnitVector3f(normal)), GetMaterial());
   }
   return CRayCastResult::MakeInvalid();
 }

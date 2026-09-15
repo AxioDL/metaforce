@@ -2103,7 +2103,7 @@ GuiSys/CRepeatState.cpp:
 	.sdata2     start:0x804703D8 end:0x804703E8
 
 Collision/CCollidableAABox.cpp:
-	.text       start:0x802B94AC end:0x802B9F48
+	.text       start:0x802B9498 end:0x802B9F48
 	.ctors      start:0x803B50B4 end:0x803B50B8
 	.rodata     start:0x803C1ED8 end:0x803C1EF0
 	.data       start:0x803D4920 end:0x803D4948
@@ -2142,7 +2142,7 @@ Collision/CollisionUtil.cpp:
 	.sdata2     start:0x80470408 end:0x80470490
 
 Collision/CCollidableSphere.cpp:
-	.text       start:0x802BFBF4 end:0x802C1008
+	.text       start:0x802BFBEC end:0x802C1008
 	.ctors      start:0x803B50C0 end:0x803B50C4
 	.rodata     start:0x803C1F80 end:0x803C1F98
 	.data       start:0x803D4948 end:0x803D4A20
