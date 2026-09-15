@@ -13,7 +13,7 @@ public:
                       const CCameraShakeData& shakeData);
   ~CScriptCameraShaker();
 
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 };
 
