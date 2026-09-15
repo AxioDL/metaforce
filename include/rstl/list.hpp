@@ -20,8 +20,9 @@ public:
 #pragma pack(pop)
 
 public:
-  list()
-  : x4_start(reinterpret_cast< node* >(&xc_empty_prev))
+  list(const Alloc& alloc = Alloc())
+  : x0_allocator(alloc)
+  , x4_start(reinterpret_cast< node* >(&xc_empty_prev))
   , x8_end(reinterpret_cast< node* >(&xc_empty_prev))
   , xc_empty_prev(reinterpret_cast< node* >(&xc_empty_prev))
   , x10_empty_next(reinterpret_cast< node* >(&xc_empty_prev))

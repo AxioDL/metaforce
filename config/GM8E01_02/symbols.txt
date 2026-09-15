@@ -15330,7 +15330,7 @@ do_erase__Q24rstl35list<Pv,Q24rstl17rmemory_allocator>FPQ34rstl35list<Pv,Q24rstl
 __sinit_CFrameDelayedKiller_cpp = .text:0x8036DA44; // type:function size:0x58
 __dt__Q24rstl35list<Pv,Q24rstl17rmemory_allocator>Fv = .text:0x8036DA9C; // type:function size:0x78
 __arraydtor$159 = .text:0x8036DB14; // type:function size:0x38
-__ct__Q24rstl35list<Pv,Q24rstl17rmemory_allocator>Fv = .text:0x8036DB4C; // type:function size:0x20
+__defctor__Q24rstl35list<Pv,Q24rstl17rmemory_allocator>Fv = .text:0x8036DB4C; // type:function size:0x20
 AIRegisterDMACallback = .text:0x8036DB6C; // type:function size:0x44
 AIInitDMA = .text:0x8036DBB0; // type:function size:0x88
 AIStartDMA = .text:0x8036DC38; // type:function size:0x18
