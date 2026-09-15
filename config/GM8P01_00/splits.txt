@@ -1973,7 +1973,7 @@ Weapons/CDecalDescription.cpp:
 	.text       start:0x802A1F90 end:0x802A2020
 
 MetaRender/CCubeRenderer.cpp:
-	.text       start:0x802A2020 end:0x802ACD8C
+	.text       start:0x802A2020 end:0x802ACD9C
 	.ctors      start:0x803B50A8 end:0x803B50AC
 	.rodata     start:0x803C1A70 end:0x803C1D78
 	.data       start:0x803D4428 end:0x803D4548
@@ -1984,7 +1984,7 @@ MetaRender/CCubeRenderer.cpp:
 	.sbss2      start:0x80471720 end:0x80471730
 
 GuiSys/CAuiMeter.cpp:
-	.text       start:0x802ACEC8 end:0x802AD630
+	.text       start:0x802ACD9C end:0x802AD630
 	.rodata     start:0x803C1D78 end:0x803C1D80
 	.data       start:0x803D4548 end:0x803D4588
 	.sdata      start:0x8046A788 end:0x8046A798
@@ -2081,7 +2081,7 @@ GuiSys/CGuiWidgetDrawParms.cpp:
 	.sdata2     start:0x80470380 end:0x80470388
 
 GuiSys/CAuiEnergyBarT01.cpp:
-	.text       start:0x802B71C4 end:0x802B7C7C
+	.text       start:0x802B71B8 end:0x802B7C7C
 	.rodata     start:0x803C1EA0 end:0x803C1EB8
 	.data       start:0x803D48A0 end:0x803D48E0
 	.sdata      start:0x8046A7B0 end:0x8046A7B8
