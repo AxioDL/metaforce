@@ -285,10 +285,13 @@ bool CMVESwirl::GetValue(int frame, CVector3f& pVel, CVector3f& pPos) const {
   xc_filterGain->GetValue(frame, c);
   x10_tangentialVelocity->GetValue(frame, d);
 
-  pVel = (
-    b * CVector3f::Dot(b, pVel) + 
-    d * CVector3f::Cross(b, posToHelix)
-  ) * c + (1.f - c) * pVel;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  const CVector3f tangent = CVector3f::Cross(b, posToHelix) * d;
+  pVel = (b * CVector3f::Dot(b, pVel) + tangent) * c + (1.f - c) * pVel;
+#else
+  pVel = (b * CVector3f::Dot(b, pVel) + d * CVector3f::Cross(b, posToHelix)) * c +
+         (1.f - c) * pVel;
+#endif
   return false;
 }
 

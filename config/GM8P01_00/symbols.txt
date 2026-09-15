@@ -9572,7 +9572,7 @@ GetIObjObjectFor__27TToken<17CDecalDescription>FRCQ24rstl29auto_ptr<17CDecalDesc
 GetNewDerivedObject__45TObjOwnerDerivedFromIObj<17CDecalDescription>FRCQ24rstl29auto_ptr<17CDecalDescription> = .text:0x802A0A94; // type:function size:0x9C
 __dt__Q24rstl29auto_ptr<17CDecalDescription>Fv = .text:0x802A0B30; // type:function size:0x64
 IsConstant__12CRealElementCFv = .text:0x802A0B94; // type:function size:0x8
-fn_802A0B9C = .text:0x802A0B9C; // type:function size:0x8
+IsFastConstant__14CVectorElementCFv = .text:0x802A0B9C; // type:function size:0x8 scope:global
 Update__6CDecalFf = .text:0x802A0BA4; // type:function size:0x64
 Render__6CDecalCFv = .text:0x802A0C08; // type:function size:0x120
 RenderMdl__6CDecalCFv = .text:0x802A0D28; // type:function size:0x4A4
@@ -12230,7 +12230,7 @@ __dt__33CVEParticleSystemOrientationFrontFv = .text:0x8031F770; // type:function
 __dt__19CVEParticleVelocityFv = .text:0x8031F7E0; // type:function size:0x70
 __dt__27CVEParticlePreviousLocationFv = .text:0x8031F850; // type:function size:0x70
 __dt__19CVEParticleLocationFv = .text:0x8031F8C0; // type:function size:0x70
-fn_8031F930 = .text:0x8031F930; // type:function size:0x8
+IsFastConstant__15CVEFastConstantCFv = .text:0x8031F930; // type:function size:0x8 scope:weak
 __dt__5CWarpFv = .text:0x8031F938; // type:function size:0x48
 ClipLineSegment__6CPlaneCFRC9CVector3fRC9CVector3f = .text:0x8031F980; // type:function size:0x9C
 fn_8031FA1C = .text:0x8031FA1C; // type:function size:0xD0

@@ -191,8 +191,13 @@ CVECircleCluster::CVECircleCluster(CVectorElement* circleOffset, CVectorElement*
   mRadius = (M_PIF / 180.f) * (360.f / _cycleFrames);
 
   CVector3f normal = CVector3f(0.f, 0.f, 0.f);
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  CVector3f tmp(0.f, 0.f, 0.f);
+#else
+  CVector3f tmp;
+#endif
   circleNormal->GetValue(0, normal);
-  CVector3f tmp = normal;
+  tmp = normal;
   if (normal.CanBeNormalized()) {
     normal = normal.AsNormalized();
   } else {

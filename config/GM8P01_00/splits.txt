@@ -2766,7 +2766,7 @@ Kyoto/Particles/CUVElement.cpp:
 	.sdata2     start:0x80470AA0 end:0x80470AB0
 
 Kyoto/Particles/CVectorElement.cpp:
-	.text       start:0x8031D2A8 end:0x8031F930
+	.text       start:0x8031D2A8 end:0x8031F938
 	.data       start:0x803D5FC8 end:0x803D6170
 	.sdata      start:0x8046A9D8 end:0x8046A9E0
 	.sdata2     start:0x80470AB0 end:0x80470AE0
