@@ -197,7 +197,7 @@ CAudioSys::CAudioSys(const uchar numVoices, const uchar numMusic, const uchar nu
   mpGroupSetDB = rs_new rstl::map< rstl::string, rstl::ncrc_ptr< CAudioGroupSet > >();
   mpGroupSetResNameDB = rs_new rstl::map< uint, rstl::string >();
   mpDVDTrackDB = rs_new rstl::map< rstl::string, rstl::ncrc_ptr< CTrkData > >();
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00
   mpEmitterDB = rs_new rstl::vector< CEmitterData >(maxNumEmitters, CEmitterData(),
                                                  rstl::rmemory_allocator());
 #else
