@@ -536,7 +536,7 @@ config.libs = [
             ),
             Object(NonMatching, "MetroidPrime/Tweaks/CTweaks.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Tweaks/CTweakGame.cpp",
             ),
             Object(
@@ -589,7 +589,7 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CAnimationDatabaseGame.cpp"),
             Object(NonMatching, "MetroidPrime/CTransitionDatabaseGame.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Tweaks/CTweakPlayerControl.cpp",
             ),
             Object(
@@ -667,7 +667,7 @@ config.libs = [
                 "MetroidPrime/Tweaks/CTweakTargeting.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Tweaks/CTweakAutoMapper.cpp",
             ),
             Object(
@@ -1073,7 +1073,10 @@ config.libs = [
                 "MetroidPrime/Weapons/GunController/CGSComboFire.cpp",
             ),
             Object(NonMatching, "MetroidPrime/HUD/CHudBallInterface.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Tweaks/CTweakGuiColors.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "MetroidPrime/Tweaks/CTweakGuiColors.cpp",
+            ),
             Object(MatchingFor("GM8E01_00"), "MetroidPrime/ScriptObjects/CFishCloud.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "MetroidPrime/CHealthInfo.cpp"
