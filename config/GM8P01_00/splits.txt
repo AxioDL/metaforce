@@ -2594,9 +2594,10 @@ Kyoto/Math/CMatrix3f.cpp:
 	.sdata2     start:0x804707B0 end:0x804707B8
 
 Kyoto/Math/CMatrix4f.cpp:
-	.text       start:0x802F94D0 end:0x802F9690
+	.text       start:0x802F94D0 end:0x802F9704
+	.ctors      start:0x803B50E8 end:0x803B50EC
 	.bss        start:0x804686C0 end:0x80468700 align:4 common
-	.sdata2     start:0x804707B8 end:0x804707BC
+	.sdata2     start:0x804707B8 end:0x804707C0
 
 Kyoto/Math/CNUQuaternion.cpp:
 	.text       start:0x802F9704 end:0x802F9D5C
