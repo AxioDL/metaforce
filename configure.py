@@ -1734,7 +1734,7 @@ config.libs = [
                 ,
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "Kyoto/Particles/CRealElement.cpp",
             ),
             Object(MatchingFor("GM8E01_00"), "Kyoto/Particles/CSpawnSystemKeyframeData.cpp"),
