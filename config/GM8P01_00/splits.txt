@@ -2676,7 +2676,7 @@ Kyoto/PVS/CPVSVisSet.cpp:
 	.text       start:0x802FED68 end:0x802FF1B8
 
 Kyoto/Particles/CColorElement.cpp:
-	.text       start:0x802FF1B8 end:0x803003C8
+	.text       start:0x802FF1B8 end:0x8030049C
 	.data       start:0x803D5878 end:0x803D58F8
 	.sdata      start:0x8046A950 end:0x8046A990
 	.sdata2     start:0x80470938 end:0x80470948

@@ -725,7 +725,7 @@ config.libs = [
                 "MetroidPrime/ScriptObjects/CScriptRelay.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/ScriptObjects/CScriptSpawnPoint.cpp"
             ),
             Object(NonMatching, "MetroidPrime/ScriptObjects/CScriptRandomRelay.cpp"),
@@ -917,7 +917,7 @@ config.libs = [
                 "MetroidPrime/BodyState/CBSScripted.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Enemies/CPuddleToadGamma.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/ScriptObjects/CScriptDistanceFog.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "MetroidPrime/ScriptObjects/CScriptDistanceFog.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/BodyState/CBSProjectileAttack.cpp",
@@ -1737,7 +1737,7 @@ config.libs = [
             Object(NonMatching, "Kyoto/PVS/CPVSVisOctree.cpp"),
             Object(NonMatching, "Kyoto/PVS/CPVSVisSet.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Particles/CColorElement.cpp",
             ),
             Object(NonMatching, "Kyoto/Particles/CElementGen.cpp"),
