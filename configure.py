@@ -1388,7 +1388,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01"), "GuiSys/CGuiCompoundWidget.cpp"
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "GuiSys/CGuiFactories.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "GuiSys/CGuiFeeHelper.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "GuiSys/CGuiFeeHelper.cpp"),
             Object(NonMatching, "GuiSys/CGuiFrame.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "GuiSys/CGuiGroup.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "GuiSys/CGuiHeadWidget.cpp"),
@@ -1406,7 +1406,7 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "GuiSys/CGuiWidget.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "GuiSys/CGuiWidgetIdDB.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"), "GuiSys/CGuiWidgetDrawParms.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "GuiSys/CGuiWidgetDrawParms.cpp"
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"), "GuiSys/CAuiEnergyBarT01.cpp"
@@ -1421,7 +1421,7 @@ config.libs = [
         [
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Collision/CCollidableAABox.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Collision/CCollidableCollisionSurface.cpp",
             ),
             Object(
@@ -1458,13 +1458,13 @@ config.libs = [
         [
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Basics/CBasics.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Basics/CStopwatch.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Basics/CStopwatch.cpp"
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Basics/CBasicsDolphin.cpp"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Alloc/CCallStackDolphin.cpp",
             ),
             Object(
@@ -1965,7 +1965,7 @@ config.libs = [
                 "Kyoto/Particles/CEffectComponent.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Particles/CParticleData.cpp"),
-            Object(MatchingFor("GM8E01_00"), "Kyoto/Animation/CVertexMorphEffect.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8P01_00"), "Kyoto/Animation/CVertexMorphEffect.cpp"),
             Object(NonMatching, "Kyoto/Animation/CSkinnedModelWithAvgNormals.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),

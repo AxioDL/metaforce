@@ -1994,6 +1994,7 @@ GuiSys/CGuiFeeHelper.cpp:
 	.text       start:0x802AE178 end:0x802AE290
 	.ctors      start:0x803B50AC end:0x803B50B0
 	.bss        start:0x80461C70 end:0x80461DA8 align:4 common
+	.sbss       start:0x8046B310 end:0x8046B318
 
 GuiSys/CGuiFrame.cpp:
 	.text       start:0x802AE290 end:0x802AF548
@@ -2067,6 +2068,7 @@ GuiSys/CGuiWidgetDrawParms.cpp:
 	.text       start:0x802B7198 end:0x802B71B8
 	.ctors      start:0x803B50B0 end:0x803B50B4
 	.bss        start:0x80461DA8 end:0x80461DB8 align:4 common
+	.sdata2     start:0x80470380 end:0x80470388
 
 Collision/CMaterialFilter.cpp:
 	.bss        start:0x80461DB8 end:0x80461DD0 align:4 common
@@ -2098,8 +2100,9 @@ Collision/CCollidableAABox.cpp:
 	.sdata2     start:0x804703E8 end:0x80470400
 
 Collision/CCollidableCollisionSurface.cpp:
-	.text       start:0x802B9F48 end:0x802B9F64
+	.text       start:0x802B9F48 end:0x802B9F6C
 	.rodata     start:0x803C1EF0 end:0x803C1F10
+	.sdata      start:0x8046A7C8 end:0x8046A7D0
 
 Collision/CCollisionInfo.cpp:
 	.text       start:0x802B9F6C end:0x802BA3D4
@@ -2148,9 +2151,11 @@ Kyoto/Basics/CBasics.cpp:
 	.bss        start:0x80401660 end:0x80401860
 
 Kyoto/Basics/CStopwatch.cpp:
-	.text       start:0x802C1E94 end:0x802C1F7C
+	.text       start:0x802C1E8C end:0x802C1F7C
 	.ctors      start:0x803B50C8 end:0x803B50CC
 	.bss        start:0x80461DD0 end:0x80461DE8 align:4 common
+	.sbss       start:0x8046B358 end:0x8046B360
+	.sdata2     start:0x804704C0 end:0x804704D0
 
 Kyoto/Basics/CBasicsDolphin.cpp:
 	.text       start:0x802C1F7C end:0x802C1FEC
@@ -2158,6 +2163,7 @@ Kyoto/Basics/CBasicsDolphin.cpp:
 
 Kyoto/Alloc/CCallStackDolphin.cpp:
 	.text       start:0x802C1FEC end:0x802C2008
+	.rodata     start:0x803C1F98 end:0x803C1FA8
 
 Kyoto/Basics/CSWDataDolphin.cpp:
 	.text       start:0x802C21D4 end:0x802C22E4
@@ -3018,9 +3024,9 @@ Kyoto/Particles/CParticleData.cpp:
 	.sbss       start:0x8046B798 end:0x8046B7A0
 
 Kyoto/Animation/CVertexMorphEffect.cpp:
-	.text       start:0x80340C6C end:0x80341078
+	.text       start:0x80340BF8 end:0x80341078
 	.rodata     start:0x803C37B0 end:0x803C37B8
-	.sdata2     start:0x80470C24 end:0x80470C38
+	.sdata2     start:0x80470C20 end:0x80470C38
 
 Kyoto/Animation/CSkinnedModelWithAvgNormals.cpp:
 	.text       start:0x80341078 end:0x80341A8C
