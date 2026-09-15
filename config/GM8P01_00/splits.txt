@@ -2332,6 +2332,7 @@ Kyoto/Animation/CAnimSourceReader.cpp:
 	.text       start:0x802D7F44 end:0x802D95FC
 	.rodata     start:0x803C22A0 end:0x803C22A8
 	.data       start:0x803D4DA8 end:0x803D4E58
+	.sdata      start:0x8046A860 end:0x8046A868
 	.sdata2     start:0x804705D8 end:0x804705E0
 
 Kyoto/Animation/CAnimSourceReaderBase.cpp:
