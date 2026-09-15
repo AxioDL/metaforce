@@ -1789,6 +1789,3 @@ void CDrone::UpdatePitchBend(float dt) {
     }
   }
 }
-
-// TODO: Match the out-of-line destruction of x57c_flares.
-CDrone::~CDrone() {}
