@@ -1558,7 +1558,7 @@ config.libs = [
             Object(MatchingFor("GM8E01_00"), "Kyoto/Animation/CAnimSource.cpp"),
             Object(MatchingFor("GM8E01_00"), "Kyoto/Animation/CAnimSourceReader.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Animation/CAnimSourceReaderBase.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CAnimTreeAnimReaderContainer.cpp"),
