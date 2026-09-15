@@ -2440,9 +2440,9 @@ Kyoto/Animation/CSegStatementSet.cpp:
 	.sdata      start:0x8046A8C8 end:0x8046A8D0
 
 Kyoto/Animation/CTimeScaleFunctions.cpp:
-	.text       start:0x802E65AC end:0x802E6864
+	.text       start:0x802E6398 end:0x802E686C
 	.rodata     start:0x803C2310 end:0x803C2318
-	.data       start:0x803D533C end:0x803D5358
+	.data       start:0x803D5320 end:0x803D5358
 	.sdata2     start:0x80470678 end:0x80470690
 
 Kyoto/Animation/IAnimReader.cpp:

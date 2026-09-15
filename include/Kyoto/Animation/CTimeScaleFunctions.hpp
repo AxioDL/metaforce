@@ -62,6 +62,11 @@ private:
     : x0_slope(slope), x4_yIntercept(yIntercept), x8_t1(t1), xc_t2(t2) {}
 
     CFunctionDescription FunctionMirroredAround(const float& value) const {
+#if VERSION >= VERSION_GM8P_00
+      float twiceValue = 2.f * value;
+      return CFunctionDescription(-x0_slope, x4_yIntercept - x0_slope * twiceValue,
+                                  twiceValue - xc_t2, twiceValue - x8_t1);
+#else
       CFunctionDescription result(*this);
       float twiceValue = 2.f * value;
       result.x0_slope = -x0_slope;
@@ -69,6 +74,7 @@ private:
       result.x8_t1 = twiceValue - xc_t2;
       result.xc_t2 = twiceValue - x8_t1;
       return result;
+#endif
     }
 
     float x0_slope;

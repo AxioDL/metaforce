@@ -1618,7 +1618,10 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/CPOINode.cpp"
             ),
             Object(NonMatching, "Kyoto/Animation/CSegStatementSet.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/CTimeScaleFunctions.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "Kyoto/Animation/CTimeScaleFunctions.cpp",
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/Animation/IAnimReader.cpp"
             ),
