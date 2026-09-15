@@ -10,7 +10,7 @@ public:
   CScriptDockAreaChange(const TUniqueId, const rstl::string&, const CEntityInfo&, int, const bool);
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
 
   ~CScriptDockAreaChange();
 };

@@ -21,7 +21,7 @@ public:
                         float worldLightingLevel, CAssetId skybox, EPhazonType phazonType);
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   ~CScriptAreaAttributes() {}
 
   bool GetNeedsSky() const { return x34_24_showSkybox; }

@@ -8,7 +8,7 @@ class CSustainedPlayerDamage : public CEntity {
 public:
   CSustainedPlayerDamage(TUniqueId uid, const CEntityInfo& info, const bool active,
                          const rstl::string& name, const CDamageInfo& dInfo, float f1);
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   

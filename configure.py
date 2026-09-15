@@ -953,7 +953,10 @@ config.libs = [
                 "MetroidPrime/Weapons/CPowerBomb.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Enemies/CMetaree.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/ScriptObjects/CScriptDockAreaChange.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "MetroidPrime/ScriptObjects/CScriptDockAreaChange.cpp",
+            ),
             Object(
                 NonMatching, "MetroidPrime/ScriptObjects/CScriptSpecialFunction.cpp"
             ),
@@ -1000,7 +1003,7 @@ config.libs = [
                 "MetroidPrime/ScriptObjects/CScriptSteam.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/ScriptObjects/CScriptRipple.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CBoneTracking.cpp"),
@@ -1081,7 +1084,10 @@ config.libs = [
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Weapons/CAuxWeapon.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Weapons/CGunWeapon.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/ScriptObjects/CScriptAreaAttributes.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "MetroidPrime/ScriptObjects/CScriptAreaAttributes.cpp",
+            ),
             Object(NonMatching, "MetroidPrime/Weapons/CWaveBuster.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Player/CStaticInterference.cpp"),
             Object(NonMatching, "MetroidPrime/Enemies/CMetroidBeta.cpp"),
@@ -1345,7 +1351,10 @@ config.libs = [
                 NonMatching, "MetroidPrime/ScriptObjects/CScriptProjectedShadow.cpp"
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/ScriptObjects/CEnergyBall.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/ScriptObjects/CSustainedPlayerDamage.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "MetroidPrime/ScriptObjects/CSustainedPlayerDamage.cpp",
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Enemies/CPoisonProjectile.cpp",

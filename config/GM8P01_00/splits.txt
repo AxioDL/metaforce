@@ -953,7 +953,7 @@ MetroidPrime/Enemies/CMetaree.cpp:
 	.data       start:0x803CC7A0 end:0x803CCA70
 
 MetroidPrime/ScriptObjects/CScriptDockAreaChange.cpp:
-	.text       start:0x8014610C end:0x80146174
+	.text       start:0x80145F6C end:0x80146174
 	.data       start:0x803CCA70 end:0x803CCA90
 
 MetroidPrime/ScriptObjects/CScriptSpecialFunction.cpp:
@@ -1044,7 +1044,7 @@ MetroidPrime/ScriptObjects/CScriptSteam.cpp:
 	.data       start:0x803CD720 end:0x803CD7A0
 
 MetroidPrime/ScriptObjects/CScriptRipple.cpp:
-	.text       start:0x8016AC10 end:0x8016AD20
+	.text       start:0x8016AACC end:0x8016AD20
 	.data       start:0x803CD7A0 end:0x803CD7C0
 	.sdata2     start:0x8046E030 end:0x8046E038
 
@@ -1264,7 +1264,7 @@ MetroidPrime/Weapons/CGunWeapon.cpp:
 	.sdata2     start:0x8046E8A8 end:0x8046E8D8
 
 MetroidPrime/ScriptObjects/CScriptAreaAttributes.cpp:
-	.text       start:0x801B0BD0 end:0x801B0D8C
+	.text       start:0x801B0B70 end:0x801B0D8C
 	.rodata     start:0x803BC448 end:0x803BC450
 	.data       start:0x803CE898 end:0x803CE8B8
 
@@ -1857,7 +1857,7 @@ MetroidPrime/ScriptObjects/CEnergyBall.cpp:
 	.sdata2     start:0x80470040 end:0x80470044
 
 MetroidPrime/ScriptObjects/CSustainedPlayerDamage.cpp:
-	.text       start:0x8028D458 end:0x8028D6DC
+	.text       start:0x8028D3F8 end:0x8028D6DC
 	.data       start:0x803D41C0 end:0x803D41E0
 	.sdata      start:0x8046A6E0 end:0x8046A6E8
 	.sdata2     start:0x80470058 end:0x80470060
