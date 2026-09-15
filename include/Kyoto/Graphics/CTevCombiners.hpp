@@ -41,8 +41,9 @@ public:
   public:
     ColorPass(const ColorVar& a, const ColorVar& b, const ColorVar& c, const ColorVar& d)
     : x0_a(a), x4_b(b), x8_c(c), xc_d(d) {}
+
     ColorPass(const ColorPass& other)
-    : x0_a(other.GetA()), x4_b(other.GetB()), x8_c(other.GetC()), xc_d(other.GetD()) {}
+    : x0_a(other.x0_a), x4_b(other.x4_b), x8_c(other.x8_c), xc_d(other.xc_d) {}
 
     ColorVar GetA() const { return x0_a; }
     ColorVar GetB() const { return x4_b; }
@@ -82,8 +83,9 @@ public:
   public:
     AlphaPass(const AlphaVar& a, const AlphaVar& b, const AlphaVar& c, const AlphaVar& d)
     : x0_a(a), x4_b(b), x8_c(c), xc_d(d) {}
+
     AlphaPass(const AlphaPass& other)
-    : x0_a(other.GetA()), x4_b(other.GetB()), x8_c(other.GetC()), xc_d(other.GetD()) {}
+    : x0_a(other.x0_a), x4_b(other.x4_b), x8_c(other.x8_c), xc_d(other.xc_d) {}
 
     AlphaVar GetA() const { return x0_a; }
     AlphaVar GetB() const { return x4_b; }

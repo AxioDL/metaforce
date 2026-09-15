@@ -13,7 +13,7 @@ CGX::SGXState CGX::sGXState;
 // Doesn't need to be so big
 static GXVtxDescList sVtxDescList[12];
 #else
-static GXVtxDescList sVtxDescList[30];
+static GXVtxDescList sVtxDescList[GX_MAX_VTXDESCLIST_SZ];
 #endif
 
 #define CGX_INLINE
@@ -82,31 +82,28 @@ void CGX::ResetGXStatesFull() {
   ResetGXStates();
 }
 
+static inline void __SetChanCtrlCompressed(GXChannelID channel, uint flags) {
+  GXBool enable = CGX::ShiftRightAndMask(flags, 1, 0);
+  GXColorSrc ambSrc = static_cast< GXColorSrc >(CGX::ShiftRightAndMask(flags, 1, 1));
+  GXColorSrc matSrc = static_cast< GXColorSrc >(CGX::ShiftRightAndMask(flags, 1, 2));
+  GXLightID lightMask = static_cast< GXLightID >(CGX::ShiftRightAndMask(flags, 0xFF, 3));
+  GXDiffuseFn diffFn = static_cast< GXDiffuseFn >(CGX::ShiftRightAndMask(flags, 3, 11));
+  GXAttnFn attnFn = static_cast< GXAttnFn >(CGX::ShiftRightAndMask(flags, 3, 13));
+
+  GXSetChanCtrl(channel, enable, ambSrc, matSrc, lightMask, diffFn, attnFn);
+}
+
 void CGX::FlushState() {
   if (sGXState.x4c_chanFlags & 1) {
     GXSetNumChans(sGXState.x4e_numChans);
     sGXState.x4d_prevNumChans = sGXState.x4e_numChans;
   }
   if (sGXState.x4c_chanFlags & 2) {
-    ushort flags = sGXState.x34_chanCtrls[0];
-    GXBool enable = ShiftRightAndMask(flags, 1, 0);
-    GXColorSrc ambSrc = static_cast< GXColorSrc >(ShiftRightAndMask(flags, 1, 1));
-    GXColorSrc matSrc = static_cast< GXColorSrc >(ShiftRightAndMask(flags, 1, 2));
-    uint lightMask = ShiftRightAndMask(flags, 0xFF, 3);
-    GXDiffuseFn diffFn = static_cast< GXDiffuseFn >(ShiftRightAndMask(flags, 3, 11));
-    GXAttnFn attnFn = static_cast< GXAttnFn >(ShiftRightAndMask(flags, 3, 13));
-    GXSetChanCtrl(GX_COLOR0, enable, ambSrc, matSrc, lightMask, diffFn, attnFn);
+    __SetChanCtrlCompressed(GX_COLOR0, sGXState.x34_chanCtrls[0]);
     sGXState.x30_prevChanCtrls[0] = sGXState.x34_chanCtrls[0];
   }
   if (sGXState.x4c_chanFlags & 4) {
-    ushort flags = sGXState.x34_chanCtrls[1];
-    GXBool enable = ShiftRightAndMask(flags, 1, 0);
-    GXColorSrc ambSrc = static_cast< GXColorSrc >(ShiftRightAndMask(flags, 1, 1));
-    GXColorSrc matSrc = static_cast< GXColorSrc >(ShiftRightAndMask(flags, 1, 2));
-    uint lightMask = ShiftRightAndMask(flags, 0xFF, 3);
-    GXDiffuseFn diffFn = static_cast< GXDiffuseFn >(ShiftRightAndMask(flags, 3, 11));
-    GXAttnFn attnFn = static_cast< GXAttnFn >(ShiftRightAndMask(flags, 3, 13));
-    GXSetChanCtrl(GX_COLOR1, enable, ambSrc, matSrc, lightMask, diffFn, attnFn);
+    __SetChanCtrlCompressed(GX_COLOR1, sGXState.x34_chanCtrls[1]);
     sGXState.x30_prevChanCtrls[1] = sGXState.x34_chanCtrls[1];
   }
   sGXState.x4c_chanFlags = 0;

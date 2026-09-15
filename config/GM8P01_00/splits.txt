@@ -2563,6 +2563,7 @@ Kyoto/Graphics/CGX.cpp:
 	.text       start:0x802F0894 end:0x802F1D08
 	.ctors      start:0x803B50D4 end:0x803B50D8
 	.rodata     start:0x803C2840 end:0x803C2868
+	.bss        start:0x80401C90 end:0x80401D68
 	.bss        start:0x8046748C end:0x804676EC align:4 common
 	.sdata2     start:0x804706F8 end:0x80470708
 	.sbss2      start:0x80471730 end:0x80471738
@@ -2571,6 +2572,8 @@ Kyoto/Graphics/CTevCombiners.cpp:
 	.text       start:0x802F1D08 end:0x802F2158
 	.ctors      start:0x803B50D8 end:0x803B50DC
 	.bss        start:0x804676EC end:0x80467738 align:4 common
+	.sdata      start:0x8046A8F8 end:0x8046A900
+	.sbss       start:0x8046B480 end:0x8046B490
 
 Kyoto/Graphics/DolphinCGraphics.cpp:
 	.text       start:0x802F2158 end:0x802F6C00
