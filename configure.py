@@ -949,7 +949,8 @@ config.libs = [
             ),
             Object(NonMatching, "MetroidPrime/ScriptObjects/CScriptActorRotate.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Player/CFidget.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "MetroidPrime/Player/CFidget.cpp",
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),

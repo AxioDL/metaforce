@@ -962,7 +962,8 @@ MetroidPrime/ScriptObjects/CScriptActorRotate.cpp:
 	.text       start:0x8014AA2C end:0x8014B55C
 
 MetroidPrime/Player/CFidget.cpp:
-	.text       start:0x8014BA28 end:0x8014BACC
+	.text       start:0x8014B62C end:0x8014BACC
+	.sdata      start:0x804698E8 end:0x804698F0
 	.sdata2     start:0x8046DCC0 end:0x8046DCE8
 
 MetroidPrime/Enemies/CSpankWeed.cpp:
