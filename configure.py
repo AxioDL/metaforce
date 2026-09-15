@@ -2028,10 +2028,14 @@ config.libs = [
                 "Kyoto/Alloc/CGameAllocator.cpp",
             ),
             Object(
-                NonMatching,
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Animation/DolphinCSkinnedModel.cpp",
-                # TODO: inline optional assignment in AddSkinnedRef at the common limit.
-                extra_cflags=['-pragma "inline_max_size(259)"'],
+                # TODO: inline optional assignment in earlier AddSkinnedRef at the common limit.
+                extra_cflags=(
+                    ['-pragma "inline_max_size(259)"']
+                    if version_num < VERSIONS.index("GM8P01_00") or config.version == "GM8E01_02"
+                    else []
+                ),
             ),
             Object(NonMatching, "Kyoto/Animation/DolphinCSkinRules.cpp"),
             Object(NonMatching, "Kyoto/Animation/DolphinCVirtualBone.cpp"),
@@ -2050,7 +2054,7 @@ config.libs = [
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Particles/CParticleData.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8P01_00"), "Kyoto/Animation/CVertexMorphEffect.cpp"),
-            Object(NonMatching, "Kyoto/Animation/CSkinnedModelWithAvgNormals.cpp"),
+            Object(MatchingFor("GM8P01_00"), "Kyoto/Animation/CSkinnedModelWithAvgNormals.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "Kyoto/CTimeProvider.cpp",

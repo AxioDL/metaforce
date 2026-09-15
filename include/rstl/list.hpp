@@ -133,9 +133,13 @@ public:
   void insert(const iterator& pos, InputIterator first, InputIterator last);
 
   void destroy() {
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    clear();
+#else
     iterator last = end();
     iterator first = begin();
     erase(first, last);
+#endif
   }
 
   void remove(const T& val);

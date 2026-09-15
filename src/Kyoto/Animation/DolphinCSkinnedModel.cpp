@@ -28,17 +28,37 @@ struct SSkinnedAllocation {
 };
 
 namespace Skinning {
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+static void* sStaticSkinningData = nullptr;
+static int sStaticSkinningDataSize = 0x80000;
+#endif
 static ushort skCurrentToken = 0;
 static int sNumSkinnedObjects = 0;
 static bool sSkinningInitialized = false;
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
 static char sStaticSkinningData[0x80000] ATTRIBUTE_ALIGN(32);
+#endif
 static rstl::optional_object< CCircularBuffer > sSkinningBuffer;
 static rstl::list< SSkinnedAllocation > sAllocations;
 static bool sbDumpedSpinLockMessage = false;
 
 void AddSkinnedRef();
 void DelSkinnedRef();
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+void SetSkinningBuffer(void* buffer, int size);
+#endif
 } // namespace Skinning
+
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+void Skinning::SetSkinningBuffer(void* buffer, int size) {
+  sStaticSkinningDataSize = size;
+  sAllocations.clear();
+  sStaticSkinningData = buffer;
+  if (buffer != nullptr && sNumSkinnedObjects != 0) {
+    sSkinningBuffer = CCircularBuffer(buffer, sStaticSkinningDataSize);
+  }
+}
+#endif
 
 void Skinning::AddSkinnedRef() {
   if (!sSkinningInitialized) {
@@ -49,23 +69,31 @@ void Skinning::AddSkinnedRef() {
     sSkinningInitialized = true;
   }
 
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  if (sNumSkinnedObjects++ == 0) {
+    sSkinningBuffer = CCircularBuffer(sStaticSkinningData, sStaticSkinningDataSize);
+  }
+#else
   if (sNumSkinnedObjects == 0) {
     sSkinningBuffer = CCircularBuffer(sStaticSkinningData, sizeof(sStaticSkinningData));
   }
   ++sNumSkinnedObjects;
+#endif
 }
 
 void Skinning::DelSkinnedRef() {
   --sNumSkinnedObjects;
   if (sNumSkinnedObjects == 0) {
     sSkinningBuffer.clear();
-    AUTO(end, sAllocations.end());
-    AUTO(it, sAllocations.begin());
-    while (it != end) {
-      it = sAllocations.erase(it);
-    }
+    sAllocations.clear();
   }
 }
+
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+void CSkinnedModel::SetSkinningBuffer(void* buffer, int size) {
+  Skinning::SetSkinningBuffer(buffer, size);
+}
+#endif
 
 CSkinnedModel::CSkinnedModel(const TLockedToken< CModel >& model,
                              const TLockedToken< CSkinRules >& skinRules,
@@ -149,18 +177,12 @@ void CSkinnedModel::Draw(const float* positions, const float* normals,
 void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
                               const rstl::optional_object< CVertexMorphEffect >& morphEffect,
                               const float* averagedNormals, float* workVerts) {
-  uint alignedNormSize = 0;
-  uint alignedVertSize = 0;
-  uint totalSize = 0;
-  uint vertSize = x10_skinRules->GetNumPoints() * sizeof(CVector3f);
-  uint normSize = x10_skinRules->GetNumNormals() * sizeof(CVector3f);
-  BOOL interruptState = FALSE;
-  float* verts = nullptr;
-  volatile void* pipe;
-  const CVector3f* positions;
-  int numWords = 0;
-  int padWords = 0;
-  int i = 0;
+  size_t alignedNormSize = 0;
+  size_t alignedVertSize = 0;
+  size_t totalSize = 0;
+  size_t vertSize = x10_skinRules->GetNumPoints() * sizeof(CVector3f);
+  size_t normSize = x10_skinRules->GetNumNormals() * sizeof(CVector3f);
+  float* verts;
 
   if (workVerts != nullptr) {
     verts = workVerts;
@@ -178,16 +200,16 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
   totalSize = alignedVertSize + alignedNormSize;
 
   DCFlushRange(verts, totalSize);
-  interruptState = OSDisableInterrupts();
-  pipe = GXRedirectWriteGatherPipe(verts);
+  BOOL interruptState = OSDisableInterrupts();
+  volatile void* pipe = GXRedirectWriteGatherPipe(verts);
 
   x10_skinRules->InitLockedCacheState(**x4_model);
   x10_skinRules->BuildAccumulatedTransforms(pose, **x1c_layoutInfo);
   x10_skinRules->BuildPoints(pipe);
 
-  numWords = x10_skinRules->GetNumPoints() * 3;
-  padWords = ((numWords + 7) & ~7) - numWords;
-  for (i = 0; i < padWords; i++) {
+  int numWords = x10_skinRules->GetNumPoints() * 3;
+  int padWords = ((numWords + 7) & ~7) - numWords;
+  for (int i = 0; i < padWords; i++) {
     *reinterpret_cast< volatile u32* >(pipe) = 0;
   }
 
@@ -204,7 +226,7 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
   }
 
   if (sPointGen != nullptr) {
-    positions = reinterpret_cast< const CVector3f* >(verts);
+    const CVector3f* positions = reinterpret_cast< const CVector3f* >(verts);
     sPointGen(sPointGenData, positions, positions + x10_skinRules->GetNumPoints(),
               x10_skinRules->GetNumPoints());
     DCInvalidateRange(verts, totalSize);

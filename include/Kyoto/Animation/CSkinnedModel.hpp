@@ -50,6 +50,9 @@ public:
   static void SetPointGeneratorFunc(void*,
                                     void (*)(void*, const CVector3f*, const CVector3f*, int));
   static void ClearPointGeneratorFunc();
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  static void SetSkinningBuffer(void* buffer, int size);
+#endif
   static void AddDummySkinnedModelRef();
   static void RemoveDummySkinnedModelRef();
 

@@ -30,29 +30,20 @@ CSkinRules::~CSkinRules() {
   CModel::RemoveFromTotal(x0_virtualBones.size() * sizeof(CVirtualBone) + sizeof(CSkinRules));
 }
 
-const CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in,
-                                   const CVParamTransfer&) {
-  return rs_new CSkinRules(in);
-}
-
 void CSkinRules::BuildAccumulatedTransforms(const CPoseAsTransforms& pose,
-                                          const CCharLayoutInfo& layoutInfo) const {
+                                            const CCharLayoutInfo& layoutInfo) const {
   float pointStorage[100][3];
-  float (*points)[3] = pointStorage;
+  CVector3f* points = reinterpret_cast< CVector3f* >(pointStorage);
   CSegId id = pose.GetTransforms().GetFirstElementPresent();
   while (id != CSegId::Null()) {
     const CVector3f& origin = layoutInfo.GetReferenceStanceOffset(id);
     const CVector3f& rotatedOrigin = pose.GetTransformMinusOffset(id) * origin;
-    const CVector3f point = pose.GetOffset(id) - rotatedOrigin;
-    float* destination = points[id.val()];
-    destination[0] = point.GetX();
-    destination[1] = point.GetY();
-    destination[2] = point.GetZ();
+    points[id.val()] = pose.GetOffset(id) - rotatedOrigin;
     id = pose.GetTransforms().GetIdAfter(id);
   }
 
   for (int i = 0; i < x0_virtualBones.size(); ++i) {
-    x0_virtualBones[i].BuildAccumulatedTransform(pose, reinterpret_cast< const CVector3f* >(points));
+    x0_virtualBones[i].BuildAccumulatedTransform(pose, points);
   }
 }
 
@@ -88,6 +79,11 @@ void CSkinRules::BuildNormalsFrom(const CVector3f* averageNormals, CVector3f* ou
     bone.BuildNormals(averageNormals + offset, out + offset, count);
     offset += count;
   }
+}
+
+const CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in,
+                                         const CVParamTransfer&) {
+  return rs_new CSkinRules(in);
 }
 
 static CSkinRules* sLockedRules = nullptr;
@@ -126,14 +122,16 @@ void CSkinRules::StartNextTransaction() {
   const CVector3f* source;
   if (sNextPointStart != sLockedRules->GetNumPoints()) {
     count = rstl::min_val(336, sLockedRules->GetNumPoints() - sNextPointStart);
-    source = static_cast< const CVector3f* >(sCurrentTransaction->GetCubeModel()->GetPositions()) + sNextPointStart;
+    source = static_cast< const CVector3f* >(sCurrentTransaction->GetCubeModel()->GetPositions()) +
+             sNextPointStart;
   } else {
     const int normalCount = sLockedRules->GetNumNormals();
     if (normalCount == sNextNormalStart) {
       return;
     }
     count = rstl::min_val(336, normalCount - sNextNormalStart);
-    source = static_cast< const CVector3f* >(sCurrentTransaction->GetCubeModel()->GetNormals()) + sNextNormalStart;
+    source = static_cast< const CVector3f* >(sCurrentTransaction->GetCubeModel()->GetNormals()) +
+             sNextNormalStart;
   }
 
   LCLoadData(destination, const_cast< CVector3f* >(source), (count * sizeof(CVector3f) + 31) & ~31);
@@ -164,13 +162,11 @@ int CSkinRules::ProcessingPoints(int count, ushort** buf) {
     }
 
     int c = rstl::min_val(sNextPointStart - sCurrentPoint, count);
-    *buf = reinterpret_cast< ushort* >(sCurrentBase +
-                                       (sCurrentPoint - sCurrentFirst));
+    *buf = reinterpret_cast< ushort* >(sCurrentBase + (sCurrentPoint - sCurrentFirst));
     sCurrentPoint += c;
     return c;
   } else {
-    *buf = reinterpret_cast< ushort* >(sCurrentBase +
-                                       (sCurrentPoint - sCurrentFirst));
+    *buf = reinterpret_cast< ushort* >(sCurrentBase + (sCurrentPoint - sCurrentFirst));
     sCurrentPoint += count;
     return count;
   }
@@ -191,13 +187,11 @@ int CSkinRules::ProcessingNormals(int count, ushort** buf) {
     }
 
     int c = rstl::min_val(sNextNormalStart - sCurrentNormal, count);
-    *buf = reinterpret_cast< ushort* >(sCurrentBase +
-                                       (sCurrentNormal - sCurrentFirst));
+    *buf = reinterpret_cast< ushort* >(sCurrentBase + (sCurrentNormal - sCurrentFirst));
     sCurrentNormal += c;
     return c;
   } else {
-    *buf = reinterpret_cast< ushort* >(sCurrentBase +
-                                       (sCurrentNormal - sCurrentFirst));
+    *buf = reinterpret_cast< ushort* >(sCurrentBase + (sCurrentNormal - sCurrentFirst));
     sCurrentNormal += count;
     return count;
   }
