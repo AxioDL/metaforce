@@ -1386,7 +1386,7 @@ config.libs = [
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "WorldFormat/CMetroidAreaCollider.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "WorldFormat/CWorldLight.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "WorldFormat/COBBTree.cpp",
                 extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
             ),
@@ -1396,7 +1396,7 @@ config.libs = [
                 cflags=cflags_retro if version_num < VERSIONS.index("GM8P01_00") else None,
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"), "WorldFormat/CCollidableOBBTreeGroup.cpp"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "WorldFormat/CCollidableOBBTreeGroup.cpp"
             ),
             Object(NonMatching, "WorldFormat/CPVSAreaSet.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "WorldFormat/CAreaRenderOctTree.cpp"),
@@ -1502,7 +1502,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Collision/InternalColliders.cpp"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Collision/CCollisionPrimitive.cpp",
             ),
             Object(

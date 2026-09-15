@@ -64,27 +64,11 @@ void CCollisionPrimitive::InitBeginColliders() {
 }
 
 void CCollisionPrimitive::InitEndColliders() {
-  // dumb dumb dumb
-  ComparisonFunc* funcs1 = sTableOfCollidables.get();
   for (int i = 0; i < sNumTypes; ++i) {
-    // dumb dumb dumb
-    ComparisonFunc func1 = funcs1[i * sNumTypes];
-    // dumb dumb dumb
-    ComparisonFunc* funcs2 = sTableOfCollidables.get();
     for (int j = 0; j < sNumTypes; ++j) {
-      // dumb dumb dumb
-      ComparisonFunc func2 = funcs2[j * sNumTypes];
-      if (i == UINT_MAX || j == UINT_MAX) {
-        sNullCollider = nullptr;
-      }
-      if (j == UINT_MAX || i == UINT_MAX) {
-        sNullCollider = nullptr;
-      }
-      // DUMB DUMB DUMB DUMB
-      func2 = func2;
+      ComparisonFunc first = *ColliderFromTable(i, j);
+      ComparisonFunc second = *ColliderFromTable(j, i);
     }
-    // DUMB DUMB DUMB DUMB
-    func1 = func1;
   }
 
   sCollidersAdding = false;

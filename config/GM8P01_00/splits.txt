@@ -1902,9 +1902,10 @@ WorldFormat/CWorldLight.cpp:
 
 WorldFormat/COBBTree.cpp:
 	.text       start:0x802948D8 end:0x80296168
-	.rodata     start:0x803C15D0 end:0x803C15D8
+	.rodata     start:0x803C1520 end:0x803C15D8
+	.sdata      start:0x8046A6F8 end:0x8046A708
 	.sbss       start:0x8046B2B0 end:0x8046B2B8
-	.sdata2     start:0x804700F8 end:0x80470100
+	.sdata2     start:0x804700F0 end:0x80470100
 
 WorldFormat/CCollidableOBBTree.cpp:
 	.text       start:0x80296168 end:0x80298D98
@@ -1913,7 +1914,7 @@ WorldFormat/CCollidableOBBTree.cpp:
 	.sdata2     start:0x8047010C end:0x80470110
 
 WorldFormat/CCollidableOBBTreeGroup.cpp:
-	.text       start:0x80298DAC end:0x8029A72C
+	.text       start:0x80298D98 end:0x8029A848
 	.rodata     start:0x803C15D8 end:0x803C15F8
 	.data       start:0x803D42C0 end:0x803D42F8
 	.sdata      start:0x8046A710 end:0x8046A718
@@ -2120,7 +2121,7 @@ Collision/InternalColliders.cpp:
 	.rodata     start:0x803C1F10 end:0x803C1F38
 
 Collision/CCollisionPrimitive.cpp:
-	.text       start:0x802BA538 end:0x802BB92C
+	.text       start:0x802BA538 end:0x802BB984
 	.ctors      start:0x803B50B8 end:0x803B50BC
 	.rodata     start:0x803C1F38 end:0x803C1F40
 	.bss        start:0x804015A0 end:0x804015D0
