@@ -214,16 +214,10 @@ void CFrontEndUI::SNesEmulatorFrame::SetMode(EMode mode) {
 }
 
 int CFrontEndUI::SNesEmulatorFrame::Update(float dt, CSaveGameScreen* saveUi) {
-  bool doUpdate = true;
-  if (saveUi != nullptr && saveUi->GetUIType() != CSaveGameScreen::kUIT_SaveReady) {
-    doUpdate = false;
-  }
-
+  const bool doUpdate = saveUi == nullptr || saveUi->GetUIType() == CSaveGameScreen::kUIT_SaveReady;
   x10_remTime = rstl::max_val(0.f, x10_remTime - dt);
 
-  CGuiTextSupport* textSupport = xc_textSupport.get();
-  const CColor& geomCol = CColor::White().WithAlphaOf(rstl::min_val(x10_remTime, 1.f));
-  textSupport->SetGeometryColor(geomCol);
+  xc_textSupport->SetGeometryColor(CColor::White().WithAlphaOf(rstl::min_val(x10_remTime, 1.f)));
 
   if (xc_textSupport->GetIsTextSupportFinishedLoading()) {
     xc_textSupport->SetExtentX(xc_textSupport->GetBounds().second.GetX());
@@ -1353,8 +1347,7 @@ void CFrontEndUI::SFusionBonusFrame::Draw() {
 }
 
 void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveGameScreen* saveUI) {
-  bool doDraw = saveUI == nullptr || saveUI->GetUIType() == 0x10;
-
+  const bool doDraw = saveUI == nullptr || saveUI->GetUIType() == 0x10;
   if (doDraw != x38_lastDoDraw) {
     x38_lastDoDraw = doDraw;
     if (x38_lastDoDraw) {
@@ -1368,36 +1361,25 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveGameScreen* saveUI) {
     x24_loadedFrame->Update(dt);
   }
 
+  const int sel = x28_tablegroup_options->GetUserSelection();
   bool showFusionSuit = false;
-  int sel = x28_tablegroup_options->GetUserSelection();
-  if (gpGameState->SystemState().GetFusionLinked()) {
-    if (gpGameState->SystemState().GetNormalModeBeat()) {
-      showFusionSuit = true;
-    }
+  if (gpGameState->SystemState().GetFusionLinked() &&
+      gpGameState->SystemState().GetNormalModeBeat()) {
+    showFusionSuit = true;
   }
 
   bool fusionBeat = gpGameState->SystemState().GetFusionBeat();
-  bool showProceed = false;
-  if (sel == 1 && showFusionSuit) {
-    showProceed = true;
-  }
-
+  bool showProceed = sel == 1 && showFusionSuit;
   x2c_tablegroup_fusionsuit->SetIsActive(showProceed);
   x2c_tablegroup_fusionsuit->SetIsVisible(showProceed);
   x24_loadedFrame->FindWidget("textpane_proceed")->SetIsVisible(!showProceed);
 
-  const wchar_t* text1;
-  if (x3a_mpNotComplete) {
-    text1 = gpStringTable->GetString(0x50);
-  } else {
-    text1 = showFusionSuit ? L"" : gpStringTable->GetString(0x4e);
-  }
-  const wchar_t* text0;
-  if (x39_fusionNotComplete) {
-    text0 = gpStringTable->GetString(0x4f);
-  } else {
-    text0 = fusionBeat ? L"" : gpStringTable->GetString(0x4d);
-  }
+  const wchar_t* text1 = x3a_mpNotComplete ? gpStringTable->GetString(0x50)
+                         : showFusionSuit  ? L""
+                                           : gpStringTable->GetString(0x4e);
+  const wchar_t* text0 = x39_fusionNotComplete ? gpStringTable->GetString(0x4f)
+                         : fusionBeat          ? L""
+                                               : gpStringTable->GetString(0x4d);
 
   x30_textpane_instructions.SetPairText(sel == 1 ? text1 : text0);
 }

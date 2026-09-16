@@ -134,16 +134,10 @@ ushort CRumbleVoice::GetFreeChannel() const {
 
 float CRumbleVoice::GetIntensity() const {
   float ret = x10_deltas[0].x0_curIntensity;
-  if (ret < x10_deltas[1].x0_curIntensity) {
-    ret = x10_deltas[1].x0_curIntensity;
-  }
-
-  if (ret < x10_deltas[2].x0_curIntensity) {
-    ret = x10_deltas[2].x0_curIntensity;
-  }
-
-  if (ret < x10_deltas[3].x0_curIntensity) {
-    ret = x10_deltas[3].x0_curIntensity;
+  for (int i = 1; i < 4; ++i) {
+    if (ret < x10_deltas[i].x0_curIntensity) {
+      ret = x10_deltas[i].x0_curIntensity;
+    }
   }
 
   if (ret > 2.f) {
@@ -160,12 +154,11 @@ bool CRumbleVoice::OwnsSustained(short handle) const {
 }
 
 /* TODO: Fake matched, find real solution */
-short CRumbleVoice::CreateRumbleHandle(ushort idx) {
+short CRumbleVoice::CreateRumbleHandle(const ushort idx) {
   ++x2e_lastId;
   if (x2e_lastId == 0)
     x2e_lastId = 1;
-  u16 x = idx;
-  u16* h = &x20_handleIds[x];
+  ushort* h = &x20_handleIds[idx];
   *h = x2e_lastId;
-  return ((x2e_lastId << 8) | x) & 0xFFFF;
+  return ((x2e_lastId << 8) | idx) & 0xFFFF;
 }
