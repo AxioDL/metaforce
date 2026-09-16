@@ -638,9 +638,15 @@ config.libs = [
                 "MetroidPrime/Tweaks/CTweakBall.cpp",
             ),
             Object(
-                NonMatching,
+                MatchingFor(
+                    "GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8J01_00", "GM8E01_02"
+                ),
                 "MetroidPrime/Player/CPlayerState.cpp",
-                cflags=cflags_retro,
+                cflags=(
+                    cflags_retro_inline
+                    if version_num >= VERSIONS.index("GM8P01_00") and config.version != "GM8E01_02"
+                    else cflags_retro
+                ),
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),

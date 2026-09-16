@@ -218,7 +218,11 @@ MetroidPrime/Tweaks/CTweakBall.cpp:
 	.text       start:0x800910D8 end:0x800916F8
 
 MetroidPrime/Player/CPlayerState.cpp:
-	.text       start:0x800925AC end:0x8009284C
+	.text       start:0x80091780 end:0x80092D14
+	.rodata     start:0x803CE780 end:0x803CE880
+	.data       start:0x803DBE00 end:0x803DBE98
+	.sdata      start:0x805A81D0 end:0x805A81E0
+	.sdata2     start:0x805AB8E8 end:0x805AB910
 
 MetroidPrime/ScriptObjects/CScriptTimer.cpp:
 	.text       start:0x80092E48 end:0x80092F7C

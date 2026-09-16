@@ -101,6 +101,7 @@ public:
   float GetComboFireAmmoPeriod() const;
   static float GetMissileComboChargeFactor();
   int CalculateItemCollectionRate() const;
+  int CalculateItemCollectionPercentage() const;
   int GetTotalPickupCount() const;
 
   void SetIsFusionEnabled(bool v);

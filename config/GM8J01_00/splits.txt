@@ -56,9 +56,9 @@ MetroidPrime/CObjectList.cpp:
 
 MetroidPrime/Player/CPlayer.cpp:
 	.text       start:0x8001AE84 end:0x8001BA2C
-	.bss        start:0x80440850 end:0x80443030
-	.data       start:0x803C5B28 end:0x803C5C50
 	.rodata     start:0x803B8588 end:0x803B8668
+	.data       start:0x803C5B28 end:0x803C5C50
+	.bss        start:0x80440850 end:0x80443030
 	.sdata      start:0x8058FCCC end:0x8058FD40
 	.sdata2     start:0x80592EE0 end:0x80593060
 
@@ -89,11 +89,11 @@ MetroidPrime/CSplashScreen.cpp:
 MetroidPrime/CAnimData.cpp:
 	.text       start:0x8002BA1C end:0x8003427C
 	.ctors      start:0x803B6D20 end:0x803B6D24
-	.bss        start:0x80553660 end:0x80556464 align:4 common
-	.data       start:0x803C5EE8 end:0x803C5F28
 	.rodata     start:0x803B9070 end:0x803B90C8
-	.sbss       start:0x80591D78 end:0x80591D80
+	.data       start:0x803C5EE8 end:0x803C5F28
+	.bss        start:0x80553660 end:0x80556464 align:4 common
 	.sdata      start:0x8058FE00 end:0x8058FE20
+	.sbss       start:0x80591D78 end:0x80591D80
 	.sdata2     start:0x80593298 end:0x805932C0
 
 MetroidPrime/Player/CPlayerGun.cpp:
@@ -217,7 +217,11 @@ MetroidPrime/Tweaks/CTweakBall.cpp:
 	.text       start:0x80091CC4 end:0x800922E4
 
 MetroidPrime/Player/CPlayerState.cpp:
-	.text       start:0x80093274 end:0x80093514
+	.text       start:0x8009236C end:0x800939C0
+	.rodata     start:0x803B9A50 end:0x803B9B20
+	.data       start:0x803C7038 end:0x803C70D0
+	.sdata      start:0x805901C0 end:0x805901D0
+	.sdata2     start:0x805939F0 end:0x80593A18
 
 MetroidPrime/Cameras/CCinematicCamera.cpp:
 	.text       start:0x80094D3C end:0x80095370
@@ -1096,6 +1100,7 @@ Weapons/CDecal.cpp:
 
 MetaRender/CCubeRenderer.cpp:
 	.text       start:0x802A3CD4 end:0x802AEA40
+	.ctors      start:0x803B6E24 end:0x803B6E28
 
 GuiSys/CAuiMeter.cpp:
 	.text       start:0x802AEB7C end:0x802AEDA8
@@ -1413,10 +1418,10 @@ Kyoto/Graphics/CCubeModel.cpp:
 Kyoto/Graphics/CGX.cpp:
 	.text       start:0x802F26DC end:0x802F3B64
 	.ctors      start:0x803B6E50 end:0x803B6E54
-	.bss        start:0x8058E44C end:0x8058E6AC align:4 common
 	.rodata     start:0x803C37E8 end:0x803C3810
-	.sbss2      start:0x80598810 end:0x80598818
+	.bss        start:0x8058E44C end:0x8058E6AC align:4 common
 	.sdata2     start:0x805977D0 end:0x805977E0
+	.sbss2      start:0x80598810 end:0x80598818
 
 Kyoto/Graphics/CTevCombiners.cpp:
 	.text       start:0x802F3B64 end:0x802F3FB4
@@ -1465,6 +1470,7 @@ Kyoto/Math/CUnitVector3f.cpp:
 
 Kyoto/Math/CVector2f.cpp:
 	.text       start:0x802FEAC4 end:0x802FEEAC
+	.ctors      start:0x803B6E70 end:0x803B6E74
 
 Kyoto/Math/CVector2i.cpp:
 	.text       start:0x802FEEAC end:0x802FEFB8
@@ -1492,6 +1498,7 @@ Kyoto/Alloc/CCircularBuffer.cpp:
 
 Kyoto/Alloc/CMemory.cpp:
 	.text       start:0x80300408 end:0x80300888
+	.ctors      start:0x803B6E78 end:0x803B6E7C
 
 Kyoto/Alloc/IAllocator.cpp:
 	.text       start:0x80300888 end:0x80300968
@@ -1565,6 +1572,7 @@ Kyoto/rstl/rstl_allocator.cpp:
 
 Kyoto/rstl/rstl_strings.cpp:
 	.text       start:0x80327390 end:0x80328BC8
+	.ctors      start:0x803B6E84 end:0x803B6E88
 
 Kyoto/rstl/RstlExtras.cpp:
 	.text       start:0x80328BC8 end:0x80328D1C
@@ -1647,22 +1655,6 @@ Kyoto/Graphics/CCubeMaterial.cpp:
 	.sdata      start:0x805919C8 end:0x805919D8
 	.sbss       start:0x80592618 end:0x80592640
 	.sdata2     start:0x80597BF0 end:0x80597C50
-
-runtime/errno.c:
-	.sbss       start:0x80592AA8 end:0x80592AB0
-
-runtime/float.c:
-	.sdata      start:0x80591C40 end:0x80591C70
-
-runtime/locale.c:
-	.data       start:0x803DBB58 end:0x803DBB90
-
-musyx/runtime/synth_dbtab.c:
-	.data       start:0x803DC658 end:0x803DCDE0
-
-musyx/runtime/dsp_import.c:
-	.data       start:0x803DD8C0 end:0x803DF2A0
-	.sdata      start:0x80591C88 end:0x80591C90
 
 Kyoto/Graphics/CCubeSurface.cpp:
 	.text       start:0x80332490 end:0x80332514
@@ -1775,10 +1767,10 @@ Kyoto/CDependencyGroup.cpp:
 Kyoto/Audio/CStreamAudioManager.cpp:
 	.text       start:0x803510D8 end:0x80352428
 	.ctors      start:0x803B6EB8 end:0x803B6EBC
-	.bss        start:0x8058FBC0 end:0x8058FC10 align:4 common
 	.rodata     start:0x803C4858 end:0x803C4860
-	.sbss       start:0x80592760 end:0x80592770
+	.bss        start:0x8058FBC0 end:0x8058FC10 align:4 common
 	.sdata      start:0x80591AC8 end:0x80591AE0
+	.sbss       start:0x80592760 end:0x80592770
 	.sdata2     start:0x80597E08 end:0x80597E30
 
 Kyoto/Particles/CSwooshDescription.cpp:
@@ -1830,6 +1822,12 @@ dolphin/db.c:
 	.text       start:0x8035B6EC end:0x8035B7D8
 	.data       start:0x803D87F0 end:0x803D8808
 	.sbss       start:0x80592820 end:0x80592828
+
+runtime/locale.c:
+	.data       start:0x803DBB58 end:0x803DBB90
+
+musyx/runtime/synth_dbtab.c:
+	.data       start:0x803DC658 end:0x803DCDE0
 
 dolphin/dsp/dsp.c:
 	.text       start:0x8035B7D8 end:0x8035B9F0
@@ -1926,8 +1924,8 @@ dolphin/os/OSAlarm.c:
 
 dolphin/os/OSArena.c:
 	.text       start:0x8036A350 end:0x8036A39C
-	.sbss       start:0x80592990 end:0x80592998
 	.sdata      start:0x80591BD0 end:0x80591BD8
+	.sbss       start:0x80592990 end:0x80592998
 
 dolphin/os/OSAudioSystem.c:
 	.text       start:0x8036A39C end:0x8036A630
@@ -2028,6 +2026,9 @@ runtime/abort_exit.c:
 	.bss        start:0x8052B1F8 end:0x8052B2F8
 	.sbss       start:0x80592A90 end:0x80592AA0
 
+runtime/errno.c:
+	.sbss       start:0x80592AA8 end:0x80592AB0
+
 runtime/alloc.c:
 	.text       start:0x80376070 end:0x80376E84
 
@@ -2073,6 +2074,9 @@ runtime/qsort.c:
 runtime/rand.c:
 	.text       start:0x8037BC50 end:0x8037BC78
 	.sdata      start:0x80591C38 end:0x80591C40
+
+runtime/float.c:
+	.sdata      start:0x80591C40 end:0x80591C70
 
 runtime/sscanf.c:
 	.text       start:0x8037BC78 end:0x8037BD08
@@ -2225,6 +2229,10 @@ musyx/runtime/hw_volconv.c:
 	.data       start:0x803DCDF8 end:0x803DD020
 	.sdata2     start:0x80598638 end:0x80598670
 
+musyx/runtime/dsp_import.c:
+	.data       start:0x803DD8C0 end:0x803DF2A0
+	.sdata      start:0x80591C88 end:0x80591C90
+
 musyx/runtime/snd3d.c:
 	.text       start:0x8039C134 end:0x8039C960
 
@@ -2356,4 +2364,4 @@ dolphin/GBA/GBAKey.c:
 	.text       start:0x803B6C04 end:0x803B6CE8
 
 runtime/__mem.c:
-	.init       start:0x800033A8 end:0x80003584
+	.init       start:0x800033A8 end:0x800034E0

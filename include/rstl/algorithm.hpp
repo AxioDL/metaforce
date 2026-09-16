@@ -385,7 +385,9 @@ find_by_key_nc(T& container, const typename select1st< typename T::value_type >:
 template < typename T >
 typename T::iterator inline find_by_key_nc(
     T& container, const typename select1st< typename T::value_type >::value_type& key) {
-  return binary_find(container.begin(), container.end(), key, default_pair_sorter_finder< T >());
+  return binary_find(container.begin(), container.end(), key,
+    pair_sorter_finder< typename T::value_type, less< typename select1st< typename T::value_type >::value_type > >(
+      less< typename select1st< typename T::value_type >::value_type >()));
 }
 
 template < typename T >

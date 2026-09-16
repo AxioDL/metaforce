@@ -116,8 +116,8 @@ CPlayerState::CPlayerState(CInputStream& stream)
   x170_scanTimes.reserve(scanStates.size());
   for (rstl::vector< CMemoryCard::ScanState >::const_iterator it = scanStates.begin();
        it != scanStates.end(); ++it) {
-    float time = stream.ReadPackedBool() ? 1.f : 0.f;
-    x170_scanTimes.push_back(rstl::pair< CAssetId, float >(it->first, time));
+    bool isScanned = stream.ReadBits(1) != 0;
+    x170_scanTimes.push_back(rstl::pair< CAssetId, float >(it->first, isScanned ? 1.f : 0.f));
   }
 
   x180_scanCompletionRateFirst = uint(stream.ReadBits(GetBitCount(0x100u)));
@@ -142,7 +142,7 @@ void CPlayerState::PutTo(COutputStream& stream) {
   }
 
   for (rstl::vector< rstl::pair< CAssetId, float > >::iterator it = x170_scanTimes.begin();
-       it != x170_scanTimes.end(); ++it) {
+       it != x170_scanTimes.end(); it += 1) {
     int flag;
     if (it->second >= 1.f) {
       flag = 1;
@@ -374,13 +374,13 @@ void CPlayerState::InitializeScanTimes() {
   }
 }
 
-const float CPlayerState::GetScanTime(CAssetId res) const {
+const float CPlayerState::GetScanTime(const CAssetId res) const {
   rstl::vector< rstl::pair< CAssetId, float > >::const_iterator it =
       rstl::find_by_key(x170_scanTimes, res);
   return it->second;
 }
 
-void CPlayerState::SetScanTime(CAssetId res, float time) {
+void CPlayerState::SetScanTime(const CAssetId res, float time) {
   rstl::vector< rstl::pair< CAssetId, float > >::iterator it =
       rstl::find_by_key_nc(x170_scanTimes, res);
   it->second = time;
@@ -431,6 +431,10 @@ int CPlayerState::CalculateItemCollectionRate() const {
          GetItemCapacity(kIT_Chozo) + GetItemCapacity(kIT_Nature) + GetItemCapacity(kIT_Sun) +
          GetItemCapacity(kIT_World) + GetItemCapacity(kIT_Spirit) + GetItemCapacity(kIT_Newborn) +
          GetItemCapacity(kIT_Wavebuster);
+}
+
+int CPlayerState::CalculateItemCollectionPercentage() const {
+  return CalculateItemCollectionRate() * 100 / GetTotalPickupCount();
 }
 
 int CPlayerState::GetMissileCostForAltAttack() const {
