@@ -2374,12 +2374,13 @@ Kyoto/Animation/CAnimPOIData.cpp:
 	.sbss       start:0x8046B40C end:0x8046B428
 
 Kyoto/Animation/CAnimSource.cpp:
-	.text       start:0x802D63EC end:0x802D7F44
+	.text       start:0x802D63EC end:0x802D7BB4
 	.rodata     start:0x803C2298 end:0x803C22A0
+	.sdata      start:0x8046A858 end:0x8046A860
 	.sdata2     start:0x804705B0 end:0x804705D8
 
 Kyoto/Animation/CAnimSourceReader.cpp:
-	.text       start:0x802D7F44 end:0x802D95FC
+	.text       start:0x802D7BB4 end:0x802D95FC
 	.rodata     start:0x803C22A0 end:0x803C22A8
 	.data       start:0x803D4DA8 end:0x803D4E58
 	.sdata      start:0x8046A860 end:0x8046A868
@@ -2456,14 +2457,14 @@ Kyoto/CDvdRequestManager.cpp:
 	.sbss       start:0x8046B458 end:0x8046B460
 
 Kyoto/Animation/CFBStreamedAnimReader.cpp:
-	.text       start:0x802E1D1C end:0x802E43E4
+	.text       start:0x802E1D1C end:0x802E441C
 	.rodata     start:0x803C22F0 end:0x803C22F8
 	.data       start:0x803D5280 end:0x803D5308
-	.sdata      start:0x8046A8B8 end:0x8046A8C0
+	.sdata      start:0x8046A8B0 end:0x8046A8C0
 	.sdata2     start:0x80470638 end:0x80470658
 
 Kyoto/Animation/CFBStreamedCompression.cpp:
-	.text       start:0x802E441C end:0x802E4C5C
+	.text       start:0x802E441C end:0x802E4E78
 	.rodata     start:0x803C22F8 end:0x803C2300
 	.sdata2     start:0x80470658 end:0x80470670
 
@@ -3228,6 +3229,11 @@ Kyoto/CFrameDelayedKiller.cpp:
 	.ctors      start:0x803B5144 end:0x803B5148
 	.bss        start:0x80402AE0 end:0x80402B20
 	.sbss       start:0x8046B7F8 end:0x8046B800
+
+Kyoto/Animation/CTimeRemainderAndFraction.cpp:
+	.text       start:0x80356EDC end:0x80356FD0
+	.sdata      start:0x8046AB50 end:0x8046AB58
+	.sdata2     start:0x80470D80 end:0x80470D88
 
 dolphin/ai.c:
 	.text       start:0x80357064 end:0x803579CC

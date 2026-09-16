@@ -18,12 +18,23 @@ public:
   typedef typename rep_type::iterator iterator;
   typedef typename rep_type::const_iterator const_iterator;
 
+  ~set() {}
+
   explicit set(const Cmp& cmp = Cmp(), const Alloc& alloc = Alloc())
   : rep_type(identity< T >(), cmp, alloc) {}
+
   set(CInputStream& in, const Cmp& cmp = Cmp(), const Alloc& alloc = Alloc());
 
-  ~set() {}
+  set(const set& other);
 };
+
+template < typename T, typename Cmp, typename Alloc >
+#if VERSION < VERSION_GM8P_00
+inline
+#endif
+    set< T, Cmp, Alloc >::set(const set& other)
+: rep_type(other) {
+}
 
 typedef set< char, char > unk_set;
 CHECK_SIZEOF(unk_set, 0x14)

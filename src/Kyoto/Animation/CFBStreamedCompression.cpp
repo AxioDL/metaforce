@@ -9,27 +9,27 @@
 rstl::auto_ptr< uint > CFBStreamedCompression::GetRotationsAndOffsets(uint words,
                                                                       CInputStream& in) {
   rstl::auto_ptr< uint > data(rs_new uint[words]);
-  CStandardMultiFormatHeader* mainHeader =
-      reinterpret_cast< CStandardMultiFormatHeader* >(data.get());
+  void* cursor = data.get();
+  CStandardMultiFormatHeader* mainHeader = static_cast< CStandardMultiFormatHeader* >(cursor);
   new (mainHeader) CStandardMultiFormatHeader(in);
-  CFBStreamedCompressionTimeHeader* timeHeader = const_cast< CFBStreamedCompressionTimeHeader* >(
-      static_cast< const CFBStreamedCompressionTimeHeader* >(mainHeader->AfterEnd()));
+  cursor = const_cast< void* >(mainHeader->AfterEnd());
+  CFBStreamedCompressionTimeHeader* timeHeader =
+      static_cast< CFBStreamedCompressionTimeHeader* >(cursor);
   new (timeHeader) CFBStreamedCompressionTimeHeader(in);
-  void* channelAddress = const_cast< void* >(timeHeader->AfterEnd());
+  cursor = const_cast< void* >(timeHeader->AfterEnd());
   in.Get< uint >();
   CFBStreamedPerChannelHeaderList* channels =
-      static_cast< CFBStreamedPerChannelHeaderList* >(channelAddress);
+      static_cast< CFBStreamedPerChannelHeaderList* >(cursor);
   new (channels) CFBStreamedPerChannelHeaderList(in);
   const CFBStreamedPerChannelHeader& first = *channels->begin();
-  const uchar* bytes = channels->AfterEnd();
-  uchar* bits = const_cast< uchar* >(bytes);
+  cursor = const_cast< uchar* >(channels->AfterEnd());
   uint wordCount = static_cast< uint >(
       static_cast< float >(
           channels->GetSumOfBitCounts() * first.GetRotationBitStorage().GetWidth() + 31) /
       32.f);
   for (uint i = 0; i < wordCount; ++i) {
-    TLoadedVal< uint >::Write(bits, in.Get< uint >());
-    bits += sizeof(uint);
+    TLoadedVal< uint >::Write(cursor, in.Get< uint >());
+    cursor = static_cast< uchar* >(cursor) + sizeof(uint);
   }
   return data;
 }
@@ -44,31 +44,30 @@ CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& s
     x8_evntToken = rs_new TLockedToken< CAnimPOIData >(store.GetObj(SObjectTag('EVNT', x4_evnt)));
   }
 
-  const CFBStreamedCompression& source = *this;
-  const CStandardMultiFormatHeader& mainHeader = source.MainHeader();
+  const CStandardMultiFormatHeader& mainHeader = MainHeader();
   const CFBStreamedCompressionTimeHeader& timeHeader = TimeHeader(mainHeader);
   const CFBStreamedPerChannelHeaderList& channels = GetPerChannelHeaderList(timeHeader);
-  const CFBStreamedPerChannelHeader* channel =
-      reinterpret_cast< const CFBStreamedPerChannelHeader* >(channels.GetFirstAddress());
+
+  const CFBStreamedPerChannelHeader* firstChannel = &*channels.begin();
   const uint* bytes = GetBytes(channels);
   uint keyframes = GetNumKeyframes();
   CMemoryInputToBitLevelLoader input(bytes);
   CBitLevelLoader< CMemoryInputToBitLevelLoader > loader(input);
   uint rootIndex = 0;
-  for (int remaining = channels.size(); remaining != 0; --remaining) {
+  for (CFBStreamedPerChannelHeaderList::const_iterator channel(firstChannel, channels.size());
+       channel != channels.end(); ++channel) {
     if (channel->GetSegId() == CSegId::Root()) {
       break;
     }
     ++rootIndex;
-    channel = channel->AfterEnd();
   }
 
-  CFBStreamedAnimReaderTotals totals(source);
+  CFBStreamedAnimReaderTotals totals(*this);
   totals.CalculateDown();
   CVector3f previous = totals.GetVector(rootIndex);
   float distance = 0.f;
   for (uint i = 0; i < keyframes; ++i) {
-    totals.IncrementInto(loader, source, totals);
+    totals.IncrementInto(loader, *this, totals);
     totals.CalculateDown();
     CVector3f current = totals.GetVector(rootIndex);
     CVector3f difference = current - previous;
@@ -78,7 +77,7 @@ CFBStreamedCompression::CFBStreamedCompression(CInputStream& in, IObjectStore& s
       distance += delta;
     }
   }
-  x10_averageVelocity = distance / source.GetAnimationDuration().GetSeconds();
+  x10_averageVelocity = distance / GetAnimationDuration().GetSeconds();
 }
 
 CFBStreamedCompression::~CFBStreamedCompression() {}

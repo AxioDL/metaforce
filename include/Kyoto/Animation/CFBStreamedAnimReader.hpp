@@ -3,6 +3,7 @@
 
 #include "Kyoto/Animation/CAllFormatsAnimSource.hpp"
 #include "Kyoto/Animation/CAnimSourceReaderBase.hpp"
+#include "Kyoto/Animation/CTimeRemainderAndFraction.hpp"
 #include "Kyoto/Basics/CCast.hpp"
 #include "rstl/math.hpp"
 
@@ -14,6 +15,8 @@ class CBitLevelLoader;
 template < typename T >
 class TAnimSourceInfo : public IAnimSourceInfo {
 public:
+  ~TAnimSourceInfo() override {}
+
   TAnimSourceInfo(const TSubAnimTypeToken< T >& source) : x4_source(source) {}
   bool HasPOIData() const override { return x4_source->HasPOIData(); }
   const rstl::vector< CBoolPOINode >& GetBoolPOIStream() const override {
@@ -29,7 +32,6 @@ public:
     return x4_source->GetSoundPOIStream();
   }
   CCharAnimTime GetAnimationDuration() const override { return x4_source->GetAnimationDuration(); }
-  ~TAnimSourceInfo() override {}
 
 private:
   TSubAnimTypeToken< T > x4_source;
@@ -73,38 +75,6 @@ private:
 CHECK_SIZEOF(CFBStreamedAnimReaderTotals, 0x28)
 
 class CFBKeyFrameReductionPerChannel_HeaderForAll;
-class CIntegerTimeAndRemainder {
-public:
-  CIntegerTimeAndRemainder(const CCharAnimTime& time, const CCharAnimTime& interval)
-  : x0_realTime(time.GetSeconds())
-  , x4_integerTime(CCast::ToUint32(time / interval))
-  , x8_remainder(rstl::max_val(x0_realTime - x4_integerTime * interval.GetSeconds(), 0.f)) {}
-
-  const float& RealTime() const { return x0_realTime; }
-  const uint& IntegerTime() const { return x4_integerTime; }
-  const float& Remainder() const { return x8_remainder; }
-
-private:
-  float x0_realTime;
-  uint x4_integerTime;
-  float x8_remainder;
-};
-CHECK_SIZEOF(CIntegerTimeAndRemainder, 0xc)
-
-class CTimeRemainderAndFraction : public CIntegerTimeAndRemainder {
-public:
-  CTimeRemainderAndFraction(const CCharAnimTime& time, const CCharAnimTime& interval)
-  : CIntegerTimeAndRemainder(time, interval)
-  , xc_fraction(Remainder() / interval.GetSeconds())
-  , x10_finestSample(interval.GetSeconds()) {}
-
-  const float& FinestSample() const { return x10_finestSample; }
-
-private:
-  float xc_fraction;
-  float x10_finestSample;
-};
-CHECK_SIZEOF(CTimeRemainderAndFraction, 0x14)
 
 class CFBFullBodyAspectsForStream {
 public:
@@ -167,45 +137,8 @@ template < typename T >
 class CBitLevelLoader {
 public:
   CBitLevelLoader(T& input) : x0_input(&input), x4_word(Input(*x0_input)), x8_bit(0) {}
-  uint LoadUnsigned(uint bits) {
-    uint result = 0;
-    uint shift = 0;
-    while (bits != 0) {
-#if NONMATCHING
-      if (x8_bit == 32) {
-        x8_bit = 0;
-        x4_word = Input(*x0_input);
-      }
-#endif
-      uint count = rstl::min_val(32 - x8_bit, bits);
-      uint highShift = 32 - count;
-      result |= ((x4_word >> x8_bit) << highShift) >> (highShift - shift);
-      x8_bit += count;
-      shift += count;
-      bits -= count;
-#if !NONMATCHING
-      if (x8_bit == 32) {
-        x8_bit = 0;
-        x4_word = Input(*x0_input);
-      }
-#endif
-    }
-    return result;
-  }
-  int LoadSigned(uint bits) {
-    if (bits == 0) {
-      return 0;
-    }
-    uint value = LoadUnsigned(bits);
-#if NONMATCHING
-    if (bits < 32 && (value & (1u << (bits - 1)))) {
-#else
-    if (value & (1 << (bits - 1))) {
-#endif
-      value |= ~0u << bits;
-    }
-    return value;
-  }
+  uint LoadUnsigned(uint bits);
+  int LoadSigned(uint bits);
 
 private:
   static uint Input(T& input);
@@ -214,6 +147,50 @@ private:
   uint x4_word;
   uint x8_bit;
 };
+
+template < typename T >
+NTSC_INLINE uint CBitLevelLoader< T >::LoadUnsigned(uint bits) {
+  uint remaining = bits;
+  uint result = 0;
+  uint shift = 0;
+  while (remaining != 0) {
+#if NONMATCHING
+    if (x8_bit == 32) {
+      x8_bit = 0;
+      x4_word = Input(*x0_input);
+    }
+#endif
+    uint count = rstl::min_val(32 - x8_bit, remaining);
+    uint highShift = 32 - count;
+    result |= ((x4_word >> x8_bit) << highShift) >> (highShift - shift);
+    x8_bit += count;
+    shift += count;
+    remaining -= count;
+#if !NONMATCHING
+    if (x8_bit == 32) {
+      x8_bit = 0;
+      x4_word = Input(*x0_input);
+    }
+#endif
+  }
+  return result;
+}
+
+template < typename T >
+NTSC_INLINE int CBitLevelLoader< T >::LoadSigned(uint bits) {
+  if (bits == 0) {
+    return 0;
+  }
+  uint value = LoadUnsigned(bits);
+#if NONMATCHING
+  if (bits < 32 && (value & (1u << (bits - 1)))) {
+#else
+  if (value & (1 << (bits - 1))) {
+#endif
+    value |= ~0u << bits;
+  }
+  return value;
+}
 
 template <>
 inline uint

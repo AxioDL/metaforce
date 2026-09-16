@@ -15,6 +15,14 @@
 #define ALIGNAS(N) alignas(N)
 #endif
 
+// TODO: using this macro is likely a hack and should instead be some inline configuration.
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+#define NTSC_INLINE inline
+#else
+#define NTSC_INLINE
+#endif
+
+
 extern "C" {
 #endif
 

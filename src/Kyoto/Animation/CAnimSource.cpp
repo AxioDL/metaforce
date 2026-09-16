@@ -94,7 +94,8 @@ uint RotationAndOffsetStorage::GetFrameSizeInBytes() const {
   return xc_rotationsPerFrame * sizeof(CQuaternion) + x10_offsetsPerFrame * sizeof(CVector3f);
 }
 
-RotationAndOffsetStorage::CRotationAndOffsetVectors::CRotationAndOffsetVectors(CInputStream& in)
+inline RotationAndOffsetStorage::CRotationAndOffsetVectors::CRotationAndOffsetVectors(
+    CInputStream& in)
 : x0_rotations(in), x10_offsets(in) {}
 
 CAnimSource::CAnimSource(CInputStream& in, IObjectStore& store)
@@ -223,6 +224,8 @@ const rstl::vector< CParticlePOINode >& CAnimSource::GetParticlePOIStream() cons
 const rstl::vector< CSoundPOINode >& CAnimSource::GetSoundPOIStream() const {
   return (*x58_eventData)->GetSoundPOIStream();
 }
+
+template class rstl::set< rstl::pair< rstl::string, int > >;
 
 void CAnimSource::GetSegStatementSet(const CSegIdList& list, CSegStatementSet& set,
                                      const CCharAnimTime& animTime) const {

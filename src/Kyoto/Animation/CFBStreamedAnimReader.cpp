@@ -58,13 +58,13 @@ void CFBStreamedAnimReaderTotals::SetToReadStart(const CFBStreamedCompression& s
     xc_segIds[channel] = it->GetSegId().val();
     const CFBStreamedPerChannelHeader::RotationHeader& rotation = it->GetRotationBitStorage();
     for (uint i = 0; i < 4; ++i) {
-      values[i] = rotation.GetInitialValue(i);
+      *values++ = rotation.GetInitialValue(i);
     }
     const CFBStreamedPerChannelHeader::OffsetHeader& offset = it->GetOffsetBitStorage();
     for (uint i = 0; i < 3; ++i) {
-      values[4 + i] = offset.GetInitialValue(i);
+      *values++ = offset.GetInitialValue(i);
     }
-    values += 8;
+    ++values;
     x8_hasTrans[channel] = offset.GetWidth() != 0;
   }
 }
@@ -279,7 +279,7 @@ CAdvancementResults CFBStreamedAnimReader::VAdvanceView(const CCharAnimTime& tim
   }
   CSegStatement next;
   GetSegStatement(next, CSegId(3));
-  const CQuaternion& priorRotation = prior.GetOrientation();
+  const CQuaternion priorRotation = prior.GetOrientation();
   const CQuaternion nextRotation = next.GetOrientation();
   const CQuaternion priorInverse = priorRotation.BuildInverted();
   CVector3f offset(0.f, 0.f, 0.f);
@@ -430,7 +430,7 @@ CFBStreamedAnimReader::VGetAdvancementResults(const CCharAnimTime& time,
   }
   CSegStatement next;
   GetSegStatement(next, CSegId(3));
-  const CQuaternion& priorRotation = prior.GetOrientation();
+  const CQuaternion priorRotation = prior.GetOrientation();
   const CQuaternion nextRotation = next.GetOrientation();
   const CQuaternion priorInverse = priorRotation.BuildInverted();
   CVector3f offset(0.f, 0.f, 0.f);

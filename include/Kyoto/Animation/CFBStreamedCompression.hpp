@@ -93,70 +93,87 @@ private:
 template < uint Components, uint ConstantComponent, uint SignComponent >
 class CFBBitCompressedDataChannelHeader {
 public:
-  CFBBitCompressedDataChannelHeader(CInputStream& in) {
-    ushort width = in.Get< ushort >();
-    TLoadedVal< ushort >::Write(this, width);
-    uchar* data = reinterpret_cast< uchar* >(this) + sizeof(ushort);
-    if (width != 0) {
-      for (uint i = 0; i < Components; ++i) {
-        if (i != SignComponent) {
-          Write(data, in.Get< short >());
-          data[2] = in.Get< schar >();
-          data += 3;
-        }
-      }
-    }
-  }
+  CFBBitCompressedDataChannelHeader(CInputStream& in);
 
   static void Write(uchar* out, short value) { TLoadedVal< short >::Write(out, value); }
   const TLoadedVal< ushort >& Width() const { return x0_width; }
   uint GetWidth() const { return *Width(); }
   static uint Height() { return Components; }
-  short GetInitialValue(uint component) const {
-    if (component == SignComponent) {
-      return 0;
-    }
-    uint index = component;
-    if (SignComponent < Components) {
-      --index;
-    }
-    return TLoadedVal< short >::Read(reinterpret_cast< const uchar* >(this) +
-                                    sizeof(ushort) + index * 3);
-  }
-  uint GetBitCount(uint component) const {
-    uint index = component;
-    if (SignComponent < Components) {
-      --index;
-    }
-    return reinterpret_cast< const uchar* >(this)[sizeof(ushort) + index * 3 + 2];
-  }
-  const uchar* AfterEnd() const {
-    if (*Width() == 0) {
-      return reinterpret_cast< const uchar* >(this) + sizeof(ushort);
-    }
-    return reinterpret_cast< const uchar* >(this) + sizeof(ushort) +
-           3 * (Height() - (SignComponent < Components));
-  }
-  uint GetSumOfBitCounts() const {
-    if (*Width() == 0) {
-      return 0;
-    }
-    uint sum = 0;
-    const uchar* data = reinterpret_cast< const uchar* >(this) + sizeof(ushort);
-    for (uint i = 0; i < Components; ++i) {
-      if (i == SignComponent) {
-        sum += 1;
-      } else {
-        sum += data[2];
-        data += 3;
-      }
-    }
-    return sum;
-  }
+  short GetInitialValue(uint component) const;
+  uint GetBitCount(uint component) const;
+  const uchar* AfterEnd() const;
+  uint GetSumOfBitCounts() const;
 
 private:
   TLoadedVal< ushort > x0_width;
 };
+
+template < uint Components, uint ConstantComponent, uint SignComponent >
+NTSC_INLINE CFBBitCompressedDataChannelHeader< Components, ConstantComponent, SignComponent >::
+        CFBBitCompressedDataChannelHeader(CInputStream& in) {
+  ushort width = in.Get< ushort >();
+  TLoadedVal< ushort >::Write(this, width);
+  uchar* data = reinterpret_cast< uchar* >(this) + sizeof(ushort);
+  if (width != 0) {
+    for (uint i = 0; i < Components; ++i) {
+      if (i != SignComponent) {
+        Write(data, in.Get< short >());
+        data[2] = in.Get< schar >();
+        data += 3;
+      }
+    }
+  }
+}
+
+template < uint Components, uint ConstantComponent, uint SignComponent >
+NTSC_INLINE short CFBBitCompressedDataChannelHeader< Components, ConstantComponent,
+                                       SignComponent >::GetInitialValue(uint component) const {
+  if (component == SignComponent) {
+    return 0;
+  }
+  uint index = component;
+  if (SignComponent < Components) {
+    --index;
+  }
+  return TLoadedVal< short >::Read(reinterpret_cast< const uchar* >(this) + sizeof(ushort) +
+                                   index * 3);
+}
+
+template < uint Components, uint ConstantComponent, uint SignComponent >
+NTSC_INLINE uint CFBBitCompressedDataChannelHeader< Components, ConstantComponent, SignComponent >::GetBitCount(uint component) const {
+  if (SignComponent < Components && component == SignComponent) {
+    return 1;
+  }
+  return reinterpret_cast< const uchar* >(
+      this)[sizeof(ushort) + component * 3 + 2 - 3 * (SignComponent < Components)];
+}
+
+template < uint Components, uint ConstantComponent, uint SignComponent >
+NTSC_INLINE const uchar* CFBBitCompressedDataChannelHeader< Components, ConstantComponent, SignComponent >::AfterEnd() const {
+  if (*Width() == 0) {
+    return reinterpret_cast< const uchar* >(this) + sizeof(ushort);
+  }
+  return reinterpret_cast< const uchar* >(this) + sizeof(ushort) +
+         3 * (Height() - (SignComponent < Components));
+}
+
+template < uint Components, uint ConstantComponent, uint SignComponent >
+NTSC_INLINE uint CFBBitCompressedDataChannelHeader< Components, ConstantComponent, SignComponent >::GetSumOfBitCounts() const {
+  if (*Width() == 0) {
+    return 0;
+  }
+  uint sum = 0;
+  const uchar* data = reinterpret_cast< const uchar* >(this) + sizeof(ushort);
+  for (uint i = 0; i < Components; ++i) {
+    if (i == SignComponent) {
+      sum += 1;
+    } else {
+      sum += data[2];
+      data += 3;
+    }
+  }
+  return sum;
+}
 
 class CFBStreamedPerChannelHeader {
 public:
@@ -209,12 +226,18 @@ public:
     const_iterator(const T* ptr, int count) : x0_ptr(ptr), x4_count(count) {}
     const_iterator(const const_iterator& other) : x0_ptr(other.x0_ptr), x4_count(other.x4_count) {}
     const_iterator& operator++() {
-      x0_ptr = reinterpret_cast< const T* >(x0_ptr->AfterEnd());
       --x4_count;
+      x0_ptr = reinterpret_cast< const T* >(x0_ptr->AfterEnd());
       return *this;
     }
     const T& operator*() const { return *x0_ptr; }
-    const T* operator->() const { return x0_ptr; }
+    const T* operator->() const {
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+      return &**this;
+#else
+      return x0_ptr;
+#endif
+    }
     bool operator==(const const_iterator& other) const { return x4_count == other.x4_count; }
     bool operator!=(const const_iterator& other) const { return !(*this == other); }
 
@@ -233,18 +256,21 @@ public:
       ptr = ptr->AfterEnd();
     }
   }
-  const uchar* AfterEnd() const {
-    const_iterator it(begin());
-    for (int i = 0; i < this->size(); ++i) {
-      ++it;
-    }
-    return reinterpret_cast< const uchar* >(&*it);
-  }
+  const uchar* AfterEnd() const;
   const_iterator begin() const {
     return const_iterator(reinterpret_cast< const T* >(this->GetFirstAddress()), this->size());
   }
   const_iterator end() const { return const_iterator(nullptr, 0); }
 };
+
+template < typename Size, typename T >
+NTSC_INLINE const uchar* TVectorOfVaryingLengthItems< Size, T >::AfterEnd() const {
+  const_iterator it(begin());
+  for (int remaining = this->size(); remaining > 0; --remaining) {
+    ++it;
+  }
+  return reinterpret_cast< const uchar* >(&*it);
+}
 
 class CFBStreamedPerChannelHeaderList
 : public TVectorOfVaryingLengthItems< uint, CFBStreamedPerChannelHeader > {
@@ -349,6 +375,7 @@ public:
   const uint* GetBytes(const CFBStreamedPerChannelHeaderList& header) const {
     return reinterpret_cast< const uint* >(header.AfterEnd());
   }
+
   uint GetNumKeyframes() const {
     return GetPerChannelHeaderList(TimeHeader(MainHeader()))
         .begin()
