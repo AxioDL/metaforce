@@ -1461,6 +1461,38 @@ CEntity* ScriptLoader::LoadCameraBlurKeyframe(CStateManager& mgr, CInputStream& 
                                           timeOut, active);
 }
 
+CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in, int propCount,
+                                  const CEntityInfo& info) {
+  if (propCount != 0x12)
+    return nullptr;
+
+  SScaledActorHead head(in, mgr);
+
+  float zImpulse = in.ReadFloat();
+  CVector3f velocity(in);
+  CColor endsColor(in);
+  float mass = in.ReadFloat();
+  float restitution = in.ReadFloat();
+  float duration = in.ReadFloat();
+  CScriptDebris::EScaleType scaleType = CScriptDebris::EScaleType(in.Get< int >());
+  bool randomAngImpulse = in.Get< bool >();
+  CAssetId model = in.Get< CAssetId >();
+  CActorParameters aParams = LoadActorParameters(in);
+  CAssetId particleId = in.Get< CAssetId >();
+  CVector3f particleScale(in);
+  bool unused = in.Get< bool >();
+  bool active = in.Get< bool >();
+
+  if (gpResourceFactory->GetResourceTypeById(model) == 0)
+    return nullptr;
+
+  return rs_new CScriptDebris(
+      mgr.AllocateUniqueId(), head.x0_actorHead.x0_name, info, head.x0_actorHead.x10_transform,
+      CModelData(CStaticRes(model, head.x40_scale)), aParams, particleId, particleScale, zImpulse,
+      velocity, endsColor, mass, restitution, duration, scaleType, unused,
+      randomAngImpulse, active);
+}
+
 CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, int propCount,
                                           const CEntityInfo& info) {
   if (propCount != 0x27)
@@ -1518,38 +1550,6 @@ CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, 
       deferDeleteTillParticle1Done, particleOr0, particle1, particle1Scale,
       particle2GlobalTranslation, deferDeleteTillParticle2Done, particleOr1, particle2,
       particle1Scale, particleOr2, solid, dieOnProjectile, noBounce, active);
-}
-
-CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in, int propCount,
-                                  const CEntityInfo& info) {
-  if (propCount != 0x12)
-    return nullptr;
-
-  SScaledActorHead head(in, mgr);
-
-  float zImpulse = in.ReadFloat();
-  CVector3f velocity(in);
-  CColor endsColor(in);
-  float mass = in.ReadFloat();
-  float restitution = in.ReadFloat();
-  float duration = in.ReadFloat();
-  CScriptDebris::EScaleType scaleType = CScriptDebris::EScaleType(in.Get< int >());
-  bool randomAngImpulse = in.Get< bool >();
-  CAssetId model = in.Get< CAssetId >();
-  CActorParameters aParams = LoadActorParameters(in);
-  CAssetId particleId = in.Get< CAssetId >();
-  CVector3f particleScale(in);
-  bool unused = in.Get< bool >();
-  bool active = in.Get< bool >();
-
-  if (gpResourceFactory->GetResourceTypeById(model) == 0)
-    return nullptr;
-
-  return rs_new CScriptDebris(
-      mgr.AllocateUniqueId(), head.x0_actorHead.x0_name, info, head.x0_actorHead.x10_transform,
-      CModelData(CStaticRes(model, head.x40_scale)), aParams, particleId, particleScale, zImpulse,
-      velocity, endsColor, mass, restitution, duration, scaleType, unused,
-      randomAngImpulse, active);
 }
 
 CEntity* ScriptLoader::LoadCameraShaker(CStateManager& mgr, CInputStream& in, int propCount,
