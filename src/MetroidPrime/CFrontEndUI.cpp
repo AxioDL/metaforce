@@ -73,7 +73,7 @@ static const FEMovie FEMovies[] = {
     {"Video/08_GBA_fileselect.thp", false},
     {"Video/08_GBA_fileselect.thp", false},
 };
-
+// TODO: set this to the default value and bake version string as a post-build step
 #if VERSION == VERSION_GM8E_00
 const char MetroidBuildInfo[] = BUILD_INFO_TAG "Build v1.088 10/29/2002 2:21:25\0PAD";
 #elif VERSION == VERSION_GM8E_01
@@ -1362,13 +1362,10 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveGameScreen* saveUI) {
   }
 
   const int sel = x28_tablegroup_options->GetUserSelection();
-  bool showFusionSuit = false;
-  if (gpGameState->SystemState().GetFusionLinked() &&
-      gpGameState->SystemState().GetNormalModeBeat()) {
-    showFusionSuit = true;
-  }
+  const bool showFusionSuit = gpGameState->SystemState().GetFusionLinked() &&
+                              gpGameState->SystemState().GetNormalModeBeat();
 
-  bool fusionBeat = gpGameState->SystemState().GetFusionBeat();
+  const bool fusionBeat = gpGameState->SystemState().GetFusionBeat();
   bool showProceed = sel == 1 && showFusionSuit;
   x2c_tablegroup_fusionsuit->SetIsActive(showProceed);
   x2c_tablegroup_fusionsuit->SetIsVisible(showProceed);
