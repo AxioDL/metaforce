@@ -306,6 +306,8 @@ void CBabygoth::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
   SetModelFlags(flags);
 }
 
+CProjectileInfo* CBabygoth::ProjectileInfo() { return &x958_iceProjectile; }
+
 void CBabygoth::KnockBack(const CVector3f& direction, CStateManager& mgr, const CDamageInfo& damage,
                           float magnitude, bool direct, const bool deferred) {
   KnockBackCtrl().EnableAnimReaction(kAR_Hurled, x56c_shellState == kSCS_Destroyed);
@@ -1625,4 +1627,12 @@ void CBabygoth::ReDirectDamage(CStateManager& mgr, TUniqueId uid) {
           CVector3f::Zero());
     }
   }
+}
+
+float CBabygoth::GetGravityConstant() const { return 10.f * GravityConstant(); }
+
+const CCollisionPrimitive* CBabygoth::GetCollisionPrimitive() const { return &x930_aabox; }
+bool CBabygoth::IsListening() const { return true; }
+CPathFindSearch* CBabygoth::GetSearchPath() {
+  return x8b4_pathFindMode == kPFM_Normal ? &x6ec_pathSearch : &x7d0_approachPathSearch;
 }

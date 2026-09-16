@@ -109,11 +109,11 @@ public:
                                                          const CWeaponMode&, int) const override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type,
                        float dt) override;
-  const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x930_aabox; }
+  const CCollisionPrimitive* GetCollisionPrimitive() const override;
   void KnockBack(const CVector3f&, CStateManager&, const CDamageInfo&, float magnitude, bool direct,
                  const bool inDeferred) override;
   void TakeDamage(const CVector3f&, float) override;
-  bool IsListening() const override { return true; }
+  bool IsListening() const override;
   bool Listen(const CVector3f&, EListenNoiseType) override;
   CVector3f GetOrigin(const CStateManager&, const CTeamAiRole&, const CVector3f&) const override;
   void Patrol(CStateManager& mgr, EStateMsg msg, float dt) override;
@@ -148,11 +148,9 @@ public:
   bool ShouldSpecialAttack(CStateManager& mgr, float arg) override;
   bool LostInterest(CStateManager& mgr, float arg) override;
   void Shock(CStateManager& mgr, float duration, float damage) override;
-  CPathFindSearch* GetSearchPath() override {
-    return x8b4_pathFindMode == kPFM_Normal ? &x6ec_pathSearch : &x7d0_approachPathSearch;
-  }
-  float GetGravityConstant() const override { return 10.f * CPhysicsActor::GravityConstant(); }
-  CProjectileInfo* ProjectileInfo() override { return &x958_iceProjectile; }
+  CPathFindSearch* GetSearchPath() override;
+  float GetGravityConstant() const override;// { return 10.f * CPhysicsActor::GravityConstant(); }
+  CProjectileInfo* ProjectileInfo() override;// { return &x958_iceProjectile; }
 
   CBabygoth(TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
             const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
