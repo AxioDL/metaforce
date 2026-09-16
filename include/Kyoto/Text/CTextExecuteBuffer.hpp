@@ -80,6 +80,7 @@ private:
   rstl::list< CSaveableState > xc4_stateStack;
 };
 
-CHECK_SIZEOF(CTextExecuteBuffer, 0xdc)
+CHECK_SIZEOF(CTextExecuteBuffer,
+             (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0xe0 : 0xdc))
 
 #endif // _CTEXTEXECUTEBUFFER

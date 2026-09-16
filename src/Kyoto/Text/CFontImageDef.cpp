@@ -29,6 +29,5 @@ bool CFontImageDef::IsLoaded() const {
 }
 
 int CFontImageDef::CalculateBaseline() const {
-  int height = GetHeight();
-  return (height * 2.5f) / 3.f;
+  return (2.5f * GetHeight()) / 3.f;
 }

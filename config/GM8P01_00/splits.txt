@@ -2503,11 +2503,11 @@ Kyoto/Text/CColorInstruction.cpp:
 	.data       start:0x803D5400 end:0x803D5420
 
 Kyoto/Text/CColorOverrideInstruction.cpp:
-	.text       start:0x802E74EC end:0x802E7574
+	.text       start:0x802E74EC end:0x802E75D4
 	.data       start:0x803D5420 end:0x803D5440
 
 Kyoto/Text/CFontInstruction.cpp:
-	.text       start:0x802E7688 end:0x802E7848
+	.text       start:0x802E7688 end:0x802E78CC
 	.data       start:0x803D5440 end:0x803D5460
 
 Kyoto/Text/CFontRenderState.cpp:
@@ -2517,24 +2517,25 @@ Kyoto/Text/CLineInstruction.cpp:
 	.text       start:0x802E85E4 end:0x802E86C4
 
 Kyoto/Text/CLineSpacingInstruction.cpp:
-	.text       start:0x802E8960 end:0x802E89E8
+	.text       start:0x802E8960 end:0x802E89F4
 	.data       start:0x803D54C8 end:0x803D54E8
 
 Kyoto/Text/CPopStateInstruction.cpp:
-	.text       start:0x802E89F4 end:0x802E8A7C
+	.text       start:0x802E89F4 end:0x802E8ADC
 	.data       start:0x803D54E8 end:0x803D5508
 
 Kyoto/Text/CPushStateInstruction.cpp:
 	.text       start:0x802E8ADC end:0x802E8B88
 	.data       start:0x803D5508 end:0x803D5528
 
-Kyoto/Text/CRemoveColorOverrideInstruction.cpp:
-	.data       start:0x803D5528 end:0x803D5548
-
 Kyoto/Text/CRasterFont.cpp:
 	.text       start:0x802E8B88 end:0x802EA370
 	.rodata     start:0x803C2320 end:0x803C2340
 	.sdata2     start:0x804706A0 end:0x804706A8
+
+Kyoto/Text/CRemoveColorOverrideInstruction.cpp:
+	.text       start:0x802EA700 end:0x802EA7BC
+	.data       start:0x803D5528 end:0x803D5548
 
 Kyoto/Text/CTextExecuteBuffer.cpp:
 	.text       start:0x802EAA10 end:0x802ECF5C
@@ -2559,8 +2560,8 @@ Kyoto/Text/CWordInstruction.cpp:
 	.data       start:0x803D5720 end:0x803D5740
 
 Kyoto/Text/CBlockInstruction.cpp:
-	.text       start:0x802EEB34 end:0x802EEBF4
-	.data       start:0x803D5740 end:0x803D5760
+	.text       start:0x802EEB34 end:0x802EECF4
+	.data       start:0x803D5740 end:0x803D5788
 
 Kyoto/Text/CFont.cpp:
 	.text       start:0x802EECF4 end:0x802EED80
@@ -3097,10 +3098,11 @@ Kyoto/Audio/CMidiManager.cpp:
 	.bss        start:0x804688C8 end:0x80468900 align:4 common
 
 Kyoto/Text/CFontImageDef.cpp:
-	.text       start:0x80342CC4 end:0x80342D04
+	.text       start:0x80342C6C end:0x80342D04
+	.sdata2     start:0x80470C40 end:0x80470C50
 
 Kyoto/Text/CImageInstruction.cpp:
-	.text       start:0x80342E3C end:0x80342F60
+	.text       start:0x80342E3C end:0x803430D4
 	.data       start:0x803D7610 end:0x803D7630
 
 Kyoto/Text/CTextRenderBuffer.cpp:

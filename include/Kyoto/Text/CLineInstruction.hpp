@@ -28,6 +28,9 @@ public:
   void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
   void InvokeTTB(CFontRenderState& state) const;
   void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  bool IsLineInstruction() const override { return true; }
+#endif
 
   void TestLargestFont(const int width, const int height, const int baseLine);
   void TestLargestImage(const int width, const int height, const int baseline);
