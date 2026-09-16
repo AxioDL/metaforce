@@ -2013,6 +2013,11 @@ GuiSys/CGuiCompoundWidget.cpp:
 	.text       start:0x802ADAFC end:0x802ADCD8
 	.data       start:0x803D45C8 end:0x803D4608
 
+GuiSys/CGuiFactories.cpp:
+	.text       start:0x802ADCD8 end:0x802AE178
+	.rodata     start:0x803C1D88 end:0x803C1D90
+	.data       start:0x803D4608 end:0x803D4618
+
 GuiSys/CGuiFeeHelper.cpp:
 	.text       start:0x802AE178 end:0x802AE290
 	.ctors      start:0x803B50AC end:0x803B50B0

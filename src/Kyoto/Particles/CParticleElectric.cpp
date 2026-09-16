@@ -81,9 +81,11 @@ CParticleElectric::CParticleElectric(TToken< CElectricDescription > desc)
   }
   ++x150_SSEG;
   x420_calculatedVerts =
-      rstl::vector< CVector3f, rstl::aligned_allocator >(x150_SSEG, CVector3f::Zero());
-  x440_fractalOffsets = rstl::vector< CVector3f >(x150_SSEG, CVector3f::Zero());
-  x430_fractalMags = rstl::vector< float >(x150_SSEG, 0.f);
+      rstl::vector< CVector3f, rstl::aligned_allocator >(x150_SSEG, CVector3f::Zero(),
+                                                        rstl::aligned_allocator());
+  x440_fractalOffsets =
+      rstl::vector< CVector3f >(x150_SSEG, CVector3f::Zero(), rstl::rmemory_allocator());
+  x430_fractalMags = rstl::vector< float >(x150_SSEG, 0.f, rstl::rmemory_allocator());
   if (x1c_elecDesc->x50_GPSM) {
     x450_25_haveGPSM = true;
     x400_gpsmGenerators.reserve(x154_SCNT);

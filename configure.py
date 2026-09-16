@@ -1473,7 +1473,10 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "GuiSys/CGuiCompoundWidget.cpp"
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "GuiSys/CGuiFactories.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "GuiSys/CGuiFactories.cpp",
+            ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "GuiSys/CGuiFeeHelper.cpp"),
             Object(NonMatching, "GuiSys/CGuiFrame.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "GuiSys/CGuiGroup.cpp"),
@@ -1483,8 +1486,17 @@ config.libs = [
             Object(MatchingFor("GM8J01_00"), "GuiSys/CGuiObject.cpp", cflags=[*cflags_retro, "-inline auto"]),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "GuiSys/CGuiPane.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "GuiSys/CGuiSliderGroup.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "GuiSys/CGuiSys.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "GuiSys/CGuiTableGroup.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "GuiSys/CGuiSys.cpp",
+                extra_cflags=['-inline deferred,auto']
+                if version_num >= VERSIONS.index("GM8P01_00") and config.version != "GM8E01_02"
+                else [],
+            ),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "GuiSys/CGuiTableGroup.cpp",
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"), "GuiSys/CGuiTextPane.cpp"
             ),

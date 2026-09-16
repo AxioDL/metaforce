@@ -35,7 +35,9 @@ public:
   }
 
   static CGuiSys* GetGlobalGuiSys() { return spGuiSys; }
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
   static CGuiWidget* CreateWidgetInGame(uint type, CInputStream& in, CGuiFrame* parent, CSimplePool* sp);
+#endif
 
   void AddFactories(EUsageMode mode);
 

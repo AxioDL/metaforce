@@ -127,6 +127,11 @@ protected:
 };
 CHECK_SIZEOF(CGuiWidget, 0xb8)
 
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+CGuiWidget* FGuiWidgetFactoryInGame(uint type, CGuiFrame* parent, CInputStream& in, CSimplePool* sp,
+                                    uint version);
+#else
 CGuiWidget* FGuiWidgetFactoryInGame(uint type, CGuiFrame* parent, CInputStream& in, CSimplePool* sp);
+#endif
 
 #endif // _CGUIWIDGET

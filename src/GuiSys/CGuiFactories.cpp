@@ -19,10 +19,17 @@ const CFactoryFnReturn RGuiFrameFactoryInGame(const SObjectTag& tag, CInputStrea
                                       const CVParamTransfer& xfer) {
   rstl::rc_ptr< IVParamObj > obj = xfer.x0_obj;
   CSimplePool* pool = static_cast< TObjOwnerParam< CSimplePool* >* >(obj.GetPtr())->GetData();
-  return CGuiFrame::CreateFrame(tag.GetId(), *CGuiSys::GetGlobalGuiSys(), in, pool);
+  CGuiFrame* const frame =
+      CGuiFrame::CreateFrame(tag.GetId(), *CGuiSys::GetGlobalGuiSys(), in, pool);
+  return frame;
 }
 
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+CGuiWidget* FGuiWidgetFactoryInGame(FourCC type, CGuiFrame* frame, CInputStream& in,
+                                    CSimplePool* sp, uint version) {
+#else
 CGuiWidget* FGuiWidgetFactoryInGame(FourCC type, CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
+#endif
   switch (type) {
   case 'HWIG':
     return CGuiHeadWidget::Create(frame, in, sp);
@@ -41,7 +48,11 @@ CGuiWidget* FGuiWidgetFactoryInGame(FourCC type, CGuiFrame* frame, CInputStream&
   case 'PANE':
     return CGuiPane::Create(frame, in, sp);
   case 'TXPN':
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    return CGuiTextPane::Create(frame, in, sp, version);
+#else
     return CGuiTextPane::Create(frame, in, sp);
+#endif
   case 'LITE':
     return CGuiLight::Create(frame, in, sp);
   case 'ENRG':

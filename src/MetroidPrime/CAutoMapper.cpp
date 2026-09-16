@@ -274,8 +274,8 @@ bool CAutoMapper::CheckLoadComplete() {
   case kLP_LoadUniverse: {
     if (x8_mapu.TryCache()) {
       int numWorlds = x8_mapu.GetObject()->GetNumMapWorldDatas();
-      x14_dummyWorlds =
-          rstl::vector< rstl::auto_ptr< IWorld > >(numWorlds, rstl::auto_ptr< IWorld >());
+      x14_dummyWorlds = rstl::vector< rstl::auto_ptr< IWorld > >(
+          numWorlds, rstl::auto_ptr< IWorld >(), rstl::rmemory_allocator());
       SetCurWorldAssetId(x24_world->IGetWorldAssetId());
       x4_loadPhase = kLP_Done;
     } else {
