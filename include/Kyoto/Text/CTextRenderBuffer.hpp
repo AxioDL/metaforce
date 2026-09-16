@@ -38,6 +38,18 @@ public:
     schar xe_index;
   };
 
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  struct SFontPalette {
+    int x0_;
+    uint x4_;
+    uint x8_;
+    rstl::auto_ptr< CGraphicsPalette > xc_palette;
+    rstl::auto_ptr< CGraphicsPalette > x14_palette;
+    rstl::auto_ptr< CGraphicsPalette > x1c_palette;
+    rstl::auto_ptr< CGraphicsPalette > x24_palette;
+  };
+#endif
+
   CTextRenderBuffer(EMode mode);
 
   CGraphicsPalette* GetNextAvailablePalette() const;
@@ -71,11 +83,23 @@ private:
   mutable char x4d_activePalette;
   mutable char x4e_queuedFont;
   mutable char x4f_queuedPalette;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  mutable rstl::reserved_vector< SFontPalette, 64 > x50_palettes;
+#else
   mutable rstl::reserved_vector< rstl::auto_ptr< CGraphicsPalette >, 64 > x50_palettes;
+#endif
   mutable int x254_nextPalette;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  CVector2i xb58_;
+  CVector2i xb60_;
+  bool xb68_;
+#endif
 };
 
-CHECK_SIZEOF(CTextRenderBuffer, 0x258)
+CHECK_SIZEOF(CTextRenderBuffer, (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0xb6c : 0x258))
 NESTED_CHECK_SIZEOF(CTextRenderBuffer, Primitive, 0x10)
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+NESTED_CHECK_SIZEOF(CTextRenderBuffer, SFontPalette, 0x2c)
+#endif
 
 #endif // _CTEXTRENDERBUFFER

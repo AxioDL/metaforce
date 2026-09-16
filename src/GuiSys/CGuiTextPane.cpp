@@ -5,7 +5,15 @@
 #include "Kyoto/CSimplePool.hpp"
 #include "Kyoto/Graphics/CGraphics.hpp"
 
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+bool CGuiTextPane::sDrawPaneRects = false;
+#endif
+
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+CGuiWidget* CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp, uint version) {
+#else
 CGuiWidget* CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
+#endif
   const CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
   float dimX = in.Get< float >();
   float dimY = in.Get< float >();
@@ -13,31 +21,63 @@ CGuiWidget* CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, CSimplePool
   const CAssetId fontId = in.ReadLong();
   bool wordWrap = in.Get< bool >();
   bool horizontal = in.Get< bool >();
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  const EJustification justification = static_cast< EJustification >(in.ReadLong());
+  const uint verticalJustification = in.ReadLong();
+  const EVerticalJustification vJustification =
+      static_cast< EVerticalJustification >(verticalJustification);
+#else
   EJustification justification = static_cast< EJustification >(in.Get< int >());
   EVerticalJustification vJustification = static_cast< EVerticalJustification >(in.Get< int >());
+#endif
   CColor fontCol(in);
   CColor outlineColor(in);
   const int extentX = CCast::ToInt32(in.Get< float >());
   const int extentY = CCast::ToInt32(in.Get< float >());
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  CAssetId jpFontId = version >= 1 ? in.Get< CAssetId >() : fontId;
+  int jpExtentX = version >= 1 ? in.Get< int >() : extentX;
+  int jpExtentY = version >= 1 ? in.Get< int >() : extentY;
+#endif
   const CGuiTextProperties props(wordWrap, horizontal, justification, vJustification, nullptr);
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
   CGuiTextPane* ret = rs_new CGuiTextPane(parms, sp, dimX, dimY, vec, fontId, props, fontCol,
-                                          outlineColor, extentX, extentY);
+                                        outlineColor, extentX, extentY, jpFontId, jpExtentX, jpExtentY);
+#else
+  CGuiTextPane* ret = rs_new CGuiTextPane(parms, sp, dimX, dimY, vec, fontId, props, fontCol,
+                                        outlineColor, extentX, extentY);
+#endif
   ret->ParseBaseInfo(frame, in, parms);
   ret->InitializeBuffers();
   ret->TextSupport().SetText(rstl::string_l(""));
   return ret;
 }
 
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
 CGuiTextPane::CGuiTextPane(const CGuiWidgetParms& parms, CSimplePool* sp, const float dimX,
-                           const float dimY, const CVector3f& vec, const CAssetId fontId,
-                           const CGuiTextProperties& props, const CColor& col1, const CColor& col2,
-                           const int padX, const int padY)
+                         const float dimY, const CVector3f& vec, const CAssetId fontId,
+                         const CGuiTextProperties& props, const CColor& col1, const CColor& col2,
+                         const int padX, const int padY, CAssetId jpFontId, int jpExtentX, int jpExtentY)
+: CGuiPane(parms, dimX, dimY, vec)
+, xd4_textSupport(fontId, padX, padY, props, col1, col2, CColor::White(), sp)
+, xd00_drawShadow(false) {}
+#else
+CGuiTextPane::CGuiTextPane(const CGuiWidgetParms& parms, CSimplePool* sp, const float dimX,
+                         const float dimY, const CVector3f& vec, const CAssetId fontId,
+                         const CGuiTextProperties& props, const CColor& col1, const CColor& col2,
+                         const int padX, const int padY)
 : CGuiPane(parms, dimX, dimY, vec)
 , xd4_textSupport(fontId, props, col1, col2, CColor::White(), padX, padY, sp) {}
+#endif
 
 CGuiTextPane::~CGuiTextPane() {}
 
 void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const {
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  if (sDrawPaneRects) {
+    CGuiPane::Draw(CGuiWidgetDrawParms(0.2f * parms.GetAlpha(), parms.GetCameraOffset()));
+  }
+#endif
   if (!GetIsVisible()) {
     return;
   }
@@ -54,12 +94,30 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const {
       CTransform4f::Translate(CVector3f(vtxBuf[0], vtxBuf[1], vtxBuf[2]) + GetPivot()) *
       CTransform4f::Scale(width, 1.f, height);
   CTransform4f model = GetWorldTransform() * local;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  CColor geomCol = GetModifiedColor().WithAlphaModulatedBy(parms.GetAlpha());
+  CGraphics::SetDepthWriteMode(GetIsAlwaysDepthRead(), kE_LEqual, GetIsAlwaysDepthWrite());
+
+  if (xd00_drawShadow) {
+    CGraphics::SetModelMatrix(model * CTransform4f::Translate(2.f, 0.f, -2.f));
+    xd4_textSupport.SetGeometryColor(
+        CColor(static_cast< uchar >(0), static_cast< uchar >(0), static_cast< uchar >(0))
+            .WithAlphaOf(0.99f * geomCol.GetAlpha()));
+    CGraphics::SetBlendMode(kBM_Blend, kBF_SrcAlpha, kBF_InvSrcAlpha, kLO_Clear);
+    xd4_textSupport.Render();
+  }
+
+  CGraphics::SetModelMatrix(model);
+  CGuiTextSupport& text = xd4_textSupport;
+  text.SetGeometryColor(geomCol);
+#else
   CGraphics::SetModelMatrix(model);
 
   CColor geomCol = GetModifiedColor().WithAlphaModulatedBy(parms.GetAlpha());
   CGuiTextSupport& text = xd4_textSupport;
   text.SetGeometryColor(geomCol);
   CGraphics::SetDepthWriteMode(GetIsAlwaysDepthRead(), kE_LEqual, GetIsAlwaysDepthWrite());
+#endif
 
   switch (GetDrawFlags()) {
   case kGMDF_Shadeless:
@@ -80,7 +138,8 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const {
     text.Render();
     uchar alpha = geomCol.GetAlphau8();
     const CColor alphaColor(alpha, alpha, alpha, static_cast< uchar >(255));
-    text.SetGeometryColor(CColor(CColor::Modulate(geomCol, alphaColor)));
+    const CColor additiveColor = CColor::Modulate(geomCol, alphaColor);
+    text.SetGeometryColor(additiveColor);
     CGraphics::SetBlendMode(kBM_Blend, kBF_One, kBF_One, kLO_Clear);
     text.Render();
     break;
@@ -98,7 +157,7 @@ void CGuiTextPane::SetDimensions(const CVector2f& dim, bool initVBO) {
 }
 
 rstl::vector< CAssetId > CGuiTextPane::GetFontAssets() const {
-  return rstl::vector< CAssetId >(1, GetTextSupport().GetFontID());
+  return rstl::vector< CAssetId >(1, GetTextSupport().GetFontID(), rstl::rmemory_allocator());
 }
 
 bool CGuiTextPane::GetIsFinishedLoadingWidgetSpecific() const {

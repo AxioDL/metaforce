@@ -12,6 +12,8 @@
 #include <limits.h>
 #include <string.h>
 
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+
 CTextRenderBuffer::CTextRenderBuffer(EMode mode)
 : x0_mode(mode)
 , x44_blobSize(0)
@@ -44,6 +46,8 @@ int CTextRenderBuffer::GetMatchingPaletteIndex(const CGraphicsPalette& palette) 
   return -1;
 }
 
+#endif
+
 void CTextRenderBuffer::AddFontChange(const TToken< CRasterFont >& font) {
   if (x0_mode == kM_BufferFill) {
     CMemoryStreamOut out(GetOutStream(), GetCurLen(), CMemoryStreamOut::kOS_NotOwned, 64);
@@ -72,6 +76,8 @@ void CTextRenderBuffer::AddFontChange(const TToken< CRasterFont >& font) {
   }
 }
 
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+
 void CTextRenderBuffer::AddPaletteChange(const CGraphicsPalette& palette) {
   if (x0_mode == kM_BufferFill) {
     CMemoryStreamOut out(GetOutStream(), GetCurLen(), CMemoryStreamOut::kOS_NotOwned, 64);
@@ -94,6 +100,8 @@ void CTextRenderBuffer::AddPaletteChange(const CGraphicsPalette& palette) {
     x44_blobSize += sizeof(char) + sizeof(char);
   }
 }
+
+#endif
 
 void CTextRenderBuffer::AddCharacter(const CVector2i& offset, short chr, uint color) {
   if (x0_mode == kM_BufferFill) {
@@ -134,6 +142,8 @@ void CTextRenderBuffer::AddImage(const CVector2i& offset, const CFontImageDef& i
     x44_blobSize += sizeof(char) + sizeof(short) + sizeof(short) + sizeof(char) + sizeof(uint);
   }
 }
+
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
 
 void CTextRenderBuffer::Render(const CColor& color, float time) const {
   x4c_activeFont = -1;
@@ -229,6 +239,8 @@ void CTextRenderBuffer::Render(const CColor& color, float time) const {
     }
   }
 }
+
+#endif
 
 void CTextRenderBuffer::VerifyBuffer() {
   if (x34_bytecode.empty()) {

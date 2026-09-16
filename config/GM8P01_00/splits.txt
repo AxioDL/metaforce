@@ -2077,6 +2077,8 @@ GuiSys/CGuiTextPane.cpp:
 	.text       start:0x802B32FC end:0x802B3B0C
 	.rodata     start:0x803C1DD8 end:0x803C1DE0
 	.data       start:0x803D4808 end:0x803D4860
+	.sbss       start:0x8046B320 end:0x8046B328
+	.sdata2     start:0x80470318 end:0x80470348
 
 GuiSys/CGuiTextSupport.cpp:
 	.text       start:0x802B3B0C end:0x802B6524

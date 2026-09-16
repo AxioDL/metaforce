@@ -50,6 +50,11 @@ public:
   CGuiTextSupport(CAssetId fontId, const CGuiTextProperties& props, const CColor& fontCol,
                   const CColor& outlineCol, const CColor& geomCol, int extX, int extY,
                   CSimplePool* store);
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  CGuiTextSupport(CAssetId fontId, int extX, int extY, const CGuiTextProperties& props,
+                  const CColor& fontCol, const CColor& outlineCol, const CColor& geomCol,
+                  CSimplePool* store);
+#endif
   ~CGuiTextSupport();
 
   void SetText(const rstl::wstring&, bool multipage = false);
@@ -116,6 +121,10 @@ private:
   CColor x28_outlineColor;
   CColor x2c_geometryColor;
   bool x30_imageBaseline;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  int x34_extraCharacterSpace;
+  int x38_extraLineSpace;
+#endif
   int x34_extentX;
   int x38_extentY;
   float x3c_curTime;
@@ -125,6 +134,9 @@ private:
   float x58_chRate;
   CAssetId x5c_fontId;
   mutable rstl::optional_object< CTextRenderBuffer > x60_renderBuf;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  bool xbd8_;
+#endif
   mutable rstl::vector< CToken > x2bc_assets;
   rstl::optional_object< TLockedToken< CRasterFont > > x2cc_font;
   mutable rstl::pair< CVector2i, CVector2i > x2dc_oneBufBounds;
@@ -134,6 +146,6 @@ private:
 };
 
 CHECK_SIZEOF(CGuiTextProperties, 0x10)
-CHECK_SIZEOF(CGuiTextSupport, 0x30c)
+CHECK_SIZEOF(CGuiTextSupport, (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0xc2c : 0x30c))
 
 #endif // _CGUITEXTSUPPORT
