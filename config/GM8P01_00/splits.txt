@@ -255,7 +255,7 @@ MetroidPrime/Cameras/CGameCamera.cpp:
 
 MetroidPrime/CGameArea.cpp:
 	.text       start:0x8005F0B0 end:0x8006569C
-	.rodata     start:0x803B7930 end:0x803B794C
+	.rodata     start:0x803B7930 end:0x803B7950
 	.data       start:0x803C5578 end:0x803C5608
 	.sdata      start:0x80468F40 end:0x80468F58
 	.sdata2     start:0x8046C590 end:0x8046C5B8
@@ -272,7 +272,7 @@ MetroidPrime/HUD/CSamusHud.cpp:
 
 MetroidPrime/CAnimationDatabaseGame.cpp:
 	.text       start:0x8006E180 end:0x8006EA38
-	.rodata     start:0x803B7C00 end:0x803B7C34
+	.rodata     start:0x803B7C00 end:0x803B7C38
 	.data       start:0x803C5678 end:0x803C5698
 
 MetroidPrime/CTransitionDatabaseGame.cpp:
@@ -301,7 +301,7 @@ MetroidPrime/Tweaks/CTweakGui.cpp:
 
 MetroidPrime/ScriptObjects/CScriptActor.cpp:
 	.text       start:0x80075BF4 end:0x800767E0
-	.rodata     start:0x803B7FE0 end:0x803B7FEC
+	.rodata     start:0x803B7FE0 end:0x803B7FF0
 	.data       start:0x803C57A8 end:0x803C5830
 	.sdata2     start:0x8046C740 end:0x8046C760
 
@@ -417,8 +417,11 @@ MetroidPrime/ScriptObjects/CScriptSound.cpp:
 	.sdata2     start:0x8046CB28 end:0x8046CB50
 
 MetroidPrime/ScriptObjects/CScriptPlatform.cpp:
-	.text       start:0x800AA538 end:0x800AD8E4
-	.sdata2     start:0x8046CB50 end:0x8046CB58
+	.text       start:0x800AA344 end:0x800AD964
+	.rodata     start:0x803B88E0 end:0x803B88E7
+	.data       start:0x803C9830 end:0x803C9938
+	.sdata      start:0x804692A0 end:0x804692C0
+	.sdata2     start:0x8046CB50 end:0x8046CB88
 
 MetroidPrime/UserNames.cpp:
 	.text       start:0x800AD964 end:0x800AD974

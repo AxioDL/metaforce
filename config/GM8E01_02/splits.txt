@@ -248,7 +248,11 @@ MetroidPrime/ScriptObjects/CScriptSound.cpp:
 	.text       start:0x800B06B0 end:0x800B1198
 
 MetroidPrime/ScriptObjects/CScriptPlatform.cpp:
-	.text       start:0x800B1198 end:0x800B3768
+	.text       start:0x800B1198 end:0x800B4A7C
+	.rodata     start:0x803CEF30 end:0x803CEF38
+	.data       start:0x803E02E0 end:0x803E03E8
+	.sdata      start:0x805A8270 end:0x805A8290
+	.sdata2     start:0x805ABA88 end:0x805ABAC0
 
 MetroidPrime/UserNames.cpp:
 	.text       start:0x800B4A7C end:0x800B4A8C

@@ -12,7 +12,7 @@
 #include "MetroidPrime/ScriptObjects/CScriptTrigger.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptWaypoint.hpp"
 
-#include "Kyoto/Graphics/CGX.hpp"
+#include "Kyoto/Graphics/CGX_Impl.hpp"
 #include "Kyoto/Math/CloseEnough.hpp"
 
 #include "WorldFormat/CCollidableOBBTreeGroup.hpp"
@@ -209,6 +209,11 @@ void CScriptPlatform::MoveRiders(CStateManager& mgr, float dt, bool active,
         ++it;
         continue;
       }
+      // Retail retains the implicit copy helper for this unused physics state.
+      if (false) {
+        CPhysicsState state = act->GetPhysicsState();
+      }
+
       const CTransform4f& xf = it->x8_transform;
       CVector3f diff = newXf.Rotate(xf.GetTranslation()) - oldXf.Rotate(xf.GetTranslation());
       diff.SetZ(0.f);
@@ -276,8 +281,12 @@ void CScriptPlatform::PreThink(float dt, CStateManager& mgr) {
         x260_moveDelay = 0.035f;
         MoveRiders(
             mgr, dt, GetActive(), x318_riders, collidedRiders, newXf, oldXf, -x270_dragDelta,
+#if VERSION >= VERSION_GM8P_00
+            x27c_rotDelta.BuildInverted());
+#else
             CQuaternion::ScalarVector(x27c_rotDelta.GetScalar(),
                                       static_cast< const CVector3f& >(-x27c_rotDelta.GetVector())));
+#endif
         x270_dragDelta = CVector3f::Zero();
         SendScriptMsgs(kSS_Modify, mgr, kSM_None);
         x356_27_squishedRider = true;
@@ -481,6 +490,12 @@ void CScriptPlatform::AddSlave(TUniqueId id, CStateManager& mgr) {
 }
 
 bool CScriptPlatform::IsRider(TUniqueId id) const {
+  // Retain both vector erase instantiations in retail order.
+  if (false) {
+    rstl::vector< SRiders >& riders = const_cast< rstl::vector< SRiders >& >(x318_riders);
+    riders.erase(riders.begin());
+  }
+
   return rstl::find(x318_riders.begin(), x318_riders.end(), SRiders(id)) != x318_riders.end();
 }
 
