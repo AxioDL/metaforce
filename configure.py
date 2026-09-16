@@ -596,7 +596,13 @@ config.libs = [
             Object(NonMatching, "MetroidPrime/CGameArea.cpp"),
             Object(NonMatching, "MetroidPrime/HUD/CSamusHud.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CAnimationDatabaseGame.cpp"),
-            Object(NonMatching, "MetroidPrime/CTransitionDatabaseGame.cpp"),
+            Object(
+                MatchingFor("GM8P01_00"),
+                "MetroidPrime/CTransitionDatabaseGame.cpp",
+                extra_cflags=['-pragma "inline_max_size(126)"']
+                if version_num >= VERSIONS.index("GM8P01_00")
+                else [],
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/Tweaks/CTweakPlayerControl.cpp",
@@ -647,7 +653,13 @@ config.libs = [
                 "MetroidPrime/ScriptObjects/CScriptCounter.cpp",
             ),
             Object(NonMatching, "MetroidPrime/CMapWorld.cpp"),
-            Object(NonMatching, "MetroidPrime/Enemies/CAi.cpp"),
+            Object(
+                NonMatching,
+                "MetroidPrime/Enemies/CAi.cpp",
+                extra_cflags=['-pragma "inline_max_size(126)"']
+                if version_num >= VERSIONS.index("GM8P01_00")
+                else [],
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/Enemies/PatternedCastTo.cpp",

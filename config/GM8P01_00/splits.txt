@@ -276,9 +276,9 @@ MetroidPrime/CAnimationDatabaseGame.cpp:
 	.data       start:0x803C5678 end:0x803C5698
 
 MetroidPrime/CTransitionDatabaseGame.cpp:
-	.text       start:0x8006ECAC end:0x8007033C
+	.text       start:0x8006EA38 end:0x8007033C
 	.data       start:0x803C5698 end:0x803C56A8
-	.sbss       start:0x8046AF08 end:0x8046AF10
+	.sbss       start:0x8046AF08 end:0x8046AF18
 
 MetroidPrime/Tweaks/CTweakPlayerControl.cpp:
 	.text       start:0x8007033C end:0x8007060C
@@ -2229,7 +2229,8 @@ Kyoto/Animation/CAnimTreeSequence.cpp:
 	.rodata     start:0x803C2230 end:0x803C2238
 
 Kyoto/Animation/CCharacterInfo.cpp:
-	.text       start:0x802C8350 end:0x802C9E94
+	.text       start:0x802C8350 end:0x802CA08C
+	.sdata      start:0x8046A7E0 end:0x8046A7E8
 	.sbss       start:0x8046B398 end:0x8046B3D8
 
 Kyoto/Animation/CCharacterSet.cpp:

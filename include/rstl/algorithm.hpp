@@ -278,8 +278,7 @@ typename Vec::iterator lower_bound(typename Vec::iterator start, typename Vec::i
 template < typename It, typename T, typename Cmp >
 inline It binary_find(It start, It end, const T& value, Cmp cmp) {
   It lower = lower_bound(start, end, value, cmp);
-  bool found = lower != end && !cmp(value, *lower);
-  return found ? lower : end;
+  return It((lower != end && !cmp(value, *lower)) ? lower : end);
 }
 
 template < typename It, typename T >
