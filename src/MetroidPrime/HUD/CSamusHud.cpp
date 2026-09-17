@@ -134,6 +134,15 @@ void CSamusHud::InitializeFrameGluePermanent(const CStateManager& mgr) {
   RefreshHudOptions();
 }
 
+void CSamusHud::RefreshHudOptions() {
+  if (!x29c_decoIntf.null()) {
+    x29c_decoIntf->UpdateHudAlpha();
+  }
+  if (!x2a0_helmetIntf.null()) {
+    x2a0_helmetIntf->UpdateHelmetAlpha();
+  }
+}
+
 void CSamusHud::InitializeDamageLight() {
   const short lightId = x288_loadedSelectedHud->AddWidgetToIDDB(rstl::string_l("DamageSpotLight"));
   CGuiWidget* parent = x288_loadedSelectedHud->FindWidget(rstl::string_l(sPivotName));
@@ -308,15 +317,6 @@ void CSamusHud::InitializeFrameGlueMutable(const CStateManager& mgr) {
   }
 }
 
-void CSamusHud::RefreshHudOptions() {
-  if (!x29c_decoIntf.null()) {
-    x29c_decoIntf->UpdateHudAlpha();
-  }
-  if (!x2a0_helmetIntf.null()) {
-    x2a0_helmetIntf->UpdateHelmetAlpha();
-  }
-}
-
 void CSamusHud::UninitializeFrameGlueMutable() {
   x2b4_bossEnergyIntf = nullptr;
   x28c_energyIntf = nullptr;
@@ -326,6 +326,30 @@ void CSamusHud::UninitializeFrameGlueMutable() {
   x298_freeLookIntf = nullptr;
   x2b0_ballIntf = nullptr;
   x3d4_damageLight = nullptr;
+}
+
+void CSamusHud::DisplayHudMemo(const rstl::wstring& text, const CHUDMemoParms& info) {
+  if (spSamusHud != nullptr) {
+    spSamusHud->InternalDisplayHudMemo(text, info);
+  }
+}
+
+void CSamusHud::DeferHintMemo(uint strg, uint hintNum, const CHUDMemoParms& info) {
+  if (spSamusHud != nullptr) {
+    spSamusHud->_DeferHintMemo(strg, hintNum, info);
+  }
+}
+
+void CSamusHud::InternalDisplayHudMemo(const rstl::wstring& text, const CHUDMemoParms& info) {
+  SetMessage(text, info);
+}
+
+void CSamusHud::_DeferHintMemo(uint strg, uint hintNum, const CHUDMemoParms& info) {
+  x548_hudMemoParms = info;
+  x550_hudMemoString =
+      rs_new TToken< CStringTable >(gpSimplePool->GetObj(SObjectTag('STRG', strg)));
+  x550_hudMemoString->Lock();
+  x554_hudMemoIdx = hintNum;
 }
 
 void CSamusHud::UpdateThreatAssessment(float dt, const CStateManager& mgr) {
@@ -357,7 +381,7 @@ void CSamusHud::UpdateThreatAssessment(float dt, const CStateManager& mgr) {
           threatDistance = distance;
         }
       }
-    }
+        }
   }
   const float threatOverride = mgr.GetPlayer()->GetThreatOverride();
   if (threatOverride > 0.f) {
@@ -370,30 +394,6 @@ void CSamusHud::UpdateThreatAssessment(float dt, const CStateManager& mgr) {
   if (!x290_threatIntf.null()) {
     x290_threatIntf->SetThreatDistance(threatDistance);
   }
-}
-
-void CSamusHud::_DeferHintMemo(uint strg, uint hintNum, const CHUDMemoParms& info) {
-  x548_hudMemoParms = info;
-  x550_hudMemoString =
-      rs_new TToken< CStringTable >(gpSimplePool->GetObj(SObjectTag('STRG', strg)));
-  x550_hudMemoString->Lock();
-  x554_hudMemoIdx = hintNum;
-}
-
-void CSamusHud::DisplayHudMemo(const rstl::wstring& text, const CHUDMemoParms& info) {
-  if (spSamusHud != nullptr) {
-    spSamusHud->InternalDisplayHudMemo(text, info);
-  }
-}
-
-void CSamusHud::DeferHintMemo(uint strg, uint hintNum, const CHUDMemoParms& info) {
-  if (spSamusHud != nullptr) {
-    spSamusHud->_DeferHintMemo(strg, hintNum, info);
-  }
-}
-
-void CSamusHud::InternalDisplayHudMemo(const rstl::wstring& text, const CHUDMemoParms& info) {
-  SetMessage(text, info);
 }
 
 CSamusHud::CSamusHud(const CStateManager& mgr)
@@ -564,48 +564,6 @@ void CSamusHud::UpdateVisorAndBeamMenus(float dt, const CStateManager& mgr) {
   }
 }
 
-void CSamusHud::UpdateStaticSfx(CSfxHandle& handle, float& cycleTimer, ushort sfxId, float dt,
-                                float oldStaticInterp, float staticThreshold) {
-  bool crossed = (oldStaticInterp > staticThreshold && x510_staticInterp <= staticThreshold) ||
-                 (oldStaticInterp <= staticThreshold && x510_staticInterp > staticThreshold);
-  if (crossed) {
-    cycleTimer = 0.f;
-  } else if (cycleTimer < 0.1f) {
-    cycleTimer = rstl::min_val(kStaticSfxCycleTime, cycleTimer + dt);
-    if (cycleTimer == 0.1f) {
-      if (x510_staticInterp > staticThreshold) {
-        if (!handle) {
-          handle = CSfxManager::SfxStart(sfxId, 127, 64, false, CSfxManager::kMedPriority, true,
-                                         CSfxManager::kAllAreas);
-        }
-      } else {
-        CSfxManager::SfxStop(handle);
-        handle.Clear();
-      }
-    }
-  }
-}
-
-void CSamusHud::UpdateStaticInterference(float dt, const CStateManager& mgr) {
-  float interference = mgr.GetPlayerState()->GetHudStaticInterferenceAmount();
-  const float oldInterference = x510_staticInterp;
-  if (x510_staticInterp < interference) {
-    x510_staticInterp = rstl::min_val(interference, x510_staticInterp + dt);
-  } else if (x510_staticInterp > interference) {
-    x510_staticInterp = rstl::max_val(interference, x510_staticInterp - dt);
-  }
-  UpdateStaticSfx(x508_staticSfxHi, x514_staticCycleTimerHi, SFXui_x_static_lp_0, dt,
-                  oldInterference, 0.1f);
-  UpdateStaticSfx(x50c_staticSfxLo, x518_staticCycleTimerLo, SFXui_x_static_lp_01, dt,
-                  oldInterference, 0.5f);
-  if (x510_staticInterp > 0.f) {
-    const CColor color = CColor::White().WithAlphaOf(x510_staticInterp);
-    x51c_camFilter2.SetFilter(CCameraFilterPass::kFT_Blend, CCameraFilterPass::kFS_RandomStatic,
-                              0.f, color, kInvalidAssetId);
-  } else {
-    x51c_camFilter2.DisableFilter(0.f);
-  }
-}
 
 void CSamusHud::UpdateFreeLook(float dt, const CStateManager& mgr) {
   const CFirstPersonCamera* const fpCam =
@@ -679,6 +637,49 @@ void CSamusHud::UpdateVideoBands(float dt, const CStateManager& mgr) {
   for (int i = 0; i < 4; ++i) {
     if (x5a4_videoBands[i].x0_videoband != nullptr) {
       x5a4_videoBands[i].x0_videoband->SetIsVisible(false);
+    }
+  }
+}
+
+void CSamusHud::UpdateStaticInterference(float dt, const CStateManager& mgr) {
+  float interference = mgr.GetPlayerState()->GetHudStaticInterferenceAmount();
+  const float oldInterference = x510_staticInterp;
+  if (x510_staticInterp < interference) {
+    x510_staticInterp = rstl::min_val(interference, x510_staticInterp + dt);
+  } else if (x510_staticInterp > interference) {
+    x510_staticInterp = rstl::max_val(interference, x510_staticInterp - dt);
+  }
+  UpdateStaticSfx(x508_staticSfxHi, x514_staticCycleTimerHi, SFXui_x_static_lp_0, dt,
+                  oldInterference, 0.1f);
+  UpdateStaticSfx(x50c_staticSfxLo, x518_staticCycleTimerLo, SFXui_x_static_lp_01, dt,
+                  oldInterference, 0.5f);
+  if (x510_staticInterp > 0.f) {
+    const CColor color = CColor::White().WithAlphaOf(x510_staticInterp);
+    x51c_camFilter2.SetFilter(CCameraFilterPass::kFT_Blend, CCameraFilterPass::kFS_RandomStatic,
+                              0.f, color, kInvalidAssetId);
+  } else {
+    x51c_camFilter2.DisableFilter(0.f);
+  }
+}
+
+void CSamusHud::UpdateStaticSfx(CSfxHandle& handle, float& cycleTimer, ushort sfxId, float dt,
+                                float oldStaticInterp, float staticThreshold) {
+  bool crossed = (oldStaticInterp > staticThreshold && x510_staticInterp <= staticThreshold) ||
+                 (oldStaticInterp <= staticThreshold && x510_staticInterp > staticThreshold);
+  if (crossed) {
+    cycleTimer = 0.f;
+  } else if (cycleTimer < 0.1f) {
+    cycleTimer = rstl::min_val(kStaticSfxCycleTime, cycleTimer + dt);
+    if (cycleTimer == 0.1f) {
+      if (x510_staticInterp > staticThreshold) {
+        if (!handle) {
+          handle = CSfxManager::SfxStart(sfxId, 127, 64, false, CSfxManager::kMedPriority, true,
+                                         CSfxManager::kAllAreas);
+        }
+      } else {
+        CSfxManager::SfxStop(handle);
+        handle.Clear();
+      }
     }
   }
 }
@@ -759,6 +760,23 @@ void CSamusHud::UpdateMissile(float dt, const CStateManager& mgr, bool init) {
   }
 }
 
+void CSamusHud::UpdateBallMode(const CStateManager& mgr, bool init) {
+  if (x2b0_ballIntf.null()) {
+    return;
+  }
+  const CPlayerState& state = *mgr.GetPlayerState();
+  const CPlayerGun& gun = *mgr.GetPlayer()->GetPlayerGun();
+  const int powerBombs = state.GetItemAmount(CPlayerState::kIT_PowerBombs);
+  const int capacity = state.GetItemCapacity(CPlayerState::kIT_PowerBombs);
+  const int bombs = gun.IsBombReady() ? gun.GetBombsPending() : 0;
+  bool hasBombs = state.HasPowerUp(CPlayerState::kIT_MorphBallBombs);
+  bool pbReady = gun.IsPowerBombReady() &&
+                 mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Morphed;
+  x2b0_ballIntf->SetBombParams(powerBombs, capacity, bombs, hasBombs, pbReady, false);
+}
+
+void CSamusHud::OnNewInGameGuiState(EInGameGuiState state, const CStateManager& mgr) {}
+
 bool CSamusHud::IsCachedLightInAreaLights(const SCachedHudLight& cached,
                                           const CActorLights& areaLights) const {
   for (uint i = 0; i < areaLights.GetActiveAreaLightCount(); ++i) {
@@ -788,51 +806,6 @@ int CSamusHud::FindEmptyHudLightSlot(const CLight& light) const {
     }
   }
   return -1;
-}
-
-CColor CSamusHud::GetVisorHudLightColor(const CColor& color, const CStateManager& mgr) {
-  const CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetCurrentVisor();
-  const float t = mgr.GetPlayerState()->GetVisorTransitionFactor();
-  CColor result = color;
-  switch (visor) {
-  case CPlayerState::kPV_Scan: {
-    const CColor& white = CColor::White();
-    const CColor multiplier =
-        CColor::Lerp(white, gpTweakGuiColors->GetScanVisorHudLightMultiply(), t);
-    result = CColor::Modulate(result, multiplier);
-    break;
-  }
-  case CPlayerState::kPV_Thermal: {
-    const CColor multiplier = gpTweakGuiColors->GetThermalVisorHudLightMultiply();
-    result = CColor::Modulate(result, multiplier);
-    break;
-  }
-  case CPlayerState::kPV_XRay: {
-    const float intensity =
-        0.3f * result.GetRed() + 0.6f * result.GetGreen() + 0.1f * result.GetBlue();
-    result = CColor(intensity, intensity, intensity, 1.f);
-    break;
-  }
-  case CPlayerState::kPV_Combat:
-  default:
-    break;
-  }
-  return result;
-}
-
-void CSamusHud::UpdateBallMode(const CStateManager& mgr, bool init) {
-  if (x2b0_ballIntf.null()) {
-    return;
-  }
-  const CPlayerState& state = *mgr.GetPlayerState();
-  const CPlayerGun& gun = *mgr.GetPlayer()->GetPlayerGun();
-  const int powerBombs = state.GetItemAmount(CPlayerState::kIT_PowerBombs);
-  const int capacity = state.GetItemCapacity(CPlayerState::kIT_PowerBombs);
-  const int bombs = gun.IsBombReady() ? gun.GetBombsPending() : 0;
-  bool hasBombs = state.HasPowerUp(CPlayerState::kIT_MorphBallBombs);
-  bool pbReady = gun.IsPowerBombReady() &&
-                 mgr.GetPlayer()->GetMorphballTransitionState() == CPlayer::kMS_Morphed;
-  x2b0_ballIntf->SetBombParams(powerBombs, capacity, bombs, hasBombs, pbReady, false);
 }
 
 void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr) {
@@ -983,6 +956,36 @@ void CSamusHud::UpdateHudDynamicLights(float dt, const CStateManager& mgr) {
   reflection->SetColor(
       CColor::Modulate(gpTweakGui->GetHudReflectivityLightColor(), brightestWidget.GetColor()));
   reflection->SetAmbientContribution(lightAdd);
+}
+
+CColor CSamusHud::GetVisorHudLightColor(const CColor& color, const CStateManager& mgr) {
+  const CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetCurrentVisor();
+  const float t = mgr.GetPlayerState()->GetVisorTransitionFactor();
+  CColor result = color;
+  switch (visor) {
+  case CPlayerState::kPV_Scan: {
+    const CColor& white = CColor::White();
+    const CColor multiplier =
+        CColor::Lerp(white, gpTweakGuiColors->GetScanVisorHudLightMultiply(), t);
+    result = CColor::Modulate(result, multiplier);
+    break;
+  }
+  case CPlayerState::kPV_Thermal: {
+    const CColor multiplier = gpTweakGuiColors->GetThermalVisorHudLightMultiply();
+    result = CColor::Modulate(result, multiplier);
+    break;
+  }
+  case CPlayerState::kPV_XRay: {
+    const float intensity =
+        0.3f * result.GetRed() + 0.6f * result.GetGreen() + 0.1f * result.GetBlue();
+    result = CColor(intensity, intensity, intensity, 1.f);
+    break;
+  }
+  case CPlayerState::kPV_Combat:
+  default:
+    break;
+  }
+  return result;
 }
 
 void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr, uint helmetVis) {
@@ -1183,45 +1186,6 @@ void CSamusHud::UpdateStateTransition(float dt, const CStateManager& mgr) {
   case kTS_NotTransitioning:
     break;
   }
-}
-
-void CSamusHud::OnNewInGameGuiState(EInGameGuiState state, const CStateManager& mgr) {}
-
-void CSamusHud::Touch() const {
-  if (x264_loadedFrmeHelmet != nullptr) {
-    x264_loadedFrmeHelmet->Touch();
-  }
-  if (x274_loadedFrmeBaseHud != nullptr) {
-    x274_loadedFrmeBaseHud->Touch();
-  }
-  if (x288_loadedSelectedHud != nullptr) {
-    x288_loadedSelectedHud->Touch();
-  }
-}
-
-rstl::reserved_vector< bool, 4 > CSamusHud::BuildPlayerHasVisors(const CStateManager& mgr) const {
-  const CPlayerState& state = *mgr.GetPlayerState();
-  rstl::reserved_vector< bool, 4 > ret;
-  ret.push_back(state.HasPowerUp(CPlayerState::kIT_CombatVisor));
-  ret.push_back(state.HasPowerUp(CPlayerState::kIT_XRayVisor));
-  ret.push_back(state.HasPowerUp(CPlayerState::kIT_ScanVisor));
-  ret.push_back(state.HasPowerUp(CPlayerState::kIT_ThermalVisor));
-  return ret;
-}
-
-rstl::reserved_vector< bool, 4 > CSamusHud::BuildPlayerHasBeams(const CStateManager& mgr) const {
-  const CPlayerState& state = *mgr.GetPlayerState();
-  rstl::reserved_vector< bool, 4 > ret;
-  ret.push_back(state.HasPowerUp(CPlayerState::kIT_PowerBeam));
-  ret.push_back(state.HasPowerUp(CPlayerState::kIT_IceBeam));
-  ret.push_back(state.HasPowerUp(CPlayerState::kIT_WaveBeam));
-  ret.push_back(state.HasPowerUp(CPlayerState::kIT_PlasmaBeam));
-  return ret;
-}
-
-void CSamusHud::EnterFirstPerson(const CStateManager& mgr) {
-  CSfxManager::SfxVolume(x508_staticSfxHi, 127);
-  CSfxManager::SfxVolume(x50c_staticSfxLo, 127);
 }
 
 void CSamusHud::Update(float dt, const CStateManager& mgr, uint helmetVis, bool hudVis,
@@ -1471,6 +1435,18 @@ void CSamusHud::Update(float dt, const CStateManager& mgr, uint helmetVis, bool 
   }
 }
 
+void CSamusHud::Touch() const {
+  if (x264_loadedFrmeHelmet != nullptr) {
+    x264_loadedFrmeHelmet->Touch();
+  }
+  if (x274_loadedFrmeBaseHud != nullptr) {
+    x274_loadedFrmeBaseHud->Touch();
+  }
+  if (x288_loadedSelectedHud != nullptr) {
+    x288_loadedSelectedHud->Touch();
+  }
+}
+
 void CSamusHud::DrawAttachedEnemyEffect(const CStateManager& mgr) const {
   const float drainTime = mgr.GetPlayer()->GetPlayerEnergyDrain().GetEnergyDrainTime();
   if (drainTime > 0.f) {
@@ -1496,6 +1472,36 @@ void CSamusHud::DrawAttachedEnemyEffect(const CStateManager& mgr) const {
                                       : CCameraFilterPass::kFT_Blend,
                                   CCameraFilterPass::kFS_Fullscreen, color, nullptr, 1.f);
   }
+}
+
+rstl::reserved_vector< bool, 4 > CSamusHud::BuildPlayerHasVisors(const CStateManager& mgr) const {
+  const CPlayerState& state = *mgr.GetPlayerState();
+  rstl::reserved_vector< bool, 4 > ret;
+  ret.push_back(state.HasPowerUp(CPlayerState::kIT_CombatVisor));
+  ret.push_back(state.HasPowerUp(CPlayerState::kIT_XRayVisor));
+  ret.push_back(state.HasPowerUp(CPlayerState::kIT_ScanVisor));
+  ret.push_back(state.HasPowerUp(CPlayerState::kIT_ThermalVisor));
+  return ret;
+}
+
+rstl::reserved_vector< bool, 4 > CSamusHud::BuildPlayerHasBeams(const CStateManager& mgr) const {
+  const CPlayerState& state = *mgr.GetPlayerState();
+  rstl::reserved_vector< bool, 4 > ret;
+  ret.push_back(state.HasPowerUp(CPlayerState::kIT_PowerBeam));
+  ret.push_back(state.HasPowerUp(CPlayerState::kIT_IceBeam));
+  ret.push_back(state.HasPowerUp(CPlayerState::kIT_WaveBeam));
+  ret.push_back(state.HasPowerUp(CPlayerState::kIT_PlasmaBeam));
+  return ret;
+}
+
+void CSamusHud::EnterFirstPerson(const CStateManager& mgr) {
+  CSfxManager::SfxVolume(x508_staticSfxHi, 127);
+  CSfxManager::SfxVolume(x50c_staticSfxLo, 127);
+}
+
+void CSamusHud::LeaveFirstPerson(const CStateManager& mgr) {
+  CSfxManager::SfxVolume(x508_staticSfxHi, 0);
+  CSfxManager::SfxVolume(x50c_staticSfxLo, 0);
 }
 
 void CSamusHud::DrawHelmet(const CStateManager& mgr, float camYOff) {
@@ -1587,11 +1593,6 @@ void CSamusHud::Draw(const CStateManager& mgr, float alpha, uint helmetVis, bool
   x7ac_profileInfo[14].x8_drawUsec = timer.GetElapsedMicros();
 }
 
-void CSamusHud::LeaveFirstPerson(const CStateManager& mgr) {
-  CSfxManager::SfxVolume(x508_staticSfxHi, 0);
-  CSfxManager::SfxVolume(x50c_staticSfxLo, 0);
-}
-
 void CSamusHud::ProcessControllerInput(const CFinalInput& input) {
   if (!x29c_decoIntf.null()) {
     x29c_decoIntf->ProcessInput(input);
@@ -1617,67 +1618,6 @@ EHudState CSamusHud::GetDesiredHudState(const CStateManager& mgr) const {
     return kHS_Thermal;
   default:
     return kHS_None;
-  }
-}
-
-void CSamusHud::UpdateCameraDebugSettings() {
-  const float fov = x5ec_camFovTweaks[gpTweakGui->GetHudCamFovTweak()];
-  const float y = x62c_camYTweaks[gpTweakGui->GetHudCamYTweak()];
-  const float z = x72c_camZTweaks[gpTweakGui->GetHudCamZTweak()];
-  if (!x2a0_helmetIntf.null()) {
-    x2a0_helmetIntf->UpdateCameraDebugSettings(fov, y, z);
-  }
-  if (!x29c_decoIntf.null()) {
-    x29c_decoIntf->UpdateCameraDebugSettings(fov, y, z);
-  }
-  CGuiCamera* camera = x274_loadedFrmeBaseHud->GetFrameCamera();
-  CGuiCamera::UCameraParms parms = camera->GetParms();
-  parms.perspective.fov = fov;
-  camera->SetParms(parms);
-  x310_cameraPos = CVector3f(0.f, y, z);
-}
-
-void CSamusHud::SetMessage(const rstl::wstring& text, const CHUDMemoParms& info) {
-  bool visible = x598_base_basewidget_message->GetIsVisible();
-  if (!visible || info.IsHintMemo()) {
-    if (info.IsFadeOutOnly()) {
-      x558_messageTextTime = 1.f;
-      if (info.IsHintMemo() && visible) {
-        CSfxManager::SfxStart(SFXui_x_hintoff_00, 127, 64, false, CSfxManager::kMedPriority, false,
-                              CSfxManager::kAllAreas);
-      }
-      return;
-    }
-    x598_base_basewidget_message->SetColor(CColor::White());
-    x598_base_basewidget_message->SetVisibility(false, kTM_Children);
-    CGuiWidget* pane =
-        info.IsHintMemo() ? x598_base_basewidget_message : x59c_base_textpane_message;
-    pane->SetVisibility(true, kTM_Children);
-    x59c_base_textpane_message->TextSupport().SetTypeWriteEffectOptions(true, 0.1f, 40.f);
-    if (info.IsClearMemoWindow()) {
-      x55c_lastSfxChars = 0.f;
-      x59c_base_textpane_message->TextSupport().SetCurTime(0.f);
-      x59c_base_textpane_message->TextSupport().SetText(text);
-    } else if (static_cast< int >(x59c_base_textpane_message->TextSupport().GetText().size()) ==
-               0) {
-      x55c_lastSfxChars = 0.f;
-      x59c_base_textpane_message->TextSupport().AddText(text);
-    } else {
-      x59c_base_textpane_message->TextSupport().AddText(rstl::wstring_l(L"\n") + text);
-    }
-    x59c_base_textpane_message->SetColor(CColor::White());
-    x598_base_basewidget_message->SetColor(CColor::White());
-    x558_messageTextTime = info.GetDisplayTime();
-    if (info.IsHintMemo()) {
-      if (!visible) {
-        x584_abuttonPulse = 0.f;
-        x560_messageTextScale = 0.f;
-        CSfxManager::SfxStart(SFXui_x_hinton_00, 127, 64, false, CSfxManager::kMedPriority, false,
-                              CSfxManager::kAllAreas);
-      }
-    } else {
-      x598_base_basewidget_message->SetO2PTransform(x598_base_basewidget_message->GetTransform());
-    }
   }
 }
 
@@ -1850,4 +1790,65 @@ void CSamusHud::ApplyClassicLag(const CUnitVector3f& lookDir, CQuaternion& rotat
   const float t = CMath::Clamp(0.f, (18.f * dt) * step, 1.f);
   targetRotation = CQuaternion::SlerpLocal(rotation, targetRotation, t);
   rotation = targetRotation;
+}
+
+void CSamusHud::UpdateCameraDebugSettings() {
+  const float fov = x5ec_camFovTweaks[gpTweakGui->GetHudCamFovTweak()];
+  const float y = x62c_camYTweaks[gpTweakGui->GetHudCamYTweak()];
+  const float z = x72c_camZTweaks[gpTweakGui->GetHudCamZTweak()];
+  if (!x2a0_helmetIntf.null()) {
+    x2a0_helmetIntf->UpdateCameraDebugSettings(fov, y, z);
+  }
+  if (!x29c_decoIntf.null()) {
+    x29c_decoIntf->UpdateCameraDebugSettings(fov, y, z);
+  }
+  CGuiCamera* camera = x274_loadedFrmeBaseHud->GetFrameCamera();
+  CGuiCamera::UCameraParms parms = camera->GetParms();
+  parms.perspective.fov = fov;
+  camera->SetParms(parms);
+  x310_cameraPos = CVector3f(0.f, y, z);
+}
+
+void CSamusHud::SetMessage(const rstl::wstring& text, const CHUDMemoParms& info) {
+  bool visible = x598_base_basewidget_message->GetIsVisible();
+  if (!visible || info.IsHintMemo()) {
+    if (info.IsFadeOutOnly()) {
+      x558_messageTextTime = 1.f;
+      if (info.IsHintMemo() && visible) {
+        CSfxManager::SfxStart(SFXui_x_hintoff_00, 127, 64, false, CSfxManager::kMedPriority, false,
+                              CSfxManager::kAllAreas);
+      }
+      return;
+    }
+    x598_base_basewidget_message->SetColor(CColor::White());
+    x598_base_basewidget_message->SetVisibility(false, kTM_Children);
+    CGuiWidget* pane =
+        info.IsHintMemo() ? x598_base_basewidget_message : x59c_base_textpane_message;
+    pane->SetVisibility(true, kTM_Children);
+    x59c_base_textpane_message->TextSupport().SetTypeWriteEffectOptions(true, 0.1f, 40.f);
+    if (info.IsClearMemoWindow()) {
+      x55c_lastSfxChars = 0.f;
+      x59c_base_textpane_message->TextSupport().SetCurTime(0.f);
+      x59c_base_textpane_message->TextSupport().SetText(text);
+    } else if (static_cast< int >(x59c_base_textpane_message->TextSupport().GetText().size()) ==
+               0) {
+      x55c_lastSfxChars = 0.f;
+      x59c_base_textpane_message->TextSupport().AddText(text);
+    } else {
+      x59c_base_textpane_message->TextSupport().AddText(rstl::wstring_l(L"\n") + text);
+    }
+    x59c_base_textpane_message->SetColor(CColor::White());
+    x598_base_basewidget_message->SetColor(CColor::White());
+    x558_messageTextTime = info.GetDisplayTime();
+    if (info.IsHintMemo()) {
+      if (!visible) {
+        x584_abuttonPulse = 0.f;
+        x560_messageTextScale = 0.f;
+        CSfxManager::SfxStart(SFXui_x_hinton_00, 127, 64, false, CSfxManager::kMedPriority, false,
+                              CSfxManager::kAllAreas);
+      }
+    } else {
+      x598_base_basewidget_message->SetO2PTransform(x598_base_basewidget_message->GetTransform());
+    }
+  }
 }
