@@ -2323,8 +2323,9 @@ Kyoto/Animation/CPrimitive.cpp:
 	.text       start:0x802CFD48 end:0x802CFE28
 
 Kyoto/Animation/CSequenceHelper.cpp:
-	.text       start:0x802CFE28 end:0x802D0FF0
+	.text       start:0x802CFE28 end:0x802D1034
 	.rodata     start:0x803C2280 end:0x803C2288
+	.sdata      start:0x8046A828 end:0x8046A838
 	.sdata2     start:0x80470548 end:0x80470558
 
 Kyoto/Animation/CTransition.cpp:

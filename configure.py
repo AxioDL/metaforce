@@ -1658,7 +1658,13 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/CPrimitive.cpp"
             ),
-            Object(NonMatching, "Kyoto/Animation/CSequenceHelper.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Animation/CSequenceHelper.cpp",
+                   extra_cflags=(
+                       ['-pragma "inline_max_size(255)"']
+                       if version_num < 3
+                       else ['-pragma "inline_max_size(120)"']
+                   ),
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8E01_02"), "Kyoto/Animation/CTransition.cpp"
             ),
