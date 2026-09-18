@@ -1022,7 +1022,7 @@ config.libs = [
                 "MetroidPrime/Factories/CScannableObjectInfo.cpp",
                 cflags=cflags_retro,
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Enemies/CMetroid.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM801_00"), "MetroidPrime/Enemies/CMetroid.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Player/CScanDisplay.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),

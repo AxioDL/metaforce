@@ -21,7 +21,9 @@
 #include "MetroidPrime/Player/CPlayer.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptWater.hpp"
 #include "MetroidPrime/TCastTo.hpp"
+#include "MetroidPrime/Weapons/CBomb.hpp"
 #include "MetroidPrime/Weapons/CGameProjectile.hpp"
+
 
 #include "Kyoto/Animation/CPASAnimParmData.hpp"
 #include "Kyoto/Animation/CSegId.hpp"
@@ -215,16 +217,21 @@ void CMetroid::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
     SwarmRemove(mgr);
     break;
   case kSM_Damage:
-  case kSM_InvulnDamage:
-    if (const CGameProjectile* projectile =
-            TCastToConstPtr< CGameProjectile >(mgr.GetObjectById(uid))) {
-      if (GetDamageVulnerability()->WeaponHits(projectile->GetCurrentDamageInfo().GetWeaponMode(),
-                                               CDamageVulnerability::kRD_No)) {
-        ApplyGrowth(projectile->GetCurrentDamageInfo().GetDamage(), mgr);
-      }
+  case kSM_InvulnDamage: {
+    const CGameProjectile* projectile = TCastToConstPtr< CGameProjectile >(mgr.GetObjectById(uid));
+    if (projectile &&
+        GetDamageVulnerability()->WeaponHits(projectile->GetCurrentDamageInfo().GetWeaponMode(),
+                                             CDamageVulnerability::kRD_No)) {
+      ApplyGrowth(projectile->GetCurrentDamageInfo().GetDamage(), mgr);
     }
+#if VERSION >= VERSION_GM8P_00
+    else if (const CBomb* bomb = TCastToConstPtr< CBomb >(mgr.GetObjectById(uid))) {
+      ApplyGrowth(bomb->GetCurrentDamageInfo().GetDamage(), mgr);
+    }
+#endif
     mAlert = true;
     break;
+  }
   case kSM_Alert:
     mAlert = true;
     break;
@@ -259,9 +266,8 @@ void CMetroid::Touch(CActor& actor, CStateManager& mgr) {
           multiplier = 2.f;
         }
         const CVector3f relativePos = projectile->GetTranslation() - GetTranslation();
-        const CVector3f projectilePos = projectile->GetTranslation();
         const CUnitVector3f dir(
-            GetTransform().TransposeRotate(projectilePos - projectile->GetPreviousPos()));
+            GetTransform().TransposeRotate(projectile->GetVelocity()));
         Freeze(mgr, relativePos, dir, multiplier * GetFreezeDuration());
       }
     }
@@ -407,7 +413,8 @@ bool CMetroid::AttackOver(CStateManager& mgr, float arg) {
 bool CMetroid::LostInterest(CStateManager& mgr, float arg) {
   if (mAttackTarget != kInvalidUniqueId) {
     if (const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(mAttackTarget))) {
-      if (const CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CActor* >(actor))) {
+      if (const CSpacePirate* pirate =
+              PATTERNED_CAST_TO(CSpacePirate, const_cast< CActor* >(actor))) {
         if (pirate->GetAttachedActor() != kInvalidUniqueId || BodyCtrl()->HasBeenFrozen()) {
           return true;
         }
@@ -424,7 +431,8 @@ bool CMetroid::LostInterest(CStateManager& mgr, float arg) {
 
 bool CMetroid::PatternShagged(CStateManager& mgr, float arg) {
   if (mAttackTarget != kInvalidUniqueId) {
-    if (const CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CEntity* >(mgr.GetObjectById(mAttackTarget)))) {
+    if (const CSpacePirate* pirate = PATTERNED_CAST_TO(
+            CSpacePirate, const_cast< CEntity* >(mgr.GetObjectById(mAttackTarget)))) {
       if (!pirate->IsAlive()) {
         return true;
       }
@@ -521,7 +529,8 @@ bool CMetroid::InPosition(CStateManager& mgr, float arg) {
 bool CMetroid::InRange(CStateManager& mgr, float arg) {
   if (mAttackTarget != kInvalidUniqueId) {
     if (const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(mAttackTarget))) {
-      if (const CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CActor* >(actor))) {
+      if (const CSpacePirate* pirate =
+              PATTERNED_CAST_TO(CSpacePirate, const_cast< CActor* >(actor))) {
         if (!IsPirateValidTarget(*pirate, mgr)) {
           return false;
         }
@@ -582,7 +591,8 @@ bool CMetroid::SpotPlayer(CStateManager& mgr, float arg) {
         rstl::vector< CTeamAiRole >& roles = team->GetTeamAiRoles();
         for (AUTO(it, roles.begin()); it != roles.end(); ++it) {
           if (it->GetOwnerId() != GetUniqueId()) {
-            if (const CMetroid* other = PATTERNED_CAST_TO(CMetroid, const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId())))) {
+            if (const CMetroid* other = PATTERNED_CAST_TO(
+                    CMetroid, const_cast< CEntity* >(mgr.GetObjectById(it->GetOwnerId())))) {
               if (other->GetAttackTargetId() == playerId) {
                 const CVector3f delta = other->GetTranslation() - GetTranslation();
                 if (delta.MagSquared() < rangeSquared) {
@@ -603,7 +613,8 @@ bool CMetroid::SpotPlayer(CStateManager& mgr, float arg) {
 bool CMetroid::AggressionCheck(CStateManager& mgr, float arg) {
   if (mAttackTarget != kInvalidUniqueId) {
     const CActor* actor = TCastToConstPtr< CActor >(mgr.GetObjectById(mAttackTarget));
-    if (const CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CActor* >(actor))) {
+    if (const CSpacePirate* pirate =
+            PATTERNED_CAST_TO(CSpacePirate, const_cast< CActor* >(actor))) {
       if (!IsPirateValidTarget(*pirate, mgr)) {
         mAttackTarget = kInvalidUniqueId;
         return false;
@@ -662,7 +673,8 @@ bool CMetroid::ShouldWallHang(CStateManager& mgr, float arg) {
 
 bool CMetroid::Inside(CStateManager& mgr, float arg) {
   if (mParent != kInvalidUniqueId) {
-    if (const CMetroid* other = PATTERNED_CAST_TO(CMetroid, const_cast< CEntity* >(mgr.GetObjectById(mParent)))) {
+    if (const CMetroid* other =
+            PATTERNED_CAST_TO(CMetroid, const_cast< CEntity* >(mgr.GetObjectById(mParent)))) {
       const float radius = arg > 0.f ? arg * mCollisionPrimitive.GetSphere().GetRadius()
                                      : mCollisionPrimitive.GetSphere().GetRadius();
       const CVector3f delta = other->GetTranslation() - GetTranslation();
@@ -1487,7 +1499,8 @@ bool CMetroid::ShouldReleaseFromTarget(CStateManager& mgr) {
       return IsBetaMetroidAttackingPlayer(mgr);
     }
   } else if (mAttackTarget != kInvalidUniqueId) {
-    const CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CEntity* >(mgr.GetObjectById(mAttackTarget)));
+    const CSpacePirate* pirate =
+        PATTERNED_CAST_TO(CSpacePirate, const_cast< CEntity* >(mgr.GetObjectById(mAttackTarget)));
     if (pirate != nullptr) {
       return pirate->AllEnergyDrained() || pirate->GetBodyCtrl()->GetBodyStateInfo().IsDead();
     }
@@ -1782,7 +1795,8 @@ bool CMetroid::IsTargetGettingSucked(const CStateManager& mgr) const {
       if (attachedActor != kInvalidUniqueId && attachedActor != GetUniqueId()) {
         return true;
       }
-    } else if (const CSpacePirate* pirate = PATTERNED_CAST_TO(CSpacePirate, const_cast< CActor* >(actor))) {
+    } else if (const CSpacePirate* pirate =
+                   PATTERNED_CAST_TO(CSpacePirate, const_cast< CActor* >(actor))) {
       if (pirate->GetAttachedActor() != kInvalidUniqueId &&
           pirate->GetAttachedActor() != GetUniqueId()) {
         return true;
@@ -1798,7 +1812,8 @@ bool CMetroid::IsBetaMetroidAttackingPlayer(const CStateManager& mgr) const {
     const rstl::vector< TUniqueId >& attackers = aiMgr->GetProjectileAttackers();
     if (attackers.size() != 0u) {
       for (AUTO(it, attackers.begin()); it != attackers.end(); ++it) {
-        if (PATTERNED_CAST_TO(CMetroidBeta, const_cast< CEntity* >(mgr.GetObjectById(*it))) != nullptr) {
+        if (PATTERNED_CAST_TO(CMetroidBeta, const_cast< CEntity* >(mgr.GetObjectById(*it))) !=
+            nullptr) {
           return true;
         }
       }
