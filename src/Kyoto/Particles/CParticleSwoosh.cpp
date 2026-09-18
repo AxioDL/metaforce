@@ -10,6 +10,7 @@
 #include "Kyoto/Particles/CParticleGlobals.hpp"
 #include "Kyoto/Particles/CSwooshDescription.hpp"
 
+#include "Kyoto/Math/CAbsAngle.hpp"
 #include "dolphin/gx/GXVert.h"
 #include "float.h"
 #include "rstl/math.hpp"
@@ -17,6 +18,8 @@
 
 uint CParticleSwoosh::mSwooshAliveCount = 0;
 static float kFrameTime = 1.f / 60.f;
+
+#pragma sym on
 
 CParticleSwoosh::CParticleSwoosh(const TToken< CSwooshDescription > desc, const int leng)
 : x1c_desc(desc)
@@ -421,8 +424,6 @@ static inline float fast_cosine(float x) {
 }
 
 void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
-  float rightRadius;
-  float rightSin;
   CGraphics::StreamBegin(kP_TriangleStrip);
   int particleCount = x1ac_particleCount;
   int curIdx = x158_curParticle;
@@ -470,8 +471,6 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
               CGraphics::StreamVertex(v1);
               if (uvOffset >= 1.f && particleCount) {
                 CGraphics::StreamEnd();
-                float rightRadius;
-                float rightSin;
                 CGraphics::StreamBegin(kP_TriangleStrip);
                 uvOffset -= 1.f;
                 CGraphics::StreamColor(color);
@@ -499,21 +498,14 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
         if (swoosh.mActive) {
           --particleCount;
           float angle = M_PIF * (swoosh.mInitialRot + swoosh.mRotm) / 180.f;
-          if (fabs(angle) > M_PIF) {
-            angle = CMath::FastFmod(angle, M_2PIF);
-            if (angle > M_PIF) {
-              angle -= M_2PIF;
-            } else if (angle < -M_PIF) {
-              angle = M_2PIF + angle;
-            }
-          }
+          angle = fabs(angle) > M_PIF ? CMath::WrapPi(angle) : angle;
           float cosine = fast_cosine(angle);
           float sine = fast_sine(angle);
           float leftRadius = swoosh.mLeftRad;
-          rightRadius = swoosh.mRightRad;
+          float rightRadius = swoosh.mRightRad;
           float leftSin = leftRadius;
           leftSin *= sine;
-          rightSin = rightRadius;
+          float rightSin = rightRadius;
           rightSin *= -sine;
           const CVector3f v0 = swoosh.mOrientation * CVector3f(leftRadius * cosine, 0.f, leftSin) +
                                swoosh.mTranslation + swoosh.mUseOffset;
@@ -528,8 +520,6 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
           CGraphics::StreamVertex(v1);
           if (uvOffset >= 1.f && particleCount) {
             CGraphics::StreamEnd();
-            float rightRadius;
-            float rightSin;
             CGraphics::StreamBegin(kP_TriangleStrip);
             uvOffset -= 1.f;
             CGraphics::StreamColor(color);
@@ -555,21 +545,14 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
       }
       if (swoosh.mActive) {
         float angle = M_PIF * (swoosh.mInitialRot + swoosh.mRotm) / 180.f;
-        if (fabs(angle) > M_PIF) {
-          angle = CMath::FastFmod(angle, M_2PIF);
-          if (angle > M_PIF) {
-            angle -= M_2PIF;
-          } else if (angle < -M_PIF) {
-            angle = M_2PIF + angle;
-          }
-        }
+        angle = fabs(angle) > M_PIF ? CMath::WrapPi(angle) : angle;
         float cosine = fast_cosine(angle);
         float sine = fast_sine(angle);
         float leftRadius = swoosh.mLeftRad;
-        rightRadius = swoosh.mRightRad;
+        float rightRadius = swoosh.mRightRad;
         float leftSin = leftRadius;
         leftSin *= sine;
-        rightSin = rightRadius;
+        float rightSin = rightRadius;
         rightSin *= -sine;
         const CVector3f v0 = swoosh.mOrientation * CVector3f(leftRadius * cosine, 0.f, leftSin) +
                              swoosh.mTranslation + swoosh.mUseOffset;
@@ -609,30 +592,17 @@ void CParticleSwoosh::Render2SidedNoSplineGaps() {
       streaming = true;
       CGraphics::StreamBegin(kP_TriangleStrip);
     }
-    float rightSin;
-    float rightRadius;
-    float cosine;
-    float rawAngle = CRelAngle::FromDegrees(swoosh.mInitialRot + swoosh.mRotm).AsRadians();
-    float angle;
-    if (fabs(rawAngle) > M_PIF) {
-      angle = CMath::FastFmod(rawAngle, M_2PIF);
-      if (angle > M_PIF) {
-        angle -= M_2PIF;
-      } else if (angle < -M_PIF) {
-        angle += M_2PIF;
-      }
-    } else {
-      angle = rawAngle;
-    }
-    cosine = fast_cosine(angle);
+    float angle = (swoosh.mInitialRot + swoosh.mRotm) * (M_PIF / 180.f);
+    angle = fabs(angle) > M_PIF ? CMath::WrapPi(angle) : angle;
+    float cosine = fast_cosine(angle);
     float sine = fast_sine(angle);
     float leftRadius = swoosh.mLeftRad;
-    rightRadius = swoosh.mRightRad;
+    float rightRadius = swoosh.mRightRad;
     float leftSin = leftRadius;
     leftSin *= sine;
     float leftCos = leftRadius;
     leftCos *= cosine;
-    rightSin = rightRadius;
+    float rightSin = rightRadius;
     rightSin *= -sine;
     const CVector3f v0 = swoosh.mOrientation * CVector3f(leftCos, 0.f, leftSin) +
                          swoosh.mTranslation + swoosh.mUseOffset;
@@ -925,7 +895,7 @@ void CParticleSwoosh::RenderNSidedSpline() {
     x1bc_prim = GX_QUADS;
   }
   CGraphics::StreamBegin(static_cast< ERglPrimitive >(x1bc_prim));
-  int i;
+  int i = 0;
   bool cros = x1c_desc->x44_25_CROS;
   if (x1b8_SIDE < 4 || x1b8_SIDE % 2 != 0) {
     cros = false;

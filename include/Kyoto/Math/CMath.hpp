@@ -15,19 +15,17 @@
 
 class CMath {
 public:
-  static inline float FastFmod(float x, float y) {
+  static float FastFmod(float x, float y) {
     int v = static_cast< int >(x * (1.f / y));
     return x - v * y;
   }
   template < typename T >
   static const T& Clamp(const T& min, const T& val, const T& max);
   static float SqrtF(float v);
-  static inline float Limit(float v, float h) {
-    return fabs(v) > h ? h * Sign(v) : v;
-  }
-  static inline float Sign(float v) { return FastFSel(v, 1.f, -1.f); }
+  static float Limit(float v, float h) { return fabs(v) > h ? h * Sign(v) : v; }
+  static float Sign(float v) { return FastFSel(v, 1.f, -1.f); }
 #ifdef __MWERKS__
-  static inline float FastFSel(register float v, register float h, register float l) {
+  static float FastFSel(register float v, register float h, register float l) {
     register float out;
     asm {
       fsel out, v, h, l
@@ -35,15 +33,15 @@ public:
     return out;
   }
 #else
-  static inline float FastFSel(float v, float h, float l) { return v >= 0.f ? h : l; }
+  static float FastFSel(float v, float h, float l) { return v >= 0.f ? h : l; }
 #endif
-  static inline float AbsF(float v) { return fabs(v); }
-  static inline double AbsD(double v) { return fabs(v); }
-  static inline int AbsI(int v) { return abs(v); }
-  static inline float WrapPi(float rad) {
+  static float AbsF(float v) { return fabs(v); }
+  static double AbsD(double v) { return fabs(v); }
+  static int AbsI(int v) { return abs(v); }
+  static float WrapPi(float rad) {
     rad = FastFmod(rad, M_2PIF);
     if (rad > M_PIF) {
-      rad -= M_2PIF;
+      rad = rad - M_2PIF;
     } else if (rad < -M_PIF) {
       rad = M_2PIF + rad;
     }
@@ -96,12 +94,13 @@ public:
   static inline float FastSqrtF(float x) { return sqrtf(x); }
 #endif
   static double SqrtD(double x);
-  // IsEpsilon__5CMathFfff global
+  static bool IsEpsilon(float x, float y, float epsilon) {
+    return AbsF(x - y) < epsilon;
+  }
   static float FastMin(float a, float b) { return FastFSel(a - b, b, a); }
   // FastMax__5CMathFff weak
   // PowF__5CMathFff global
   // Rev2Deg__5CMathFf weak
-  // GetCatmullRomSplinePoint__5CMathFfffff global
   // SlowTangentR__5CMathFf global
   static float Rad2Deg(float rad) { return rad * (180.f / M_PIF); }
   static float Rad2Rev(float rad) { return rad * (1.f / M_2PIF); }
