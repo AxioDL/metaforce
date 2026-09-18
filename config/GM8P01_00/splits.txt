@@ -2229,7 +2229,7 @@ Kyoto/Animation/CAnimCharacterSet.cpp:
 	.data       start:0x803D4A20 end:0x803D4A30
 
 Kyoto/Animation/CAnimTreeLoopIn.cpp:
-	.text       start:0x802C4294 end:0x802C613C
+	.text       start:0x802C41DC end:0x802C613C
 	.rodata     start:0x803C2228 end:0x803C2230
 	.data       start:0x803D4A30 end:0x803D4AA8
 	.sdata2     start:0x804704F8 end:0x80470500

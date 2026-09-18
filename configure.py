@@ -1611,9 +1611,9 @@ config.libs = [
                 "Kyoto/Animation/CAnimCharacterSet.cpp",
             ),
             Object(
-                MatchingFor("GM8E01_00"), 
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), 
                 "Kyoto/Animation/CAnimTreeLoopIn.cpp",
-                extra_cflags = ['-pragma "inline_max_size(260)"'] if version_num == 0 else [],
+                extra_cflags = ['-pragma "inline_max_size(260)"'] if version_num <= 2 else [],
             ),
             Object(NonMatching, "Kyoto/Animation/CAnimTreeSequence.cpp"),
             Object(NonMatching, "Kyoto/Animation/CCharacterInfo.cpp"),
