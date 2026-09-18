@@ -274,10 +274,12 @@ void CGunWeapon::UpdateGunFx(const bool shotSmoke, const float dt, const CStateM
 
 void CGunWeapon::UpdateMuzzleFx(const float dt, const CVector3f& scale, const CVector3f& pos,
                                 const bool emitting) {
-  x1a4_muzzleGenerators[x208_muzzleEffectIdx]->SetGlobalTranslation(pos);
-  x1a4_muzzleGenerators[x208_muzzleEffectIdx]->SetGlobalScale(scale);
-  x1a4_muzzleGenerators[x208_muzzleEffectIdx]->SetParticleEmission(emitting);
-  x1a4_muzzleGenerators[x208_muzzleEffectIdx]->Update(dt);
+  if ((VERSION < VERSION_GM8P_00) || !x1a4_muzzleGenerators[x208_muzzleEffectIdx].null()) {
+    x1a4_muzzleGenerators[x208_muzzleEffectIdx]->SetGlobalTranslation(pos);
+    x1a4_muzzleGenerators[x208_muzzleEffectIdx]->SetGlobalScale(scale);
+    x1a4_muzzleGenerators[x208_muzzleEffectIdx]->SetParticleEmission(emitting);
+    x1a4_muzzleGenerators[x208_muzzleEffectIdx]->Update(dt);
+  }
 }
 
 CElementGen* CGunWeapon::GetChargeMuzzleFx() const {
@@ -289,7 +291,7 @@ CElementGen* CGunWeapon::GetChargeMuzzleFx() const {
 }
 
 void CGunWeapon::DrawMuzzleFx(const CStateManager& mgr) const {
-  if (!x1a4_muzzleGenerators[x208_muzzleEffectIdx].null()) {
+  if (((VERSION < VERSION_GM8P_00) || x218_26_loaded) && !x1a4_muzzleGenerators[x208_muzzleEffectIdx].null()) {
     if (x200_beamId != CPlayerState::kBI_Ice &&
         mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::kPV_XRay) {
       CElementGen::SetSubtractBlend(true);
@@ -302,9 +304,11 @@ void CGunWeapon::DrawMuzzleFx(const CStateManager& mgr) const {
 }
 
 void CGunWeapon::ActivateCharge(bool enable, bool resetEffect) {
-  x1a4_muzzleGenerators[x208_muzzleEffectIdx]->SetParticleEmission(false);
+  if ((VERSION < VERSION_GM8P_00) || (x218_26_loaded && !x1a4_muzzleGenerators[x208_muzzleEffectIdx].null())) {
+    x1a4_muzzleGenerators[x208_muzzleEffectIdx]->SetParticleEmission(false);
+  }
   x208_muzzleEffectIdx = !!enable;
-  if (enable || resetEffect) {
+  if (((VERSION < VERSION_GM8P_00) || x218_26_loaded) && (enable || resetEffect)) {
     x1a4_muzzleGenerators[x208_muzzleEffectIdx] =
         rs_new CElementGen(x16c_muzzleEffects[x208_muzzleEffectIdx]);
   }
@@ -410,6 +414,9 @@ void CGunWeapon::Fire(const bool underwater, const float dt,
       rstl::optional_object_null(), CSfxManager::kInternalInvalidSfxId, false);
   if (proj) {
     mgr.AddObject(proj);
+    if (chargeState != CPlayerState::kCS_Normal && chargeFactor1 == 1.0f) {
+      proj->SetUnkPalFlag(true);
+    }
     proj->Think(dt, mgr);
   }
 
@@ -425,10 +432,17 @@ void CGunWeapon::Fire(const bool underwater, const float dt,
 }
 
 void CGunWeapon::ReturnToDefault(CStateManager& mgr) {
-  x100_gunController->ReturnToDefault(mgr, 0.f, false);
+  if ((VERSION < VERSION_GM8P_00) || !x100_gunController.null()) {
+    x100_gunController->ReturnToDefault(mgr, 0.f, false);
+  }
 }
 
-bool CGunWeapon::ComboFireOver() const { return x100_gunController->IsComboOver(); }
+bool CGunWeapon::ComboFireOver() const {
+  if ((VERSION < VERSION_GM8P_00) || !x100_gunController.null()) {
+    return x100_gunController->IsComboOver();
+  }
+  return true;
+}
 
 void CGunWeapon::EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, int parm2) {
   x100_gunController->EnterFidget(mgr, s32(type), s32(x200_beamId), parm2);
@@ -522,6 +536,9 @@ void CGunWeapon::AllocResPools(CPlayerState::EBeamId beam) {
   }
 }
 
+#if VERSION >= VERSION_GM8P_00
+inline
+#endif
 void CVelocityInfo::Clear() {
   x0_vel = rstl::reserved_vector< CVector3f, 2 >();
   x1c_targetHoming = rstl::reserved_vector< bool, 2 >();

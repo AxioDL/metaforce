@@ -1272,7 +1272,7 @@ MetroidPrime/Weapons/CAuxWeapon.cpp:
 
 MetroidPrime/Weapons/CGunWeapon.cpp:
 	.text       start:0x801AD32C end:0x801B0B70
-	.rodata     start:0x803BC1A8 end:0x803BC28C
+	.rodata     start:0x803BC1A8 end:0x803BC448
 	.data       start:0x803CE850 end:0x803CE898
 	.sdata2     start:0x8046E8A8 end:0x8046E8D8
 

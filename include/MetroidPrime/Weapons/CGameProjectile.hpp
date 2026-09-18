@@ -71,6 +71,12 @@ public:
 
   bool GetWeaponActive() const { return x2e4_24_active; }
   void DeleteProjectileLight(CStateManager&);
+  
+  void SetUnkPalFlag(bool active) {
+#if VERSION >= VERSION_GM8P_00
+    x2e4_29_unkPalFlag = active; 
+#endif
+  }
 
   void ApplyDamageToActors(CStateManager& mgr, const CDamageInfo& dInfo);
   CRayCastResult RayCollisionCheckWithWorld(TUniqueId& idOut, const CVector3f& start,
@@ -112,6 +118,9 @@ protected:
   bool x2e4_26_waterUpdate : 1;
   bool x2e4_27_inWater : 1;
   bool x2e4_28_sendProjectileCollideMsg : 1;
+#if VERSION >= VERSION_GM8P_00
+  bool x2e4_29_unkPalFlag : 1;
+#endif
 };
 CHECK_SIZEOF(CGameProjectile, (VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02 ? 0x310
                                : VERSION >= VERSION_GM8P_00                             ? 0x2f8
