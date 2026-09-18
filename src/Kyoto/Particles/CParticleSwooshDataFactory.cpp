@@ -11,6 +11,11 @@ const CFactoryFnReturn FParticleSwooshDataFactory(const SObjectTag& tag, CInputS
   return CParticleSwooshDataFactory::GetGeneratorDesc(in, pool);
 }
 
+// Force function ordering
+static void hack() {
+  TObjOwnerDerivedFromIObj<CSwooshDescription>::GetNewDerivedObject(nullptr);;
+}
+
 CSwooshDescription* CParticleSwooshDataFactory::GetGeneratorDesc(CInputStream& in,
                                                                  CSimplePool* pool) {
   rstl::vector< CAssetId > ids;

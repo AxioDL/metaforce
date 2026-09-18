@@ -17,10 +17,12 @@ This repository does **not** contain any game assets or assembly whatsoever. An 
 The following game versions are supported:
 
 - `GM8E01_00` (USA v1.088)
-<!--
 - `GM8E01_01` (USA v1.093)
 - `GM8E01_48` (KOR v1.097)
--->
+- `GM8P01_00` (PAL v1.110)
+- `GM8J01_00` (JPN v1.111)
+
+
 
 If you'd like to contribute, see [CONTRIBUTING.md](CONTRIBUTING.md).
 

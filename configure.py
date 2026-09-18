@@ -1905,7 +1905,7 @@ config.libs = [
             ),
             Object(NonMatching, "Kyoto/Particles/CParticleSwoosh.cpp"),
             Object(
-                EquivalentFor("GM8E01_00", "GM8E01_01"), 
+                MatchingFor("GM8E01_00", "GM8E01_01"), 
                 "Kyoto/Particles/CParticleSwooshDataFactory.cpp"
                 ,
             ),
