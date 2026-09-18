@@ -2944,6 +2944,7 @@ Kyoto/CARAMManager.cpp:
 	.text       start:0x8032CD8C end:0x8032D7A0
 	.ctors      start:0x803B5114 end:0x803B5118
 	.rodata     start:0x803C33C0 end:0x803C33C8
+	.bss        start:0x80401FE8 end:0x80401FF8
 	.bss        start:0x8046883C end:0x80468854 align:4 common
 	.sdata      start:0x8046AA00 end:0x8046AA08
 	.sbss       start:0x8046B660 end:0x8046B680

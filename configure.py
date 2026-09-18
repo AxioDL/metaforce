@@ -2043,7 +2043,7 @@ config.libs = [
         "core",
         [
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "Kyoto/CARAMManager.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8P01_00"), "Kyoto/Math/CFrustumPlanes.cpp"),
