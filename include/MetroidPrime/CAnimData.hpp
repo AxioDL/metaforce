@@ -139,7 +139,7 @@ public:
   void SetRandomPlaybackRate(CRandom16& random);
   void SetPlaybackRate(float set);
   void MultiplyPlaybackRate(float scale);
-  CCharAnimTime GetTimeOfUserEvent(EUserEventType type, const CCharAnimTime& time) const;
+  CCharAnimTime GetTimeOfUserEvent(EUserEventType type, const CCharAnimTime& time = CCharAnimTime::Infinity()) const;
   // GetAdvancementDeltas__9CAnimDataCFRC13CCharAnimTimeRC13CCharAnimTime
   void Touch(const CSkinnedModel&, int) const;
   void InitializeEffects(CStateManager&, TAreaId, const CVector3f&);

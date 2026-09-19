@@ -28,23 +28,21 @@ void CBSAttack::Start(CBodyController& bc, CStateManager& mgr) {
                                CPASAnimParm::FromEnum(bc.GetLocomotionType()));
 
   const rstl::pair< float, int > best = pasDatabase.FindBestAnimation(parms, *mgr.Random(), -1);
-  const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
-  bc.SetCurrentAnimation(playParms, false, false);
+  bc.SetCurrentAnimation(CAnimPlaybackParms(best.second, -1, 1.f, true), false, false);
   if (cmd->HasAttackTargetPos()) {
     x20_targetPos = cmd->GetAttackTargetPos();
 
-    CCharAnimTime evTime = bc.GetOwner().GetAnimationData()->GetTimeOfUserEvent(
-        kUE_AlignTargetPosStart, CCharAnimTime::Infinity());
+    CCharAnimTime evTime =
+        bc.GetOwner().GetAnimationData()->GetTimeOfUserEvent(kUE_AlignTargetPosStart);
     x2c_alignTargetPosStartTime = (evTime != CCharAnimTime::Infinity()) ? evTime.GetSeconds() : 0.f;
 
-    evTime = bc.GetOwner().GetAnimationData()->GetTimeOfUserEvent(kUE_AlignTargetPos,
-                                                                  CCharAnimTime::Infinity());
+    CCharAnimTime evTime2 = bc.GetOwner().GetAnimationData()->GetTimeOfUserEvent(kUE_AlignTargetPos);
     x30_alignTargetPosTime =
-        (evTime != CCharAnimTime::Infinity()) ? evTime.GetSeconds() : bc.GetAnimTimeRemaining();
+        (evTime2 != CCharAnimTime::Infinity()) ? evTime2.GetSeconds() : bc.GetAnimTimeRemaining();
   } else {
     x20_targetPos = CVector3f::Zero();
-    x2c_alignTargetPosStartTime = -1.f;
     x30_alignTargetPosTime = -1.f;
+    x2c_alignTargetPosStartTime = -1.f;
   }
 
   x4_nextState = pas::kAS_Locomotion;
