@@ -1004,7 +1004,7 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Enemies/CParasite.cpp"
             ),
-            Object(EquivalentFor("GM8E01_00"), "MetroidPrime/Player/CSamusFaceReflection.cpp"),
+            Object(MatchingFor("GM8E01_00"), "MetroidPrime/Player/CSamusFaceReflection.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/ScriptObjects/CScriptPlayerHint.cpp",

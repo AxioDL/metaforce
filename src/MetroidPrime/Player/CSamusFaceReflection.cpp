@@ -56,15 +56,15 @@ void CSamusFaceReflection::Update(float dt, const CStateManager& mgr, CRandom16&
       return;
 
     const CVector3f offset(0.125f, 0.125f, 0.125f);
-    CAABox aabb(camTrans - offset, camTrans + offset);
+    const CAABox aabb(camTrans - offset, camTrans + offset);
 
     const CGameArea& area = mgr.GetWorld()->GetAreaAlways(areaId);
     lights.BuildFaceLightList(mgr, area, aabb);
 
-    const CMatrix3f matrix = fpCam->GetTransform().BuildMatrix3f();
-    const CUnitVector3f lookDir(matrix.GetColumn(1));
+    const CMatrix3f matrix(fpCam->GetTransform().BuildMatrix3f());
+    const CUnitVector3f lookDir(matrix.GetColumn(kDY));
 
-    CQuaternion xfLook1 =
+    const CQuaternion xfLook1 =
         CQuaternion::LookAt(CUnitVector3f(lookDir), CUnitVector3f(CVector3f::Forward()),
                             CRelAngle::FromRadians(M_2PIF));
     CQuaternion xfLook2 =
@@ -72,11 +72,10 @@ void CSamusFaceReflection::Update(float dt, const CStateManager& mgr, CRandom16&
                             CRelAngle::FromRadians(M_2PIF));
     xfLook2 *= xfLook2;
 
-    const CVector3f lookCenter = xfLook2.BuildTransform().GetColumn(1);
-    const CVector3f lookRotCenter = x50_lookRot.BuildTransform().GetColumn(1);
-    const float blend = FaceLookBlend(dt, CVector3f::Dot(lookRotCenter, lookCenter),
-                                     dt * gpTweakPlayer->GetFreeLookSpeed() * 0.5f);
-    xfLook2 = CQuaternion::SlerpLocal(x50_lookRot, xfLook2, blend);
+    const CVector3f lookCenter = xfLook2.BuildTransform().GetColumn(kDY);
+    const CVector3f lookRotCenter = CVector3f(x50_lookRot.BuildTransform().GetColumn(kDY));
+    xfLook2 = CQuaternion::SlerpLocal(x50_lookRot, xfLook2, FaceLookBlend(dt, CVector3f::Dot(lookRotCenter, lookCenter),
+                                     dt * gpTweakPlayer->GetFreeLookSpeed() * 0.5f));
     x50_lookRot = xfLook2;
     x60_lookDir = lookDir;
   }
