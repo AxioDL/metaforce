@@ -5,6 +5,7 @@
 
 #include "types.h"
 
+#include <rstl/auto_ptr.hpp>
 #include <rstl/single_ptr.hpp>
 #if TARGET_LITTLE_ENDIAN || WCHAR_MAX > 0xffff
 #include "rstl/vector.hpp"
@@ -13,18 +14,51 @@
 #include <Kyoto/CFactoryFnReturn.hpp>
 
 class CInputStream;
+class CResFactory;
+class CDvdRequest;
 class CStringTable {
+public:
+  struct SReloadData {
+    uint x0_size;
+    rstl::single_ptr< CDvdRequest > x4_request;
+    rstl::auto_ptr< uchar > x8_buffer;
+
+    SReloadData(CAssetId id, CResFactory& factory);
+    ~SReloadData();
+  };
+
+  CStringTable(CInputStream& in);
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  ~CStringTable();
+#endif
+
+  void Load(CInputStream& in);
+
+  static void SetLanguage(int language);
+  void Reload(CAssetId id, CResFactory& factory);
+  void TryFinishReload();
+  bool IsReloading() const;
+
+  const wchar_t* GetString(int idx) const;
+  int GetStringCount() const { return x0_stringCount; }
+
+private:
   int x0_stringCount;
   rstl::single_ptr< uchar > x4_data;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  rstl::single_ptr< SReloadData > x8_reloadData;
+#endif
 #if TARGET_LITTLE_ENDIAN || WCHAR_MAX > 0xffff
   rstl::vector< rstl::vector< wchar_t > > mNativeStrings;
 #endif
-
-public:
-  CStringTable(CInputStream& in);
-  const wchar_t* GetString(int idx) const;
-  int GetStringCount() const { return x0_stringCount; }
 };
+
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+CHECK_SIZEOF(CStringTable, 0xc)
+#else
+CHECK_SIZEOF(CStringTable, 0x8)
+#endif
+NESTED_CHECK_SIZEOF(CStringTable, SReloadData, 0x10)
 
 extern CStringTable* gpStringTable;
 

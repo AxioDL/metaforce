@@ -495,7 +495,13 @@ config.libs = [
         "MetroidPrime",
         "game",
         [
-            Object(NonMatching, "MetroidPrime/main.cpp"),
+            Object(
+                NonMatching,
+                "MetroidPrime/main.cpp",
+                extra_cflags=['-pragma "inline_max_size(245)"']
+                if version_num < VERSIONS.index("GM8P01_00")
+                else [],
+            ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "MetroidPrime/Cameras/CCameraManager.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8J01_00"), "MetroidPrime/CControlMapper.cpp"
@@ -2115,7 +2121,7 @@ config.libs = [
             Object(NonMatching, "Kyoto/Animation/DolphinCVirtualBone.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Graphics/DolphinCModel.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
                 "Kyoto/Text/CStringTable.cpp",
             ),
             Object(

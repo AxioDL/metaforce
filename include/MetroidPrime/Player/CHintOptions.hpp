@@ -47,10 +47,17 @@ private:
 
   rstl::vector< SHintState > x0_hintStates;
   int x10_nextHintIdx;
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+  bool x14_palHintFlag;
+#endif
 };
 
 NESTED_CHECK_SIZEOF(CHintOptions, SHintState, 0xc)
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+CHECK_SIZEOF(CHintOptions, 0x18)
+#else
 CHECK_SIZEOF(CHintOptions, 0x14)
+#endif
 
 typedef CHintOptions::SHintState SHintState;
 

@@ -1,19 +1,41 @@
 #include "Kyoto/Text/CStringTable.hpp"
 
-#include <Kyoto/Streams/CInputStream.hpp>
+#include "Kyoto/CDvdRequest.hpp"
+#include "Kyoto/CResFactory.hpp"
+#include "Kyoto/Streams/CInputStream.hpp"
+#include "Kyoto/Streams/CMemoryInStream.hpp"
 #if TARGET_LITTLE_ENDIAN || WCHAR_MAX > 0xffff
 #include "Kyoto/Basics/CBasics.hpp"
-#include "Kyoto/Streams/CMemoryInStream.hpp"
 #include <string.h>
 #endif
 
 #include <rstl/pair.hpp>
 #include <rstl/vector.hpp>
 
-static FourCC mCurrentLanguage = 'ENGL';
 static const wchar_t skInvalidString[] = L"Invalid";
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+static const FourCC skLanguages[] = {'ENGL', 'GERM', 'FREN', 'SPAN', 'ITAL', 'DUTC', 'JAPN'};
+static FourCC mCurrentLanguage = skLanguages[0];
 
-CStringTable::CStringTable(CInputStream& in) : x0_stringCount(0), x4_data(NULL) {
+void CStringTable::SetLanguage(int language) { mCurrentLanguage = skLanguages[language]; }
+#else
+static FourCC mCurrentLanguage = 'ENGL';
+#endif
+
+CStringTable::CStringTable(CInputStream& in)
+: x0_stringCount(0)
+, x4_data(NULL)
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+, x8_reloadData(nullptr)
+{
+  Load(in);
+}
+
+CStringTable::~CStringTable() {}
+
+void CStringTable::Load(CInputStream& in)
+#endif
+{
   in.ReadLong();
   in.ReadLong();
   int langCount = in.Get(TType< int >());
@@ -36,6 +58,7 @@ CStringTable::CStringTable(CInputStream& in) : x0_stringCount(0), x4_data(NULL) 
 
   uint dataLen = in.Get(TType< uint >());
 #if TARGET_LITTLE_ENDIAN || WCHAR_MAX > 0xffff
+  mNativeStrings.clear();
   rstl::vector< uchar > data(dataLen, uchar(0));
   in.ReadBytes(data.data(), dataLen);
   if (x0_stringCount < 0 || static_cast< uint >(x0_stringCount) > dataLen / sizeof(uint)) {
@@ -98,6 +121,34 @@ const wchar_t* CStringTable::GetString(int idx) const {
   return reinterpret_cast< const wchar_t* >(x4_data.get() + offset);
 #endif
 }
+
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+void CStringTable::Reload(CAssetId id, CResFactory& factory) {
+  x8_reloadData = nullptr;
+  x8_reloadData = rs_new SReloadData(id, factory);
+}
+
+void CStringTable::TryFinishReload() {
+  SReloadData* data = x8_reloadData.get();
+  if (data != nullptr && data->x4_request->IsComplete()) {
+    CMemoryInStream in(data->x8_buffer.get(), data->x0_size);
+    Load(in);
+    x8_reloadData = nullptr;
+  }
+}
+
+bool CStringTable::IsReloading() const { return !x8_reloadData.null(); }
+
+CStringTable::SReloadData::SReloadData(CAssetId id, CResFactory& factory)
+: x4_request(nullptr) {
+  const SObjectTag tag('STRG', id);
+  x0_size = factory.ResourceSize(tag);
+  x8_buffer = static_cast< uchar* >(CMemory::Alloc(x0_size, IAllocator::kHI_RoundUpLen));
+  x4_request = factory.LoadResourceAsync(tag, x8_buffer.get());
+}
+
+CStringTable::SReloadData::~SReloadData() {}
+#endif
 
 const CFactoryFnReturn FStringTableFactory(const SObjectTag& tag, CInputStream& in,
                                      const CVParamTransfer& xfer) {

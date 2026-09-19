@@ -50,10 +50,10 @@ CIOWin::EMessageReturn CSplashScreen::OnMessage(const CArchitectureMessage& mess
       const bool defaultMode = CGraphics::GetProgressiveDefault();
       const bool isNintendo = mSplash == kSplashScreen_Nintendo;
       mProgressivePhase = kPP_Complete;
-      if (!lbl_805A6BC0 && isNintendo && canSet && !curProgressiveMode) {
+      if (!sProgressiveModePrompt && isNintendo && canSet && !curProgressiveMode) {
         mProgressiveMode = canSet && defaultMode;
         CGraphics::SetProgressiveMode(mProgressiveMode);
-      } else if (lbl_805A6BC0 && isNintendo && !curProgressiveMode && canSet &&
+      } else if (sProgressiveModePrompt && isNintendo && !curProgressiveMode && canSet &&
                  (bPressed || defaultMode)) {
         mProgressiveSelectionTimeout = 10.f;
         mProgressivePhase = kPP_Selection;
@@ -182,7 +182,7 @@ void CSplashScreen::Draw() const {
     text.AddColor(kCT_Foreground, mProgressiveMode ? unselected : selected);
     text.AddString(rstl::wstring_l(L"No"));
   } else if (mProgressivePhase == kPP_Confirmation) {
-    lbl_805A6BC0 = false;
+    sProgressiveModePrompt = false;
     text.AddString(rstl::wstring_l(L"Display has been set to\n"));
     text.AddString(
         rstl::wstring_l(mProgressiveMode ? L"Progressive Scan mode." : L"Interlace mode."));

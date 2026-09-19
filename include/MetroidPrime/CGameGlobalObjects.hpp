@@ -29,7 +29,7 @@ public:
   CGameGlobalObjects(COsContext&, CMemorySys&);
 
   void PostInitialize(COsContext&, CMemorySys&);
-#if VERSION != 0
+#if VERSION >= VERSION_GM8E_01
   void AddPaksAndFactories(const COsContext& osContext);
 #else
   void AddPaksAndFactories();
@@ -61,6 +61,6 @@ class IController;
 // TODO move to related headers
 extern IController* gpController;
 extern const TToken< CRasterFont >* gpDefaultFont;
-extern bool lbl_805A6BC0; // TODO: Find out what this is and rename appropriately
+extern bool sProgressiveModePrompt;
 
 #endif // _CGAMEGLOBALOBJECTS

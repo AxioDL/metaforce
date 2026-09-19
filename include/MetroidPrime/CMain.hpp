@@ -70,6 +70,7 @@ public:
   void UpdateStreamedAudio();
   void RegisterResourceTweaks();
   void ResetGameState();
+  void ReloadStringTables();
   void StreamNewGameState(CInputStream& in, int saveIdx);
   void RefreshGameState();
   void AddWorldPaks();
@@ -85,6 +86,8 @@ public:
   bool CheckReset();
   void CheckTweakManagerDebugOptions();
   COsContext& OpenWindow();
+  int GetLanguage();
+  static void SetTiming();
   void SetRestartMode(const ERestartMode s) { x12c_restartMode = s; }
   ERestartMode GetRestartMode() const { return x12c_restartMode; }
   void SetCardBusy(bool v) { x160_31_cardBusy = v; }

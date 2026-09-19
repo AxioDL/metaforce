@@ -52,6 +52,7 @@
 #include "MetroidPrime/CMainFlow.hpp"
 #include "MetroidPrime/Decode.hpp"
 #include "MetroidPrime/CMemoryCard.hpp"
+#include "MetroidPrime/CMemoryCardDriver.hpp"
 #include "MetroidPrime/CSplashScreen.hpp"
 #include "MetroidPrime/Factories/CCharacterFactoryBuilder.hpp"
 #include "MetroidPrime/Player/CGameOptions.hpp"
@@ -126,9 +127,19 @@ void* CSaveRegion::mNonVolatileSettingsBuf;
 bool COsContext::mProgressiveMode;
 u32 sARAMMemArray[2];
 float sInfiniteLoopTime;
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+float sFramePeriod = 1.f / 50.f;
+float sMaxFrameTime = 2.1f * sFramePeriod;
+#define FRAME_PERIOD (sFramePeriod)
+#else
+#define FRAME_PERIOD (1.f / 60.f)
+#endif
+extern bool sIs50Hz;
 
+#if VERSION < VERSION_GM8P_00 || VERSION >= VERSION_GM8J_00
 #define GRAPHICS_FIFO_SIZE 0x60000
 static uchar sGraphicsFifo[GRAPHICS_FIFO_SIZE];
+#endif
 ALIGNAS(CMain) static uchar sMainSpace[sizeof(CMain)];
 
 // Generated includes
@@ -145,7 +156,7 @@ static const SAudioGroupInfo skPreLoadGroups[] = {
     {"Weapons_AGSC", 43}, {"ZZZ_AGSC", 65},
 };
 // sdata
-bool lbl_805A6BC0 = true;
+bool sProgressiveModePrompt = true;
 
 extern "C" void OSGetSavedRegion(void** start, void** end);
 extern "C" void OSSetSaveRegion(void* start, void* end);
@@ -186,9 +197,25 @@ COsContext& CMain::OpenWindow() {
     CMemoryInStream stream(CSaveRegion::GetNonVolatileSettingsBuffer(), 128);
     COsContext::SetProgressiveMode(stream.ReadBits(1));
   }
+#if VERSION < VERSION_GM8P_00 || VERSION >= VERSION_GM8J_00
   x0_osContext.OpenWindow("Metaforce", 0, 0, 640, 480, true);
+#endif
   return x0_osContext;
 }
+
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+int CMain::GetLanguage() {
+  int language = x0_osContext.GetLanguage();
+  if (language == 5) {
+    language = 0;
+  }
+  return language;
+}
+#endif
+
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+void CMain::SetTiming() { sFramePeriod = sIs50Hz ? 1.f / 50.f : 1.f / 60.f; }
+#endif
 
 CMain::CMain()
 : x0_osContext(true, true)
@@ -267,7 +294,11 @@ void CMain::ShutdownSubsystems() {
 
 CGameGlobalObjects::CGameGlobalObjects(COsContext& osContext, CMemorySys& memorySys)
 : xcc_simplePool(x4_resFactory)
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+, x130_graphicsSys(osContext, memorySys, COsContext::GetProgressiveMode())
+#else
 , x130_graphicsSys(osContext, memorySys, GRAPHICS_FIFO_SIZE, sGraphicsFifo)
+#endif
 , x134_gameState(rs_new CGameState())
 , x150_inGameTweakManager(rs_new CInGameTweakManager())
 , x154_defaultFont(LoadDefaultFont()) {
@@ -290,7 +321,10 @@ CRasterFont* CGameGlobalObjects::LoadDefaultFont() {
 }
 
 void CGameGlobalObjects::PostInitialize(COsContext& osContext, CMemorySys& memorySys) {
-#if VERSION != 0
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+  CMain::SetTiming();
+#endif
+#if VERSION >= VERSION_GM8E_01
   AddPaksAndFactories(osContext);
 #else
   AddPaksAndFactories();
@@ -312,7 +346,12 @@ void InitializeApplicationUI(CGuiSys&);
 
 void InfiniteLoopAlarm(OSAlarm* alarm, OSContext* context) {
   if (sInfiniteLoopTime >= 10.f) {
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    OSCancelAlarm(alarm);
+    rs_debugger_printf("SKIP4INFINITE LOOP");
+#else
     rs_debugger_printf("INFINITE LOOP");
+#endif
   }
   sInfiniteLoopTime += alarm->period / OS_TIMER_CLOCK;
 }
@@ -344,7 +383,9 @@ CGameArchitectureSupport::CGameArchitectureSupport(COsContext& osContext)
   ioWinManager.AddIOWin(rs_new CConsoleOutputWindow(8, 5.f, 0.75f), 100, 0);
   ioWinManager.AddIOWin(rs_new CAudioStateWin(), 100, -1);
   ioWinManager.AddIOWin(rs_new CErrorOutputWindow(CErrorOutputWindow::kF_Zero), 10000, 100000);
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
   InitializeApplicationUI(x44_guiSys);
+#endif
   CGuiSys::SetGlobalGuiSys(&x44_guiSys);
   gpController = x30_inputGenerator.GetController();
   gpGameState->GameOptions().EnsureOptions();
@@ -372,20 +413,28 @@ bool CGameArchitectureSupport::UpdateTicks() {
   OSRestoreInterrupts(interrupts);
   sInfiniteLoopTime = 0.f;
   x7c_tickRemainder += elapsed;
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+  if (gpMain->GetScreenFading() || elapsed > sMaxFrameTime) {
+#else
   if (gpMain->GetScreenFading() || elapsed > 0.035f) {
-    x7c_tickRemainder = 1.f / 60.f;
+#endif
+    x7c_tickRemainder = FRAME_PERIOD;
   }
 
-  static const float tickPeriod = 1.f / 60.f;
   bool first = true;
   x4_archQueue.Push(MakeMsg::CreateFrameBegin(kAMT_Game, x78_gameFrameCount));
-  while (first || x7c_tickRemainder >= 1.f / 60.f) {
+  while (first || x7c_tickRemainder >= FRAME_PERIOD) {
     first = false;
-    if (!x30_inputGenerator.Update(1.f / 60.f, x4_archQueue)) {
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+    const float tickPeriod = FRAME_PERIOD;
+#else
+    static const float tickPeriod = FRAME_PERIOD;
+#endif
+    if (!x30_inputGenerator.Update(FRAME_PERIOD, x4_archQueue)) {
       terminate = true;
     }
     x4_archQueue.Push(MakeMsg::CreateTimerTick(kAMT_Game, tickPeriod));
-    x7c_tickRemainder -= 1.f / 60.f;
+    x7c_tickRemainder -= FRAME_PERIOD;
     x58_ioWinMgr.PumpMessages(x4_archQueue);
   }
 
@@ -493,7 +542,7 @@ void CMain::MemoryCardInitializePump() {
   }
 }
 
-#if VERSION != 0
+#if VERSION >= VERSION_GM8E_01
 void CGameGlobalObjects::AddPaksAndFactories(const COsContext& osContext) {
 #else
 void CGameGlobalObjects::AddPaksAndFactories() {
@@ -501,6 +550,11 @@ void CGameGlobalObjects::AddPaksAndFactories() {
   CResFactory& factory = *gpResourceFactory;
   CGraphics::SetViewPointMatrix(CTransform4f::Identity());
   CGraphics::SetModelMatrix(CTransform4f::Identity());
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  if (CDvdFile::FileExists("Strings.pak")) {
+    factory.GetResLoader().AddPakFileAsync(rstl::string_l("aram:Strings"), false, false);
+  }
+#endif
   factory.GetResLoader().AddPakFileAsync(rstl::string_l("aram:Tweaks"), false, false);
   factory.GetResLoader().AddPakFileAsync(rstl::string_l("NoARAM"), false, false);
   factory.GetResLoader().AddPakFileAsync(rstl::string_l("AudioGrp"), false, false);
@@ -509,7 +563,7 @@ void CGameGlobalObjects::AddPaksAndFactories() {
   CErrorOutputWindow errorWindow(CErrorOutputWindow::kF_One);
   CGraphics::SetIsBeginSceneClearFb(true);
   CGraphics::SetViewport(0, 0, CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight());
-#if VERSION != 0
+#if VERSION >= VERSION_GM8E_01
   rstl::single_ptr< IController > controller(IController::Create(osContext));
   gpController = controller.get();
 #endif
@@ -519,12 +573,18 @@ void CGameGlobalObjects::AddPaksAndFactories() {
     CGraphics::BeginScene();
     errorWindow.ShowMessage();
     CGraphics::EndScene();
-#if VERSION != 0
+#if VERSION >= VERSION_GM8E_01
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    if (controller.get() != nullptr) {
+      controller->Poll();
+    }
+#else
     controller->Poll();
+#endif
     gpMain->CheckReset();
 #endif
   }
-#if VERSION != 0
+#if VERSION >= VERSION_GM8E_01
   gpController = nullptr;
 #endif
 
@@ -585,14 +645,14 @@ bool CMain::CheckReset() {
   if (pad.GetButton(kBU_B).GetIsPressed() && pad.GetButton(kBU_X).GetIsPressed() &&
       pad.GetButton(kBU_Start).GetIsPressed()) {
     if (x124_resetInputDelay >= 0.5f) {
-      x120_softResetHoldTime += 1.f / 60.f;
+      x120_softResetHoldTime += FRAME_PERIOD;
       if (x120_softResetHoldTime > 0.5f) {
         x160_27_resetButtonHeld = true;
       }
     }
   } else {
     if (x124_resetInputDelay < 0.5f) {
-      x124_resetInputDelay += 1.f / 60.f;
+      x124_resetInputDelay += FRAME_PERIOD;
     }
     x120_softResetHoldTime = 0.f;
   }
@@ -608,7 +668,7 @@ bool CMain::CheckReset() {
     }
     GXDrawDone();
     GXAbortFrame();
-#if VERSION == VERSION_GM8E_00
+#if VERSION < VERSION_GM8E_01
     CAudioSys::TrkFlushTracks();
     AISetStreamPlayState(0);
 #endif
@@ -625,7 +685,7 @@ bool CMain::CheckReset() {
       CMemoryStreamOut stream(CSaveRegion::GetSaveBuffer(), 128);
       stream.WriteBits(CGraphics::GetProgressiveMode() ? 1 : 0, 1);
       gpGameState->GameOptions().PutTo(stream);
-      stream.WriteBits(lbl_805A6BC0 ? 1 : 0, 1);
+      stream.WriteBits(sProgressiveModePrompt ? 1 : 0, 1);
       stream.Flush();
     }
     gpGameState->GameOptions().EnsureOptions();
@@ -638,10 +698,17 @@ bool CMain::CheckReset() {
     if (x160_28_manageCard) {
       OSResetSystem(OS_RESET_HOTRESET, 0, TRUE);
     } else if (DVDCheckDisk()) {
+#if VERSION < VERSION_GM8P_00 || VERSION >= VERSION_GM8J_00
       DVDCancelAll();
       DVDCommandBlock block;
       DVDCancelStream(&block);
-#if VERSION != 0
+#endif
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+      AISetStreamPlayState(0);
+      if (CAudioSys::mInitialized) {
+        sndQuit();
+      }
+#elif VERSION >= VERSION_GM8E_01
       if (CAudioSys::mInitialized) {
         CAudioSys::TrkFlushTracks();
       }
@@ -672,6 +739,10 @@ int CMain::RsMain(int argc, const char* const* argv) {
   rstl::single_ptr< CGameGlobalObjects > gameGlobalObjects(
       rs_new CGameGlobalObjects(x0_osContext, x6d_memorySys));
   x128_gameGlobalObjects = gameGlobalObjects.get();
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  CMemoryCardDriver::LoadLanguageFromCard(0);
+  CStringTable::SetLanguage(GetLanguage());
+#endif
 
   for (int i = 0; i < 4; ++i) {
     AddFrameTime(xf0_tickTimes, 0.3f);
@@ -710,11 +781,16 @@ int CMain::RsMain(int argc, const char* const* argv) {
       stream.ReadBits(1);
       gpGameState->GameOptions() = CGameOptions(stream);
       gpGameState->GameOptions().EnsureOptions();
-      lbl_805A6BC0 = stream.ReadBits(1);
+      sProgressiveModePrompt = stream.ReadBits(1);
     }
 
-    const double dt = 1.f / 60.f;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    CDvdFile::FileExists("Strings.pak");
+#endif
     while (!x160_24_finished) {
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+      SetTiming();
+#endif
       archSupport->GetStopwatch2().Reset();
       gpResourceFactory->GetResLoader().AsyncIdlePakLoading();
       if (gpMemoryCard == nullptr && gpResourceFactory->GetResLoader().AreAllPaksLoaded()) {
@@ -726,7 +802,7 @@ int CMain::RsMain(int argc, const char* const* argv) {
         x160_24_finished = true;
       }
       double t1 = archSupport->GetStopwatch2().GetElapsedTime();
-      AddFrameTime(xf0_tickTimes, t1 / dt);
+      AddFrameTime(xf0_tickTimes, t1 / FRAME_PERIOD);
       x118_averageTickTime = xf0_tickTimes.GetAverage().data();
       archSupport->GetStopwatch2().Reset();
       DoPredrawMetrics();
@@ -741,11 +817,11 @@ int CMain::RsMain(int argc, const char* const* argv) {
         DrawDebugMetrics(t1, archSupport->GetStopwatch2());
 
         double t2 = archSupport->GetStopwatch2().GetElapsedTime();
-        AddFrameTime(x104_drawTimes, t2 / dt);
+        AddFrameTime(x104_drawTimes, t2 / FRAME_PERIOD);
         x11c_averageDrawTime = x104_drawTimes.GetAverage().data();
 
         uint idleMicros;
-        double idleTime = (dt - (t1 + t2)) - 0.00075;
+        double idleTime = (FRAME_PERIOD - (t1 + t2)) - 0.00075;
         if (idleTime > 0)
           idleMicros = idleTime * 1000000;
         else
@@ -763,7 +839,7 @@ int CMain::RsMain(int argc, const char* const* argv) {
       }
 
       archSupport->Update();
-      CSfxManager::Update(dt);
+      CSfxManager::Update(FRAME_PERIOD);
       UpdateStreamedAudio();
 
       if (CheckTerminate())
@@ -926,4 +1002,19 @@ void CMain::ResetGameState() {
 
 void CMain::RegisterResourceTweaks() { x70_tweaks.RegisterResourceTweaks(); }
 
-void CMain::UpdateStreamedAudio() { CStreamAudioManager::Update(1.f / 60.f); }
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+void CMain::ReloadStringTables() {
+  rstl::vector< SObjectTag > tags = gpSimplePool->GetReferencedTags();
+  for (rstl::vector< SObjectTag >::const_iterator it = tags.begin(); it != tags.end(); ++it) {
+    if (it->GetType() == 'STRG' && gpSimplePool->GetObj(*it).IsLoaded()) {
+      TLockedToken< CStringTable > table = gpSimplePool->GetObj(*it);
+      table->Reload(it->GetId(), *gpResourceFactory);
+    }
+  }
+}
+
+#endif
+
+void CMain::UpdateStreamedAudio() {
+  CStreamAudioManager::Update(FRAME_PERIOD);
+}

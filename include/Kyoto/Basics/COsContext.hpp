@@ -40,6 +40,7 @@ public:
 
   int OpenWindow(const char* title, int x, int y, int w, int h, bool fullscreen);
   bool Update();
+  int GetLanguage() const;
   COsKeyState GetOsKeyState(int key) const;
 
   void* AllocFromArena(size_t sz);

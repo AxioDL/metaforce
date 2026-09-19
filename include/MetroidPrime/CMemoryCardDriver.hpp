@@ -80,6 +80,8 @@ enum EState {
 
 class CMemoryCardDriver {
 public:
+  static void LoadLanguageFromCard(int port);
+
   enum EError {
     kE_OK,
     kE_CardBroken,

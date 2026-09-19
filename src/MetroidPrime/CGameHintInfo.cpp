@@ -59,9 +59,17 @@ CHintOptions::SHintState::SHintState(EHintState state, float time)
 
 bool CHintOptions::SHintState::CanContinue() { return x4_time / CGameHintInfo::skHintTextTime < 1.f; }
 
-CHintOptions::CHintOptions() : x10_nextHintIdx(-1) {}
+CHintOptions::CHintOptions() : x10_nextHintIdx(-1)
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+, x14_palHintFlag(false)
+#endif
+{}
 
-CHintOptions::CHintOptions(CInputStream& in) : x10_nextHintIdx(-1) {
+CHintOptions::CHintOptions(CInputStream& in) : x10_nextHintIdx(-1)
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+, x14_palHintFlag(false)
+#endif
+{
   x0_hintStates.reserve(gpMemoryCard->GetHints().size());
   for (int i = 0; i < x0_hintStates.capacity(); ++i) {
     const EHintState state = static_cast< EHintState >(in.ReadBits(GetBitCount(kHS_Delayed)));

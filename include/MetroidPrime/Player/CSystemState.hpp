@@ -55,9 +55,17 @@ public:
 private:
   static uint GetBitCount(uint value);
 
-  rstl::reserved_vector< uchar, 98 > x0_nesState;
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+  enum { kNESStateSize = 18 };
+#else
+  enum { kNESStateSize = 98 };
+#endif
+  rstl::reserved_vector< uchar, kNESStateSize > x0_nesState;
   rstl::reserved_vector< uchar, 64 > x68_;
   rstl::vector< rstl::pair< CAssetId, TEditorId > > xac_cinematicStates;
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+  int x6c_language;
+#endif
   int xbc_autoMapperKeyState;
   int xc0_frozenFpsCount;
   int xc4_frozenBallCount;
@@ -70,6 +78,10 @@ private:
   bool xd0_28_fusionSuitActive : 1;
   bool xd0_29_allItemsCollected : 1;
 };
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+CHECK_SIZEOF(CSystemState, 0x88)
+#else
 CHECK_SIZEOF(CSystemState, 0xd4)
+#endif
 
 #endif // _CSYSTEMSTATE

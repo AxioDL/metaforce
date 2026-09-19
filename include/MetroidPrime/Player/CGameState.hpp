@@ -89,7 +89,11 @@ private:
   bool x228_24_hardMode : 1;
   bool x228_25_initPowerupsAtFirstSpawn : 1;
 };
+#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+CHECK_SIZEOF(CGameState, 0x1e8)
+#else
 CHECK_SIZEOF(CGameState, 0x230)
+#endif
 
 extern CGameState* gpGameState;
 

@@ -19,12 +19,12 @@ MetroTRK/mslsupp.c:
 MetroidPrime/main.cpp:
 	.text       start:0x80003658 end:0x800097CC
 	.ctors      start:0x803B4F84 end:0x803B4F88
-	.rodata     start:0x803B5180 end:0x803B61A8
-	.data       start:0x803C420C end:0x803C4348
-	.bss        start:0x803DF440 end:0x803DF678
-	.sdata      start:0x80468C64 end:0x80468C6C
-	.sbss       start:0x8046AD30 end:0x8046AD80
-	.sdata2     start:0x8046BE70 end:0x8046BEB8
+	.rodata     start:0x803B5180 end:0x803B6370
+	.data       start:0x803C4200 end:0x803C4348
+	.bss        start:0x803DF440 end:0x803DF7D8
+	.sdata      start:0x80468C60 end:0x80468C78
+	.sbss       start:0x8046AD20 end:0x8046AD80
+	.sdata2     start:0x8046BE60 end:0x8046BEC0
 
 MetroidPrime/Cameras/CCameraManager.cpp:
 	.text       start:0x800097CC end:0x8000CD00
@@ -3073,8 +3073,10 @@ Kyoto/Graphics/DolphinCModel.cpp:
 	.sbss       start:0x8046B778 end:0x8046B790
 
 Kyoto/Text/CStringTable.cpp:
-	.text       start:0x8033FD80 end:0x8033FDB4
-	.rodata     start:0x803C3778 end:0x803C3788
+	.text       start:0x8033F88C end:0x80340024
+	.ctors      start:0x803B5130 end:0x803B5134
+	.rodata     start:0x803C3778 end:0x803C37B0
+	.sbss       start:0x8046B790 end:0x8046B798
 
 Kyoto/Particles/CEmitterElement.cpp:
 	.text       start:0x80340024 end:0x80340A30
