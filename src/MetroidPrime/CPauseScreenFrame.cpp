@@ -271,10 +271,17 @@ void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category, in
     CGameOptions& options = gpGameState->GameOptions();
     switch (category) {
     case 0:
+#if VERSION >= VERSION_GM8P_00
+      options.SetHudAlpha(255);
+#else
       options.x60_hudAlpha = 255;
+#endif
       options.SetHelmetAlpha(255);
       options.SetHUDLag(skDefaultHudLag);
       options.SetIsHintSystemEnabled(skDefaultHintSystem);
+#if VERSION >= VERSION_GM8P_00
+      options.fn_80200564(skDefaultPalFlag);
+#endif
       break;
     case 1:
       options.SetScreenBrightness(4, true);

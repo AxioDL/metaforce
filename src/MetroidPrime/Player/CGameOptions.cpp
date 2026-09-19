@@ -18,6 +18,7 @@ const bool CGameOptions::skDefaultInvertY = false;
 const bool CGameOptions::skDefaultRumble = true;
 const bool CGameOptions::skDefaultSwapBeamsControls = false;
 const bool CGameOptions::skDefaultHintSystem = true;
+const bool CGameOptions::skDefaultPalFlag = false;
 
 int CalculateBits(int i) {
   int result = 0;
@@ -54,7 +55,11 @@ CGameOptions::CGameOptions()
 , x68_25_invertY(skDefaultInvertY)
 , x68_26_rumble(skDefaultRumble)
 , x68_27_swapBeamsControls(skDefaultSwapBeamsControls)
-, x68_28_hintSystem(skDefaultHintSystem) {
+, x68_28_hintSystem(skDefaultHintSystem)
+#if VERSION >= VERSION_GM8P_00
+, x68_29_palExclusive(false)
+#endif
+{
   InitSoundMode();
 }
 
@@ -73,7 +78,11 @@ CGameOptions::CGameOptions(CInputStream& in)
 , x68_25_invertY(skDefaultInvertY)
 , x68_26_rumble(skDefaultRumble)
 , x68_27_swapBeamsControls(skDefaultSwapBeamsControls)
-, x68_28_hintSystem(skDefaultHintSystem) {
+, x68_28_hintSystem(skDefaultHintSystem)
+#if VERSION >= VERSION_GM8P_00
+, x68_29_palExclusive(false)
+#endif
+{
 
   for (int i = 0; i < x0_.size(); ++i) {
     x0_[i] = in.ReadBits(8);
@@ -93,6 +102,9 @@ CGameOptions::CGameOptions(CInputStream& in)
   x68_25_invertY = in.ReadPackedBool();
   x68_26_rumble = in.ReadPackedBool();
   x68_27_swapBeamsControls = in.ReadPackedBool();
+#if VERSION >= VERSION_GM8P_00
+  x68_29_palExclusive = in.ReadPackedBool();
+#endif
 
   InitSoundMode();
 }
@@ -117,6 +129,9 @@ void CGameOptions::PutTo(COutputStream& out) {
   out.WriteBits(x68_25_invertY != false, 1);
   out.WriteBits(x68_26_rumble != false, 1);
   out.WriteBits(x68_27_swapBeamsControls != false, 1);
+#if VERSION >= VERSION_GM8P_00
+  out.WriteBits(x68_29_palExclusive != false, 1);
+#endif
 }
 
 void CGameOptions::ResetToDefaults() {
@@ -134,6 +149,9 @@ void CGameOptions::ResetToDefaults() {
   x68_26_rumble = skDefaultRumble;
   x68_27_swapBeamsControls = skDefaultSwapBeamsControls;
   x68_28_hintSystem = skDefaultHintSystem;
+#if VERSION >= VERSION_GM8P_00
+  x68_29_palExclusive = false;
+#endif
   InitSoundMode();
   EnsureOptions();
 }
@@ -146,12 +164,18 @@ void CGameOptions::EnsureOptions() {
   SetSfxVolume(x58_sfxVol, true);
   SetMusicVolume(x5c_musicVol, true);
   SetSurroundMode(CAudioSys::ESurroundModes(x44_soundMode), true);
+#if VERSION >= VERSION_GM8P_00
+  SetHudAlpha(x60_hudAlpha);
+#endif
   SetHelmetAlpha(x64_helmetAlpha);
   SetHUDLag(x68_24_hudLag);
   SetInvertYAxis(x68_25_invertY);
   SetIsRumbleEnabled(x68_26_rumble);
   SetIsHintSystemEnabled(x68_28_hintSystem);
   ToggleControls(x68_27_swapBeamsControls);
+#if VERSION >= VERSION_GM8P_00
+  fn_80200564(x68_29_palExclusive);
+#endif
 }
 
 void CGameOptions::SetScreenBrightness(int value, bool apply) {
@@ -217,15 +241,43 @@ void CGameOptions::SetSurroundMode(CAudioSys::ESurroundModes mode, bool apply) {
   }
 }
 
+int CGameOptions::GetHudAlphaRaw() const {
+  return x60_hudAlpha;
+}
+
+void CGameOptions::SetHudAlpha(int hudAlpha) {
+  x60_hudAlpha = hudAlpha;
+}
+
 const float CGameOptions::GetHudAlpha() const { return x60_hudAlpha * 0.003921569f; }
+
+#if VERSION >= VERSION_GM8P_00
+
+void CGameOptions::SetHelmetAlpha(const int alpha) { x64_helmetAlpha = alpha; }
+
+int CGameOptions::GetHelmetAlphaRaw() const {
+  return x64_helmetAlpha;
+}
+
+const float CGameOptions::GetHelmetAlpha() const { return x64_helmetAlpha * 0.003921569f; }
+
+#else
 
 const float CGameOptions::GetHelmetAlpha() const { return x64_helmetAlpha * 0.003921569f; }
 
 void CGameOptions::SetHelmetAlpha(const int alpha) { x64_helmetAlpha = alpha; }
 
+#endif
+
 void CGameOptions::SetHUDLag(const bool flag) { x68_24_hudLag = flag; }
 
 void CGameOptions::SetIsHintSystemEnabled(bool flag) { x68_28_hintSystem = flag; }
+
+void CGameOptions::fn_80200564(const bool flag) {
+#if VERSION >= VERSION_GM8P_00
+  x68_29_palExclusive = flag;
+#endif
+}
 
 void CGameOptions::SetInvertYAxis(const bool flag) { x68_25_invertY = flag; }
 

@@ -1229,7 +1229,13 @@ config.libs = [
                 cflags=cflags_retro,
             ),
             Object(NonMatching, "MetroidPrime/CRagDoll.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Player/CGameOptions.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), 
+                "MetroidPrime/Player/CGameOptions.cpp",
+                extra_cflags=['-pragma "inline_max_size(131)"']
+                if version_num >= VERSIONS.index("GM8P01_00")
+                else [],
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/ScriptObjects/CRepulsor.cpp",

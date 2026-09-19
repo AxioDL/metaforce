@@ -40,6 +40,7 @@ public:
   static const bool skDefaultRumble;
   static const bool skDefaultSwapBeamsControls;
   static const bool skDefaultHintSystem;
+  static const bool skDefaultPalFlag;
 
   static int GetOption(EGameOption option);
   static void SetOption(EGameOption option, int value);
@@ -63,19 +64,24 @@ public:
   void SetSfxVolume(const int, const bool);
   void SetMusicVolume(const int, const bool);
   void SetSurroundMode(CAudioSys::ESurroundModes, bool);
+  void SetHudAlpha(const int);
 
   const rstl::vector< rstl::pair< CAssetId, CAssetId > >& GetControlTXTRMap() const {
     return x6c_controlTxtrMap;
   }
   int GetMusicVolume() const { return x5c_musicVol; }
+
+  int GetHudAlphaRaw() const;
   const float GetHudAlpha() const;
   int GetHUDAlpha() const { return x60_hudAlpha; }
+  int GetHelmetAlphaRaw() const;
   const float GetHelmetAlpha() const;
   void SetHelmetAlpha(const int);
   void SetHUDLag(const bool);
   bool GetHUDLag() const { return x68_24_hudLag; }
   void SetIsHintSystemEnabled(bool);
   void ToggleControls(const bool);
+  void fn_80200564(const bool);
   void ResetControllerAssets(const int);
   void SetControls(const int);
 
@@ -86,7 +92,7 @@ public:
   bool GetIsHintSystemEnabled() const { return x68_28_hintSystem; }
   bool GetSwapBeamControls() const { return x68_27_swapBeamsControls; }
 
-private:
+public:
   rstl::reserved_vector< uchar, 64 > x0_;
   int x44_soundMode;
   int x48_screenBrightness;
@@ -102,6 +108,7 @@ private:
   bool x68_26_rumble : 1;
   bool x68_27_swapBeamsControls : 1;
   bool x68_28_hintSystem : 1;
+  bool x68_29_palExclusive : 1; // seems unused
   rstl::vector< rstl::pair< CAssetId, CAssetId > > x6c_controlTxtrMap;
 };
 
