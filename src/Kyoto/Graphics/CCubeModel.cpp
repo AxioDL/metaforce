@@ -140,7 +140,7 @@ void CCubeModel::DrawSurface(const CCubeSurface& surface, const CModelFlags& mod
   CGX::CallDisplayList(surface.GetDisplayList(), surface.GetDisplayListSize());
 }
 
-static inline const ushort ReadWireframeIndex(const uchar* data) {
+static inline const ushort proxy_to_uint(const uchar* data) {
   uchar bytes[2];
   bytes[0] = data[0];
   bytes[1] = data[1];
@@ -155,10 +155,10 @@ static inline const ushort ReadWireframeIndex(const uchar* data) {
 
 void CCubeModel::DrawSurfaceWireframe(const CCubeSurface& surface) const {
   const CCubeMaterial material = GetMaterialByIndex(surface.GetMaterialIndex());
-
+  uint vertexAttributes;
   static uint sLastDesc = 0;
   static uint sAttrCount = 0;
-  uint vertexAttributes = material.GetVertexDesc();
+  vertexAttributes = material.GetVertexDesc();
 
   if (vertexAttributes != sLastDesc) {
     sAttrCount = 0;
@@ -191,17 +191,17 @@ void CCubeModel::DrawSurfaceWireframe(const CCubeSurface& surface) const {
       break;
     }
     bytesRead += 3;
-    ushort elementCount = ReadWireframeIndex(dispList + 1);
+    ushort elementCount = proxy_to_uint(dispList + 1);
     dispList += 3;
     if (elementCount < 3U) {
       break;
     }
 
     CGX::Begin(GX_LINESTRIP, GX_VTXFMT0, 4);
-    GXPosition1x16(ReadWireframeIndex(dispList));
-    GXPosition1x16(ReadWireframeIndex(dispList + attrCountTimes2));
-    GXPosition1x16(ReadWireframeIndex(dispList + attrCountTimes2 * 2));
-    GXPosition1x16(ReadWireframeIndex(dispList));
+    GXPosition1x16(proxy_to_uint(dispList));
+    GXPosition1x16(proxy_to_uint(dispList + attrCountTimes2));
+    GXPosition1x16(proxy_to_uint(dispList + attrCountTimes2 * 2));
+    GXPosition1x16(proxy_to_uint(dispList));
     bytesRead += elementCount * attrCountTimes2;
     dispList += attrCountTimes2 * 3;
     CGX::End();
@@ -209,10 +209,10 @@ void CCubeModel::DrawSurfaceWireframe(const CCubeSurface& surface) const {
       elementCount -= 3;
       for (int j = 0; j < elementCount; j += 3) {
         CGX::Begin(GX_LINESTRIP, GX_VTXFMT0, 4);
-        GXPosition1x16(ReadWireframeIndex(dispList));
-        GXPosition1x16(ReadWireframeIndex(dispList + attrCountTimes2));
-        GXPosition1x16(ReadWireframeIndex(dispList + attrCountTimes2 * 2));
-        GXPosition1x16(ReadWireframeIndex(dispList));
+        GXPosition1x16(proxy_to_uint(dispList));
+        GXPosition1x16(proxy_to_uint(dispList + attrCountTimes2));
+        GXPosition1x16(proxy_to_uint(dispList + attrCountTimes2 * 2));
+        GXPosition1x16(proxy_to_uint(dispList));
         dispList += attrCountTimes2 * 3;
         CGX::End();
       }
@@ -224,10 +224,10 @@ void CCubeModel::DrawSurfaceWireframe(const CCubeSurface& surface) const {
         const uchar* last = dispList - attrCountTimes2 * ((winding ^ 1) + 1);
         const uchar* first = dispList - attrCountTimes2 * (winding + 1);
         winding ^= 1;
-        GXPosition1x16(ReadWireframeIndex(first));
-        GXPosition1x16(ReadWireframeIndex(dispList));
+        GXPosition1x16(proxy_to_uint(first));
+        GXPosition1x16(proxy_to_uint(dispList));
         dispList += attrCountTimes2;
-        GXPosition1x16(ReadWireframeIndex(last));
+        GXPosition1x16(proxy_to_uint(last));
         CGX::End();
       }
     } else {
@@ -240,10 +240,10 @@ void CCubeModel::DrawSurfaceWireframe(const CCubeSurface& surface) const {
       for (int j = 0; j < elementCount; ++j) {
         const uchar* previous = dispList - attrCountTimes2;
         CGX::Begin(GX_LINESTRIP, GX_VTXFMT0, 3);
-        GXPosition1x16(ReadWireframeIndex(previous));
-        GXPosition1x16(ReadWireframeIndex(dispList));
+        GXPosition1x16(proxy_to_uint(previous));
+        GXPosition1x16(proxy_to_uint(dispList));
         dispList += attrCountTimes2;
-        GXPosition1x16(ReadWireframeIndex(indices));
+        GXPosition1x16(proxy_to_uint(indices));
         CGX::End();
       }
     }

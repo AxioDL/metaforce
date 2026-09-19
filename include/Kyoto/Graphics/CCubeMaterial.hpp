@@ -1,8 +1,8 @@
 #ifndef _CCUBEMATERIAL
 #define _CCUBEMATERIAL
 
-#include "types.h"
 #include "Kyoto/Basics/CBasics.hpp"
+#include "types.h"
 
 #include "Kyoto/Graphics/CModelFlags.hpp"
 #include "Kyoto/Math/CVector3f.hpp"
@@ -38,13 +38,18 @@ public:
                   const CCubeModel& mode) const;
   void SetCurrentBlack() const;
   uint GetTextureCount() const {
-    return CBasics::SwapBytes(*reinterpret_cast< const uint* >(GetData() + 4));
+    const uchar* data = GetData();
+    data += sizeof(uint);
+    const int ret = CBasics::SwapBytes(*reinterpret_cast< const uint* >(data));
+    return ret;
   }
   uint GetVertexDesc() const {
-    return CBasics::SwapBytes(*reinterpret_cast< const uint* >(
-        GetData() + (GetTextureCount() * sizeof(uint) + sizeof(uint) * 2)));
+    const uchar* data = GetData();
+    data += (GetTextureCount() * sizeof(uint));
+    data += sizeof(uint) + sizeof(uint);
+    return CBasics::SwapBytes(*reinterpret_cast< const uint* >(data));
   }
-  
+
   // TODO: Figure out wtf is going on here
   uint GetVertexDescLwzx() const {
     return CBasics::SwapBytes(static_cast< const uint* >(x0_data)[GetTextureCount() + 2]);
@@ -57,8 +62,8 @@ public:
 private:
   static void SetupBlendMode(uint blendFactors, const CModelFlags& flags, bool alphaTest);
   static uint HandleReflection(bool usesTevReg2, GXTexMapID indTexSlot, int indMtxScaleExp,
-                               uint tevCount, uint texCount, uint tcgCount,
-                               uint finalKColorCount, uint& finalCCFlags, uint& finalACFlags);
+                               uint tevCount, uint texCount, uint tcgCount, uint finalKColorCount,
+                               uint& finalCCFlags, uint& finalACFlags);
 
   static const CCubeModel* sLastModelCached;
   static const CCubeModel* sRenderingModel;
