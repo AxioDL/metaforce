@@ -2474,7 +2474,7 @@ config.libs = [
                 "dolphin/os/OSResetSW.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), 
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02", "GM8P01_00"), 
                 "dolphin/os/OSRtc.c",
             ),
             Object(

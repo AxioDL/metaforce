@@ -271,7 +271,6 @@ u32 OSGetProgressiveMode() {
   OSSram* sram;
   u32 mode;
 
-  // TODO: version difference in PAL
   sram = __OSLockSramHACK();
   mode = (sram->flags & 0x80) >> 7;
   __OSUnlockSram(FALSE);
@@ -302,6 +301,32 @@ u8 OSGetLanguage() {
   language = sram->language;
   __OSUnlockSram(FALSE);
   return language;
+}
+
+u32 OSGetEuRgb60Mode() {
+  OSSram* sram;
+  u32 mode;
+
+  sram = __OSLockSramHACK();
+  mode = (sram->ntd & 0x40) >> 6;
+  __OSUnlockSram(FALSE);
+  return mode;
+}
+
+void OSSetEuRgb60Mode(u32 mode) {
+  OSSram* sram;
+  mode <<= 6;
+  mode &= 0x40;
+
+  sram = __OSLockSramHACK();
+  if (mode == (sram->ntd & 0x40)) {
+    __OSUnlockSram(FALSE);
+    return;
+  }
+
+  sram->ntd &= ~0x40;
+  sram->ntd |= mode;
+  __OSUnlockSram(TRUE);
 }
 
 u16 OSGetWirelessID(s32 channel) {

@@ -47,46 +47,42 @@ void CBSJump::Start(CBodyController& bc, CStateManager& mgr) {
   x30_27_hasWallBounced = false;
 
   if (x30_25_wallJump) {
-    CVector3f toWall = xc_waypoint1;
-    toWall -= bc.GetOwner().GetTranslation();
-    const CVector3f toFinal(x24_waypoint2.GetX() - xc_waypoint1.GetX(),
-                           x24_waypoint2.GetY() - xc_waypoint1.GetY(),
-                           x24_waypoint2.GetZ() - xc_waypoint1.GetZ());
+    const CVector3f toWall = xc_waypoint1 - bc.GetOwner().GetTranslation();
     const CVector3f cross = CVector3f::Cross(toWall, CVector3f::Up());
+    const CVector3f toFinal = x24_waypoint2 - xc_waypoint1;
     x30_26_wallBounceRight = CVector3f::Dot(cross, toFinal) < 0.f;
   }
 
   if (!cmd->StartInJumpLoop()) {
     x4_state = pas::kJS_IntoJump;
-    CPASAnimParmData parms(pas::kAS_Jump, CPASAnimParm::FromEnum(x4_state),
-                           CPASAnimParm::FromEnum(x8_jumpType));
-    bc.PlayBestAnimation(parms, *mgr.Random());
+    bc.PlayBestAnimation(CPASAnimParmData(pas::kAS_Jump, CPASAnimParm::FromEnum(x4_state),
+                                          CPASAnimParm::FromEnum(x8_jumpType)),
+                         *mgr.Random());
   } else {
     PlayJumpLoop(mgr, bc);
   }
 }
 
 void CBSJump::PlayJumpLoop(CStateManager& mgr, CBodyController& bc) {
-  CPASAnimParmData ambushParms(pas::kAS_Jump, CPASAnimParm::FromEnum(1),
-                               CPASAnimParm::FromEnum(x8_jumpType));
-  rstl::pair< float, int > best =
+  const CPASAnimParmData ambushParms(pas::kAS_Jump, CPASAnimParm::FromEnum(1),
+                                     CPASAnimParm::FromEnum(x8_jumpType));
+  const rstl::pair< float, int > best =
       bc.GetPASDatabase().FindBestAnimation(ambushParms, *mgr.Random(), -1);
 
   if (best.first > 99.f) {
     x4_state = pas::kJS_AmbushJump;
-    const CAnimPlaybackParms playParms(best.second, -1, 1.f, true);
-    bc.SetCurrentAnimation(playParms, false, false);
+    bc.SetCurrentAnimation(CAnimPlaybackParms(best.second, -1, 1.f, true), false, false);
   } else {
     x4_state = pas::kJS_Loop;
-    CPASAnimParmData loopParms(pas::kAS_Jump, CPASAnimParm::FromEnum(x4_state),
-                               CPASAnimParm::FromEnum(x8_jumpType));
-    bc.LoopBestAnimation(loopParms, *mgr.Random());
+    bc.LoopBestAnimation(CPASAnimParmData(pas::kAS_Jump, CPASAnimParm::FromEnum(x4_state),
+                                          CPASAnimParm::FromEnum(x8_jumpType)),
+                         *mgr.Random());
   }
 
   if (CPhysicsActor* actor = TCastToPtr< CPhysicsActor >(&bc.GetOwner())) {
     mgr.DeliverScriptMsg(actor, kInvalidUniqueId, kSM_Falling);
     mgr.DeliverScriptMsg(actor, kInvalidUniqueId, kSM_Jumped);
-    CVector3f vel = actor->GetVelocityWR();
+    const CVector3f vel = actor->GetVelocityWR();
     x30_24_applyLaunchVel = false;
     x18_velocity = vel;
   }
@@ -117,7 +113,7 @@ pas::EAnimationState CBSJump::UpdateBody(float dt, CBodyController& bc, CStateMa
 
       if (bc.IsAnimationOver()) {
         x4_state = pas::kJS_Loop;
-        CPASAnimParmData parms(
+        const CPASAnimParmData parms(
             pas::kAS_Jump, CPASAnimParm::FromEnum(x4_state), CPASAnimParm::FromEnum(x8_jumpType),
             CPASAnimParm::NoParameter(), CPASAnimParm::NoParameter(), CPASAnimParm::NoParameter(),
             CPASAnimParm::NoParameter(), CPASAnimParm::NoParameter(), CPASAnimParm::NoParameter());
