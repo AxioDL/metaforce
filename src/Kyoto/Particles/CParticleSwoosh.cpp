@@ -429,6 +429,14 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
   int curIdx = x158_curParticle;
   float uvOffset = 0.f;
   if (x1c_desc->x3c_TEXR) {
+    float angle = 0.f;
+    float cosine = 0.f;
+    float sine = 0.f;
+    float leftCos = 0.f;
+    float leftRadius = 0.f;
+    float leftSin = 0.f;
+    float rightRadius = 0.f;
+    float rightSin = 0.f;
     if (x1c_desc->x45_25_ORNT) {
       const CTransform4f inverse =
           (CTransform4f::Translate(xa4_globalTranslation) * xb0_globalOrientation * xec_scaleXf)
@@ -497,15 +505,17 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
         }
         if (swoosh.mActive) {
           --particleCount;
-          float angle = M_PIF * (swoosh.mInitialRot + swoosh.mRotm) / 180.f;
+          angle = M_PIF * (swoosh.mInitialRot + swoosh.mRotm) / 180.f;
           angle = fabs(angle) > M_PIF ? CMath::WrapPi(angle) : angle;
-          float cosine = fast_cosine(angle);
-          float sine = fast_sine(angle);
-          float leftRadius = swoosh.mLeftRad;
-          float rightRadius = swoosh.mRightRad;
-          float leftSin = leftRadius;
+          cosine = fast_cosine(angle);
+          sine = fast_sine(angle);
+          leftRadius = swoosh.mLeftRad;
+          rightRadius = swoosh.mRightRad;
+          leftSin = leftRadius;
           leftSin *= sine;
-          float rightSin = rightRadius;
+          leftCos = leftRadius;
+          leftCos *= cosine;
+          rightSin = rightRadius;
           rightSin *= -sine;
           const CVector3f v0 = swoosh.mOrientation * CVector3f(leftRadius * cosine, 0.f, leftSin) +
                                swoosh.mTranslation + swoosh.mUseOffset;
@@ -537,6 +547,14 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
       }
     }
   } else {
+    float angle = 0.f;
+    float cosine = 0.f;
+    float sine = 0.f;
+    float leftCos = 0.f;
+    float leftSin = 0.f;
+    float leftRadius = 0.f;
+    float rightSin = 0.f;
+    float rightRadius = 0.f;
     for (int i = 0; i < x15c_swooshes.size(); ++i) {
       const SSwooshData& swoosh = x15c_swooshes.data()[curIdx];
       --curIdx;
@@ -544,15 +562,17 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
         curIdx = x15c_swooshes.size() - 1;
       }
       if (swoosh.mActive) {
-        float angle = M_PIF * (swoosh.mInitialRot + swoosh.mRotm) / 180.f;
+        angle = M_PIF * (swoosh.mInitialRot + swoosh.mRotm) / 180.f;
         angle = fabs(angle) > M_PIF ? CMath::WrapPi(angle) : angle;
-        float cosine = fast_cosine(angle);
-        float sine = fast_sine(angle);
-        float leftRadius = swoosh.mLeftRad;
-        float rightRadius = swoosh.mRightRad;
-        float leftSin = leftRadius;
+        cosine = fast_cosine(angle);
+        sine = fast_sine(angle);
+        leftRadius = swoosh.mLeftRad;
+        rightRadius = swoosh.mRightRad;
+        leftSin = leftRadius;
         leftSin *= sine;
-        float rightSin = rightRadius;
+        leftCos = leftRadius;
+        leftCos *= cosine;
+        rightSin = rightRadius;
         rightSin *= -sine;
         const CVector3f v0 = swoosh.mOrientation * CVector3f(leftRadius * cosine, 0.f, leftSin) +
                              swoosh.mTranslation + swoosh.mUseOffset;
@@ -571,6 +591,14 @@ void CParticleSwoosh::Render2SidedNoSplineGaps() {
   int i = 0;
   bool streaming = false;
   int curIdx = x158_curParticle;
+  float angle;
+  float cosine;
+  float sine;
+  float leftCos;
+  float leftSin;
+  float leftRadius;
+  float rightSin;
+  float rightRadius;
   for (i = 0; i < x15c_swooshes.size(); ++i) {
     const SSwooshData& swoosh = x15c_swooshes[curIdx];
     const SSwooshData& next = x15c_swooshes[WrapIndex(curIdx - 1)];
@@ -592,17 +620,17 @@ void CParticleSwoosh::Render2SidedNoSplineGaps() {
       streaming = true;
       CGraphics::StreamBegin(kP_TriangleStrip);
     }
-    float angle = (swoosh.mInitialRot + swoosh.mRotm) * (M_PIF / 180.f);
+    angle = (swoosh.mInitialRot + swoosh.mRotm) * (M_PIF / 180.f);
     angle = fabs(angle) > M_PIF ? CMath::WrapPi(angle) : angle;
-    float cosine = fast_cosine(angle);
-    float sine = fast_sine(angle);
-    float leftRadius = swoosh.mLeftRad;
-    float rightRadius = swoosh.mRightRad;
-    float leftSin = leftRadius;
+    cosine = fast_cosine(angle);
+    sine = fast_sine(angle);
+    leftRadius = swoosh.mLeftRad;
+    rightRadius = swoosh.mRightRad;
+    leftSin = leftRadius;
     leftSin *= sine;
-    float leftCos = leftRadius;
+    leftCos = leftRadius;
     leftCos *= cosine;
-    float rightSin = rightRadius;
+    rightSin = rightRadius;
     rightSin *= -sine;
     const CVector3f v0 = swoosh.mOrientation * CVector3f(leftCos, 0.f, leftSin) +
                          swoosh.mTranslation + swoosh.mUseOffset;
@@ -624,7 +652,6 @@ void CParticleSwoosh::Render2SidedNoSplineGaps() {
     CGraphics::StreamEnd();
   }
 }
-
 void CParticleSwoosh::Render2SidedSpline() { RenderNSidedSpline(); }
 
 void CParticleSwoosh::Render3SidedSolidNoSplineNoGaps() {
@@ -900,10 +927,11 @@ void CParticleSwoosh::RenderNSidedSpline() {
   if (x1b8_SIDE < 4 || x1b8_SIDE % 2 != 0) {
     cros = false;
   }
-  int faceIdx;
   int splineIdx;
   int curIdx = x158_curParticle;
   for (i = 0; i < x15c_swooshes.size() - 1; ++i) {
+    int j;
+    int k;
     bool prevActive = x15c_swooshes[WrapIndex(curIdx - 1)].mActive;
     bool active = x15c_swooshes[WrapIndex(curIdx)].mActive;
     if (active == false || (active == true && prevActive == false)) {
@@ -915,7 +943,7 @@ void CParticleSwoosh::RenderNSidedSpline() {
     }
     const SSwooshData& refSwoosh = x15c_swooshes.data()[curIdx];
     const float sideDiv = 360.f / x1b8_SIDE;
-    for (int j = 0; j < 4; ++j) {
+    for (j = 0; j < 4; ++j) {
       int refIdx = 0;
       if (j == 0) {
         refIdx = WrapIndex(curIdx + 1);
@@ -945,7 +973,6 @@ void CParticleSwoosh::RenderNSidedSpline() {
       } else if (i == x1ac_particleCount - 2 && j == 3) {
         refIdx = 0;
       }
-      int k;
       const SSwooshData& swoosh = x15c_swooshes.data()[refIdx];
       const CTransform4f& orientation = swoosh.mOrientation;
       for (k = 0; k < x1b8_SIDE; ++k) {
@@ -993,18 +1020,18 @@ void CParticleSwoosh::RenderNSidedSpline() {
         faces = x1b8_SIDE / 2;
       }
       x1dc_uMax = x1d4_uMin + segUvSpan;
-      for (faceIdx = 0; faceIdx < faces; ++faceIdx) {
-        int other = faceIdx + 1;
+      for (k = 0; k < faces; ++k) {
+        int other = k + 1;
         if (other >= x1b8_SIDE) {
           other = 0;
         }
         const uint color = CColor::Modulate(refSwoosh.mColor, x20c_moduColor).GetColor_u32();
         if (cros) {
-          other = faceIdx + x1b8_SIDE / 2;
-          const CVector3f& p00 = x16c_p0[faceIdx];
-          const CVector3f& p10 = x17c_p1[faceIdx];
-          const CVector3f& p20 = x18c_p2[faceIdx];
-          const CVector3f& p30 = x19c_p3[faceIdx];
+          other = k + x1b8_SIDE / 2;
+          const CVector3f& p00 = x16c_p0[k];
+          const CVector3f& p10 = x17c_p1[k];
+          const CVector3f& p20 = x18c_p2[k];
+          const CVector3f& p30 = x19c_p3[k];
           const CVector3f& p01 = x16c_p0[other];
           const CVector3f& p11 = x17c_p1[other];
           const CVector3f& p21 = x18c_p2[other];
@@ -1024,10 +1051,10 @@ void CParticleSwoosh::RenderNSidedSpline() {
           CGraphics::StreamVertex(v3);
 
         } else {
-          const CVector3f& p00 = x16c_p0[faceIdx];
-          const CVector3f& p10 = x17c_p1[faceIdx];
-          const CVector3f& p20 = x18c_p2[faceIdx];
-          const CVector3f& p30 = x19c_p3[faceIdx];
+          const CVector3f& p00 = x16c_p0[k];
+          const CVector3f& p10 = x17c_p1[k];
+          const CVector3f& p20 = x18c_p2[k];
+          const CVector3f& p30 = x19c_p3[k];
           const CVector3f& p01 = x16c_p0[other];
           const CVector3f& p11 = x17c_p1[other];
           const CVector3f& p21 = x18c_p2[other];
