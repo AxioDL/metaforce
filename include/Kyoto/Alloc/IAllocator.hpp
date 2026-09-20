@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include <stddef.h>
+#include "Kyoto/Alloc/AllocatorCommon.hpp"
 
 class COsContext;
 class CCallStack;

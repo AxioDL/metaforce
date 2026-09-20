@@ -13,7 +13,7 @@ public:
   void* Alloc(int len);
   void Free(void* ptr, int len);
   int GetAllocatedAmount() const;
-  void* GetOffsettedMemory(int offset) {
+  void* GetOffsettedMemory(const int offset) {
     return x0_ptr.get() + offset;
   }
 

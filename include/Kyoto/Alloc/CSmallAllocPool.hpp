@@ -13,14 +13,16 @@ public:
   bool Free(const void* ptr);
 
   bool PtrWithinPool(const void* ptr) const {
-    return uint((reinterpret_cast< const uchar* >(ptr) - reinterpret_cast< uchar* >(x0_mainData)) /
-                4) < x8_numBlocks;
+    return static_cast< uint >(
+               (static_cast< const uchar* >(ptr) - static_cast< uchar* >(x0_mainData)) / 4) <
+           x8_numBlocks;
   }
 
   uint GetIndexFromPtr(const void* ptr) const {
-    return ((const uchar*)ptr - (const uchar*)x0_mainData) / kPointerSize;
+    return (static_cast< const uchar* >(ptr) - static_cast< const uchar* >(x0_mainData)) /
+           kAllocatorPointerSize;
   }
-  long GetEntryValue(uint idx) const { return (long)*((uchar*)x4_bookKeeping + idx); }
+  intptr_t GetEntryValue(uint idx) const { return *(static_cast< uchar* >(x4_bookKeeping) + idx); }
   uchar* GetPtrFromIndex(unsigned int idx) const {
     return static_cast< uchar* >(x0_mainData) + (idx << 3);
   }

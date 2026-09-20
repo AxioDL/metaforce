@@ -99,18 +99,18 @@ void* CSmallAllocPool::Alloc(uint size) {
 bool CSmallAllocPool::Free(const void* arg0) {
   int temp_r8 = GetIndexFromPtr(arg0);
   int mask = (temp_r8 & 1) ? 0 : 4;
-  size_t temp_r9 = (size_t)temp_r8 / 2;
+  size_t temp_r9 = static_cast< size_t >(temp_r8) / 2;
   long temp_r4_2 = GetEntryValue(temp_r9);
   temp_r4_2 = (temp_r4_2 >> mask) & 0xF;
   x18_numBlocksAvailable += temp_r4_2;
   int var_r5 = temp_r4_2;
   x1c_numAllocs -= 1;
   x14_ = temp_r8;
-  if ((size_t)temp_r8 == (size_t)x10_) {
+  if (static_cast< size_t >(temp_r8) == static_cast< size_t >(x10_)) {
     x10_ = -1;
   }
 
-  uchar* var_r3 = ((uchar*)x4_bookKeeping) + temp_r9;
+  uchar* var_r3 = static_cast< uchar* >(x4_bookKeeping) + temp_r9;
   while (var_r5 != 0) {
     *var_r3 = 0;
     var_r5 -= 2;
