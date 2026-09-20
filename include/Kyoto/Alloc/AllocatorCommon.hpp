@@ -20,8 +20,9 @@ struct PatternExpander< 4 > {
 template <>
 struct PatternExpander< 8 > {
   typedef unsigned long long Type;
+  typedef size_t MaskType;
   static const Type Multiplier = 0x0101010101010101ULL;
-  enum { TopNybbleShift = 60 };
+  static const MaskType TopNybbleMask = 0xF000000000000000ULL;
 };
 
 #define EXPAND_PATTERN(byte_val)                                                                   \
