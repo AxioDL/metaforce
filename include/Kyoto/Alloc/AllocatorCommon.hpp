@@ -30,5 +30,5 @@ struct PatternExpander< 8 > {
 
 static const intptr_t kAllocatorPostGuard = EXPAND_PATTERN(0xEA);
 static const intptr_t kAllocatorPriorGuard = EXPAND_PATTERN(0xEF);
-static const int kAllocatorPointerTopNybbleMask = PatternExpander< sizeof(void*) >::TopNybbleMask;
+static const intptr_t kAllocatorPointerTopNybbleMask = PatternExpander< sizeof(void*) >::TopNybbleMask;
 #endif // _ALLOCATORCOMMON
