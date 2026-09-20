@@ -130,6 +130,8 @@ void CGameAllocator::Shutdown() {
 
 void* CGameAllocator::Alloc(size_t size, const EHint hint, const EScope scope, const EType type,
                             const CCallStack& callstack) {
+  uint tmp = 0;
+  void* buf = nullptr;
   const OSTick startTick = OSGetTick();
 
   if (hint & kHI_RoundUpLen) {
@@ -144,8 +146,8 @@ void* CGameAllocator::Alloc(size_t size, const EHint hint, const EScope scope, c
   }
 
   if (bVar1) {
-    void* buf = x60_smallAllocPool->Alloc(size);
-    uint tmp = x60_smallAllocPool->GetAllocatedSize();
+    buf = x60_smallAllocPool->Alloc(size);
+    tmp = x60_smallAllocPool->GetAllocatedSize();
     if (xac_ < tmp) {
       xac_ = tmp;
       static int sLastSmallAllocSize = 0;
@@ -163,20 +165,20 @@ void* CGameAllocator::Alloc(size_t size, const EHint hint, const EScope scope, c
   }
 
   if (x74_mediumPool && size <= 0x400 && !(hint & kHI_TopOfHeap)) {
-    void* buf = nullptr;
     if (!x74_mediumPool->HasPuddles()) {
-      x74_mediumPool->AddPuddle(0x1000, x78_, 0);
-      x78_ = nullptr;
+      buf = nullptr;
+      x74_mediumPool->AddPuddle(0x1000, x78_, false);
+      x78_ = buf;
     }
 
     buf = x74_mediumPool->Alloc(size);
 
     if (buf == nullptr) {
-      buf = Alloc(CMediumAllocPool::GetAllocMemoryRequired(0x1000) +
-                      CMediumAllocPool::GetBookKeepingMemoryRequired(0x1000),
-                  kHI_None, kSC_Unk1, kTP_Heap,
-                  CCallStack(-1, "MediumAllocMainData   ", " - Ignore"));
-      x74_mediumPool->AddPuddle(0x1000, buf, 1);
+      void* puddlePtr = Alloc(CMediumAllocPool::GetAllocMemoryRequired(0x1000) +
+                                  CMediumAllocPool::GetBookKeepingMemoryRequired(0x1000),
+                              kHI_None, kSC_Unk1, kTP_Heap,
+                              CCallStack(-1, "MediumAllocMainData   ", " - Ignore"));
+      x74_mediumPool->AddPuddle(0x1000, puddlePtr, true);
       buf = x74_mediumPool->Alloc(size);
     }
 
@@ -218,15 +220,15 @@ void* CGameAllocator::Alloc(size_t size, const EHint hint, const EScope scope, c
       }
     }
     if (mediumBuf == nullptr) {
-      callstack.GetFileAndLineText();
-      callstack.GetTypeText();
+      (void)callstack.GetFileAndLineText();
+      (void)callstack.GetTypeText();
       DumpAllocations();
       return nullptr;
     }
     return mediumBuf;
   }
 
-  uint tmp = FixupAllocPtrs(info, size, roundedSize, hint, callstack);
+  tmp = FixupAllocPtrs(info, size, roundedSize, hint, callstack);
   if (topOfHeap && !info->IsAllocated()) {
     info = info->GetNext();
   }
