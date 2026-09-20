@@ -1563,18 +1563,18 @@ Kyoto/CResFactory.cpp:
 Kyoto/CResLoader.cpp:
 	.text       start:0x80325434 end:0x80326C68
 
-Kyoto/rstl/rstl_map.cpp:
+rstl/rstl_map.cpp:
 	.text       start:0x80326D04 end:0x80327120
 
-Kyoto/rstl/rstl_allocator.cpp:
+rstl/rstl_allocator.cpp:
 	.text       start:0x80327354 end:0x80327390
 	.rodata     start:0x803C3E68 end:0x803C3E70
 
-Kyoto/rstl/rstl_strings.cpp:
+rstl/rstl_strings.cpp:
 	.text       start:0x80327390 end:0x80328BC8
 	.ctors      start:0x803B6E84 end:0x803B6E88
 
-Kyoto/rstl/RstlExtras.cpp:
+rstl/RstlExtras.cpp:
 	.text       start:0x80328BC8 end:0x80328D1C
 
 Kyoto/Streams/CInputStream.cpp:

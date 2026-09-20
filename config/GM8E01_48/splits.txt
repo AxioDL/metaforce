@@ -1643,16 +1643,16 @@ Kyoto/CResLoader.cpp:
 	.rodata     start:0x803D7B48 end:0x803D7B58
 	.sbss2      start:0x805AF190 end:0x805AF1A8
 
-Kyoto/rstl/rstl_map.cpp:
+rstl/rstl_map.cpp:
 	.text       start:0x8033C750 end:0x8033CE3C
 
-Kyoto/rstl/rstl_strings.cpp:
+rstl/rstl_strings.cpp:
 	.text       start:0x8033CE3C end:0x8033E5A0
 	.ctors      start:0x803CB440 end:0x803CB444
 	.rodata     start:0x803D7B58 end:0x803D7B60
 	.sbss       start:0x805A91B8 end:0x805A91C8
 
-Kyoto/rstl/RstlExtras.cpp:
+rstl/RstlExtras.cpp:
 	.text       start:0x8033E5A0 end:0x8033ED98
 	.ctors      start:0x803CB444 end:0x803CB448
 	.rodata     start:0x803D7B60 end:0x803D7B78

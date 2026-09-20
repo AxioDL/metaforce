@@ -2840,19 +2840,19 @@ Kyoto/CResLoader.cpp:
 	.text       start:0x80323560 end:0x80324D94
 	.sbss2      start:0x80471740 end:0x8047174C
 
-Kyoto/rstl/rstl_map.cpp:
+rstl/rstl_map.cpp:
 	.text       start:0x80324D94 end:0x80325480
 
-Kyoto/rstl/rstl_allocator.cpp:
+rstl/rstl_allocator.cpp:
 	.text       start:0x80325480 end:0x803254BC
 	.rodata     start:0x803C2EC0 end:0x803C2EC8
 
-Kyoto/rstl/rstl_strings.cpp:
+rstl/rstl_strings.cpp:
 	.text       start:0x803254BC end:0x80326CF4
 	.ctors      start:0x803B5108 end:0x803B510C
 	.sbss       start:0x8046B618 end:0x8046B628
 
-Kyoto/rstl/RstlExtras.cpp:
+rstl/RstlExtras.cpp:
 	.text       start:0x80326CF4 end:0x80327418
 	.ctors      start:0x803B510C end:0x803B5110
 	.rodata     start:0x803C2EC8 end:0x803C2ED8

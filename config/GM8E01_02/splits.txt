@@ -1758,14 +1758,14 @@ Kyoto/CResFactory.cpp:
 Kyoto/CResLoader.cpp:
 	.text       start:0x8033B80C end:0x8033BA24
 
-Kyoto/rstl/rstl_map.cpp:
+rstl/rstl_map.cpp:
 	.text       start:0x8033D114 end:0x8033D530
 
-Kyoto/rstl/rstl_strings.cpp:
+rstl/rstl_strings.cpp:
 	.text       start:0x8033D764 end:0x8033EEC8
 	.ctors      start:0x803CC400 end:0x803CC404
 
-Kyoto/rstl/RstlExtras.cpp:
+rstl/RstlExtras.cpp:
 	.text       start:0x8033EEC8 end:0x8033F0F0
 
 Kyoto/Streams/CInputStream.cpp:
