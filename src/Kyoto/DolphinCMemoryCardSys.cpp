@@ -1,4 +1,4 @@
-#include "Kyoto/CCRC32.hpp"
+#include "Kyoto/CCrc32.hpp"
 #include "Kyoto/CMemoryCardSys.hpp"
 #include "Kyoto/Graphics/CGraphicsPalette.hpp"
 #include "Kyoto/Graphics/CTexture.hpp"
@@ -16,7 +16,10 @@ ECardResult SMemoryCardFileInfo::FileRead() {
   saveData = rstl::vector< uchar >();
   const uint size = x24_saveFileData.size();
   const void* data = x24_saveFileData.data();
-  const uint crc = *reinterpret_cast< const uint* >(data);
+  const uint crc = *static_cast< const uint* >(data);
+#if TARGET_PC
+  crc = CBasics::SwapBytes(crc);
+#endif
   if (crc == CCRC32::Calculate(static_cast< const uchar* >(data) + 4, size - 4)) {
     uint offset;
     ECardResult result = GetSaveDataOffset(offset);
@@ -36,9 +39,7 @@ ECardResult SMemoryCardFileInfo::FileRead() {
 }
 
 CMemoryCardSys::CCardFileInfo::Icon::Icon(CAssetId id, int speed, CSimplePool& pool)
-: x0_id(id)
-, x4_speed(speed)
-, x8_tex(pool.GetObj(SObjectTag('TXTR', id))) {}
+: x0_id(id), x4_speed(speed), x8_tex(pool.GetObj(SObjectTag('TXTR', id))) {}
 
 CMemoryCardSys::EMemoryCardPort SMemoryCardFileInfo::GetFileCardPort() {
   return static_cast< CMemoryCardSys::EMemoryCardPort >(x0_fileInfo.chan);
@@ -134,6 +135,9 @@ void CMemoryCardSys::CCardFileInfo::BuildCardBuffer() {
   (memcpy)(x104_cardBuffer.data() + bannerSize, xf4_saveBuffer.data(), xf4_saveBuffer.size());
   *static_cast< uint* >(data) =
       CCRC32::Calculate(static_cast< const uchar* >(data) + 4, totalSize - 4);
+#if TARGET_PC
+  *static_cast< uint* >(data) = CBasics::SwapBytes(*static_cast< uint* >(data));
+#endif
   xf4_saveBuffer = rstl::vector< uchar >();
 }
 
@@ -199,7 +203,14 @@ CMemoryCardSys::CMemoryCardSys() {
 
 void CMemoryCardSys::Initialize() {
   if (!mIsInitialized) {
+#if defined(TARGET_PC)
+    // TODO: DVDDiskID support
+    // CARDSetLoadType(CARD_RAWIMAGE);
+    // CARDDetectDolphin(-1);
+    CARDInit("GM8E", "01");
+#else
     CARDInit();
+#endif
     mIsInitialized = true;
   }
 }
@@ -223,7 +234,12 @@ ECardResult CMemoryCardSys::GetResultCode(int port) {
 
 ECardResult CMemoryCardSys::MountCard(EMemoryCardPort port) {
   return static_cast< ECardResult >(
-      CARDMountAsync(port, AllocCardWorkArea(port), nullptr, nullptr));
+#if defined(TARGET_PC)
+      CARDMount(port, AllocCardWorkArea(port), nullptr)
+#else
+      CARDMountAsync(port, AllocCardWorkArea(port), nullptr, nullptr)
+#endif
+  );
 }
 
 ECardResult CMemoryCardSys::UnmountCard(EMemoryCardPort port) {
@@ -233,7 +249,11 @@ ECardResult CMemoryCardSys::UnmountCard(EMemoryCardPort port) {
 }
 
 ECardResult CMemoryCardSys::FormatCard(EMemoryCardPort port) {
+#if defined(TARGET_PC)
+  return static_cast< ECardResult >(CARDFormat(port));
+#else
   return static_cast< ECardResult >(CARDFormatAsync(port, nullptr));
+#endif
 }
 
 ECardResult CMemoryCardSys::GetNumFreeBytes(EMemoryCardPort port, uint& freeBytes,
@@ -252,10 +272,7 @@ SMemoryCardFileInfo::SMemoryCardFileInfo(int cardPort, const rstl::string& name)
 }
 
 CMemoryCardSys::CCardFileInfo::CCardFileInfo(EMemoryCardPort port, const rstl::string& name)
-: x0_status(kS_Standby)
-, x18_fileName(name)
-, x38_(0)
-, x3c_bannerTex(kInvalidAssetId) {
+: x0_status(kS_Standby), x18_fileName(name), x38_(0), x3c_bannerTex(kInvalidAssetId) {
   x4_fileInfo.chan = port;
   x4_fileInfo.fileNo = -1;
 }
@@ -276,15 +293,32 @@ ECardResult SMemoryCardFileInfo::Open() {
 ECardResult CMemoryCardSys::CCardFileInfo::CreateFile() {
   const uint size = CalculateTotalDataSize();
   return static_cast< ECardResult >(
-      CARDCreateAsync(GetCardPort(), x18_fileName.data(), size, &x4_fileInfo, nullptr));
+#if defined(TARGET_PC)
+      CARDCreate(GetCardPort(), x18_fileName.data(), size, &x4_fileInfo)
+#else
+      CARDCreateAsync(GetCardPort(), x18_fileName.data(), size, &x4_fileInfo, nullptr)
+#endif
+  );
 }
 
 ECardResult CMemoryCardSys::DeleteFile(EMemoryCardPort port, const rstl::string& name) {
-  return static_cast< ECardResult >(CARDDeleteAsync(port, name.data(), nullptr));
+  return static_cast< ECardResult >(
+#if defined(TARGET_PC)
+      CARDDelete(port, name.data())
+#else
+      CARDDeleteAsync(port, name.data(), nullptr)
+#endif
+  );
 }
 
 ECardResult CMemoryCardSys::FastDeleteFile(EMemoryCardPort port, int fileNo) {
-  return static_cast< ECardResult >(CARDFastDeleteAsync(port, fileNo, nullptr));
+  return static_cast< ECardResult >(
+#if defined(TARGET_PC)
+      CARDFastDelete(port, fileNo)
+#else
+      CARDFastDeleteAsync(port, fileNo, nullptr)
+#endif
+  );
 }
 
 ECardResult SMemoryCardFileInfo::Close() {
@@ -303,11 +337,21 @@ ECardResult CMemoryCardSys::CCardFileInfo::CloseFile() {
 
 ECardResult CMemoryCardSys::Rename(EMemoryCardPort port, const rstl::string& oldName,
                                    const rstl::string& newName) {
-  return static_cast< ECardResult >(CARDRenameAsync(port, oldName.data(), newName.data(), nullptr));
+  return static_cast< ECardResult >(
+#if defined(TARGET_PC)
+      CARDRename(port, oldName.data(), newName.data())
+#else
+      CARDRenameAsync(port, oldName.data(), newName.data(), nullptr)
+#endif
+  );
 }
 
 ECardResult CMemoryCardSys::CheckCard(EMemoryCardPort port) {
+#if defined(TARGET_PC)
+  return static_cast< ECardResult >(CARDCheck(port));
+#else
   return static_cast< ECardResult >(CARDCheckAsync(port, nullptr));
+#endif
 }
 
 ECardResult CMemoryCardSys::CCardFileInfo::WriteFile() {
@@ -315,8 +359,13 @@ ECardResult CMemoryCardSys::CCardFileInfo::WriteFile() {
   void* data = x104_cardBuffer.data();
   const int size = x104_cardBuffer.size();
   DCStoreRange(data, size);
-  ECardResult result =
-      static_cast< ECardResult >(CARDWriteAsync(&x4_fileInfo, data, size, 0, nullptr));
+  ECardResult result = static_cast< ECardResult >(
+#if defined(TARGET_PC)
+      CARDWrite(&x4_fileInfo, data, size, 0)
+#else
+      CARDWriteAsync(&x4_fileInfo, data, size, 0, nullptr)
+#endif
+  );
   x0_status = kS_Transferring;
   return result;
 }
@@ -395,7 +444,12 @@ ECardResult SMemoryCardFileInfo::StartRead() {
   x34_saveData = rstl::vector< uchar >();
   x24_saveFileData.assign(size);
   return static_cast< ECardResult >(
-      CARDReadAsync(&x0_fileInfo, x24_saveFileData.data(), size, 0, nullptr));
+#if defined(TARGET_PC)
+      CARDRead(&x0_fileInfo, x24_saveFileData.data(), size, 0)
+#else
+      CARDReadAsync(&x0_fileInfo, x24_saveFileData.data(), size, 0, nullptr)
+#endif
+  );
 }
 
 ECardResult SMemoryCardFileInfo::TryFileRead() {
@@ -419,7 +473,12 @@ ECardResult CMemoryCardSys::GetStatus(EMemoryCardPort port, int fileNo, CardStat
 
 ECardResult CMemoryCardSys::SetStatus(EMemoryCardPort port, int fileNo, const CardStat& stat) {
   return static_cast< ECardResult >(
-      CARDSetStatusAsync(port, fileNo, const_cast< CARDStat* >(&stat.x0_stat), nullptr));
+#if defined(TARGET_PC)
+      CARDSetStatus(port, fileNo, const_cast< CARDStat* >(&stat.x0_stat))
+#else
+      CARDSetStatusAsync(port, fileNo, const_cast< CARDStat* >(&stat.x0_stat), nullptr)
+#endif
+  );
 }
 
 rstl::vector< char, rstl::aligned_allocator >&
