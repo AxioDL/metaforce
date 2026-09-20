@@ -14,17 +14,19 @@ public:
 
   bool PtrWithinPool(const void* ptr) const {
     return static_cast< uint >(
-               (static_cast< const uchar* >(ptr) - static_cast< uchar* >(x0_mainData)) / 4) <
-           x8_numBlocks;
+               (static_cast< const uchar* >(ptr) - static_cast< uchar* >(x0_mainData)) /
+               kAllocatorPointerSize) < x8_numBlocks;
   }
 
   uint GetIndexFromPtr(const void* ptr) const {
     return (static_cast< const uchar* >(ptr) - static_cast< const uchar* >(x0_mainData)) /
            kAllocatorPointerSize;
   }
-  intptr_t GetEntryValue(uint idx) const { return *(static_cast< uchar* >(x4_bookKeeping) + idx); }
-  uchar* GetPtrFromIndex(unsigned int idx) const {
-    return static_cast< uchar* >(x0_mainData) + (idx << 3);
+  intptr_t GetEntryValue(const uint idx) const {
+    return *(static_cast< uchar* >(x4_bookKeeping) + idx);
+  }
+  uchar* GetPtrFromIndex(const uint idx) const {
+    return static_cast< uchar* >(x0_mainData) + (idx * (kAllocatorPointerSize * 2));
   }
 
   uint GetNumBlocksAvailable() const { return x18_numBlocksAvailable; }

@@ -68,8 +68,8 @@ void* CSmallAllocPool::FindFree(int len) {
   };
 }
 
-void* CSmallAllocPool::Alloc(uint size) {
-  uint len = size >= 4 ? len = (size + 3) / 4 : 1;
+void* CSmallAllocPool::Alloc(const uint size) {
+  uint len = size >= 4 ? (size + (kAllocatorPointerSize - 1)) / kAllocatorPointerSize : 1;
 
   if ((len & 1) != 0) {
     len += 1;
@@ -82,7 +82,7 @@ void* CSmallAllocPool::Alloc(uint size) {
 
   int sub = len - 2;
   uchar* bufPtr = GetPtrFromIndex(freePtr - static_cast< uchar* >(x4_bookKeeping));
-  *static_cast< uchar* >(freePtr) = (len << 4) | 0xf;
+  *freePtr = (len << 4) | 0xf;
   int blockSize = sub / 2;
   uchar* freePtrIter = freePtr + 1;
   while (blockSize--) {
@@ -96,25 +96,27 @@ void* CSmallAllocPool::Alloc(uint size) {
   return bufPtr;
 }
 
-bool CSmallAllocPool::Free(const void* arg0) {
-  int temp_r8 = GetIndexFromPtr(arg0);
-  int mask = (temp_r8 & 1) ? 0 : 4;
-  size_t temp_r9 = static_cast< size_t >(temp_r8) / 2;
-  long temp_r4_2 = GetEntryValue(temp_r9);
-  temp_r4_2 = (temp_r4_2 >> mask) & 0xF;
-  x18_numBlocksAvailable += temp_r4_2;
-  int var_r5 = temp_r4_2;
+bool CSmallAllocPool::Free(const void* ptr) {
+  const int ptrIndex = GetIndexFromPtr(ptr);
+  const int bitShift = (ptrIndex & 1) ? 0 : 4;
+  const size_t entryIndex = static_cast< size_t >(ptrIndex) / 2;
+  long entryValue = GetEntryValue(entryIndex);
+
+  entryValue = (entryValue >> bitShift) & 0xF;
+  x18_numBlocksAvailable += entryValue;
+  int blocksToClear = entryValue;
   x1c_numAllocs -= 1;
-  x14_ = temp_r8;
-  if (static_cast< size_t >(temp_r8) == static_cast< size_t >(x10_)) {
+  x14_ = ptrIndex;
+
+  if (static_cast< size_t >(ptrIndex) == static_cast< size_t >(x10_)) {
     x10_ = -1;
   }
 
-  uchar* var_r3 = static_cast< uchar* >(x4_bookKeeping) + temp_r9;
-  while (var_r5 != 0) {
-    *var_r3 = 0;
-    var_r5 -= 2;
-    ++var_r3;
+  uchar* bookkeepingPtr = static_cast< uchar* >(x4_bookKeeping) + entryIndex;
+  while (blocksToClear != 0) {
+    *bookkeepingPtr = 0;
+    blocksToClear -= 2;
+    ++bookkeepingPtr;
   }
-  return 1;
+  return true;
 }
