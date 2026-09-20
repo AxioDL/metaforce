@@ -8343,11 +8343,11 @@ UpdatePatchWithNormals__FRA45_A45_Q220CFluidPlaneCPURender13SHFieldSampleRA9_A9_
 __dt__Q214CFluidPlaneCPU11CTurbulenceFv = .text:0x8019CBB0; // type:function size:0x54 scope:global
 __ct__Q214CFluidPlaneCPU11CTurbulenceFffffffff = .text:0x8019CC04; // type:function size:0x238 scope:global
 __ct__14CFluidPlaneCPUFUiUiUiUiUiUifUiUiQ211CFluidPlane10EFluidTypefRC9CVector3ffRC14CFluidUVMotionffffffffffffff = .text:0x8019CE3C; // type:function size:0x5E0 scope:global
-nullsub_143 = .text:0x8019D41C; // type:function size:0x4 scope:global
-nullsub_144 = .text:0x8019D420; // type:function size:0x4 scope:global
-nullsub_145 = .text:0x8019D424; // type:function size:0x4 scope:global
+AddRipple__15CFluidPlaneDoorFRC7CRippleRC12CScriptWaterR13CStateManager = .text:0x8019D41C; // type:function size:0x4 scope:global
+AddRipple__15CFluidPlaneDoorFf9TUniqueIdRC9CVector3fRC9CVector3fRC12CScriptWaterR13CStateManagerRC9CVector3f = .text:0x8019D420; // type:function size:0x4 scope:global
+AddRipple__15CFluidPlaneDoorFf9TUniqueIdRC9CVector3fRC12CScriptWaterR13CStateManager = .text:0x8019D424; // type:function size:0x4 scope:global
 RenderCleanup__15CFluidPlaneDoorCFv = .text:0x8019D428; // type:function size:0x78 scope:global
-Render__15CFluidPlaneDoorCFRC13CStateManagerRC6CAABoxRC14CFrustumPlanesRC14CRippleManagerRC9CVector3f = .text:0x8019D4A0; // type:function size:0x3E8 scope:global
+Render__15CFluidPlaneDoorCFRC13CStateManagerfRC6CAABoxRC12CTransform4fRC12CTransform4fbRC14CFrustumPlanesRCQ24rstl33optional_object<14CRippleManager>9TUniqueIdPCciiRC9CVector3f = .text:0x8019D4A0; // type:function size:0x3E8 scope:global
 RenderSetup__15CFluidPlaneDoorCFRC13CStateManagerfRC12CTransform4fRC6CAABoxb = .text:0x8019D888; // type:function size:0x3F4 scope:global
 __dt__15CFluidPlaneDoorFv = .text:0x8019DC7C; // type:function size:0x60 scope:global
 __ct__15CFluidPlaneDoorFUiUiUifUiQ211CFluidPlane10EFluidTypefRC14CFluidUVMotion = .text:0x8019DCDC; // type:function size:0xA4 scope:global
