@@ -145,6 +145,7 @@ void CScriptStreamedMusic::TweakOverride(CStateManager& mgr) {
   }
 }
 
+
 void CScriptStreamedMusic::sub_8020be90() {
   if (x45_fileIsDsp && x34_fileName.find('|', 0) == -1 &&
       static_cast< int >(x34_fileName.size()) >= 5) {
@@ -159,3 +160,5 @@ void CScriptStreamedMusic::sub_8020be90() {
     }
   }
 }
+
+
