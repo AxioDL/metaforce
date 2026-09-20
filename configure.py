@@ -39,6 +39,17 @@ VERSIONS = [
     "R3ME01_00",  # mp-v3.593 Trilogy NTSC
     "R3MP01_00",  # mp-v3.629 Trilogy PAL
 ]
+RSTL_VERSIONS = {
+    "GM8E01_00": 0,
+    "GM8E01_01": 1,
+    "GM8E01_48": 2,
+    "GM8P01_00": 3,
+    "GM8J01_00": 4,
+    "GM8E01_02": 5,
+    "R3IJ01_00": 30,
+    "R3ME01_00": 40,
+    "R3MP01_00": 41,
+}
 
 DISABLED_VERSIONS = [
     # 1,
@@ -241,6 +252,7 @@ cflags_base = [
     "-i extern/sdk/libc",
     f"-i build/{config.version}/include",
     f"-DVERSION={version_num}",
+    f"-DRSTL_VERSION={RSTL_VERSIONS[config.version]}",
     "-DPRIME1",
     "-DNONMATCHING=0",
 ]
@@ -297,6 +309,7 @@ cflags_retro = [
     "-i extern/sdk/libc",
     f"-i build/{config.version}/include",
     f"-DVERSION={version_num}",
+    f"-DRSTL_VERSION={RSTL_VERSIONS[config.version]}",
     "-DPRIME1",
     "-DNONMATCHING=0",
     "-use_lmw_stmw on",

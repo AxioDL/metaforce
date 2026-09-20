@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+#include "rstl/RstlVersions.h"
 #include "rstl/construct.hpp"
 
 namespace rstl {
@@ -20,7 +21,7 @@ public:
     }
   }
   ~optional_object() {
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if RSTL_VERSION >= RSTL_GM8P_00 && RSTL_VERSION != RSTL_GM8E_02
     if (m_valid) {
       rstl::destroy(get_ptr());
     }

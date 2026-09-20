@@ -1,6 +1,7 @@
 #ifndef _RSTL_CONSTRUCT
 #define _RSTL_CONSTRUCT
 
+#include "rstl/RstlVersions.h"
 #include "types.h"
 
 #include "Kyoto/Alloc/CMemory.hpp"
@@ -11,7 +12,7 @@ static inline void construct(void* dest, const T& src) {
   new (dest) T(src);
 }
 
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if RSTL_VERSION >= RSTL_GM8P_00 && RSTL_VERSION != RSTL_GM8E_02
 template < typename T >
 static inline void destroy(T* const in) {
 #else

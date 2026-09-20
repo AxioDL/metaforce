@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+#include "rstl/RstlVersions.h"
 #include "rstl/construct.hpp"
 #include "rstl/functional.hpp"
 #include "rstl/iterator.hpp"
@@ -134,7 +135,7 @@ public:
   void insert(const iterator& pos, InputIterator first, InputIterator last);
 
   void destroy() {
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if RSTL_VERSION >= RSTL_GM8P_00 && RSTL_VERSION != RSTL_GM8E_02
     clear();
 #else
     iterator last = end();

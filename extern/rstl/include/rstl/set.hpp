@@ -3,8 +3,10 @@
 
 #include "types.h"
 
+#include "rstl/RstlVersions.h"
 #include "rstl/red_black_tree.hpp"
 #include "rstl/allocator.hpp"
+
 namespace rstl {
 template < typename T, typename Cmp = less< T >, typename Alloc = rmemory_allocator >
 class set : public red_black_tree< T, T, false, identity< T >, Cmp, Alloc > {
@@ -29,7 +31,7 @@ public:
 };
 
 template < typename T, typename Cmp, typename Alloc >
-#if VERSION < VERSION_GM8P_00
+#if RSTL_VERSION < RSTL_GM8P_00
 inline
 #endif
     set< T, Cmp, Alloc >::set(const set& other)

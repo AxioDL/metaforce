@@ -3,10 +3,12 @@
 
 #include "types.h"
 
+#include "rstl/RstlVersions.h"
 #include "rstl/allocator_auto_ptr.hpp"
 #include "rstl/iterator.hpp"
 #include "rstl/pointer_iterator.hpp"
 #include "rstl/allocator.hpp"
+
 class CInputStream;
 class COutputStream;
 
@@ -189,7 +191,7 @@ void vector< T, Alloc >::insert_into(iterator at, int n, In in) {
     int i = moveCount - 1;
     for (; i >= 0; --i) {
       construct(oldData + atIdx + n + i, data()[atIdx + i]);
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if RSTL_VERSION >= RSTL_GM8P_00 && RSTL_VERSION != RSTL_GM8E_02
       T* const item = oldData + atIdx + i;
       destroy(item);
 #else
@@ -210,7 +212,7 @@ void vector< T, Alloc >::insert_into(iterator at, int n, In in) {
     x0_allocator.allocate(newData, newCapacity);
     long atIdx = at - begin();
     // The const alias makes MWCC retain a separate allocation-base register on PAL.
-#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#if RSTL_VERSION >= RSTL_GM8P_00 && RSTL_VERSION != RSTL_GM8E_02
     T* const newItems = newData;
 #else
     T* newItems = newData;
