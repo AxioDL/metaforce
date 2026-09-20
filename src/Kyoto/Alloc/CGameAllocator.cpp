@@ -117,8 +117,8 @@ bool CGameAllocator::Initialize(COsContext& ctx) {
   mediumSize += CMediumAllocPool::GetBookKeepingMemoryRequired(0x1000);
   x78_ = Alloc(mediumSize, kHI_None, kSC_Unk1, kTP_Heap,
                CCallStack(0xffffffff, "MediumAllocMainData   ", " - Ignore"));
-  x84_ -= 4;
   xbc_ = 0xc6000;
+  x84_ -= 4;
   return true;
 }
 
