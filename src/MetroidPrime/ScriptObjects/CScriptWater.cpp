@@ -250,12 +250,11 @@ void CScriptWater::AddToRenderer(const CFrustumPlanes&, const CStateManager& mgr
   if (GetPreRenderClipped()) {
     return;
   }
-  float transZ = GetTranslation().GetZ();
-  float boundsMaxZ = x130_bounds.GetMaxPoint().GetZ();
-  CUnitVector3f upVec(0.f, 0.f, 1.f);
-  upVec.Normalize();
-  CPlane plane(boundsMaxZ + transZ, upVec);
-  mgr.AddDrawableActorPlane(*this, plane, GetSortingBounds(mgr));
+  const float transZ = GetTranslation().GetZ();
+  const float boundsMaxZ = x130_bounds.GetMaxPoint().GetZ();
+  mgr.AddDrawableActorPlane(
+      *this, CPlane(boundsMaxZ + transZ, CUnitVector3f(0.f, 0.f, 1.f, CUnitVector3f::kN_Yes)),
+      GetSortingBounds(mgr));
 }
 
 void CScriptWater::Render(const CStateManager& mgr) const {
