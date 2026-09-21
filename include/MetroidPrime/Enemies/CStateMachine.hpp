@@ -7,7 +7,6 @@
 
 #include "MetroidPrime/Enemies/CAi.hpp"
 
-class CAi;
 class CStateManager;
 class CInputStream;
 

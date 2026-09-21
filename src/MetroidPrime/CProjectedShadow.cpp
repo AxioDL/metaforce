@@ -40,7 +40,7 @@ CProjectedShadow::CProjectedShadow(const int w, const int h, const uchar persist
 
 CProjectedShadow::~CProjectedShadow() { x0_texture.ScheduleDeletion(); }
 
-void CProjectedShadow::ModelDrawCallback(const float* positions, const float* normals,
+void CProjectedShadow::ModelDrawCallback(TModelPositions positions, TModelNormals normals,
                                          const SShadowDrawContext* context) {
   const CModel& model = **context->model.GetModel();
   const CCubeModel* cubeModel = model.GetCubeModel();
@@ -140,11 +140,12 @@ void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& 
       CSkinnedModel& model = modelData.PickAnimatedModel(CModelData::kWM_Normal);
       animData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
       SShadowDrawContext context(model, flags == 0);
-      model.Draw(reinterpret_cast< TDrawFunc >(ModelDrawCallback), &context);
+      model.Draw(ModelDrawCallback, &context);
     } else {
       const TLockedToken< CModel >& model = modelData.PickStaticModel(CModelData::kWM_Normal);
       model->UpdateLastFrame();
-      model->GetCubeModel()->DrawFlat(nullptr, nullptr, flags == 0 ? kSS_All : kSS_Unsorted);
+      model->GetCubeModel()->DrawFlat(TModelPositions(), TModelNormals(),
+                                      flags == 0 ? kSS_All : kSS_Unsorted);
     }
   }
 #else
@@ -153,7 +154,7 @@ void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& 
   animData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
   SShadowDrawContext context(model, flags == 0);
   CGraphics::SetModelMatrix(xf * CTransform4f::Scale(CVector3f(modelData.GetScale())));
-  model.Draw(reinterpret_cast< TDrawFunc >(ModelDrawCallback), &context);
+  model.Draw(ModelDrawCallback, &context);
 
 #endif
 
@@ -162,7 +163,11 @@ void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& 
   CGX::SetZMode(true, GX_LEQUAL, true);
   GXSetTexCopySrc(0, 0, renderWidth, renderHeight);
   GXSetTexCopyDst(width, height, GX_CTF_R4, true);
+#if defined(TARGET_PC)
+  GXCopyTex(x0_texture.GetBitMapData(0), true);
+#else
   GXCopyTex(x0_texture.Lock(), true);
+#endif
   x0_texture.UnLock();
   GXPixModeSync();
   CGraphics::SetUseVideoFilter(useVideoFilter);
@@ -252,7 +257,7 @@ void CProjectedShadow::Render(const CStateManager& mgr) const {
       CGX::LoadTexMtxImm(modelTextureXf.GetCStyleMatrix(), GX_TEXMTX0, GX_MTX3x4);
       const CModel& model = **modelData.PickStaticModel(CModelData::kWM_Normal);
       model.UpdateLastFrame();
-      model.GetCubeModel()->DrawFlat(nullptr, nullptr, kSS_Unsorted);
+      model.GetCubeModel()->DrawFlat(TModelPositions(), TModelNormals(), kSS_Unsorted);
     }
   }
   CGX::LoadTexMtxImm(textureXf.GetCStyleMatrix(), GX_TEXMTX0, GX_MTX3x4);

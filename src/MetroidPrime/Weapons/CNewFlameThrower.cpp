@@ -33,10 +33,9 @@ static const CMaterialFilter skExcludeProjectilePassthrough =
 
 CNewFlameThrower::CNewFlameThrower(const TToken< CWeaponDescription >& desc,
                                    const rstl::string& name, EWeaponType wType,
-                                   const CWeaponAssetInfo& resInfo,
-                                   const CTransform4f& xf, EMaterialTypes matType,
-                                   const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid,
-                                   TUniqueId owner, uint attribs)
+                                   const CWeaponAssetInfo& resInfo, const CTransform4f& xf,
+                                   EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid,
+                                   TAreaId aid, TUniqueId owner, uint attribs)
 : CGameProjectile(false, desc, name, wType, xf, matType, dInfo, uid, aid, owner, kInvalidUniqueId,
                   attribs, false, CVector3f(1.f, 1.f, 1.f), rstl::optional_object_null(),
                   CSfxManager::kInternalInvalidSfxId, false)

@@ -19,6 +19,7 @@ CPFRegionData::CPFRegionData()
 , x28_openMore(nullptr)
 , x2c_parentLink(0) {}
 
+#if !defined(TARGET_PC)
 void CPFRegion::Fixup(CPFArea& area, int& numNodes) {
   x4_startNode = x0_numNodes ? &area.GetNode(reinterpret_cast< intptr_t >(x4_startNode)) : nullptr;
   xc_startLink = x8_numLinks ? &area.GetLink(reinterpret_cast< intptr_t >(xc_startLink)) : nullptr;
@@ -27,6 +28,7 @@ void CPFRegion::Fixup(CPFArea& area, int& numNodes) {
     numNodes = x0_numNodes;
   }
 }
+#endif
 
 CPFRegion::CPFRegion()
 : x0_numNodes(0)
@@ -38,7 +40,12 @@ CPFRegion::CPFRegion()
 , x18_normal(CVector3f::Zero())
 , x24_regionIdx(0)
 , x28_centroid(CVector3f::Zero())
-, x34_bounds(CAABox::MakeMaxInvertedBox()) {}
+, x34_bounds(CAABox::MakeMaxInvertedBox())
+#if defined(TARGET_PC)
+, x4c_data(nullptr)
+#endif
+{
+}
 
 bool CPFRegion::IsPointInside(const CVector3f& point) const {
   bool inside = false;

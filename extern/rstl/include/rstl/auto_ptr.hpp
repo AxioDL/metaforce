@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+#include "rstl/allocator.hpp"
+
 namespace rstl {
 template < typename T >
 class auto_ptr {
@@ -14,7 +16,11 @@ public:
   auto_ptr(T* ptr) : x0_has(ptr != nullptr), x4_item(ptr) {}
   ~auto_ptr() {
     if (x0_has) {
+#if defined(TARGET_PC)
+      pointer_deleter< T >::destroy(x4_item);
+#else
       delete x4_item;
+#endif
     }
   }
   // TODO check
@@ -24,7 +30,11 @@ public:
   auto_ptr& operator=(const auto_ptr& other) {
     if (&other != this) {
       if (x0_has) {
+#if defined(TARGET_PC)
+        pointer_deleter< T >::destroy(x4_item);
+#else
         delete x4_item;
+#endif
       }
       x0_has = other.x0_has;
       x4_item = other.x4_item;

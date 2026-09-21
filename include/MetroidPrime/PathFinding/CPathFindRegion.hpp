@@ -7,6 +7,8 @@
 
 class CPFArea;
 class CPFNode {
+  friend class CPFArea;
+
 public:
   const CVector3f& GetPos() const { return x0_position; }
   const CVector3f& GetNormal() const { return xc_normal; }
@@ -18,6 +20,8 @@ private:
 CHECK_SIZEOF(CPFNode, 0x18)
 
 class CPFLink {
+  friend class CPFArea;
+
 public:
   int GetNode() const { return x0_node; }
   int GetRegion() const { return x4_region; }
@@ -84,9 +88,14 @@ private:
 CHECK_SIZEOF(CPFRegionData, 0x30)
 
 class CPFRegion {
+  friend class CPFArea;
+
 public:
   CPFRegion();
+
+#if !defined(TARGET_PC)
   void Fixup(CPFArea& area, int& numNodes);
+#endif
   void SetData(CPFRegionData* data) { x4c_data = data; }
   CPFRegionData* Data() const { return x4c_data; }
   int GetIndex() const { return x24_regionIdx; }

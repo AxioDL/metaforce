@@ -2,8 +2,11 @@
 
 #include "Kyoto/Alloc/CMemory.hpp"
 #include "Kyoto/Basics/CBasics.hpp"
+
+#include "dolphin/gx.h"
 #include "dolphin/os.h"
 #include "dolphin/vi.h"
+
 #include <string.h>
 
 COsContext::COsContext(bool, bool) {
@@ -66,10 +69,15 @@ int COsContext::OpenWindow(const char* title, int x, int y, int w, int h, bool f
   x0_right = x30_renderMode.viWidth;
   x4_bottom = x30_renderMode.viHeight;
 
+#if defined(TARGET_PC)
+  x24_frameBuffer1 = reinterpret_cast< void* >(0xDEADBABEu);
+  x28_frameBuffer2 = reinterpret_cast< void* >(0xBABEDEADu);
+#else
   x2c_frameBufferSize =
       (ushort)((x30_renderMode.fbWidth + 15) & ~15) * x30_renderMode.xfbHeight * 2;
   x24_frameBuffer1 = OSAllocFromArenaLo(x2c_frameBufferSize, 32);
   x28_frameBuffer2 = OSAllocFromArenaLo(x2c_frameBufferSize, 32);
+#endif
   x20_arenaLo2 = OSGetArenaLo();
   x18_arenaLo1 = OSGetArenaLo();
   x1c_arenaHi = OSGetArenaHi();
@@ -88,10 +96,14 @@ int COsContext::OpenWindow(const char* title, int x, int y, int w, int h, bool f
 }
 
 void* COsContext::AllocFromArena(size_t sz) {
+#if defined(TARGET_PC)
+  return operator new(sz);
+#else
   void* ret = OSAllocFromArenaLo(sz, 32);
 
   x20_arenaLo2 = OSGetArenaLo();
   x18_arenaLo1 = OSGetArenaLo();
   x1c_arenaHi = OSGetArenaHi();
   return ret;
+#endif
 }

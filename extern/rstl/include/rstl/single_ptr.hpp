@@ -2,6 +2,7 @@
 #define _RSTL_SINGLE_PTR
 
 #include "types.h"
+
 #include "rstl/allocator.hpp"
 
 namespace rstl {
@@ -13,19 +14,33 @@ public:
   single_ptr() : x0_ptr(nullptr) {}
   single_ptr(T* ptr) : x0_ptr(ptr) {}
   single_ptr(const single_ptr& other) : x0_ptr(other.x0_ptr) { other.x0_ptr = nullptr; }
-  ~single_ptr() { delete x0_ptr; }
+  ~single_ptr() {
+#if defined(TARGET_PC)
+    pointer_deleter< T >::destroy(x0_ptr);
+#else
+    delete x0_ptr;
+#endif
+  }
   single_ptr& operator=(single_ptr& other) {
     if (&other == this) {
       return *this;
     }
+#if defined(TARGET_PC)
+    pointer_deleter< T >::destroy(x0_ptr);
+#else
     delete x0_ptr;
+#endif
     x0_ptr = other.x0_ptr;
     other.x0_ptr = nullptr;
     return *this;
   }
 
   single_ptr& operator=(T* const ptr) {
+#if defined(TARGET_PC)
+    pointer_deleter< T >::destroy(x0_ptr);
+#else
     delete x0_ptr;
+#endif
     x0_ptr = ptr;
     return *this;
   }
@@ -54,6 +69,7 @@ single_ptr< T >& single_ptr< T >::reset(T* ptr) {
 
 typedef single_ptr< char > unk_singleptr;
 CHECK_SIZEOF(unk_singleptr, 0x4);
+
 } // namespace rstl
 
 #endif // _RSTL_SINGLE_PTR

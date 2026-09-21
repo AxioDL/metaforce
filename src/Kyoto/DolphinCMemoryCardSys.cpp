@@ -40,9 +40,7 @@ ECardResult SMemoryCardFileInfo::FileRead() {
 }
 
 CMemoryCardSys::CCardFileInfo::Icon::Icon(CAssetId id, int speed, CSimplePool& pool)
-: x0_id(id)
-, x4_speed(speed)
-, x8_tex(pool.GetObj(SObjectTag('TXTR', id))) {}
+: x0_id(id), x4_speed(speed), x8_tex(pool.GetObj(SObjectTag('TXTR', id))) {}
 
 CMemoryCardSys::EMemoryCardPort SMemoryCardFileInfo::GetFileCardPort() {
   return static_cast< CMemoryCardSys::EMemoryCardPort >(x0_fileInfo.chan);
@@ -204,14 +202,18 @@ CMemoryCardSys::CMemoryCardSys() {
   mIsCardSysExists = true;
 }
 
-#if !TARGET_PC
 void CMemoryCardSys::Initialize() {
   if (!mIsInitialized) {
+#if TARGET_PC
+    CARDSetLoadType(CARD_RAWIMAGE);
+    // CARDDetectDolphin(-1);
+    CARDInit("GM8E", "01");
+#else
     CARDInit();
+#endif
     mIsInitialized = true;
   }
 }
-#endif
 
 CMemoryCardSys::~CMemoryCardSys() {
   mIsCardSysExists = false;
@@ -242,7 +244,11 @@ ECardResult CMemoryCardSys::UnmountCard(EMemoryCardPort port) {
 }
 
 ECardResult CMemoryCardSys::FormatCard(EMemoryCardPort port) {
+#if defined(TARGET_PC)
+  return static_cast< ECardResult >(CARDFormat(port));
+#else
   return static_cast< ECardResult >(CARDFormatAsync(port, nullptr));
+#endif
 }
 
 ECardResult CMemoryCardSys::GetNumFreeBytes(EMemoryCardPort port, uint& freeBytes,
@@ -261,10 +267,7 @@ SMemoryCardFileInfo::SMemoryCardFileInfo(int cardPort, const rstl::string& name)
 }
 
 CMemoryCardSys::CCardFileInfo::CCardFileInfo(EMemoryCardPort port, const rstl::string& name)
-: x0_status(kS_Standby)
-, x18_fileName(name)
-, x38_(0)
-, x3c_bannerTex(kInvalidAssetId) {
+: x0_status(kS_Standby), x18_fileName(name), x38_(0), x3c_bannerTex(kInvalidAssetId) {
   x4_fileInfo.chan = port;
   x4_fileInfo.fileNo = -1;
 }

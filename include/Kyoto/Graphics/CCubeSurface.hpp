@@ -4,6 +4,10 @@
 #include "Kyoto/Math/CAABox.hpp"
 #include "Kyoto/Math/CUnitVector3f.hpp"
 
+#if defined(TARGET_PC)
+#include "Metaforce/CModelSectionReader.hpp"
+#endif
+
 class CCubeModel;
 class CCubeSurface {
 public:
@@ -17,7 +21,15 @@ public:
     uint mExtraSize;
     CUnitVector3f mNormal;
     CAABox mBounds;
+#if defined(TARGET_PC)
+    const void* displayList;
+    uint headerSize;
+#endif
   };
+
+#if defined(TARGET_PC)
+  static SSurfaceData ReadData(TModelData data, CCubeModel* parent, uint materialCount);
+#endif
 
   static const CVector3f skDefaultNormal;
   union {
@@ -27,10 +39,18 @@ public:
 
   uint GetDisplayListSize() const { return x0_data->mDisplayListSizeAndNormalHint & 0x7fffffff; }
   const void* GetDisplayList() const {
+#if defined(TARGET_PC)
+    return x0_data->displayList;
+#else
     return reinterpret_cast< const SSurfaceData* >(x0_rawdata + GetSurfaceHeaderSize());
+#endif
   }
   uint GetSurfaceHeaderSize() const {
+#if defined(TARGET_PC)
+    return x0_data->headerSize;
+#else
     return (sizeof(SSurfaceData) + 7 + x0_data->mExtraSize) & ~31;
+#endif
   }
   const CVector3f& GetCenter() const { return x0_data->mCenter; }
   const CUnitVector3f& GetNormalHint() const { return x0_data->mNormal; }

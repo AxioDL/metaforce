@@ -4,9 +4,8 @@
 #include "Kyoto/CFrameDelayedKiller.hpp"
 #include "Kyoto/Streams/CInputStream.hpp"
 
-#include "dolphin/gx/GXEnum.h"
-#include "dolphin/gx/GXTexture.h"
-#include "dolphin/os/OSCache.h"
+#include "dolphin/gx.h"
+#include "dolphin/os.h"
 
 uint CGraphicsPalette::sCurrentFrameCount = 0;
 
@@ -41,10 +40,19 @@ CGraphicsPalette::CGraphicsPalette(CInputStream& in)
 }
 
 CGraphicsPalette::~CGraphicsPalette() {
+#if defined(TARGET_PC)
+  GXDestroyTlutObj(&x10_tlutObj);
+  CFrameDelayedKiller::ScheduleDeletion(CFrameDelayedKiller::kWhichFrame_NextFrame,
+                                        xc_entries.release());
+#else
   uint frameDiff = sCurrentFrameCount - x4_frameLoaded;
   if (frameDiff < 2) {
-    CFrameDelayedKiller::ScheduleDeletion(frameDiff > 0 ? CFrameDelayedKiller::kWhichFrame_ThisFrame : CFrameDelayedKiller::kWhichFrame_NextFrame, xc_entries.release());
+    CFrameDelayedKiller::ScheduleDeletion(frameDiff > 0
+                                              ? CFrameDelayedKiller::kWhichFrame_ThisFrame
+                                              : CFrameDelayedKiller::kWhichFrame_NextFrame,
+                                          xc_entries.release());
   }
+#endif
 }
 
 void CGraphicsPalette::Load() const {
@@ -52,9 +60,21 @@ void CGraphicsPalette::Load() const {
   x4_frameLoaded = sCurrentFrameCount;
 }
 
+#if defined(TARGET_PC)
+void* CGraphicsPalette::Lock() {
+  // AuroraGXSync();
+  x1c_locked = true;
+  return xc_entries.get();
+}
+#endif
+
 void CGraphicsPalette::UnLock() {
   DCStoreRange(xc_entries.get(), x8_entryCount * sizeof(ushort));
+#if defined(TARGET_PC)
+  GXInitTlutObjData(&x10_tlutObj, xc_entries.get());
+#else
   GXInitTlutObj(&x10_tlutObj, xc_entries.get(), format_to_format(x0_fmt), x8_entryCount);
+#endif
   DCFlushRange(xc_entries.get(), x8_entryCount * sizeof(ushort));
   x1c_locked = false;
 }

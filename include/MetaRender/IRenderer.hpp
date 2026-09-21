@@ -4,6 +4,7 @@
 #include "types.h"
 
 #include <Kyoto/Graphics/CGraphics.hpp>
+#include <Kyoto/Graphics/ModelTypes.hpp>
 #include <dolphin/gx/GXEnum.h>
 
 #include "rstl/pair.hpp"
@@ -73,7 +74,8 @@ public:
   virtual void SetModelMatrix(const CTransform4f& xf) = 0;
   virtual void AddParticleGen(const CParticleGen& gen) = 0;
   virtual void AddParticleGen(const CParticleGen& gen, const CVector3f&, const CAABox&) = 0;
-  virtual void AddPlaneObject(const void* obj, const CAABox& aabb, const CPlane& plane, int type) = 0;
+  virtual void AddPlaneObject(const void* obj, const CAABox& aabb, const CPlane& plane,
+                              int type) = 0;
   virtual void AddDrawable(const void* obj, const CVector3f& pos, const CAABox& bounds, int mode,
                            IRenderer::EDrawableSorting sorting) = 0;
   virtual void SetDrawableCallback(TDrawableCallback cb, const void* ctx) = 0;
@@ -113,11 +115,12 @@ public:
   virtual float GetFPS() = 0;
   virtual void CacheReflection(void (*)(void*, const CVector3f&), void*, bool) = 0;
   virtual void DrawSpaceWarp(const CVector3f&, float) = 0;
-  virtual void DrawThermalModel(const CModel&, const CColor&, const CColor&, const float*,
-                                const float*, const CModelFlags&) = 0;
-  virtual void DrawModelDisintegrate(const CModel&, const CTexture&, const CColor&, const float*,
-                                     const float*, float) = 0;
-  virtual void DrawModelFlat(const CModel&, const CModelFlags&, const bool, const float*, const float*) = 0;
+  virtual void DrawThermalModel(const CModel&, const CColor&, const CColor&, TModelPositions,
+                                TModelNormals, const CModelFlags&) = 0;
+  virtual void DrawModelDisintegrate(const CModel&, const CTexture&, const CColor&, TModelPositions,
+                                     TModelNormals, float) = 0;
+  virtual void DrawModelFlat(const CModel&, const CModelFlags&, const bool, TModelPositions,
+                             TModelNormals) = 0;
   virtual void SetWireframeFlags(int) = 0;
   virtual void SetWorldFog(ERglFogMode mode, float startz, float endz, const CColor& color) = 0;
   virtual void RenderFogVolume(const CColor&, const CAABox&, const TLockedToken< CModel >*,
@@ -136,7 +139,11 @@ public:
 inline IRenderer::~IRenderer() {}
 
 namespace Renderer {
+#if defined(TARGET_PC)
+IRenderer* AllocateRenderer(IObjectStore&, CResFactory&);
+#else
 IRenderer* AllocateRenderer(IObjectStore&, COsContext&, CMemorySys&, CResFactory&);
+#endif
 }; // namespace Renderer
 
 #endif // _IRENDERER

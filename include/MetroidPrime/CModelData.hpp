@@ -9,6 +9,7 @@
 #include "Kyoto/Animation/CAdvancementDeltas.hpp"
 #include "Kyoto/Animation/IAnimReader.hpp"
 #include "Kyoto/Graphics/CColor.hpp"
+#include "Kyoto/Graphics/ModelTypes.hpp"
 #include "Kyoto/Math/CTransform4f.hpp"
 #include "Kyoto/Math/CVector3f.hpp"
 #include "Kyoto/TToken.hpp"
@@ -138,11 +139,12 @@ public:
                         const CColor& color, float t) const;
 
 private:
-  static void ThermalDrawCallback(const float*, const float*, const SThermalDrawContext*);
-  static void DisintegrateDrawCallback(const float*, const float*, const SOneTextureDrawContext*);
-  static void FlatDrawCallback(const float*, const float*, const SFlatDrawContext*);
-  static void MultiLightingDrawCallback(const float*, const float*, SMultiLightingDrawContext*);
-  static void MultipassDrawCallback(const float*, const float*, const SMultipassDrawContext*);
+  static void ThermalDrawCallback(TModelPositions, TModelNormals, const SThermalDrawContext*);
+  static void DisintegrateDrawCallback(TModelPositions, TModelNormals,
+                                       const SOneTextureDrawContext*);
+  static void FlatDrawCallback(TModelPositions, TModelNormals, const SFlatDrawContext*);
+  static void MultiLightingDrawCallback(TModelPositions, TModelNormals, SMultiLightingDrawContext*);
+  static void MultipassDrawCallback(TModelPositions, TModelNormals, const SMultipassDrawContext*);
   CVector3f x0_scale;
   rstl::auto_ptr< CAnimData > xc_animData;
   mutable bool x14_24_renderSorted : 1;

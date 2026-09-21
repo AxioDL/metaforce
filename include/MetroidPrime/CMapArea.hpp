@@ -1,8 +1,6 @@
 #ifndef _CMAPAREA
 #define _CMAPAREA
 
-#include <stdint.h>
-
 #include "MetroidPrime/CMappableObject.hpp"
 
 #include "Kyoto/CFactoryFnReturn.hpp"
@@ -12,6 +10,15 @@
 
 #include "rstl/single_ptr.hpp"
 #include "rstl/vector.hpp"
+
+#if defined(TARGET_PC)
+#include <span>
+
+class CResourceReader;
+typedef std::span< const CVector3f > TMapVertices;
+#else
+typedef const CVector3f* TMapVertices;
+#endif
 
 class IWorld;
 
@@ -25,12 +32,12 @@ public:
     const int* x1c_outlineOffset;
 
   public:
-#if UINTPTR_MAX > UINT32_MAX
-    CMapAreaSurface(CInputStream& in, const void* buf);
+#if defined(TARGET_PC)
+    CMapAreaSurface(CResourceReader& in, const CMapArea& area, size_t commandStart);
 #else
     void PostConstruct(const void* buf);
 #endif
-    void Draw(const CVector3f* verts, const CColor& surfColor, const CColor& lineColor,
+    void Draw(TMapVertices verts, const CColor& surfColor, const CColor& lineColor,
               float lineWidth) const;
 
     static void SetupGXMaterial();
@@ -41,15 +48,27 @@ public:
   enum EVisMode { kVM_Always, kVM_MapStationOrVisit, kVM_Visit, kVM_Never };
 
   CMapArea(CInputStream& in, uint size);
+#if defined(TARGET_PC)
+  CMapArea(const CMapArea&) = delete;
+  CMapArea& operator=(const CMapArea&) = delete;
+#endif
   ~CMapArea();
 
   int GetNumMappableObjects() const { return x28_mappableObjCount; }
   const CMappableObject& GetMappableObject(int idx) const { return x38_moStart[idx]; }
   int GetNumSurfaces() const { return x30_surfaceCount; }
   const CMapAreaSurface& GetSurface(int idx) const { return x40_surfaceStart[idx]; }
-  const CVector3f* GetVertices() const { return x3c_vertexStart; }
+  TMapVertices GetVertices() const {
+#if defined(TARGET_PC)
+    return {x3c_vertexStart, static_cast< size_t >(x2c_vertexCount)};
+#else
+    return x3c_vertexStart;
+#endif
+  }
 
+#if !defined(TARGET_PC)
   void PostConstruct();
+#endif
   bool GetIsVisibleToAutoMapper(bool worldVis, bool areaVis) const;
   CVector3f GetAreaCenterPoint() const;
   const CAABox& GetBoundingBox() const { return x10_box; }
@@ -71,14 +90,15 @@ private:
   CMapAreaSurface* x40_surfaceStart;
   rstl::single_ptr< uchar > x44_buf;
 
-#if UINTPTR_MAX > UINT32_MAX
-  rstl::vector< CMapAreaSurface > mNativeSurfaces;
+#if defined(TARGET_PC)
+  rstl::vector< CMappableObject > mObjects;
+  rstl::vector< CMapAreaSurface > mSurfaces;
 #endif
 
   static int gUsedMemory;
 };
 
 const CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in,
-                                 const CVParamTransfer&);
+                                       const CVParamTransfer&);
 
 #endif // _CMAPAREA

@@ -188,12 +188,10 @@ void PSMTXROMultS16VecArrayGatheredSingle(ROMtx mtx, const ushort* in, volatile 
 #endif
 
 #ifndef __MWERKS__
-// The gathered routine loads serialized float vertices despite its historical S16 name.
 static CVector3f ReadVertex(const ushort* in, size_t index) {
   float values[3];
   memcpy(values, reinterpret_cast< const uchar* >(in) + index * sizeof(values), sizeof(values));
-  return CVector3f(CBasics::SwapBytes(values[0]), CBasics::SwapBytes(values[1]),
-                   CBasics::SwapBytes(values[2]));
+  return CVector3f(values[0], values[1], values[2]);
 }
 #endif
 

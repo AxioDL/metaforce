@@ -4,6 +4,7 @@
 #include "Kyoto/Animation/CAnimTreeNode.hpp"
 
 #include "rstl/rc_ptr.hpp"
+#include "Kyoto/Animation/CAnimTreeNode.hpp"
 
 class CAnimSysContext;
 class COutputStream;

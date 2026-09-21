@@ -1,14 +1,13 @@
 #ifndef _CTEXTEXECUTEBUFFER
 #define _CTEXTEXECUTEBUFFER
 
+#include "Kyoto/Text/CInstruction.hpp"
+#include "Kyoto/Text/CSaveableState.hpp"
 #include "Kyoto/Text/TextCommon.hpp"
 #include "rstl/list.hpp"
 #include "rstl/rc_ptr.hpp"
-
-#include "Kyoto/Text/CSaveableState.hpp"
 #include "rstl/string.hpp"
 
-class CInstruction;
 class CBlockInstruction;
 class CLineInstruction;
 class CFontImageDef;

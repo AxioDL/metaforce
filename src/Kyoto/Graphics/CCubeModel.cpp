@@ -5,6 +5,7 @@
 #include "Kyoto/Graphics/CGX.hpp"
 #include "Kyoto/Graphics/CGX_Impl.hpp" // IWYU pragma: keep
 #include "Kyoto/Graphics/CGraphics.hpp"
+
 #include "dolphin/gx/GXVert.h"
 
 #include <string.h>
@@ -18,12 +19,20 @@ inline uint GetMaterialOffset(const uchar* materialData, const int idx) {
   return CBasics::SwapBytes(*reinterpret_cast< const uint* >(materialData - 4));
 }
 
+#if defined(TARGET_PC)
+CCubeModel::CCubeModel(std::span< const TModelData > surfaces,
+                       rstl::vector< TCachedToken< CTexture > >* textures, TModelData materialData,
+                       const SModelArrays& arrays, const CAABox& bounds, const uchar visorFlags,
+                       const bool texturesLoaded, const uint idx)
+: x0_instance(materialData, arrays)
+#else
 CCubeModel::CCubeModel(rstl::vector< void* >* surfaces,
                        rstl::vector< TCachedToken< CTexture > >* textures, const void* materialData,
                        const void* positions, const void* normals, const void* colors,
                        const void* uvs, const void* compressedUvs, const CAABox& bounds,
                        const uchar visorFlags, const bool texturesLoaded, const uint idx)
 : x0_instance(*surfaces, materialData, positions, normals, colors, uvs, compressedUvs)
+#endif
 , x1c_textures(textures)
 , x20_bounds(bounds)
 , x38_firstUnsorted(nullptr)
@@ -32,6 +41,21 @@ CCubeModel::CCubeModel(rstl::vector< void* >* surfaces,
 , x40_25_visible(false)
 , x41_visorFlags(visorFlags)
 , x44_idx(idx) {
+#if defined(TARGET_PC)
+  const uint materialCount = ValidateModelMaterials(materialData);
+  mSurfaces.reserve(surfaces.size());
+  for (auto data : surfaces) {
+    mSurfaces.push_back(CCubeSurface::ReadData(data, this, materialCount));
+  }
+  for (int i = mSurfaces.size(); i > 0; --i) {
+    auto& data = mSurfaces[i - 1];
+    auto& first = GetMaterialByIndex(data.mMaterialIndex).IsFlagSet(kStateFlag_DepthSorting)
+                      ? x3c_firstSorted
+                      : x38_firstUnsorted;
+    data.mNextSurface = first.x0_rawdata;
+    first = CCubeSurface(&data);
+  }
+#else
   rstl::vector< void* >& surf = x0_instance.Surfaces();
   for (AUTO(it, surf.begin()); it != surf.end(); ++it) {
     CCubeSurface::SSurfaceData* data = static_cast< CCubeSurface::SSurfaceData* >(*it);
@@ -49,13 +73,18 @@ CCubeModel::CCubeModel(rstl::vector< void* >* surfaces,
       x38_firstUnsorted.x0_rawdata = static_cast< uchar* >(data);
     }
   }
+#endif
 }
 
-void CCubeModel::MakeTexturesFromMats(const void* data,
+void CCubeModel::MakeTexturesFromMats(TModelData data,
                                       rstl::vector< TCachedToken< CTexture > >& textures,
                                       IObjectStore& store, const bool cache) {
-  const uint* textureIds = static_cast< const uint* >(data);
-  const uint textureCount = CBasics::SwapBytes(*static_cast< const int* >(data));
+#if defined(TARGET_PC)
+  ValidateModelMaterials(data);
+#endif
+  const uint* textureIds = static_cast< const uint* >(GetModelDataPointer(data));
+  const uint textureCount =
+      CBasics::SwapBytes(*static_cast< const int* >(GetModelDataPointer(data)));
   textureIds++;
   textures.reserve(textureCount);
 
@@ -69,7 +98,12 @@ void CCubeModel::MakeTexturesFromMats(const void* data,
 }
 
 void CCubeModel::SetStaticArraysCurrent() const {
+#if defined(TARGET_PC)
+  CGX::SetArray(GX_VA_CLR0, x0_instance.GetColorPointer(), sizeof(CColor),
+                x0_instance.GetArrays().colors.size(), false);
+#else
   CGX::SetArray(GX_VA_CLR0, x0_instance.GetColorPointer(), sizeof(CColor));
+#endif
   const void* packed = x0_instance.GetPackedTCPointer();
   const void* unpacked = x0_instance.GetTCPointer();
   if (!packed) {
@@ -77,14 +111,29 @@ void CCubeModel::SetStaticArraysCurrent() const {
   }
 
   if (sUsingPackedLightmaps) {
+#if defined(TARGET_PC)
+    CGX::SetArray(GX_VA_TEX0, packed, sizeof(ushort) * 2,
+                  x0_instance.GetArrays().packedTexCoords.size(), TARGET_LITTLE_ENDIAN);
+#else
     CGX::SetArray(GX_VA_TEX0, packed, sizeof(ushort) * 2);
+#endif
   } else {
+#if defined(TARGET_PC)
+    CGX::SetArray(GX_VA_TEX0, unpacked, sizeof(CVector2f), x0_instance.GetArrays().texCoords.size(),
+                  TARGET_LITTLE_ENDIAN);
+#else
     CGX::SetArray(GX_VA_TEX0, unpacked, sizeof(CVector2f));
+#endif
   }
 
   if (unpacked) {
     for (int i = 1; i <= GX_VA_TEX7 - GX_VA_TEX0; ++i) {
+#if defined(TARGET_PC)
+      CGX::SetArray(static_cast< GXAttr >(i + GX_VA_TEX0), unpacked, sizeof(CVector2f),
+                    x0_instance.GetArrays().texCoords.size(), TARGET_LITTLE_ENDIAN);
+#else
       CGX::SetArray(static_cast< GXAttr >(i + GX_VA_TEX0), unpacked, sizeof(CVector2f));
+#endif
     }
   }
 
@@ -92,28 +141,70 @@ void CCubeModel::SetStaticArraysCurrent() const {
 }
 
 void CCubeModel::SetArraysCurrent() const {
+#if defined(TARGET_PC)
+  CGX::SetArray(GX_VA_POS, x0_instance.GetVertexPointer(), sizeof(CVector3f),
+                x0_instance.GetArrays().positions.size(), TARGET_LITTLE_ENDIAN);
+#else
   CGX::SetArray(GX_VA_POS, x0_instance.GetVertexPointer(), sizeof(CVector3f));
+#endif
   const int stride = (x41_visorFlags & 1) ? sizeof(short) * 3 : sizeof(CVector3f);
+#if defined(TARGET_PC)
+  CGX::SetArray(GX_VA_NRM, x0_instance.GetNormalPointer(), stride,
+                x0_instance.GetArrays().normals.size(), TARGET_LITTLE_ENDIAN);
+#else
   CGX::SetArray(GX_VA_NRM, x0_instance.GetNormalPointer(), stride);
+#endif
   SetStaticArraysCurrent();
 }
 
-void CCubeModel::SetSkinningArraysCurrent(const float* positions, const float* normals) const {
+void CCubeModel::SetSkinningArraysCurrent(TModelPositions positions, TModelNormals normals) const {
+#if defined(TARGET_PC)
+  const auto& arrays = x0_instance.GetArrays();
+  if (positions.empty()) {
+    CGX::SetArray(GX_VA_POS, arrays.positions.data(), sizeof(CVector3f), arrays.positions.size(),
+                  TARGET_LITTLE_ENDIAN);
+  } else {
+    CGX::SetArray(GX_VA_POS, positions.data(), sizeof(CVector3f), positions.size_bytes(),
+                  TARGET_LITTLE_ENDIAN);
+  }
+  if (normals.empty()) {
+    const int stride = (x41_visorFlags & 1) ? sizeof(short) * 3 : sizeof(CVector3f);
+    CGX::SetArray(GX_VA_NRM, arrays.normals.data(), stride, arrays.normals.size(),
+                  TARGET_LITTLE_ENDIAN);
+  } else {
+    CGX::SetArray(GX_VA_NRM, normals.data(), sizeof(CVector3f), normals.size_bytes(),
+                  TARGET_LITTLE_ENDIAN);
+  }
+#else
   CGraphics::sRenderState.SetVtxState(positions, normals,
                                       static_cast< const uint* >(x0_instance.GetColorPointer()));
+#endif
   SetStaticArraysCurrent();
 }
 
 void CCubeModel::SetUsingPackedLightmaps(const bool use) const {
   sUsingPackedLightmaps = use;
   if (sUsingPackedLightmaps) {
+#if defined(TARGET_PC)
+    CGX::SetArray(GX_VA_TEX0, x0_instance.GetPackedTCPointer(), sizeof(ushort) * 2,
+                  x0_instance.GetArrays().packedTexCoords.size(), TARGET_LITTLE_ENDIAN);
+#else
     CGX::SetArray(GX_VA_TEX0, x0_instance.GetPackedTCPointer(), sizeof(ushort) * 2);
+#endif
   } else {
+#if defined(TARGET_PC)
+    CGX::SetArray(GX_VA_TEX0, x0_instance.GetTCPointer(), sizeof(CVector2f),
+                  x0_instance.GetArrays().texCoords.size(), TARGET_LITTLE_ENDIAN);
+#else
     CGX::SetArray(GX_VA_TEX0, x0_instance.GetTCPointer(), sizeof(CVector2f));
+#endif
   }
 }
 
 CCubeMaterial CCubeModel::GetMaterialByIndex(const int idx) const {
+#if defined(TARGET_PC)
+  return CCubeMaterial(GetModelMaterial(x0_instance.GetMaterialData(), idx).data());
+#else
   uint materialCount = 0;
   uint materialOffset = 0;
   const uchar* materialData = static_cast< const uchar* >(x0_instance.GetMaterialPointer()) +
@@ -130,6 +221,7 @@ CCubeMaterial CCubeModel::GetMaterialByIndex(const int idx) const {
   materialData += (materialCount * 4);
   materialData += materialOffset;
   return CCubeMaterial(materialData);
+#endif
 }
 
 void CCubeModel::DrawSurface(const CCubeSurface& surface, const CModelFlags& modelFlags) const {
@@ -322,13 +414,17 @@ void CCubeModel::DrawAlphaSurfaces(const CModelFlags& flags) const {
   }
 }
 
-void CCubeModel::DrawFlat(const float* positions, const float* normals,
+void CCubeModel::DrawFlat(TModelPositions positions, TModelNormals normals,
                           ESurfaceSelection which) const {
+#if defined(TARGET_PC)
+  SetSkinningArraysCurrent(positions, normals);
+#else
   if (positions != nullptr) {
     SetSkinningArraysCurrent(positions, normals);
   } else {
     SetArraysCurrent();
   }
+#endif
 
   if (which != kSS_Sorted) {
     for (CCubeSurface surface = x38_firstUnsorted; surface.IsValid();
@@ -355,7 +451,7 @@ void CCubeModel::Draw(const CModelFlags& flags) const {
   DrawSurfaces(flags);
 }
 
-void CCubeModel::Draw(const float* positions, const float* normals,
+void CCubeModel::Draw(TModelPositions positions, TModelNormals normals,
                       const CModelFlags& flags) const {
   CCubeMaterial::KillCachedViewDepState();
   SetSkinningArraysCurrent(positions, normals);
@@ -388,7 +484,7 @@ void CCubeModel::UnlockTextures() const {
   x40_24_loadTextures = false;
 }
 
-void CCubeModel::RemapMaterialData(const void* data,
+void CCubeModel::RemapMaterialData(TModelData data,
                                    rstl::vector< TCachedToken< CTexture > >* texture) {
 
   x0_instance.SetMaterialPointer(data);
@@ -396,7 +492,7 @@ void CCubeModel::RemapMaterialData(const void* data,
   x40_24_loadTextures = false;
 }
 
-void CCubeModel::DrawNormal(const float* positions, const float* normals,
+void CCubeModel::DrawNormal(TModelPositions positions, TModelNormals normals,
                             ESurfaceSelection which) const {
   CGX::SetNumIndStages(0);
   CGX::SetNumTevStages(1);

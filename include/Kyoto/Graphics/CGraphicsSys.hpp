@@ -8,8 +8,12 @@ class CMemorySys;
 
 class CGraphicsSys {
 public:
+#if defined(TARGET_PC)
+  CGraphicsSys(const COsContext& osContext);
+#else
   CGraphicsSys(const COsContext& osContext, const CMemorySys& memorySys, uint, void*);
   CGraphicsSys(const COsContext& osContext, const CMemorySys& memorySys, bool progressive);
+#endif
   ~CGraphicsSys();
 
 private:

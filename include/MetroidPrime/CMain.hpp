@@ -117,7 +117,9 @@ public:
 private:
   COsContext x0_osContext;
   CSaveRegion x6c_saveRegion;
+#if !defined(TARGET_PC)
   CMemorySys x6d_memorySys;
+#endif
   CDvdRequestSys x6e_dvdRequestSys;
   CTweaks x70_tweaks;
   double xe8_unknown;

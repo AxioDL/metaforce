@@ -3,6 +3,11 @@
 #include "Kyoto/Basics/CBasics.hpp"
 #include <string.h>
 
+#if defined(TARGET_PC)
+#include "Metaforce/Endian.hpp"
+#include <borealis/log.hpp>
+#endif
+
 #if TARGET_BIG_ENDIAN
 static const CTransform4f& TransformFromData(const void* ptr) {
   return *static_cast< const CTransform4f* >(ptr);
@@ -14,9 +19,8 @@ static CTransform4f TransformFromData(const void* ptr) {
   for (int i = 0; i < 12; ++i) {
     values[i] = CBasics::SwapBytes(values[i]);
   }
-  return CTransform4f(values[0], values[1], values[2], values[3],
-                      values[4], values[5], values[6], values[7],
-                      values[8], values[9], values[10], values[11]);
+  return CTransform4f(values[0], values[1], values[2], values[3], values[4], values[5], values[6],
+                      values[7], values[8], values[9], values[10], values[11]);
 }
 #endif
 
@@ -34,6 +38,28 @@ static CAABox BoundingBoxFromData(const void* ptr) {
 #endif
 }
 
+#if defined(TARGET_PC)
+namespace {
+constexpr borealis::Log Log{"CMetroidModelInstance"};
+
+const uchar* CheckedModelHeader(TModelData header) {
+  if (header.size() < 76) {
+    Log.fatal("Truncated MREA model header");
+  }
+  return header.data();
+}
+} // namespace
+
+CMetroidModelInstance::CMetroidModelInstance(TModelData header, TModelData materialData,
+                                             const SModelArrays& arrays,
+                                             const std::vector< TModelData >& surfaces)
+: x0_visorFlags(read_bits< uint >(CheckedModelHeader(header)))
+, x4_worldXf(TransformFromData(header.data() + 4))
+, x34_worldAABB(ReadModelBounds(header.subspan(52, 24)))
+, x4c_materialData(materialData)
+, x50_surfaces(surfaces)
+, mArrays(arrays) {}
+#else
 CMetroidModelInstance::CMetroidModelInstance(const void* header, const void* firstGeom,
                                              const void* positions, const void* normals,
                                              const void* colors, const void* texCoords,
@@ -49,3 +75,4 @@ CMetroidModelInstance::CMetroidModelInstance(const void* header, const void* fir
 , x68_colors(colors)
 , x6c_texCoords(texCoords)
 , x70_packedTexCoords(packedTexCoords) {}
+#endif

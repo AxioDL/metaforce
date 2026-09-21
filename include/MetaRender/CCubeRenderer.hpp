@@ -83,7 +83,11 @@ public:
     const CSkinnedModel* x5c_skinnedModel;
   };
 
+#if defined(TARGET_PC)
+  CCubeRenderer(IObjectStore&, CResFactory&);
+#else
   CCubeRenderer(IObjectStore&, COsContext&, CMemorySys&, CResFactory&);
+#endif
   ~CCubeRenderer() override;
   void AddStaticGeometry(const rstl::vector< CMetroidModelInstance >* geometry,
                          const CAreaRenderOctTree* octTree, int areaIdx) override;
@@ -137,11 +141,12 @@ public:
   float GetFPS() override;
   void CacheReflection(void (*)(void*, const CVector3f&), void*, bool) override;
   void DrawSpaceWarp(const CVector3f&, float) override;
-  void DrawThermalModel(const CModel&, const CColor&, const CColor&, const float*, const float*,
+  void DrawThermalModel(const CModel&, const CColor&, const CColor&, TModelPositions, TModelNormals,
                         const CModelFlags&) override;
-  void DrawModelDisintegrate(const CModel&, const CTexture&, const CColor&, const float*,
-                             const float*, float) override;
-  void DrawModelFlat(const CModel&, const CModelFlags&, const bool, const float*, const float*) override;
+  void DrawModelDisintegrate(const CModel&, const CTexture&, const CColor&, TModelPositions,
+                             TModelNormals, float) override;
+  void DrawModelFlat(const CModel&, const CModelFlags&, const bool, TModelPositions,
+                     TModelNormals) override;
   void SetWireframeFlags(int) override;
   void SetWorldFog(ERglFogMode mode, float startz, float endz, const CColor& color) override;
   void RenderFogVolume(const CColor&, const CAABox&, const TLockedToken< CModel >*,
@@ -166,15 +171,15 @@ public:
 
   void AllocatePhazonSuitMaskTexture();
   void DrawPhazonSuitIndirectEffect(const CColor&,
-                                    const rstl::optional_object< TCachedToken< CTexture > >&,
-                                    float, float, float, float, const CColor& = CColor::White());
+                                    const rstl::optional_object< TCachedToken< CTexture > >&, float,
+                                    float, float, float, const CColor& = CColor::White());
   void ReallyDrawPhazonSuitIndirectEffect(const CColor&, const CTexture&, const CTexture&,
                                           const CColor&, float, float, float);
   void ReallyDrawPhazonSuitEffect(const CColor&, const CTexture&);
   void DoPhazonSuitIndirectAlphaBlur(float, float);
   void CopyTex(const int, const bool, void*, const GXTexFmt, const bool);
-  void DoThermalModelDraw(const CCubeModel&, const CColor&, const CColor&, const float*,
-                          const float*, const CModelFlags&);
+  void DoThermalModelDraw(const CCubeModel&, const CColor&, const CColor&, TModelPositions,
+                          TModelNormals, const CModelFlags&);
   void SetupRendererStates(bool depthWrite);
   void SetupCGraphicsStates();
   void AddWorldSurfaces(CCubeModel& model);

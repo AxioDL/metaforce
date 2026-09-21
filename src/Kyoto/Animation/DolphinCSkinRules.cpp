@@ -5,6 +5,14 @@
 #include "dolphin/os/OSCache.h"
 #include "rstl/math.hpp"
 
+#if defined(TARGET_PC)
+#include <borealis/log.hpp>
+
+namespace {
+constexpr borealis::Log Log{"CSkinRules"};
+} // namespace
+#endif
+
 static int StreamFloatToShort(CInputStream& in) {
   const int result = in.Get< int >();
   if (result == -1) {
@@ -54,6 +62,9 @@ void CSkinRules::BuildPoints(volatile void* pipe) const {
     for (int done = 0; done < vertexCount;) {
       const int count = ProcessingPoints(vertexCount - done, &buffer);
       x0_virtualBones[i].BuildPoints(buffer, pipe, count);
+#if defined(TARGET_PC)
+      pipe = static_cast< volatile float* >(pipe) + count * 3;
+#endif
       done += count;
     }
   }
@@ -66,6 +77,9 @@ void CSkinRules::BuildNormals(volatile void* pipe) const {
     for (int done = 0; done < vertexCount;) {
       const int count = ProcessingNormals(vertexCount - done, &buffer);
       x0_virtualBones[i].BuildNormals(buffer, pipe, count);
+#if defined(TARGET_PC)
+      pipe = static_cast< volatile float* >(pipe) + count * 3;
+#endif
       done += count;
     }
   }
@@ -113,6 +127,7 @@ void CSkinRules::InitLockedCacheState(const CModel& model) {
 }
 
 void CSkinRules::StartNextTransaction() {
+#if !defined(TARGET_PC)
   uchar* destination = reinterpret_cast< uchar* >(LCGetBase());
   if (!sTransferringFirstPage) {
     destination += 0x1000;
@@ -138,6 +153,7 @@ void CSkinRules::StartNextTransaction() {
   sCurrentPointCount = count;
   ++sTransactionCount;
   sTransferringFirstPage = !sTransferringFirstPage;
+#endif
 }
 
 static void WaitForQueue() {
@@ -148,6 +164,15 @@ static void WaitForQueue() {
 }
 
 int CSkinRules::ProcessingPoints(int count, ushort** buf) {
+#if defined(TARGET_PC)
+  if (count < 0 || count > sLockedRules->GetNumPoints() - sCurrentPoint) {
+    Log.fatal("Skin bone indices exceed model array");
+  }
+  *buf = reinterpret_cast< ushort* >(const_cast< float* >(sCurrentTransaction->GetPositions()) +
+                                     sCurrentPoint * 3);
+  sCurrentPoint += count;
+  return count;
+#else
   if (sCurrentPoint + count > sNextPointStart) {
     if (sCurrentPoint == sNextPointStart) {
       WaitForQueue();
@@ -170,9 +195,19 @@ int CSkinRules::ProcessingPoints(int count, ushort** buf) {
     sCurrentPoint += count;
     return count;
   }
+#endif
 }
 
 int CSkinRules::ProcessingNormals(int count, ushort** buf) {
+#if defined(TARGET_PC)
+  if (count < 0 || count > sLockedRules->GetNumNormals() - sCurrentNormal) {
+    Log.fatal("Skin bone indices exceed model array");
+  }
+  *buf = reinterpret_cast< ushort* >(const_cast< float* >(sCurrentTransaction->GetNormals()) +
+                                     sCurrentNormal * 3);
+  sCurrentNormal += count;
+  return count;
+#else
   if (sCurrentNormal + count > sNextNormalStart) {
     if (sCurrentNormal == sNextNormalStart) {
       WaitForQueue();
@@ -195,4 +230,5 @@ int CSkinRules::ProcessingNormals(int count, ushort** buf) {
     sCurrentNormal += count;
     return count;
   }
+#endif
 }

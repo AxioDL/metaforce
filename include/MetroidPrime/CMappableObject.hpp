@@ -10,6 +10,9 @@
 
 class CTweakAutoMapper;
 class CMapWorldInfo;
+#if defined(TARGET_PC)
+class CResourceReader;
+#endif
 
 class CMappableObject {
 public:
@@ -43,7 +46,11 @@ public:
 
   enum EVisMode { kVM_Always, kVM_MapStationOrVisit, kVM_Visit, kVM_Never, kVM_MapStationOrVisit2 };
 
+#if defined(TARGET_PC)
+  explicit CMappableObject(CResourceReader& in);
+#else
   void PostConstruct(const void*);
+#endif
   rstl::pair< CColor, CColor > GetDoorColors(int idx, const CMapWorldInfo&, float alpha) const;
   void Draw(int curAreaId, const CMapWorldInfo& mwInfo, float alpha, bool needsVtxLoad) const;
   void DrawDoorSurface(int curAreaId, const CMapWorldInfo& mwInfo, float alpha, int surfaceIdx,

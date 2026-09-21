@@ -46,7 +46,9 @@ CPakFile::CPakFile(const rstl::string& filename, bool buildDepList, bool worldPa
 , x2c_asyncLoadPhase(kAP_Warmup)
 , x48_resTableOffset(0)
 , x4c_resTableCount(0)
+#if !defined(TARGET_PC)
 , x50_aramBase(CARAMManager::GetInvalidAlloc())
+#endif
 , x84_currentSeek(-1) {}
 
 CPakFile::~CPakFile() {
@@ -55,7 +57,9 @@ CPakFile::~CPakFile() {
   }
 
   CMemory::OffsetFakeStatics(-static_cast< int >(GetFakeStaticSize()));
+#if !defined(TARGET_PC)
   CARAMManager::Free(x50_aramBase);
+#endif
 }
 
 void CPakFile::AsyncIdle() {
@@ -137,6 +141,7 @@ void CPakFile::DataLoad() {
                      x38_headerData.size() - x48_resTableOffset);
   LoadResourceTable(in);
   x2c_asyncLoadPhase = kAP_Loaded;
+#if !defined(TARGET_PC)
   if (x28_26_worldPak) {
     uint size = round_up_32(x4c_resTableCount * sizeof(SResInfo));
     x50_aramBase = CARAMManager::Alloc(size);
@@ -144,6 +149,7 @@ void CPakFile::DataLoad() {
         CARAMManager::DMAToARAM(x74_resList.data(), x50_aramBase, size, CARAMManager::kDMAPrio_One);
     CARAMManager::WaitForDMACompletion(handle);
   }
+#endif
   x38_headerData = rstl::vector< uchar, rstl::aligned_allocator >();
   CMemory::OffsetFakeStatics(GetFakeStaticSize());
 }
@@ -264,14 +270,17 @@ const rstl::vector< CAssetId >* CPakFile::GetDepList() const {
 }
 
 void CPakFile::sub_8036742c() {
+#if !defined(TARGET_PC)
   if (x28_26_worldPak) {
     x28_27_stashedInARAM = true;
     x64_depList = rstl::vector< CAssetId >();
     x74_resList = rstl::vector< SResInfo >();
   }
+#endif
 }
 
 void CPakFile::EnsureWorldPakReady() {
+#if !defined(TARGET_PC)
   if (x28_26_worldPak && x28_27_stashedInARAM) {
     int reserveBytes = round_up_32(x4c_resTableCount * static_cast< int >(sizeof(SResInfo))) +
                        static_cast< int >(sizeof(SResInfo)) - 1;
@@ -295,4 +304,5 @@ void CPakFile::EnsureWorldPakReady() {
 
     x28_27_stashedInARAM = false;
   }
+#endif
 }

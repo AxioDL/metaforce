@@ -3,6 +3,9 @@
 #include "Kyoto/Particles/IElement.hpp"
 
 #include <dolphin/gx/GXManage.h>
+#if defined(TARGET_PC)
+#include <dolphin/gx/GXAurora.h>
+#endif
 #include <rstl/list.hpp>
 
 #if NONMATCHING
@@ -29,7 +32,10 @@ void CFrameDelayedKiller::FlushAllAllocations() {
 }
 
 void CFrameDelayedKiller::StallAndFlushAllAllocations() {
+#if !defined(TARGET_PC)
+  // At this point, we've already drained the GX FIFO
   GXDrawDone();
+#endif
   FlushAllAllocations();
 }
 
@@ -42,6 +48,11 @@ void CFrameDelayedKiller::ScheduleDeletion(const EWhichFrame thisFrame, void* vi
 void CFrameDelayedKiller::FlushAllocationsForFrame() {
   sCurList ^= 1;
   rstl::list< void* >& list = sFrameDelayedList[sCurList];
+#if defined(TARGET_PC)
+  if (!list.empty()) {
+    AuroraGXSync();
+  }
+#endif
   for (rstl::list< void* >::iterator t = list.begin(); t != list.end(); ++t) {
     CMemory::Free(*t);
   }
@@ -50,9 +61,7 @@ void CFrameDelayedKiller::FlushAllocationsForFrame() {
 }
 
 CElementAllocationChunk::CElementAllocationChunk()
-: x0_capacity(256)
-, x4_allocatedWords(0)
-, x8_allocationCount(0) {}
+: x0_capacity(256), x4_allocatedWords(0), x8_allocationCount(0) {}
 
 bool CElementAllocationChunk::CanAllocate(uint size) const {
   return x0_capacity > x4_allocatedWords + (size + 3) / 4;

@@ -113,18 +113,25 @@ CMappableObject::GetDoorColors(int curAreaId, const CMapWorldInfo& mwInfo, float
   return rstl::pair< CColor, CColor >(firstColor, secondColor);
 }
 
+#if !defined(TARGET_PC)
 void CMappableObject::PostConstruct(const void*) {
   for (int i = 0; i < offsetof(CMappableObject, x40_pad) / sizeof(int); ++i) {
     reinterpret_cast< int* >(this)[i] = CBasics::SwapBytes(reinterpret_cast< int* >(this)[i]);
   }
   x10_transform = AdjustTransformForType();
 }
+#endif
 
 static inline void draw_door_surface(const CColor& firstColor, const CColor& secondColor,
                                      int surfaceIdx, bool needsVtxLoad) {
   const SDrawData& drawData = skDoorSurfaceInfos[surfaceIdx];
   if (needsVtxLoad) {
+#if defined(TARGET_PC)
+    CGX::SetArray(GX_VA_POS, skDoorVerts, sizeof(skDoorVerts[0]), sizeof(skDoorVerts),
+                  TARGET_LITTLE_ENDIAN);
+#else
     CGX::SetArray(GX_VA_POS, skDoorVerts, sizeof(skDoorVerts[0]));
+#endif
   }
 
   CGX::SetTevKColor(GX_KCOLOR0, firstColor.GetGXColor());

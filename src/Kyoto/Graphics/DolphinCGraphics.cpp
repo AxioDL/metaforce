@@ -280,7 +280,13 @@ void CGraphics::InitGraphicsFifo(GXFifoObj* obj, void* fifo, uint fifoSize) {
 }
 #endif
 
+#if defined(TARGET_PC)
+bool CGraphics::Startup(const COsContext& osContext) {
+  void* fifoBase = nullptr;
+  u32 fifoSize = 0x10000;
+#else
 bool CGraphics::Startup(const COsContext& osContext, uint fifoSize, void* fifoBase) {
+#endif
   mpFifo = fifoBase;
   mpFifoObj = GXInit(fifoBase, fifoSize);
 #if VERSION >= VERSION_GM8J_00
@@ -733,11 +739,20 @@ void CGraphics::ClearBackAndDepthBuffers() {
   GXInvalidateVtxCache();
 }
 
-void CGraphics::BeginScene() { ClearBackAndDepthBuffers(); }
+void CGraphics::BeginScene() {
+#if defined(TARGET_PC)
+  // TODO begin frame
+#endif
+  ClearBackAndDepthBuffers();
+}
 
 void CGraphics::SwapBuffers() {
+#if defined(TARGET_PC)
+  mFlippingState = 0;
+#else
   GXDisableBreakPt();
   mFlippingState = 1;
+#endif
 }
 
 void CGraphics::VideoPreCallback(u32 retraceCount) {
@@ -771,6 +786,10 @@ void CGraphics::VideoPostCallback(u32 retraceCount) {
 
 void CGraphics::EndScene() {
   CGX::SetZMode(true, GX_LEQUAL, true);
+#if defined(TARGET_PC)
+  GXCopyDisp(mpCurrenFrameBuf, mIsBeginSceneClearFb ? GX_TRUE : GX_FALSE);
+  // TODO: end frame
+#else
   volatile int& numBreakPt = const_cast< volatile int& >(mNumBreakpointsWaiting);
   while (numBreakPt > 0) {
     OSYieldThread();
@@ -798,6 +817,7 @@ void CGraphics::EndScene() {
   GXGetFifoPtrs(fifo, &readPtr, &writePtr);
   GXEnableBreakPt(writePtr);
   mLastFrameUsedAbove = mInterruptLastFrameUsedAbove;
+#endif
   ++mFrameCounter;
   CFrameDelayedKiller::FlushAllocationsForFrame();
 }
@@ -1324,6 +1344,9 @@ void CGraphics::LoadDolphinSpareTexture(int width, int height, GXTexFmt fmt, voi
                GX_CLAMP, GX_DISABLE);
   GXInitTexObjLOD(&texObj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, GX_DISABLE, GX_DISABLE, GX_ANISO_1);
   GXLoadTexObj(&texObj, texId);
+#if defined(TARGET_PC)
+  GXDestroyTexObj(&texObj);
+#endif
   CTexture::InvalidateTexmap(texId);
   if (texId == GX_TEXMAP7) {
     GXInvalidateTexRegion(&mTexRegions[0]);
@@ -1337,6 +1360,9 @@ void CGraphics::LoadDolphinSpareTexture(int width, int height, GXCITexFmt fmt, G
                  GX_CLAMP, GX_DISABLE, tlut);
   GXInitTexObjLOD(&texObj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, GX_DISABLE, GX_DISABLE, GX_ANISO_1);
   GXLoadTexObj(&texObj, texId);
+#if defined(TARGET_PC)
+  GXDestroyTexObj(&texObj);
+#endif
   CTexture::InvalidateTexmap(texId);
   if (texId == GX_TEXMAP7) {
     GXInvalidateTexRegion(&mTexRegions[0]);
@@ -1562,12 +1588,20 @@ void CGraphics::SetScreenPosition(int stretch, int xOffset, int yOffset) {
 
 void CGraphics::SetIsBeginSceneClearFb(bool b) { mIsBeginSceneClearFb = b; }
 
+#if defined(TARGET_PC)
+CGraphicsSys::CGraphicsSys(const COsContext& osContext) {
+  if (mGraphicsInitialized != true) {
+    mGraphicsInitialized = CGraphics::Startup(osContext);
+  }
+}
+#else
 CGraphicsSys::CGraphicsSys(const COsContext& osContext, const CMemorySys& memorySys, uint fifoSize,
                            void* fifoBase) {
   if (mGraphicsInitialized != true) {
     mGraphicsInitialized = CGraphics::Startup(osContext, fifoSize, fifoBase);
   }
 }
+#endif
 
 CGraphicsSys::~CGraphicsSys() {
   if (mGraphicsInitialized == true) {
@@ -1583,6 +1617,7 @@ CGraphics::CRenderState::CRenderState() {
 
 void CGraphics::CRenderState::Flush() {}
 
+#if !defined(TARGET_PC)
 int CGraphics::CRenderState::SetVtxState(const float* pos, const float* nrm, const uint* clr) {
   CGX::SetArray(GX_VA_POS, pos, 12);
   CGX::SetArray(GX_VA_NRM, nrm, 12);
@@ -1596,13 +1631,23 @@ int CGraphics::CRenderState::SetVtxState(const float* pos, const float* nrm, con
   }
   return result;
 }
+#endif
 
 void CGraphics::CRenderState::ResetFlushAll() {
   x0_ = 0;
+#if defined(TARGET_PC)
+  CGX::SetArray(GX_VA_POS, nullptr, 12, 0, false);
+  CGX::SetArray(GX_VA_NRM, nullptr, 12, 0, false);
+  CGX::SetArray(GX_VA_CLR0, nullptr, 4, 0, false);
+  for (int i = 0; i < 8; i++) {
+    CGX::SetArray(static_cast< GXAttr >(GX_VA_TEX0 + i), nullptr, 8, 0, false);
+  }
+#else
   SetVtxState(nullptr, nullptr, nullptr);
   for (int i = 0; i < 8; i++) {
     CGX::SetArray(static_cast< GXAttr >(GX_VA_TEX0 + i), nullptr, 8);
   }
+#endif
   Flush();
 }
 

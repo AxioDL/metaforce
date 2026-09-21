@@ -34,6 +34,7 @@ int CRealDvdRequest::GetMediaType() const {
   return 1;
 }
 
+#if !defined(TARGET_PC)
 void CARAMDvdRequest::WaitUntilComplete() {
   if (CARAMManager::GetInvalidDMAHandle() == x4_dmaReq) {
     return;
@@ -62,3 +63,4 @@ void CARAMDvdRequest::PostCancelRequest() {
 int CARAMDvdRequest::GetMediaType() const {
   return 0;
 }
+#endif

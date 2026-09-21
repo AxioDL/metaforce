@@ -87,8 +87,7 @@ void CCameraFilterPass::SetFilter(const EFilterType type, const EFilterShape sha
     x20_nextTxtr = txtr;
 
     if (x20_nextTxtr != kInvalidAssetId) {
-      x24_texObj =
-          rs_new TLockedToken< CTexture >(gpSimplePool->GetObj(SObjectTag('TXTR', txtr)));
+      x24_texObj = rs_new TLockedToken< CTexture >(gpSimplePool->GetObj(SObjectTag('TXTR', txtr)));
     }
   } else {
     x1c_nextColor = color;
@@ -97,8 +96,7 @@ void CCameraFilterPass::SetFilter(const EFilterType type, const EFilterShape sha
     x20_nextTxtr = txtr;
 
     if (x20_nextTxtr != kInvalidAssetId) {
-      x24_texObj =
-          rs_new TLockedToken< CTexture >(gpSimplePool->GetObj(SObjectTag('TXTR', txtr)));
+      x24_texObj = rs_new TLockedToken< CTexture >(gpSimplePool->GetObj(SObjectTag('TXTR', txtr)));
     }
 
     x10_remTime = time;
@@ -302,6 +300,16 @@ void CCameraFilterPass::DrawRandomStatic(const CColor& color, float alpha, bool 
   rstl::pair< CVector2f, CVector2f > vp = gpRender->SetViewportOrtho(true, 0.f, 1.f);
   const CVector2f& lt = vp.first;
   const CVector2f& rb = vp.second;
+#ifdef TARGET_PC
+  int size = 0;
+#define BASE reinterpret_cast< const uintptr_t >(DVDGetDOLLocation(&size))
+#define OFFSET 0x4f60
+#define RAND (rand() & 0x7fff)
+#else
+#define BASE 0
+#define OFFSET 0x8000
+#define RAND ((rand() + 0x1f) & ~0x1f)
+#endif
 
   if (cookieCutterDepth) {
     CGraphics::SetAlphaCompare(kAF_GEqual, CCast::ToUint8((1.f - alpha) * 255.f), kAO_And,
@@ -309,18 +317,16 @@ void CCameraFilterPass::DrawRandomStatic(const CColor& color, float alpha, bool 
     gpRender->SetDepthReadWrite(true, true);
     CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvModulate);
     CGraphics::SetTevOp(kTS_Stage1, CGraphics::kEnvPassthru);
-    CGraphics::LoadDolphinSpareTexture(
-        static_cast< int >(2.f + (rb.GetX() - lt.GetX())),
-        static_cast< int >(2.f + (rb.GetY() - lt.GetY())), GX_TF_IA4,
-        reinterpret_cast< void* >(((rand() + 0x1f) & ~0x1f) + 0x8000), GX_TEXMAP0);
+    CGraphics::LoadDolphinSpareTexture(static_cast< int >(2.f + (rb.GetX() - lt.GetX())),
+                                       static_cast< int >(2.f + (rb.GetY() - lt.GetY())), GX_TF_IA4,
+                                       reinterpret_cast< void* >(BASE + RAND + OFFSET), GX_TEXMAP0);
   } else {
     gpRender->SetDepthReadWrite(false, false);
     CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvModulateColor);
     CGraphics::SetTevOp(kTS_Stage1, CGraphics::kEnvPassthru);
-    CGraphics::LoadDolphinSpareTexture(
-        static_cast< int >(2.f + (rb.GetX() - lt.GetX())),
-        static_cast< int >(2.f + (rb.GetY() - lt.GetY())), GX_TF_IA4,
-        reinterpret_cast< void* >(((rand() + 0x1f) & ~0x1f) + 0x8000), GX_TEXMAP0);
+    CGraphics::LoadDolphinSpareTexture(static_cast< int >(2.f + (rb.GetX() - lt.GetX())),
+                                       static_cast< int >(2.f + (rb.GetY() - lt.GetY())), GX_TF_IA4,
+                                       reinterpret_cast< void* >(BASE + RAND + OFFSET), GX_TEXMAP0);
   }
 
   CGraphics::StreamBegin(kP_TriangleStrip);

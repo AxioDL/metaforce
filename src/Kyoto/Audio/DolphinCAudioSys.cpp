@@ -156,8 +156,10 @@ rstl::vector< CAudioSys::CEmitterData >* CAudioSys::mpEmitterDB = nullptr;
 SND_LISTENER* CAudioSys::mpListener = nullptr;
 uint CAudioSys::mUnusedEmitterHandle = 0;
 CAudioSys::ESurroundModes CAudioSys::mSurroundMode = CAudioSys::kSM_Mono;
+#if !defined(TARGET_PC)
 int CAudioSys::mMaxAramUsage = 0;
 int CAudioSys::mCurrentAramUsage = 0;
+#endif
 const uchar CAudioSys::kMaxVolume = 0x7f;
 const uchar CAudioSys::kEmitterMedPriority = 0x7f;
 bool CAudioSys::mProLogic2 = true;
@@ -199,7 +201,7 @@ CAudioSys::CAudioSys(const uchar numVoices, const uchar numMusic, const uchar nu
   mpDVDTrackDB = rs_new rstl::map< rstl::string, rstl::ncrc_ptr< CTrkData > >();
 #if VERSION >= VERSION_GM8P_00
   mpEmitterDB = rs_new rstl::vector< CEmitterData >(maxNumEmitters, CEmitterData(),
-                                                 rstl::rmemory_allocator());
+                                                    rstl::rmemory_allocator());
 #else
   mpEmitterDB = rs_new rstl::vector< CEmitterData >(maxNumEmitters, CEmitterData());
 #endif
@@ -215,7 +217,9 @@ CAudioSys::CAudioSys(const uchar numVoices, const uchar numMusic, const uchar nu
     mSurroundMode = kSM_Surround;
   }
 
+#if !defined(TARGET_PC)
   mMaxAramUsage = aramSize;
+#endif
 }
 
 CAudioSys::~CAudioSys() {
@@ -237,12 +241,16 @@ CAudioSys::~CAudioSys() {
 }
 
 void CAudioSys::SysSetVolume(const uchar volume, const ushort time, const uchar group) {
+#if !defined(TARGET_PC) // TODO: audio
   sndVolume(volume, time, group);
+#endif
 }
 
 void CAudioSys::SysSetSfxVolume(const uchar volume, const ushort time, const uchar music,
                                 const uchar fx) {
+#if !defined(TARGET_PC) // TODO: audio
   sndMasterVolume(volume, time, music, fx);
+#endif
 }
 
 bool CAudioSys::SysLoadGroupSet(CSimplePool* pool, const uint id) {
@@ -251,11 +259,13 @@ bool CAudioSys::SysLoadGroupSet(CSimplePool* pool, const uint id) {
   if (!existing) {
     TLockedToken< CAudioGrpSetLoc > token(pool->GetObj(SObjectTag('AGSC', id)));
     rstl::ncrc_ptr< CAudioGroupSet > group(rs_new CAudioGroupSet(token));
+#if !defined(TARGET_PC)
     int aramUsage = mCurrentAramUsage + group->AramUsage();
     if (aramUsage > mMaxAramUsage) {
       return true;
     }
     mCurrentAramUsage = aramUsage;
+#endif
     const rstl::string& groupName = group->GetName();
     mpGroupSetDB->insert(
         rstl::pair< rstl::string, rstl::ncrc_ptr< CAudioGroupSet > >(groupName, group));
@@ -271,11 +281,13 @@ bool CAudioSys::SysLoadGroupSet(const CToken& token, const rstl::string& name, c
   if (!existing) {
     rstl::ncrc_ptr< CAudioGroupSet > group(
         rs_new CAudioGroupSet(TLockedToken< CAudioGrpSetLoc >(token)));
+#if !defined(TARGET_PC)
     int aramUsage = mCurrentAramUsage + group->AramUsage();
     if (aramUsage > mMaxAramUsage) {
       return true;
     }
     mCurrentAramUsage = aramUsage;
+#endif
     const rstl::string& groupName = group->GetName();
     mpGroupSetDB->insert(
         rstl::pair< rstl::string, rstl::ncrc_ptr< CAudioGroupSet > >(groupName, group));
@@ -309,7 +321,9 @@ bool CAudioSys::SysUnloadGroupSet(const rstl::string& name) {
         ++it;
       }
     }
+#if !defined(TARGET_PC)
     mCurrentAramUsage -= group->AramUsage();
+#endif
     mpGroupSetDB->erase(name);
     return true;
   }
@@ -327,6 +341,7 @@ void* CAudioSys::SampleDataUploadCallback(u32 address, u32 bytes) {
 }
 
 bool CAudioSys::SysPushGroupIntoARAM(const rstl::string& name, const uchar groupId) {
+#if !defined(TARGET_PC) // TODO: audio
   rstl::ncrc_ptr< CAudioGroupSet > groupSet = FindGroupSet(name);
   CAudioGroupSet* group = groupSet.GetPtr();
   if (group) {
@@ -334,6 +349,9 @@ bool CAudioSys::SysPushGroupIntoARAM(const rstl::string& name, const uchar group
     void* samples = group->GetSampleBuffer();
     void* sampleDir = group->GetSDirBuffer();
     void* pool = group->GetPoolBuffer();
+#if defined(TARGET_PC)
+    return sndPushGroup(project, groupId, samples, sampleDir, pool);
+#else
     uchar buffer[0x1020];
     mpSampleDataUploadBuffer =
         reinterpret_cast< void* >((reinterpret_cast< uintptr_t >(buffer) + 31) & ~31);
@@ -341,11 +359,17 @@ bool CAudioSys::SysPushGroupIntoARAM(const rstl::string& name, const uchar group
     const bool result = sndPushGroup(project, groupId, samples, sampleDir, pool);
     sndSetSampleDataUploadCallback(nullptr, 0);
     return result;
+#endif
   }
+#endif
   return false;
 }
 
-void CAudioSys::SysPopGroupFromARAM() { sndPopGroup(); }
+void CAudioSys::SysPopGroupFromARAM() {
+#if !defined(TARGET_PC) // TODO: audio
+  sndPopGroup();
+#endif
+}
 
 const rstl::string& CAudioSys::SysGetGroupSetName(const uint id) {
   rstl::map< uint, rstl::string >::const_iterator it = mpGroupSetResNameDB->find(id);

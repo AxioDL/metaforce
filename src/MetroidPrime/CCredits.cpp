@@ -29,6 +29,8 @@
 #include "rstl/StringExtras.hpp"
 #include "rstl/math.hpp"
 
+#include "dolphin/gx.h"
+
 static const char* const skMovieNames[] = {"Video/wingame.thp",       "Video/wingame_best.thp",
                                            "Video/wingame_best.thp",  "Video/losegame.thp",
                                            "Video/05_tallonText.thp", "Video/AfterCredits.thp",

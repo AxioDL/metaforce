@@ -1,5 +1,5 @@
-#include "Kyoto/Math/CVector3f.hpp"
 #include "Kyoto/Basics/CBasics.hpp"
+#include "Kyoto/Math/CVector3f.hpp"
 
 #include <Kyoto/Graphics/CMoviePlayer.hpp>
 
@@ -16,12 +16,8 @@
 #include <rstl/math.hpp>
 #include <string.h>
 
-#include "dolphin/gx/GXGeometry.h"
-#include "dolphin/gx/GXTev.h"
-#include "dolphin/gx/GXTexture.h"
-#include "dolphin/thp/THPAudio.h"
-#include "dolphin/thp/THPPlayer.h"
-#include "dolphin/thp/THPVideoDecode.h"
+#include "dolphin/gx.h"
+#include "dolphin/thp.h"
 
 static int sNumReferences = 0;
 static CMoviePlayer* sAudioPlayer;
@@ -83,6 +79,9 @@ static void MyTHPGXYuv2RgbSetup(bool field, bool deinterlace) {
     GXInitTexObj(&obj, skInterlacePattern, 8, 4, GX_TF_I8, GX_REPEAT, GX_REPEAT, FALSE);
     GXInitTexObjLOD(&obj, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, FALSE, FALSE, GX_ANISO_1);
     GXLoadTexObj(&obj, GX_TEXMAP3);
+#if defined(TARGET_PC)
+    GXDestroyTexObj(&obj);
+#endif
     CTexture::InvalidateTexmap(GX_TEXMAP3);
     CGX::SetTevOrder(GX_TEVSTAGE4, GX_TEXCOORD2, GX_TEXMAP3, GX_COLOR_NULL);
     CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE4);
@@ -149,6 +148,11 @@ static void MyTHPYuv2RgbTextureSetup(void* y, void* u, void* v, ushort width, us
                FALSE);
   GXInitTexObjLOD(&vTex, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, FALSE, FALSE, GX_ANISO_1);
   GXLoadTexObj(&vTex, GX_TEXMAP2);
+#if defined(TARGET_PC)
+  GXDestroyTexObj(&yTex);
+  GXDestroyTexObj(&uTex);
+  GXDestroyTexObj(&vTex);
+#endif
 
   CTexture::InvalidateTexmap(GX_TEXMAP0);
   CTexture::InvalidateTexmap(GX_TEXMAP1);
@@ -551,6 +555,7 @@ void CMoviePlayer::Rewind() {
 }
 
 void CMoviePlayer::StaticMyAudioCallback() {
+#if !defined(TARGET_PC) // TODO: audio
   if (sAudioPlayer != nullptr && sAudioPlayer->xf4_26_hasAudio) {
     curAudioBuffer = static_cast< const short* >(OSPhysicalToCached(AIGetDMAStartAddr()));
     soundBufferIndex ^= 1;
@@ -564,6 +569,7 @@ void CMoviePlayer::StaticMyAudioCallback() {
     DCFlushRange(buffer, sizeof(soundBuffer[0]));
     OSRestoreInterrupts(interrupts);
   }
+#endif
 }
 
 void CMoviePlayer::MixAudio(short* out, const short* in, unsigned long samples) {

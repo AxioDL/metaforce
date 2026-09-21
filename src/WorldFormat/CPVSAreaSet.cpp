@@ -1,9 +1,13 @@
-#include "Kyoto/PVS/CPVSVisOctree.hpp"
 #include "Kyoto/Basics/CBasics.hpp"
+#include "Kyoto/PVS/CPVSVisOctree.hpp"
 #include "rstl/auto_ptr.hpp"
 #include <Kyoto/PVS/CPVSVisSet.hpp>
 #include <Kyoto/Streams/CMemoryInStream.hpp>
 #include <WorldFormat/CPVSAreaSet.hpp>
+
+#if defined(TARGET_PC)
+#include "Metaforce/Endian.hpp"
+#endif
 
 CPVSAreaSet::CPVSAreaSet(int numFeatures, int numLights, int num2ndLights, int numActors,
                          int leafSize, int lightIndexCount, const char* w7, const char* w8,
@@ -32,8 +36,8 @@ rstl::auto_ptr< CPVSAreaSet > CPVSAreaSet::MakeAreaSet(const char* data, int len
   const char* const octreeData = entityIndexEnd + lightIndexCount * leafSize;
 
   return rstl::auto_ptr< CPVSAreaSet >(rs_new CPVSAreaSet(numFeatures, numLights, num2ndLights,
-                                                       numActors, leafSize, lightIndexCount, data,
-                                                       entityIndexEnd, octreeData));
+                                                          numActors, leafSize, lightIndexCount,
+                                                          data, entityIndexEnd, octreeData));
 }
 
 CPVSVisOctree& CPVSAreaSet::GetVisOctree() const { return x20_octree; }
@@ -46,5 +50,9 @@ CPVSVisSet CPVSAreaSet::GetLightSet(int lightIdx) const {
 }
 
 int CPVSAreaSet::GetEntityIdByIndex(uint idx) const {
+#if defined(TARGET_PC)
+  return read_bits< int >(x18_ + idx * 4);
+#else
   return CBasics::SwapBytes(reinterpret_cast< const int* >(x18_)[idx]);
+#endif
 }

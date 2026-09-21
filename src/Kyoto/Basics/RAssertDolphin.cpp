@@ -26,6 +26,11 @@ static void hack() {
 }
 
 void ErrorHandler(OSError code, OSContext* context, int dsisr, int dar) {
+#if defined(TARGET_PC)
+  OSPanic(__FILE__, __LINE__, "Game error %d (DSISR %08x, DAR %08x)%s%s", code, dsisr, dar,
+          rs_debugger_buffer_size > 0 ? ": " : "",
+          rs_debugger_buffer_size > 0 ? rs_debugger_buffer : "");
+#else
   OSContext newContext;
   uint loopExitCriteria;
   PADStatus pads[4];
@@ -142,13 +147,16 @@ void ErrorHandler(OSError code, OSContext* context, int dsisr, int dar) {
   if (!CallFatal) {
     OSFatal(fg, bg, rs_debugger_buffer);
   }
+#endif
 }
 
 void SetErrorHandlers() {
+#if !defined(TARGET_PC)
   OSSetErrorHandler(OS_ERROR_DSI, (OSErrorHandler)ErrorHandler);
   OSSetErrorHandler(OS_ERROR_ISI, (OSErrorHandler)ErrorHandler);
   OSSetErrorHandler(OS_ERROR_ALIGNMENT, (OSErrorHandler)ErrorHandler);
   OSSetErrorHandler(OS_ERROR_PROTECTION, (OSErrorHandler)ErrorHandler);
+#endif
 }
 
 void rs_debugger_printf(const char* format, ...) {

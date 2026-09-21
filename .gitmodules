@@ -1,3 +1,9 @@
 [submodule "extern/musyx"]
 	path = extern/musyx
 	url = https://github.com/AxioDL/musyx.git
+[submodule "extern/aurora"]
+	path = extern/aurora
+	url = https://github.com/encounter/aurora.git
+[submodule "extern/borealis"]
+	path = extern/borealis
+	url = https://github.com/encounter/borealis.git

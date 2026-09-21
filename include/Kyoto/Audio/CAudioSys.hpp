@@ -185,8 +185,10 @@ public:
   static void* mAICallback;
   static bool mAICallbackEnabled;
   static ESurroundModes mSurroundMode;
+#if !defined(TARGET_PC)
   static int mMaxAramUsage;
   static int mCurrentAramUsage;
+#endif
   static bool mProLogic2;
   static short mVolumeScale;
   static short mDefaultVolumeScale;

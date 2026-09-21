@@ -827,7 +827,8 @@ void CSlideShow::DrawControlsBorder() const {
         CVector3f(0.f, 0.f, GetControlsTextHeight() / 2.f + (5.f + x128_controlsOffset)));
     CGraphics::SetModelMatrix(xf);
     const CModelFlags flags(CModelFlags::kT_One, gpTweakSlideShow->GetBorderColor());
-    gpRender->DrawModelFlat(*x38_galleryBorder->GetT(), flags, false, nullptr, nullptr);
+    gpRender->DrawModelFlat(*x38_galleryBorder->GetT(), flags, false, TModelPositions(),
+                            TModelNormals());
     gpRender->SetBlendMode_AlphaBlended();
   }
 }

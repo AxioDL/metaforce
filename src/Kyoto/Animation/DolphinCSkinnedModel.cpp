@@ -4,6 +4,7 @@
 #include "Kyoto/Alloc/CMemory.hpp"
 #include "Kyoto/Animation/CSkinRules.hpp"
 #include "Kyoto/Animation/CVertexMorphEffect.hpp"
+#include "Kyoto/CFrameDelayedKiller.hpp"
 #include "Kyoto/Graphics/CGraphics.hpp"
 #include "Kyoto/Graphics/CModel.hpp"
 #include "Kyoto/Graphics/CModelFlags.hpp"
@@ -60,6 +61,9 @@ void Skinning::SetSkinningBuffer(void* buffer, int size) {
 #endif
 
 void Skinning::AddSkinnedRef() {
+#if defined(TARGET_PC)
+  ++sNumSkinnedObjects;
+#else
   if (!sSkinningInitialized) {
     GXSetDrawSync(0xFFFF);
     while (GXReadDrawSync() != 0xFFFF) {
@@ -78,14 +82,17 @@ void Skinning::AddSkinnedRef() {
   }
   ++sNumSkinnedObjects;
 #endif
+#endif
 }
 
 void Skinning::DelSkinnedRef() {
   --sNumSkinnedObjects;
+#if !defined(TARGET_PC)
   if (sNumSkinnedObjects == 0) {
     sSkinningBuffer.clear();
     sAllocations.clear();
   }
+#endif
 }
 
 #if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
@@ -143,7 +150,12 @@ void CSkinnedModel::Draw(const CModelFlags& flags) const {
   } else if (x28_vertWorkspace.null()) {
     x4_model->Draw(flags);
   } else {
+#if defined(TARGET_PC)
+    x4_model->Draw(GetPositionView(x28_vertWorkspace.get()),
+                   GetNormalView(x30_normalWorkspace.get()), flags);
+#else
     x4_model->Draw(x28_vertWorkspace.get(), x30_normalWorkspace.get(), flags);
+#endif
     PostDrawFunc();
   }
 }
@@ -152,12 +164,24 @@ void CSkinnedModel::Draw(const TDrawFunc func, void* data) {
   if (x39_disableWorkspaces) {
     CTransform4f saved(CGraphics::GetModelMatrix());
     CGraphics::SetModelMatrix(saved * x10_skinRules->GetVirtualBones()[0].GetTransform());
+#if defined(TARGET_PC)
+    Draw(func, TModelPositions(), TModelNormals(), data);
+#else
     Draw(func, x4_model->GetPositions(), x4_model->GetNormals(), data);
+#endif
     CGraphics::SetModelMatrix(saved);
   } else if (x28_vertWorkspace.null()) {
+#if defined(TARGET_PC)
+    Draw(func, TModelPositions(), TModelNormals(), data);
+#else
     Draw(func, x4_model->GetPositions(), x4_model->GetNormals(), data);
+#endif
   } else {
+#if defined(TARGET_PC)
+    func(GetPositionView(x28_vertWorkspace.get()), GetNormalView(x30_normalWorkspace.get()), data);
+#else
     func(x28_vertWorkspace.get(), x30_normalWorkspace.get(), data);
+#endif
     uint vertSize = (x10_skinRules->GetNumPoints() * 12 + 31) & ~31u;
     DCFlushRangeNoSync(x28_vertWorkspace.get(), vertSize);
     uint normSize = (x10_skinRules->GetNumNormals() * 12 + 31) & ~31u;
@@ -169,7 +193,11 @@ void CSkinnedModel::Draw(const TDrawFunc func, void* data) {
 
 void CSkinnedModel::Draw(const float* positions, const float* normals,
                          const CModelFlags& flags) const {
+#if defined(TARGET_PC)
+  x4_model->Draw(GetPositionView(positions), GetNormalView(normals), flags);
+#else
   x4_model->Draw(positions, normals, flags);
+#endif
   PostDrawFunc();
 }
 
@@ -198,6 +226,16 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
   alignedVertSize = ((vertSize + 31) & ~31u);
   totalSize = alignedVertSize + alignedNormSize;
 
+#if defined(TARGET_PC)
+  x10_skinRules->InitLockedCacheState(**x4_model);
+  x10_skinRules->BuildAccumulatedTransforms(pose, **x1c_layoutInfo);
+  x10_skinRules->BuildPoints(verts);
+  float* normals =
+      workVerts != nullptr
+          ? reinterpret_cast< float* >(reinterpret_cast< uchar* >(verts) + alignedVertSize)
+          : x30_normalWorkspace.get();
+  x10_skinRules->BuildNormals(normals);
+#else
   DCFlushRange(verts, totalSize);
   BOOL interruptState = OSDisableInterrupts();
   volatile void* pipe = GXRedirectWriteGatherPipe(verts);
@@ -215,6 +253,7 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
   x10_skinRules->BuildNormals(pipe);
   GXRestoreWriteGatherPipe();
   OSRestoreInterrupts(interruptState);
+#endif
 
   if (morphEffect.valid()) {
     (*morphEffect)
@@ -226,8 +265,13 @@ void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
 
   if (sPointGen != nullptr) {
     const CVector3f* positions = reinterpret_cast< const CVector3f* >(verts);
+#if defined(TARGET_PC)
+    sPointGen(sPointGenData, positions, reinterpret_cast< const CVector3f* >(normals),
+              x10_skinRules->GetNumPoints());
+#else
     sPointGen(sPointGenData, positions, positions + x10_skinRules->GetNumPoints(),
               x10_skinRules->GetNumPoints());
+#endif
     DCInvalidateRange(verts, totalSize);
   }
 }
@@ -238,6 +282,7 @@ void CSkinnedModel::CalculateDefault() {
 }
 
 void CSkinnedModel::TickAllocations() {
+#if !defined(TARGET_PC)
   int syncVal = GXReadDrawSync();
   if (syncVal > static_cast< int >(Skinning::skCurrentToken)) {
     syncVal -= 0x10000;
@@ -253,9 +298,13 @@ void CSkinnedModel::TickAllocations() {
     Skinning::sSkinningBuffer->Free(front.x0_ptr, front.x4_unk1);
     Skinning::sAllocations.pop_front();
   }
+#endif
 }
 
 void* CSkinnedModel::EnsureAllocation(int size) {
+#if defined(TARGET_PC)
+  return rs_new uchar[size];
+#else
   size = (size + 31) & ~31;
   void* ptr = Skinning::sSkinningBuffer->Alloc(size);
   if (ptr == nullptr && !Skinning::sbDumpedSpinLockMessage) {
@@ -280,9 +329,18 @@ void* CSkinnedModel::EnsureAllocation(int size) {
   }
   Skinning::sAllocations.push_back(SSkinnedAllocation(ptr, size, Skinning::skCurrentToken));
   return ptr;
+#endif
 }
 
 void CSkinnedModel::AllocateStorage() {
+#if defined(TARGET_PC)
+  if (x28_vertWorkspace.null()) {
+    x28_vertWorkspace = rs_new float[x10_skinRules->GetNumPoints() * 3];
+  }
+  if (x30_normalWorkspace.null()) {
+    x30_normalWorkspace = rs_new float[x10_skinRules->GetNumNormals() * 3];
+  }
+#else
   if (x38_owned && (x28_vertWorkspace.null() || x30_normalWorkspace.null())) {
     int vertexCount = x10_skinRules->GetNumPoints();
     int normalCount = x10_skinRules->GetNumNormals();
@@ -300,15 +358,27 @@ void CSkinnedModel::AllocateStorage() {
     x28_vertWorkspace.release();
     x30_normalWorkspace.release();
   }
+#endif
 }
 
 void CSkinnedModel::PostDrawFunc() const {
+#if defined(TARGET_PC)
+  if (x38_owned && !x28_vertWorkspace.null()) {
+    CFrameDelayedKiller::ScheduleDeletion(CFrameDelayedKiller::kWhichFrame_NextFrame,
+                                          x28_vertWorkspace.release());
+    CFrameDelayedKiller::ScheduleDeletion(CFrameDelayedKiller::kWhichFrame_NextFrame,
+                                          x30_normalWorkspace.release());
+    x28_vertWorkspace = rstl::auto_ptr< float >();
+    x30_normalWorkspace = rstl::auto_ptr< float >();
+  }
+#else
   if (x38_owned && !x28_vertWorkspace.null()) {
     x28_vertWorkspace = rstl::auto_ptr< float >();
     x30_normalWorkspace = rstl::auto_ptr< float >();
     GXSetDrawSync(Skinning::skCurrentToken);
     ++Skinning::skCurrentToken;
   }
+#endif
 }
 
 void CSkinnedModel::AddDummySkinnedModelRef() { Skinning::AddSkinnedRef(); }

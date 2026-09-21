@@ -140,25 +140,25 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const CTransform4f& xf,
   x14_24_renderSorted = true;
 }
 
-void CModelData::ThermalDrawCallback(const float* positions, const float* normals,
+void CModelData::ThermalDrawCallback(TModelPositions positions, TModelNormals normals,
                                      const SThermalDrawContext* ctx) {
   gpRender->DrawThermalModel(**ctx->model.GetModel(), ctx->mulColor, ctx->addColor, positions,
                              normals, ctx->flags);
 }
 
-void CModelData::DisintegrateDrawCallback(const float* positions, const float* normals,
+void CModelData::DisintegrateDrawCallback(TModelPositions positions, TModelNormals normals,
                                           const SOneTextureDrawContext* ctx) {
   gpRender->DrawModelDisintegrate(**ctx->model.GetModel(), ctx->texture, ctx->color, positions,
                                   normals, ctx->t);
 }
 
-void CModelData::FlatDrawCallback(const float* positions, const float* normals,
+void CModelData::FlatDrawCallback(TModelPositions positions, TModelNormals normals,
                                   const SFlatDrawContext* ctx) {
   gpRender->DrawModelFlat(**ctx->model.GetModel(), ctx->flags, ctx->unsortedOnly, positions,
                           normals);
 }
 
-void CModelData::MultiLightingDrawCallback(const float* positions, const float* normals,
+void CModelData::MultiLightingDrawCallback(TModelPositions positions, TModelNormals normals,
                                            SMultiLightingDrawContext* ctx) {
   CGraphics::DisableAllLights();
   CModelFlags depthFlags = CModelFlags::AlphaBlended(0.f);
@@ -166,7 +166,11 @@ void CModelData::MultiLightingDrawCallback(const float* positions, const float* 
       CModelFlags::AlphaBlended(ctx->alphaColor).DepthCompareUpdate(true, false);
   CModelFlags additiveFlags =
       CModelFlags::Additive(ctx->additiveColor).DepthCompareUpdate(true, false);
+#if defined(TARGET_PC)
+  if (!positions.empty()) {
+#else
   if (positions != nullptr) {
+#endif
     ctx->model.Draw(positions, normals, depthFlags);
     if (ctx->lights != nullptr)
       ctx->lights->ActivateLights();
@@ -181,7 +185,7 @@ void CModelData::MultiLightingDrawCallback(const float* positions, const float* 
   }
 }
 
-void CModelData::MultipassDrawCallback(const float* positions, const float* normals,
+void CModelData::MultipassDrawCallback(TModelPositions positions, TModelNormals normals,
                                        const SMultipassDrawContext* ctx) {
   const CModel& model = **ctx->model.GetModel();
   for (int i = 0; i < ctx->count; ++i)
@@ -191,13 +195,18 @@ void CModelData::MultipassDrawCallback(const float* positions, const float* norm
 void CModelData::ThermalDraw(CSkinnedModel& model, const CColor& mulColor, const CColor& addColor,
                              const CModelFlags& flags) {
   SThermalDrawContext ctx(model, mulColor, addColor, flags);
-  model.Draw(reinterpret_cast< TDrawFunc >(ThermalDrawCallback), &ctx);
+  model.Draw(ThermalDrawCallback, &ctx);
 }
 
 void CModelData::ThermalDraw(CSkinnedModel& model, const float* positions, const float* normals,
                              const CColor& mulColor, const CColor& addColor,
                              const CModelFlags& flags) {
+#if defined(TARGET_PC)
+  gpRender->DrawThermalModel(**model.GetModel(), mulColor, addColor,
+                             model.GetPositionView(positions), model.GetNormalView(normals), flags);
+#else
   gpRender->DrawThermalModel(**model.GetModel(), mulColor, addColor, positions, normals, flags);
+#endif
 }
 
 void CModelData::RenderThermal(const CTransform4f& xf, const CColor& mulColor,
@@ -210,8 +219,8 @@ void CModelData::RenderThermal(const CTransform4f& xf, const CColor& mulColor,
     xc_animData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
     ThermalDraw(model, mulColor, addColor, flags);
   } else {
-    gpRender->DrawThermalModel(**PickStaticModel(kWM_ThermalHot), mulColor, addColor, nullptr,
-                               nullptr, flags);
+    gpRender->DrawThermalModel(**PickStaticModel(kWM_ThermalHot), mulColor, addColor,
+                               TModelPositions(), TModelNormals(), flags);
   }
 }
 
@@ -225,9 +234,10 @@ void CModelData::DisintegrateDraw(EWhichModel which, const CTransform4f& xf,
     CSkinnedModel& model = PickAnimatedModel(which);
     xc_animData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
     SOneTextureDrawContext ctx(model, texture, color, t);
-    model.Draw(reinterpret_cast< TDrawFunc >(DisintegrateDrawCallback), &ctx);
+    model.Draw(DisintegrateDrawCallback, &ctx);
   } else {
-    gpRender->DrawModelDisintegrate(**PickStaticModel(which), texture, color, nullptr, nullptr, t);
+    gpRender->DrawModelDisintegrate(**PickStaticModel(which), texture, color, TModelPositions(),
+                                    TModelNormals(), t);
   }
 }
 
@@ -245,9 +255,10 @@ void CModelData::FlatDraw(EWhichModel which, const CTransform4f& xf, bool unsort
     CSkinnedModel& model = PickAnimatedModel(which);
     xc_animData->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
     SFlatDrawContext ctx(model, unsortedOnly, flags);
-    model.Draw(reinterpret_cast< TDrawFunc >(FlatDrawCallback), &ctx);
+    model.Draw(FlatDrawCallback, &ctx);
   } else {
-    gpRender->DrawModelFlat(**PickStaticModel(which), flags, unsortedOnly, nullptr, nullptr);
+    gpRender->DrawModelFlat(**PickStaticModel(which), flags, unsortedOnly, TModelPositions(),
+                            TModelNormals());
   }
 }
 
@@ -260,10 +271,10 @@ void CModelData::MultiLightingDraw(EWhichModel which, const CTransform4f& xf,
     CSkinnedModel& model = PickAnimatedModel(which);
     GetAnimationData()->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
     SMultiLightingDrawContext ctx(**model.GetModel(), lights, mulColor, addColor);
-    model.Draw(reinterpret_cast< TDrawFunc >(MultiLightingDrawCallback), &ctx);
+    model.Draw(MultiLightingDrawCallback, &ctx);
   } else {
     SMultiLightingDrawContext ctx(**PickStaticModel(which), lights, mulColor, addColor);
-    MultiLightingDrawCallback(nullptr, nullptr, &ctx);
+    MultiLightingDrawCallback(TModelPositions(), TModelNormals(), &ctx);
   }
 }
 
@@ -282,7 +293,7 @@ void CModelData::MultipassDraw(EWhichModel which, const CTransform4f& xf,
     CSkinnedModel& model = PickAnimatedModel(which);
     GetAnimationData()->SetupRender(model, rstl::optional_object< CVertexMorphEffect >(), nullptr);
     SMultipassDrawContext ctx(model, flags, count);
-    model.Draw(reinterpret_cast< TDrawFunc >(MultipassDrawCallback), &ctx);
+    model.Draw(MultipassDrawCallback, &ctx);
   } else {
     const CModel& model = **PickStaticModel(which);
     for (int i = 0; i < count; ++i)

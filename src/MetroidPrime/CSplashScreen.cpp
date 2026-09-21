@@ -164,6 +164,7 @@ void CSplashScreen::Draw() const {
     CGraphics::Render2D(tex, vp.mLeft, vp.mTop, vp.mWidth, vp.mHeight, color);
   }
 
+#if !defined(TARGET_PC)
   const CViewport viewport = CGraphics::GetViewport();
   CTextExecuteBuffer text;
   text.AddWordWrapping(true);
@@ -198,4 +199,5 @@ void CSplashScreen::Draw() const {
   CGraphics::SetModelMatrix(xf);
   text.BuildRenderBuffer().Render(CColor::White(), 0.f);
   CGraphics::SetCullMode(kCM_Front);
+#endif
 }

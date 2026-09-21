@@ -543,6 +543,9 @@ void CWorldTransManager::StartTextFadeOut() {
 }
 
 bool CWorldTransManager::WaitForModelsAndTextures() {
+#if defined(TARGET_PC)
+  CFrameDelayedKiller::StallAndFlushAllAllocations();
+#else
   rstl::vector< SObjectTag > tags = gpSimplePool->GetReferencedTags();
   CTexture::sCurrentFrameCount = 0x7fffffff;
   rstl::list< CARAMToken > modelData;
@@ -582,5 +585,6 @@ bool CWorldTransManager::WaitForModelsAndTextures() {
     }
   }
   CTexture::sCurrentFrameCount = 0;
+#endif
   return true;
 }

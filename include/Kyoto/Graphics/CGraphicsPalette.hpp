@@ -26,10 +26,14 @@ public:
   ushort* GetPaletteData() { return xc_entries.get(); }
   const ushort* GetPaletteData() const { return xc_entries.get(); }
   void Load() const;
+#if defined(TARGET_PC)
+  void* Lock();
+#else
   void* Lock() {
     x1c_locked = true;
     return xc_entries.get();
   }
+#endif
   void UnLock();
 
 public:

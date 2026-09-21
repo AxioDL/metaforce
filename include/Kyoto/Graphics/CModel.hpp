@@ -17,9 +17,14 @@ class CCubeSurface;
 class CModel {
   struct SShader {
     rstl::vector< TCachedToken< CTexture > > x0_textures;
+#if defined(TARGET_PC)
+    TModelData x10_data;
+    SShader(TModelData data) : x10_data(data) {}
+#else
     uchar* x10_data;
 
     SShader(uchar* data) : x10_data(data) {};
+#endif
 
     void UnlockTextures();
   };
@@ -35,15 +40,18 @@ public:
   void Draw(const CModelFlags&) const;
   void DrawUnsortedParts(const CModelFlags& flags) const;
   void DrawSortedParts(const CModelFlags& flags) const;
-  void Draw(const float* positions, const float* normals, const CModelFlags& flags) const;
+  void Draw(TModelPositions positions, TModelNormals normals, const CModelFlags& flags) const;
   bool IsLoaded(int matIdx) const;
   const float* GetPositions() const;
   const float* GetNormals() const;
   void UpdateLastFrame() const;
-  // Retail buffer relocation methods; names are inferred from their implementations.
+#if !defined(TARGET_PC)
   rstl::auto_ptr< uchar > GetData();
+#endif
   uint GetDataSize() const;
+#if !defined(TARGET_PC)
   void RemapData(uchar* data);
+#endif
 
   const CCubeModel* GetCubeModel() const { return x28_modelInstance.get(); }
   const CAABox& GetBoundingBox() const { return x28_modelInstance->GetBoundingBox(); }
@@ -74,7 +82,9 @@ public:
 private:
   rstl::single_ptr< uchar > x0_data;
   uint x4_dataLen;
+#if !defined(TARGET_PC)
   rstl::vector< void* > x8_surfaces;
+#endif
   mutable rstl::vector< SShader > x18_matSets;
   rstl::single_ptr< CCubeModel > x28_modelInstance;
   mutable short x2c_currentMatxIdx;
@@ -82,6 +92,9 @@ private:
   mutable CModel* x30_prev;
   mutable CModel* x34_next;
   mutable uint x38_lastFrame;
+#if defined(TARGET_PC)
+  uint mResourceSize;
+#endif
 };
 
 const CFactoryFnReturn FModelFactory(const SObjectTag& tag, const rstl::auto_ptr< uchar >& ptr,

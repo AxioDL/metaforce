@@ -29,6 +29,7 @@ CAudioGrpSetLoc::CAudioGrpSetLoc(const rstl::auto_ptr< uchar >& data, int length
   const uint poolSize = ReadHeader(data.get(), length, readPosition);
   CAudioSys::GetVerbose();
 
+#if !defined(TARGET_PC) // TODO: audio
   const uint projectOffset = readPosition + poolSize;
 #if TARGET_LITTLE_ENDIAN
   const uint projectSize = CBasics::SwapBytes(*reinterpret_cast< uint* >(data.get() + projectOffset));
@@ -69,11 +70,14 @@ CAudioGrpSetLoc::CAudioGrpSetLoc(const rstl::auto_ptr< uchar >& data, int length
   x3c_sampleDir = x8_groupData.get() + roundedProjectSize;
   memcpy(x3c_sampleDir, ptr + (sdirOffset + 4), sdirSize);
   x40_samples = &ptr[sampOffset + 4];
+#endif
 }
 
 void CAudioGrpSetLoc::FreeSampleBuffer() {
+#if !defined(TARGET_PC)
   x0_data = nullptr;
   x40_samples = nullptr;
+#endif
 }
 
 template <>

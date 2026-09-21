@@ -137,7 +137,7 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const CVector3f& pos
         if (changed) {
           gpRender->SetModelMatrix(model * transform);
         }
-        surface.Draw(changed ? mapArea.GetVertices() : nullptr, color, outlineColor, 2.f);
+        surface.Draw(changed ? mapArea.GetVertices() : TMapVertices(), color, outlineColor, 2.f);
         lastWorld = worldIndex;
         lastArea = areaIndex;
       }

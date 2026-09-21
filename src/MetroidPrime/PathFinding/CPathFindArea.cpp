@@ -12,6 +12,7 @@
 
 class CVParamTransfer;
 
+#if !defined(TARGET_PC)
 class CPFMemoryStream {
 public:
   CPFMemoryStream(uchar* data, int size) : x0_data(data), x4_size(size) {}
@@ -30,6 +31,7 @@ private:
   uchar* x0_data;
   int x4_size;
 };
+#endif
 
 uint CPFAreaOctree::GetChildIndex(const CVector3f& point) const {
   uint index = 0;
@@ -76,8 +78,15 @@ CPFArea::CPFArea(const rstl::auto_ptr< uchar >& data, int size)
 , x24_cachedRegionListPoint(CVector3f::Zero())
 , x30_hasCachedRegionList(false)
 , x34_regionFindCookie(0)
+#if !defined(TARGET_PC)
 , x13c_data(data.release())
+#endif
 , x188_transform(CTransform4f::Identity()) {
+#if defined(TARGET_PC)
+  rstl::single_ptr resource{data.release()};
+  ReadData(size < 0 || resource.null() ? std::span< const uchar >{}
+                                       : std::span< const uchar >(resource.get(), size));
+#else
   CPFMemoryStream stream(x13c_data.get(), size);
   stream.ReadInt32();
 
@@ -123,6 +132,7 @@ CPFArea::CPFArea(const rstl::auto_ptr< uchar >& data, int size)
   for (i = 0; i < numOctreeNodes; ++i) {
     x158_octree[i].Fixup(*this);
   }
+#endif
 }
 
 prereserved_vector< CPFRegion* >* CPFArea::GetOctreeRegionList(const CVector3f& point) {
@@ -228,7 +238,8 @@ bool CPFArea::PathExists(const CPFRegion* source, const CPFRegion* destination, 
   return (x168_connectionsGround[bit / 32] >> (bit % 32)) & 1;
 }
 
-const CFactoryFnReturn FPathFindAreaFactory(const SObjectTag& tag, const rstl::auto_ptr< uchar >& data,
-                                      int size, const CVParamTransfer& xfer) {
+const CFactoryFnReturn FPathFindAreaFactory(const SObjectTag& tag,
+                                            const rstl::auto_ptr< uchar >& data, int size,
+                                            const CVParamTransfer& xfer) {
   return rs_new CPFArea(data, size);
 }

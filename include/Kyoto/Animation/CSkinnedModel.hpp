@@ -4,6 +4,8 @@
 #include "types.h"
 
 #include "Kyoto/Animation/CSkinRules.hpp"
+#include "Kyoto/Animation/CVertexMorphEffect.hpp"
+#include "Kyoto/Graphics/ModelTypes.hpp"
 #include "Kyoto/TToken.hpp"
 
 #include "rstl/auto_ptr.hpp"
@@ -14,9 +16,8 @@ class CModelFlags;
 class CCharLayoutInfo;
 class CPoseAsTransforms;
 class CVector3f;
-class CVertexMorphEffect;
 
-typedef void (*TDrawFunc)(const float*, const float*, const void*);
+typedef void (*TDrawFunc)(TModelPositions, TModelNormals, const void*);
 
 class CSkinnedModel {
 public:
@@ -42,7 +43,38 @@ public:
                  const float*, float*);
   void Draw(const CModelFlags&) const;
   void Draw(const float* positions, const float* normals, const CModelFlags& flags) const;
+#if defined(TARGET_PC)
+  TModelPositions GetPositionView(const float* positions) const {
+    return positions ? TModelPositions(positions, static_cast< size_t >(GetNumPoints()) * 3)
+                     : TModelPositions{};
+  }
+  TModelNormals GetNormalView(const float* normals) const {
+    return normals
+               ? TModelNormals(normals, static_cast< size_t >(x10_skinRules->GetNumNormals()) * 3)
+               : TModelNormals{};
+  }
+#endif
   void Draw(TDrawFunc func, void* data);
+  template < typename T >
+  void Draw(void (*func)(TModelPositions, TModelNormals, T*), void* data) {
+#if defined(TARGET_PC)
+    struct SDrawContext {
+      void (*func)(TModelPositions, TModelNormals, T*);
+      T* data;
+    } context{
+        .func = func,
+        .data = static_cast< T* >(data),
+    };
+    Draw(
+        [](TModelPositions positions, TModelNormals normals, const void* data) {
+          const auto& context = *static_cast< const SDrawContext* >(data);
+          context.func(positions, normals, context.data);
+        },
+        &context);
+#else
+    Draw(reinterpret_cast< TDrawFunc >(func), data);
+#endif
+  }
   void PostDrawFunc() const;
 
   float* AllocateNewWorkspace(float** nrmOut);
@@ -65,7 +97,8 @@ public:
   static TPointGenFunc sPointGen;
   static void* sPointGenData;
 
-  static void Draw(const TDrawFunc func, const float* positions, const float* normals, void* data) {
+  static void Draw(const TDrawFunc func, TModelPositions positions, TModelNormals normals,
+                   void* data) {
     func(positions, normals, data);
   }
 

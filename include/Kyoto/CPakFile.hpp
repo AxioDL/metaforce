@@ -78,7 +78,9 @@ private:
   rstl::vector< uchar, rstl::aligned_allocator > x38_headerData;
   uint x48_resTableOffset;
   uint x4c_resTableCount;
+#if !defined(TARGET_PC)
   void* x50_aramBase;
+#endif
   rstl::vector< rstl::pair< rstl::string, SObjectTag > > x54_nameList;
   rstl::vector< CAssetId > x64_depList;
   rstl::vector< SResInfo > x74_resList;

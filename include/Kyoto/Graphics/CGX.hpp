@@ -143,7 +143,11 @@ public:
   static void SetTexCoordGen(GXTexCoordID dstCoord, GXTexGenType fn, GXTexGenSrc src, GXTexMtx mtx,
                              GXBool normalize, GXPTTexMtx postMtx);
   static void SetTexCoordGen_Compressed(GXTexCoordID dstCoord, uint flags);
+#if defined(TARGET_PC)
+  static void SetArray(GXAttr attr, const void* data, uchar stride, size_t size, bool le);
+#else
   static void SetArray(GXAttr attr, const void* data, uchar stride);
+#endif
   static void SetFog(GXFogType type, float startZ, float endZ, float nearZ, float farZ,
                      const GXColor& color);
   static void SetLineWidth(uchar width, GXTexOffset offset);

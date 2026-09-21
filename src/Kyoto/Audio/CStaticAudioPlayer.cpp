@@ -125,6 +125,7 @@ void CStaticAudioPlayer::StopMixOut() {
 void CStaticAudioPlayer::MixCallback() { sCurrentPlayer->DoMix(); }
 
 void CStaticAudioPlayer::DoMix() {
+#if !defined(TARGET_PC) // TODO
   u32 aiStart = OSCachedToPhysical(AIGetDMAStartAddr());
   x24_curBuf ^= 1;
   uintptr_t buf =
@@ -139,6 +140,7 @@ void CStaticAudioPlayer::DoMix() {
   Decode((ushort*)buf, (ushort*)aiStart, 160);
   DCFlushRange((void*)buf, 0x280);
   OSRestoreInterrupts(cookie);
+#endif
 }
 
 void CStaticAudioPlayer::Decode(const ushort* bufIn, ushort* bufOut, int numSamples) {

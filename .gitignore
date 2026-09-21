@@ -28,5 +28,6 @@ report*.json
 
 # Miscellaneous
 /*.txt
+!/CMakeLists.txt
 *.exe
 *.dol

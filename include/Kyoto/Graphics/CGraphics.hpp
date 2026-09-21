@@ -192,7 +192,9 @@ public:
 
     void Flush();
     void ResetFlushAll();
+#if !defined(TARGET_PC)
     int SetVtxState(const float* pos, const float* nrm, const uint* clr);
+#endif
 
     // In map this takes two args, but x4 is unused?
     void Set(int v0) { x0_ = v0; }
@@ -273,7 +275,11 @@ public:
     float x24_maxV;
   };
 
+#if defined(TARGET_PC)
+  static bool Startup(const COsContext& osContext);
+#else
   static bool Startup(const COsContext& osContext, uint fifoSize, void* fifoBase);
+#endif
   static GXTexRegion* TexRegionCallback(const GXTexObj* obj, GXTexMapID id);
 #if VERSION >= VERSION_GM8J_00
   static void InitGraphicsFifo(GXFifoObj* obj, void* base, uint fifoSize);

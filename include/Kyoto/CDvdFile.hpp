@@ -23,6 +23,9 @@ public:
   CDvdFile(const char* name);
   ~CDvdFile();
   uint Length() { return mSize; }
+#if defined(TARGET_PC)
+  bool IsARAMFileLoaded() { return true; }
+#else
   void HandleDVDInterrupt();
   void HandleARAMInterrupt();
   void PingARAMTransfer();
@@ -32,6 +35,7 @@ public:
   bool IsARAMFileLoaded();
   void StartARAMFileLoad();
   void StallForARAMFile();
+#endif
   CDvdRequest* SyncRead(void* buf, uint len);
   void SyncSeekRead(void* buf, uint len, ESeekOrigin, int offset);
   CDvdRequest* AsyncSeekRead(void* buf, uint len, ESeekOrigin, int offset);
@@ -42,17 +46,23 @@ public:
   bool IsARAMFile() const { return mARAMAllocated; }
 
   static bool FileExists(const char*);
+#if !defined(TARGET_PC)
   static void DVDARAMXferCallback(s32, DVDFileInfo*);
   static void ARAMARAMXferCallback(uintptr_t addr);
+#endif
   static void internalCallback(s32, DVDFileInfo*);
   const rstl::string& GetFilename() const { return mFilename; }
 
 private:
   int mFileEntry;
+#if !defined(TARGET_PC)
   uchar* mARAMBuffer;
+#endif
   bool mARAMAllocated;
+#if !defined(TARGET_PC)
   bool mARAMPopped;
   rstl::single_ptr< CDvdFileARAM > mARAMFile;
+#endif
   int mOffset;
   int mSize;
   rstl::string mFilename;

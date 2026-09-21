@@ -19,6 +19,13 @@
 #define M_2PIF 6.28318530718f
 #endif
 
+#ifndef __MWERKS__
+#include <dolphin/ppc_math.h>
+
+inline double __frsqrte(double value) { return frsqrte(value); }
+inline int __abs(int value) { return ::abs(value); }
+#endif
+
 class CMath {
 public:
   static float FastFmod(float x, float y) {

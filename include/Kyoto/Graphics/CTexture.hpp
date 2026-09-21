@@ -78,10 +78,14 @@ public:
   int GetNumberOfMipMaps() const { return mNumMips; }
   uint GetMemoryAllocated() const { return mMemoryAllocated; }
   bool GetNoSwap() const { return mNoSwap; }
+#if defined(TARGET_PC)
+  void* Lock();
+#else
   void* Lock() {
     mLocked = true;
     return GetBitMapData(0);
   }
+#endif
 
   void MakeSwappable() const;
   void CountMemory() const;

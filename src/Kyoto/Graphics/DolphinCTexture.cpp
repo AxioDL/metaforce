@@ -4,11 +4,8 @@
 #include "Kyoto/Graphics/CTexture.hpp"
 #include "Kyoto/SObjectTag.hpp"
 #include "dolphin/base/PPCArch.h"
-#include "dolphin/gx/GXEnum.h"
-#include "dolphin/gx/GXStruct.h"
-#include "dolphin/gx/GXTexture.h"
+#include "dolphin/gx.h"
 #include "dolphin/os.h"
-#include "dolphin/os/OSCache.h"
 #include "rstl/single_ptr.hpp"
 #include "types.h"
 
@@ -111,9 +108,17 @@ CTexture::CTexture(CInputStream& in, EAutoMipmap automip, EBlackKey blackKey)
   PPCSync();
 }
 
-CTexture::~CTexture() { UncountMemory(); }
+CTexture::~CTexture() {
+#if defined(TARGET_PC)
+  ScheduleDeletion();
+#endif
+  UncountMemory();
+}
 
 void CTexture::InitTextureObjects() {
+#if defined(TARGET_PC)
+  GXDestroyTexObj(&mTexObj);
+#endif
   mIsPowerOfTwo =
       CMath::FloorPowerOfTwo(mWidth) == mWidth && CMath::FloorPowerOfTwo(mHeight) == mHeight;
 
@@ -139,8 +144,13 @@ void CTexture::InitTextureObjects() {
 }
 
 void CTexture::Load(GXTexMapID tex, EClampMode clamp) const {
+#if defined(TARGET_PC)
+  // Always load the tex obj
+  {
+#else
   if (sLoadedTextures[tex] != this || mCanLoadObj) {
     void* ptr = mARAMToken.GetMRAMSafe();
+#endif
     CountMemory();
 
     if (!mGraphicsPalette.null()) {
@@ -160,12 +170,15 @@ void CTexture::Load(GXTexMapID tex, EClampMode clamp) const {
       GXInitTexObjWrapMode(&mTexObj, (GXTexWrapMode)mClampMode, (GXTexWrapMode)mClampMode);
     }
 
+#if !defined(TARGET_PC)
     GXInitTexObjData(&mTexObj, ptr);
+#endif
     GXLoadTexObj(&mTexObj, tex);
     sLoadedTextures[tex] = this;
     mFrameAllocated = sCurrentFrameCount;
   }
 }
+
 void CTexture::LoadMipLevel(int mip, GXTexMapID tex, EClampMode clamp) const {
   char* ptr = (char*)mARAMToken.GetMRAMSafe();
   GXTexObj obj = mTexObj;
@@ -194,6 +207,7 @@ void CTexture::LoadMipLevel(int mip, GXTexMapID tex, EClampMode clamp) const {
 }
 
 void CTexture::UnloadBitmapData(CAssetId textureId) const {
+#if !defined(TARGET_PC)
   if (!mBitmapReloader.null()) {
     bool b = mBitmapReloader->GetX10();
     mBitmapReloader = rs_new CDumpedBitmapDataReloader(textureId, mMemoryAllocated, b);
@@ -205,6 +219,7 @@ void CTexture::UnloadBitmapData(CAssetId textureId) const {
     mARAMToken = CARAMToken();
     mBitmapReloader = rs_new CDumpedBitmapDataReloader(textureId, mMemoryAllocated, complete);
   }
+#endif
 }
 
 bool CTexture::TryReloadBitmapData(CResFactory& factory) const {
@@ -326,6 +341,9 @@ bool CTexture::LoadToMRAM() const {
 }
 
 bool CTexture::LoadToARAM() const {
+#if defined(TARGET_PC)
+  return mARAMToken.LoadToARAM();
+#else
   if (mARAMToken.GetStatus() == CARAMToken::kS_Six) {
     return false;
   }
@@ -344,14 +362,19 @@ bool CTexture::LoadToARAM() const {
     return ret;
   }
   return false;
+#endif
 }
 
 bool CTexture::IsARAMTransferInProgress() const {
+#if defined(TARGET_PC)
+  return false;
+#else
   if (mNoSwap) {
     return false;
   }
   return mARAMToken.GetStatus() >= CARAMToken::kS_Two &&
          mARAMToken.GetStatus() <= CARAMToken::kS_Five;
+#endif
 }
 
 int CTexture::TexelFormatBitsPerPixel(ETexelFormat fmt) {
@@ -423,14 +446,28 @@ void CTexture::InitBitmapBuffers(ETexelFormat fmt, short width, short height, in
   CountMemory();
 }
 
+#if defined(TARGET_PC)
+void* CTexture::Lock() {
+  // AuroraGXSync();
+  void* data = GetBitMapData(0);
+  GXDestroyCopyTex(data);
+  mLocked = true;
+  return data;
+}
+#endif
+
 void CTexture::UnLock() {
   mLocked = false;
   CountMemory();
+#if defined(TARGET_PC)
+  GXInitTexObjData(&mTexObj, mARAMToken.GetMRAMSafe());
+  mCanLoadObj = true;
+#endif
   DCFlushRange(mARAMToken.GetMRAMSafe(), OSRoundUp32B(mMemoryAllocated));
 }
 
 const CFactoryFnReturn FTextureFactory(const SObjectTag& tag, CInputStream& in,
-                                 const CVParamTransfer& xfer) {
+                                       const CVParamTransfer& xfer) {
   return rs_new CTexture(in, CTexture::kAM_Zero, CTexture::kBK_Zero);
 }
 
@@ -539,7 +576,18 @@ void CTexture::UncountMemory() const {
 void CTexture::InvalidateTexmap(GXTexMapID texmap) { sLoadedTextures[texmap] = nullptr; }
 
 void CTexture::ScheduleDeletion() {
+#if defined(TARGET_PC)
+  GXDestroyTexObj(&mTexObj);
+  for (auto& tex : sLoadedTextures) {
+    if (tex == this) {
+      tex = nullptr;
+    }
+  }
+#endif
   if (mARAMToken.GetStatus() != CARAMToken::kS_Six) {
+#if defined(TARGET_PC)
+    GXDestroyCopyTex(mARAMToken.GetMRAMSafe());
+#endif
     CFrameDelayedKiller::ScheduleDeletion(CFrameDelayedKiller::kWhichFrame_NextFrame,
                                           mARAMToken.ForceSyncMRAM());
   }

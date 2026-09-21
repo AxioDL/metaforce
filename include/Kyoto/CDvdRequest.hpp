@@ -26,9 +26,14 @@ public:
   DVDFileInfo* FileInfo() { return &mFileInfo; }
 
 private:
+#if defined(TARGET_PC)
+  DVDFileInfo mFileInfo{};
+#else
   DVDFileInfo mFileInfo;
+#endif
 };
 
+#if !defined(TARGET_PC)
 class CARAMDvdRequest : public CDvdRequest {
 public:
   CARAMDvdRequest(uint i) : x4_dmaReq(i) {}
@@ -40,5 +45,6 @@ public:
 private:
   uint x4_dmaReq;
 };
+#endif
 
 #endif // _CDVDREQUEST

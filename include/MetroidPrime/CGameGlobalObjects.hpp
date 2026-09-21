@@ -26,9 +26,14 @@ class CStringTable;
 
 class CGameGlobalObjects : public TOneStatic< CGameGlobalObjects > {
 public:
+#if defined(TARGET_PC)
+  CGameGlobalObjects(COsContext&);
+  void PostInitialize(COsContext&);
+#else
   CGameGlobalObjects(COsContext&, CMemorySys&);
-
   void PostInitialize(COsContext&, CMemorySys&);
+#endif
+
 #if VERSION >= VERSION_GM8E_01
   void AddPaksAndFactories(const COsContext& osContext);
 #else

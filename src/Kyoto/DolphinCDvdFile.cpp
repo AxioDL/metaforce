@@ -15,6 +15,16 @@
 
 #include "string.h"
 
+#if defined(TARGET_PC)
+#include <borealis/log.hpp>
+#include <memory>
+
+namespace {
+constexpr borealis::Log Log{"CDvdFile"};
+} // namespace
+#endif
+
+#if !defined(TARGET_PC)
 static CDvdFile* sFirstARAM = nullptr;
 
 struct CDvdFileARAM {
@@ -44,6 +54,7 @@ struct CDvdFileARAM {
   int mBufferLen;
   uint mBufferIndex;
 };
+#endif
 
 const char* DecodeARAMFile(const char* filename) {
   if (!strncmp(filename, "aram:", 5)) {
@@ -53,6 +64,7 @@ const char* DecodeARAMFile(const char* filename) {
   return filename;
 }
 
+#if !defined(TARGET_PC)
 void CDvdFile::DVDARAMXferCallback(s32 result, DVDFileInfo* info) {
   CDvdFileARAM::SDvdInfo* ptr = reinterpret_cast< CDvdFileARAM::SDvdInfo* >(info);
   DVDClose(&ptr->mDvdFileInfo);
@@ -196,18 +208,31 @@ void CDvdFile::StallForARAMFile() {
     OSYieldThread();
   }
 }
+#endif
 
 CDvdFile::CDvdFile(const char* filename)
 : mFileEntry(-1)
+#if !defined(TARGET_PC)
 , mARAMBuffer(0)
+#endif
 , mARAMAllocated(false)
+#if !defined(TARGET_PC)
 , mARAMPopped(false)
 , mARAMFile(nullptr)
+#endif
 , mOffset(0)
 , mSize(0)
 , mFilename(filename, -1) {
   const char* decodedName = DecodeARAMFile(filename);
   mFileEntry = DVDConvertPathToEntrynum(const_cast< char* >(decodedName));
+#if defined(TARGET_PC)
+  DVDFileInfo fileInfo{};
+  if (mFileEntry != -1 && DVDFastOpen(mFileEntry, &fileInfo)) {
+    mSize = fileInfo.length;
+    DVDClose(&fileInfo);
+    mARAMAllocated = filename != decodedName;
+  }
+#else
   DVDFileInfo fileInfo;
   if (mFileEntry != -1) {
     DVDFastOpen(mFileEntry, &fileInfo);
@@ -219,6 +244,7 @@ CDvdFile::CDvdFile(const char* filename)
   if (filename != decodedName) {
     TryARAMFile();
   }
+#endif
 }
 
 CDvdFile::~CDvdFile() { CloseFile(); }
@@ -228,6 +254,10 @@ CDvdRequest* CDvdFile::SyncRead(void* dest, uint len) {
 }
 
 void CDvdFile::SyncSeekRead(void* dest, uint len, ESeekOrigin origin, int offset) {
+#if defined(TARGET_PC)
+  std::unique_ptr< CDvdRequest > request{AsyncSeekRead(dest, len, origin, offset)};
+  request->WaitUntilComplete();
+#else
   StallForARAMFile();
   CalcFileOffset(offset, origin);
 
@@ -246,9 +276,23 @@ void CDvdFile::SyncSeekRead(void* dest, uint len, ESeekOrigin origin, int offset
   }
 
   UpdateFilePos(len);
+#endif
 }
 
 CDvdRequest* CDvdFile::AsyncSeekRead(void* dest, uint len, ESeekOrigin origin, int offset) {
+#if defined(TARGET_PC)
+  CalcFileOffset(offset, origin);
+  auto request = std::make_unique< CRealDvdRequest >();
+  DVDFileInfo* info = request->FileInfo();
+  if (mFileEntry == -1 || !DVDFastOpen(mFileEntry, info)) {
+    Log.fatal("Unable to open DVD file");
+  }
+  if (!DVDReadAsync(info, dest, len, mOffset, internalCallback)) {
+    Log.fatal("Unable to start DVD read");
+  }
+  UpdateFilePos(len);
+  return request.release();
+#else
   StallForARAMFile();
   CalcFileOffset(offset, origin);
   CDvdRequest* request;
@@ -268,15 +312,18 @@ CDvdRequest* CDvdFile::AsyncSeekRead(void* dest, uint len, ESeekOrigin origin, i
   UpdateFilePos(len);
 
   return request;
+#endif
 }
 
 void CDvdFile::CloseFile() {
+#if !defined(TARGET_PC)
   if (!mARAMAllocated) {
     return;
   }
 
   StallForARAMFile();
   CARAMManager::Free(mARAMBuffer);
+#endif
 }
 
 bool CDvdFile::FileExists(const char* filename) {

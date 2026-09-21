@@ -296,6 +296,15 @@ CGX_INLINE void CGX::SetNumIndStages(uchar num) {
   }
 }
 
+#if defined(TARGET_PC)
+CGX_INLINE void CGX::SetArray(GXAttr attr, const void* data, uchar stride, size_t size, bool le) {
+  if (data == nullptr) {
+    return;
+  }
+  sGXState.x0_arrayPtrs[attr - GX_VA_POS] = data;
+  GXSetArray(attr, data, size, stride, le);
+}
+#else
 CGX_INLINE void CGX::SetArray(GXAttr attr, const void* data, uchar stride) {
   uint idx = attr - GX_VA_POS;
   if (data == nullptr || sGXState.x0_arrayPtrs[idx] == data) {
@@ -304,6 +313,7 @@ CGX_INLINE void CGX::SetArray(GXAttr attr, const void* data, uchar stride) {
   sGXState.x0_arrayPtrs[idx] = data;
   GXSetArray(attr, data, stride);
 }
+#endif
 
 CGX_INLINE void CGX::CallDisplayList(const void* ptr, size_t size) {
   if (sGXState.x4c_chanFlags != 0) {

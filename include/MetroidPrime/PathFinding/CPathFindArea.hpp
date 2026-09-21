@@ -12,6 +12,10 @@
 #include "rstl/single_ptr.hpp"
 #include "rstl/vector.hpp"
 
+#if defined(TARGET_PC)
+#include <span>
+#endif
+
 class CPFOpenList {
 public:
   CPFOpenList();
@@ -62,8 +66,12 @@ private:
 CHECK_SIZEOF(CPFOpenList, 0xc0)
 
 class CPFAreaOctree {
+  friend class CPFArea;
+
 public:
+#if !defined(TARGET_PC)
   void Fixup(CPFArea& area);
+#endif
   uint GetChildIndex(const CVector3f& point) const;
   prereserved_vector< CPFRegion* >* GetRegionList(const CVector3f& point);
   void GetRegionListList(rstl::reserved_vector< prereserved_vector< CPFRegion* >*, 32 >& lists,
@@ -96,6 +104,11 @@ CHECK_SIZEOF(CPFAreaVersion, 1)
 class CPFArea {
 public:
   CPFArea(const rstl::auto_ptr< uchar >& data, int size);
+#if defined(TARGET_PC)
+  CPFArea(const CPFArea&) = delete;
+  CPFArea& operator=(const CPFArea&) = delete;
+#endif
+
   const CTransform4f& GetTransform() const { return x188_transform; }
   void SetTransform(const CTransform4f& transform) { x188_transform = transform; }
   CVector3f GetClosestPoint() const { return x4_closestPoint; }
@@ -127,6 +140,15 @@ private:
   CPFBitSet x38_closedSet;
   CPFOpenList x78_openList;
   CPFAreaVersion x138_version;
+#if defined(TARGET_PC)
+  rstl::vector< CPFNode > x140_nodes;
+  rstl::vector< CPFLink > x148_links;
+  rstl::vector< CPFRegion > x150_regions;
+  rstl::vector< CPFAreaOctree > x158_octree;
+  rstl::vector< CPFRegion* > x160_octreeRegions;
+  rstl::vector< uint > x168_connectionsGround;
+  rstl::vector< uint > x170_connectionsFlyers;
+#else
   rstl::single_ptr< uchar > x13c_data;
   prereserved_vector< CPFNode > x140_nodes;
   prereserved_vector< CPFLink > x148_links;
@@ -135,11 +157,17 @@ private:
   prereserved_vector< CPFRegion* > x160_octreeRegions;
   prereserved_vector< uint > x168_connectionsGround;
   prereserved_vector< uint > x170_connectionsFlyers;
+#endif
   rstl::vector< CPFRegionData > x178_regionData;
   CTransform4f x188_transform;
+
+#if defined(TARGET_PC)
+  void ReadData(std::span< const uchar > data);
+#endif
 };
 CHECK_SIZEOF(CPFArea, 0x1b8)
 
+#if !defined(TARGET_PC)
 inline void CPFAreaOctree::Fixup(CPFArea& area) {
   x0_isLeaf = *reinterpret_cast< const int* >(this) != 0;
   if (x0_isLeaf) {
@@ -154,5 +182,6 @@ inline void CPFAreaOctree::Fixup(CPFArea& area) {
     }
   }
 }
+#endif
 
 #endif // _CPATHFINDAREA

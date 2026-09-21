@@ -20,6 +20,17 @@
 #include "WorldFormat/CAreaOctTree.hpp"
 #include "WorldFormat/CPVSAreaSet.hpp"
 
+#if defined(TARGET_PC)
+#include "Kyoto/Graphics/CCubeSurface.hpp"
+#include "Metaforce/CModelSectionReader.hpp"
+#include "Metaforce/Endian.hpp"
+#include <borealis/log.hpp>
+
+namespace {
+constexpr borealis::Log Log{"CGameArea"};
+} // namespace
+#endif
+
 #define ROUND_UP_32(val) (((val) + 31) & ~31)
 
 struct SMREAHeader {
@@ -240,6 +251,55 @@ static rstl::pair< rstl::auto_ptr< char >, int > GetScriptingMemoryAlways(const 
 }
 
 void CGameArea::FillInStaticGeometry() {
+#if defined(TARGET_PC)
+  if (x12c_postConstructed->x1108_25_modelsConstructed) {
+    return;
+  }
+  int section = x12c_postConstructed->x10ec_firstMatSection;
+  auto nextSection = [&]() -> std::span< uchar > {
+    if (section < 0 || section >= x110_mreaSecBufs.size()) {
+      Log.fatal("Missing MREA model section");
+    }
+    const auto& part = x110_mreaSecBufs[section++];
+    if (part.second < 0 || (part.second && part.first.null())) {
+      Log.fatal("Invalid MREA model section");
+    }
+    return part.second ? std::span(reinterpret_cast< uchar* >(part.first.get()),
+                                   static_cast< size_t >(part.second))
+                       : std::span< uchar >{};
+  };
+  const TModelData materials = nextSection();
+  const uint materialCount = ValidateModelMaterials(materials);
+  x12c_postConstructed->x10d4_firstMatPtr = materials.data();
+  x12c_postConstructed->x4c_insts.clear();
+  const int modelCount = x12c_postConstructed->x4c_insts.capacity();
+  for (int model = 0; model < modelCount; ++model) {
+    const auto header = nextSection();
+    if (header.size() < 76) {
+      Log.fatal("Truncated MREA model header");
+    }
+    const auto positions = nextSection();
+    const auto normals = nextSection();
+    const auto colors = nextSection();
+    const auto texCoords = nextSection();
+    const auto packedTexCoords = nextSection();
+    const auto surfaceInfo = nextSection();
+    const uint surfaceCount = ReadModelSurfaceCount(surfaceInfo, x110_mreaSecBufs.size() - section);
+    std::vector< TModelData > surfaces;
+    surfaces.reserve(surfaceCount);
+    for (uint i = 0; i < surfaceCount; ++i) {
+      const auto surface = nextSection();
+      CCubeSurface::ReadData(surface, nullptr, materialCount);
+      surfaces.emplace_back(surface);
+    }
+    if (surfaceCount != 0) {
+      const auto arrays = PrepareModelArrays(positions, normals, colors, texCoords, packedTexCoords,
+                                             (read_bits< uint >(header.data()) & 1) != 0);
+      x12c_postConstructed->x4c_insts.push_back(
+          CMetroidModelInstance(header, materials, arrays, surfaces));
+    }
+  }
+#else
   AUTO(section, x110_mreaSecBufs.begin() + x12c_postConstructed->x10ec_firstMatSection);
   x12c_postConstructed->x10d4_firstMatPtr = reinterpret_cast< const u8* >(section->first.get());
   x12c_postConstructed->x4c_insts.clear();
@@ -268,6 +328,7 @@ void CGameArea::FillInStaticGeometry() {
       surfaces.clear();
     }
   }
+#endif
   x12c_postConstructed->x1108_25_modelsConstructed = true;
 }
 
@@ -404,6 +465,9 @@ void CGameArea::PostConstructArea() {
     }
   }
 
+#if defined(TARGET_PC)
+  x12c_postConstructed->x1108_24_ = true;
+#else
   int firstARAM = firstGeometry;
   int sectionCount = x110_mreaSecBufs.size();
   for (; firstARAM < sectionCount; ++firstARAM) {
@@ -446,6 +510,7 @@ void CGameArea::PostConstructArea() {
     bool modelsInMRAM = GetOcclusionState() != kOS_Occluded;
     x12c_postConstructed->x1108_24_ = modelsInMRAM;
   }
+#endif
 
   x12c_postConstructed->x10c0_areaObjectList = rs_new CAreaObjectList(x4_selfIdx);
   x12c_postConstructed->x10c4_areaFog = rs_new CAreaFog;
@@ -506,8 +571,7 @@ void CGameArea::Validate(CStateManager& mgr) {
         x12c_postConstructed->x1108_29_pvsHasActors) {
       for (int i = 0; i < x12c_postConstructed->xa0_pvs->GetNumActors(); ++i) {
         const CPostConstructed* post = x12c_postConstructed.get();
-        uint editorId =
-            post->xa0_pvs->GetEntityIdByIndex(i) | (x4_selfIdx.Value() << 16);
+        uint editorId = post->xa0_pvs->GetEntityIdByIndex(i) | (x4_selfIdx.Value() << 16);
         TUniqueId id = mgr.GetIdForScript(editorId);
         if (id != kInvalidUniqueId) {
           const CPVSAreaSet* pvs = x12c_postConstructed->xa0_pvs.get();
@@ -636,7 +700,8 @@ char* CGameArea::AllocNewAreaData(int offset, int size) {
 }
 
 int CGameArea::GetNumPartSizes() const {
-  return CBasics::SwapBytes(reinterpret_cast< const int* >(x110_mreaSecBufs.front().first.get())[15]);
+  return CBasics::SwapBytes(
+      reinterpret_cast< const int* >(x110_mreaSecBufs.front().first.get())[15]);
 }
 
 bool CGameArea::ReloadAllUnloadedTextures() {
@@ -784,6 +849,9 @@ int CGameArea::SetChain(CGameArea* next, int chain) {
 }
 
 bool CGameArea::TransferARAMTokensOver(EARAMTransfer mode) {
+#if defined(TARGET_PC)
+  return true;
+#else
   if (x12c_postConstructed->x1108_24_) {
     return true;
   }
@@ -810,9 +878,13 @@ bool CGameArea::TransferARAMTokensOver(EARAMTransfer mode) {
   }
   x12c_postConstructed->x1108_24_ = finished;
   return finished;
+#endif
 }
 
 bool CGameArea::TransferTokensToARAM() {
+#if defined(TARGET_PC)
+  return true;
+#else
   bool finished = true;
   int part = x12c_postConstructed->x10e8_;
   AUTO(it, x12c_postConstructed->x10f0_tokens.begin());
@@ -835,6 +907,7 @@ bool CGameArea::TransferTokensToARAM() {
   x12c_postConstructed->x1108_24_ = false;
   x12c_postConstructed->x1108_25_modelsConstructed = false;
   return finished;
+#endif
 }
 
 void CGameArea::AddStaticGeometry() {
@@ -847,7 +920,8 @@ void CGameArea::AddStaticGeometry() {
     }
     const CPostConstructed* post = x12c_postConstructed.get();
     int areaIdx = x4_selfIdx.Value();
-    const CAreaRenderOctTree* tree = post->xc_octTree.valid() ? post->xc_octTree.get_ptr() : nullptr;
+    const CAreaRenderOctTree* tree =
+        post->xc_octTree.valid() ? post->xc_octTree.get_ptr() : nullptr;
     gpRender->AddStaticGeometry(&x12c_postConstructed->x4c_insts, tree, areaIdx);
   }
 }

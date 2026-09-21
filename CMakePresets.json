@@ -1,0 +1,105 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "debug",
+      "displayName": "Metaforce Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "relwithdebinfo",
+      "displayName": "Metaforce RelWithDebInfo",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "sanitize",
+      "displayName": "Metaforce Sanitized",
+      "inherits": "debug",
+      "cacheVariables": {
+        "ENABLE_SANITIZERS": true
+      }
+    },
+    {
+      "name": "ios-relwithdebinfo",
+      "displayName": "Metaforce iOS RelWithDebInfo",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "environment": {
+        "IPHONEOS_DEPLOYMENT_TARGET": "14.0"
+      },
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": false,
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_DISABLE_FIND_PACKAGE_PkgConfig": true,
+        "CMAKE_IGNORE_PREFIX_PATH": "/opt/homebrew",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install/${presetName}",
+        "CMAKE_OSX_ARCHITECTURES": "arm64",
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "14.0",
+        "CMAKE_OSX_SYSROOT": "iphoneos",
+        "CMAKE_SYSTEM_NAME": "iOS",
+        "CMAKE_SYSTEM_VERSION": "14.0",
+        "Rust_CARGO_TARGET": "aarch64-apple-ios"
+      }
+    },
+    {
+      "name": "android-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "inherits": "relwithdebinfo",
+      "cacheVariables": {
+        "ANDROID_PLATFORM": "android-28",
+        "BUILD_SHARED_LIBS": false,
+        "CMAKE_DISABLE_FIND_PACKAGE_PkgConfig": true,
+        "CMAKE_DISABLE_FIND_PACKAGE_zstd": true,
+        "CMAKE_TOOLCHAIN_FILE": "$env{ANDROID_HOME}/ndk/$env{ANDROID_NDK_VERSION}/build/cmake/android.toolchain.cmake"
+      }
+    },
+    {
+      "name": "android-arm64",
+      "displayName": "Metaforce Android (arm64-v8a)",
+      "inherits": "android-base",
+      "cacheVariables": {
+        "ANDROID_ABI": "arm64-v8a"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "relwithdebinfo",
+      "configurePreset": "relwithdebinfo"
+    },
+    {
+      "name": "sanitize",
+      "configurePreset": "sanitize"
+    },
+    {
+      "name": "ios-relwithdebinfo",
+      "configurePreset": "ios-relwithdebinfo"
+    },
+    {
+      "name": "android-arm64",
+      "configurePreset": "android-arm64",
+      "targets": [
+        "metaforce"
+      ]
+    }
+  ]
+}

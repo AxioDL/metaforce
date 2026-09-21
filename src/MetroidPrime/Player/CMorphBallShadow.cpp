@@ -210,7 +210,7 @@ void CMorphBallShadow::Render(CStateManager& mgr, float alpha) {
     CGX::LoadTexMtxImm(modelTextureXf.GetCStyleMatrix(), GX_TEXMTX0, GX_MTX3x4);
     const CModel& model = **modelData.PickStaticModel(CModelData::kWM_Normal);
     model.UpdateLastFrame();
-    model.GetCubeModel()->DrawFlat(nullptr, nullptr, kSS_Unsorted);
+    model.GetCubeModel()->DrawFlat(TModelPositions(), TModelNormals(), kSS_Unsorted);
     ++id;
   }
   CGX::LoadTexMtxImm(textureXf.GetCStyleMatrix(), GX_TEXMTX0, GX_MTX3x4);

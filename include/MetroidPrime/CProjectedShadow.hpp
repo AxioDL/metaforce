@@ -2,6 +2,7 @@
 #define _CPROJECTEDSHADOW
 
 #include "GameVersions.h"
+#include "Kyoto/Graphics/ModelTypes.hpp"
 
 #include "Kyoto/Graphics/CTexture.hpp"
 #include "Kyoto/Math/CAABox.hpp"
@@ -31,7 +32,7 @@ public:
 
   void Disable();
 
-  static void ModelDrawCallback(const float*, const float*, const SShadowDrawContext*);
+  static void ModelDrawCallback(TModelPositions, TModelNormals, const SShadowDrawContext*);
 
 private:
   void ExpandBoundsForTexture();

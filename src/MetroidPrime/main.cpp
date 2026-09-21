@@ -4,10 +4,10 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-#include "dolphin/base/PPCArch.h"
 #include "dolphin/ai.h"
 #include "dolphin/ar.h"
 #include "dolphin/arq.h"
+#include "dolphin/base/PPCArch.h"
 #include "dolphin/dvd.h"
 #include "dolphin/gx.h"
 #include "dolphin/os.h"
@@ -64,6 +64,14 @@
 #include "MetroidPrime/ScriptObjects/CScriptMazeNode.hpp"
 #include "MetroidPrime/Tweaks/CTweakGame.hpp"
 #include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
+
+#if defined(TARGET_PC)
+#include <aurora/aurora.h>
+#include <aurora/dvd.h>
+#include <aurora/event.h>
+#include <aurora/main.h>
+#include <borealis/aurora_log.h>
+#endif
 
 const CFactoryFnReturn FStringTableFactory(const SObjectTag&, CInputStream&,
                                            const CVParamTransfer&);
@@ -143,9 +151,11 @@ static uchar sGraphicsFifo[GRAPHICS_FIFO_SIZE];
 #endif
 ALIGNAS(CMain) static uchar sMainSpace[sizeof(CMain)];
 
+#if !defined(TARGET_PC)
 // Generated includes
 #include "MetroidPrime/DefaultFontData.inc"
 #include "MetroidPrime/DefaultFontTexture.inc"
+#endif
 
 struct SAudioGroupInfo {
   const char* name;
@@ -180,18 +190,75 @@ CSaveRegion::CSaveRegion(CMain& main) {
   mSaveBuffer = main.OsContext().AllocFromArena(128);
 }
 
+#if defined(TARGET_PC)
+static void LoadDefaultKeyBindings() {
+  u32 bindingCount = 0;
+  if (PADGetKeyButtonBindings(PAD_CHAN0, &bindingCount) != nullptr) {
+    return;
+  }
+
+  PADKeyButtonBinding buttons[PAD_BUTTON_COUNT] = {
+      {SDL_SCANCODE_SPACE, PAD_BUTTON_A},      {SDL_SCANCODE_LSHIFT, PAD_BUTTON_B},
+      {SDL_SCANCODE_F, PAD_BUTTON_X},          {SDL_SCANCODE_R, PAD_BUTTON_Y},
+      {SDL_SCANCODE_RETURN, PAD_BUTTON_START}, {SDL_SCANCODE_TAB, PAD_TRIGGER_Z},
+      {SDL_SCANCODE_Q, PAD_TRIGGER_L},         {SDL_SCANCODE_E, PAD_TRIGGER_R},
+      {SDL_SCANCODE_UP, PAD_BUTTON_UP},        {SDL_SCANCODE_DOWN, PAD_BUTTON_DOWN},
+      {SDL_SCANCODE_LEFT, PAD_BUTTON_LEFT},    {SDL_SCANCODE_RIGHT, PAD_BUTTON_RIGHT},
+  };
+  PADKeyAxisBinding axes[PAD_AXIS_COUNT] = {
+      {SDL_SCANCODE_D, PAD_AXIS_LEFT_X_POS, 1},  {SDL_SCANCODE_A, PAD_AXIS_LEFT_X_NEG, 1},
+      {SDL_SCANCODE_W, PAD_AXIS_LEFT_Y_POS, 1},  {SDL_SCANCODE_S, PAD_AXIS_LEFT_Y_NEG, 1},
+      {SDL_SCANCODE_L, PAD_AXIS_RIGHT_X_POS, 1}, {SDL_SCANCODE_J, PAD_AXIS_RIGHT_X_NEG, 1},
+      {SDL_SCANCODE_I, PAD_AXIS_RIGHT_Y_POS, 1}, {SDL_SCANCODE_K, PAD_AXIS_RIGHT_Y_NEG, 1},
+      {SDL_SCANCODE_Q, PAD_AXIS_TRIGGER_L, 0},   {SDL_SCANCODE_E, PAD_AXIS_TRIGGER_R, 0},
+  };
+
+  PADSetKeyButtonBindings(PAD_CHAN0, buttons);
+  PADSetKeyAxisBindings(PAD_CHAN0, axes);
+  PADSetKeyboardActive(PAD_CHAN0, TRUE);
+}
+#endif
+
 int main(int argc, char** argv) {
+#if defined(TARGET_PC)
+  borealis::log::init({.level = borealis::LogLevel::Debug});
+  const AuroraConfig config{
+      .appName = "Metaforce",
+      .vsync = true,
+      .allowJoystickBackgroundEvents = true,
+      .windowPosX = -1,
+      .windowPosY = -1,
+      .windowWidth = 1280,
+      .windowHeight = 960,
+      .logCallback = borealis::log::aurora_callback(),
+  };
+  aurora_initialize(argc, argv, &config);
+  if (!aurora_dvd_open("game.rvz")) {
+    borealis::Log{"metaforce"}.fatal("Couldn't open game.rvz");
+  }
+  COsContext::mProgressiveMode = true;
+  PADInit();
+  LoadDefaultKeyBindings();
+#endif
+
   DVDSetAutoFatalMessaging(TRUE);
   SetErrorHandlers();
   CMain* main = new (&sMainSpace) CMain();
   gpMain->RsMain(argc, argv);
   main->~CMain();
+
+#if defined(TARGET_PC)
+  CFrameDelayedKiller::ShutDown();
+  aurora_shutdown();
+#endif
   return 0;
 }
 
+#if !defined(TARGET_PC)
 extern "C" void* __sys_alloc(const size_t len) { return CMemory::Alloc(len); }
 
 extern "C" void __sys_free(const void* ptr) { CMemory::Free(ptr); }
+#endif
 
 COsContext& CMain::OpenWindow() {
   if (CSaveRegion::GetNonVolatileSettingsBuffer() != nullptr) {
@@ -221,7 +288,9 @@ void CMain::SetTiming() { sFramePeriod = sIs50Hz ? 1.f / 50.f : 1.f / 60.f; }
 CMain::CMain()
 : x0_osContext(true, true)
 , x6c_saveRegion(*this)
+#if !defined(TARGET_PC)
 , x6d_memorySys(OpenWindow(), CMemorySys::GetGameAllocator())
+#endif
 , xe8_unknown(0.0)
 , x118_averageTickTime(0.f)
 , x11c_averageDrawTime(0.f)
@@ -241,12 +310,16 @@ CMain::CMain()
 , x160_31_cardBusy(false)
 , x161_24_gameFrameDrawn(false)
 , x164_archSupport(nullptr) {
+#if defined(TARGET_PC)
+  OpenWindow();
+#endif
   gpMain = this;
 }
 
 CMain::~CMain() {}
 
 void CMain::InitializeSubsystems() {
+#if !defined(TARGET_PC)
   ARInit(sARAMMemArray, 2);
   ARAlloc(0x5fc000);
   CARAMManager::PreInitializeAlloc(0x5fc000);
@@ -265,9 +338,12 @@ void CMain::InitializeSubsystems() {
 
   DCFlushRange(stackEnd + 0x400, static_cast< uint >(stackBase - 0x2000 - (stackEnd + 0x400)));
   printf("Stack: 0x%8.8x down to 0x%8.8x\n", thread->stackBase, thread->stackEnd);
+#endif
   CElementGen::Initialize();
   CAnimData::InitializeCache();
+#if !defined(TARGET_PC)
   CARAMManager::Initialize(0x800);
+#endif
   CDecalManager::Initialize();
   CFrameDelayedKiller::Initialize();
 }
@@ -278,6 +354,7 @@ void CMain::ShutdownSubsystems() {
   CElementGen::ShutDown();
   CAnimData::FreeCache();
 
+#if !defined(TARGET_PC)
   OSThread* thread = OSGetCurrentThread();
   uchar* stackEnd =
       reinterpret_cast< uchar* >(ALIGN_UP(reinterpret_cast< uintptr_t >(thread->stackEnd), 0x400));
@@ -291,11 +368,18 @@ void CMain::ShutdownSubsystems() {
   }
   const int used = static_cast< int >(stackBase - 0x2000 - ptr) + 0x2000;
   OSReport("Stack usage: %d bytes (%dk)\n", used, static_cast< uint >(used) / 1024);
+#endif
 }
 
+#if defined(TARGET_PC)
+CGameGlobalObjects::CGameGlobalObjects(COsContext& osContext)
+#else
 CGameGlobalObjects::CGameGlobalObjects(COsContext& osContext, CMemorySys& memorySys)
+#endif
 : xcc_simplePool(x4_resFactory)
-#if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
+#if defined(TARGET_PC)
+, x130_graphicsSys(osContext)
+#elif VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
 , x130_graphicsSys(osContext, memorySys, COsContext::GetProgressiveMode())
 #else
 , x130_graphicsSys(osContext, memorySys, GRAPHICS_FIFO_SIZE, sGraphicsFifo)
@@ -312,6 +396,9 @@ CGameGlobalObjects::CGameGlobalObjects(COsContext& osContext, CMemorySys& memory
 }
 
 CRasterFont* CGameGlobalObjects::LoadDefaultFont() {
+#if defined(TARGET_PC)
+  return nullptr;
+#else
   CZipInputStream fontDataStream(
       rs_new CMemoryInStream(sDefaultFontData, sizeof(sDefaultFontData)));
   CRasterFont* font = rs_new CRasterFont(fontDataStream, nullptr);
@@ -319,9 +406,14 @@ CRasterFont* CGameGlobalObjects::LoadDefaultFont() {
       rs_new CMemoryInStream(sDefaultFontTexture, sizeof(sDefaultFontTexture)));
   font->SetTexture(rs_new CTexture(fontTextureStream, CTexture::kAM_Zero, CTexture::kBK_Zero));
   return font;
+#endif
 }
 
+#if defined(TARGET_PC)
+void CGameGlobalObjects::PostInitialize(COsContext& osContext) {
+#else
 void CGameGlobalObjects::PostInitialize(COsContext& osContext, CMemorySys& memorySys) {
+#endif
 #if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
   CMain::SetTiming();
 #endif
@@ -332,7 +424,12 @@ void CGameGlobalObjects::PostInitialize(COsContext& osContext, CMemorySys& memor
 #endif
   LoadStringTable();
   printf("Initializing renderer...\n");
+#if defined(TARGET_PC)
+  x14c_renderer = Renderer::AllocateRenderer(xcc_simplePool, x4_resFactory);
+#else
   x14c_renderer = Renderer::AllocateRenderer(xcc_simplePool, osContext, memorySys, x4_resFactory);
+#endif
+
   gpRender = reinterpret_cast< CCubeRenderer* >(x14c_renderer.get());
   CEnvFxManager::Initialize();
   CScriptMazeNode::LoadMazeSeeds();
@@ -377,9 +474,12 @@ CGameArchitectureSupport::CGameArchitectureSupport(COsContext& osContext)
   gpMain->SetMaxSpeed(false);
   gpMain->ResetGameState();
   CIOWinManager& ioWinManager = x58_ioWinMgr;
+  // TODO: temporarily disabled
+#if !defined(TARGET_PC)
   if (!gpTweakGame->GetSplashScreensDisabled()) {
     ioWinManager.AddIOWin(rs_new CSplashScreen(CSplashScreen::kSplashScreen_Nintendo), 1000, 10000);
   }
+#endif
   ioWinManager.AddIOWin(rs_new CMainFlow(), 0, 0);
   ioWinManager.AddIOWin(rs_new CConsoleOutputWindow(8, 5.f, 0.75f), 100, 0);
   ioWinManager.AddIOWin(rs_new CAudioStateWin(), 100, -1);
@@ -511,9 +611,11 @@ bool CGameArchitectureSupport::LoadAudio() {
 }
 
 bool CMain::LoadAudio() {
+#if !defined(TARGET_PC) // TODO: audio
   if (x164_archSupport != nullptr) {
     return x164_archSupport->LoadAudio();
   }
+#endif
   return true;
 }
 
@@ -737,8 +839,12 @@ int CMain::RsMain(int argc, const char* const* argv) {
   CStopwatch timer;
   LCEnable();
 
+#if defined(TARGET_PC)
+  rstl::single_ptr gameGlobalObjects(rs_new CGameGlobalObjects(x0_osContext));
+#else
   rstl::single_ptr< CGameGlobalObjects > gameGlobalObjects(
       rs_new CGameGlobalObjects(x0_osContext, x6d_memorySys));
+#endif
   x128_gameGlobalObjects = gameGlobalObjects.get();
 #if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
   CMemoryCardDriver::LoadLanguageFromCard(0);
@@ -753,7 +859,11 @@ int CMain::RsMain(int argc, const char* const* argv) {
   x118_averageTickTime = 0.3f;
   x11c_averageDrawTime = 0.2f;
   InitializeSubsystems();
+#if defined(TARGET_PC)
+  gameGlobalObjects->PostInitialize(x0_osContext);
+#else
   gameGlobalObjects->PostInitialize(x0_osContext, x6d_memorySys);
+#endif
   x70_tweaks.RegisterTweaks();
   AddWorldPaks();
 
@@ -797,8 +907,10 @@ int CMain::RsMain(int argc, const char* const* argv) {
       if (gpMemoryCard == nullptr && gpResourceFactory->GetResLoader().AreAllPaksLoaded()) {
         MemoryCardInitializePump();
       }
+#if !defined(TARGET_PC)
       CARAMManager::CollectGarbage();
       CARAMToken::UpdateAllDMAs();
+#endif
       if (!archSupport->UpdateTicks()) {
         x160_24_finished = true;
       }
@@ -807,6 +919,16 @@ int CMain::RsMain(int argc, const char* const* argv) {
       x118_averageTickTime = xf0_tickTimes.GetAverage().data();
       archSupport->GetStopwatch2().Reset();
       DoPredrawMetrics();
+
+#if defined(TARGET_PC)
+      for (const AuroraEvent* event = aurora_update(); event && event->type != AURORA_NONE;
+           ++event) {
+        if (event->type == AURORA_EXIT) {
+          x160_24_finished = true;
+        }
+      }
+      aurora_begin_frame();
+#endif
 
       if (logAudioTweaks) {
         logAudioTweaks = false;
@@ -838,6 +960,10 @@ int CMain::RsMain(int argc, const char* const* argv) {
       } else {
         gpResourceFactory->AsyncIdle(1000000);
       }
+
+#if defined(TARGET_PC)
+      aurora_end_frame();
+#endif
 
       archSupport->Update();
       CSfxManager::Update(FRAME_PERIOD);
@@ -873,7 +999,9 @@ int CMain::RsMain(int argc, const char* const* argv) {
   }
   ShutdownSubsystems();
   gameGlobalObjects = nullptr;
+#if !defined(TARGET_PC)
   CARAMManager::Shutdown();
+#endif
   return 0;
 }
 

@@ -274,8 +274,12 @@ CCubeRenderer::CFogVolumeListItem::CFogVolumeListItem(const CTransform4f& xf, CC
                   : rstl::optional_object_null())
 , x5c_skinnedModel(skinnedModel) {}
 
+#if defined(TARGET_PC)
+CCubeRenderer::CCubeRenderer(IObjectStore& objStore, CResFactory& resFactory)
+#else
 CCubeRenderer::CCubeRenderer(IObjectStore& objStore, COsContext& osContext, CMemorySys& memorySys,
                              CResFactory& resFactory)
+#endif
 : x8_factory(resFactory)
 , xc_objStore(objStore)
 , x10_font(1.f)
@@ -356,9 +360,19 @@ void CCubeRenderer::GenerateReflectionTex() {
           }
 
           float scaledX = halfScale * fx + halfScale;
+#if defined(TARGET_PC)
+          int ix =
+              std::isfinite(scaledX) ? static_cast< int >(CMath::Clamp(0.f, scaledX, 255.f)) : 0;
+#else
           int ix = static_cast< int >(CMath::Clamp(0.f, scaledX, 255.f));
+#endif
           float scaledY = halfScale * fy + halfScale;
+#if defined(TARGET_PC)
+          int iy =
+              std::isfinite(scaledY) ? static_cast< int >(CMath::Clamp(0.f, scaledY, 255.f)) : 0;
+#else
           int iy = static_cast< int >(CMath::Clamp(0.f, scaledY, 255.f));
+#endif
 
           base[texel] = CBasics::SwapBytes(static_cast< ushort >((iy & 0xFF) | ((ix & 0xFF) << 8)));
           ++texel;
@@ -440,16 +454,27 @@ void CCubeRenderer::AddStaticGeometry(const rstl::vector< CMetroidModelInstance 
     rstl::auto_ptr< rstl::vector< TCachedToken< CTexture > > > textures =
         rs_new rstl::vector< TCachedToken< CTexture > >();
     if (!geometry->empty()) {
+#if defined(TARGET_PC)
+      CCubeModel::MakeTexturesFromMats(geometry->front().GetMaterialData(), *textures, xc_objStore,
+                                       false);
+#else
       CCubeModel::MakeTexturesFromMats(geometry->front().GetMaterialPointer(), *textures,
                                        xc_objStore, false);
+#endif
       models->reserve(geometry->size());
       for (int i = 0; i < geometry->size(); ++i) {
         const CMetroidModelInstance* it = &geometry->at(i);
+#if defined(TARGET_PC)
+        models->push_back(rs_new CCubeModel(it->GetSurfaces(), textures.get(),
+                                            it->GetMaterialData(), it->GetArrays(),
+                                            it->GetBoundingBox(), it->GetFlags(), false, i));
+#else
         models->push_back(rs_new CCubeModel(
             const_cast< rstl::vector< void* >* >(&it->GetSurfaces()), textures.get(),
             it->GetMaterialPointer(), it->GetVertexPointer(), it->GetNormalPointer(),
             it->GetColorPointer(), it->GetTCPointer(), it->GetPackedTCPointer(),
             it->GetBoundingBox(), it->GetFlags(), false, i));
+#endif
       }
     }
     x1c_areaListItems.push_back(CAreaListItem(geometry, octTree, textures, models, areaIdx));
@@ -470,6 +495,10 @@ CCubeRenderer::FindStaticGeometry(const rstl::vector< CMetroidModelInstance >* g
 void CCubeRenderer::RemoveStaticGeometry(const rstl::vector< CMetroidModelInstance >* geometry) {
   AUTO(search, FindStaticGeometry(geometry));
   if (search != x1c_areaListItems.end()) {
+#if defined(TARGET_PC)
+    // The caller may release the MREA buffers as soon as geometry is removed.
+    AuroraGXSync();
+#endif
     x1c_areaListItems.erase(search);
   }
 }
@@ -873,9 +902,14 @@ void CCubeRenderer::ActivateLightsForModel(const CAreaListItem* areaListItem,
 }
 
 namespace Renderer {
+#if defined(TARGET_PC)
+IRenderer* AllocateRenderer(IObjectStore& objStore, CResFactory& resFactory) {
+  auto* renderer = rs_new CCubeRenderer(objStore, resFactory);
+#else
 IRenderer* AllocateRenderer(IObjectStore& objStore, COsContext& osContext, CMemorySys& memorySys,
                             CResFactory& resFactory) {
   CCubeRenderer* renderer = rs_new CCubeRenderer(objStore, osContext, memorySys, resFactory);
+#endif
   IWeaponRenderer::SetRenderer(renderer);
   return renderer;
 }
@@ -1397,16 +1431,20 @@ static void draw_box_or_model(const CAABox& aabb, const CModel* model, const CTr
     skModel->Touch(0);
     if (const CCubeModel* modelInst = skModel->GetCubeModel()) {
       skModel->UpdateLastFrame();
+#if defined(TARGET_PC)
+      modelInst->DrawFlat(TModelPositions(), TModelNormals(), kSS_All);
+#else
       const CModel& normalModel = **skinnedModel->GetModel();
       const float* const& normals = normalModel.GetNormals();
       const CModel& positionModel = **skinnedModel->GetModel();
       modelInst->DrawFlat(positionModel.GetPositions(), normals, kSS_All);
+#endif
     }
   } else {
     model->Touch(0);
     if (const CCubeModel* modelInst = model->GetCubeModel()) {
       model->UpdateLastFrame();
-      modelInst->DrawFlat(nullptr, nullptr, kSS_All);
+      modelInst->DrawFlat(TModelPositions(), TModelNormals(), kSS_All);
     }
   }
 }
@@ -1433,7 +1471,22 @@ void CCubeRenderer::DoThermalBlendCold() {
   CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_I4, 0, CGraphics::kSpareBufferTexMapID);
 
   const uint rand = x2a8_thermalRand.Next();
+#if defined(TARGET_PC)
+  int dolSize = 0;
+  const uchar* dolData = DVDGetDOLLocation(&dolSize);
+  const uint noiseOffset = 0x4f60 + ((rand + 0x1f) & ~0x1f);
+  const uint noiseSize = GXGetTexBufferSize(width, height, GX_TF_IA4, false, 0);
+  if (dolData == nullptr || dolSize < 0 || noiseOffset > static_cast< uint >(dolSize) ||
+      noiseSize > static_cast< uint >(dolSize) - noiseOffset) {
+    OSPanic(__FILE__, __LINE__,
+            "Thermal static texture exceeds the loaded DOL (offset %u, size %u, DOL size %d)",
+            noiseOffset, noiseSize, dolSize);
+    return;
+  }
+  void* randTexData = const_cast< uchar* >(dolData + noiseOffset);
+#else
   void* randTexData = reinterpret_cast< void* >(((rand + 0x1f) & ~0x1f) + 0x8000);
+#endif
   CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_IA4, randTexData, GX_TEXMAP0);
   CGraphics::LoadDolphinSpareTexture(width, height, GX_TF_IA4, randTexData, GX_TEXMAP1);
 
@@ -1831,6 +1884,17 @@ void CCubeRenderer::ReallyRenderFogVolume(const CColor& color, const CAABox& aab
       x1b8_fogVolumeRamp.Load(GX_TEXMAP2, CTexture::kCM_Clamp);
       GXSetCullMode(GX_CULL_BACK);
       GXSetDstAlpha(GX_TRUE, 0xff);
+#if defined(TARGET_PC)
+      CGX::SetNumIndStages(0);
+      CGX::SetTevDirect(GX_TEVSTAGE0);
+      CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL,
+                      GX_TEXMAP_NULL, GX_COLOR_NULL);
+      CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO,
+                        GX_CC_ZERO, GX_CC_ZERO);
+      CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO,
+                        GX_CA_ZERO, GX_CA_ZERO);
+      CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
+#endif
       draw_box_or_model(aabb, model, modelXf, CGraphics::mViewMatrix, skinnedModel);
 
       if (doDoublePass) {
@@ -2014,7 +2078,7 @@ void CCubeRenderer::PostRenderFogs() {
 }
 
 void CCubeRenderer::DoThermalModelDraw(const CCubeModel& model, const CColor& mulCol,
-                                       const CColor& addCol, const float* pos, const float* nrm,
+                                       const CColor& addCol, TModelPositions pos, TModelNormals nrm,
                                        const CModelFlags& flags) {
   CGX::SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX3x4, GX_TG_NRM, GX_TEXMTX0, true, GX_PTTEXMTX0);
   CGX::SetNumTexGens(1);
@@ -2057,7 +2121,7 @@ void CCubeRenderer::DoThermalModelDraw(const CCubeModel& model, const CColor& mu
 }
 
 void CCubeRenderer::DrawThermalModel(const CModel& model, const CColor& mulCol,
-                                     const CColor& addCol, const float* pos, const float* nrm,
+                                     const CColor& addCol, TModelPositions pos, TModelNormals nrm,
                                      const CModelFlags& flags) {
   const CCubeModel* modelInst = model.GetCubeModel();
   model.UpdateLastFrame();
@@ -2065,8 +2129,8 @@ void CCubeRenderer::DrawThermalModel(const CModel& model, const CColor& mulCol,
 }
 
 void CCubeRenderer::DrawModelDisintegrate(const CModel& model, const CTexture& tex,
-                                          const CColor& color, const float* pos, const float* nrm,
-                                          float t) {
+                                          const CColor& color, TModelPositions pos,
+                                          TModelNormals nrm, float t) {
 
   tex.Load(GX_TEXMAP0, CTexture::kCM_Clamp);
   CGX::SetNumIndStages(0);
@@ -2135,8 +2199,8 @@ void CCubeRenderer::DrawModelDisintegrate(const CModel& model, const CTexture& t
   CGX::SetAlphaCompare(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
 }
 
-void CCubeRenderer::DrawModelFlat(const CModel& model, const CModelFlags& flags, const bool unsortedOnly,
-                                  const float* pos, const float* nrm) {
+void CCubeRenderer::DrawModelFlat(const CModel& model, const CModelFlags& flags,
+                                  const bool unsortedOnly, TModelPositions pos, TModelNormals nrm) {
   const char blendMode = static_cast< char >(flags.GetBlendMode());
   if (blendMode > 6) {
     CGX::SetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_ONE, GX_LO_CLEAR);
@@ -2460,7 +2524,8 @@ void* CCubeRenderer::GetRenderToTexBuffer(int idx) {
          (static_cast< uint >(idx * CGraphics::mSpareBufferSize) >> 4);
 }
 
-void CCubeRenderer::CopyTex(const int div, const bool half, void* dest, const GXTexFmt fmt, const bool clear) {
+void CCubeRenderer::CopyTex(const int div, const bool half, void* dest, const GXTexFmt fmt,
+                            const bool clear) {
   const CViewport& vp = CGraphics::mViewport;
   uint width = vp.mWidth;
   uint height = vp.mHeight;
@@ -2850,8 +2915,8 @@ void CCubeRenderer::ReallyDrawPhazonSuitIndirectEffect(const CColor& vertColor,
 
 void CCubeRenderer::DrawPhazonSuitIndirectEffect(
     const CColor& nonIndirectColor,
-    const rstl::optional_object< TCachedToken< CTexture > >& indirectTex,
-    float blurRadius, float scale, float offX, float offY, const CColor& indirectColor) {
+    const rstl::optional_object< TCachedToken< CTexture > >& indirectTex, float blurRadius,
+    float scale, float offX, float offY, const CColor& indirectColor) {
   if (x318_27_currentRGBA6 && x310_phazonSuitMaskCountdown != 0) {
     const CTransform4f backupView(CGraphics::mViewMatrix);
     const CGraphics::CProjectionState backupProjection = CGraphics::GetProjectionState();

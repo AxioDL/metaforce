@@ -35,11 +35,7 @@
 #pragma inline_max_size(250)
 #pragma inline_max_total_size(20000) // for RenderParticles vector inlining
 
-#ifdef __MWERKS__
 #define frsqrte(x) static_cast< float >(__frsqrte(x))
-#else
-extern "C" float frsqrte(float);
-#endif
 
 // NOTE: This is a hack, trying to figure out what causes the wack GX codegen in
 // CElementGen::RenderParticles. The `const CVector3f&` binding seems to help.

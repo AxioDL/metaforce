@@ -767,6 +767,7 @@ bool CInGameGuiManager::IsTextureInPauseScreen(CAssetId id) const {
 }
 
 void CInGameGuiManager::DestroyAreaTextures(const CStateManager& mgr) {
+#if !defined(TARGET_PC)
   rstl::vector< SDumpableTextureInfo > candidates;
   candidates.reserve(64);
   const CWorld& world = *mgr.GetWorld();
@@ -848,6 +849,7 @@ void CInGameGuiManager::DestroyAreaTextures(const CStateManager& mgr) {
   CTexture::sCurrentFrameCount = 0;
   x12c_dumpedTextures.sort(
       rstl::pair_sorter_finder< TDumpedTexture, rstl::less< CAssetId > >(rstl::less< CAssetId >()));
+#endif
   CModel::DisableTextureTimeout();
 }
 
