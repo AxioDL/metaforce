@@ -4,7 +4,10 @@ Metroid Prime
 
 [Build Status]: https://github.com/PrimeDecomp/prime/actions/workflows/build.yml/badge.svg
 [actions]: https://github.com/PrimeDecomp/prime/actions/workflows/build.yml
+
 [Code Progress]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=code&label=Code
+[Data Progress]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=data&label=Data
+
 [Code Progress GM8E01_00]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=code&label=Code&version=GM8E01_00
 [Data Progress GM8E01_00]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=data&label=Data&version=GM8E01_00
 [Progress GM8E01_00]: https://decomp.dev/PrimeDecomp/prime?version=GM8E01_00
