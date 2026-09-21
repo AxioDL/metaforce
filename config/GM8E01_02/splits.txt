@@ -1491,7 +1491,8 @@ Kyoto/Audio/CSfxHandle.cpp:
 	.text       start:0x802E82BC end:0x802E82D8
 
 Kyoto/Audio/CSfxManager.cpp:
-	.text       start:0x802E99F4 end:0x802EA0B0
+	.text       start:0x802E82D8 end:0x802EBF4C
+	.ctors      start:0x803CC3C4 end:0x803CC3C8
 	.bss        start:0x805A0DC8 end:0x805A6448 align:4 common
 
 Kyoto/Animation/CAdvancementDeltas.cpp:
