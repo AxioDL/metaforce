@@ -54,7 +54,6 @@ rstl::optional_object< CAABox > CFlameThrower::GetTouchBounds() const {
 ENTITY_ACCEPT_IMPL(CFlameThrower)
 
 void CFlameThrower::Touch(CActor&, CStateManager&) {}
-
 void CFlameThrower::Think(float dt, CStateManager& mgr) {
   CWeapon::Think(dt, mgr);
   if (!GetActive()) {
@@ -103,11 +102,11 @@ void CFlameThrower::Think(float dt, CStateManager& mgr) {
     TUniqueId id = kInvalidUniqueId;
     x318_flameBounds = CAABox(min, max);
     const CRayCastResult result = DoCollisionCheck(id, x318_flameBounds, mgr);
-    if (const CActor* actor = TCastToPtr< CActor >(mgr.ObjectById(id))) {
+    if (TCastToPtr< CActor >(mgr.ObjectById(id))) {
       ApplyDamageToActor(mgr, id, dt);
     } else if (result.IsValid()) {
-      mgr.ApplyDamageToWorld(GetOwnerId(), *this, result.GetPoint(),
-                             x12c_curDamageInfo.MakeScaledForTime(dt), GetFilter());
+      ApplyDamageToWorld(mgr, GetOwnerId(), result.GetPoint(),
+                         x12c_curDamageInfo.MakeScaledForTime(dt), GetFilter());
     }
   }
 
@@ -292,4 +291,9 @@ void CFlameThrower::ApplyDamageToActor(CStateManager& mgr, TUniqueId id, float d
                                  x3fc_playerIceTextureId);
   }
   ApplyDamageToActors(mgr, x12c_curDamageInfo.MakeScaledForTime(dt));
+}
+inline void CFlameThrower::ApplyDamageToWorld(CStateManager& mgr, TUniqueId id,
+                                              const CVector3f& point, const CDamageInfo& dInfo,
+                                              const CMaterialFilter& filter) {
+  mgr.ApplyDamageToWorld(id, *this, point, dInfo, filter);
 }

@@ -40,6 +40,8 @@ private:
   float UpdateFlameState(float dt, CStateManager& mgr);
   CRayCastResult DoCollisionCheck(TUniqueId& idOut, const CAABox& bounds, CStateManager& mgr);
   void ApplyDamageToActor(CStateManager& mgr, TUniqueId id, float dt);
+  void ApplyDamageToWorld(CStateManager& mgr, TUniqueId id, const CVector3f& point,
+                          const CDamageInfo& dInfo, const CMaterialFilter& filter);
 
   CTransform4f x2e8_flameXf;
   CAABox x318_flameBounds;
