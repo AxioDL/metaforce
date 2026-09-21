@@ -10,8 +10,8 @@ public:
                unsigned int flags, bool active, CAssetId, float, float, float, float, bool);
   ~CScriptSteam();
 
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
   DECLARE_TYPES_MATCH_OR_ACCEPT;
 
 private:

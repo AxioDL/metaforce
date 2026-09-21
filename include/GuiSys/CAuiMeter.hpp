@@ -8,7 +8,7 @@ class CAuiMeter : public CGuiGroup {
 public:
   CAuiMeter(const CGuiWidgetParms& parms, const bool b, const int w1, const int w2);
   bool AddWorkerWidget(CGuiWidget* widget) override;
-  CGuiWidget* GetWorkerWidget(int idx);
+  CGuiWidget* GetWorkerWidget(int idx) override;
   void SetMaxCapacity(int cap);
   void SetCapacity(int cap);
   void SetCurrValue(int rem);

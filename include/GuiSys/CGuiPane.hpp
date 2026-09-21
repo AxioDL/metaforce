@@ -24,7 +24,7 @@ public:
   float GetWidth() const { return xb8_width; }
   float GetHeight() const { return xbc_height; }
 
-  FourCC GetWidgetTypeID() const;
+  FourCC GetWidgetTypeID() const override;
 
   CVector3f& ScaleCenter() { return xc8_scaleCenter; }
   const CVector3f& GetScaleCenter() const { return xc8_scaleCenter; }

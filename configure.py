@@ -307,6 +307,7 @@ cflags_retro = [
     "-i include",
     "-i extern/sdk/include",
     "-i extern/sdk/libc",
+    "-i extern/zlib-1.1.3",
     f"-i build/{config.version}/include",
     f"-DVERSION={version_num}",
     f"-DRSTL_VERSION={RSTL_VERSIONS[config.version]}",
@@ -2037,45 +2038,47 @@ config.libs = [
         "mw_version": "GC/1.3.2",
         "cflags": cflags_runtime,
         "progress_category": "third_party",
+        "src_dir": "extern/zlib-1.1.3",
+        "strip_prefix": "zlib/",
         "shift_jis": False,
         "objects": [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8J01_00", "GM8E01_02"),
-                "Kyoto/zlib/adler32.c",
+                "zlib/adler32.c",
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
-                "Kyoto/zlib/deflate.c",
+                "zlib/deflate.c",
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
-                "Kyoto/zlib/infblock.c",
+                "zlib/infblock.c",
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
-                "Kyoto/zlib/infcodes.c",
+                "zlib/infcodes.c",
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
-                "Kyoto/zlib/inffast.c",
+                "zlib/inffast.c",
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
-                "Kyoto/zlib/inflate.c",
+                "zlib/inflate.c",
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48"),
-                "Kyoto/zlib/inftrees.c",
+                "zlib/inftrees.c",
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
-                "Kyoto/zlib/infutil.c",
+                "zlib/infutil.c",
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"), "Kyoto/zlib/trees.c"
+                MatchingFor("GM8E01_00", "GM8E01_01"), "zlib/trees.c"
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "Kyoto/zlib/zutil.c"
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"), "zlib/zutil.c"
             ),
         ],
     },

@@ -44,4 +44,16 @@ typedef void* unkptr;
 }
 #endif
 
+#if (defined(__cplusplus) && __cplusplus >= 201103L) || defined(__clang__)
+// Use C++11 auto keyword
+#define AUTO(name, val) auto name = val
+#define AUTO_REF(name, val) auto& name = val
+#define AUTO_CONST_REF(name, val) const auto& name = val
+#else
+// Use __typeof__ extension
+#define AUTO(name, val) __typeof__(val) name = val
+#define AUTO_REF(name, val) __typeof__(val)& name = val
+#define AUTO_CONST_REF(name, val) const __typeof__(val)& name = val
+#endif
+
 #endif // _TYPES

@@ -1,6 +1,7 @@
 #include "Kyoto/Streams/CZipSupport.hpp"
 #include "Kyoto/Alloc/CMemory.hpp"
-#include "zlib/zlib.h"
+
+#include <zlib.h>
 
 static char* hack() {
   return ZLIB_VERSION;

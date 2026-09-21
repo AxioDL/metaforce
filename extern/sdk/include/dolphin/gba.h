@@ -43,7 +43,9 @@ extern "C" {
 
 #define GBA_JOYBOOT_BOOTPARAM_OFFSET 0xc8
 #define GBA_JOYBOOT_BOOTPARAM_SIZE 0x18
+
 typedef void (*GBACallback)(s32 chan, s32 ret);
+
 void GBAInit(void);
 s32 GBAGetStatus(s32 chan, u8* status);
 s32 GBAGetStatusAsync(s32 chan, u8* status, GBACallback callback);

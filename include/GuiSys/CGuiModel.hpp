@@ -24,7 +24,7 @@ public:
   static CGuiModel* Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 
   virtual rstl::vector< CAssetId > GetModelAssets() const;
-  FourCC GetWidgetTypeID() const;
+  FourCC GetWidgetTypeID() const override;
 
 private:
   mutable rstl::optional_object< TCachedToken< CModel > > xb8_model;

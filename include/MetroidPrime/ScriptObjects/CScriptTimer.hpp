@@ -20,9 +20,9 @@ class CScriptTimer : public CEntity {
 
     DECLARE_TYPES_MATCH_OR_ACCEPT;
     void Reset(CStateManager&);
-    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
     void ApplyTime(float, CStateManager&);
-    void Think(float, CStateManager&);
+    void Think(float, CStateManager&) override;
 
     bool IsTiming() const { return x42_isTiming; }
     void StartTiming(bool isTiming) {

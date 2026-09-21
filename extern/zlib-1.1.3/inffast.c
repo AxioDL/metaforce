@@ -3,12 +3,12 @@
  * For conditions of distribution and use, see copyright notice in zlib.h 
  */
 
-#include "zlib/zutil.h"
-#include "zlib/inftrees.h"
-#include "zlib/infblock.h"
-#include "zlib/infcodes.h"
-#include "zlib/infutil.h"
-#include "zlib/inffast.h"
+#include "zutil.h"
+#include "inftrees.h"
+#include "infblock.h"
+#include "infcodes.h"
+#include "infutil.h"
+#include "inffast.h"
 
 struct inflate_codes_state {int dummy;}; /* for buggy compilers */
 

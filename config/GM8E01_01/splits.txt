@@ -3407,39 +3407,39 @@ Kyoto/IObj.cpp:
 	.ctors      start:0x803CB528 end:0x803CB52C
 	.sbss       start:0x805A96F0 end:0x805A9700
 
-Kyoto/zlib/adler32.c:
+zlib/adler32.c:
 	.text       start:0x80341200 end:0x80341384
 
-Kyoto/zlib/infblock.c:
+zlib/infblock.c:
 	.text       start:0x80341384 end:0x803424B4
 	.rodata     start:0x803D7C88 end:0x803D7D48
 	.data       start:0x803EE620 end:0x803EE648
 
-Kyoto/zlib/infcodes.c:
+zlib/infcodes.c:
 	.text       start:0x803424B4 end:0x80342EA4
 	.rodata     start:0x803D7D48 end:0x803D7D80
 	.data       start:0x803EE648 end:0x803EE670
 
-Kyoto/zlib/inffast.c:
+zlib/inffast.c:
 	.text       start:0x80342EA4 end:0x8034343C
 	.rodata     start:0x803D7D80 end:0x803D7DB8
 
-Kyoto/zlib/inflate.c:
+zlib/inflate.c:
 	.text       start:0x8034343C end:0x80343CA0
 	.rodata     start:0x803D7DB8 end:0x803D7E30
 	.data       start:0x803EE670 end:0x803EE6A8
 
-Kyoto/zlib/inftrees.c:
+zlib/inftrees.c:
 	.text       start:0x80343CA0 end:0x803444EC
 	.rodata     start:0x803D7E30 end:0x803D8130
 	.data       start:0x803EE6A8 end:0x803EF7A8
 	.sdata      start:0x805A8AF8 end:0x805A8B00
 
-Kyoto/zlib/infutil.c:
+zlib/infutil.c:
 	.text       start:0x803444EC end:0x8034466C
 	.data       start:0x803EF7A8 end:0x803EF7F0
 
-Kyoto/zlib/zutil.c:
+zlib/zutil.c:
 	.text       start:0x8034466C end:0x803446C8
 
 Kyoto/CARAMManager.cpp:

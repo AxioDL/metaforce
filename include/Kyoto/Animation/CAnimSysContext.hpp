@@ -1,12 +1,12 @@
 #ifndef _CANIMSYSCONTEXT
 #define _CANIMSYSCONTEXT
 
+#include "Kyoto/CRandom16.hpp"
 #include "Kyoto/TToken.hpp"
 
 #include "rstl/rc_ptr.hpp"
 
 class CTransitionDatabase;
-class CRandom16;
 class IObjectStore;
 
 class CAnimSysContext {

@@ -49,7 +49,7 @@
 
 /* @(#) $Id$ */
 
-#include "zlib/deflate.h"
+#include "deflate.h"
 
 const char deflate_copyright[] =
    " deflate 1.1.3 Copyright 1995-1998 Jean-loup Gailly ";

@@ -5,7 +5,7 @@
 #include "rstl/vector.hpp"
 #include "string.h"
 
-#include "MetroidPrime/Enemies/CAiFuncMap.hpp"
+#include "MetroidPrime/Enemies/CAi.hpp"
 
 class CAi;
 class CStateManager;

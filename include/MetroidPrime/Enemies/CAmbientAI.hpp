@@ -16,15 +16,15 @@ public:
 
   /* CEntity */
   DECLARE_TYPES_MATCH_OR_ACCEPT;
-  void Think(float dt, CStateManager& mgr);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
+  void Think(float dt, CStateManager& mgr) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   /* CActor */
-  CHealthInfo* HealthInfo(CStateManager& mgr);
-  const CDamageVulnerability* GetDamageVulnerability() const;
+  CHealthInfo* HealthInfo(CStateManager& mgr) override;
+  const CDamageVulnerability* GetDamageVulnerability() const override;
 
   /* CPhysicsActor */
-  void Touch(CActor& actor, CStateManager& mgr);
-  rstl::optional_object<CAABox> GetTouchBounds() const;
+  void Touch(CActor& actor, CStateManager& mgr) override;
+  rstl::optional_object<CAABox> GetTouchBounds() const override;
 
   void RandomizePlaybackRate(CStateManager& mgr);
 

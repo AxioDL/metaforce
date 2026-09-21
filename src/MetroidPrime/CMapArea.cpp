@@ -154,7 +154,7 @@ void CMapArea::CMapAreaSurface::Draw(const CVector3f* verts, const CColor& surfC
   int numSurfaces = CBasics::SwapBytes(*x18_surfOffset);
   int numOutlines = CBasics::SwapBytes(*x1c_outlineOffset);
   if (verts) {
-    CGX::SetArray(GX_VA_POS, verts, '\f');
+    CGX::SetArray(GX_VA_POS, verts, sizeof(CVector3f));
   }
   if (hasSurfAlpha) {
     CGX::SetTevKColor(GX_KCOLOR0, surfColor.GetGXColor());

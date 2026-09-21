@@ -20,7 +20,7 @@ public:
   void SetLinearAngleAttenuation(float value) { xd0_angleL = value; }
   void SetQuadraticAngleAttenuation(float value) { xd4_angleQ = value; }
   void SetLightIndex(int index) { xd8_lightId = index; }
-  FourCC GetWidgetTypeID() const;
+  FourCC GetWidgetTypeID() const override;
 public:
   ELightType xb8_type;
   float xbc_spotCutoff;

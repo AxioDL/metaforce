@@ -9,9 +9,15 @@
 
 #include <Kyoto/Math/CVector3f.hpp>
 
+#ifndef M_PI
 #define M_PI 3.14159265358979323846
+#endif
+#ifndef M_PIF
 #define M_PIF 3.14159265358979323846f
+#endif
+#ifndef M_2PIF
 #define M_2PIF 6.28318530718f
+#endif
 
 class CMath {
 public:

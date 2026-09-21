@@ -19,7 +19,6 @@
 #endif
 
 #include "zlib.h"
-#include <windows.h>
 
 #ifdef WIN32
 #  ifndef F_OK

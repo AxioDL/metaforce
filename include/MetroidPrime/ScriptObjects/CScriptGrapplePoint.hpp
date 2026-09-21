@@ -15,11 +15,11 @@ public:
   ~CScriptGrapplePoint();
 
   DECLARE_TYPES_MATCH_OR_ACCEPT;
-  void AddToRenderer(const CFrustumPlanes&, const CStateManager&) const;
-  rstl::optional_object< CAABox > GetTouchBounds() const;
-  void Render(const CStateManager&) const;
-  void Think(float, CStateManager&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void AddToRenderer(const CFrustumPlanes&, const CStateManager&) const override;
+  rstl::optional_object< CAABox > GetTouchBounds() const override;
+  void Render(const CStateManager&) const override;
+  void Think(float, CStateManager&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 
   const CGrappleParameters& GetGrappleParameters() const { return x100_parameters; }
 };

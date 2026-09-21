@@ -66,12 +66,6 @@ typedef int BOOL;
 #endif
 #endif
 
-#ifdef __MWERKS__
-#define AT_ADDRESS(xyz) : (xyz)
-#else
-#define AT_ADDRESS
-#endif
-
 #if !defined(__cplusplus) || __cplusplus < 201103L
 // Define nullptr as NULL
 #ifndef nullptr
@@ -95,26 +89,41 @@ typedef int BOOL;
 #endif // defined(__clang__)
 #endif // defined(__cplusplus) && __cplusplus < 201103L
 
-#ifndef ATTRIBUTE_ALIGN
-#if defined(__MWERKS__) || defined(__GNUC__)
+#if defined(__MWERKS__)
+#define AT_ADDRESS(addr) : (addr)
+#define ATTRIBUTE_ALIGN(num) __attribute__((aligned(num)))
+#elif defined(__GNUC__)
+#define AT_ADDRESS(addr)
 #define ATTRIBUTE_ALIGN(num) __attribute__((aligned(num)))
 #elif defined(_MSC_VER)
-#define ATTRIBUTE_ALIGN(num)
+#define AT_ADDRESS(addr)
+#define ATTRIBUTE_ALIGN(num) __declspec(align(num))
+#else
+#error unknown compiler
+#endif
+
+#ifndef DECL_WEAK
+#if defined(__MWERKS__)
+#define DECL_WEAK __declspec(weak)
+#elif defined(__GNUC__)
+#define DECL_WEAK __attribute__((weak))
+#elif defined(_MSC_VER)
+#define DECL_WEAK
 #else
 #error unknown compiler
 #endif
 #endif
 
-#if (defined(__cplusplus) && __cplusplus >= 201103L) || defined(__clang__)
-// Use C++11 auto keyword
-#define AUTO(name, val) auto name = val
-#define AUTO_REF(name, val) auto& name = val
-#define AUTO_CONST_REF(name, val) const auto& name = val
+#if TARGET_PC && __cplusplus
+#define NORETURN [[noreturn]]
 #else
-// Use __typeof__ extension
-#define AUTO(name, val) __typeof__(val) name = val
-#define AUTO_REF(name, val) __typeof__(val)& name = val
-#define AUTO_CONST_REF(name, val) const __typeof__(val)& name = val
+#define NORETURN
+#endif
+
+#ifdef __MWERKS__
+#define __REGISTER register
+#else
+#define __REGISTER
 #endif
 
 #endif // _DOLPHIN_TYPES

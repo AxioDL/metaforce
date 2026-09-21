@@ -15,7 +15,7 @@ public:
   ~CConsoleOutputWindow() override;
   EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) override;
   void Update(float);
-  void Draw() const;
+  void Draw() const override;
 private:
   CFont mFont;
   float mUnk;

@@ -6,7 +6,8 @@
 #include "Kyoto/CDvdRequest.hpp"
 #include "Kyoto/Streams/CZipSupport.hpp"
 #include "rstl/math.hpp"
-#include "zlib/zlib.h"
+
+#include <zlib.h>
 
 static const int kDecompChunkSize = 4096;
 

@@ -6,7 +6,7 @@
 
 #include "rstl/auto_ptr.hpp"
 
-#include "zlib/zlib.h"
+#include <zlib.h>
 
 class CZipOutputStream : public COutputStream {
 public:

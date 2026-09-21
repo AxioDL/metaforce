@@ -3,8 +3,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h 
  */
 
-#include "zlib/zutil.h"
-#include "zlib/inftrees.h"
+#include "zutil.h"
+#include "inftrees.h"
 
 #if !defined(BUILDFIXED) && !defined(STDC)
 #  define BUILDFIXED   /* non ANSI compilers may not accept inffixed.h */
@@ -392,7 +392,7 @@ local uInt fixed_bd;
 local inflate_huft *fixed_tl;
 local inflate_huft *fixed_td;
 #else
-#include "zlib/inffixed.h"
+#include "inffixed.h"
 #endif
 
 

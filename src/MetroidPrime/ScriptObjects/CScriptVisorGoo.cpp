@@ -7,6 +7,7 @@
 #include "MetroidPrime/ScriptObjects/CHUDBillboardEffect.hpp"
 
 #include "Kyoto/Audio/CSfxManager.hpp"
+#include "Kyoto/Particles/CElectricDescription.hpp"
 
 #include "rstl/math.hpp"
 

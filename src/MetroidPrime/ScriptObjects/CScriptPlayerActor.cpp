@@ -22,6 +22,8 @@
 #include "Kyoto/Math/CMath.hpp"
 #include "MetaRender/CCubeRenderer.hpp"
 
+#include "dolphin/gx.h"
+
 static const char* const kGunLocator = "GUN_LCTR";
 
 CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, const rstl::string& name,

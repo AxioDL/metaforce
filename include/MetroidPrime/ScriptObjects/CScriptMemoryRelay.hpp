@@ -11,7 +11,7 @@ public:
   CScriptMemoryRelay(TUniqueId, const rstl::string&, const CEntityInfo&, bool, bool, const bool);
   ~CScriptMemoryRelay();
 
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   DECLARE_ACCEPT;
 };
 

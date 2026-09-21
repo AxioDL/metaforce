@@ -510,7 +510,7 @@ void CNewFlameThrower::CreateLights(CStateManager& mgr) {
   for (int i = 0; i < 4; ++i) {
     const TUniqueId uid = mgr.AllocateUniqueId();
     if (uid != kInvalidUniqueId) {
-      const CAssetId lightId = reinterpret_cast< uint >(this) + (i & 1);
+      const CAssetId lightId = static_cast< uint >(reinterpret_cast< uintptr_t >(this)) + (i & 1);
       CEntity* light = rs_new CGameLight(
           uid, GetAreaId(), false, rstl::string_l("FlamethrowerLight"), CTransform4f::Identity(),
           GetUniqueId(), x358_mainFireGen->GetLight(), lightId, 0, 0.f);

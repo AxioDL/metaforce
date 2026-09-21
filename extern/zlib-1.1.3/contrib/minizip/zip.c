@@ -10,7 +10,6 @@
 #include <string.h>
 #include "zlib.h"
 #include "zip.h"
-#include "zutil.h"
 
 #ifdef STDC
 #  include <stddef.h>

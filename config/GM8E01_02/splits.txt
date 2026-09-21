@@ -1801,28 +1801,28 @@ Kyoto/CToken.cpp:
 Kyoto/IObj.cpp:
 	.text       start:0x80341A9C end:0x80341BA4
 
-Kyoto/zlib/adler32.c:
+zlib/adler32.c:
 	.text       start:0x80341BB8 end:0x80341D3C
 
-Kyoto/zlib/infblock.c:
+zlib/infblock.c:
 	.text       start:0x80341E34 end:0x80342C04
 
-Kyoto/zlib/infcodes.c:
+zlib/infcodes.c:
 	.text       start:0x80342EA0 end:0x803437D8
 
-Kyoto/zlib/inffast.c:
+zlib/inffast.c:
 	.text       start:0x8034385C end:0x80343DF4
 
-Kyoto/zlib/inflate.c:
+zlib/inflate.c:
 	.text       start:0x80343DF4 end:0x803443F8
 
-Kyoto/zlib/inftrees.c:
+zlib/inftrees.c:
 	.text       start:0x80344970 end:0x80344EA4
 
-Kyoto/zlib/infutil.c:
+zlib/infutil.c:
 	.text       start:0x80344EA4 end:0x80345024
 
-Kyoto/zlib/zutil.c:
+zlib/zutil.c:
 	.text       start:0x80345024 end:0x80345080
 
 Kyoto/CARAMManager.cpp:

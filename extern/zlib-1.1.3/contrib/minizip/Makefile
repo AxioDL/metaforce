@@ -1,8 +1,8 @@
-CC=gcc
-CFLAGS=-O -I../.. -L../..
+CC=cc
+CFLAGS=-O -I../..
 
-UNZ_OBJS = miniunz.o unzip.o -lz
-ZIP_OBJS = minizip.o zip.o   -lz
+UNZ_OBJS = miniunz.o unzip.o ../../libz.a
+ZIP_OBJS = minizip.o zip.o   ../../libz.a
 
 .c.o:
 	$(CC) -c $(CFLAGS) $*.c

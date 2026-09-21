@@ -16,15 +16,15 @@
 #include "zlib.h"
 
 #ifdef STDC
-//#  include <stddef.h>
-#  include "string.h"
-//#  include <stdlib.h>
+#  include <stddef.h>
+#  include <string.h>
+#  include <stdlib.h>
 #endif
-//#ifdef NO_ERRNO_H
+#ifdef NO_ERRNO_H
     extern int errno;
-//#else
-//#   include <errno.h>
-//#endif
+#else
+#   include <errno.h>
+#endif
 
 #ifndef local
 #  define local static

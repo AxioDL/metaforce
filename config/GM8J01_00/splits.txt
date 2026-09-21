@@ -1608,26 +1608,26 @@ Kyoto/CToken.cpp:
 Kyoto/IObj.cpp:
 	.text       start:0x8032B67C end:0x8032B784
 
-Kyoto/zlib/adler32.c:
+zlib/adler32.c:
 	.text       start:0x8032B798 end:0x8032B91C
 
-Kyoto/zlib/infblock.c:
+zlib/infblock.c:
 	.text       start:0x8032BA14 end:0x8032C7E4
 
-Kyoto/zlib/infcodes.c:
+zlib/infcodes.c:
 	.text       start:0x8032CA80 end:0x8032D3B8
 
-Kyoto/zlib/inffast.c:
+zlib/inffast.c:
 	.text       start:0x8032D43C end:0x8032D9D4
 	.rodata     start:0x803C3FB8 end:0x803C3FF0
 
-Kyoto/zlib/inflate.c:
+zlib/inflate.c:
 	.text       start:0x8032D9D4 end:0x8032DFD8
 
-Kyoto/zlib/inftrees.c:
+zlib/inftrees.c:
 	.text       start:0x8032E550 end:0x8032EA84
 
-Kyoto/zlib/infutil.c:
+zlib/infutil.c:
 	.text       start:0x8032EA84 end:0x8032EC04
 	.data       start:0x803D83E0 end:0x803D8428
 

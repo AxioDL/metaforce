@@ -8,7 +8,7 @@
 #include "rstl/auto_ptr.hpp"
 #include "rstl/single_ptr.hpp"
 
-#include "zlib/zlib.h"
+#include <zlib.h>
 
 class CZipInputStream : public CInputStream {
 public:

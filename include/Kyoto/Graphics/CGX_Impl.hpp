@@ -6,10 +6,7 @@
 #include "Kyoto/Alloc/CMemory.hpp"
 #include "Kyoto/Graphics/CTexture.hpp"
 
-#include "dolphin/gx/GXDispList.h"
-#include "dolphin/gx/GXGeometry.h"
-#include "dolphin/gx/GXLighting.h"
-#include "dolphin/gx/GXTev.h"
+#include "dolphin/gx.h"
 
 #ifndef CGX_INLINE
 #define CGX_INLINE inline

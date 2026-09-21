@@ -12,7 +12,6 @@
 # include <direct.h>
 # include <io.h>
 #endif
-#include <windows.h>
 
 #include "unzip.h"
 
