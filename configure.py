@@ -2300,7 +2300,7 @@ config.libs = [
             ),
             Object(NonMatching, "Kyoto/Audio/CStaticAudioPlayer.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "Kyoto/CFrameDelayedKiller.cpp",
                 extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
             ),
