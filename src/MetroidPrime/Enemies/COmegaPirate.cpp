@@ -339,6 +339,103 @@ void COmegaPirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
   }
 }
 
+CVector3f COmegaPirate::GetOrbitPosition(const CStateManager& mgr) const {
+  if (x990_launcherId2 != kInvalidUniqueId &&
+      mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_Thermal) {
+    if (const CActor* actor = static_cast< const CActor* >(mgr.GetObjectById(x990_launcherId2))) {
+      return GetGrenadeLaunchPos(*actor);
+    }
+  }
+  return CElitePirate::GetOrbitPosition(mgr);
+}
+
+void COmegaPirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
+                                   EUserEventType type, float dt) {
+  switch (type) {
+  case kUE_Projectile:
+    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
+    break;
+  case kUE_DamageOn:
+    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
+    break;
+  case kUE_DamageOff:
+    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
+    break;
+  case kUE_ScreenShake:
+    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
+    break;
+  case kUE_BeginAction:
+    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
+    break;
+  case kUE_BecomeShootThrough:
+    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
+    break;
+  case kUE_EggLay:
+    if (x990_launcherId2 != kInvalidUniqueId) {
+      if (CEntity* entity = mgr.ObjectById(x990_launcherId2)) {
+        mgr.DeliverScriptMsg(entity, GetUniqueId(), kSM_Action);
+      }
+    }
+    break;
+  case kUE_FadeOut:
+    if (x994_normalFadeState != kNFS_Two && x9a1_fadeIn) {
+      x994_normalFadeState = kNFS_One;
+      xa30_skeletonFadeState = kSFS_FadeIn;
+    }
+    break;
+  case kUE_FadeIn:
+    x9a1_fadeIn = true;
+    break;
+  case kUE_ObjectPickUp:
+    xab4_.clear();
+    xac8_ = 0;
+    ++xacc_;
+    switch (xac4_) {
+    case 0:
+      QueueTrooperPiratesOfOneRandomColor(2, mgr);
+      break;
+    case 1:
+      QueueTrooperPiratesOfOneRandomColor(1, mgr);
+      QueueTrooperPiratesOfOneRandomColor(1, mgr);
+      break;
+    case 2:
+      QueueTrooperPiratesOfOneRandomColor(2, mgr);
+      QueueTrooperPiratesOfOneRandomColor(1, mgr);
+      break;
+    case 3:
+      QueueTrooperPiratesOfOneRandomColor(1, mgr);
+      QueueTrooperPiratesOfOneRandomColor(1, mgr);
+      QueueTrooperPiratesOfOneRandomColor(1, mgr);
+      break;
+    }
+    SendScriptMsgs(kSS_Arrived, mgr, kSM_None);
+    break;
+  default:
+    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
+    break;
+  }
+}
+
+bool COmegaPirate::ShouldFire(CStateManager& mgr, float arg) {
+  return CElitePirate::ShouldFire(mgr, arg) || ShouldFireLauncher(mgr, x990_launcherId2);
+}
+
+bool COmegaPirate::ShouldCallForBackup(CStateManager& mgr, float arg) {
+  return CElitePirate::ShouldCallForBackup(mgr, arg) &&
+         ShouldCallForBackupForLauncher(mgr, arg, x990_launcherId2);
+}
+
+bool COmegaPirate::ShotAt(CStateManager& mgr, float arg) { return CElitePirate::ShotAt(mgr, arg); }
+
+bool COmegaPirate::AggressionCheck(CStateManager& mgr, float arg) {
+  return x990_launcherId2 == kInvalidUniqueId && CElitePirate::AggressionCheck(mgr, arg);
+}
+
+void COmegaPirate::SetupHealthInfo(CStateManager& mgr) {
+  CElitePirate::SetupHealthInfo(mgr);
+  SetupHealthInfoForLauncher(mgr, x990_launcherId2);
+}
+
 void COmegaPirate::Think(float dt, CStateManager& mgr) {
   if (!GetActive()) {
     return;
@@ -483,6 +580,11 @@ void COmegaPirate::Think(float dt, CStateManager& mgr) {
   xb8c_avoidStaticCollisionTime += dt;
 }
 
+void COmegaPirate::ActivateGrenadeLauncher(CStateManager& mgr, bool val) {
+  CElitePirate::ActivateGrenadeLauncher(mgr, val);
+  ActivateGrenadeLauncherById(mgr, val, x990_launcherId2);
+}
+
 void COmegaPirate::UpdateInvisibility(CStateManager& mgr, float dt) {
   switch (x994_normalFadeState) {
   case kNFS_One: {
@@ -562,64 +664,6 @@ void COmegaPirate::UpdateInvisibility(CStateManager& mgr, float dt) {
       launcher->SetVisible(true);
     }
   }
-}
-
-void COmegaPirate::ActivateGrenadeLauncher(CStateManager& mgr, bool val) {
-  CElitePirate::ActivateGrenadeLauncher(mgr, val);
-  ActivateGrenadeLauncherById(mgr, val, x990_launcherId2);
-}
-
-bool COmegaPirate::CoverBlown(CStateManager&, float) {
-  if (x9b4_lostAllHp) {
-    x9b4_lostAllHp = false;
-    xb5c_hpLost = 0.f;
-    return true;
-  }
-  return false;
-}
-
-bool COmegaPirate::HearPlayer(CStateManager&, float) { return xa3c_hearPlayer; }
-
-bool COmegaPirate::CodeTrigger(CStateManager&, float) { return xb78_codeTrigger; }
-
-void COmegaPirate::Shuffle(CStateManager&, EStateMsg, float) {}
-
-void COmegaPirate::WallHang(CStateManager&, EStateMsg, float) {}
-
-void COmegaPirate::SetupHealthInfo(CStateManager& mgr) {
-  CElitePirate::SetupHealthInfo(mgr);
-  SetupHealthInfoForLauncher(mgr, x990_launcherId2);
-}
-
-CShockWaveInfo COmegaPirate::GetShockWaveInfo() const {
-  return CShockWaveInfo(GetData().GetShockwaveParticleDescId(), GetData().GetShockwaveDamageInfo(),
-                        24.78255f, GetData().GetShockwaveWeaponDescId(),
-                        GetData().GetShockwaveElectrocuteSfxId());
-}
-
-bool COmegaPirate::ShouldFire(CStateManager& mgr, float arg) {
-  return CElitePirate::ShouldFire(mgr, arg) || ShouldFireLauncher(mgr, x990_launcherId2);
-}
-
-bool COmegaPirate::ShouldCallForBackup(CStateManager& mgr, float arg) {
-  return CElitePirate::ShouldCallForBackup(mgr, arg) &&
-         ShouldCallForBackupForLauncher(mgr, arg, x990_launcherId2);
-}
-
-bool COmegaPirate::ShotAt(CStateManager& mgr, float arg) { return CElitePirate::ShotAt(mgr, arg); }
-
-bool COmegaPirate::AggressionCheck(CStateManager& mgr, float arg) {
-  return x990_launcherId2 == kInvalidUniqueId && CElitePirate::AggressionCheck(mgr, arg);
-}
-
-CVector3f COmegaPirate::GetOrbitPosition(const CStateManager& mgr) const {
-  if (x990_launcherId2 != kInvalidUniqueId &&
-      mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::kPV_Thermal) {
-    if (const CActor* actor = static_cast< const CActor* >(mgr.GetObjectById(x990_launcherId2))) {
-      return GetGrenadeLaunchPos(*actor);
-    }
-  }
-  return CElitePirate::GetOrbitPosition(mgr);
 }
 
 void COmegaPirate::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
@@ -703,6 +747,49 @@ void COmegaPirate::TeleportToFurthestPlatform(CStateManager& mgr) {
   SetTransform(CTransform4f(matrix, GetTranslation()));
 }
 
+bool COmegaPirate::CoverBlown(CStateManager&, float) {
+  if (x9b4_lostAllHp) {
+    x9b4_lostAllHp = false;
+    xb5c_hpLost = 0.f;
+    return true;
+  }
+  return false;
+}
+
+bool COmegaPirate::HearPlayer(CStateManager&, float) { return xa3c_hearPlayer; }
+
+bool COmegaPirate::CodeTrigger(CStateManager&, float) { return xb78_codeTrigger; }
+
+void COmegaPirate::Shuffle(CStateManager&, EStateMsg, float) {}
+
+void COmegaPirate::Skid(CStateManager& mgr, EStateMsg msg, float) {
+  switch (msg) {
+  case kStateMsg_Activate:
+    x568_state = kState_Zero;
+    break;
+  case kStateMsg_Update:
+    switch (x568_state) {
+    case kState_Zero:
+      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Step) {
+        x568_state = kState_Two;
+      } else {
+        x450_bodyController->CommandMgr().DeliverCmd(
+            CBCStepCmd(pas::kSD_Forward, pas::kStep_Normal));
+      }
+      break;
+    case kState_One:
+      break;
+    case kState_Two:
+      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Step) {
+        x568_state = kState_Over;
+      }
+      break;
+    }
+    break;
+  case kStateMsg_Deactivate:
+    break;
+  }
+}
 void COmegaPirate::Suck(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
@@ -820,69 +907,16 @@ void COmegaPirate::Growth(CStateManager& mgr, EStateMsg msg, float) {
   }
 }
 
-void COmegaPirate::Skid(CStateManager& mgr, EStateMsg msg, float) {
+void COmegaPirate::Dizzy(CStateManager&, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    x568_state = kState_Zero;
+    xa44_targetable = true;
     break;
   case kStateMsg_Update:
-    switch (x568_state) {
-    case kState_Zero:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Step) {
-        x568_state = kState_Two;
-      } else {
-        x450_bodyController->CommandMgr().DeliverCmd(
-            CBCStepCmd(pas::kSD_Forward, pas::kStep_Normal));
-      }
-      break;
-    case kState_One:
-      break;
-    case kState_Two:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Step) {
-        x568_state = kState_Over;
-      }
-      break;
-    }
+    x450_bodyController->CommandMgr().DeliverCmd(CBCLoopReactionCmd(pas::kRT_Two));
     break;
   case kStateMsg_Deactivate:
-    break;
-  }
-}
-
-void COmegaPirate::Retreat(CStateManager& mgr, EStateMsg msg, float) {
-  switch (msg) {
-  case kStateMsg_Activate:
-    SetShotAt(false, mgr);
-    x568_state = kState_Zero;
-    SendScriptMsgs(kSS_Inside, mgr, kSM_None);
-    xad0_scaleUpTrigger = false;
-    xa44_targetable = false;
-    xa4a_heartVisible = false;
-    xb5c_hpLost = 0.f;
-    xb60_hpLostInPhase = 0.f;
-    xb64_stateTime = 5.f;
-    ++xb68_;
-    break;
-  case kStateMsg_Update:
-    switch (x568_state) {
-    case kState_Zero:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Step) {
-        x568_state = kState_Two;
-      } else {
-        x450_bodyController->CommandMgr().DeliverCmd(
-            CBCStepCmd(pas::kSD_Forward, pas::kStep_BreakDodge));
-      }
-      break;
-    case kState_One:
-      break;
-    case kState_Two:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Step) {
-        x568_state = kState_Over;
-      }
-      break;
-    }
-    break;
-  case kStateMsg_Deactivate:
+    x450_bodyController->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_ExitState));
     break;
   }
 }
@@ -1010,16 +1044,40 @@ void COmegaPirate::DoubleSnap(CStateManager& mgr, EStateMsg msg, float) {
   }
 }
 
-void COmegaPirate::Dizzy(CStateManager&, EStateMsg msg, float) {
+void COmegaPirate::Retreat(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case kStateMsg_Activate:
-    xa44_targetable = true;
+    SetShotAt(false, mgr);
+    x568_state = kState_Zero;
+    SendScriptMsgs(kSS_Inside, mgr, kSM_None);
+    xad0_scaleUpTrigger = false;
+    xa44_targetable = false;
+    xa4a_heartVisible = false;
+    xb5c_hpLost = 0.f;
+    xb60_hpLostInPhase = 0.f;
+    xb64_stateTime = 5.f;
+    ++xb68_;
     break;
   case kStateMsg_Update:
-    x450_bodyController->CommandMgr().DeliverCmd(CBCLoopReactionCmd(pas::kRT_Two));
+    switch (x568_state) {
+    case kState_Zero:
+      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Step) {
+        x568_state = kState_Two;
+      } else {
+        x450_bodyController->CommandMgr().DeliverCmd(
+            CBCStepCmd(pas::kSD_Forward, pas::kStep_BreakDodge));
+      }
+      break;
+    case kState_One:
+      break;
+    case kState_Two:
+      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Step) {
+        x568_state = kState_Over;
+      }
+      break;
+    }
     break;
   case kStateMsg_Deactivate:
-    x450_bodyController->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_ExitState));
     break;
   }
 }
@@ -1093,6 +1151,8 @@ void COmegaPirate::WallDetach(CStateManager& mgr, EStateMsg msg, float) {
     break;
   }
 }
+
+void COmegaPirate::WallHang(CStateManager&, EStateMsg, float) {}
 
 void COmegaPirate::UpdateTeleportEffect(CStateManager& mgr, float dt) {
   CVector3f scale = GetModelData()->GetScale();
@@ -1406,135 +1466,30 @@ void COmegaPirate::QueueTrooperPiratesOfActiveType(uint count, CStateManager& mg
   }
 }
 
-void COmegaPirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
-  switch (msg) {
-  case kStateMsg_Activate:
-    xad4_cachedSpeed = x3b4_speed;
-    x3b4_speed = 1.4f * xad4_cachedSpeed;
-    break;
-  case kStateMsg_Update:
-    if (x450_bodyController->GetCurrentStateId() == pas::kAS_KnockBack) {
-      x3b4_speed = xad4_cachedSpeed;
-    } else if (xad4_cachedSpeed == x3b4_speed) {
-      x3b4_speed = 1.4f * xad4_cachedSpeed;
-    }
-    break;
-  case kStateMsg_Deactivate:
-    x3b4_speed = xad4_cachedSpeed;
-    break;
-  }
-  CElitePirate::TargetPatrol(mgr, msg, dt);
-}
-
-void COmegaPirate::Cover(CStateManager& mgr, EStateMsg msg, float dt) {
-  CElitePirate::Cover(mgr, msg, dt);
-  switch (msg) {
-  case kStateMsg_Activate:
-    xad4_cachedSpeed = x3b4_speed;
-    xad8_cover = true;
-    break;
-  case kStateMsg_Update:
-    break;
-  case kStateMsg_Deactivate:
-    xad8_cover = false;
-    break;
-  }
-}
-
-void COmegaPirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
-                                   EUserEventType type, float dt) {
-  switch (type) {
-  case kUE_Projectile:
-    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
-    break;
-  case kUE_DamageOn:
-    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
-    break;
-  case kUE_DamageOff:
-    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
-    break;
-  case kUE_ScreenShake:
-    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
-    break;
-  case kUE_BeginAction:
-    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
-    break;
-  case kUE_BecomeShootThrough:
-    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
-    break;
-  case kUE_EggLay:
-    if (x990_launcherId2 != kInvalidUniqueId) {
-      if (CEntity* entity = mgr.ObjectById(x990_launcherId2)) {
-        mgr.DeliverScriptMsg(entity, GetUniqueId(), kSM_Action);
+void COmegaPirate::SpawnNextQueuedTrooperPirate(CStateManager& mgr, float dt) {
+  if (xac8_ < static_cast< int >(xab4_.size())) {
+    if (xab0_ <= 0.f) {
+      switch (static_cast< int >(xab4_[xac8_++])) {
+      case 1:
+        SendScriptMsgs(kSS_Open, mgr, kSM_None);
+        ++xb7c_[1];
+        break;
+      case 2:
+        SendScriptMsgs(kSS_CloseIn, mgr, kSM_None);
+        ++xb7c_[2];
+        break;
+      case 0:
+        SendScriptMsgs(kSS_Closed, mgr, kSM_None);
+        ++xb7c_[0];
+        break;
+      case 3:
+        SendScriptMsgs(kSS_Modify, mgr, kSM_None);
+        ++xb7c_[3];
+        break;
       }
+      xab0_ = 1.5f;
     }
-    break;
-  case kUE_FadeOut:
-    if (x994_normalFadeState != kNFS_Two && x9a1_fadeIn) {
-      x994_normalFadeState = kNFS_One;
-      xa30_skeletonFadeState = kSFS_FadeIn;
-    }
-    break;
-  case kUE_FadeIn:
-    x9a1_fadeIn = true;
-    break;
-  case kUE_ObjectPickUp:
-    xab4_.clear();
-    xac8_ = 0;
-    ++xacc_;
-    switch (xac4_) {
-    case 0:
-      QueueTrooperPiratesOfOneRandomColor(2, mgr);
-      break;
-    case 1:
-      QueueTrooperPiratesOfOneRandomColor(1, mgr);
-      QueueTrooperPiratesOfOneRandomColor(1, mgr);
-      break;
-    case 2:
-      QueueTrooperPiratesOfOneRandomColor(2, mgr);
-      QueueTrooperPiratesOfOneRandomColor(1, mgr);
-      break;
-    case 3:
-      QueueTrooperPiratesOfOneRandomColor(1, mgr);
-      QueueTrooperPiratesOfOneRandomColor(1, mgr);
-      QueueTrooperPiratesOfOneRandomColor(1, mgr);
-      break;
-    }
-    SendScriptMsgs(kSS_Arrived, mgr, kSM_None);
-    break;
-  default:
-    CElitePirate::DoUserAnimEvent(mgr, node, type, dt);
-    break;
-  }
-}
-
-void COmegaPirate::Enraged(CStateManager&, EStateMsg msg, float) {
-  switch (msg) {
-  case kStateMsg_Activate:
-    x568_state = kState_Zero;
-    break;
-  case kStateMsg_Update:
-    switch (x568_state) {
-    case kState_Zero:
-      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Taunt) {
-        x568_state = kState_Two;
-      } else {
-        x450_bodyController->CommandMgr().DeliverCmd(CBCTauntCmd(pas::kTT_Zero));
-      }
-      break;
-    case kState_One:
-      break;
-    case kState_Two:
-      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Taunt) {
-        x568_state = kState_Over;
-      }
-      break;
-    }
-    break;
-  case kStateMsg_Deactivate:
-    xadf_launcher1FollowPlayer = true;
-    xae0_launcher2FollowPlayer = true;
-    break;
+    xab0_ -= dt;
   }
 }
 
@@ -1578,6 +1533,77 @@ void COmegaPirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
   CElitePirate::PathFind(mgr, msg, dt);
 }
 
+void COmegaPirate::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
+  switch (msg) {
+  case kStateMsg_Activate:
+    xad4_cachedSpeed = x3b4_speed;
+    x3b4_speed = 1.4f * xad4_cachedSpeed;
+    break;
+  case kStateMsg_Update:
+    if (x450_bodyController->GetCurrentStateId() == pas::kAS_KnockBack) {
+      x3b4_speed = xad4_cachedSpeed;
+    } else if (xad4_cachedSpeed == x3b4_speed) {
+      x3b4_speed = 1.4f * xad4_cachedSpeed;
+    }
+    break;
+  case kStateMsg_Deactivate:
+    x3b4_speed = xad4_cachedSpeed;
+    break;
+  }
+  CElitePirate::TargetPatrol(mgr, msg, dt);
+}
+
+void COmegaPirate::Cover(CStateManager& mgr, EStateMsg msg, float dt) {
+  CElitePirate::Cover(mgr, msg, dt);
+  switch (msg) {
+  case kStateMsg_Activate:
+    xad4_cachedSpeed = x3b4_speed;
+    xad8_cover = true;
+    break;
+  case kStateMsg_Update:
+    break;
+  case kStateMsg_Deactivate:
+    xad8_cover = false;
+    break;
+  }
+}
+
+void COmegaPirate::Enraged(CStateManager&, EStateMsg msg, float) {
+  switch (msg) {
+  case kStateMsg_Activate:
+    x568_state = kState_Zero;
+    break;
+  case kStateMsg_Update:
+    switch (x568_state) {
+    case kState_Zero:
+      if (x450_bodyController->GetCurrentStateId() == pas::kAS_Taunt) {
+        x568_state = kState_Two;
+      } else {
+        x450_bodyController->CommandMgr().DeliverCmd(CBCTauntCmd(pas::kTT_Zero));
+      }
+      break;
+    case kState_One:
+      break;
+    case kState_Two:
+      if (x450_bodyController->GetCurrentStateId() != pas::kAS_Taunt) {
+        x568_state = kState_Over;
+      }
+      break;
+    }
+    break;
+  case kStateMsg_Deactivate:
+    xadf_launcher1FollowPlayer = true;
+    xae0_launcher2FollowPlayer = true;
+    break;
+  }
+}
+
+CShockWaveInfo COmegaPirate::GetShockWaveInfo() const {
+  return CShockWaveInfo(GetData().GetShockwaveParticleDescId(), GetData().GetShockwaveDamageInfo(),
+                        24.78255f, GetData().GetShockwaveWeaponDescId(),
+                        GetData().GetShockwaveElectrocuteSfxId());
+}
+
 void COmegaPirate::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case kStateMsg_Activate:
@@ -1599,33 +1625,6 @@ bool COmegaPirate::ShouldMove(CStateManager&, float) {
 }
 
 bool COmegaPirate::Landed(CStateManager&, float) { return xb4c_armorPiecesHealed >= 4; }
-
-void COmegaPirate::SpawnNextQueuedTrooperPirate(CStateManager& mgr, float dt) {
-  if (xac8_ < static_cast< int >(xab4_.size())) {
-    if (xab0_ <= 0.f) {
-      switch (static_cast< int >(xab4_[xac8_++])) {
-      case 1:
-        SendScriptMsgs(kSS_Open, mgr, kSM_None);
-        ++xb7c_[1];
-        break;
-      case 2:
-        SendScriptMsgs(kSS_CloseIn, mgr, kSM_None);
-        ++xb7c_[2];
-        break;
-      case 0:
-        SendScriptMsgs(kSS_Closed, mgr, kSM_None);
-        ++xb7c_[0];
-        break;
-      case 3:
-        SendScriptMsgs(kSS_Modify, mgr, kSM_None);
-        ++xb7c_[3];
-        break;
-      }
-      xab0_ = 1.5f;
-    }
-    xab0_ -= dt;
-  }
-}
 
 uint COmegaPirate::GetNumActiveTrooperPirates() const {
   uint count = 0;
@@ -1770,3 +1769,5 @@ void COmegaPirate::KillOmegaPirate(CStateManager& mgr) {
   xa38_collisionActorMgr1->SetActive(mgr, false);
   xa9c_collisionActorMgr2->SetActive(mgr, false);
 }
+
+bool COmegaPirate::IsElitePirate() const { return false; }

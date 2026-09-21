@@ -24,7 +24,6 @@ public:
                const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
                const CActorParameters& actParms, const CElitePirateData& data, int skeletonModelId,
                int skeletonSkinRulesId, int skeletonLayoutInfoId);
-
   void Think(float dt, CStateManager& mgr) override;
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) override;
@@ -60,10 +59,10 @@ public:
   bool CodeTrigger(CStateManager& mgr, float arg) override;
   bool ShouldCallForBackup(CStateManager& mgr, float arg) override;
   bool IsUsingBaseCollisionActors() const override { return false; }
-  bool IsElitePirate() const override { return false; }
   void SetupHealthInfo(CStateManager& mgr) override;
   void ActivateGrenadeLauncher(CStateManager& mgr, bool val) override;
   CShockWaveInfo GetShockWaveInfo() const override;
+
 
 private:
   class CFlash : public CActor {
@@ -95,6 +94,7 @@ private:
   static const SOBBoxJointInfo skOBBJointList[11];
   void CreateFlash(CStateManager& mgr, float delay);
   void KillOmegaPirate(CStateManager& mgr);
+  bool IsElitePirate() const override;
   void InitializeOmegaPirateCollisionManagers(CStateManager& mgr);
   void UpdateVeinsModel(CStateManager& mgr, float dt);
   void UpdateTeleportEffect(CStateManager& mgr, float dt);
