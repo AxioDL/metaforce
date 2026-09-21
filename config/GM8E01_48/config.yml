@@ -7,6 +7,16 @@ mw_comment_version: 8
 quick_analysis: false # Faster reruns after full analysis
 fill_gaps: true # Alignments known
 
+extract:
+- symbol: "lbl_803CB4A0"
+  rename: "sDefaultFontData"
+  binary: "MetroidPrime/DefaultFontData.bin"
+  header: "MetroidPrime/DefaultFontData.inc"
+- symbol: "lbl_803CBAF0"
+  rename: "sDefaultFontTexture"
+  binary: "MetroidPrime/DefaultFontTexture.bin"
+  header: "MetroidPrime/DefaultFontTexture.inc"
+
 modules:
 - object: files/NESemuP.rel
   hash: 45f4dceb82be7ee46d73a683c96d967c04767808
