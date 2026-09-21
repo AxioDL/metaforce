@@ -572,6 +572,7 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/Weapons/CGameProjectile.cpp",
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "MetroidPrime/Player/CPlayerGun.cpp"),
             Object(NonMatching, "MetroidPrime/CStateManager.cpp"),
@@ -644,7 +645,11 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/ScriptObjects/CScriptWaypoint.cpp",
             ),
-            Object(NonMatching, "MetroidPrime/Enemies/CPatterned.cpp"),
+            Object(NonMatching, "MetroidPrime/Enemies/CPatterned.cpp",
+                   extra_cflags=['-pragma "inline_max_size(260)"']
+                   if version_num == VERSIONS.index("GM8E01_02")
+                   else [],
+            ),
             Object(MatchingFor("GM8E01_00"), "MetroidPrime/ScriptObjects/CScriptDoor.cpp"),
             Object(EquivalentFor("GM8E01_00"), "MetroidPrime/Enemies/CStateMachine.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CMapArea.cpp"),
@@ -683,12 +688,14 @@ config.libs = [
             Object(
                 EquivalentFor("GM8E01_00"),
                 "MetroidPrime/Enemies/CAi.cpp",
-                extra_cflags=['-pragma "inline_max_size(126)"']
-                if version_num >= VERSIONS.index("GM8P01_00")
+                extra_cflags=['-pragma "inline_max_size(260)"']
+                if config.version == "GM8E01_02" 
+                else ['-pragma "inline_max_size(126)"']
+                if version_num >= VERSIONS.index("GM8P01_00") 
                 else [],
             ),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"),
                 "MetroidPrime/Enemies/PatternedCastTo.cpp",
             ),
             Object(
@@ -867,7 +874,11 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "MetroidPrime/TGameTypes.cpp"
             ),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CPhysicsActor.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01"),
+                "MetroidPrime/CPhysicsActor.cpp",
+                   extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00", "GM8J01_00", "GM8E01_02"), "MetroidPrime/CPhysicsState.cpp"
             ),
@@ -959,8 +970,16 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/BodyState/CBSGroundHit.cpp",
             ),
-            Object(NonMatching, "MetroidPrime/Enemies/CChozoGhost.cpp"),
-            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Enemies/CFireFlea.cpp"),
+            Object(
+                NonMatching, 
+                "MetroidPrime/Enemies/CChozoGhost.cpp",
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
+            ),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_02"), 
+                "MetroidPrime/Enemies/CFireFlea.cpp",
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
+            ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/BodyState/CBSSlide.cpp",
@@ -1228,6 +1247,7 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
                 "MetroidPrime/Enemies/CPatternedAiFunctions.cpp",
+                extra_cflags=['-pragma "inline_max_size(250)"'] if config.version == "GM8E01_02" else [],
             ),
             Object(NonMatching, "MetroidPrime/Enemies/CFlyingPirate.cpp"),
             Object(
