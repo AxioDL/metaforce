@@ -1774,6 +1774,10 @@ config.libs = [
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                "Kyoto/Animation/CMultiFormatAnimReader.CPP",
+            ),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "Kyoto/Animation/CParticlePOINode.cpp",
             ),
             Object(

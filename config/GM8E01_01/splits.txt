@@ -2950,6 +2950,9 @@ Kyoto/Animation/CHierarchyPoseBuilder.cpp:
 Kyoto/Animation/CInt32POINode.cpp:
 	.text       start:0x802FCF88 end:0x802FD094
 
+Kyoto/Animation/CMultiFormatAnimReader.CPP:
+	.text       start:0x802FD094 end:0x802FD094
+
 Kyoto/Animation/CParticlePOINode.cpp:
 	.text       start:0x802FD094 end:0x802FD188
 

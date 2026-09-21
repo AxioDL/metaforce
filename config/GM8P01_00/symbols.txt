@@ -11042,8 +11042,8 @@ __ct__Q221CHierarchyPoseBuilder9CTreeNodeFRCQ221CHierarchyPoseBuilder9CTreeNode 
 __ct__46TSegIdMap<Q221CHierarchyPoseBuilder9CTreeNode>FUc = .text:0x802E59C0; // type:function size:0x130 scope:weak
 CopyNodeMinusStartTime__13CInt32POINodeFRC13CInt32POINodeRC13CCharAnimTime = .text:0x802E5AF0; // type:function size:0xA8
 __ct__13CInt32POINodeFR12CInputStream = .text:0x802E5B98; // type:function size:0x64
-fn_802E5BFC = .text:0x802E5BFC; // type:function size:0x20
-fn_802E5C1C = .text:0x802E5C1C; // type:function size:0x54
+RemainderOnly__19CAdvancementResultsFRC13CCharAnimTime = .text:0x802E5BFC; // type:function size:0x20
+__ct__19CAdvancementResultsFRC13CCharAnimTime = .text:0x802E5C1C; // type:function size:0x54
 CopyNodeMinusStartTime__16CParticlePOINodeFRC16CParticlePOINodeRC13CCharAnimTime = .text:0x802E5C70; // type:function size:0xA0
 __ct__16CParticlePOINodeFR12CInputStream = .text:0x802E5D10; // type:function size:0x54
 compare__8CPOINodeFPCvPCv = .text:0x802E5D64; // type:function size:0x64

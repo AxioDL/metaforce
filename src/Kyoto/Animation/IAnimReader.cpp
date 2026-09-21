@@ -10,7 +10,7 @@ rstl::optional_object< rstl::ownership_transfer< IAnimReader > > IAnimReader::VS
 
 CAdvancementResults IAnimReader::VGetAdvancementResults(const CCharAnimTime& aTime,
                                                         const CCharAnimTime& bTime) const {
-  return CAdvancementResults(aTime);
+  return CAdvancementResults::RemainderOnly(aTime);
 };
 
 uint IAnimReader::GetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, uint capacity,

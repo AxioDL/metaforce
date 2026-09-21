@@ -4,16 +4,16 @@
 #include "Kyoto/Math/CQuaternion.hpp"
 #include "Kyoto/Math/CVector3f.hpp"
 
-#include "Kyoto/Animation/CCharAnimTime.hpp"
 #include "Kyoto/Animation/CAdvancementDeltas.hpp"
+#include "Kyoto/Animation/CCharAnimTime.hpp"
 #include "Kyoto/Animation/CSteadyStateAnimInfo.hpp"
 #include "Kyoto/Particles/CParticleData.hpp"
 
 #include "rstl/auto_ptr.hpp"
+#include "rstl/math.hpp"
 #include "rstl/optional_object.hpp"
 #include "rstl/ownership_transfer.hpp"
 #include "rstl/string.hpp"
-#include "rstl/math.hpp"
 
 struct CAdvancementResults {
   CCharAnimTime x0_remTime;
@@ -24,6 +24,10 @@ struct CAdvancementResults {
   CAdvancementResults(const CCharAnimTime& time) : x0_remTime(time) {}
   CAdvancementResults(const CCharAnimTime& time, const CAdvancementDeltas& deltas)
   : x0_remTime(time), x8_deltas(deltas) {}
+
+  static CAdvancementResults RemainderOnly(const CCharAnimTime& time) {
+    return CAdvancementResults(time);
+  }
 };
 
 CHECK_SIZEOF(CAdvancementResults, 0x24)
@@ -117,7 +121,8 @@ public:
   void GetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const {
     VGetSegStatementSet(list, setOut);
   }
-  void GetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const {
+  void GetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut,
+                          const CCharAnimTime& time) const {
     VGetSegStatementSet(list, setOut, time);
   }
   void SetPhase(float phase) { VSetPhase(phase); }
