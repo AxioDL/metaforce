@@ -959,7 +959,7 @@ void CPlayerGun::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
   }
 
   if (x832_24_coolingCharge || damageNotMorphed || IsWeaponStateSet(0x8)) {
-#if VERSION >= VERSION_GM8P_00 && !VERSION == VERSION_GM8E_02
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
     if (IsWeaponStateSet(0x8)) {
       x2f4_fireButtonStates = 0;
     }
