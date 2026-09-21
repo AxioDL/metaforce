@@ -119,8 +119,7 @@ public:
   CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type,
                        float dt) override;
-  const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x738_collisionAabb; }
-  void KnockBack(const CVector3f& dir, CStateManager& mgr, const CDamageInfo& info, float magnitude,
+    void KnockBack(const CVector3f& dir, CStateManager& mgr, const CDamageInfo& info, float magnitude,
                  bool direct, const bool inDeferred) override;
   void TakeDamage(const CVector3f& dir, float arg) override;
   void Patrol(CStateManager& mgr, EStateMsg msg, float dt) override;
@@ -149,6 +148,7 @@ public:
   bool ShouldSpecialAttack(CStateManager& mgr, float arg) override;
   bool ShouldCallForBackup(CStateManager& mgr, float arg) override;
   CPathFindSearch* GetSearchPath() override { return &x7d0_pathFindSearch; }
+  const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x738_collisionAabb; }
   virtual bool IsUsingBaseCollisionActors() const { return true; }
   virtual bool IsElitePirate() const { return true; }
   virtual void SetupHealthInfo(CStateManager& mgr);
