@@ -829,7 +829,7 @@ config.libs = [
                 "MetroidPrime/ScriptObjects/CScriptCameraBlurKeyframe.cpp",
             ),
             Object(NonMatching, "MetroidPrime/Cameras/CCameraFilter.cpp"),
-            Object(NonMatching, "MetroidPrime/Player/CMorphBall.cpp"),
+            Object(MatchingFor("GM8E01_00"), "MetroidPrime/Player/CMorphBall.cpp"),
             Object(
                 NonMatching, "MetroidPrime/ScriptObjects/CScriptDamageableTrigger.cpp"
             ),

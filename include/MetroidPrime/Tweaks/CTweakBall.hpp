@@ -76,7 +76,7 @@ public:
   float GetBallCameraControlDistance() const { return x1d0_ballCameraControlDistance; }
   float GetMinimumAlignmentSpeed() const { return x1dc_minimumAlignmentSpeed; }
   float GetTireness() const { return x1e0_tireness; }
-  float GetMaxLeanAngle() const { return x1ec_maxLeanAngle; }
+  const float& GetMaxLeanAngle() const { return x1ec_maxLeanAngle; }
   float GetTireToMarbleThresholdSpeed() const { return x1f0_tireToMarbleThresholdSpeed; }
   float GetMarbleToTireThresholdSpeed() const { return x1f4_marbleToTireThresholdSpeed; }
   float GetForceToLeanGain() const { return x1f8_forceToLeanGain; }

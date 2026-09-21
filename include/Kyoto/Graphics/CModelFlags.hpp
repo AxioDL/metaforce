@@ -48,7 +48,7 @@ public:
   , x2_flags(otherFlags)
   , x4_color(flags.x4_color) {}
   CModelFlags(const CModelFlags& flags, const bool b /* TODO what's this? */, const int shaderSet)
-  : x0_blendMode(flags.x0_blendMode)
+  : x0_blendMode(flags.GetBlendMode())
   , x1_matSetIdx(shaderSet)
   , x2_flags(flags.x2_flags)
   , x4_color(flags.x4_color) {}

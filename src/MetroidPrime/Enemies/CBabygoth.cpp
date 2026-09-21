@@ -302,7 +302,7 @@ void CBabygoth::Render(const CStateManager& mgr) const { CPatterned::Render(mgr)
 void CBabygoth::PreRender(CStateManager& mgr, const CFrustumPlanes& frustum) {
   CPatterned::PreRender(mgr, frustum);
   CModelFlags flags = GetModelFlags();
-  flags = flags.UseShaderSet(xa04_drawMaterialIdx);
+  flags.x1_matSetIdx = xa04_drawMaterialIdx;
   SetModelFlags(flags);
 }
 

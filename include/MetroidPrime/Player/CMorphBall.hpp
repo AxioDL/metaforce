@@ -194,6 +194,7 @@ public:
   void SetDamageTimer(const float time);
 
 private:
+  static CColor GetBallGlowColor(const SColorRgb& color);
   struct CSpiderBallElectrictyManager {
     uint x0_effectIdx;
     uint x4_lifetime;
@@ -208,11 +209,6 @@ private:
   void SelectMorphBallSounds(const CMaterialList&);
   void UpdateMorphBallSound(float dt);
   static void PointGenerator(void*, const CVector3f*, const CVector3f*, int);
-  static CColor GetAmbientColor(const CActorLights&);
-  static CColor GetBallInnerGlowColor(uint);
-  static CColor GetBallHullGlowColor(uint);
-  static CColor GetBallBoostedHullGlowColor(uint);
-  static CColor GetBallLightModulationColor(uint);
 
   static const SColorRgb skBallTailSwooshColors[9];
   static const SColorRgb skBallBoostedTailSwooshColors[9];

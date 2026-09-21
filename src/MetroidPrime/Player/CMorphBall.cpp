@@ -1,5 +1,6 @@
 #include "MetroidPrime/Player/CMorphBall.hpp"
 
+#include "rstl/pair.hpp"
 #include "Collision/CMaterialList.hpp"
 #include "Collision/CollisionUtil.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"
@@ -142,28 +143,8 @@ const CMorphBall::SColorRgb CMorphBall::skBallBoostedHullGlowColors[9] = {
     {251, 152, 33},  // Orange
 };
 
-inline CColor CMorphBall::GetBallInnerGlowColor(uint idx) {
-  const SColorRgb& color = skBallInnerGlowColors[idx];
+inline CColor CMorphBall::GetBallGlowColor(const SColorRgb& color) {
   return CColor(color.x0_r, color.x1_g, color.x2_b, 0xff);
-}
-
-inline CColor CMorphBall::GetBallHullGlowColor(uint idx) {
-  const SColorRgb& color = skBallHullGlowColors[idx];
-  return CColor(color.x0_r, color.x1_g, color.x2_b, 0xff);
-}
-
-inline CColor CMorphBall::GetBallBoostedHullGlowColor(uint idx) {
-  const SColorRgb& color = skBallBoostedHullGlowColors[idx];
-  return CColor(color.x0_r, color.x1_g, color.x2_b, 0xff);
-}
-
-inline CColor CMorphBall::GetBallLightModulationColor(uint idx) {
-  const SColorRgb& color = skBallLightModulationColors[idx];
-  return CColor(color.x0_r, color.x1_g, color.x2_b, 0xff);
-}
-
-inline CColor CMorphBall::GetAmbientColor(const CActorLights& lights) {
-  return lights.GetAmbientColor();
 }
 
 // lbl_803CEB24
@@ -524,6 +505,24 @@ void CMorphBall::ResetSpiderBallForces() {
   x1920_spiderForcesReset = true;
 }
 
+static inline CVector3f CalculateSpiderBallSurfaceForce(const CVector3f& xAxis,
+                                                      const CVector3f& zAxis, float xForce,
+                                                      float zForce, const float& scale) {
+  float xx = xAxis.GetX() * xForce;
+  float xy = xAxis.GetY() * xForce;
+  float xz = xAxis.GetZ() * xForce;
+  float zx = zAxis.GetX() * zForce;
+  float zy = zAxis.GetY() * zForce;
+  float zz = zAxis.GetZ() * zForce;
+  float gain = scale;
+  return CVector3f((xx + zx) * gain, (xy + zy) * gain, (xz + zz) * gain);
+}
+
+static inline rstl::pair< float, float > CalculateSpiderBallSurfacePivotForces(
+    float xForce, float zForce, const float& scale) {
+  return rstl::pair< float, float >(scale * xForce, scale * zForce);
+}
+
 void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManager& mgr, float dt) {
   CVector2f surfaceForces = CalculateSpiderBallAttractionSurfaceForces(input);
   CVector3f viewSurfaceForces = TransformSpiderBallForcesXZ(surfaceForces, mgr);
@@ -660,16 +659,18 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
               CVector3f::Dot(x18c4_spiderSurfaceTransform.GetColumn(kDX), viewSurfaceForces);
           const float surfaceZForce =
               CVector3f::Dot(x18c4_spiderSurfaceTransform.GetColumn(kDZ), viewSurfaceForces);
-          const CVector3f forceVec = (x18c4_spiderSurfaceTransform.GetColumn(kDX) * surfaceXForce +
-                                      x18c4_spiderSurfaceTransform.GetColumn(kDZ) * surfaceZForce) *
-                                     45000.f;
+          const float surfaceForceScale = 45000.f;
+          const CVector3f forceVec = CalculateSpiderBallSurfaceForce(
+              x18c4_spiderSurfaceTransform.GetColumn(kDX),
+              x18c4_spiderSurfaceTransform.GetColumn(kDZ), surfaceXForce, surfaceZForce,
+              surfaceForceScale);
           x0_player.ApplyForceWR(forceVec, CAxisAngle::Identity());
 
-          const float pivotSurfaceX = surfaceXForce * 45000.f;
-          const float pivotSurfaceZ = surfaceZForce * 45000.f;
+          const rstl::pair< float, float > pivotForces =
+              CalculateSpiderBallSurfacePivotForces(surfaceXForce, surfaceZForce, surfaceForceScale);
           float angle = x18f8_spiderSurfacePivotTargetAngle;
           if (forceVec.MagSquared() > 0.f) {
-            angle = atan2f(pivotSurfaceX, pivotSurfaceZ);
+            angle = atan2f(pivotForces.first, pivotForces.second);
             if (angle - x18f4_spiderSurfacePivotAngle > M_PIF / 2.f) {
               angle -= M_PIF;
             } else if (x18f4_spiderSurfacePivotAngle - angle > M_PIF / 2.f) {
@@ -1195,7 +1196,7 @@ void CMorphBall::UpdateBallDynamics(CStateManager& mgr, float dt) {
               x0_player.GetTransform().TransposeRotate(x0_player.GetForceWR()).GetX();
           const float accelRatio = accel / maxAccel;
           const float maxLeanAngle = gpTweakBall->GetMaxLeanAngle();
-          x2c_tireLeanAngle = maxLeanAngle * accelRatio *
+          x2c_tireLeanAngle = accelRatio * maxLeanAngle *
                               gpTweakBall->GetForceToLeanGain();
           x2c_tireLeanAngle = CMath::Limit(x2c_tireLeanAngle, gpTweakBall->GetMaxLeanAngle());
 
@@ -1496,7 +1497,7 @@ void CMorphBall::UpdateEffects(float dt, CStateManager& mgr) {
         CLight lightCopy(*light);
         const CColor& lightColor = lightCopy.GetColor();
         lightCopy.SetColor(
-            CColor::Modulate(lightColor, GetBallLightModulationColor(x8_ballGlowColorIdx)));
+            CColor::Modulate(lightColor, GetBallGlowColor(skBallLightModulationColors[x8_ballGlowColorIdx])));
 
         if (x0_player.GetMorphballTransitionState() == CPlayer::kMS_Unmorphing) {
           float transitionFactor = x0_player.GetMorphBallTransitionFactor();
@@ -1876,12 +1877,12 @@ void CMorphBall::PreRender(CStateManager& mgr, const CFrustumPlanes&) {
 
   {
     lights->SetAmbientColor(
-        CColor::Lerp(GetAmbientColor(*lights), CColor::White(), x1c34_boostLightFactor));
+        CColor::Lerp(lights->GetAmbientColor(), CColor::White(), x1c34_boostLightFactor));
     *x1c18_actorLights = *lights;
 
     const float& lightFactor = rstl::max_val(x1c38_spiderLightFactor, x1c34_boostLightFactor);
     x1c18_actorLights->SetAmbientColor(
-        CColor::Lerp(GetAmbientColor(*lights), CColor::White(), lightFactor));
+        CColor::Lerp(lights->GetAmbientColor(), CColor::White(), lightFactor));
   }
 
   if (x58_ballModel->HasAnimation()) {
@@ -1920,12 +1921,8 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
     CSkinnedModel::SetPointGeneratorFunc(x1c1c_rainSplashGen.get(), &CMorphBall::PointGenerator);
   }
 
-  const CModelFlags::EFlags otherFlags =
-      static_cast< CModelFlags::EFlags >(ballFlags.GetOtherFlags());
-  ballFlags = CModelFlags(static_cast< CModelFlags::ETrans >(ballFlags.GetBlendMode()),
-                          GetMorphballModelShader(),
-                          otherFlags,
-                          ballFlags.GetColorRef());
+  ballFlags = ballFlags.UseShaderSet(GetMorphballModelShader());
+
   if (1.f != x1c34_boostLightFactor) {
     if (lights->HasShadowLight()) {
       x1c14_worldShadow->EnableModelProjectedShadow(ballToWorld, lights->GetShadowLightArrIndex(),
@@ -1962,38 +1959,36 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
     }
   }
 
-  {
-    const float swooshAlpha = x1c20_tireFactor / x1c24_maxTireFactor;
-    const SColorRgb& swooshColor0 = skBallTailSwooshColors[x8_ballGlowColorIdx];
-    CColor color0 = CColor(swooshColor0.x0_r, swooshColor0.x1_g, swooshColor0.x2_b, 0xff);
-    color0.SetAlpha(swooshAlpha);
-    const SColorRgb& swooshColor1 = skBallBoostedTailSwooshColors[x8_ballGlowColorIdx];
-    CColor color1 = CColor(swooshColor1.x0_r, swooshColor1.x1_g, swooshColor1.x2_b, 0xff);
-    color1.SetAlpha(swooshAlpha);
+  const float swooshAlpha = x1c20_tireFactor / x1c24_maxTireFactor;
+  const SColorRgb& swooshColor0 = skBallTailSwooshColors[x8_ballGlowColorIdx];
+  CColor color0 = CColor(swooshColor0.x0_r, swooshColor0.x1_g, swooshColor0.x2_b, 0xff);
+  color0.SetAlpha(swooshAlpha);
+  const SColorRgb& swooshColor1 = skBallBoostedTailSwooshColors[x8_ballGlowColorIdx];
+  CColor color1 = CColor(swooshColor1.x0_r, swooshColor1.x1_g, swooshColor1.x2_b, 0xff);
+  color1.SetAlpha(swooshAlpha);
 
-    float t = 0.f;
-    if (x1df4_boostDrainTime > 0.f) {
-      t = CMath::Clamp(0.f, (speed - 25.f) / 15.f, 1.f);
-    }
+  float t = 0.f;
+  if (x1df4_boostDrainTime > 0.f) {
+    t = CMath::Clamp(0.f, (speed - 25.f) / 15.f, 1.f);
+  }
 
-    const CColor tailColor = CColor::Lerp(color0, color1, t);
-    x19b8_slowBlueTailSwooshGen->SetModulationColor(tailColor);
-    x19b8_slowBlueTailSwooshGen->Render();
-    x19bc_slowBlueTailSwooshGen2->SetModulationColor(tailColor);
-    x19bc_slowBlueTailSwooshGen2->Render();
-    x19c0_slowBlueTailSwoosh2Gen->SetModulationColor(tailColor);
-    x19c0_slowBlueTailSwoosh2Gen->Render();
-    x19c4_slowBlueTailSwoosh2Gen2->SetModulationColor(tailColor);
-    x19c4_slowBlueTailSwoosh2Gen2->Render();
+  const CColor tailColor = CColor::Lerp(color0, color1, t);
+  x19b8_slowBlueTailSwooshGen->SetModulationColor(tailColor);
+  x19b8_slowBlueTailSwooshGen->Render();
+  x19bc_slowBlueTailSwooshGen2->SetModulationColor(tailColor);
+  x19bc_slowBlueTailSwooshGen2->Render();
+  x19c0_slowBlueTailSwoosh2Gen->SetModulationColor(tailColor);
+  x19c0_slowBlueTailSwoosh2Gen->Render();
+  x19c4_slowBlueTailSwoosh2Gen2->SetModulationColor(tailColor);
+  x19c4_slowBlueTailSwoosh2Gen2->Render();
 
-    if (x1df4_boostDrainTime > 0.f && speed > 23.f && static_cast< double >(swooshAlpha) > 0.5) {
-      const float jaggyAlpha = CMath::Clamp(0.f, (speed - 23.f) / 17.f, t);
-      const SColorRgb& jaggyColorData = skBallJaggyTrailColors[x8_ballGlowColorIdx];
-      CColor jaggyColor = CColor(jaggyColorData.x0_r, jaggyColorData.x1_g, jaggyColorData.x2_b, 0xff);
-      jaggyColor.SetAlpha(jaggyAlpha);
-      x19c8_jaggyTrailGen->SetModulationColor(jaggyColor);
-      x19c8_jaggyTrailGen->Render();
-    }
+  if (x1df4_boostDrainTime > 0.f && speed > 23.f && static_cast< double >(swooshAlpha) > 0.5) {
+    const float jaggyAlpha = CMath::Clamp(0.f, (speed - 23.f) / 17.f, t);
+    const SColorRgb& jaggyColorData = skBallJaggyTrailColors[x8_ballGlowColorIdx];
+    CColor jaggyColor = CColor(jaggyColorData.x0_r, jaggyColorData.x1_g, jaggyColorData.x2_b, 0xff);
+    jaggyColor.SetAlpha(jaggyAlpha);
+    x19c8_jaggyTrailGen->SetModulationColor(jaggyColor);
+    x19c8_jaggyTrailGen->Render();
   }
 
   RenderSpiderBallElectricalEffects();
@@ -2021,13 +2016,13 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
     x1bc8_wakeEffectGens[x1c0c_wakeEffectIdx]->Render();
   }
 
-  x19d0_ballInnerGlowGen->SetModulationColor(GetBallInnerGlowColor(x8_ballGlowColorIdx));
+  x19d0_ballInnerGlowGen->SetModulationColor(GetBallGlowColor(skBallInnerGlowColors[x8_ballGlowColorIdx]));
   if (x19d0_ballInnerGlowGen->GetNumActiveChildParticles() > 0) {
     CParticleGen* particle = x19d0_ballInnerGlowGen->GetActiveChildParticle(0);
-    particle->SetModulationColor(GetBallHullGlowColor(x8_ballGlowColorIdx));
+    particle->SetModulationColor(GetBallGlowColor(skBallHullGlowColors[x8_ballGlowColorIdx]));
     if (x19d0_ballInnerGlowGen->GetNumActiveChildParticles() > 1) {
       particle = x19d0_ballInnerGlowGen->GetActiveChildParticle(1);
-      particle->SetModulationColor(GetBallBoostedHullGlowColor(x8_ballGlowColorIdx));
+      particle->SetModulationColor(GetBallGlowColor(skBallBoostedHullGlowColors[x8_ballGlowColorIdx]));
     }
   }
 
@@ -2077,7 +2072,7 @@ void CMorphBall::UpdateMorphBallTransitionFlash(float dt) {
 void CMorphBall::RenderMorphBallTransitionFlash(const CStateManager&) const {
   if (x19dc_morphBallTransitionFlashGen.get() != nullptr) {
     x19dc_morphBallTransitionFlashGen->SetModulationColor(
-        GetBallHullGlowColor(x8_ballGlowColorIdx));
+        GetBallGlowColor(skBallHullGlowColors[x8_ballGlowColorIdx]));
     x19dc_morphBallTransitionFlashGen->Render();
   }
 }
@@ -2236,10 +2231,6 @@ static inline int GetWakeMaterial(const CCollisionInfo& info, int currentMateria
   return materials.HasMaterial(kMT_Phazon) ? kMT_Phazon : snow;
 }
 
-static inline float ClampClimbSpeedMin(float speed, float minimum) {
-  return CMath::FastFSel(speed - minimum, speed, minimum);
-}
-
 void CMorphBall::CollidedWith(const TUniqueId& id, const CCollisionInfoList& list,
                               CStateManager& mgr) {
   x74_collisionInfos = list;
@@ -2367,7 +2358,7 @@ void CMorphBall::CollidedWith(const TUniqueId& id, const CCollisionInfoList& lis
           const float cvelDot = CVector3f::Dot(cvelNorm, normal);
           if (cforceDot < -0.4f && cvelDot < -0.6f) {
             const float boostZ = 0.75f * cvelMag;
-            const float clampedZ = ClampClimbSpeedMin(boostZ,
+            const float clampedZ = CMath::FastMax(boostZ,
                 0.15f * gpTweakBall->GetBallTranslationMaxSpeed(x0_player.GetSurfaceRestraint()));
             const float maxZ =
                 0.25f * gpTweakBall->GetBallTranslationMaxSpeed(x0_player.GetSurfaceRestraint());
@@ -2459,10 +2450,9 @@ void CMorphBall::ComputeLiftForces(const CVector3f& controlForce, const CVector3
       if (CGameCollision::DetectStaticCollisionBoolean(
               mgr, CCollidableAABox(liftBounds, CMaterialList(kMT_Solid)),
               CTransform4f::Identity(), CMaterialFilter::skPassEverything)) {
-        const float ballRadius = GetBallRadius();
-        const float zLift = 1.75f * ballRadius;
-        const CVector3f liftPos = primitiveXf.GetTranslation() + CVector3f(0.f, 0.f, zLift);
-        const CVector3f liftDir = avgControlForce / avgControlForceMag;
+        const CVector3f liftPos =
+            primitiveXf.GetTranslation() + CVector3f(0.f, 0.f, 1.75f * GetBallRadius());
+        const CVector3f liftDir = avgControlForce * (1.f / avgControlForceMag);
         const CMaterialFilter rayFilter =
             CMaterialFilter::MakeInclude(CMaterialList(kMT_Solid));
         const CRayCastResult result = mgr.RayStaticIntersection(liftPos, liftDir, 1.4f, rayFilter);
@@ -2661,13 +2651,17 @@ CModelData* CMorphBall::GetMorphBallModel(const rstl::string& name, float radius
   return ret;
 }
 
+static inline void SetSecond(rstl::pair< rstl::auto_ptr< CParticleSwoosh >, bool >& pair, bool value) {
+  pair.second = value;
+}
+
 void CMorphBall::AddSpiderBallElectricalEffect() {
   for (int i = 0; i < x19e4_spiderElectricGens.size(); ++i) {
     if (x19e4_spiderElectricGens[i].second) {
       continue;
     }
 
-    x19e4_spiderElectricGens[i].second = true;
+    SetSecond(x19e4_spiderElectricGens[i], true);
     x1b68_activeSpiderElectricList.push_back(
         CSpiderBallElectrictyManager(i, x1b80_rand.Range(4, 8)));
 
@@ -2689,16 +2683,16 @@ void CMorphBall::AddSpiderBallElectricalEffect() {
     const float cosAng0 = CMath::FastCosR(ang0);
     const float sinAng1 = CMath::FastSinR(ang1);
     CVector3f transInc;
-    CVector3f translation =
-        0.6f * CVector3f(sign * ((-sinAng1) * cosAng0), sign * sinAng0, sign * cosAng0CosAng1) +
-        CVector3f(translationX, 0.f, 0.f);
-    transInc = (1.f / 6.f) * (CVector3f(randDir, 0.f, 0.f) - translation);
+    const CVector3f startPosition =
+        CVector3f(translationX, 0.f, 0.f) +
+        0.6f * CVector3f(sign * ((-sinAng1) * cosAng0), sign * sinAng0, sign * cosAng0CosAng1);
+    transInc = (1.f / 6.f) * (CVector3f(randDir, 0.f, 0.f) - startPosition);
 
+    CVector3f translation(startPosition);
     swoosh->SetOrientation(CTransform4f::LookAt(CVector3f::Zero(), transInc, CVector3f::Up()));
 
-    for (uint j = 0; j < 6; ++j) {
+    for (i = 0; i < 6u; ++i) {
       swoosh->SetTranslation(translation);
-      // Retail uses zero dt; SetWarmUp forces each of these six updates.
       swoosh->SetWarmUp();
       swoosh->Update(0.0);
       translation += transInc;
