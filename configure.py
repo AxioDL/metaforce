@@ -532,7 +532,7 @@ config.libs = [
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"), "MetroidPrime/CAxisAngle.cpp"
             ),
-            Object(MatchingFor("GM8E01_00"), "MetroidPrime/CEulerAngles.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CEulerAngles.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00", "GM8E01_02"),
                    "MetroidPrime/CMatrix3f_Ext.cpp"),
             Object(
