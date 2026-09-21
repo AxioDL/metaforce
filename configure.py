@@ -661,7 +661,7 @@ config.libs = [
                    if version_num == VERSIONS.index("GM8E01_02")
                    else [],
                    ),
-            Object(MatchingFor("GM8E01_00"), "MetroidPrime/ScriptObjects/CScriptDoor.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/ScriptObjects/CScriptDoor.cpp"),
             Object(EquivalentFor("GM8E01_00"), "MetroidPrime/Enemies/CStateMachine.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CMapArea.cpp"),
             Object(NonMatching, "MetroidPrime/Cameras/CBallCamera.cpp"),
