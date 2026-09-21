@@ -100,10 +100,21 @@ MetroidPrime/Tweaks/CTweakGame.cpp:
 
 MetroidPrime/Weapons/CGameProjectile.cpp:
 	.text       start:0x800376EC end:0x8003AB0C
+	.rodata     start:0x803CDEE0 end:0x803CDEF8
+	.data       start:0x803DADA0 end:0x803DAE10
+	.sdata      start:0x805A7E38 end:0x805A7E60
+	.sdata2     start:0x805AB1E0 end:0x805AB228
 
 MetroidPrime/Player/CPlayerGun.cpp:
-	.text       start:0x800434B4 end:0x80043E38
+	.text       start:0x8003AB0C end:0x800440CC
+	.ctors      start:0x803CC2A0 end:0x803CC2A4
+	.rodata     start:0x803CDEF8 end:0x803CDFA0
+	.data       start:0x803DAE10 end:0x803DAEF0
+	.bss        start:0x8045D578 end:0x8045D5B0
 	.bss        start:0x8056E484 end:0x8056E490 align:4 common
+	.sdata      start:0x805A7E60 end:0x805A7EA0
+	.sbss       start:0x805A9E10 end:0x805A9E38
+	.sdata2     start:0x805AB228 end:0x805AB320
 
 MetroidPrime/CStateManager.cpp:
 	.text       start:0x8004D498 end:0x8004D998
@@ -134,7 +145,7 @@ MetroidPrime/CIOWin.cpp:
 	.text       start:0x80052EE4 end:0x80052F94
 
 MetroidPrime/CActor.cpp:
-	.text       start:0x80052F94 end:0x80055510
+	.text       start:0x80052F94 end:0x800562E4
 
 MetroidPrime/CWorld.cpp:
 	.text       start:0x800588AC end:0x80059334
@@ -398,7 +409,7 @@ MetroidPrime/ScriptObjects/CScriptWater.cpp:
 	.text       start:0x800FF218 end:0x80100FE8
 
 MetroidPrime/Weapons/CWeapon.cpp:
-	.text       start:0x8010276C end:0x80102B24
+	.text       start:0x80102594 end:0x80102B24
 
 MetroidPrime/CDamageVulnerability.cpp:
 	.text       start:0x8010339C end:0x80103718
@@ -736,14 +747,17 @@ MetroidPrime/HUD/CHudDecoInterface.cpp:
 	.text       start:0x80196708 end:0x80196CE0
 
 MetroidPrime/Weapons/CFlameThrower.cpp:
-	.text       start:0x80197D54 end:0x801995A4
+	.text       start:0x80197CA0 end:0x801995C4
+	.ctors      start:0x803CC324 end:0x803CC328
 	.bss        start:0x8057308C end:0x80573098 align:4 common
 
 MetroidPrime/Weapons/CBeamProjectile.cpp:
 	.text       start:0x80199AA4 end:0x8019A078
+	.data       start:0x803E5708 end:0x803E5788
+	.sdata2     start:0x805AD4A0 end:0x805AD4B8
 
 MetroidPrime/CFluidPlaneCPU.cpp:
-	.text       start:0x8019CCAC end:0x8019D318
+	.text       start:0x8019A078 end:0x8019D318
 
 MetroidPrime/CFluidPlaneDoor.cpp:
 	.text       start:0x8019DFF0 end:0x8019E3E4

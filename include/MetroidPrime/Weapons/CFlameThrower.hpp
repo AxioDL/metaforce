@@ -39,7 +39,7 @@ private:
   void SetFlameLightActive(bool active, CStateManager& mgr);
   float UpdateFlameState(float dt, CStateManager& mgr);
   CRayCastResult DoCollisionCheck(TUniqueId& idOut, const CAABox& bounds, CStateManager& mgr);
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
   void DoRadialFreeze(const CVector3f&, const CDamageInfo&, CStateManager& mgr);
   void ApplyFlameDamageToActor(TUniqueId id, CStateManager& mgr);
 #endif

@@ -38,7 +38,7 @@ CFlameThrower::CFlameThrower(const TToken< CWeaponDescription >& wDesc, const rs
 , x400_25_particlesActive(false)
 , x400_26_zTest((flameInfo.GetAttributes() & 1) == 0)
 , x400_27_coneCollision((flameInfo.GetAttributes() & 2) != 0)
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
 , x428_28_((flameInfo.GetAttributes() & 8) != 0)
 #endif
 {
@@ -110,7 +110,7 @@ void CFlameThrower::Think(float dt, CStateManager& mgr) {
     if (TCastToPtr< CActor >(mgr.ObjectById(id))) {
       ApplyFlameDamageToActors(mgr, id, dt);
     } else if (result.IsValid()) {
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
       const CDamageInfo scaledDamage = x12c_curDamageInfo.MakeScaledForTime(dt);
       if (x428_28_ && !mgr.GetPlayer()->GetFrozenState()) {
         DoRadialFreeze(result.GetPoint(), scaledDamage, mgr);
@@ -299,7 +299,7 @@ void CFlameThrower::SetFlameLightActive(bool active, CStateManager& mgr) {
 
 void CFlameThrower::ApplyFlameDamageToActors(CStateManager& mgr, TUniqueId id, float dt) {
 
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
   ApplyFlameDamageToActor(id, mgr);
 #else
   if (id == mgr.GetPlayer()->GetUniqueId() && x3f4_playerSteamTextureId != kInvalidAssetId &&
@@ -310,7 +310,7 @@ void CFlameThrower::ApplyFlameDamageToActors(CStateManager& mgr, TUniqueId id, f
 #endif
   ApplyDamageToActors(mgr, x12c_curDamageInfo.MakeScaledForTime(dt));
 }
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
 void CFlameThrower::ApplyFlameDamageToActor(TUniqueId id, CStateManager& mgr) {
   if (id == mgr.GetPlayer()->GetUniqueId() && x3f4_playerSteamTextureId != kInvalidAssetId &&
       x3fc_playerIceTextureId != kInvalidAssetId) {
@@ -326,7 +326,7 @@ inline void CFlameThrower::ApplyDamageToWorld(CStateManager& mgr, TUniqueId id,
   mgr.ApplyDamageToWorld(id, *this, point, dInfo, filter);
 }
 
-#if VERSION >= VERSION_GM8P_00
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
 void CFlameThrower::DoRadialFreeze(const CVector3f&, const CDamageInfo&, CStateManager& mgr) {}
 
 // Needed to force destructor generation;
