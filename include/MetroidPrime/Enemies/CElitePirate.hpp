@@ -119,7 +119,7 @@ public:
   CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type,
                        float dt) override;
-    void KnockBack(const CVector3f& dir, CStateManager& mgr, const CDamageInfo& info, float magnitude,
+  void KnockBack(const CVector3f& dir, CStateManager& mgr, const CDamageInfo& info, float magnitude,
                  bool direct, const bool inDeferred) override;
   void TakeDamage(const CVector3f& dir, float arg) override;
   void Patrol(CStateManager& mgr, EStateMsg msg, float dt) override;
