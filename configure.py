@@ -960,7 +960,7 @@ config.libs = [
                 "MetroidPrime/BodyState/CBSGroundHit.cpp",
             ),
             Object(NonMatching, "MetroidPrime/Enemies/CChozoGhost.cpp"),
-            Object(MatchingFor("GM8E01_00"), "MetroidPrime/Enemies/CFireFlea.cpp"),
+            Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Enemies/CFireFlea.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/BodyState/CBSSlide.cpp",
