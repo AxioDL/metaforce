@@ -5,7 +5,30 @@ Metroid Prime
 [Build Status]: https://github.com/PrimeDecomp/prime/actions/workflows/build.yml/badge.svg
 [actions]: https://github.com/PrimeDecomp/prime/actions/workflows/build.yml
 [Code Progress]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=code&label=Code
-[Data Progress]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=data&label=Data
+[Code Progress GM8E01_00]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=code&label=Code&version=GM8E01_00
+[Data Progress GM8E01_00]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=data&label=Data&version=GM8E01_00
+[Progress GM8E01_00]: https://decomp.dev/PrimeDecomp/prime?version=GM8E01_00
+
+[Code Progress GM8E01_01]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=code&label=Code&version=GM8E01_01
+[Data Progress GM8E01_01]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=data&label=Data&version=GM8E01_01
+[Progress GM8E01_01]: https://decomp.dev/PrimeDecomp/prime?version=GM8E01_01
+
+[Code Progress GM8E01_02]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=code&label=Code&version=GM8E01_02
+[Data Progress GM8E01_02]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=data&label=Data&version=GM8E01_02
+[Progress GM8E01_02]: https://decomp.dev/PrimeDecomp/prime?version=GM8E01_02
+
+[Code Progress GM8P01_00]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=code&label=Code&version=GM8P01_00
+[Data Progress GM8P01_00]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=data&label=Code&version=GM8P01_00
+[Progress GM8P01_00]: https://decomp.dev/PrimeDecomp/prime?version=GM8P01_00
+
+[Code Progress GM8E01_48]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=code&label=Code&version=GM8E01_48
+[Data Progress GM8E01_48]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=data&label=Data&version=GM8E01_48
+[Progress GM8E01_48]: https://decomp.dev/PrimeDecomp/prime?version=GM8E01_48
+
+[Code Progress GM8J01_00]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=code&label=Code&version=GM8J01_00
+[Data Progress GM8J01_00]: https://decomp.dev/PrimeDecomp/prime.svg?mode=shield&measure=data&label=Data&version=GM8J01_00
+[Progress GM8J01_00]: https://decomp.dev/PrimeDecomp/prime?version=GM8J01_00
+
 [progress]: https://decomp.dev/PrimeDecomp/prime
 [Discord Badge]: https://img.shields.io/discord/727908905392275526?color=%237289DA&logo=discord&logoColor=%23FFFFFF
 [discord]: https://discord.gg/hKx3FJJgrV
@@ -17,10 +40,17 @@ This repository does **not** contain any game assets or assembly whatsoever. An 
 The following game versions are supported:
 
 - `GM8E01_00` (USA v1.088)
+  * [![Code Progress GM8E01_00]][Progress GM8E01_00][![Data Progress GM8E01_00]][Progress GM8E01_00]
 - `GM8E01_01` (USA v1.093)
+  * [![Code Progress GM8E01_01]][Progress GM8E01_01][![Data Progress GM8E01_01]][Progress GM8E01_01]
 - `GM8E01_48` (KOR v1.097)
+  * [![Code Progress GM8E01_48]][Progress GM8E01_48][![Data Progress GM8E01_48]][Progress GM8E01_48]
 - `GM8P01_00` (PAL v1.110)
+  * [![Code Progress GM8P01_00]][Progress GM8P01_00][![Data Progress GM8P01_00]][Progress GM8P01_00]
+- `GM8E01_02` (USA v1.111)
+  * [![Code Progress GM8E01_02]][Progress GM8E01_02][![Data Progress GM8E01_02]][Progress GM8E01_02]
 - `GM8J01_00` (JPN v1.111)
+  * [![Code Progress GM8J01_00]][Progress GM8J01_00][![Data Progress GM8J01_00]][Progress GM8J01_00]
 
 
 
