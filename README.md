@@ -42,19 +42,14 @@ This repository does **not** contain any game assets or assembly whatsoever. An 
 
 The following game versions are supported:
 
-- `GM8E01_00` (USA v1.088)
-  * [![Code Progress GM8E01_00]][Progress GM8E01_00][![Data Progress GM8E01_00]][Progress GM8E01_00]
-- `GM8E01_01` (USA v1.093)
-  * [![Code Progress GM8E01_01]][Progress GM8E01_01][![Data Progress GM8E01_01]][Progress GM8E01_01]
-- `GM8E01_48` (KOR v1.097)
-  * [![Code Progress GM8E01_48]][Progress GM8E01_48][![Data Progress GM8E01_48]][Progress GM8E01_48]
-- `GM8P01_00` (PAL v1.110)
-  * [![Code Progress GM8P01_00]][Progress GM8P01_00][![Data Progress GM8P01_00]][Progress GM8P01_00]
-- `GM8E01_02` (USA v1.111)
-  * [![Code Progress GM8E01_02]][Progress GM8E01_02][![Data Progress GM8E01_02]][Progress GM8E01_02]
-- `GM8J01_00` (JPN v1.111)
-  * [![Code Progress GM8J01_00]][Progress GM8J01_00][![Data Progress GM8J01_00]][Progress GM8J01_00]
-
+| Version                  | Code | Data |
+|--------------------------|------|------|
+| `GM8E01_00` (USA v1.088) | [![Code Progress GM8E01_00]][Progress GM8E01_00] | [![Data Progress GM8E01_00]][Progress GM8E01_00] |
+| `GM8E01_01` (USA v1.093) | [![Code Progress GM8E01_01]][Progress GM8E01_01] | [![Data Progress GM8E01_01]][Progress GM8E01_01] |
+| `GM8E01_48` (KOR v1.097) | [![Code Progress GM8E01_48]][Progress GM8E01_48] | [![Data Progress GM8E01_48]][Progress GM8E01_48] |
+| `GM8P01_00` (PAL v1.110) | [![Code Progress GM8P01_00]][Progress GM8P01_00] | [![Data Progress GM8P01_00]][Progress GM8P01_00] |
+| `GM8J01_00` (JPN v1.111) | [![Code Progress GM8J01_00]][Progress GM8J01_00] | [![Data Progress GM8J01_00]][Progress GM8J01_00] |
+| `GM8E01_02` (USA v1.111) | [![Code Progress GM8E01_02]][Progress GM8E01_02] | [![Data Progress GM8E01_02]][Progress GM8E01_02] |
 
 
 If you'd like to contribute, see [CONTRIBUTING.md](CONTRIBUTING.md).
