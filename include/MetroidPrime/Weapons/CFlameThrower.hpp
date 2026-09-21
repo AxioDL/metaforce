@@ -1,7 +1,7 @@
 #ifndef _CFLAMETHROWER
 #define _CFLAMETHROWER
-#include "CFlameInfo.hpp"
 #include "MetroidPrime/CFlameWarp.hpp"
+#include "MetroidPrime/Weapons/CFlameInfo.hpp"
 #include "MetroidPrime/Weapons/CGameProjectile.hpp"
 
 class CFlameThrower : public CGameProjectile {
@@ -39,7 +39,11 @@ private:
   void SetFlameLightActive(bool active, CStateManager& mgr);
   float UpdateFlameState(float dt, CStateManager& mgr);
   CRayCastResult DoCollisionCheck(TUniqueId& idOut, const CAABox& bounds, CStateManager& mgr);
-  void ApplyDamageToActor(CStateManager& mgr, TUniqueId id, float dt);
+#if VERSION >= VERSION_GM8P_00
+  void DoRadialFreeze(const CVector3f&, const CDamageInfo&, CStateManager& mgr);
+  void ApplyFlameDamageToActor(TUniqueId id, CStateManager& mgr);
+#endif
+  void ApplyFlameDamageToActors(CStateManager& mgr, TUniqueId id, float dt);
   void ApplyDamageToWorld(CStateManager& mgr, TUniqueId id, const CVector3f& point,
                           const CDamageInfo& dInfo, const CMaterialFilter& filter);
 
@@ -59,6 +63,7 @@ private:
   bool x400_25_particlesActive : 1;
   bool x400_26_zTest : 1;
   bool x400_27_coneCollision : 1;
+  bool x428_28_ : 1;
 
   static const CVector3f kLightOffset;
 };

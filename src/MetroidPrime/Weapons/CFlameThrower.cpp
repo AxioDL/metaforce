@@ -37,7 +37,12 @@ CFlameThrower::CFlameThrower(const TToken< CWeaponDescription >& wDesc, const rs
 , x400_24_active(false)
 , x400_25_particlesActive(false)
 , x400_26_zTest((flameInfo.GetAttributes() & 1) == 0)
-, x400_27_coneCollision((flameInfo.GetAttributes() & 2) != 0) {}
+, x400_27_coneCollision((flameInfo.GetAttributes() & 2) != 0)
+#if VERSION >= VERSION_GM8P_00
+, x428_28_((flameInfo.GetAttributes() & 8) != 0)
+#endif
+{
+}
 
 rstl::optional_object< CAABox > CFlameThrower::GetTouchBounds() const {
   // Retail retains this impossible state condition.
@@ -103,10 +108,18 @@ void CFlameThrower::Think(float dt, CStateManager& mgr) {
     x318_flameBounds = CAABox(min, max);
     const CRayCastResult result = DoCollisionCheck(id, x318_flameBounds, mgr);
     if (TCastToPtr< CActor >(mgr.ObjectById(id))) {
-      ApplyDamageToActor(mgr, id, dt);
+      ApplyFlameDamageToActors(mgr, id, dt);
     } else if (result.IsValid()) {
+#if VERSION >= VERSION_GM8P_00
+      const CDamageInfo scaledDamage = x12c_curDamageInfo.MakeScaledForTime(dt);
+      if (x428_28_ && !mgr.GetPlayer()->GetFrozenState()) {
+        DoRadialFreeze(result.GetPoint(), scaledDamage, mgr);
+      }
+      ApplyDamageToWorld(mgr, GetOwnerId(), result.GetPoint(), scaledDamage, GetFilter());
+#else
       ApplyDamageToWorld(mgr, GetOwnerId(), result.GetPoint(),
                          x12c_curDamageInfo.MakeScaledForTime(dt), GetFilter());
+#endif
     }
   }
 
@@ -284,16 +297,41 @@ void CFlameThrower::SetFlameLightActive(bool active, CStateManager& mgr) {
   }
 }
 
-void CFlameThrower::ApplyDamageToActor(CStateManager& mgr, TUniqueId id, float dt) {
+void CFlameThrower::ApplyFlameDamageToActors(CStateManager& mgr, TUniqueId id, float dt) {
+
+#if VERSION >= VERSION_GM8P_00
+  ApplyFlameDamageToActor(id, mgr);
+#else
   if (id == mgr.GetPlayer()->GetUniqueId() && x3f4_playerSteamTextureId != kInvalidAssetId &&
       x3fc_playerIceTextureId != kInvalidAssetId) {
     mgr.Player()->SetFrozenState(mgr, x3f4_playerSteamTextureId, x3f8_playerHitSfx,
                                  x3fc_playerIceTextureId);
   }
+#endif
   ApplyDamageToActors(mgr, x12c_curDamageInfo.MakeScaledForTime(dt));
 }
+#if VERSION >= VERSION_GM8P_00
+void CFlameThrower::ApplyFlameDamageToActor(TUniqueId id, CStateManager& mgr) {
+  if (id == mgr.GetPlayer()->GetUniqueId() && x3f4_playerSteamTextureId != kInvalidAssetId &&
+      x3fc_playerIceTextureId != kInvalidAssetId) {
+    mgr.Player()->SetFrozenState(mgr, x3f4_playerSteamTextureId, x3f8_playerHitSfx,
+                                 x3fc_playerIceTextureId);
+  }
+}
+#endif
+
 inline void CFlameThrower::ApplyDamageToWorld(CStateManager& mgr, TUniqueId id,
                                               const CVector3f& point, const CDamageInfo& dInfo,
                                               const CMaterialFilter& filter) {
   mgr.ApplyDamageToWorld(id, *this, point, dInfo, filter);
 }
+
+#if VERSION >= VERSION_GM8P_00
+void CFlameThrower::DoRadialFreeze(const CVector3f&, const CDamageInfo&, CStateManager& mgr) {}
+
+// Needed to force destructor generation;
+static void hack() {
+  CFlameThrower* t;
+  t->~CFlameThrower();
+}
+#endif

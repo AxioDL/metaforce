@@ -1180,9 +1180,12 @@ MetroidPrime/HUD/CHudDecoInterface.cpp:
 	.sdata2     start:0x8046E538 end:0x8046E570
 
 MetroidPrime/Weapons/CFlameThrower.cpp:
-	.text       start:0x8018D114 end:0x8018DBD8
+	.text       start:0x8018C1C8 end:0x8018DBD8
 	.ctors      start:0x803B502C end:0x803B5030
+	.rodata     start:0x803BBC78 end:0x803BBC98
+	.data       start:0x803CDBB8 end:0x803CDCF0
 	.bss        start:0x804340AC end:0x804340B8 align:4 common
+	.sdata2     start:0x8046E570 end:0x8046E5A0
 
 MetroidPrime/Weapons/CBeamProjectile.cpp:
 	.text       start:0x8018E054 end:0x8018E150
