@@ -1,6 +1,5 @@
 #include "MetroidPrime/Player/CMorphBall.hpp"
 
-#include "rstl/pair.hpp"
 #include "Collision/CMaterialList.hpp"
 #include "Collision/CollisionUtil.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"
@@ -35,6 +34,7 @@
 #include "MetroidPrime/ScriptObjects/CScriptSpiderBallWaypoint.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptWater.hpp"
 #include "MetroidPrime/TCastTo.hpp"
+#include "rstl/pair.hpp"
 
 #include "MetroidPrime/TGameTypes.hpp"
 
@@ -162,28 +162,28 @@ const CMorphBall::SColorRgb CMorphBall::skBallTailSwooshColors[9] = {
 
 // lbl_803CEB40
 const CMorphBall::SColorRgb CMorphBall::skBallBoostedTailSwooshColors[9] = {
-    {255, 230, 0},   // Golden yellow
-    {255, 230, 0},   // Golden yellow
-    {255, 230, 0},   // Golden yellow
-    {255, 230, 0},   // Golden yellow
-    {255, 128, 32},  // Orange
-    {255, 230, 0},   // Golden yellow
-    {255, 230, 0},   // Golden yellow
-    {255, 230, 0},   // Golden yellow
-    {255, 230, 0},   // Golden yellow
+    {255, 230, 0},  // Golden yellow
+    {255, 230, 0},  // Golden yellow
+    {255, 230, 0},  // Golden yellow
+    {255, 230, 0},  // Golden yellow
+    {255, 128, 32}, // Orange
+    {255, 230, 0},  // Golden yellow
+    {255, 230, 0},  // Golden yellow
+    {255, 230, 0},  // Golden yellow
+    {255, 230, 0},  // Golden yellow
 };
 
 // lbl_803CEB5C
 const CMorphBall::SColorRgb CMorphBall::skBallJaggyTrailColors[9] = {
-    {255, 204, 0},   // Gold
-    {255, 204, 0},   // Gold
-    {255, 204, 0},   // Gold
-    {255, 204, 0},   // Gold
-    {255, 213, 25},  // Gold
-    {255, 204, 0},   // Gold
-    {255, 204, 0},   // Gold
-    {255, 204, 0},   // Gold
-    {255, 204, 0},   // Gold
+    {255, 204, 0},  // Gold
+    {255, 204, 0},  // Gold
+    {255, 204, 0},  // Gold
+    {255, 204, 0},  // Gold
+    {255, 213, 25}, // Gold
+    {255, 204, 0},  // Gold
+    {255, 204, 0},  // Gold
+    {255, 204, 0},  // Gold
+    {255, 204, 0},  // Gold
 };
 
 // lbl_803CEB78
@@ -506,8 +506,8 @@ void CMorphBall::ResetSpiderBallForces() {
 }
 
 static inline CVector3f CalculateSpiderBallSurfaceForce(const CVector3f& xAxis,
-                                                      const CVector3f& zAxis, float xForce,
-                                                      float zForce, const float& scale) {
+                                                        const CVector3f& zAxis, float xForce,
+                                                        float zForce, const float& scale) {
   float xx = xAxis.GetX() * xForce;
   float xy = xAxis.GetY() * xForce;
   float xz = xAxis.GetZ() * xForce;
@@ -518,8 +518,8 @@ static inline CVector3f CalculateSpiderBallSurfaceForce(const CVector3f& xAxis,
   return CVector3f((xx + zx) * gain, (xy + zy) * gain, (xz + zz) * gain);
 }
 
-static inline rstl::pair< float, float > CalculateSpiderBallSurfacePivotForces(
-    float xForce, float zForce, const float& scale) {
+static inline rstl::pair< float, float >
+CalculateSpiderBallSurfacePivotForces(float xForce, float zForce, const float& scale) {
   return rstl::pair< float, float >(scale * xForce, scale * zForce);
 }
 
@@ -660,14 +660,14 @@ void CMorphBall::ApplySpiderBallRollForces(const CFinalInput& input, CStateManag
           const float surfaceZForce =
               CVector3f::Dot(x18c4_spiderSurfaceTransform.GetColumn(kDZ), viewSurfaceForces);
           const float surfaceForceScale = 45000.f;
-          const CVector3f forceVec = CalculateSpiderBallSurfaceForce(
-              x18c4_spiderSurfaceTransform.GetColumn(kDX),
-              x18c4_spiderSurfaceTransform.GetColumn(kDZ), surfaceXForce, surfaceZForce,
-              surfaceForceScale);
+          const CVector3f forceVec =
+              CalculateSpiderBallSurfaceForce(x18c4_spiderSurfaceTransform.GetColumn(kDX),
+                                              x18c4_spiderSurfaceTransform.GetColumn(kDZ),
+                                              surfaceXForce, surfaceZForce, surfaceForceScale);
           x0_player.ApplyForceWR(forceVec, CAxisAngle::Identity());
 
-          const rstl::pair< float, float > pivotForces =
-              CalculateSpiderBallSurfacePivotForces(surfaceXForce, surfaceZForce, surfaceForceScale);
+          const rstl::pair< float, float > pivotForces = CalculateSpiderBallSurfacePivotForces(
+              surfaceXForce, surfaceZForce, surfaceForceScale);
           float angle = x18f8_spiderSurfacePivotTargetAngle;
           if (forceVec.MagSquared() > 0.f) {
             angle = atan2f(pivotForces.first, pivotForces.second);
@@ -756,8 +756,7 @@ bool CMorphBall::FindClosestSpiderBallWaypoint(CStateManager& mgr, const CVector
 
   for (AUTO(surfaceIt, nearList.begin()); surfaceIt != nearList.end(); ++surfaceIt) {
     if (const CScriptSpiderBallAttractionSurface* const surface =
-            TCastToConstPtr< CScriptSpiderBallAttractionSurface >(
-                mgr.GetObjectById(*surfaceIt))) {
+            TCastToConstPtr< CScriptSpiderBallAttractionSurface >(mgr.GetObjectById(*surfaceIt))) {
       const CVector3f surfaceNormal = surface->GetTransform().GetColumn(kDY).AsNormalized();
       CPlane plane(surface->GetTransform().GetTranslation(), CUnitVector3f(1.f * surfaceNormal));
       CVector3f point = CVector3f::Zero();
@@ -765,9 +764,8 @@ bool CMorphBall::FindClosestSpiderBallWaypoint(CStateManager& mgr, const CVector
       if (CollisionUtil::RayPlaneIntersection(ballCenter + 2.1f * surfaceNormal,
                                               ballCenter - 2.1f * surfaceNormal, plane, point)) {
         const CVector3f halfScale = 0.5f * surface->GetScale();
-        CTransform4f invScaleXf =
-            CTransform4f::Scale(1.f / halfScale.GetX(), 1.f / halfScale.GetY(),
-                                1.f / halfScale.GetZ());
+        CTransform4f invScaleXf = CTransform4f::Scale(
+            1.f / halfScale.GetX(), 1.f / halfScale.GetY(), 1.f / halfScale.GetZ());
         CVector3f clampedPoint = (invScaleXf * surface->GetTransform().GetQuickInverse()) * point;
         clampedPoint[kDX] = CMath::Clamp(-1.f, clampedPoint[kDX], 1.f);
         clampedPoint[kDZ] = CMath::Clamp(-1.f, clampedPoint[kDZ], 1.f);
@@ -1101,6 +1099,10 @@ CTransform4f CMorphBall::CalculateSurfaceToWorld(const CVector3f& trackNormal,
     CVector3f right = CVector3f::Cross(ballDir, trackNormal);
     if (right.CanBeNormalized()) {
       right.Normalize();
+      // TODO: wtf?
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+      const CVector3f upNorm = CVector3f::Cross(right, forward).AsNormalized();
+#else
       const float rightY = right.GetY();
       const float forwardX = forward.GetX();
       const float rightZ = right.GetZ();
@@ -1111,8 +1113,10 @@ CTransform4f CMorphBall::CalculateSurfaceToWorld(const CVector3f& trackNormal,
       const float upX = rightY * forwardZ - forwardY * rightZ;
       const float upY = rightZ * forwardX - forwardZ * rightX;
       const CVector3f upNorm = CVector3f(upX, upY, upZ).AsNormalized();
+#endif
 
-      return CTransform4f::FromColumns(right, forward, upNorm, trackPoint + CVector3f(0.f, 0.f, 0.f));
+      return CTransform4f::FromColumns(right, forward, upNorm,
+                                       trackPoint + CVector3f(0.f, 0.f, 0.f));
     }
   }
 
@@ -1192,12 +1196,10 @@ void CMorphBall::UpdateBallDynamics(CStateManager& mgr, float dt) {
         if (x28_tireMode) {
           float maxAccel =
               gpTweakBall->GetMaxBallTranslationAcceleration(x0_player.GetSurfaceRestraint());
-          float accel =
-              x0_player.GetTransform().TransposeRotate(x0_player.GetForceWR()).GetX();
+          float accel = x0_player.GetTransform().TransposeRotate(x0_player.GetForceWR()).GetX();
           const float accelRatio = accel / maxAccel;
           const float maxLeanAngle = gpTweakBall->GetMaxLeanAngle();
-          x2c_tireLeanAngle = accelRatio * maxLeanAngle *
-                              gpTweakBall->GetForceToLeanGain();
+          x2c_tireLeanAngle = accelRatio * maxLeanAngle * gpTweakBall->GetForceToLeanGain();
           x2c_tireLeanAngle = CMath::Limit(x2c_tireLeanAngle, gpTweakBall->GetMaxLeanAngle());
 
           if ((x0_player.GetTransform().Get00() * x1924_surfaceToWorld.Get00() +
@@ -1405,11 +1407,10 @@ void CMorphBall::UpdateEffects(float dt, CStateManager& mgr) {
   x19cc_wallSparkGen->Update(dt);
   x1bc8_wakeEffectGens[7]->Update(dt);
 
-  bool emitRainWake =
-      x0_player.GetPlayerMovementState() == NPlayer::kMS_OnGround &&
-      mgr.GetWorld()->GetNeededEnvFx() == kEFX_Rain &&
-      mgr.GetEnvFxManager()->GetRainMagnitude() > 0.f &&
-      mgr.GetEnvFxManager()->IsSplashActive();
+  bool emitRainWake = x0_player.GetPlayerMovementState() == NPlayer::kMS_OnGround &&
+                      mgr.GetWorld()->GetNeededEnvFx() == kEFX_Rain &&
+                      mgr.GetEnvFxManager()->GetRainMagnitude() > 0.f &&
+                      mgr.GetEnvFxManager()->IsSplashActive();
 
   static_cast< CParticleGen* >(x1bc8_wakeEffectGens[7].get())->SetParticleEmission(emitRainWake);
 
@@ -1496,8 +1497,8 @@ void CMorphBall::UpdateEffects(float dt, CStateManager& mgr) {
       if (light.valid()) {
         CLight lightCopy(*light);
         const CColor& lightColor = lightCopy.GetColor();
-        lightCopy.SetColor(
-            CColor::Modulate(lightColor, GetBallGlowColor(skBallLightModulationColors[x8_ballGlowColorIdx])));
+        lightCopy.SetColor(CColor::Modulate(
+            lightColor, GetBallGlowColor(skBallLightModulationColors[x8_ballGlowColorIdx])));
 
         if (x0_player.GetMorphballTransitionState() == CPlayer::kMS_Unmorphing) {
           float transitionFactor = x0_player.GetMorphBallTransitionFactor();
@@ -1586,8 +1587,8 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, const CState
             EnterBoosting(const_cast< CStateManager& >(mgr));
           } else {
             const CVector3f surfaceY = x1924_surfaceToWorld.GetColumn(kDY);
-            x0_player.ApplyImpulseWR(
-                CVector3f::Zero(), CAxisAngle::FromVector(10000.f * -surfaceY));
+            x0_player.ApplyImpulseWR(CVector3f::Zero(),
+                                     CAxisAngle::FromVector(10000.f * -surfaceY));
             CancelBoosting();
           }
         } else if (GetBallBoostState() == kBBS_BoostDisabled) {
@@ -1596,8 +1597,7 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, const CState
               x0_player.GetTranslation() + GetBallToWorld().GetColumn(kDY), CVector3f::Up()));
 
           const CVector3f playerX = x0_player.GetTransform().GetColumn(kDX);
-          x0_player.ApplyImpulseWR(
-              CVector3f::Zero(), CAxisAngle::FromVector(10000.f * -playerX));
+          x0_player.ApplyImpulseWR(CVector3f::Zero(), CAxisAngle::FromVector(10000.f * -playerX));
           CancelBoosting();
         }
       } else if (x1de8_boostChargeTime > 0.f) {
@@ -1788,8 +1788,8 @@ bool CMorphBall::UpdateMarbleDynamics(CStateManager&, float dt, const CVector3f&
     if (upVec.CanBeNormalized()) {
       if (!x28_tireMode) {
         const CVector3f alignmentImpulse = gpTweakBall->GetTireness() * upVec.AsNormalized();
-        x0_player.SetAngularImpulseWR(CAxisAngle::FromVector(
-            x0_player.GetAngularImpulseWR().GetVector() + alignmentImpulse));
+        x0_player.SetAngularImpulseWR(
+            CAxisAngle::FromVector(x0_player.GetAngularImpulseWR().GetVector() + alignmentImpulse));
       } else {
         CVector3f right(1.f, 0.f, 0.f);
         CVector3f localRight = GetBallToWorld().TransposeRotate(surfaceRight);
@@ -2016,13 +2016,15 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
     x1bc8_wakeEffectGens[x1c0c_wakeEffectIdx]->Render();
   }
 
-  x19d0_ballInnerGlowGen->SetModulationColor(GetBallGlowColor(skBallInnerGlowColors[x8_ballGlowColorIdx]));
+  x19d0_ballInnerGlowGen->SetModulationColor(
+      GetBallGlowColor(skBallInnerGlowColors[x8_ballGlowColorIdx]));
   if (x19d0_ballInnerGlowGen->GetNumActiveChildParticles() > 0) {
     CParticleGen* particle = x19d0_ballInnerGlowGen->GetActiveChildParticle(0);
     particle->SetModulationColor(GetBallGlowColor(skBallHullGlowColors[x8_ballGlowColorIdx]));
     if (x19d0_ballInnerGlowGen->GetNumActiveChildParticles() > 1) {
       particle = x19d0_ballInnerGlowGen->GetActiveChildParticle(1);
-      particle->SetModulationColor(GetBallGlowColor(skBallBoostedHullGlowColors[x8_ballGlowColorIdx]));
+      particle->SetModulationColor(
+          GetBallGlowColor(skBallBoostedHullGlowColors[x8_ballGlowColorIdx]));
     }
   }
 
@@ -2199,7 +2201,8 @@ bool CMorphBall::BallCloseToCollision(const CStateManager& mgr, float dist,
   }
 
   for (TEntityList::const_iterator id = nearList.begin(); id != nearList.end(); ++id) {
-    if (const CPhysicsActor* const actor = TCastToConstPtr< CPhysicsActor >(mgr.GetObjectById(*id))) {
+    if (const CPhysicsActor* const actor =
+            TCastToConstPtr< CPhysicsActor >(mgr.GetObjectById(*id))) {
       if (CCollisionPrimitive::CollideBoolean(
               CInternalCollisionStructure::CPrimDesc(prim, filter, CTransform4f::Identity()),
               CInternalCollisionStructure::CPrimDesc(*actor->GetCollisionPrimitive(),
@@ -2268,9 +2271,10 @@ void CMorphBall::CollidedWith(const TUniqueId& id, const CCollisionInfoList& lis
           if (tmpMaterial != kMT_NoStepLogic) {
             int mappedIdx = skWakeEffectMap[tmpMaterial];
             if (mappedIdx == 0) {
-              const CScriptAreaAttributes* areaAttrs =
-                  mgr.GetWorld()->GetArea(mgr.GetNextAreaId())
-                      ->GetPostConstructed()->x10d8_areaAttributes;
+              const CScriptAreaAttributes* areaAttrs = mgr.GetWorld()
+                                                           ->GetArea(mgr.GetNextAreaId())
+                                                           ->GetPostConstructed()
+                                                           ->x10d8_areaAttributes;
               if (areaAttrs != nullptr && areaAttrs->GetPhazonType() == kPT_Orange) {
                 mappedIdx = 1;
               }
@@ -2358,7 +2362,8 @@ void CMorphBall::CollidedWith(const TUniqueId& id, const CCollisionInfoList& lis
           const float cvelDot = CVector3f::Dot(cvelNorm, normal);
           if (cforceDot < -0.4f && cvelDot < -0.6f) {
             const float boostZ = 0.75f * cvelMag;
-            const float clampedZ = CMath::FastMax(boostZ,
+            const float clampedZ = CMath::FastMax(
+                boostZ,
                 0.15f * gpTweakBall->GetBallTranslationMaxSpeed(x0_player.GetSurfaceRestraint()));
             const float maxZ =
                 0.25f * gpTweakBall->GetBallTranslationMaxSpeed(x0_player.GetSurfaceRestraint());
@@ -2448,24 +2453,22 @@ void CMorphBall::ComputeLiftForces(const CVector3f& controlForce, const CVector3
       const CAABox liftBounds(primitiveBounds.GetMinPoint() - liftBoundsOffset,
                               primitiveBounds.GetMaxPoint() + liftBoundsOffset);
       if (CGameCollision::DetectStaticCollisionBoolean(
-              mgr, CCollidableAABox(liftBounds, CMaterialList(kMT_Solid)),
-              CTransform4f::Identity(), CMaterialFilter::skPassEverything)) {
+              mgr, CCollidableAABox(liftBounds, CMaterialList(kMT_Solid)), CTransform4f::Identity(),
+              CMaterialFilter::skPassEverything)) {
         const CVector3f liftPos =
             primitiveXf.GetTranslation() + CVector3f(0.f, 0.f, 1.75f * GetBallRadius());
         const CVector3f liftDir = avgControlForce * (1.f / avgControlForceMag);
-        const CMaterialFilter rayFilter =
-            CMaterialFilter::MakeInclude(CMaterialList(kMT_Solid));
+        const CMaterialFilter rayFilter = CMaterialFilter::MakeInclude(CMaterialList(kMT_Solid));
         const CRayCastResult result = mgr.RayStaticIntersection(liftPos, liftDir, 1.4f, rayFilter);
         if (!result.IsValid()) {
           const float liftScale = 1.f - rstl::max_val(0.f, avgLiftSpeed - 3.f);
           x0_player.ApplyForceWR(CVector3f(0.f, 0.f, liftScale * 40000.f), CAxisAngle::Identity());
 
-          x0_player.ApplyImpulseWR(
-              CVector3f::Zero(),
-              CAxisAngle::FromVector(CVector3f(-x1924_surfaceToWorld.Get00(),
-                                              -x1924_surfaceToWorld.Get10(),
-                                              -x1924_surfaceToWorld.Get20()) *
-                                    1000.f * liftScale));
+          x0_player.ApplyImpulseWR(CVector3f::Zero(),
+                                   CAxisAngle::FromVector(CVector3f(-x1924_surfaceToWorld.Get00(),
+                                                                    -x1924_surfaceToWorld.Get10(),
+                                                                    -x1924_surfaceToWorld.Get20()) *
+                                                          1000.f * liftScale));
         }
       }
     }
@@ -2523,10 +2526,8 @@ void CMorphBall::Touch(CActor& actor, CStateManager& mgr) {
       if (relSpeed > gpTweakBall->GetBoostBallMinRelativeSpeedForDamage()) {
         static CDamageInfo kBallDamage(CWeaponMode::BoostBall(), 50000.f, 0.f, 0.f);
         const TUniqueId playerId = x0_player.GetUniqueId();
-        mgr.ApplyDamage(
-            playerId, actor.GetUniqueId(), playerId, kBallDamage,
-            MakeBallDamageFilter(),
-            CVector3f::Zero());
+        mgr.ApplyDamage(playerId, actor.GetUniqueId(), playerId, kBallDamage,
+                        MakeBallDamageFilter(), CVector3f::Zero());
       }
     }
   }
@@ -2651,7 +2652,8 @@ CModelData* CMorphBall::GetMorphBallModel(const rstl::string& name, float radius
   return ret;
 }
 
-static inline void SetSecond(rstl::pair< rstl::auto_ptr< CParticleSwoosh >, bool >& pair, bool value) {
+static inline void SetSecond(rstl::pair< rstl::auto_ptr< CParticleSwoosh >, bool >& pair,
+                             bool value) {
   pair.second = value;
 }
 
@@ -2738,7 +2740,8 @@ void CMorphBall::RenderEnergyDrainEffects(const CStateManager& mgr) const {
   const rstl::vector< CEnergyDrainSource >& sources =
       x0_player.x274_energyDrain.GetEnergyDrainSources();
   for (const CEnergyDrainSource* it = sources.data(); it != sources.data() + sources.size(); ++it) {
-    const CMetroidBeta* metroid = PATTERNED_CAST_TO(CMetroidBeta, const_cast< CEntity* >(mgr.GetObjectById(it->GetEnergyDrainSourceId())));
+    const CMetroidBeta* metroid = PATTERNED_CAST_TO(
+        CMetroidBeta, const_cast< CEntity* >(mgr.GetObjectById(it->GetEnergyDrainSourceId())));
     if (metroid != nullptr) {
       metroid->RenderHitBallEffect();
       break;

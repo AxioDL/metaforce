@@ -829,7 +829,13 @@ config.libs = [
                 "MetroidPrime/ScriptObjects/CScriptCameraBlurKeyframe.cpp",
             ),
             Object(NonMatching, "MetroidPrime/Cameras/CCameraFilter.cpp"),
-            Object(MatchingFor("GM8E01_00"), "MetroidPrime/Player/CMorphBall.cpp"),
+            Object(
+                MatchingFor("GM8E01_00", "GM8E01_01"),
+                "MetroidPrime/Player/CMorphBall.cpp",
+                extra_cflags=['-pragma "inline_max_size(100)"']
+                if version_num >= VERSIONS.index("GM8P01_00")
+                else [],
+            ),
             Object(
                 NonMatching, "MetroidPrime/ScriptObjects/CScriptDamageableTrigger.cpp"
             ),
