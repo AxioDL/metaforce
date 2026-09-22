@@ -788,7 +788,6 @@ void CGraphics::EndScene() {
   CGX::SetZMode(true, GX_LEQUAL, true);
 #if defined(TARGET_PC)
   GXCopyDisp(mpCurrenFrameBuf, mIsBeginSceneClearFb ? GX_TRUE : GX_FALSE);
-  // TODO: end frame
 #else
   volatile int& numBreakPt = const_cast< volatile int& >(mNumBreakpointsWaiting);
   while (numBreakPt > 0) {

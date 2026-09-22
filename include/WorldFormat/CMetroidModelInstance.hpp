@@ -6,8 +6,10 @@
 #include "Kyoto/Math/CTransform4f.hpp"
 
 #include "rstl/vector.hpp"
+
 #if defined(TARGET_PC)
 #include "Metaforce/CModelSectionReader.hpp"
+#include <vector>
 #endif
 
 class CMetroidModelInstance {
