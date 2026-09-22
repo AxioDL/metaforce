@@ -551,7 +551,11 @@ void CThardusRockProjectile::AddParticleEffect(CStateManager& mgr, CAssetId part
                                                int unk) {
   TUniqueId uid = mgr.AllocateUniqueId();
   char buf[1024];
+#if NONMATCHING
+  snprintf(buf, sizeof(buf), "ROCK_PROJECTILE_EFFECT-%u-%i", particle, uid.Value());
+#else
   sprintf(buf, "ROCK_PROJECTILE_EFFECT-%u-%i", particle, uid.Value());
+#endif
 
   CEntity* ent = rs_new CExplosion(
       TLockedToken< CGenDescription >(gpSimplePool->GetObj(SObjectTag('PART', particle))), uid,

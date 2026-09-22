@@ -67,7 +67,7 @@ public:
 
 private:
   ALIGNAS(T) uchar m_data[sizeof(T)];
-  bool m_valid ATTRIBUTE_ALIGN(4);
+  ATTRIBUTE_ALIGN_DECL(4, bool m_valid);
 
   void assign(const T& item) {
     if (!m_valid) {

@@ -1,8 +1,7 @@
 #include <dolphin/OSRtcPriv.h>
 #include <dolphin/os.h>
+#include <dolphin/si.h>
 #include <dolphin/sipriv.h>
-
-vu32 __SIRegs[64] : 0xCC006400;
 
 extern OSTime __OSGetSystemTime();
 

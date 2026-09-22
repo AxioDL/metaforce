@@ -1,9 +1,10 @@
 #ifndef _IMETATRANS
 #define _IMETATRANS
 
+#include "Kyoto/Animation/CAnimTreeNode.hpp"
+
 #include "rstl/rc_ptr.hpp"
 
-class CAnimTreeNode;
 class CAnimSysContext;
 class COutputStream;
 
@@ -25,10 +26,9 @@ public:
 
   virtual void WriteTransData(COutputStream&) const = 0;
 
-  rstl::ncrc_ptr< CAnimTreeNode >
-  GetTransitionTree(const rstl::ncrc_ptr< CAnimTreeNode >& a,
-                    const rstl::ncrc_ptr< CAnimTreeNode >& b,
-                    const CAnimSysContext& animSys) const {
+  rstl::ncrc_ptr< CAnimTreeNode > GetTransitionTree(const rstl::ncrc_ptr< CAnimTreeNode >& a,
+                                                    const rstl::ncrc_ptr< CAnimTreeNode >& b,
+                                                    const CAnimSysContext& animSys) const {
     return VGetTransitionTree(a, b, animSys);
   }
 };

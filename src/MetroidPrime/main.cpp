@@ -4,11 +4,12 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-#include "dolphin/PPCArch.h"
+#include "dolphin/base/PPCArch.h"
+#include "dolphin/ai.h"
 #include "dolphin/ar.h"
 #include "dolphin/arq.h"
-#include "dolphin/ai.h"
 #include "dolphin/dvd.h"
+#include "dolphin/gx.h"
 #include "dolphin/os.h"
 #include "dolphin/os/OSCache.h"
 #include "dolphin/os/OSMemory.h"
@@ -17,8 +18,8 @@
 #include "dolphin/vi.h"
 
 #include "Kyoto/Alloc/CMemory.hpp"
-#include "Kyoto/Audio/CDSPStreamManager.hpp"
 #include "Kyoto/Audio/CAudioGroupSet.hpp"
+#include "Kyoto/Audio/CDSPStreamManager.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"
 #include "Kyoto/Audio/CStreamAudioManager.hpp"
 #include "Kyoto/Basics/CBasics.hpp"
@@ -50,10 +51,10 @@
 #include "MetroidPrime/CGameGlobalObjects.hpp"
 #include "MetroidPrime/CInGameTweakManager.hpp"
 #include "MetroidPrime/CMainFlow.hpp"
-#include "MetroidPrime/Decode.hpp"
 #include "MetroidPrime/CMemoryCard.hpp"
 #include "MetroidPrime/CMemoryCardDriver.hpp"
 #include "MetroidPrime/CSplashScreen.hpp"
+#include "MetroidPrime/Decode.hpp"
 #include "MetroidPrime/Factories/CCharacterFactoryBuilder.hpp"
 #include "MetroidPrime/Player/CGameOptions.hpp"
 #include "MetroidPrime/Player/CGameState.hpp"
@@ -1015,6 +1016,4 @@ void CMain::ReloadStringTables() {
 
 #endif
 
-void CMain::UpdateStreamedAudio() {
-  CStreamAudioManager::Update(FRAME_PERIOD);
-}
+void CMain::UpdateStreamedAudio() { CStreamAudioManager::Update(FRAME_PERIOD); }

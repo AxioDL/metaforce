@@ -45,7 +45,7 @@ public:
   void Draw(TDrawFunc func, void* data);
   void PostDrawFunc() const;
 
-  float* AllocateNewWorkspace(float** vertOut);
+  float* AllocateNewWorkspace(float** nrmOut);
 
   static void SetPointGeneratorFunc(void*,
                                     void (*)(void*, const CVector3f*, const CVector3f*, int));

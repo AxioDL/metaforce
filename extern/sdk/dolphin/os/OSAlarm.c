@@ -1,4 +1,4 @@
-#include "dolphin/PPCArch.h"
+#include "dolphin/base/PPCArch.h"
 #include "dolphin/os/OSPriv.h"
 
 static struct OSAlarmQueue {

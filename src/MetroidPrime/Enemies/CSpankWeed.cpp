@@ -57,10 +57,17 @@ CSpankWeed::CSpankWeed(const TUniqueId uid, const rstl::string& name, const CEnt
     ModelData()->SetScale(CVector3f(scale, scale, scale));
 
     char buf[1024];
+#if NONMATCHING
+    snprintf(buf, sizeof(buf),
+            "WARNING: Non-uniform scale (%.2f, %.2f, %.2f) applied to Spank Weed...changing scale "
+            "to (%.2f, %.2f, %.2f)\n",
+            modelScale.GetX(), modelScale.GetY(), modelScale.GetZ(), scale, scale, scale);
+#else
     sprintf(buf,
             "WARNING: Non-uniform scale (%.2f, %.2f, %.2f) applied to Spank Weed...changing scale "
             "to (%.2f, %.2f, %.2f)\n",
             modelScale.GetX(), modelScale.GetY(), modelScale.GetZ(), scale, scale, scale);
+#endif
   }
 
   CMaterialList list = GetMaterialFilter().GetExcludeList();

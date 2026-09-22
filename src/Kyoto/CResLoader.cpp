@@ -180,7 +180,11 @@ FourCC CResLoader::GetResourceTypeById(const CAssetId asset) const {
 }
 
 bool CResLoader::ResourceExists(const SObjectTag& tag) const {
+#if NONMATCHING
+  return const_cast< CResLoader* >(this)->ResourceExists(tag.GetId());
+#else
   return const_cast< CResLoader* >(this)->ResourceExists(tag.GetId()) != nullptr;
+#endif
 }
 
 uint CResLoader::ResourceSize(const SObjectTag& tag) const {

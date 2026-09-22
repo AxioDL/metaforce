@@ -1,6 +1,7 @@
 #ifndef _IMETAANIM
 #define _IMETAANIM
 
+#include "Kyoto/Animation/CAnimTreeNode.hpp"
 #include "Kyoto/Animation/CCharAnimTime.hpp"
 
 #include <rstl/optional_object.hpp>
@@ -16,7 +17,6 @@ enum EMetaAnimType {
   kMAT_Sequence,
 };
 
-class CAnimTreeNode;
 class CPrimitive;
 class CCharAnimTime;
 class IAnimReader;

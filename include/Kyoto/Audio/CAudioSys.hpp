@@ -26,6 +26,9 @@ enum ETRKSampleRate {
 enum ETRKPlayState {
   kTPS_Stopped,
   kTPS_Playing,
+  kTPS_Paused,
+  kTPS_Busy,
+  kTPS_Preparing,
 };
 
 enum ETRKRepeatMode {

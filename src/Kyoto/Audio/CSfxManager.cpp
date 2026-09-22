@@ -311,7 +311,11 @@ CSfxHandle CSfxManager::AddEmitter(const SND_FXID id, const CVector3f& pos, cons
 
 CSfxHandle CSfxManager::AddEmitter(CAudioSys::C3DEmitterParmData& parmData, bool useAcoustics,
                                    const short prio, const bool looped, const int areaId) {
+#if NONMATCHING
+  if (mMuted || parmData.x24_sfxId == 0xFFFF) {
+#else
   if (mMuted || parmData.x24_sfxId == 0xFFFFFFFF || parmData.x24_sfxId == 0xFFFF) {
+#endif
     return CSfxHandle::NullHandle();
   }
 
@@ -352,7 +356,11 @@ void CSfxManager::RemoveEmitter(CSfxHandle handle) { StopSound(handle); }
 CSfxHandle CSfxManager::SfxStart(const ushort id, const short vol, const short pan,
                                  bool useAcoustics, const short prio, const bool looped,
                                  const int areaId) {
+#if NONMATCHING
+  if (mMuted || id == 0xFFFF) {
+#else
   if (mMuted || id == 0xFFFFFFFF || id == 0xFFFF) {
+#endif
     return CSfxHandle::NullHandle();
   }
   mDoUpdate = true;

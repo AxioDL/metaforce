@@ -102,6 +102,15 @@ typedef int BOOL;
 #error unknown compiler
 #endif
 
+#ifndef ATTRIBUTE_ALIGN_DECL
+// Older CodeWarrior versions require the alignment attribute after the declarator.
+#if defined(__MWERKS__)
+#define ATTRIBUTE_ALIGN_DECL(num, decl) decl ATTRIBUTE_ALIGN(num)
+#else
+#define ATTRIBUTE_ALIGN_DECL(num, decl) ATTRIBUTE_ALIGN(num) decl
+#endif
+#endif
+
 #ifndef DECL_WEAK
 #if defined(__MWERKS__)
 #define DECL_WEAK __declspec(weak)

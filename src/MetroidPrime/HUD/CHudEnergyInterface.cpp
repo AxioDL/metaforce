@@ -183,8 +183,13 @@ void CHudEnergyInterface::Update(float dt, float energyLowPulse) {
     x1c_26_barDirty = false;
     x18_cachedBarEnergy = barEnergy;
     char digits[4];
+#if NONMATCHING
+    snprintf(digits, sizeof(digits), "%02d",
+            static_cast< int >(CMath::ModF(barEnergy, CPlayerState::GetEnergyTankCapacity())));
+#else
     sprintf(digits, "%02d",
             static_cast< int >(CMath::ModF(barEnergy, CPlayerState::GetEnergyTankCapacity())));
+#endif
     x20_textpane_energydigits->TextSupport().SetText(rstl::string(digits));
   }
 

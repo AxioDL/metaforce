@@ -174,7 +174,7 @@ bool CARAMToken::RefreshStatus() {
   }
   case kS_Two:
   case kS_Five: {
-    delete[] x4_mramPtr;
+    CMemory::Free(x4_mramPtr);
     x4_mramPtr = nullptr;
     MoveToList(kS_Zero);
     break;

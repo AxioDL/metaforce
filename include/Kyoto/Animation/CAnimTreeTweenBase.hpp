@@ -41,7 +41,11 @@ public:
 protected:
   int x1c_flags;
   s32 x20_24_characterSpaceBlend : 1;
+#if NONMATCHING
+  u32 x20_25_cullSelector : 2;
+#else
   s32 x20_25_cullSelector : 2;
+#endif
 };
 
 CHECK_SIZEOF(CAnimTreeTweenBase, 0x24)

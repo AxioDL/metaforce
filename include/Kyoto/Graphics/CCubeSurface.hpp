@@ -8,7 +8,6 @@ class CCubeModel;
 class CCubeSurface {
 public:
   CCubeSurface(void* ptr) { x0_rawdata = static_cast< uchar* >(ptr); }
-#pragma pack(push, 1)
   struct SSurfaceData {
     CVector3f mCenter;
     uint mMaterialIndex;
@@ -18,9 +17,7 @@ public:
     uint mExtraSize;
     CUnitVector3f mNormal;
     CAABox mBounds;
-    uchar pad[7];
   };
-#pragma pack(pop)
 
   static const CVector3f skDefaultNormal;
   union {
@@ -32,7 +29,9 @@ public:
   const void* GetDisplayList() const {
     return reinterpret_cast< const SSurfaceData* >(x0_rawdata + GetSurfaceHeaderSize());
   }
-  uint GetSurfaceHeaderSize() const { return (sizeof(SSurfaceData) + x0_data->mExtraSize) & ~31; }
+  uint GetSurfaceHeaderSize() const {
+    return (sizeof(SSurfaceData) + 7 + x0_data->mExtraSize) & ~31;
+  }
   const CVector3f& GetCenter() const { return x0_data->mCenter; }
   const CUnitVector3f& GetNormalHint() const { return x0_data->mNormal; }
   uint GetMaterialIndex() const { return x0_data->mMaterialIndex; }

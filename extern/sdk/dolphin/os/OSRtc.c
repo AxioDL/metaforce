@@ -20,7 +20,7 @@ typedef struct SramControlBlock {
   void (*callback)(void);
 } SramControlBlock;
 
-static SramControlBlock Scb ATTRIBUTE_ALIGN(32);
+ATTRIBUTE_ALIGN_DECL(32, static SramControlBlock Scb);
 
 static BOOL GetRTC(u32* rtc) {
   BOOL err;

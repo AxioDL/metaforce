@@ -164,7 +164,7 @@ bool CResFactory::SLoadingData::PumpDecompression(uint time) {
   CStopwatch timer;
   z_stream_s* zip = x24_zip.get();
   uint* buffer = reinterpret_cast< uint* >(x14_buffer.get());
-#if TARGET_LITTLE_ENDIAN
+#if NONMATCHING
   const uint length = CBasics::SwapBytes(*buffer);
 #else
   const uint length = *buffer;
@@ -174,7 +174,11 @@ bool CResFactory::SLoadingData::PumpDecompression(uint time) {
     zip->zalloc = CZipSupport::Alloc;
     zip->zfree = CZipSupport::Free;
     zip->opaque = nullptr;
+#if NONMATCHING
+    inflateInit(zip);
+#else
     inflateInit2(zip);
+#endif
     zip->total_in = 0;
     zip->total_out = 0;
     zip->avail_in = 0;

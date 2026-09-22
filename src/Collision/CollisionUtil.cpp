@@ -566,7 +566,7 @@ bool AABoxSphereIntersection(const CAABox& box, const CSphere& sphere) {
   const CVector3f& boxMinVal = box.GetMinPoint();
 
   int comps = 0;
-  register float dist = 0.f;
+  __REGISTER float dist = 0.f;
   for (int i = 0; i < 3; ++i) {
     if (sphereCenter[i] < boxMinVal[i]) {
       if (sphereCenter[i] + sphere.GetRadius() >= boxMinVal[i]) {

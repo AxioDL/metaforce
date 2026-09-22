@@ -8,10 +8,9 @@
 #include "Kyoto/Graphics/CModel.hpp"
 #include "Kyoto/Graphics/CModelFlags.hpp"
 
-#include <dolphin/PPCArch.h>
+#include <dolphin/base/PPCArch.h>
 #include <dolphin/gx.h>
 #include <dolphin/os.h>
-#include <dolphin/os/OSCache.h>
 
 #include <rstl/list.hpp>
 #include <rstl/optional_object.hpp>
@@ -36,7 +35,7 @@ static ushort skCurrentToken = 0;
 static int sNumSkinnedObjects = 0;
 static bool sSkinningInitialized = false;
 #if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
-static char sStaticSkinningData[0x80000] ATTRIBUTE_ALIGN(32);
+ATTRIBUTE_ALIGN_DECL(32, static char sStaticSkinningData[0x80000]);
 #endif
 static rstl::optional_object< CCircularBuffer > sSkinningBuffer;
 static rstl::list< SSkinnedAllocation > sAllocations;
@@ -324,7 +323,7 @@ void CSkinnedModel::SetPointGeneratorFunc(void* data, void (*func)(void*, const 
 
 void CSkinnedModel::ClearPointGeneratorFunc() { sPointGen = nullptr; }
 
-float* CSkinnedModel::AllocateNewWorkspace(float** vertOut) {
+float* CSkinnedModel::AllocateNewWorkspace(float** nrmOut) {
   const CSkinRules* skinRules = *x10_skinRules;
   int normalCount = skinRules->GetNumNormals();
   int vertexCount = skinRules->GetNumPoints();
@@ -333,8 +332,13 @@ float* CSkinnedModel::AllocateNewWorkspace(float** vertOut) {
   int vertSize = vertexCount * 12;
   float* ptr = static_cast< float* >(
       CMemory::Alloc(((vertSize + 31) & ~31) + alignedNormSize, IAllocator::kHI_RoundUpLen));
-  if (vertOut != nullptr) {
-    *vertOut = reinterpret_cast< float* >(reinterpret_cast< char* >(ptr) + alignedNormSize);
+  if (nrmOut != nullptr) {
+#if NONMATCHING
+    // Wrong variable used originally
+    *nrmOut = reinterpret_cast< float* >(reinterpret_cast< char* >(ptr) + alignedVertSize);
+#else
+    *nrmOut = reinterpret_cast< float* >(reinterpret_cast< char* >(ptr) + alignedNormSize);
+#endif
   }
   return ptr;
 }

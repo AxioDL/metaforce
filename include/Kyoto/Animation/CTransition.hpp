@@ -1,9 +1,10 @@
 #ifndef _CTRANSITION
 #define _CTRANSITION
 
+#include "Kyoto/Animation/IMetaTrans.hpp"
+
 #include "rstl/rc_ptr.hpp"
 
-class IMetaTrans;
 class CInputStream;
 class CTransition {
   uint x0_id;

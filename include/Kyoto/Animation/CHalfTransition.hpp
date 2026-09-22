@@ -1,9 +1,10 @@
 #ifndef _CHALFTRANSITION
 #define _CHALFTRANSITION
 
+#include "Kyoto/Animation/IMetaTrans.hpp"
+
 #include "rstl/rc_ptr.hpp"
 
-class IMetaTrans;
 class CInputStream;
 class CHalfTransition {
 public:

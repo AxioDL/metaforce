@@ -30,8 +30,7 @@
 #include "alloca.h"
 #include "math.h"
 
-#include "dolphin/gx/GXGeometry.h"
-#include "dolphin/gx/GXTev.h"
+#include "dolphin/gx.h"
 
 #pragma inline_max_size(250)
 #pragma inline_max_total_size(20000) // for RenderParticles vector inlining

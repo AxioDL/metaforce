@@ -94,8 +94,13 @@ void CPakFile::InitialHeaderLoad() {
   int version = in.ReadInt32();
   if (version != 0x00030005) {
     char buf[248];
+#if NONMATCHING
+    snprintf(buf, sizeof(buf), "%s: Incompatible pak file version -- Current version is %x, you're using %x",
+            x0_file.GetFilename().data(), 0x00030005, version);
+#else
     sprintf(buf, "%s: Incompatible pak file version -- Current version is %x, you're using %x",
             x0_file.GetFilename().data(), 0x00030005, version);
+#endif
     return;
   }
 

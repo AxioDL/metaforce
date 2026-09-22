@@ -727,16 +727,32 @@ CFrontEndUI::SFileSelectOption::SFileSelectOption(CGuiFrame* frame, int idx)
 , x28_curField(0)
 , x2c_chRate(ComputeRandom()) {
   char buf[32];
+#if NONMATCHING
+  snprintf(buf, sizeof(buf), "textpane_filename%d", idx);
+#else
   sprintf(buf, "textpane_filename%d", idx);
+#endif
   x4_textpanes.push_back(SGuiTextPair(frame, buf));
 
+#if NONMATCHING
+  snprintf(buf, sizeof(buf), "textpane_world%d", idx);
+#else
   sprintf(buf, "textpane_world%d", idx);
+#endif
   x4_textpanes.push_back(SGuiTextPair(frame, buf));
 
+#if NONMATCHING
+  snprintf(buf, sizeof(buf), "textpane_playtime%d", idx);
+#else
   sprintf(buf, "textpane_playtime%d", idx);
+#endif
   x4_textpanes.push_back(SGuiTextPair(frame, buf));
 
+#if NONMATCHING
+  snprintf(buf, sizeof(buf), "textpane_date%d", idx);
+#else
   sprintf(buf, "textpane_date%d", idx);
+#endif
   x4_textpanes.push_back(SGuiTextPair(frame, buf));
 }
 
@@ -1007,7 +1023,11 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents() {
     case 0:
       if (data != nullptr) {
         char buf[32];
+#if NONMATCHING
+        snprintf(buf, sizeof(buf), "  %02d%%", data->x18_itemPercent);
+#else
         sprintf(buf, "  %02d%%", data->x18_itemPercent);
+#endif
         int strIdx = data->x20_hardMode ? 0x6a : 0x27;
         str = rstl::wstring_l(gpStringTable->GetString(strIdx + i)) +
               CStringExtras::ConvertToUNICODE(rstl::string_l(buf));
@@ -1028,8 +1048,13 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents() {
       break;
     case 2:
       if (data != nullptr) {
+#if NONMATCHING
+        snprintf(timeBuf, sizeof(timeBuf), "%02d:%02d", static_cast< int >(data->x0_playTime) / 3600,
+                (static_cast< int >(data->x0_playTime) % 3600) / 60);
+#else
         sprintf(timeBuf, "%02d:%02d", static_cast< int >(data->x0_playTime) / 3600,
                 (static_cast< int >(data->x0_playTime) % 3600) / 60);
+#endif
         str = CStringExtras::ConvertToUNICODE(rstl::string_l(timeBuf));
       } else {
         str = rstl::wstring_l(gpStringTable->GetString(0x34));

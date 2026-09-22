@@ -1,11 +1,11 @@
-#include "GameVersions.h"
 #include "MetroidPrime/CGBASupport.hpp"
+#include "GameVersions.h"
 #include "Kyoto/Alloc/CCallStack.hpp"
 #include "Kyoto/Alloc/CMemory.hpp"
 #include "Kyoto/Basics/CBasics.hpp"
 #include "dolphin/gba.h"
 #include "dolphin/os.h"
-#include "dolphin/os/OSSerial.h"
+#include "dolphin/si.h"
 #include "rstl/math.hpp"
 
 void joyboot_callback(s32 chan, s32 ret) {}

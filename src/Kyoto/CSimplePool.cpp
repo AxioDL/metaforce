@@ -43,7 +43,11 @@ bool CSimplePool::HasObject(const SObjectTag& tag) const {
   AUTO(it, x4_resources.find(tag));
   bool result = true;
   if (!(it != x4_resources.end())) {
+#if NONMATCHING
+    const bool canBuild = x18_factory.CanBuild(tag);
+#else
     const bool canBuild = &x18_factory != nullptr && x18_factory.CanBuild(tag);
+#endif
     if (!canBuild) {
       result = false;
     }

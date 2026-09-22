@@ -8,6 +8,9 @@ enum EVaryingAnimationTimeScaleType { kVATST_Constant, kVATST_Linear };
 
 class IVaryingAnimationTimeScale {
 public:
+#if NONMATCHING
+  virtual ~IVaryingAnimationTimeScale() {}
+#endif
   virtual EVaryingAnimationTimeScaleType GetType() const = 0;
   virtual float VTimeScaleIntegral(const float& lowerLimit, const float& upperLimit) const = 0;
   virtual float VFindUpperLimit(const float& lowerLimit, const float& root) const = 0;

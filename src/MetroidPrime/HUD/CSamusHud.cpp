@@ -118,8 +118,8 @@ void CSamusHud::InitializeFrameGluePermanent(const CStateManager& mgr) {
     SVideoBand& band = x5a4_videoBands[i];
     band.x0_videoband = static_cast< CGuiModel* >(x274_loadedFrmeBaseHud->FindWidget(
         rstl::string(CBasics::Stringize("%s%d", sVideoBandName, i))));
-    band.x4_randA = 6.f + 60.f * rand() / RAND_MAX;
-    band.x8_randB = 16.f + 240.f * rand() / RAND_MAX;
+    band.x4_randA = 6.f + 60.f * rand() / static_cast< float >(RAND_MAX);
+    band.x8_randB = 16.f + 240.f * rand() / static_cast< float >(RAND_MAX);
   }
   x59c_base_textpane_message->SetDepthTest(false);
   x598_base_basewidget_message->SetVisibility(false, kTM_Children);
@@ -1369,7 +1369,11 @@ void CSamusHud::Update(float dt, const CStateManager& mgr, uint helmetVis, bool 
     const int seconds = static_cast< int >(escapeTime);
     const int hundredths = static_cast< int >(100.f * escapeTime);
     char text[16];
+#if NONMATCHING
+    snprintf(text, sizeof(text), "%02d:%02d:%02d", seconds / 60, seconds % 60, hundredths % 100);
+#else
     sprintf(text, "%02d:%02d:%02d", seconds / 60, seconds % 60, hundredths % 100);
+#endif
     x594_base_textpane_counter->TextSupport().SetText(rstl::string(text), false);
     x594_base_textpane_counter->SetIsVisible(true);
     const float counterAlpha =

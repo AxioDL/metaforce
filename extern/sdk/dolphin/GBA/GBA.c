@@ -40,7 +40,7 @@
 */
 #include "dolphin/GBAPriv.h"
 
-static GBASecParam SecParams[4] ATTRIBUTE_ALIGN(32);
+ATTRIBUTE_ALIGN_DECL(32, static GBASecParam SecParams[4]);
 GBAControl __GBA[4];
 BOOL __GBAReset = FALSE;
 

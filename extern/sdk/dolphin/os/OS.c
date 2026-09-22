@@ -23,7 +23,7 @@ extern char _db_stack_end[];
 extern char* __OSResetSWInterruptHandler[];
 
 vu16 __OSDeviceCode : (OS_BASE_CACHED | 0x30E6);
-static DVDDriveInfo DriveInfo ATTRIBUTE_ALIGN(32);
+ATTRIBUTE_ALIGN_DECL(32, static DVDDriveInfo DriveInfo);
 static DVDCommandBlock DriveBlock;
 
 static OSBootInfo* BootInfo;

@@ -1,5 +1,5 @@
 #include "dolphin/__ppc_eabi_init.h"
-#include "dolphin/PPCArch.h"
+#include "dolphin/base/PPCArch.h"
 
 #ifdef __cplusplus
 extern "C" {

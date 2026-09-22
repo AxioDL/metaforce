@@ -1,4 +1,4 @@
-#include <dolphin/PPCArch.h>
+#include <dolphin/base/PPCArch.h>
 #include <dolphin/hw_regs.h>
 #include <dolphin/os.h>
 #include <stdio.h>

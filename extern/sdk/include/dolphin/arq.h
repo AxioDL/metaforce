@@ -9,8 +9,6 @@
 extern "C" {
 #endif
 
-#include "dolphin/ar.h"
-
 #define ARQ_DMA_ALIGNMENT 32
 #define ARQ_CHUNK_SIZE_DEFAULT 4096
 
@@ -23,7 +21,6 @@ extern "C" {
 typedef void (*ARQCallback)(uintptr_t pointerToARQRequest);
 
 typedef struct ARQRequest {
-
   struct ARQRequest* next;
   u32 owner;
   u32 type;
@@ -32,7 +29,6 @@ typedef struct ARQRequest {
   u32 dest;
   u32 length;
   ARQCallback callback;
-
 } ARQRequest;
 
 void ARQInit(void);

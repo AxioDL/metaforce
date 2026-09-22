@@ -111,8 +111,8 @@ public:
   CGameAllocator();
   ~CGameAllocator();
 
-  bool Initialize(COsContext& ctx);
-  void Shutdown();
+  bool Initialize(COsContext& ctx) override;
+  void Shutdown() override;
   void* Alloc(size_t size, EHint hint, EScope scope, EType type, const CCallStack& cs) override;
   SGameMemInfo* FindFreeBlock(uint);
   SGameMemInfo* FindFreeBlockFromTopOfHeap(uint);

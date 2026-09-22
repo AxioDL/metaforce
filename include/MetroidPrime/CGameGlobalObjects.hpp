@@ -6,9 +6,9 @@
 #include "rstl/optional_object.hpp"
 #include "rstl/single_ptr.hpp"
 
+#include "Kyoto/Alloc/CMemorySys.hpp"
 #include "Kyoto/Basics/COsContext.hpp"
 #include "Kyoto/CMemoryCardSys.hpp"
-#include "Kyoto/Alloc/CMemorySys.hpp"
 #include "Kyoto/CResFactory.hpp"
 #include "Kyoto/CSimplePool.hpp"
 #include "Kyoto/CToken.hpp"
@@ -17,7 +17,7 @@
 #include "Kyoto/Text/CRasterFont.hpp"
 #include "MetroidPrime/CInGameTweakManager.hpp"
 #include "MetroidPrime/CMemoryCard.hpp"
-#include "MetroidPrime/Enemies/CAiFuncMap.hpp"
+#include "MetroidPrime/Enemies/CAi.hpp"
 #include "MetroidPrime/Factories/CCharacterFactoryBuilder.hpp"
 #include "MetroidPrime/Player/CGameState.hpp"
 

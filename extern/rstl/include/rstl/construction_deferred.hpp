@@ -34,7 +34,7 @@ public:
 
 private:
   ALIGNAS(T) uchar x0_data[sizeof(T)];
-  bool m_valid __attribute__((aligned(4)));
+  ATTRIBUTE_ALIGN_DECL(4, bool m_valid);
 
   void makeValid() { m_valid = true; }
 };

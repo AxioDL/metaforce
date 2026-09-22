@@ -1,10 +1,11 @@
 #ifndef _CANIMATION
 #define _CANIMATION
 
+#include "Kyoto/Animation/IMetaAnim.hpp"
+
 #include "rstl/rc_ptr.hpp"
 #include "rstl/string.hpp"
 
-class IMetaAnim;
 class CInputStream;
 
 class CAnimation {

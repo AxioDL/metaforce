@@ -3,7 +3,7 @@
 #include <Kyoto/Alloc/CMemory.hpp>
 
 #include <dolphin/gba.h>
-#include <dolphin/os/OSSerial.h>
+#include <dolphin/si.h>
 
 #include <string.h>
 
@@ -153,9 +153,9 @@ void CDolphinController::ProcessButtons(int controller) {
                          mButtonMapping[i]);
   }
 
-  ProcessAnalogButton(x4_status[controller].triggerL,
+  ProcessAnalogButton(x4_status[controller].triggerLeft,
                       x34_gamepadStates[controller].GetAnalogButton(kBA_Left));
-  ProcessAnalogButton(x4_status[controller].triggerR,
+  ProcessAnalogButton(x4_status[controller].triggerRight,
                       x34_gamepadStates[controller].GetAnalogButton(kBA_Right));
 }
 

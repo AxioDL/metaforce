@@ -14,7 +14,7 @@ CMemoryStreamOut::~CMemoryStreamOut() {
   COutputStream::Flush();
 
   if (mBufferOwned) {
-    delete[] mOutPtr;
+    delete[] static_cast< uchar* >(mOutPtr);
   }
 }
 

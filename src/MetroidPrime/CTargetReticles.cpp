@@ -149,7 +149,11 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
   xe0_outerBeamIconSquares.reserve(9);
   for (int i = 0; i < 9; ++i) {
     char buf[64];
+#if NONMATCHING
+    snprintf(buf, sizeof(buf), "%s%d", skOuterBeamIconSquareNameBase, i);
+#else
     sprintf(buf, "%s%d", skOuterBeamIconSquareNameBase, i);
+#endif
     xe0_outerBeamIconSquares.push_back(SOuterItemInfo(buf));
   }
   x34_crosshairs.Lock();

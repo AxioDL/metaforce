@@ -129,7 +129,11 @@ void CHudMissileInterface::SetMissileCapacity(int capacity) { x4_missileCapacity
 
 void CHudMissileInterface::SetNumMissiles(int missiles, const CStateManager& mgr) {
   char digits[4];
+#if NONMATCHING
+  snprintf(digits, sizeof(digits), "%3d", CMath::Clamp(0, missiles, 999));
+#else
   sprintf(digits, "%3d", CMath::Clamp(0, missiles, 999));
+#endif
   x60_textpane_missiledigits->TextSupport().SetText(rstl::string(digits));
   if (x8_numMissiles < missiles) {
     xc_arrowTimer = gpTweakGui->GetMissileArrowVisTime();

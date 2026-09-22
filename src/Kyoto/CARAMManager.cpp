@@ -1,6 +1,6 @@
 #include "Kyoto/CARAMManager.hpp"
 
-#include <dolphin/ar.h>
+#include <dolphin/arq.h>
 #include <dolphin/os.h>
 
 bool CARAMManager::mbInitialized = false;

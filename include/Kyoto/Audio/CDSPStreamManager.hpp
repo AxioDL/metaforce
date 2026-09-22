@@ -42,7 +42,7 @@ private:
 
   char CompanionRight() { return x71_companionRight; }
 
-  dspadpcm_header x0_header ATTRIBUTE_ALIGN(32);
+  ATTRIBUTE_ALIGN_DECL(32, dspadpcm_header x0_header);
   rstl::string x60_fileName;
   bool x70_24_unclaimed : 1;
   volatile bool x70_25_headerReadCancelled : 1;

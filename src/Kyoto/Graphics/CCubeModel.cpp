@@ -7,6 +7,8 @@
 #include "Kyoto/Graphics/CGraphics.hpp"
 #include "dolphin/gx/GXVert.h"
 
+#include <string.h>
+
 static bool sDrawingOccluders = false;
 static bool sDrawingWireframe = false;
 bool CCubeModel::sUsingPackedLightmaps = false;

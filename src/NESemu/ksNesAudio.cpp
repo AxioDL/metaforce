@@ -39,7 +39,7 @@ u32 ksNesAudioUpdateCallback(void* buffer1, u32 length1, void* buffer2, u32 leng
 }
 
 SND_STREAMID ksNesAudioAlloc() {
-  static s16 sAudioBuffer[0xC80] ATTRIBUTE_ALIGN(32);
+  ATTRIBUTE_ALIGN_DECL(32, static s16 sAudioBuffer[0xC80]);
   void* buffer = sAudioBuffer;
   u32 length = sndStreamAllocLength(800, 0);
   return sndStreamAllocStereo(255, buffer, buffer, length, 32000, 127, 64, 0, 0, 0, 0, 0,

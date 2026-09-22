@@ -16,9 +16,10 @@ ECardResult SMemoryCardFileInfo::FileRead() {
   saveData = rstl::vector< uchar >();
   const uint size = x24_saveFileData.size();
   const void* data = x24_saveFileData.data();
-  const uint crc = *static_cast< const uint* >(data);
 #if NONMATCHING
-  crc = CBasics::SwapBytes(crc);
+  const uint crc = CBasics::SwapBytes(*static_cast< const uint* >(data));
+#else
+  const uint crc = *static_cast< const uint* >(data);
 #endif
   if (crc == CCRC32::Calculate(static_cast< const uchar* >(data) + 4, size - 4)) {
     uint offset;

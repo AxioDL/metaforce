@@ -62,7 +62,11 @@ void CHudBallInterface::SetBombParams(int pbAmount, int pbCapacity, int availabl
 
   if (pbAmount != x40_pbAmount || init) {
     char buffer[4];
+#if NONMATCHING
+    snprintf(buffer, sizeof(buffer), "%02d", pbAmount);
+#else
     sprintf(buffer, "%02d", pbAmount);
+#endif
     x10_textpane_bombdigits->TextSupport().SetText(rstl::string(buffer));
     x40_pbAmount = pbAmount;
     UpdatePowerBombReadoutColors();

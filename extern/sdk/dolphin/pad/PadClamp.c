@@ -145,8 +145,8 @@ void PADClamp(PADStatus* status) {
                ClampRegion.minStick);
     ClampStick(&status->substickX, &status->substickY, ClampRegion.maxSubstick,
                ClampRegion.xySubstick, ClampRegion.minSubstick);
-    ClampTrigger(&status->triggerL, ClampRegion.minTrigger, ClampRegion.maxTrigger);
-    ClampTrigger(&status->triggerR, ClampRegion.minTrigger, ClampRegion.maxTrigger);
+    ClampTrigger(&status->triggerLeft, ClampRegion.minTrigger, ClampRegion.maxTrigger);
+    ClampTrigger(&status->triggerRight, ClampRegion.minTrigger, ClampRegion.maxTrigger);
   }
 }
 
@@ -160,7 +160,7 @@ void PADClampCircle(PADStatus* status) {
     ClampCircle(&status->stickX, &status->stickY, ClampRegion.radStick, ClampRegion.minStick);
     ClampCircle(&status->substickX, &status->substickY, ClampRegion.radSubstick,
                 ClampRegion.minSubstick);
-    ClampTrigger(&status->triggerL, ClampRegion.minTrigger, ClampRegion.maxTrigger);
-    ClampTrigger(&status->triggerR, ClampRegion.minTrigger, ClampRegion.maxTrigger);
+    ClampTrigger(&status->triggerLeft, ClampRegion.minTrigger, ClampRegion.maxTrigger);
+    ClampTrigger(&status->triggerRight, ClampRegion.minTrigger, ClampRegion.maxTrigger);
   }
 }

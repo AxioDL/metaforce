@@ -9,7 +9,11 @@ char* CBasics::Stringize(const char* fmt, ...) {
   va_list args;
 
   va_start(args, fmt);
+#if NONMATCHING
+  vsnprintf(stringize_Buffer, sizeof(stringize_Buffer), fmt, args);
+#else
   vsprintf(stringize_Buffer, fmt, args);
+#endif
   va_end(args);
   
   return stringize_Buffer;

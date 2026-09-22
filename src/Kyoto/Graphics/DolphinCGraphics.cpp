@@ -13,13 +13,14 @@
 #include "dolphin/types.h"
 #include "rstl/math.hpp"
 
+#include "dolphin/gx.h"
 #include "dolphin/vi.h"
 
 #include <string.h>
 
 bool CGraphicsSys::mGraphicsInitialized;
 static CStopwatch sFPSTimer;
-static uchar sSpareFrameBuffer[640 * 448] ATTRIBUTE_ALIGN(32);
+ATTRIBUTE_ALIGN_DECL(32, static uchar sSpareFrameBuffer[640 * 448]);
 
 // clang-format off
 CTevCombiners::CTevPass CGraphics::kEnvModulateConstColor(
@@ -418,7 +419,7 @@ void CGraphics::EnableLight(ERglLight light) {
 static inline GXLightID get_hw_light_index(ERglLight light) {
 #if NONMATCHING
   // one instruction, no branches
-  return static_cast< GXLightID >((light << 1) & (GX_MAX_LIGHT - 1));
+  return static_cast< GXLightID >((1u << light) & (GX_MAX_LIGHT - 1));
 #else
   if (light == kLight0) {
     return GX_LIGHT0;

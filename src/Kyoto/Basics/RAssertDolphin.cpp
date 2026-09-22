@@ -155,7 +155,11 @@ void rs_debugger_printf(const char* format, ...) {
   va_list arg;
 
   va_start(arg, format);
+#if NONMATCHING
+  rs_debugger_buffer_size = vsnprintf(rs_debugger_buffer, sizeof(rs_debugger_buffer), format, arg);
+#else
   rs_debugger_buffer_size = vsprintf(rs_debugger_buffer, format, arg);
+#endif
   va_end(arg);
 
   OSContext context;

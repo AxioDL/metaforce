@@ -1,6 +1,6 @@
 #include "NESemu/ksNes.hpp"
 #include "GameVersions.h"
-#include "dolphin/PPCArch.h"
+#include "dolphin/base/PPCArch.h"
 #include "dolphin/gx.h"
 #include "dolphin/os.h"
 

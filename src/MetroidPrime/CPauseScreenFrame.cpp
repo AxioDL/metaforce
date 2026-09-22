@@ -623,7 +623,11 @@ void SOptionsFrontEndFrame::FinishedLoading() {
   }
   for (int i = 0; i < 4; ++i) {
     char name[32];
+#if NONMATCHING
+    snprintf(name, sizeof(name), "textpane_filename%d", i);
+#else
     sprintf(name, "textpane_filename%d", i);
+#endif
     SetTextPanePair(x1c_loadedFrame, name, x20_loadedPauseStrg->GetString(16 + i));
   }
   x2c_tablegroup_double->SetVertical(false);
@@ -642,7 +646,11 @@ void SOptionsFrontEndFrame::SetRightUIText() {
   const SOptionCategory& options = skGameOptions[x24_tablegroup_leftmenu->GetUserSelection()];
   for (int i = 0; i < 5; ++i) {
     char name[32];
+#if defined(TARGET_PC)
+    snprintf(name, sizeof(name), "textpane_right%d", i);
+#else
     sprintf(name, "textpane_right%d", i);
+#endif
     if (i < options.count) {
       SetTextPanePair(x1c_loadedFrame, name,
                       x20_loadedPauseStrg->GetString(options.options[i].stringId));

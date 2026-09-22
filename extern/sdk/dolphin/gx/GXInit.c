@@ -1,6 +1,6 @@
 #include "GameVersions.h"
 
-#include "dolphin/PPCArch.h"
+#include "dolphin/base/PPCArch.h"
 #include "dolphin/gx.h"
 #include "dolphin/hw_regs.h"
 #include "dolphin/mtx.h"

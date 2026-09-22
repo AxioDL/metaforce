@@ -1,6 +1,6 @@
 #include "GameVersions.h"
 
-#include "dolphin/PPCArch.h"
+#include "dolphin/base/PPCArch.h"
 #include "dolphin/os.h"
 
 // Can't use this due to weird condition register issues

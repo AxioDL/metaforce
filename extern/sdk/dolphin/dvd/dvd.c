@@ -17,8 +17,8 @@ stateFunc LastState;
 
 extern OSThreadQueue __DVDThreadQueue;
 
-static DVDBB2 BB2 ATTRIBUTE_ALIGN(32);
-static DVDDiskID CurrDiskID ATTRIBUTE_ALIGN(32);
+ATTRIBUTE_ALIGN_DECL(32, static DVDBB2 BB2);
+ATTRIBUTE_ALIGN_DECL(32, static DVDDiskID CurrDiskID);
 static DVDCommandBlock* executing;
 static DVDDiskID* IDShouldBe;
 static OSBootInfo* bootInfo;

@@ -3,7 +3,7 @@
 #include "Kyoto/CFrameDelayedKiller.hpp"
 #include "Kyoto/Graphics/CTexture.hpp"
 #include "Kyoto/SObjectTag.hpp"
-#include "dolphin/PPCArch.h"
+#include "dolphin/base/PPCArch.h"
 #include "dolphin/gx/GXEnum.h"
 #include "dolphin/gx/GXStruct.h"
 #include "dolphin/gx/GXTexture.h"

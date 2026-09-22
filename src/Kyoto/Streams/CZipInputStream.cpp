@@ -12,7 +12,11 @@ CZipInputStream::CZipInputStream(rstl::auto_ptr<CInputStream> in)
   mZStream->zalloc = CZipSupport::Alloc;
   mZStream->zfree = CZipSupport::Free;
   mZStream->opaque = 0;
+#if NONMATCHING
+  inflateInit(mZStream.get());
+#else
   inflateInit2(mZStream.get());
+#endif
 }
 
 CZipInputStream::~CZipInputStream() {
