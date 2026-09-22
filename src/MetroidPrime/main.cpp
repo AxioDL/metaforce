@@ -208,8 +208,10 @@ int main(int argc, char** argv) {
 #if defined(TARGET_PC)
   CFrameDelayedKiller::ShutDown();
   metaforce::Shutdown();
-#endif
+  return metaforce::GetExitCode();
+#else
   return 0;
+#endif
 }
 
 #if !defined(TARGET_PC)

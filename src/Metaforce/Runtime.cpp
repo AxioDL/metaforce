@@ -1,11 +1,23 @@
 #include "Metaforce/Runtime.hpp"
 
 #include "Kyoto/Basics/COsContext.hpp"
+#include "Kyoto/CResFactory.hpp"
+#include "Kyoto/CSimplePool.hpp"
+#include "MetroidPrime/CArchitectureMessage.hpp"
 #include "MetroidPrime/CMain.hpp"
+#include "MetroidPrime/CMemoryCard.hpp"
+#include "MetroidPrime/CMemoryCardDriver.hpp"
+#include "MetroidPrime/CStateSetterFlow.hpp"
+#include "MetroidPrime/Tweaks/CTweakGame.hpp"
 
 #include <cstdio>
 #include <cstdlib>
+#include <limits>
+#include <memory>
+#include <optional>
 #include <string>
+#include <string_view>
+#include <vector>
 
 #include <aurora/aurora.h>
 #include <aurora/dvd.h>
@@ -66,6 +78,192 @@ constexpr borealis::AppInfo AppInfo{
 
 std::optional< borealis::data::Manager > dataManager;
 bool shouldTerminate = false;
+int exitCode = 0;
+
+struct WarpOptions {
+  unsigned int world;
+  int area;
+  std::optional< u64 > layerBits;
+  std::vector< TEditorId > relays;
+};
+
+struct StartupOptions {
+  std::optional< WarpOptions > warp;
+  std::optional< int > saveSlot;
+  std::unique_ptr< CMemoryCardDriver > card;
+};
+
+std::optional< StartupOptions > startup;
+
+unsigned int ParseWarpNumber(const std::string& text, std::string_view name, unsigned int maximum) {
+  try {
+    unsigned int value;
+    cxxopts::values::parse_value(text, value);
+    if (value <= maximum) {
+      return value;
+    }
+  } catch (const cxxopts::exceptions::exception&) {
+  }
+  throw cxxopts::exceptions::parsing(fmt::format("--warp: invalid {} '{}'", name, text));
+}
+
+WarpOptions ParseWarpOptions(const std::vector< std::string >& values) {
+  if (values.size() < 2) {
+    throw cxxopts::exceptions::parsing("--warp requires WORLD,AREA (comma-separated)");
+  }
+  WarpOptions result{
+      .world = ParseWarpNumber(values[0], "world index", 8),
+      .area = static_cast< int >(
+          ParseWarpNumber(values[1], "area index", std::numeric_limits< int >::max())),
+  };
+  for (size_t i = 2; i < values.size(); ++i) {
+    const auto& value = values[i];
+    if (value.starts_with("0x") || value.starts_with("0X")) {
+      if (result.relays.size() == 512) {
+        throw cxxopts::exceptions::parsing("--warp accepts at most 512 memory relays");
+      }
+      result.relays.emplace_back(
+          ParseWarpNumber(value, "memory relay", std::numeric_limits< unsigned int >::max()));
+    } else {
+      if (value.empty() || value.size() > 64 ||
+          value.find_first_not_of("01") != std::string::npos) {
+        throw cxxopts::exceptions::parsing("--warp layer bits must contain 1 to 64 binary digits");
+      }
+      u64 bits = result.layerBits.value_or(0);
+      for (size_t layer = 0; layer < value.size(); ++layer) {
+        if (value[layer] == '1') {
+          bits |= u64(1) << layer;
+        }
+      }
+      result.layerBits = bits;
+    }
+  }
+  return result;
+}
+
+bool FailStartup(const std::string& message) {
+  Log.error("{}", message);
+  startup->card.reset();
+  exitCode = 1;
+  shouldTerminate = true;
+  return false;
+}
+
+CAssetId FindWarpWorld(unsigned int index) {
+  const std::string filename = fmt::format("{}{}.pak", gpTweakGame->GetWorldPrefix().data(), index);
+  auto& loader = gpResourceFactory->GetResLoader();
+  for (int i = 0; i < loader.GetPakCount(); ++i) {
+    const auto* pak = loader.GetPakFile(i);
+    if (!pak->IsWorldPak() || pak->GetDvdFile().GetFilename().data() != filename) {
+      continue;
+    }
+    for (const auto& entry : pak->GetStringToObjectList()) {
+      if (entry.second.GetType() == 'MLVL') {
+        return entry.second.GetId();
+      }
+    }
+  }
+  return kInvalidAssetId;
+}
+
+bool ApplyWarp(const WarpOptions& warp, bool loadedSave) {
+  const CAssetId worldId = FindWarpWorld(warp.world);
+  if (worldId == kInvalidAssetId || !gpMemoryCard->HasSaveWorldMemory(worldId)) {
+    return FailStartup(fmt::format("--warp: world {} was not found on this disc", warp.world));
+  }
+  const auto& worldMemory = gpMemoryCard->GetSaveWorldMemory(worldId);
+  const auto& areaLayers = worldMemory.GetDefaultLayerStates();
+  if (warp.area >= areaLayers.size()) {
+    return FailStartup(fmt::format("--warp: area {} is out of range for world {} ({} areas)",
+                                   warp.area, warp.world, areaLayers.size()));
+  }
+  const int layerCount = areaLayers[warp.area].m_layerCount;
+  if (warp.layerBits &&
+      (layerCount > 64 || (layerCount < 64 && (*warp.layerBits >> layerCount) != 0))) {
+    return FailStartup(fmt::format("--warp: area {} has {} layers", warp.area, layerCount));
+  }
+  if (!warp.relays.empty()) {
+    TLockedToken< CWorldSaveGameInfo > saveWorld =
+        gpSimplePool->GetObj(SObjectTag('SAVW', worldMemory.GetSaveWorldAssetId()));
+    for (const auto relay : warp.relays) {
+      if (saveWorld->GetRelayIndex(relay) < 0) {
+        return FailStartup(fmt::format("--warp: memory relay 0x{:08X} is not in world {}",
+                                       relay.value, warp.world));
+      }
+    }
+  }
+
+  if (!loadedSave) {
+    gpMain->ResetGameState();
+    gpGameState->GameOptions().ResetToDefaults();
+  }
+  gpGameState->SetCurrentWorldId(worldId);
+  auto& world = gpGameState->StateForWorld(worldId);
+  world.SetAreaId(TAreaId(warp.area));
+  world.SetDesiredAreaAssetId(kInvalidAssetId);
+  if (warp.layerBits) {
+    for (int layer = 0; layer < layerCount; ++layer) {
+      world.GetLayerState()->SetLayerActive(TAreaId(warp.area), TLayerId(layer),
+                                            ((*warp.layerBits >> layer) & 1) != 0);
+    }
+  }
+  for (const auto relay : warp.relays) {
+    world.Mailbox()->AddMsg(relay);
+  }
+  Log.info("Warping to world {} (0x{:08X}), area {}", warp.world, worldId, warp.area);
+  return true;
+}
+
+bool UpdateStartup() {
+  if (shouldTerminate) {
+    return false;
+  }
+  const bool loadedSave = startup->saveSlot.has_value();
+  if (loadedSave) {
+    if (!startup->card) {
+      startup->card = std::make_unique< CMemoryCardDriver >(
+          CMemoryCardSys::kCS_SlotA, kInvalidAssetId, kInvalidAssetId, kInvalidAssetId, true);
+      startup->card->StartCardProbe();
+    }
+    auto& card = *startup->card;
+    card.Update();
+    const auto state = card.GetState();
+    if (state == kS_CardCheckDone) {
+      card.IndexFiles();
+      return false;
+    }
+    if (state == kS_NoCard) {
+      return FailStartup("--load-save: no memory card is available in slot A");
+    }
+    const auto error = card.GetError();
+    if (state != kS_Ready) {
+      if (error == CMemoryCardDriver::kE_FileMissing) {
+        return FailStartup("--load-save: no Metroid Prime save file was found on memory card A");
+      }
+      if (error != CMemoryCardDriver::kE_OK ||
+          (state != kS_CardProbe && !CMemoryCardDriver::IsCardBusy(state))) {
+        return FailStartup(
+            fmt::format("--load-save: failed to read memory card A (state {}, error {})",
+                        static_cast< int >(state), static_cast< int >(error)));
+      }
+      return false;
+    }
+    const int slot = *startup->saveSlot;
+    if (card.GetGameFileStateInfo(slot) == nullptr) {
+      return FailStartup(fmt::format("--load-save: save slot {} is empty", slot + 1));
+    }
+    card.BuildNewFileSlot(slot);
+    startup->card.reset();
+    Log.info("Loaded save slot {}", slot + 1);
+  }
+  if (startup->warp && !ApplyWarp(*startup->warp, loadedSave)) {
+    return false;
+  }
+  gpGameState->GameOptions().EnsureOptions();
+  gpGameState->WriteBackupBuf();
+  startup.reset();
+  return true;
+}
 
 #if defined(_WIN32)
 void ShowConsole() {
@@ -120,9 +318,11 @@ int Initialize(int argc, char** argv) {
   borealis::cli::add_standard_options(options);
   options.add_options()("h,help", "Print usage")(
       "dvd", "Path to game disc image", cxxopts::value< std::string >()->default_value("game.rvz"))(
-      "backend",
-      "Graphics API backend to use (auto, d3d11, d3d12, metal, vulkan, opengl, opengles)",
-      cxxopts::value< AuroraBackend >()->default_value("auto"));
+      "backend", "Graphics backend to use (auto, d3d11, d3d12, metal, vulkan, opengl, opengles)",
+      cxxopts::value< AuroraBackend >()->default_value("auto"))(
+      "warp", "Start at WORLD,AREA[,LAYERBITS][,0xRELAY...]",
+      cxxopts::value< std::vector< std::string > >(),
+      "WORLD,AREA,...")("load-save", "Load save slot (1-3)", cxxopts::value< int >(), "N");
   options.parse_positional("dvd");
   options.positional_help("<disc image>");
   options.allow_unrecognised_options();
@@ -132,6 +332,22 @@ int Initialize(int argc, char** argv) {
   try {
     args = options.parse(argc, argv);
     standardOptions = borealis::cli::parse(args);
+    if (args.count("warp") > 1 || args.count("load-save") > 1) {
+      throw cxxopts::exceptions::parsing("--warp and --load-save may each be specified only once");
+    }
+    if (args.count("warp") || args.count("load-save")) {
+      startup.emplace();
+      if (args.count("warp")) {
+        startup->warp = ParseWarpOptions(args["warp"].as< std::vector< std::string > >());
+      }
+      if (args.count("load-save")) {
+        const int slot = args["load-save"].as< int >();
+        if (slot < 1 || slot > 3) {
+          throw cxxopts::exceptions::parsing("--load-save must be a save slot from 1 to 3");
+        }
+        startup->saveSlot = slot - 1;
+      }
+    }
   } catch (const cxxopts::exceptions::exception& e) {
     fprintf(stderr, "Error: %s\nUse --help for usage.\n", e.what());
     return 1;
@@ -213,10 +429,15 @@ int Initialize(int argc, char** argv) {
 }
 
 void Shutdown() {
+  startup.reset();
   aurora_dvd_close();
   aurora_shutdown();
   borealis::log::shutdown();
 }
+
+int GetExitCode() { return exitCode; }
+
+bool HasStartupRequest() { return startup.has_value(); }
 
 bool BeginFrame() {
   for (const AuroraEvent* event = aurora_update(); event && event->type != AURORA_NONE; ++event) {
@@ -233,3 +454,17 @@ void EndFrame() { aurora_end_frame(); }
 } // namespace metaforce
 
 bool CMain::CheckTerminate() { return metaforce::shouldTerminate; }
+
+CStateSetterFlow::~CStateSetterFlow() { metaforce::startup.reset(); }
+
+CIOWin::EMessageReturn CStateSetterFlow::OnMessage(const CArchitectureMessage& message,
+                                                   CArchitectureQueue&) {
+  if (message.GetType() != kAM_TimerTick) {
+    return kMR_Exit;
+  }
+  if (metaforce::HasStartupRequest()) {
+    return metaforce::UpdateStartup() ? kMR_RemoveIOWinAndExit : kMR_Exit;
+  }
+  gpMain->RefreshGameState();
+  return kMR_RemoveIOWinAndExit;
+}

@@ -571,6 +571,7 @@ void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SetUIText(EUIType tp) {
 
 CStateSetterFlow::CStateSetterFlow() : CIOWin(rstl::string_l("")) {}
 
+#if !defined(TARGET_PC)
 CStateSetterFlow::~CStateSetterFlow() {}
 
 CIOWin::EMessageReturn CStateSetterFlow::OnMessage(const CArchitectureMessage& message,
@@ -583,6 +584,7 @@ CIOWin::EMessageReturn CStateSetterFlow::OnMessage(const CArchitectureMessage& m
     return kMR_Exit;
   }
 }
+#endif
 
 CFrontEndUI::SFrontEndFrame::SFrontEndFrame(uint rnd)
 : x0_rnd(rnd)

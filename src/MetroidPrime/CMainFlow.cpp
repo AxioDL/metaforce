@@ -13,6 +13,10 @@
 
 #include "MetroidPrime/CMain.hpp"
 
+#if defined(TARGET_PC)
+#include "Metaforce/Runtime.hpp"
+#endif
+
 CMainFlow::CMainFlow() : CIOWin(rstl::string_l("MainFlow")), x14_gameState(kCFS_Unspecified) {}
 
 CIOWin::EMessageReturn CMainFlow::OnMessage(const CArchitectureMessage& msg,
@@ -106,7 +110,11 @@ void CMainFlow::SetGameState(EClientFlowStates state, CArchitectureQueue& queue)
       break;
     }
     CIOWin* ioWin;
+#if defined(TARGET_PC)
+    if (gpMain->GetRestartMode() == CMain::kRM_StateSetter || metaforce::HasStartupRequest()) {
+#else
     if (gpMain->GetRestartMode() == CMain::kRM_StateSetter) {
+#endif
       ioWin = rs_new CStateSetterFlow();
     } else {
       ioWin = rs_new CFrontEndUI();
