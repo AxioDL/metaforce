@@ -71,7 +71,11 @@ public:
 
   bool GetWeaponActive() const { return x2e4_24_active; }
   void DeleteProjectileLight(CStateManager&);
-  
+
+#if VERSION >= VERSION_GM8P_00
+  bool GetUnkPalFlag() const { return x2e4_29_unkPalFlag; }
+#endif
+
   void SetUnkPalFlag(bool active) {
 #if VERSION >= VERSION_GM8P_00
     x2e4_29_unkPalFlag = active; 

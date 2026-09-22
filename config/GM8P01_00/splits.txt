@@ -1695,9 +1695,14 @@ MetroidPrime/Weapons/CElectricBeamProjectile.cpp:
 	.sdata2     start:0x8046F808 end:0x8046F820
 
 MetroidPrime/Enemies/CRidley.cpp:
-	.text       start:0x80241770 end:0x802497D4
+	.text       start:0x80240E10 end:0x8024AF94
+	.ctors      start:0x803B5078 end:0x803B507C
+	.rodata     start:0x803BF608 end:0x803BFA50
+	.data       start:0x803D16C8 end:0x803D1B90
+	.bss        start:0x803F5300 end:0x803F5D38
 	.bss        start:0x804344A4 end:0x804346B4 align:4 common
-	.sdata2     start:0x8046F83C end:0x8046F840
+	.sdata      start:0x8046A3C8 end:0x8046A458
+	.sdata2     start:0x8046F820 end:0x8046F910
 
 MetroidPrime/Enemies/CPuffer.cpp:
 	.text       start:0x8024AF94 end:0x8024BB54

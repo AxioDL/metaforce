@@ -452,6 +452,12 @@ CPlayer::CPlayer(TUniqueId uid, const CTransform4f& xf, const CAABox& aabb, CAss
   x2b4_accelerationTable.push_back(80.f);
   x2b4_accelerationTable.push_back(270.f);
   SetMaxVelocityAfterCollision(25.f);
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  xa4c_phazonCollisionIndex = 0;
+  for (int i = 0; i < 7; ++i) {
+    xa30_phazonCollisionDelay[i] = 0;
+  }
+#endif
   x354_onScreenOrbitObjects.reserve(64);
   x344_nearbyOrbitObjects.reserve(64);
   x364_offScreenOrbitObjects.reserve(64);

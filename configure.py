@@ -1392,7 +1392,11 @@ config.libs = [
             Object(EquivalentFor("GM8E01_00"), "MetroidPrime/CSaveGameScreen.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Enemies/CAtomicBeta.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/Weapons/CElectricBeamProjectile.cpp"),
-            Object(NonMatching, "MetroidPrime/Enemies/CRidley.cpp"),
+            Object(
+                NonMatching,
+                "MetroidPrime/Enemies/CRidley.cpp",
+                extra_cflags=['-pragma "inline_max_total_size(10000)"'],
+            ),
             Object(NonMatching, "MetroidPrime/Enemies/CPuffer.cpp"),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01"),
