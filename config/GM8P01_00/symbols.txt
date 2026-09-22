@@ -10566,7 +10566,7 @@ GetTransitionTree__18CTransitionManagerCFRCQ24rstl25ncrc_ptr<13CAnimTreeNode>RCQ
 GetTransitionTree__10CTreeUtilsFRCQ24rstl25ncrc_ptr<13CAnimTreeNode>RCQ24rstl25ncrc_ptr<13CAnimTreeNode>RC15CAnimSysContext = .text:0x802D10FC; // type:function size:0x100
 GetTransitionTree__10IMetaTransCFRCQ24rstl25ncrc_ptr<13CAnimTreeNode>RCQ24rstl25ncrc_ptr<13CAnimTreeNode>RC15CAnimSysContext = .text:0x802D11FC; // type:function size:0x38 scope:weak
 NonConstCopy__29TToken<19CTransitionDatabase>CFv = .text:0x802D1234; // type:function size:0x20 scope:weak
-fn_802D1254 = .text:0x802D1254; // type:function size:0x98
+AdvanceAnim__9IMetaAnimFR11IAnimReaderRC13CCharAnimTime = .text:0x802D1254; // type:function size:0x98
 GetTime__9IMetaAnimFRC20CPreAdvanceIndicatorRC11IAnimReader = .text:0x802D12EC; // type:function size:0x150
 PutTo__9IMetaAnimCFR13COutputStream = .text:0x802D143C; // type:function size:0x78
 GetAnimationTree__9IMetaAnimCFRC15CAnimSysContextRC24CMetaAnimTreeBuildOrders = .text:0x802D14B4; // type:function size:0x1E4

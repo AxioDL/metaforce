@@ -630,11 +630,11 @@ config.libs = [
             Object(NonMatching, "MetroidPrime/HUD/CSamusHud.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "MetroidPrime/CAnimationDatabaseGame.cpp"),
             Object(
-                MatchingFor("GM8P01_00"),
+                EquivalentFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
                 "MetroidPrime/CTransitionDatabaseGame.cpp",
                 extra_cflags=['-pragma "inline_max_size(126)"']
                 if version_num >= VERSIONS.index("GM8P01_00")
-                else ["-inline", "level=6"],
+                else [],
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),

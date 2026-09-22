@@ -2,8 +2,9 @@
 
 #include "Kyoto/Animation/CHalfTransition.hpp"
 #include "Kyoto/Animation/CTransition.hpp"
-
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
 #define RSTL_DONT_INLINE_ALGORITHM
+#endif
 #include "rstl/algorithm.hpp"
 
 namespace {
