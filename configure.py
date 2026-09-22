@@ -634,7 +634,7 @@ config.libs = [
                 "MetroidPrime/CTransitionDatabaseGame.cpp",
                 extra_cflags=['-pragma "inline_max_size(126)"']
                 if version_num >= VERSIONS.index("GM8P01_00")
-                else [],
+                else ["-inline", "level=6"],
             ),
             Object(
                 MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),

@@ -18,14 +18,20 @@ int count(It first, It last, const T& val) {
 }
 
 template < class It, class T >
-inline It find(It first, It last, const T& val) {
+#ifndef RSTL_DONT_INLINE_ALGORITHM
+inline
+#endif
+It find(It first, It last, const T& val) {
   while (first != last && !(*first == val))
     ++first;
   return first;
 }
 
 template < typename T >
-inline void swap(T& a, T& b) {
+#ifndef RSTL_DONT_INLINE_ALGORITHM
+inline
+#endif
+    void swap(T& a, T& b) {
   T tmp(a);
   a = b;
   b = tmp;
@@ -365,9 +371,11 @@ find_by_key(const T& container,
 template < typename T >
 typename T::const_iterator inline find_by_key(
     const T& container, const typename select1st< typename T::value_type >::value_type& key) {
-  return binary_find(container.begin(), container.end(), key,
-    pair_sorter_finder< typename T::value_type, less< typename select1st< typename T::value_type >::value_type > >(
-      less< typename select1st< typename T::value_type >::value_type >()));
+  return binary_find(
+      container.begin(), container.end(), key,
+      pair_sorter_finder< typename T::value_type,
+                          less< typename select1st< typename T::value_type >::value_type > >(
+          less< typename select1st< typename T::value_type >::value_type >()));
 }
 
 template < typename T, class Cmp >
@@ -385,9 +393,11 @@ find_by_key_nc(T& container, const typename select1st< typename T::value_type >:
 template < typename T >
 typename T::iterator inline find_by_key_nc(
     T& container, const typename select1st< typename T::value_type >::value_type& key) {
-  return binary_find(container.begin(), container.end(), key,
-    pair_sorter_finder< typename T::value_type, less< typename select1st< typename T::value_type >::value_type > >(
-      less< typename select1st< typename T::value_type >::value_type >()));
+  return binary_find(
+      container.begin(), container.end(), key,
+      pair_sorter_finder< typename T::value_type,
+                          less< typename select1st< typename T::value_type >::value_type > >(
+          less< typename select1st< typename T::value_type >::value_type >()));
 }
 
 template < typename T >

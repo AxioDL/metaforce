@@ -3,6 +3,7 @@
 #include "Kyoto/Animation/CHalfTransition.hpp"
 #include "Kyoto/Animation/CTransition.hpp"
 
+#define RSTL_DONT_INLINE_ALGORITHM
 #include "rstl/algorithm.hpp"
 
 namespace {
