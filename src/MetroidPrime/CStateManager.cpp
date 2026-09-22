@@ -85,6 +85,10 @@
 
 #include "Kyoto/CFrameDelayedKiller.hpp"
 
+#if defined(TARGET_PC)
+CStateManager* gpStateManager = nullptr;
+#endif
+
 const int gkPVSEnabled = 1;
 
 namespace {
@@ -387,9 +391,15 @@ CStateManager::CStateManager(const rstl::ncrc_ptr< CScriptMailbox >& mailbox,
   CMemory::OffsetFakeStatics(x808_objectLists.size() * sizeof(CObjectList) + 0x11c);
   ControlMapper::ResetCommandFilters();
   x8f0_shadowTex.Lock();
+#if defined(TARGET_PC)
+  gpStateManager = this;
+#endif
 }
 
 CStateManager::~CStateManager() {
+#if defined(TARGET_PC)
+  gpStateManager = nullptr;
+#endif
   CMemory::OffsetFakeStatics(
       -(x808_objectLists.size() * sizeof(CObjectList) + 0x11c)); // TODO what is this 11c?
   x88c_rumbleManager->HardStopAll();

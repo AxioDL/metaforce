@@ -701,6 +701,7 @@ set(GAME_FILES
       src/Metaforce/PathData.cpp
       src/Metaforce/Runtime.cpp
       src/Metaforce/Stubs.cpp
+      src/Metaforce/CImGuiIOWin.cpp
 )
 
 if (ANDROID)

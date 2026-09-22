@@ -45,7 +45,7 @@ CResFactory::LoadList::iterator CResFactory::FindInLoadList(const SObjectTag& ta
   }
   return it->second;
 }
-
+#if !defined(TARGET_PC)
 rstl::auto_ptr< IObj > CResFactory::Build(const SObjectTag& tag, const CVParamTransfer& params) {
   AUTO(it, FindInLoadList(tag));
   if (it != x84_loadList.end()) {
@@ -85,6 +85,7 @@ void CResFactory::BuildAsync(const SObjectTag& tag, const CVParamTransfer& param
                     params);
   AddToLoadList(data);
 }
+#endif
 
 void CResFactory::CancelBuild(const SObjectTag& tag) {
   AUTO(it, FindInLoadList(tag));

@@ -502,4 +502,8 @@ private:
 };
 CHECK_SIZEOF(CStateManager, 0xf98)
 
+#if defined(TARGET_PC)
+extern CStateManager* gpStateManager;
+#endif
+
 #endif // _CSTATEMANAGER

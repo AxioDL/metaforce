@@ -114,6 +114,8 @@ public:
   COsContext& OsContext() { return x0_osContext; }
   const COsContext& GetOsContext() const { return x0_osContext; }
 
+  CGameArchitectureSupport* GetArchitectureSupport() const { return x164_archSupport; }
+
 private:
   COsContext x0_osContext;
   CSaveRegion x6c_saveRegion;

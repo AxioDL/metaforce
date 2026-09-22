@@ -3,6 +3,7 @@
 #include "Kyoto/Basics/COsContext.hpp"
 #include "Kyoto/CResFactory.hpp"
 #include "Kyoto/CSimplePool.hpp"
+#include "Metaforce/CImGuiIOWin.hpp"
 #include "Metaforce/Limiter.hpp"
 #include "MetroidPrime/CArchitectureMessage.hpp"
 #include "MetroidPrime/CMain.hpp"
@@ -454,6 +455,10 @@ bool BeginFrame() {
 
 void EndFrame() { aurora_end_frame(); }
 
+void RegisterIOWins(CIOWinManager& ioWinManager) {
+  ioWinManager.AddIOWin(rs_new CImGuiIOWin(), 10000, 1000000);
+}
+
 } // namespace metaforce
 
 bool CMain::CheckTerminate() { return metaforce::shouldTerminate; }
@@ -470,4 +475,45 @@ CIOWin::EMessageReturn CStateSetterFlow::OnMessage(const CArchitectureMessage& m
   }
   gpMain->RefreshGameState();
   return kMR_RemoveIOWinAndExit;
+}
+
+// CResFactory
+rstl::auto_ptr< IObj > CResFactory::Build(const SObjectTag& tag, const CVParamTransfer& params) {
+  AUTO(it, FindInLoadList(tag));
+  if (it != x84_loadList.end()) {
+    IObj** target = it->x10_target;
+    while (*target == nullptr) {
+      while (!PumpResource(it, 0)) {
+      }
+    }
+    return rstl::auto_ptr< IObj >(*target);
+  }
+  return BuildSync(tag, params);
+}
+
+rstl::auto_ptr< IObj > CResFactory::BuildSync(const SObjectTag& tag,
+                                              const CVParamTransfer& params) {
+  if (x5c_factoryMgr.CanMakeMemory(tag)) {
+    char* buffer;
+    int size;
+    x4_resLoader.LoadMemResourceSync(tag, &buffer, &size);
+    return x5c_factoryMgr.MakeObjectFromMemory(tag, buffer, size,
+                                               x4_resLoader.GetResourceCompression(tag) !=
+                                                   CResLoader::kCompressionType_Uncompressed,
+                                               params);
+  }
+  CInputStream* in = x4_resLoader.LoadNewResourceSync(tag, nullptr);
+  rstl::auto_ptr< IObj > result = x5c_factoryMgr.MakeObject(tag, *in, params);
+  delete in;
+  return result;
+}
+
+void CResFactory::BuildAsync(const SObjectTag& tag, const CVParamTransfer& params, IObj** target) {
+  *target = nullptr;
+  const uint size = ResourceSize(tag);
+  char* buffer = static_cast< char* >(CMemory::Alloc(size, IAllocator::kHI_RoundUpLen));
+  CDvdRequest* request = LoadResourceAsync(tag, buffer);
+  SLoadingData data(tag, request, target, buffer, size, x4_resLoader.GetResourceCompression(tag),
+                    params);
+  AddToLoadList(data);
 }

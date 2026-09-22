@@ -889,6 +889,10 @@ int CMain::RsMain(int argc, const char* const* argv) {
 #if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
     CDvdFile::FileExists("Strings.pak");
 #endif
+    
+#if TARGET_PC
+    metaforce::RegisterIOWins(x164_archSupport->GetIOWinManager());
+#endif
     while (!x160_24_finished) {
 #if defined(TARGET_PC)
       const bool hasFrame = metaforce::BeginFrame();
