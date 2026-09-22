@@ -34,8 +34,18 @@ inline void* operator new(size_t n, void* ptr) { return ptr; };
 #ifdef __MWERKS__
 void* operator new(size_t sz, const char*, const char*);
 void* operator new[](size_t sz, const char*, const char*);
-inline void operator delete(void* ptr) { CMemory::Free(ptr); }
-inline void operator delete[](void* ptr) { CMemory::Free(ptr); }
+#ifdef WEAK_DELETE_HACK
+__declspec(weak) 
+#else
+inline
+#endif
+void operator delete(void* ptr) { CMemory::Free(ptr); }
+#ifdef WEAK_ARRAY_DELETE_HACK
+__declspec(weak) 
+#else
+inline
+#endif
+void operator delete[](void* ptr) { CMemory::Free(ptr); }
 #define rs_new new ("\?\?(\?\?)", nullptr)
 #else
 // void operator delete(void* ptr);

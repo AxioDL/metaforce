@@ -760,7 +760,7 @@ config.libs = [
             ),
             Object(EquivalentFor("GM8E01_00"), "MetroidPrime/CTargetReticles.cpp"),
             Object(
-                NonMatching,
+                EquivalentFor("GM8E01_00", "GM8E01_00", "GM8P01_00"),
                 "MetroidPrime/CWeaponMgr.cpp",
                 cflags=cflags_retro,
             ),

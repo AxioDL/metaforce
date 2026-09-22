@@ -1,3 +1,4 @@
+#define WEAK_DELETE_HACK
 #include "MetroidPrime/CWeaponMgr.hpp"
 
 CWeaponMgr::CWeaponMgr() {}
