@@ -30,6 +30,12 @@
 
 #include <float.h>
 
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+#define FLAAHGRA_STAGE_DAMAGE_MULTIPLIER 1.f
+#else
+#define FLAAHGRA_STAGE_DAMAGE_MULTIPLIER 1.33f
+#endif
+
 static const CVector3f skExtendedBounds(12.f, 12.f, 12.f);
 static const CVector3f skProjectileOffset(0.5f, 7.f, 0.f);
 static const CColor skFlaahgraDamageColor(0.5f, 0.5f, 0.f, 1.f);
@@ -156,9 +162,14 @@ CFlaahgra::CFlaahgra(TUniqueId uid, const rstl::string& name, const CEntityInfo&
 , x7d8_(0.f)
 , x7dc_halfContactDamage(GetContactDamage())
 , x7f8_(0)
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+, x80c_projectileAttackCount(0)
+#endif
 , x80c_headActor(kInvalidUniqueId)
 , x810_(0.f)
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
 , x814_(0.f)
+#endif
 , x818_curHp(0.f)
 , x820_aimPosition(xf.GetTranslation())
 , x894_fallDirection(CVector3f::Zero())
@@ -172,12 +183,17 @@ CFlaahgra::CFlaahgra(TUniqueId uid, const rstl::string& name, const CEntityInfo&
 , x8e4_29_getup(false)
 , x8e4_30_bigStrike(false)
 , x8e4_31_(false)
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
 , x8e5_24_(false)
+#endif
 , x8e5_26_(false)
 , x8e5_27_(false)
 , x8e5_28_(false)
 , x8e5_29_(true)
-, x8e5_30_(false) {
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+, x8e5_30_(false)
+#endif
+{
   SetDoTargetDistanceTest(false);
   x6dc_normalProjectileInfo.Token().Lock();
   x704_bigStrikeProjectileInfo.Token().Lock();
@@ -272,7 +288,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
             damage.SetDamage(0.5f * damage.GetDamage());
           }
           if (x788_stage >= 2) {
-            damage.SetDamage(1.33f * damage.GetDamage());
+            damage.SetDamage(FLAAHGRA_STAGE_DAMAGE_MULTIPLIER * damage.GetDamage());
           }
           mgr.ApplyDamage(
               GetUniqueId(), mgr.GetPlayer()->GetUniqueId(), GetUniqueId(), damage,
@@ -305,7 +321,9 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
                 x450_bodyController->CommandMgr().DeliverCmd(
                     CBCKnockBackCmd(-GetTransform().GetForward(), pas::kS_One));
               }
-            } else {
+            }
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
+            else {
               if (x8e5_30_) {
                 TakeDamage(CVector3f::Zero(), 0.f);
               }
@@ -316,6 +334,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
                 x450_bodyController->CommandMgr().DeliverCmd(CBCAdditiveFlinchCmd(1.f));
               }
             }
+#endif
             break;
           }
         }
@@ -336,7 +355,9 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
     break;
   case kSM_Play:
     x7d0_hitSomethingTime = 3.f;
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
     x8e5_24_ = true;
+#endif
     break;
   case kSM_Action:
     if (TCastToConstPtr< CGameProjectile >(mgr.GetObjectById(uid))) {
@@ -538,7 +559,11 @@ bool CFlaahgra::ShouldAttack(CStateManager& mgr, float arg) {
 
 bool CFlaahgra::ShouldSpecialAttack(CStateManager& mgr, float arg) {
   if (x788_stage >= 0 && x788_stage <= 3 && ShouldFire(mgr, arg) && x788_stage >= 2) {
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    return x80c_projectileAttackCount >= 2;
+#else
     return x8e5_24_;
+#endif
   }
   return false;
 }
@@ -711,8 +736,13 @@ void CFlaahgra::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
   case kStateMsg_Activate:
     x568_state = 0;
     x7d4_faintTime = 0.f;
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
     x8e5_24_ = false;
+#endif
     x7f8_ = 0;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    x80c_projectileAttackCount = 0;
+#endif
     SendScriptMsgs(kSS_Entered, mgr, kSM_None);
     SendScriptMsgs(kSS_Retreat, mgr, kSM_None);
     x450_bodyController->CommandMgr().DeliverCmd(
@@ -919,8 +949,13 @@ void CFlaahgra::SpecialAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
     x568_state = 0;
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
     x8e5_24_ = false;
+#endif
     x7b4_ = 3;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    x80c_projectileAttackCount = 0;
+#endif
     SendScriptMsgs(kSS_Attack, mgr, kSM_None);
     break;
   case kStateMsg_Update:
@@ -965,6 +1000,9 @@ void CFlaahgra::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) {
   case kStateMsg_Activate:
     x568_state = 0;
     SendScriptMsgs(kSS_Attack, mgr, kSM_None);
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+    ++x80c_projectileAttackCount;
+#endif
     break;
   case kStateMsg_Update:
     switch (x568_state) {
@@ -1025,22 +1063,28 @@ void CFlaahgra::Dizzy(CStateManager& mgr, EStateMsg msg, float arg) {
   switch (msg) {
   case kStateMsg_Activate:
     x7b8_ = 0.f;
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
     x814_ = 0.f;
     x8e5_30_ = false;
+#endif
     break;
   case kStateMsg_Update:
     x7b8_ += arg;
     if (x7b8_ >=
         (x788_stage < 2 ? x56c_data.GetDizzyDuration() : -1.5f + x56c_data.GetDizzyDuration())) {
       x450_bodyController->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_ExitState));
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
       x8e5_30_ = true;
     } else {
       x814_ = 0.f;
+#endif
     }
     break;
   case kStateMsg_Deactivate:
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
     x8e5_30_ = false;
     x810_ = x814_;
+#endif
     x7bc_ = x56c_data.GetCoverCooldown();
     x450_bodyController->CommandMgr().DeliverCmd(CBodyStateCmd(kBSC_ExitState));
     break;
@@ -1262,6 +1306,13 @@ void CFlaahgra::UpdateHealthInfo(CStateManager& mgr) {
       damage = CMath::Max(damage, x818_curHp - actor->HealthInfo(mgr)->GetHP());
     }
   }
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  if (x780_ == 3 && !IsDizzy(mgr, 0.f)) {
+    x810_ += damage;
+  } else {
+    x810_ = 0.f;
+  }
+#else
   if (x780_ == 3) {
     if (IsDizzy(mgr, 0.f)) {
       x814_ += damage;
@@ -1272,6 +1323,7 @@ void CFlaahgra::UpdateHealthInfo(CStateManager& mgr) {
     x814_ = 0.f;
     x810_ = 0.f;
   }
+#endif
   if (HealthInfo(mgr)->GetHP() <= 0.f) {
     Death(mgr, CVector3f::Zero(), kSS_DeathRattle);
     RemoveMaterial(kMT_Orbit, mgr);
@@ -1492,7 +1544,7 @@ CFlaahgraProjectile* CFlaahgra::CreateProjectile(const CTransform4f& xf, CStateM
   if (ProjectileInfo()->Token().TryCache() && mgr.CanCreateProjectile(GetUniqueId(), kWT_AI, 6)) {
     CDamageInfo damage = ProjectileInfo()->GetDamage();
     if (x788_stage >= 2) {
-      damage.SetDamage(1.33f * damage.GetDamage());
+      damage.SetDamage(FLAAHGRA_STAGE_DAMAGE_MULTIPLIER * damage.GetDamage());
     }
     projectile =
         rs_new CFlaahgraProjectile(x8e4_30_bigStrike, ProjectileInfo()->Token(), xf, damage,
