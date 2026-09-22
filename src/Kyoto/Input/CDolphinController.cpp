@@ -16,6 +16,16 @@ CDolphinController::CDolphinController()
     PADSetSpec(PAD_SPEC_5);
     PADInit();
     sIsInitialized = true;
+#if TARGET_PC
+    Poll();
+    static constexpr u32 stopAll[PAD_MAX_CONTROLLERS] = {
+        PAD_MOTOR_STOP_HARD,
+        PAD_MOTOR_STOP_HARD,
+        PAD_MOTOR_STOP_HARD,
+        PAD_MOTOR_STOP_HARD,
+    };
+    PADControlAllMotors(stopAll);
+#endif
   }
 }
 

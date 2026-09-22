@@ -196,7 +196,9 @@ private:
 #ifndef GXFIFO_ADDR
 #define GXFIFO_ADDR 0xCC008000
 #endif
-
+#if TARGET_PC
+#define RSPosition3f32(x, y, z) GXPosition3f32(x, y, x)
+#else
 #define RSWrite(T, n) (*(T*)GXFIFO_ADDR) = n
 #define RSPosition3f32(x, y, z)                                                                    \
   {                                                                                                \
@@ -204,5 +206,5 @@ private:
     RSWrite(f32, y);                                                                               \
     RSWrite(f32, z);                                                                               \
   }
-
+#endif
 #endif // _CGX
