@@ -271,7 +271,7 @@ MetroidPrime/HUD/CSamusHud.cpp:
 	.sdata2     start:0x8046C5B8 end:0x8046C6A8
 
 MetroidPrime/CAnimationDatabaseGame.cpp:
-	.text       start:0x8006E180 end:0x8006EA38
+	.text       start:0x8006E17C end:0x8006EA38
 	.rodata     start:0x803B7C00 end:0x803B7C38
 	.data       start:0x803C5678 end:0x803C5698
 
