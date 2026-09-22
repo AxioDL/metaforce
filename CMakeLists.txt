@@ -699,6 +699,7 @@ set(GAME_FILES
       src/Metaforce/CModelSectionReader.cpp
       src/Metaforce/MapData.cpp
       src/Metaforce/PathData.cpp
+      src/Metaforce/Runtime.cpp
       src/Metaforce/Stubs.cpp
 )
 

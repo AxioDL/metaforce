@@ -66,6 +66,8 @@
 #include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
 
 #if defined(TARGET_PC)
+#include "Metaforce/Runtime.hpp"
+
 #include <aurora/aurora.h>
 #include <aurora/dvd.h>
 #include <aurora/event.h>
@@ -190,55 +192,11 @@ CSaveRegion::CSaveRegion(CMain& main) {
   mSaveBuffer = main.OsContext().AllocFromArena(128);
 }
 
-#if defined(TARGET_PC)
-static void LoadDefaultKeyBindings() {
-  u32 bindingCount = 0;
-  if (PADGetKeyButtonBindings(PAD_CHAN0, &bindingCount) != nullptr) {
-    return;
-  }
-
-  PADKeyButtonBinding buttons[PAD_BUTTON_COUNT] = {
-      {SDL_SCANCODE_SPACE, PAD_BUTTON_A},      {SDL_SCANCODE_LSHIFT, PAD_BUTTON_B},
-      {SDL_SCANCODE_F, PAD_BUTTON_X},          {SDL_SCANCODE_R, PAD_BUTTON_Y},
-      {SDL_SCANCODE_RETURN, PAD_BUTTON_START}, {SDL_SCANCODE_TAB, PAD_TRIGGER_Z},
-      {SDL_SCANCODE_Q, PAD_TRIGGER_L},         {SDL_SCANCODE_E, PAD_TRIGGER_R},
-      {SDL_SCANCODE_UP, PAD_BUTTON_UP},        {SDL_SCANCODE_DOWN, PAD_BUTTON_DOWN},
-      {SDL_SCANCODE_LEFT, PAD_BUTTON_LEFT},    {SDL_SCANCODE_RIGHT, PAD_BUTTON_RIGHT},
-  };
-  PADKeyAxisBinding axes[PAD_AXIS_COUNT] = {
-      {SDL_SCANCODE_D, PAD_AXIS_LEFT_X_POS, 1},  {SDL_SCANCODE_A, PAD_AXIS_LEFT_X_NEG, 1},
-      {SDL_SCANCODE_W, PAD_AXIS_LEFT_Y_POS, 1},  {SDL_SCANCODE_S, PAD_AXIS_LEFT_Y_NEG, 1},
-      {SDL_SCANCODE_L, PAD_AXIS_RIGHT_X_POS, 1}, {SDL_SCANCODE_J, PAD_AXIS_RIGHT_X_NEG, 1},
-      {SDL_SCANCODE_I, PAD_AXIS_RIGHT_Y_POS, 1}, {SDL_SCANCODE_K, PAD_AXIS_RIGHT_Y_NEG, 1},
-      {SDL_SCANCODE_Q, PAD_AXIS_TRIGGER_L, 0},   {SDL_SCANCODE_E, PAD_AXIS_TRIGGER_R, 0},
-  };
-
-  PADSetKeyButtonBindings(PAD_CHAN0, buttons);
-  PADSetKeyAxisBindings(PAD_CHAN0, axes);
-  PADSetKeyboardActive(PAD_CHAN0, TRUE);
-}
-#endif
-
 int main(int argc, char** argv) {
 #if defined(TARGET_PC)
-  borealis::log::init({.level = borealis::LogLevel::Debug});
-  const AuroraConfig config{
-      .appName = "Metaforce",
-      .vsync = true,
-      .allowJoystickBackgroundEvents = true,
-      .windowPosX = -1,
-      .windowPosY = -1,
-      .windowWidth = 1280,
-      .windowHeight = 960,
-      .logCallback = borealis::log::aurora_callback(),
-  };
-  aurora_initialize(argc, argv, &config);
-  if (!aurora_dvd_open("game.rvz")) {
-    borealis::Log{"metaforce"}.fatal("Couldn't open game.rvz");
+  if (int ret = metaforce::Initialize(argc, argv); ret != 0) {
+    return ret;
   }
-  COsContext::mProgressiveMode = true;
-  PADInit();
-  LoadDefaultKeyBindings();
 #endif
 
   DVDSetAutoFatalMessaging(TRUE);
@@ -249,7 +207,7 @@ int main(int argc, char** argv) {
 
 #if defined(TARGET_PC)
   CFrameDelayedKiller::ShutDown();
-  aurora_shutdown();
+  metaforce::Shutdown();
 #endif
   return 0;
 }
@@ -421,6 +379,11 @@ void CGameGlobalObjects::PostInitialize(COsContext& osContext, CMemorySys& memor
   AddPaksAndFactories(osContext);
 #else
   AddPaksAndFactories();
+#endif
+#if defined(TARGET_PC)
+  if (gpMain->CheckTerminate()) {
+    return;
+  }
 #endif
   LoadStringTable();
   printf("Initializing renderer...\n");
@@ -671,11 +634,26 @@ void CGameGlobalObjects::AddPaksAndFactories() {
   gpController = controller.get();
 #endif
   while (!factory.GetResLoader().AreAllPaksLoaded()) {
+#if defined(TARGET_PC)
+    const bool hasFrame = metaforce::BeginFrame();
+    if (gpMain->CheckTerminate()) {
+      break;
+    }
+#endif
     gpResourceFactory->GetResLoader().AsyncIdlePakLoading();
     errorWindow.Update();
+#if defined(TARGET_PC)
+    if (hasFrame) {
+      CGraphics::BeginScene();
+      errorWindow.ShowMessage();
+      CGraphics::EndScene();
+      metaforce::EndFrame();
+    }
+#else
     CGraphics::BeginScene();
     errorWindow.ShowMessage();
     CGraphics::EndScene();
+#endif
 #if VERSION >= VERSION_GM8E_01
 #if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
     if (controller.get() != nullptr) {
@@ -689,6 +667,11 @@ void CGameGlobalObjects::AddPaksAndFactories() {
   }
 #if VERSION >= VERSION_GM8E_01
   gpController = nullptr;
+#endif
+#if defined(TARGET_PC)
+  if (gpMain->CheckTerminate()) {
+    return;
+  }
 #endif
 
   factory.GetResLoader().AddPakFileAsync(rstl::string_l("aram:SamusGun"), true, false);
@@ -740,7 +723,9 @@ void CMain::DoPredrawMetrics() {}
 
 void CMain::DrawDebugMetrics(double, CStopwatch&) {}
 
+#if !defined(TARGET_PC)
 bool CMain::CheckTerminate() { return false; }
+#endif
 
 bool CMain::CheckReset() {
   const BOOL resetButton = OSGetResetButtonState();
@@ -861,6 +846,10 @@ int CMain::RsMain(int argc, const char* const* argv) {
   InitializeSubsystems();
 #if defined(TARGET_PC)
   gameGlobalObjects->PostInitialize(x0_osContext);
+  if (CheckTerminate()) {
+    ShutdownSubsystems();
+    return 0;
+  }
 #else
   gameGlobalObjects->PostInitialize(x0_osContext, x6d_memorySys);
 #endif
@@ -899,6 +888,12 @@ int CMain::RsMain(int argc, const char* const* argv) {
     CDvdFile::FileExists("Strings.pak");
 #endif
     while (!x160_24_finished) {
+#if defined(TARGET_PC)
+      const bool hasFrame = metaforce::BeginFrame();
+      if (CheckTerminate()) {
+        break;
+      }
+#endif
 #if VERSION >= VERSION_GM8P_00 && VERSION < VERSION_GM8J_00
       SetTiming();
 #endif
@@ -920,21 +915,15 @@ int CMain::RsMain(int argc, const char* const* argv) {
       archSupport->GetStopwatch2().Reset();
       DoPredrawMetrics();
 
-#if defined(TARGET_PC)
-      for (const AuroraEvent* event = aurora_update(); event && event->type != AURORA_NONE;
-           ++event) {
-        if (event->type == AURORA_EXIT) {
-          x160_24_finished = true;
-        }
-      }
-      aurora_begin_frame();
-#endif
-
       if (logAudioTweaks) {
         logAudioTweaks = false;
         // rs_log_print(str.data());
       }
+#if defined(TARGET_PC)
+      if (!x160_26_screenFading && hasFrame) {
+#else
       if (!x160_26_screenFading) {
+#endif
         gpRender->BeginScene();
         archSupport->GetIOWinManager().Draw();
         DrawDebugMetrics(t1, archSupport->GetStopwatch2());
@@ -962,7 +951,9 @@ int CMain::RsMain(int argc, const char* const* argv) {
       }
 
 #if defined(TARGET_PC)
-      aurora_end_frame();
+      if (hasFrame) {
+        metaforce::EndFrame();
+      }
 #endif
 
       archSupport->Update();
@@ -984,8 +975,20 @@ int CMain::RsMain(int argc, const char* const* argv) {
         CStreamAudioManager::StopAll();
         PADRecalibrate(0xf0000000);
         CGraphics::SetIsBeginSceneClearFb(true);
+#if defined(TARGET_PC)
+        const bool hasResetFrame = metaforce::BeginFrame();
+        if (CheckTerminate()) {
+          break;
+        }
+        if (hasResetFrame) {
+          CGraphics::BeginScene();
+          CGraphics::EndScene();
+          metaforce::EndFrame();
+        }
+#else
         CGraphics::BeginScene();
         CGraphics::EndScene();
+#endif
         CFrameDelayedKiller::StallAndFlushAllAllocations();
 
         archSupport = nullptr;
