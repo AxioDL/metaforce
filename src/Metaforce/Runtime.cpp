@@ -3,6 +3,7 @@
 #include "Kyoto/Basics/COsContext.hpp"
 #include "Kyoto/CResFactory.hpp"
 #include "Kyoto/CSimplePool.hpp"
+#include "Metaforce/Limiter.hpp"
 #include "MetroidPrime/CArchitectureMessage.hpp"
 #include "MetroidPrime/CMain.hpp"
 #include "MetroidPrime/CMemoryCard.hpp"
@@ -79,6 +80,7 @@ constexpr borealis::AppInfo AppInfo{
 std::optional< borealis::data::Manager > dataManager;
 bool shouldTerminate = false;
 int exitCode = 0;
+Limiter limiter;
 
 struct WarpOptions {
   unsigned int world;
@@ -440,6 +442,7 @@ int GetExitCode() { return exitCode; }
 bool HasStartupRequest() { return startup.has_value(); }
 
 bool BeginFrame() {
+  limiter.Sleep(16670000);
   for (const AuroraEvent* event = aurora_update(); event && event->type != AURORA_NONE; ++event) {
     if (event->type == AURORA_EXIT) {
       shouldTerminate = true;
