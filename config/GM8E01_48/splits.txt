@@ -1857,11 +1857,18 @@ Kyoto/Graphics/CTevCombiners.cpp:
 	.text       start:0x80309018 end:0x80309468
 	.ctors      start:0x803CB410 end:0x803CB414
 	.bss        start:0x805A532C end:0x805A5378 align:4 common
+	.sdata      start:0x805A8500 end:0x805A8508
+	.sbss       start:0x805A9038 end:0x805A9048
 
 Kyoto/Graphics/DolphinCGraphics.cpp:
 	.text       start:0x80309468 end:0x8030DFCC
 	.ctors      start:0x803CB414 end:0x803CB418
+	.rodata     start:0x803D74D8 end:0x803D74F8
+	.data       start:0x803EDA10 end:0x803EDA68
+	.bss        start:0x804799A0 end:0x804BF9F0
 	.bss        start:0x805A5378 end:0x805A62DC align:4 common
+	.sdata      start:0x805A8508 end:0x805A8530
+	.sdata2     start:0x805AE1A0 end:0x805AE230
 
 Kyoto/Graphics/DolphinCPalette.cpp:
 	.text       start:0x8030DFCC end:0x8030E27C

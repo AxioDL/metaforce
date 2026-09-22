@@ -1911,7 +1911,7 @@ config.libs = [
             Object(EquivalentFor("GM8E01_00"), "Kyoto/Graphics/CCubeModel.cpp"),
             Object(MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"), "Kyoto/Graphics/CGX.cpp"),
             Object(
-                MatchingFor("GM8E01_00", "GM8E01_01", "GM8P01_00"),
+                MatchingFor("GM8E01_00", "GM8E01_01", "GM8E01_48", "GM8P01_00"),
                 "Kyoto/Graphics/CTevCombiners.cpp",
             ),
             Object(
