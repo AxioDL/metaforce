@@ -155,7 +155,13 @@ public:
   bool CodeTrigger(CStateManager& mgr, float arg) override;
   CProjectileInfo* ProjectileInfo() override;
 
-  enum EVulnerabilities {};
+  enum EVulnerabilities {
+    kVuln_Zero,
+    kVuln_One,
+    kVuln_Two,
+    kVuln_Three,
+    kVuln_Count,
+  };
 
   enum EAttackType {
     kAT_Zero,
@@ -192,20 +198,19 @@ public:
     explicit CVulnerabilityEntry(CInputStream& in);
   };
 
-  CMetroidPrime(const TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
-                const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
-                const CActorParameters& actorParms, const int pw1,
-                const CCameraShakeData& shakeData1, const CCameraShakeData& shakeData2,
-                const CCameraShakeData& shakeData3, const CMetroidPrimeIceAttack& iceAttack,
-                const CAssetId particle1,
-                const rstl::reserved_vector< CMetroidPrimeParasiteQueenAttack, 4 >& breathAttacks,
-                const CAssetId weaponDesc1, const CDamageInfo&, const CCameraShakeData& shakeData4,
-                const CAssetId weaponDesc2, const CDamageInfo& dInfo2,
-                const CCameraShakeData& shakeData5, const CPoisonInfo& poisonInfo,
-                const CDamageInfo& dInfo3, const CCameraShakeData& shakeData6,
-                const CAssetId particle2, const CAssetId swoosh, const CAssetId particle3,
-                const CAssetId particle4,
-                const rstl::reserved_vector< CVulnerabilityEntry, 4 >& vulnerabilities);
+  CMetroidPrime(
+      const TUniqueId uid, const rstl::string& name, const CEntityInfo& info,
+      const CTransform4f& xf, const CModelData& mData, const CPatternedInfo& pInfo,
+      const CActorParameters& actorParms, const int pw1, const CCameraShakeData& shakeData1,
+      const CCameraShakeData& shakeData2, const CCameraShakeData& shakeData3,
+      const CMetroidPrimeIceAttack& iceAttack, const CAssetId particle1,
+      const rstl::reserved_vector< CMetroidPrimeParasiteQueenAttack, kVuln_Count >& breathAttacks,
+      const CAssetId weaponDesc1, const CDamageInfo&, const CCameraShakeData& shakeData4,
+      const CAssetId weaponDesc2, const CDamageInfo& dInfo2, const CCameraShakeData& shakeData5,
+      const CPoisonInfo& poisonInfo, const CDamageInfo& dInfo3, const CCameraShakeData& shakeData6,
+      const CAssetId particle2, const CAssetId swoosh, const CAssetId particle3,
+      const CAssetId particle4,
+      const rstl::reserved_vector< CVulnerabilityEntry, 4 >& vulnerabilities);
 
 public:
   class CMissileTarget : public CPhysicsActor {
@@ -291,7 +296,7 @@ private:
   uint x57c_;
   uint x580_;
   bool x584_;
-  rstl::reserved_vector< CVulnerabilityEntry, 4 > x588_;
+  rstl::reserved_vector< CVulnerabilityEntry, kVuln_Count > x588_;
   rstl::reserved_vector< CBoneTracking, 6 > x76c_;
   CHealthInfo x8c0_;
   float x8c8_;
