@@ -2,9 +2,7 @@
 #define _CCONTROLMAPPER
 
 #include "rstl/reserved_vector.hpp"
-
-class CFinalInput;
-
+#include "Kyoto/Input/CFinalInput.hpp"
 
 typedef float (CFinalInput::*FAnalogInput)() const;
 typedef bool (CFinalInput::*FDigitalInput)() const;

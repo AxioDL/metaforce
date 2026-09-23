@@ -70,9 +70,16 @@ static inline const rstl::reserved_vector< BucketHolderType, 50 >& GetBucketHold
 }
 
 void Init() {
+#if __MWERKS__
 #define HOLDER(var)                                                                                \
   static uchar var##Holder[sizeof(__typeof__(*var)) + 4];                                          \
   var = new (var##Holder) std::type_identity< __typeof__(*var) >::type();
+#else
+#define HOLDER(var)                                                                                \
+  using var##Type = std::remove_reference_t< decltype(*var) >;                                     \
+  alignas(var##Type) static uchar var##Holder[sizeof(var##Type)];                                  \
+  var = new (var##Holder) var##Type();
+#endif
 
   HOLDER(sData);
   HOLDER(sBuckets);
