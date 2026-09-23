@@ -726,6 +726,7 @@ if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
 elseif (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
     target_compile_options(metaforce PRIVATE
         /we4150 # deletion of pointer to incomplete type 'type'; no destructor called
+        /Zc:__cplusplus # Enable updated `__cplusplus` macro
     )
 endif ()
 
