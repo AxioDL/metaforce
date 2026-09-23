@@ -15,6 +15,7 @@
 #include <Windows.h>
 #include <intrin.h>
 #include <shellapi.h>
+#undef GetObject
 #endif
 #ifdef __APPLE__
 #include <mach/mach_time.h>

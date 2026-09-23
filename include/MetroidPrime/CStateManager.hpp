@@ -211,7 +211,7 @@ public:
   void SetSinglePathMaze(rstl::single_ptr< CSinglePathMaze > maze);
 
   CPlayer* Player() { return x84c_player; }
-#ifdef CSTATEMANAGER_OUT_OF_LINE_GETPLAYER
+#if !defined(TARGET_PC) && defined(CSTATEMANAGER_OUT_OF_LINE_GETPLAYER)
   const CPlayer* GetPlayer() const;
 #else
   const CPlayer* GetPlayer() const { return x84c_player; }

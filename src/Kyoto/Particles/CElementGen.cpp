@@ -27,8 +27,12 @@
 #include "rstl/algorithm.hpp"
 #include "rstl/math.hpp"
 
-#include "alloca.h"
-#include "math.h"
+#if defined(TARGET_PC) && defined(_MSC_VER)
+#include <malloc.h>
+#else
+#include <alloca.h>
+#endif
+#include <math.h>
 
 #include "dolphin/gx.h"
 

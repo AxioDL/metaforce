@@ -22,7 +22,12 @@
 
 #include "rstl/algorithm.hpp"
 #include "rstl/math.hpp"
+
+#if defined(_MSC_VER)
+#include <malloc.h>
+#else
 #include <alloca.h>
+#endif
 #include <float.h>
 
 const float CActorLights::kDefaultPositionUpdateThreshold = 0.1f;

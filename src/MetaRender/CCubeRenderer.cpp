@@ -369,15 +369,13 @@ void CCubeRenderer::GenerateReflectionTex() {
 
           float scaledX = halfScale * fx + halfScale;
 #if defined(TARGET_PC)
-          int ix =
-              std::isfinite(scaledX) ? static_cast< int >(CMath::Clamp(0.f, scaledX, 255.f)) : 0;
+          int ix = isfinite(scaledX) ? static_cast< int >(CMath::Clamp(0.f, scaledX, 255.f)) : 0;
 #else
           int ix = static_cast< int >(CMath::Clamp(0.f, scaledX, 255.f));
 #endif
           float scaledY = halfScale * fy + halfScale;
 #if defined(TARGET_PC)
-          int iy =
-              std::isfinite(scaledY) ? static_cast< int >(CMath::Clamp(0.f, scaledY, 255.f)) : 0;
+          int iy = isfinite(scaledY) ? static_cast< int >(CMath::Clamp(0.f, scaledY, 255.f)) : 0;
 #else
           int iy = static_cast< int >(CMath::Clamp(0.f, scaledY, 255.f));
 #endif
@@ -1895,12 +1893,9 @@ void CCubeRenderer::ReallyRenderFogVolume(const CColor& color, const CAABox& aab
 #if defined(TARGET_PC)
       CGX::SetNumIndStages(0);
       CGX::SetTevDirect(GX_TEVSTAGE0);
-      CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL,
-                      GX_TEXMAP_NULL, GX_COLOR_NULL);
-      CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO,
-                        GX_CC_ZERO, GX_CC_ZERO);
-      CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO,
-                        GX_CA_ZERO, GX_CA_ZERO);
+      CGX::SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR_NULL);
+      CGX::SetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO);
+      CGX::SetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO);
       CGX::SetStandardTevColorAlphaOp(GX_TEVSTAGE0);
 #endif
       draw_box_or_model(aabb, model, modelXf, CGraphics::mViewMatrix, skinnedModel);
