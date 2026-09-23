@@ -107,6 +107,11 @@ void CCubeModel::SetStaticArraysCurrent() const {
   const void* packed = x0_instance.GetPackedTCPointer();
   const void* unpacked = x0_instance.GetTCPointer();
   if (!packed) {
+#if defined(TARGET_PC)
+    if (sUsingPackedLightmaps) {
+      CCubeMaterial::ResetCachedMaterials();
+    }
+#endif
     sUsingPackedLightmaps = false;
   }
 
