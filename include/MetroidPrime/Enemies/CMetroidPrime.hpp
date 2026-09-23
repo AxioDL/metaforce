@@ -158,15 +158,29 @@ public:
   enum EVulnerabilities {};
 
   enum EAttackType {
-
+    kAT_Zero,
+    kAT_One,
+    kAT_Two,
+    kAT_Three,
+    kAT_Four,
+    kAT_Five,
+    kAT_Six,
+    kAT_Seven,
+    kAT_Eight,
+    kAT_Nine,
+    kAT_Ten,
+    kAT_Eleven,
+    kAT_Twelve,
+    kAT_Thirteen,
+    kAT_Count,
   };
   struct CMetroidPrimeAttackWeights {
-    rstl::reserved_vector< float, 14 > mAttackWeights;
+    rstl::reserved_vector< float, kAT_Count > mAttackWeights;
 
     explicit CMetroidPrimeAttackWeights(CInputStream& in);
 
     float GetAttackWeight(EAttackType attack) const;
-    static rstl::reserved_vector< float, 14 > LoadAttackWeights(CInputStream& in);
+    static rstl::reserved_vector< float, kAT_Count > LoadAttackWeights(CInputStream& in);
   };
 
   struct CVulnerabilityEntry {
