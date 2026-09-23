@@ -8,9 +8,9 @@
 #include "dolphin/os/OSThread.h"
 
 #include <string.h>
+
 #if defined(TARGET_PC)
 #include "Metaforce/Audio.hpp"
-#include "Metaforce/AudioAssets.hpp"
 #endif
 
 CDSPStreamManager g_Streams[4] = {CDSPStreamManager(), CDSPStreamManager(), CDSPStreamManager(),

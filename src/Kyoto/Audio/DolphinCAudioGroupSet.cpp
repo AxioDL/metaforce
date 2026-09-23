@@ -6,10 +6,14 @@
 #include "Kyoto/Alloc/CMemory.hpp"
 #include "rstl/auto_ptr.hpp"
 #include <string.h>
+
 #if defined(TARGET_PC)
-#include "Metaforce/AudioAssets.hpp"
+#include "Metaforce/Audio.hpp"
 #include "Metaforce/Common.hpp"
-namespace { constexpr borealis::Log Log{"audio assets"}; }
+
+namespace {
+constexpr borealis::Log Log{"CAudioGroupSet"};
+}
 #endif
 
 CAudioGroupSet::CAudioGroupSet(const TLockedToken< CAudioGrpSetLoc >& group)
@@ -41,15 +45,15 @@ CAudioGrpSetLoc::CAudioGrpSetLoc(const rstl::auto_ptr< uchar >& data, int length
   x20_groupSetName = rstl::string(view.name.data(), view.name.size());
   const size_t poolSize = (view.assets.pool.size + 3) & ~size_t(3);
   const size_t projectSize = (view.assets.project.size + 3) & ~size_t(3);
-  x8_groupData = rstl::auto_ptr<uchar>(static_cast<uchar*>(
-      CMemory::Alloc(poolSize + projectSize + view.assets.directory.size, IAllocator::kHI_RoundUpLen)));
+  x8_groupData = rstl::auto_ptr< uchar >(static_cast< uchar* >(CMemory::Alloc(
+      poolSize + projectSize + view.assets.directory.size, IAllocator::kHI_RoundUpLen)));
   x34_pool = x8_groupData.get();
   x38_project = x34_pool + poolSize;
   x3c_sampleDir = x38_project + projectSize;
   memcpy(x34_pool, view.assets.pool.data, view.assets.pool.size);
   memcpy(x38_project, view.assets.project.data, view.assets.project.size);
   memcpy(x3c_sampleDir, view.assets.directory.data, view.assets.directory.size);
-  x40_samples = const_cast<uchar*>(static_cast<const uchar*>(view.assets.samples.data));
+  x40_samples = const_cast< uchar* >(static_cast< const uchar* >(view.assets.samples.data));
   x30_aramSize = view.assets.samples.size;
 #else
   uint readPosition;
@@ -58,7 +62,8 @@ CAudioGrpSetLoc::CAudioGrpSetLoc(const rstl::auto_ptr< uchar >& data, int length
 
   const uint projectOffset = readPosition + poolSize;
 #if TARGET_LITTLE_ENDIAN
-  const uint projectSize = CBasics::SwapBytes(*reinterpret_cast< uint* >(data.get() + projectOffset));
+  const uint projectSize =
+      CBasics::SwapBytes(*reinterpret_cast< uint* >(data.get() + projectOffset));
 #else
   const uint projectSize = *reinterpret_cast< uint* >(data.get() + projectOffset);
   CAudioSys::GetVerbose();

@@ -697,7 +697,6 @@ set(GAME_FILES
       src/Metaforce/ARAMToken.cpp
       src/Metaforce/Alloc.cpp
       src/Metaforce/Audio.cpp
-      src/Metaforce/AudioAssets.cpp
       src/Metaforce/CModelSectionReader.cpp
       src/Metaforce/MapData.cpp
       src/Metaforce/PathData.cpp

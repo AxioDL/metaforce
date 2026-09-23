@@ -5,20 +5,25 @@
 
 #include <Kyoto/CFactoryFnReturn.hpp>
 #include <Kyoto/Streams/CInputStream.hpp>
+
 #if defined(TARGET_PC)
-#include "Metaforce/AudioAssets.hpp"
+#include "Metaforce/Audio.hpp"
 #include "Metaforce/Common.hpp"
-namespace { constexpr borealis::Log Log{"song assets"}; }
+
+namespace {
+constexpr borealis::Log Log{"CMidiManager"};
+}
 #endif
 
 rstl::reserved_vector< CMidiManager::CMidiWrapper, 3 > CMidiManager::mMidiWrappers;
 
 CMidiManager::CMidiWrapper::CMidiWrapper()
+: x0_sysHandle(0)
 #if defined(TARGET_PC)
-: x0_sysHandle(0), x8_songId(-1), xa_available(true) {}
-#else
-: x0_sysHandle(0), xa_available(true) {}
+, x8_songId(-1)
 #endif
+, xa_available(true) {
+}
 
 const CSfxHandle& CMidiManager::CMidiWrapper::GetManagerHandle() const { return x4_midiHandle; }
 
@@ -72,11 +77,12 @@ CSfxHandle CMidiManager::Play(const CMidiData& data, unsigned short fadeTime, bo
     wrapper.SetAudioSysHandle(sysHandle);
     wrapper.SetSongId(data.GetSongId());
   } else {
-    u32 sysHandle = CAudioSys::SeqPlayEx(data.GetGroupId(), data.GetSongId(), data.GetData(), nullptr, 0);
+    u32 sysHandle =
+        CAudioSys::SeqPlayEx(data.GetGroupId(), data.GetSongId(), data.GetData(), nullptr, 0);
 #if defined(TARGET_PC)
     if (sysHandle == SND_ID_ERROR) {
       wrapper.SetAvailable(true);
-      return CSfxHandle();
+      return {};
     }
 #endif
     if (fadeTime != 0) {
@@ -138,12 +144,14 @@ CMidiManager::CMidiData::CMidiData(CInputStream& in)
   u8 bytes[20];
   metaforce::AudioSongHeader header{};
   REQUIRE(in.ReadBytes(bytes, sizeof(bytes)) == sizeof(bytes) &&
-              metaforce::ReadAudioSongHeader(bytes, header), "Invalid CSNG header");
+              metaforce::ReadAudioSongHeader(bytes, header),
+          "Invalid CSNG header");
   x0_songId = header.song;
   x2_groupId = header.group;
   x4_agscId = header.audioGroup;
   x8_data = rs_new uchar[header.length];
-  REQUIRE(in.ReadBytes(x8_data.get(), header.length) == header.length, "Truncated CSNG arrangement");
+  REQUIRE(in.ReadBytes(x8_data.get(), header.length) == header.length,
+          "Truncated CSNG arrangement");
   SND_PC_ASSET_ERROR error{};
   REQUIRE(sndPCValidateArrangement({x8_data.get(), header.length}, &error),
           "Invalid CSNG arrangement at {}: {}", error.offset, error.reason ? error.reason : "");
@@ -158,6 +166,7 @@ CMidiManager::CMidiData::CMidiData(CInputStream& in)
 #endif
 }
 
-const CFactoryFnReturn FMidiDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer&) {
+const CFactoryFnReturn FMidiDataFactory(const SObjectTag& tag, CInputStream& in,
+                                        const CVParamTransfer&) {
   return rs_new CMidiManager::CMidiData(in);
 }
