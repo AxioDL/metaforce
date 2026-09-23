@@ -16,6 +16,9 @@ class IObjectStore;
 class CSegIdList;
 class CSegStatementSet;
 
+template <>
+rstl::vector< CQuaternion >::vector(CInputStream& in, const rmemory_allocator& allocator);
+
 class RotationAndOffsetStorage {
 public:
   struct CRotationAndOffsetVectors {

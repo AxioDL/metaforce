@@ -1,27 +1,26 @@
 #ifndef _CPROJECTILEWEAPON_HPP
 #define _CPROJECTILEWEAPON_HPP
 
-#include <Kyoto/CRandom16.hpp>
-#include <Kyoto/Graphics/CColor.hpp>
-#include <Kyoto/Math/CTransform4f.hpp>
-#include <Kyoto/Particles/CElementGen.hpp>
-#include <Kyoto/Particles/CParticleSwoosh.hpp>
-
-#include <Kyoto/TToken.hpp>
-
-#include <rstl/single_ptr.hpp>
-
-#include "Kyoto/Math/CMatrix4f.hpp"
-#include "Kyoto/Particles/CGenDescription.hpp"
-#include "MetroidPrime/ActorCommon.hpp"
-#include "MetroidPrime/Weapons/WeaponTypes.hpp"
 #include "Weapons/CDecalDescription.hpp"
 #include "Weapons/CWeaponDescription.hpp"
 #include "Weapons/IWeaponProjectile.hpp"
-#include "rstl/optional_object.hpp"
+
+#include "Kyoto/CRandom16.hpp"
+#include "Kyoto/Graphics/CColor.hpp"
+#include "Kyoto/Math/CTransform4f.hpp"
+#include "Kyoto/Particles/CElementGen.hpp"
+#include "Kyoto/Particles/CParticleSwoosh.hpp"
+#include "Kyoto/TToken.hpp"
+
+#include "MetroidPrime/ActorCommon.hpp"
+
+#include <rstl/optional_object.hpp>
+#include <rstl/single_ptr.hpp>
 
 class CProjectileWeapon : public IWeaponProjectile {
   static uint skGlobalSeed;
+
+public:
   CProjectileWeapon(const TToken< CWeaponDescription >& description, const CVector3f& worldOffset,
                     const CTransform4f& localToWorld, const CVector3f& scale, int flags);
   ~CProjectileWeapon();
@@ -43,8 +42,8 @@ class CProjectileWeapon : public IWeaponProjectile {
   void RenderParticles() const;
   rstl::optional_object< TLockedToken< CGenDescription > >
   CollisionOccured(const EWeaponCollisionResponseTypes colType, const bool deflected,
-                    const bool useTarget, const CVector3f& pos, const CVector3f& normal,
-                    const CVector3f& target);
+                   const bool useTarget, const CVector3f& pos, const CVector3f& normal,
+                   const CVector3f& target);
 
   uint GetSoundIdForCollision(EWeaponCollisionResponseTypes type) const;
 
@@ -61,6 +60,12 @@ class CProjectileWeapon : public IWeaponProjectile {
   static void SetGlobalSeed(const uint seed);
 
   rstl::optional_object< CAABox > GetBounds() const;
+
+  bool IsProjectileActive() const { return x124_24_active; }
+  TLockedToken< CWeaponDescription > GetWeaponDescription() const { return x4_weaponDesc; }
+  CElementGen* GetAttachedPS1() { return xfc_APSMGen; }
+  const CElementGen* GetAttachedPS1() const { return xfc_APSMGen; }
+  double GameTime() const { return xd0_curTime; }
 
 private:
   TLockedToken< CWeaponDescription > x4_weaponDesc;

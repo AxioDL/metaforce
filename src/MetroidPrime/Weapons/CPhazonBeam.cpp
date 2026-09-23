@@ -8,7 +8,7 @@
 #include "MetroidPrime/CWorld.hpp"
 #include "MetroidPrime/Player/CPlayer.hpp"
 #include "MetroidPrime/SFX/Weapons.h"
-#include "MetroidPrime/Weapons/CProjectileWeapon.hpp"
+#include "Weapons/CProjectileWeapon.hpp"
 
 #include <Kyoto/Particles/CElementGen.hpp>
 

@@ -29,7 +29,7 @@ class CRainSplashGenerator;
 class CTransform4f;
 class CModelFlags;
 class CActorLights;
-class SWeaponInfo;
+struct SWeaponInfo;
 
 enum EFrozenFxType {
   kFFT_None,

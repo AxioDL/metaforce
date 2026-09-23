@@ -50,7 +50,7 @@ float* InitializeSineWave() {
   return sGlobalSineWave;
 }
 
-float* GetGlobalSineWave() { return sGlobalSineWave; }
+const float (&GetGlobalSineWave())[256] { return sGlobalSineWave; }
 
 bool PrepareRipple(const CRipple& ripple, const CFluidPlaneCPURender::SPatchInfo& info,
                    CFluidPlaneCPURender::SRippleInfo& rippleInfo) {

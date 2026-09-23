@@ -5,10 +5,11 @@
 #include "types.h"
 
 #include "MetroidPrime/CStateManager.hpp"
-#include "MetroidPrime/Weapons/CProjectileWeapon.hpp"
 #include "MetroidPrime/Weapons/CWeapon.hpp"
 
 #include "Kyoto/TToken.hpp"
+
+#include "Weapons/CProjectileWeapon.hpp"
 
 #include "rstl/optional_object.hpp"
 #include "rstl/vector.hpp"
@@ -78,7 +79,7 @@ public:
 
   void SetUnkPalFlag(bool active) {
 #if VERSION >= VERSION_GM8P_00
-    x2e4_29_unkPalFlag = active; 
+    x2e4_29_unkPalFlag = active;
 #endif
   }
 

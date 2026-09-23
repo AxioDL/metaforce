@@ -32,7 +32,7 @@ class CStringTable;
 class CTexture;
 class CUnitVector3f;
 class IWorld;
-struct CFinalInput;
+class CFinalInput;
 
 class CAutoMapper {
 public:
