@@ -107,9 +107,7 @@ public:
   static inline float FastSqrtF(float x) { return sqrtf(x); }
 #endif
   static double SqrtD(double x);
-  static bool IsEpsilon(float x, float y, float epsilon) {
-    return AbsF(x - y) < epsilon;
-  }
+  static bool IsEpsilon(float x, float y, float epsilon) { return AbsF(x - y) < epsilon; }
   static float FastMin(float a, float b) { return FastFSel(a - b, b, a); }
   static float FastMax(float a, float b) { return FastFSel(a - b, a, b); }
   // PowF__5CMathFff global
@@ -133,6 +131,9 @@ template < typename T >
 const T& CMath::Clamp(const T& min, const T& val, const T& max) {
   return min > val ? min : max < val ? max : val;
 }
+
+template <>
+const int& CMath::Clamp< int >(const int& min, const int& val, const int& max);
 
 template < typename T >
 const T& CMath::Min(const T& a, const T& b) {

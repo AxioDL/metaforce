@@ -8,6 +8,9 @@
 
 #include "dolphin/gx.h"
 
+// TODO: figure out why MSVC doesn't like this
+#if !defined(TARGET_PC) || defined(CGX_CPP)
+
 #ifndef CGX_INLINE
 #define CGX_INLINE inline
 #endif
@@ -359,5 +362,7 @@ CGX_INLINE void CGX::SetLineWidth(uchar width, GXTexOffset offset) {
     GXSetLineWidth(width, offset);
   }
 }
+
+#endif // !defined(TARGET_PC) || defined(CGX_CPP)
 
 #endif // _CGX_IMPL

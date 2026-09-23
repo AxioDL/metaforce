@@ -712,6 +712,7 @@ endif ()
 target_compile_definitions(metaforce PRIVATE TARGET_PC=1 VERSION=0 NONMATCHING=1)
 target_include_directories(metaforce PRIVATE include extern/rstl/include)
 target_link_libraries(metaforce PRIVATE ${GAME_LIBS})
+aurora_copy_runtime_dlls(metaforce)
 borealis_configure_android_application(metaforce)
 
 if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
@@ -726,7 +727,6 @@ if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
 elseif (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
     target_compile_options(metaforce PRIVATE
         /we4150 # deletion of pointer to incomplete type 'type'; no destructor called
-        /Zc:__cplusplus # Enable updated `__cplusplus` macro
     )
 endif ()
 
