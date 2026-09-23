@@ -1,4 +1,5 @@
-#include "MetroidPrime/ScriptObjects/CEnergyBall.hpp"
+#include "MetroidPrime/Enemies/CEnergyBall.hpp"
+
 #include "Kyoto/Audio/CSfxManager.hpp"
 #include "MetroidPrime/BodyState/CBodyController.hpp"
 #include "MetroidPrime/CAnimData.hpp"
@@ -21,7 +22,7 @@ CEnergyBall::CEnergyBall(const TUniqueId uid, const rstl::string& name, const CE
 : CPatterned(kC_EnergyBall, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Flyer, kCT_One,
              kBT_NewFlyer, actParms, kCS_Medium)
 , x56c(0.f)
-, x570(w1)
+, x570_ballType(w1)
 , x574(f1)
 , x578(dInfo1)
 , mInitialTurnSpeed(pInfo.GetTurnSpeed())
@@ -121,7 +122,7 @@ void CEnergyBall::Detonate(CStateManager& mgr) {
   const CVector3f& delta = mgr.GetPlayer()->GetTranslation() - GetTranslation();
   if (delta.MagSquared() <= x578.GetRadius() * x578.GetRadius()) {
     bool breakFrozen = true;
-    switch (x570) {
+    switch (x570_ballType) {
     case 0: {
       const float duration = x598;
       x402_28_isMakingBigStrike = duration > 0.f;
