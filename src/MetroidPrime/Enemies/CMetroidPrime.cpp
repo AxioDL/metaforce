@@ -1,33 +1,33 @@
-#include "MetroidPrime/CWorld.hpp"
 #include "MetroidPrime/Enemies/CMetroidPrime.hpp"
 #include "Collision/CRayCastResult.hpp"
+#include "MetroidPrime/CWorld.hpp"
 
-#include "MetroidPrime/CAnimData.hpp"
-#include "MetroidPrime/Cameras/CCameraManager.hpp"
-#include "MetroidPrime/Weapons/CIceAttackProjectile.hpp"
 #include "Kyoto/Animation/CInt32POINode.hpp"
-#include "MetroidPrime/CCollisionActor.hpp"
-#include "MetroidPrime/BodyState/CBodyController.hpp"
 #include "MetaRender/CCubeRenderer.hpp"
-#include "MetroidPrime/Player/CPlayerState.hpp"
-#include "MetroidPrime/ScriptObjects/CHUDBillboardEffect.hpp"
-#include "MetroidPrime/Enemies/CMetroidPrimeRelay.hpp"
-#include "MetroidPrime/Enemies/CEnergyBall.hpp"
-#include "MetroidPrime/CStateManager.hpp"
-#include "MetroidPrime/Player/CPlayer.hpp"
-#include "MetroidPrime/Player/CMorphBall.hpp"
-#include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
-#include "MetroidPrime/ScriptObjects/CScriptWaypoint.hpp"
+#include "MetroidPrime/BodyState/CBodyController.hpp"
+#include "MetroidPrime/CAnimData.hpp"
+#include "MetroidPrime/CCollisionActor.hpp"
 #include "MetroidPrime/CCollisionActorManager.hpp"
 #include "MetroidPrime/CProjectedShadow.hpp"
+#include "MetroidPrime/CStateManager.hpp"
+#include "MetroidPrime/Cameras/CCameraManager.hpp"
+#include "MetroidPrime/Enemies/CEnergyBall.hpp"
+#include "MetroidPrime/Enemies/CMetroidPrimeRelay.hpp"
+#include "MetroidPrime/Player/CMorphBall.hpp"
+#include "MetroidPrime/Player/CPlayer.hpp"
+#include "MetroidPrime/Player/CPlayerState.hpp"
+#include "MetroidPrime/ScriptObjects/CHUDBillboardEffect.hpp"
+#include "MetroidPrime/ScriptObjects/CScriptWaypoint.hpp"
 #include "MetroidPrime/TCastTo.hpp"
+#include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
+#include "MetroidPrime/Weapons/CIceAttackProjectile.hpp"
 
-#include "Kyoto/CResFactory.hpp"
 #include "Kyoto/Audio/CSfxManager.hpp"
+#include "Kyoto/CResFactory.hpp"
+#include "Kyoto/CSimplePool.hpp"
 #include "Kyoto/Math/CFrustumPlanes.hpp"
 #include "Kyoto/Math/CRelAngle.hpp"
 #include "Kyoto/Math/CloseEnough.hpp"
-#include "Kyoto/CSimplePool.hpp"
 #include "Kyoto/Particles/CElementGen.hpp"
 #include "Kyoto/Particles/CParticleElectric.hpp"
 #include "Kyoto/Particles/CParticleSwoosh.hpp"
@@ -56,11 +56,11 @@ static const pas::EAnimationState skAttackAnimationStates[] = {
     pas::kAS_MeleeAttack,      pas::kAS_Locomotion,       pas::kAS_MeleeAttack,
     pas::kAS_Scripted,         pas::kAS_ProjectileAttack, pas::kAS_LoopAttack,
     pas::kAS_LieOnGround,      pas::kAS_GroundHit};
-static const int skAttackSeverity[14][3] = {
+static const int skAttackSeverity[CMetroidPrime::kAT_Count][3] = {
     {3, 3, 3}, {-1, -1, -1}, {2, 2, 2}, {5, 5, 5},    {8, 8, 8},   {11, 11, 11}, {1, 1, 1},
     {4, 4, 4}, {7, 7, 7},    {4, 7, 1}, {-1, -1, -1}, {-1, 2, -1}, {-1, -1, -1}, {0, 0, 0},
 };
-static const pas::ELocomotionType skLocomotionSeverity[14][3] = {
+static const pas::ELocomotionType skLocomotionSeverity[CMetroidPrime::kAT_Count][3] = {
     {pas::kLT_Invalid, pas::kLT_Invalid, pas::kLT_Invalid},
     {pas::kLT_Internal10, pas::kLT_Internal11, pas::kLT_Internal12},
     {pas::kLT_Invalid, pas::kLT_Invalid, pas::kLT_Invalid},
@@ -150,10 +150,10 @@ float CMetroidPrime::CMetroidPrimeAttackWeights::GetAttackWeight(EAttackType att
   return mAttackWeights[attack];
 }
 
-rstl::reserved_vector< float, 14 >
+rstl::reserved_vector< float, CMetroidPrime::kAT_Count >
 CMetroidPrime::CMetroidPrimeAttackWeights::LoadAttackWeights(CInputStream& in) {
-  const int count = rstl::min_val(static_cast< int >(in.ReadLong()), 14);
-  rstl::reserved_vector< float, 14 > weights;
+  const int count = rstl::min_val(static_cast< int >(in.ReadLong()), static_cast< int >(kAT_Count));
+  rstl::reserved_vector< float, kAT_Count > weights;
   for (int i = 0; i < count; ++i) {
     weights.push_back(in.ReadFloat());
   }
@@ -1156,9 +1156,8 @@ void CMetroidPrime::LaunchEnergyBall(CStateManager& mgr) {
   }
   static uint locator = 0;
   for (AUTO(it, x1058_.begin()); it != x1058_.end(); ++it) {
-    const CEnergyBall* const original = PATTERNED_CAST_TO(CEnergyBall, 
-      const_cast< CEntity* >(mgr.GetObjectById(mgr.GetIdForScript(*it)))
-    );
+    const CEnergyBall* const original = PATTERNED_CAST_TO(
+        CEnergyBall, const_cast< CEntity* >(mgr.GetObjectById(mgr.GetIdForScript(*it))));
     if (original && original->GetBallType() == type) {
       const TUniqueId id = mgr.GenerateObject(*it).second;
       CEnergyBall* const ball = PATTERNED_CAST_TO(CEnergyBall, mgr.ObjectById(id));
