@@ -170,7 +170,7 @@ CMetroidPrime::CMetroidPrime(
     CAssetId weaponDesc2, const CDamageInfo& dInfo2, const CCameraShakeData& shakeData5,
     const CPoisonInfo& poisonInfo, const CDamageInfo& dInfo3, const CCameraShakeData& shakeData6,
     CAssetId particle2, CAssetId swoosh, CAssetId particle3, CAssetId particle4,
-    const rstl::reserved_vector< CVulnerabilityEntry, 4 >& vulnerabilities)
+    const rstl::reserved_vector< CVulnerabilityEntry, kVuln_Count >& vulnerabilities)
 : CPatterned(kC_MetroidPrimeExo, uid, name, kFT_Zero, info, xf, mData, pInfo, kMT_Flyer, kCT_One,
              kBT_Flyer, actorParms, kCS_Large)
 , x568_relayId(kInvalidUniqueId)
