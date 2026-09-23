@@ -1,8 +1,9 @@
 #ifndef _CCONTROLMAPPER
 #define _CCONTROLMAPPER
 
-#include "rstl/reserved_vector.hpp"
 #include "Kyoto/Input/CFinalInput.hpp"
+
+#include "rstl/reserved_vector.hpp"
 
 typedef float (CFinalInput::*FAnalogInput)() const;
 typedef bool (CFinalInput::*FDigitalInput)() const;
@@ -108,7 +109,7 @@ public:
   static const FDigitalInput gDigitalInputs[];
   static const FDigitalInput gPressInputs[];
 
-  static rstl::reserved_vector<bool, 67> gCommandFilterFlag;
+  static rstl::reserved_vector< bool, 67 > gCommandFilterFlag;
 
   static const char* GetDescriptionForFunction(EFunctionList function);
   static const char* GetDescriptionForCommand(ECommands function);

@@ -19,6 +19,7 @@
 #include "MetroidPrime/CProjectedShadow.hpp"
 #include "MetroidPrime/CRipple.hpp"
 #include "MetroidPrime/CRumbleManager.hpp"
+#include "MetroidPrime/CScriptLayerManager.hpp"
 #include "MetroidPrime/CScriptMailbox.hpp"
 #include "MetroidPrime/CSimpleShadow.hpp"
 #include "MetroidPrime/CStateManagerContainer.hpp"
@@ -31,10 +32,9 @@
 #include "MetroidPrime/GameObjectLists.hpp"
 #include "MetroidPrime/HUD/CSamusHud.hpp"
 #include "MetroidPrime/Player/CGameState.hpp"
+#include "MetroidPrime/Player/CMorphBall.hpp"
 #include "MetroidPrime/Player/CPlayer.hpp"
 #include "MetroidPrime/Player/CPlayerState.hpp"
-#include "MetroidPrime/Player/CMorphBall.hpp"
-#include "MetroidPrime/CScriptLayerManager.hpp"
 #include "MetroidPrime/Player/CWorldTransManager.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptDock.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptDoor.hpp"
@@ -42,17 +42,15 @@
 #include "MetroidPrime/ScriptObjects/CScriptMazeNode.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptPlayerActor.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptRoomAcoustics.hpp"
-#include "MetroidPrime/ScriptObjects/CSnakeWeedSwarm.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptSpawnPoint.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptSpecialFunction.hpp"
 #include "MetroidPrime/ScriptObjects/CScriptWater.hpp"
+#include "MetroidPrime/ScriptObjects/CSnakeWeedSwarm.hpp"
 #include "MetroidPrime/TCastTo.hpp"
 #include "MetroidPrime/Tweaks/CTweakGui.hpp"
 #include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
 #include "MetroidPrime/Tweaks/CTweakPlayerRes.hpp"
-#include "MetroidPrime/Weapons/CProjectileWeapon.hpp"
 #include "MetroidPrime/Weapons/CWeapon.hpp"
-#include "Weapons/CCollisionResponseData.hpp"
 
 #include "Collision/CCollidableSphere.hpp"
 #include "Collision/CCollisionPrimitive.hpp"
@@ -74,10 +72,12 @@
 #include "Kyoto/Math/CQuaternion.hpp"
 #include "Kyoto/Math/CRelAngle.hpp"
 #include "Kyoto/Math/CUnitVector3f.hpp"
-#include "Kyoto/Streams/CMemoryInStream.hpp"
 #include "Kyoto/Particles/CParticleElectric.hpp"
+#include "Kyoto/Streams/CMemoryInStream.hpp"
 #include "MetaRender/CCubeRenderer.hpp"
+#include "Weapons/CCollisionResponseData.hpp"
 #include "Weapons/CDecal.hpp"
+#include "Weapons/CProjectileWeapon.hpp"
 #include "WorldFormat/CPVSAreaSet.hpp"
 
 #include "rstl/algorithm.hpp"
@@ -467,8 +467,8 @@ CRayCastResult CStateManager::RayStaticIntersection(const CVector3f& pos, const 
 }
 
 bool CStateManager::RayCollideWorld(const CVector3f& start, const CVector3f& end,
-                                  const TEntityList& nearList, const CMaterialFilter& filter,
-                                  const CActor* damagee) const {
+                                    const TEntityList& nearList, const CMaterialFilter& filter,
+                                    const CActor* damagee) const {
   return RayCollideWorldInternal(start, end, filter, nearList, damagee);
 }
 
@@ -484,9 +484,9 @@ bool CStateManager::RayCollideWorld(const CVector3f& start, const CVector3f& end
 }
 
 const bool CStateManager::RayCollideWorldInternal(const CVector3f& start, const CVector3f& end,
-                                          const CMaterialFilter& filter,
-                                          const TEntityList& nearList,
-                                          const CActor* damagee) const {
+                                                  const CMaterialFilter& filter,
+                                                  const TEntityList& nearList,
+                                                  const CActor* damagee) const {
   CVector3f delta = end - start;
   bool result = true;
   if (delta.CanBeNormalized()) {
@@ -495,7 +495,7 @@ const bool CStateManager::RayCollideWorldInternal(const CVector3f& start, const 
     result = CGameCollision::RayStaticIntersectionBool(*this, start, delta, mag, filter);
     if (result) {
       result = CGameCollision::RayDynamicIntersectionBool(*this, start, delta, filter, nearList,
-                                                        damagee, mag);
+                                                          damagee, mag);
     }
   }
   return result;
@@ -753,7 +753,7 @@ void CStateManager::RemoveObject(TUniqueId id) {
     TEditorId editorId = ent->GetEditorId();
     if (editorId != kInvalidEditorId) {
       const rstl::pair< rstl::multimap< TEditorId, TUniqueId >::iterator,
-                  rstl::multimap< TEditorId, TUniqueId >::iterator >
+                        rstl::multimap< TEditorId, TUniqueId >::iterator >
           range = x890_scriptIdMap.equal_range(editorId);
       rstl::multimap< TEditorId, TUniqueId >::iterator it = range.first;
       while (it != range.second) {
@@ -868,13 +868,14 @@ void CStateManager::InitializeState(unsigned int mlvlId, TAreaId aid, unsigned i
           const CPlayerState::EItemType itemType = static_cast< CPlayerState::EItemType >(i);
           if (static_cast< int >(GetPlayerState()->GetPowerUp(itemType)) <
               spawnPoint->GetPowerup(itemType)) {
-            GetPlayerState()->InitializePowerUp(
-                itemType, spawnPoint->GetPowerup(itemType) - GetPlayerState()->GetPowerUp(itemType));
+            GetPlayerState()->InitializePowerUp(itemType,
+                                                spawnPoint->GetPowerup(itemType) -
+                                                    GetPlayerState()->GetPowerUp(itemType));
           }
 
           if (GetPlayerState()->GetItemAmount(itemType) < spawnPoint->GetPowerup(itemType)) {
-            GetPlayerState()->IncrPickUp(
-                itemType, spawnPoint->GetPowerup(itemType) - GetPlayerState()->GetItemAmount(itemType));
+            GetPlayerState()->IncrPickUp(itemType, spawnPoint->GetPowerup(itemType) -
+                                                       GetPlayerState()->GetItemAmount(itemType));
           }
         }
       }
@@ -1459,7 +1460,7 @@ const bool CStateManager::MultiRayCollideWorld(const CMRay& ray,
     const CVector3f start =
         ray.GetStart() + ((i & 1) ? crossed : -crossed) + ((i & 2) ? -crossed2 : crossed2);
     result = CGameCollision::RayStaticIntersectionBool(*this, start, ray.GetDirection(),
-                                                      ray.GetLength(), filter);
+                                                       ray.GetLength(), filter);
     if (result) {
       break;
     }
@@ -1468,7 +1469,7 @@ const bool CStateManager::MultiRayCollideWorld(const CMRay& ray,
 }
 
 const bool CStateManager::TestRayDamage(const CVector3f& pos, const CActor& damagee,
-                                      const TEntityList& nearList) const {
+                                        const TEntityList& nearList) const {
   if (damagee.GetHealthInfo(*this) == nullptr) {
     return false;
   }
@@ -1508,7 +1509,7 @@ const bool CStateManager::TestRayDamage(const CVector3f& pos, const CActor& dama
       return true;
     }
     return CGameCollision::RayDynamicIntersectionBool(*this, pos, dir, filter, nearList, &damagee,
-                                                    depth * mag);
+                                                      depth * mag);
   }
   return true;
 }
@@ -1570,7 +1571,7 @@ void CStateManager::ProcessRadiusDamage(const CActor& damager, CActor& damagee,
   const CVector3f pos(damager.GetTranslation());
   const float negativeRadius = -radius;
   const CAABox aabb(pos + CVector3f(negativeRadius, negativeRadius, negativeRadius),
-                   pos + CVector3f(radius, radius, radius));
+                    pos + CVector3f(radius, radius, radius));
 
   TEntityList nearList;
   BuildNearList(nearList, aabb, localFilter, nullptr);
@@ -1680,7 +1681,7 @@ void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info,
 }
 
 void CStateManager::KnockBackPlayer(CPlayer& player, const CVector3f& dir, float power,
-                                   float resistance) {
+                                    float resistance) {
   if (player.GetMaterialList().HasMaterial(kMT_Immovable)) {
     return;
   }
@@ -1735,9 +1736,10 @@ void CStateManager::InformListeners(const CVector3f& pos, EListenNoiseType type)
   }
 }
 
-rstl::pair< TEditorId, TUniqueId >
-CStateManager::LoadScriptObject(TAreaId aid, EScriptObjectType type, unsigned int length,
-                                CInputStream& in) {
+rstl::pair< TEditorId, TUniqueId > CStateManager::LoadScriptObject(TAreaId aid,
+                                                                   EScriptObjectType type,
+                                                                   unsigned int length,
+                                                                   CInputStream& in) {
   uint bytesLeft = length;
   bool failed = false;
   const TEditorId eid = in.ReadLong();
@@ -1966,7 +1968,8 @@ void CStateManager::RendererDrawCallback(const void* drawable, const void* conte
   }
 }
 
-bool CStateManager::GetVisSetForArea(const TAreaId areaA, const TAreaId areaB, CPVSVisSet& setOut) const {
+bool CStateManager::GetVisSetForArea(const TAreaId areaA, const TAreaId areaB,
+                                     CPVSVisSet& setOut) const {
   if (areaB == kInvalidAreaId) {
     return false;
   }
@@ -1993,7 +1996,8 @@ bool CStateManager::GetVisSetForArea(const TAreaId areaA, const TAreaId areaB, C
           const CVector3f dockCenter = 0.25f * (verts[0] + verts[1] + verts[2] + verts[3]);
 
           if (hasClosestDock) {
-            if (!((dockCenter - viewPoint).MagSquared() < (closestDockPoint - viewPoint).MagSquared())) {
+            if (!((dockCenter - viewPoint).MagSquared() <
+                  (closestDockPoint - viewPoint).MagSquared())) {
               continue;
             }
           }

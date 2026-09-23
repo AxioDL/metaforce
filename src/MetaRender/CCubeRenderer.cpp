@@ -46,6 +46,7 @@
 #include "rstl/reserved_vector.hpp"
 #include "rstl/vector.hpp"
 
+#include <math.h>
 #include <string.h>
 #include <type_traits>
 

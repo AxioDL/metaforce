@@ -2,7 +2,7 @@
 
 #include "MetroidPrime/CSteeringBehaviors.hpp"
 #include "MetroidPrime/Player/CPlayer.hpp"
-#include "MetroidPrime/Weapons/CProjectileWeapon.hpp"
+#include "Weapons/CProjectileWeapon.hpp"
 
 #include "Weapons/CWeaponDescription.hpp"
 
@@ -11,8 +11,9 @@
 CProjectileInfo::CProjectileInfo(CAssetId proj, const CDamageInfo& dInfo)
 : x0_weaponDescription(gpSimplePool->GetObj(SObjectTag('WPSC', proj))), xc_damageInfo(dInfo) {}
 
-CProjectileInfo::CProjectileInfo(CInputStream& in )
-: x0_weaponDescription(gpSimplePool->GetObj(SObjectTag('WPSC', CAssetId(in.ReadLong())))), xc_damageInfo(in) {}
+CProjectileInfo::CProjectileInfo(CInputStream& in)
+: x0_weaponDescription(gpSimplePool->GetObj(SObjectTag('WPSC', CAssetId(in.ReadLong()))))
+, xc_damageInfo(in) {}
 
 float CProjectileInfo::GetProjectileSpeed() const {
   float result = 45000.0f;
