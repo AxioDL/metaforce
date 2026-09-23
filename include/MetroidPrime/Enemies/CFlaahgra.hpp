@@ -85,7 +85,7 @@ public:
 
   // CEntity
   ~CFlaahgraRenderer() override;
-  DECLARE_TYPES_MATCH_OR_ACCEPT;
+  DECLARE_ACCEPT;
 
   // CActor
   void AddToRenderer(const CFrustumPlanes& frustum, const CStateManager& mgr) const override;
@@ -234,10 +234,15 @@ private:
   float x7d8_;
   CDamageInfo x7dc_halfContactDamage;
   int x7f8_;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  int x80c_projectileAttackCount;
+#endif
   rstl::reserved_vector< TUniqueId, 6 > x7fc_sphereColliders;
   TUniqueId x80c_headActor;
   float x810_;
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
   float x814_;
+#endif
   float x818_curHp;
   float x81c_;
   CVector3f x820_aimPosition;
@@ -256,13 +261,17 @@ private:
   bool x8e4_29_getup : 1;
   bool x8e4_30_bigStrike : 1;
   bool x8e4_31_ : 1;
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
   bool x8e5_24_ : 1;
+#endif
   bool x8e5_25_ : 1;
   bool x8e5_26_ : 1;
   bool x8e5_27_ : 1;
   bool x8e5_28_ : 1;
   bool x8e5_29_ : 1;
+#if VERSION < VERSION_GM8P_00 || VERSION == VERSION_GM8E_02
   bool x8e5_30_ : 1;
+#endif
 
   static const SJointInfo skLeftArmJointList[];
   static const SJointInfo skRightArmJointList[];

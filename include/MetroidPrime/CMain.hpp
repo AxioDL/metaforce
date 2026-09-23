@@ -8,6 +8,7 @@
 #include "Kyoto/Alloc/CMemorySys.hpp"
 #include "Kyoto/Basics/COsContext.hpp"
 #include "Kyoto/Basics/CStopwatch.hpp"
+#include "Kyoto/CDvdRequestManager.hpp"
 #include "Kyoto/Streams/CInputStream.hpp"
 #include "Kyoto/TReservedAverage.hpp"
 #include "MetroidPrime/CGameArchitectureSupport.hpp"
@@ -27,24 +28,6 @@ public:
 private:
   static void* mSaveBuffer;
   static void* mNonVolatileSettingsBuf;
-};
-
-// TODO move to new header
-class CDvdRequestSys {
-public:
-  CDvdRequestSys() {
-    if (mManagerInstalled != true) {
-      mManagerInstalled = true;
-    }
-  }
-  ~CDvdRequestSys() {
-    if (mManagerInstalled == true) {
-      mManagerInstalled = false;
-    }
-  }
-
-private:
-  static bool mManagerInstalled;
 };
 
 class CMain {

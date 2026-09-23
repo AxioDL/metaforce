@@ -714,6 +714,10 @@ private:
   float xa14_envDmgCameraShakeTimer;
   float xa18_phazonDamageLag;
   float xa1c_threatOverride;
+#if VERSION >= VERSION_GM8P_00 && VERSION != VERSION_GM8E_02
+  int xa30_phazonCollisionDelay[7];
+  int xa4c_phazonCollisionIndex;
+#endif
   float xa20_radarXYRadiusOverride;
   float xa24_radarZRadiusOverride;
   float xa28_attachedActorStruggle;
@@ -721,7 +725,8 @@ private:
   float xa30_samusExhaustedVoiceTimer;
 };
 NESTED_CHECK_SIZEOF(CPlayer, CPlayerStuckTracker, 0x2e0);
-CHECK_SIZEOF(CPlayer, (VERSION >= VERSION_GM8P_00 ? 0xa48 : 0xa38))
+CHECK_SIZEOF(CPlayer,
+             (VERSION < VERSION_GM8P_00 ? 0xa38 : (VERSION == VERSION_GM8E_02 ? 0xa48 : 0xa68)))
 
 extern const bool gkAutoAim;
 extern const bool gkAutoAimAtOrbitedObject;

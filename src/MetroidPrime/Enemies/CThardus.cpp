@@ -1720,7 +1720,7 @@ void CThardus::AddParticleEffect(CStateManager& mgr, const CVector3f& pos, CAsse
                             CStringExtras::CreateFromInteger(x6f4_++);
   AnimationData()->GetParticleDB().AddAuxiliaryParticleEffect(
       name, 0x40, CAuxiliaryParticleData(0, SObjectTag('PART', particle), pos, 1.f),
-      2.f * GetModelScale(), mgr, GetCurrentAreaId(), 0);
+      GetModelScale() * 2.f, mgr, GetCurrentAreaId(), 0);
 }
 
 bool CThardus::AttackOver(CStateManager& mgr, float arg) {
