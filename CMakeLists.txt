@@ -696,6 +696,7 @@ set(GAME_FILES
       extern/rstl/src/rstl/rstl_strings.cpp
       src/Metaforce/ARAMToken.cpp
       src/Metaforce/Alloc.cpp
+      src/Metaforce/Audio.cpp
       src/Metaforce/CModelSectionReader.cpp
       src/Metaforce/MapData.cpp
       src/Metaforce/PathData.cpp

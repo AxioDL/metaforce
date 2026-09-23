@@ -18,12 +18,18 @@
 
 #include "dolphin/gx.h"
 #include "dolphin/thp.h"
+#if defined(TARGET_PC)
+#include "Metaforce/Audio.hpp"
+#include <algorithm>
+#endif
 
 static int sNumReferences = 0;
 static CMoviePlayer* sAudioPlayer;
+#if !defined(TARGET_PC)
 static const short* curAudioBuffer;
 static int soundBufferIndex;
 ATTRIBUTE_ALIGN_DECL(32, static short soundBuffer[2][320]);
+#endif
 static bool sAudioEnabled = true;
 static uchar sSfxVolume = 127;
 
@@ -192,8 +198,15 @@ CMoviePlayer::CMoviePlayer(const char* path, const float preLoadSeconds, const b
     sThpInitialized = true;
     THPInit();
   }
-  ++sNumReferences;
-  VerifyCallbackStatus();
+#if defined(TARGET_PC)
+  {
+    const metaforce::AudioLockGuard lock;
+#endif
+    ++sNumReferences;
+    VerifyCallbackStatus();
+#if defined(TARGET_PC)
+  }
+#endif
   xac_indexLoad->x0_headerRequest = x0_dvdFile.SyncRead(xac_indexLoad->xc_buffer.get(), 64);
 }
 
@@ -313,6 +326,9 @@ bool CMoviePlayer::PumpIndexLoad() {
 }
 
 CMoviePlayer::~CMoviePlayer() {
+#if defined(TARGET_PC)
+  const metaforce::AudioLockGuard lock;
+#endif
   --sNumReferences;
   VerifyCallbackStatus();
   if (sAudioPlayer == this) {
@@ -321,6 +337,9 @@ CMoviePlayer::~CMoviePlayer() {
 }
 
 void CMoviePlayer::InitializeTextures() {
+#if defined(TARGET_PC)
+  const metaforce::AudioLockGuard lock;
+#endif
   const uint ySize = OSRoundUp32B(x6c_videoInfo.mXSize * x6c_videoInfo.mYSize);
   const uint uvSize = OSRoundUp32B(x6c_videoInfo.mXSize * x6c_videoInfo.mYSize / 4);
   const uint audioSize = x28_header.mAudioMaxSamples * 4;
@@ -387,14 +406,21 @@ void CMoviePlayer::DecodeFromRead(const void* ptr) {
   const uchar* dataStart =
       static_cast< const uchar* >(ptr) + 8 + x58_thpComponents.mNumComponents * 4;
   uint offset = 0;
+#if !defined(TARGET_PC)
   texture.SetAudioSamplesConsumed(0);
   texture.SetAudioSamples(0);
+#endif
   for (uint i = 0; i < x58_thpComponents.mNumComponents; ++i) {
     const uchar* data = dataStart + offset;
     if (x58_thpComponents.mFrameComp[i] == 0) {
       THPVideoDecode(const_cast< uchar* >(data), texture.Y(), texture.U(), texture.V(),
                      alignedWork);
     } else if (x58_thpComponents.mFrameComp[i] == 1) {
+#if defined(TARGET_PC)
+      // Publish PCM and its counters together; the mixer may be reading this
+      // slot while the game thread decodes the next video frame.
+      const metaforce::AudioLockGuard lock;
+#endif
       const uint samples =
           THPAudioDecode(static_cast< short* >(texture.Audio()), const_cast< uchar* >(data), 0);
       const BOOL interrupts = OSDisableInterrupts();
@@ -519,7 +545,12 @@ void CMoviePlayer::DrawFrame(const CVector3f& v1, const CVector3f& v2, const CVe
   ++xfc_fieldIndex;
 }
 
-void CMoviePlayer::SetPlayMode(const EPlayMode mode) { xe0_playMode = mode; }
+void CMoviePlayer::SetPlayMode(const EPlayMode mode) {
+#if defined(TARGET_PC)
+  const metaforce::AudioLockGuard lock;
+#endif
+  xe0_playMode = mode;
+}
 
 float CMoviePlayer::GetTotalSeconds() const { return xe4_totalSeconds; }
 
@@ -537,6 +568,11 @@ void CMoviePlayer::Rewind() {
     x98_request = nullptr;
   }
 
+#if defined(TARGET_PC)
+  const metaforce::AudioLockGuard lock;
+  m_audioPhase = 0;
+  m_audioPrimed = false;
+#endif
   x90_requestBuffer = rstl::auto_ptr< uchar >(nullptr);
   xb0_nextReadSize = x28_header.mFirstFrameSize;
   xb4_nextReadOff = x28_header.mMovieDataOffsets;
@@ -554,8 +590,52 @@ void CMoviePlayer::Rewind() {
   x80_textures.clear();
 }
 
+#if defined(TARGET_PC)
+void CMoviePlayer::StaticMyAudioCallback(short* output, size_t frames, u32 rate, u32 channels) {
+  CMoviePlayer* player = sAudioPlayer;
+  if (!player || player->xe0_playMode != kPM_Playing ||
+      player->xd4_audioSlot < 0 || player->x80_textures.empty()) {
+    return;
+  }
+  const u32 sourceRate = player->x74_audioInfo.mSndFrequency;
+  if (!sourceRate || sourceRate > 96000) {
+    return;
+  }
+
+  for (size_t frame = 0; frame < frames; ++frame, output += channels) {
+    short audio[2];
+    if (sourceRate == rate) {
+      player->MixAudio(audio, nullptr, 1);
+    } else {
+      if (!player->m_audioPrimed) {
+        player->MixAudio(player->m_audioHistory[0], nullptr, 1);
+        player->MixAudio(player->m_audioHistory[1], nullptr, 1);
+        player->m_audioPrimed = true;
+      }
+      for (u32 channel = 0; channel < 2; ++channel) {
+        const s32 a = player->m_audioHistory[0][channel];
+        const s32 b = player->m_audioHistory[1][channel];
+        audio[channel] = a + (s64(b - a) * player->m_audioPhase) / rate;
+      }
+      player->m_audioPhase += sourceRate;
+      while (player->m_audioPhase >= rate) {
+        player->m_audioPhase -= rate;
+        for (u32 channel = 0; channel < 2; ++channel) {
+          player->m_audioHistory[0][channel] = player->m_audioHistory[1][channel];
+        }
+        player->MixAudio(player->m_audioHistory[1], nullptr, 1);
+      }
+    }
+    // THPAudioDecode follows the console's R,L ordering. Native output is L,R;
+    // movies remain a stereo source in every speaker layout.
+    if (sAudioEnabled && sSfxVolume != 0) {
+      output[0] = std::clamp(s32(output[0]) + audio[1], -32768, 32767);
+      output[1] = std::clamp(s32(output[1]) + audio[0], -32768, 32767);
+    }
+  }
+}
+#else
 void CMoviePlayer::StaticMyAudioCallback() {
-#if !defined(TARGET_PC) // TODO: audio
   if (sAudioPlayer != nullptr && sAudioPlayer->xf4_26_hasAudio) {
     curAudioBuffer = static_cast< const short* >(OSPhysicalToCached(AIGetDMAStartAddr()));
     soundBufferIndex ^= 1;
@@ -569,8 +649,8 @@ void CMoviePlayer::StaticMyAudioCallback() {
     DCFlushRange(buffer, sizeof(soundBuffer[0]));
     OSRestoreInterrupts(interrupts);
   }
-#endif
 }
+#endif
 
 void CMoviePlayer::MixAudio(short* out, const short* in, unsigned long samples) {
   const short* input = in;
@@ -647,8 +727,23 @@ uint CMoviePlayer::GetWidth() const { return x6c_videoInfo.mXSize; }
 
 uint CMoviePlayer::GetHeight() const { return x6c_videoInfo.mYSize; }
 
-void CMoviePlayer::SetAudioEnabled(bool enabled) { sAudioEnabled = enabled; }
+void CMoviePlayer::SetAudioEnabled(bool enabled) {
+#if defined(TARGET_PC)
+  const metaforce::AudioLockGuard lock;
+#endif
+  sAudioEnabled = enabled;
+}
 
-bool CMoviePlayer::GetAudioEnabled() { return sAudioEnabled; }
+bool CMoviePlayer::GetAudioEnabled() {
+#if defined(TARGET_PC)
+  const metaforce::AudioLockGuard lock;
+#endif
+  return sAudioEnabled;
+}
 
-void CMoviePlayer::SetSfxVolume(uchar volume) { sSfxVolume = rstl::min_val(uchar(127), volume); }
+void CMoviePlayer::SetSfxVolume(uchar volume) {
+#if defined(TARGET_PC)
+  const metaforce::AudioLockGuard lock;
+#endif
+  sSfxVolume = rstl::min_val(uchar(127), volume);
+}

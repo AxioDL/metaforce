@@ -18,7 +18,7 @@
 #include <thread>
 
 namespace {
-std::mutex interruptMutex;
+std::recursive_mutex interruptMutex;
 thread_local bool interruptsEnabled = true;
 u32 soundMode = OS_SOUND_MODE_STEREO;
 u32 progressiveMode = 1;
@@ -27,6 +27,11 @@ AIDCallback audioCallback = nullptr;
 void* savedRegionStart = nullptr;
 void* savedRegionEnd = nullptr;
 } // namespace
+
+namespace metaforce {
+void LockAudio() { interruptMutex.lock(); }
+void UnlockAudio() { interruptMutex.unlock(); }
+} // namespace metaforce
 
 extern "C" {
 void PPCSync() { std::atomic_thread_fence(std::memory_order_seq_cst); }

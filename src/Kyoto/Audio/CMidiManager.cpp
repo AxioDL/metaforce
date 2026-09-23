@@ -6,9 +6,24 @@
 #include <Kyoto/CFactoryFnReturn.hpp>
 #include <Kyoto/Streams/CInputStream.hpp>
 
+#if defined(TARGET_PC)
+#include "Metaforce/Audio.hpp"
+#include "Metaforce/Common.hpp"
+
+namespace {
+constexpr borealis::Log Log{"CMidiManager"};
+}
+#endif
+
 rstl::reserved_vector< CMidiManager::CMidiWrapper, 3 > CMidiManager::mMidiWrappers;
 
-CMidiManager::CMidiWrapper::CMidiWrapper() : x0_sysHandle(0), xa_available(true) {}
+CMidiManager::CMidiWrapper::CMidiWrapper()
+: x0_sysHandle(0)
+#if defined(TARGET_PC)
+, x8_songId(-1)
+#endif
+, xa_available(true) {
+}
 
 const CSfxHandle& CMidiManager::CMidiWrapper::GetManagerHandle() const { return x4_midiHandle; }
 
@@ -39,6 +54,11 @@ CSfxHandle CMidiManager::Play(const CMidiData& data, unsigned short fadeTime, bo
   wrapper.SetMidiHandle(handle);
   if (stopExisting) {
     for (int i = 0; i < mMidiWrappers.size(); ++i) {
+#if defined(TARGET_PC)
+      if (&mMidiWrappers[i] == &wrapper) {
+        continue;
+      }
+#endif
       if (mMidiWrappers[i].IsAvailable()) {
         continue;
       }
@@ -57,7 +77,14 @@ CSfxHandle CMidiManager::Play(const CMidiData& data, unsigned short fadeTime, bo
     wrapper.SetAudioSysHandle(sysHandle);
     wrapper.SetSongId(data.GetSongId());
   } else {
-    u32 sysHandle = CAudioSys::SeqPlayEx(data.GetGroupId(), data.GetSongId(), data.GetData(), nullptr, 0);
+    u32 sysHandle =
+        CAudioSys::SeqPlayEx(data.GetGroupId(), data.GetSongId(), data.GetData(), nullptr, 0);
+#if defined(TARGET_PC)
+    if (sysHandle == SND_ID_ERROR) {
+      wrapper.SetAvailable(true);
+      return {};
+    }
+#endif
     if (fadeTime != 0) {
       CAudioSys::SeqVolume(0, 0, sysHandle, 0);
     }
@@ -113,6 +140,22 @@ CSfxHandle CMidiManager::LocateHandle() {
 
 CMidiManager::CMidiData::CMidiData(CInputStream& in)
 : x0_songId(-1), x2_groupId(-1), x4_agscId(-1) {
+#if defined(TARGET_PC)
+  u8 bytes[20];
+  metaforce::AudioSongHeader header{};
+  REQUIRE(in.ReadBytes(bytes, sizeof(bytes)) == sizeof(bytes) &&
+              metaforce::ReadAudioSongHeader(bytes, header),
+          "Invalid CSNG header");
+  x0_songId = header.song;
+  x2_groupId = header.group;
+  x4_agscId = header.audioGroup;
+  x8_data = rs_new uchar[header.length];
+  REQUIRE(in.ReadBytes(x8_data.get(), header.length) == header.length,
+          "Truncated CSNG arrangement");
+  SND_PC_ASSET_ERROR error{};
+  REQUIRE(sndPCValidateArrangement({x8_data.get(), header.length}, &error),
+          "Invalid CSNG arrangement at {}: {}", error.offset, error.reason ? error.reason : "");
+#else
   in.ReadLong();
   x0_songId = in.ReadLong();
   x2_groupId = in.ReadLong();
@@ -120,8 +163,10 @@ CMidiManager::CMidiData::CMidiData(CInputStream& in)
   int len = in.ReadInt32();
   x8_data = rs_new uchar[len];
   in.Get(x8_data.get(), len);
+#endif
 }
 
-const CFactoryFnReturn FMidiDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer&) {
+const CFactoryFnReturn FMidiDataFactory(const SObjectTag& tag, CInputStream& in,
+                                        const CVParamTransfer&) {
   return rs_new CMidiManager::CMidiData(in);
 }
