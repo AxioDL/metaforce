@@ -1,4 +1,5 @@
 #include "Metaforce/Runtime.hpp"
+#include "Metaforce/Audio.hpp"
 
 #include "Kyoto/Basics/COsContext.hpp"
 #include "Kyoto/CResFactory.hpp"
@@ -325,7 +326,12 @@ int Initialize(int argc, char** argv) {
       cxxopts::value< AuroraBackend >()->default_value("auto"))(
       "warp", "Start at WORLD,AREA[,LAYERBITS][,0xRELAY...]",
       cxxopts::value< std::vector< std::string > >(),
-      "WORLD,AREA,...")("load-save", "Load save slot (1-3)", cxxopts::value< int >(), "N");
+      "WORLD,AREA,...")("load-save", "Load save slot (1-3)", cxxopts::value< int >(), "N")(
+      "audio-rate", "Native audio rate (0 selects the opened device)",
+      cxxopts::value<unsigned int>()->default_value("0"))(
+      "audio-channels", "Audio channels: 0 (device), 2, 4, 6 or 8",
+      cxxopts::value<unsigned int>()->default_value("0"))(
+      "no-audio", "Advance sound without opening an audio device");
   options.parse_positional("dvd");
   options.positional_help("<disc image>");
   options.allow_unrecognised_options();
@@ -335,6 +341,12 @@ int Initialize(int argc, char** argv) {
   try {
     args = options.parse(argc, argv);
     standardOptions = borealis::cli::parse(args);
+    const auto rate = args["audio-rate"].as<unsigned int>();
+    const auto channels = args["audio-channels"].as<unsigned int>();
+    if ((rate && (rate < 8000 || rate > 96000)) ||
+        (channels && channels != 2 && channels != 4 && channels != 6 && channels != 8))
+      throw cxxopts::exceptions::parsing("Invalid audio configuration (8000..96000 Hz, 2/4/6/8 channels)");
+    ConfigureAudio({rate, channels}, args.count("no-audio") != 0);
     if (args.count("warp") > 1 || args.count("load-save") > 1) {
       throw cxxopts::exceptions::parsing("--warp and --load-save may each be specified only once");
     }
@@ -433,6 +445,8 @@ int Initialize(int argc, char** argv) {
 
 void Shutdown() {
   startup.reset();
+  if (sndIsInstalled()) sndQuit();
+  sndPCStopAudio();
   aurora_dvd_close();
   aurora_shutdown();
   borealis::log::shutdown();
@@ -444,6 +458,7 @@ bool HasStartupRequest() { return startup.has_value(); }
 
 bool BeginFrame() {
   limiter.Sleep(16670000);
+  UpdateAudio();
   for (const AuroraEvent* event = aurora_update(); event && event->type != AURORA_NONE; ++event) {
     if (event->type == AURORA_EXIT) {
       shouldTerminate = true;

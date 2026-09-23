@@ -576,11 +576,9 @@ bool CGameArchitectureSupport::LoadAudio() {
 }
 
 bool CMain::LoadAudio() {
-#if !defined(TARGET_PC) // TODO: audio
   if (x164_archSupport != nullptr) {
     return x164_archSupport->LoadAudio();
   }
-#endif
   return true;
 }
 

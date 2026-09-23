@@ -9,7 +9,11 @@
 #include <rstl/vector.hpp>
 
 class CDvdRequest;
+#if defined(TARGET_PC)
+typedef void (*FAudioCallback)(short* output, size_t frames, u32 rate, u32 channels);
+#else
 typedef void (*FAudioCallback)();
+#endif
 
 class CStaticAudioPlayer {
 public:
@@ -20,12 +24,21 @@ public:
   void StartMixOut();
   void StopMixOut();
 
+#if defined(TARGET_PC)
+  static void MixCallback(short* output, size_t frames, u32 rate, u32 channels);
+  void DoMix(short* output, size_t frames, u32 rate, u32 channels);
+#else
   static void MixCallback();
   void DoMix();
+#endif
   static void RunDMACallback(FAudioCallback);
   static void CancelDMACallback(FAudioCallback);
   static void InstallAICallback();
+#if defined(TARGET_PC)
+  static void AICallback(short* output, size_t frames, u32 rate, u32 channels);
+#else
   static void AICallback();
+#endif
 
   void Decode(const ushort* bufIn, ushort* bufOut, int numSamples);
   void DecodeMonoAndMix(ushort* bufIn, ushort* bufOut, int numSamples,
@@ -48,6 +61,13 @@ private:
   g72x_state x58_leftState;
   g72x_state x8c_rightState;
   ushort xc0_volume;
+#if defined(TARGET_PC)
+  u32 m_audioPhase = 0;
+  short m_audioHistory[2][2] = {};
+  short m_audioPair[4] = {};
+  u32 m_audioPairRead = 2;
+  bool m_audioPrimed = false;
+#endif
 };
 
 #endif // _CSTATICAUDIOPLAYER

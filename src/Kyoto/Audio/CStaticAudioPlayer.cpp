@@ -12,12 +12,22 @@
 #include <dolphin/ai.h>
 #include <dolphin/os.h>
 
+#if defined(TARGET_PC)
+#include "Metaforce/Audio.hpp"
+#include <algorithm>
+#endif
+
 static CStaticAudioPlayer* sCurrentPlayer = nullptr;
 static rstl::reserved_vector< FAudioCallback, 4 > sAICallbacks;
+#if !defined(TARGET_PC)
 ATTRIBUTE_ALIGN_DECL(8, static bool sDMACallbackInstalled) = false;
 static FAudioCallback sOldDMACallback = nullptr;
+#endif
 
 void CStaticAudioPlayer::InstallAICallback() {
+#if defined(TARGET_PC)
+  sndPCSetOutputCallback(sAICallbacks.empty() ? nullptr : AICallback);
+#else
   bool old = CAudioSys::IsAICallbackEnabled();
   CAudioSys::EnableAICallback(true);
 
@@ -31,8 +41,16 @@ void CStaticAudioPlayer::InstallAICallback() {
   }
 
   CAudioSys::EnableAICallback(old);
+#endif
 }
 
+#if defined(TARGET_PC)
+void CStaticAudioPlayer::AICallback(short* output, size_t frames, u32 rate, u32 channels) {
+  for (int i = 0; i < sAICallbacks.size(); ++i) {
+    sAICallbacks[i](output, frames, rate, channels);
+  }
+}
+#else
 void CStaticAudioPlayer::AICallback() {
   sOldDMACallback();
 
@@ -40,6 +58,7 @@ void CStaticAudioPlayer::AICallback() {
     sAICallbacks[i]();
   }
 }
+#endif
 
 void CStaticAudioPlayer::RunDMACallback(const FAudioCallback callback) {
   volatile const bool old = OSDisableInterrupts();
@@ -103,6 +122,9 @@ const bool CStaticAudioPlayer::IsReady() const {
 }
 
 void CStaticAudioPlayer::StartMixOut() {
+#if defined(TARGET_PC)
+  const metaforce::AudioLockGuard lock;
+#endif
   if (sCurrentPlayer == this) {
     return;
   }
@@ -111,21 +133,75 @@ void CStaticAudioPlayer::StartMixOut() {
   x18_curSamp = 0;
   g72x_init_state(&x58_leftState);
   g72x_init_state(&x8c_rightState);
+#if defined(TARGET_PC)
+  m_audioPhase = 0;
+  m_audioPairRead = 2;
+  m_audioPrimed = false;
+#endif
   sCurrentPlayer = this;
   RunDMACallback(MixCallback);
 }
 
 void CStaticAudioPlayer::StopMixOut() {
+#if defined(TARGET_PC)
+  const metaforce::AudioLockGuard lock;
+#endif
   if (sCurrentPlayer == this) {
     CancelDMACallback(MixCallback);
     sCurrentPlayer = NULL;
   }
 }
 
+#if defined(TARGET_PC)
+void CStaticAudioPlayer::MixCallback(short* output, size_t frames, u32 rate, u32 channels) {
+  if (sCurrentPlayer != nullptr) {
+    sCurrentPlayer->DoMix(output, frames, rate, channels);
+  }
+}
+
+void CStaticAudioPlayer::DoMix(short* output, size_t frames, u32 rate, u32 channels) {
+  // RSF stores two 32 kHz G.721 channels, with two samples packed in each byte.
+  // Keep decoding pairs even when the output rate requires fractional frames.
+  const auto readFrame = [this](short* frame) {
+    if (m_audioPairRead == 2) {
+      std::fill_n(m_audioPair, 4, short(0));
+      ushort* pair = reinterpret_cast< ushort* >(m_audioPair);
+      Decode(pair, pair, 2);
+      m_audioPairRead = 0;
+    }
+    frame[0] = m_audioPair[m_audioPairRead * 2];
+    frame[1] = m_audioPair[m_audioPairRead * 2 + 1];
+    ++m_audioPairRead;
+  };
+  if (!m_audioPrimed) {
+    readFrame(m_audioHistory[0]);
+    readFrame(m_audioHistory[1]);
+    m_audioPrimed = true;
+  }
+
+  for (size_t frame = 0; frame < frames; ++frame, output += channels) {
+    for (u32 channel = 0; channel < 2; ++channel) {
+      // The original DMA buffer is R,L; native output uses FL,FR.
+      const s32 a = m_audioHistory[0][1 - channel];
+      const s32 b = m_audioHistory[1][1 - channel];
+      const s32 sample = a + (s64(b - a) * m_audioPhase) / rate;
+      if (xc0_volume != 0) {
+        output[channel] = std::clamp(s32(output[channel]) + sample, -32768, 32767);
+      }
+    }
+    m_audioPhase += 32000;
+    while (m_audioPhase >= rate) {
+      m_audioPhase -= rate;
+      m_audioHistory[0][0] = m_audioHistory[1][0];
+      m_audioHistory[0][1] = m_audioHistory[1][1];
+      readFrame(m_audioHistory[1]);
+    }
+  }
+}
+#else
 void CStaticAudioPlayer::MixCallback() { sCurrentPlayer->DoMix(); }
 
 void CStaticAudioPlayer::DoMix() {
-#if !defined(TARGET_PC) // TODO
   u32 aiStart = OSCachedToPhysical(AIGetDMAStartAddr());
   x24_curBuf ^= 1;
   uintptr_t buf =
@@ -140,8 +216,8 @@ void CStaticAudioPlayer::DoMix() {
   Decode((ushort*)buf, (ushort*)aiStart, 160);
   DCFlushRange((void*)buf, 0x280);
   OSRestoreInterrupts(cookie);
-#endif
 }
+#endif
 
 void CStaticAudioPlayer::Decode(const ushort* bufIn, ushort* bufOut, int numSamples) {
   int curSamp = x18_curSamp / 2;
@@ -222,6 +298,9 @@ void CStaticAudioPlayer::DecodeMonoAndMix(ushort* bufIn, ushort* bufOut, int num
 }
 
 void CStaticAudioPlayer::SetVolume(uchar vol) {
+#if defined(TARGET_PC)
+  const metaforce::AudioLockGuard lock;
+#endif
   if (static_cast< uchar >(vol) > 127) {
     vol = 127;
   }

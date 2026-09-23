@@ -13,6 +13,9 @@
 
 #include <rstl/math.hpp>
 #include <string.h>
+#if defined(TARGET_PC)
+#include "Metaforce/Audio.hpp"
+#endif
 
 const ushort CAudioSys::kVolumeTable[] = {
     // pow(i / 127, 2) * 32768
@@ -189,11 +192,15 @@ CAudioSys::CAudioSys(const uchar numVoices, const uchar numMusic, const uchar nu
   SND_HOOKS hooks = {DoMalloc, DoFree};
   AIInit(NULL);
   sndSetHooks(&hooks);
+#if defined(TARGET_PC)
+  metaforce::InitializeAudio(numVoices, numMusic, numSfx, mProLogic2 ? 1 : 0);
+#else
   if (mProLogic2) {
     sndInit(numVoices, numMusic, numSfx, 1, 1, aramSize);
   } else {
     sndInit(numVoices, numMusic, numSfx, 1, 0, aramSize);
   }
+#endif
   DTKInit();
 
   mpGroupSetDB = rs_new rstl::map< rstl::string, rstl::ncrc_ptr< CAudioGroupSet > >();
@@ -241,16 +248,12 @@ CAudioSys::~CAudioSys() {
 }
 
 void CAudioSys::SysSetVolume(const uchar volume, const ushort time, const uchar group) {
-#if !defined(TARGET_PC) // TODO: audio
   sndVolume(volume, time, group);
-#endif
 }
 
 void CAudioSys::SysSetSfxVolume(const uchar volume, const ushort time, const uchar music,
                                 const uchar fx) {
-#if !defined(TARGET_PC) // TODO: audio
   sndMasterVolume(volume, time, music, fx);
-#endif
 }
 
 bool CAudioSys::SysLoadGroupSet(CSimplePool* pool, const uint id) {
@@ -341,7 +344,6 @@ void* CAudioSys::SampleDataUploadCallback(u32 address, u32 bytes) {
 }
 
 bool CAudioSys::SysPushGroupIntoARAM(const rstl::string& name, const uchar groupId) {
-#if !defined(TARGET_PC) // TODO: audio
   rstl::ncrc_ptr< CAudioGroupSet > groupSet = FindGroupSet(name);
   CAudioGroupSet* group = groupSet.GetPtr();
   if (group) {
@@ -361,14 +363,11 @@ bool CAudioSys::SysPushGroupIntoARAM(const rstl::string& name, const uchar group
     return result;
 #endif
   }
-#endif
   return false;
 }
 
 void CAudioSys::SysPopGroupFromARAM() {
-#if !defined(TARGET_PC) // TODO: audio
   sndPopGroup();
-#endif
 }
 
 const rstl::string& CAudioSys::SysGetGroupSetName(const uint id) {

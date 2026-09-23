@@ -8,6 +8,9 @@
 #include "dolphin/os.h"
 
 #include <string.h>
+#if defined(TARGET_PC)
+#include "Metaforce/Audio.hpp"
+#endif
 
 static struct {
   CDSPStream streams[4];
@@ -109,10 +112,37 @@ void CDSPStream::Initialize() {
 }
 
 void CDSPStream::FreeAllStreams() {
+#if defined(TARGET_PC)
+  {
+    metaforce::AudioLockGuard lock;
+    for (auto& stream : g_Streams) {
+      stream.xe8_silenced = 1;
+      stream.xf0_stopRequested = 1;
+      if (stream.xc8_streamId != SND_ID_ERROR) sndStreamDeactivate(stream.xc8_streamId);
+    }
+  }
+  // DVD completion takes the same lock. Wait without holding it, and keep
+  // refill buffers alive until both requests and their callbacks have retired.
+  for (auto& stream : g_Streams) {
+    DVDCancel(&stream.x50_fileInfo1.cb);
+    DVDCancel(&stream.x8c_fileInfo2.cb);
+  }
+  metaforce::AudioLockGuard lock;
+  for (auto& stream : g_Streams) {
+    if (stream.x0_state != 0) stream.CloseFiles();
+    if (stream.xc8_streamId != SND_ID_ERROR) sndStreamFree(stream.xc8_streamId);
+    CMemory::Free(stream.xd4_buffer);
+    stream.xd4_buffer = nullptr;
+    stream.xc8_streamId = SND_ID_ERROR;
+    stream.x0_state = 0;
+    stream.x8_right = stream.xc_left = nullptr;
+  }
+#else
   for (uint i = 0; i < 4; ++i) {
     sndStreamFree(g_Streams[i].xc8_streamId);
     CMemory::Free(g_Streams[i].xd4_buffer);
   }
+#endif
 }
 
 uint CDSPStream::AllocateStream(const SStreamInfo& info, char vol, char pan) {
@@ -410,6 +440,9 @@ int CDSPStream::InitializeStream() {
 }
 
 void CDSPStream::ReadCompleted(s32, DVDFileInfo* fileInfo) {
+#if defined(TARGET_PC)
+  metaforce::AudioLockGuard lock;
+#endif
   int idx = 0;
   CDSPStream* s = g_Streams;
   for (; idx < 4; ++idx, ++s) {
@@ -418,6 +451,9 @@ void CDSPStream::ReadCompleted(s32, DVDFileInfo* fileInfo) {
     }
   }
 
+#if defined(TARGET_PC)
+  if (idx == 4) return;
+#endif
   CDSPStream& stream = g_Streams[idx];
   stream.xec_readsPending--;
   if (stream.xec_readsPending != 0) {
