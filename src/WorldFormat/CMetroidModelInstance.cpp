@@ -4,8 +4,9 @@
 #include <string.h>
 
 #if defined(TARGET_PC)
-#include "Metaforce/Endian.hpp"
 #include <borealis/log.hpp>
+
+#include "Metaforce/Endian.hpp"
 #endif
 
 #if TARGET_BIG_ENDIAN
