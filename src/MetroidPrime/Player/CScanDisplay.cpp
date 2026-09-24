@@ -22,6 +22,10 @@
 
 #include <rstl/math.hpp>
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 void CScanDisplay::SetScanMessageTypeEffect(CGuiTextPane* pane, bool type) {
   if (type) {
     pane->TextSupport().SetTypeWriteEffectOptions(true, 0.1f, 60.f);
@@ -45,7 +49,12 @@ void CScanDisplay::CDataDot::Draw(CColor color, float radius) const {
     return;
   }
 
+#if defined(TARGET_PC)
+  gpRender->SetModelMatrix(CTransform4f::Translate(mCurPos.GetX(), 0.f, mCurPos.GetY()) *
+                           CTransform4f::Scale(1.f / metaforce::GetDisplayAspectScale(), 1.f, 1.f));
+#else
   gpRender->SetModelMatrix(CTransform4f::Translate(mCurPos.GetX(), 0.f, mCurPos.GetY()));
+#endif
   CGraphics::StreamBegin(kP_TriangleStrip);
   CGraphics::StreamColor(color.WithAlphaModulatedBy(mAlpha));
   CGraphics::StreamTexcoord(0.f, 1.f);

@@ -39,6 +39,10 @@
 #include "Kyoto/Math/CMatrix3f.hpp"
 #include "rstl/algorithm.hpp"
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 // Profiling labels retained in the retail string pool.
 static const char* const skGuiElementNames[] = {
     "FaceplateDecoration", "     FaceReflection", "        PlayerVisor", "                Hud",
@@ -277,7 +281,11 @@ void CInGameGuiManager::Draw(const CStateManager& mgr) const {
     const CViewport& viewport = CGraphics::GetViewport();
     const int x = viewport.mLeft + (viewport.mWidth - w) / 2 + x1c4_onScreenTex.xc_offset.GetX();
     const int y = viewport.mTop + (viewport.mHeight - h) / 2 - x1c4_onScreenTex.xc_offset.GetY();
+#if defined(TARGET_PC)
+    metaforce::RenderUiTexture(tex, x, y, w, h, CColor::White().WithAlphaOf(x1d8_onScreenTexAlpha));
+#else
     CGraphics::Render2D(tex, x, y, w, h, CColor::White().WithAlphaOf(x1d8_onScreenTexAlpha));
+#endif
   }
 
   float staticAlpha = 0.f;

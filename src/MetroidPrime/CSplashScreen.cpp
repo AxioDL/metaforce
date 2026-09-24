@@ -13,6 +13,10 @@
 #include "MetaRender/CCubeRenderer.hpp"
 #include "MetroidPrime/Decode.hpp"
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 const char* const skSplashScreenTextureNames[CSplashScreen::kSplashScreen_MAX] = {
     "TXTR_NintendoLogo",
     "TXTR_RetroLogo",
@@ -144,6 +148,9 @@ void CSplashScreen::Draw() const {
   const CColor color = tint.WithAlphaOf(alpha);
   if (IsCurrentSplashScreen(kSplashScreen_Nintendo) || IsCurrentSplashScreen(kSplashScreen_Retro)) {
     CGraphics::SetOrtho(-10.f, 650.f, -5.5f, 484.5f, -1.f, 1.f);
+#if defined(TARGET_PC)
+    metaforce::AdjustUiProjection();
+#endif
     const int x = 133 - (width - 376) / 2;
     const int y = 170 - (height - 104) / 2;
     CGraphics::SetCullMode(kCM_None);
@@ -161,7 +168,11 @@ void CSplashScreen::Draw() const {
     CGraphics::SetCullMode(kCM_Front);
   } else {
     const CViewport& vp = CGraphics::GetViewport();
+#if defined(TARGET_PC)
+    metaforce::RenderUiTexture(tex, vp.mLeft, vp.mTop, vp.mWidth, vp.mHeight, color);
+#else
     CGraphics::Render2D(tex, vp.mLeft, vp.mTop, vp.mWidth, vp.mHeight, color);
+#endif
   }
 
 #if !defined(TARGET_PC)

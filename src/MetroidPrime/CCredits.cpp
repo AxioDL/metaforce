@@ -31,6 +31,10 @@
 
 #include "dolphin/gx.h"
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 static const char* const skMovieNames[] = {"Video/wingame.thp",       "Video/wingame_best.thp",
                                            "Video/wingame_best.thp",  "Video/losegame.thp",
                                            "Video/05_tallonText.thp", "Video/AfterCredits.thp",
@@ -81,6 +85,9 @@ static void SetStaticAudioPlayerVolume(const rstl::single_ptr< CStaticAudioPlaye
 void CCredits::DrawText(CGuiTextSupport& text, const CVector3f& translation) {
   CGraphics::SetCullMode(kCM_None);
   gpRender->SetViewportOrtho(false, -4096.f, 4096.f);
+#if defined(TARGET_PC)
+  metaforce::AdjustUiProjection();
+#endif
   gpRender->SetModelMatrix(CTransform4f::Translate(translation));
   gpRender->SetDepthReadWrite(false, false);
   gpRender->SetBlendMode_AdditiveAlpha();

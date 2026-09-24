@@ -12,4 +12,6 @@ A reverse-engineered, native reimplementation of Metroid Prime.
 * `-l`: Enable console logging
 * `--warp WORLD,AREA[,LAYERBITS][,0xRELAY...]`: Warp to a world PAK index and zero-based area index. Example: `--warp 2,2`.
 * `--load-save N`: Load save slot 1–3 from memory card A.
+* `--window-size WIDTH,HEIGHT`: Initial window size (default: `1280,720`).
+* `--lock-aspect`: Lock to the original 4:3 aspect ratio.
 * `+developer=1`: Enable developer UI

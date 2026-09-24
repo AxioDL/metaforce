@@ -2122,8 +2122,13 @@ CFrustumPlanes CStateManager::SetupViewForDraw(const CViewport& viewport) const 
   CGraphics::SetDepthRange(0.125f, 1.f);
 
   const float zFar = cam.GetFarClipDistance();
+#if defined(TARGET_PC)
+  gpRender->SetPerspective(360.f * ((1.f / (2.f * M_PIF)) * fov), aspect,
+                           cam.GetNearClipDistance(), zFar);
+#else
   gpRender->SetPerspective(360.f * ((1.f / (2.f * M_PIF)) * fov), scaledWidth, scaledHeight,
                            cam.GetNearClipDistance(), zFar);
+#endif
 
   CFrustumPlanes frustum(camXf, fov, aspect, cam.GetNearClipDistance(), false, 100.f);
   gpRender->SetClippingPlanes(frustum);
@@ -2457,8 +2462,12 @@ void CStateManager::ResetViewAfterDraw(const CViewport& backupViewport,
 
   const CViewport& viewport = CGraphics::GetViewport();
   const float zFar = cam.GetFarClipDistance();
+#if defined(TARGET_PC)
+  gpRender->SetPerspective(cam.GetFov(), cam.GetAspectRatio(), cam.GetNearClipDistance(), zFar);
+#else
   gpRender->SetPerspective(cam.GetFov(), static_cast< float >(viewport.mWidth),
                            static_cast< float >(viewport.mHeight), cam.GetNearClipDistance(), zFar);
+#endif
 }
 
 void CStateManager::DrawAdditionalFilters() const {

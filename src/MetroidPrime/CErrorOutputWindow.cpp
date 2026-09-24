@@ -15,6 +15,10 @@
 #include "MetroidPrime/CMemoryCardDriver.hpp"
 #include "dolphin/dvd.h"
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 CErrorOutputWindow::CErrorOutputWindow(EFlag flag)
 : CIOWin(rstl::string_l("Error output window"))
 , x14_state(kS_Zero)
@@ -157,6 +161,9 @@ void CErrorOutputWindow::DrawError() const {
   CGraphics::SetViewPointMatrix(CTransform4f::Identity());
   CGraphics::SetOrtho(viewport.mLeft, viewport.mLeft + viewport.mWidth,
                       viewport.mTop + viewport.mHeight, top, -4096.f, 4096.f);
+#if defined(TARGET_PC)
+  metaforce::AdjustUiProjection();
+#endif
   CGraphics::SetBlendMode(kBM_Blend, kBF_SrcAlpha, kBF_InvSrcAlpha, kLO_Clear);
   CGraphics::SetCullMode(kCM_None);
   CGraphics::SetDepthWriteMode(true, kE_Always, false);

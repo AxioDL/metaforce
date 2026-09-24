@@ -12,6 +12,10 @@
 
 #include "rstl/math.hpp"
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 CGameCubeDoll::CGameCubeDoll()
 : x0_model(gpSimplePool->GetObj("CMDL_GameCube"))
 , x8_lights(1, CLight::BuildDirectional(CVector3f::Forward(), CColor(0xFFFFFFFF)),
@@ -69,6 +73,9 @@ void CGameCubeDoll::Draw(float alpha) {
 
   gpRender->SetPerspective(55.f, CGraphics::GetViewport().mWidth, CGraphics::GetViewport().mHeight,
                            0.2f, 4096.f);
+#if defined(TARGET_PC)
+  metaforce::AdjustUiProjection();
+#endif
 
   CGraphics::SetViewPointMatrix(CTransform4f::Translate(0.f, -2.f, 0.f));
   x18_actorLights->ActivateLights();

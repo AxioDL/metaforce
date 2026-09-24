@@ -11,6 +11,11 @@
 #include "MetroidPrime/Player/CPlayerState.hpp"
 #include "rstl/math.hpp"
 #include "rstl/allocator.hpp"
+
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 const CColor CArtifactDoll::skPreColor((uchar)255, 160, 5, 255);
 const CColor CArtifactDoll::skPostColor((uchar)103, 174, 225, 205);
 
@@ -135,6 +140,9 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, const bool inArt
   const float effectiveAlpha = alpha * mFader;
   gpRender->SetPerspective(55.f, CGraphics::GetViewportWidth(), CGraphics::GetViewportHeight(),
                           0.2f, 4096.f);
+#if defined(TARGET_PC)
+  metaforce::AdjustUiProjection();
+#endif
   CGraphics::SetViewPointMatrix(CTransform4f::Translate(0.f, -10.f, 0.f));
   mActorLights->ActivateLights();
   const float angle = CGraphics::GetSecondsMod900() * M_PIF * 2.f * 0.25f;

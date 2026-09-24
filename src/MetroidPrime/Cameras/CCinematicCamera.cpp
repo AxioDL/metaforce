@@ -93,7 +93,11 @@ void CCinematicCamera::Think(float dt, CStateManager& mgr) {
         SetTransform(CTransform4f::LookAt(viewPoint, target, up));
       }
     }
+#if defined(TARGET_PC)
+    SetFov(GetInterpolatedHFov(x1d8_viewHFovs, x1ec_t) / x168_aspect);
+#else
     SetFov(GetInterpolatedHFov(x1d8_viewHFovs, x1ec_t) / GetAspectRatio());
+#endif
     if (x20c_lookAtId != kInvalidUniqueId) {
       if (CScriptActor* actor = TCastToPtr< CScriptActor >(mgr.ObjectById(x20c_lookAtId))) {
         if (actor->IsPlayerActor()) {

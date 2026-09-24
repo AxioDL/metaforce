@@ -1637,7 +1637,12 @@ int CSamusHud::GetRelativeDirection(const CVector3f& position, const CStateManag
     return 0;
   }
   const float halfFov = 0.5f * camera->GetFov();
+#if defined(TARGET_PC)
+  const float horizontalHalfFov =
+      atanf(tanf(halfFov * (M_PIF / 180.f)) * camera->GetAspectRatio()) * (180.f / M_PIF);
+#else
   const float horizontalHalfFov = halfFov * camera->GetAspectRatio();
+#endif
   const float verticalCos = cosf(2.f * M_PIF * (0.0027777778f * halfFov));
   const float horizontalCos = cosf(2.f * M_PIF * (0.0027777778f * horizontalHalfFov));
   const CVector2f xy = CVector2f(localPosition.GetX(), localPosition.GetY()).AsNormalized();

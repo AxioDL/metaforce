@@ -57,6 +57,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 struct FEMovie {
   const char* path;
   bool loop;
@@ -348,6 +352,9 @@ void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveGameScreen* saveUi) const {
     if (xc_textSupport->GetIsTextSupportFinishedLoading()) {
       CGraphics::SetCullMode(kCM_None);
       gpRender->SetViewportOrtho(true, -4096.f, 4096.f);
+#if defined(TARGET_PC)
+      metaforce::AdjustUiProjection();
+#endif
       gpRender->SetBlendMode_AlphaBlended();
       gpRender->SetDepthReadWrite(false, false);
       CGraphics::SetModelMatrix(CTransform4f::Translate(-280.f, 0.f, -160.f));
@@ -2126,7 +2133,11 @@ void CFrontEndUI::Draw() const {
     gpRender->SetBlendMode_AdditiveAlpha();
     gpRender->SetDepthReadWrite(false, false);
     const CColor& color = CColor::White().WithAlphaOf(x64_pressStartAlpha);
+#if defined(TARGET_PC)
+    metaforce::RenderUiTexture(*tex, 320 - width / 2, 72 - height / 2, width, height, color);
+#else
     CGraphics::Render2D(*tex, 320 - width / 2, 72 - height / 2, width, height, color);
+#endif
   }
 
   if (GetHasAttractMovies()) {

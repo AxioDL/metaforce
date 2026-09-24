@@ -33,6 +33,10 @@
 #include "Kyoto/Math/CMath.hpp"
 #include "math.h"
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 static const CMaterialList kLineOfSightIncludeList = CMaterialList(kMT_Solid);
 static const CMaterialList kLineOfSightExcludeList =
     CMaterialList(kMT_ProjectilePassthrough, kMT_ScanPassthrough, kMT_Player);
@@ -562,8 +566,13 @@ bool CPlayer::WithinOrbitScreenEllipse(const CVector3f& screenCoords, EPlayerZon
   if (screenCoords.GetZ() >= 1.f) {
     return false;
   }
+#if defined(TARGET_PC)
+  const float uiX = metaforce::ScreenToUiX(screenCoords.GetX(), CGraphics::GetViewportWidth());
+  const float x = CMath::AbsF(uiX - CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreX(zone)));
+#else
   const float x =
       CMath::AbsF(screenCoords.GetX() - CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreX(zone)));
+#endif
   const float heYSq = CCast::LtoF(gpTweakPlayer->GetOrbitZoneHeight(zone) *
                                   gpTweakPlayer->GetOrbitZoneHeight(zone));
   const float heXSq =
@@ -580,8 +589,14 @@ bool CPlayer::WithinOrbitScreenBox(const CVector3f& screenCoords, EPlayerZoneInf
   }
   switch (type) {
   case kZT_Box:
+#if defined(TARGET_PC)
+    if (CMath::AbsF(metaforce::ScreenToUiX(screenCoords.GetX(), CGraphics::GetViewportWidth()) -
+                       CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreX(zone))) <=
+            CCast::LtoF(gpTweakPlayer->GetOrbitZoneWidth(zone)) &&
+#else
     if (CMath::AbsF(screenCoords.GetX() - CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreX(zone))) <=
             CCast::LtoF(gpTweakPlayer->GetOrbitZoneWidth(zone)) &&
+#endif
         CMath::AbsF(screenCoords.GetY() - CCast::LtoF(gpTweakPlayer->GetOrbitZoneCentreY(zone))) <=
             CCast::LtoF(gpTweakPlayer->GetOrbitZoneHeight(zone)) &&
         screenCoords.GetZ() < 1.f) {

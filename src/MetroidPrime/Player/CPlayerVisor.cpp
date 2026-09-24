@@ -25,6 +25,10 @@
 #include <dolphin/gx/GXTexture.h>
 #include <float.h>
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 static const int skPixelsPerTileDimension16Bit = 4;
 
 static inline int round_up_n(int value, int n) { return (value + n - 1) & ~(n - 1); }
@@ -330,7 +334,11 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr,
   const float divisor = transFactor * ((1.f - t) * x58_scanMagInterp +
                                        t * gpTweakGui->GetScanWindowScanningAspect()) +
                         (1.f - transFactor);
+#if defined(TARGET_PC)
+  const float vpW = 169.218f * x48_interpWindowDims.GetX() / metaforce::GetDisplayAspectScale();
+#else
   const float vpW = 169.218f * x48_interpWindowDims.GetX();
+#endif
   const float vpH = 152.218f * x48_interpWindowDims.GetY();
   const int width =
       CMath::Clamp(skPixelsPerTileDimension16Bit, round_up_to_tile(vpW / divisor), vpWidth);
@@ -343,6 +351,9 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr,
   GXPixModeSync();
   x64_scanDim.Draw();
   gpRender->SetViewportOrtho(true, -1.f, 1.f);
+#if defined(TARGET_PC)
+  metaforce::AdjustUiProjection();
+#endif
   const CTransform4f windowScale =
       CTransform4f::Scale(x48_interpWindowDims.GetX(), 1.f, x48_interpWindowDims.GetY());
   const CTransform4f seventeenScale = CTransform4f::Scale(17.f, 1.f, 17.f);
@@ -629,6 +640,9 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const {
     return false;
   CGraphics::SetDepthRange(0.125f, 1.f);
   gpRender->SetViewportOrtho(true, 0.f, 4096.f);
+#if defined(TARGET_PC)
+  metaforce::AdjustUiProjection();
+#endif
   gpRender->SetModelMatrix(CTransform4f::Scale(17.f * x48_interpWindowDims.GetX(), 1.f,
                                                17.f * x48_interpWindowDims.GetY()));
   shield->Draw(CModelFlags::AlphaBlended(CColor(0)));
@@ -638,9 +652,14 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const {
   CFrustumPlanes frustum(cameraXf, 0.01745329238474369f * camera.GetFov(), camera.GetAspectRatio(),
                          1.f, false, 100.f);
   gpRender->SetClippingPlanes(frustum);
+#if defined(TARGET_PC)
+  gpRender->SetPerspective(camera.GetFov(), camera.GetAspectRatio(), camera.GetNearClipDistance(),
+                           camera.GetFarClipDistance());
+#else
   gpRender->SetPerspective(camera.GetFov(), CGraphics::GetViewportWidth(),
                            CGraphics::GetViewportHeight(), camera.GetNearClipDistance(),
                            camera.GetFarClipDistance());
+#endif
   CMatrix3f cameraRotation = cameraXf.BuildMatrix3f();
   CVector3f cameraPosition = cameraXf.GetTranslation();
   for (int i = 0; i < x13c_scanTargets.size(); ++i) {

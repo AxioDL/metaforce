@@ -26,6 +26,10 @@
 #include "MetroidPrime/Tweaks/CTweakPlayerRes.hpp"
 #include "MetroidPrime/Tweaks/CTweakSlideShow.hpp"
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 static const char* const skGalleryName = "Gallery";
 static const char* const skGalleryAssets = "GalleryAssets_DGRP";
 static const char* const skGalleryTag = "TXTR_GalleryTag";
@@ -95,6 +99,9 @@ static void DrawTexture(const rstl::auto_ptr< TToken< CTexture > >& token,
     }
     CGraphics::SetBlendMode(kBM_Blend, kBF_SrcAlpha, kBF_InvSrcAlpha, kLO_Clear);
     CGraphics::SetOrtho(left, left + vpWidth, top + vpHeight, top, -1.f, 1.f);
+#if defined(TARGET_PC)
+    metaforce::AdjustUiProjection();
+#endif
     CGraphics::SetViewPointMatrix(CTransform4f::Identity());
     CGraphics::SetModelMatrix(CTransform4f::Translate(position));
     CGraphics::SetTevOp(kTS_Stage0, CGraphics::kEnvModulate);
@@ -772,6 +779,9 @@ void CSlideShow::DrawSlideNumber() const {
     const float fadeTime = gpTweakSlideShow->GetSlideNumberFadeTime();
     const float alpha = CMath::Clamp(0.f, (fadeTime - x58_slideNumberTimer) / fadeTime, 1.f);
     gpRender->SetViewportOrtho(false, -4096.f, 4096.f);
+#if defined(TARGET_PC)
+    metaforce::AdjustUiProjection();
+#endif
     gpRender->SetModelMatrix(CTransform4f::Translate(-32.f, 0.f, height + x12c_slideNumberOffset));
     CGraphics::SetCullMode(kCM_None);
     gpRender->SetDepthReadWrite(false, false);
@@ -802,6 +812,9 @@ void CSlideShow::DrawControls() const {
   if (!xc4_controlsText.null()) {
     const int height = CGraphics::GetViewportHeight();
     gpRender->SetViewportOrtho(false, -4096.f, 4096.f);
+#if defined(TARGET_PC)
+    metaforce::AdjustUiProjection();
+#endif
     gpRender->SetModelMatrix(CTransform4f::Translate(0.f, 0.f, height + x128_controlsOffset));
     CGraphics::SetCullMode(kCM_None);
     gpRender->SetDepthReadWrite(false, false);
@@ -814,6 +827,9 @@ void CSlideShow::DrawControlsBorder() const {
     const int width = CGraphics::GetViewportWidth();
     const int height = CGraphics::GetViewportHeight();
     gpRender->SetViewportOrtho(true, -4096.f, 4096.f);
+#if defined(TARGET_PC)
+    metaforce::AdjustUiProjection();
+#endif
     CGraphics::SetViewPointMatrix(CTransform4f::Identity());
     const CAABox bounds = x38_galleryBorder->GetT()->GetCubeModel()->GetBoundingBox();
     const float scale =

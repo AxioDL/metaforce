@@ -20,6 +20,7 @@
 #include "dolphin/thp.h"
 #if defined(TARGET_PC)
 #include "Metaforce/Audio.hpp"
+#include "Metaforce/Display.hpp"
 #include <algorithm>
 #endif
 
@@ -518,6 +519,10 @@ void CMoviePlayer::DrawFrame(const CVector3f& v1, const CVector3f& v2, const CVe
   if (xd0_drawTexSlot == -1) {
     return;
   }
+#if defined(TARGET_PC)
+  const CGraphics::CProjectionState projection = CGraphics::GetProjectionState();
+  metaforce::AdjustUiProjection();
+#endif
   CGraphics::SetUseVideoFilter(xf4_25_deinterlace);
   const BOOL interrupts = OSDisableInterrupts();
   sAudioPlayer = this;
@@ -539,6 +544,9 @@ void CMoviePlayer::DrawFrame(const CVector3f& v1, const CVector3f& v2, const CVe
   GXTexCoord2u16(1, 0);
   CGX::End();
   MyTHPGXRestore();
+#if defined(TARGET_PC)
+  CGraphics::SetProjectionState(projection);
+#endif
   if (xfc_fieldIndex == 0 && field) {
     xf4_27_fieldFlip = true;
   }

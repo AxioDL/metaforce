@@ -32,6 +32,7 @@
 #include "dolphin/os.h"
 
 #if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
 #include "dolphin/gx/GXAurora.h"
 #endif
 
@@ -375,10 +376,17 @@ void CWorldTransManager::DrawEnabled() const {
   const float fov = CCameraManager::GetDefaultFirstPersonVerticalFOV();
   const float nearPlane = CCameraManager::GetDefaultFirstPersonNearClipDistance();
   const float farPlane = CCameraManager::GetDefaultFirstPersonFarClipDistance();
-  gpRender->SetPerspective(fov,
-                          CCast::LtoF(CGraphics::GetViewportWidth()) /
-                              CCast::LtoF(CGraphics::GetViewportHeight()),
-                          nearPlane, farPlane);
+#if defined(TARGET_PC)
+  gpRender->SetPerspective(
+      fov,
+      metaforce::AdjustDisplayAspect(CCast::LtoF(CGraphics::GetViewportWidth()) /
+                                     CCast::LtoF(CGraphics::GetViewportHeight())),
+      nearPlane, farPlane);
+#else
+  gpRender->SetPerspective(
+      fov, CCast::LtoF(CGraphics::GetViewportWidth()) / CCast::LtoF(CGraphics::GetViewportHeight()),
+      nearPlane, farPlane);
+#endif
   gpRender->SetRequestRGBA6(true);
   const float drawTime = x0_curTime;
   if (drawTime <= x4_modelData->x1d0_dissolveStartTime) {
@@ -532,6 +540,9 @@ void CWorldTransManager::UpdateText(float dt) {
 }
 void CWorldTransManager::DrawText() const {
   gpRender->SetViewportOrtho(false, -4096.f, 4096.f);
+#if defined(TARGET_PC)
+  metaforce::AdjustUiProjection();
+#endif
   gpRender->SetModelMatrix(CTransform4f::Translate(0.f, 0.f, 448.f));
   CGraphics::SetCullMode(kCM_None);
   gpRender->SetDepthReadWrite(false, false);

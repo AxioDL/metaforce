@@ -8,6 +8,10 @@
 
 #include <Kyoto/Streams/CInputStream.hpp>
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 CGuiWidget* CGuiCamera::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
   CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
   EProjection proj = static_cast< EProjection >(in.ReadLong());
@@ -65,6 +69,9 @@ void CGuiCamera::Draw(const CGuiWidgetDrawParms& parms) const {
                         mCameraParms.orthographic.znear, mCameraParms.orthographic.zfar);
   }
 
+#if defined(TARGET_PC)
+  metaforce::AdjustUiProjection();
+#endif
   CGraphics::SetViewPointMatrix(CTransform4f::Translate(parms.GetCameraOffset()) *
                                 GetWorldTransform());
   CGuiWidget::Draw(parms);
@@ -74,9 +81,23 @@ CVector3f CGuiCamera::ConvertToScreenSpace(const CVector3f& point) const {
   CVector3f rotated = RotateTranslateW2O(point);
 
   if (rotated.IsNonZero()) {
+#if defined(TARGET_PC)
+    if (xb8_projection == kProjection_Orthographic) {
+      const auto& p = mCameraParms.orthographic;
+      return CVector3f((2.f * rotated.GetX() - p.left - p.right) /
+                           ((p.right - p.left) * metaforce::GetDisplayAspectScale()),
+                       (2.f * rotated.GetZ() - p.top - p.bottom) / (p.top - p.bottom),
+                       (2.f * rotated.GetY() - p.znear - p.zfar) / (p.zfar - p.znear));
+    }
+    CMatrix4f xf = CGraphics::CalculatePerspectiveMatrix(
+        mCameraParms.perspective.fov,
+        metaforce::AdjustDisplayAspect(mCameraParms.perspective.aspect),
+        mCameraParms.perspective.znear, mCameraParms.perspective.zfar);
+#else
     CMatrix4f xf = CGraphics::CalculatePerspectiveMatrix(
         mCameraParms.perspective.fov, mCameraParms.perspective.aspect,
         mCameraParms.perspective.znear, mCameraParms.perspective.zfar);
+#endif
 
     return xf.MultiplyOneOverW(rotated);
   }

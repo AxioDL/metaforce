@@ -12,6 +12,10 @@
 #include <musyx/musyx.h>
 #include <string.h>
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 ksNesModule* sNesModule;
 
 static uchar skPasswordEntryText[16] = {0x19, 0x0a, 0x1c, 0x1c, 0xff, 0x20, 0x18, 0x1b,
@@ -280,6 +284,9 @@ static void DrawNesTexture(int left, int top, int width, int height, const CColo
   const CGraphics::CProjectionState projection = CGraphics::GetProjectionState();
   CGraphics::SetOrtho(-viewport.mWidth / 2, viewport.mWidth / 2, viewport.mHeight / 2,
                       -viewport.mHeight / 2, 0.f, 10.f);
+#if defined(TARGET_PC)
+  metaforce::AdjustUiProjection();
+#endif
   CGraphics::SetModelMatrix(CTransform4f::Identity());
 
   float x = left - viewport.mWidth / 2;

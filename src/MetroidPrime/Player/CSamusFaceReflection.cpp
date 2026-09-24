@@ -19,6 +19,10 @@
 #include "Kyoto/Graphics/CModelFlags.hpp"
 #include "Kyoto/Math/CRelAngle.hpp"
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 static const char* const skFaceAssetIdName = "ACS_SamusFace";
 static const CTransform4f skFaceModelViewAdjust =
     CTransform4f::Scale(0.3f) * CTransform4f::Translate(CVector3f(0.f, 0.5f, 0.f));
@@ -122,6 +126,9 @@ void CSamusFaceReflection::Draw(const CStateManager& mgr) const {
     CGraphics::SetViewPointMatrix(fpCam->GetTransform());
     CGraphics::SetOrtho(aspect * -orthoWidth, aspect * orthoWidth, orthoHeight, -orthoHeight, -10.f,
                         10.f);
+#if defined(TARGET_PC)
+    metaforce::AdjustUiProjection();
+#endif
 
     CActorLights* lights = x6c_ == 1 ? nullptr : x4c_lights.get();
     if (x6c_ == 3) {

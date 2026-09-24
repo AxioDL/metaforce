@@ -18,11 +18,15 @@ CFrustumPlanes::CFrustumPlanes(const CTransform4f& xf, float fov, float aspect, 
   const float sinV = CCast::ToReal32(sin(halfFov));
   const float verticalLength = nearZ / cosV;
   const float height = verticalLength * sinV;
+#if defined(TARGET_PC)
+  const float width = height * aspect;
+#else
   halfFov *= aspect;
   const float cosH = CCast::ToReal32(cos(halfFov));
   const float sinH = CCast::ToReal32(sin(halfFov));
   float width = nearZ / cosH;
   width *= sinH;
+#endif
 
   CVector3f corners[4] = {CVector3f(width, nearZ, height), CVector3f(width, nearZ, -height),
                           CVector3f(-width, nearZ, -height), CVector3f(-width, nearZ, height)};

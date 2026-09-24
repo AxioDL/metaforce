@@ -45,7 +45,11 @@ public:
   void UpdatePerspective(float dt);
   int GetControllerNumber() const { return x16c_controllerIdx; }
   const bool DisablesInput() const { return x170_25_disablesInput; }
+#if defined(TARGET_PC)
+  float GetAspectRatio() const;
+#else
   float GetAspectRatio() const { return x168_aspect; }
+#endif
 
 protected:
   TUniqueId xe8_watchedObject;
@@ -63,6 +67,9 @@ protected:
   float x17c_perspInterpDur;
   float x180_perspInterpStartFov;
   float x184_perspInterpEndFov;
+#if defined(TARGET_PC)
+  mutable float mCachedAspect = 0.f;
+#endif
 };
 CHECK_SIZEOF(CGameCamera, (VERSION >= VERSION_GM8P_00 ? 0x198 : 0x188))
 

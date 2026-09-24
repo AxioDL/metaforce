@@ -19,6 +19,10 @@
 #include <float.h>
 #include "MetroidPrime/Tweaks/CTweakPlayer.hpp"
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 static const int skSuitToCharacterType[8] = {0, 6, 2, 10, 16, 24, 20, 28};
 static const int skSuitToCharacterType2[8][2] = {{14, 15}, {8, 9},   {4, 5},   {12, 13},
                                                  {18, 19}, {26, 27}, {22, 23}, {30, 31}};
@@ -352,6 +356,9 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
   itemPulse *= 1.f - CMath::AbsF(xc4_viewInterp);
   gpRender->SetPerspective(55.f, static_cast< float >(CGraphics::GetViewportWidth()),
                            static_cast< float >(CGraphics::GetViewportHeight()), 0.2f, 4096.f);
+#if defined(TARGET_PC)
+  metaforce::AdjustUiProjection();
+#endif
   CGraphics::SetViewPointMatrix(xb0_userRot.BuildTransform4f(xa4_offset) *
                                 CTransform4f::Translate(0.f, xc0_userZoom, 0.f));
   const CTransform4f scale = CTransform4f::Scale(skDefaultScale);

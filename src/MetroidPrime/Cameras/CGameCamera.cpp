@@ -21,6 +21,10 @@
 
 #include "float.h"
 
+#if defined(TARGET_PC)
+#include "Metaforce/Display.hpp"
+#endif
+
 CGameCamera::CGameCamera(const TUniqueId uid, const bool active, const rstl::string& name,
                          const CEntityInfo& info, const CTransform4f& xf, const float fov,
                          const float nearZ, const float farZ, const float aspect,
@@ -48,12 +52,26 @@ CGameCamera::CGameCamera(const TUniqueId uid, const bool active, const rstl::str
 
 CGameCamera::~CGameCamera() {}
 
+#if defined(TARGET_PC)
+float CGameCamera::GetAspectRatio() const { return metaforce::AdjustDisplayAspect(x168_aspect); }
+#endif
+
 const CMatrix4f& CGameCamera::GetPerspectiveMatrix() const {
+#if defined(TARGET_PC)
+  const float aspect = GetAspectRatio();
+  if (x170_24_perspDirty || mCachedAspect != aspect) {
+    xec_perspectiveMatrix =
+        CGraphics::CalculatePerspectiveMatrix(x15c_currentFov, aspect, x160_znear, x164_zfar);
+    mCachedAspect = aspect;
+    x170_24_perspDirty = false;
+  }
+#else
   if (x170_24_perspDirty == true) {
     xec_perspectiveMatrix =
         CGraphics::CalculatePerspectiveMatrix(x15c_currentFov, x168_aspect, x160_znear, x164_zfar);
     x170_24_perspDirty = false;
   }
+#endif
 
   return xec_perspectiveMatrix;
 }
