@@ -17,6 +17,10 @@
 
 #include "dolphin/gx/GXFrameBuffer.h"
 
+#if defined(TARGET_PC)
+#include "dolphin/gx/GXAurora.h"
+#endif
+
 CWorldShadow::CWorldShadow(uint w, uint h, bool rgba8)
 : x0_texture(rs_new CTexture(rgba8 ? kTF_RGBA8 : kTF_RGB565, w, h, 1))
 , x4_view(CTransform4f::Identity())
@@ -81,7 +85,13 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
         int backupVpTop = CGraphics::GetViewport().mTop;
         int backupVpWidth = CGraphics::GetViewport().mWidth;
         int backupVpHeight = CGraphics::GetViewport().mHeight;
+#if defined(TARGET_PC)
+        GXCreateFrameBuffer(x0_texture->GetWidth() * 2, x0_texture->GetHeight() * 2);
+        gpRender->SetViewport(0, CGraphics::GetRenderMode().efbHeight - x0_texture->GetHeight() * 2,
+                              x0_texture->GetWidth() * 2, x0_texture->GetHeight() * 2);
+#else
         gpRender->SetViewport(0, 0, x0_texture->GetWidth() * 2, x0_texture->GetHeight() * 2);
+#endif
 
         float extent = 1.4142f * x64_objHalfExtent;
         x34_model =
@@ -141,8 +151,12 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
 
         x88_blurReset = false;
 
+#if defined(TARGET_PC)
+        GXSetTexCopySrc(0, 0, x0_texture->GetWidth() * 2, x0_texture->GetHeight() * 2);
+#else
         GXSetTexCopySrc(0, 448 - x0_texture->GetHeight() * 2, x0_texture->GetWidth() * 2,
                         x0_texture->GetHeight() * 2);
+#endif
         GXSetTexCopyDst(x0_texture->GetWidth(), x0_texture->GetHeight(),
                         x0_texture->GetTexelFormat() == kTF_RGB565 ? GX_TF_RGB565 : GX_TF_RGBA8,
                         true);
@@ -152,7 +166,14 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
         GXCopyTex(dest, true);
         x0_texture->UnLock();
 
+#if defined(TARGET_PC)
+        GXRestoreFrameBuffer();
+        gpRender->SetViewport(backupVpLeft,
+                              CGraphics::GetRenderMode().efbHeight - backupVpTop - backupVpHeight,
+                              backupVpWidth, backupVpHeight);
+#else
         gpRender->SetViewport(backupVpLeft, backupVpTop, backupVpWidth, backupVpHeight);
+#endif
         CGraphics::SetDepthRange(backupDepthNear, backupDepthFar);
       }
     }

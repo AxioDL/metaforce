@@ -114,6 +114,9 @@ void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& 
   const float halfHeight = 0.5f * x68_bounds.GetHeight();
   CGraphics::SetOrtho(-halfWidth, halfWidth, halfHeight, -halfHeight, 0.f,
                       FLT_EPSILON + x68_bounds.GetDepth());
+#if defined(TARGET_PC)
+  GXCreateFrameBuffer(renderWidth, renderHeight);
+#endif
   gpRender->SetViewport(0, CGraphics::GetRenderMode().efbHeight - renderHeight, renderWidth,
                         renderHeight);
   CGX::SetNumTevStages(1);
@@ -170,11 +173,20 @@ void CProjectedShadow::RenderShadowBuffer(CStateManager& mgr, const CModelData& 
 #endif
   x0_texture.UnLock();
   GXPixModeSync();
+#if defined(TARGET_PC)
+  GXRestoreFrameBuffer();
+#endif
   CGraphics::SetUseVideoFilter(useVideoFilter);
   CGraphics::SetViewPointMatrix(oldView);
   CGraphics::SetProjectionState(oldProjection);
+#if defined(TARGET_PC)
+  gpRender->SetViewport(oldViewport.mLeft,
+                        CGraphics::GetRenderMode().efbHeight - oldViewport.mTop - oldViewport.mHeight,
+                        oldViewport.mWidth, oldViewport.mHeight);
+#else
   gpRender->SetViewport(oldViewport.mLeft, oldViewport.mTop, oldViewport.mWidth,
                         oldViewport.mHeight);
+#endif
   CGraphics::SetDepthRange(oldNear, oldFar);
   mgr.SetProjectedShadow(this);
 }

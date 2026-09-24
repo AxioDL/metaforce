@@ -31,6 +31,10 @@
 #include "dolphin/gx/GXVert.h"
 #include "dolphin/os.h"
 
+#if defined(TARGET_PC)
+#include "dolphin/gx/GXAurora.h"
+#endif
+
 #include "rstl/list.hpp"
 
 struct CWorldTransManager::SModelDatas {
@@ -387,11 +391,23 @@ void CWorldTransManager::DrawEnabled() const {
     int left, top, width, height;
     CGraphics::GetViewport(left, top, width, height);
     uchar* const buffer = x4_modelData->x1b0_dissolveTextureBuffer.get();
+#if defined(TARGET_PC)
+    GXCreateFrameBuffer(width, height);
+    gpRender->SetViewport(0, CGraphics::GetRenderMode().efbHeight - height, width, height);
+#endif
     DrawFirstPass();
     CGX::SetZMode(true, GX_LEQUAL, true);
     GXSetTexCopyDst(width, height, GX_TF_RGB565, false);
+#if defined(TARGET_PC)
+    GXSetTexCopySrc(0, 0, width, height);
+#else
     GXSetTexCopySrc(left, top, width, height);
+#endif
     GXCopyTex(buffer, true);
+#if defined(TARGET_PC)
+    GXRestoreFrameBuffer();
+    gpRender->SetViewport(left, CGraphics::GetRenderMode().efbHeight - top - height, width, height);
+#endif
     DrawSecondPass();
     CGraphics::SetOrtho(0.f, width, 0.f, height, -4096.f, 4096.f);
     CGraphics::SetViewPointMatrix(CTransform4f::Identity());

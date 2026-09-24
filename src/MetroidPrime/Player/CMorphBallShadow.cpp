@@ -54,6 +54,9 @@ void CMorphBallShadow::RenderIdBuffer(const CAABox& aabb, CStateManager& mgr, CP
   const float halfHeight = 0.5f * aabb.GetHeight();
   const float depth = aabb.GetDepth();
   CGraphics::SetOrtho(-halfWidth, halfWidth, halfHeight, -halfHeight, 0.f, FLT_EPSILON + depth);
+#if defined(TARGET_PC)
+  GXCreateFrameBuffer(xb0_width, xb4_height);
+#endif
   gpRender->SetViewport(0, CGraphics::GetRenderMode().efbHeight - xb4_height, xb0_width,
                         xb4_height);
   TEntityList nearList;
@@ -116,12 +119,21 @@ void CMorphBallShadow::RenderIdBuffer(const CAABox& aabb, CStateManager& mgr, CP
   GXCopyTex(x40_texture.Lock(), true);
   x40_texture.UnLock();
   GXPixModeSync();
+#if defined(TARGET_PC)
+  GXRestoreFrameBuffer();
+#endif
   CGraphics::SetUseVideoFilter(useVideoFilter);
   CGX::SetZMode(true, GX_LEQUAL, true);
   CGraphics::SetViewPointMatrix(oldView);
   CGraphics::SetProjectionState(oldProjection);
+#if defined(TARGET_PC)
+  gpRender->SetViewport(oldViewport.mLeft,
+                        CGraphics::GetRenderMode().efbHeight - oldViewport.mTop - oldViewport.mHeight,
+                        oldViewport.mWidth, oldViewport.mHeight);
+#else
   gpRender->SetViewport(oldViewport.mLeft, oldViewport.mTop, oldViewport.mWidth,
                         oldViewport.mHeight);
+#endif
   CGraphics::SetDepthRange(oldNear, oldFar);
 }
 

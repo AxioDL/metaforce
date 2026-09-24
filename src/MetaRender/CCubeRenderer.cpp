@@ -1103,15 +1103,22 @@ void CCubeRenderer::CacheReflection(void (*cb)(void*, const CVector3f&), void* c
     const int oldWidth = vp.mWidth;
     const int oldHeight = vp.mHeight;
 
+#if defined(TARGET_PC)
+    GXCreateFrameBuffer(0x100, 0x100);
+#endif
     const int captureTop = static_cast< int >(CGraphics::mRenderModeObj.efbHeight) - 0x100;
     CGraphics::SetViewport(0, captureTop, 0x100, 0x100);
     CGraphics::SetScissor(0, captureTop, 0x100, 0x100);
 
+#if !defined(TARGET_PC)
     void* spareBuffer = CGraphics::mpSpareBuffer;
+#endif
     GXSetTexCopySrc(0, 0, 0x100, 0x100);
     GXSetTexCopyDst(0x80, 0x80, GX_TF_RGB565, true);
     CGX::SetZMode(true, GX_LEQUAL, true);
+#if !defined(TARGET_PC)
     GXCopyTex(spareBuffer, true);
+#endif
 
     cb(ctx, CCubeMaterial::GetViewingReflection());
 
@@ -1119,8 +1126,14 @@ void CCubeRenderer::CacheReflection(void (*cb)(void*, const CVector3f&), void* c
     CGX::SetZMode(true, GX_LEQUAL, true);
     GXCopyTex(reflectionData, clearAfter);
 
+#if defined(TARGET_PC)
+    GXRestoreFrameBuffer();
+    SetViewport(oldLeft, CGraphics::mRenderModeObj.efbHeight - oldTop - oldHeight, oldWidth,
+                 oldHeight);
+#else
     CGraphics::SetViewport(oldLeft, oldTop, oldWidth, oldHeight);
     CGraphics::SetScissor(oldLeft, oldTop, oldWidth, oldHeight);
+#endif
   }
 }
 
@@ -2560,6 +2573,10 @@ void CCubeRenderer::DoPhazonSuitIndirectAlphaBlur(float blurRadius, float blurRa
   CGraphics::SetDepthWriteMode(false, kE_GEqual, false);
 
   CopyTex(1, true, GetRenderToTexBuffer(8), GX_TF_A8, true);
+#if defined(TARGET_PC)
+  GXCreateFrameBuffer(width, height);
+  SetViewport(0, CGraphics::mRenderModeObj.efbHeight - height, width, height);
+#endif
   GXSetDstAlpha(GX_TRUE, 0);
 
   CGraphics::LoadDolphinSpareTexture(width / 2, height / 2, GX_TF_I8, GetRenderToTexBuffer(8),
@@ -2930,9 +2947,18 @@ void CCubeRenderer::DrawPhazonSuitIndirectEffect(
       return;
     }
 
+#if defined(TARGET_PC)
+    const CViewport backupViewport = CGraphics::GetViewport();
+#endif
     DoPhazonSuitIndirectAlphaBlur(blurRadius, blurRadius);
     x314_phazonSuitMask->SetFlag1(true);
     CopyTex(4, false, x314_phazonSuitMask->GetBitMapData(0), GX_TF_A8, true);
+#if defined(TARGET_PC)
+    GXRestoreFrameBuffer();
+    SetViewport(backupViewport.mLeft,
+                 CGraphics::mRenderModeObj.efbHeight - backupViewport.mTop - backupViewport.mHeight,
+                 backupViewport.mWidth, backupViewport.mHeight);
+#endif
 
     CTexture* indTex = 0;
     if (indirectTex && (indTex = indirectTex->GetObject())) {
