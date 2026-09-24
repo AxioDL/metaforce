@@ -10,4 +10,6 @@ public:
   void Draw() const override;
   
 private:
+  
+  void ShowDebugOverlay() const;
 };
