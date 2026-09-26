@@ -2,7 +2,7 @@
 
 [Build Status]: https://github.com/AxioDL/metaforce/actions/workflows/build.yml/badge.svg
 [actions]: https://github.com/AxioDL/metaforce/actions
-[Discord Badge]: https://dcbadge.vercel.app/api/server/AMBVFuf?style=flat
+[Discord Badge]: https://dcbadge.limes.pink/api/server/AMBVFuf?style=flat
 [discord]: https://discord.gg/AMBVFuf
 
 Metaforce is a reverse-engineered reimplementation of the engine from Metroid Prime, which started development in June of 2015 by Cirrus and Antidote. It is a labor of love, built with deep respect for the incredible work of the original developers at Retro Studios in the late 90s and early 2000s.
