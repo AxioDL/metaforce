@@ -5,13 +5,134 @@
 [Discord Badge]: https://dcbadge.vercel.app/api/server/AMBVFuf?style=flat
 [discord]: https://discord.gg/AMBVFuf
 
-A reverse-engineered, native reimplementation of Metroid Prime.
+Metaforce is a reverse-engineered reimplementation of the engine from Metroid Prime, which started development in June of 2015 by Cirrus and Antidote. It is a labor of love, built with deep respect for the incredible work of the original developers at Retro Studios in the late 90s and early 2000s.
+
+We want to acknowledge the passing of two exceptionally talented developers, Mark Haigh-Hutchinson and Andy O'Neil, whose work helped shape this game. We'd also like to thank former Retro developers like Zoid Kirsch and Jack Matthews for their seemingly endless talent, friendliness, and encouragement.
+
+Metaforce has seen major changes recently and is now closer to a stable build than ever before. As a result, builds may be briefly unavailable while these changes are finalized.
+
+Separately from Metaforce, a [matching decompilation](https://github.com/PrimeDecomp/prime) of Metroid Prime is currently in progress. Contributions are welcome from anyone, regardless of skill level. Progress on the decompilation directly benefits Metaforce through bug fixes, new implementations, and other improvements.
+
+![Metaforce screenshot](assets/metaforce-screen1.png)
+
+### Platform Support
+* Windows 10+ (64-bit, D3D12 / Vulkan / OpenGL)
+* macOS 10.15+ (Metal)
+* Linux (Vulkan / OpenGL)
+    * Follow [this guide](https://github.com/lutris/docs/blob/master/InstallingDrivers.md) to set up Vulkan & appropriate drivers for your distro.
+
+### Usage
+
+Windows:
+- Open `metaforce.exe`
+
+macOS:
+- Open `Metaforce.app`
+
+Linux:
+- Ensure AppImage is marked as executable: `chmod +x Metaforce-*.AppImage`
+- Open `Metaforce-*.AppImage`
 
 #### CLI options (non-exhaustive)
 
 * `-l`: Enable console logging
-* `--warp WORLD,AREA[,LAYERBITS][,0xRELAY...]`: Warp to a world PAK index and zero-based area index. Example: `--warp 2,2`.
-* `--load-save N`: Load save slot 1–3 from memory card A.
-* `--window-size WIDTH,HEIGHT`: Initial window size (default: `1280,720`).
-* `--lock-aspect`: Lock to the original 4:3 aspect ratio.
-* `+developer=1`: Enable developer UI
+* `--warp [worldid] [areaid]`: Warp to a specific world/area. Example: `--warp 2,2`
+* `load-save [1, 2, 3]`: Loads numbered save in Memory Card A
+* `--lock-aspect`: Lock Metaforce to original game 4:3 aspect ratio.
+
+### Build Prerequisites:
+* [CMake 3.25+](https://cmake.org)
+    * Windows: Install `CMake Tools` in Visual Studio
+    * macOS: `brew install cmake`
+* [Python 3+](https://python.org)
+    * Windows: [Microsoft Store](https://go.microsoft.com/fwlink?linkID=2082640)
+        * Verify it's added to `%PATH%` by typing `python` in `cmd`.
+    * macOS: `brew install python@3`
+* **[Windows]** [Visual Studio 2019 Community](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
+    * Select `C++ Development` and verify the following packages are included:
+        * `Windows 10 SDK`
+        * `CMake Tools`
+        * `C++ Clang Compiler`
+        * `C++ Clang-cl`
+* **[macOS]** [Xcode 11.5+](https://developer.apple.com/xcode/download/)
+* **[Linux]** Actively tested on Ubuntu 20.04, Arch Linux & derivatives.
+    * Ubuntu 20.04+ packages
+      ```
+      build-essential curl git ninja-build clang lld zlib1g-dev libcurl4-openssl-dev \
+      libglu1-mesa-dev libdbus-1-dev libvulkan-dev libxi-dev libxrandr-dev libasound2-dev libpulse-dev \
+      libudev-dev libpng-dev libncurses5-dev cmake libx11-xcb-dev python3 python-is-python3 \
+      libclang-dev libfreetype-dev libxinerama-dev libxcursor-dev python3-markupsafe libgtk-3-dev
+      ```
+     * Arch Linux packages
+       ```
+       base-devel cmake ninja llvm vulkan-headers python python-markupsafe clang lld alsa-lib libpulse libxrandr freetype2
+       ```
+     * Fedora packages
+       ```
+       cmake vulkan-headers ninja-build clang-devel llvm-devel libpng-devel
+       ```
+         * It's also important that you install the developer tools and libraries
+           ```
+           sudo dnf groupinstall "Development Tools" "Development Libraries"
+           ```
+### Prep Directions
+
+```sh
+git clone --recursive https://github.com/AxioDL/metaforce.git
+cd metaforce
+```
+
+### Update Directions
+
+```sh
+cd metaforce
+git pull
+git submodule update --init --recursive
+```
+
+### Build Directions
+
+For Windows, it's recommended to use Visual Studio. See below.
+
+#### ninja (Windows/macOS/Linux)
+
+You can either build Metaforce with the built in Build workflows in VSCode, CLion, etc; or use CLI.
+
+```sh
+cmake --preset relwithdebinfo
+Cmake --build --preset relwithdebinfo
+```
+
+#### CMake configure options
+- Build in debug mode (slower runtime speed, better backtraces): `-DCMAKE_BUILD_TYPE=Debug`
+- Use clang+lld (faster linking): `-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++`
+- Optimize for current CPU (resulting binaries are not portable): `-DMETAFORCE_VECTOR_ISA=native`
+
+#### CLion (Windows/macOS/Linux)
+*(main development / debugging IDE)*
+
+Open the repository's `CMakeLists.txt`.
+
+Optionally configure CMake options via `File` > `Settings` > `Build, Execution, Deployment` > `CMake`.
+
+#### Qt Creator (Windows/macOS/Linux)
+
+Open the repository's `CMakeLists.txt` via File > Open File or Project.
+
+Configure the desired CMake targets to build in the *Projects* area of the IDE.
+
+#### Visual Studio (Windows)
+
+Verify all required VS packages are installed from the above **Build Prerequisites** section.
+
+Open the `metaforce` directory in Visual Studio (imports CMake configuration).
+
+MSVC and clang-cl configurations should import automatically.
+
+#### Xcode (macOS)
+
+```sh
+cmake -G Xcode ../metaforce
+```
+
+Then open `metaforce.xcodeproj`
