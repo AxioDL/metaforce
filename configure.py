@@ -307,7 +307,7 @@ cflags_retro = [
     "-i include",
     "-i extern/sdk/include",
     "-i extern/sdk/libc",
-    "-i extern/zlib-1.1.3",
+    "-i extern/zlib",
     f"-i build/{config.version}/include",
     f"-DVERSION={version_num}",
     f"-DRSTL_VERSION={RSTL_VERSIONS[config.version]}",
@@ -2110,8 +2110,7 @@ config.libs = [
         "mw_version": "GC/1.3.2",
         "cflags": cflags_runtime,
         "progress_category": "third_party",
-        "src_dir": "extern/zlib-1.1.3",
-        "strip_prefix": "zlib/",
+        "src_dir": "extern",
         "shift_jis": False,
         "objects": [
             Object(
