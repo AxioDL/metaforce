@@ -15,7 +15,7 @@ const CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInpu
   return CProjectileWeaponDataFactory::GetGeneratorDesc(in, pool);
 }
 
-void hack() {
+static void hack() {
   TObjOwnerDerivedFromIObj< CWeaponDescription >(nullptr);
 }
 CWeaponDescription* CProjectileWeaponDataFactory::GetGeneratorDesc(CInputStream& in,

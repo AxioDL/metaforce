@@ -11,7 +11,7 @@ const CFactoryFnReturn FDecalDataFactory(const SObjectTag& tag, CInputStream& in
   return ret;
 }
 
-void hack() {
+static void hack() {
   TObjOwnerDerivedFromIObj<CDecalDescription>(nullptr);
 }
 CDecalDescription* CDecalDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* pool) {
