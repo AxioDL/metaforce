@@ -520,6 +520,7 @@ namespace {
 borealis::Log ResFactoryLog{"ResourceFactory"};
 }
 rstl::auto_ptr< IObj > CResFactory::Build(const SObjectTag& tag, const CVParamTransfer& params) {
+  const auto name = metaforce::ResourceNameDatabase::GetNameForResource(tag.GetId());
   AUTO(it, FindInLoadList(tag));
   if (it != mLoadList.end()) {
     IObj** target = it->mTarget;
@@ -527,17 +528,21 @@ rstl::auto_ptr< IObj > CResFactory::Build(const SObjectTag& tag, const CVParamTr
       while (!PumpResource(it, 0)) {
       }
     }
-    
-    const auto name = metaforce::ResourceNameDatabase::GetNameForResource(tag.GetId());
-    ResFactoryLog.info("Async built 0x{:08X} {} - {}", tag.GetId(),
-                           SObjectTag::Type2Text(tag.GetType()), name != nullptr ? name->data() : "<NONAME>");
+
+    ResFactoryLog.info("Async Built 0x{:08X} {} - {}", tag.GetId(),
+                       SObjectTag::Type2Text(tag.GetType()),
+                       name != nullptr ? name->data() : "<NONAME>");
     return rstl::auto_ptr< IObj >(*target);
   }
+  ResFactoryLog.warn("Sync Build Fallback 0x{:08X} {} - {}", tag.GetId(),
+                     SObjectTag::Type2Text(tag.GetType()),
+                     name != nullptr ? name->data() : "<NONAME>");
   return BuildSync(tag, params);
 }
 
 rstl::auto_ptr< IObj > CResFactory::BuildSync(const SObjectTag& tag,
                                               const CVParamTransfer& params) {
+  const auto name = metaforce::ResourceNameDatabase::GetNameForResource(tag.GetId());
   if (mFactoryMgr.CanMakeMemory(tag)) {
     char* buffer;
     int size;
@@ -546,23 +551,30 @@ rstl::auto_ptr< IObj > CResFactory::BuildSync(const SObjectTag& tag,
                                                 mResLoader.GetResourceCompression(tag) !=
                                                     CResLoader::kCompressionType_Uncompressed,
                                                 params);
-    const auto name = metaforce::ResourceNameDatabase::GetNameForResource(tag.GetId());
-    ResFactoryLog.info("Sync built 0x{:08X} {} - {}", tag.GetId(),
-                       SObjectTag::Type2Text(tag.GetType()), name != nullptr ? name->data() : "<NONAME>");
+    ResFactoryLog.info("Sync Built 0x{:08X} {} - {}", tag.GetId(),
+                       SObjectTag::Type2Text(tag.GetType()),
+                       name != nullptr ? name->data() : "<NONAME>");
     return ret;
   }
   CInputStream* in = mResLoader.LoadNewResourceSync(tag, nullptr);
   rstl::auto_ptr< IObj > result = mFactoryMgr.MakeObject(tag, *in, params);
+  ResFactoryLog.info("Sync Built 0x{:08X} {} - {}", tag.GetId(),
+                     SObjectTag::Type2Text(tag.GetType()),
+                     name != nullptr ? name->data() : "<NONAME>");
   delete in;
   return result;
 }
 
 void CResFactory::BuildAsync(const SObjectTag& tag, const CVParamTransfer& params, IObj** target) {
+  const auto name = metaforce::ResourceNameDatabase::GetNameForResource(tag.GetId());
   *target = nullptr;
   const uint size = ResourceSize(tag);
   char* buffer = static_cast< char* >(CMemory::Alloc(size, IAllocator::kHI_RoundUpLen));
   CDvdRequest* request = LoadResourceAsync(tag, buffer);
   SLoadingData data(tag, request, target, buffer, size, mResLoader.GetResourceCompression(tag),
                     params);
+  ResFactoryLog.info("Async Request 0x{:08X} {} - {}", tag.GetId(),
+                     SObjectTag::Type2Text(tag.GetType()),
+                     name != nullptr ? name->data() : "<NONAME>");
   AddToLoadList(data);
 }
