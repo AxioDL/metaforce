@@ -17,16 +17,32 @@
 
 CIOWin::EMessageReturn CImGuiIOWin::OnMessage(const CArchitectureMessage& msg,
                                               CArchitectureQueue&) {
-  return kMR_Normal;
+
+  switch (msg.GetType()) {
+  case kAM_UserInput: {
+    const auto& input = MakeMsg::GetParmUserInput(msg).GetUserInput();
+    if (input.DRTrigger() && input.PStart()) {
+      mVisible ^= 1;
+    }
+    break;
+  }
+  }
+
+  return mVisible ? kMR_Exit : kMR_Normal;
 }
 
 void CImGuiIOWin::PreDraw() const {}
 
-void CImGuiIOWin::Draw() const {
-  if (!gpStateManager || !gpStateManager->GetPlayer()) {
+void CImGuiIOWin::ShowMenuBar() const {
+  if (!mVisible) {
     return;
   }
 
+  ImGui::BeginMainMenuBar();
+  ImGui::EndMainMenuBar();
+}
+void CImGuiIOWin::Draw() const {
+  ShowMenuBar();
   ShowDebugOverlay();
 }
 
@@ -51,7 +67,7 @@ void CImGuiIOWin::ShowDebugOverlay() const {
   ImGui::SetNextWindowBgAlpha(0.65f);
   if (ImGui::Begin("Debug Overlay", nullptr, windowFlags)) {
     std::string playerStats = fmt::format(
-    "Player Position x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
+        "Player Position x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
         "                R: {: .2f}, P: {: .2f}, Y: {: .2f}\n"
         "       Momentum x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
         "       Angular  x: {: .2f}, y: {: .2f}, z: {: .2f}\n"

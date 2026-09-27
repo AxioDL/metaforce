@@ -192,13 +192,14 @@ CSaveRegion::CSaveRegion(CMain& main) {
   mSaveBuffer = main.OsContext().AllocFromArena(128);
 }
 
-int main(int argc, char** argv) {
 #if defined(TARGET_PC)
+int game_main(int argc, char** argv) {
   if (int ret = metaforce::Initialize(argc, argv); ret != 0) {
     return ret;
   }
+#else
+int main(int argc, char** argv) {
 #endif
-
   DVDSetAutoFatalMessaging(TRUE);
   SetErrorHandlers();
   CMain* main = new (&sMainSpace) CMain();
