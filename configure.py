@@ -1541,7 +1541,7 @@ config.libs = [
                 MatchingFor("GM8E01_00", "GM8E01_01"), "Weapons/IWeaponRenderer.cpp"
             ),
             Object(
-                MatchingFor("R3ME01_00") or EquivalentFor("GM8E01_00", "GM8E01_01"),
+                MatchingFor("GM8E01_00", "GM8E01_01","R3ME01_00"),
                 "Weapons/CDecalDataFactory.cpp",
             ),
             Object(MatchingFor("GM8E01_00", "GM8E01_01"), "Weapons/CDecal.cpp"),
