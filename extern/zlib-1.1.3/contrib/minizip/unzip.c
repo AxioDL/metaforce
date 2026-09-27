@@ -333,7 +333,7 @@ local uLong unzlocal_SearchCentralDir(fin)
 /*
   Open a Zip file. path contain the full pathname (by example,
      on a Windows NT computer "c:\\test\\zlib109.zip" or on an Unix computer
-	 "zlib/zlib109.zip".
+	 "zlib-1.1.3/zlib109.zip".
 	 If the zipfile cannot be opened (file don't exist or in not valid), the
 	   return value is NULL.
      Else, the return value is a unzFile Handle, usable with other function

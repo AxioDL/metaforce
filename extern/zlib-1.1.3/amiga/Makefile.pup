@@ -43,8 +43,8 @@ zip:
           descrip.mms *.[ch]
 
 tgz:
-        cd ..; tar cfz zlib/zlib.tgz zlib/README zlib/ChangeLog zlib/Makefile \
-          zlib/Make????.??? zlib/Makefile.?? zlib/descrip.mms zlib/*.[ch]
+        cd ..; tar cfz zlib-1.1.3/zlib.tgz zlib-1.1.3/README zlib-1.1.3/ChangeLog zlib-1.1.3/Makefile \
+          zlib-1.1.3/Make????.??? zlib-1.1.3/Makefile.?? zlib-1.1.3/descrip.mms zlib-1.1.3/*.[ch]
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

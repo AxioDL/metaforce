@@ -92,7 +92,7 @@ extern zipFile ZEXPORT zipOpen OF((const char *pathname, int append));
 /*
   Create a zipfile.
 	 pathname contain on Windows NT a filename like "c:\\zlib\\zlib111.zip" or on
-	   an Unix computer "zlib/zlib111.zip".
+	   an Unix computer "zlib-1.1.3/zlib111.zip".
 	 if the file pathname exist and append=1, the zip will be created at the end
 	   of the file. (useful if the file contain a self extractor code)
 	 If the zipfile cannot be opened, the return value is NULL.
