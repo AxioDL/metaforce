@@ -35,6 +35,7 @@ inline CObjOwnerDerivedFromIObjUntyped::~CObjOwnerDerivedFromIObjUntyped() {}
 template < typename T >
 class TObjOwnerDerivedFromIObj : public CObjOwnerDerivedFromIObjUntyped {
 public:
+  TObjOwnerDerivedFromIObj(T* obj) : CObjOwnerDerivedFromIObjUntyped(obj) {}
   ~TObjOwnerDerivedFromIObj() {
     if (Owned()) {
       delete Owned();
@@ -66,9 +67,8 @@ public:
     return rs_new TObjOwnerDerivedFromIObj< T >(obj);
 #endif
   }
-
+  
 private:
-  TObjOwnerDerivedFromIObj(T* obj) : CObjOwnerDerivedFromIObjUntyped(obj) {}
   TObjOwnerDerivedFromIObj(const rstl::auto_ptr< T >& obj) : CObjOwnerDerivedFromIObjUntyped(obj) {}
 };
 

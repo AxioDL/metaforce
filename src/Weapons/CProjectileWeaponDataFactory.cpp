@@ -2,6 +2,7 @@
 
 #include "Kyoto/CRandom16.hpp"
 #include "Kyoto/CVParamTransfer.hpp"
+#include "MetroidPrime/Weapons/CWeapon.hpp"
 #include "Weapons/CWeaponDescription.hpp"
 
 #include <Kyoto/Particles/CParticleDataFactory.hpp>
@@ -14,6 +15,9 @@ const CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInpu
   return CProjectileWeaponDataFactory::GetGeneratorDesc(in, pool);
 }
 
+void hack() {
+  TObjOwnerDerivedFromIObj< CWeaponDescription >(nullptr);
+}
 CWeaponDescription* CProjectileWeaponDataFactory::GetGeneratorDesc(CInputStream& in,
                                                                    CSimplePool* pool) {
   rstl::vector< CAssetId > assets;
@@ -134,8 +138,7 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
     case 'COLR': {
       if (CParticleDataFactory::GetClassID(in) != 'NONE') {
         CAssetId id = in.ReadLong();
-        desc->mCOLR =
-            TLockedToken< CCollisionResponseData >(pool->GetObj(SObjectTag('CRSC', id)));
+        desc->mCOLR = TLockedToken< CCollisionResponseData >(pool->GetObj(SObjectTag('CRSC', id)));
       }
       break;
     }
