@@ -195,7 +195,7 @@ void CTexture::LoadMipLevel(int mip, GXTexMapID tex, EClampMode clamp) const {
 
 void CTexture::UnloadBitmapData(CAssetId textureId) const {
   if (!mBitmapReloader.null()) {
-    bool b = mBitmapReloader->GetX10();
+    bool b = mBitmapReloader->GetShouldBeInARAM();
     mBitmapReloader = rs_new CDumpedBitmapDataReloader(textureId, mMemoryAllocated, b);
   } else {
     bool complete = mARAMToken.GetStatus() == CARAMToken::kS_Zero ||
@@ -216,7 +216,7 @@ bool CTexture::TryReloadBitmapData(CResFactory& factory) const {
   uchar* ptr = (uchar*)mBitmapReloader->TryBuildReloadedBitmapData(factory);
   if (ptr != nullptr) {
 
-    bool bVar1 = mBitmapReloader->GetX10();
+    bool bVar1 = mBitmapReloader->GetShouldBeInARAM();
     mBitmapReloader = nullptr;
 
     mARAMToken.PostConstruct(ptr, mMemoryAllocated, 1);
@@ -257,26 +257,26 @@ int CTexture::fn_8030F088() const {
 }
 
 CTexture::CDumpedBitmapDataReloader::CDumpedBitmapDataReloader(uint unk1, uint unk2, bool unk3)
-: x0_(0), x4_(unk1), x8_(0), xc_(unk2), x10_(unk3) {}
+: mState(0), mTextureId(unk1), mResourceSize(0), mBitmapSize(unk2), mShouldBeInARAM(unk3) {}
 
 void CTexture::CDumpedBitmapDataReloader::BeginReloadBitmapData(CResFactory& factory) {
-  if (x0_ != 0) {
+  if (mState != 0) {
     return;
   }
-  SObjectTag tag('TXTR', x4_);
-  x8_ = factory.ResourceSize(tag);
-  x18_ = (uchar*)CMemory::Alloc(x8_, IAllocator::kHI_RoundUpLen);
-  x14_ = factory.GetResLoader().LoadResourceAsync(tag, (char*)x18_.get());
-  x0_ = 1;
+  SObjectTag tag('TXTR', mTextureId);
+  mResourceSize = factory.ResourceSize(tag);
+  mData = (uchar*)CMemory::Alloc(mResourceSize, IAllocator::kHI_RoundUpLen);
+  mRequest = factory.GetResLoader().LoadResourceAsync(tag, (char*)mData.get());
+  mState = 1;
 }
 
 void* CTexture::CDumpedBitmapDataReloader::TryBuildReloadedBitmapData(CResFactory& factory) {
-  if (x14_->IsComplete()) {
-    x0_ = 2;
-    x14_ = nullptr;
+  if (mRequest->IsComplete()) {
+    mState = 2;
+    mRequest = nullptr;
 
-    SObjectTag tag('TXTR', x4_);
-    rstl::single_ptr< CInputStream > buf = factory.LoadResourceFromMemorySync(tag, x18_.get());
+    SObjectTag tag('TXTR', mTextureId);
+    rstl::single_ptr< CInputStream > buf = factory.LoadResourceFromMemorySync(tag, mData.get());
     CInputStream& in = *buf;
     ETexelFormat format = ETexelFormat(in.ReadInt32());
     const int w = in.ReadInt16();
@@ -297,7 +297,7 @@ void* CTexture::CDumpedBitmapDataReloader::TryBuildReloadedBitmapData(CResFactor
       bufLen += (page * bitsPerPixel) >> 3;
     }
 
-    void* ptr = CMemory::Alloc(xc_, IAllocator::kHI_RoundUpLen);
+    void* ptr = CMemory::Alloc(mBitmapSize, IAllocator::kHI_RoundUpLen);
 
     for (int off = 0, len = 0; off < bufLen; off += len) {
       len = bufLen - off;
@@ -309,7 +309,7 @@ void* CTexture::CDumpedBitmapDataReloader::TryBuildReloadedBitmapData(CResFactor
       DCFlushRangeNoSync((char*)ptr + off, OSRoundUp32B(len));
     }
     PPCSync();
-    x18_ = nullptr;
+    mData = nullptr;
     return ptr;
   }
   return nullptr;
