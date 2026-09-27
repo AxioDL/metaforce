@@ -1004,6 +1004,9 @@ int CMain::RsMain(int argc, const char* const* argv) {
         archSupport = tmp;
         mArchSupport = archSupport.get();
         tmp->PreloadAudio();
+#if TARGET_PC
+        metaforce::RegisterIOWins(mArchSupport->GetIOWinManager());
+#endif
       }
       CheckTweakManagerDebugOptions();
     }

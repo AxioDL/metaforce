@@ -52,18 +52,24 @@ void CImGuiIOWin::ShowDebugOverlay() const {
   if (ImGui::Begin("Debug Overlay", nullptr, windowFlags)) {
     std::string playerStats = fmt::format(
     "Player Position x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
-    "       Roll: {: .2f}, Pitch: {: .2f}, Yaw: {: .2f}\n"
-    "       Momentum x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
-    "       Velocity x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
-    "Camera Position x: {: .2f}, y: {: .2f}, z {: .2f}\n"
-    "       Roll: {: .2f}, Pitch: {: .2f}, Yaw: {: .2f}\n",
-    pl.GetTranslation().GetX(), pl.GetTranslation().GetY(), pl.GetTranslation().GetZ(),
-    CMath::Rad2Deg(plQ.AxisX()), CMath::Rad2Deg(plQ.AxisY()), CMath::Rad2Deg(plQ.AxisZ()),
-    pl.GetMomentumWR().GetX(), pl.GetMomentumWR().GetY(), pl.GetMomentumWR().GetZ(),
-    pl.GetVelocityWR().GetX(), pl.GetVelocityWR().GetY(), pl.GetVelocityWR().GetZ(),
-    camXf.GetTranslation().GetX(), camXf.GetTranslation().GetY(), camXf.GetTranslation().GetZ(),
-    CMath::Rad2Deg(camQ.AxisX()), CMath::Rad2Deg(camQ.AxisY()), CMath::Rad2Deg(camQ.AxisZ()));
-    
+        "                R: {: .2f}, P: {: .2f}, Y: {: .2f}\n"
+        "       Momentum x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
+        "       Angular  x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
+        "       Velocity x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
+        "       Angular  x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
+        "Camera Position x: {: .2f}, y: {: .2f}, z: {: .2f}\n"
+        "                R: {: .2f}, P: {: .2f}, Y: {: .2f}\n",
+        pl.GetTranslation().GetX(), pl.GetTranslation().GetY(), pl.GetTranslation().GetZ(),
+        CMath::Rad2Deg(plQ.AxisX()), CMath::Rad2Deg(plQ.AxisY()), CMath::Rad2Deg(plQ.AxisZ()),
+        pl.GetMomentumWR().GetX(), pl.GetMomentumWR().GetY(), pl.GetMomentumWR().GetZ(),
+        pl.GetAngularMomentumWR().GetVector().GetX(), pl.GetAngularMomentumWR().GetVector().GetY(),
+        pl.GetAngularMomentumWR().GetVector().GetZ(), pl.GetVelocityWR().GetX(),
+        pl.GetVelocityWR().GetY(), pl.GetVelocityWR().GetZ(), camXf.GetTranslation().GetX(),
+        pl.GetAngularVelocityWR().GetVector().GetX(), pl.GetAngularVelocityWR().GetVector().GetY(),
+        pl.GetAngularVelocityWR().GetVector().GetZ(), camXf.GetTranslation().GetY(),
+        camXf.GetTranslation().GetZ(), CMath::Rad2Deg(camQ.AxisX()), CMath::Rad2Deg(camQ.AxisY()),
+        CMath::Rad2Deg(camQ.AxisZ()));
+
     ImGui::Text("%s", playerStats.c_str());
   }
   ImGui::End();

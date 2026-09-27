@@ -726,6 +726,8 @@ if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
         -Wno-deprecated-enum-compare-conditional
         -Wno-deprecated-enum-enum-conversion
         -Wno-trigraphs
+        -Wno-multichar
+        -Wno-enum-compare
     )
 elseif (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
     target_compile_options(metaforce PRIVATE
