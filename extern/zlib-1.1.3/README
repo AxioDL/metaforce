@@ -3,7 +3,7 @@ is thread safe.  The data format used by the zlib library
 is described by RFCs (Request for Comments) 1950 to 1952 in the files 
 ftp://ds.internic.net/rfc/rfc1950.txt (zlib format), rfc1951.txt (deflate
 format) and rfc1952.txt (gzip format). These documents are also available in
-other formats from ftp://ftp.uu.net/graphics/png/documents/zlib/zdoc-index.html
+other formats from ftp://ftp.uu.net/graphics/png/documents/zlib-1.1.3/zdoc-index.html
 
 All functions of the compression library are documented in the file zlib.h
 (volunteer to write man pages welcome, contact jloup@gzip.org). A usage
@@ -20,8 +20,8 @@ For VMS, use Make_vms.com or descrip.mms.
 
 Questions about zlib should be sent to <zlib@quest.jpl.nasa.gov>, or to
 Gilles Vollant <info@winimage.com> for the Windows DLL version.
-The zlib home page is http://www.cdrom.com/pub/infozip/zlib/
-The official zlib ftp site is ftp://ftp.cdrom.com/pub/infozip/zlib/
+The zlib home page is http://www.cdrom.com/pub/infozip/zlib-1.1.3/
+The official zlib ftp site is ftp://ftp.cdrom.com/pub/infozip/zlib-1.1.3/
 Before reporting a problem, please check those sites to verify that
 you have the latest version of zlib; otherwise get the latest version and
 check whether the problem still exists or not.
@@ -54,7 +54,7 @@ Unsupported third party contributions are provided in directory "contrib".
 
 A Java implementation of zlib is available in the Java Development Kit 1.1
 http://www.javasoft.com/products/JDK/1.1/docs/api/Package-java.util.zip.html
-See the zlib home page http://www.cdrom.com/pub/infozip/zlib/ for details.
+See the zlib home page http://www.cdrom.com/pub/infozip/zlib-1.1.3/ for details.
 
 A Perl interface to zlib written by Paul Marquess <pmarquess@bfsec.bt.co.uk>
 is in the CPAN (Comprehensive Perl Archive Network) sites, such as:
