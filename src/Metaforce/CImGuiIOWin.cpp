@@ -28,7 +28,7 @@ CIOWin::EMessageReturn CImGuiIOWin::OnMessage(const CArchitectureMessage& msg,
   }
   }
 
-  return mVisible ? kMR_Exit : kMR_Normal;
+  return kMR_Normal;
 }
 
 void CImGuiIOWin::PreDraw() const {}
