@@ -7,6 +7,7 @@
 #include "Kyoto/CSimplePool.hpp"
 #include "Metaforce/CImGuiIOWin.hpp"
 #include "Metaforce/Limiter.hpp"
+#include "Metaforce/ResourceNameDatabase.hpp"
 #include "MetroidPrime/CArchitectureMessage.hpp"
 #include "MetroidPrime/CMain.hpp"
 #include "MetroidPrime/CMemoryCard.hpp"
@@ -405,6 +406,9 @@ int Initialize(int argc, char** argv) {
       .fileDirectory = paths.cachePath / "logs",
       .filePrefix = "metaforce",
   };
+
+  if (!ResourceNameDatabase::Initialize((paths.cachePath / "ResourceNameDatabase.dat").string())) {
+  }
   standardOptions.apply_to(logOptions);
   borealis::log::init(logOptions);
   borealis::crash::install();
@@ -512,6 +516,9 @@ CIOWin::EMessageReturn CStateSetterFlow::OnMessage(const CArchitectureMessage& m
 }
 
 // CResFactory
+namespace {
+borealis::Log ResFactoryLog{"ResourceFactory"};
+}
 rstl::auto_ptr< IObj > CResFactory::Build(const SObjectTag& tag, const CVParamTransfer& params) {
   AUTO(it, FindInLoadList(tag));
   if (it != mLoadList.end()) {
@@ -520,6 +527,10 @@ rstl::auto_ptr< IObj > CResFactory::Build(const SObjectTag& tag, const CVParamTr
       while (!PumpResource(it, 0)) {
       }
     }
+    
+    const auto name = metaforce::ResourceNameDatabase::GetNameForResource(tag.GetId());
+    ResFactoryLog.info("Async built 0x{:08X} {} - {}", tag.GetId(),
+                           SObjectTag::Type2Text(tag.GetType()), name != nullptr ? name->data() : "<NONAME>");
     return rstl::auto_ptr< IObj >(*target);
   }
   return BuildSync(tag, params);
@@ -531,10 +542,14 @@ rstl::auto_ptr< IObj > CResFactory::BuildSync(const SObjectTag& tag,
     char* buffer;
     int size;
     mResLoader.LoadMemResourceSync(tag, &buffer, &size);
-    return mFactoryMgr.MakeObjectFromMemory(tag, buffer, size,
-                                            mResLoader.GetResourceCompression(tag) !=
-                                                CResLoader::kCompressionType_Uncompressed,
-                                            params);
+    auto ret = mFactoryMgr.MakeObjectFromMemory(tag, buffer, size,
+                                                mResLoader.GetResourceCompression(tag) !=
+                                                    CResLoader::kCompressionType_Uncompressed,
+                                                params);
+    const auto name = metaforce::ResourceNameDatabase::GetNameForResource(tag.GetId());
+    ResFactoryLog.info("Sync built 0x{:08X} {} - {}", tag.GetId(),
+                       SObjectTag::Type2Text(tag.GetType()), name != nullptr ? name->data() : "<NONAME>");
+    return ret;
   }
   CInputStream* in = mResLoader.LoadNewResourceSync(tag, nullptr);
   rstl::auto_ptr< IObj > result = mFactoryMgr.MakeObject(tag, *in, params);

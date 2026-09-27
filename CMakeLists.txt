@@ -704,6 +704,7 @@ set(GAME_FILES
       src/Metaforce/Runtime.cpp
       src/Metaforce/Stubs.cpp
       src/Metaforce/CImGuiIOWin.cpp
+      src/Metaforce/ResourceNameDatabase.cpp
 )
 
 add_library(prime SHARED ${GAME_FILES})
