@@ -1,5 +1,6 @@
 #include "Metaforce/ResourceNameDatabase.hpp"
 
+#include "Kyoto/CMemoryCardSys.hpp"
 #include "Kyoto/Streams/CMemoryInStream.hpp"
 #include "borealis/io.hpp"
 #include "borealis/log.hpp"
@@ -12,6 +13,7 @@ namespace metaforce::ResourceNameDatabase {
 namespace {
 std::map< CAssetId, rstl::string > mResourceNames;
 borealis::Log Log{"ResourceNameDatabase"};
+bool mIsInitialized = false;
 } // namespace
 
 const rstl::string* GetNameForResource(const CAssetId uid) {
@@ -23,6 +25,11 @@ const rstl::string* GetNameForResource(const CAssetId uid) {
 
 bool HaveNameForResource(const CAssetId uid) { return mResourceNames.contains(uid); }
 bool Initialize(const std::string_view databasePath) {
+  if (mIsInitialized) {
+    return true;
+  }
+
+  mIsInitialized = true;
   auto file = borealis::io::open(databasePath, borealis::io::File::Mode::Read);
   if (file.status != borealis::io::Status::Ok) {
     Log.warn("{}", file.message);
